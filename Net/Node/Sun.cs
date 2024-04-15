@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DnsClient;
@@ -74,6 +78,7 @@ namespace Uccs.Net
 		public Vault					Vault;
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
+		HttpClient						Http = new HttpClient();
 		public Mcv						Mcv;
 		public ResourceHub				ResourceHub;
 		public PackageHub				PackageHub;
@@ -101,7 +106,8 @@ namespace Uccs.Net
 		internal List<Transaction>		OutgoingTransactions = new();
 		//public List<Analysis>			Analyses = new();
 		public List<OperationId>		ApprovedEmissions = new();
-		public List<OperationId>		ApprovedDomainBids = new();
+		//public List<OperationId>		ApprovedDomainBids = new();
+		public List<OperationId>		ApprovedMigrations = new();
 
 		public bool						MinimalPeersReached;
 		public List<Peer>				Peers = new();
@@ -296,7 +302,7 @@ namespace Uccs.Net
 																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
 																	{
 																		i.Vote = null;
-																		i.Placing = PlacingStage.Accepted;
+																		i.Status = TransactionStatus.Accepted;
 																	}
 																}
 															};
@@ -308,37 +314,97 @@ namespace Uccs.Net
 												
 											foreach(var o in ops)
 											{
-												if(o is AuthorBid ab && ab.Tld.Any())
+												///if(o is AuthorBid ab && ab.Tld.Any())
+												///{
+	 											///	if(!SunGlobals.SkipDomainVerification)
+	 											///	{
+												///		Task.Run(() =>	{
+	 											///							try
+	 											///							{
+	 											///								var result = Dns.QueryAsync(ab.Author + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 											///				
+	 											///								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Author + '.' + ab.Tld + '.');
+	 											///
+	 											///								if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
+	 											///								{
+												///									lock(Lock)
+												///									{	
+												///										ApprovedDomainBids.Add(ab.Id);
+												///									}
+	 											///								}
+	 											///							}
+	 											///							catch(AggregateException ex)
+	 											///							{
+	 											///								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 											///							}
+	 											///							catch(DnsResponseException ex)
+	 											///							{
+	 											///								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 											///							}
+												///						});
+	 											///	}
+												///	else
+												///		ApprovedDomainBids.Add(ab.Id);
+												///}
+	
+												if(o is AuthorMigration am)
 												{
-	 												if(!SunGlobals.SkipDomainVerification)
+	 												if(!SunGlobals.SkipMigrationVerification)
 	 												{
 														Task.Run(() =>	{
+
 	 																		try
 	 																		{
-	 																			var result = Dns.QueryAsync(ab.Author + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 																			var result = Dns.QueryAsync(am.Author + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 															
-	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Author + '.' + ab.Tld + '.');
+	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Author + '.' + am.Tld + '.');
 	 		
-	 																			if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
+	 																			if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == o.Transaction.Signer))
 	 																			{
-																					lock(Lock)
-																					{	
-																						ApprovedDomainBids.Add(ab.Id);
-																					}
+																					am.DnsApproved = true;
 	 																			}
-	 																		}
-	 																		catch(AggregateException ex)
+
+																				if(am.RankCheck)
+																				{
+																					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Author}&start=10"))
+																					{
+																						var cr = Http.Send(m, Workflow.Cancellation);
+		
+																						if(cr.StatusCode == HttpStatusCode.OK)
+																						{ 
+																							JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
+	
+																							var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
+	
+																							am.RankApproved = domains.FirstOrDefault(i => i.First() == am.Author)?.Last() == am.Tld;
+																						}
+																					}
+																				}
+																			}
+	 																		catch(AggregateException)
 	 																		{
-	 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
 	 																		}
-	 																		catch(DnsResponseException ex)
+	 																		catch(DnsResponseException)
 	 																		{
-	 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
 	 																		}
+																			catch(HttpRequestException)
+																			{
+																			}
+																			catch(OperationCanceledException)
+																			{
+																			}
+
+																			if(am.DnsApproved && (!am.RankCheck || am.RankApproved))
+																			{
+																				lock(Lock)
+																				{	
+																					ApprovedMigrations.Add(am.Id);
+																				}
+																			}
 																		});
 	 												}
 													else
-														ApprovedDomainBids.Add(ab.Id);
+														ApprovedMigrations.Add(am.Id);
 												}
 	
 												if(o is Emission e)
@@ -364,9 +430,8 @@ namespace Uccs.Net
 										}
 
 										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedDomainBids.RemoveAll(i => r.ConsensusDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedMigrations.RemoveAll(i => r.ConsensusMigrations.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-										//Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Release && j.Finished));
 									};
 		
 				if(Settings.Generators.Any())
@@ -571,17 +636,10 @@ namespace Uccs.Net
 
 		void ProcessConnectivity()
 		{
-// 			if(DateTime.Now - __X > TimeSpan.FromSeconds(1))
-// 			{
-// 				__X = DateTime.Now;
-// 				Workflow.Log?.Report(this, __X.ToString());
-// 			}
-
 			var needed = Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
 			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-									//.OrderByDescending(i => i.PeerRank)
 									.OrderBy(i => i.Retries)
 									.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
@@ -601,7 +659,6 @@ namespace Uccs.Net
 				foreach(var p in Peers	.Where(m =>	m.BaseRank > 0 &&
 													m.Status == ConnectionStatus.Disconnected &&
 													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-										//.OrderByDescending(i => i.PeerRank)
 										.OrderBy(i => i.Retries)
 										.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 										.Take(needed))
@@ -610,21 +667,17 @@ namespace Uccs.Net
 				}
 			}
 
-			//foreach(var i in Peers.Where(i => i.Status == ConnectionStatus.Failed))
-			//	i.Disconnect();
-
 			if(!MinimalPeersReached && 
 				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
 				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
 			{
+				MinimalPeersReached = true;
 				Workflow.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
 
 				if(Mcv != null)
 				{
 					Synchronize();
 				}
-
-				MinimalPeersReached = true;
 
 				foreach(var c in Connections)
 				{
@@ -1093,7 +1146,7 @@ namespace Uccs.Net
 		
 						to = from + Mcv.P;
 		
-						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
+						var rp = peer.Request(new DownloadRoundsRequest{From = from, To = to});
 
 						lock(Lock)
 						{
@@ -1111,7 +1164,7 @@ namespace Uccs.Net
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
 	
-								if(Enumerable.Range(rid, Mcv.P + 1).All(i => SyncTail.ContainsKey(i)) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
+								if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
 								{
 									var p =	SyncTail[rid];
 									var c =	SyncTail[rid + Mcv.P];
@@ -1323,7 +1376,7 @@ namespace Uccs.Net
 				
 				if(i.Successful)
 				{
-					i.Placing = PlacingStage.Accepted;
+					i.Status = TransactionStatus.Accepted;
 					IncomingTransactions.Add(i);
 
 					Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
@@ -1353,7 +1406,7 @@ namespace Uccs.Net
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
 					if(m == null && a != null && a.Bail + a.Balance > Settings.Bail &&	//a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && 
-																						(!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Placing > PlacingStage.Placed))
+																						(!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
 															BaseRdcIPs		= [Settings.IP],
@@ -1362,7 +1415,7 @@ namespace Uccs.Net
 						var t = new Transaction();
 						t.Zone = Zone;
 						t.Signer = g;
- 						t.__ExpectedPlacing = PlacingStage.Confirmed;
+ 						t.__ExpectedStatus = TransactionStatus.Confirmed;
 			
 						t.AddOperation(o);
 
@@ -1401,10 +1454,10 @@ namespace Uccs.Net
 												FundJoiners		= Settings.ProposedFundJoiners.Where(i => !Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
 												FundLeavers		= Settings.ProposedFundLeavers.Where(i => Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
-												DomainBids		= ApprovedDomainBids.ToArray() };
+												Migrations		= ApprovedMigrations.ToArray() };
 					}
 
-					var txs = IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray();
+					var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
@@ -1421,7 +1474,7 @@ namespace Uccs.Net
 	
 							if(r.Id > t.Expiration)
 							{
-								t.Placing = PlacingStage.FailedOrNotFound;
+								t.Status = TransactionStatus.FailedOrNotFound;
 								IncomingTransactions.Remove(t);
 								return true;
 							}
@@ -1433,14 +1486,14 @@ namespace Uccs.Net
 	
 							if(!Settings.Generators.Contains(nearest))
 							{
-								t.Placing = PlacingStage.FailedOrNotFound;
+								t.Status = TransactionStatus.FailedOrNotFound;
 								IncomingTransactions.Remove(t);
 								return true;
 							}
 	
 							if(!isdeferred)
 							{
-								if(txs.Any(i => i.Signer == t.Signer && i.Placing == PlacingStage.Accepted && i.Nid < t.Nid)) /// any older tx left?
+								if(txs.Any(i => i.Signer == t.Signer && i.Status == TransactionStatus.Accepted && i.Nid < t.Nid)) /// any older tx left?
 								{
 									deferred.Add(t);
 									return true;
@@ -1449,7 +1502,7 @@ namespace Uccs.Net
 							else
 								deferred.Remove(t);
 
-							t.Placing = PlacingStage.Placed;
+							t.Status = TransactionStatus.Placed;
 							v.AddTransaction(t);
 	
 							var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
@@ -1488,7 +1541,7 @@ namespace Uccs.Net
  						votes.Add(b);
  					}
 
-					if(IncomingTransactions.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+					if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						MainWakeup.Set();
 				}
 			}
@@ -1589,7 +1642,7 @@ namespace Uccs.Net
 				{
 					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer).ToArray())
 					{
-						if(!g.Any(i => i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.None))
+						if(!g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None))
 						{
 							var m = members.NearestBy(i => i.Account, g.Key);
 
@@ -1615,7 +1668,7 @@ namespace Uccs.Net
 							int nid = -1;
 							var txs = new List<Transaction>();
 
-							foreach(var t in g.Where(i => i.Placing == PlacingStage.None))
+							foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
 							{
 								try
 								{
@@ -1649,9 +1702,9 @@ namespace Uccs.Net
 								}
 								catch(EntityException)
 								{
-									if(t.__ExpectedPlacing == PlacingStage.FailedOrNotFound)
+									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 									{
-										t.Placing = PlacingStage.FailedOrNotFound;
+										t.Status = TransactionStatus.FailedOrNotFound;
 										OutgoingTransactions.Remove(t);
 									} 
 									else
@@ -1686,27 +1739,27 @@ namespace Uccs.Net
 							{ 
 								if(atxs.Any(s => s.SequenceEqual(t.Signature)))
 								{
-									t.Placing = PlacingStage.Accepted;
+									t.Status = TransactionStatus.Accepted;
 
 									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
 								}
 								else
 								{
-									if(t.__ExpectedPlacing == PlacingStage.FailedOrNotFound)
+									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 									{
-										t.Placing = PlacingStage.FailedOrNotFound;
+										t.Status = TransactionStatus.FailedOrNotFound;
 										OutgoingTransactions.Remove(t);
 									} 
 									else
 									{
-										t.Placing = PlacingStage.None;
+										t.Status = TransactionStatus.None;
 									}
 								}
 							}
 						}
 					}
 
-					var accepted = OutgoingTransactions.Where(i => i.Placing == PlacingStage.Accepted || i.Placing == PlacingStage.Placed).ToArray();
+					var accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
 
 					if(accepted.Any())
 					{
@@ -1733,20 +1786,20 @@ namespace Uccs.Net
 							{
 								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
 																		
-								if(t.Placing != i.Placing)
+								if(t.Status != i.Status)
 								{
-									t.Placing = i.Placing;
+									t.Status = i.Status;
 
-									if(t.Placing == PlacingStage.FailedOrNotFound)
+									if(t.Status == TransactionStatus.FailedOrNotFound)
 									{
-										if(t.__ExpectedPlacing == PlacingStage.Confirmed)
-											t.Placing = PlacingStage.None;
+										if(t.__ExpectedStatus == TransactionStatus.Confirmed)
+											t.Status = TransactionStatus.None;
 										else
 											OutgoingTransactions.Remove(t);
 									}
-									else if(t.Placing == PlacingStage.Confirmed)
+									else if(t.Status == TransactionStatus.Confirmed)
 									{
-										if(t.__ExpectedPlacing == PlacingStage.FailedOrNotFound)
+										if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 											Debugger.Break();
 										else
 											OutgoingTransactions.Remove(t);
@@ -1783,12 +1836,12 @@ namespace Uccs.Net
 			}
 		}
 		
-		public Transaction Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
+		public Transaction Enqueue(Operation operation, AccountAddress signer, TransactionStatus await, Workflow workflow)
 		{
 			return Transact([operation], signer, await, workflow)[0];
 		}
 
- 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
+ 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Workflow workflow)
  		{
 			var p = new List<Transaction>();
 
@@ -1797,7 +1850,7 @@ namespace Uccs.Net
 				var t = new Transaction();
 				t.Zone = Zone;
 				t.Signer = signer;
- 				t.__ExpectedPlacing = await;
+ 				t.__ExpectedStatus = await;
 			
 				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))
 				{
@@ -1822,24 +1875,24 @@ namespace Uccs.Net
 			return p.ToArray();
  		}
 
-		void Await(Transaction t, PlacingStage s, Workflow workflow)
+		void Await(Transaction t, TransactionStatus s, Workflow workflow)
 		{
 			while(workflow.Active)
 			{ 
 				switch(s)
 				{
-					case PlacingStage.None :				return;
-					case PlacingStage.Accepted :			if(t.Placing >= PlacingStage.Accepted) goto end; else break;
-					case PlacingStage.Placed :				if(t.Placing >= PlacingStage.Placed) goto end; else break;
-					case PlacingStage.Confirmed :			if(t.Placing == PlacingStage.Confirmed) goto end; else break;
-					case PlacingStage.FailedOrNotFound :	if(t.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
+					case TransactionStatus.None :				return;
+					case TransactionStatus.Accepted :			if(t.Status >= TransactionStatus.Accepted) goto end; else break;
+					case TransactionStatus.Placed :				if(t.Status >= TransactionStatus.Placed) goto end; else break;
+					case TransactionStatus.Confirmed :			if(t.Status == TransactionStatus.Confirmed) goto end; else break;
+					case TransactionStatus.FailedOrNotFound :	if(t.Status == TransactionStatus.FailedOrNotFound) goto end; else break;
 				}
 
 			}
 				Thread.Sleep(100);
 
 			end:
-				workflow.Log?.Report(this, $"Transaction is {t.Placing}", t.ToString());
+				workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
 		}
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
@@ -2075,7 +2128,7 @@ namespace Uccs.Net
 		//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
 		//}
 
-		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
+		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, TransactionStatus awaitstage, Workflow workflow)
 		{
 			var	l = Call(p =>{
 								try
@@ -2133,7 +2186,7 @@ namespace Uccs.Net
 
 				if(FeeAsker.Ask(this, signer, o))
 				{
-					Enqueue(o, signer, PlacingStage.Confirmed, workflow);
+					Enqueue(o, signer, TransactionStatus.Confirmed, workflow);
 					return o;
 				}
 			}

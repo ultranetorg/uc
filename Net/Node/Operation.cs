@@ -18,7 +18,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		AuthorBid, AuthorRegistration, AuthorTransfer,
+		AuthorMigration, AuthorBid, AuthorRegistration, AuthorTransfer,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
 	}

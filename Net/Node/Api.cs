@@ -245,11 +245,11 @@ namespace Uccs.Net
 					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"),
 					new ("Incoming Transactions",		$"{sun.IncomingTransactions.Count}"),
 					new ("Outgoing Transactions",		$"{sun.OutgoingTransactions.Count}"),
-					new ("    Pending Delegation",		$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"),
-					new ("    Accepted",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"),
+					new ("    Pending Delegation",		$"{sun.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
+					new ("    Accepted",				$"{sun.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
 				//	new ("    Pending Placement",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
-					new ("    Placed",					$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"),
-					new ("    Confirmed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"),
+					new ("    Placed",					$"{sun.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+					new ("    Confirmed",				$"{sun.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}"),
 					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
 				];
 				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
@@ -479,7 +479,7 @@ namespace Uccs.Net
 		public byte[]			FromPrivateKey { get; set; } 
 		public BigInteger		Wei { get; set; } 
 		public AccountAddress	To { get; set; } 
-		public PlacingStage		Await { get; set; }
+		public TransactionStatus		Await { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -540,7 +540,7 @@ namespace Uccs.Net
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
-		public PlacingStage				Await  { get; set; } = PlacingStage.Confirmed;
+		public TransactionStatus				Await  { get; set; } = TransactionStatus.Confirmed;
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{

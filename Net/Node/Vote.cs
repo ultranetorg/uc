@@ -37,7 +37,7 @@ namespace Uccs.Net
 		public ResourceAddress[]	CleanReleases = {};
 		public ResourceAddress[]	InfectedReleases = {};
 		public OperationId[]		Emissions = {};
-		public OperationId[]		DomainBids = {};
+		public OperationId[]		Migrations = {};
 		public Transaction[]		Transactions = {};
 		public byte[]				Signature { get; set; }
 
@@ -143,7 +143,7 @@ namespace Uccs.Net
 			writer.Write(FundLeavers);
 			writer.Write(Violators);
 			writer.Write(Emissions);
-			writer.Write(DomainBids);
+			writer.Write(Migrations);
 			writer.Write(CleanReleases);
 			writer.Write(InfectedReleases);
 
@@ -163,7 +163,7 @@ namespace Uccs.Net
 			FundLeavers			= reader.ReadArray<AccountAddress>();
 			Violators			= reader.ReadArray<AccountAddress>();
 			Emissions			= reader.ReadArray<OperationId>();
-			DomainBids			= reader.ReadArray<OperationId>();
+			Migrations			= reader.ReadArray<OperationId>();
 			CleanReleases		= reader.ReadArray<ResourceAddress>();
 			InfectedReleases	= reader.ReadArray<ResourceAddress>();
 

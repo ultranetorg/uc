@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
@@ -9,20 +6,19 @@ namespace Uccs.Net
 	{
 		public string			Author;
 		public Money			Bid;
-		public string			Tld;
-		public override string	Description => $"{Bid} UNT for {Author}{(Tld != null ? $", {Tld}" : null)}";
+		public override string	Description => $"{Bid} UNT for {Author}";
 		
 		public override bool Valid
 		{
 			get
 			{
-				if(!Uccs.Net.Author.IsExclusive(Author))
+				if(!Transaction.Zone.Auctions)
+					return false;
+
+				if(!Net.Author.IsExclusive(Author))
 					return false;
 
 				if(Bid <= Money.Zero)
-					return false;
-
-				if(Tld.Any() && !(Tld == "com" || Tld == "org" || Tld == "net"))
 					return false;
 
 				return true;
@@ -33,24 +29,21 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorBid(string name, string tld, Money bid)
+		public AuthorBid(string name,  Money bid)
 		{
 			Author = name;
-			Tld = tld ?? "";
 			Bid = bid;
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Author	= reader.ReadUtf8();
-			Tld		= reader.ReadUtf8();
 			Bid		= reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.WriteUtf8(Author);
-			writer.WriteUtf8(Tld);
 			writer.Write(Bid);
 		}
 
@@ -59,7 +52,6 @@ namespace Uccs.Net
 			writer.Write(Id);
 			writer.Write(Signer);
 			writer.WriteUtf8(Author);
-			writer.WriteUtf8(Tld);
 			writer.Write(Bid);
 		}
 
@@ -71,75 +63,33 @@ namespace Uccs.Net
 			
 			Transaction.Signer	= reader.ReadAccount();
 			Author				= reader.ReadUtf8();
-			Tld					= reader.ReadUtf8();
 			Bid					= reader.Read<Money>();
 		}
+
 		public override void Execute(Mcv mcv, Round round)
-		{
-			if(Tld.Any())
-			{
-				Check(mcv, round);
-			} 
-			else
-			{
-				ConsensusExecute(round);
-			}
-		}
-
-		public void Check(Mcv mcv, Round round)
-		{
-			var a =  mcv.Authors.Find(Author, round.Id);
-
- 			if(a != null && !Uccs.Net.Author.IsExpired(a, round.ConsensusTime))
- 			{
-				if(a.LastWinner == null) /// first bid
-				{
-					return;
-				}
-				else if(round.ConsensusTime < a.AuctionEnd)
-				{
-					if((!a.DomainOwnersOnly && Tld.Any()) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
-					{
-						return;
-					}
-				}
- 			}
- 			else
- 			{
-				return;
-			}
-
-			Error = "Bid too low or auction is over";
-		}
-
-		public void ConsensusExecute(Round round)
 		{
 			var a = Affect(round, Author);
 
- 			if(!Uccs.Net.Author.IsExpired(a, round.ConsensusTime))
+ 			if(!Net.Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
 					Affect(round, Signer).Balance -= Bid;
-						
+					
 					a.Owner				= null;
 					a.FirstBidTime		= round.ConsensusTime;
 					a.LastBid			= Bid;
 					a.LastBidTime		= round.ConsensusTime;
 					a.LastWinner		= Signer;
-					a.DomainOwnersOnly	= Tld.Any();
 						
 					return;
 				}
 				else if(round.ConsensusTime < a.AuctionEnd)
 				{
-					if((!a.DomainOwnersOnly && (a.LastBid < Bid || Tld.Any())) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
+					if(a.LastBid < Bid) /// outbid
 					{
 						Affect(round, a.LastWinner).Balance += a.LastBid;
 						Affect(round, Signer).Balance -= Bid;
-						
-						if(!a.DomainOwnersOnly && Tld.Any())
-							a.DomainOwnersOnly = true;
 						
 						a.LastBid		= Bid;
 						a.LastBidTime	= round.ConsensusTime;
@@ -161,22 +111,11 @@ namespace Uccs.Net
 				a.LastBid			= Bid;
 				a.LastBidTime		= round.ConsensusTime;
 				a.LastWinner		= Signer;
-				a.DomainOwnersOnly	= Tld.Any();
 			
 				return;
 			}
 
 			Error = "Bid too low or auction is over";
 		}
-
-// 		public override bool Equals(object obj)
-// 		{
-// 			return Equals(obj as AuthorBid);
-// 		}
-// 
-// 		public bool Equals(AuthorBid a)
-// 		{
-// 			return a is not null && Id.Equals(a.Id) && Signer == a.Signer && Name == a.Name && Bid.Equals(a.Bid) && Tld == a.Tld;
-// 		}
 	}
 }

@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public void Transact(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
+		public void Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
 		{
 			if(Program.ApiClient == null)
 				Program.Sun.Transact(operations, by, await, Workflow);
@@ -385,16 +385,16 @@ namespace Uccs.Sun.CLI
 			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
 		}
 
-		public static PlacingStage GetAwaitStage(IEnumerable<Xon> args)
+		public static TransactionStatus GetAwaitStage(IEnumerable<Xon> args)
 		{
 			var a = args.FirstOrDefault(i => i.Name == AwaitArg);
 
 			if(a != null)
 			{
-				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == a.Get<string>());
+				return Enum.GetValues<TransactionStatus>().First(i => i.ToString().ToLower() == a.Get<string>());
 			}
 			else
-				return PlacingStage.Placed;
+				return TransactionStatus.Placed;
 		}
 	}
 }

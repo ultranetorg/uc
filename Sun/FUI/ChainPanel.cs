@@ -88,7 +88,7 @@ namespace Uccs.Sun.FUI
 			FundJoiners.Items.Clear();
 			FundLeavers.Items.Clear();
 			Emissions.Items.Clear();
-			DomainBids.Items.Clear();
+			Migrations.Items.Clear();
 
 			lock(Sun.Lock)
 			{
@@ -123,7 +123,7 @@ namespace Uccs.Sun.FUI
 				FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
 				Emissions.Items.AddRange(r.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
-				DomainBids.Items.AddRange(r.ConsensusDomainBids.Select(i => new ListViewItem(i.ToString())).ToArray());
+				Migrations.Items.AddRange(r.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
 			}
 		}
 

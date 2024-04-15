@@ -5,11 +5,9 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public enum PlacingStage
+	public enum TransactionStatus
 	{
-		None, 
-		Pending,
-		Accepted, Placed, FailedOrNotFound, Confirmed
+		None, Pending, Accepted, Placed, FailedOrNotFound, Confirmed
 	}
 
 	public class Transaction : IBinarySerializable
@@ -47,10 +45,10 @@ namespace Uccs.Net
 										}
 		
 		public Zone						Zone;
-		public PlacingStage				Placing;
+		public TransactionStatus		Status;
 		public RdcInterface				Rdi;
 
-		public PlacingStage				__ExpectedPlacing = PlacingStage.None;
+		public TransactionStatus		__ExpectedStatus = TransactionStatus.None;
 
 		public bool Valid(Mcv mcv)
 		{
@@ -65,7 +63,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+			return $"Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)
@@ -141,7 +139,7 @@ namespace Uccs.Net
  		
  		public void	ReadConfirmed(BinaryReader reader)
  		{
-			Placing		= PlacingStage.Confirmed;
+			Status		= TransactionStatus.Confirmed;
 
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
@@ -157,7 +155,7 @@ namespace Uccs.Net
 
  		public void	WriteForVote(BinaryWriter writer)
  		{
-			writer.Write((byte)__ExpectedPlacing);
+			writer.Write((byte)__ExpectedStatus);
 
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
@@ -173,7 +171,7 @@ namespace Uccs.Net
  		
  		public void	ReadForVote(BinaryReader reader)
  		{
-			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
+			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
@@ -192,7 +190,7 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write((byte)__ExpectedPlacing);
+			writer.Write((byte)__ExpectedStatus);
 		
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
@@ -208,7 +206,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
+			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 		
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();

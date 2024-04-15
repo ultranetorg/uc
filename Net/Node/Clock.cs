@@ -37,9 +37,15 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Add(TimeSpan s)
+		public void Add(TimeSpan interval)
 		{
-			Time += s;
+			Time += interval;
+			Last = DateTime.UtcNow;
+		}
+
+		public void Add(Time interval)
+		{
+			Time += TimeSpan.FromDays(interval.Days);
 			Last = DateTime.UtcNow;
 		}
 	}

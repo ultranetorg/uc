@@ -44,7 +44,7 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
 		public OperationId[]								ConsensusEmissions = {};
-		public OperationId[]								ConsensusDomainBids = {};
+		public OperationId[]								ConsensusMigrations = {};
 		public Money										ConsensusExeunitFee;
 		public int											ConsensusTransactionsOverflowRound;
 
@@ -58,7 +58,7 @@ namespace Uccs.Net
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;
-		public List<AuthorBid>								DomainBids;
+		public List<AuthorMigration>						Migrations;
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextAuthorIds;
 		public List<long>									Last365BaseDeltas;
@@ -303,8 +303,8 @@ namespace Uccs.Net
 											.Where(x => Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
 											.Order().ToArray();
 
-				ConsensusDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
-											.Where(x => DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
+				ConsensusMigrations		= gu.SelectMany(i => i.Migrations).Distinct()
+											.Where(x => Migrations.Any(b => b.Id == x) && gu.Count(b => b.Migrations.Contains(x)) >= gq)
 											.Order().ToArray();
 
 				ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
@@ -336,7 +336,7 @@ namespace Uccs.Net
 			Members				= Id == 0 ? new()								: Previous.Members;
 			Funds				= Id == 0 ? new()								: Previous.Funds;
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
-			DomainBids			= Id == 0 ? new()								: Previous.DomainBids;
+			Migrations			= Id == 0 ? new()								: Previous.Migrations;
 			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
 
 		start: 
@@ -421,9 +421,6 @@ namespace Uccs.Net
 			if(Id > 0 && Mcv.LastConfirmedRound != null && Mcv.LastConfirmedRound.Id + 1 != Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == Id");
 
-			if(Id % Mcv.Zone.CommitLength == 0 && Mcv.LastCommittedRound != null && Mcv.LastCommittedRound != Previous)
-				throw new IntegrityException("Id % 100 == 0 && LastCommittedRound != Previous");
-
 			Execute(ConsensusTransactions);
 
 			Last365BaseDeltas	= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => (long)0).ToList() : Previous.Last365BaseDeltas.ToList();
@@ -431,7 +428,7 @@ namespace Uccs.Net
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
 			Emissions			= Emissions.ToList();
-			DomainBids			= DomainBids.ToList();
+			Migrations			= Migrations.ToList();
 
 			foreach(var f in ConsensusViolators)
 			{
@@ -449,33 +446,31 @@ namespace Uccs.Net
 					if(o is Emission e)
 						Emissions.Add(e);
 
-					if(o is AuthorBid b && b.Tld.Any())
-						DomainBids.Add(b);
+					if(o is AuthorMigration b)
+						Migrations.Add(b);
 				}
 			}
 
-			foreach(var i in ConsensusEmissions)
+			foreach(var i in ConsensusEmissions.Select(c => Emissions.Find(j => j.Id == c)))
 			{
-				var e = Emissions.Find(j => j.Id == i);
-				e.ConsensusExecute(this);
-				Emissions.Remove(e);
+				i.ConfirmExecute(this);
+				Emissions.Remove(i);
 			}
 
 			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
 
-			foreach(var i in ConsensusDomainBids)
+			foreach(var i in ConsensusMigrations.Select(c => Migrations.Find(j => j.Id == c)))
 			{
-				var b = DomainBids.Find(j => j.Id == i);
-				b.ConsensusExecute(this);
-				DomainBids.Remove(b);
+				i.ConsensusExecute(this);
+				Migrations.Remove(i);
 			}
 
-			DomainBids.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
 
 	
 			foreach(var t in OrderedTransactions)
 			{
-				t.Placing = ConsensusTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+				t.Status = ConsensusTransactions.Contains(t) ? TransactionStatus.Confirmed : TransactionStatus.FailedOrNotFound;
 
 				#if DEBUG
 				//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
@@ -512,7 +507,7 @@ namespace Uccs.Net
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 			Funds.AddRange(ConsensusFundJoiners);
 			
-			if(Mcv.ReadyToCommit(this))
+			if(Mcv.IsCommitReady(this))
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
 				Distribute(tail.SumMoney(i => i.Rewards), Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, Funds, 1);
@@ -579,7 +574,7 @@ namespace Uccs.Net
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Funds);
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
-			writer.Write(DomainBids, i => i.WriteBaseState(writer));
+			writer.Write(Migrations, i => i.WriteBaseState(writer));
 		}
 
 		public void ReadBaseState(BinaryReader reader)
@@ -598,7 +593,7 @@ namespace Uccs.Net
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Funds					= reader.ReadList<AccountAddress>();
 			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
-			DomainBids				= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
+			Migrations				= reader.Read<AuthorMigration>(m => m.ReadBaseState(reader)).ToList();
 		}
 
 		public void WriteConfirmed(BinaryWriter writer)
@@ -611,22 +606,22 @@ namespace Uccs.Net
 			writer.Write(ConsensusFundLeavers);
 			writer.Write(ConsensusViolators);
 			writer.Write(ConsensusEmissions);
-			writer.Write(ConsensusDomainBids);
+			writer.Write(ConsensusMigrations);
 			writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		}
 
 		public void ReadConfirmed(BinaryReader reader)
 		{
-			ConsensusTime				= reader.Read<Time>();
-			ConsensusExeunitFee		= reader.Read<Money>();
-			ConsensusTransactionsOverflowRound		= reader.Read7BitEncodedInt();
-			ConsensusMemberLeavers		= reader.ReadArray<AccountAddress>();
-			ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
-			ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
-			ConsensusViolators			= reader.ReadArray<AccountAddress>();
-			ConsensusEmissions			= reader.ReadArray<OperationId>();
-			ConsensusDomainBids			= reader.ReadArray<OperationId>();
-			ConsensusTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConsensusTime						= reader.Read<Time>();
+			ConsensusExeunitFee					= reader.Read<Money>();
+			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
+			ConsensusMemberLeavers				= reader.ReadArray<AccountAddress>();
+			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();
+			ConsensusFundLeavers				= reader.ReadArray<AccountAddress>();
+			ConsensusViolators					= reader.ReadArray<AccountAddress>();
+			ConsensusEmissions					= reader.ReadArray<OperationId>();
+			ConsensusMigrations					= reader.ReadArray<OperationId>();
+			ConsensusTransactions				= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)

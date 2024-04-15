@@ -49,8 +49,14 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new AuthorBid(	Args[1].Name,
-											GetString("tld", ""),
 											Money.ParseDecimal(GetString("amount")));
+				}
+		   		case "m" : 
+		   		case "migrate" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new AuthorMigration(Args[1].Name, GetString("tld"), Has("checkrank"));
 				}
 
 		   		case "r" : 

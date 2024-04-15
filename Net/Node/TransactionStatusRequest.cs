@@ -22,7 +22,7 @@ namespace Uccs.Net
 																			sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
 																										Nid			= i.Q.Nid,
-																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing})
+																										Status		= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})
 														.ToArray()
 						};
 			}
@@ -33,9 +33,9 @@ namespace Uccs.Net
 	{
 		public class Item
 		{
-			public AccountAddress	Account { get; set; }
-			public int				Nid { get; set; }
-			public PlacingStage		Placing { get; set; }
+			public AccountAddress		Account { get; set; }
+			public int					Nid { get; set; }
+			public TransactionStatus	Status { get; set; }
 		}
 
 		public int		LastConfirmedRoundId { get; set; }

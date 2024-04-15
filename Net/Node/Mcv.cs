@@ -59,7 +59,7 @@ namespace Uccs.Net
 		public const string					ChainFamilyName = "Chain";
 		public ColumnFamilyHandle			ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
-		public bool							ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
+		public bool							IsCommitReady(Round round) => (round.Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
 		public Mcv(Zone zone, Role roles, McvSettings settings, string databasepath)
@@ -333,7 +333,7 @@ namespace Uccs.Net
 				foreach(var t in vote.Transactions)
 				{
 					t.Round = r;
-					t.Placing = PlacingStage.Placed;
+					t.Status = TransactionStatus.Placed;
 				}
 			}
 	
@@ -519,8 +519,11 @@ namespace Uccs.Net
 		{
 			using(var b = new WriteBatch())
 			{
-				if(ReadyToCommit(round))
+				if(IsCommitReady(round))
 				{
+					//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
+					//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");
+
 					var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
 
 					foreach(var i in tail)

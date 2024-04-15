@@ -114,7 +114,7 @@ namespace Uccs.Net
 		public static bool				DisableTimeouts;
 		public static bool				ThrowOnCorrupted;
 		public static bool				SkipSynchronization;
-		public static bool				SkipDomainVerification;
+		public static bool				SkipMigrationVerification;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 		static IEnumerable<FieldInfo>	Fields => typeof(SunGlobals).GetFields().Where(i => i.FieldType == typeof(bool));
@@ -207,9 +207,7 @@ namespace Uccs.Net
 		public bool						PeersInitialRandomization = true;
 		public IPAddress				IP;
 		public Money					Bail;
-		//public IPAddress				ExternalIP;
 		public string					JsonServerListenAddress;
-		//public bool					Anonymous = false;
 		public List<AccountAddress>		Generators = new();
 		public AccountKey				Analyzer;
 		public string					Packages;
@@ -220,14 +218,13 @@ namespace Uccs.Net
 		public SeedHubSettings			SeedHub;
 		public ResourceHubSettings		ResourceHub;
 		public SecretSettings			Secrets;
+		public string					GoogleSearchEngineID;
+		public string					GoogleApiKey;
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
 		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
 		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
-
-		//public Money					TransactionPerByteMinFee = new Money(0.000_001);
-		//public int						TransactionCountPerRoundThreshold = int.MaxValue;
 
 		public Settings()
 		{
@@ -250,17 +247,18 @@ namespace Uccs.Net
 			var doc = new XonDocument(File.ReadAllText(Path), SunXonTextValueSerializator.Default);
 
 			FuiRoles					= doc.Get<string>("FuiRoles");
-			//Anonymous					= doc.Has("Anonymous");
 			PeersPermanentMin			= doc.Get<int>("PeersPermanentMin");
 			PeersPermanentInboundMax	= doc.Get<int>("PeersPermanentInboundMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
-			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
 			JsonServerListenAddress		= doc.Get<string>("JsonServerListenAddress");
-			Bail						= doc.Get<Money>("Bail", Money.Zero);
+			Bail						= doc.Get("Bail", Money.Zero);
 			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
-			Packages					= doc.Get<string>("Packages", System.IO.Path.Join(Profile, "Packages"));
+			Packages					= doc.Get("Packages", System.IO.Path.Join(Profile, "Packages"));
+
+			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID");
+			GoogleApiKey				= doc.Get<string>("GoogleApiKey");
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));

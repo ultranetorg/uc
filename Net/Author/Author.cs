@@ -3,6 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Net
 {
+	public enum AuthorFlag : byte
+	{
+		None, 
+		Owned		= 0b____1, 
+		Auction		= 0b___10, 
+		ComOwned	= 0b__100, 
+		OrgOwned	= 0b_1000, 
+		NetOwned	= 0b10000, 
+	}
+
 	public class Author : IBinarySerializable
 	{
 		//public const int			ExclusiveLengthMax = 12;
@@ -21,11 +31,13 @@ namespace Uccs.Net
 		public string				Name { get; set; }
 		public AccountAddress		Owner { get; set; }
 		public Time					Expiration { get; set; }
+		public AccountAddress		ComOwner  { get; set; }
+		public AccountAddress		OrgOwner  { get; set; }
+		public AccountAddress		NetOwner  { get; set; }
 		public Time					FirstBidTime { get; set; } = Time.Empty;
 		public AccountAddress		LastWinner { get; set; }
 		public Money				LastBid { get; set; }
 		public Time					LastBidTime { get; set; }
-		public bool					DomainOwnersOnly  { get; set; }
 		public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
@@ -38,9 +50,7 @@ namespace Uccs.Net
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 
-			var r = new Regex($@"^[a-z0-9{NormalPrefix}]+$");
-			
-			if(r.Match(name).Success == false)
+			if(Regex.Match(name, $@"^[a-z0-9{NormalPrefix}]+$").Success == false)
 				return false;
 
 			return true;
@@ -91,6 +101,15 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter w)
 		{
+			var f = AuthorFlag.None;
+			
+			if(LastWinner != null)	f |= AuthorFlag.Auction;
+			if(Owner != null)		f |= AuthorFlag.Owned;
+			if(ComOwner != null)	f |= AuthorFlag.ComOwned;
+			if(OrgOwner != null)	f |= AuthorFlag.OrgOwned;
+			if(NetOwner != null)	f |= AuthorFlag.NetOwned;
+
+			w.Write((byte)f);
 			w.WriteUtf8(Name);
 			w.Write7BitEncodedInt(NextResourceId);
 			w.Write7BitEncodedInt(SpaceReserved);
@@ -98,21 +117,20 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				w.Write(LastWinner != null);
-
-				if(LastWinner != null)
+				if(f.HasFlag(AuthorFlag.Auction))
 				{
 					w.Write(FirstBidTime);
 					w.Write(LastWinner);
 					w.Write(LastBidTime);
 					w.Write(LastBid);
-					w.Write(DomainOwnersOnly);
 				}
+
+				if(f.HasFlag(AuthorFlag.ComOwned))	w.Write(ComOwner);
+				if(f.HasFlag(AuthorFlag.OrgOwned))	w.Write(OrgOwner);
+				if(f.HasFlag(AuthorFlag.NetOwned))	w.Write(NetOwner);
 			}
 
-			w.Write(Owner != null);
-
-			if(Owner != null)
+			if(f.HasFlag(AuthorFlag.Owned))
 			{
 				w.Write(Owner);
 				w.Write(Expiration);
@@ -121,6 +139,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
+			var f			= (AuthorFlag)reader.ReadByte();
 			Name			= reader.ReadUtf8();
 			NextResourceId	= reader.Read7BitEncodedInt();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
@@ -128,20 +147,23 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				if(reader.ReadBoolean())
+				if(f.HasFlag(AuthorFlag.Auction))
 				{
-					FirstBidTime		= reader.Read<Time>();
-					LastWinner			= reader.ReadAccount();
-					LastBidTime			= reader.Read<Time>();
-					LastBid				= reader.Read<Money>();
-					DomainOwnersOnly	= reader.ReadBoolean();
+					FirstBidTime	= reader.Read<Time>();
+					LastWinner		= reader.ReadAccount();
+					LastBidTime		= reader.Read<Time>();
+					LastBid			= reader.Read<Money>();
 				}
+
+				if(f.HasFlag(AuthorFlag.ComOwned))	ComOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(AuthorFlag.OrgOwned))	OrgOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(AuthorFlag.NetOwned))	NetOwner = reader.Read<AccountAddress>();
 			}
 
-			if(reader.ReadBoolean())
+			if(f.HasFlag(AuthorFlag.Owned))
 			{
-				Owner				= reader.ReadAccount();
-				Expiration			= reader.Read<Time>();
+				Owner		= reader.ReadAccount();
+				Expiration	= reader.Read<Time>();
 			}
 		}
 	}

@@ -156,7 +156,7 @@ namespace Uccs.Sun.FUI
 
 				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
 
-				Sun.Enqueue(new AuthorRegistration(AuthorSearch.Text, (byte)Years.Value), a, PlacingStage.None, new Workflow("AuthorRegistration"));
+				Sun.Enqueue(new AuthorRegistration(AuthorSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("AuthorRegistration"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -196,7 +196,7 @@ namespace Uccs.Sun.FUI
 
 				var a = Database.Authors.Find(AuthorSearch.Text, int.MaxValue);
 
-				Sun.Enqueue(new AuthorTransfer(AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), PlacingStage.None, new Workflow("Transfer_Click"));
+				Sun.Enqueue(new AuthorTransfer(AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -213,7 +213,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Sun.Enqueue(new AuthorBid(AuthorSearch.Text, null, Bid.Coins), s, PlacingStage.None, new Workflow("MakeBid_Click"));
+				Sun.Enqueue(new AuthorBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

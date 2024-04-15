@@ -105,7 +105,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public void ConsensusExecute(Round round)
+		public void ConfirmExecute(Round round)
 		{
 			if(round.Emission > End)
 			{

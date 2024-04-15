@@ -39,7 +39,7 @@ namespace Uccs.Net
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAuthors.TryGetValue(resource.Author, out AuthorEntry a))
 				{	
-					var x = a.Resources.FirstOrDefault(i => i.Address.Resource == resource.Resource);
+					var x = a.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
 					
 					if(x != null)
  						return x;

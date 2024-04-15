@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 			InfoFields = new System.Windows.Forms.Label();
 			InfoValues = new System.Windows.Forms.Label();
 			tabPage8 = new System.Windows.Forms.TabPage();
-			DomainBids = new System.Windows.Forms.ListView();
+			Migrations = new System.Windows.Forms.ListView();
 			columnHeader19 = new System.Windows.Forms.ColumnHeader();
 			tabPage7 = new System.Windows.Forms.TabPage();
 			Emissions = new System.Windows.Forms.ListView();
@@ -237,7 +237,7 @@ namespace Uccs.Sun.FUI
 			// 
 			// tabPage8
 			// 
-			tabPage8.Controls.Add(DomainBids);
+			tabPage8.Controls.Add(Migrations);
 			tabPage8.Location = new System.Drawing.Point(8, 46);
 			tabPage8.Name = "tabPage8";
 			tabPage8.Padding = new System.Windows.Forms.Padding(3);
@@ -248,17 +248,17 @@ namespace Uccs.Sun.FUI
 			// 
 			// DomainBids
 			// 
-			DomainBids.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			DomainBids.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader19 });
-			DomainBids.FullRowSelect = true;
-			DomainBids.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-			DomainBids.Location = new System.Drawing.Point(10, 9);
-			DomainBids.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			DomainBids.Name = "DomainBids";
-			DomainBids.Size = new System.Drawing.Size(1846, 1357);
-			DomainBids.TabIndex = 23;
-			DomainBids.UseCompatibleStateImageBehavior = false;
-			DomainBids.View = System.Windows.Forms.View.Details;
+			Migrations.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			Migrations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader19 });
+			Migrations.FullRowSelect = true;
+			Migrations.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			Migrations.Location = new System.Drawing.Point(10, 9);
+			Migrations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Migrations.Name = "DomainBids";
+			Migrations.Size = new System.Drawing.Size(1846, 1357);
+			Migrations.TabIndex = 23;
+			Migrations.UseCompatibleStateImageBehavior = false;
+			Migrations.View = System.Windows.Forms.View.Details;
 			// 
 			// columnHeader19
 			// 
@@ -633,7 +633,7 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.ListView MemberLeavers;
 		private System.Windows.Forms.ColumnHeader columnHeader10;
-		private System.Windows.Forms.ListView DomainBids;
+		private System.Windows.Forms.ListView Migrations;
 		private System.Windows.Forms.ColumnHeader columnHeader19;
 		private System.Windows.Forms.ListView Emissions;
 		private System.Windows.Forms.ColumnHeader columnHeader18;

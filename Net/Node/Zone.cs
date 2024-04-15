@@ -17,6 +17,7 @@ namespace Uccs.Net
  		public Cryptography		Cryptography									= Cryptography.Ethereum;
  		public Chain			EthereumNetwork									= Chain.Sepolia;	
 		public bool				PoW												= false;
+		public bool				Auctions										= false;
 		public int				CommitLength									= 1000;
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
@@ -121,6 +122,7 @@ namespace Uccs.Net
 			Father0IP			= new IPAddress(new byte[] {127, 0, 0, 100});
 			Cryptography		= Cryptography.No;
 			PoW					= false;
+			Auctions			= true;
 			CommitLength		= 100;
 			BailMin				= 0.000_000_001;
 

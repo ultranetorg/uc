@@ -152,6 +152,7 @@ namespace Uccs.Net
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new NodeException(NodeError.NotSynchronized);
 		}
+
 		protected void RequireMember(Sun sun)
 		{
 			RequireBase(sun);

@@ -207,7 +207,7 @@ namespace Uccs.Net
 			ChainRank	= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
 			SeedRank	= h.Roles.HasFlag(Role.Seed)	? 1 : 0;
 
-			sun.UpdatePeers(new Peer[]{this});
+			sun.UpdatePeers([this]);
 
 			ListenThread = Sun.CreateThread(Listening);
 			ListenThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
@@ -258,12 +258,8 @@ namespace Uccs.Net
 						}
 					}
 
-					//RdcPacket[] outs;
-	
 					lock(Outs)
 					{
-						//outs = Outs.ToArray();
-
 						foreach(var i in Outs)
 						{
 							if(i is RdcRequest)
@@ -281,7 +277,7 @@ namespace Uccs.Net
 	
 					Sun.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny(new[] {SendSignal, Sun.Workflow.Cancellation.WaitHandle});
+					WaitHandle.WaitAny([SendSignal, Sun.Workflow.Cancellation.WaitHandle]);
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
@@ -409,7 +405,7 @@ namespace Uccs.Net
 
 				try
 				{
-					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+					i = WaitHandle.WaitAny([rq.Event, Sun.Workflow.Cancellation.WaitHandle], SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
 				catch(ObjectDisposedException)
 				{
