@@ -429,13 +429,6 @@ namespace Uccs.Net
 			Funds				= Funds.ToList();
 			Emissions			= Emissions.ToList();
 			Migrations			= Migrations.ToList();
-
-			foreach(var f in ConsensusViolators)
-			{
-				var fe = AffectAccount(f);
-				Rewards += fe.Bail;
-				fe.Bail = 0;
-			}
 			
 			for(int ti = 0; ti < ConsensusTransactions.Length; ti++)
 			{
@@ -480,29 +473,45 @@ namespace Uccs.Net
 				#endif
 			}
 
-			//foreach(var i in Members.Where(i => ConsensusViolators.Contains(i.Account)))
-			//	Log?.Report(this, $"Member violator removed {Id} - {i.Account}");
+			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Account == i)))
+			{
+				Rewards += i.Bail;
+				Members.Remove(i);
+			}
 
-			Members.RemoveAll(i => ConsensusViolators.Contains(i.Account));
+			foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Account == i)))
+			{
+				var a = AffectAccount(i.Account);
+				a.Balance += i.Bail;
+				a.AvarageUptime = (a.AvarageUptime + Id - i.CastingSince)/(a.AvarageUptime == 0 ? 1 : 2);
+				Members.Remove(i);
+			}
 
-			//foreach(var i in Members.Where(i => ConsensusMemberLeavers.Contains(i.Account)))
-			//	Log?.Report(this, $"Member leaver removed {Id} - {i.Account}");
-
-			Members.RemoveAll(i => ConsensusMemberLeavers.Contains(i.Account));
-
-			var js = ConsensusTransactions	.SelectMany(i => i.Operations)
+			var cds = ConsensusTransactions	.Where(i => !ConsensusViolators.Contains(i.Signer) && !ConsensusMemberLeavers.Contains(i.Signer))
+											.SelectMany(i => i.Operations)
 											.OfType<CandidacyDeclaration>()
-											.DistinctBy(i => i.Transaction.Signer)
-											.Where(i => !ConsensusViolators.Contains(i.Transaction.Signer) && !ConsensusMemberLeavers.Contains(i.Transaction.Signer))
-											.OrderByDescending(i => i.Bail)
-											.ThenBy(i => i.Signer)
-											.Take(Mcv.Zone.MembersLimit - Members.Count);
- 
-			Members.AddRange(js.Select(i => new Member{	CastingSince = Id + Mcv.DeclareToGenerateDelay,
-														Account = i.Signer, 
-														BaseRdcIPs = i.BaseRdcIPs, 
-														SeedHubRdcIPs = i.SeedHubRdcIPs}));
+											.ToHashSet();
 
+			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
+								.Select(i => i.MaxBy(i => i.Bail))
+								.OrderByDescending(i => AffectedAccounts[i.Signer].AvarageUptime)
+								.ThenBy(i => i.Bail)
+								.ThenBy(i => i.Signer)
+								.Take(Mcv.Zone.MembersLimit - Members.Count))
+			{
+
+				Members.Add(new Member{	CastingSince	= Id + Mcv.DeclareToGenerateDelay,
+										Bail			= i.Bail,
+										Account			= i.Signer, 
+										BaseRdcIPs		= i.BaseRdcIPs, 
+										SeedHubRdcIPs	= i.SeedHubRdcIPs});
+				cds.Remove(i);
+			}
+
+			foreach(var i in cds) /// refund
+			{
+				AffectAccount(i.Transaction.Signer).Balance += i.Bail;
+			}
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 			Funds.AddRange(ConsensusFundJoiners);

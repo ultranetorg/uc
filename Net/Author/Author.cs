@@ -6,11 +6,11 @@ namespace Uccs.Net
 	public enum AuthorFlag : byte
 	{
 		None, 
-		Owned		= 0b____1, 
-		Auction		= 0b___10, 
-		ComOwned	= 0b__100, 
-		OrgOwned	= 0b_1000, 
-		NetOwned	= 0b10000, 
+		Owned		= 0b_____1, 
+		Auction		= 0b____10, 
+		ComOwned	= 0b___100, 
+		OrgOwned	= 0b__1000, 
+		NetOwned	= 0b_10000, 
 	}
 
 	public class Author : IBinarySerializable
@@ -31,9 +31,9 @@ namespace Uccs.Net
 		public string				Name { get; set; }
 		public AccountAddress		Owner { get; set; }
 		public Time					Expiration { get; set; }
-		public AccountAddress		ComOwner  { get; set; }
-		public AccountAddress		OrgOwner  { get; set; }
-		public AccountAddress		NetOwner  { get; set; }
+		public AccountAddress		ComOwner { get; set; }
+		public AccountAddress		OrgOwner { get; set; }
+		public AccountAddress		NetOwner { get; set; }
 		public Time					FirstBidTime { get; set; } = Time.Empty;
 		public AccountAddress		LastWinner { get; set; }
 		public Money				LastBid { get; set; }
@@ -135,6 +135,7 @@ namespace Uccs.Net
 				w.Write(Owner);
 				w.Write(Expiration);
 			}
+
 		}
 
 		public void Read(BinaryReader reader)

@@ -6,11 +6,13 @@ namespace Uccs.Net
 	{
 		public AccountAddress			Address { get; set; }
 		public Money					Balance { get; set; }
-		public Money					Bail { get; set; }
+		//public Money					Bail { get; set; }
 		//public BailStatus				BailStatus { get; set; }
 		public int						LastTransactionNid { get; set; } = -1;
 		public int						LastEmissionId  { get; set; } = -1;
-		public int						CandidacyDeclarationRid  { get; set; } = -1;
+		//public int						CandidacyDeclarationRid  { get; set; } = -1;
+
+		public Money					AvarageUptime { get; set; }
 
 		public virtual void Write(BinaryWriter writer)
 		{
@@ -18,13 +20,14 @@ namespace Uccs.Net
 			writer.Write(Balance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
+			writer.Write(AvarageUptime);
 			
-			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
-			
-			if(CandidacyDeclarationRid != -1)
-			{
-				writer.Write(Bail);
-			}
+			//writer.Write7BitEncodedInt(CandidacyDeclarationRid);
+			//
+			//if(CandidacyDeclarationRid != -1)
+			//{
+			//	writer.Write(Bail);
+			//}
 		}
 
 		public virtual void Read(BinaryReader reader)
@@ -33,14 +36,14 @@ namespace Uccs.Net
 			Balance				= reader.Read<Money>();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
+			AvarageUptime		= reader.Read<Money>();
 
-			CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
-
-			if(CandidacyDeclarationRid != -1)
-			{
-				Bail = reader.Read<Money>();
-			}
-
+			//CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
+			//
+			//if(CandidacyDeclarationRid != -1)
+			//{
+			//	Bail = reader.Read<Money>();
+			//}
 		}
 	}
 }

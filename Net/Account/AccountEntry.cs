@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Text.Json.Serialization;
-using Nethereum.Model;
 
 namespace Uccs.Net
 {
-	public enum BailStatus
-	{
-		None, Active, Siezed
-	}
-
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
 		public EntityId					Id { get; set; }
@@ -38,10 +29,10 @@ namespace Uccs.Net
 			return new AccountEntry(Mcv){	Id = Id,
 											Address = Address,
 											Balance = Balance,
-											Bail = Bail,
+											//Bail = Bail,
 											LastTransactionNid = LastTransactionNid,
 											LastEmissionId = LastEmissionId,
-											CandidacyDeclarationRid = CandidacyDeclarationRid,
+											//CandidacyDeclarationRid = CandidacyDeclarationRid,
 											Transactions = Mcv.Roles.HasFlag(Role.Chain) ? new HashSet<int>(Transactions) : null};
 		}
 
@@ -101,8 +92,8 @@ namespace Uccs.Net
 			d.Add("LastTransactionId").Value		= LastTransactionNid;
 			d.Add("Balance").Value					= Balance;
 			d.Add("LastEmissionId").Value			= LastEmissionId;
-			d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;
-			d.Add("Bail").Value						= Bail;
+			//d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;
+			//d.Add("Bail").Value						= Bail;
 			//d.Add("BailStatus").Value				= BailStatus;
 
 			return d;

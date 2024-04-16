@@ -1405,10 +1405,9 @@ namespace Uccs.Net
 
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(m == null && a != null && a.Bail + a.Balance > Settings.Bail &&	//a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && 
-																						(!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
+					if(m == null && a != null && a.Balance > Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
-						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
+						var o = new CandidacyDeclaration{	Bail			= Settings.Bail,
 															BaseRdcIPs		= [Settings.IP],
 															SeedHubRdcIPs	= [Settings.IP]};
 
