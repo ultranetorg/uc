@@ -20,7 +20,7 @@ namespace Uccs.Net
 				var a = ResourceAddress.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "f";
 	
-				var r = sun.Call(p => p.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = a}), workflow).Resource;
+				var r = sun.Call(p => p.Request(new ResourceByNameRequest {Name = a}), workflow).Resource;
 				var ra = r.Data?.Interpretation as ReleaseAddress
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
@@ -62,6 +62,8 @@ namespace Uccs.Net
 						throw new ResourceException(ResourceError.NotSupportedDataType);
 				}
 	
+				response.ContentType = MimeTypes.MimeTypeMap.GetMimeType(path);
+
 				if(!z.IsReady(path))
 				{
 					FileDownload d;

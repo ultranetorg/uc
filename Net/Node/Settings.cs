@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 
 namespace Uccs.Net
 {
@@ -138,12 +139,15 @@ namespace Uccs.Net
 			}
 		}
 
-		public static void CompareBase()
+		public static void CompareBase(string destibation)
 		{
 			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 
 			var jo = new JsonSerializerOptions(SunJsonApiClient.DefaultOptions);
 			jo.WriteIndented = true;
+
+			foreach(var i in Suns)
+				Monitor.Enter(i.Lock);
 
 			void compare<E, K>(Func<Sun, Table<E, K>> get) where E : class, ITableEntry<K>
 			{
@@ -152,6 +156,7 @@ namespace Uccs.Net
 				while(true)
 				{
 					var x = new bool[cs.Length];
+
 					for(int i=0; i<cs.Length; i++)
 						x[i] = cs[i].c.MoveNext();
 
@@ -160,11 +165,12 @@ namespace Uccs.Net
 					else if(!x.All(i => i))
 						Debugger.Break();
 	
-					var es = cs.Select(i => new {s = i.s, e = i.c.Current.Entries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+					var es = cs.Select(i => new {i.s, e = i.c.Current.Entries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
 	
 					while(true)
 					{
 						var y = new bool[es.Length];
+
 						for(int i=0; i<es.Length; i++)
 							y[i] = es[i].e.MoveNext();
 	
@@ -173,12 +179,13 @@ namespace Uccs.Net
 						else if(!y.All(i => i))
 							Debugger.Break();
 	
-						var jes = es.Select(i => new {s = i.s, j = JsonSerializer.Serialize(i.e.Current, jo) }).GroupBy(i => i.j);
+						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo) }).GroupBy(i => i.j);
+
 						if(jes.Count() > 1)
 						{
 							foreach(var i in jes)
 							{
-								File.WriteAllText(Path.Join("A:\\", string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
+								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
 							}
 							
 							Debugger.Break();
@@ -189,6 +196,9 @@ namespace Uccs.Net
 
 			compare(i => i.Mcv.Accounts);
 			compare(i => i.Mcv.Authors);
+
+			foreach(var i in Suns)
+				Monitor.Exit(i.Lock);
 		}
 	}
 
@@ -251,14 +261,14 @@ namespace Uccs.Net
 			PeersPermanentInboundMax	= doc.Get<int>("PeersPermanentInboundMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
-			JsonServerListenAddress		= doc.Get<string>("JsonServerListenAddress");
+			JsonServerListenAddress		= doc.Get<string>("JsonServerListenAddress", null);
 			Bail						= doc.Get("Bail", Money.Zero);
 			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
 			Packages					= doc.Get("Packages", System.IO.Path.Join(Profile, "Packages"));
 
-			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID");
-			GoogleApiKey				= doc.Get<string>("GoogleApiKey");
+			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID", null);
+			GoogleApiKey				= doc.Get<string>("GoogleApiKey", null);
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));

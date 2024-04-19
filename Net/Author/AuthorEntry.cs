@@ -16,7 +16,7 @@ namespace Uccs.Net
 		Mcv						Mcv;
 		bool					ResourcesCloned;
 		
-		public Resource[]		Resources { get; set; }
+		public Resource[]		Resources { get; set; } = [];
 
 		public AuthorEntry()
 		{

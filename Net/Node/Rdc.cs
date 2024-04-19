@@ -172,7 +172,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor(new System.Type[]{}).Invoke(null) as RdcResponse;
+				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor([]).Invoke(null) as RdcResponse;
 			}
 			catch(Exception ex)
 			{

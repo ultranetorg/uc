@@ -351,7 +351,8 @@ namespace Uccs.Net
 
 			//foreach(var t in transactions)
 			//	foreach(var o in t.Operations)
-			//		o.Fee = ConsensusExeunitFee;
+			//	{	o.Reward = ConsensusExeunitFee;
+			//	}
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -371,6 +372,7 @@ namespace Uccs.Net
 				foreach(var o in t.Operations.AsEnumerable().Reverse())
 				{
 					o.ExeUnits = 1;
+					o.Reward = 0;
 
 					o.Execute(Mcv, this);
 
@@ -475,6 +477,7 @@ namespace Uccs.Net
 
 			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Account == i)))
 			{
+				AffectAccount(i.Account).AvarageUptime = 0;
 				Rewards += i.Bail;
 				Members.Remove(i);
 			}

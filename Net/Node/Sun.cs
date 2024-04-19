@@ -358,7 +358,7 @@ namespace Uccs.Net
 	 																			var result = Dns.QueryAsync(am.Author + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 															
 	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Author + '.' + am.Tld + '.');
-	 		
+	 																			
 	 																			if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == o.Transaction.Signer))
 	 																			{
 																					am.DnsApproved = true;
@@ -1114,6 +1114,8 @@ namespace Uccs.Net
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
+						var s = peer.Request(new StampRequest());
+
 						lock(Lock)
 						{
 							Mcv.BaseState = stamp.BaseState;
@@ -1122,7 +1124,7 @@ namespace Uccs.Net
 			
 							Mcv.Hashify();
 			
-							if(peer.Request(new StampRequest()).BaseHash.SequenceEqual(Mcv.BaseHash))
+							if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
 	 							Mcv.LoadedRounds[r.Id] = r;
 							else
 								throw new SynchronizationException("BaseHash mismatch");
@@ -1204,6 +1206,9 @@ namespace Uccs.Net
 
 								Mcv.Tail.RemoveAll(i => i.Id >= rid);
 								Mcv.Tail.Insert(0, r);
+
+// 								if(r.Id == 299)
+// 									Debugger.Break();
 			
 								var h = r.Hash;
 
@@ -1212,7 +1217,7 @@ namespace Uccs.Net
 								if(!r.Hash.SequenceEqual(h))
 								{
 									#if DEBUG
-										SunGlobals.CompareBase();
+										SunGlobals.CompareBase("a:\\UOTMP\\Simulation-Sun.Fast\\");
 									#endif
 									
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");

@@ -63,6 +63,8 @@ namespace Uccs.Net
 								
 				a.LastWinner	= null;
 				a.LastBid		= 0;
+				a.LastBidTime	= Time.Empty;
+				a.FirstBidTime	= Time.Empty;
 				a.Expiration	= (a.Owner != Signer ? round.ConsensusTime : a.Expiration) + Time.FromYears(Years);
 				a.Owner			= Signer;
 				a.SpaceReserved	= a.SpaceUsed;

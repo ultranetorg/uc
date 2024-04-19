@@ -19,10 +19,13 @@ namespace Uccs.Net
 		{
 			get
 			{
+				if(!Net.Author.Valid(Author))
+					return false;
+
 				if(!Net.Author.IsExclusive(Author))
 					return false;
 
-				if(Tld != "com" && Tld != "org" && Tld != "net")
+				if(Tld.Length > 8)
 					return false;
 
 				return true;

@@ -37,7 +37,7 @@ namespace Uccs.Net
 		public Time					FirstBidTime { get; set; } = Time.Empty;
 		public AccountAddress		LastWinner { get; set; }
 		public Money				LastBid { get; set; }
-		public Time					LastBidTime { get; set; }
+		public Time					LastBidTime { get; set; } = Time.Empty;
 		public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }

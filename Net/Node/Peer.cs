@@ -33,6 +33,8 @@ namespace Uccs.Net
 
 		public bool					Forced;
 		public bool					Permanent;
+		public bool					Fresh;
+		int							IdCounter = 0;
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
@@ -59,9 +61,6 @@ namespace Uccs.Net
 		public List<RdcRequest>		InRequests = new();
 		List<RdcRequest>			OutRequests = new();
 		AutoResetEvent				SendSignal = new AutoResetEvent(true);
-		
-		int							IdCounter = 0;
-		public bool					Fresh;
 
 		public Peer()
 		{
@@ -143,6 +142,14 @@ namespace Uccs.Net
 				return;
 
 			Forced = false;
+			Permanent = false;
+			Fresh = false;
+			Retries = 0;
+			IdCounter = 0;
+			Inbound = false;
+
+			lock(InRequests)
+				InRequests.Clear();
 
 			lock(OutRequests)
 			{
@@ -319,6 +326,13 @@ namespace Uccs.Net
 
 							lock(InRequests)
  								InRequests.Add(rq);
+
+							#if DEBUG
+							if(InRequests.Count > 100)
+							{
+								///Debugger.Break();
+							}
+							#endif
  	
 							SendSignal.Set();
 

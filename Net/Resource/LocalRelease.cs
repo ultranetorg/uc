@@ -131,7 +131,7 @@ namespace Uccs.Net
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				
-				var b = new byte[length == -1 ? Length : length];
+				var b = new byte[length == -1 ? new FileInfo(LocalPath).Length : length];
 	
 				s.Read(b);
 	

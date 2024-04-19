@@ -84,8 +84,8 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
-		public ResourceLink[]		Outbounds { get; set; }
-		public ResourceId[]			Inbounds { get; set; }
+		public ResourceLink[]		Outbounds { get; set; } = [];
+		public ResourceId[]			Inbounds { get; set; } = [];
 
 		[JsonIgnore]
 		public bool					New;
