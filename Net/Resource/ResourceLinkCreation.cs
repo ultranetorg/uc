@@ -49,11 +49,11 @@ namespace Uccs.Net
 			if(Require(round, null, Destination, out var da, out var dr) == false)
 				return;
 
-			sa = Affect(round, Source.Author);
+			sa = Affect(round, Source.Domain);
 			sr = sa.AffectResource(Source.Resource);
 			sr.AffectOutbound(dr.Id);
 
-			da = Affect(round, Destination.Author);
+			da = Affect(round, Destination.Domain);
 			dr = da.AffectResource(Destination.Resource);
 			dr.AffectInbound(sr.Id);
 

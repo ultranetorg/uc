@@ -24,7 +24,7 @@ namespace Uccs.Net
 				var m = Table switch
 							  {
 									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
-									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
+									Tables.Domains	=> sun.Mcv.Domains.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
 									_ => throw new RequestException(RequestError.IncorrectRequest)
 							  };
 

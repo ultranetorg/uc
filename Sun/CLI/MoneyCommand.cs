@@ -97,7 +97,7 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					var c = new CostApc{Years = [1, 5, 10], 
-										AuthorLengths = [1, 5, 10, 15], 
+										DomainLengths = [1, 5, 10, 15], 
 										Rate = GetMoney("rate", Money.Zero)};
 
 					var r = Api<CostApc.Report>(c);
@@ -108,9 +108,9 @@ namespace Uccs.Sun.CLI
 
 					Workflow.Log?.Report($"");
 
-					Dump(	r.RentAuthor,
-							["Authors Rent |", .. c.AuthorLengths.Select(i => $"{i} chars")],
-							[(o, i) => $"{c.Years[i]} year(s) |", .. c.AuthorLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToHumanString()))]);
+					Dump(	r.RentDomain,
+							["Domains Rent |", .. c.DomainLengths.Select(i => $"{i} chars")],
+							[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToHumanString()))]);
 
 					Workflow.Log?.Report($"");
 

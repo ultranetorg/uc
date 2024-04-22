@@ -314,16 +314,16 @@ namespace Uccs.Net
 												
 											foreach(var o in ops)
 											{
-												///if(o is AuthorBid ab && ab.Tld.Any())
+												///if(o is DomainBid ab && ab.Tld.Any())
 												///{
 	 											///	if(!SunGlobals.SkipDomainVerification)
 	 											///	{
 												///		Task.Run(() =>	{
 	 											///							try
 	 											///							{
-	 											///								var result = Dns.QueryAsync(ab.Author + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 											///								var result = Dns.QueryAsync(ab.Domain + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 											///				
-	 											///								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Author + '.' + ab.Tld + '.');
+	 											///								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Domain + '.' + ab.Tld + '.');
 	 											///
 	 											///								if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
 	 											///								{
@@ -335,11 +335,11 @@ namespace Uccs.Net
 	 											///							}
 	 											///							catch(AggregateException ex)
 	 											///							{
-	 											///								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 											///								Workflow.Log?.ReportError(this, "Can't verify DomainBid domain", ex);
 	 											///							}
 	 											///							catch(DnsResponseException ex)
 	 											///							{
-	 											///								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 											///								Workflow.Log?.ReportError(this, "Can't verify DomainBid domain", ex);
 	 											///							}
 												///						});
 	 											///	}
@@ -347,7 +347,7 @@ namespace Uccs.Net
 												///		ApprovedDomainBids.Add(ab.Id);
 												///}
 	
-												if(o is AuthorMigration am)
+												if(o is DomainMigration am)
 												{
 	 												if(!SunGlobals.SkipMigrationVerification)
 	 												{
@@ -355,9 +355,9 @@ namespace Uccs.Net
 
 	 																		try
 	 																		{
-	 																			var result = Dns.QueryAsync(am.Author + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 																			var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 															
-	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Author + '.' + am.Tld + '.');
+	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
 	 																			
 	 																			if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == o.Transaction.Signer))
 	 																			{
@@ -366,7 +366,7 @@ namespace Uccs.Net
 
 																				if(am.RankCheck)
 																				{
-																					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Author}&start=10"))
+																					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
 																					{
 																						var cr = Http.Send(m, Workflow.Cancellation);
 		
@@ -376,7 +376,7 @@ namespace Uccs.Net
 	
 																							var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
 	
-																							am.RankApproved = domains.FirstOrDefault(i => i.First() == am.Author)?.Last() == am.Tld;
+																							am.RankApproved = domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
 																						}
 																					}
 																				}
@@ -1063,9 +1063,9 @@ namespace Uccs.Net
 																																							var c = Mcv.Accounts.SuperClusters.ContainsKey(i.Id);
 																																							return !c || !Mcv.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																																							}),
-																											Tables.Authors	=> stamp.Authors.Where(i =>	{
-																																							var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
-																																							return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																											Tables.Domains	=> stamp.Domains.Where(i =>	{
+																																							var c = Mcv.Domains.SuperClusters.ContainsKey(i.Id);
+																																							return !c || !Mcv.Domains.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																																						}),
 																											_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
 																										}).Select(i => i.Id).ToArray() });
@@ -1109,7 +1109,7 @@ namespace Uccs.Net
 						}
 		
 						download(Mcv.Accounts);
-						download(Mcv.Authors);
+						download(Mcv.Domains);
 		
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));

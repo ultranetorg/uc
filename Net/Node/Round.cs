@@ -58,14 +58,14 @@ namespace Uccs.Net
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;
-		public List<AuthorMigration>						Migrations;
+		public List<DomainMigration>						Migrations;
 		public Dictionary<byte[], int>						NextAccountIds;
-		public Dictionary<byte[], int>						NextAuthorIds;
+		public Dictionary<byte[], int>						NextDomainIds;
 		public List<long>									Last365BaseDeltas;
 		public long											PreviousDayBaseSize;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
-		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
+		public Dictionary<string, DomainEntry>				AffectedDomains = new();
 
 		public Mcv											Mcv;
 		public Zone											Zone => Mcv.Zone;
@@ -191,37 +191,37 @@ namespace Uccs.Net
 			}
 		}
 
-		public AuthorEntry AffectAuthor(string author)
+		public DomainEntry AffectDomain(string domain)
 		{
-			if(AffectedAuthors.TryGetValue(author, out AuthorEntry a))
+			if(AffectedDomains.TryGetValue(domain, out DomainEntry a))
 				return a;
 			
-			var e = Mcv.Authors.Find(author, Id - 1);
+			var e = Mcv.Domains.Find(domain, Id - 1);
 
 			if(e != null)
 			{
-				AffectedAuthors[author] = e.Clone();
-				AffectedAuthors[author].Affected  = true;;
-				return AffectedAuthors[author];
+				AffectedDomains[domain] = e.Clone();
+				AffectedDomains[domain].Affected  = true;;
+				return AffectedDomains[domain];
 			}
 			else
 			{
-				var ci = Mcv.Authors.KeyToCluster(author).ToArray();
-				var c = Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Domains.KeyToCluster(domain).ToArray();
+				var c = Mcv.Domains.Clusters.Find(i => i.Id.SequenceEqual(ci));
 
 				int ai;
 				
 				if(c == null)
-					NextAuthorIds[ci] = 0;
+					NextDomainIds[ci] = 0;
 				else
-					NextAuthorIds[ci] = c.NextEntityId;
+					NextDomainIds[ci] = c.NextEntityId;
 				
-				ai = NextAuthorIds[ci]++;
+				ai = NextDomainIds[ci]++;
 
-				return AffectedAuthors[author] = new AuthorEntry(Mcv){	Affected = true,
+				return AffectedDomains[domain] = new DomainEntry(Mcv){	Affected = true,
 																		New = true,
 																		Id = new EntityId(ci, ai), 
-																		Name = author};
+																		Name = domain};
 			}
 		}
 
@@ -344,10 +344,10 @@ namespace Uccs.Net
 			Emission		= Id == 0 ? 0 : Previous.Emission;
 
 			NextAccountIds	= new (Bytes.EqualityComparer);
-			NextAuthorIds	= new (Bytes.EqualityComparer);
+			NextDomainIds	= new (Bytes.EqualityComparer);
 
 			AffectedAccounts.Clear();
-			AffectedAuthors.Clear();
+			AffectedDomains.Clear();
 
 			//foreach(var t in transactions)
 			//	foreach(var o in t.Operations)
@@ -399,7 +399,7 @@ namespace Uccs.Net
 				}
 			}
 
-			foreach(var a in AffectedAuthors)
+			foreach(var a in AffectedDomains)
 			{
 				a.Value.Affected = false;
 
@@ -441,7 +441,7 @@ namespace Uccs.Net
 					if(o is Emission e)
 						Emissions.Add(e);
 
-					if(o is AuthorMigration b)
+					if(o is DomainMigration b)
 						Migrations.Add(b);
 				}
 			}
@@ -528,7 +528,7 @@ namespace Uccs.Net
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
 				var accounts = new Dictionary<AccountAddress, AccountEntry>();
-				var authors	 = new Dictionary<string, AuthorEntry>();
+				var domains	 = new Dictionary<string, DomainEntry>();
 
 				foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
 				{
@@ -536,12 +536,12 @@ namespace Uccs.Net
 						if(!accounts.ContainsKey(i.Key))
 							accounts.Add(i.Key, i.Value);
 
-					foreach(var i in r.AffectedAuthors)
-						if(!authors.ContainsKey(i.Key))
-							authors.Add(i.Key, i.Value);
+					foreach(var i in r.AffectedDomains)
+						if(!domains.ContainsKey(i.Key))
+							domains.Add(i.Key, i.Value);
 				}
 
-				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accounts.Values) + Mcv.Authors.MeasureChanges(authors.Values);
+				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accounts.Values) + Mcv.Domains.MeasureChanges(domains.Values);
 								
 				Last365BaseDeltas.RemoveAt(0);
 				Last365BaseDeltas.Add(s - PreviousDayBaseSize);
@@ -605,7 +605,7 @@ namespace Uccs.Net
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Funds					= reader.ReadList<AccountAddress>();
 			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
-			Migrations				= reader.Read<AuthorMigration>(m => m.ReadBaseState(reader)).ToList();
+			Migrations				= reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
 		}
 
 		public void WriteConfirmed(BinaryWriter writer)

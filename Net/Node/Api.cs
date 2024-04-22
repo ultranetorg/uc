@@ -54,7 +54,7 @@ namespace Uccs.Net
 						break;
 	
 					case SDAddress x :
-						var au = sun.Call(c => c.Request(new AuthorRequest {Name = a.Author}), workflow).Author;
+						var au = sun.Call(c => c.Request(new DomainRequest {Name = a.Domain}), workflow).Domain;
 						itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
 						break;
 	
@@ -500,7 +500,7 @@ namespace Uccs.Net
 
 			public Money		RentAccount { get; set; }
 
-			public Money[][]	RentAuthor { get; set; }
+			public Money[][]	RentDomain { get; set; }
 			
 			public Money[]		RentResource { get; set; }
 			public Money		RentResourceForever { get; set; }
@@ -511,7 +511,7 @@ namespace Uccs.Net
 
 		public Money	Rate { get; set; } = 1;
 		public byte[]	Years { get; set; }
-		public byte[]	AuthorLengths { get; set; }
+		public byte[]	DomainLengths { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -527,7 +527,7 @@ namespace Uccs.Net
 				
 									RentAccount					= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-									RentAuthor					= Years.Select(y => AuthorLengths.Select(l => AuthorRegistration.CalculateFee(Time.FromYears(y), sun.Mcv.LastConfirmedRound.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
+									RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainRegistration.CalculateFee(Time.FromYears(y), sun.Mcv.LastConfirmedRound.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
 					
 									RentResource				= Years.Select(y => Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
 									RentResourceForever			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,

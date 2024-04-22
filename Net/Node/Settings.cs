@@ -195,7 +195,7 @@ namespace Uccs.Net
 			}
 
 			compare(i => i.Mcv.Accounts);
-			compare(i => i.Mcv.Authors);
+			compare(i => i.Mcv.Domains);
 
 			foreach(var i in Suns)
 				Monitor.Exit(i.Lock);

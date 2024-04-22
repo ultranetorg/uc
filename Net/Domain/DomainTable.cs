@@ -5,27 +5,27 @@ using System.Text;
 
 namespace Uccs.Net
 {
-	public class AuthorTable : Table<AuthorEntry, string>
+	public class DomainTable : Table<DomainEntry, string>
 	{
 		public override bool		Equal(string a, string b) => a.Equals(b);
-		public override Span<byte>	KeyToCluster(string author) => new Span<byte>(Encoding.UTF8.GetBytes(author, 0, Cluster.IdLength));
+		public override Span<byte>	KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, Cluster.IdLength));
 
-		public AuthorTable(Mcv chain) : base(chain)
+		public DomainTable(Mcv chain) : base(chain)
 		{
 		}
 		
-		protected override AuthorEntry Create()
+		protected override DomainEntry Create()
 		{
-			return new AuthorEntry(Mcv);
+			return new DomainEntry(Mcv);
 		}
 		
- 		public AuthorEntry Find(string name, int ridmax)
+ 		public DomainEntry Find(string name, int ridmax)
  		{
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
- 				if(r.AffectedAuthors.TryGetValue(name, out AuthorEntry v))
+ 				if(r.AffectedDomains.TryGetValue(name, out DomainEntry v))
  					return v;
  		
  			return FindEntry(name);
@@ -37,7 +37,7 @@ namespace Uccs.Net
 			//	throw new IntegrityException("maxrid works inside pool only");
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-				if(r.AffectedAuthors.TryGetValue(resource.Author, out AuthorEntry a))
+				if(r.AffectedDomains.TryGetValue(resource.Domain, out DomainEntry a))
 				{	
 					var x = a.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
 					
@@ -45,7 +45,7 @@ namespace Uccs.Net
  						return x;
 				}
  		
- 			return FindEntry(resource.Author)?.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
+ 			return FindEntry(resource.Domain)?.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
  		}
 
 		
@@ -56,7 +56,7 @@ namespace Uccs.Net
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedAuthors.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 
 				if(x != null)
 					return x;
@@ -64,17 +64,5 @@ namespace Uccs.Net
  		
  			return FindEntry(new EntityId(id.Ci, id.Ai))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
  		}
-
-
- 		//public IEnumerable<Resource> EnumerateSubresources(ResourceAddress resource, int ridmax)
- 		//{
-		//	var a = Find(resource.Author, ridmax);
-		//	var r = FindResource(resource, ridmax);
-		//
-		//	foreach(var i in r.Inbounds)
-		//	{
-		//		yield return a.Resources.First(j => j.Id == i.Child);
-		//	}
- 		//}
 	}
 }

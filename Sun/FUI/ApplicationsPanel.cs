@@ -30,7 +30,7 @@ namespace Uccs.Sun.FUI
 				var i = new ListViewItem(r.Manifest.Product);
 				
 				i.Tag = r;
-				//i.SubItems.Add(r.Author);
+				//i.SubItems.Add(r.Domain);
 				//i.SubItems.Add();
 				//i.SubItems.Add();
 			

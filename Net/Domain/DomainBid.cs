@@ -2,11 +2,11 @@
 
 namespace Uccs.Net
 {
-	public class AuthorBid : Operation//, IEquatable<AuthorBid>
+	public class DomainBid : Operation
 	{
-		public string			Author;
+		public string			Name;
 		public Money			Bid;
-		public override string	Description => $"{Bid} UNT for {Author}";
+		public override string	Description => $"{Bid} UNT for {Name}";
 		
 		public override bool Valid
 		{
@@ -15,7 +15,7 @@ namespace Uccs.Net
 				if(!Transaction.Zone.Auctions)
 					return false;
 
-				if(!Net.Author.IsExclusive(Author))
+				if(!Net.Domain.IsExclusive(Name))
 					return false;
 
 				if(Bid <= Money.Zero)
@@ -25,25 +25,25 @@ namespace Uccs.Net
 			}
 		} 
 
-		public AuthorBid()
+		public DomainBid()
 		{
 		}
 
-		public AuthorBid(string name,  Money bid)
+		public DomainBid(string name,  Money bid)
 		{
-			Author = name;
+			Name = name;
 			Bid = bid;
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Author	= reader.ReadUtf8();
+			Name	= reader.ReadUtf8();
 			Bid		= reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.WriteUtf8(Author);
+			writer.WriteUtf8(Name);
 			writer.Write(Bid);
 		}
 
@@ -51,7 +51,7 @@ namespace Uccs.Net
 		{
 			writer.Write(Id);
 			writer.Write(Signer);
-			writer.WriteUtf8(Author);
+			writer.WriteUtf8(Name);
 			writer.Write(Bid);
 		}
 
@@ -62,15 +62,15 @@ namespace Uccs.Net
 			Transaction = new Transaction();
 			
 			Transaction.Signer	= reader.ReadAccount();
-			Author				= reader.ReadUtf8();
+			Name				= reader.ReadUtf8();
 			Bid					= reader.Read<Money>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			var a = Affect(round, Author);
+			var a = Affect(round, Name);
 
- 			if(!Net.Author.IsExpired(a, round.ConsensusTime))
+ 			if(!Net.Domain.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{

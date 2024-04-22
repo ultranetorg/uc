@@ -41,16 +41,16 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Author);
+			a = Affect(round, Resource.Domain);
 			a.DeleteResource(r);
 
 			Free(a, r.Length);
 
 			foreach(var i in r.Outbounds)
 			{
-				var dr = mcv.Authors.FindResource(i.Destination, round.Id);
+				var dr = mcv.Domains.FindResource(i.Destination, round.Id);
 
-				dr = Affect(round, dr.Address.Author).AffectResource(dr.Address.Resource);
+				dr = Affect(round, dr.Address.Domain).AffectResource(dr.Address.Resource);
 				dr.RemoveInbound(r.Id);
 
 				Free(a, Mcv.EntityLength);
@@ -58,9 +58,9 @@ namespace Uccs.Net
 
 			foreach(var i in r.Inbounds ?? [])
 			{
-				var sr = mcv.Authors.FindResource(i, round.Id);
+				var sr = mcv.Domains.FindResource(i, round.Id);
 
-				sr = Affect(round, sr.Address.Author).AffectResource(sr.Address.Resource);
+				sr = Affect(round, sr.Address.Domain).AffectResource(sr.Address.Resource);
 				sr.RemoveOutbound(r.Id);
 			}
 		}

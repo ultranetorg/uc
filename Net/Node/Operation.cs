@@ -18,7 +18,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		AuthorMigration, AuthorBid, AuthorRegistration, AuthorTransfer,
+		DomainMigration, DomainBid, DomainRegistration, DomainTransfer,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
 	}
@@ -107,22 +107,22 @@ namespace Uccs.Net
 			Affect(round, Signer).Balance -= fee;
 		}
 
-		public void Allocate(Round round, Author author, int toallocate)
+		public void Allocate(Round round, Domain domain, int toallocate)
 		{
-			if(author.SpaceReserved < author.SpaceUsed + toallocate)
+			if(domain.SpaceReserved < domain.SpaceUsed + toallocate)
 			{
-				Pay(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
+				Pay(round, domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
 	
-				author.SpaceReserved = 
-				author.SpaceUsed = (short)(author.SpaceUsed + toallocate);
+				domain.SpaceReserved = 
+				domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);
 			}
 			else
-				author.SpaceUsed += (short)toallocate;
+				domain.SpaceUsed += (short)toallocate;
 		}
 
-		public void Free(Author author, int toallocate)
+		public void Free(Domain domain, int toallocate)
 		{
-			author.SpaceUsed -= (short)toallocate;
+			domain.SpaceUsed -= (short)toallocate;
 		}
 
 		public AccountEntry Affect(Round round, AccountAddress account)
@@ -137,28 +137,28 @@ namespace Uccs.Net
 			return round.AffectAccount(account);
 		}
 
-		public AuthorEntry Affect(Round round, string author)
+		public DomainEntry Affect(Round round, string domain)
 		{
-			return round.AffectAuthor(author);
+			return round.AffectDomain(domain);
 		}
 
-		public bool RequireAuthor(Round round, AccountAddress signer, string name, out AuthorEntry author)
+		public bool RequireDomain(Round round, AccountAddress signer, string name, out DomainEntry domain)
 		{
-			author = round.Mcv.Authors.Find(name, round.Id);
+			domain = round.Mcv.Domains.Find(name, round.Id);
 
-			if(author == null)
+			if(domain == null)
 			{
 				Error = NotFound;
 				return false;
 			}
 
-			if(Author.IsExpired(author, round.ConsensusTime))
+			if(Domain.IsExpired(domain, round.ConsensusTime))
 			{
 				Error = Expired;
 				return false;
 			}
 
-			if(signer != null && author.Owner != signer)
+			if(signer != null && domain.Owner != signer)
 			{
 				Error = NotOwner;
 				return false;
@@ -167,17 +167,17 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public bool Require(Round round, AccountAddress signer, ResourceAddress address, out AuthorEntry author, out Resource resource)
+		public bool Require(Round round, AccountAddress signer, ResourceAddress address, out DomainEntry domain, out Resource resource)
 		{
 			resource = null;
 
-			if(RequireAuthor(round, signer, address.Author, out author) == false)
+			if(RequireDomain(round, signer, address.Domain, out domain) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			resource = author.Resources.FirstOrDefault(i => i.Address.Resource == address.Resource);
+			resource = domain.Resources.FirstOrDefault(i => i.Address.Resource == address.Resource);
 			
 			if(resource == null)
 			{

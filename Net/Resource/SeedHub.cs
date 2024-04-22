@@ -78,11 +78,11 @@ namespace Uccs.Net
 						{
 							if(rzd is DHAddress dh)
 							{
-								var z = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+								var z = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(z == null)
 								{
-									var e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+									var e = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
 									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != dh)
 									{
@@ -93,7 +93,7 @@ namespace Uccs.Net
 							}
 							else if(rzd is SDAddress sdp)
 							{
-								var ea = Sun.Mcv.Authors.Find(rsd.Resource.Author, Sun.Mcv.LastConfirmedRound.Id);
+								var ea = Sun.Mcv.Domains.Find(rsd.Resource.Domain, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(!sdp.Prove(Sun.Zone.Cryptography, ea.Owner, rsd.Hash))
 								{

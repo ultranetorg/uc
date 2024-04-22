@@ -6,7 +6,7 @@ namespace Uccs.Sun.FUI
 	// 	public class ProductModel
 	// 	{
 	// 		public ProductEntry Product;
-	// 		public AuthorEntry Author;
+	// 		public AuthorEntry Domain;
 	// 
 	// 		public ProductModel()
 	// 		{
@@ -29,19 +29,19 @@ namespace Uccs.Sun.FUI
 			Vault = v;
 		}
 
-		public IEnumerable<AuthorEntry> FindAuthors(AccountAddress owner)
+		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
 		{
-			var o = new List<AuthorEntry>();
+			var o = new List<DomainEntry>();
 			
 			foreach(var r in Database.Tail)
-				foreach(var a in r.AffectedAuthors)
+				foreach(var a in r.AffectedDomains)
 					if(a.Value.Owner == owner && !o.Any(i => i.Name == a.Key))
 					{
 						o.Add(a.Value);
 					}
 
 			/// TODO: too slow
-			o.AddRange(Database.Authors.Where(i => i.Owner == owner));
+			o.AddRange(Database.Domains.Where(i => i.Owner == owner));
 
 			return o;
 		}
@@ -55,17 +55,17 @@ namespace Uccs.Sun.FUI
 // 				{
 // 					foreach(var rx in Database.Tail)
 // 						foreach(var a in rx.AffectedAuthors)
-// 							if(a.Value.Owner == owner && p.Key.Author == a.Key && !o.Any(i => i.Author.Name == a.Key && i.Product.Address == p.Key))
+// 							if(a.Value.Owner == owner && p.Key.Domain == a.Key && !o.Any(i => i.Domain.Name == a.Key && i.Product.Address == p.Key))
 // 							{
-// 								o.Add(new ProductModel{Product = p.Value, Author = a.Value});
+// 								o.Add(new ProductModel{Product = p.Value, Domain = a.Value});
 // 							}
 // 				}
 // 
 // 			/// TODO: too slow
-// 			foreach(var i in Database.Authors.Where(i => i.Owner == owner)
-// 											 .SelectMany(a => Database.Products.Where(i => i.Address.Author == a.Name).Select(p =>	new ProductModel{Product = p, Author = a})))
+// 			foreach(var i in Database.Domains.Where(i => i.Owner == owner)
+// 											 .SelectMany(a => Database.Products.Where(i => i.Address.Domain == a.Name).Select(p =>	new ProductModel{Product = p, Domain = a})))
 // 			{
-// 					if(!o.Any(x => x.Author.Name == i.Author.Name && x.Product.Address == i.Product.Address))
+// 					if(!o.Any(x => x.Domain.Name == i.Domain.Name && x.Product.Address == i.Product.Address))
 // 					{
 // 						o.Add(i);
 // 					}

@@ -31,7 +31,7 @@ namespace Uccs.Sun.FUI
 		{
 			this.results = new System.Windows.Forms.ListView();
 			this.cName = new System.Windows.Forms.ColumnHeader();
-			this.cAuthor = new System.Windows.Forms.ColumnHeader();
+			this.cDomain = new System.Windows.Forms.ColumnHeader();
 			this.cVerification = new System.Windows.Forms.ColumnHeader();
 			this.label5 = new System.Windows.Forms.Label();
 			this.name = new System.Windows.Forms.ComboBox();
@@ -51,7 +51,7 @@ namespace Uccs.Sun.FUI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.cName,
-            this.cAuthor,
+            this.cDomain,
             this.cVerification});
 			this.results.FullRowSelect = true;
 			this.results.HideSelection = false;
@@ -68,10 +68,10 @@ namespace Uccs.Sun.FUI
 			this.cName.Text = "Name";
 			this.cName.Width = 150;
 			// 
-			// cAuthor
+			// cDomain
 			// 
-			this.cAuthor.Text = "Author";
-			this.cAuthor.Width = 150;
+			this.cDomain.Text = "Domain";
+			this.cDomain.Width = 150;
 			// 
 			// cVerification
 			// 
@@ -136,7 +136,7 @@ namespace Uccs.Sun.FUI
 			// 
 			// columnHeader4
 			// 
-			this.columnHeader4.Text = "Author";
+			this.columnHeader4.Text = "Domain";
 			this.columnHeader4.Width = 150;
 			// 
 			// columnHeader1
@@ -190,7 +190,7 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ListView results;
 		private System.Windows.Forms.ColumnHeader cName;
 		private System.Windows.Forms.ColumnHeader cVerification;
-		private System.Windows.Forms.ColumnHeader cAuthor;
+		private System.Windows.Forms.ColumnHeader cDomain;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox name;
 		private System.Windows.Forms.Button search;

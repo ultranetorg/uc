@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class AuthorMigration : Operation//, IEquatable<AuthorBid>
+	public class DomainMigration : Operation
 	{
-		public string			Author;
+		public string			Name;
 		public string			Tld;
 		public bool				RankCheck;
-		public override string	Description => $"{Author}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
+		public override string	Description => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
 		
 		public bool				DnsApproved;
 		public bool				RankApproved;
@@ -19,10 +19,10 @@ namespace Uccs.Net
 		{
 			get
 			{
-				if(!Net.Author.Valid(Author))
+				if(!Domain.Valid(Name))
 					return false;
 
-				if(!Net.Author.IsExclusive(Author))
+				if(!Domain.IsExclusive(Name))
 					return false;
 
 				if(Tld.Length > 8)
@@ -32,27 +32,27 @@ namespace Uccs.Net
 			}
 		} 
 
-		public AuthorMigration()
+		public DomainMigration()
 		{
 		}
 
-		public AuthorMigration(string name, string tld, bool checkrank)
+		public DomainMigration(string name, string tld, bool checkrank)
 		{
-			Author = name;
+			Name = name;
 			Tld = tld;
 			RankCheck = checkrank;
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Author		= reader.ReadUtf8();
+			Name		= reader.ReadUtf8();
 			Tld			= reader.ReadUtf8();
 			RankCheck	= reader.ReadBoolean();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.WriteUtf8(Author);
+			writer.WriteUtf8(Name);
 			writer.WriteUtf8(Tld);
 			writer.Write(RankCheck);
 		}
@@ -61,7 +61,7 @@ namespace Uccs.Net
 		{
 			writer.Write(Id);
 			writer.Write(Signer);
-			writer.WriteUtf8(Author);
+			writer.WriteUtf8(Name);
 			writer.WriteUtf8(Tld);
 			writer.Write(RankCheck);
 		}
@@ -73,14 +73,14 @@ namespace Uccs.Net
 			Transaction = new ();
 			
 			Transaction.Signer	= reader.ReadAccount();
-			Author				= reader.ReadUtf8();
+			Name				= reader.ReadUtf8();
 			Tld					= reader.ReadUtf8();
 			RankCheck			= reader.ReadBoolean();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			var a = mcv.Authors.Find(Author, round.Id);
+			var a = mcv.Domains.Find(Name, round.Id);
 
 			if(a?.Owner != null)
 			{
@@ -96,7 +96,7 @@ namespace Uccs.Net
 
 		public void ConsensusExecute(Round round)
 		{
-			var a = Affect(round, Author);
+			var a = Affect(round, Name);
 
 			switch(Tld)
 			{

@@ -6,33 +6,33 @@ using Uccs.Net;
 namespace Uccs.Sun.CLI
 {
 	/// <summary>
-	/// Usage: author bid 
+	/// Usage: domain bid 
 	///						by = ACCOUNT 
 	///						[password = PASSWORD]
-	///						name = AUTHOR
+	///						name = DOMAIN
 	///						amount = UNT
 	///
-	///		   author register 
+	///		   domain register 
 	///						by = ACCOUNT 
 	///						[password = PASSWORD]
-	///						name = AUTHOR
+	///						name = DOMAIN
 	///						title = TITLE
 	///						years = NUMBER
 	///
-	///		   author transfer
+	///		   domain transfer
 	///						from = ACCOUNT
 	///						[password = PASSWORD]
-	///						name = AUTHOR
+	///						name = DOMAIN
 	///						to = ACCOUNT
 	///	
-	///		   author overview
-	///						name = AUTHOR
+	///		   domain overview
+	///						name = DOMAIN
 	/// </summary>
-	public class AuthorCommand : Command
+	public class DomainCommand : Command
 	{
-		public const string Keyword = "author";
+		public const string Keyword = "domain";
 
-		public AuthorCommand(Program program, List<Xon> args) : base(program, args)
+		public DomainCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
@@ -48,7 +48,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorBid(	Args[1].Name,
+					return new DomainBid(	Args[1].Name,
 											Money.ParseDecimal(GetString("amount")));
 				}
 		   		case "m" : 
@@ -56,7 +56,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorMigration(Args[1].Name, GetString("tld"), Has("checkrank"));
+					return new DomainMigration(Args[1].Name, GetString("tld"), Has("checkrank"));
 				}
 
 		   		case "r" : 
@@ -64,7 +64,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorRegistration(	Args[1].Name,
+					return new DomainRegistration(	Args[1].Name,
 													byte.Parse(GetString("years")));
 				}
 
@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorTransfer(	Args[1].Name,
+					return new DomainTransfer(	Args[1].Name,
 												AccountAddress.Parse(GetString("to")));
 				}
 
@@ -82,14 +82,14 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 					
-					var rp = Rdc(new AuthorRequest {Name = Args[1].Name});
+					var rp = Rdc(new DomainRequest {Name = Args[1].Name});
 	
-					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
+					//Workflow.Log?.Report(this, "Domain", $"'{GetString("name")}' :");
 	
-					rp.Author.Id = rp.EntityId;
-					Dump(rp.Author);
+					rp.Domain.Id = rp.EntityId;
+					Dump(rp.Domain);
 						
-					return rp.Author;
+					return rp.Domain;
 				}
 
 				default:

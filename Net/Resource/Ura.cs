@@ -8,20 +8,20 @@ namespace Uccs.Net
 {
 	/// <summary>
 	/// 
-	/// ultranet:/author
-	/// ultranet:/author/reso/ur/ce (/author/ - корневой)
+	/// ultranet:/domain
+	/// ultranet:/domain/reso/ur/ce (/domain/ - корневой)
 	/// ultranet:#0123456789ABCDEF
-	/// ultranet:$author/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
+	/// ultranet:$domain/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
 	/// 
 	/// </summary>
 
 	public class Ura : IBinarySerializable, IEquatable<Ura> 
 	{
-		public string			Author { get; set; }
+		public string			Domain { get; set; }
 		public string			Resource { get; set; }
 		public ReleaseAddress	Release { get; set; }
 
-		public bool				Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+		public bool				Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
 
 		public Ura()
 		{
@@ -29,11 +29,11 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			if(Author != null)
+			if(Domain != null)
 				if(Resource == null)
-					return $"/{Author}";
+					return $"/{Domain}";
 				else
-					return $"/{Author}/{Resource}";
+					return $"/{Domain}/{Resource}";
 			else
 				return $"{Release}";
 		}
@@ -45,12 +45,12 @@ namespace Uccs.Net
 
 		public bool Equals(Ura o)
 		{
-			return Author == o.Author && Resource == o.Resource && Release == o.Release;
+			return Domain == o.Domain && Resource == o.Resource && Release == o.Release;
 		}
 
  		public override int GetHashCode()
  		{
- 			return Author.GetHashCode();
+ 			return Domain.GetHashCode();
  		}
 
 		public int CompareTo(object obj)
@@ -60,8 +60,8 @@ namespace Uccs.Net
 
 		public int CompareTo(Ura other)
 		{
-			if(Author.CompareTo(other.Author) != 0)
-				return Author.CompareTo(other.Author);
+			if(Domain.CompareTo(other.Domain) != 0)
+				return Domain.CompareTo(other.Domain);
 
 			if(Resource.CompareTo(other.Resource) != 0)
 				return Resource.CompareTo(other.Resource);
@@ -88,30 +88,11 @@ namespace Uccs.Net
 		public void Write(BinaryWriter w)
 		{
 			throw new NotImplementedException();
-			//w.WriteUtf8(Author);
-			//w.WriteUtf8(Resource);
-			//w.Write();
 		}
 
 		public void Read(BinaryReader r)
 		{
 			throw new NotImplementedException();
-			///Author = r.ReadUtf8();
-			///Resource = r.ReadUtf8();
-			///Details = r.ReadBytes() is byte[] b ? Encoding.UTF8.GetString(b) : null;
 		}
 	}
-
-// 	public class ReleaseAddressJsonConverter : JsonConverter<Ura>
-// 	{
-// 		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-// 		{
-// 			return Ura.Parse(reader.GetString());
-// 		}
-// 
-// 		public override void Write(Utf8JsonWriter writer, Ura value, JsonSerializerOptions options)
-// 		{
-// 			writer.WriteStringValue(value.ToString());
-// 		}
-// 	}
 }

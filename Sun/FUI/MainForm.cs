@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Sun, sun.Vault)};
 			navigator.Nodes.Add(accs);
 	
-			var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Sun, sun.Vault) };
+			var auth = new TreeNode("Domains"){ Tag = new DomainPanel(Sun, sun.Vault) };
 			navigator.Nodes.Add(auth);
 	
 			var rel = new TreeNode("Resources"){ Tag = new ResourcesPanel(Sun, sun.Vault) };				

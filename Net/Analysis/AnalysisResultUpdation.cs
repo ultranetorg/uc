@@ -39,7 +39,7 @@ namespace Uccs.Net
 			if(Require(round, null, Analysis, out var aa, out var ar) == false)
 				return;
 
-			var c = mcv.Authors.FindResource((ar.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
+			var c = mcv.Domains.FindResource((ar.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
 
 			if(c == null)
 			{
@@ -55,10 +55,10 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Author);
+			a = Affect(round, Resource.Domain);
 			r = a.AffectResource(Resource.Resource);
 
-			aa = Affect(round, Analysis.Author);
+			aa = Affect(round, Analysis.Domain);
 			ar = a.AffectResource(Analysis.Resource);
 
 			var an = ar.Data.Interpretation as Analysis;

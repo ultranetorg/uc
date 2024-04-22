@@ -55,12 +55,12 @@ namespace Uccs.Net
 				return;
 			}
 
-			sa = Affect(round, Source.Author);
+			sa = Affect(round, Source.Domain);
 			sr = sa.AffectResource(Source.Resource);
 			sr.RemoveOutbound(dr.Id);
 			Free(sa, Mcv.EntityLength);
 
-			da = Affect(round, Destination.Author);
+			da = Affect(round, Destination.Domain);
 			dr = da.AffectResource(Destination.Resource);
 			dr.RemoveInbound(sr.Id);
 		}

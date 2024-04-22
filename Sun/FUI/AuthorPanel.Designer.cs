@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Sun.FUI
 {
-	partial class AuthorPanel
+	partial class DomainPanel
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 			this.label9 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
 			this.RegisrationSigner = new System.Windows.Forms.ComboBox();
-			this.AuthorTitle = new System.Windows.Forms.TextBox();
+			this.DomainTitle = new System.Windows.Forms.TextBox();
 			this.Auction = new System.Windows.Forms.GroupBox();
 			this.Bid = new Uccs.Sun.FUI.CoinEdit();
 			this.MakeBid = new System.Windows.Forms.Button();
@@ -56,7 +56,7 @@ namespace Uccs.Sun.FUI
 			this.Values = new System.Windows.Forms.Label();
 			this.Search = new System.Windows.Forms.Button();
 			this.namelabel = new System.Windows.Forms.Label();
-			this.AuthorSearch = new System.Windows.Forms.ComboBox();
+			this.DomainSearch = new System.Windows.Forms.ComboBox();
 			this.Transfering.SuspendLayout();
 			this.Registration.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.Years)).BeginInit();
@@ -76,7 +76,7 @@ namespace Uccs.Sun.FUI
 			this.Transfering.Size = new System.Drawing.Size(1144, 344);
 			this.Transfering.TabIndex = 4;
 			this.Transfering.TabStop = false;
-			this.Transfering.Text = "Transfer Author to other Account";
+			this.Transfering.Text = "Transfer Domain to other Account";
 			this.Transfering.Visible = false;
 			// 
 			// transfer
@@ -120,7 +120,7 @@ namespace Uccs.Sun.FUI
 			this.Registration.Controls.Add(this.label9);
 			this.Registration.Controls.Add(this.label4);
 			this.Registration.Controls.Add(this.RegisrationSigner);
-			this.Registration.Controls.Add(this.AuthorTitle);
+			this.Registration.Controls.Add(this.DomainTitle);
 			this.Registration.Location = new System.Drawing.Point(0, 749);
 			this.Registration.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Registration.Name = "Registration";
@@ -128,7 +128,7 @@ namespace Uccs.Sun.FUI
 			this.Registration.Size = new System.Drawing.Size(1144, 621);
 			this.Registration.TabIndex = 19;
 			this.Registration.TabStop = false;
-			this.Registration.Text = "Register a new Author";
+			this.Registration.Text = "Register a new Domain";
 			this.Registration.Visible = false;
 			// 
 			// Cost
@@ -166,7 +166,7 @@ namespace Uccs.Sun.FUI
             0,
             0,
             0});
-			this.Years.ValueChanged += new System.EventHandler(this.AuthorName_TextChanged);
+			this.Years.ValueChanged += new System.EventHandler(this.DomainName_TextChanged);
 			// 
 			// register
 			// 
@@ -223,7 +223,7 @@ namespace Uccs.Sun.FUI
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(143, 27);
 			this.label9.TabIndex = 8;
-			this.label9.Text = "Author Title";
+			this.label9.Text = "Domain Title";
 			// 
 			// label4
 			// 
@@ -246,14 +246,14 @@ namespace Uccs.Sun.FUI
 			this.RegisrationSigner.Size = new System.Drawing.Size(517, 40);
 			this.RegisrationSigner.TabIndex = 10;
 			// 
-			// AuthorTitle
+			// DomainTitle
 			// 
-			this.AuthorTitle.Location = new System.Drawing.Point(383, 173);
-			this.AuthorTitle.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.AuthorTitle.Name = "AuthorTitle";
-			this.AuthorTitle.Size = new System.Drawing.Size(517, 39);
-			this.AuthorTitle.TabIndex = 11;
-			this.AuthorTitle.TextChanged += new System.EventHandler(this.AuthorTitle_TextChanged);
+			this.DomainTitle.Location = new System.Drawing.Point(383, 173);
+			this.DomainTitle.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
+			this.DomainTitle.Name = "DomainTitle";
+			this.DomainTitle.Size = new System.Drawing.Size(517, 39);
+			this.DomainTitle.TabIndex = 11;
+			this.DomainTitle.TextChanged += new System.EventHandler(this.DomainTitle_TextChanged);
 			// 
 			// Auction
 			// 
@@ -350,7 +350,7 @@ namespace Uccs.Sun.FUI
 			this.groupBox2.Size = new System.Drawing.Size(1144, 613);
 			this.groupBox2.TabIndex = 4;
 			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Author Info";
+			this.groupBox2.Text = "Domain Info";
 			// 
 			// Fields
 			// 
@@ -395,31 +395,31 @@ namespace Uccs.Sun.FUI
 			this.namelabel.Name = "namelabel";
 			this.namelabel.Size = new System.Drawing.Size(158, 27);
 			this.namelabel.TabIndex = 8;
-			this.namelabel.Text = "Author Name";
+			this.namelabel.Text = "Domain Name";
 			// 
-			// AuthorSearch
+			// DomainSearch
 			// 
-			this.AuthorSearch.FormattingEnabled = true;
-			this.AuthorSearch.Location = new System.Drawing.Point(230, 32);
-			this.AuthorSearch.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.AuthorSearch.Name = "AuthorSearch";
-			this.AuthorSearch.Size = new System.Drawing.Size(583, 40);
-			this.AuthorSearch.TabIndex = 20;
-			this.AuthorSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.AuthorSearch_KeyDown);
+			this.DomainSearch.FormattingEnabled = true;
+			this.DomainSearch.Location = new System.Drawing.Point(230, 32);
+			this.DomainSearch.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.DomainSearch.Name = "DomainSearch";
+			this.DomainSearch.Size = new System.Drawing.Size(583, 40);
+			this.DomainSearch.TabIndex = 20;
+			this.DomainSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DomainSearch_KeyDown);
 			// 
-			// AuthorPanel
+			// DomainPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.Registration);
-			this.Controls.Add(this.AuthorSearch);
+			this.Controls.Add(this.DomainSearch);
 			this.Controls.Add(this.Search);
 			this.Controls.Add(this.Auction);
 			this.Controls.Add(this.namelabel);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.Transfering);
 			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Name = "AuthorPanel";
+			this.Name = "DomainPanel";
 			this.Size = new System.Drawing.Size(2388, 1638);
 			this.Transfering.ResumeLayout(false);
 			this.Transfering.PerformLayout();
@@ -449,7 +449,7 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.NumericUpDown Years;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Label label9;
-		private System.Windows.Forms.TextBox AuthorTitle;
+		private System.Windows.Forms.TextBox DomainTitle;
 		private CoinEdit Cost;
 		private System.Windows.Forms.GroupBox Auction;
 		private CoinEdit Bid;
@@ -464,6 +464,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.Label namelabel;
 		private System.Windows.Forms.Label Fields;
 		private System.Windows.Forms.Label Values;
-		private System.Windows.Forms.ComboBox AuthorSearch;
+		private System.Windows.Forms.ComboBox DomainSearch;
 	}
 }

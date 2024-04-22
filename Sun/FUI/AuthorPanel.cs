@@ -2,9 +2,9 @@
 
 namespace Uccs.Sun.FUI
 {
-	public partial class AuthorPanel : MainPanel
+	public partial class DomainPanel : MainPanel
 	{
-		public AuthorPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public DomainPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -20,7 +20,7 @@ namespace Uccs.Sun.FUI
 				BindAccounts(RegisrationSigner);
 				BindAccounts(AuctionSigner);
 		
-				AuthorTitle_TextChanged(null, null);
+				DomainTitle_TextChanged(null, null);
 
 				Fields.Text = null;
 				Values.Text = null;
@@ -38,7 +38,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(p => p.Request(new AuthorRequest {Name = AuthorSearch.Text}), Sun.Workflow).Author;
+				var a = Sun.Call(p => p.Request(new DomainRequest {Name = DomainSearch.Text}), Sun.Workflow).Domain;
 	
 				if(a != null)
 				{	
@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 
 				var t = Sun.Call(p => p.Request(new TimeRequest()), Sun.Workflow);
 
-				if(Author.IsExclusive(AuthorSearch.Text) && (a == null || Author.CanBid(a.Name, a, t.Time)))
+				if(Domain.IsExclusive(DomainSearch.Text) && (a == null || Domain.CanBid(a.Name, a, t.Time)))
 				{
 					if(a != null)
 						AuctionStatus.Text = $"Current bid is {a.LastBid}. Send higher than this amount to outbid.";
@@ -58,7 +58,7 @@ namespace Uccs.Sun.FUI
 
 					Switch(Auction);
 				}
-				else if(Sun.Vault.Wallets.Keys.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
+				else if(Sun.Vault.Wallets.Keys.Any(i => Domain.CanRegister(DomainSearch.Text, a, t.Time, i)))
 					Switch(Registration);
 				else if(Sun.Vault.Wallets.Keys.Any(i => i == a.Owner))
 					Switch(Transfering);
@@ -80,8 +80,8 @@ namespace Uccs.Sun.FUI
 			}
 			else if(group == Registration)
 			{
-				AuthorTitle.Text = AuthorSearch.Text;
-				AuthorName_TextChanged(null, EventArgs.Empty);
+				DomainTitle.Text = DomainSearch.Text;
+				DomainName_TextChanged(null, EventArgs.Empty);
 				group.Visible = true;
 			}
 			else if(group == Transfering)
@@ -90,7 +90,7 @@ namespace Uccs.Sun.FUI
 			}
 		}
 
-		private void AuthorSearch_KeyDown(object sender, KeyEventArgs e)
+		private void DomainSearch_KeyDown(object sender, KeyEventArgs e)
 		{
 			if(e.KeyCode == Keys.Enter)
 				Search_Click(sender, e);
@@ -103,7 +103,7 @@ namespace Uccs.Sun.FUI
 
 			try
 			{
-				a = Account.Parse(AuthorSearch.Text.ToString());
+				a = Account.Parse(DomainSearch.Text.ToString());
 			}
 			catch(Exception ex)
 			{
@@ -111,39 +111,39 @@ namespace Uccs.Sun.FUI
 				return;
 			}
 
-			Authors.Items.Clear();
+			Domains.Items.Clear();
 			
 			lock(Core.Lock)
 			{
-				foreach(var i in FindAuthors(a))
+				foreach(var i in FindDomains(a))
 				{
 					var ar = i.LastRegistrationOperation;
 
-					var li = new ListViewItem(ar.Author);
+					var li = new ListViewItem(ar.Domain);
 					li.Tag = ar;
 					li.SubItems.Add(ar.Title);
 					li.SubItems.Add(ar != null ? new AdmsTime(ar.Transaction.Payload.Round.Time.Ticks + ar.Years * AdmsTime.TicksPerYear).ToString(Core.DateFormat) : null);
 				
-					Authors.Items.Add(li);
+					Domains.Items.Add(li);
 				}
 			}
 		}*/
 
-		private void AuthorTitle_TextChanged(object sender, EventArgs e)
+		private void DomainTitle_TextChanged(object sender, EventArgs e)
 		{
-			if(AuthorTitle.Text.Length > 0)
+			if(DomainTitle.Text.Length > 0)
 			{
-				///AuthorSearch.Text = Operation.TitleToName(AuthorTitle.Text);
+				///DomainSearch.Text = Operation.TitleToName(DomainTitle.Text);
 			}
 		}
 
-		private void AuthorName_TextChanged(object sender, EventArgs e)
+		private void DomainName_TextChanged(object sender, EventArgs e)
 		{
 			RegistrationStatus.Text = null;
 
 			lock(Sun.Lock)
 			{
-				//Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
+				//Cost.Coins = DomainRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 			}
 		}
 
@@ -151,12 +151,12 @@ namespace Uccs.Sun.FUI
 		{
 			try
 			{
-				if(!Author.Valid(AuthorSearch.Text))
-					throw new ArgumentException("Invalid author name");
+				if(!Domain.Valid(DomainSearch.Text))
+					throw new ArgumentException("Invalid domain name");
 
 				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
 
-				Sun.Enqueue(new AuthorRegistration(AuthorSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("AuthorRegistration"));
+				Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -164,16 +164,16 @@ namespace Uccs.Sun.FUI
 			}
 		}
 
-		private void AuctionAuthor_TextChanged(object sender, EventArgs e)
+		private void AuctionDomain_TextChanged(object sender, EventArgs e)
 		{
 			AuctionStatus.Text = null;
 
-			if(AuthorEntry.IsExclusive(AuthorSearch.Text))
+			if(DomainEntry.IsExclusive(DomainSearch.Text))
 			{
-				var a = Database.Authors.Find(AuthorSearch.Text, Database.LastConfirmedRound.Id);
+				var a = Database.Domains.Find(DomainSearch.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
-				if(a != null && !Author.CanBid(a.Name, a, Database.LastConfirmedRound.ConsensusTime))
+				if(a != null && !Domain.CanBid(a.Name, a, Database.LastConfirmedRound.ConsensusTime))
 				{
 					AuctionStatus.Text = $"Auction is over";
 				}
@@ -184,19 +184,19 @@ namespace Uccs.Sun.FUI
 				}
 			}
 			//else
-			//	AuctionStatus.Text = $"Author name must be less than {AuthorEntry.ExclusiveLengthMax} characters"; 
+			//	AuctionStatus.Text = $"Domain name must be less than {DomainEntry.ExclusiveLengthMax} characters"; 
 		}
 
 		private void Transfer_Click(object sender, EventArgs e)
 		{
 			try
 			{
-				if(string.IsNullOrWhiteSpace(AuthorSearch.Text))
-					throw new ArgumentException("The author is not selected");
+				if(string.IsNullOrWhiteSpace(DomainSearch.Text))
+					throw new ArgumentException("The domain is not selected");
 
-				var a = Database.Authors.Find(AuthorSearch.Text, int.MaxValue);
+				var a = Database.Domains.Find(DomainSearch.Text, int.MaxValue);
 
-				Sun.Enqueue(new AuthorTransfer(AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
+				Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -213,7 +213,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Sun.Enqueue(new AuthorBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
+				Sun.Enqueue(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

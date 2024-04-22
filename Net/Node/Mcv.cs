@@ -43,9 +43,9 @@ namespace Uccs.Net
 		static readonly byte[]				ChainStateKey = [0x03];
 		static readonly byte[]				GenesisKey = [0x04];
 		public AccountTable					Accounts;
-		public AuthorTable					Authors;
+		public DomainTable					Domains;
 		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
-													Authors.Clusters.Sum(i => i.MainLength);
+													Domains.Clusters.Sum(i => i.MainLength);
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
@@ -76,16 +76,16 @@ namespace Uccs.Net
 			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
 																new (AccountTable.MainColumnName,	new ()),
 																new (AccountTable.MoreColumnName,	new ()),
-																new (AuthorTable.MetaColumnName,	new ()),
-																new (AuthorTable.MainColumnName,	new ()),
-																new (AuthorTable.MoreColumnName,	new ()),
+																new (DomainTable.MetaColumnName,	new ()),
+																new (DomainTable.MainColumnName,	new ()),
+																new (DomainTable.MoreColumnName,	new ()),
 																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
-			Authors = new (this);
+			Domains = new (this);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 
@@ -122,16 +122,16 @@ namespace Uccs.Net
 			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
 																new (AccountTable.MainColumnName,	new ()),
 																new (AccountTable.MoreColumnName,	new ()),
-																new (AuthorTable.MetaColumnName,	new ()),
-																new (AuthorTable.MainColumnName,	new ()),
-																new (AuthorTable.MoreColumnName,	new ()),
+																new (DomainTable.MetaColumnName,	new ()),
+																new (DomainTable.MainColumnName,	new ()),
+																new (DomainTable.MoreColumnName,	new ()),
 																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
-			Authors = new (this);
+			Domains = new (this);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 		}
@@ -234,7 +234,7 @@ namespace Uccs.Net
 
 			LoadedRounds.Clear();
 			Accounts.Clear();
-			Authors.Clear();
+			Domains.Clear();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);
@@ -273,7 +273,6 @@ namespace Uccs.Net
 				var t = new Transaction {Zone = zone, Nid = 0, Expiration = 0};
 				t.Fee = zone.ExeunitMinFee;
 				t.AddOperation(new Emission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
-				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 			
@@ -512,7 +511,7 @@ namespace Uccs.Net
 			BaseHash = Zone.Cryptography.Hash(BaseState);
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Domains.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 	
 		public void Commit(Round round)
@@ -529,7 +528,7 @@ namespace Uccs.Net
 					foreach(var i in tail)
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
-						Authors.Save(b, i.AffectedAuthors.Values);
+						Domains.Save(b, i.AffectedDomains.Values);
 					}
 	
 					LastCommittedRound = tail.Last();
@@ -616,7 +615,7 @@ namespace Uccs.Net
 		{
 			var r = ResourceAddress.Parse(query);
 		
-			var a = Authors.Find(r.Author, LastConfirmedRound.Id);
+			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
 
 			if(a == null)
 				yield break;

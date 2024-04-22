@@ -12,7 +12,7 @@ namespace Uccs.Net
 	{
 		None,
 		Accounts,
-		Authors,
+		Domains,
 		Analyses
 	}
 
@@ -161,7 +161,7 @@ namespace Uccs.Net
 											get
 											{
 												if(GetType() == typeof(AccountTable)) return Tables.Accounts;
-												if(GetType() == typeof(AuthorTable)) return Tables.Authors;
+												if(GetType() == typeof(DomainTable)) return Tables.Domains;
 
 												throw new IntegrityException();
 											}

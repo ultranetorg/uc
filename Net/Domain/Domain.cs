@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Net
 {
-	public enum AuthorFlag : byte
+	public enum DomainFlag : byte
 	{
 		None, 
 		Owned		= 0b_____1, 
@@ -13,7 +13,7 @@ namespace Uccs.Net
 		NetOwned	= 0b_10000, 
 	}
 
-	public class Author : IBinarySerializable
+	public class Domain : IBinarySerializable
 	{
 		//public const int			ExclusiveLengthMax = 12;
 		public const int			NameLengthMin = 1;
@@ -58,35 +58,35 @@ namespace Uccs.Net
 
 		public static bool IsExclusive(string name) => name[0] != NormalPrefix; 
 
-		public static bool IsExpired(Author a, Time time) 
+		public static bool IsExpired(Domain a, Time time) 
 		{
 			return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
 					a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
 		}
 
-		public static bool CanRegister(string name, Author author, Time time, AccountAddress by)
+		public static bool CanRegister(string name, Domain domain, Time time, AccountAddress by)
 		{
-			return	author == null && !IsExclusive(name) || /// available
-					author != null && !IsExclusive(name) && author.Owner != null && time > author.Expiration || /// not renewed by current owner
-					author != null && IsExclusive(name) && author.Owner == null && author.LastWinner == by &&	
-						time > author.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
-						time > author.LastBidTime + Prolongation && /// wait until prolongation is over
-						time < author.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an author during special period
-					author != null && author.Owner == by &&	time > author.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
-															time <= author.Expiration
+			return	domain == null && !IsExclusive(name) || /// available
+					domain != null && !IsExclusive(name) && domain.Owner != null && time > domain.Expiration || /// not renewed by current owner
+					domain != null && IsExclusive(name) && domain.Owner == null && domain.LastWinner == by &&	
+						time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
+						time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
+						time < domain.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an domain during special period
+					domain != null && domain.Owner == by &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
+															time <= domain.Expiration
 				  ;
 		}
 
-		public static bool CanBid(string name, Author author, Time time)
+		public static bool CanBid(string name, Domain domain, Time time)
 		{
- 			if(!IsExpired(author, time))
+ 			if(!IsExpired(domain, time))
  			{
-				if(author.LastWinner == null) /// first bid
+				if(domain.LastWinner == null) /// first bid
 				{
 					return true;
 				}
-				//else if(time - author.FirstBidTime < AuctionMinimalDuration || time - author.LastBidTime < Prolongation)
-				else if(time < author.AuctionEnd)
+				//else if(time - domain.FirstBidTime < AuctionMinimalDuration || time - domain.LastBidTime < Prolongation)
+				else if(time < domain.AuctionEnd)
 				{
 					return true;
 				}
@@ -101,13 +101,13 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter w)
 		{
-			var f = AuthorFlag.None;
+			var f = DomainFlag.None;
 			
-			if(LastWinner != null)	f |= AuthorFlag.Auction;
-			if(Owner != null)		f |= AuthorFlag.Owned;
-			if(ComOwner != null)	f |= AuthorFlag.ComOwned;
-			if(OrgOwner != null)	f |= AuthorFlag.OrgOwned;
-			if(NetOwner != null)	f |= AuthorFlag.NetOwned;
+			if(LastWinner != null)	f |= DomainFlag.Auction;
+			if(Owner != null)		f |= DomainFlag.Owned;
+			if(ComOwner != null)	f |= DomainFlag.ComOwned;
+			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
+			if(NetOwner != null)	f |= DomainFlag.NetOwned;
 
 			w.Write((byte)f);
 			w.WriteUtf8(Name);
@@ -117,7 +117,7 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				if(f.HasFlag(AuthorFlag.Auction))
+				if(f.HasFlag(DomainFlag.Auction))
 				{
 					w.Write(FirstBidTime);
 					w.Write(LastWinner);
@@ -125,12 +125,12 @@ namespace Uccs.Net
 					w.Write(LastBid);
 				}
 
-				if(f.HasFlag(AuthorFlag.ComOwned))	w.Write(ComOwner);
-				if(f.HasFlag(AuthorFlag.OrgOwned))	w.Write(OrgOwner);
-				if(f.HasFlag(AuthorFlag.NetOwned))	w.Write(NetOwner);
+				if(f.HasFlag(DomainFlag.ComOwned))	w.Write(ComOwner);
+				if(f.HasFlag(DomainFlag.OrgOwned))	w.Write(OrgOwner);
+				if(f.HasFlag(DomainFlag.NetOwned))	w.Write(NetOwner);
 			}
 
-			if(f.HasFlag(AuthorFlag.Owned))
+			if(f.HasFlag(DomainFlag.Owned))
 			{
 				w.Write(Owner);
 				w.Write(Expiration);
@@ -140,7 +140,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			var f			= (AuthorFlag)reader.ReadByte();
+			var f			= (DomainFlag)reader.ReadByte();
 			Name			= reader.ReadUtf8();
 			NextResourceId	= reader.Read7BitEncodedInt();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
@@ -148,7 +148,7 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				if(f.HasFlag(AuthorFlag.Auction))
+				if(f.HasFlag(DomainFlag.Auction))
 				{
 					FirstBidTime	= reader.Read<Time>();
 					LastWinner		= reader.ReadAccount();
@@ -156,12 +156,12 @@ namespace Uccs.Net
 					LastBid			= reader.Read<Money>();
 				}
 
-				if(f.HasFlag(AuthorFlag.ComOwned))	ComOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(AuthorFlag.OrgOwned))	OrgOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(AuthorFlag.NetOwned))	NetOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AccountAddress>();
 			}
 
-			if(f.HasFlag(AuthorFlag.Owned))
+			if(f.HasFlag(DomainFlag.Owned))
 			{
 				Owner		= reader.ReadAccount();
 				Expiration	= reader.Read<Time>();

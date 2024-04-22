@@ -64,12 +64,6 @@ namespace Uccs.Net
 			{
 				w.Write(Transactions);
 			}
-			//w.Write(_Authors != null);
-			//
-			//if(_Authors != null)
-			//{
-			//	w.Write(_Authors, i => w.WriteUtf8(i));
-			//}
 		}
 
 		public void ReadMore(BinaryReader r)
@@ -78,10 +72,6 @@ namespace Uccs.Net
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}
-			//if(r.ReadBoolean())
-			//{
-			//	_Authors = r.ReadList(() => r.ReadUtf8());
-			//}
 		}
 
 		public XonDocument ToXon()
@@ -92,9 +82,6 @@ namespace Uccs.Net
 			d.Add("LastTransactionId").Value		= LastTransactionNid;
 			d.Add("Balance").Value					= Balance;
 			d.Add("LastEmissionId").Value			= LastEmissionId;
-			//d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;
-			//d.Add("Bail").Value						= Bail;
-			//d.Add("BailStatus").Value				= BailStatus;
 
 			return d;
 		}

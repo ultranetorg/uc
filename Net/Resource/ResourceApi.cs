@@ -53,7 +53,7 @@ namespace Uccs.Net
 					break;
 
 				case SDAddress a :
-					var au = sun.Call(c => c.Request(new AuthorRequest {Name = Address.Author}), workflow).Author;
+					var au = sun.Call(c => c.Request(new DomainRequest {Name = Address.Domain}), workflow).Domain;
 					itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 					break;
 

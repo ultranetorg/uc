@@ -45,7 +45,7 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(RequireAuthor(round, Signer, Resource.Author, out var a) == false)
+			if(RequireDomain(round, Signer, Resource.Domain, out var a) == false)
 				return;
 
 			var r = a.Resources?.FirstOrDefault(i => i.Address == Resource);
@@ -56,7 +56,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Author);
+			a = Affect(round, Resource.Domain);
 			r = a.AffectResource(Resource.Resource);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))

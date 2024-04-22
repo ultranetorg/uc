@@ -14,7 +14,7 @@ namespace Uccs.Net
 		Proxy, 
 		Vote,
 		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
-		Author, QueryResource, ResourceByName, ResourceById, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
+		Domain, QueryResource, ResourceByName, ResourceById, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
@@ -62,7 +62,7 @@ namespace Uccs.Net
 // 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
 // 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
 // 		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
-// 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
+// 		public DomainResponse					GetDomainInfo(string domain) => Request<DomainResponse>(new DomainRequest{Name = domain});
 // 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
 // 		public ResourceByNameResponse			FindResource(ResourceAddress resource) => Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = resource});
 // 		//public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});

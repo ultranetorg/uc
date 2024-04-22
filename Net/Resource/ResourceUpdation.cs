@@ -67,7 +67,7 @@ namespace Uccs.Net
 			if(Require(round, Signer, Resource, out var a, out var x) == false)
 				return;
 
-			a = Affect(round, Resource.Author);
+			a = Affect(round, Resource.Domain);
 			
 			ExeUnits = 0; /// the first is alredy paid
 
@@ -136,7 +136,7 @@ namespace Uccs.Net
 						{
 							if(i.Destination.Ci.SequenceEqual(a.Id.Ci) && i.Destination.Ai == a.Id.Ei)
 							{
-								var l = mcv.Authors.FindResource(i.Destination, round.Id);
+								var l = mcv.Domains.FindResource(i.Destination, round.Id);
 
 								execute(l.Address);
 							}

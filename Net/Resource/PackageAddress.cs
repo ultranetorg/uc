@@ -10,48 +10,24 @@ namespace Uccs.Net
 
 	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
 	{
-		public string			Author		{ get ; set; }
+		public string			Domain		{ get ; set; }
 		public string			Product		{ get ; set; }
 		public string			Realization { get ; set; }
 		public string			Version		{ get ; set; }
 
-		public string			APR => $"{Author}/{Product}/{Realization}";
+		public string			APR => $"{Domain}/{Product}/{Realization}";
 
-//		public static implicit operator ResourceAddress (PackageAddress a)
-//		{ 
-//			return a._Resource ??= new ResourceAddress(ResourceSpace.Permanent, a.Author, $"{a.Product}/{a.Realization}");
-//		}
-
-// 		public static implicit operator Ura (PackageAddress a)
-// 		{ 
-// 			if(a._Ura == null)
-// 				a._Ura = new Ura(a.Author, $"{a.Product}{PR}{a.Realization}", a.ToString());
-// 			
-// 			return a._Ura;
-// 		}
-
-		public PackageAddress(string author, string product, string realization, string veriosn)
+		public PackageAddress(string domain, string product, string realization, string veriosn)
 		{
-			Author = author;
+			Domain = domain;
 			Product = product;
 			Realization = realization;
 			Version = veriosn;
 		}
 
-// 		public PackageAddress(Ura ura)
-// 		{
-// 			Author = ura.Author;
-// 			
-// 			var j = ura.Resource.LastIndexOf(Ura.AR);
-// 
-// 			Product		= ura.Resource.Substring(0, j);
-// 			Realization = ura.Resource.Substring(j + 1);
-// 			Release		= ReleaseAddress.Parse(ura.Details); 
-// 		}
-
 		public PackageAddress(ResourceAddress resource, string version)
 		{
-			Author		= resource.Author;
+			Domain		= resource.Domain;
 
 			var j = resource.Resource.LastIndexOf('/');
 			
@@ -66,7 +42,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{ResourceAddress.Scheme}:{Author}/{Product}/{Realization}/{Version}";
+			return $"{ResourceAddress.Scheme}:{Domain}/{Product}/{Realization}/{Version}";
 		}
 
 		public static PackageAddress Parse(string v)
@@ -75,7 +51,7 @@ namespace Uccs.Net
 			var a = new PackageAddress();
 			var p = r.Resource.Split('/');
 
-			a.Author		= r.Author;
+			a.Domain		= r.Domain;
 			a.Product		= p[0];
 			a.Realization	= p[1];
 			a.Version		= p[2]; 
@@ -90,7 +66,7 @@ namespace Uccs.Net
 
 		public PackageAddress ReplaceVersion(string version)
 		{
-			return new PackageAddress(Author, Product, Realization, version);
+			return new PackageAddress(Domain, Product, Realization, version);
 		}
 
 		public int CompareTo(object obj)
@@ -100,7 +76,7 @@ namespace Uccs.Net
 
 		public int CompareTo(PackageAddress o)
 		{
-			var a = Author.CompareTo(o.Author);
+			var a = Domain.CompareTo(o.Domain);
 			if(a != 0)
 				return a;
 
@@ -122,7 +98,7 @@ namespace Uccs.Net
 		
 		public virtual void Write(BinaryWriter w)
 		{
-			w.WriteUtf8(Author);
+			w.WriteUtf8(Domain);
 			w.WriteUtf8(Product);
 			w.WriteUtf8(Realization);
 			w.WriteUtf8(Version);
@@ -130,7 +106,7 @@ namespace Uccs.Net
 
 		public virtual void Read(BinaryReader r)
 		{
-			Author = r.ReadUtf8();
+			Domain = r.ReadUtf8();
 			Product = r.ReadUtf8();
 			Realization = r.ReadUtf8();
 			Version = r.ReadUtf8();
@@ -144,7 +120,7 @@ namespace Uccs.Net
 		public bool Equals(PackageAddress o)
 		{
 			return	o is not null && 
-					Author		== o.Author && 
+					Domain		== o.Domain && 
 					Product		== o.Product && 
 					Realization	== o.Realization && 
 					Version.Equals(o.Version);
@@ -152,7 +128,7 @@ namespace Uccs.Net
 
 		public override int GetHashCode()
 		{
-			return Author.GetHashCode();
+			return Domain.GetHashCode();
 		}
 
 		public static bool operator == (PackageAddress left, PackageAddress right)

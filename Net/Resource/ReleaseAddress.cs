@@ -8,12 +8,6 @@ namespace Uccs.Net
 {
 	/// <summary>
 	/// 
-	/// ultranet:testzone1
-	/// ultranet:testzone1/author
-	/// ultranet:testzone1/author/res.our.sce
-	/// ultranet:testzone1#0123456789ABCDEF
-	/// ultranet:testzone1$author/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
-	/// 
 	/// </summary>
 
 	public enum ReleaseAddressType
@@ -181,7 +175,7 @@ namespace Uccs.Net
  
 		public override string ToString()
 		{
-			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Author}/{Resource.Resource}:{Signature.ToHex()}";
+			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}";
 		}
 		
 		public override void ParseSpecific(string t)

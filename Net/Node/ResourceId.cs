@@ -46,7 +46,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadBytes(AuthorTable.Cluster.IdLength);
+			Ci	= reader.ReadBytes(DomainTable.Cluster.IdLength);
 			Ai	= reader.Read7BitEncodedInt();
 			Ri	= reader.Read7BitEncodedInt();
 		}

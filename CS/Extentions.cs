@@ -102,7 +102,7 @@ namespace Uccs
 
 // 		public static void Write(this BinaryWriter w, ProductAddress pa)
 // 		{
-// 			w.WriteUtf8(pa.Author);
+// 			w.WriteUtf8(pa.Domain);
 // 			w.WriteUtf8(pa.Product);
 // 		}
 // 

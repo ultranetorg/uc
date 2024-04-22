@@ -20,7 +20,7 @@ namespace Uccs.Net
 											FirstTailRound			= sun.Mcv.Tail.Last().Id,
 											LastTailRound			= sun.Mcv.Tail.First().Id,
 											Accounts				= sun.Mcv.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Authors					= sun.Mcv.Authors.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Domains					= sun.Mcv.Domains.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											};
 				return r;
 			}
@@ -41,7 +41,7 @@ namespace Uccs.Net
 		public int				LastTailRound { get; set; }
 		public byte[]			LastCommitedRoundHash { get; set; }
 		public SuperCluster[]	Accounts { get; set; }
-		public SuperCluster[]	Authors { get; set; }
+		public SuperCluster[]	Domains { get; set; }
 		public SuperCluster[]	Analyses { get; set; }
 	}
 }

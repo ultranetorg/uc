@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
-	public class AuthorEntry : Author, ITableEntry<string>
+	public class DomainEntry : Domain, ITableEntry<string>
 	{
 		public string			Key => Name;
 		
@@ -18,11 +18,11 @@ namespace Uccs.Net
 		
 		public Resource[]		Resources { get; set; } = [];
 
-		public AuthorEntry()
+		public DomainEntry()
 		{
 		}
 
-		public AuthorEntry(Mcv chain)
+		public DomainEntry(Mcv chain)
 		{
 			Mcv = chain;
 		}
@@ -32,9 +32,9 @@ namespace Uccs.Net
 			return $"{Name}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 		}
 
-		public AuthorEntry Clone()
+		public DomainEntry Clone()
 		{
-			return new AuthorEntry(Mcv) {	Id = Id,
+			return new DomainEntry(Mcv) {	Id = Id,
 											Name = Name,
 											Owner = Owner,
 											Expiration = Expiration,
@@ -69,7 +69,7 @@ namespace Uccs.Net
 			Resources = reader.Read(() =>	{ 
 												var a = new Resource();
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new ResourceAddress{Author = Name, 
+												a.Address = new ResourceAddress{Domain = Name, 
 																				Resource = reader.ReadUtf8()};
 												a.Read(reader);
 												return a;

@@ -8,7 +8,7 @@ using System.Xml.Linq;
 namespace Uccs.Net
 {
 	/// <summary>
-	///		/author/resource
+	///		/domain/resource
 	/// </summary>
 	 
 // 	public enum ResourceType
@@ -20,28 +20,28 @@ namespace Uccs.Net
 	{
 	//	public ResourceType			Type { get; set; }
 		public string				Zone { get; set; }
-		public string				Author { get; set; }
+		public string				Domain { get; set; }
 		public string				Resource { get; set; }
 
 		public const string			Scheme = "ura";
-		public string				Uri => $"{Scheme}:{Zone}{(Zone != null ? "." : null)}{Author}/{Resource}";
+		public string				Uri => $"{Scheme}:{Zone}{(Zone != null ? "." : null)}{Domain}/{Resource}";
 		//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
 
-		public bool					Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+		public bool					Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
 
 		public ResourceAddress()
 		{
 		}
 
-		public ResourceAddress(string author, string resource)
+		public ResourceAddress(string domain, string resource)
 		{
-			Author = author;
+			Domain = domain;
 			Resource = resource;
 		}
 
 		public override string ToString()
 		{
-			return $"{Author}/{Resource}";
+			return $"{Domain}/{Resource}";
 		}
 
 		public override bool Equals(object o)
@@ -51,12 +51,12 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceAddress o)
 		{
-			return o is not null && Zone == o.Zone && Author == o.Author && Resource == o.Resource;
+			return o is not null && Zone == o.Zone && Domain == o.Domain && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()
  		{
- 			return Author.GetHashCode();
+ 			return Domain.GetHashCode();
  		}
 
 		public int CompareTo(object obj)
@@ -71,7 +71,7 @@ namespace Uccs.Net
 			if(c != 0)
 				return c;
 
-			c = Author.CompareTo(o.Author);
+			c = Domain.CompareTo(o.Domain);
 
 			if(c != 0)
 				return c;
@@ -106,10 +106,10 @@ namespace Uccs.Net
 			if(j != -1)
 			{
 				a.Zone = za.Substring(0, j);
-				a.Author = za.Substring(j+1);
+				a.Domain = za.Substring(j+1);
 			}
 			else
-				a.Author = za;
+				a.Domain = za;
 
 			a.Resource = v.Substring(r+1);
 
@@ -122,7 +122,7 @@ namespace Uccs.Net
 			
 			var i = v.IndexOf('/');
 
-			a.Author = v.Substring(0, i);
+			a.Domain = v.Substring(0, i);
 			a.Resource = v.Substring(i+1);
 
 			return a;
@@ -130,13 +130,13 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter w)
 		{
-			w.WriteUtf8(Author);
+			w.WriteUtf8(Domain);
 			w.WriteUtf8(Resource);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Author	 = r.ReadUtf8();
+			Domain	 = r.ReadUtf8();
 			Resource = r.ReadUtf8();
 		}
 	}
