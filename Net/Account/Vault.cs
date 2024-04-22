@@ -45,9 +45,11 @@ namespace Uccs.Net
 			Keys.Add(key);
 		}
 
-		public void AddWallet(AccountAddress account, byte[] wallet)
+		public void AddWallet(byte[] wallet)
 		{
-			Wallets[account] = wallet;
+			var a  = Zone.Cryptography.AccountFromWallet(wallet);
+
+			Wallets[a] = wallet;
 		}
 
 		public void AddWallet(AccountKey key, string password)

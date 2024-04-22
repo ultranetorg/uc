@@ -418,13 +418,12 @@ namespace Uccs.Net
 
 	public class AddWalletApc : SunApc
 	{
-		public byte[]	PrivateKey { get; set; }
-		public string	Password { get; set; }
+		public byte[]	Wallet { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
-				sun.Vault.AddWallet(PrivateKey, Password);
+				sun.Vault.AddWallet(Wallet);
 			
 			return null;
 		}

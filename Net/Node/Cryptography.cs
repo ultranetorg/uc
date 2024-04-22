@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using Nethereum.KeyStore;
 using Nethereum.Signer;
 using Nethereum.Util;
@@ -21,8 +22,9 @@ namespace Uccs.Net
 		public virtual byte[]				ZeroHash  => new byte[HashSize];
 
 		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
+		public abstract AccountAddress		AccountFromWallet(byte[] wallet);
 		public abstract AccountAddress		AccountFrom(byte[] signature, byte[] hash);
-		public abstract byte[]				Encrypt(EthECKey key, string password);
+		public abstract byte[]				Encrypt(AccountKey key, string password);
 		public abstract byte[]				Decrypt(byte[] input, string password);
 
 		public static readonly SecureRandom	Random = new SecureRandom();
@@ -76,7 +78,7 @@ namespace Uccs.Net
 			return new AccountAddress(signature.Take(AccountAddress.Length).ToArray());
 		}
 
-		public override byte[] Encrypt(EthECKey key, string password)
+		public override byte[] Encrypt(AccountKey key, string password)
 		{
 			//if(string.IsNullOrWhiteSpace(password))
 			//	throw new RequirementException("Non-empty password required");
@@ -90,7 +92,7 @@ namespace Uccs.Net
 			//
 			//return b.DoFinal(key.GetPrivateKeyAsBytes());
 
-			return key.GetPrivateKeyAsBytes();
+			return key.Key.GetPrivateKeyAsBytes();
 		}
 
 		public override byte[] Decrypt(byte[] input, string password)
@@ -108,6 +110,11 @@ namespace Uccs.Net
 			//return b.DoFinal(input);
 
 			return input;
+		}
+
+		public override AccountAddress AccountFromWallet(byte[] wallet)
+		{
+			return new AccountKey(wallet);
 		}
 	}
 
@@ -149,9 +156,16 @@ namespace Uccs.Net
 			return new AccountAddress(EthECKey.RecoverFromSignature(sig, hash));
 		}
 
-		public override byte[] Encrypt(EthECKey key, string password)
+		public override AccountAddress AccountFromWallet(byte[] wallet)
 		{
-			return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.GetPrivateKeyAsBytes(), key.GetPublicAddress()));
+			JsonElement j = JsonSerializer.Deserialize<dynamic>(Encoding.UTF8.GetString(wallet));
+
+			return AccountAddress.Parse(j.GetProperty("address").GetString());
+		}
+
+		public override byte[] Encrypt(AccountKey key, string password)
+		{
+			return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.Key.GetPrivateKeyAsBytes(), key.Key.GetPublicAddress()));
 		}
 
 		public override byte[] Decrypt(byte[] input, string password)

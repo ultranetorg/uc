@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Uccs.Net;
 
@@ -61,55 +62,51 @@ namespace Uccs.Sun.CLI
 				p = Program.PasswordAsker.Password;
 			}
 
-			var acc = AccountKey.Create();
+			var k = AccountKey.Create();
 
 			Workflow.Log?.Report(this, null, new string[]{	"Wallet created", 
-															"Public Address - " + acc.ToString(), 
-															"Private Key    - " + acc.Key.GetPrivateKey() });
+															"Public Address - " + k.ToString(), 
+															"Private Key    - " + k.Key.GetPrivateKey() });
 
-			Api(new AddWalletApc {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
-			Api(new SaveWalletApc {Account = acc});
+			Api(new AddWalletApc {Wallet = Program.Zone.Cryptography.Encrypt(k, p)});
+			Api(new SaveWalletApc {Account = k});
 
-			return acc;
+			return k;
 		}
 
-		AccountKey Import() /// from private key
+		public AccountAddress Import() /// from private key
 		{
-			AccountKey acc;
+			byte[] w;
 			
 			if(Has("privatekey"))
-				acc = AccountKey.Parse(GetString("privatekey"));
-			else if(Has("wallet"))
 			{
-				var wp = GetString("wallet/password", null);
+				string p = GetString("password", null);
 
-				if(wp == null)
+				if(p == null)
 				{
-					Program.PasswordAsker.Ask(GetString("wallet/path"));
-					wp = Program.PasswordAsker.Password;
+					Program.PasswordAsker.Create(Vault.PasswordWarning);
+					p = Program.PasswordAsker.Password;
 				}
 
-				acc = AccountKey.Load(Program.Zone.Cryptography, GetString("wallet/path"), wp);
+				var k = new AccountKey(GetBytes("privatekey"));
+				w = Program.Zone.Cryptography.Encrypt(k, p);
+			}
+			else if(Has("wallet"))
+			{
+				w = File.ReadAllBytes(GetString("wallet"));
 			}
 			else
 				throw new SyntaxException("'privatekey' or 'wallet' must be provided");
 
-			string p = GetString("password", null);
+			var a = Program.Zone.Cryptography.AccountFromWallet(w);
 
-			if(p == null)
-			{
-				Program.PasswordAsker.Create(Vault.PasswordWarning);
-				p = Program.PasswordAsker.Password;
-			}
-
-			Api(new AddWalletApc {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
-			Api(new SaveWalletApc {Account = acc});
+			Api(new AddWalletApc {Wallet = w});
+			Api(new SaveWalletApc {Account = a});
 
 			Workflow.Log?.Report(this, null, new string[] {	"Wallet imported", 
-															"Public Address - " + acc.ToString(), 
-															"Private Key    - " + acc.Key.GetPrivateKey() });
+															"Account Address - " + a.ToString()});
 			
-			return acc;
+			return a;
 		}
 	}
 }

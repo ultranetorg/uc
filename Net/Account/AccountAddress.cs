@@ -168,12 +168,12 @@ namespace Uccs.Net
 
 		public void Save(Cryptography cryptography, string path, string password)
 		{
-			File.WriteAllBytes(path, cryptography.Encrypt(Key, password));
+			File.WriteAllBytes(path, cryptography.Encrypt(this, password));
 		}
 
 		public byte[] Save(Cryptography cryptography, string password)
 		{
-			return cryptography.Encrypt(Key, password);
+			return cryptography.Encrypt(this, password);
 		}
 	}	
 
