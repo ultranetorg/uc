@@ -44,7 +44,7 @@ namespace Uccs.Sun.CLI
 							{
 								var x = new XonDocument(Console.ReadLine());
 	
-								if(x.Nodes[0].Name == Keyword)
+								if(x.Nodes[0].Name == Keyword && x.Nodes[1].Name != "peers")
 									throw new Exception("Not available");
 	
 								Program.Execute(x.Nodes, l);
