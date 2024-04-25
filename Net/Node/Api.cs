@@ -490,6 +490,20 @@ namespace Uccs.Net
 		}
 	}
 
+	public class EmissionApc : SunApc
+	{
+		public AccountAddress		By { get; set; } 
+		public int					Eid { get; set; } 
+		public TransactionStatus	Await { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		{
+			var o = sun.Nas.FindEmission(By, Eid, workflow);
+
+			return o;
+		}
+	}
+
 	public class CostApc : SunApc
 	{
 		public class Report

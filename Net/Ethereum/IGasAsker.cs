@@ -33,11 +33,11 @@ namespace Uccs.Net
 			GasPrice = gp;
 			Gas = g;
 
-			log?.Report(this, "Ethereum", new[]{"Estimations",
-												$"Balance       : {Web3.Convert.FromWeiToBigDecimal(bal)} ETH",
-												$"Estimated Gas : {Gas} WEI",
-												$"Gas Price     : {GasPrice / Web3.Convert.GetEthUnitValue(Nethereum.Util.UnitConversion.EthUnit.Gwei)} GWEI",
-												$"Cost          : {Web3.Convert.FromWeiToBigDecimal(g * gp)} ETH"});
+			log?.Report(this, "Ethereum", [	"Estimations",
+											$"Balance       : {Web3.Convert.FromWeiToBigDecimal(bal)} ETH",
+											$"Estimated Gas : {Gas} WEI",
+											$"Gas Price     : {GasPrice / Web3.Convert.GetEthUnitValue(Nethereum.Util.UnitConversion.EthUnit.Gwei)} GWEI",
+											$"Cost          : {Web3.Convert.FromWeiToBigDecimal(g * gp)} ETH"]);
 
 			return true;
 		}

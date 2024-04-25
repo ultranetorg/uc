@@ -15,7 +15,7 @@ namespace Uccs.Net
 				if(!Transaction.Zone.Auctions)
 					return false;
 
-				if(!Net.Domain.IsExclusive(Name))
+				if(!Domain.IsWeb(Name))
 					return false;
 
 				if(Bid <= Money.Zero)
@@ -70,7 +70,7 @@ namespace Uccs.Net
 		{
 			var a = Affect(round, Name);
 
- 			if(!Net.Domain.IsExpired(a, round.ConsensusTime))
+ 			if(!Domain.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{

@@ -83,6 +83,24 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+		   		case "fe" :
+		   		case "findemission" :
+				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+
+					var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
+															By = GetAccountAddress("by"), 
+															Await = GetAwaitStage(Args) });
+
+					if(e > 0)
+						Workflow.Log?.Report(this, $"Amount: {Web3.Convert.FromWei(e)}");
+					else
+						throw new Exception("Not found");
+
+					return null;
+				}
+
 		   		case "t" : 
 		   		case "transfer" : 
 				{

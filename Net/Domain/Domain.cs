@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -13,13 +14,21 @@ namespace Uccs.Net
 		NetOwned	= 0b_10000, 
 	}
 
+	public enum DomainChildPolicy : byte
+	{
+		None, 
+		FullOwnership	= 1, 
+		FullFreedom		= 2, 
+		Programmatic	= 0b11111111, 
+	}
+
 	public class Domain : IBinarySerializable
 	{
 		//public const int			ExclusiveLengthMax = 12;
 		public const int			NameLengthMin = 1;
 		public const int			NameLengthMax = 256;
 		public const char			NormalPrefix = '_';
-		public const char			CountryPrefix = '~';
+		public const char			National = '~';
 
 		public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
 		public static readonly Time	Prolongation = Time.FromDays(30);
@@ -28,7 +37,7 @@ namespace Uccs.Net
 		public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public EntityId				Id { get; set; }
-		public string				Name { get; set; }
+		public string				Address { get; set; }
 		public AccountAddress		Owner { get; set; }
 		public Time					Expiration { get; set; }
 		public AccountAddress		ComOwner { get; set; }
@@ -41,6 +50,13 @@ namespace Uccs.Net
 		public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
+		public DomainChildPolicy	ParentPolicy { get; set; }
+
+		public static bool			IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
+		public static bool			IsRoot(string name) => name.IndexOf('.') == -1; 
+		public static bool			IsChild(string name) => name.IndexOf('.') != -1; 
+		public static string		GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
+		public static string		GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
 		public static bool Valid(string name)
 		{
@@ -50,13 +66,18 @@ namespace Uccs.Net
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 
-			if(Regex.Match(name, $@"^[a-z0-9{NormalPrefix}]+$").Success == false)
+			if(Regex.Match(name, $@"^[a-z0-9{NormalPrefix}{National}.]+$").Success == false)
 				return false;
 
 			return true;
 		}
+				
+		public static string GetRoot(string name)
+		{
+			var i = name.LastIndexOf('.');
 
-		public static bool IsExclusive(string name) => name[0] != NormalPrefix; 
+			return i == -1 ? name : name.Substring(i + 1);
+		}
 
 		public static bool IsExpired(Domain a, Time time) 
 		{
@@ -66,9 +87,9 @@ namespace Uccs.Net
 
 		public static bool CanRegister(string name, Domain domain, Time time, AccountAddress by)
 		{
-			return	domain == null && !IsExclusive(name) || /// available
-					domain != null && !IsExclusive(name) && domain.Owner != null && time > domain.Expiration || /// not renewed by current owner
-					domain != null && IsExclusive(name) && domain.Owner == null && domain.LastWinner == by &&	
+			return	domain == null && !IsWeb(name) || /// available
+					domain != null && !IsWeb(name) && domain.Owner != null && time > domain.Expiration || /// not renewed by current owner
+					domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by &&	
 						time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 						time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
 						time < domain.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an domain during special period
@@ -77,7 +98,7 @@ namespace Uccs.Net
 				  ;
 		}
 
-		public static bool CanBid(string name, Domain domain, Time time)
+		public static bool CanBid(Domain domain, Time time)
 		{
  			if(!IsExpired(domain, time))
  			{
@@ -99,7 +120,7 @@ namespace Uccs.Net
 			return false;
 		}
 
-		public void Write(BinaryWriter w)
+		public void Write(BinaryWriter writer)
 		{
 			var f = DomainFlag.None;
 			
@@ -109,44 +130,48 @@ namespace Uccs.Net
 			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
 			if(NetOwner != null)	f |= DomainFlag.NetOwned;
 
-			w.Write((byte)f);
-			w.WriteUtf8(Name);
-			w.Write7BitEncodedInt(NextResourceId);
-			w.Write7BitEncodedInt(SpaceReserved);
-			w.Write7BitEncodedInt(SpaceUsed);
+			writer.Write((byte)f);
+			writer.WriteUtf8(Address);
+			writer.Write7BitEncodedInt(NextResourceId);
+			writer.Write7BitEncodedInt(SpaceReserved);
+			writer.Write7BitEncodedInt(SpaceUsed);
 
-			if(IsExclusive(Name))
+			if(IsWeb(Address))
 			{
 				if(f.HasFlag(DomainFlag.Auction))
 				{
-					w.Write(FirstBidTime);
-					w.Write(LastWinner);
-					w.Write(LastBidTime);
-					w.Write(LastBid);
+					writer.Write(FirstBidTime);
+					writer.Write(LastWinner);
+					writer.Write(LastBidTime);
+					writer.Write(LastBid);
 				}
 
-				if(f.HasFlag(DomainFlag.ComOwned))	w.Write(ComOwner);
-				if(f.HasFlag(DomainFlag.OrgOwned))	w.Write(OrgOwner);
-				if(f.HasFlag(DomainFlag.NetOwned))	w.Write(NetOwner);
+				if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
+				if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
+				if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
 			}
 
 			if(f.HasFlag(DomainFlag.Owned))
 			{
-				w.Write(Owner);
-				w.Write(Expiration);
+				writer.Write(Owner);
+				writer.Write(Expiration);
 			}
 
+			if(IsChild(Address))
+			{
+				writer.Write((byte)ParentPolicy);
+			}
 		}
 
 		public void Read(BinaryReader reader)
 		{
 			var f			= (DomainFlag)reader.ReadByte();
-			Name			= reader.ReadUtf8();
+			Address			= reader.ReadUtf8();
 			NextResourceId	= reader.Read7BitEncodedInt();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
 			SpaceUsed		= (short)reader.Read7BitEncodedInt();
 
-			if(IsExclusive(Name))
+			if(IsWeb(Address))
 			{
 				if(f.HasFlag(DomainFlag.Auction))
 				{
@@ -165,6 +190,11 @@ namespace Uccs.Net
 			{
 				Owner		= reader.ReadAccount();
 				Expiration	= reader.Read<Time>();
+			}
+
+			if(IsChild(Address))
+			{
+				ParentPolicy = (DomainChildPolicy)reader.ReadByte();
 			}
 		}
 	}

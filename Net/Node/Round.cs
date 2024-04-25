@@ -221,7 +221,7 @@ namespace Uccs.Net
 				return AffectedDomains[domain] = new DomainEntry(Mcv){	Affected = true,
 																		New = true,
 																		Id = new EntityId(ci, ai), 
-																		Name = domain};
+																		Address = domain};
 			}
 		}
 

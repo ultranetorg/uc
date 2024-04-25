@@ -10,10 +10,7 @@ namespace Uccs.Net
 {
 	public enum Tables
 	{
-		None,
-		Accounts,
-		Domains,
-		Analyses
+		None, Accounts, Domains,
 	}
 
 	public abstract class Table<E, K> : IEnumerable<E> where E : class, ITableEntry<K>
@@ -26,8 +23,6 @@ namespace Uccs.Net
 			public byte[]			Id;
 			public byte				SuperId => Id[1];
 			public int				MainLength;
-			//public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
-			//public static ushort	ToId(Span<byte> k) => (ushort)(((ushort)k[0])<<8 | k[1]);
 			List<E>					_Entries;
 			Table<E, K>				Table;
 			byte[]					_Main;
@@ -45,12 +40,12 @@ namespace Uccs.Net
 							var s = new MemoryStream(Main);
 							var r = new BinaryReader(s);
 	
-							var a = r.ReadArray<E>(() => { 
+							var a = r.ReadArray(() => { 
 															var e = Table.Create();
 															e.Id = new EntityId(Id, r.Read7BitEncodedInt());
 															e.ReadMain(r);
 															return e;
-														 });
+													 });
 					
 							s = new MemoryStream(Table.Engine.Get(Id, Table.MoreColumn));
 							r = new BinaryReader(s);
@@ -105,7 +100,7 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				var entities = Entries.OrderBy(i => i.Id.Ei);
+				var entities = Entries;///.OrderBy(i => i.Id.Ei);
 
 				w.Write(entities, i =>	{
 											w.Write7BitEncodedInt(i.Id.Ei);

@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public static readonly Money		BalanceMin = new Money(0.000_000_001);
 		public const int					EntityLength = 100;
 		public const int					EntityRentYearsMin = 1;
-		public const int					EntityRentYearsMax = 9;
+		public const int					EntityRentYearsMax = 10;
 		public static readonly Time			Forever = Time.FromYears(30);
 		public static Money					TimeFactor(Time time) => new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
 

@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public class Nas : INas
 	{
-		public const string						ContractAddress = "0x43958d38C348579362353E1B81Ef74B9f47B2310";
+		public const string						ContractAddress = "0xbf0cf508d788384569912c5f8a983fa2be2d54e8";
 		Settings								Settings;
 		public Web3								Web3;
 
@@ -213,11 +213,14 @@ namespace Uccs.Net
 			}
 		}
 
-		public BigInteger FinishEmission(AccountAddress account, int eid)
+		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
 		{
 			var f = new FindTransferFunction { Secret = Emission.Serialize(account, eid) };
 
-			return Contract.QueryAsync<FindTransferFunction, BigInteger>(f).Result;
+			var c =  Contract.QueryAsync<FindTransferFunction, BigInteger>(f);
+			c.Wait(workflow.Cancellation);
+			
+			return c.Result;
 		}
 
 		public bool CheckEmission(Emission e)

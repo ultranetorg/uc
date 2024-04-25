@@ -35,6 +35,7 @@ namespace Uccs.Net
 
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
+		public const string		NotPermitted = "Not found";
 		public const string		ExistingAccountRequired = "ExistingAccountRequired";
 		public const string		Expired = "Expired";
 		public const string		Sealed = "Sealed";

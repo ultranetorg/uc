@@ -16,7 +16,7 @@ namespace Uccs.Net
 		public Chain							Chain { get => Chain.Ropsten; }
 		public bool								IsAdministrator => true;
 
-		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow workflow)
 		{
 		}
 
@@ -25,7 +25,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public BigInteger FinishEmission(AccountAddress account, int eid)
+		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
 		{
 			throw new NotImplementedException();
 		}

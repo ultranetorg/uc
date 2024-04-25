@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	public class DomainEntry : Domain, ITableEntry<string>
 	{
-		public string			Key => Name;
+		public string			Key => Address;
 		
 		[JsonIgnore]
 		public bool				New { get; set; }
@@ -29,13 +29,13 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Name}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+			return $"{Address}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 		}
 
 		public DomainEntry Clone()
 		{
 			return new DomainEntry(Mcv) {	Id = Id,
-											Name = Name,
+											Address = Address,
 											Owner = Owner,
 											Expiration = Expiration,
 											FirstBidTime = FirstBidTime,
@@ -69,7 +69,7 @@ namespace Uccs.Net
 			Resources = reader.Read(() =>	{ 
 												var a = new Resource();
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new ResourceAddress{Domain = Name, 
+												a.Address = new ResourceAddress{Domain = Address, 
 																				Resource = reader.ReadUtf8()};
 												a.Read(reader);
 												return a;
@@ -114,7 +114,7 @@ namespace Uccs.Net
 			{
 				var r = new Resource {	Affected = true,
 										New = true,
-										Address = new ResourceAddress(Name, resource),
+										Address = new ResourceAddress(Address, resource),
 										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
 
 				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();

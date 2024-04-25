@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 
 				var t = Sun.Call(p => p.Request(new TimeRequest()), Sun.Workflow);
 
-				if(Domain.IsExclusive(DomainSearch.Text) && (a == null || Domain.CanBid(a.Name, a, t.Time)))
+				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
 				{
 					if(a != null)
 						AuctionStatus.Text = $"Current bid is {a.LastBid}. Send higher than this amount to outbid.";
@@ -149,31 +149,31 @@ namespace Uccs.Sun.FUI
 
 		private void Register_Click(object sender, EventArgs e)
 		{
-			try
-			{
-				if(!Domain.Valid(DomainSearch.Text))
-					throw new ArgumentException("Invalid domain name");
-
-				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
-
-				Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
-			}
-			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
-			{
-				ShowError(ex.Message);
-			}
+			//try
+			//{
+			//	if(!Domain.Valid(DomainSearch.Text))
+			//		throw new ArgumentException("Invalid domain name");
+			//
+			//	var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
+			//
+			//	Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
+			//}
+			//catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
+			//{
+			//	ShowError(ex.Message);
+			//}
 		}
 
 		private void AuctionDomain_TextChanged(object sender, EventArgs e)
 		{
 			AuctionStatus.Text = null;
 
-			if(DomainEntry.IsExclusive(DomainSearch.Text))
+			if(DomainEntry.IsWeb(DomainSearch.Text))
 			{
 				var a = Database.Domains.Find(DomainSearch.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
-				if(a != null && !Domain.CanBid(a.Name, a, Database.LastConfirmedRound.ConsensusTime))
+				if(a != null && !Domain.CanBid(a, Database.LastConfirmedRound.ConsensusTime))
 				{
 					AuctionStatus.Text = $"Auction is over";
 				}

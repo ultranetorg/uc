@@ -35,7 +35,7 @@ namespace Uccs.Sun.FUI
 			
 			foreach(var r in Database.Tail)
 				foreach(var a in r.AffectedDomains)
-					if(a.Value.Owner == owner && !o.Any(i => i.Name == a.Key))
+					if(a.Value.Owner == owner && !o.Any(i => i.Address == a.Key))
 					{
 						o.Add(a.Value);
 					}

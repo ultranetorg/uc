@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Uccs.Net;
 
@@ -64,8 +63,10 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new DomainRegistration(	Args[1].Name,
-													byte.Parse(GetString("years")));
+					return new DomainRegistration  {Address		= Args[1].Name,
+													Years		= byte.Parse(GetString("years")),
+													ChildPolicy = GetEnum("childpolicy", DomainChildPolicy.None),
+													Owner		= GetAccountAddress("owner", false)};
 				}
 
 		   		case "t" : 

@@ -2181,7 +2181,7 @@ namespace Uccs.Net
 			
 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
 
-				var wei = Nas.FinishEmission(signer, eid);
+				var wei = Nas.FindEmission(signer, eid, workflow);
 
 				if(wei == 0)
 					throw new RequirementException("No corresponding Ethrereum transaction found");

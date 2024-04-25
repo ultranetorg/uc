@@ -22,7 +22,7 @@ namespace Uccs.Net
 				if(!Domain.Valid(Name))
 					return false;
 
-				if(!Domain.IsExclusive(Name))
+				if(!Domain.IsWeb(Name))
 					return false;
 
 				if(Tld.Length > 8)
