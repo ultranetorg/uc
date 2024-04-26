@@ -31,13 +31,13 @@ namespace Uccs.Sun.CLI
 					if(!Has("source") && !Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var a = Api<ReleaseAddress>(new ReleaseBuildApc {Resource = ResourceAddress.Parse(Args[1].Name),
+					var a = Api<Urr>(new ReleaseBuildApc {Resource = Ura.Parse(Args[1].Name),
 																	 FilePath = GetString("source", null),
 																	 Sources = GetString("sources", null)?.Split(','),
 																	 AddressCreator = new()	{	
-																								Type = GetEnum("addresstype", ReleaseAddressType.DH),
+																								Type = GetEnum("addresstype", UrrScheme.Urrh),
 																								Owner = GetAccountAddress("owner", false),
-																								Resource = ResourceAddress.Parse(Args[1].Name)
+																								Resource = Ura.Parse(Args[1].Name)
 																							} });
 
 					Workflow.Log?.Report(this, $"Address : {a}");
@@ -90,7 +90,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalReleaseApc.Release>(new LocalReleaseApc {Address = ReleaseAddress.Parse(Args[1].Name)});
+					var r = Api<LocalReleaseApc.Release>(new LocalReleaseApc {Address = Urr.Parse(Args[1].Name)});
 					
 					if(r != null)
 					{

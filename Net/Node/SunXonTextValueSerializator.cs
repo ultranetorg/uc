@@ -15,7 +15,7 @@ namespace Uccs.Net
 			}
 
 			if(	val is AccountAddress	||
-				val is ResourceAddress	||
+				val is Ura	||
 				val is Time)
 				return val.ToString();
 			if(val is Money c)		return c.ToHumanString();
@@ -28,7 +28,7 @@ namespace Uccs.Net
 			var v = value as string;
 
 			if(typeof(O) == typeof(AccountAddress))		return (O)(object)AccountAddress.Parse(v);
-			if(typeof(O) == typeof(ResourceAddress))	return (O)(object)ResourceAddress.Parse(v);
+			if(typeof(O) == typeof(Ura))	return (O)(object)Ura.Parse(v);
 			if(typeof(O) == typeof(Time))				return (O)(object)Time.Parse(v);
 			if(typeof(O) == typeof(Money))				return (O)(object)Money.ParseDecimal(v);
 

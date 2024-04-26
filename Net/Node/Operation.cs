@@ -168,7 +168,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public bool Require(Round round, AccountAddress signer, ResourceAddress address, out DomainEntry domain, out Resource resource)
+		public bool Require(Round round, AccountAddress signer, Ura address, out DomainEntry domain, out Resource resource)
 		{
 			resource = null;
 

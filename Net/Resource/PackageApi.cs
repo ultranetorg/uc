@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class PackageAddApc : SunApc
 	{
-		public ResourceAddress			Resource { get; set; }
+		public Ura			Resource { get; set; }
 		public byte[]					Complete { get; set; }
 		public byte[]					Incremental { get; set; }
 		public byte[]					Manifest { get; set; }
@@ -44,11 +44,11 @@ namespace Uccs.Net
 
 	public class PackageBuildApc : SunApc
 	{
-		public ResourceAddress			Resource { get; set; }
+		public Ura			Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					DependenciesPath { get; set; }
-		public ResourceAddress			Previous { get; set; }
-		public ResourceAddress[]		History { get; set; }
+		public Ura			Previous { get; set; }
+		public Ura[]		History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
@@ -62,7 +62,7 @@ namespace Uccs.Net
 
 	public class PackageDownloadApc : SunApc
 	{
-		public ResourceAddress		Package { get; set; }
+		public Ura		Package { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -76,7 +76,7 @@ namespace Uccs.Net
 
 	public class PackageInstallApc : SunApc
 	{
-		public ResourceAddress	Package { get; set; }
+		public Ura	Package { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -87,7 +87,7 @@ namespace Uccs.Net
 
 	public class PackageActivityProgressApc : SunApc
 	{
-		public ResourceAddress	Package { get; set; }
+		public Ura	Package { get; set; }
 		
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -105,7 +105,7 @@ namespace Uccs.Net
 
 	public class PackageInfoApc : SunApc
 	{
-		public ResourceAddress	Package { get; set; }
+		public Ura	Package { get; set; }
 		
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{

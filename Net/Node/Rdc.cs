@@ -15,7 +15,8 @@ namespace Uccs.Net
 		Vote,
 		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 		Domain, QueryResource, ResourceByName, ResourceById, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
-		Stamp, TableStamp, DownloadTable, DownloadRounds
+		Stamp, TableStamp, DownloadTable, DownloadRounds,
+		Cost
 	}
 
 	public class TransactionsAddress : IBinarySerializable

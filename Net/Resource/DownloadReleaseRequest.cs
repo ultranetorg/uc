@@ -4,7 +4,7 @@ namespace Uccs.Net
 {
 	public class DownloadReleaseRequest : RdcCall<DownloadReleaseResponse>
 	{
-		public ReleaseAddress	Address { get; set; }
+		public Urr	Address { get; set; }
 		public string			File { get; set; }
 		public long				Offset { get; set; }
 		public long				Length { get; set; }

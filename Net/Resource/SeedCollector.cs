@@ -31,9 +31,9 @@ namespace Uccs.Net
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
 			SeedCollector				Collector;
-			ReleaseAddress				Address;
+			Urr				Address;
 
-			public Hub(SeedCollector collector, ReleaseAddress hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(SeedCollector collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
 				Collector = collector;
 				Address = hash;
@@ -80,7 +80,7 @@ namespace Uccs.Net
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		MembersResponse.Member[]	Members;
 
-		public SeedCollector(Sun sun, ReleaseAddress address, Workflow workflow)
+		public SeedCollector(Sun sun, Urr address, Workflow workflow)
 		{
 			Sun = sun;
 			Workflow = workflow.CreateNested($"SeedCollector {address}");

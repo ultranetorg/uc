@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public class ResourceDeletion : Operation
 	{
-		public ResourceAddress		Resource { get; set; }
+		public Ura		Resource { get; set; }
 
 		public override bool		Valid => true;
 		public override string		Description => $"{Resource}";
@@ -15,14 +15,14 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceDeletion(ResourceAddress resource)
+		public ResourceDeletion(Ura resource)
 		{
 			Resource = resource;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource = reader.Read<ResourceAddress>();
+			Resource = reader.Read<Ura>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)

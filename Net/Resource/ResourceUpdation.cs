@@ -7,7 +7,7 @@ namespace Uccs.Net
 {
 	public class ResourceUpdation : Operation
 	{
-		public ResourceAddress		Resource { get; set; }
+		public Ura		Resource { get; set; }
 		public ResourceChanges		Changes	{ get; set; }
 		public ResourceData			Data { get; set; }
 
@@ -19,7 +19,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceUpdation(ResourceAddress resource)
+		public ResourceUpdation(Ura resource)
 		{
 			Resource = resource;
 		}
@@ -46,7 +46,7 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource	= reader.Read<ResourceAddress>();
+			Resource	= reader.Read<Ura>();
 			Changes		= (ResourceChanges)reader.ReadByte();
 			
 			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
@@ -71,7 +71,7 @@ namespace Uccs.Net
 			
 			ExeUnits = 0; /// the first is alredy paid
 
-			void execute(ResourceAddress resource)
+			void execute(Ura resource)
 			{
 				ExeUnits++;
 

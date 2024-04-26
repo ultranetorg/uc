@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text.Json;
+using Uccs.Net;
 using Xunit;
 
-namespace Uccs.Net.Tests
+
+namespace Uccs.Tests
 {
 	public static class AddressTests
 	{
@@ -17,62 +17,77 @@ namespace Uccs.Net.Tests
 		}
 
  		[Fact]
+ 		public static void Ueas()
+ 		{
+			void check(string a)
+			{
+				Assert.True(UAddress.Parse(a).ToString() == a);
+			}
+
+			check($"d");
+			check($"d/r");
+			check($"s:d");
+			check($"s:d/r");
+			check($"s:s.d/r");
+			check($"s:z:d");
+			check($"s:z:d/r");
+			check($"s:z:s.d/r");
+ 		}
+
+ 		[Fact]
  		public static void Resource()
  		{
- 			var s = new HashSet<ResourceAddress>(){	ResourceAddress.Parse("a/r"), 
-													ResourceAddress.Parse("ura:a/r"), 
-													ResourceAddress.Parse("ura:aa/rr"),
-													ResourceAddress.Parse("ura:zone.aaa/rrr"),
-													};
+ 			var s = new List<Ura>(){	Ura.Parse($"{Ura.Scheme}:a/r"),
+										Ura.Parse($"{Ura.Scheme}:aa/rr"),
+										Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")};
 
-			Assert.True(s.Contains(ResourceAddress.Parse("a/r")));
- 			Assert.True(s.Contains(ResourceAddress.Parse("ura:a/r")));
- 			Assert.True(s.Contains(ResourceAddress.Parse("ura:aa/rr")));
- 			Assert.True(s.Contains(ResourceAddress.Parse("ura:zone.aaa/rrr")));
- 			
-			Assert.False(s.Contains(ResourceAddress.Parse("ura:wrong.aaa/rrr")));
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:a/r")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:aa/rr")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")) == 1);
+
+			Assert.DoesNotContain(Ura.Parse("ura:wrong.aaa/rrr"), s);
  		}
 
  		[Fact]
  		public static void Package()
  		{
  			var p = new HashSet<PackageAddress>(){PackageAddress.Parse("ura:a/p/r/v")};
- 			Assert.True(p.Contains(PackageAddress.Parse("ura:a/p/r/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p/r/v-")));
- 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p/r-/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p-/r/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("ura:a-/p/r/v")));
+			Assert.Contains(PackageAddress.Parse($"{Ura.Scheme}:a/p/r/v"), p);
+			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p/r/v-"), p);
+			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p/r-/v"), p);
+			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p-/r/v"), p);
+			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a-/p/r/v"), p);
  		}
 
 		[Fact]
 		public static void Release()
 		{
-			var a = new DHAddress { Hash = RandomBytes(32) };
-			var ac = new DHAddress{ Hash = a.Hash.ToArray() };
-			var b = new DHAddress { Hash = RandomBytes(32) };
+			var a = new Urrh { Hash = RandomBytes(32) };
+			var ac = new Urrh{ Hash = a.Hash.ToArray() };
+			var b = new Urrh { Hash = RandomBytes(32) };
 			 
-			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Signature = RandomBytes(65) };
-			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:a/p"), Signature = x.Signature.ToArray() };
-			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Signature = RandomBytes(65) };
+			var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = RandomBytes(65) };
+			var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = x.Signature.ToArray() };
+			var y = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&
 						a != x && ac != xc);
 
-			var l = new List<ReleaseAddress> {a, x};
+			var l = new List<Urr> {a, x};
 
-			Assert.True(l.Contains(a));
-			Assert.True(l.Contains(ac));
-			Assert.False(l.Contains(b));
+			Assert.Contains(a, l);
+			Assert.Contains(ac, l);
+			Assert.DoesNotContain(b, l);
 
-			Assert.True(l.Contains(x));
-			Assert.True(l.Contains(xc));
-			Assert.False(l.Contains(y));
+			Assert.Contains(x, l);
+			Assert.Contains(x, l);
+			Assert.DoesNotContain(y, l);
 
-			Assert.True(a == ReleaseAddress.Parse(a.ToString()));
+			Assert.True(a == Urr.Parse(a.ToString()));
 
-			Assert.True(a == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)a, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
-			Assert.True(x == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)x, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
+			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
+			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
 		}
 
 		//[Theory]

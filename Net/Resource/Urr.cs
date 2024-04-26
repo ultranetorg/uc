@@ -10,12 +10,12 @@ namespace Uccs.Net
 	/// 
 	/// </summary>
 
-	public enum ReleaseAddressType
+	public enum UrrScheme
 	{
-		None, DH, SPD
+		None, Urrh, Urrs
 	}
 
- 	public abstract class ReleaseAddress : ITypeCode, IBinarySerializable, IEquatable<ReleaseAddress>
+ 	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>
  	{
  		public abstract byte			TypeCode { get; }
  		public abstract byte[]			MemberOrderKey { get; }
@@ -26,7 +26,7 @@ namespace Uccs.Net
 													var s = new MemoryStream();
 													var w = new BinaryWriter(s);
 													
- 													w.Write((byte)TypeCode);
+ 													w.Write(TypeCode);
 													Write(w);
 													
 													return s.ToArray();
@@ -34,7 +34,7 @@ namespace Uccs.Net
 											}
 
 		public override abstract bool	Equals(object other);
-  		public abstract bool			Equals(ReleaseAddress other);
+  		public abstract bool			Equals(Urr other);
 		public override abstract int	GetHashCode();
 
 		//	public const char				S = ':';
@@ -44,25 +44,18 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public static ReleaseAddress Parse(string t)
+		public static Urr Parse(string t)
 		{
-			var i = t.IndexOf(':');
+			UAddress.Parse(t, out var s, out var z, out var o);
 
-			var a = t.Substring(0, i) switch{
-												"updh" => new DHAddress() as ReleaseAddress,
-												"upsd" => new SDAddress(),
-												_ => throw new FormatException()
-											};
+			var a = s switch{
+								Urrh.Scheme =>	new Urrh() as Urr,
+								Urrsd.Scheme => new Urrsd(),
+								_ => throw new FormatException()
+							};
 
-			var z = t.IndexOf('.', i+1);
-			
-			if(z != -1)
-			{	
-				a.Zone = t.Substring(i+1, z-i-1);
-				a.ParseSpecific(t.Substring(z+1));
-			}
-			else
-				a.ParseSpecific(t.Substring(i+1));
+			a.Zone = z;
+			a.ParseSpecific(o);
 
 			return a;
 		}
@@ -87,18 +80,18 @@ namespace Uccs.Net
 			ReadMore(reader);
 		}
 
-		public static ReleaseAddress FromType(byte c)
+		public static Urr FromType(byte c)
 		{
-			switch((ReleaseAddressType)c)
+			switch((UrrScheme)c)
 			{
-				case ReleaseAddressType.DH:		return new DHAddress();
-				case ReleaseAddressType.SPD:	return new SDAddress();
+				case UrrScheme.Urrh: return new Urrh();
+				case UrrScheme.Urrs: return new Urrsd();
 			}
 
 			throw new ResourceException(ResourceError.UnknownAddressType);
 		}
 
-		public static ReleaseAddress FromRaw(BinaryReader reader)
+		public static Urr FromRaw(BinaryReader reader)
 		{
 			var a = FromType(reader.ReadByte());
 			
@@ -107,7 +100,7 @@ namespace Uccs.Net
 			return a;
 		}
 
- 		public static ReleaseAddress FromRaw(byte[] bytes)
+ 		public static Urr FromRaw(byte[] bytes)
  		{
  			var s = new MemoryStream(bytes);
  			var r = new BinaryReader(s);
@@ -115,30 +108,32 @@ namespace Uccs.Net
  			return FromRaw(r);
  		}
  
- 		public static bool operator == (ReleaseAddress a, ReleaseAddress b)
+ 		public static bool operator == (Urr a, Urr b)
  		{
  			return a is null && b is null || a is not null && a.Equals(b);
  		}
  
- 		public static bool operator != (ReleaseAddress a, ReleaseAddress b)
+ 		public static bool operator != (Urr a, Urr b)
  		{
  			return !(a == b);
  		}
 	}
  
- 	public class DHAddress : ReleaseAddress
+ 	public class Urrh : Urr
  	{
+		public const string		Scheme = "urrh";
+
  		public byte[]			Hash { get; set; }
- 		public override byte	TypeCode => (byte)ReleaseAddressType.DH;
+ 		public override byte	TypeCode => (byte)UrrScheme.Urrh;
  		public override byte[]	MemberOrderKey => Hash;
  		
 		public override int		GetHashCode() => BitConverter.ToInt32(Hash);
- 		public override bool	Equals(object obj) => Equals(obj as DHAddress);
-		public override bool	Equals(ReleaseAddress o) => o is DHAddress a && Hash.SequenceEqual(a.Hash);
+ 		public override bool	Equals(object obj) => Equals(obj as Urrh);
+		public override bool	Equals(Urr o) => o is Urrh a && Hash.SequenceEqual(a.Hash);
 
 		public override string ToString()
 		{
-			return $"updh:{Zone}{(Zone != null ? "." : null)}{Hash.ToHex()}";
+			return UAddress.ToString(Scheme, Zone, Hash.ToHex());
 		}
 
 		public override void ParseSpecific(string t)
@@ -162,30 +157,32 @@ namespace Uccs.Net
 		}
   	}
 
-	public class SDAddress : ReleaseAddress
+	public class Urrsd : Urr
 	{
-		public ResourceAddress	Resource { get; set; }
+		public const string		Scheme = "urrsd";
+
+		public Ura				Resource { get; set; }
 		public byte[]			Signature { get; set; }
-		public override byte	TypeCode => (byte)ReleaseAddressType.SPD;
+		public override byte	TypeCode => (byte)UrrScheme.Urrs;
 		public override byte[]	MemberOrderKey => Signature;
 
  		public override int		GetHashCode() => BitConverter.ToInt32(Signature);
- 		public override bool	Equals(object o) => Equals(o as SDAddress);
-		public override bool	Equals(ReleaseAddress o) => o is SDAddress a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
+ 		public override bool	Equals(object o) => Equals(o as Urrsd);
+		public override bool	Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
  
 		public override string ToString()
 		{
-			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}";
+			return UAddress.ToString(Scheme, Zone, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
 		}
 		
 		public override void ParseSpecific(string t)
 		{
-			Resource	= ResourceAddress.ParseAR(t);
+			Resource	= Ura.ParseAR(t);
 
 			var s = Resource.Resource.LastIndexOf(':');
 			
-			Resource.Resource = Resource.Resource.Substring(0, s);
 			Signature		  = Resource.Resource.Substring(s + 1).FromHex();
+			Resource.Resource = Resource.Resource.Substring(0, s);
 		}
 
 		public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
@@ -198,14 +195,14 @@ namespace Uccs.Net
 			return cryptography.AccountFrom(Signature, cryptography.Hash(s.ToArray())) == account;
 		}
 
-		public static ReleaseAddress Create(Cryptography cryptography, AccountKey key, ResourceAddress resource, byte[] hash)
+		public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 			w.Write(resource);
 			w.Write(hash);
 
-			return new SDAddress {Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
+			return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
 		}
 
 		protected override void WriteMore(BinaryWriter writer)
@@ -216,20 +213,20 @@ namespace Uccs.Net
 
 		protected override void ReadMore(BinaryReader reader)
 		{
-			Resource = reader.Read<ResourceAddress>();
+			Resource = reader.Read<Ura>();
 			Signature = reader.ReadBytes(Cryptography.SignatureSize);
 		}
 
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<ReleaseAddress>
+	public class ReleaseAddressJsonConverter : JsonConverter<Urr>
 	{
-		public override ReleaseAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override Urr Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return ReleaseAddress.Parse(reader.GetString());
+			return Urr.Parse(reader.GetString());
 		}
 
-		public override void Write(Utf8JsonWriter writer, ReleaseAddress value, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, Urr value, JsonSerializerOptions options)
 		{
 			writer.WriteStringValue(value.ToString());
 		}
@@ -237,16 +234,16 @@ namespace Uccs.Net
 
 	public class ReleaseAddressCreator
 	{
-		public ReleaseAddressType	Type { get; set; }
+		public UrrScheme	Type { get; set; }
 		public AccountAddress		Owner { get; set; }
-		public ResourceAddress		Resource { get; set; }
+		public Ura		Resource { get; set; }
 
-		public ReleaseAddress Create(Sun sun, byte[] hash)
+		public Urr Create(Sun sun, byte[] hash)
 		{
 			return Type	switch
 						{
-							ReleaseAddressType.DH => new DHAddress {Hash = hash},
-							ReleaseAddressType.SPD => SDAddress.Create(sun.Zone.Cryptography, sun.Vault.GetKey(Owner), Resource, hash),
+							UrrScheme.Urrh => new Urrh {Hash = hash},
+							UrrScheme.Urrs => Urrsd.Create(sun.Zone.Cryptography, sun.Vault.GetKey(Owner), Resource, hash),
 							_ => throw new ResourceException(ResourceError.UnknownAddressType)
 						};
 

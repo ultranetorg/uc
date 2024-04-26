@@ -80,7 +80,7 @@ namespace Uccs.Net
 	public class Resource : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
-		public ResourceAddress		Address { get; set; }
+		public Ura		Address { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }

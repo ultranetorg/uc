@@ -15,7 +15,7 @@ namespace Uccs.Sun.CLI
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
-		ResourceAddress		Package => ResourceAddress.Parse(Args[1].Name);
+		Ura		Package => Ura.Parse(Args[1].Name);
 
 		public PackageCommand(Program program, List<Xon> args) : base(program, args)
 		{
@@ -31,7 +31,7 @@ namespace Uccs.Sun.CLI
 				case "c" :
 				case "create" :
 				{
-					ResourceAddress p = null;
+					Ura p = null;
 					Manifest m = null;
 
 					try
@@ -48,15 +48,15 @@ namespace Uccs.Sun.CLI
 					{
 					}
 
-					Api(new PackageBuildApc {	Resource		 = ResourceAddress.Parse(Args[1].Name), 
+					Api(new PackageBuildApc {	Resource		 = Ura.Parse(Args[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
 												DependenciesPath = GetString("dependencies", false),
 												Previous		 = p,
 												History			 = m?.History,
 												AddressCreator	 = new(){	
-																			Type = GetEnum("addresstype", ReleaseAddressType.DH),
+																			Type = GetEnum("addresstype", UrrScheme.Urrh),
 																			Owner = GetAccountAddress("owner", false),
-																			Resource = ResourceAddress.Parse(Args[1].Name)
+																			Resource = Ura.Parse(Args[1].Name)
 																		} });
 					return null;
 				}

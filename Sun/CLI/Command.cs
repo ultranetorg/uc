@@ -125,10 +125,10 @@ namespace Uccs.Sun.CLI
 					return null;
 		}
 
-		protected ResourceAddress GetResourceAddress(string paramenter, bool mandatory = true)
+		protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
 		{
 			if(Has(paramenter))
-				return ResourceAddress.Parse(GetString(paramenter));
+				return Ura.Parse(GetString(paramenter));
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
@@ -136,10 +136,10 @@ namespace Uccs.Sun.CLI
 					return null;
 		}
 
-		protected ReleaseAddress GetReleaseAddress(string paramenter, bool mandatory = true)
+		protected Urr GetReleaseAddress(string paramenter, bool mandatory = true)
 		{
 			if(Has(paramenter))
-				return ReleaseAddress.Parse(GetString(paramenter));
+				return Urr.Parse(GetString(paramenter));
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");

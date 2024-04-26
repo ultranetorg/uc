@@ -24,19 +24,19 @@ namespace Uccs.Net
 			Directory.CreateDirectory(ProductsPath);
 		}
 
- 		public string AddressToPath(ResourceAddress release)
+ 		public string AddressToPath(Ura release)
  		{
  			return Path.Join(ProductsPath, ResourceHub.Escape(release.ToString()));
  		}
  
- 		public ResourceAddress PathToAddress(string path)
+ 		public Ura PathToAddress(string path)
  		{
  			path = ResourceHub.Unescape(path.Substring(ProductsPath.Length));
  
- 			return ResourceAddress.Parse(path);
+ 			return Ura.Parse(path);
  		}
 
-		IEnumerable<LocalPackage> PreviousIncrementals(ResourceAddress package, ResourceAddress incrementalminimal)
+		IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
 		{
 			return Find(package).Manifest.History	//.TakeWhile(i => !i.SequenceEqual(package.Hash))
 													.SkipWhile(i => i != incrementalminimal)
@@ -44,7 +44,7 @@ namespace Uccs.Net
 													.Where(i => i is not null);
 		}
 
-		public bool IsReady(ResourceAddress package) 
+		public bool IsReady(Ura package) 
 		{
 			var p = Find(package);
 				
@@ -66,7 +66,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalPackage Get(ResourceAddress resource)
+		public LocalPackage Get(Ura resource)
 		{
 			var p = Find(resource);
 
@@ -84,7 +84,7 @@ namespace Uccs.Net
 			return p;
 		}
 
- 		public LocalPackage Find(ResourceAddress resource)
+ 		public LocalPackage Find(Ura resource)
  		{
  			var p = Packages.Find(i => i.Resource.Address == resource);
  
@@ -135,7 +135,7 @@ namespace Uccs.Net
 // 			return null;
 // 		}
 
-		public bool ExistsRecursively(ResourceAddress release)
+		public bool ExistsRecursively(Ura release)
 		{
 			var p = Find(release);
 
@@ -174,7 +174,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public void BuildIncremental(Stream stream, ResourceAddress package, ResourceAddress previous, IDictionary<string, string> files, Workflow workflow)
+		public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> files, Workflow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -252,7 +252,7 @@ namespace Uccs.Net
 			Build(stream, incs, rems, workflow);
 		}
 
-		public void DetermineDelta(ResourceAddress package, Manifest manifest, out bool canincrement, out List<Dependency> dependencies)
+		public void DetermineDelta(Ura package, Manifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
 			lock(Sun.ResourceHub.Lock)
 			{
@@ -279,7 +279,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public ReleaseAddress AddRelease(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, ResourceAddress[] history, ResourceAddress previous, ReleaseAddressCreator addresscreator, Workflow workflow)
+		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura[] history, Ura previous, ReleaseAddressCreator addresscreator, Workflow workflow)
 		{
 			var cstream = new MemoryStream();
 			var istream = (MemoryStream)null;
@@ -367,25 +367,25 @@ namespace Uccs.Net
  			}
 		}
 
-		public ReleaseAddress AddRelease(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Workflow workflow)
+		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Workflow workflow)
 		{
 			var r = Sun.ResourceHub.Find(resource);
 			var m = new Manifest();
 		
 			if(r != null)
 			{
-				var c = Sun.ResourceHub.Find(r.LastAs<ReleaseAddress>());
+				var c = Sun.ResourceHub.Find(r.LastAs<Urr>());
 				m.Read(new BinaryReader(new MemoryStream(c.ReadFile("m"))));
 			}
 		
 			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, workflow);
 		}
 
-		public Deployment Deploy(ResourceAddress package, Workflow workflow)
+		public Deployment Deploy(Ura package, Workflow workflow)
 		{
 			var	d = new Deployment();
 
-			void collect(LocalPackage parent, ResourceAddress address)
+			void collect(LocalPackage parent, Ura address)
 			{
 				var m = new DeploymentMerge{Target = Find(address)};
 				d.Merges.Add(m);
@@ -425,7 +425,7 @@ namespace Uccs.Net
 
 				//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
 				
-				var deps = new HashSet<ResourceAddress>();
+				var deps = new HashSet<Ura>();
 
 				foreach(var j in m.Complete.Manifest.CompleteDependencies)
 					deps.Add(j.Package);
@@ -504,7 +504,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public PackageDownload Download(ResourceAddress package, Workflow workflow)
+		public PackageDownload Download(Ura package, Workflow workflow)
 		{
 			var p = Get(package);
 
@@ -518,7 +518,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public void Install(ResourceAddress package, Workflow workflow)
+		public void Install(Ura package, Workflow workflow)
 		{
 			bool e; 
 

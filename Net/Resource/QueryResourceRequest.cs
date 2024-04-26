@@ -19,6 +19,6 @@ namespace Uccs.Net
 		
 	public class QueryResourceResponse : RdcResponse
 	{
-		public ResourceAddress[] Resources { get; set; }
+		public Ura[] Resources { get; set; }
 	}
 }

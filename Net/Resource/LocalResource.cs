@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public class LocalResource
 	{
-		public ResourceAddress		Address { get; set; }
+		public Ura		Address { get; set; }
 		public List<ResourceData>	Datas { get; set; }
 
 		public ResourceData			Last => Datas.LastOrDefault();
@@ -21,7 +21,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public LocalResource(ResourceHub hub, ResourceAddress resource)
+		public LocalResource(ResourceHub hub, Ura resource)
 		{
 			Hub = hub;
 			Address = resource;

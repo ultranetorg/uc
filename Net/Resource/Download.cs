@@ -34,11 +34,11 @@ namespace Uccs.Net
 
 	public class SPDIntegrity : IIntegrity
 	{
-		SDAddress		Release;
+		Urrsd		Release;
 		AccountAddress	Account;
 		Cryptography	Cryptography;
 
-		public SPDIntegrity(Cryptography cryptography, SDAddress release, AccountAddress account)
+		public SPDIntegrity(Cryptography cryptography, Urrsd release, AccountAddress account)
 		{
 			Release		 = release;
 			Account		 = account;

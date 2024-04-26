@@ -116,7 +116,7 @@ namespace Uccs.Sun.CLI
 
 					var c = new CostApc{Years = [1, 5, 10], 
 										DomainLengths = [1, 5, 10, 15], 
-										Rate = GetMoney("rate", Money.Zero)};
+										Rate = GetMoney("rate", 1)};
 
 					var r = Api<CostApc.Report>(c);
 

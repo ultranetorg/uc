@@ -204,7 +204,7 @@ namespace Uccs.Net
 			if(t == typeof(RdcResponse))	return RdcResponse.FromType((RdcClass)b); 
 			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
 			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 
-			if(t == typeof(ReleaseAddress))	return ReleaseAddress.FromType(b); 
+			if(t == typeof(Urr))	return Urr.FromType(b); 
 
 			return null;
 		}

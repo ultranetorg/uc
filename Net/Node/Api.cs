@@ -17,11 +17,11 @@ namespace Uccs.Net
 		{
 			try
 			{
-				var a = ResourceAddress.Parse(request.QueryString["address"]);
+				var a = Ura.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "f";
 	
 				var r = sun.Call(p => p.Request(new ResourceByNameRequest {Name = a}), workflow).Resource;
-				var ra = r.Data?.Interpretation as ReleaseAddress
+				var ra = r.Data?.Interpretation as Urr
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
 	
@@ -38,7 +38,7 @@ namespace Uccs.Net
 	
 				switch(ra)
 				{ 
-					case DHAddress x :
+					case Urrh x :
 						if(r.Data.Type == DataType.File)
 						{
 							itg = new DHIntegrity(x.Hash); 
@@ -53,7 +53,7 @@ namespace Uccs.Net
 						}
 						break;
 	
-					case SDAddress x :
+					case Urrsd x :
 						var au = sun.Call(c => c.Request(new DomainRequest {Name = a.Domain}), workflow).Domain;
 						itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
 						break;
@@ -528,26 +528,25 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			lock(sun.Lock)
+			if(Rate == 0)
 			{
-				if(Rate == 0)
-				{
-					Rate = 1;
-				}
-
-				return new Report {	RentBytePerDay				= sun.Mcv.LastConfirmedRound.RentPerBytePerDay * Rate,
-									Exeunit						= sun.Mcv.LastConfirmedRound.ConsensusExeunitFee * Rate,
-				
-									RentAccount					= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
-					
-									RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainRegistration.CalculateFee(Time.FromYears(y), sun.Mcv.LastConfirmedRound.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
-					
-									RentResource				= Years.Select(y => Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-									RentResourceForever			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
-				
-									RentResourceData			= Years.Select(y => Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(y)) * Rate).ToArray(),
-									RentResourceDataForever		= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Mcv.Forever) * Rate};
+				Rate = 1;
 			}
+
+			var r = sun.Call(i => i.Request(new CostRequest()), workflow);
+
+			return new Report {	RentBytePerDay				= r.RentPerBytePerDay * Rate,
+								Exeunit						= r.ConsensusExeunitFee * Rate,
+				
+								RentAccount					= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+					
+								RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainRegistration.CalculateFee(Time.FromYears(y), r.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
+					
+								RentResource				= Years.Select(y => Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceForever			= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+				
+								RentResourceData			= Years.Select(y => Operation.CalculateFee(r.RentPerBytePerDay, 1, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceDataForever		= Operation.CalculateFee(r.RentPerBytePerDay, 1, Mcv.Forever) * Rate};
 		}
 	}
 

@@ -125,7 +125,7 @@ namespace Uccs.Net
 				case DataType.File:
 				case DataType.Directory:
 				case DataType.Package: 
-					_Interpretation = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
+					_Interpretation = reader.Read<Urr>(Urr.FromType);
 					break;
 
 				case DataType.Consil:
@@ -236,8 +236,8 @@ namespace Uccs.Net
 						i = new IPAddress(v.GetAddressBytes());
 						break;
 
-					case ReleaseAddress v: 
-						i = ReleaseAddress.FromRaw(v.Raw);
+					case Urr v: 
+						i = Urr.FromRaw(v.Raw);
 						break;
 
 					case Consil v:

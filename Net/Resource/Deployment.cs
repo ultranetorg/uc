@@ -17,9 +17,9 @@ namespace Uccs.Net
 
 	public class DeploymentMergeProgress
 	{
-		public ResourceAddress		Target { get; set; }	
-		public ResourceAddress		Complete { get; set; }	
-		public ResourceAddress[]	Incrementals { get; set; }	
+		public Ura		Target { get; set; }	
+		public Ura		Complete { get; set; }	
+		public Ura[]	Incrementals { get; set; }	
 
 		public DeploymentMergeProgress(DeploymentMerge merge)
 		{

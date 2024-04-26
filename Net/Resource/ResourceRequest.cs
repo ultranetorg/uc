@@ -2,7 +2,7 @@
 {
 	public class ResourceByNameRequest : RdcCall<ResourceByNameResponse>
 	{
-		public ResourceAddress	Name { get; set; }
+		public Ura	Name { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{

@@ -11,8 +11,8 @@ namespace Uccs.Net
 {
 	public class ResourceDeclaration
 	{
-		public ResourceAddress			Resource { get; set; }	
-		public ReleaseAddress			Release { get; set; }	
+		public Ura			Resource { get; set; }	
+		public Urr			Release { get; set; }	
 		public byte[]					Hash { get; set; }
 		public Availability				Availability { get; set; }	
 	}
@@ -46,7 +46,7 @@ namespace Uccs.Net
 			Directory.CreateDirectory(ReleasesPath);
 
 			Releases = Directory.EnumerateDirectories(ReleasesPath)
-									.Select(z => new LocalRelease(this, ReleaseAddress.Parse(Path.GetFileName(z)), DataType.None))
+									.Select(z => new LocalRelease(this, Urr.Parse(Path.GetFileName(z)), DataType.None))
 										.ToList();
 
 			if(sun != null && !sun.IsClient)
@@ -72,7 +72,7 @@ namespace Uccs.Net
 			if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
 				throw new ResourceException(ResourceError.AlreadyExists);
 		
-			var r = new LocalRelease(this, ReleaseAddress.FromRaw(address), type);
+			var r = new LocalRelease(this, Urr.FromRaw(address), type);
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 		
 			Releases.Add(r);
@@ -82,7 +82,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalRelease Add(ReleaseAddress address, DataType type)
+		public LocalRelease Add(Urr address, DataType type)
 		{
 			if(Releases.Any(i => i.Address == address))
 				throw new ResourceException(ResourceError.AlreadyExists);
@@ -97,7 +97,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalResource Add(ResourceAddress resource)
+		public LocalResource Add(Ura resource)
 		{
 			if(Resources.Any(i => i.Address == resource))
 				throw new ResourceException(ResourceError.AlreadyExists);
@@ -130,7 +130,7 @@ namespace Uccs.Net
 //			return null;
 //		}
 
-		public LocalRelease Find(ReleaseAddress address)
+		public LocalRelease Find(Urr address)
 		{
 			var r = Releases.Find(i => i.Address == address);
 
@@ -149,7 +149,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public LocalResource Find(ResourceAddress resource)
+		public LocalResource Find(Ura resource)
 		{
 			var r = Resources.Find(i => i.Address == resource);
 
@@ -169,7 +169,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public LocalRelease Add(ResourceAddress resource, IEnumerable<string> sources, ReleaseAddressCreator address, Workflow workflow)
+		public LocalRelease Add(Ura resource, IEnumerable<string> sources, ReleaseAddressCreator address, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -246,7 +246,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalRelease Add(ResourceAddress resource, string source, ReleaseAddressCreator address, Workflow workflow)
+		public LocalRelease Add(Ura resource, string source, ReleaseAddressCreator address, Workflow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
@@ -297,7 +297,7 @@ namespace Uccs.Net
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, LocalRelease>>();
+				var ds = new Dictionary<MembersResponse.Member, Dictionary<Ura, LocalRelease>>();
 
 				lock(Lock)
 				{
@@ -312,7 +312,7 @@ namespace Uccs.Net
 							case DataType.Directory:
 							case DataType.Package:
 							{
-								var l = Find(d.Interpretation as ReleaseAddress);
+								var l = Find(d.Interpretation as Urr);
 
 								if(l != null && l.Availability != Availability.None)
 								{

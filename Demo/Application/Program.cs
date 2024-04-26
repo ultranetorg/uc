@@ -32,7 +32,7 @@ namespace Uccs.Demo.Application
 
 			Task.Run(() =>
 					 {
-						var v = ResourceAddress.Parse("uo/democomponent/dotnet/0.0.0");
+						var v = Ura.Parse("uo/democomponent/dotnet/0.0.0");
 						
 						Application.Nexus.Sun.Send(new PackageInstallApc {Package = v}, new Workflow($"InstallPackage {v}"));
 

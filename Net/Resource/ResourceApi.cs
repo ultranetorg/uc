@@ -15,7 +15,7 @@ namespace Uccs.Net
 
 	public class ReleaseBuildApc : SunApc
 	{
-		public ResourceAddress			Resource { get; set; }
+		public Ura			Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					FilePath { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
@@ -36,7 +36,7 @@ namespace Uccs.Net
 
 	public class ResourceDownloadApc : SunApc
 	{
-		public ResourceAddress	Address { get; set; }
+		public Ura	Address { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -44,15 +44,15 @@ namespace Uccs.Net
 
 			IIntegrity itg;
 
-			var rza = r.Data.Interpretation as ReleaseAddress;
+			var rza = r.Data.Interpretation as Urr;
 
 			switch(rza)
 			{ 
-				case DHAddress a :
+				case Urrh a :
 					itg = new DHIntegrity(a.Hash); 
 					break;
 
-				case SDAddress a :
+				case Urrsd a :
 					var au = sun.Call(c => c.Request(new DomainRequest {Name = Address.Domain}), workflow).Domain;
 					itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 					break;
@@ -86,7 +86,7 @@ namespace Uccs.Net
 	
 	public class ReleaseActivityProgressApc : SunApc
 	{
-		public ReleaseAddress Release { get; set; }
+		public Urr Release { get; set; }
 		
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -153,7 +153,7 @@ namespace Uccs.Net
 	
 	public class LocalResourceApc : SunApc
 	{
-		public ResourceAddress		Resource { get; set; }
+		public Ura		Resource { get; set; }
 		
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -166,7 +166,7 @@ namespace Uccs.Net
 	
 	public class LocalReleaseApc : SunApc
 	{
-		public ReleaseAddress		Address { get; set; }
+		public Urr		Address { get; set; }
 
 		public class File
 		{

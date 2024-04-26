@@ -28,8 +28,8 @@ namespace Uccs.Net
 	{
 		public const int											SeedsPerReleaseMax = 100;
 		public const int											SeedsPerRequestMax = 50;
-		public Dictionary<ReleaseAddress, List<Seed>>				Releases = new ();
-		public Dictionary<ResourceAddress, List<ReleaseAddress>>	Resources = new ();
+		public Dictionary<Urr, List<Seed>>				Releases = new ();
+		public Dictionary<Ura, List<Urr>>	Resources = new ();
 		public object												Lock = new object();
 		Sun															Sun;
 
@@ -76,7 +76,7 @@ namespace Uccs.Net
 					{
 						lock(Sun.Lock)
 						{
-							if(rzd is DHAddress dh)
+							if(rzd is Urrh dh)
 							{
 								var z = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 	
@@ -84,14 +84,14 @@ namespace Uccs.Net
 								{
 									var e = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
-									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != dh)
+									if(e?.Data == null || e.Data.Interpretation is Urrh ha && ha != dh)
 									{
 										results.Add(new (rzd, DeclarationResult.Rejected));
 										continue;
 									}
 								}
 							}
-							else if(rzd is SDAddress sdp)
+							else if(rzd is Urrsd sdp)
 							{
 								var ea = Sun.Mcv.Domains.Find(rsd.Resource.Domain, Sun.Mcv.LastConfirmedRound.Id);
 	

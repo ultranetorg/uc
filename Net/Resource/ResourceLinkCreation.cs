@@ -4,8 +4,8 @@ namespace Uccs.Net
 {
 	public class ResourceLinkCreation : Operation
 	{
-		public ResourceAddress		Source { get; set; }
-		public ResourceAddress		Destination { get; set; }
+		public Ura		Source { get; set; }
+		public Ura		Destination { get; set; }
 		public ResourceLinkChanges	Changes  { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
@@ -21,7 +21,7 @@ namespace Uccs.Net
 				Changes |= ResourceLinkChanges.Seal;
 		}
 
-		public ResourceLinkCreation(ResourceAddress source, ResourceAddress destination)
+		public ResourceLinkCreation(Ura source, Ura destination)
 		{
 			Source = source;
 			Destination = destination;
@@ -36,8 +36,8 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Source		= reader.Read<ResourceAddress>();
-			Destination	= reader.Read<ResourceAddress>();
+			Source		= reader.Read<Ura>();
+			Destination	= reader.Read<Ura>();
 			Changes		= (ResourceLinkChanges)reader.ReadByte();
 		}
 

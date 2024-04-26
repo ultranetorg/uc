@@ -23,7 +23,7 @@ namespace Uccs.Net
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
-		public ResourceAddress	Package { get; set; }
+		public Ura	Package { get; set; }
 		public DependencyType	Type { get; set; }
 		public DependencyFlag	Flags { get; set; }
 
@@ -31,7 +31,7 @@ namespace Uccs.Net
 		{
 			var d = new Dependency();
 			
-			d.Package	= ResourceAddress.Parse(i.Name);
+			d.Package	= Ura.Parse(i.Name);
 			d.Type		= Enum.Parse<DependencyType>(i.Get<string>("Type"));
 			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.None;
 			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
@@ -46,7 +46,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Package = reader.Read<ResourceAddress>();
+			Package = reader.Read<Ura>();
 			Type = (DependencyType)reader.ReadByte();
 			Flags = (DependencyFlag)reader.ReadByte();
 		}
@@ -105,7 +105,7 @@ namespace Uccs.Net
 
 	public class ParentPackage : IBinarySerializable
 	{
-		public ResourceAddress	Release { get; set; }
+		public Ura	Release { get; set; }
 		public Dependency[]		AddedDependencies { get; set; }
 		public Dependency[]		RemovedDependencies { get; set; }
 
@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader r)
 		{
-			Release				= r.Read<ResourceAddress>();
+			Release				= r.Read<Ura>();
 			AddedDependencies	= r.ReadArray<Dependency>();
 			RemovedDependencies = r.ReadArray<Dependency>();
 		}
@@ -130,7 +130,7 @@ namespace Uccs.Net
 		public Dependency[]				CompleteDependencies { get; set; }
 		public byte[]					IncrementalHash { get; set; }
 		public ParentPackage[]			Parents { get; set; }
-		public ResourceAddress[]		History { get; set; }
+		public Ura[]		History { get; set; }
 
 		public const string				Extension = "manifest";
 
@@ -191,7 +191,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			History					= reader.ReadArray<ResourceAddress>();
+			History					= reader.ReadArray<Ura>();
 			CompleteHash			= reader.ReadBytes();
 			IncrementalHash			= reader.ReadBytes();
 			CompleteDependencies	= reader.ReadArray<Dependency>();

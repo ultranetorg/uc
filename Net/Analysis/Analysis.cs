@@ -59,9 +59,9 @@ namespace Uccs.Net
 
 	public class Analysis : IBinarySerializable
 	{
-		public ReleaseAddress		Release { get; set; }
+		public Urr		Release { get; set; }
 		public Money				Payment { get; set; }
-		public ResourceAddress		Consil	{ get; set; }
+		public Ura		Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
 
  		public byte[]				Raw {
@@ -83,8 +83,8 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Release = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
-			Consil	= reader.Read<ResourceAddress>();
+			Release = reader.Read<Urr>(Urr.FromType);
+			Consil	= reader.Read<Ura>();
 			Payment	= reader.Read<Money>();
 			Results	= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																  Result = (AnalysisResult)reader.ReadByte() });

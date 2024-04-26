@@ -22,14 +22,14 @@
 
 	public class ReleaseDeclarationResult
 	{
-		public ReleaseAddress		Address { get; set; }
+		public Urr		Address { get; set; }
 		public DeclarationResult	Result { get; set; }	
 
 		public ReleaseDeclarationResult()
 		{
 		}
 
-		public ReleaseDeclarationResult(ReleaseAddress address, DeclarationResult result)
+		public ReleaseDeclarationResult(Urr address, DeclarationResult result)
 		{
 			Address = address;
 			Result = result;

@@ -6,8 +6,8 @@ namespace Uccs.Net
 {
 	public class AnalysisResultUpdation : Operation
 	{
-		public ResourceAddress	Resource { get; set; }
-		public ResourceAddress	Analysis { get; set; }
+		public Ura	Resource { get; set; }
+		public Ura	Analysis { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
 		public override string	Description => $"Resource={Resource}, Analysis={Analysis}, Result={Result}";
@@ -26,8 +26,8 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource = reader.Read<ResourceAddress>();
-			Analysis = reader.Read<ResourceAddress>();
+			Resource = reader.Read<Ura>();
+			Analysis = reader.Read<Ura>();
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 

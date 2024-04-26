@@ -11,9 +11,10 @@ namespace Uccs.Tests
 	{
 		public static void Main(string[] args)
 		{
-			//AddressTests.Resource();
-			//AddressTests.Release();
-			//AddressTests.Package();
+			AddressTests.Ueas();
+			AddressTests.Resource();
+			AddressTests.Release();
+			AddressTests.Package();
 
 			Xon.Basic();
 

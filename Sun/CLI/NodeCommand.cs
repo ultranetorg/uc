@@ -94,7 +94,7 @@ namespace Uccs.Sun.CLI
 						}
 						catch(Exception ex)
 						{
-							Workflow.Log.ReportError(this, "Error", ex);
+							Workflow.Log?.ReportError(this, "Error", ex);
 						}
 					}
 
@@ -135,6 +135,15 @@ namespace Uccs.Sun.CLI
 					Dump(	r.Peers, 
 							["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 
 							[i => i.IP, i => i.Status, i => i.PeerRank, i => i.BaseRank, i => i.ChainRank, i => i.SeedRank]);
+					return r;
+				} 
+
+		   		case "property" :
+				{
+					var r = Api<string>(new PropertyApc {Path = Args[1].Name});
+			
+					Workflow.Log?.Report(this, r);
+					
 					return r;
 				} 
 

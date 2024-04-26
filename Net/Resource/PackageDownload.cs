@@ -96,7 +96,7 @@ namespace Uccs.Net
 
 											lock(sun.ResourceHub.Lock)
 											{
-												sun.ResourceHub.Add(last.Data.Interpretation as ReleaseAddress, DataType.Package);
+												sun.ResourceHub.Add(last.Data.Interpretation as Urr, DataType.Package);
 												package.Resource.AddData(last.Data);
 											}
 
@@ -104,11 +104,11 @@ namespace Uccs.Net
 
 											switch(last.Data.Interpretation)
 											{ 
-												case DHAddress a :
+												case Urrh a :
 													itg = new DHIntegrity(a.Hash); 
 													break;
 
-												case SDAddress a :
+												case Urrsd a :
 													var au = sun.Call(c => c.Request(new DomainRequest {Name = package.Resource.Address.Domain}), workflow).Domain;
 													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 													break;

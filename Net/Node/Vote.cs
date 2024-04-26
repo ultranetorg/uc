@@ -34,8 +34,8 @@ namespace Uccs.Net
 		public AccountAddress[]		FundJoiners = {};
 		public AccountAddress[]		FundLeavers = {};
 		public AccountAddress[]		Violators = {};
-		public ResourceAddress[]	CleanReleases = {};
-		public ResourceAddress[]	InfectedReleases = {};
+		public Ura[]	CleanReleases = {};
+		public Ura[]	InfectedReleases = {};
 		public OperationId[]		Emissions = {};
 		public OperationId[]		Migrations = {};
 		public Transaction[]		Transactions = {};
@@ -164,8 +164,8 @@ namespace Uccs.Net
 			Violators			= reader.ReadArray<AccountAddress>();
 			Emissions			= reader.ReadArray<OperationId>();
 			Migrations			= reader.ReadArray<OperationId>();
-			CleanReleases		= reader.ReadArray<ResourceAddress>();
-			InfectedReleases	= reader.ReadArray<ResourceAddress>();
+			CleanReleases		= reader.ReadArray<Ura>();
+			InfectedReleases	= reader.ReadArray<Ura>();
 
 			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction {Zone = Mcv.Zone, Vote = this};

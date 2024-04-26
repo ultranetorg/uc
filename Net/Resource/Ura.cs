@@ -1,41 +1,52 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
 	/// <summary>
-	/// 
-	/// ultranet:/domain
-	/// ultranet:/domain/reso/ur/ce (/domain/ - корневой)
-	/// ultranet:#0123456789ABCDEF
-	/// ultranet:$domain/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
-	/// 
+	///		/domain/resource
 	/// </summary>
 
-	public class Ura : IBinarySerializable, IEquatable<Ura> 
-	{
-		public string			Domain { get; set; }
-		public string			Resource { get; set; }
-		public ReleaseAddress	Release { get; set; }
+	// 	public enum ResourceType
+	// 	{
+	// 		None, Variable, Constant
+	// 	}
 
-		public bool				Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
+	public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparable<Ura>
+	{
+	//	public ResourceType			Type { get; set; }
+		public string				Zone { get; set; }
+		public string				Domain { get; set; }
+		public string				Resource { get; set; }
+
+		public const string			Scheme = "ura";
+		//public string				Uri => $"{Scheme}:{Zone}{(Zone != null ? ":" : null)}{Domain}/{Resource}";
+		//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
+
+		public bool					Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
 
 		public Ura()
 		{
 		}
 
+		public Ura(string domain, string resource)
+		{
+			Domain = domain;
+			Resource = resource;
+		}
+
+		public Ura(string zone, string domain, string resource)
+		{
+			Zone = zone;
+			Domain = domain;
+			Resource = resource;
+		}
+
 		public override string ToString()
 		{
-			if(Domain != null)
-				if(Resource == null)
-					return $"/{Domain}";
-				else
-					return $"/{Domain}/{Resource}";
-			else
-				return $"{Release}";
+			return UAddress.ToString(Scheme, Zone, $"{Domain}/{Resource}");
 		}
 
 		public override bool Equals(object o)
@@ -45,7 +56,7 @@ namespace Uccs.Net
 
 		public bool Equals(Ura o)
 		{
-			return Domain == o.Domain && Resource == o.Resource && Release == o.Release;
+			return o is not null && Zone == o.Zone && Domain == o.Domain && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()
@@ -58,21 +69,24 @@ namespace Uccs.Net
 			return CompareTo(obj as Ura);
 		}
 
-		public int CompareTo(Ura other)
+		public int CompareTo(Ura o)
 		{
-			if(Domain.CompareTo(other.Domain) != 0)
-				return Domain.CompareTo(other.Domain);
+			var c = Zone.CompareTo(o.Zone);
 
-			if(Resource.CompareTo(other.Resource) != 0)
-				return Resource.CompareTo(other.Resource);
+			if(c != 0)
+				return c;
 
-			///return Release.CompareTo(other.Release);
-			throw new NotImplementedException();
+			c = Domain.CompareTo(o.Domain);
+
+			if(c != 0)
+				return c;
+
+			return Resource.CompareTo(o.Resource);
 		}
 
-		public static bool operator == (Ura a, Ura b)
+		public static bool operator == (Ura left, Ura right)
 		{
-			return a is null && b is null || a is not null && b is not null && a.Equals(b);
+			return left is null && right is null || left is not null && left.Equals(right);
 		}
 
 		public static bool operator != (Ura left, Ura right)
@@ -80,19 +94,73 @@ namespace Uccs.Net
 			return !(left == right);
 		}
 
+		public static void Parse(string v, out string protocol, out string zone, out string domain, out string resource)
+		{
+			int i;
+			
+			UAddress.Parse(v, out protocol, out zone, out string o);
+
+			var e = o.IndexOfAny([':', '/']);
+				
+			if(e != -1)
+			{
+				domain = o.Substring(0, e);
+				i = e + 1;
+			}
+			else
+			{
+				domain = o;
+				i = -1;
+			}
+
+			if(i != -1)
+				resource = o.Substring(i);
+			else
+				resource = null;
+		}
+
 		public static Ura Parse(string v)
 		{
-			throw new NotImplementedException();
+			Parse(v, out var s, out var z, out var d, out var r);
+
+			return new Ura(z, d, r);
+		}
+
+		public static Ura ParseAR(string v)
+		{
+			var a = new Ura();
+			
+			var i = v.IndexOf('/');
+
+			a.Domain = v.Substring(0, i);
+			a.Resource = v.Substring(i+1);
+
+			return a;
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			throw new NotImplementedException();
+			w.WriteUtf8(Domain);
+			w.WriteUtf8(Resource);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			throw new NotImplementedException();
+			Domain	 = r.ReadUtf8();
+			Resource = r.ReadUtf8();
+		}
+	}
+
+	public class ResourceAddressJsonConverter : JsonConverter<Ura>
+	{
+		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return Ura.Parse(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, Ura value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.ToString());
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace Uccs.Net
 			Version = veriosn;
 		}
 
-		public PackageAddress(ResourceAddress resource, string version)
+		public PackageAddress(Ura resource, string version)
 		{
 			Domain		= resource.Domain;
 
@@ -42,12 +42,12 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{ResourceAddress.Scheme}:{Domain}/{Product}/{Realization}/{Version}";
+			return $"{Ura.Scheme}:{Domain}/{Product}/{Realization}/{Version}";
 		}
 
 		public static PackageAddress Parse(string v)
 		{
-			var r = ResourceAddress.Parse(v);
+			var r = Ura.Parse(v);
 			var a = new PackageAddress();
 			var p = r.Resource.Split('/');
 

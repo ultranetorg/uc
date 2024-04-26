@@ -13,7 +13,7 @@ namespace Uccs.Net
 		public const string		Renamings = ".renamings"; /// TODO
 
 		public LocalResource	Resource;
-		public LocalRelease		Release => Resource.Last?.Interpretation is ReleaseAddress a ? Hub.Sun.ResourceHub.Find(a) : null;
+		public LocalRelease		Release => Resource.Last?.Interpretation is Urr a ? Hub.Sun.ResourceHub.Find(a) : null;
 		public PackageHub		Hub;
 		Manifest				_Manifest;
 		public object			Activity;

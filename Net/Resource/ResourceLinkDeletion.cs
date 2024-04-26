@@ -5,8 +5,8 @@ namespace Uccs.Net
 {
 	public class ResourceLinkDeletion : Operation
 	{
-		public ResourceAddress	Source { get; set; }
-		public ResourceAddress	Destination { get; set; }
+		public Ura	Source { get; set; }
+		public Ura	Destination { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
 		public override bool	Valid => true;
@@ -15,7 +15,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceLinkDeletion(ResourceAddress source, ResourceAddress destination)
+		public ResourceLinkDeletion(Ura source, Ura destination)
 		{
 			Source = source;
 			Destination = destination;
@@ -29,8 +29,8 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Source	= reader.Read<ResourceAddress>();
-			Destination	= reader.Read<ResourceAddress>();
+			Source	= reader.Read<Ura>();
+			Destination	= reader.Read<Ura>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)

@@ -31,7 +31,7 @@ namespace Uccs.Net
  			return FindEntry(name);
  		}
 		
- 		public Resource FindResource(ResourceAddress resource, int ridmax)
+ 		public Resource FindResource(Ura resource, int ridmax)
  		{
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");

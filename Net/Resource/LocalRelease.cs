@@ -154,7 +154,7 @@ namespace Uccs.Net
 
 	public class LocalRelease
 	{
-		public ReleaseAddress			Address;
+		public Urr			Address;
 		public List<Declaration>		DeclaredOn = new();
 		public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
 		public object					Activity;
@@ -193,7 +193,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalRelease(ResourceHub hub, ReleaseAddress address, DataType type)	
+		public LocalRelease(ResourceHub hub, Urr address, DataType type)	
 		{
 			Hub = hub;
 			Address = address;

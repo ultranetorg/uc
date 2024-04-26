@@ -69,7 +69,7 @@ namespace Uccs.Net
 			Resources = reader.Read(() =>	{ 
 												var a = new Resource();
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new ResourceAddress{Domain = Address, 
+												a.Address = new Ura{Domain = Address, 
 																				Resource = reader.ReadUtf8()};
 												a.Read(reader);
 												return a;
@@ -114,7 +114,7 @@ namespace Uccs.Net
 			{
 				var r = new Resource {	Affected = true,
 										New = true,
-										Address = new ResourceAddress(Address, resource),
+										Address = new Ura(Address, resource),
 										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
 
 				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();

@@ -31,7 +31,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceCreation(ResourceAddress.Parse(Args[1].Name),
+					return new ResourceCreation(Ura.Parse(Args[1].Name),
 												GetData(),
 												Has("seal"));
 				}
@@ -41,7 +41,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceDeletion(ResourceAddress.Parse(Args[1].Name));
+					return new ResourceDeletion(Ura.Parse(Args[1].Name));
 				}
 
 				case "u" : 
@@ -49,7 +49,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r =	new ResourceUpdation(ResourceAddress.Parse(Args[1].Name));
+					var r =	new ResourceUpdation(Ura.Parse(Args[1].Name));
 
 					if(HasData())			r.Change(GetData());
 					if(Has("seal"))			r.Seal();
@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args[1].Name)});
+					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
 					
 					Dump(r.Resource);
 
@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalResource>(new LocalResourceApc {Resource = ResourceAddress.Parse(Args[1].Name)});
+					var r = Api<LocalResource>(new LocalResourceApc {Resource = Ura.Parse(Args[1].Name)});
 					
 					if(r != null)
 					{
@@ -107,7 +107,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var a = ResourceAddress.Parse(Args[1].Name);
+					var a = Ura.Parse(Args[1].Name);
 
 					var r = Api<Resource>(new ResourceDownloadApc {Address = a});
 
@@ -115,7 +115,7 @@ namespace Uccs.Sun.CLI
 						
 					while(Workflow.Active)
 					{
-						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as ReleaseAddress});
+						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
 
 						if(p == null)
 							break;

@@ -2,7 +2,7 @@
 {
 	public class FileInfoRequest : RdcCall<FileInfoResponse>
 	{
-		public ReleaseAddress	Release { get; set; }
+		public Urr	Release { get; set; }
 		public string			File { get; set; }
 
 		public override RdcResponse Execute(Sun sun)

@@ -613,7 +613,7 @@ namespace Uccs.Net
 
 		public IEnumerable<Resource> QueryResource(string query)
 		{
-			var r = ResourceAddress.Parse(query);
+			var r = Ura.Parse(query);
 		
 			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
 
