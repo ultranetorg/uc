@@ -198,13 +198,11 @@ namespace Uccs.Net
 						return;
 					}
 
-					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
-																		  !(Domain.IsExpired(e, round.ConsensusTime) && Domain.IsOwner(p, Signer, round.ConsensusTime)))
+					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, round.ConsensusTime))
 					{
 						Error = NotAvailable;
 						return;
 					}
-
 
 					e = Affect(round, Address);
 					e.ParentPolicy = Policy;
@@ -225,7 +223,7 @@ namespace Uccs.Net
 					}
 
 					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
-																		  !(Domain.IsExpired(e, round.ConsensusTime) && Domain.IsOwner(p, Signer, round.ConsensusTime)))
+																		  !(Domain.IsOwner(p, Signer, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
 					{
 						Error = NotAvailable;
 						return;
