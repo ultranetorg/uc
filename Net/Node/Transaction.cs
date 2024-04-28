@@ -40,7 +40,7 @@ namespace Uccs.Net
 		public bool Valid(Mcv mcv)
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
-					Operations.Any() && Operations.All(i => i.Valid) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
+					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
 					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 

@@ -79,10 +79,21 @@ namespace Uccs.Net
 			return i == -1 ? name : name.Substring(i + 1);
 		}
 
+		public static bool IsOwner(Domain domain, AccountAddress account, Time time)
+		{
+			return domain.Owner == account && !IsExpired(domain, time);
+		}
+
 		public static bool IsExpired(Domain a, Time time) 
 		{
 			return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
 					a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
+		}
+
+		public static bool CanRenew(Domain domain, AccountAddress by, Time time)
+		{
+			return  domain != null && domain.Owner == by &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
+															time <= domain.Expiration;
 		}
 
 		public static bool CanRegister(string name, Domain domain, Time time, AccountAddress by)
@@ -93,9 +104,7 @@ namespace Uccs.Net
 						time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 						time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
 						time < domain.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an domain during special period
-					domain != null && domain.Owner == by &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
-															time <= domain.Expiration
-				  ;
+					CanRenew(domain, by, time);
 		}
 
 		public static bool CanBid(Domain domain, Time time)

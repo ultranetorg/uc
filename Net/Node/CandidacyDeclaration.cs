@@ -10,7 +10,7 @@ namespace Uccs.Net
 		public IPAddress[]		BaseRdcIPs;
 		public IPAddress[]		SeedHubRdcIPs;
 		public override string	Description => $"{Bail} UNT";
-		public override bool	Valid => Bail >= Transaction.Zone.BailMin;
+		public override bool	IsValid(Mcv mcv) => Bail >= Transaction.Zone.BailMin;
 		
 		public CandidacyDeclaration()
 		{

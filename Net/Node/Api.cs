@@ -540,7 +540,7 @@ namespace Uccs.Net
 				
 								RentAccount					= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-								RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainRegistration.CalculateFee(Time.FromYears(y), r.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
+								RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainUpdation.CalculateFee(Time.FromYears(y), r.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
 					
 								RentResource				= Years.Select(y => Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
 								RentResourceForever			= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,

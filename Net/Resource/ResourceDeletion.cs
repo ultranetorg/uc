@@ -8,7 +8,7 @@ namespace Uccs.Net
 	{
 		public Ura		Resource { get; set; }
 
-		public override bool		Valid => true;
+		public override bool		IsValid(Mcv mcv) => true;
 		public override string		Description => $"{Resource}";
 
 		public ResourceDeletion()

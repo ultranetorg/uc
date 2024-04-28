@@ -11,8 +11,8 @@ namespace Uccs.Net
 		public ResourceChanges		Changes	{ get; set; }
 		public ResourceData			Data { get; set; }
 
-		public override bool		Valid => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
-											 (!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
+		public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
+														(!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
 		public override string		Description => $"{Resource}, [{Changes}], [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()

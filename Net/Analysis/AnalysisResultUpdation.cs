@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public AnalysisResult	Result { get; set; }
 		
 		public override string	Description => $"Resource={Resource}, Analysis={Analysis}, Result={Result}";
-		public override bool	Valid => true;
+		public override bool	IsValid(Mcv mcv) => true;
 
 		public AnalysisResultUpdation()
 		{

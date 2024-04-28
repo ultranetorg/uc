@@ -58,15 +58,46 @@ namespace Uccs.Sun.CLI
 					return new DomainMigration(Args[1].Name, GetString("tld"), Has("checkrank"));
 				}
 
-		   		case "r" : 
-		   		case "register" : 
+		   		case "a" : 
+		   		case "aquire" : 
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new DomainRegistration  {Address		= Args[1].Name,
-													Years		= byte.Parse(GetString("years")),
-													ChildPolicy = GetEnum("childpolicy", DomainChildPolicy.None),
-													Owner		= GetAccountAddress("owner", false)};
+					return new DomainUpdation  {Action	= DomainAction.Acquire,
+												Address	= Args[1].Name,
+												Years	= byte.Parse(GetString("years"))};
+				}
+
+		   		case "r" : 
+		   		case "renew" :
+				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new DomainUpdation  {Action	= DomainAction.Renew,
+												Address	= Args[1].Name,
+												Years	= byte.Parse(GetString("years"))};
+				}
+
+		   		case "cs" : 
+		   		case "createsubdomain" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new DomainUpdation  {Action	= DomainAction.CreateSubdomain,
+												Address	= Args[1].Name,
+												Years	= byte.Parse(GetString("years")),
+												Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
+												Owner	= GetAccountAddress("for")};
+				}
+
+		   		case "up" : 
+		   		case "updatepolicy" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new DomainUpdation  {Action	= DomainAction.ChangePolicy,
+												Address	= Args[1].Name,
+												Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
 				}
 
 		   		case "t" : 
@@ -74,8 +105,9 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new DomainTransfer(	Args[1].Name,
-												AccountAddress.Parse(GetString("to")));
+					return new DomainUpdation  {Action	= DomainAction.Transfer,
+												Address	= Args[1].Name,
+												Owner	= GetAccountAddress("to", false)};
 				}
 
 		   		case "e" :

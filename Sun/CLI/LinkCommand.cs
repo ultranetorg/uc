@@ -31,8 +31,8 @@ namespace Uccs.Sun.CLI
 					return new ResourceLinkCreation(GetResourceAddress("source"), GetResourceAddress("destination"));
 				}
 
-				case "r" : 
-				case "remove" : 
+				case "x" : 
+				case "destroy" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 

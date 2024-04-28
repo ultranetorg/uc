@@ -9,7 +9,7 @@ namespace Uccs.Net
 		public ResourceLinkChanges	Changes  { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
-		public override bool	Valid => true;
+		public override bool	IsValid(Mcv mcv) => true;
 
 		public ResourceLinkCreation()
 		{

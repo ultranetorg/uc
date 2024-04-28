@@ -196,7 +196,7 @@ namespace Uccs.Sun.FUI
 
 				var a = Database.Domains.Find(DomainSearch.Text, int.MaxValue);
 
-				Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
+				//Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{

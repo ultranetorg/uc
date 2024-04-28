@@ -7,7 +7,7 @@ namespace Uccs.Net
 		public AccountAddress	To;
 		public Money			Amount;
 		public override string	Description => $"{Signer} -> {Amount} UNT -> {To}";
-		public override bool	Valid => 0 <= Amount;
+		public override bool	IsValid(Mcv mcv) => 0 <= Amount;
 
 		public UntTransfer()
 		{

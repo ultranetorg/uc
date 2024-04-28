@@ -18,7 +18,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		DomainMigration, DomainBid, DomainRegistration, DomainTransfer,
+		DomainMigration, DomainBid, DomainUpdation,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
 	}
@@ -31,10 +31,10 @@ namespace Uccs.Net
 		public Transaction		Transaction;
 		public AccountAddress	Signer => Transaction.Signer;
 		public abstract string	Description { get; }
-		public abstract bool	Valid {get;}
 
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
+		public const string		NotAvailable = "Not Available";
 		public const string		NotPermitted = "Not found";
 		public const string		ExistingAccountRequired = "ExistingAccountRequired";
 		public const string		Expired = "Expired";
@@ -48,6 +48,7 @@ namespace Uccs.Net
 		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 		public const string		NotRelease = "Data valus is not a release";
+
 
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
 		public byte				TypeCode => (byte)Class;
@@ -72,6 +73,7 @@ namespace Uccs.Net
 		{
 		}
 		
+		public abstract bool IsValid(Mcv mcv);
 		public abstract void Execute(Mcv mcv, Round round);
 		public abstract void WriteConfirmed(BinaryWriter w);
 		public abstract void ReadConfirmed(BinaryReader r);

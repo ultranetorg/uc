@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
@@ -15,23 +12,6 @@ namespace Uccs.Net
 		public bool				DnsApproved;
 		public bool				RankApproved;
 
-		public override bool Valid
-		{
-			get
-			{
-				if(!Domain.Valid(Name))
-					return false;
-
-				if(!Domain.IsWeb(Name))
-					return false;
-
-				if(Tld.Length > 8)
-					return false;
-
-				return true;
-			}
-		} 
-
 		public DomainMigration()
 		{
 		}
@@ -42,6 +22,20 @@ namespace Uccs.Net
 			Tld = tld;
 			RankCheck = checkrank;
 		}
+
+		public override bool IsValid(Mcv mcv)
+		{
+			if(!Domain.Valid(Name))
+				return false;
+
+			if(!Domain.IsWeb(Name))
+				return false;
+
+			if(Tld.Length > 8)
+				return false;
+
+			return true;
+		} 
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{

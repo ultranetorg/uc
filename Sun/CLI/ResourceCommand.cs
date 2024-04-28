@@ -36,8 +36,8 @@ namespace Uccs.Sun.CLI
 												Has("seal"));
 				}
 
-				case "r" : 
-				case "remove" : 
+				case "x" : 
+				case "destroy" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 

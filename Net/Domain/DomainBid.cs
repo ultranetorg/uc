@@ -8,21 +8,18 @@ namespace Uccs.Net
 		public Money			Bid;
 		public override string	Description => $"{Bid} UNT for {Name}";
 		
-		public override bool Valid
+		public override bool IsValid(Mcv mcv)
 		{
-			get
-			{
-				if(!Transaction.Zone.Auctions)
-					return false;
+			if(!Transaction.Zone.Auctions)
+				return false;
 
-				if(!Domain.IsWeb(Name))
-					return false;
+			if(!Domain.IsWeb(Name))
+				return false;
 
-				if(Bid <= Money.Zero)
-					return false;
+			if(Bid <= Money.Zero)
+				return false;
 
-				return true;
-			}
+			return true;
 		} 
 
 		public DomainBid()
