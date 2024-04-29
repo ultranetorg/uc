@@ -170,6 +170,16 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
+		protected int GetInt(string paramenter)
+		{
+			var p = One(paramenter);
+
+			if(p != null)
+				return int.Parse(p.Get<string>());
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
 		protected byte[] GetBytes(string paramenter, bool mandatory = true)
 		{
 			var p = One(paramenter);

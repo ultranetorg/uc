@@ -2,7 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Numerics;
+using System.Threading.Tasks;
 using Nethereum.Contracts.ContractHandlers;
+using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Signer;
 using Nethereum.Web3;
 
@@ -10,7 +13,7 @@ namespace Uccs.Net
 {
 	public class Nas : INas
 	{
-		public const string						ContractAddress = "0xbf0cf508d788384569912c5f8a983fa2be2d54e8";
+		public const string						ContractAddress = "0xA755eB16Eb31873dCCAB4135E5659b50e9Addf57";
 		Settings								Settings;
 		public Web3								Web3;
 
@@ -187,37 +190,57 @@ namespace Uccs.Net
 // 			}
 // 		}
 
-		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow workflow)
+		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
 		{
-			var args = Emission.Serialize(signer, eid);
-
-			var w3 = new Web3(source, Settings.Nas.Provider);
+			var w3 = new Web3(from, Settings.Nas.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
 
-			var rt = new RequestTransferFunction
-					 {
-					 	AmountToSend = wei,
-					 	Secret = args
-					 };
+			var rt = new EmitFunction{AmountToSend = amount,
+					 				  Secret = Emission.Serialize(AccountKey.Create(), 0)};
 
-			if(gasAsker.Ask(w3, c, source.Address, rt, workflow?.Log))
+			var g = c.EstimateGasAsync(rt);
+			var gp = w3.Eth.GasPrice.SendRequestAsync();
+
+			g.Wait(workflow.Cancellation);
+			gp.Wait(workflow.Cancellation);
+
+			rt.Gas		= g.Result;
+			rt.GasPrice = gp.Result;
+
+			return rt;
+		}
+
+		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
+		{
+			var w3 = new Web3(from, Settings.Nas.Provider);
+			var c = w3.Eth.GetContractHandler(ContractAddress);
+
+			var rt = new EmitFunction{AmountToSend = wei,
+					 				  Secret = Emission.Serialize(to, eid)};
+
+			rt.Gas = gas;
+			rt.GasPrice = gasprice;
+
+			workflow.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
+
+			var receipt = c.SendRequestAndWaitForReceiptAsync(rt, workflow.Cancellation).Result;
+
+			if(receipt.Status != new HexBigInteger(0))
+				workflow.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}");
+			else
 			{
-				rt.Gas = gasAsker.Gas;
-				rt.GasPrice = gasAsker.GasPrice;
-
-				workflow.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
-
-				var receipt = c.SendRequestAndWaitForReceiptAsync(rt, workflow.Cancellation).Result;
-
-				workflow.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
+				workflow.Log?.Report(this, "Ethereum", $"Transaction FAILED. Hash: {receipt.TransactionHash}");
+				throw new EntityException(EntityError.EmissionFailed);
 			}
+				
+			return receipt;
 		}
 
 		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
 		{
-			var f = new FindTransferFunction { Secret = Emission.Serialize(account, eid) };
+			var f = new FindEmissionFunction { Secret = Emission.Serialize(account, eid) };
 
-			var c =  Contract.QueryAsync<FindTransferFunction, BigInteger>(f);
+			var c =  Contract.QueryAsync<FindEmissionFunction, BigInteger>(f);
 			c.Wait(workflow.Cancellation);
 			
 			return c.Result;
@@ -225,9 +248,9 @@ namespace Uccs.Net
 
 		public bool CheckEmission(Emission e)
 		{
-			var f = new FindTransferFunction { Secret = Emission.Serialize(e.Signer, e.Eid) };
+			var f = new FindEmissionFunction { Secret = Emission.Serialize(e.Signer, e.Eid) };
 
-			var wei = Contract.QueryAsync<FindTransferFunction, BigInteger>(f).Result;
+			var wei = Contract.QueryAsync<FindEmissionFunction, BigInteger>(f).Result;
 
 			return wei == e.Wei;
 		}

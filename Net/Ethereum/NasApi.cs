@@ -1,33 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Numerics;
-using Nethereum.Hex.HexTypes;
+﻿using System.Numerics;
 using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.Web3;
-using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Contracts.CQS;
 using Nethereum.Contracts;
-using System.Threading;
 
 namespace Uccs.Net
 {
-    public partial class FindTransferFunction : FindTransferFunctionBase { }
+    public partial class EmitFunction : EmitFunctionBase { }
 
-    [Function("FindTransfer", "uint256")]
-    public class FindTransferFunctionBase : FunctionMessage
+    [Function("Emit")]
+    public class EmitFunctionBase : FunctionMessage
     {
         [Parameter("bytes", "secret", 1)]
         public virtual byte[] Secret { get; set; }
-    }
-
-    public partial class GetZoneFunction : GetZoneFunctionBase { }
-
-    [Function("GetZone", "string")]
-    public class GetZoneFunctionBase : FunctionMessage
-    {
-        [Parameter("string", "name", 1)]
-        public virtual string Name { get; set; }
     }
 
     public partial class RemoveZoneFunction : RemoveZoneFunctionBase { }
@@ -37,15 +20,6 @@ namespace Uccs.Net
     {
         [Parameter("string", "name", 1)]
         public virtual string Name { get; set; }
-    }
-
-    public partial class RequestTransferFunction : RequestTransferFunctionBase { }
-
-    [Function("RequestTransfer")]
-    public class RequestTransferFunctionBase : FunctionMessage
-    {
-        [Parameter("bytes", "secret", 1)]
-        public virtual byte[] Secret { get; set; }
     }
 
     public partial class SetZoneFunction : SetZoneFunctionBase { }
@@ -67,10 +41,37 @@ namespace Uccs.Net
 
     }
 
-    public partial class FindTransferOutputDTO : FindTransferOutputDTOBase { }
+    public partial class FindEmissionFunction : FindEmissionFunctionBase { }
+
+    [Function("FindEmission", "uint256")]
+    public class FindEmissionFunctionBase : FunctionMessage
+    {
+        [Parameter("bytes", "secret", 1)]
+        public virtual byte[] Secret { get; set; }
+    }
+
+    public partial class GetZoneFunction : GetZoneFunctionBase { }
+
+    [Function("GetZone", "string")]
+    public class GetZoneFunctionBase : FunctionMessage
+    {
+        [Parameter("string", "name", 1)]
+        public virtual string Name { get; set; }
+    }
+    
+    public partial class CreatorOutputDTO : CreatorOutputDTOBase { }
 
     [FunctionOutput]
-    public class FindTransferOutputDTOBase : IFunctionOutputDTO 
+    public class CreatorOutputDTOBase : IFunctionOutputDTO 
+    {
+        [Parameter("address", "", 1)]
+        public virtual string ReturnValue1 { get; set; }
+    }
+
+    public partial class FindEmissionOutputDTO : FindEmissionOutputDTOBase { }
+
+    [FunctionOutput]
+    public class FindEmissionOutputDTOBase : IFunctionOutputDTO 
     {
         [Parameter("uint256", "", 1)]
         public virtual BigInteger ReturnValue1 { get; set; }
@@ -82,21 +83,6 @@ namespace Uccs.Net
     public class GetZoneOutputDTOBase : IFunctionOutputDTO 
     {
         [Parameter("string", "", 1)]
-        public virtual string ReturnValue1 { get; set; }
-    }
-
-
-
-
-
-
-
-    public partial class CreatorOutputDTO : CreatorOutputDTOBase { }
-
-    [FunctionOutput]
-    public class CreatorOutputDTOBase : IFunctionOutputDTO 
-    {
-        [Parameter("address", "", 1)]
         public virtual string ReturnValue1 { get; set; }
     }
 }

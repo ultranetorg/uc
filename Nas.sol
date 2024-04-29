@@ -4,13 +4,13 @@ pragma solidity >=0.7.4;
 
 contract Nas
 {
-    struct Transfer
+    struct Emission
     {
         address sender;
         uint    amount;
     }
 
-    mapping (bytes => Transfer) transfers;
+    mapping (bytes => Emission) emissions;
     mapping (string => string) zones;
     
     address nextVersion;
@@ -21,7 +21,7 @@ contract Nas
     {
         creator = msg.sender;
         
-        SetZone("Testnet1", "168.119.54.200\n"
+        SetZone("Testzone1", "168.119.54.200\n"
 							"78.47.204.100\n"	
                             "78.47.214.161\n"
                             "78.47.214.166\n"
@@ -45,22 +45,20 @@ contract Nas
         return msg.sender == creator;
     }
 */
-    function RequestTransfer(bytes memory secret) payable public
+    function Emit(bytes memory secret) payable public
     {
         require(msg.value > 0, "Value (ETH) must be greater than zero");
-        require(transfers[secret].sender == 0x0000000000000000000000000000000000000000, "Already exists");
+        require(emissions[secret].sender == payable(0), "Already exists");
 
        // payable(address(this)).transfer(msg.value);
         payable(0).transfer(msg.value);
 
-        Transfer memory t = Transfer(msg.sender, msg.value);
-
-        transfers[secret] = t;
+        emissions[secret] = Emission(msg.sender, msg.value);
     }
     
-    function FindTransfer(bytes memory secret) public view returns(uint)
+    function FindEmission(bytes memory secret) public view returns(uint)
     {
-        return transfers[secret].amount;
+        return emissions[secret].amount;
     }
 
     function SetZone(string memory name, string memory nodes) public

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.IO;
 using System.Numerics;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Signer;
 
 namespace Uccs.Net
@@ -16,8 +13,25 @@ namespace Uccs.Net
 		public Chain							Chain { get => Chain.Ropsten; }
 		public bool								IsAdministrator => true;
 
-		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow workflow)
+		string									Workpath;
+
+		public MockNas(string workpath)
 		{
+			Workpath = workpath;
+		}
+
+		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
+		{
+			return new EmitFunction {Gas = 0, GasPrice = 0};
+		}
+
+		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
+		{
+			if(FindEmission(to, eid, workflow) != 0)
+				throw new EntityException(EntityError.EmissionFailed);
+
+			File.WriteAllText(Path.Join(Workpath, $"{to}.{eid}"), wei.ToString());
+			return new TransactionReceipt {};
 		}
 
 		public bool CheckEmission(Emission e)
@@ -25,9 +39,16 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
+		public BigInteger FindEmission(AccountAddress to, int eid, Workflow workflow)
 		{
-			throw new NotImplementedException();
+			var p = Path.Join(Workpath, $"{to}.{eid}");
+
+			if(!File.Exists(p))
+			{
+				return 0;
+			}
+
+			return BigInteger.Parse(File.ReadAllText(p));
 		}
 
 		public string GetZone(Zone zone)

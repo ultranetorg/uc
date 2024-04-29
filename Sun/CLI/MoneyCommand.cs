@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Uccs.Net;
 
@@ -31,6 +32,10 @@ namespace Uccs.Sun.CLI
 	/// money emit from{wallet=m:\UO\Team\Maximion\0x321D3AB8998c551Aeb086a7AC28635261AC66c00.mew} amount=1 by=0x001fea628d33830e5515e52fb7e3f9a009b24317
 	/// 
 	/// </example>
+	
+	
+
+
 	public class MoneyCommand : Command
 	{
 		public const string Keyword = "money";
@@ -46,8 +51,8 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.First().Name)
 			{
-		   		case "e" :
-		   		case "emit" :
+				case "eee" :
+		   		case "estimateethereumemission" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
@@ -75,31 +80,95 @@ namespace Uccs.Sun.CLI
 																				p, 
 																				new BigInteger((int)Program.Zone.EthereumNetwork));
 					}
+			
+					var f = Api<EmitFunction>(new EstimateEmitApc  {FromPrivateKey = from.PrivateKey.HexToByteArray(),
+																	Wei = Web3.Convert.ToWei(GetString("amount"))});
+					Dump(f);
 
-					Api<Transaction>(new EmitApc{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
-													Wei = Web3.Convert.ToWei(GetString("amount")),
-													To = GetAccountAddress("by"), 
-													Await = GetAwaitStage(Args) });
-					return null;
+					Workflow.Log?.Report($"   Estimated Tx Cost: {Web3.Convert.FromWeiToBigDecimal(f.Gas.Value * f.GasPrice.Value)} ETH");
+// 
+// 					var eid = 0;
+// 
+// 					try
+// 					{
+// 						eid = Rdc(new AccountRequest {Account = GetAccountAddress("by")}).Account.LastEmissionId + 1;
+// 					}
+// 					catch(EntityException ex) when (ex.Error == EntityError.NotFound)
+// 					{
+// 					}
+// 
+// 					Workflow.Log?.Report($"   Next Eid : {eid}");
+
+					return f;
 				}
 
-		   		case "fe" :
-		   		case "findemission" :
+		   		case "eie" :
+		   		case "emitinethereum" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
+					Nethereum.Web3.Accounts.Account from;
 
-					var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
-															By = GetAccountAddress("by"), 
-															Await = GetAwaitStage(Args) });
-
-					if(e > 0)
-						Workflow.Log?.Report(this, $"Amount: {Web3.Convert.FromWei(e)}");
+					if(Has("from/key"))
+					{
+						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Zone.EthereumNetwork);
+					}
 					else
-						throw new Exception("Not found");
+					{
+						string p;
 
-					return null;
+						if(Has("from/password"))
+						{
+							p = GetString("from/password");
+						}
+						else
+						{
+							Program.PasswordAsker.Ask(GetString("from/wallet"));
+							p = Program.PasswordAsker.Password;
+						}
+
+						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
+																				p, 
+																				new BigInteger((int)Program.Zone.EthereumNetwork));
+					}
+			
+					var t = Api<TransactionReceipt>(new EmitApc{FromPrivateKey = from.PrivateKey.HexToByteArray(),
+																To = GetAccountAddress("to"),
+																Eid = GetInt("eid"),
+																Wei = Web3.Convert.ToWei(GetString("amount")),
+																Gas = Web3.Convert.ToWei(GetString("gas")),
+																GasPrice = Web3.Convert.ToWei(GetString("gasprice"))});
+
+					Dump(t);
+
+					return t;
 				}
+
+				case "eiu" :
+		   		case "emitonultranet" :
+				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new Emission(Web3.Convert.ToWei(GetString("amount")), GetInt("eid"));
+				}
+
+// 		   		case "fe" :
+// 		   		case "findemission" :
+// 				{
+// 					Workflow.CancelAfter(RdcTransactingTimeout);
+// 
+// 
+// 					var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
+// 															By = GetAccountAddress("by"), 
+// 															Await = GetAwaitStage(Args) });
+// 
+// 					if(e > 0)
+// 						Workflow.Log?.Report(this, $"Amount: {Web3.Convert.FromWei(e)}");
+// 					else
+// 						throw new Exception("Not found");
+// 
+// 					return null;
+// 				}
 
 		   		case "t" : 
 		   		case "transfer" : 

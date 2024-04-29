@@ -475,18 +475,31 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EmitApc : SunApc
+	public class EstimateEmitApc : SunApc
 	{
 		public byte[]			FromPrivateKey { get; set; } 
 		public BigInteger		Wei { get; set; } 
-		public AccountAddress	To { get; set; } 
-		public TransactionStatus		Await { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			var o = sun.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), Wei, sun.Vault.GetKey(To), Await, workflow);
+			return sun.Nas.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), Wei, workflow);
+		}
+	}
 
-			return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
+	public class EmitApc : SunApc
+	{
+		public byte[]				FromPrivateKey { get; set; } 
+		public AccountAddress		To { get; set; } 
+		public int					Eid { get; set; } 
+		public BigInteger			Wei { get; set; } 
+		public BigInteger			Gas { get; set; } 
+		public BigInteger			GasPrice { get; set; } 
+
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		{
+			return sun.Nas.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
+			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 		}
 	}
 

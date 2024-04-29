@@ -27,6 +27,9 @@ namespace Uccs.Net
 		{ 
 			if(!Domain.Valid(Address))
 				return false;
+
+			if(!Enum.IsDefined(Action) || Action == DomainAction.None) 
+				return false;
 			
 			if(	(Action == DomainAction.Acquire || Action == DomainAction.Renew || Action == DomainAction.CreateSubdomain) && 
 				(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))

@@ -2132,36 +2132,21 @@ namespace Uccs.Net
 		//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
 		//}
 
-		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, TransactionStatus awaitstage, Workflow workflow)
-		{
-			var	l = Call(p =>{
-								try
-								{
-									return p.Request(new AccountRequest {Account = signer});
-								}
-								catch(EntityException ex) when (ex.Error == EntityError.NotFound)
-								{
-									return new AccountResponse();
-								}
-							}, 
-							workflow);
-			
-			var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
-
-			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
-						
-			var o = new Emission(wei, eid);
-
-
-			//flow?.SetOperation(o);
-						
-			if(FeeAsker.Ask(this, signer, o))
-			{
-				return o;
-			}
-
-			return null;
-		}
+// 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, Workflow workflow)
+// 		{
+// 						
+// 			var o = new Emission(wei, eid);
+// 
+// 
+// 			//flow?.SetOperation(o);
+// 						
+// 			if(FeeAsker.Ask(this, signer, o))
+// 			{
+// 				return o;
+// 			}
+// 
+// 			return null;
+// 		}
 
 		public Emission FinishEmission(AccountKey signer, Workflow workflow)
 		{
