@@ -77,10 +77,10 @@ namespace Uccs.Net
 		}
 	}
 
-	public class Resource : IBinarySerializable
+	public class Resource// : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
-		public Ura		Address { get; set; }
+		public Ura					Address { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
@@ -111,7 +111,7 @@ namespace Uccs.Net
 							Inbounds = Inbounds };
 		}
 
-		public void Write(BinaryWriter writer)
+		public void WriteMain(BinaryWriter writer)
 		{
 			writer.Write((byte)Flags);
 			writer.Write(Updated);
@@ -123,7 +123,7 @@ namespace Uccs.Net
 			writer.Write(Inbounds);
 		}
 
-		public void Read(BinaryReader reader)
+		public void ReadMain(BinaryReader reader)
 		{
 			Flags = (ResourceFlags)reader.ReadByte();
 			Updated	= reader.Read<Time>();

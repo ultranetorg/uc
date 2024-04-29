@@ -26,7 +26,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var rp = Rdc<MembersResponse>(new MembersRequest());
+					var rp = Rdc(new MembersRequest());
 	
 					var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args[1].Name));
 

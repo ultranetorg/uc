@@ -58,7 +58,7 @@ namespace Uccs.Net
 			w.Write(Resources, i =>	{
 										w.Write7BitEncodedInt(i.Id.Ri);
 										w.WriteUtf8(i.Address.Resource);
-										i.Write(w);
+										i.WriteMain(w);
 									});
 		}
 
@@ -71,7 +71,7 @@ namespace Uccs.Net
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
 												a.Address = new Ura{Domain = Address, 
 																				Resource = reader.ReadUtf8()};
-												a.Read(reader);
+												a.ReadMain(reader);
 												return a;
 											}).ToArray();
 		}

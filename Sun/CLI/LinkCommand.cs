@@ -42,11 +42,11 @@ namespace Uccs.Sun.CLI
 				case "lo" :
 		   		case "listoutbounds" :
 				{
-					Workflow.CancelAfter(RdcQueryTimeout);
+					///Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
+					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
 					
-					Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i.Destination}).Resource}),
+					Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceByIdRequest {ResourceId = i.Destination}).Resource}),
 						 ["#", "Flags", "Destination", "Destination Data"],
 						 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data.Interpretation]);
 
@@ -58,9 +58,9 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
+					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
 					
-					Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource}),
+					Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceByIdRequest {ResourceId = i}).Resource}),
 						 ["#", "Source", "Source Data"],
 						 [i => i.L, i => i.R.Address, i => i.R.Data.Interpretation]);
 

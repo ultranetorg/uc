@@ -30,6 +30,7 @@ namespace Uccs.Net
 		TooEearly,
 		AllNodesFailed,
 		NotOnlineYet,
+		NotUnlocked,
 		CircularRoute,
 	}
 

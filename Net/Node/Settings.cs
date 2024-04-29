@@ -233,8 +233,6 @@ namespace Uccs.Net
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
-		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
-		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
 
 		public Settings()
 		{

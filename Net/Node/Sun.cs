@@ -1847,6 +1847,11 @@ namespace Uccs.Net
 
  		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Workflow workflow)
  		{
+			if(!Vault.IsUnlocked(signer))
+			{
+				throw new NodeException(NodeError.NotUnlocked);
+			}
+
 			var p = new List<Transaction>();
 
 			while(operations.Any())

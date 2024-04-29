@@ -1,5 +1,16 @@
 ﻿namespace Uccs.Net
 {
+	public class ResourceResponse
+	{
+		public ResourceId			Id { get; set; }
+		public Ura					Address { get; set; }
+		public ResourceFlags		Flags { get; set; }
+		public ResourceData			Data { get; set; }
+		public Time					Updated { get; set; }
+		public int					Outbounds { get; set; }
+		public int					Inbounds { get; set; }
+	}
+
 	public class ResourceByNameRequest : RdcCall<ResourceByNameResponse>
 	{
 		public Ura	Name { get; set; }
@@ -12,7 +23,7 @@
  			
 				var r = sun.Mcv.Domains.FindResource(Name, sun.Mcv.LastConfirmedRound.Id) ?? throw new EntityException(EntityError.NotFound);
 
-				return new ResourceByNameResponse {Resource = r};
+				return new ResourceByNameResponse {Resource = r };
 			}
 		}
 	}

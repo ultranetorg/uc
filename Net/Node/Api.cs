@@ -567,11 +567,11 @@ namespace Uccs.Net
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
-		public TransactionStatus				Await  { get; set; } = TransactionStatus.Confirmed;
+		public TransactionStatus		Await  { get; set; } = TransactionStatus.Confirmed;
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			return sun.Transact(Operations, sun.Vault.GetKey(By), Await, workflow);
+			return sun.Transact(Operations, By, Await, workflow);
 		}
 	}
 
