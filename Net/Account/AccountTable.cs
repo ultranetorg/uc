@@ -139,5 +139,21 @@ namespace Uccs.Net
 
 			return FindEntry(account);
 		}
+
+		public AccountEntry Find(EntityId account, int ridmax)
+		{
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
+
+			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			{
+				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == account);
+				
+				if(a != null)
+					return a;
+			}
+
+			return FindEntry(account);
+		}
 	}
 }

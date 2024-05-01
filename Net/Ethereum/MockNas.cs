@@ -34,7 +34,7 @@ namespace Uccs.Net
 			return new TransactionReceipt {};
 		}
 
-		public bool CheckEmission(Emission e)
+		public bool IsEmissionValid(Emission e)
 		{
 			return true;
 		}

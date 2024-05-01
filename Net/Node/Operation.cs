@@ -107,7 +107,7 @@ namespace Uccs.Net
 		{
 			var fee = CalculateFee(round.RentPerBytePerDay, length, time);
 			
-			Affect(round, Signer).Balance -= fee;
+			round.AffectAccount(Signer).Balance -= fee;
 		}
 
 		public void Allocate(Round round, Domain domain, int toallocate)
@@ -130,14 +130,14 @@ namespace Uccs.Net
 
 		public AccountEntry Affect(Round round, AccountAddress account)
 		{
-			var e = round.Mcv.Accounts.Find(account, round.Id);	
+			var e = round.AffectAccount(account);	
 
-			if(e == null) /// new Account
+			if(e.New) /// new Account
 			{
 				Pay(round, Mcv.EntityLength, Mcv.Forever);
 			}
 
-			return round.AffectAccount(account);
+			return e;
 		}
 
 		public DomainEntry Affect(Round round, string domain)

@@ -93,7 +93,7 @@ namespace Uccs.Net
 
 		public Guid						Netid;
 		public IPAddress				IP = IPAddress.None;
-		public bool						IsNodeOrUserRun => MainThread != null;
+		public bool						IsPeering => MainThread != null;
 		public bool						IsClient => ListeningThread == null;
 		public Round					NextVoteRound => Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P);
 		public List<Member>				NextVoteMembers => Mcv.VotersOf(NextVoteRound);
@@ -104,10 +104,8 @@ namespace Uccs.Net
 		public List<TcpClient>			IncomingConnections = new();
 		public List<Transaction>		IncomingTransactions = new();
 		internal List<Transaction>		OutgoingTransactions = new();
-		//public List<Analysis>			Analyses = new();
-		public List<OperationId>		ApprovedEmissions = new();
-		//public List<OperationId>		ApprovedDomainBids = new();
-		public List<OperationId>		ApprovedMigrations = new();
+		public List<ForeignResult>		ApprovedEmissions = new();
+		public List<ForeignResult>		ApprovedMigrations = new();
 
 		public bool						MinimalPeersReached;
 		public List<Peer>				Peers = new();
@@ -278,11 +276,21 @@ namespace Uccs.Net
 
 			if(Settings.Generators.Any())
 			{
+		  		try
+		  		{
+		 			new Uri(Settings.Nas.Provider);
+		  		}
+		  		catch(Exception)
+		  		{
+		  			Nas.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
+					return;
+		  		}
+
 				SeedHub = new SeedHub(this);
 			}
 
 			if(roles.HasFlag(Role.Base) || roles.HasFlag(Role.Chain))
-			{
+			{		
 				Mcv = new Mcv(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
 
 				Mcv.Log = Workflow.Log;
@@ -306,7 +314,7 @@ namespace Uccs.Net
 																	}
 																}
 															};
-				
+
 				Mcv.Commited += r => {
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
 										{
@@ -314,138 +322,37 @@ namespace Uccs.Net
 												
 											foreach(var o in ops)
 											{
-												///if(o is DomainBid ab && ab.Tld.Any())
-												///{
-	 											///	if(!SunGlobals.SkipDomainVerification)
-	 											///	{
-												///		Task.Run(() =>	{
-	 											///							try
-	 											///							{
-	 											///								var result = Dns.QueryAsync(ab.Domain + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
-	 											///				
-	 											///								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Domain + '.' + ab.Tld + '.');
-	 											///
-	 											///								if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
-	 											///								{
-												///									lock(Lock)
-												///									{	
-												///										ApprovedDomainBids.Add(ab.Id);
-												///									}
-	 											///								}
-	 											///							}
-	 											///							catch(AggregateException ex)
-	 											///							{
-	 											///								Workflow.Log?.ReportError(this, "Can't verify DomainBid domain", ex);
-	 											///							}
-	 											///							catch(DnsResponseException ex)
-	 											///							{
-	 											///								Workflow.Log?.ReportError(this, "Can't verify DomainBid domain", ex);
-	 											///							}
-												///						});
-	 											///	}
-												///	else
-												///		ApprovedDomainBids.Add(ab.Id);
-												///}
-	
 												if(o is DomainMigration am)
 												{
 	 												if(!SunGlobals.SkipMigrationVerification)
 	 												{
 														Task.Run(() =>	{
+																			var approved = IsDnsValid(am);
 
-	 																		try
-	 																		{
-	 																			var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
-	 															
-	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
-	 																			
-	 																			if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == o.Transaction.Signer))
-	 																			{
-																					am.DnsApproved = true;
-	 																			}
-
-																				if(am.RankCheck)
-																				{
-																					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
-																					{
-																						var cr = Http.Send(m, Workflow.Cancellation);
-		
-																						if(cr.StatusCode == HttpStatusCode.OK)
-																						{ 
-																							JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
-	
-																							var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
-	
-																							am.RankApproved = domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
-																						}
-																					}
-																				}
-																			}
-	 																		catch(AggregateException)
-	 																		{
-	 																		}
-	 																		catch(DnsResponseException)
-	 																		{
-	 																		}
-																			catch(HttpRequestException)
-																			{
-																			}
-																			catch(OperationCanceledException)
-																			{
-																			}
-
-																			if(am.DnsApproved && (!am.RankCheck || am.RankApproved))
-																			{
-																				lock(Lock)
-																				{	
-																					ApprovedMigrations.Add(am.Id);
-																				}
-																			}
+																			lock(Lock)
+																				ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
 																		});
 	 												}
 													else
-														ApprovedMigrations.Add(am.Id);
+														ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
 												}
 	
 												if(o is Emission e)
 												{
 													Task.Run(() =>	{
-	 																	try
-	 																	{
-	 																		if(Nas.CheckEmission(e))
-	 																		{
-																				lock(Lock)
-																				{	
-																					ApprovedEmissions.Add(e.Id);
-																				}
-	 																		}
-	 																	}
-	 																	catch(Exception ex)
-	 																	{
-	 																		Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
-	 																	}
+																		var v = Nas.IsEmissionValid(e);
+
+																		lock(Lock)
+																			ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
 																	});
 												}
 											}
 										}
 
-										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedMigrations.RemoveAll(i => r.ConsensusMigrations.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedMigrations.RemoveAll(i => r.ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 									};
-		
-				if(Settings.Generators.Any())
-				{
-		  			try
-		  			{
-		 				new Uri(Settings.Nas.Provider);
-		  			}
-		  			catch(Exception)
-		  			{
-		  				Nas.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
-						return;
-		  			}
-				}
 
 				Workflow.Log?.Report(this, "MCV started");
 			}
@@ -462,7 +369,7 @@ namespace Uccs.Net
  			MainThread = CreateThread(() =>	{ 
 												while(Workflow.Active)
 												{
-													var r = WaitHandle.WaitAny(new[] {MainWakeup, Workflow.Cancellation.WaitHandle}, 500);
+													var r = WaitHandle.WaitAny([MainWakeup, Workflow.Cancellation.WaitHandle], 500);
 
 													lock(Lock)
 													{
@@ -473,14 +380,49 @@ namespace Uccs.Net
 															Generate();
 														}
 													}
-	
-													//Thread.Sleep(1);
 												}
  											});
 
 			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
+		}
+
+		private bool IsDnsValid(DomainMigration am)
+		{
+			try
+			{
+				var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+
+				var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
+
+				if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == am.Transaction.Signer))
+				{
+					return true;
+				}
+
+				if(am.RankCheck)
+				{
+					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
+					{
+						var cr = Http.Send(m, Workflow.Cancellation);
+
+						if(cr.StatusCode == HttpStatusCode.OK)
+						{
+							JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
+
+							var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
+
+							return domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
+						}
+					}
+				}
+			}
+			catch(Exception)
+			{
+			}
+
+			return false;
 		}
 
 		public void RunSeed()
@@ -1359,11 +1301,13 @@ namespace Uccs.Net
 
 			var p = Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound;
 
-			var r = new Round(Mcv) {Id					= p.Id + 1,
-									ConsensusTime		= Time.Now(Clock), 
-									ConsensusExeunitFee	= p.ConsensusExeunitFee,
-									Members				= p.Members,
-									Funds				= p.Funds};
+			var r = Mcv.GetRound(p.Id + 1);
+			
+			r.ConsensusTime			= Time.Now(Clock);
+			r.ConsensusExeunitFee	= p.ConsensusExeunitFee;
+			r.RentPerBytePerDay		= p.RentPerBytePerDay;
+			r.Members				= p.Members;
+			r.Funds					= p.Funds;
 	
 			r.Execute([transaction]);
 
@@ -1372,21 +1316,32 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee &&
+			foreach(var t in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
+											(i.EmissionOnly || i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				TryExecute(i);
-				
-				if(i.Successful)
+				foreach(var o in t.Operations)
 				{
-					i.Status = TransactionStatus.Accepted;
-					IncomingTransactions.Add(i);
+					if(o is Emission e)
+						if(!Nas.IsEmissionValid(e))
+							continue;
 
-					Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
+					if(o is DomainMigration m)
+						if(!IsDnsValid(m))
+							continue;
+				}
 
-					yield return i;
+				TryExecute(t);
+				
+				if(t.Successful)
+				{
+					t.Status = TransactionStatus.Accepted;
+					IncomingTransactions.Add(t);
+
+					Workflow.Log?.Report(this, "Transaction Accepted", t.ToString());
+
+					yield return t;
 				}
 			}
 
@@ -1423,16 +1378,13 @@ namespace Uccs.Net
 			
 						t.AddOperation(o);
 
-			 			Enqueue(t);
+			 			Transact(t);
 
 						LastCandidacyDeclaration[g] = t;
 					}
 				}
 				else
 				{
-					//if(Mcv.VotersOf(Mcv.LastConfirmedRound).Any(i => i.Account == g) && !Mcv.LastConfirmedRound.VotesOfTry.Any(i => i.Generator == g))
-					//	votes = votes;
-
 					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
 						OutgoingTransactions.Remove(lcd);
 
@@ -1468,6 +1420,8 @@ namespace Uccs.Net
 						var v = createvote(r);
 						var deferred = new List<Transaction>();
 						
+						/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
+
 						bool add(Transaction t, bool isdeferred)
 						{ 	
 							if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > r.Parent.OperationsPerVoteLimit)
@@ -1497,7 +1451,7 @@ namespace Uccs.Net
 	
 							if(!isdeferred)
 							{
-								if(txs.Any(i => i.Signer == t.Signer && i.Status == TransactionStatus.Accepted && i.Nid < t.Nid)) /// any older tx left?
+								if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
 								{
 									deferred.Add(t);
 									return true;
@@ -1570,8 +1524,11 @@ namespace Uccs.Net
 						
 						if(r.Hash == null)
 						{
-							r.ConsensusTime = r.Previous.ConsensusTime;
-							r.ConsensusExeunitFee = r.Previous.ConsensusExeunitFee;
+							r.ConsensusTime			= r.Previous.ConsensusTime;
+							r.ConsensusExeunitFee	= r.Previous.ConsensusExeunitFee;
+							r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
+							r.Members				= r.Previous.Members;
+							r.Funds					= r.Previous.Funds;
 						}
 
 						if(!r.Confirmed)
@@ -1618,7 +1575,7 @@ namespace Uccs.Net
 			while(Workflow.Active)
 			{
 				if(!OutgoingTransactions.Any())
-					WaitHandle.WaitAny(new[] {TransactingWakeup, Workflow.Cancellation.WaitHandle});
+					WaitHandle.WaitAny([TransactingWakeup, Workflow.Cancellation.WaitHandle]);
 
 				var cr = Call(i => i.Request(new MembersRequest()), Workflow);
 
@@ -1682,6 +1639,7 @@ namespace Uccs.Net
 									t.Fee = 0;
 									t.Nid = 0;
 									t.Expiration = 0;
+									t.Generator = new([0, 0], -1);
 
 									t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
 
@@ -1692,7 +1650,8 @@ namespace Uccs.Net
 									else
 										nid++;
 
-									t.Fee		 = at.MinFee;
+									t.Generator	= at.Generetor;
+									t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
 									t.Nid		 = nid;
 									t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 
@@ -1818,7 +1777,7 @@ namespace Uccs.Net
 			}
 		}
 
-		void Enqueue(Transaction t)
+		void Transact(Transaction t)
 		{
 			if(OutgoingTransactions.Count <= OperationsQueueLimit)
 			{
@@ -1830,7 +1789,6 @@ namespace Uccs.Net
 					TransactingThread.Start();
 				}
 
-				//o.Placing = PlacingStage.PendingDelegation;
 				OutgoingTransactions.Add(t);
 				TransactingWakeup.Set();
 			} 
@@ -1840,7 +1798,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public Transaction Enqueue(Operation operation, AccountAddress signer, TransactionStatus await, Workflow workflow)
+		public Transaction Transact(Operation operation, AccountAddress signer, TransactionStatus await, Workflow workflow)
 		{
 			return Transact([operation], signer, await, workflow)[0];
 		}
@@ -1870,7 +1828,7 @@ namespace Uccs.Net
 				{	
  					if(FeeAsker.Ask(this, signer, null))
  					{
- 				 		Enqueue(t);
+ 				 		Transact(t);
  					}
 				}
  
@@ -2180,7 +2138,7 @@ namespace Uccs.Net
 
 				if(FeeAsker.Ask(this, signer, o))
 				{
-					Enqueue(o, signer, TransactionStatus.Confirmed, workflow);
+					Transact(o, signer, TransactionStatus.Confirmed, workflow);
 					return o;
 				}
 			}

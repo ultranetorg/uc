@@ -163,7 +163,7 @@ namespace Uccs.Net
 							r.ConsensusFundJoiners = new[] {Zone.Father0};
 
 						if(i == 1)
-							r.ConsensusEmissions = new OperationId[] {new(0, 0, 0)};
+							r.ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
 
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
@@ -271,6 +271,7 @@ namespace Uccs.Net
 			var v0 = new Vote(m) {RoundId = 0, Time = Time.Zero, ParentHash = zone.Cryptography.ZeroHash};
 			{
 				var t = new Transaction {Zone = zone, Nid = 0, Expiration = 0};
+				t.Generator = new([0, 0], -1);
 				t.Fee = zone.ExeunitMinFee;
 				t.AddOperation(new Emission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
 				t.Sign(f0, zone.Cryptography.ZeroHash);
@@ -286,7 +287,7 @@ namespace Uccs.Net
 
 			var v1 = new Vote(m) {RoundId = 1, Time = Time.Zero, ParentHash = zone.Cryptography.ZeroHash};
 			{
-				v1.Emissions = new OperationId[] {new(0, 0, 0)};
+				v1.Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
 	
 				v1.Sign(god);
 				m.Add(v1);
@@ -295,17 +296,18 @@ namespace Uccs.Net
 	
 			for(int i = 2; i <= 1+P + 1+P + P; i++)
 			{
-				var v = new Vote(m){	 RoundId	= i,
-										 Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										 ParentHash	= i < P ? zone.Cryptography.ZeroHash : m.GetRound(i - P).Summarize() };
+				var v = new Vote(m){RoundId		= i,
+									Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+									ParentHash	= i < P ? zone.Cryptography.ZeroHash : m.GetRound(i - P).Summarize() };
 		 
 				if(i == 1+P + 1)
 				{
 					var t = new Transaction {Zone = zone, Nid = 1, Expiration = i};
+					t.Generator = new([0, 0], -1);
 					t.Fee = zone.ExeunitMinFee;
 					t.AddOperation(new CandidacyDeclaration{Bail = 1_000_000,
-															BaseRdcIPs = new [] {zone.Father0IP},
-															SeedHubRdcIPs = new [] {zone.Father0IP} });
+															BaseRdcIPs = [zone.Father0IP],
+															SeedHubRdcIPs = [zone.Father0IP] });
 					t.Sign(f0, zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
@@ -599,17 +601,17 @@ namespace Uccs.Net
 					yield return t;
 		}
 
-		public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-		{
-			var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-			return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
-		}
-
-		IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-		{
-			var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-			return op == null ? ops : ops.Where(op);
-		}
+		//public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
+		//{
+		//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
+		//	return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
+		//}
+		//
+		//IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
+		//{
+		//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
+		//	return op == null ? ops : ops.Where(op);
+		//}
 
 		public IEnumerable<Resource> QueryResource(string query)
 		{

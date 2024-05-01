@@ -19,10 +19,11 @@ namespace Uccs.Net
 		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this));
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
-
+		public bool						EmissionOnly => Operations.All(i => i is Emission);
 
 		public Vote						Vote;
 		public Round					Round;
+		public EntityId					Generator;
 		public int						Expiration;
 		public byte[]					PoW;
 		public byte[]					Tag;
@@ -57,7 +58,7 @@ namespace Uccs.Net
 		{
 			Signer = signer;
 
-            if(powhash.SequenceEqual(Zone.Cryptography.ZeroHash) || !Zone.PoW)
+			if(powhash.SequenceEqual(Zone.Cryptography.ZeroHash) || !Zone.PoW)
 			{
 				PoW = new byte[PoWLength];
 			}
@@ -92,7 +93,7 @@ namespace Uccs.Net
 
 		public void AddOperation(Operation operation)
 		{ 
-			Operations = Operations.Prepend(operation).ToArray();
+			Operations = Operations.Append(operation).ToArray();
 			operation.Transaction = this;
 		}
 
@@ -102,6 +103,7 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.WriteUtf8(Zone.Name); 
+			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);
 			w.Write(Fee);
@@ -114,6 +116,7 @@ namespace Uccs.Net
 
  		public void	WriteConfirmed(BinaryWriter writer)
  		{
+			writer.Write(Generator);
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write(Fee);
@@ -128,6 +131,7 @@ namespace Uccs.Net
  		{
 			Status		= TransactionStatus.Confirmed;
 
+			Generator	= reader.Read<EntityId>();
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			Fee			= reader.Read<Money>();
@@ -144,6 +148,7 @@ namespace Uccs.Net
  		{
 			writer.Write((byte)__ExpectedStatus);
 
+			writer.Write(Generator);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -160,6 +165,7 @@ namespace Uccs.Net
  		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 
+			Generator	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
@@ -179,6 +185,7 @@ namespace Uccs.Net
 		{
 			writer.Write((byte)__ExpectedStatus);
 		
+			writer.Write(Generator);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -195,6 +202,7 @@ namespace Uccs.Net
 		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 		
+			Generator	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Numerics;
-using System.Threading.Tasks;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
@@ -67,6 +67,87 @@ namespace Uccs.Net
 			Settings = s;
 		}
 
+		public string[] ReportEthereumJsonAPIWarning(string message, bool aserror)
+		{
+			return [message,
+					$"But it is not set or incorrect.",
+		 			$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
+		 			$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"];
+		}
+
+		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
+		{
+			var w3 = new Web3(from, Settings.Nas.Provider);
+			var c = w3.Eth.GetContractHandler(ContractAddress);
+
+			var rt = new EmitFunction{AmountToSend = amount,
+					 				  Secret = Emission.Serialize(AccountKey.Create(), 0)};
+
+			var g = c.EstimateGasAsync(rt);
+			var gp = w3.Eth.GasPrice.SendRequestAsync();
+
+			g.Wait(workflow.Cancellation);
+			gp.Wait(workflow.Cancellation);
+
+			rt.Gas		= g.Result;
+			rt.GasPrice = gp.Result;
+
+			return rt;
+		}
+
+		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
+		{
+			var w3 = new Web3(from, Settings.Nas.Provider);
+			var c = w3.Eth.GetContractHandler(ContractAddress);
+
+			var rt = new EmitFunction{AmountToSend = wei,
+					 				  Secret = Emission.Serialize(to, eid)};
+
+			rt.Gas = gas;
+			rt.GasPrice = gasprice;
+
+			workflow.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
+
+			var receipt = c.SendRequestAndWaitForReceiptAsync(rt, workflow.Cancellation).Result;
+
+			if(receipt.Status != new HexBigInteger(0))
+				workflow.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}");
+			else
+			{
+				workflow.Log?.Report(this, "Ethereum", $"Transaction FAILED. Hash: {receipt.TransactionHash}");
+				throw new EntityException(EntityError.EmissionFailed);
+			}
+				
+			return receipt;
+		}
+
+		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
+		{
+			var f = new FindEmissionFunction {Secret = Emission.Serialize(account, eid)};
+
+			var c =  Contract.QueryAsync<FindEmissionFunction, BigInteger>(f);
+			c.Wait(workflow.Cancellation);
+			
+			return c.Result;
+		}
+
+		public bool IsEmissionValid(Emission e)
+		{
+	 		try
+	 		{
+				var f = new FindEmissionFunction {Secret = Emission.Serialize(e.Signer, e.Eid)};
+
+				var wei = Contract.QueryAsync<FindEmissionFunction, BigInteger>(f).Result;
+
+				return wei == e.Wei;
+	 		}
+	 		catch(Exception)
+	 		{
+	 		}
+
+			return false;
+		}
+
 // 		public IPAddress[] GetInitials(Zone zone, Workflow workflow)
 // 		{
 // 			lock(Zones)
@@ -125,14 +206,6 @@ namespace Uccs.Net
 // 			}
 // 		}
 
-		public string[] ReportEthereumJsonAPIWarning(string message, bool aserror)
-		{
-			return new string[]{message,
-								$"But it is not set or incorrect.",
-		 						$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
-		 						$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"};
-		}
-
 // 		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
 // 		{
 // 			var f = new SetZoneFunction
@@ -190,69 +263,5 @@ namespace Uccs.Net
 // 			}
 // 		}
 
-		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
-		{
-			var w3 = new Web3(from, Settings.Nas.Provider);
-			var c = w3.Eth.GetContractHandler(ContractAddress);
-
-			var rt = new EmitFunction{AmountToSend = amount,
-					 				  Secret = Emission.Serialize(AccountKey.Create(), 0)};
-
-			var g = c.EstimateGasAsync(rt);
-			var gp = w3.Eth.GasPrice.SendRequestAsync();
-
-			g.Wait(workflow.Cancellation);
-			gp.Wait(workflow.Cancellation);
-
-			rt.Gas		= g.Result;
-			rt.GasPrice = gp.Result;
-
-			return rt;
-		}
-
-		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
-		{
-			var w3 = new Web3(from, Settings.Nas.Provider);
-			var c = w3.Eth.GetContractHandler(ContractAddress);
-
-			var rt = new EmitFunction{AmountToSend = wei,
-					 				  Secret = Emission.Serialize(to, eid)};
-
-			rt.Gas = gas;
-			rt.GasPrice = gasprice;
-
-			workflow.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
-
-			var receipt = c.SendRequestAndWaitForReceiptAsync(rt, workflow.Cancellation).Result;
-
-			if(receipt.Status != new HexBigInteger(0))
-				workflow.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}");
-			else
-			{
-				workflow.Log?.Report(this, "Ethereum", $"Transaction FAILED. Hash: {receipt.TransactionHash}");
-				throw new EntityException(EntityError.EmissionFailed);
-			}
-				
-			return receipt;
-		}
-
-		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
-		{
-			var f = new FindEmissionFunction { Secret = Emission.Serialize(account, eid) };
-
-			var c =  Contract.QueryAsync<FindEmissionFunction, BigInteger>(f);
-			c.Wait(workflow.Cancellation);
-			
-			return c.Result;
-		}
-
-		public bool CheckEmission(Emission e)
-		{
-			var f = new FindEmissionFunction { Secret = Emission.Serialize(e.Signer, e.Eid) };
-
-			var wei = Contract.QueryAsync<FindEmissionFunction, BigInteger>(f).Result;
-
-			return wei == e.Wei;
-		}
 	}
 }

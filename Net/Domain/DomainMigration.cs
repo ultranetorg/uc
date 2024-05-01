@@ -11,6 +11,7 @@ namespace Uccs.Net
 		
 		public bool				DnsApproved;
 		public bool				RankApproved;
+		public EntityId			Generator;
 
 		public DomainMigration()
 		{
@@ -58,6 +59,7 @@ namespace Uccs.Net
 			writer.WriteUtf8(Name);
 			writer.WriteUtf8(Tld);
 			writer.Write(RankCheck);
+			writer.Write(Generator);
 		}
 
 		public void ReadBaseState(BinaryReader reader)
@@ -70,6 +72,7 @@ namespace Uccs.Net
 			Name				= reader.ReadUtf8();
 			Tld					= reader.ReadUtf8();
 			RankCheck			= reader.ReadBoolean();
+			Generator			= reader.Read<EntityId>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -88,7 +91,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public void ConsensusExecute(Round round)
+		public void ConfirmedExecute(Round round)
 		{
 			var a = Affect(round, Name);
 

@@ -8,12 +8,13 @@ namespace Uccs.Net
 		public static readonly Money		Multiplier = 1000;
 		public static readonly Money		End = new Money(10_000_000_000);
 
-		public BigInteger	Wei;
-		public int			Eid;
+		public BigInteger					Wei;
+		public int							Eid;
+		public Money						Portion;
+		public Money						Fee;
+		public EntityId						Generator;
 
 		public override string Description => $"#{Eid}, {Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Wei)} ETH -> {Calculate(Wei)} UNT";
-
-		Money Portion;
 
 		public Emission() 
 		{
@@ -45,67 +46,55 @@ namespace Uccs.Net
 			writer.Write(Signer);
 			writer.Write(Wei);
 			writer.Write7BitEncodedInt(Eid);
+			writer.Write(Portion);
+			writer.Write(Fee);
+			writer.Write(Generator);
 		}
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			_Id	= reader.Read<OperationId>();
-
 			Transaction = new Transaction();
 			
+			_Id					= reader.Read<OperationId>();
 			Transaction.Signer	= reader.ReadAccount();
 			Wei					= reader.ReadBigInteger();
 			Eid					= reader.Read7BitEncodedInt();
+			Portion				= reader.Read<Money>();
+			Fee					= reader.Read<Money>();
+			Generator			= reader.Read<EntityId>();
 		}
 
  		public static Money Calculate(BigInteger wei)
  		{
  			return Money.FromWei(wei) * Multiplier;
-
-// 		public static Portion Calculate(BigInteger spent, Coin factor, BigInteger wei)
-// 		{
-// 			Coin f = factor;
-// 			Coin a = 0;
-// 
-// 			var d = Step - Coin.FromWei(spent) % Step;
-// 
-// 			var w = Coin.FromWei(wei);
-// 
-// 			if(w <= d)
-// 			{
-// 				a += w * Multiplier(f);
-// 			}
-// 			else
-// 			{
-// 				a += d * Multiplier(f);
-// 
-// 				var r = w - d;
-// 
-// 				while(f <= FactorEnd)
-// 				{
-// 					f = f + FactorStep;
-// 
-// 					if(r < Step)
-// 					{
-// 						a += r * Multiplier(f);
-// 						break;
-// 					}
-// 					else
-// 					{
-// 						a += Step * Multiplier(f);
-// 						r -= Step;
-// 					}
-// 				}
-// 			} 
-// 
-// 			return new Portion { Factor = f, Amount = a};
  		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
+			var a = mcv.Accounts.Find(Signer, round.Id);
+
+			if(a.LastEmissionId != Eid - 1)
+			{
+				Error = "Wrond eid "; /// emission is over
+				return;
+			}
+
+			Portion = Calculate(Wei);
+
+			if(a.New)
+			{
+				Fee = CalculateFee(round.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever);
+
+				if(Portion <= Fee)
+				{ 
+					Error = "Not enough emission to create account";
+					return;
+				}
+			}
+
 		}
 
-		public void ConfirmExecute(Round round)
+		public void ConfirmedExecute(Round round)
 		{
 			if(round.Emission > End)
 			{
@@ -113,10 +102,8 @@ namespace Uccs.Net
 				return;
 			}
 
-			Portion = Calculate(Wei);
-			
 			var a = Affect(round, Signer);
-			a.Balance += Portion;
+			a.Balance += Portion - Fee;
 			a.LastEmissionId = Eid;
 				
 			round.Emission += Portion;

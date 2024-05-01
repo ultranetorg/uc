@@ -122,7 +122,7 @@ namespace Uccs.Sun.CLI
 			{
 				if(c.Has("estimate"))
 				{
-					var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc { Operations = [o], By = c.GetAccountAddress("by")});
+					var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress("by")});
 					c.Dump(rp, typeof(AllocateTransactionResponse));
 				}
 				else

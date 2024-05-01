@@ -132,11 +132,11 @@ namespace Uccs.Net
 				{
 					if(r.Outbounds != null)
 					{
-						foreach(var i in r.Outbounds)
+						foreach(var i in r.Inbounds)
 						{
-							if(i.Destination.Ci.SequenceEqual(a.Id.Ci) && i.Destination.Ai == a.Id.Ei)
+							if(i.Ci.SequenceEqual(a.Id.Ci) && i.Ai == a.Id.Ei)
 							{
-								var l = mcv.Domains.FindResource(i.Destination, round.Id);
+								var l = mcv.Domains.FindResource(i, round.Id);
 
 								execute(l.Address);
 							}

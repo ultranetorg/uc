@@ -78,7 +78,7 @@ namespace Uccs.Sun.CLI
 			if(Program.ApiClient == null)
 				Program.Sun.Transact(operations, by, await, Workflow);
 			else
-				Program.ApiClient.Send(new EnqeueOperationApc {	Operations = operations,
+				Program.ApiClient.Send(new EnqeueOperationApc  {Operations = operations,
 																By = by,
 																Await = await},
 										Workflow);

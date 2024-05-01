@@ -29,15 +29,11 @@ namespace Uccs.Net
 		public byte[]				ParentHash;
 		//public AccountAddress[]		MemberJoiners = {};
 		public AccountAddress[]		MemberLeavers = {};
-		public AccountAddress[]		AnalyzerJoiners = {};
-		public AccountAddress[]		AnalyzerLeavers = {};
 		public AccountAddress[]		FundJoiners = {};
 		public AccountAddress[]		FundLeavers = {};
 		public AccountAddress[]		Violators = {};
-		public Ura[]	CleanReleases = {};
-		public Ura[]	InfectedReleases = {};
-		public OperationId[]		Emissions = {};
-		public OperationId[]		Migrations = {};
+		public ForeignResult[]		Emissions = {};
+		public ForeignResult[]		Migrations = {};
 		public Transaction[]		Transactions = {};
 		public byte[]				Signature { get; set; }
 
@@ -137,15 +133,11 @@ namespace Uccs.Net
 			writer.Write(ParentHash);
 
 			writer.Write(MemberLeavers);
-			writer.Write(AnalyzerJoiners);
-			writer.Write(AnalyzerLeavers);
 			writer.Write(FundJoiners);
 			writer.Write(FundLeavers);
 			writer.Write(Violators);
 			writer.Write(Emissions);
 			writer.Write(Migrations);
-			writer.Write(CleanReleases);
-			writer.Write(InfectedReleases);
 
 			writer.Write(Transactions, t => t.WriteForVote(writer));
 		}
@@ -157,15 +149,11 @@ namespace Uccs.Net
 			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberLeavers		= reader.ReadArray<AccountAddress>();
-			AnalyzerJoiners		= reader.ReadArray<AccountAddress>();
-			AnalyzerLeavers		= reader.ReadArray<AccountAddress>();
 			FundJoiners			= reader.ReadArray<AccountAddress>();
 			FundLeavers			= reader.ReadArray<AccountAddress>();
 			Violators			= reader.ReadArray<AccountAddress>();
-			Emissions			= reader.ReadArray<OperationId>();
-			Migrations			= reader.ReadArray<OperationId>();
-			CleanReleases		= reader.ReadArray<Ura>();
-			InfectedReleases	= reader.ReadArray<Ura>();
+			Emissions			= reader.ReadArray<ForeignResult>();
+			Migrations			= reader.ReadArray<ForeignResult>();
 
 			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction {Zone = Mcv.Zone, Vote = this};

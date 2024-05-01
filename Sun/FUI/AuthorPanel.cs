@@ -213,7 +213,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Sun.Enqueue(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
+				Sun.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

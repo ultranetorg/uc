@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public struct EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
+	public class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
 	{
 		public byte[]	Ci { get; set; }
 		public int		Ei { get; set; }
