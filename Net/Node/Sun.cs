@@ -1599,152 +1599,136 @@ namespace Uccs.Net
 
 				Statistics.Transacting.Begin();
 				
+				IEnumerable<IGrouping<AccountAddress, Transaction>> nones;
+
 				lock(Lock)
+					nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
+
+				foreach(var g in nones)
 				{
-					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer).ToArray())
+					var m = members.NearestBy(i => i.Account, g.Key);
+
+					//AllocateTransactionResponse at = null;
+					RdcInterface rdi; 
+
+					try
 					{
-						if(!g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None))
+						rdi = getrdi(g.Key);
+					}
+					catch(NodeException)
+					{
+						Thread.Sleep(1000);
+						continue;
+					}
+
+					int nid = -1;
+					var txs = new List<Transaction>();
+
+					foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
+					{
+						try
 						{
-							var m = members.NearestBy(i => i.Account, g.Key);
+							t.Rdi = rdi;
+							t.Fee = 0;
+							t.Nid = 0;
+							t.Expiration = 0;
+							t.Generator = new([0, 0], -1);
 
-							//AllocateTransactionResponse at = null;
-							RdcInterface rdi; 
+							t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
 
-							try
-							{
-								Monitor.Exit(Lock);
-
-								rdi = getrdi(g.Key);
-							}
-							catch(NodeException)
-							{
-								Thread.Sleep(1000);
-								continue;
-							}
-							finally
-							{
-								Monitor.Enter(Lock);
-							}
-
-							int nid = -1;
-							var txs = new List<Transaction>();
-
-							foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
-							{
-								try
-								{
-									Monitor.Exit(Lock);
-
-									t.Rdi = rdi;
-									t.Fee = 0;
-									t.Nid = 0;
-									t.Expiration = 0;
-									t.Generator = new([0, 0], -1);
-
-									t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
-
-									var at = rdi.Request(new AllocateTransactionRequest {Transaction = t});
+							var at = rdi.Request(new AllocateTransactionRequest {Transaction = t});
 								
-									if(nid == -1)
-										nid = at.NextNid;
-									else
-										nid++;
+							if(nid == -1)
+								nid = at.NextNid;
+							else
+								nid++;
 
-									t.Generator	= at.Generetor;
-									t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
-									t.Nid		 = nid;
-									t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
+							t.Generator	= at.Generetor;
+							t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
+							t.Nid		 = nid;
+							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 
-									t.Sign(Vault.GetKey(t.Signer), at.PowHash);
-									txs.Add(t);
-								}
-								catch(NodeException)
+							t.Sign(Vault.GetKey(t.Signer), at.PowHash);
+							txs.Add(t);
+						}
+						catch(NodeException)
+						{
+							Thread.Sleep(1000);
+							continue;
+						}
+						catch(EntityException)
+						{
+							lock(Lock)
+								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 								{
-									Thread.Sleep(1000);
-									continue;
-								}
-								catch(EntityException)
-								{
-									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-									{
-										t.Status = TransactionStatus.FailedOrNotFound;
-										OutgoingTransactions.Remove(t);
-									} 
-									else
-										Thread.Sleep(1000);
-
-									continue;
-								}
-								finally
-								{
-									Monitor.Enter(Lock);
-								}
-							}
-
-							IEnumerable<byte[]> atxs = null;
-
-							try
-							{
-								Monitor.Exit(Lock);
-								atxs = rdi.Request(new PlaceTransactionsRequest{Transactions = txs.ToArray()}).Accepted;
-							}
-							catch(NodeException)
-							{
-								Thread.Sleep(1000);
-								continue;
-							}
-							finally
-							{
-								Monitor.Enter(Lock);
-							}
-
-							foreach(var t in txs)
-							{ 
-								if(atxs.Any(s => s.SequenceEqual(t.Signature)))
-								{
-									t.Status = TransactionStatus.Accepted;
-
-									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
-								}
+									t.Status = TransactionStatus.FailedOrNotFound;
+									OutgoingTransactions.Remove(t);
+								} 
 								else
-								{
-									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-									{
-										t.Status = TransactionStatus.FailedOrNotFound;
-										OutgoingTransactions.Remove(t);
-									} 
-									else
-									{
-										t.Status = TransactionStatus.None;
-									}
-								}
-							}
+									Thread.Sleep(1000);
+
+							continue;
 						}
 					}
 
-					var accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
+					IEnumerable<byte[]> atxs = null;
 
-					if(accepted.Any())
+					try
 					{
-						foreach(var g in accepted.GroupBy(i => i.Rdi).ToArray())
+						atxs = rdi.Request(new PlaceTransactionsRequest{Transactions = txs.ToArray()}).Accepted;
+					}
+					catch(NodeException)
+					{
+						Thread.Sleep(1000);
+						continue;
+					}
+
+					lock(Lock)
+						foreach(var t in txs)
+						{ 
+							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
+							{
+								t.Status = TransactionStatus.Accepted;
+
+								Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
+							}
+							else
+							{
+								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+								{
+									t.Status = TransactionStatus.FailedOrNotFound;
+									OutgoingTransactions.Remove(t);
+								} 
+								else
+								{
+									t.Status = TransactionStatus.None;
+								}
+							}
+						}
+				}
+
+				Transaction[] accepted;
+				
+				lock(Lock)
+					accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
+
+				if(accepted.Any())
+				{
+					foreach(var g in accepted.GroupBy(i => i.Rdi))
+					{
+						TransactionStatusResponse ts;
+
+						try
 						{
-							TransactionStatusResponse ts;
+							ts = g.Key.Request(new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
+						}
+						catch(NodeException)
+						{
+							Thread.Sleep(1000);
+							continue;
+						}
 
-							try
-							{
-								Monitor.Exit(Lock);
-								ts = g.Key.Request(new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
-							}
-							catch(NodeException)
-							{
-								Thread.Sleep(1000);
-								continue;
-							}
-							finally
-							{
-								Monitor.Enter(Lock);
-							}
-
+						lock(Lock)
 							foreach(var i in ts.Transactions)
 							{
 								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
@@ -1768,10 +1752,10 @@ namespace Uccs.Net
 											OutgoingTransactions.Remove(t);
 									}
 								}
-							}
 						}
 					}
 				}
+				
 
 				Statistics.Transacting.End();
 			}

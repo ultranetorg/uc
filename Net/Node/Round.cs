@@ -549,28 +549,28 @@ namespace Uccs.Net
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
-				var accounts = new Dictionary<AccountAddress, AccountEntry>();
-				var domains	 = new Dictionary<string, DomainEntry>();
+				var accs = new Dictionary<AccountAddress, AccountEntry>();
+				var doms = new Dictionary<string, DomainEntry>();
 
 				foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
 				{
 					foreach(var i in r.AffectedAccounts)
-						if(!accounts.ContainsKey(i.Key))
-							accounts.Add(i.Key, i.Value);
+						if(!accs.ContainsKey(i.Key))
+							accs.Add(i.Key, i.Value);
 
 					foreach(var i in r.AffectedDomains)
-						if(!domains.ContainsKey(i.Key))
-							domains.Add(i.Key, i.Value);
+						if(!doms.ContainsKey(i.Key))
+							doms.Add(i.Key, i.Value);
 				}
 
-				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accounts.Values) + Mcv.Domains.MeasureChanges(domains.Values);
+				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accs.Values) + Mcv.Domains.MeasureChanges(doms.Values);
 								
 				Last365BaseDeltas.RemoveAt(0);
 				Last365BaseDeltas.Add(s - PreviousDayBaseSize);
 
-				if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowth)
+				if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowthPerYear)
 				{
-					RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowth;
+					RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowthPerYear;
 				}
 
 				PreviousDayBaseSize = s;

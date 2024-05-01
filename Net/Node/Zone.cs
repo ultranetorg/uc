@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public Money			DomainRankCheckFee								= 5;
 		public int				MembersLimit									= 1000;
 		public Money			ExeunitMinFee									= 0.001;
-		public long				TargetBaseGrowth								= 100L*1024*1024*1024;
+		public long				TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
 		public Money			RentPerBytePerDayMinimum						= 0.000_000_01;
 		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
