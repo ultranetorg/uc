@@ -51,21 +51,21 @@ namespace Uccs
 		HttpListener					Listener;
 		Thread							Thread;
 		string							AccessKey;
-		Workflow						Workflow;
+		Flow						Flow;
 		JsonSerializerOptions			Options;
 
-		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow);
+		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 		protected abstract Type			Create(string call);
 
-		public JsonApiServer(string profile, string address, string accesskey, JsonSerializerOptions options, Workflow workflow)
+		public JsonApiServer(string profile, string address, string accesskey, JsonSerializerOptions options, Flow workflow)
 		{
 			AccessKey	= accesskey;
 			Options		= options;
-			Workflow	= workflow.CreateNested("JsonApiServer", new Log());
+			Flow	= workflow.CreateNested("JsonApiServer", new Log());
 
 			if(profile != null)
 			{
-				Workflow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
+				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
 			}
 
 			Thread = new Thread(() =>	{ 
@@ -85,11 +85,11 @@ namespace Uccs
  												//}
 
 										
-												Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
+												Flow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
 
 												Listener.Start();
 						
-												while(Workflow.Active)
+												while(Flow.Active)
 												{
 													ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
 												}
@@ -107,7 +107,7 @@ namespace Uccs
 												if(!Listener.IsListening)
 													Listener = null;
 
-												Workflow.Log?.ReportError(this, "Listener Thread Error", ex);
+												Flow.Log?.ReportError(this, "Listener Thread Error", ex);
 											}
 										});
 
@@ -117,7 +117,7 @@ namespace Uccs
 
 		public void Stop()
 		{
-			Workflow.Abort();
+			Flow.Abort();
 			Listener?.Stop();
 		}
 
@@ -208,7 +208,7 @@ namespace Uccs
 
 				object execute(Apc call)
 				{
-					return Execute(call, rq, rp, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
+					return Execute(call, rq, rp, Flow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 
 				if(c is BatchApc b)
@@ -246,7 +246,7 @@ namespace Uccs
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				responderror(ex.ToString(), (int)HttpStatusCode.InternalServerError);
-				Workflow.Log?.ReportError(this, "Request Processing Error", ex);
+				Flow.Log?.ReportError(this, "Request Processing Error", ex);
 			}
 
 			try

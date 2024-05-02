@@ -4,7 +4,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class ResourcesPanel : MainPanel
 	{
-		Workflow ManifestWorkflow;
+		Flow ManifestWorkflow;
 
 		public ResourcesPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{

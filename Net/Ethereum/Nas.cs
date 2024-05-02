@@ -75,7 +75,7 @@ namespace Uccs.Net
 		 			$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"];
 		}
 
-		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
+		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Flow workflow)
 		{
 			var w3 = new Web3(from, Settings.Nas.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
@@ -95,7 +95,7 @@ namespace Uccs.Net
 			return rt;
 		}
 
-		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
+		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Flow workflow)
 		{
 			var w3 = new Web3(from, Settings.Nas.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
@@ -121,7 +121,7 @@ namespace Uccs.Net
 			return receipt;
 		}
 
-		public BigInteger FindEmission(AccountAddress account, int eid, Workflow workflow)
+		public BigInteger FindEmission(AccountAddress account, int eid, Flow workflow)
 		{
 			var f = new FindEmissionFunction {Secret = Emission.Serialize(account, eid)};
 

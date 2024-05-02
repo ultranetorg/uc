@@ -22,14 +22,14 @@ namespace Uccs.Sun.CLI
 			if(ConsoleAvailable)
 			{
 				var v = new ConsoleLogView(false, true);
-				v.StartListening(Program.Sun.Workflow.Log);
+				v.StartListening(Program.Sun.Flow.Log);
 								
 				while(Workflow.Active && !Console.KeyAvailable)
 				{
 					Thread.Sleep(100);
 				}
 
-				v.StopListening(Program.Sun.Workflow.Log);
+				v.StopListening(Program.Sun.Flow.Log);
 			}
 			
 			return null;

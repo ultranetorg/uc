@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Uccs
 {
-	public class Workflow : IDisposable
+	public class Flow : IDisposable
 	{
 		CancellationTokenSource			CancellationSource;
 		public CancellationToken		Cancellation => CancellationSource.Token;
@@ -11,22 +11,22 @@ namespace Uccs
 		public bool						Aborted => Cancellation.IsCancellationRequested;
 		public bool						Active => !Aborted;
 		public string					Name;
-		Workflow						Parent;
+		Flow							Parent;
 
-		public Workflow(string name)
+		public Flow(string name)
 		{
 			Name = name;
 			CancellationSource = new CancellationTokenSource();
 		}
 
-		public Workflow(string name, Log log)
+		public Flow(string name, Log log)
 		{
 			Name = name;
 			CancellationSource = new CancellationTokenSource();
 			Log = log;
 		}
 
-		Workflow(string name, Log log, CancellationTokenSource cancellation)
+		Flow(string name, Log log, CancellationTokenSource cancellation)
 		{
 			Name = name;
 			CancellationSource = cancellation;
@@ -43,11 +43,11 @@ namespace Uccs
 			CancellationSource.CancelAfter(timeout);
 		}
 		
-		public Workflow CreateNested(string name, Log log = null)
+		public Flow CreateNested(string name, Log log = null)
 		{
 			var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
 			
-			return new Workflow(name, log ?? Log, a) {Parent = this};
+			return new Flow(name, log ?? Log, a) {Parent = this};
 		}
 
 		public void Abort()

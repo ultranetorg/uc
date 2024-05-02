@@ -41,11 +41,11 @@ namespace Uccs.Net
 				IPs = ips.ToArray();
 
 				Task.Run(() =>	{
-									while(Collector.Workflow.Active)
+									while(Collector.Flow.Active)
 									{
 										try
 										{
-											var lr = Collector.Sun.Call(IPs.Random(), p => p.Request(new LocateReleaseRequest {Address = Address, Count = 16}), Collector.Workflow);
+											var lr = Collector.Sun.Call(IPs.Random(), p => p.Request(new LocateReleaseRequest {Address = Address, Count = 16}), Collector.Flow);
 	
 											lock(Collector.Lock)
 											{
@@ -61,15 +61,15 @@ namespace Uccs.Net
 										{
 										}
 
-										WaitHandle.WaitAny(new WaitHandle []{Collector.Workflow.Cancellation.WaitHandle}, collector.Sun.Settings.ResourceHub.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Sun.Settings.ResourceHub.CollectRefreshInterval);
 									}
 								}, 
-								Collector.Workflow.Cancellation);
+								Collector.Flow.Cancellation);
 			}
 		}
 
 		public Sun					Sun;
-		public Workflow				Workflow;
+		public Flow					Flow;
 		public List<Hub>			Hubs = new();
 		public List<Seed>			Seeds = new();
 		public object				Lock = new object();
@@ -80,14 +80,14 @@ namespace Uccs.Net
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		MembersResponse.Member[]	Members;
 
-		public SeedCollector(Sun sun, Urr address, Workflow workflow)
+		public SeedCollector(Sun sun, Urr address, Flow flow)
 		{
 			Sun = sun;
-			Workflow = workflow.CreateNested($"SeedCollector {address}");
+			Flow = flow.CreateNested($"SeedCollector {address}");
 			Hub hlast = null;
 
  			Thread = sun.CreateThread(() =>	{ 
-												while(Workflow.Active)
+												while(Flow.Active)
 												{
 													if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 													{
@@ -99,7 +99,7 @@ namespace Uccs.Net
 																												
 																					throw new ContinueException();
 																				}, 
-																				Workflow);
+																				Flow);
 														lock(Lock)
 															Members = r.Members.ToArray();
 													
@@ -124,7 +124,7 @@ namespace Uccs.Net
 														}
 													}
 	
-													WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
+													WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
 												}
  											});
 			Thread.Start();
@@ -134,7 +134,7 @@ namespace Uccs.Net
 				Task.Run(() =>	{
 									try
 									{
-										while(Workflow.Active)
+										while(Flow.Active)
 										{
 											lock(Lock)
 											{
@@ -157,7 +157,7 @@ namespace Uccs.Net
 													{
 														Monitor.Exit(Lock);
 			
-														Sun.Connect(s.Peer, Workflow);
+														Sun.Connect(s.Peer, Flow);
 															
 														s.Failed = DateTime.MinValue;
 													}
@@ -172,20 +172,20 @@ namespace Uccs.Net
 												}
 											}
 
-											WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
+											WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
 										}
 									}
 									catch(OperationCanceledException)
 									{
 									}
 								}, 
-								Workflow.Cancellation);
+								Flow.Cancellation);
 			}
 		}
 
 		public void Stop()
 		{
-			Workflow.Abort();
+			Flow.Abort();
 			Thread.Join();
 		}
 	}

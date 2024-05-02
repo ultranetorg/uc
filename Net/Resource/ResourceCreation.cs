@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public class ResourceCreation : Operation
 	{
-		public Ura		Resource { get; set; }
+		public Ura					Resource { get; set; }
 		public ResourceChanges		Changes { get; set; }
 		public ResourceData			Data { get; set; }
 

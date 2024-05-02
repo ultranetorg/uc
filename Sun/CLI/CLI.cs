@@ -15,7 +15,7 @@ namespace Uccs.Sun.CLI
 		public Zone				Zone;
 		public Net.Sun			Sun;
 		public JsonApiClient	ApiClient;
-		public Workflow			Workflow = new Workflow("CLI", new Log());
+		public Flow			Flow = new Flow("CLI", new Log());
 		public IPasswordAsker	PasswordAsker;
 
 		public Program()
@@ -36,7 +36,7 @@ namespace Uccs.Sun.CLI
 			}
 			catch(OperationCanceledException)
 			{
-				Workflow.Log.ReportError(null, "Execution aborted");
+				Flow.Log.ReportError(null, "Execution aborted");
 			}
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
@@ -57,12 +57,12 @@ namespace Uccs.Sun.CLI
 			Sun?.Stop("The End");
 		}
 
-		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Workflow workflow, IPasswordAsker passwordAsker)
+		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Zone = zone;
 			Sun = sun;
 			ApiClient = api;
-			Workflow = workflow;
+			Flow = workflow;
 			PasswordAsker = passwordAsker;
 		}
 
@@ -106,12 +106,12 @@ namespace Uccs.Sun.CLI
 
 		public object Execute(IEnumerable<Xon> command, Log log = null)
 		{
-			if(Workflow.Aborted)
+			if(Flow.Aborted)
 				throw new OperationCanceledException();
 
 			var c = Create(command);
 
-			c.Workflow = Workflow.CreateNested("Command", Workflow.Log);
+			c.Workflow = Flow.CreateNested("Command", Flow.Log);
 			
 			if(log != null)
 				c.Workflow.Log = log;

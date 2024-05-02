@@ -151,7 +151,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public void Build(Stream stream, IDictionary<string, string> files, IEnumerable<string> removals, Workflow workflow)
+		public void Build(Stream stream, IDictionary<string, string> files, IEnumerable<string> removals, Flow workflow)
 		{
 			using(var arch = new ZipArchive(stream, ZipArchiveMode.Create, true))
 			{
@@ -174,7 +174,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> files, Workflow workflow)
+		public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> files, Flow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -279,7 +279,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura[] history, Ura previous, ReleaseAddressCreator addresscreator, Workflow workflow)
+		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura[] history, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
 			var cstream = new MemoryStream();
 			var istream = (MemoryStream)null;
@@ -367,7 +367,7 @@ namespace Uccs.Net
  			}
 		}
 
-		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Workflow workflow)
+		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
 			var r = Sun.ResourceHub.Find(resource);
 			var m = new Manifest();
@@ -381,7 +381,7 @@ namespace Uccs.Net
 			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, workflow);
 		}
 
-		public Deployment Deploy(Ura package, Workflow workflow)
+		public Deployment Deploy(Ura package, Flow workflow)
 		{
 			var	d = new Deployment();
 
@@ -504,7 +504,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public PackageDownload Download(Ura package, Workflow workflow)
+		public PackageDownload Download(Ura package, Flow workflow)
 		{
 			var p = Get(package);
 
@@ -518,7 +518,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public void Install(Ura package, Workflow workflow)
+		public void Install(Ura package, Flow workflow)
 		{
 			bool e; 
 

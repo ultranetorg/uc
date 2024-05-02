@@ -51,7 +51,7 @@ namespace Uccs.Sun.CLI
 
 					var r =	new ResourceUpdation(Ura.Parse(Args[1].Name));
 
-					if(HasData())			r.Change(GetData());
+					if(Has("data"))			r.Change(GetData());
 					if(Has("seal"))			r.Seal();
 					if(Has("recursive"))	r.MakeRecursive();
 

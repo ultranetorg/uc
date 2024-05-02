@@ -31,61 +31,19 @@ namespace Uccs.Sun.CLI
 					if(!Has("source") && !Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var a = Api<Urr>(new ReleaseBuildApc {Resource = Ura.Parse(Args[1].Name),
-																	 FilePath = GetString("source", null),
-																	 Sources = GetString("sources", null)?.Split(','),
-																	 AddressCreator = new()	{	
-																								Type = GetEnum("addresstype", UrrScheme.Urrh),
-																								Owner = GetAccountAddress("owner", false),
-																								Resource = Ura.Parse(Args[1].Name)
-																							} });
+					var a = Api<Urr>(new ReleaseBuildApc {	Resource = Ura.Parse(Args[1].Name),
+															FilePath = GetString("source", null),
+															Sources = GetString("sources", null)?.Split(','),
+															AddressCreator = new()	{	
+																						Type = GetEnum("addresstype", UrrScheme.Urrh),
+																						Owner = GetAccountAddress("owner", false),
+																						Resource = Ura.Parse(Args[1].Name)
+																					} });
 
-					Workflow.Log?.Report(this, $"Address : {a}");
+					Workflow.Log?.Report(this, $"Address   : {a}");
 
 					return null;
 				}
-
-// 				case "d" :
-// 				case "download" :
-// 				{
-// 					var a = ReleaseAddress.Parse(Args[1].Name);
-// 
-// 					Api(new ReleaseDownloadCall {Address = a, Type = Enum.Parse<DataType>(GetString("type")) });
-// 
-// 					try
-// 					{
-// 						ReleaseDownloadProgress d = null;
-// 						
-// 						while(Workflow.Active)
-// 						{
-// 							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = a});
-// 
-// 							if(d == null)
-// 								break;
-// 
-// 							Workflow.Log?.Report(this, d.ToString());
-// 
-// 							Thread.Sleep(500);
-// 						}
-// 					}
-// 					catch(OperationCanceledException)
-// 					{
-// 					}
-// 
-// 					return null;
-// 				}
-
-//  				case "e" :
-//  		   		case "entity" :
-//  				{
-//  					Workflow.CancelAfter(RdcQueryTimeout);
-//  
-//  					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args[1].Name)});
-//  					
-//  					Dump(r.Release);
-//  
-//  					return r;
-//  				}
 
 				case "l" : 
 				case "local" : 

@@ -20,12 +20,12 @@ namespace Uccs.Net
 			Workpath = workpath;
 		}
 
-		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Workflow workflow)
+		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Flow workflow)
 		{
 			return new EmitFunction {Gas = 0, GasPrice = 0};
 		}
 
-		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Workflow workflow)
+		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Flow workflow)
 		{
 			if(FindEmission(to, eid, workflow) != 0)
 				throw new EntityException(EntityError.EmissionFailed);
@@ -39,7 +39,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public BigInteger FindEmission(AccountAddress to, int eid, Workflow workflow)
+		public BigInteger FindEmission(AccountAddress to, int eid, Flow workflow)
 		{
 			var p = Path.Join(Workpath, $"{to}.{eid}");
 

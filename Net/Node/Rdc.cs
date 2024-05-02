@@ -220,7 +220,7 @@ namespace Uccs.Net
 
 				if(m?.Proxy != null)
 				{
-					sun.Connect(m.Proxy, sun.Workflow);
+					sun.Connect(m.Proxy, sun.Flow);
 			
 					return new ProxyResponse {Response = m.Proxy.Request<ProxyResponse>(new ProxyRequest {Guid = Guid, Destination = Destination, Request = Request}).Response};
 				}

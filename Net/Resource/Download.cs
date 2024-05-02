@@ -99,7 +99,7 @@ namespace Uccs.Net
 											{
 											}
 										}, 
-										Download.Workflow.Cancellation);
+										Download.Flow.Cancellation);
 			}
 		}
 
@@ -114,16 +114,16 @@ namespace Uccs.Net
 		public List<Piece>							CurrentPieces = new();
 		public Dictionary<SeedCollector.Seed, int>	Seeds = new();
 		Sun											Sun;
-		Workflow									Workflow;
+		Flow										Flow;
 		public PieceDelegate						PieceSucceeded;
 
-		public FileDownload(Sun sun, LocalRelease release, string path, IIntegrity integrity, SeedCollector seedcollector, Workflow workflow)
+		public FileDownload(Sun sun, LocalRelease release, string path, IIntegrity integrity, SeedCollector seedcollector, Flow flow)
 		{
 			Sun					= sun;
 			Release				= release;
 			File				= release.Files.Find(i => i.Path == path) ?? release.AddEmpty(path);
-			Workflow			= workflow;
-			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Address, workflow);
+			Flow				= flow;
+			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Address, flow);
 
 			if(File.Completed)
 			{
@@ -145,7 +145,7 @@ namespace Uccs.Net
 							{
 								try
 								{
-									while(workflow.Active)
+									while(flow.Active)
 									{
 										Task[] tasks;
 	
@@ -175,7 +175,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Address, File = path}), workflow).Length;
+															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Address, File = path}), flow).Length;
 														}
 														catch(NodeException)
 														{
@@ -228,7 +228,7 @@ namespace Uccs.Net
 											}
 										}
 	
-										var ti = Task.WaitAny(tasks, 100, workflow.Cancellation);
+										var ti = Task.WaitAny(tasks, 100, flow.Cancellation);
 										
 										if(ti == -1)
 											continue;
@@ -307,7 +307,7 @@ namespace Uccs.Net
 										}
 									}
 								}
-								catch(Exception) when(Workflow.Aborted)
+								catch(Exception) when(Flow.Aborted)
 								{
 								}
 								finally
@@ -321,7 +321,7 @@ namespace Uccs.Net
 									}
 								}
 							},
-							workflow.Cancellation);
+							flow.Cancellation);
 		}
 	}
 	
@@ -338,7 +338,7 @@ namespace Uccs.Net
 
 		public const string			Index = ".index";
 
-		public DirectoryDownload(Sun sun, LocalRelease release, IIntegrity integrity, Workflow workflow)
+		public DirectoryDownload(Sun sun, LocalRelease release, IIntegrity integrity, Flow workflow)
 		{
 			Release = release;
 			Release.Activity = this;

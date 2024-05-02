@@ -15,12 +15,12 @@ namespace Uccs.Net
 
 	public class ReleaseBuildApc : SunApc
 	{
-		public Ura			Resource { get; set; }
+		public Ura						Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					FilePath { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -38,9 +38,9 @@ namespace Uccs.Net
 	{
 		public Ura	Address { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(i => i.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = Address}), workflow).Resource;
+			var r = sun.Call(i => i.Request(new ResourceByNameRequest {Name = Address}), workflow).Resource;
 
 			IIntegrity itg;
 
@@ -88,7 +88,7 @@ namespace Uccs.Net
 	{
 		public Urr Release { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -142,7 +142,7 @@ namespace Uccs.Net
 		public int		Skip { get; set; } = 0;
 		public int		Take { get; set; } = int.MaxValue;
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -155,7 +155,7 @@ namespace Uccs.Net
 	{
 		public Ura		Resource { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -222,7 +222,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	

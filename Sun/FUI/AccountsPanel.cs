@@ -41,7 +41,7 @@ namespace Uccs.Sun.FUI
 	
 										try
 										{
-											t = Sun.Call(p => p.Request(new AccountRequest{ Account = i.Tag as AccountAddress }), Sun.Workflow).Account.Balance.ToHumanString(); 
+											t = Sun.Call(p => p.Request(new AccountRequest{ Account = i.Tag as AccountAddress }), Sun.Flow).Account.Balance.ToHumanString(); 
 										}
 										catch(Exception)
 										{

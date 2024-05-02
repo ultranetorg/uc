@@ -15,9 +15,9 @@ namespace Uccs.Sun.FUI
 	{
 		Net.Sun				Sun;
 		Operation			Operation;
-		Workflow			Vizor;
+		Flow			Vizor;
 
-		public FlowControlForm(Net.Sun sun, Workflow vizor)
+		public FlowControlForm(Net.Sun sun, Flow vizor)
 		{
 			InitializeComponent();
 

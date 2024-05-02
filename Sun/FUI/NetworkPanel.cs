@@ -6,7 +6,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class NetworkPanel : MainPanel
 	{
-		Workflow Workflow;
+		Flow Flow;
 
 		public NetworkPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
@@ -18,12 +18,12 @@ namespace Uccs.Sun.FUI
 			Peers.Items.Clear();
 			Members.Items.Clear();
 
-			if(Workflow != null && Workflow.Active)
+			if(Flow != null && Flow.Active)
 			{
-				Workflow.Abort();
+				Flow.Abort();
 			}
 
-			Workflow = Sun.Workflow.CreateNested(MethodBase.GetCurrentMethod().Name);
+			Flow = Sun.Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
 
 			lock(Sun.Lock)
 			{
@@ -46,7 +46,7 @@ namespace Uccs.Sun.FUI
 
 				try
 				{
-					rp = Sun.Call(p => p.Request(new MembersRequest()), Workflow);
+					rp = Sun.Call(p => p.Request(new MembersRequest()), Flow);
 				}
 				catch(OperationCanceledException)
 				{

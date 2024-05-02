@@ -23,13 +23,13 @@ namespace Uccs.Uos
 
 			Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 
-			var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Workflow("GetSettings"));
+			var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Flow("GetSettings"));
 
 			ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			PackageHub = new PackageHub(null, ProductsPath);
 		}
 
-		public void Start(Uri address, Workflow workflow)
+		public void Start(Uri address, Flow workflow)
 		{
 			///var s = Sun.Request<PackageDownloadReport>(new PackageDownloadReportCall {Package = PackageAddress.Parse(address.LocalPath)}, workflow);
 			///

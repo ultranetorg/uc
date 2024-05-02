@@ -15,7 +15,7 @@ namespace Uccs.Sun.CLI
 		public static bool			ConsoleAvailable { get; protected set; }
 		public const string			AwaitArg = "await";
 
-		public Workflow				Workflow;
+		public Flow				Workflow;
 		protected int				RdcQueryTimeout = 5000;
 		protected int				RdcTransactingTimeout = 60*1000;
 
@@ -236,23 +236,36 @@ namespace Uccs.Sun.CLI
 				return def;
 		}
 
-		protected bool HasData()
-		{
-			return Has("raw") || Has("consil") || Has("analysis");
-		}
-
 		protected ResourceData GetData()
 		{
-			if(Has("raw"))
-				return Args.Find(i => i.Name == "raw").Value != null && GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
+			if(Has("data"))
+			{
+				if(Has("data/type"))
+				{
+					var  t = GetEnum<DataType>("data/type");
+					
+					switch(t)
+					{
+						case DataType.File:
+						case DataType.Directory:
+						case DataType.Package:
+							return new ResourceData(t, Urr.Parse(GetString("data/address")));
+				
+						case DataType.Consil:
+							return new ResourceData(t, new Consil  {Analyzers = GetString("data/analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+																	PerByteFee = GetMoney("data/fee") });
+						case DataType.Analysis:
+							return new ResourceData(t, new Analysis {Release = GetReleaseAddress("data/release"), 
+																	 Payment = GetMoney("data/payment"),
+																	 Consil  = GetResourceAddress($"data/consil")});
+						default:
+							throw new SyntaxException("Unknown type");
+					}
+				}
+				else if(Has("data/raw"))
+					return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data/raw"))));
+			}
 
-			if(Has("consil"))
-				return new ResourceData(DataType.Consil, new Consil {Analyzers = GetString("consil/analyzers").Split(',').Select(i => AccountAddress.Parse(i)).ToArray(),  
-																	 PerByteFee = GetMoney("consil/fee") });
-			if(Has("analysis"))
-				return new ResourceData(DataType.Analysis, new Analysis {Release = GetReleaseAddress("analysis/release"), 
-																		 Payment = GetMoney("analysis/payment"),
-																		 Consil  = GetResourceAddress($"analysis/consil")});
 			return null;
 		}
 

@@ -229,7 +229,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(Sun.Workflow.Active && Status == ConnectionStatus.OK)
+				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
 				{
 					Sun.Statistics.Sending.Begin();
 	
@@ -284,7 +284,7 @@ namespace Uccs.Net
 	
 					Sun.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny([SendSignal, Sun.Workflow.Cancellation.WaitHandle]);
+					WaitHandle.WaitAny([SendSignal, Sun.Flow.Cancellation.WaitHandle]);
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
@@ -308,11 +308,11 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(Sun.Workflow.Active && Status == ConnectionStatus.OK)
+				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
 				{
 					var pk = (PacketType)Reader.ReadByte();
 
-					if(Sun.Workflow.Aborted || Status != ConnectionStatus.OK)
+					if(Sun.Flow.Aborted || Status != ConnectionStatus.OK)
 						return;
 					
 					Sun.Statistics.Reading.Begin();
@@ -419,7 +419,7 @@ namespace Uccs.Net
 
 				try
 				{
-					i = WaitHandle.WaitAny([rq.Event, Sun.Workflow.Cancellation.WaitHandle], SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+					i = WaitHandle.WaitAny([rq.Event, Sun.Flow.Cancellation.WaitHandle], SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
 				catch(ObjectDisposedException)
 				{

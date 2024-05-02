@@ -52,7 +52,7 @@ namespace Uccs.Net
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-		public PackageDownload(Sun sun, LocalPackage package, Workflow workflow)
+		public PackageDownload(Sun sun, LocalPackage package, Flow workflow)
 		{
 			Package = package;
 

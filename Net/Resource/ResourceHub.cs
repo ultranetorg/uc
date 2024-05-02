@@ -169,7 +169,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public LocalRelease Add(Ura resource, IEnumerable<string> sources, ReleaseAddressCreator address, Workflow workflow)
+		public LocalRelease Add(Ura resource, IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -246,7 +246,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalRelease Add(Ura resource, string source, ReleaseAddressCreator address, Workflow workflow)
+		public LocalRelease Add(Ura resource, string source, ReleaseAddressCreator address, Flow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
@@ -263,7 +263,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalFile GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Workflow workflow)
+		public LocalFile GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Flow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -284,15 +284,15 @@ namespace Uccs.Net
 
 		void Declaring()
 		{
-			Sun.Workflow.Log?.Report(this, "Declaring started");
+			Sun.Flow.Log?.Report(this, "Declaring started");
 
 			var tasks = new Dictionary<AccountAddress, Task>(32);
 
-			while(Sun.Workflow.Active)
+			while(Sun.Flow.Active)
 			{
 				Sun.Statistics.Declaring.Begin();
 
-				var cr = Sun.Call(i => i.Request(new MembersRequest()), Sun.Workflow);
+				var cr = Sun.Call(i => i.Request(new MembersRequest()), Sun.Flow);
 	
 				if(!cr.Members.Any())
 					continue;
@@ -359,7 +359,7 @@ namespace Uccs.Net
 
 						Monitor.Exit(Lock);
 						{
-							Task.WaitAny(ts, Sun.Workflow.Cancellation);
+							Task.WaitAny(ts, Sun.Flow.Cancellation);
 						}
 						Monitor.Enter(Lock);
 					}
@@ -383,7 +383,7 @@ namespace Uccs.Net
 													{
 														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key, 
 																																																								Release = rs.Value.Address, 
-																																																								Availability = rs.Value.Availability }).ToArray() }), Sun.Workflow);
+																																																								Availability = rs.Value.Availability }).ToArray() }), Sun.Flow);
 													}
 													catch(OperationCanceledException)
 													{
@@ -422,7 +422,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector collector, Workflow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector collector, Flow workflow)
 		{
 			var f = release.Files.Find(j => j.Path == file);
 			
@@ -439,7 +439,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public DirectoryDownload DownloadDirectory(LocalRelease release, IIntegrity integrity, Workflow workflow)
+		public DirectoryDownload DownloadDirectory(LocalRelease release, IIntegrity integrity, Flow workflow)
 		{
 			if(release.Activity is DirectoryDownload d)
 				return d;

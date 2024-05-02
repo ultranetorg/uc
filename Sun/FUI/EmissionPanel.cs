@@ -152,7 +152,7 @@ namespace Uccs.Sun.FUI
 						
 					if(k != null)
 					{
-						var v = new Workflow("Emission", log);
+						var v = new Flow("Emission", log);
 
 						var f = new FlowControlForm(Sun, v);
 						f.StartPosition = FormStartPosition.CenterParent;
@@ -181,7 +181,7 @@ namespace Uccs.Sun.FUI
 
 			try
 			{
-				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress), new Workflow(MethodBase.GetCurrentMethod().Name));
+				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress), new Flow(MethodBase.GetCurrentMethod().Name));
 
 				transfergroup.Enabled = true;
 				finishgroup.Enabled = true;

@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public byte[]					Manifest { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			var h = sun.Zone.Cryptography.HashFile(Manifest);
 			var a = AddressCreator.Create(sun, h);
@@ -51,7 +51,7 @@ namespace Uccs.Net
 		public Ura[]		History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 				sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
@@ -64,7 +64,7 @@ namespace Uccs.Net
 	{
 		public Ura		Package { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 			{	
@@ -78,7 +78,7 @@ namespace Uccs.Net
 	{
 		public Ura	Package { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			sun.PackageHub.Install(Package, workflow);
 			return null;
@@ -89,7 +89,7 @@ namespace Uccs.Net
 	{
 		public Ura	Package { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			var p = sun.PackageHub.Find(Package);
 
@@ -107,7 +107,7 @@ namespace Uccs.Net
 	{
 		public Ura	Package { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 			{

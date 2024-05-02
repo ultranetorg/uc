@@ -75,7 +75,7 @@ namespace Uccs
 			Options = options;
 		}
 
-		public HttpResponseMessage Send(Apc request, Workflow workflow)
+		public HttpResponseMessage Send(Apc request, Flow workflow)
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
@@ -99,7 +99,7 @@ namespace Uccs
 			}
 		}
 
-		public async Task<HttpResponseMessage> SendAsync(Apc request, Workflow workflow)
+		public async Task<HttpResponseMessage> SendAsync(Apc request, Flow workflow)
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
@@ -116,7 +116,7 @@ namespace Uccs
 			}
 		}
 
-		public Rp Request<Rp>(Apc request, Workflow workflow)
+		public Rp Request<Rp>(Apc request, Flow workflow)
 		{
 			using(var cr = Send(request, workflow))
 			{
@@ -134,7 +134,7 @@ namespace Uccs
 			}
 		}
 
-		public async Task<Rp> RequestAsync<Rp>(Apc request, Workflow workflow)
+		public async Task<Rp> RequestAsync<Rp>(Apc request, Flow workflow)
 		{
 			using(var cr = await SendAsync(request, workflow))
 			{

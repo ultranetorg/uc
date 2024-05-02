@@ -8,7 +8,7 @@ namespace Uccs.Net
 	{
 		Sun Sun;
 
-		public SunJsonApiServer(Sun sun, Workflow workflow): base(	sun.Settings.Profile,
+		public SunJsonApiServer(Sun sun, Flow workflow): base(	sun.Settings.Profile,
 																	sun.Settings.JsonServerListenAddress, 
 																	sun.Settings.Api.AccessKey, 
 																	SunJsonApiClient.DefaultOptions,
@@ -22,7 +22,7 @@ namespace Uccs.Net
 			return Type.GetType(typeof(SunJsonApiServer).Namespace + '.' + call);
 		}
 
-		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			return (call as SunApc).Execute(Sun, request, response, workflow);
 		}

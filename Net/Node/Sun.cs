@@ -73,7 +73,7 @@ namespace Uccs.Net
 
 		public Zone						Zone;
 		public Settings					Settings;
-		public Workflow					Workflow;
+		public Flow						Flow;
 		public JsonApiServer			ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
@@ -153,17 +153,17 @@ namespace Uccs.Net
 			public const string ERR = "Error";
 		}
 		
-		public Sun(Zone zone, Settings settings, Workflow workflow)
+		public Sun(Zone zone, Settings settings, Flow workflow)
 		{
 			Zone = zone;
 			Settings = settings;
 			Directory.CreateDirectory(Settings.Profile);
 			
-			Workflow = workflow ?? new Workflow("Sun", new Log());
+			Flow = workflow ?? new Flow("Sun", new Log());
 
-			if(Workflow.Log != null)
+			if(Flow.Log != null)
 			{
-				Workflow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
+				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
 			}
 
 			Vault = new Vault(Zone, Settings);
@@ -219,7 +219,7 @@ namespace Uccs.Net
 										}
 										catch(Exception ex) when (!Debugger.IsAttached)
 										{
-											if(Workflow.Active)
+											if(Flow.Active)
 												Abort(ex);
 										}
 									});
@@ -252,7 +252,7 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				ApiServer = new SunJsonApiServer(this, Workflow);
+				ApiServer = new SunJsonApiServer(this, Flow);
 			}
 		
 			ApiStarted?.Invoke(this);
@@ -263,14 +263,14 @@ namespace Uccs.Net
 			if(Netid != Guid.Empty)
 				throw new NodeException(NodeError.AlreadyRunning);
 
-			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
-			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
-			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
+			Flow.Log?.Report(this, $"Ultranet Node {Version}");
+			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
+			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
+			Flow.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
 			if(SunGlobals.Any)
-				Workflow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
+				Flow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
 
 			Netid = Guid.NewGuid();
 
@@ -293,7 +293,7 @@ namespace Uccs.Net
 			{		
 				Mcv = new Mcv(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
 
-				Mcv.Log = Workflow.Log;
+				Mcv.Log = Flow.Log;
 				Mcv.VoteAdded += b => MainWakeup.Set();
 
 				Mcv.ConsensusConcluded += (r, reached) =>	{
@@ -354,7 +354,7 @@ namespace Uccs.Net
 										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 									};
 
-				Workflow.Log?.Report(this, "MCV started");
+				Flow.Log?.Report(this, "MCV started");
 			}
 
 			LoadPeers();
@@ -367,9 +367,9 @@ namespace Uccs.Net
 			}
 
  			MainThread = CreateThread(() =>	{ 
-												while(Workflow.Active)
+												while(Flow.Active)
 												{
-													var r = WaitHandle.WaitAny([MainWakeup, Workflow.Cancellation.WaitHandle], 500);
+													var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
 
 													lock(Lock)
 													{
@@ -392,7 +392,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+				var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
 
 				var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
 
@@ -405,7 +405,7 @@ namespace Uccs.Net
 				{
 					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
 					{
-						var cr = Http.Send(m, Workflow.Cancellation);
+						var cr = Http.Send(m, Flow.Cancellation);
 
 						if(cr.StatusCode == HttpStatusCode.OK)
 						{
@@ -439,7 +439,7 @@ namespace Uccs.Net
 			lock(Lock)
 			{
 				File.WriteAllText(Path.Join(Settings.Profile, "Abort." + Sun.FailureExt), ex.ToString());
-				Workflow.Log?.ReportError(this, "Abort", ex);
+				Flow.Log?.ReportError(this, "Abort", ex);
 	
 				Stop("Due to exception");
 			}
@@ -447,7 +447,7 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			Workflow.Abort();
+			Flow.Abort();
 
 			ApiServer?.Stop();
 			Listener?.Stop();
@@ -470,7 +470,7 @@ namespace Uccs.Net
 			Mcv?.Database.Dispose();
 			Database?.Dispose();
 
-			Workflow.Log?.Report(this, "Stopped", message);
+			Flow.Log?.Report(this, "Stopped", message);
 
 			Stopped?.Invoke(this);
 		}
@@ -508,7 +508,7 @@ namespace Uccs.Net
 			
 			if(Peers.Any())
 			{
-				Workflow.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
+				Flow.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
 			}
 			else
 			{
@@ -614,7 +614,7 @@ namespace Uccs.Net
 				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
 			{
 				MinimalPeersReached = true;
-				Workflow.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
+				Flow.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
 
 				if(Mcv != null)
 				{
@@ -632,16 +632,16 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Workflow.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
+				Flow.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
 
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
 	
-				while(Workflow.Active)
+				while(Flow.Active)
 				{
 					var c = Listener.AcceptTcpClient();
 
-					if(Workflow.Aborted)
+					if(Flow.Aborted)
 					{
 						c.Close();
 						return;
@@ -709,7 +709,7 @@ namespace Uccs.Net
 				}
 				catch(SocketException ex) 
 				{
-					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 					goto failed;
 				}
 	
@@ -725,13 +725,13 @@ namespace Uccs.Net
 				}
 				catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 				{
-					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 					goto failed;
 				}
 	
 				lock(Lock)
 				{
-					if(Workflow.Aborted)
+					if(Flow.Aborted)
 					{
 						tcp.Close();
 						return;
@@ -749,7 +749,7 @@ namespace Uccs.Net
 
 					if(h.Nuid == Netid)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
 						IgnoredIPs.Add(peer.IP);
 						Peers.Remove(peer);
 						goto failed;
@@ -758,12 +758,12 @@ namespace Uccs.Net
 					if(IP.Equals(IPAddress.None))
 					{
 						IP = h.IP;
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
 					}
 	
 					if(peer.Status == ConnectionStatus.OK)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
 						tcp.Close();
 						return;
 					}
@@ -772,7 +772,7 @@ namespace Uccs.Net
 	
 					peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
 						
-					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
+					Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
 	
 					return;
 				}
@@ -829,7 +829,7 @@ namespace Uccs.Net
 				
 				Monitor.Exit(Lock);
 
-				while(Workflow.Active && peer.Status != ConnectionStatus.Disconnected) 
+				while(Flow.Active && peer.Status != ConnectionStatus.Disconnected) 
 					Thread.Sleep(1);
 
 				Monitor.Enter(Lock);
@@ -856,13 +856,13 @@ namespace Uccs.Net
 				}
 				catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 				{
-					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
+					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
 					goto failed;
 				}
 				
 				lock(Lock)
 				{
-					if(Workflow.Aborted)
+					if(Flow.Aborted)
 						return;
 
 					if(h.Permanent)
@@ -885,7 +885,7 @@ namespace Uccs.Net
 
 					if(h.Nuid == Netid)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
 						if(peer != null)
 						{	
 							IgnoredIPs.Add(peer.IP);
@@ -896,14 +896,14 @@ namespace Uccs.Net
 
 					if(peer != null && peer.Status == ConnectionStatus.OK)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
 						goto failed;
 					}
 	
 					if(IP.Equals(IPAddress.None))
 					{
 						IP = h.IP;
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
 					}
 		
 					try
@@ -912,7 +912,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
+						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
 						goto failed;
 					}
 	
@@ -937,7 +937,7 @@ namespace Uccs.Net
 					//peer.InStatus = EstablishingStatus.Succeeded;
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
-					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
+					Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
 			
 					IncomingConnections.Remove(client);
 					//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
@@ -965,7 +965,7 @@ namespace Uccs.Net
 
 			if(Synchronization != Synchronization.Downloading)
 			{
-				Workflow.Log?.Report(this, $"{Tag.S}", "Started");
+				Flow.Log?.Report(this, $"{Tag.S}", "Started");
 
 				SynchronizingThread = CreateThread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Synchronizing";
@@ -985,13 +985,13 @@ namespace Uccs.Net
 			lock(Lock)
 				SyncTail.Clear();
 
-			while(Workflow.Active)
+			while(Flow.Active)
 			{
 				try
 				{
-					WaitHandle.WaitAny([Workflow.Cancellation.WaitHandle], 500);
+					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
+					peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Flow);
 
 					if(Mcv.Roles.HasFlag(Role.Base) && !Mcv.Roles.HasFlag(Role.Chain))
 					{
@@ -1043,7 +1043,7 @@ namespace Uccs.Net
 										}
 									}
 		
-									Workflow.Log?.Report(this, $"{Tag.S}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
+									Flow.Log?.Report(this, $"{Tag.S}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
 								}
 							}
 		
@@ -1080,7 +1080,7 @@ namespace Uccs.Net
 					//lock(Lock)
 					//	Mcv.Tail.RemoveAll(i => i.Id > Mcv.LastConfirmedRound.Id);
 
-					while(Workflow.Active)
+					while(Flow.Active)
 					{
 						lock(Lock)
 							if(Mcv.Roles.HasFlag(Role.Chain))
@@ -1103,7 +1103,7 @@ namespace Uccs.Net
 								if(r == null)
 									break;
 								
-								Workflow.Log?.Report(this, $"{Tag.S}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
+								Flow.Log?.Report(this, $"{Tag.S}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
 									
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
@@ -1141,7 +1141,7 @@ namespace Uccs.Net
 						
 										MainWakeup.Set();
 
-										Workflow.Log?.Report(this, $"{Tag.S}", "Finished");
+										Flow.Log?.Report(this, $"{Tag.S}", "Finished");
 										return;
 									}
 								}
@@ -1184,7 +1184,7 @@ namespace Uccs.Net
 				}
 				catch(ConfirmationException ex)
 				{
-					Workflow.Log?.ReportError(this, ex.Message);
+					Flow.Log?.ReportError(this, ex.Message);
 
 					lock(Lock)
 					{	
@@ -1198,7 +1198,7 @@ namespace Uccs.Net
 				}
 				catch(SynchronizationException ex)
 				{
-					Workflow.Log?.ReportError(this, ex.Message);
+					Flow.Log?.ReportError(this, ex.Message);
 
 					used.Add(peer);
 
@@ -1339,7 +1339,7 @@ namespace Uccs.Net
 					t.Status = TransactionStatus.Accepted;
 					IncomingTransactions.Add(t);
 
-					Workflow.Log?.Report(this, "Transaction Accepted", t.ToString());
+					Flow.Log?.Report(this, "Transaction Accepted", t.ToString());
 
 					yield return t;
 				}
@@ -1471,7 +1471,7 @@ namespace Uccs.Net
 									return false;
 							}
 	
-							Workflow.Log?.Report(this, "Transaction Placed", t.ToString());
+							Flow.Log?.Report(this, "Transaction Placed", t.ToString());
 
 							return true;
 						}
@@ -1547,7 +1547,7 @@ namespace Uccs.Net
 					Broadcast(i);
 				}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
+				 Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();
@@ -1555,7 +1555,7 @@ namespace Uccs.Net
 
 		public void ProcessConfirmationException(ConfirmationException ex)
 		{
-			Workflow.Log?.ReportError(this, ex.Message);
+			Flow.Log?.ReportError(this, ex.Message);
 			Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
 
 			//foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= ex.Round.Id && (i.Placing == PlacingStage.Placed || i.Placing == PlacingStage.Confirmed)).ToArray())
@@ -1570,14 +1570,14 @@ namespace Uccs.Net
 		{
 			//IEnumerable<Transaction>	accepted;
 
-			Workflow.Log?.Report(this, "Transacting started");
+			Flow.Log?.Report(this, "Transacting started");
 
-			while(Workflow.Active)
+			while(Flow.Active)
 			{
 				if(!OutgoingTransactions.Any())
-					WaitHandle.WaitAny([TransactingWakeup, Workflow.Cancellation.WaitHandle]);
+					WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
-				var cr = Call(i => i.Request(new MembersRequest()), Workflow);
+				var cr = Call(i => i.Request(new MembersRequest()), Flow);
 
 				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any() || !i.SeedHubRdcIPs.Any()))
 					continue;
@@ -1592,7 +1592,7 @@ namespace Uccs.Net
 						return this;
 
 					var p = GetPeer(m.BaseRdcIPs.Random());
-					Connect(p, Workflow);
+					Connect(p, Flow);
 
 					return p;
 				}
@@ -1690,7 +1690,7 @@ namespace Uccs.Net
 							{
 								t.Status = TransactionStatus.Accepted;
 
-								Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
+								Flow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
 							}
 							else
 							{
@@ -1778,16 +1778,16 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				Workflow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
+				Flow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
 			}
 		}
 		
-		public Transaction Transact(Operation operation, AccountAddress signer, TransactionStatus await, Workflow workflow)
+		public Transaction Transact(Operation operation, AccountAddress signer, TransactionStatus await, Flow workflow)
 		{
 			return Transact([operation], signer, await, workflow)[0];
 		}
 
- 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Workflow workflow)
+ 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
  		{
 			if(!Vault.IsUnlocked(signer))
 			{
@@ -1826,7 +1826,7 @@ namespace Uccs.Net
 			return p.ToArray();
  		}
 
-		void Await(Transaction t, TransactionStatus s, Workflow workflow)
+		void Await(Transaction t, TransactionStatus s, Flow workflow)
 		{
 			while(workflow.Active)
 			{ 
@@ -1855,7 +1855,7 @@ namespace Uccs.Net
 						.FirstOrDefault();
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow workflow)
+		public Peer Connect(Role role, HashSet<Peer> exclusions, Flow workflow)
 		{
 			Peer peer;
 				
@@ -1890,7 +1890,7 @@ namespace Uccs.Net
 			throw new OperationCanceledException();
 		}
 
-		public Peer[] Connect(Role role, int n, Workflow workflow)
+		public Peer[] Connect(Role role, int n, Flow workflow)
 		{
 			var peers = new HashSet<Peer>();
 				
@@ -1924,7 +1924,7 @@ namespace Uccs.Net
 			throw new OperationCanceledException();
 		}
 
-		public void Connect(Peer peer, Workflow workflow)
+		public void Connect(Peer peer, Flow workflow)
 		{
 			lock(Lock)
 			{
@@ -1963,7 +1963,7 @@ namespace Uccs.Net
 		}
 
 
-		public R Call<R>(Func<RdcInterface, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
+		public R Call<R>(Func<RdcInterface, R> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 		{
 			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
@@ -2052,7 +2052,7 @@ namespace Uccs.Net
 // 			}
 // 		}
 
-		public R Call<R>(IPAddress ip, Func<Peer, R> call, Workflow workflow)
+		public R Call<R>(IPAddress ip, Func<Peer, R> call, Flow workflow)
 		{
 			Peer p;
 				
@@ -2063,7 +2063,7 @@ namespace Uccs.Net
 			return call(p);
 		}
 
-		public void Send(IPAddress ip, Action<Peer> call, Workflow workflow)
+		public void Send(IPAddress ip, Action<Peer> call, Flow workflow)
 		{
 			Peer p;
 				
@@ -2095,7 +2095,7 @@ namespace Uccs.Net
 // 			return null;
 // 		}
 
-		public Emission FinishEmission(AccountKey signer, Workflow workflow)
+		public Emission FinishEmission(AccountKey signer, Flow workflow)
 		{
 			lock(Lock)
 			{

@@ -29,7 +29,7 @@ namespace Uccs.Sun.FUI
 
 			if(first)
 			{
-				logbox.Log = Sun.Workflow.Log;
+				logbox.Log = Sun.Flow.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);
@@ -83,7 +83,7 @@ namespace Uccs.Sun.FUI
 			{
 				try
 				{
-					Sun.Transact(new UntTransfer(AccountAddress.Parse(destination.Text), amount.Coins), signer, TransactionStatus.None, new Workflow("UntTransfer"));
+					Sun.Transact(new UntTransfer(AccountAddress.Parse(destination.Text), amount.Coins), signer, TransactionStatus.None, new Flow("UntTransfer"));
 				}
 				catch(RequirementException ex)
 				{

@@ -38,7 +38,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(p => p.Request(new DomainRequest {Name = DomainSearch.Text}), Sun.Workflow).Domain;
+				var a = Sun.Call(p => p.Request(new DomainRequest {Name = DomainSearch.Text}), Sun.Flow).Domain;
 	
 				if(a != null)
 				{	
@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 				else 
 					Fields.Text = "Not found";
 
-				var t = Sun.Call(p => p.Request(new TimeRequest()), Sun.Workflow);
+				var t = Sun.Call(p => p.Request(new TimeRequest()), Sun.Flow);
 
 				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
 				{
@@ -213,7 +213,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Sun.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Workflow("MakeBid_Click"));
+				Sun.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{
