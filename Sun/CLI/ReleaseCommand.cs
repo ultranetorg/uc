@@ -31,8 +31,7 @@ namespace Uccs.Sun.CLI
 					if(!Has("source") && !Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var a = Api<Urr>(new ReleaseBuildApc {	Resource = Ura.Parse(Args[1].Name),
-															FilePath = GetString("source", null),
+					var a = Api<Urr>(new ReleaseBuildApc {	FilePath = GetString("source", null),
 															Sources = GetString("sources", null)?.Split(','),
 															AddressCreator = new()	{	
 																						Type = GetEnum("addresstype", UrrScheme.Urrh),
@@ -42,7 +41,7 @@ namespace Uccs.Sun.CLI
 
 					Workflow.Log?.Report(this, $"Address   : {a}");
 
-					return null;
+					return a;
 				}
 
 				case "l" : 

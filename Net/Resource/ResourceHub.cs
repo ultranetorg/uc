@@ -9,14 +9,6 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public class ResourceDeclaration
-	{
-		public Ura			Resource { get; set; }	
-		public Urr			Release { get; set; }	
-		public byte[]					Hash { get; set; }
-		public Availability				Availability { get; set; }	
-	}
-
 	public class ResourceHub
 	{
 		public const long				PieceMaxLength = 512 * 1024;
@@ -27,8 +19,6 @@ namespace Uccs.Net
 		internal string					ReleasesPath;
 		public List<LocalRelease>		Releases = new();
 		public List<LocalResource>		Resources = new();
-		//public List<FileDownload>		FileDownloads = new();
-		//public List<DirectoryDownload>	DirectoryDownloads = new();
 		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
@@ -169,7 +159,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public LocalRelease Add(Ura resource, IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
+		public LocalRelease Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -240,13 +230,11 @@ namespace Uccs.Net
 			}
 			
 			r.Complete(Availability.Full);
-			
-			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, a);
 
 			return r;
 		}
 
-		public LocalRelease Add(Ura resource, string source, ReleaseAddressCreator address, Flow workflow)
+		public LocalRelease Add(string source, ReleaseAddressCreator address, Flow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
@@ -257,8 +245,6 @@ namespace Uccs.Net
 
  			r.AddCompleted("f", b);
 			r.Complete(Availability.Full);
-			
-			(Find(resource) ?? Add(resource)).AddData(DataType.File, a);
 
 			return r;
 		}
@@ -297,11 +283,11 @@ namespace Uccs.Net
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<MembersResponse.Member, Dictionary<Ura, LocalRelease>>();
+				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceId, LocalRelease>>();
 
 				lock(Lock)
 				{
-					foreach(var r in Resources.Where(i => i.Last != null))
+					foreach(var r in Resources.Where(i => i.Id != null && i.Last?.Interpretation is Urr))
 					{	
 						//foreach(var d in r.Datas)
 						var d = r.Last;
@@ -322,7 +308,7 @@ namespace Uccs.Net
 																																				}))
 									{
 										var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-										rss[r.Address] = l;
+										rss[r.Id] = l;
 									}
 
 								}
@@ -381,9 +367,9 @@ namespace Uccs.Net
 
 													try
 													{
-														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key, 
-																																																								Release = rs.Value.Address, 
-																																																								Availability = rs.Value.Availability }).ToArray() }), Sun.Flow);
+														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key, 
+																																																		Release = rs.Value.Address, 
+																																																		Availability = rs.Value.Availability }).ToArray() }), Sun.Flow);
 													}
 													catch(OperationCanceledException)
 													{

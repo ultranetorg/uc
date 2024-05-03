@@ -15,9 +15,11 @@ namespace Uccs.Sun.CLI
 		public static bool			ConsoleAvailable { get; protected set; }
 		public const string			AwaitArg = "await";
 
-		public Flow				Workflow;
+		public Flow					Workflow;
+		public Action				Transacted;
 		protected int				RdcQueryTimeout = 5000;
 		protected int				RdcTransactingTimeout = 60*1000;
+
 
 		public abstract object Execute();
 

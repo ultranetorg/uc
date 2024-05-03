@@ -10,7 +10,8 @@ namespace Uccs.Net
 {
 	public class LocalResource
 	{
-		public Ura		Address { get; set; }
+		public ResourceId			Id  { get; set; }
+		public Ura					Address { get; set; }
 		public List<ResourceData>	Datas { get; set; }
 
 		public ResourceData			Last => Datas.LastOrDefault();

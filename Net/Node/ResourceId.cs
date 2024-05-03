@@ -4,12 +4,14 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public struct ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
+	public class ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
 	{
 		public byte[]	Ci { get; set; }
-		public int		Ai { get; set; }
+		public int		Di { get; set; }
 		public int		Ri { get; set; }
 		byte[]			_Serial;
+
+		public EntityId	DomainId => new EntityId(Ci, Di);
 
 		public ResourceId()
 		{
@@ -18,7 +20,7 @@ namespace Uccs.Net
 		public ResourceId(byte[] ci, int ai, int ri)
 		{
 			Ci = ci;
-			Ai = ai;
+			Di = ai;
 			Ri = ri;
 		}
 
@@ -41,20 +43,20 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Ci?.ToHex()}-{Ai}-{Ri}";
+			return $"{Ci?.ToHex()}-{Di}-{Ri}";
 		}
 
 		public void Read(BinaryReader reader)
 		{
 			Ci	= reader.ReadBytes(DomainTable.Cluster.IdLength);
-			Ai	= reader.Read7BitEncodedInt();
+			Di	= reader.Read7BitEncodedInt();
 			Ri	= reader.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write(Ci);
-			writer.Write7BitEncodedInt(Ai);
+			writer.Write7BitEncodedInt(Di);
 			writer.Write7BitEncodedInt(Ri);
 		}
 
@@ -65,7 +67,7 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceId a)
 		{
-			return Ci == a.Ci && Ai == a.Ai && Ri == a.Ri;
+			return a is not null && Ci == a.Ci && Di == a.Di && Ri == a.Ri;
 		}
 
 		public int CompareTo(ResourceId a)
@@ -73,8 +75,8 @@ namespace Uccs.Net
 			if(!Ci.SequenceEqual(a.Ci))	
 				return Bytes.Comparer.Compare(Ci, a.Ci);
 			
-			if(Ai != a.Ai)
-				return Ai.CompareTo(a.Ai);
+			if(Di != a.Di)
+				return Di.CompareTo(a.Di);
 
 			if(Ri != a.Ri)
 				return Ri.CompareTo(a.Ri);
@@ -89,7 +91,7 @@ namespace Uccs.Net
 
 		public static bool operator == (ResourceId left, ResourceId right)
 		{
-			return left.Equals(right);
+			return left is null && right is null || left is not null && left.Equals(right);
 		}
 
 		public static bool operator != (ResourceId left, ResourceId right)

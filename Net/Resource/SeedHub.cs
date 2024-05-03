@@ -5,6 +5,14 @@ using System.Net;
 
 namespace Uccs.Net
 {
+	public class ResourceDeclaration
+	{
+		public ResourceId		Resource { get; set; }	
+		public Urr				Release { get; set; }	
+		public byte[]			Hash { get; set; }
+		public Availability		Availability { get; set; }	
+	}
+
 	public class Seed
 	{
 		public IPAddress			IP;
@@ -26,12 +34,12 @@ namespace Uccs.Net
 
 	public class SeedHub
 	{
-		public const int											SeedsPerReleaseMax = 100;
-		public const int											SeedsPerRequestMax = 50;
-		public Dictionary<Urr, List<Seed>>				Releases = new ();
-		public Dictionary<Ura, List<Urr>>	Resources = new ();
-		public object												Lock = new object();
-		Sun															Sun;
+		public const int							SeedsPerReleaseMax = 100;
+		public const int							SeedsPerRequestMax = 50;
+		public Dictionary<Urr, List<Seed>>			Releases = [];
+		public Dictionary<ResourceId, List<Urr>>	Resources = [];
+		public object								Lock = new ();
+		Sun											Sun;
 
 		public SeedHub(Sun sun)
 		{
@@ -93,7 +101,7 @@ namespace Uccs.Net
 							}
 							else if(rzd is Urrsd sdp)
 							{
-								var ea = Sun.Mcv.Domains.Find(rsd.Resource.Domain, Sun.Mcv.LastConfirmedRound.Id);
+								var ea = Sun.Mcv.Domains.Find(rsd.Resource.DomainId, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(!sdp.Prove(Sun.Zone.Cryptography, ea.Owner, rsd.Hash))
 								{

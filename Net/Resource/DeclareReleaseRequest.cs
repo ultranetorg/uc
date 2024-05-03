@@ -22,7 +22,7 @@
 
 	public class ReleaseDeclarationResult
 	{
-		public Urr		Address { get; set; }
+		public Urr					Address { get; set; }
 		public DeclarationResult	Result { get; set; }	
 
 		public ReleaseDeclarationResult()

@@ -126,7 +126,10 @@ namespace Uccs.Sun.CLI
 					c.Dump(rp, typeof(AllocateTransactionResponse));
 				}
 				else
+				{
 					c.Transact([o], c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+					c.Transacted?.Invoke();
+				}
 			}
 				
 			return a;

@@ -10,12 +10,10 @@ namespace Uccs.Net
 	[JsonDerivedType(typeof(ReleaseDownloadProgress), typeDiscriminator: "ReleaseDownloadProgress")]
 	public class ResourceActivityProgress
 	{
-
 	}
 
 	public class ReleaseBuildApc : SunApc
 	{
-		public Ura						Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					FilePath { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
@@ -25,9 +23,28 @@ namespace Uccs.Net
 			lock(sun.ResourceHub.Lock)
 			{
 				if(FilePath != null)
-					return sun.ResourceHub.Add(Resource, FilePath, AddressCreator, workflow).Address;
+					return sun.ResourceHub.Add(FilePath, AddressCreator, workflow).Address;
 				else if(Sources != null && Sources.Any())
-					return sun.ResourceHub.Add(Resource, Sources, AddressCreator, workflow).Address;
+					return sun.ResourceHub.Add(Sources, AddressCreator, workflow).Address;
+			}
+
+			return null;
+		}
+	}
+
+	public class ResourceUpdateApc : SunApc
+	{
+		public Ura				Address { get; set; }
+		public ResourceId		Id { get; set; }
+		public ResourceData		Data { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+				r.Id = Id;
+				r.AddData(Data);
 			}
 
 			return null;

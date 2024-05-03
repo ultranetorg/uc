@@ -30,6 +30,22 @@ namespace Uccs.Net
  		
  			return FindEntry(name);
  		}
+
+		public DomainEntry Find(EntityId id, int ridmax)
+		{
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
+
+			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			{
+				var a = r.AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
+				
+				if(a != null)
+					return a;
+			}
+
+			return FindEntry(id);
+		}
 		
  		public Resource FindResource(Ura resource, int ridmax)
  		{
@@ -56,13 +72,13 @@ namespace Uccs.Net
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 
 				if(x != null)
 					return x;
 			}
  		
- 			return FindEntry(new EntityId(id.Ci, id.Ai))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+ 			return FindEntry(new EntityId(id.Ci, id.Di))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
  		}
 	}
 }

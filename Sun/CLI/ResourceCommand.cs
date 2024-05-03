@@ -31,9 +31,20 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceCreation(Ura.Parse(Args[1].Name),
-												GetData(),
-												Has("seal"));
+					var ura = Ura.Parse(Args[1].Name);
+
+					if(GetData()?.Interpretation is Urr)
+					{
+						Transacted = () =>	{
+												var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
+												
+												Api(new ResourceUpdateApc{	Address = ura,
+																			Data = r.Data, 
+																			Id = r.Id});
+											};
+					}
+
+					return new ResourceCreation(ura, GetData(), Has("seal"));
 				}
 
 				case "x" : 
@@ -49,7 +60,20 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r =	new ResourceUpdation(Ura.Parse(Args[1].Name));
+					var ura = Ura.Parse(Args[1].Name);
+
+					if(GetData()?.Interpretation is Urr)
+					{
+						Transacted = () =>	{
+												var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
+												
+												Api(new ResourceUpdateApc{	Address = ura,
+																			Data = r.Data, 
+																			Id = r.Id});
+											};
+					}
+
+					var r =	new ResourceUpdation(ura);
 
 					if(Has("data"))			r.Change(GetData());
 					if(Has("seal"))			r.Seal();
