@@ -14,7 +14,7 @@ namespace Uccs.Net
 	// 		None, Variable, Constant
 	// 	}
 
-	public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparable<Ura>
+	public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparable<Ura>, ITextSerialisable
 	{
 	//	public ResourceType			Type { get; set; }
 		public string				Zone { get; set; }
@@ -92,6 +92,15 @@ namespace Uccs.Net
 		public static bool operator != (Ura left, Ura right)
 		{
 			return !(left == right);
+		}
+
+
+		public void Read(string text)
+		{
+			Parse(text, out string p, out string z, out string d, out string r);
+			Zone = z;
+			Domain = d;
+			Resource = r;
 		}
 
 		public static void Parse(string v, out string protocol, out string zone, out string domain, out string resource)

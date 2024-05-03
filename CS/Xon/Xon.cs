@@ -20,9 +20,9 @@ namespace Uccs
 		public object					_Value;
 		public object					Value { set => _Value = value is null ? null : (value is Xon ? value : Serializator.Set(this, value)); get => _Value; }
 
-		public string					String => Serializator.Get<String>(this, _Value);
-		public int						Int => Serializator.Get<Int32>(this, _Value);
-		public long						Long => Serializator.Get<Int64>(this, _Value);
+		public string					String => Serializator.Get<string>(this, _Value);
+		public int						Int => Serializator.Get<int>(this, _Value);
+		public long						Long => Serializator.Get<long>(this, _Value);
 
 		public List<Xon>				Templates = new List<Xon>();
 		public bool						IsTemplate = false;

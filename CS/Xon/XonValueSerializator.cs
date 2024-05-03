@@ -41,7 +41,6 @@ namespace Uccs
 				val is uint				||
 				val is long				||
 				val is ulong			||
-				val is Version			||
 				val is IPAddress		||
 				val.GetType().IsEnum)
 				return val.ToString();
@@ -52,21 +51,27 @@ namespace Uccs
 
 		public virtual O Get<O>(Xon node, object value)
 		{
-			var v = value as string;
+			var t = value as string;
 
 			if(typeof(O) == typeof(string))				return (O)value;
-			if(typeof(O) == typeof(byte))				return (O)(object)byte.Parse(v);
-			if(typeof(O) == typeof(sbyte))				return (O)(object)sbyte.Parse(v);
-			if(typeof(O) == typeof(short))				return (O)(object)short.Parse(v);
-			if(typeof(O) == typeof(ushort))				return (O)(object)ushort.Parse(v);
-			if(typeof(O) == typeof(int))				return (O)(object)int.Parse(v);
-			if(typeof(O) == typeof(uint))				return (O)(object)uint.Parse(v);
-			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(v);
-			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(v);
-			if(typeof(O) == typeof(byte[]))				return (O)(object)v.FromHex();
-			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
-			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
-			if(typeof(O).IsEnum)						Enum.Parse(v.GetType(), v); 
+			if(typeof(O) == typeof(byte))				return (O)(object)byte.Parse(t);
+			if(typeof(O) == typeof(sbyte))				return (O)(object)sbyte.Parse(t);
+			if(typeof(O) == typeof(short))				return (O)(object)short.Parse(t);
+			if(typeof(O) == typeof(ushort))				return (O)(object)ushort.Parse(t);
+			if(typeof(O) == typeof(int))				return (O)(object)int.Parse(t);
+			if(typeof(O) == typeof(uint))				return (O)(object)uint.Parse(t);
+			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(t);
+			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(t);
+			if(typeof(O) == typeof(byte[]))				return (O)(object)t.FromHex();
+			if(typeof(O).IsEnum)						Enum.Parse(t.GetType(), t); 
+			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(t);
+
+			if(typeof(O).GetInterfaces().Any(i => i == typeof(ITextSerialisable)))
+			{
+				var o = Activator.CreateInstance(typeof(O)) as ITextSerialisable;
+				o.Read(t);
+				return (O)o;
+			}
 
 			throw new NotSupportedException();
 		}
@@ -82,8 +87,8 @@ namespace Uccs
 			{
 				case byte[] x:	return x;
 				case byte x:	return new byte[] {x};
-				case int x:		return BitConverter.GetBytes(x);
 				case short x:	return BitConverter.GetBytes(x);
+				case int x:		return BitConverter.GetBytes(x);
 				case long x:	return BitConverter.GetBytes(x);
 				case string x:	return Encoding.UTF8.GetBytes(x);
 				

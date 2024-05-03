@@ -261,8 +261,8 @@ namespace Uccs.Net
 					f.Add(new ("Synchronization",		$"{sun.Synchronization}"));
 					f.Add(new ("Size",					$"{sun.Mcv.Size}"));
 					f.Add(new ("Members",				$"{sun.Mcv.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Emission",				$"{sun.Mcv.LastConfirmedRound?.Emission.ToHumanString()}"));
-					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToHumanString()}"));
+					f.Add(new ("Emission",				$"{sun.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToDecimalString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{sun.SyncTail.Sum(i => i.Value.Votes.Count)}"));
 					f.Add(new ("Loaded Rounds",			$"{sun.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(sun.Mcv.LastNonEmptyRound != null ? sun.Mcv.LastNonEmptyRound.Id : null)}"));
@@ -279,7 +279,7 @@ namespace Uccs.Net
 					{
 						string formatbalance(AccountAddress a)
 						{
-							return sun.Mcv.Accounts.Find(a, sun.Mcv.LastConfirmedRound.Id)?.Balance.ToHumanString();
+							return sun.Mcv.Accounts.Find(a, sun.Mcv.LastConfirmedRound.Id)?.Balance.ToDecimalString();
 						}
 	
 						foreach(var i in sun.Vault.Wallets)

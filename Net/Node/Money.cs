@@ -8,7 +8,7 @@ using Nethereum.Util;
 
 namespace Uccs.Net
 {
-	public struct Money : IComparable, IComparable<Money>, IEquatable<Money>, IBinarySerializable
+	public struct Money : IComparable, IComparable<Money>, IEquatable<Money>, IBinarySerializable, ITextSerialisable
 	{
 		readonly static BigInteger		One = 1_000_000_000_000_000_000;
 		public readonly static Money	Zero = new Money();
@@ -37,6 +37,11 @@ namespace Uccs.Net
 
 		static Money()
 		{
+		}
+
+		public void Read(string text)
+		{
+			Attos = Nethereum.Web3.Web3.Convert.ToWei(BigDecimal.Parse(text));
 		}
 
 		Money(BigInteger a)
@@ -102,10 +107,10 @@ namespace Uccs.Net
 
 		override public string ToString()
 		{
-			return ToHumanString();
+			return ToDecimalString();
 		}
 		
-		public string ToHumanString()
+		public string ToDecimalString()
 		{
 			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
 		}

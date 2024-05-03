@@ -15,7 +15,7 @@ namespace Uccs.Net
 		None, Urrh, Urrs
 	}
 
- 	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>
+ 	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
  	{
  		public abstract byte			TypeCode { get; }
  		public abstract byte[]			MemberOrderKey { get; }
@@ -42,6 +42,11 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			return null;
+		}
+
+		public void Read(string text)
+		{
+			Parse(text);
 		}
 
 		public static Urr Parse(string t)

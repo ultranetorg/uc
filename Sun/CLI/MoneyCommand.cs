@@ -189,27 +189,27 @@ namespace Uccs.Sun.CLI
 
 					var r = Api<CostApc.Report>(c);
 
-					Workflow.Log?.Report($"   Byte Per Day Rent    : {r.RentBytePerDay.ToHumanString()}");
-					Workflow.Log?.Report($"   Account One-time Fee : {r.RentAccount.ToHumanString()}");
-					Workflow.Log?.Report($"   Execution Unit       : {r.Exeunit.ToHumanString()}");
+					Workflow.Log?.Report($"   Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
+					Workflow.Log?.Report($"   Account One-time Fee : {r.RentAccount.ToDecimalString()}");
+					Workflow.Log?.Report($"   Execution Unit       : {r.Exeunit.ToDecimalString()}");
 
 					Workflow.Log?.Report($"");
 
 					Dump(	r.RentDomain,
 							["Domains Rent |", .. c.DomainLengths.Select(i => $"{i} chars")],
-							[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToHumanString()))]);
+							[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToDecimalString()))]);
 
 					Workflow.Log?.Report($"");
 
 					Dump(	r.RentResource.Append(r.RentResourceForever),
 							["Resource Rent", "Cost"],
-							[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToHumanString()]);
+							[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToDecimalString()]);
 
 					Workflow.Log?.Report($"");
 
 					Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
 							["Resource Data Per Byte Rent", "Cost"],
-							[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToHumanString()]);
+							[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToDecimalString()]);
 
 					return r;
 				}

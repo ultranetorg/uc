@@ -18,7 +18,7 @@ namespace Uccs.Net
 				val is Ura	||
 				val is Time)
 				return val.ToString();
-			if(val is Money c)		return c.ToHumanString();
+			if(val is Money c)		return c.ToDecimalString();
 
 			return base.Set(node, val);
 		}

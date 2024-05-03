@@ -238,32 +238,34 @@ namespace Uccs.Sun.CLI
 
 		protected ResourceData GetData()
 		{
-			if(Has("data"))
+			var d = One("data");
+
+			if(d != null)
 			{
-				if(Has("data/type"))
+				if(d.Nodes.Any())
 				{
-					var  t = GetEnum<DataType>("data/type");
+					var t = GetEnum<DataType>("data");
 					
 					switch(t)
 					{
 						case DataType.File:
 						case DataType.Directory:
 						case DataType.Package:
-							return new ResourceData(t, Urr.Parse(GetString("data/address")));
+							return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
 				
 						case DataType.Consil:
-							return new ResourceData(t, new Consil  {Analyzers = GetString("data/analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteFee = GetMoney("data/fee") });
+							return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+																	PerByteFee = d.Get<Money>("fee") });
 						case DataType.Analysis:
-							return new ResourceData(t, new Analysis {Release = GetReleaseAddress("data/release"), 
-																	 Payment = GetMoney("data/payment"),
-																	 Consil  = GetResourceAddress($"data/consil")});
+							return new ResourceData(t, new Analysis {Release = Urr.Parse(d.Get<string>("release")), 
+																	 Payment = d.Get<Money>("payment"),
+																	 Consil  = d.Get<Ura>("consil")});
 						default:
 							throw new SyntaxException("Unknown type");
 					}
 				}
-				else if(Has("data/raw"))
-					return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data/raw"))));
+				else if(d.Value != null)
+					return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data"))));
 			}
 
 			return null;

@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs
 {
-	public class Version : IEquatable<Version>, IComparable, IBinarySerializable
+	public class Version : IEquatable<Version>, IComparable, IBinarySerializable, ITextSerialisable
 	{
 		public int Era;
 		public int Upgrade; /// for dependencies ebabled for updating can go up only
@@ -35,17 +35,9 @@ namespace Uccs
 
 		public static Version Parse(string s)
 		{
-			var c = s.Split('.').ToArray();
-
 			var v = new Version();
 
-			v.Era = int.Parse(c[0]);
-					
-			if(c.Length > 1)
-				v.Upgrade = int.Parse(c[1]);
-
-			if(c.Length > 2)
-				v.Bugfix = int.Parse(c[2]);
+			v.Read(s);
 
 			return v;
 		}
@@ -103,6 +95,19 @@ namespace Uccs
 			w.Write7BitEncodedInt(Era);
 			w.Write7BitEncodedInt(Upgrade);
 			w.Write7BitEncodedInt(Bugfix);
+		}
+
+		public void Read(string text)
+		{
+			var c = text.Split('.').ToArray();
+
+			Era = int.Parse(c[0]);
+					
+			if(c.Length > 1)
+				Upgrade = int.Parse(c[1]);
+
+			if(c.Length > 2)
+				Bugfix = int.Parse(c[2]);
 		}
 
 		public static bool operator < (Version a, Version b)

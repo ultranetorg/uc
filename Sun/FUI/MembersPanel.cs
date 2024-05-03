@@ -41,7 +41,7 @@ namespace Uccs.Sun.FUI
 		
 					li.Tag = i;
 					li.SubItems.Add(i.CastingSince.ToString());
-					li.SubItems.Add(i.Bail.ToHumanString());
+					li.SubItems.Add(i.Bail.ToDecimalString());
 					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 			}
