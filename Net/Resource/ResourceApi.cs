@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
@@ -15,15 +16,15 @@ namespace Uccs.Net
 	public class ReleaseBuildApc : SunApc
 	{
 		public IEnumerable<string>		Sources { get; set; }
-		public string					FilePath { get; set; }
+		public string					Source { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
-				if(FilePath != null)
-					return sun.ResourceHub.Add(FilePath, AddressCreator, workflow).Address;
+				if(Source != null)
+					return sun.ResourceHub.Add(Source, AddressCreator, workflow).Address;
 				else if(Sources != null && Sources.Any())
 					return sun.ResourceHub.Add(Sources, AddressCreator, workflow).Address;
 			}
@@ -53,7 +54,8 @@ namespace Uccs.Net
 
 	public class ResourceDownloadApc : SunApc
 	{
-		public Ura	Address { get; set; }
+		public Ura		Address { get; set; }
+		public string	LocalPath { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
@@ -61,9 +63,9 @@ namespace Uccs.Net
 
 			IIntegrity itg;
 
-			var rza = r.Data.Interpretation as Urr;
+			var urr = r.Data.Interpretation as Urr;
 
-			switch(rza)
+			switch(urr)
 			{ 
 				case Urrh a :
 					itg = new DHIntegrity(a.Hash); 
@@ -83,16 +85,16 @@ namespace Uccs.Net
 				var lrs = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
 				lrs.AddData(r.Data);
 
-				var lrl = sun.ResourceHub.Find(rza) ?? sun.ResourceHub.Add(rza, r.Data.Type);
+				var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr, r.Data.Type);
 
 				if(r.Data.Type == DataType.File)
 				{
-					sun.ResourceHub.DownloadFile(lrl, "f", itg, null, workflow);
+					sun.ResourceHub.DownloadFile(lrl, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
 					return r;
 				}
 				else if(r.Data.Type == DataType.Directory)
 				{
-					sun.ResourceHub.DownloadDirectory(lrl, itg, workflow);
+					sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
 					return r;
 				}
 				else
@@ -113,7 +115,7 @@ namespace Uccs.Net
 
 				if(r.Activity is FileDownload f)
 				{
-					var s = new ReleaseDownloadProgress(f.SeedCollector);
+					var s = new ReleaseDownloadProgress(f.Harvester);
 	
 					s.Succeeded	= f.Succeeded;
 					s.CurrentFiles = new [] {new FileDownloadProgress(f)};
@@ -122,7 +124,7 @@ namespace Uccs.Net
 				}
 				else if(r.Activity is DirectoryDownload d)
 				{
-					var s = new ReleaseDownloadProgress(d.SeedCollector);
+					var s = new ReleaseDownloadProgress(d.Harvester);
 	
 					s.Succeeded	= d.Succeeded;
 					s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();
@@ -194,7 +196,7 @@ namespace Uccs.Net
 
 			public int[]			CompletedPieces { get; set; }
 			public long				CompletedLength { get; set; }
-			public bool				Completed { get; set; }
+			public LocalFileStatus	Status { get; set; }
 
 			public File()
 			{
@@ -206,14 +208,13 @@ namespace Uccs.Net
 				PieceLength	=	i.PieceLength;
 				Length =		i.Length;
 				Pieces =		i.Pieces;
+				Status =		i.Status;
 				
 				if(i.Pieces != null)
 				{
 					CompletedPieces = i.CompletedPieces.ToArray();
 					CompletedLength = i.CompletedLength;
 				}
-			
-				Completed = i.Completed;
 			}
 		}
 
@@ -223,7 +224,6 @@ namespace Uccs.Net
 			public MembersResponse.Member[]		DeclaredOn { get; set; }
 			public Availability					Availability { get; set; }
 			public File[]						Files { get; set; }
-			public string						Path { get; set; }
 
 			public Release()
 			{
@@ -235,7 +235,6 @@ namespace Uccs.Net
 				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
 				Availability= release.Availability;
 				Files		= release.Files.Select(i => new File(i)).ToArray();
-				Path		= release.Path;
 			}
 		}
 		

@@ -33,16 +33,16 @@ namespace Uccs.Sun.CLI
 
 					var ura = Ura.Parse(Args[1].Name);
 
-					if(GetData()?.Interpretation is Urr)
-					{
-						Transacted = () =>	{
-												var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
-												
+					Transacted = () =>	{
+											var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
+							
+											Report($"Id: {r.Id}");
+
+											if(r.Data?.Interpretation is Urr)
 												Api(new ResourceUpdateApc{	Address = ura,
 																			Data = r.Data, 
 																			Id = r.Id});
 											};
-					}
 
 					return new ResourceCreation(ura, GetData(), Has("seal"));
 				}
@@ -133,7 +133,7 @@ namespace Uccs.Sun.CLI
 				{
 					var a = Ura.Parse(Args[1].Name);
 
-					var r = Api<Resource>(new ResourceDownloadApc {Address = a});
+					var r = Api<Resource>(new ResourceDownloadApc {Address = a, LocalPath = GetString("localpath", null)});
 
 					ReleaseDownloadProgress p = null;
 						
@@ -144,7 +144,7 @@ namespace Uccs.Sun.CLI
 						if(p == null)
 							break;
 
-						Workflow.Log?.Report(this, p.ToString());
+						Report(p.ToString());
 
 						Thread.Sleep(500);
 					}

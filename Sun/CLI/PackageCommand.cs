@@ -94,7 +94,7 @@ namespace Uccs.Sun.CLI
 								break;
 							}
 
-							Workflow.Log?.Report(this, d.ToString());
+							Report(d.ToString());
 
 							Thread.Sleep(500);
 						}
@@ -128,7 +128,7 @@ namespace Uccs.Sun.CLI
 								break;
 							}
 							else
-								Workflow.Log?.Report(this, d.ToString());
+								Report(d.ToString());
 
 							Thread.Sleep(500);
 						}

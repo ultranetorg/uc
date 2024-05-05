@@ -39,7 +39,7 @@ namespace Uccs.Sun.CLI
 	
 							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
 				
-							Workflow.Log?.Report(this, null, $"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
+							Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	
 							client.Close();
 						}
@@ -58,7 +58,7 @@ namespace Uccs.Sun.CLI
 					var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
 					Listener.Start();
 
-					Workflow.Log?.Report(this, null, $"Listening...");
+					Report($"Listening...");
 
 					Listener.AcceptTcpClient();
 

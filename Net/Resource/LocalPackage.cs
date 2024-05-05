@@ -33,7 +33,7 @@ namespace Uccs.Net
 						
 						lock(Hub.Sun.ResourceHub.Lock)
 						{
-							_Manifest.Read(new BinaryReader(new MemoryStream(Release.ReadFile(ManifestFile))));
+							_Manifest.Read(new BinaryReader(new MemoryStream(Release.Find(ManifestFile).Read())));
 						}
 					}
 				}

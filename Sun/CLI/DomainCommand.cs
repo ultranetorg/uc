@@ -117,7 +117,7 @@ namespace Uccs.Sun.CLI
 					
 					var rp = Rdc(new DomainRequest {Name = Args[1].Name});
 	
-					//Workflow.Log?.Report(this, "Domain", $"'{GetString("name")}' :");
+					//Report(this, "Domain", $"'{GetString("name")}' :");
 	
 					rp.Domain.Id = rp.EntityId;
 					Dump(rp.Domain);

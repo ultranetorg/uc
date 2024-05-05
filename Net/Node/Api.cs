@@ -18,7 +18,7 @@ namespace Uccs.Net
 			try
 			{
 				var a = Ura.Parse(request.QueryString["address"]);
-				var path = request.QueryString["path"] ?? "f";
+				var path = request.QueryString["path"] ?? "";
 	
 				var r = sun.Call(p => p.Request(new ResourceByNameRequest {Name = a}), workflow).Resource;
 				var ra = r.Data?.Interpretation as Urr
@@ -45,7 +45,7 @@ namespace Uccs.Net
 						}
 						else if(r.Data.Type == DataType.Directory)
 						{
-							var	f = sun.ResourceHub.GetFile(z, DirectoryDownload.Index, new DHIntegrity(x.Hash), null, workflow);
+							var	f = sun.ResourceHub.GetFile(z, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
 	
 							var index = new XonDocument(f.Read());
 	
@@ -69,7 +69,7 @@ namespace Uccs.Net
 					FileDownload d;
 	
 					lock(sun.ResourceHub.Lock)
-						d = sun.ResourceHub.DownloadFile(z, path, itg, null, workflow);
+						d = sun.ResourceHub.DownloadFile(z, path, null, itg, null, workflow);
 		
 					var ps = new List<FileDownload.Piece>();
 					int last = -1;
@@ -100,8 +100,8 @@ namespace Uccs.Net
 				{
 					lock(sun.ResourceHub.Lock)
 					{
-						response.ContentLength64 = z.GetLength(path);
-						response.OutputStream.Write(z.ReadFile(path));
+						response.ContentLength64 = z.Find(path).Length;
+						response.OutputStream.Write(z.Find(path).Read());
 					}
 				}
 			}

@@ -25,8 +25,8 @@ namespace Uccs.Sun.CLI
 		   		case "keypair" : 
 					var k = AccountKey.Create();
 
-					Workflow.Log?.Report(this, null, [	"Public Address - " + k.ToString(), 
-														"Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex() ]);
+					Report("Public Address - " + k.ToString()); 
+					Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
 					return null;
 
 		   		case "c" : 
@@ -72,9 +72,9 @@ namespace Uccs.Sun.CLI
 
 			var k = AccountKey.Create();
 
-			Workflow.Log?.Report(this, null, new string[]{	"Wallet created", 
-															"Public Address - " + k.ToString(), 
-															"Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex() });
+			Report("Wallet created"); 
+			Report("Public Address - " + k.ToString()); 
+			Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
 
 			Api(new AddWalletApc {Wallet = Program.Zone.Cryptography.Encrypt(k, p)});
 			Api(new SaveWalletApc {Account = k});
@@ -111,8 +111,8 @@ namespace Uccs.Sun.CLI
 			Api(new AddWalletApc {Wallet = w});
 			Api(new SaveWalletApc {Account = a});
 
-			Workflow.Log?.Report(this, null, new string[] {	"Wallet imported", 
-															"Account Address - " + a.ToString()});
+			Report("Wallet imported"); 
+			Report("Account Address - " + a.ToString());
 			
 			return a;
 		}

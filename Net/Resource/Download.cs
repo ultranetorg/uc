@@ -60,7 +60,7 @@ namespace Uccs.Net
 
 		public class Piece
 		{
-			public SeedCollector.Seed	Seed;
+			public Harvester.Seed	Seed;
 			public Task					Task;
 			public int					I = -1;
 			public long					Length => I * Download.File.PieceLength + Download.File.PieceLength > Download.Length ? Download.Length % Download.File.PieceLength : Download.File.PieceLength;
@@ -74,7 +74,7 @@ namespace Uccs.Net
 				I = piece;
 			}
 
-			public Piece(FileDownload download, SeedCollector.Seed peer, int piece)
+			public Piece(FileDownload download, Harvester.Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
@@ -110,25 +110,26 @@ namespace Uccs.Net
 		public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 
 		public Task									Task;
-		public SeedCollector						SeedCollector;
+		public Harvester							Harvester;
 		public List<Piece>							CurrentPieces = new();
-		public Dictionary<SeedCollector.Seed, int>	Seeds = new();
+		public Dictionary<Harvester.Seed, int>		Seeds = new();
 		Sun											Sun;
 		Flow										Flow;
 		public PieceDelegate						PieceSucceeded;
 
-		public FileDownload(Sun sun, LocalRelease release, string path, IIntegrity integrity, SeedCollector seedcollector, Flow flow)
+		public FileDownload(Sun sun, LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester seedcollector, Flow flow)
 		{
-			Sun					= sun;
-			Release				= release;
-			File				= release.Files.Find(i => i.Path == path) ?? release.AddEmpty(path);
-			Flow				= flow;
-			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Address, flow);
+			Sun				= sun;
+			Release			= release;
+			File			= release.Find(path) ?? release.AddEmpty(path, localpath);
+			Flow			= flow;
+			Harvester		= seedcollector ?? new Harvester(sun, release.Address, flow);
 
-			if(File.Completed)
+			if(File.Status == LocalFileStatus.Completed)
 			{
 				if(integrity.Verify(release.Hashify(path)))
 				{
+					Task = Task.CompletedTask;
 					Succeeded = true;
 					return;
 				}
@@ -153,18 +154,18 @@ namespace Uccs.Net
 										{
 											int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
 
-											if(!File.Initialized || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
+											if(File.Status != LocalFileStatus.Inited || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
-												SeedCollector.Seed[] seeds;
+												Harvester.Seed[] seeds;
 	
-												lock(SeedCollector.Lock)
-													seeds = SeedCollector.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
-																				.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
-																				.ToArray(); /// skip currrently used
+												lock(Harvester.Lock)
+													seeds = Harvester.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
+																			.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
+																			.ToArray(); /// skip currrently used
 												
 												if(seeds.Any())
 												{
-													if(!File.Initialized)
+													if(File.Status != LocalFileStatus.Inited)
 													{
 														long l = -1;
 
@@ -175,7 +176,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Address, File = path}), flow).Length;
+															l = Sun.Call(s.IP, p => p.Request(new FileInfoRequest {Release = release.Address, File = path}), flow).Length;
 														}
 														catch(NodeException)
 														{
@@ -283,7 +284,7 @@ namespace Uccs.Net
 	
 									if(seedcollector == null)
 									{
-										SeedCollector.Stop();
+										Harvester.Stop();
 									}
 	
 									if(Succeeded)
@@ -328,29 +329,29 @@ namespace Uccs.Net
 	public class DirectoryDownload
 	{
 		public LocalRelease			Release;
+		public string				LocalPath;
 		public bool					Succeeded;
 		public Queue<Xon>			Files = new();
 		public int					CompletedCount;
 		public int					TotalCount;
 		public List<FileDownload>	CurrentDownloads = new();
 		public Task					Task;
-		public SeedCollector		SeedCollector;
+		public Harvester			Harvester;
 
-		public const string			Index = ".index";
-
-		public DirectoryDownload(Sun sun, LocalRelease release, IIntegrity integrity, Flow workflow)
+		public DirectoryDownload(Sun sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 		{
 			Release = release;
+			LocalPath = localpath;
 			Release.Activity = this;
-			SeedCollector = new SeedCollector(sun, release.Address, workflow);
+			Harvester = new Harvester(sun, release.Address, workflow);
 
 			void run()
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, Index, integrity, SeedCollector, workflow);
+					sun.ResourceHub.GetFile(release, LocalRelease.Index, null, integrity, Harvester, workflow);
 
-					var index = new XonDocument(release.ReadFile(Index));
+					var index = new XonDocument(release.Find(LocalRelease.Index).Read());
 	
 					void enumearate(Xon xon)
 					{
@@ -380,7 +381,7 @@ namespace Uccs.Net
 	
 							lock(sun.ResourceHub.Lock)
 							{
-								var dd = sun.ResourceHub.DownloadFile(release, f.Name, new DHIntegrity(f.Value as byte[]), SeedCollector, workflow);
+								var dd = sun.ResourceHub.DownloadFile(release, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), Harvester, workflow);
 	
 								if(dd != null)
 								{
@@ -399,7 +400,7 @@ namespace Uccs.Net
 					}
 					while(Files.Any() && workflow.Active);
 	
-					SeedCollector.Stop();
+					Harvester.Stop();
 	
 					lock(sun.ResourceHub.Lock)
 					{
@@ -434,9 +435,9 @@ namespace Uccs.Net
 
 		public FileDownloadProgress(FileDownload file)
 		{
-			Path				= file.File.Initialized ? file.File.Path : null;
-			Length				= file.File.Initialized ? file.File.Length : -1;
-			DownloadedLength	= file.File.Initialized ? file.DownloadedLength : -1;
+			Path				= file.File.Status == LocalFileStatus.Inited ? file.File.Path : null;
+			Length				= file.File.Status == LocalFileStatus.Inited ? file.File.Length : -1;
+			DownloadedLength	= file.File.Status == LocalFileStatus.Inited ? file.DownloadedLength : -1;
 		}
 
 		public string	Path { get; set; }
@@ -468,7 +469,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ReleaseDownloadProgress(SeedCollector seedCollector)
+		public ReleaseDownloadProgress(Harvester seedCollector)
 		{
 			Hubs	= seedCollector.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
 			Seeds	= seedCollector.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();

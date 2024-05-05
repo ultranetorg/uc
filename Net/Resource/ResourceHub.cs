@@ -30,14 +30,17 @@ namespace Uccs.Net
 		{
 			Sun = sun;
 			Zone = zone;
-
 			ReleasesPath = path;
 
 			Directory.CreateDirectory(ReleasesPath);
 
-			Releases = Directory.EnumerateDirectories(ReleasesPath)
-									.Select(z => new LocalRelease(this, Urr.Parse(Path.GetFileName(z)), DataType.None))
-										.ToList();
+			using(var i = Sun.Database.NewIterator(ReleaseFamily))
+			{
+				for(i.SeekToFirst(); i.Valid(); i.Next())
+				{
+	 				Releases.Add(new LocalRelease(this, Urr.FromRaw(i.Key())));
+				}
+			}
 
 			if(sun != null && !sun.IsClient)
 			{
@@ -47,14 +50,19 @@ namespace Uccs.Net
 			}
 		}
 
+		public string ToReleases(Urr urr)
+		{
+			return Path.Join(ReleasesPath, Escape(urr.ToString()));
+		}
+
 		public static string Escape(string path)
 		{
-			return Path.GetInvalidFileNameChars().Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
+			return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
 		}
 
 		public static string Unescape(string path)
 		{
-			return Path.GetInvalidFileNameChars().Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
+			return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
 		}
 
 		public LocalRelease Add(byte[] address, DataType type)
@@ -66,8 +74,6 @@ namespace Uccs.Net
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 		
 			Releases.Add(r);
-		
-			Directory.CreateDirectory(r.Path);
 		
 			return r;
 		}
@@ -81,8 +87,6 @@ namespace Uccs.Net
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 	
 			Releases.Add(r);
-	
-			Directory.CreateDirectory(r.Path);
 
 			return r;
 		}
@@ -222,11 +226,11 @@ namespace Uccs.Net
  				
 			var r = Add(a, DataType.Directory);
 
-			r.AddCompleted(".index", ms.ToArray());
+			r.AddCompleted(LocalRelease.Index, null, ms.ToArray());
 
 			foreach(var i in files)
 			{
-				r.AddCompleted(i.Value, File.ReadAllBytes(i.Key));
+				r.AddExisting(i.Value, i.Key);
 			}
 			
 			r.Complete(Availability.Full);
@@ -234,22 +238,22 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalRelease Add(string source, ReleaseAddressCreator address, Flow workflow)
+		public LocalRelease Add(string path, ReleaseAddressCreator address, Flow workflow)
 		{
-			var b = File.ReadAllBytes(source);
+			var b = File.ReadAllBytes(path);
 
 			var h = Zone.Cryptography.HashFile(b);
 			var a = address.Create(Sun, h);
  			
 			var r = Add(a, DataType.File);
 
- 			r.AddCompleted("f", b);
+ 			r.AddExisting("", path);
 			r.Complete(Availability.Full);
 
 			return r;
 		}
 
-		public LocalFile GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Flow workflow)
+		public LocalFile GetFile(LocalRelease release, string file, string localpath, IIntegrity integrity, Harvester harvester, Flow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -257,7 +261,7 @@ namespace Uccs.Net
 			{
 				if(!release.IsReady(file))
 				{
-					var d = DownloadFile(release, file, integrity, peerCollector, workflow);
+					var d = DownloadFile(release, file, localpath, integrity, harvester, workflow);
 			
 					t = d.Task;
 				}
@@ -408,9 +412,9 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector collector, Flow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester collector, Flow workflow)
 		{
-			var f = release.Files.Find(j => j.Path == file);
+			var f = release.Files.Find(i => i.Path == path);
 			
 			if(f != null)
 			{
@@ -420,19 +424,19 @@ namespace Uccs.Net
 					throw new ResourceException(ResourceError.Busy);
 			}
 
-			var d = new FileDownload(Sun, release, file, integrity, collector, workflow);
+			var d = new FileDownload(Sun, release, path, localpath, integrity, collector, workflow);
 		
 			return d;
 		}
 
-		public DirectoryDownload DownloadDirectory(LocalRelease release, IIntegrity integrity, Flow workflow)
+		public DirectoryDownload DownloadDirectory(LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 		{
 			if(release.Activity is DirectoryDownload d)
 				return d;
 			else if(release.Activity != null)
 				throw new ResourceException(ResourceError.Busy);
 				
-			d = new DirectoryDownload(Sun, release, integrity, workflow);
+			d = new DirectoryDownload(Sun, release, localpath, integrity, workflow);
 
 			return d;
 		}

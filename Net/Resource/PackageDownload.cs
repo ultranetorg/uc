@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace Uccs.Net
 		public bool								Downloaded;
 		public List<PackageDownload>			Dependencies = new();
 		public Task								Task;
-		public SeedCollector					SeedCollector;
+		public Harvester						SeedCollector;
 
 		public bool								Succeeded => Downloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
@@ -114,9 +115,9 @@ namespace Uccs.Net
 													break;
 											};
 	
-											SeedCollector = new SeedCollector(sun, package.Release.Address, workflow);
+											SeedCollector = new Harvester(sun, package.Release.Address, workflow);
 	
-											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, itg, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, Path.Join(sun.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
 	
 											bool incrementable;
 	
@@ -137,6 +138,7 @@ namespace Uccs.Net
 											lock(sun.ResourceHub)
 	 											FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
 																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
+																							Path.Join(sun.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																							new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																							SeedCollector,
 																							workflow);

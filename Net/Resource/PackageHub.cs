@@ -8,32 +8,36 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-
 	public class PackageHub
 	{
-		string									ProductsPath;
+		string									ReleasesPath;
+		string									PackagesPath;
 		public List<LocalPackage>				Packages = new();
 		public Sun								Sun;
 		public object							Lock = new object();
 
-		public PackageHub(Sun sun, string productspath)
+		public PackageHub(Sun sun, string releasespath, string packagespath)
 		{
 			Sun = sun;
-			ProductsPath = productspath;
+			ReleasesPath = releasespath;
+			PackagesPath = packagespath;
 
-			Directory.CreateDirectory(ProductsPath);
+			Directory.CreateDirectory(PackagesPath);
 		}
 
- 		public string AddressToPath(Ura release)
+ 		public string AddressToDeployment(Ura resource)
  		{
- 			return Path.Join(ProductsPath, ResourceHub.Escape(release.ToString()));
+ 			return Path.Join(PackagesPath, ResourceHub.Escape(resource.ToString()));
  		}
  
- 		public Ura PathToAddress(string path)
+ 		public Ura DeploymentToAddress(string path)
  		{
- 			path = ResourceHub.Unescape(path.Substring(ProductsPath.Length));
- 
- 			return Ura.Parse(path);
+ 			return Ura.Parse(ResourceHub.Unescape(path.Substring(PackagesPath.Length)));
+ 		}
+
+ 		public string AddressToReleases(Urr release)
+ 		{
+ 			return Path.Join(ReleasesPath, ResourceHub.Escape(release.ToString()));
  		}
 
 		IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
@@ -185,7 +189,7 @@ namespace Uccs.Net
 			string path;
 				
 			lock(Sun.ResourceHub)
-				path = Find(previous).Release.MapPath(LocalPackage.CompleteFile);
+				path = Find(previous).Release.Find(LocalPackage.CompleteFile).LocalPath;
 
 			using(var s = new FileStream(path, FileMode.Open))
 			{
@@ -335,13 +339,13 @@ namespace Uccs.Net
 				if(previous != null) /// a single parent supported only
 				{
 					var pm = new Manifest();
-					pm.Read(new BinaryReader(new MemoryStream(Find(previous).Release.ReadFile(LocalPackage.ManifestFile))));
+					pm.Read(new BinaryReader(new MemoryStream(Find(previous).Release.Find(LocalPackage.ManifestFile).Read())));
 				
 					var d = new ParentPackage {	Release				= previous,
 												AddedDependencies	= m.CompleteDependencies.Where(i => !pm.CompleteDependencies.Contains(i)).ToArray(),
 												RemovedDependencies	= pm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
 					
-					m.Parents = new ParentPackage[] {d};
+					m.Parents = [d];
 					m.History = history.Append(previous).ToArray();
 				}
 
@@ -350,11 +354,11 @@ namespace Uccs.Net
 				var a = addresscreator.Create(Sun, h);
 				var r = Sun.ResourceHub.Add(a, DataType.Package);
 				 
- 				r.AddCompleted(LocalPackage.ManifestFile, m.Raw);
-				r.AddCompleted(LocalPackage.CompleteFile, cstream.ToArray());
+ 				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
+				r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream.ToArray());
 
 				if(istream != null)
-					r.AddCompleted(LocalPackage.IncrementalFile, istream.ToArray());
+					r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(AddressToReleases(a), LocalPackage.IncrementalFile), istream.ToArray());
 
 				r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
@@ -375,7 +379,7 @@ namespace Uccs.Net
 			if(r != null)
 			{
 				var c = Sun.ResourceHub.Find(r.LastAs<Urr>());
-				m.Read(new BinaryReader(new MemoryStream(c.ReadFile("m"))));
+				m.Read(new BinaryReader(new MemoryStream(c.Find("m").Read())));
 			}
 		
 			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, workflow);
@@ -449,13 +453,13 @@ namespace Uccs.Net
 			Task.Run(() =>	{ 
 								foreach(var s in d.Merges.AsEnumerable().Reverse())
 								{
-									using(var fs = new FileStream(s.Complete.Release.MapPath(LocalPackage.CompleteFile), FileMode.Open))
+									using(var fs = new FileStream(s.Complete.Release.Find(LocalPackage.CompleteFile).LocalPath, FileMode.Open))
 									{
 										using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
 										{
 											foreach(var e in a.Entries)
 											{
-												var f = Path.Join(AddressToPath(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+												var f = Path.Join(AddressToDeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
 												Directory.CreateDirectory(Path.GetDirectoryName(f));
 												e.ExtractToFile(f, true);
@@ -467,7 +471,7 @@ namespace Uccs.Net
 
 									foreach(var i in s.Incrementals)
 									{
-										using(var fs = new FileStream(i.Key.Release.MapPath(LocalPackage.IncrementalFile), FileMode.Open))
+										using(var fs = new FileStream(i.Key.Release.Find(LocalPackage.IncrementalFile).LocalPath, FileMode.Open))
 										{
 											using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
 											{
@@ -475,7 +479,7 @@ namespace Uccs.Net
 												{
 													if(e.Name != LocalPackage.Removals)
 													{
-														var f = Path.Join(AddressToPath(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+														var f = Path.Join(AddressToDeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
 														Directory.CreateDirectory(Path.GetDirectoryName(f));
 														e.ExtractToFile(f, true);
@@ -488,7 +492,7 @@ namespace Uccs.Net
 
 															while(!sr.EndOfStream)
 															{
-																File.Delete(Path.Join(AddressToPath(s.Target.Resource.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+																File.Delete(Path.Join(AddressToDeployment(s.Target.Resource.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
 															}
 														}
 													}

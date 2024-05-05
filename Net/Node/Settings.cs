@@ -221,6 +221,7 @@ namespace Uccs.Net
 		public List<AccountAddress>		Generators = new();
 		public AccountKey				Analyzer;
 		public string					Packages;
+		public string					Releases;
 
 		public ApiSettings				Api;
 		public McvSettings				Mcv;
@@ -264,6 +265,7 @@ namespace Uccs.Net
 			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
 			Packages					= doc.Get("Packages", System.IO.Path.Join(Profile, "Packages"));
+			Releases					= doc.Get("Releases", System.IO.Path.Join(Profile, "Releases"));
 
 			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID", null);
 			GoogleApiKey				= doc.Get<string>("GoogleApiKey", null);

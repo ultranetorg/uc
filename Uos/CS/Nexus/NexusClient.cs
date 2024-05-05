@@ -25,8 +25,8 @@ namespace Uccs.Uos
 
 			var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Flow("GetSettings"));
 
-			ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
-			PackageHub = new PackageHub(null, ProductsPath);
+			//ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
+			//PackageHub = new PackageHub(null, ProductsPath);
 		}
 
 		public void Start(Uri address, Flow workflow)

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 
 namespace Uccs.Net
 {
 	public class PackageAddApc : SunApc
 	{
-		public Ura			Resource { get; set; }
+		public Ura						Resource { get; set; }
 		public byte[]					Complete { get; set; }
 		public byte[]					Incremental { get; set; }
 		public byte[]					Manifest { get; set; }
@@ -26,13 +27,15 @@ namespace Uccs.Net
 					
 					var r = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a, DataType.Package);
 
-					r.AddCompleted(LocalPackage.ManifestFile, Manifest);
+					var path = sun.PackageHub.AddressToReleases(a);
+
+					r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
 			
 					if(Complete != null)
-						r.AddCompleted(LocalPackage.CompleteFile, Complete);
+						r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.ManifestFile), Complete);
 		
 					if(Incremental != null)
-						r.AddCompleted(LocalPackage.IncrementalFile, Incremental);
+						r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.ManifestFile), Incremental);
 										
 					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 				}
@@ -44,11 +47,11 @@ namespace Uccs.Net
 
 	public class PackageBuildApc : SunApc
 	{
-		public Ura			Resource { get; set; }
+		public Ura						Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					DependenciesPath { get; set; }
-		public Ura			Previous { get; set; }
-		public Ura[]		History { get; set; }
+		public Ura						Previous { get; set; }
+		public Ura[]					History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)

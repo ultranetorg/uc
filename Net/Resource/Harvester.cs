@@ -8,7 +8,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public class SeedCollector
+	public class Harvester
 	{
 		public class Seed
 		{
@@ -30,10 +30,10 @@ namespace Uccs.Net
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			SeedCollector				Collector;
+			Harvester				Collector;
 			Urr				Address;
 
-			public Hub(SeedCollector collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(Harvester collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
 				Collector = collector;
 				Address = hash;
@@ -80,7 +80,7 @@ namespace Uccs.Net
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		MembersResponse.Member[]	Members;
 
-		public SeedCollector(Sun sun, Urr address, Flow flow)
+		public Harvester(Sun sun, Urr address, Flow flow)
 		{
 			Sun = sun;
 			Flow = flow.CreateNested($"SeedCollector {address}");

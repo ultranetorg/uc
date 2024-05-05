@@ -85,7 +85,7 @@ namespace Uccs.Sun.CLI
 																	Wei = Web3.Convert.ToWei(GetString("amount"))});
 					Dump(f);
 
-					Workflow.Log?.Report($"   Estimated Tx Cost: {Web3.Convert.FromWeiToBigDecimal(f.Gas.Value * f.GasPrice.Value)} ETH");
+					Report($"Estimated Tx Cost: {Web3.Convert.FromWeiToBigDecimal(f.Gas.Value * f.GasPrice.Value)} ETH");
 // 
 // 					var eid = 0;
 // 
@@ -189,23 +189,23 @@ namespace Uccs.Sun.CLI
 
 					var r = Api<CostApc.Report>(c);
 
-					Workflow.Log?.Report($"   Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
-					Workflow.Log?.Report($"   Account One-time Fee : {r.RentAccount.ToDecimalString()}");
-					Workflow.Log?.Report($"   Execution Unit       : {r.Exeunit.ToDecimalString()}");
+					Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
+					Report($"Account One-time Fee : {r.RentAccount.ToDecimalString()}");
+					Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
 
-					Workflow.Log?.Report($"");
+					Report($"");
 
 					Dump(	r.RentDomain,
 							["Domains Rent |", .. c.DomainLengths.Select(i => $"{i} chars")],
 							[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToDecimalString()))]);
 
-					Workflow.Log?.Report($"");
+					Report($"");
 
 					Dump(	r.RentResource.Append(r.RentResourceForever),
 							["Resource Rent", "Cost"],
 							[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToDecimalString()]);
 
-					Workflow.Log?.Report($"");
+					Report($"");
 
 					Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
 							["Resource Data Per Byte Rent", "Cost"],

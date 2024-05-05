@@ -430,8 +430,8 @@ namespace Uccs.Net
 			if(ResourceHub != null || PackageHub != null)
 				throw new NodeException(NodeError.AlreadyRunning);
 
-			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Releases"));
-			PackageHub = new PackageHub(this, Settings.Packages);
+			ResourceHub = new ResourceHub(this, Zone, Settings.Releases);
+			PackageHub = new PackageHub(this, Settings.Releases, Settings.Packages);
 		}
 
 		public void Abort(Exception ex)

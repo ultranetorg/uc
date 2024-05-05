@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -20,32 +19,40 @@ namespace Uccs.Net
 		IncrementalPartial	= 0b_1000000, 
 	}
 
+	public enum LocalFileStatus
+	{
+		None, Inited, Completed
+	}
+
 	public class LocalFile : IBinarySerializable
 	{
-		public string			Path { get; set; }
-		public string			LocalPath => Release.MapPath(Path);
+		public string			Path;
+		public string			LocalPath;
 		public int				PieceLength { get; protected set; } = -1;
-		public long				Length { get; protected set; } = -1;
+		public long				Length { get; protected set; }
 		public bool[]			Pieces;
 		public object			Activity;
 		LocalRelease			Release;
+		public byte[]			Data;
 
 		public IEnumerable<int>	CompletedPieces => Pieces.Select((e, i) => e ? i : -1).Where(i => i != -1);
 		public long				CompletedLength => CompletedPieces.Count() * PieceLength - (Pieces.Last() ? PieceLength - Length % PieceLength : 0); /// take the tail into account
-		public bool				Completed => Length == -2; 
-		public bool				Initialized => Length >= 0; 
+		public LocalFileStatus	Status; 
 			
 		public LocalFile(LocalRelease release)
 		{
 			Release = release;
 		}
 			
-		public LocalFile(LocalRelease release, string path)
+		public LocalFile(LocalRelease release, string path, string localpath, byte[] data)
 		{
-			Release = release;
-			Path = path;
+			Release		= release;
+			Path		= path;
+			LocalPath	= localpath;
+			Data		= data;
+			Length		= data != null ? data.Length : (File.Exists(localpath) ? new FileInfo(localpath).Length : 0);
 		}
-		
+				
 		public override string ToString()
 		{
 			return $"{Path}, Length={Length}, PieceLength={PieceLength}, Pieces={{{Pieces?.Length}}}";
@@ -53,29 +60,30 @@ namespace Uccs.Net
 
 		public void Init(long length, int piecelength, int piececount)
 		{
+			Status = LocalFileStatus.Inited;
 			Length = length;
 
 			if(length > 0)
 			{
 				PieceLength = piecelength;
-				Pieces		= new bool[piececount];
+				Pieces	= new bool[piececount];
 			}
+
+			if(Path.StartsWith('\0'))
+				Data = new byte[length];
 
 			Release.Save();
 		}
 						 			
  		public void Reset()
  		{
- 			Length = -1;
-			PieceLength = -1;
- 			Pieces = null;
-
+			Status = LocalFileStatus.None;
 			Release.Save();
  		}
 						 			
 		public void Complete()
 		{
-			Length = -2;
+			Status = LocalFileStatus.Completed;
 			Release.Save();
 		}
 
@@ -88,9 +96,15 @@ namespace Uccs.Net
 		public void Read(BinaryReader reader)
 		{
 			Path = reader.ReadUtf8();
+			Status = (LocalFileStatus)reader.ReadByte();
 			Length = reader.ReadInt64();
-										
-			if(Length > 0)
+
+			if(Path.StartsWith('\0'))
+				Data = reader.ReadBytes();
+			else
+				LocalPath = reader.ReadUtf8();
+													
+			if(Status == LocalFileStatus.Inited)
 			{
 				PieceLength = reader.ReadInt32();
 				Pieces = reader.ReadArray(() => reader.ReadBoolean());
@@ -100,9 +114,15 @@ namespace Uccs.Net
 		public void Write(BinaryWriter writer)
 		{
 			writer.WriteUtf8(Path);
+			writer.Write((byte)Status);
 			writer.Write(Length);
+
+			if(Path.StartsWith('\0'))
+				writer.WriteBytes(Data);
+			else
+				writer.WriteUtf8(LocalPath);
 				
-			if(Length > 0)
+			if(Status == LocalFileStatus.Inited)
 			{
 				writer.Write(PieceLength);
 				writer.Write(Pieces, i => writer.Write(i));
@@ -111,14 +131,17 @@ namespace Uccs.Net
 		
 		public void Write(long offset, byte[] data)
 		{
-			var d = System.IO.Path.GetDirectoryName(LocalPath);
-		
-			if(!Directory.Exists(d))
+			if(LocalPath != null)
 			{
-				Directory.CreateDirectory(d);
+				var d = System.IO.Path.GetDirectoryName(LocalPath);
+			
+				if(!Directory.Exists(d))
+				{
+					Directory.CreateDirectory(d);
+				}
 			}
 		
-			using(var s = new FileStream(LocalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+			using(Stream s = LocalPath == null ? new MemoryStream(Data) : new FileStream(LocalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				s.Write(data);
@@ -127,11 +150,11 @@ namespace Uccs.Net
 
 		public byte[] Read(long offset = 0, long length = -1)
 		{
-			using(var s = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(Stream s = LocalPath == null ? new MemoryStream(Data) : new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				
-				var b = new byte[length == -1 ? new FileInfo(LocalPath).Length : length];
+				var b = new byte[length == -1 ? Length : length];
 	
 				s.Read(b);
 	
@@ -154,9 +177,11 @@ namespace Uccs.Net
 
 	public class LocalRelease
 	{
+		public const string				Index = "\0index";
+
 		public Urr						Address;
 		public List<Declaration>		DeclaredOn = new();
-		public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
+		//public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
 		public object					Activity;
 		Availability					_Availability;
 		DataType						_Type;
@@ -200,32 +225,54 @@ namespace Uccs.Net
 			_Type = type;
 		}
 
+		public LocalRelease(ResourceHub hub, Urr address)	
+		{
+			Hub = hub;
+			Address = address;
+		}
+
 		public override string ToString()
 		{
 			return $"{Address}, Availability={Availability}, Files={{{Files?.Count}}}";
 		}
 
-		public LocalFile AddEmpty(string path)
+		public LocalFile AddEmpty(string path, string localpath)
 		{
 			if(Files.Any(i => i.Path == path))
 				throw new IntegrityException($"File {path} already exists");
 
-			Files.Add(new LocalFile(this, path));
+			Files.Add(new LocalFile(this, path, localpath, null));
 
 			Save();
 
 			return Files.Last();
 		}
 
-		public LocalFile AddCompleted(string path, byte[] data)
+		public LocalFile AddExisting(string path, string localpath)
 		{
 			if(Files.Any(i => i.Path == path))
 				throw new IntegrityException($"File {path} already exists");
 
-			var f = new LocalFile(this, path);
+			var f = new LocalFile(this, path, localpath, null);
 			Files.Add(f);
 
-			f.Write(0, data);
+			f.Complete(); /// implicit Save called
+
+			return f;
+		}
+
+		public LocalFile AddCompleted(string path, string localpath, byte[] data)
+		{
+			if(Files.Any(i => i.Path == path))
+				throw new IntegrityException($"File {path} already exists");
+
+			var f = new LocalFile(this, path, localpath, data);
+			Files.Add(f);
+
+			if(localpath != null)
+			{
+				f.Write(0, data);
+			}
 
 			f.Complete(); /// implicit Save called
 
@@ -282,10 +329,10 @@ namespace Uccs.Net
 			}
 		}
 
-		public string MapPath(string file)
-		{
-			return System.IO.Path.Join(Path, file);
-		}
+ 		//public string MapPath(string file)
+ 		//{
+ 		//	return System.IO.Path.Join(Path, file);
+ 		//}
 
 		//public byte[] ReadFile(string file, long offset, long length)
 		//{
@@ -332,23 +379,12 @@ namespace Uccs.Net
 			if(f == null)
 				return false;
 
-			return f.Completed;
-		}
-
-		public byte[] ReadFile(string file)
-		{
-			return File.ReadAllBytes(MapPath(file));
+			return f.Status == LocalFileStatus.Completed;
 		}
 
 		public byte[] Hashify(string path)
 		{
-			return Hub.Zone.Cryptography.HashFile(File.ReadAllBytes(MapPath(path)));
+			return Hub.Zone.Cryptography.HashFile(Find(path).Read());
 		}
-
-		public long GetLength(string path)
-		{
-			return Find(path) != null ? new FileInfo(MapPath(path)).Length : -1;
-		}
-
 	}
 }

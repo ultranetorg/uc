@@ -20,6 +20,7 @@ namespace Uccs.Sun.CLI
 		protected int				RdcQueryTimeout = 5000;
 		protected int				RdcTransactingTimeout = 60*1000;
 
+		public void					Report(string message) => Workflow.Log?.Report(this, "   " + message);
 
 		public abstract object Execute();
 
@@ -310,27 +311,27 @@ namespace Uccs.Sun.CLI
 			{
 				if(value is null)
 				{
-					Workflow.Log?.Report(new string(' ', tab * 3) + name + " :");
+					Report(new string(' ', tab * 3) + name + " :");
 				}
 				else if(value is ICollection e)
 				{
 					if(value is int[])
 					{
-						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as int[])}]");
+						Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as int[])}]");
 					}
 					else if(value is byte[])
 					{
-						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {(value as byte[]).ToHex()}");
+						Report(new string(' ', tab * 3) + $"{name} : {(value as byte[]).ToHex()}");
 					}
 					else if(value is IEnumerable<string> ||
 							value is IEnumerable<IPAddress>)
 					{
-						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
+						Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
 					}
 					else if(value is IEnumerable<Dependency> ||
 							value is IEnumerable<AnalyzerResult>)
 					{
-						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} :");
+						Report(new string(' ', tab * 3) + $"{name} :");
 
 						foreach(var i in value as IEnumerable)
 						{
@@ -338,12 +339,12 @@ namespace Uccs.Sun.CLI
 						}
 					}
 					else
-						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
+						Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
 				}
 				else if(value is Resource || 
 						value is Manifest)
 				{
-					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name}");
+					Report(new string(' ', tab * 3) + $"{name}");
 
 					foreach(var i in value.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 					{
@@ -351,12 +352,12 @@ namespace Uccs.Sun.CLI
 					}
 				}
 				else
-					Workflow.Log?.Report(new string(' ', tab * 3) + $"{(name == null ? null : (name + " : " ))}{value}");
+					Report(new string(' ', tab * 3) + $"{(name == null ? null : (name + " : " ))}{value}");
 			}
 
 			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic && (type == null || i.DeclaringType == type)))
 			{
-				dump(i.Name, i.GetValue(o), 1);
+				dump(i.Name, i.GetValue(o), 0);
 			}
 		}
 
@@ -369,7 +370,7 @@ namespace Uccs.Sun.CLI
 		{
 			if(!items.Any())
 			{	
-				Workflow.Log?.Report("   No results");
+				Report("No results");
 				return;
 			}
 
@@ -396,20 +397,20 @@ namespace Uccs.Sun.CLI
 
 			var f = string.Join(" ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
 
-			Workflow.Log?.Report("   " + string.Format(f, columns));
-			Workflow.Log?.Report("   " + string.Format(f, w.Select(i => new string('-', i)).ToArray()));
+			Report(string.Format(f, columns));
+			Report(string.Format(f, w.Select(i => new string('-', i)).ToArray()));
 						
 			f = string.Join(" ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
 
 			for(int i=0; i < items.Count(); i++)
 			{
-				Workflow.Log?.Report("   " + string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
+				Report(string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
 			}
 		}
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
+			document.Dump((n, l) => Report(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
 		}
 
 		public static TransactionStatus GetAwaitStage(IEnumerable<Xon> args)

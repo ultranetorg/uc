@@ -142,7 +142,7 @@ namespace Uccs.Sun.CLI
 				{
 					var r = Api<string>(new PropertyApc {Path = Args[1].Name});
 			
-					Workflow.Log?.Report(this, r);
+					Report(r);
 					
 					return r;
 				} 

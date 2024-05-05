@@ -17,7 +17,7 @@
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);
 	
-				return new FileInfoResponse{Length = r.GetLength(File)};
+				return new FileInfoResponse{Length = r.Find(File).Length};
 			}
 		}
 	}
