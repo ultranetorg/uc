@@ -42,6 +42,13 @@ namespace Uccs.Net
 			return $"{Ci?.ToHex()}-{Ei}";
 		}
 
+		public static EntityId Parse(string t)
+		{
+			var i = t.IndexOf('-');
+
+			return new EntityId(t.Substring(0, i).FromHex(), int.Parse(t.Substring(i + 1)));
+		}
+
 		public void Read(BinaryReader reader)
 		{
 			Ci	= reader.ReadBytes(Table<ITableEntry<int>, int>.Cluster.IdLength);
@@ -61,7 +68,7 @@ namespace Uccs.Net
 
 		public bool Equals(EntityId a)
 		{
-			return Ci == a.Ci && Ei == a.Ei;
+			return Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Ei == a.Ei;
 		}
 
 		public int CompareTo(EntityId a)

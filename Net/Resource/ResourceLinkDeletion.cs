@@ -5,8 +5,8 @@ namespace Uccs.Net
 {
 	public class ResourceLinkDeletion : Operation
 	{
-		public Ura	Source { get; set; }
-		public Ura	Destination { get; set; }
+		public ResourceId	Source { get; set; }
+		public ResourceId	Destination { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
 		public override bool	IsValid(Mcv mcv) => true;
@@ -15,7 +15,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceLinkDeletion(Ura source, Ura destination)
+		public ResourceLinkDeletion(ResourceId source, ResourceId destination)
 		{
 			Source = source;
 			Destination = destination;
@@ -29,16 +29,16 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Source	= reader.Read<Ura>();
-			Destination	= reader.Read<Ura>();
+			Source	= reader.Read<ResourceId>();
+			Destination	= reader.Read<ResourceId>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, Signer, Source, out var sa, out var sr) == false)
+			if(Require(round, Signer, Source, out var sd, out var sr) == false)
 				return;
 
-			if(Require(round, null, Destination, out var da, out var dr) == false)
+			if(Require(round, null, Destination, out var dd, out var dr) == false)
 				return;
 
 			var l = sr.Outbounds.First(i => i.Destination == dr.Id);
@@ -55,13 +55,13 @@ namespace Uccs.Net
 				return;
 			}
 
-			sa = Affect(round, Source.Domain);
-			sr = sa.AffectResource(Source.Resource);
+			sd = round.AffectDomain(sd.Id);
+			sr = sd.AffectResource(sr.Address.Resource);
 			sr.RemoveOutbound(dr.Id);
-			Free(sa, Mcv.EntityLength);
+			Free(sd, Mcv.EntityLength);
 
-			da = Affect(round, Destination.Domain);
-			dr = da.AffectResource(Destination.Resource);
+			dd = round.AffectDomain(dd.Id);
+			dr = dd.AffectResource(dr.Address.Resource);
 			dr.RemoveInbound(sr.Id);
 		}
 	}

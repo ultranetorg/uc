@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,19 +11,61 @@ namespace Uccs.Sun.CLI
 {
 	public abstract class Command
 	{
+		public class Help
+		{
+			public class Argument
+			{
+				public string	Name {get; set; }
+				public string	Description {get; set; }
+
+				public Argument[]	Arguments  {get; set; }
+
+				public Argument(string name, string description)
+				{
+					Name = name;
+					Description = description;
+				}
+			}
+
+			public class Example
+			{
+				public string Description  {get; set; }
+				public string Code  {get; set; }
+
+				public Example(string description, string code)
+				{
+					Description = description;
+					Code = code;
+				}
+			}
+
+			public string		Title {get; set; }
+			public string		Description {get; set; }
+			public string		Syntax {get; set; }
+			public Argument[]	Arguments {get; set; }
+			public Example[]	Examples {get; set; } 
+		}
+
+		public class CommandAction
+		{
+			public string[]			Names;
+			public Help				Help;
+			public Func<object>		Execute;
+		}
+
+		public CommandAction[]		Actions;
+
 		protected Program			Program;
-		protected List<Xon>			Args;
+		public List<Xon>			Args;
 		public static bool			ConsoleAvailable { get; protected set; }
 		public const string			AwaitArg = "await";
 
-		public Flow					Workflow;
+		public Flow					Flow;
 		public Action				Transacted;
-		protected int				RdcQueryTimeout = 5000;
-		protected int				RdcTransactingTimeout = 60*1000;
+		public int					RdcQueryTimeout = 5000;
+		public int					RdcTransactingTimeout = 60*1000;
 
-		public void					Report(string message) => Workflow.Log?.Report(this, "   " + message);
-
-		public abstract object Execute();
+		public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
 
 		static Command()
 		{
@@ -37,33 +80,44 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Program program, List<Xon> args)
+		protected Command()
+		{
+		}
+
+		protected Command(Program program, List<Xon> args, Flow flow)
 		{
 			Program = program;
 			Args = args;
+			Flow = flow;;
+
+			if(Debugger.IsAttached)
+			{
+				RdcQueryTimeout = int.MaxValue;
+				RdcTransactingTimeout = int.MaxValue;
+			}
 		}
 
 		public void Api(SunApc call)
 		{
 			if(Program.ApiClient == null)
-				call.Execute(Program.Sun, null, null, Workflow);
+				call.Execute(Program.Sun, null, null, Flow);
 			else
-				Program.ApiClient.Send(call, Workflow);
+				Program.ApiClient.Send(call, Flow);
 		}
 
 		public Rp Api<Rp>(SunApc call)
 		{
 			if(Program.ApiClient == null) 
-				return (Rp)call.Execute(Program.Sun, null, null, Workflow);
+				return (Rp)call.Execute(Program.Sun, null, null, Flow);
 			else
-				return Program.ApiClient.Request<Rp>(call, Workflow);
+				return Program.ApiClient.Request<Rp>(call, Flow);
 		}
 
 		public Rp Rdc<Rp>(RdcCall<Rp> request) where Rp : RdcResponse
 		{
 			if(Program.ApiClient == null) 
 			{
-				return Program.Sun.Call(i => i.Request(request), Workflow) as Rp;
+				return Program.Sun.Call(i => i.Request(request), Flow) as Rp;
 			}
 			else
 			{
@@ -79,12 +133,12 @@ namespace Uccs.Sun.CLI
 		public void Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
 		{
 			if(Program.ApiClient == null)
-				Program.Sun.Transact(operations, by, await, Workflow);
+				Program.Sun.Transact(operations, by, await, Flow);
 			else
 				Program.ApiClient.Send(new EnqeueOperationApc  {Operations = operations,
 																By = by,
 																Await = await},
-										Workflow);
+										Flow);
 		}
 
 		public Xon One(string path)
@@ -110,6 +164,31 @@ namespace Uccs.Sun.CLI
 				}
 			}
 			return p;	 
+		}
+		
+		protected ResourceIdentifier GetResourceIdentifier(string a, string id)
+		{
+			if(Has(a))
+				return new ResourceIdentifier(GetResourceAddress(a));
+
+			if(Has(id))
+				return new ResourceIdentifier(ResourceId.Parse(GetString(id)));
+
+			throw new SyntaxException("address or id required");
+		}
+		
+		protected ResourceIdentifier ResourceIdentifier
+		{
+			get
+			{
+				if(Has("a"))
+					return new ResourceIdentifier(GetResourceAddress("a"));
+
+				if(Has("id"))
+					return new ResourceIdentifier(ResourceId.Parse(GetString("id")));
+
+				throw new SyntaxException("address or id required");
+			}
 		}
 
 		public bool Has(string paramenter)
@@ -361,19 +440,18 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public void Dump<R>(IEnumerable<R> items, string[] columns, IEnumerable<Func<R, object>> gets)
+		public void Dump<R>(IEnumerable<R> items, string[] columns, IEnumerable<Func<R, object>> gets, int tab = 0)
 		{
-			Dump(items, columns, gets.Select(g => new Func<R, int, object>((o, i) => g(o))));
+			Dump(items, columns, gets.Select(g => new Func<R, int, object>((o, i) => g(o))), tab);
 		}
 
-		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, int, object>> gets)
+		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, int, object>> gets, int tab = 0)
 		{
 			if(!items.Any())
 			{	
 				Report("No results");
 				return;
 			}
-
 
 			object[,] t = new object[items.Count(), columns.Length];
 			int[] w = columns.Select(i => i.Length).ToArray();
@@ -395,16 +473,16 @@ namespace Uccs.Sun.CLI
 				ii++;
 			}
 
-			var f = string.Join(" ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
+			var f = string.Join("  ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
 
-			Report(string.Format(f, columns));
-			Report(string.Format(f, w.Select(i => new string('-', i)).ToArray()));
+			Report(new string(' ', tab * 3) + string.Format(f, columns));
+			Report(new string(' ', tab * 3) + string.Format(f, w.Select(i => new string('-', i)).ToArray()));
 						
-			f = string.Join(" ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
+			f = string.Join("  ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
 
 			for(int i=0; i < items.Count(); i++)
 			{
-				Report(string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
+				Report(new string(' ', tab * 3) + string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
 			}
 		}
 

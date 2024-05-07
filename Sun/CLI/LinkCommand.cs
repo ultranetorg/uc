@@ -12,64 +12,141 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "link";
 
-		public LinkCommand(Program program, List<Xon> args) : base(program, args)
+		public LinkCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = ["c", "create"],
 
-		public override object Execute()
-		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
+								Help = new Help
+								{
+									Title = "CREATE",
+									Description = "Creates a link from one resource to another",
+									Syntax = "link c|create sa=URA|sid=RID da=URA|did=RID",
 
-			switch(Args.First().Name)
-			{
-				case "c" : 
-				case "create" : 
-				{	
-					Workflow.CancelAfter(RdcTransactingTimeout);
+									Arguments =
+									[
+										new ("sa/sid", "Address/Id of a source resource. Transaction signer must be owner of this resource."),
+										new ("da/did", "Address/Id of a destination resource")
+									],
 
-					return new ResourceLinkCreation(GetResourceAddress("source"), GetResourceAddress("destination"));
-				}
+									Examples =
+									[
+										new (null, "link c sa=company/application/win32/1.2.3 da=company/application")
+									]
+								},
 
-				case "x" : 
-				case "destroy" : 
-				{	
-					Workflow.CancelAfter(RdcTransactingTimeout);
+								Execute = () =>	{
+													Flow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceLinkDeletion(GetResourceAddress("source"), GetResourceAddress("destination"));
-				}
+													var s = Rdc(new ResourceRequest(GetResourceIdentifier("sa", "sid"))).Resource;
+													var d = Rdc(new ResourceRequest(GetResourceIdentifier("da", "did"))).Resource;
 
-				case "lo" :
-		   		case "listoutbounds" :
-				{
-					///Workflow.CancelAfter(RdcQueryTimeout);
+													return new ResourceLinkCreation(s.Id, d.Id);
+												}
+							},
 
-					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
+							new ()
+							{
+								Names = ["d", "destroy"],
+
+								Help = new Help
+								{ 
+									Title = "DESTROY",
+									Description = "Destroys existing link",
+									Syntax = "link x|destroy source=RESOURCE_ADDRESS destination=RESOURCE_ADDRESS",
+
+									Arguments =
+									[
+										new ("sa/sid", "Address/Id of a source resource of the link. Transaction signer must be owner of this resource."),
+										new ("da/did", "Address/Id of a destination resource of the link")
+									],
+
+									Examples =
+									[
+										new (null, "link x sa=company/application/win32/1.2.3 da=company/application")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcTransactingTimeout);
+
+													var s = Rdc(new ResourceRequest(GetResourceIdentifier("sa", "sid"))).Resource;
+													var d = Rdc(new ResourceRequest(GetResourceIdentifier("da", "did"))).Resource;
+
+													return new ResourceLinkDeletion(s.Id, d.Id);
+												}
+							},
+
+							new ()
+							{
+								Names = ["lo", "listoutbounds"],
+
+								Help = new Help
+								{ 
+									Title = "LIST OUTBOUNDS",
+									Description = "Lists outbound links of a specified resource",
+									Syntax = "link lo|listoutbounds a=URA|id=RID",
+
+									Arguments =
+									[
+										new ("a/id", "Address/Id of a resource which outbound links are be listed of")
+									],
+
+									Examples =
+									[
+										new (null, "link lo a=company/application")
+									]							
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcQueryTimeout);
+
+													var r = Rdc(new ResourceRequest(ResourceIdentifier));
 					
-					Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceByIdRequest {ResourceId = i.Destination}).Resource}),
-						 ["#", "Flags", "Destination", "Destination Data"],
-						 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data.Interpretation]);
+													Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
+														 ["#", "Flags", "Destination", "Destination Data"],
+														 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data.Interpretation]);
 
-					return r;
-				}
+													return r;
+												}
+							},
 
-				case "li" :
-		   		case "listinbounds" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
+							new ()
+							{
+								Names = ["li", "listinbounds"],
 
-					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
-					
-					Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceByIdRequest {ResourceId = i}).Resource}),
-						 ["#", "Source", "Source Data"],
-						 [i => i.L, i => i.R.Address, i => i.R.Data.Interpretation]);
+								Help = new Help
+								{ 
+									Title = "LIST INBOUNDS",
+									Description = "Lists inbound links of a specified resource",
+									Syntax = "link li|listinbounds a=URA|id=RID",
 
-					return r;
-				}
+									Arguments =
+									[
+										new ("a/id", "Address/Id of a resource which inbound links are be listed of")
+									],
 
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+									Examples =
+									[
+										new (null, "link li a=company/application")
+									]								
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcQueryTimeout);
+
+													var r = Rdc(new ResourceRequest(ResourceIdentifier));
+																		
+													Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
+														 ["#", "Source", "Source Data"],
+														 [i => i.L, i => i.R.Address, i => i.R.Data.Interpretation]);
+
+													return r;
+												}
+							},
+						];
 		}
 	}
 }

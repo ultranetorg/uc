@@ -14,42 +14,42 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "analysis";
 
-		public AnalysisCommand(Program program, List<Xon> args) : base(program, args)
-		{
-		}
 
-		public override object Execute()
+		public AnalysisCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
-
-			switch(Args.First().Name)
-			{
-				case "u" :
-				case "update" :
+			Actions =
+			[
+				new ()
 				{
-					Workflow.CancelAfter(RdcTransactingTimeout);
+					Names = ["u", "update"],
+					Help = new Help	{ 
+										Title = "ANALYSIS UPDATE",
+										Description = "Register an analysis result in Ultranet distributed database",
+										Syntax = "analysis u|update a=URA|id=RID result=RESULT",
 
-					return new AnalysisResultUpdation {Resource = GetResourceAddress("resource"), 
-													   Analysis = GetResourceAddress("analysis"), 
-													   Result = Enum.Parse<AnalysisResult>(GetString("result"))};;
+										Arguments = 
+										[
+											new ("a/id", "Address/Id of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
+											new ("result", "Negative, Positive, Vulnerable")
+										],
+
+										Examples = 
+										[
+											new (null, "analysis update F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E result=Negative")
+										]
+									},
+
+					Execute = () =>	{
+										Flow.CancelAfter(RdcTransactingTimeout);
+
+										var r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+
+
+										return new AnalysisResultUpdation {	Analysis = r.Id, 
+																			Result = Enum.Parse<AnalysisResult>(GetString("result"))};;
+									}
 				}
-// 
-// 				case "e" : 
-// 				case "entity" : 
-// 				{	
-// 					Workflow.CancelAfter(RdcQueryTimeout);
-// 
-// 					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args[1].Name)});
-// 	
-// 					Dump(rp.Analysis);
-// 						
-// 					return rp.Analysis;
-// 				}
-
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+			];	
 		}
 	}
 }

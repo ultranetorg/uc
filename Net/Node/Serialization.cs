@@ -21,6 +21,7 @@ namespace Uccs.Net
 			{
 				case bool v :	writer.Write(v); return;
 				case byte v :	writer.Write(v); return;
+				case short v :	writer.Write(v); return;
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
 				case Money v :	writer.Write(v); return;
@@ -93,7 +94,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				foreach(var i in val.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+				foreach(var i in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
 					Serialize(writer, i.GetValue(val), i.PropertyType);
 				}
@@ -180,6 +181,10 @@ namespace Uccs.Net
 			else if(typeof(byte) == type)
 			{	
 				return reader.ReadByte();
+			}
+			else if(typeof(short) == type)
+			{	
+				return reader.ReadInt16(); 
 			}
 			else if(typeof(int) == type)
 			{	

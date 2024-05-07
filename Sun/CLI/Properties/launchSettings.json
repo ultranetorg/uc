@@ -35,7 +35,7 @@
     },
     "test": {
       "commandName": "Project",
-      "commandLineArgs": "node run peer",
+      "commandLineArgs": "wallet ?",
       "remoteDebugEnabled": false,
       "remoteDebugMachine": "ultranet.org",
       "authenticationMode": "Windows"

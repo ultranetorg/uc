@@ -77,7 +77,7 @@ namespace Uccs.Net
 											{
 												try
 												{
-													last = sun.Call(c => c.Request(new ResourceByNameRequest {Name = package.Resource.Address}), workflow).Resource;
+													last = sun.Call(c => c.Request(new ResourceRequest(package.Resource.Address)), workflow).Resource;
 														
 													if(last.Data.Type != DataType.Package)
 													{
@@ -110,7 +110,7 @@ namespace Uccs.Net
 													break;
 
 												case Urrsd a :
-													var au = sun.Call(c => c.Request(new DomainRequest {Name = package.Resource.Address.Domain}), workflow).Domain;
+													var au = sun.Call(c => c.Request(new DomainRequest(package.Resource.Address.Domain)), workflow).Domain;
 													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 													break;
 											};

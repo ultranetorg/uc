@@ -15,146 +15,276 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "resource";
 
-		public ResourceCommand(Program program, List<Xon> args) : base(program, args)
+		public ResourceCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = ["c", "create"],
 
-		public override object Execute()
-		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
+								Help = new Help
+								{ 
+									Title = "CREATE",
+									Description = "Creates a resource entity in the distributed database",
+									Syntax = "resource c|create a=URA [flags] [data]",
 
-			switch(Args.First().Name)
-			{
-				case "c" : 
-				case "create" : 
-				{	
-					Workflow.CancelAfter(RdcTransactingTimeout);
+									Arguments =
+									[
+										new ("a", "Address  of a resource to create"),
+										new ("data", "A data associated with the resource"),
+										new ("seal", "If set, resource data cannot be changed anymore")
+									],
 
-					var ura = Ura.Parse(Args[1].Name);
+									Examples =
+									[
+										new (null, "resource c a=company/application data=0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37")
+									]
+								},
 
-					Transacted = () =>	{
-											var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
-							
-											Report($"Id: {r.Id}");
+								Execute = () =>	{
+													Flow.CancelAfter(RdcTransactingTimeout);
 
-											if(r.Data?.Interpretation is Urr)
-												Api(new ResourceUpdateApc{	Address = ura,
-																			Data = r.Data, 
-																			Id = r.Id});
-											};
+													var a = GetResourceAddress("a");
 
-					return new ResourceCreation(ura, GetData(), Has("seal"));
-				}
+													Transacted = () =>	{
+																			var	r = Rdc(new ResourceRequest(a)).Resource;
 
-				case "x" : 
-				case "destroy" : 
-				{	
-					Workflow.CancelAfter(RdcTransactingTimeout);
+																			Api(new ResourceUpdateApc{	Address = r.Address,
+																										Data = r.Data, 
+																										Id = r.Id});
+																		};
 
-					return new ResourceDeletion(Ura.Parse(Args[1].Name));
-				}
+													return new ResourceCreation(a, GetData(), Has("seal"));
+												}
+							},
 
-				case "u" : 
-				case "update" : 
-				{	
-					Workflow.CancelAfter(RdcTransactingTimeout);
+							new ()
+							{
+								Names = ["x", "destroy"],
 
-					var ura = Ura.Parse(Args[1].Name);
+								Help = new Help
+								{ 
+									Title = "DESTROY",
+									Description = "Destroys existing resource and all its associated links",
+									Syntax = "resource x|destroy a=URA|id=RID",
 
-					if(GetData()?.Interpretation is Urr)
-					{
-						Transacted = () =>	{
-												var r = Rdc(new ResourceByNameRequest {Name = ura}).Resource;
-												
-												Api(new ResourceUpdateApc{	Address = ura,
-																			Data = r.Data, 
-																			Id = r.Id});
-											};
-					}
+									Arguments =
+									[
+										new ("a/id", "Address/Id of a resource to delete")
+									],
 
-					var r =	new ResourceUpdation(ura);
+									Examples =
+									[
+										new (null, "resource x a=company/application")
+									]
+								},
 
-					if(Has("data"))			r.Change(GetData());
-					if(Has("seal"))			r.Seal();
-					if(Has("recursive"))	r.MakeRecursive();
+								Execute = () =>	{
+													Flow.CancelAfter(RdcTransactingTimeout);
 
-					return r;
-				}
+													var r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
 
-				case "e" :
-		   		case "entity" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
+													return new ResourceDeletion {Id = r.Id};
+												}
+							},
 
-					var r = Rdc(new ResourceByNameRequest {Name = Ura.Parse(Args[1].Name)});
+							new ()
+							{
+								Names = ["u", "update"],
+
+								Help = new Help
+								{ 
+									Title = "UPDATE",
+									Description = "Updates a resource entity properties in the distributed database",
+									Syntax = "resource u|update a=URA|id=RID [flags] [data] [recursive]",
+
+									Arguments =
+									[
+										new ("a/id", "Address/Id of a resource to update"),
+										new ("data", "A data associated with the resource"),
+										new ("seal", "If set, resource data cannot be changed anymore"),
+										new ("recursive", "Update all descendants")
+									],
+
+									Examples =
+									[
+										new (null, "resource u a=company/application data=Package{address=urrh:BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37}")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcTransactingTimeout);
+
+													var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+
+													Transacted = () =>	{
+																			var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+
+																			Api(new ResourceUpdateApc{	Address = r.Address,
+																										Data = r.Data, 
+																										Id = r.Id});
+																		};
+
+													var o =	new ResourceUpdation(r.Id);
+
+													if(Has("data"))			o.Change(GetData());
+													if(Has("seal"))			o.Seal();
+													if(Has("recursive"))	o.MakeRecursive();
+
+													return o;
+												}
+							},
+
+							new ()
+							{
+								Names = ["e", "entity"],
+
+								Help = new Help
+								{ 
+									Title = "Entity",
+									Description = "Gets resource entity information from the MCV database",
+									Syntax = "resource e|entity a=URA|id=RID",
+
+									Arguments =
+									[
+										new ("a/id", "Address/Id of a resource to get information about")
+									],
+
+									Examples =
+									[
+										new (null, "resource e a=company/application")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcQueryTimeout);
+
+													var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
 					
-					Dump(r.Resource);
+													Dump(r);
 
-					return r;
-				}
+													return r;
+												}
+							},
 
-				case "l" : 
-				case "local" : 
-				{	
-					var r = Api<LocalResource>(new LocalResourceApc {Resource = Ura.Parse(Args[1].Name)});
+							new ()
+							{
+								Names = ["l", "local"],
+
+								Help = new Help
+								{ 
+									Title = "LOCAL",
+									Description = "Gets information about locally available releases of a specified resource",
+									Syntax = "resource l|local a=URA",
+
+									Arguments =
+									[
+										new ("a", "Address of a resource to get information about")
+									],
+
+									Examples =
+									[
+										new (null, "resource l a=company/application")
+									]
+								},
+
+								Execute = () =>	{
+													var r = Api<LocalResource>(new LocalResourceApc {Resource = GetResourceAddress("a")});
 					
-					if(r != null)
-					{
-						Dump(	r.Datas, 
-								["Type", "Data", "Length"], 
-								[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
+													if(r != null)
+													{
+														Dump(	r.Datas, 
+																["Type", "Data", "Length"], 
+																[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
 
-						return r;
-					}
-					else
-						throw new Exception("Resource not found");
-				}
+														return r;
+													}
+													else
+														throw new Exception("Resource not found");
+												}
+							},
 
-				case "sl" : 
-				case "searchlocal" : 
-				{	
-					Workflow.CancelAfter(RdcQueryTimeout);
+							new ()
+							{
+								Names = ["ls", "localsearch"],
 
-					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args[1].Name});
+								Help = new Help
+								{ 
+									Title = "LOCAL SEARCH",
+									Description = "Search local resources using a specified query",
+									Syntax = "resource ls|localsearch query",
+
+									Arguments =
+									[
+										new ("query", "A text to look for in resource addresses (includes domain name)")
+									],
+
+									Examples =
+									[
+										new (null, "resource ls appli")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcQueryTimeout);
+
+													var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args[0].Name});
 					
-					Dump(	r, 
-							["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
-							[i => i.Address,
-							 i => i.Datas.Count,
-							 i => i.Last.Type,
-							 i => i.Last.Value.ToHex(32),
-							 i => i.Last.Value.Length]);
-					return r;
-				}
+													Dump(	r, 
+															["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
+															[i => i.Address,
+															 i => i.Datas.Count,
+															 i => i.Last.Type,
+															 i => i.Last.Value.ToHex(32),
+															 i => i.Last.Value.Length]);
+													return r;
+												}
+							},
 
-				case "d" :
-				case "download" :
-				{
-					var a = Ura.Parse(Args[1].Name);
+							new ()
+							{
+								Names = ["d", "download"],
 
-					var r = Api<Resource>(new ResourceDownloadApc {Address = a, LocalPath = GetString("localpath", null)});
+								Help = new Help
+								{
+									Title = "DOWNLOAD",
+									Description = "Downloads the latest release of a specified resource",
+									Syntax = "resource d|download a=URA|id=RID [localpath=PATH]",
 
-					ReleaseDownloadProgress p = null;
+									Arguments =
+									[
+										new ("a/id",	  "Address/Id of a resource the latest release to download of"),
+										new ("localpath", "Destination path on the local system to download the release to")
+									],
+
+									Examples =
+									[
+										new (null, "resource d a=company/application")
+									]
+								},
+
+								Execute = () =>	{
+													var r = Api<Resource>(new ResourceDownloadApc{Idedtifier = ResourceIdentifier, LocalPath = GetString("localpath", null)});
+
+													ReleaseDownloadProgress p = null;
 						
-					while(Workflow.Active)
-					{
-						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
+													while(Flow.Active)
+													{
+														p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
 
-						if(p == null)
-							break;
+														if(p == null)
+															break;
 
-						Report(p.ToString());
+														Report(p.ToString());
 
-						Thread.Sleep(500);
-					}
+														Thread.Sleep(500);
+													}
 
-					return null;
-				}
-
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+													return null;
+												}
+							},
+						];
 		}
+
 	}
 }

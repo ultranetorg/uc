@@ -93,7 +93,7 @@ namespace Uccs.Net
 
 		public void ConfirmedExecute(Round round)
 		{
-			var a = Affect(round, Name);
+			var a = round.AffectDomain(Name);
 
 			switch(Tld)
 			{

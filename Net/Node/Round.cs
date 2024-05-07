@@ -225,6 +225,24 @@ namespace Uccs.Net
 			}
 		}
 
+		public DomainEntry AffectDomain(EntityId id)
+		{
+			var a = AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
+			
+			if(a != null)
+				return a;
+			
+			a = Mcv.Domains.Find(id, Id - 1);
+
+			if(a == null)
+				throw new IntegrityException();
+			
+			AffectedDomains[a.Address] = a.Clone();
+			AffectedDomains[a.Address].Affected  = true;;
+
+			return AffectedDomains[a.Address];
+		}
+
 		public byte[] Summarize()
 		{
 			var m = Id >= Mcv.DeclareToGenerateDelay ? Mcv.VotersOf(this) : new();

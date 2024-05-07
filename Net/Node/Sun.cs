@@ -202,7 +202,7 @@ namespace Uccs.Net
 			if(t == typeof(RdcResponse))	return RdcResponse.FromType((RdcClass)b); 
 			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
 			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 
-			if(t == typeof(Urr))	return Urr.FromType(b); 
+			if(t == typeof(Urr))			return Urr.FromType(b); 
 
 			return null;
 		}
@@ -2102,7 +2102,7 @@ namespace Uccs.Net
 				var	l = Call(p =>{
 									try
 									{
-										return p.Request(new AccountRequest {Account = signer});
+										return p.Request(new AccountRequest(signer));
 									}
 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 									{

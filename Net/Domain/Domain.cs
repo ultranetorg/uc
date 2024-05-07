@@ -22,7 +22,7 @@ namespace Uccs.Net
 		Programmatic	= 0b11111111, 
 	}
 
-	public class Domain : IBinarySerializable
+	public class Domain// : IBinarySerializable
 	{
 		//public const int			ExclusiveLengthMax = 12;
 		public const int			NameLengthMin = 1;
@@ -127,84 +127,6 @@ namespace Uccs.Net
 			}
 
 			return false;
-		}
-
-		public void Write(BinaryWriter writer)
-		{
-			var f = DomainFlag.None;
-			
-			if(LastWinner != null)	f |= DomainFlag.Auction;
-			if(Owner != null)		f |= DomainFlag.Owned;
-			if(ComOwner != null)	f |= DomainFlag.ComOwned;
-			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
-			if(NetOwner != null)	f |= DomainFlag.NetOwned;
-
-			writer.Write((byte)f);
-			writer.WriteUtf8(Address);
-			writer.Write7BitEncodedInt(NextResourceId);
-			writer.Write7BitEncodedInt(SpaceReserved);
-			writer.Write7BitEncodedInt(SpaceUsed);
-
-			if(IsWeb(Address))
-			{
-				if(f.HasFlag(DomainFlag.Auction))
-				{
-					writer.Write(FirstBidTime);
-					writer.Write(LastWinner);
-					writer.Write(LastBidTime);
-					writer.Write(LastBid);
-				}
-
-				if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
-				if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
-				if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
-			}
-
-			if(f.HasFlag(DomainFlag.Owned))
-			{
-				writer.Write(Owner);
-				writer.Write(Expiration);
-			}
-
-			if(IsChild(Address))
-			{
-				writer.Write((byte)ParentPolicy);
-			}
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			var f			= (DomainFlag)reader.ReadByte();
-			Address			= reader.ReadUtf8();
-			NextResourceId	= reader.Read7BitEncodedInt();
-			SpaceReserved	= (short)reader.Read7BitEncodedInt();
-			SpaceUsed		= (short)reader.Read7BitEncodedInt();
-
-			if(IsWeb(Address))
-			{
-				if(f.HasFlag(DomainFlag.Auction))
-				{
-					FirstBidTime	= reader.Read<Time>();
-					LastWinner		= reader.ReadAccount();
-					LastBidTime		= reader.Read<Time>();
-					LastBid			= reader.Read<Money>();
-				}
-
-				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AccountAddress>();
-			}
-
-			if(f.HasFlag(DomainFlag.Owned))
-			{
-				Owner		= reader.ReadAccount();
-				Expiration	= reader.Read<Time>();
-			}
-
-			if(IsChild(Address))
-			{
-				ParentPolicy = (DomainChildPolicy)reader.ReadByte();
-			}
 		}
 	}
 }

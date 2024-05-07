@@ -46,6 +46,13 @@ namespace Uccs.Net
 			return $"{Ci?.ToHex()}-{Di}-{Ri}";
 		}
 
+		public static ResourceId Parse(string t)
+		{
+			var a = t.Split('-');
+
+			return new ResourceId(a[0].FromHex(), int.Parse(a[1]), int.Parse(a[2]));
+		}
+
 		public void Read(BinaryReader reader)
 		{
 			Ci	= reader.ReadBytes(DomainTable.Cluster.IdLength);
@@ -67,7 +74,7 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceId a)
 		{
-			return a is not null && Ci == a.Ci && Di == a.Di && Ri == a.Ri;
+			return a is not null && Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Di == a.Di && Ri == a.Ri;
 		}
 
 		public int CompareTo(ResourceId a)

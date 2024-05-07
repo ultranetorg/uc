@@ -6,11 +6,11 @@ namespace Uccs.Net
 {
 	public class AnalysisResultUpdation : Operation
 	{
-		public Ura	Resource { get; set; }
-		public Ura	Analysis { get; set; }
+		//public ResourceId		Resource { get; set; }
+		public ResourceId		Analysis { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string	Description => $"Resource={Resource}, Analysis={Analysis}, Result={Result}";
+		public override string	Description => $"Analysis={Analysis}, Result={Result}";
 		public override bool	IsValid(Mcv mcv) => true;
 
 		public AnalysisResultUpdation()
@@ -19,24 +19,24 @@ namespace Uccs.Net
 		
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Resource);
+			//writer.Write(Resource);
 			writer.Write(Analysis);
 			writer.Write((byte)Result);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource = reader.Read<Ura>();
-			Analysis = reader.Read<Ura>();
+			//Resource = reader.Read<ResourceId>();
+			Analysis = reader.Read<ResourceId>();
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, null, Resource, out var a, out var r) == false)
-				return;
+			//if(Require(round, null, Resource, out var d, out var r) == false)
+			//	return;
 
-			if(Require(round, null, Analysis, out var aa, out var ar) == false)
+			if(Require(round, null, Analysis, out var ad, out var ar) == false)
 				return;
 
 			var c = mcv.Domains.FindResource((ar.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
@@ -55,11 +55,11 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Domain);
-			r = a.AffectResource(Resource.Resource);
+			//d = round.AffectDomain(d.Id);
+			//r = d.AffectResource(r.Address.Resource);
 
-			aa = Affect(round, Analysis.Domain);
-			ar = a.AffectResource(Analysis.Resource);
+			ad = round.AffectDomain(ad.Id);
+			ar = ad.AffectResource(ar.Address.Resource);
 
 			var an = ar.Data.Interpretation as Analysis;
 			 

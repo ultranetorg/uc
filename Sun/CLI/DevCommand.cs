@@ -7,66 +7,83 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	internal class DevCommand : Command
+	public class DevCommand : Command
 	{
 		public const string Keyword = "dev";
 
-		public DevCommand(Program program, List<Xon> args) : base(program, args)
+		public DevCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = ["ping"],
 
-		public override object Execute()
-		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
-
-			switch(Args.First().Name)
-			{
-				case "ping": 
-				{
-					string host = GetString(Args[1].Name);
-					var s = host.Split(':');
+								Execute = () =>	{
+													string host = GetString(Args[0].Name);
+													var s = host.Split(':');
 		
-					for(int i=0; i<4; i++)
-					{
-						try
-						{
-							var client = new TcpClient(new IPEndPoint(IPAddress.Any, 0));
-							client.ReceiveTimeout = 5000;
-							client.SendTimeout = 5000;
+													for(int i=0; i<4; i++)
+													{
+														try
+														{
+															var client = new TcpClient(new IPEndPoint(IPAddress.Any, 0));
+															client.ReceiveTimeout = 5000;
+															client.SendTimeout = 5000;
 	
-							var t = DateTime.Now;
+															var t = DateTime.Now;
 	
-							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
+															client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
 				
-							Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
+															Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	
-							client.Close();
-						}
-						catch(Exception ex)
-						{
-							Console.WriteLine(ex.Message);
-						}
-					}
-					return null;
-				}
-				case "listen" :
-				{
-					var host = Args[1].Name;
-					var s = host.Split(':');
+															client.Close();
+														}
+														catch(Exception ex)
+														{
+															Console.WriteLine(ex.Message);
+														}
+													}
+													return null;
+												}
+							},
 
-					var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
-					Listener.Start();
+							new ()
+							{
+								Names = ["listen"],
 
-					Report($"Listening...");
+								Execute = () =>	{
+													var host = Args[0].Name;
+													var s = host.Split(':');
 
-					Listener.AcceptTcpClient();
+													var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
+													Listener.Start();
 
-					return null;
-				}
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+													Report($"Listening...");
+
+													Listener.AcceptTcpClient();
+
+													return null;
+												}
+							},
+
+							new ()
+							{
+								Names = ["keypair"],
+
+								Help = new Help
+								{
+								},
+
+								Execute = () =>	{
+													var k = AccountKey.Create();
+
+													Report("Public Address - " + k.ToString()); 
+													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
+													return null;
+												}
+							},
+
+						];
 		}
 	}
 }

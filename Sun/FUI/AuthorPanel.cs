@@ -38,7 +38,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(p => p.Request(new DomainRequest {Name = DomainSearch.Text}), Sun.Flow).Domain;
+				var a = Sun.Call(p => p.Request(new DomainRequest(DomainSearch.Text)), Sun.Flow).Domain;
 	
 				if(a != null)
 				{	

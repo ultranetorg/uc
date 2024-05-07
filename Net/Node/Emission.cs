@@ -83,7 +83,7 @@ namespace Uccs.Net
 
 			if(a.New)
 			{
-				Fee = CalculateFee(round.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever);
+				Fee = SpaceFee(round.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever);
 
 				if(Portion <= Fee)
 				{ 

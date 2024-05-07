@@ -18,7 +18,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		DomainMigration, DomainBid, DomainUpdation,
+		DomainRegistation, DomainMigration, DomainBid, DomainUpdation,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
 	}
@@ -98,16 +98,25 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateFee(Money rentperbyteperday, int length, Time time)
+		public static Money SpaceFee(Money rentperbyteperday, int length, Time time)
 		{
 			return rentperbyteperday * length * Mcv.TimeFactor(time);
 		}
 
 		public void Pay(Round round, int length, Time time)
 		{
-			var fee = CalculateFee(round.RentPerBytePerDay, length, time);
+			var fee = SpaceFee(round.RentPerBytePerDay, length, time);
 			
 			round.AffectAccount(Signer).Balance -= fee;
+		}
+
+		public static Money NameFee(int years, Money rentPerBytePerDay, string address)
+		{
+			var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
+
+			l = Math.Min(l, 10);
+
+			return Mcv.TimeFactor(Time.FromYears(years)) * rentPerBytePerDay * 1_000_000_000/(l * l * l * l);
 		}
 
 		public void Allocate(Round round, Domain domain, int toallocate)
@@ -140,11 +149,6 @@ namespace Uccs.Net
 			return e;
 		}
 
-		public DomainEntry Affect(Round round, string domain)
-		{
-			return round.AffectDomain(domain);
-		}
-
 		public bool RequireDomain(Round round, AccountAddress signer, string name, out DomainEntry domain)
 		{
 			domain = round.Mcv.Domains.Find(name, round.Id);
@@ -170,17 +174,42 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public bool Require(Round round, AccountAddress signer, Ura address, out DomainEntry domain, out Resource resource)
+		public bool RequireDomain(Round round, AccountAddress signer, EntityId id, out DomainEntry domain)
+		{
+			domain = round.Mcv.Domains.Find(id, round.Id);
+
+			if(domain == null)
+			{
+				Error = NotFound;
+				return false;
+			}
+
+			if(Domain.IsExpired(domain, round.ConsensusTime))
+			{
+				Error = Expired;
+				return false;
+			}
+
+			if(signer != null && domain.Owner != signer)
+			{
+				Error = NotOwner;
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool Require(Round round, AccountAddress signer, ResourceId id, out DomainEntry domain, out Resource resource)
 		{
 			resource = null;
 
-			if(RequireDomain(round, signer, address.Domain, out domain) == false)
+			if(RequireDomain(round, signer, id.DomainId, out domain) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			resource = domain.Resources.FirstOrDefault(i => i.Address.Resource == address.Resource);
+			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
 			
 			if(resource == null)
 			{

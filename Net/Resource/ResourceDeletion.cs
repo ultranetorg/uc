@@ -6,33 +6,28 @@ namespace Uccs.Net
 {
 	public class ResourceDeletion : Operation
 	{
-		public Ura		Resource { get; set; }
+		public new ResourceId		Id { get; set; }
 
 		public override bool		IsValid(Mcv mcv) => true;
-		public override string		Description => $"{Resource}";
+		public override string		Description => $"{Id}";
 
 		public ResourceDeletion()
 		{
 		}
 
-		public ResourceDeletion(Ura resource)
-		{
-			Resource = resource;
-		}
-
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource = reader.Read<Ura>();
+			Id = reader.Read<ResourceId>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Resource);
+			writer.Write(Id);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, Signer, Resource, out var a, out var r) == false)
+			if(Require(round, Signer, Id, out var a, out var r) == false)
 				return;
 
 			if(r.Flags.HasFlag(ResourceFlags.Sealed))
@@ -41,7 +36,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Domain);
+			a = round.AffectDomain(Id.DomainId);
 			a.DeleteResource(r);
 
 			Free(a, r.Length);
@@ -50,7 +45,7 @@ namespace Uccs.Net
 			{
 				var dr = mcv.Domains.FindResource(i.Destination, round.Id);
 
-				dr = Affect(round, dr.Address.Domain).AffectResource(dr.Address.Resource);
+				dr = round.AffectDomain(dr.Address.Domain).AffectResource(dr.Address.Resource);
 				dr.RemoveInbound(r.Id);
 
 				Free(a, Mcv.EntityLength);
@@ -60,7 +55,7 @@ namespace Uccs.Net
 			{
 				var sr = mcv.Domains.FindResource(i, round.Id);
 
-				sr = Affect(round, sr.Address.Domain).AffectResource(sr.Address.Resource);
+				sr = round.AffectDomain(sr.Address.Domain).AffectResource(sr.Address.Resource);
 				sr.RemoveOutbound(r.Id);
 			}
 		}

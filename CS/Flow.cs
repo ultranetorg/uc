@@ -35,7 +35,7 @@ namespace Uccs
 
 		public override string ToString()
 		{
-			return Name;
+			return Name + (Active ? " - Active" : " - Aborted");
 		}
 
 		public void CancelAfter(int timeout)

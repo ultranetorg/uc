@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -15,135 +13,209 @@ namespace Uccs.Sun.CLI
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
-		Ura		Package => Ura.Parse(Args[1].Name);
+		Ura		Package => Ura.Parse(Args[0].Name);
 
-		public PackageCommand(Program program, List<Xon> args) : base(program, args)
+		public PackageCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = ["c", "create"],
 
-		public override object Execute()
-		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
+								Help = new Help
+								{ 
+									Title = "CREATE",
+									Description = "Builds and deploys a package to a node filebase for distribution via RDN",
+									Syntax = "package c|create PACKAGE_ADDRESS [sources=PATH,PATH,...,PATH] dependencies=PATH previous=PACKAGE_ADDRESS",
 
-			switch(Args.First().Name)
-			{
-				case "c" :
-				case "create" :
-				{
-					Ura p = null;
-					Manifest m = null;
+									Arguments =
+									[
+										new ("<first>", "Resource address of package to create"),
+										new ("sources", "A list of paths to files separated by comma"),
+										new ("dependencies", "A path to manifest file where complete dependencies are defined"),
+										new ("previous", "Address of previous release")
+									],
 
-					try
-					{
-						p = GetResourceAddress("previous", false);
-							//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
+									Examples =
+									[
+										new (null, "package c company/windows/application/0.0.2 previous=company/windows/application/0.0.1 sources=C:\\application.exe,C:\\changelog.txt,C:\\logo.jpg dependencies=C:\\product\\1.2.3.manifest")
+									]
+								},
+
+								Execute = () =>	{
+													Ura p = null;
+													Manifest m = null;
+
+													try
+													{
+														p = GetResourceAddress("previous", false);
+															//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args[0].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
 						
-						if(p != null)
-						{
-							m = Api<PackageInfo>(new PackageInfoApc {Package = p}).Manifest;
-						}
-					}
-					catch(EntityException ex) when(ex.Error == EntityError.NotFound)
-					{
-					}
+														if(p != null)
+														{
+															m = Api<PackageInfo>(new PackageInfoApc {Package = p}).Manifest;
+														}
+													}
+													catch(EntityException ex) when(ex.Error == EntityError.NotFound)
+													{
+													}
 
-					Api(new PackageBuildApc {	Resource		 = Ura.Parse(Args[1].Name), 
-												Sources			 = GetString("sources").Split(','), 
-												DependenciesPath = GetString("dependencies", false),
-												Previous		 = p,
-												History			 = m?.History,
-												AddressCreator	 = new(){	
-																			Type = GetEnum("addresstype", UrrScheme.Urrh),
-																			Owner = GetAccountAddress("owner", false),
-																			Resource = Ura.Parse(Args[1].Name)
-																		} });
-					return null;
-				}
+													var r = Api<Urr>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
+																							Sources			 = GetString("sources").Split(','), 
+																							DependenciesPath = GetString("dependencies", false),
+																							Previous		 = p,
+																							History			 = m?.History,
+																							AddressCreator	 = new(){	
+																														Type = GetEnum("addresstype", UrrScheme.Urrh),
+																														Owner = GetAccountAddress("owner", false),
+																														Resource = Ura.Parse(Args[0].Name)
+																													} });
+													Dump($"Address : {r}");
 
-				case "l" :
-				case "local" :
-				{
-					var r = Api<PackageInfo>(new PackageInfoApc {Package = Package});
+													return r;
+												}
+							},
+
+							new ()
+							{
+								Names = ["l", "local"],
+
+								Help = new Help
+								{ 
+									Title = "LOCAL",
+									Description = "Gets information about local copy of a specified package",
+									Syntax = "package l|local PACKAGE_ADDRESS",
+
+									Arguments =
+									[
+										new ("<first>", "Address of local package to get information about")
+									],
+
+									Examples =
+									[
+										new (null, "package l company/application/windows/1.2.3")
+									]
+								},
+
+								Execute = () =>	{
+													var r = Api<PackageInfo>(new PackageInfoApc {Package = Package});
 					
-					Dump(r);
+													Dump(r);
 
-					return null;
-				}
+													return null;
+												}
+							},
 
-				case "d" :
-				case "download" :
-				{
-					var h = Api<byte[]>(new PackageDownloadApc {Package = Package});
+							new ()
+							{
+								Names = ["d", "download"],
 
-					try
-					{
-						PackageDownloadProgress d;
+								Help = new Help
+								{ 
+									Title = "DOWNLOAD",
+									Description = "Downloads a specified package by its address",
+									Syntax = "package d|download PACKAGE_ADDRESS",
+
+									Arguments =
+									[
+										new ("<first>", "Address of a package to download")
+									],
+
+									Examples =
+									[
+										new (null, "package d company/application/windows/1.2.3")
+									]
+								},
+
+								Execute = () =>	{
+													var h = Api<byte[]>(new PackageDownloadApc {Package = Package});
+
+													try
+													{
+														PackageDownloadProgress d;
 						
-						do
-						{
-							d = Api<PackageDownloadProgress>(new PackageActivityProgressApc {Package = Package});
+														do
+														{
+															d = Api<PackageDownloadProgress>(new PackageActivityProgressApc {Package = Package});
 							
-							if(d == null)
-							{	
-								if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
-								{
-									Workflow.Log?.ReportError(this, "Failed");
-								}
+															if(d == null)
+															{	
+																if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
+																{
+																	Flow.Log?.ReportError(this, "Failed");
+																}
 
-								break;
-							}
+																break;
+															}
 
-							Report(d.ToString());
+															Report(d.ToString());
 
-							Thread.Sleep(500);
-						}
-						while(d != null && Workflow.Active);
-					}
-					catch(OperationCanceledException)
-					{
-					}
+															Thread.Sleep(500);
+														}
+														while(d != null && Flow.Active);
+													}
+													catch(OperationCanceledException)
+													{
+													}
 
-					return null;
-				}
+													return null;
+												}
+							},
 
-				case "i" :
-				case "install" :
-				{
-					Api(new PackageInstallApc {Package = Package});
+							new ()
+							{
+								Names = ["i", "install"],
 
-					try
-					{
-						ResourceActivityProgress d = null;
+								Help = new Help
+								{ 
+									Title = "INSTALL",
+									Description = "If needed, downloads specified package and its dependencies recursively and unpacks its content to the 'Packages' directory",
+									Syntax = "release i|install PACKAGE_ADDRESS",
+
+									Arguments =
+									[
+										new ("<first>", "Address of a package to install")
+									],
+
+									Examples =
+									[
+										new (null, "package i company/application/windows/1.2.3")
+									]
+								},
+
+								Execute = () =>	{
+													Api(new PackageInstallApc {Package = Package});
+
+													try
+													{
+														ResourceActivityProgress d = null;
 						
-						do
-						{
-							d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+														do
+														{
+															d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 							
-							if(d == null)
-							{	
-								if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
-									Workflow.Log?.ReportError(this, "Failed");
+															if(d == null)
+															{	
+																if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
+																	Flow.Log?.ReportError(this, "Failed");
 								
-								break;
-							}
-							else
-								Report(d.ToString());
+																break;
+															}
+															else
+																Report(d.ToString());
 
-							Thread.Sleep(500);
-						}
-						while(d != null && Workflow.Active);
-					}
-					catch(OperationCanceledException)
-					{
-					}
+															Thread.Sleep(500);
+														}
+														while(d != null && Flow.Active);
+													}
+													catch(OperationCanceledException)
+													{
+													}
 
-					return null;
-				}
-				
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+													return null;
+												}
+							},
+						];
 		}
 	}
 }

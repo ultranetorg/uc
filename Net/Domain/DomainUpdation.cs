@@ -5,19 +5,19 @@ namespace Uccs.Net
 {
 	public enum DomainAction
 	{
-		None, Acquire, Renew, CreateSubdomain, Transfer, ChangePolicy
+		None, Renew, Transfer, ChangePolicy
 	}
 
 	public class DomainUpdation : Operation
 	{
-		public string				Address {get; set;}
+		public new EntityId			Id {get; set;}
 		public DomainAction			Action  {get; set;}
 		public byte					Years {get; set;}
 		public AccountAddress		Owner  {get; set;}
 		public DomainChildPolicy	Policy {get; set;}
 
-		public bool					Exclusive => Domain.IsWeb(Address); 
-		public override string		Description => $"{Address} for {Years} years";
+		//public bool					Exclusive => Domain.IsWeb(Address); 
+		public override string		Description => $"{Id} for {Years} years";
 		
 		public DomainUpdation()
 		{
@@ -25,17 +25,14 @@ namespace Uccs.Net
 		
 		public override bool IsValid(Mcv mcv)
 		{ 
-			if(!Domain.Valid(Address))
-				return false;
-
 			if(!Enum.IsDefined(Action) || Action == DomainAction.None) 
 				return false;
 			
-			if(	(Action == DomainAction.Acquire || Action == DomainAction.Renew || Action == DomainAction.CreateSubdomain) && 
+			if(	(Action == DomainAction.Renew) && 
 				(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
 				return false;
 
-			if((Action == DomainAction.CreateSubdomain || Action == DomainAction.ChangePolicy) && Policy == DomainChildPolicy.None)
+			if((Action == DomainAction.ChangePolicy) && (!Enum.IsDefined(Policy) || Policy == DomainChildPolicy.None))
 				return false;
 
 			return true;
@@ -43,79 +40,60 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Address	= reader.ReadUtf8();
+			Id		= reader.Read<EntityId>();
 			Action	= (DomainAction)reader.ReadByte();
 
-			if(Action == DomainAction.Acquire || Action == DomainAction.Renew || Action == DomainAction.CreateSubdomain)
+			if(Action == DomainAction.Renew)
 				Years = reader.ReadByte();
 
-			if(Action == DomainAction.CreateSubdomain || Action == DomainAction.Transfer)
+			if(Action == DomainAction.Transfer)
 				Owner = reader.Read<AccountAddress>();
 			
-			if(Action == DomainAction.CreateSubdomain || Action == DomainAction.ChangePolicy)
+			if(Action == DomainAction.ChangePolicy)
 				Policy	= (DomainChildPolicy)reader.ReadByte();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.WriteUtf8(Address);
+			writer.Write(Id);
 			writer.Write((byte)Action);
 
-			if(Action == DomainAction.Acquire || Action == DomainAction.Renew || Action == DomainAction.CreateSubdomain)
+			if(Action == DomainAction.Renew)
 				writer.Write(Years);
 
-			if(Action == DomainAction.CreateSubdomain || Action == DomainAction.Transfer)
+			if(Action == DomainAction.Transfer)
 				writer.Write(Owner);
 
-			if(Action == DomainAction.CreateSubdomain || Action == DomainAction.ChangePolicy)
+			if(Action == DomainAction.ChangePolicy)
 				writer.Write((byte)Policy);
 
 		}
 
-		public static Money CalculateFee(Time time, Money rentPerBytePerDay, int length)
-		{
-			var l = Math.Min(length, 10);
-
-			return Mcv.TimeFactor(time) * rentPerBytePerDay * 1_000_000_000/(l * l * l * l);
-		}
-
 		public override void Execute(Mcv mcv, Round round)
 		{
-			var e = mcv.Domains.Find(Address, round.Id);
-						
-			if(Domain.IsRoot(Address))
+			var e = mcv.Domains.Find(Id, round.Id);
+			
+			if(e == null)
 			{
-				if(	Action == DomainAction.Acquire  ||
-					Action == DomainAction.Renew)
+				Error = NotFound;
+				return;
+			}			
+
+			if(Domain.IsRoot(e.Address))
+			{
+				if(Action == DomainAction.Renew)
 				{	
-					if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
+					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
 					{
 						Error = NotAvailable;
 						return;
 					}
 
-					e = Affect(round, Address);
+					e = round.AffectDomain(e.Address);
 					e.SpaceReserved	= e.SpaceUsed;
-		
-					if(Action == DomainAction.Acquire)
-					{
-						if(Exclusive) /// distribite winner bid, one time
-							Reward += e.LastBid;
-								
-						e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-						e.Owner			= Signer;
-						e.LastWinner	= null;
-						e.LastBid		= 0;
-						e.LastBidTime	= Time.Empty;
-						e.FirstBidTime	= Time.Empty;
-					}
-
-					if(Action == DomainAction.Renew)
-					{
-						e.Expiration = e.Expiration + Time.FromYears(Years);
-					}
+					e.Expiration = e.Expiration + Time.FromYears(Years);
 							
-					Affect(round, Signer).Balance -= CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Domain.IsWeb(Address) ? Address.Length : (Address.Length - Domain.NormalPrefix.ToString().Length));
+					Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, e.Address);
 					Pay(round, e.SpaceUsed, Time.FromYears(Years));
 				}
 
@@ -127,47 +105,18 @@ namespace Uccs.Net
 						return;
 					}
 
-					var a = Affect(round, Address);
-					a.Owner	= Owner;
+					e = round.AffectDomain(e.Address);
+					e.Owner	= Owner;
 				}
 			} 
 			else
 			{
-				var p = mcv.Domains.Find(Domain.GetParent(Address), round.Id);
+				var p = mcv.Domains.Find(Domain.GetParent(e.Address), round.Id);
 
 				if(p == null)
 				{
 					Error = NotFound;
 					return;
-				}
-
-				if(Action == DomainAction.CreateSubdomain)
-				{
-					if(e != null)
-					{
-						Error = AlreadyExists;
-						return;
-					}
-
-					if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
-					{
-						Error = NotOwner;
-						return;
-					}
-
-					if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
-					{
-						Error = NotAvailable;
-						return;
-					}
-
-					e = Affect(round, Address);
-
-					e.Owner			= Owner;
-					e.ParentPolicy	= Policy;
-					e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-
-					Affect(round, Signer).Balance -= CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Domain.NameLengthMax);
 				}
 
 				if(Action == DomainAction.Renew)
@@ -178,12 +127,12 @@ namespace Uccs.Net
 						return;
 					}
 
-					e = Affect(round, Address);
+					e = round.AffectDomain(e.Address);
 
 					e.Expiration	= e.Expiration + Time.FromYears(Years);
 					e.SpaceReserved	= e.SpaceUsed;
 	
-					Affect(round, Signer).Balance -= CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Domain.NameLengthMax);
+					Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, new string(' ', Domain.NameLengthMax));
 					Pay(round, e.SpaceUsed, Time.FromYears(Years));
 				}
 
@@ -207,7 +156,7 @@ namespace Uccs.Net
 						return;
 					}
 
-					e = Affect(round, Address);
+					e = round.AffectDomain(e.Address);
 					e.ParentPolicy = Policy;
 				}
 
@@ -232,7 +181,7 @@ namespace Uccs.Net
 						return;
 					}
 
-					e = Affect(round, Address);
+					e = round.AffectDomain(e.Address);
 					e.Owner	= Owner;
 				}
 			}

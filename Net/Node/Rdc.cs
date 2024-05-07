@@ -14,7 +14,7 @@ namespace Uccs.Net
 		Proxy, 
 		Vote,
 		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
-		Domain, QueryResource, ResourceByName, ResourceById, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
+		Domain, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		Cost
 	}

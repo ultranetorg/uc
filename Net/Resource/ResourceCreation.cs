@@ -56,7 +56,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = Affect(round, Resource.Domain);
+			a = round.AffectDomain(Resource.Domain);
 			r = a.AffectResource(Resource.Resource);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))

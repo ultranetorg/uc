@@ -57,9 +57,7 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
-
-			return null;
+				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
 		}
 	}
 

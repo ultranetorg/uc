@@ -10,37 +10,46 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "nexus";
 
-		public NexusCommand(Program program, List<Xon> args) : base(program, args)
+		public NexusCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = ["m", "membership"],
 
-		public override object Execute()
-		{
-			if(!Args.Any())
-				throw new SyntaxException("Operation is not specified");
+								Help = new Help
+								{ 
+									Title = "MEMBERSHIP",
+									Description = "Get information about membership status of specified account",
+									Syntax = "nexus m|membership ACCOUNT",
 
-			switch(Args.First().Name)
-			{
-				case "m" :
-				case "membership" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
+									Arguments =
+									[
+										new ("<first>>", "Ultranet account public address to check the membership status")
+									],
 
-					var rp = Rdc(new MembersRequest());
+									Examples =
+									[
+										new (null, "nexus m 0x0000fffb3f90771533b1739480987cee9f08d754")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(RdcQueryTimeout);
+
+													var rp = Rdc(new MembersRequest());
 	
-					var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args[1].Name));
+													var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args[0].Name));
 
-					if(m == null)
-						throw new EntityException(EntityError.NotFound);
+													if(m == null)
+														throw new EntityException(EntityError.NotFound);
 
-					Dump(m);
+													Dump(m);
 
-					return m;
-				}
-
-				default:
-					throw new SyntaxException("Unknown operation");;
-			}
+													return m;
+												}
+							},
+						];
 		}
 	}
 }

@@ -4,8 +4,8 @@ namespace Uccs.Net
 {
 	public class ResourceLinkCreation : Operation
 	{
-		public Ura		Source { get; set; }
-		public Ura		Destination { get; set; }
+		public ResourceId			Source { get; set; }
+		public ResourceId			Destination { get; set; }
 		public ResourceLinkChanges	Changes  { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
@@ -21,7 +21,7 @@ namespace Uccs.Net
 				Changes |= ResourceLinkChanges.Seal;
 		}
 
-		public ResourceLinkCreation(Ura source, Ura destination)
+		public ResourceLinkCreation(ResourceId source, ResourceId destination)
 		{
 			Source = source;
 			Destination = destination;
@@ -36,25 +36,25 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Source		= reader.Read<Ura>();
-			Destination	= reader.Read<Ura>();
+			Source		= reader.Read<ResourceId>();
+			Destination	= reader.Read<ResourceId>();
 			Changes		= (ResourceLinkChanges)reader.ReadByte();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, Signer, Source, out var sa, out var sr) == false)
+			if(Require(round, Signer, Source, out var sd, out var sr) == false)
 				return;
 
-			if(Require(round, null, Destination, out var da, out var dr) == false)
+			if(Require(round, null, Destination, out var dd, out var dr) == false)
 				return;
 
-			sa = Affect(round, Source.Domain);
-			sr = sa.AffectResource(Source.Resource);
+			sd = round.AffectDomain(sd.Id);
+			sr = sd.AffectResource(sr.Address.Resource);
 			sr.AffectOutbound(dr.Id);
 
-			da = Affect(round, Destination.Domain);
-			dr = da.AffectResource(Destination.Resource);
+			dd = round.AffectDomain(dd.Id);
+			dr = dd.AffectResource(dr.Address.Resource);
 			dr.AffectInbound(sr.Id);
 
 			if(Changes.HasFlag(ResourceLinkChanges.Seal))
@@ -68,7 +68,7 @@ namespace Uccs.Net
 				Pay(round, Mcv.EntityLength, Mcv.Forever);
 			}
 			else
-				Allocate(round, sa, Mcv.EntityLength);
+				Allocate(round, sd, Mcv.EntityLength);
 		}
 	}
 }

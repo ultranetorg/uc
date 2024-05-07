@@ -1,36 +1,27 @@
 ﻿namespace Uccs.Net
 {
-	public class ResourceResponse
+	public class ResourceRequest : RdcCall<ResourceResponse>
 	{
-		public ResourceId			Id { get; set; }
-		public Ura					Address { get; set; }
-		public ResourceFlags		Flags { get; set; }
-		public ResourceData			Data { get; set; }
-		public Time					Updated { get; set; }
-		public int					Outbounds { get; set; }
-		public int					Inbounds { get; set; }
-	}
+		public ResourceIdentifier	Identifier { get; set; }
 
-	public class ResourceByNameRequest : RdcCall<ResourceByNameResponse>
-	{
-		public Ura	Name { get; set; }
-
-		public override RdcResponse Execute(Sun sun)
+		public ResourceRequest()
 		{
- 			lock(sun.Lock)
-			{	
-				RequireBase(sun);
- 			
-				var r = sun.Mcv.Domains.FindResource(Name, sun.Mcv.LastConfirmedRound.Id) ?? throw new EntityException(EntityError.NotFound);
-
-				return new ResourceByNameResponse {Resource = r };
-			}
 		}
-	}
 
-	public class ResourceByIdRequest : RdcCall<ResourceByIdResponse>
-	{
-		public ResourceId	ResourceId { get; set; }
+		public ResourceRequest(ResourceIdentifier identifier)
+		{
+			Identifier = identifier;
+		}
+
+		public ResourceRequest(Ura addres)
+		{
+			Identifier = new(addres);
+		}
+
+		public ResourceRequest(ResourceId id)
+		{
+			Identifier = new(id);
+		}
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -38,23 +29,26 @@
 			{	
 				RequireBase(sun);
  			
-				var r = sun.Mcv.Domains.FindResource(ResourceId, sun.Mcv.LastConfirmedRound.Id);
-			
+				Resource r;
+
+				if(Identifier.Addres != null)
+					r = sun.Mcv.Domains.FindResource(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
+				else if(Identifier.Id != null)
+					r = sun.Mcv.Domains.FindResource(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+				else
+					throw new RequestException(RequestError.IncorrectRequest);
+				
 				if(r == null)
 					throw new EntityException(EntityError.NotFound);
 				
-				return new ResourceByIdResponse {Resource = r};
+				return new ResourceResponse {Resource = r};
 			}
 		}
 	}
 		
-	public class ResourceByNameResponse : RdcResponse
+	public class ResourceResponse : RdcResponse
 	{
 		public Resource Resource { get; set; }
 	}
 		
-	public class ResourceByIdResponse : RdcResponse
-	{
-		public Resource Resource { get; set; }
-	}
 }

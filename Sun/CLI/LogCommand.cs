@@ -10,29 +10,41 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "log";
 
-		public LogCommand(Program program, List<Xon> args) : base(program, args)
+		public LogCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-		}
+			Actions =	[
+							new ()
+							{
+								Names = [],
+								Help = new Help
+								{ 
+									Title = "LOG",
+									Description = "Applicable in \"node run\" mode only. Start monitoring the log.",
+									Syntax = "log",
+								},
 
-		public override object Execute()
-		{
-			if(Program.Sun == null)
-				throw new Exception("\"node run peer\" mode supported only");
+								Execute = () =>	{
+													if(Program.Sun == null)
+														throw new Exception("\"node run peer\" mode supported only");
 
-			if(ConsoleAvailable)
-			{
-				var v = new ConsoleLogView(false, true);
-				v.StartListening(Program.Sun.Flow.Log);
+													if(ConsoleAvailable)
+													{
+														var v = new ConsoleLogView(false, true);
+														v.StartListening(Program.Sun.Flow.Log);
 								
-				while(Workflow.Active && !Console.KeyAvailable)
-				{
-					Thread.Sleep(100);
-				}
+														while(Flow.Active && !Console.KeyAvailable)
+														{
+															Thread.Sleep(100);
+														}
 
-				v.StopListening(Program.Sun.Flow.Log);
-			}
-			
-			return null;
+														v.StopListening(Program.Sun.Flow.Log);
+													}
+
+													return null;
+												}
+
+							},
+						];
 		}
 	}
 }

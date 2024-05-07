@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,7 +46,11 @@ namespace Uccs.Net
 			{
 				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
 				r.Id = Id;
-				r.AddData(Data);
+				
+				if(Data != null)
+				{
+					r.AddData(Data);
+				}
 			}
 
 			return null;
@@ -54,12 +59,12 @@ namespace Uccs.Net
 
 	public class ResourceDownloadApc : SunApc
 	{
-		public Ura		Address { get; set; }
-		public string	LocalPath { get; set; }
+		public ResourceIdentifier	Idedtifier { get; set; }
+		public string				LocalPath { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(i => i.Request(new ResourceByNameRequest {Name = Address}), workflow).Resource;
+			var r = sun.Call(i => i.Request(new ResourceRequest(Idedtifier)), workflow).Resource;
 
 			IIntegrity itg;
 
@@ -72,17 +77,17 @@ namespace Uccs.Net
 					break;
 
 				case Urrsd a :
-					var au = sun.Call(c => c.Request(new DomainRequest {Name = Address.Domain}), workflow).Domain;
-					itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
-					break;
-
+					///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
+					///.itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+					throw new NotSupportedException();
+					
 				default:
 					throw new ResourceException(ResourceError.NotSupportedDataType);
 			};
 
 			lock(sun.ResourceHub.Lock)
 			{
-				var lrs = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+				var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
 				lrs.AddData(r.Data);
 
 				var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr, r.Data.Type);

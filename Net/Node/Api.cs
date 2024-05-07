@@ -20,7 +20,7 @@ namespace Uccs.Net
 				var a = Ura.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "";
 	
-				var r = sun.Call(p => p.Request(new ResourceByNameRequest {Name = a}), workflow).Resource;
+				var r = sun.Call(p => p.Request(new ResourceRequest(a)), workflow).Resource;
 				var ra = r.Data?.Interpretation as Urr
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
@@ -54,7 +54,7 @@ namespace Uccs.Net
 						break;
 	
 					case Urrsd x :
-						var au = sun.Call(c => c.Request(new DomainRequest {Name = a.Domain}), workflow).Domain;
+						var au = sun.Call(c => c.Request(new DomainRequest(a.Domain)), workflow).Domain;
 						itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
 						break;
 	
@@ -551,15 +551,15 @@ namespace Uccs.Net
 			return new Report {	RentBytePerDay				= r.RentPerBytePerDay * Rate,
 								Exeunit						= r.ConsensusExeunitFee * Rate,
 				
-								RentAccount					= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+								RentAccount					= Operation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-								RentDomain					= Years.Select(y => DomainLengths.Select(l => DomainUpdation.CalculateFee(Time.FromYears(y), r.RentPerBytePerDay, l) * Rate).ToArray()).ToArray(),
+								RentDomain					= Years.Select(y => DomainLengths.Select(l => Operation.NameFee(y, r.RentPerBytePerDay, new string(' ', l)) * Rate).ToArray()).ToArray(),
 					
-								RentResource				= Years.Select(y => Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceForever			= Operation.CalculateFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+								RentResource				= Years.Select(y => Operation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceForever			= Operation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 				
-								RentResourceData			= Years.Select(y => Operation.CalculateFee(r.RentPerBytePerDay, 1, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceDataForever		= Operation.CalculateFee(r.RentPerBytePerDay, 1, Mcv.Forever) * Rate};
+								RentResourceData			= Years.Select(y => Operation.SpaceFee(r.RentPerBytePerDay, 1, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceDataForever		= Operation.SpaceFee(r.RentPerBytePerDay, 1, Mcv.Forever) * Rate};
 		}
 	}
 

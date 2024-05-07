@@ -65,7 +65,7 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			var a = Affect(round, Name);
+			var a = round.AffectDomain(Name);
 
  			if(!Domain.IsExpired(a, round.ConsensusTime))
  			{
