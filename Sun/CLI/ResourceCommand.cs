@@ -15,6 +15,8 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "resource";
 
+		Ura First => Ura.Parse(Args[0].Name);
+
 		public ResourceCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
 			Actions =	[
@@ -26,35 +28,33 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "CREATE",
 									Description = "Creates a resource entity in the distributed database",
-									Syntax = "resource c|create a=URA [flags] [data]",
+									Syntax = "resource c|create URA [flags] [data]",
 
 									Arguments =
 									[
-										new ("a", "Address  of a resource to create"),
+										new ("<first>", "Address of a resource to create"),
 										new ("data", "A data associated with the resource"),
 										new ("seal", "If set, resource data cannot be changed anymore")
 									],
 
 									Examples =
 									[
-										new (null, "resource c a=company/application data=0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37")
+										new (null, "resource c company/application data=0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcTransactingTimeout);
 
-													var a = GetResourceAddress("a");
-
 													Transacted = () =>	{
-																			var	r = Rdc(new ResourceRequest(a)).Resource;
+																			var	r = Rdc(new ResourceRequest(First)).Resource;
 
 																			Api(new ResourceUpdateApc{	Address = r.Address,
 																										Data = r.Data, 
 																										Id = r.Id});
 																		};
 
-													return new ResourceCreation(a, GetData(), Has("seal"));
+													return new ResourceCreation(First, GetData(), Has("seal"));
 												}
 							},
 
@@ -66,23 +66,23 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "DESTROY",
 									Description = "Destroys existing resource and all its associated links",
-									Syntax = "resource x|destroy a=URA|id=RID",
+									Syntax = "resource x|destroy URA",
 
 									Arguments =
 									[
-										new ("a/id", "Address/Id of a resource to delete")
+										new ("<first>", "Address of a resource to delete")
 									],
 
 									Examples =
 									[
-										new (null, "resource x a=company/application")
+										new (null, "resource x company/application")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcTransactingTimeout);
 
-													var r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+													var r = Rdc(new ResourceRequest(First)).Resource;
 
 													return new ResourceDeletion {Id = r.Id};
 												}
@@ -96,11 +96,11 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "UPDATE",
 									Description = "Updates a resource entity properties in the distributed database",
-									Syntax = "resource u|update a=URA|id=RID [flags] [data] [recursive]",
+									Syntax = "resource u|update URA [flags] [data] [recursive]",
 
 									Arguments =
 									[
-										new ("a/id", "Address/Id of a resource to update"),
+										new ("<first>", "Address of a resource to update"),
 										new ("data", "A data associated with the resource"),
 										new ("seal", "If set, resource data cannot be changed anymore"),
 										new ("recursive", "Update all descendants")
@@ -108,17 +108,17 @@ namespace Uccs.Sun.CLI
 
 									Examples =
 									[
-										new (null, "resource u a=company/application data=Package{address=urrh:BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37}")
+										new (null, "resource u company/application data=Package{address=urrh:BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37}")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcTransactingTimeout);
 
-													var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+													var	r = Rdc(new ResourceRequest(First)).Resource;
 
 													Transacted = () =>	{
-																			var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+																			var	r = Rdc(new ResourceRequest(First)).Resource;
 
 																			Api(new ResourceUpdateApc{	Address = r.Address,
 																										Data = r.Data, 
@@ -143,23 +143,23 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "Entity",
 									Description = "Gets resource entity information from the MCV database",
-									Syntax = "resource e|entity a=URA|id=RID",
+									Syntax = "resource e|entity URA",
 
 									Arguments =
 									[
-										new ("a/id", "Address/Id of a resource to get information about")
+										new ("<first>", "Address of a resource to get information about")
 									],
 
 									Examples =
 									[
-										new (null, "resource e a=company/application")
+										new (null, "resource e company/application")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcQueryTimeout);
 
-													var	r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+													var	r = Rdc(new ResourceRequest(First)).Resource;
 					
 													Dump(r);
 
@@ -175,21 +175,21 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "LOCAL",
 									Description = "Gets information about locally available releases of a specified resource",
-									Syntax = "resource l|local a=URA",
+									Syntax = "resource l|local URA",
 
 									Arguments =
 									[
-										new ("a", "Address of a resource to get information about")
+										new ("<first>", "Address of a resource to get information about")
 									],
 
 									Examples =
 									[
-										new (null, "resource l a=company/application")
+										new (null, "resource l company/application")
 									]
 								},
 
 								Execute = () =>	{
-													var r = Api<LocalResource>(new LocalResourceApc {Resource = GetResourceAddress("a")});
+													var r = Api<LocalResource>(new LocalResourceApc {Resource = First});
 					
 													if(r != null)
 													{
@@ -249,22 +249,22 @@ namespace Uccs.Sun.CLI
 								{
 									Title = "DOWNLOAD",
 									Description = "Downloads the latest release of a specified resource",
-									Syntax = "resource d|download a=URA|id=RID [localpath=PATH]",
+									Syntax = "resource d|download URA [localpath=PATH]",
 
 									Arguments =
 									[
-										new ("a/id",	  "Address/Id of a resource the latest release to download of"),
+										new ("<first>",	  "Address of a resource the latest release to download of"),
 										new ("localpath", "Destination path on the local system to download the release to")
 									],
 
 									Examples =
 									[
-										new (null, "resource d a=company/application")
+										new (null, "resource d company/application")
 									]
 								},
 
 								Execute = () =>	{
-													var r = Api<Resource>(new ResourceDownloadApc{Idedtifier = ResourceIdentifier, LocalPath = GetString("localpath", null)});
+													var r = Api<Resource>(new ResourceDownloadApc{Idedtifier = new(First), LocalPath = GetString("localpath", null)});
 
 													ReleaseDownloadProgress p = null;
 						

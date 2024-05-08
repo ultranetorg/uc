@@ -25,24 +25,24 @@ namespace Uccs.Sun.CLI
 					Help = new Help	{ 
 										Title = "ANALYSIS UPDATE",
 										Description = "Register an analysis result in Ultranet distributed database",
-										Syntax = "analysis u|update a=URA|id=RID result=RESULT",
+										Syntax = "analysis u|update URA result=RESULT",
 
 										Arguments = 
 										[
-											new ("a/id", "Address/Id of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
+											new ("<first>", "Address of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
 											new ("result", "Negative, Positive, Vulnerable")
 										],
 
 										Examples = 
 										[
-											new (null, "analysis update F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E result=Negative")
+											new (null, "analysis update companyonc/application/1.3.5/analysis result=Negative")
 										]
 									},
 
 					Execute = () =>	{
 										Flow.CancelAfter(RdcTransactingTimeout);
 
-										var r = Rdc(new ResourceRequest(ResourceIdentifier)).Resource;
+										var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name))).Resource;
 
 
 										return new AnalysisResultUpdation {	Analysis = r.Id, 

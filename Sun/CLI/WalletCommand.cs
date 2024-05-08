@@ -64,7 +64,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "UNLOCK",
 									Description = "Unlocks an existing wallet making it available for signing transactions",
-									Syntax = "wallet u|unlock ACCOUNT password=PASSWORD",
+									Syntax = "wallet u|unlock UAA password=PASSWORD",
 
 									Arguments =
 									[

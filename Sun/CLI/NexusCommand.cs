@@ -21,7 +21,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "MEMBERSHIP",
 									Description = "Get information about membership status of specified account",
-									Syntax = "nexus m|membership ACCOUNT",
+									Syntax = "nexus m|membership UAA",
 
 									Arguments =
 									[

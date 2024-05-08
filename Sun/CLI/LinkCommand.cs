@@ -23,25 +23,25 @@ namespace Uccs.Sun.CLI
 								{
 									Title = "CREATE",
 									Description = "Creates a link from one resource to another",
-									Syntax = "link c|create sa=URA|sid=RID da=URA|did=RID",
+									Syntax = "link c|create from=URA to=URA",
 
 									Arguments =
 									[
-										new ("sa/sid", "Address/Id of a source resource. Transaction signer must be owner of this resource."),
-										new ("da/did", "Address/Id of a destination resource")
+										new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
+										new ("to", "Address of a destination resource")
 									],
 
 									Examples =
 									[
-										new (null, "link c sa=company/application/win32/1.2.3 da=company/application")
+										new (null, "link c from=company/application/win32/1.3.4 to=company/application")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcTransactingTimeout);
 
-													var s = Rdc(new ResourceRequest(GetResourceIdentifier("sa", "sid"))).Resource;
-													var d = Rdc(new ResourceRequest(GetResourceIdentifier("da", "did"))).Resource;
+													var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+													var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
 													return new ResourceLinkCreation(s.Id, d.Id);
 												}
@@ -55,25 +55,25 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "DESTROY",
 									Description = "Destroys existing link",
-									Syntax = "link x|destroy source=RESOURCE_ADDRESS destination=RESOURCE_ADDRESS",
+									Syntax = "link x|destroy from=URA to=URA",
 
 									Arguments =
 									[
-										new ("sa/sid", "Address/Id of a source resource of the link. Transaction signer must be owner of this resource."),
-										new ("da/did", "Address/Id of a destination resource of the link")
+										new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
+										new ("to", "Address of a destination resource")
 									],
 
 									Examples =
 									[
-										new (null, "link x sa=company/application/win32/1.2.3 da=company/application")
+										new (null, "link x from=company/application/win32/1.2.3 to=company/application")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcTransactingTimeout);
 
-													var s = Rdc(new ResourceRequest(GetResourceIdentifier("sa", "sid"))).Resource;
-													var d = Rdc(new ResourceRequest(GetResourceIdentifier("da", "did"))).Resource;
+													var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+													var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
 													return new ResourceLinkDeletion(s.Id, d.Id);
 												}
@@ -87,23 +87,23 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "LIST OUTBOUNDS",
 									Description = "Lists outbound links of a specified resource",
-									Syntax = "link lo|listoutbounds a=URA|id=RID",
+									Syntax = "link lo|listoutbounds URA",
 
 									Arguments =
 									[
-										new ("a/id", "Address/Id of a resource which outbound links are be listed of")
+										new ("<first>", "Address of a resource which outbound links are be listed of")
 									],
 
 									Examples =
 									[
-										new (null, "link lo a=company/application")
+										new (null, "link lo company/application")
 									]							
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcQueryTimeout);
 
-													var r = Rdc(new ResourceRequest(ResourceIdentifier));
+													var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 					
 													Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
 														 ["#", "Flags", "Destination", "Destination Data"],
@@ -121,23 +121,23 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "LIST INBOUNDS",
 									Description = "Lists inbound links of a specified resource",
-									Syntax = "link li|listinbounds a=URA|id=RID",
+									Syntax = "link li|listinbounds URA",
 
 									Arguments =
 									[
-										new ("a/id", "Address/Id of a resource which inbound links are be listed of")
+										new ("<first>", "Address of a resource which inbound links are be listed of")
 									],
 
 									Examples =
 									[
-										new (null, "link li a=company/application")
+										new (null, "link li company/application")
 									]								
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcQueryTimeout);
 
-													var r = Rdc(new ResourceRequest(ResourceIdentifier));
+													var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 																		
 													Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
 														 ["#", "Source", "Source Data"],

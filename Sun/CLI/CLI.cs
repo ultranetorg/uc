@@ -113,12 +113,13 @@ namespace Uccs.Sun.CLI
 
 			if(command.Skip(1).FirstOrDefault()?.Name == "?")
 			{
+				var l = new Log();
 				var v = new ConsoleLogView(false, false);
-				v.StartListening(Flow.Log);
+				v.StartListening(l);
 
 				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == command.First().Name + "command");
 
-				var c = Activator.CreateInstance(t, [this, null]) as Command;
+				var c = Activator.CreateInstance(t, [this, null, Flow.CreateNested("Help", l)]) as Command;
 
 				foreach(var j in c.Actions)
 				{
@@ -129,16 +130,19 @@ namespace Uccs.Sun.CLI
 					c.Report("");
 				}
 
+				v.StopListening(l);
+
 				return c;
 			}
 			else if(command.Skip(2).FirstOrDefault()?.Name == "?")
 			{
+				var l = new Log();
 				var v = new ConsoleLogView(false, false);
-				v.StartListening(Flow.Log);
+				v.StartListening(l);
 
 				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == command.First().Name + "command");
 
-				var c = Activator.CreateInstance(t, [this, null]) as Command;
+				var c = Activator.CreateInstance(t, [this, null, Flow.CreateNested("Help", l)]) as Command;
 
 				var a = c.Actions.FirstOrDefault(i => i.Names.Contains(command.Skip(1).First().Name));
 
@@ -160,7 +164,9 @@ namespace Uccs.Sun.CLI
 					c.Report("");
 					c.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
 				}
-					
+
+				v.StopListening(l);
+									
 				return c;
 			}
 			else

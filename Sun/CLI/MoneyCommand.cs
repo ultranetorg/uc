@@ -10,32 +10,6 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	/// <summary>
-	/// Usage: unt emit from {
-	///							wallet = PATH 
-	///							[password = PASSWORD] 
-	///						 }
-	///					amount = UNT
-	///					to	 {
-	///							account = ACCOUNT 
-	///							[password = PASSWORD]
-	///						 }
-	///					[awaitconfirmation]
-	///
-	/// Usage: unt transfer from = ACCOUNT 
-	///						[password = PASSWORD] 
-	///						to = ACCOUNT 
-	///						amount = UNT 
-	/// </summary>
-	///	<example>
-	/// 
-	/// money emit from{wallet=m:\UO\Team\Maximion\0x321D3AB8998c551Aeb086a7AC28635261AC66c00.mew} amount=1 by=0x001fea628d33830e5515e52fb7e3f9a009b24317
-	/// 
-	/// </example>
-	
-	
-
-
 	public class MoneyCommand : Command
 	{
 		public const string Keyword = "money";
@@ -143,7 +117,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "EMIT IN ETHEREUM",
 									Description = "Places a special transaction on Ethereum side which tells that specified amount of ETH is burned in exchange of crediting corresponding amount of UNT to a specified account on ULTRANET side",
-									Syntax = "money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT by=ACCOUNT",
+									Syntax = "money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT by=UAA",
 
 									Arguments =
 									[
@@ -211,7 +185,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "EMIT IN ULTRANET",
 									Description = "Places a special transaction on ULTRANET side which tells the network to retrieve emission info from the Ethereum side, check it and if everything is correct, credit a specified account with a corresponding amount of UNT",
-									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT eid=EID by=ACCOUNT",
+									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT eid=EID by=UAA",
 
 									Arguments =
 									[
@@ -243,12 +217,12 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "FIND EMISSION",
 									Description = "Requires Ethereum provider is configured. Retrieves an amount of ETH of existing emission transaction on the Ethereum side.",
-									Syntax = "money fe|findemission eid=INT by=ACCOUNT",
+									Syntax = "money fe|findemission eid=INT by=UAA",
 
 									Arguments =
 									[
 										new ("eid", "Emission sequence Id. First emission has eid=0, next emission has eid=1, and so on."),
-										new ("by", "Ultranet destination account address")
+										new ("by", "Address of destination Ultranet account")
 									],
 
 									Examples =
@@ -282,7 +256,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "TRANSFER",
 									Description = "Send UNT tokens from one account to another.",
-									Syntax = "money t|transfer to=ACCOUNT amount=UNT by=ACCOUNT",
+									Syntax = "money t|transfer to=UAA amount=UNT by=UAA",
 
 									Arguments =
 									[

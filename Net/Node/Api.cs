@@ -125,6 +125,9 @@ namespace Uccs.Net
 			foreach(var i in Path.Split('.'))
 			{
 				o = o.GetType().GetProperty(i)?.GetValue(o) ?? o.GetType().GetField(i)?.GetValue(o);
+
+				if(o == null)
+					throw new NodeException(NodeError.NotFound);
 			}
 
 			switch(o)

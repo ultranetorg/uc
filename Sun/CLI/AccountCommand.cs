@@ -8,20 +8,7 @@ namespace Uccs.Sun.CLI
 	public class AccountCommand : Command
 	{
 		public const string Keyword = "account";
-		
-		protected AccountIdentifier Identifier
-		{
-			get
-			{
-				if(Has("a"))
-					return new AccountIdentifier(GetAccountAddress("a"));
-
-				if(Has("id"))
-					return new AccountIdentifier(EntityId.Parse(GetString("id")));
-
-				throw new SyntaxException("address or id required");
-			}
-		}
+		AccountAddress		First => AccountAddress.Parse(Args[0].Name);
 
 		public AccountCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
@@ -32,17 +19,17 @@ namespace Uccs.Sun.CLI
 								Help = new Help	{ 
 													Title = "Entity",
 													Description = "Get account entity information from Ultranet distributed database",
-													Syntax = "account e|entity a=UAA|id=ENTITY_ID",
+													Syntax = "account e|entity UAA",
 
-													Arguments = [new ("a/id", "Address/Id of an account to get information about")],
+													Arguments = [new ("<first>", "Address of an account to get information about")],
 
-													Examples = [new (null, "account e a=0x0000fffb3f90771533b1739480987cee9f08d754")]
+													Examples = [new (null, "account e 0x0000fffb3f90771533b1739480987cee9f08d754")]
 												},
 
 								Execute = () =>	{
 													Flow.CancelAfter(RdcQueryTimeout);
 
-													var i = Rdc(new AccountRequest(Identifier));
+													var i = Rdc(new AccountRequest(First));
 														
 													Dump(i.Account);
 

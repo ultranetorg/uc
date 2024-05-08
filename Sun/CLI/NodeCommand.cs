@@ -61,8 +61,10 @@ namespace Uccs.Sun.CLI
 															{
 																var x = new XonDocument(Console.ReadLine());
 	
-																if(x.Nodes[0].Name == Keyword && x.Nodes[1].Name != "peers")
-																	throw new Exception("Not available");
+																if(x.Nodes[0].Name == Keyword && (	x.Nodes[1].Name == "run" || x.Nodes[1].Name == "attach" || x.Nodes[1].Name == "send" ||
+																									x.Nodes[1].Name == "r" || x.Nodes[1].Name == "a" || x.Nodes[1].Name == "s"
+																									))
+																	throw new Exception("Command not available");
 	
 																Program.Execute(x.Nodes, l);
 															}
@@ -181,7 +183,7 @@ namespace Uccs.Sun.CLI
 
 													try
 													{
-														Program.Execute(Args.Where(i => i.Name != "accesskey").Skip(2));
+														Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey"));
 													}
 													finally
 													{
@@ -231,7 +233,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "PROPERTY",
 									Description = "Displays a value of node internal state",
-									Syntax = "node property",
+									Syntax = "node Mcv.Size",
 
 									Arguments =
 									[

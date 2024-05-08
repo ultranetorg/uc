@@ -22,6 +22,7 @@ namespace Uccs.Net
 		AlreadyRunning,
 		Timeout,
 		NoIP,
+		NotFound,
 		NotBase,
 		NotChain,
 		NotSeed,

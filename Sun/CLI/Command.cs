@@ -166,30 +166,30 @@ namespace Uccs.Sun.CLI
 			return p;	 
 		}
 		
-		protected ResourceIdentifier GetResourceIdentifier(string a, string id)
-		{
-			if(Has(a))
-				return new ResourceIdentifier(GetResourceAddress(a));
-
-			if(Has(id))
-				return new ResourceIdentifier(ResourceId.Parse(GetString(id)));
-
-			throw new SyntaxException("address or id required");
-		}
-		
-		protected ResourceIdentifier ResourceIdentifier
-		{
-			get
-			{
-				if(Has("a"))
-					return new ResourceIdentifier(GetResourceAddress("a"));
-
-				if(Has("id"))
-					return new ResourceIdentifier(ResourceId.Parse(GetString("id")));
-
-				throw new SyntaxException("address or id required");
-			}
-		}
+//		protected ResourceIdentifier GetResourceIdentifier(string a, string id)
+//		{
+//			if(Has(a))
+//				return new ResourceIdentifier(GetResourceAddress(a));
+//
+//			if(Has(id))
+//				return new ResourceIdentifier(ResourceId.Parse(GetString(id)));
+//
+//			throw new SyntaxException("address or id required");
+//		}
+//		
+//		protected ResourceIdentifier ResourceIdentifier
+//		{
+//			get
+//			{
+//				if(Has("a"))
+//					return new ResourceIdentifier(GetResourceAddress("a"));
+//
+//				if(Has("id"))
+//					return new ResourceIdentifier(ResourceId.Parse(GetString("id")));
+//
+//				throw new SyntaxException("address or id required");
+//			}
+//		}
 
 		public bool Has(string paramenter)
 		{

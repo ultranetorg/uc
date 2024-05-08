@@ -18,7 +18,7 @@ namespace Uccs.Sun.CLI
 					Help = new Help	{ 
 										Title = "BATCH",
 										Description = "Sends multiple operations as one transaction or as few as possible",
-										Syntax = "batch name0={operation} name1={operation} ... nameN={operation} by=ACCOUNT",
+										Syntax = "batch name0={operation} name1={operation} ... nameN={operation} by=UAA",
 
 										Arguments = [
 														new ("name(n)", "Arbitrary name of operation, not used during processing"),
