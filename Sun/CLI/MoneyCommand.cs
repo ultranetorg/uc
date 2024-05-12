@@ -117,7 +117,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "EMIT IN ETHEREUM",
 									Description = "Places a special transaction on Ethereum side which tells that specified amount of ETH is burned in exchange of crediting corresponding amount of UNT to a specified account on ULTRANET side",
-									Syntax = "money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT by=UAA",
+									Syntax = "money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=INT gas=INT gasprice=INT amount=UNT to=UAA",
 
 									Arguments =
 									[
@@ -185,7 +185,7 @@ namespace Uccs.Sun.CLI
 								{ 
 									Title = "EMIT IN ULTRANET",
 									Description = "Places a special transaction on ULTRANET side which tells the network to retrieve emission info from the Ethereum side, check it and if everything is correct, credit a specified account with a corresponding amount of UNT",
-									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} amount=UNT eid=EID by=UAA",
+									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=EID amount=UNT by=UAA",
 
 									Arguments =
 									[
