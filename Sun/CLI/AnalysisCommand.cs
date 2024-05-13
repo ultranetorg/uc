@@ -40,7 +40,7 @@ namespace Uccs.Sun.CLI
 									},
 
 					Execute = () =>	{
-										Flow.CancelAfter(RdcTransactingTimeout);
+										Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 										var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name))).Resource;
 

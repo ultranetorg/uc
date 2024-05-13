@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new DomainBid(First, Money.ParseDecimal(GetString("amount")));
 												}
@@ -68,7 +68,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new DomainRegistation{	Address	= First,
 																					Years	= byte.Parse(GetString("years"))};
@@ -100,7 +100,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new DomainMigration(First, GetString("tld"), Has("checkrank"));
 												}
@@ -130,7 +130,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var d = Rdc(new DomainRequest(First)).Domain;
 
@@ -166,7 +166,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new DomainRegistation{	Address	= First,
 																					Years	= byte.Parse(GetString("years")),
@@ -199,7 +199,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var d = Rdc(new DomainRequest(First)).Domain;
 
@@ -233,7 +233,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var d = Rdc(new DomainRequest(First)).Domain;
 
@@ -265,7 +265,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 					
 													var rp = Rdc(new DomainRequest(First));
 	

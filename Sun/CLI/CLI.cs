@@ -15,8 +15,9 @@ namespace Uccs.Sun.CLI
 		public Zone				Zone;
 		public Net.Sun			Sun;
 		public JsonApiClient	ApiClient;
-		public Flow			Flow = new Flow("CLI", new Log());
+		public Flow				Flow = new Flow("CLI", new Log()); 
 		public IPasswordAsker	PasswordAsker;
+		public Settings			Settings;
 
 		public Program()
 		{
@@ -24,6 +25,7 @@ namespace Uccs.Sun.CLI
 			PasswordAsker = new ConsolePasswordAsker();
 		
 			var b = new Boot(ExeDirectory);
+			Settings = new Settings(ExeDirectory, b);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
@@ -32,7 +34,7 @@ namespace Uccs.Sun.CLI
 
 			try
 			{
-				Execute(b.Commnand.Nodes);
+				Execute(b.Commnand.Nodes, Flow.CreateNested("Command", new Log()));
 			}
 			catch(OperationCanceledException)
 			{
@@ -60,6 +62,7 @@ namespace Uccs.Sun.CLI
 		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Zone = zone;
+			Settings = sun.Settings;
 			Sun = sun;
 			ApiClient = api;
 			Flow = workflow;
@@ -74,14 +77,12 @@ namespace Uccs.Sun.CLI
 			new Program();
 		}
 
-		public Command Create(IEnumerable<Xon> commnad, Log log)
+		public Command Create(IEnumerable<Xon> commnad, Flow f)
 		{
 			Command c;
 			var t = commnad.First().Name;
 
 			var args = commnad.Skip(1).ToList();
-
-			var f = Flow.CreateNested("Command", log ?? Flow.Log);
 
 			switch(t)
 			{
@@ -106,7 +107,7 @@ namespace Uccs.Sun.CLI
 			return c;
 		}
 
-		public object Execute(IEnumerable<Xon> command, Log log = null)
+		public object Execute(IEnumerable<Xon> command, Flow flow)
 		{
 			if(Flow.Aborted)
 				throw new OperationCanceledException();
@@ -171,7 +172,7 @@ namespace Uccs.Sun.CLI
 			}
 			else
 			{
-				var c = Create(command, log);
+				var c = Create(command, flow);
 
 				var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(command.Skip(1).FirstOrDefault()?.Name));
 

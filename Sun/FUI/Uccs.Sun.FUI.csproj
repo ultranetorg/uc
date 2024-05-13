@@ -15,9 +15,9 @@
     <SignAssembly>false</SignAssembly>
     <Description></Description>
     <Title>Ultarnet Node</Title>
-    <AssemblyVersion>1.0.32.0</AssemblyVersion>
-    <FileVersion>1.0.32.0</FileVersion>
-    <Version>1.0.32.0</Version>
+    <AssemblyVersion>1.0.35.0</AssemblyVersion>
+    <FileVersion>1.0.35.0</FileVersion>
+    <Version>1.0.35.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\sun.dotnet\0.0.0</OutputPath>

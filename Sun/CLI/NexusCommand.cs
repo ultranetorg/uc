@@ -35,7 +35,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var rp = Rdc(new MembersRequest());
 	

@@ -35,7 +35,7 @@
     },
     "test": {
       "commandName": "Project",
-      "commandLineArgs": "node s https://127.0.0.100:3901 accesskey=json_api_access_key money fe eid=1 by=0x88CDBF687FADD8750917E9FE0D32DDEA329C59EA",
+      "commandLineArgs": "node attach http://127.0.0.100:3900",
       "remoteDebugEnabled": false,
       "remoteDebugMachine": "ultranet.org",
       "authenticationMode": "Windows"

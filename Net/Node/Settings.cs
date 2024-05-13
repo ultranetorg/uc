@@ -232,6 +232,9 @@ namespace Uccs.Net
 		public string					GoogleSearchEngineID;
 		public string					GoogleApiKey;
 
+		public int						RdcQueryTimeout;
+		public int						RdcTransactingTimeout;
+
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
 
@@ -269,6 +272,17 @@ namespace Uccs.Net
 
 			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID", null);
 			GoogleApiKey				= doc.Get<string>("GoogleApiKey", null);
+
+			if(Debugger.IsAttached)
+			{
+				RdcQueryTimeout = int.MaxValue;
+				RdcTransactingTimeout = int.MaxValue;
+			}
+			else
+			{
+				RdcQueryTimeout			= doc.Get("RdcQueryTimeout", 5000);
+				RdcTransactingTimeout	= doc.Get("RdcTransactingTimeout", 5*60*1000);
+			}
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));

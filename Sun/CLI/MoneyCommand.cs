@@ -60,7 +60,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													Nethereum.Web3.Accounts.Account from;
 
@@ -137,7 +137,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													Nethereum.Web3.Accounts.Account from;
 
@@ -168,8 +168,8 @@ namespace Uccs.Sun.CLI
 																								To = GetAccountAddress("to"),
 																								Eid = GetInt("eid"),
 																								Wei = Web3.Convert.ToWei(GetString("amount")),
-																								Gas = Web3.Convert.ToWei(GetString("gas")),
-																								GasPrice = Web3.Convert.ToWei(GetString("gasprice"))});
+																								Gas = BigInteger.Parse(GetString("gas")),
+																								GasPrice = BigInteger.Parse(GetString("gasprice"))});
 
 													Dump(t);
 
@@ -203,7 +203,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new Emission(Web3.Convert.ToWei(GetString("amount")), GetInt("eid"));
 												}
@@ -232,7 +232,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 												
 												
 													var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
@@ -272,7 +272,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));
 												}
@@ -297,7 +297,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var c = new CostApc{Years = [1, 5, 10], 
 																		DomainLengths = [1, 5, 10, 15], 

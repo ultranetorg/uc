@@ -38,7 +38,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
 													var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
@@ -70,7 +70,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
 													var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
@@ -101,7 +101,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 					
@@ -135,7 +135,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 																		

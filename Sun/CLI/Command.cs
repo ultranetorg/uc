@@ -62,8 +62,6 @@ namespace Uccs.Sun.CLI
 
 		public Flow					Flow;
 		public Action				Transacted;
-		public int					RdcQueryTimeout = 5000;
-		public int					RdcTransactingTimeout = 60*1000;
 
 		public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
 
@@ -89,12 +87,6 @@ namespace Uccs.Sun.CLI
 			Program = program;
 			Args = args;
 			Flow = flow;;
-
-			if(Debugger.IsAttached)
-			{
-				RdcQueryTimeout = int.MaxValue;
-				RdcTransactingTimeout = int.MaxValue;
-			}
 		}
 
 		public void Api(SunApc call)

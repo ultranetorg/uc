@@ -49,7 +49,6 @@ namespace Uccs.Net
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
-		
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;

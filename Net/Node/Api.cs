@@ -498,6 +498,10 @@ namespace Uccs.Net
 		public BigInteger			Gas { get; set; } 
 		public BigInteger			GasPrice { get; set; } 
 
+		public class Response
+		{
+			
+		}
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{

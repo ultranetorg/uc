@@ -44,7 +44,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													Transacted = () =>	{
 																			var	r = Rdc(new ResourceRequest(First)).Resource;
@@ -80,7 +80,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var r = Rdc(new ResourceRequest(First)).Resource;
 
@@ -113,7 +113,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcTransactingTimeout);
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													var	r = Rdc(new ResourceRequest(First)).Resource;
 
@@ -157,7 +157,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var	r = Rdc(new ResourceRequest(First)).Resource;
 					
@@ -226,7 +226,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Flow.CancelAfter(RdcQueryTimeout);
+													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args[0].Name});
 					

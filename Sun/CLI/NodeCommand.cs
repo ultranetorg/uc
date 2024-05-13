@@ -39,19 +39,16 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													var b = new Boot(Program.ExeDirectory);
-													var s = new Settings(Program.ExeDirectory, b);
-	
-													Program.Sun = new Net.Sun(b.Zone, s, Flow){	Clock = new RealClock(),
-																								Nas = new Nas(s),
-																								GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-																								FeeAsker = new SilentFeeAsker() };
+													Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow){Clock = new RealClock(),
+																													Nas = new Nas(Program.Settings),
+																													GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+																													FeeAsker = new SilentFeeAsker() };
 													Program.Sun.Run(Args);
 	
 													if(ConsoleAvailable)
 														while(Flow.Active)
 														{
-															Console.Write(b.Zone + " > ");
+															Console.Write(Program.Zone + " > ");
 	
 															var l = new Log();
 															var v = new ConsoleLogView(false, true);
@@ -66,7 +63,7 @@ namespace Uccs.Sun.CLI
 																									))
 																	throw new Exception("Command not available");
 	
-																Program.Execute(x.Nodes, l);
+																Program.Execute(x.Nodes, Flow);
 															}
 															catch(Exception ex)
 															{
@@ -131,7 +128,7 @@ namespace Uccs.Sun.CLI
 															if(x.Nodes[0].Name == Keyword || x.Nodes[0].Name == LogCommand.Keyword)
 																throw new Exception("Not available");
 	
-															Program.Execute(x.Nodes);
+															Program.Execute(x.Nodes, flow);
 														}
 														catch(Exception ex)
 														{
@@ -183,7 +180,7 @@ namespace Uccs.Sun.CLI
 
 													try
 													{
-														Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey"));
+														Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey"), flow);
 													}
 													finally
 													{

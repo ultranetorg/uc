@@ -24,10 +24,13 @@ namespace Uccs.Net
 		File		= 100, 
 		Directory	= 101, 
 		Package		= 102, 
-		Consil		= 103, 
-		Analysis	= 104, 
 
-		FirstMime	= 1000, 
+		FirstMime	= 10000, 
+
+		Consil		= 20000, 
+		Analysis	= 20001, 
+
+		ADAO		= 20002
 	}
 
 	[Flags]
@@ -48,8 +51,7 @@ namespace Uccs.Net
 
 	public enum ResourceLinkChanges : byte
 	{
-		None,
-		Seal
+		None, Seal
 	}
 
 	public class ResourceLink : IBinarySerializable
