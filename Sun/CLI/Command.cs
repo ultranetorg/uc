@@ -91,6 +91,9 @@ namespace Uccs.Sun.CLI
 
 		public void Api(SunApc call)
 		{
+			if(Has("apitimeout"))
+				call.Timeout = GetInt("apitimeout") * 1000;
+
 			if(Program.ApiClient == null)
 				call.Execute(Program.Sun, null, null, Flow);
 			else
@@ -99,6 +102,9 @@ namespace Uccs.Sun.CLI
 
 		public Rp Api<Rp>(SunApc call)
 		{
+			if(Has("apitimeout"))
+				call.Timeout = GetInt("apitimeout") * 1000;
+
 			if(Program.ApiClient == null) 
 				return (Rp)call.Execute(Program.Sun, null, null, Flow);
 			else

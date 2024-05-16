@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Uccs.Net
 {
-	public class DomainRegistation : Operation
+	public class DomainRegistration : Operation
 	{
 		public string				Address {get; set;}
 		public byte					Years {get; set;}
@@ -12,7 +12,7 @@ namespace Uccs.Net
 
 		public override string		Description => $"{Address} for {Years} years";
 		
-		public DomainRegistation ()
+		public DomainRegistration ()
 		{
 		}
 		

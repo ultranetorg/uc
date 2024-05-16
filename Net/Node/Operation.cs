@@ -18,7 +18,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		DomainRegistation, DomainMigration, DomainBid, DomainUpdation,
+		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
 	}

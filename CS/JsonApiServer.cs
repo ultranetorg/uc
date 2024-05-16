@@ -16,6 +16,8 @@ namespace Uccs
 	{
 		public const string		Postfix = "Apc";
 		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
+
+		public int				Timeout {get; set;} = 60*1000;
 	}
 
 	public class PingApc : Apc
@@ -208,7 +210,9 @@ namespace Uccs
 
 				object execute(Apc call)
 				{
-					return Execute(call, rq, rp, Flow.CreateNested(MethodBase.GetCurrentMethod().Name));
+					var f = Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
+					f.CancelAfter(call.Timeout);
+					return Execute(call, rq, rp, f);
 				}
 
 				if(c is BatchApc b)

@@ -70,7 +70,7 @@ namespace Uccs.Sun.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new DomainRegistation{	Address	= First,
+													return new DomainRegistration{	Address	= First,
 																					Years	= byte.Parse(GetString("years"))};
 												}
 							},
@@ -168,7 +168,7 @@ namespace Uccs.Sun.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new DomainRegistation{	Address	= First,
+													return new DomainRegistration{	Address	= First,
 																					Years	= byte.Parse(GetString("years")),
 																					Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
 																					Owner	= GetAccountAddress("for")};
