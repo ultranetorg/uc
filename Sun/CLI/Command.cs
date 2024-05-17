@@ -463,7 +463,9 @@ namespace Uccs.Sun.CLI
 				foreach(var g in gets)
 				{
 					t[ii, gi] = g(i, ii);
-					w[gi] = Math.Max(w[gi], t[ii, gi].ToString().Length);
+					
+					if(t[ii, gi] != null)
+						w[gi] = Math.Max(w[gi], t[ii, gi].ToString().Length);
 
 					gi++;
 				}
