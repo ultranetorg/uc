@@ -5,7 +5,7 @@ using System.Linq;
 namespace Uccs.Net
 {
 	/// <summary>
-	///  ultranet://testzone1/uo.app.dotnet7/0123456789ABCDEF
+	///  ultranet:testzone:uo/app/dotnet7/0123456789ABCDEF
 	/// </summary>
 
 	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>

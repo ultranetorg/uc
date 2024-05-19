@@ -10,9 +10,9 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>Sun</AssemblyName>
-    <AssemblyVersion>1.0.95.0</AssemblyVersion>
-    <FileVersion>1.0.95.0</FileVersion>
-    <Version>1.0.95.0</Version>
+    <AssemblyVersion>1.0.103.0</AssemblyVersion>
+    <FileVersion>1.0.103.0</FileVersion>
+    <Version>1.0.103.0</Version>
     <BaseOutputPath>$(UO_Tmp)\Build\$(MSBuildProjectName)</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

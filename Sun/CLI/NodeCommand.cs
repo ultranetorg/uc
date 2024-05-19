@@ -34,7 +34,7 @@ namespace Uccs.Sun.CLI
 
 									Examples =
 									[
-										new (null, "node run api peer chain seed profile=C:\\User\\sun zone=Testzone1")
+										new (null, "node run api peer chain seed profile=C:\\User\\sun zone=Testzone")
 									]
 								},
 
