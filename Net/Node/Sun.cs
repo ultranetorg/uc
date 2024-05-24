@@ -1656,16 +1656,18 @@ namespace Uccs.Net
 							Thread.Sleep(1000);
 							continue;
 						}
-						catch(EntityException)
+						catch(EntityException ex)
 						{
-							lock(Lock)
-								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+							//if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+							//{
+								lock(Lock)
 								{
 									t.Status = TransactionStatus.FailedOrNotFound;
 									OutgoingTransactions.Remove(t);
-								} 
-								else
-									Thread.Sleep(1000);
+								}
+							//} 
+							//else
+							//	Thread.Sleep(1000);
 
 							continue;
 						}

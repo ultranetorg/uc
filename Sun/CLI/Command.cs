@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using Nethereum.ABI.Util;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -452,7 +453,7 @@ namespace Uccs.Sun.CLI
 			}
 
 			object[,] t = new object[items.Count(), columns.Length];
-			int[] w = columns.Select(i => i.Length).ToArray();
+			int[] w = columns.Select(i => i.TrimEnd('>').Length).ToArray();
 
 			var ii = 0;
 
@@ -465,7 +466,9 @@ namespace Uccs.Sun.CLI
 					t[ii, gi] = g(i, ii);
 					
 					if(t[ii, gi] != null)
+					{	
 						w[gi] = Math.Max(w[gi], t[ii, gi].ToString().Length);
+					}
 
 					gi++;
 				}
@@ -473,12 +476,12 @@ namespace Uccs.Sun.CLI
 				ii++;
 			}
 
-			var f = string.Join("  ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
+			var f = string.Join("  ", columns.Select((c, i) => $"{{{i},{(columns[i].EndsWith('>') ? "" : "-")}{w[i]}}}"));
 
-			Report(new string(' ', tab * 3) + string.Format(f, columns));
-			Report(new string(' ', tab * 3) + string.Format(f, w.Select(i => new string('-', i)).ToArray()));
+			Report(new string(' ', tab * 3) + string.Format(f, columns.Select(i => i.TrimEnd('>')).ToArray()));
+			Report(new string(' ', tab * 3) + string.Format(f, w.Select(i => new string('─', i)).ToArray()));
 						
-			f = string.Join("  ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
+			//f = string.Join("  ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
 
 			for(int i=0; i < items.Count(); i++)
 			{

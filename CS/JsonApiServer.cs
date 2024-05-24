@@ -127,6 +127,26 @@ namespace Uccs
 		{
 			Thread?.Join();
 		}
+	
+		protected void RespondError(HttpListenerResponse response, string t, int code = 599)
+		{
+			try
+			{
+
+				var buffer = Encoding.UTF8.GetBytes(t);
+							
+				response.StatusCode = code;
+				response.ContentType = "text/plain" ;
+				response.ContentLength64 = buffer.Length;
+				response.OutputStream.Write(buffer, 0, buffer.Length);
+			}
+			catch(InvalidOperationException)
+			{
+			}
+			catch(HttpListenerException)
+			{
+			}
+		}
 
 		void ProcessRequest(object obj)
 		{
@@ -134,26 +154,6 @@ namespace Uccs
 
 			var rq = context.Request;
 			var rp = context.Response;
-	
-			void responderror(string t, int code = 599)	{
-															try
-															{
-
-																var buffer = Encoding.UTF8.GetBytes(t);
-							
-																rp.StatusCode = code;
-																rp.ContentType = "text/plain" ;
-																rp.ContentLength64 = buffer.Length;
-
-																rp.OutputStream.Write(buffer, 0, buffer.Length);
-															}
-															catch(InvalidOperationException)
-															{
-															}
-															catch(HttpListenerException)
-															{
-															}
-														}
 	
 			void respondjson(object t)	{
 											var output = rp.OutputStream;
@@ -245,11 +245,11 @@ namespace Uccs
 			}
 			catch(JsonException ex)
 			{
-				responderror(ex.Message, (int)HttpStatusCode.BadRequest);
+				RespondError(rp, ex.Message, (int)HttpStatusCode.BadRequest);
 			}
-			catch(Exception ex) when (!Debugger.IsAttached)
+			catch(Exception ex)/// when (!Debugger.IsAttached)
 			{
-				responderror(ex.ToString(), (int)HttpStatusCode.InternalServerError);
+				RespondError(rp, ex.ToString(), (int)HttpStatusCode.InternalServerError);
 				Flow.Log?.ReportError(this, "Request Processing Error", ex);
 			}
 

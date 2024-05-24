@@ -228,11 +228,11 @@ namespace Uccs.Sun.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
-													var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args[0].Name});
+													var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args.Any() ? Args[0].Name : null});
 					
 													Dump(	r, 
-															["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
-															[i => i.Address,
+															["Address", "Releases", "Type", "Data", "Length"], 
+															[i => i.Address.Domain + '/' + i.Address.Resource,
 															 i => i.Datas.Count,
 															 i => i.Last.Type,
 															 i => i.Last.Value.ToHex(32),

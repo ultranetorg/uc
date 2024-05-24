@@ -89,7 +89,7 @@ namespace Uccs.Sun.CLI
 									[
 										new ("<first>", "Ultranet address of a root domain to migrate"),
 										new ("wtld", "Web top-level domain (com, org, net)"),
-										new ("rank", "Request position verification in Google search results"),
+										new ("checkrank", "Request position verification in Google search results"),
 										new ("by", "Address of account for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 									],
 
@@ -102,7 +102,7 @@ namespace Uccs.Sun.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new DomainMigration(First, GetString("tld"), Has("checkrank"));
+													return new DomainMigration(First, GetString("wtld"), Has("checkrank"));
 												}
 							},
 
@@ -113,7 +113,7 @@ namespace Uccs.Sun.CLI
 								Help = new Help()
 								{
 									Title = "RENEW",
-									Description = "Extend domain ownership for a specified period",
+									Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.",
 									Syntax = "domain r|renew UDA years=YEARS by=UAA",
 
 									Arguments =

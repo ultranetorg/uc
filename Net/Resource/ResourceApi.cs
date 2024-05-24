@@ -170,7 +170,7 @@ namespace Uccs.Net
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
-				return sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query)).Skip(Skip).Take(Take);
+				return (Query == null ? sun.ResourceHub.Resources : sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
 			}
 		}
 	}

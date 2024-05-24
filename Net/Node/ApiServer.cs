@@ -24,7 +24,16 @@ namespace Uccs.Net
 
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return (call as SunApc).Execute(Sun, request, response, workflow);
+			try
+			{
+				return (call as SunApc).Execute(Sun, request, response, workflow);
+			}
+			catch(SunException ex)
+			{
+				RespondError(response, ex.ToString(), (int)HttpStatusCode.InternalServerError);
+				return null;
+			}
+
 		}
 	}
 }
