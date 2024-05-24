@@ -14,16 +14,53 @@ namespace Uccs.Sun.CLI
 
 		public NodeCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-			Actions =	[
-							new ()
-							{
-								Names = ["r", "run"],
+			var run = new CommandAction{	Names = ["r", "run"]};
+			var attach = new CommandAction{	Names = ["a", "attach"] };
+			var send = new CommandAction {	Names = ["s", "send"]};
 
-								Help = new Help
-								{ 
-									Title = "RUN",
+			run.Execute = () =>	{
+									Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow){Clock = new RealClock(),
+																									Nas = new Nas(Program.Settings),
+																									GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+																									FeeAsker = new SilentFeeAsker() };
+									Program.Sun.Run(Args);
+	
+									if(ConsoleAvailable)
+										while(Flow.Active)
+										{
+											Console.Write(Program.Zone + " > ");
+	
+											var l = new Log();
+											var v = new ConsoleLogView(false, true);
+											v.StartListening(l);
+	
+											try
+											{
+												var x = new XonDocument(Console.ReadLine());
+	
+												if(x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
+																					run.Names.Contains(x.Nodes[1].Name)  || 
+																					send.Names.Contains(x.Nodes[1].Name)))
+													throw new Exception("Not available");
+	
+												Program.Execute(x.Nodes, Flow);
+											}
+											catch(Exception ex)
+											{
+												l.ReportError(this, "Error", ex);
+											}
+	
+											v.StopListening(l);
+										}
+									else
+										WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
+
+									return null;
+								};
+
+			run.Help = new Help(){	Title = "RUN",
 									Description = "Runs a new node instance with command-line interface",
-									Syntax = "node r|run flags [profile=PATH] [zone=ZONE]",
+									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
 
 									Arguments =
 									[
@@ -34,60 +71,58 @@ namespace Uccs.Sun.CLI
 
 									Examples =
 									[
-										new (null, "node run api peer chain seed profile=C:\\User\\sun zone=Testzone")
-									]
-								},
+										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun zone=Testzone")
+									]};
+			
+			attach.Execute = () =>	{
+										var a = new Uri(Args[0].Name);
 
-								Execute = () =>	{
-													Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow){Clock = new RealClock(),
-																													Nas = new Nas(Program.Settings),
-																													GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-																													FeeAsker = new SilentFeeAsker() };
-													Program.Sun.Run(Args);
-	
-													if(ConsoleAvailable)
-														while(Flow.Active)
-														{
-															Console.Write(Program.Zone + " > ");
-	
-															var l = new Log();
-															var v = new ConsoleLogView(false, true);
-															v.StartListening(l);
-	
-															try
-															{
-																var x = new XonDocument(Console.ReadLine());
-	
-																if(x.Nodes[0].Name == Keyword && (	x.Nodes[1].Name == "run" || x.Nodes[1].Name == "attach" || x.Nodes[1].Name == "send" ||
-																									x.Nodes[1].Name == "r" || x.Nodes[1].Name == "a" || x.Nodes[1].Name == "s"
-																									))
-																	throw new Exception("Command not available");
-	
-																Program.Execute(x.Nodes, Flow);
-															}
-															catch(Exception ex)
-															{
-																l.ReportError(this, "Error", ex);
-															}
-	
-															v.StopListening(l);
-														}
-													else
-														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
+										var h = new HttpClientHandler();
+										h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+										var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-													return null;
+										Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
+
+										var v = new ConsoleLogView(false, true);
+										v.StartListening(Flow.Log);
+
+										while(true)
+										{
+											Console.Write($"{a.Host}:{a.Port} > ");
+											var c = Console.ReadLine();
+
+											if(c == "exit")
+												break;
+
+											try
+											{
+												var x = new XonDocument(c);
+
+												if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
+																					run.Names.Contains(x.Nodes[1].Name)  || 
+																					send.Names.Contains(x.Nodes[1].Name)))
+													||  x.Nodes[0].Name == LogCommand.Keyword)
+												{ 
+													throw new Exception("Not available");
 												}
-							},
+	
+												Program.Execute(x.Nodes, flow);
+											}
+											catch(Exception ex)
+											{
+												Flow.Log?.ReportError(this, "Error", ex);
+											}
+										}
 
-							new ()
-							{
-								Names = ["a", "attach"],
+										v.StopListening(Flow.Log);
 
-								Help = new Help
-								{ 
-									Title = "ATTACH",
+										return null;
+
+									};
+
+			attach.Help = new Help{ Title = "ATTACH",
 									Description = "Connects to existing node instance via JSON RPC protocol",
-									Syntax = "node a|attach HOST accesskey=PASSWORD",
+									Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey=PASSWORD",
 
 									Arguments =
 									[
@@ -97,61 +132,49 @@ namespace Uccs.Sun.CLI
 
 									Examples =
 									[
-										new (null, "node attach 127.0.0.1:3901 asscesskey=ApiServerSecret")
-									]
-								},
+										new (null, $"{Keyword} {attach.Names[0]} 127.0.0.1:3901 asscesskey=ApiServerSecret")
+									]};
 
-								Execute = () =>	{
-													var a = new Uri(Args[0].Name);
 
-													var h = new HttpClientHandler();
-													h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-													var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
+			send.Execute = () => {
+									var a = new Uri(Args[0].Name);
 
-													Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
+									var h = new HttpClientHandler();
+									h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+									var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-													var v = new ConsoleLogView(false, true);
-													v.StartListening(Flow.Log);
+									Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
 
-													while(true)
-													{
-														Console.Write($"{a.Host}:{a.Port} > ");
-														var c = Console.ReadLine();
+									var v = new ConsoleLogView(false, true);
+									v.StartListening(Flow.Log);
 
-														if(c == "exit")
-															break;
+									try
+									{
+										if(Has("_confirmation"))
+										{
+											Console.WriteLine("_confirmation reqested. Press any key...");
+											Console.ReadKey();
+										}
 
-														try
-														{
-															var x = new XonDocument(c);
+										Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), flow);
 
-															if(x.Nodes[0].Name == Keyword || x.Nodes[0].Name == LogCommand.Keyword)
-																throw new Exception("Not available");
-	
-															Program.Execute(x.Nodes, flow);
-														}
-														catch(Exception ex)
-														{
-															Flow.Log?.ReportError(this, "Error", ex);
-														}
-													}
+										if(Has("_confirmation"))
+										{
+											Console.WriteLine("_confirmation reqested. Press any key...");
+											Console.ReadKey();
+										}
+									}
+									finally
+									{
+										v.StopListening(Flow.Log);
+									}
 
-													v.StopListening(Flow.Log);
+									return null;
+								};
 
-													return null;
-
-												}
-							},
-
-							new ()
-							{
-								Names = ["s", "send"],
-
-								Help = new Help
-								{
-									Title = "SEND",
+			send.Help = new Help {	Title = "SEND",
 									Description = "Send spicified command to existing running node",
-									Syntax = "node s|send HOST accesskey=PASSWORD command",
+									Syntax = $"{Keyword} {send.NamesSyntax} HOST accesskey=PASSWORD command",
 
 									Arguments =
 									[
@@ -162,95 +185,108 @@ namespace Uccs.Sun.CLI
 
 									Examples =
 									[
-										new (null, "node send 127.0.0.1:3901 asscesskey=ApiServerSecret node peers")
+										new (null,$"{Keyword} {send.Names[0]} 127.0.0.1:3901 asscesskey=MyApiServerSecret node peers")
 									]
-								},
+								};
 
-								Execute = () =>	{
-													var a = new Uri(Args[0].Name);
+			var peers = new CommandAction{	Names = ["peers"],
+											Execute = () =>	{
+																var r = Api<PeersReport>(new PeersReportApc {Limit = int.MaxValue});
+			
+																Dump(	r.Peers, 
+																		["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 
+																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.BaseRank, i => i.ChainRank, i => i.SeedRank]);
+													
+																return r;
+															}};
 
-													var h = new HttpClientHandler();
-													h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-													var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
-
-													Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
-
-													var v = new ConsoleLogView(false, true);
-													v.StartListening(Flow.Log);
-
-													try
-													{
-														Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey"), flow);
-													}
-													finally
-													{
-														v.StopListening(Flow.Log);
-													}
-
-													return null;
-												}
-							},
-
-							new ()
-							{
-								Names = ["peers"],
-
-								Help = new Help
-								{ 
-									Title = "PEERS",
+			peers.Help = new () {	Title = "PEERS",
 									Description = "Gets a list of existing connections",
-									Syntax = "node peers",
+									Syntax = $"{Keyword} {peers.NamesSyntax}",
 
-									Arguments =
-									[
-									],
+									Arguments = [],
 
 									Examples =
 									[
 										new (null, "node peers")
-									]
-								},
+									]};
 
-								Execute = () =>	{
-													var r = Api<PeersReport>(new PeersReportApc {Limit = int.MaxValue});
+			var it = new CommandAction{	Names = ["it", "incomingtransactions"],
+										Execute = () =>	{
+															var r = Api<ApcTransaction[]>(new IncomingTransactionsApc{});
 			
-													Dump(	r.Peers, 
-															["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 
-															[i => i.IP, i => i.Status, i => i.PeerRank, i => i.BaseRank, i => i.ChainRank, i => i.SeedRank]);
+															foreach(var t in r)
+															{
+																Dump(t);
+
+																foreach(var o in t.Operations)
+																	Report("   " + o.Description);
+															}
 													
-													return r;
-												}
-							},
+															return r;
+														}};
 
-							new ()
-							{
-								Names = ["property"],
+			it.Help = new Help{	Title = "INCOMING TRANSACTIONS",
+								Description = "Gets current list of incomming transactions",
+								Syntax = $"{Keyword} {it.NamesSyntax}",
 
-								Help = new Help
-								{ 
-									Title = "PROPERTY",
-									Description = "Displays a value of node internal state",
-									Syntax = "node Mcv.Size",
+								Arguments = [],
 
-									Arguments =
-									[
-									],
+								Examples =
+								[
+									new (null, $"{Keyword} {it.Names[0]}")
+								]};
 
-									Examples =
-									[
-										new (null, "node property")
-									]
-								},
-
-								Execute = () =>	{
-													var r = Api<string>(new PropertyApc {Path = Args[0].Name});
+			var ot = new CommandAction{	Names = ["ot", "outgoingtransactions"],
+										Execute = () =>	{
+															var r = Api<ApcTransaction[]>(new OutgoingTransactionsApc{});
 			
-													Report(r);
+															foreach(var t in r)
+															{
+																Dump(t);
+
+																foreach(var o in t.Operations)
+																	Report("   " + o.Description);
+															}
+													
+															return r;
+														}};
+
+			ot.Help = new Help{ Title = "OUTGOING TRANSACTIONS",
+								Description = "Gets current list of outgoing transactions",
+								Syntax = $"{Keyword} {ot.NamesSyntax}",
+
+								Arguments = [],
+
+								Examples =
+								[
+									new (null, $"{Keyword} {ot.Names[0]}")
+								]};
+
+			var property = new CommandAction{	Names = ["property"],
+												Execute = () =>	{
+																	var r = Api<string>(new PropertyApc {Path = Args[0].Name});
+			
+																	Report(r);
 					
-													return r;
-												}
-							},
-						];
+																	return r;
+																}};
+
+
+			property.Help = new Help {	Title = "PROPERTY",
+										Description = "Displays a value of node internal state",
+										Syntax = $"{Keyword} {property.NamesSyntax} TEXT",
+
+										Arguments = [],
+
+										Examples =
+										[
+											new (null, "node property Mcv.Size")
+										]};
+			
+										Actions = [run, attach, send, peers, it, ot, property];
+		
 		}
+
 	}
 }

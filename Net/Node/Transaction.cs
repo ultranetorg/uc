@@ -35,7 +35,7 @@ namespace Uccs.Net
 		public Zone						Zone;
 		public TransactionStatus		Status;
 		public RdcInterface				Rdi;
-
+		public Flow						Flow;
 		public TransactionStatus		__ExpectedStatus = TransactionStatus.None;
 
 		public bool Valid(Mcv mcv)

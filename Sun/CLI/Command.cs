@@ -52,6 +52,8 @@ namespace Uccs.Sun.CLI
 			public string[]			Names;
 			public Help				Help;
 			public Func<object>		Execute;
+
+			public string			NamesSyntax => string.Join('|', Names);
 		}
 
 		public CommandAction[]		Actions;
@@ -129,15 +131,15 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public void Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
+		public object Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
 		{
 			if(Program.ApiClient == null)
-				Program.Sun.Transact(operations, by, await, Flow);
+				 return Program.Sun.Transact(operations, by, await, Flow);
 			else
-				Program.ApiClient.Send(new EnqeueOperationApc  {Operations = operations,
-																By = by,
-																Await = await},
-										Flow);
+				return Program.ApiClient.Request<string[][]>(new TransactApc  {Operations = operations,
+																				By = by,
+																				Await = await},
+														Flow);
 		}
 
 		public Xon One(string path)

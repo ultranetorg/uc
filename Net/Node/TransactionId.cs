@@ -9,6 +9,10 @@ namespace Uccs.Net
 		public int			Ti { get; private set; }
 		byte[]				_Serial;
 
+		public TransactionId()
+		{
+		}
+
 		public TransactionId(int ri, int ti)
 		{
 			Ri = ri;

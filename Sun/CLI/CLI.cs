@@ -192,7 +192,15 @@ namespace Uccs.Sun.CLI
 					}
 					else
 					{
-						c.Transact([o], c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+						var x = c.Transact([o], c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+
+						if(x is string[][] logs)
+						{
+							foreach(var i in logs)
+								foreach(var j in i)
+									c.Flow.Log?.Report(j);
+						}
+
 						c.Transacted?.Invoke();
 					}
 				}

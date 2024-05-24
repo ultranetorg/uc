@@ -1372,6 +1372,7 @@ namespace Uccs.Net
 															SeedHubRdcIPs	= [Settings.IP]};
 
 						var t = new Transaction();
+						t.Flow = Flow;
 						t.Zone = Zone;
 						t.Signer = g;
  						t.__ExpectedStatus = TransactionStatus.Confirmed;
@@ -1665,6 +1666,9 @@ namespace Uccs.Net
 									t.Status = TransactionStatus.FailedOrNotFound;
 									OutgoingTransactions.Remove(t);
 								}
+
+								t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
+
 							//} 
 							//else
 							//	Thread.Sleep(1000);
@@ -1691,8 +1695,7 @@ namespace Uccs.Net
 							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
 							{
 								t.Status = TransactionStatus.Accepted;
-
-								Flow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
+								t.Flow.Log?.Report(this, "Accepted", $"{t} -> {m}, {t.Rdi}");
 							}
 							else
 							{
@@ -1705,6 +1708,8 @@ namespace Uccs.Net
 								{
 									t.Status = TransactionStatus.None;
 								}
+
+								t.Flow.Log?.Report(this, "Rejected", $"{t} -> {m}, {t.Rdi}");
 							}
 						}
 				}
@@ -1737,6 +1742,8 @@ namespace Uccs.Net
 																		
 								if(t.Status != i.Status)
 								{
+									t.Flow.Log?.Report(this, i.Status.ToString(), $"{t} -> {t.Generator}, {t.Rdi}");
+
 									t.Status = i.Status;
 
 									if(t.Status == TransactionStatus.FailedOrNotFound)
@@ -1803,6 +1810,7 @@ namespace Uccs.Net
 				var t = new Transaction();
 				t.Zone = Zone;
 				t.Signer = signer;
+				t.Flow = workflow;
  				t.__ExpectedStatus = await;
 			
 				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))

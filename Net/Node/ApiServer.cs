@@ -30,10 +30,9 @@ namespace Uccs.Net
 			}
 			catch(SunException ex)
 			{
-				RespondError(response, ex.ToString(), (int)HttpStatusCode.InternalServerError);
+				RespondError(response, ex.ToString(), HttpStatusCode.InternalServerError);
 				return null;
 			}
-
 		}
 	}
 }

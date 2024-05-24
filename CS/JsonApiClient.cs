@@ -85,12 +85,12 @@ namespace Uccs
 	
 				try
 				{
-					var cr = Http.Send(m, workflow.Cancellation);
+					var rp = Http.Send(m, workflow.Cancellation);
 	
-					if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-						throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
+					if(rp.StatusCode != System.Net.HttpStatusCode.OK)
+						throw new ApiCallException(rp, rp.Content.ReadAsStringAsync().Result);
 	
-					return cr;
+					return rp;
 				}
 				catch(HttpRequestException ex)
 				{

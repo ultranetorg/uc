@@ -570,7 +570,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EnqeueOperationApc : SunApc
+	public class TransactApc : SunApc
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
@@ -578,7 +578,7 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return sun.Transact(Operations, By, Await, workflow);
+			return sun.Transact(Operations, By, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
 		}
 	}
 
@@ -593,6 +593,69 @@ namespace Uccs.Net
 			t.Sign(sun.Vault.GetKey(By), []);
 
 			return sun.Call(p => p.Request(new AllocateTransactionRequest {Transaction = t}), workflow);
+		}
+	}
+
+	public class ApcTransaction
+	{
+		public int						Nid { get; set; }
+		public TransactionId			Id { get; set; }
+		public bool						Successful { get; set; }
+			
+		public EntityId					Member { get; set; }
+		public int						Expiration { get; set; }
+		public byte[]					PoW { get; set; }
+		public byte[]					Tag { get; set; }
+		public Money					Fee { get; set; }
+		public byte[]					Signature { get; set; }
+			 
+		public AccountAddress			Signer { get; set; }
+		public TransactionStatus		Status { get; set; }
+		public IPAddress				MemberNexus { get; set; }
+		public TransactionStatus		__ExpectedStatus { get; set; }
+
+		public IEnumerable<Operation>	Operations  { get; set; }
+
+		public ApcTransaction()
+		{
+		}
+
+		public ApcTransaction(Transaction transaction)
+		{
+			Nid					= transaction.Nid;
+			Id					= transaction.Id;
+			Operations			= transaction.Operations.ToArray();
+			Successful			= transaction.Successful;
+			   
+			Member				= transaction.Generator;
+			Expiration			= transaction.Expiration;
+			PoW					= transaction.PoW;
+			Tag					= transaction.Tag;
+			Fee					= transaction.Fee;
+			Signature			= transaction.Signature;
+			   
+			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Sun)?.IP;
+			Signer				= transaction.Signer;
+			Status				= transaction.Status;
+			__ExpectedStatus	= transaction.__ExpectedStatus;
+		}
+	}
+
+	public class IncomingTransactionsApc : SunApc
+	{
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				return sun.IncomingTransactions.Select(i => new ApcTransaction(i)).ToArray();
+		}
+	}
+
+	public class OutgoingTransactionsApc : SunApc
+	{
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				return sun.OutgoingTransactions.Select(i => new ApcTransaction(i)).ToArray();
 		}
 	}
 

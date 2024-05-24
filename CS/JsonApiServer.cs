@@ -128,14 +128,14 @@ namespace Uccs
 			Thread?.Join();
 		}
 	
-		protected void RespondError(HttpListenerResponse response, string t, int code = 599)
+		protected void RespondError(HttpListenerResponse response, string t, HttpStatusCode code)
 		{
 			try
 			{
 
 				var buffer = Encoding.UTF8.GetBytes(t);
 							
-				response.StatusCode = code;
+				response.StatusCode = (int)code;
 				response.ContentType = "text/plain" ;
 				response.ContentLength64 = buffer.Length;
 				response.OutputStream.Write(buffer, 0, buffer.Length);
@@ -180,7 +180,7 @@ namespace Uccs
 			{
 				if(!string.IsNullOrWhiteSpace(AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get("accesskey") != AccessKey)
 				{
-					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
+					RespondError(rp, HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
 					rp.Close();
 					return;
 				}
@@ -197,7 +197,7 @@ namespace Uccs
 
 				if(t == null)
 				{
-					rp.StatusCode = (int)HttpStatusCode.NotFound;
+					RespondError(rp, HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
 					rp.Close();
 					return;
 				}
@@ -210,7 +210,7 @@ namespace Uccs
 
 				object execute(Apc call)
 				{
-					var f = Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
+					var f = Flow.CreateNested(MethodBase.GetCurrentMethod().Name, new Log());
 					f.CancelAfter(call.Timeout);
 					return Execute(call, rq, rp, f);
 				}
@@ -245,11 +245,11 @@ namespace Uccs
 			}
 			catch(JsonException ex)
 			{
-				RespondError(rp, ex.Message, (int)HttpStatusCode.BadRequest);
+				RespondError(rp, ex.Message, HttpStatusCode.BadRequest);
 			}
 			catch(Exception ex)/// when (!Debugger.IsAttached)
 			{
-				RespondError(rp, ex.ToString(), (int)HttpStatusCode.InternalServerError);
+				RespondError(rp, ex.ToString(), HttpStatusCode.InternalServerError);
 				Flow.Log?.ReportError(this, "Request Processing Error", ex);
 			}
 
