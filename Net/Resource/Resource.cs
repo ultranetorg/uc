@@ -17,10 +17,12 @@ namespace Uccs.Net
 	public enum DataType : short
 	{
 		None		= 0,
-		Redirect	= 1,
-		IPAddress	= 2, 
-		Uri			= 3,
-				
+		Raw			= 1,
+
+		Redirect	= 2,
+		IPAddress	= 3, 
+		Uri			= 4,
+
 		File		= 100, 
 		Directory	= 101, 
 		Package		= 102, 

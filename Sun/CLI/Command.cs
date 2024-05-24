@@ -331,6 +331,9 @@ namespace Uccs.Sun.CLI
 					
 					switch(t)
 					{
+						case DataType.Raw:
+							return new ResourceData(t, d.Get<string>("bytes").FromHex());
+
 						case DataType.File:
 						case DataType.Directory:
 						case DataType.Package:

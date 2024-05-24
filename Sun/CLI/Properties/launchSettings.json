@@ -35,7 +35,7 @@
     },
     "test": {
         "commandName": "Project",
-        "commandLineArgs": "node attach https://78.47.204.100:3901",
+        "commandLineArgs": "node attach http://127.0.0.100:3900",
         "remoteDebugEnabled": false,
         "remoteDebugMachine": "ultranet.org",
         "authenticationMode": "Windows"

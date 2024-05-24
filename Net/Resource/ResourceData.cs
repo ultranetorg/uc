@@ -64,12 +64,6 @@ namespace Uccs.Net
 		{
 		}
 
-		//public ResourceData(byte[] data)
-		//{
-		//	Type = (DataType)new BinaryReader(new MemoryStream(data)).Read7BitEncodedInt();
-		//	_Value = data;
-		//}
-
 		public ResourceData(BinaryReader reader)
 		{
 			Read(reader);
@@ -81,18 +75,11 @@ namespace Uccs.Net
 			_Interpretation = interpretation;
 		}
 
-		public ResourceData(DataType type, byte[] value)
-		{
-			Type = type;
-			_Value = value;
-		}
-
-// 		public static BinaryReader SkipHeader(byte[] data)
-// 		{
-// 			var r = new BinaryReader(new MemoryStream(data));
-// 			r.Read7BitEncodedInt();
-// 			return r;
-// 		}
+		//public static ResourceData FromValue(DataType type, byte[] value)
+		//{
+		//	Type = type;
+		//	_Value = value;
+		//}
 
 		public override string ToString()
 		{
@@ -109,7 +96,7 @@ namespace Uccs.Net
 		{
 			switch(Type)
 			{
-				case DataType.None:
+				case DataType.Raw:
 					_Interpretation = reader.ReadBytes();
 					break;
 
@@ -160,7 +147,7 @@ namespace Uccs.Net
 		{
 			switch(Type)
 			{
-				case DataType.None:
+				case DataType.Raw:
 					writer.WriteBytes(Interpretation as byte[]);
 					break;
 	
