@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Uccs.Net
@@ -19,9 +20,10 @@ namespace Uccs.Net
 											LastCommitedRoundHash	= sun.Mcv.LastCommittedRound.Hash,
 											FirstTailRound			= sun.Mcv.Tail.Last().Id,
 											LastTailRound			= sun.Mcv.Tail.First().Id,
-											Accounts				= sun.Mcv.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Domains					= sun.Mcv.Domains.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											};
+											Tables					= sun.Mcv.Tables.Select(i => new StampResponse.Table {	Id = i.Id, 
+																															SuperClusters =	i.SuperClusters.Select(i => new StampResponse.SuperCluster{	Id = i.Key, 
+																																																		Hash = i.Value}).ToArray()}).ToArray()};
+
 				return r;
 			}
 		}
@@ -35,13 +37,17 @@ namespace Uccs.Net
 			public byte[]	Hash { get; set; }
 		}
 
-		public byte[]			BaseState { get; set; }
-		public byte[]			BaseHash { get; set; }
-		public int				FirstTailRound { get; set; }
-		public int				LastTailRound { get; set; }
-		public byte[]			LastCommitedRoundHash { get; set; }
-		public SuperCluster[]	Accounts { get; set; }
-		public SuperCluster[]	Domains { get; set; }
-		public SuperCluster[]	Analyses { get; set; }
+		public class Table
+		{
+			public int				Id { get; set; }
+			public SuperCluster[]	SuperClusters { get; set; }
+		}
+
+		public byte[]		BaseState { get; set; }
+		public byte[]		BaseHash { get; set; }
+		public int			FirstTailRound { get; set; }
+		public int			LastTailRound { get; set; }
+		public byte[]		LastCommitedRoundHash { get; set; }
+		public Table[]		Tables { get; set; }
 	}
 }

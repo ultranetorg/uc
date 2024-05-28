@@ -25,6 +25,7 @@ namespace Uccs.Net
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
 				case Money v :	writer.Write(v); return;
+				case Guid v :	writer.Write(v.ToByteArray()); return;
 			}
 
 			if(type.IsEnum)
@@ -71,7 +72,7 @@ namespace Uccs.Net
 					writer.Write(b);
 					return;
 				}
-				case System.Collections.ICollection v:
+				case ICollection v:
 				{
 					writer.Write7BitEncodedInt(v.Count);
 							
@@ -199,6 +200,10 @@ namespace Uccs.Net
 				var c = new Money(); 
 				c.Read(reader);
 				return c;
+			}
+			else if(typeof(Guid) == type)
+			{
+				return new Guid(reader.ReadBytes(16));
 			}
 			else if(type.IsEnum)
 			{

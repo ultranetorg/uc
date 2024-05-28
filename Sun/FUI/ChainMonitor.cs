@@ -213,7 +213,7 @@ namespace Uccs.Sun.FUI
 																r.Id, 
 																r.Try,
 																r.Confirmed ? "c" : " ",
-																r.Id > Mcv.P ? $"{(r.Majority != null ? r.Majority.Count() : 0)}/{r.RequiredVotes}" : null,
+																r.Id > Mcv.DeclareToGenerateDelay ? $"{(r.Majority != null ? r.Majority.Count() : 0)}/{r.RequiredVotes}" : null,
 																r.Members.Count,
 																//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
 																r.ConsensusMemberLeavers.Length,

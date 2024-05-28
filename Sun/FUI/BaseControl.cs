@@ -17,7 +17,7 @@ namespace Uccs.Sun.FUI
 	{
 		protected readonly Net.Sun	Sun;
 		protected readonly Vault	Vault;
-		protected Mcv				Database => Sun.Mcv;
+		protected Rds				Mcv => Sun.Mcv as Rds;
 
 		public BaseControl()
 		{
@@ -33,7 +33,7 @@ namespace Uccs.Sun.FUI
 		{
 			var o = new List<DomainEntry>();
 			
-			foreach(var r in Database.Tail)
+			foreach(var r in Mcv.Tail.Cast<RdsRound>())
 				foreach(var a in r.AffectedDomains)
 					if(a.Value.Owner == owner && !o.Any(i => i.Address == a.Key))
 					{
@@ -41,7 +41,7 @@ namespace Uccs.Sun.FUI
 					}
 
 			/// TODO: too slow
-			o.AddRange(Database.Domains.Where(i => i.Owner == owner));
+			o.AddRange(Mcv.Domains.Where(i => i.Owner == owner));
 
 			return o;
 		}

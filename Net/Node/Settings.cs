@@ -149,9 +149,9 @@ namespace Uccs.Net
 			foreach(var i in Suns)
 				Monitor.Enter(i.Lock);
 
-			void compare<E, K>(Func<Sun, Table<E, K>> get) where E : class, ITableEntry<K>
+			void compare(Func<Sun, TableBase> get)
 			{
-				var cs = Suns.Where(i => i.Mcv != null).Select(i => new {s = i, c = get(i).Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator() }).ToArray();
+				var cs = Suns.Where(i => i.Mcv != null).Select(i => new {s = i, c = get(i).Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
 	
 				while(true)
 				{
@@ -165,7 +165,7 @@ namespace Uccs.Net
 					else if(!x.All(i => i))
 						Debugger.Break();
 	
-					var es = cs.Select(i => new {i.s, e = i.c.Current.Entries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+					var es = cs.Select(i => new {i.s, e = i.c.Current.BaseEntries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
 	
 					while(true)
 					{
@@ -179,7 +179,7 @@ namespace Uccs.Net
 						else if(!y.All(i => i))
 							Debugger.Break();
 	
-						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo) }).GroupBy(i => i.j);
+						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
 
 						if(jes.Count() > 1)
 						{
@@ -194,8 +194,11 @@ namespace Uccs.Net
 				}
 			}
 
-			compare(i => i.Mcv.Accounts);
-			compare(i => i.Mcv.Domains);
+			foreach(var i in Suns.Where(i => i.Mcv != null))
+			{
+				foreach(var t in i.Mcv.Tables)
+					compare(s => s.Mcv.Tables[t.Id]);
+			}
 
 			foreach(var i in Suns)
 				Monitor.Exit(i.Lock);

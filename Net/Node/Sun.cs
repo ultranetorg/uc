@@ -291,7 +291,7 @@ namespace Uccs.Net
 
 			if(roles.HasFlag(Role.Base) || roles.HasFlag(Role.Chain))
 			{		
-				Mcv = new Mcv(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
+				Mcv = new Rds(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
 
 				Mcv.Log = Flow.Log;
 				Mcv.VoteAdded += b => MainWakeup.Set();
@@ -350,7 +350,7 @@ namespace Uccs.Net
 										}
 
 										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedMigrations.RemoveAll(i => r.ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedMigrations.RemoveAll(i => (r as RdsRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 									};
 
@@ -997,34 +997,28 @@ namespace Uccs.Net
 					{
 						stamp = peer.Request(new StampRequest());
 		
-						void download<E, K>(Table<E, K> t) where E : class, ITableEntry<K>
+						void download(TableBase t)
 						{
-							var ts = peer.Request(new TableStampRequest{ Table =t.Type, 
-																		 SuperClusters = (t.Type switch	{ 
-																											Tables.Accounts	=> stamp.Accounts.Where(i => {
-																																							var c = Mcv.Accounts.SuperClusters.ContainsKey(i.Id);
-																																							return !c || !Mcv.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																																							}),
-																											Tables.Domains	=> stamp.Domains.Where(i =>	{
-																																							var c = Mcv.Domains.SuperClusters.ContainsKey(i.Id);
-																																							return !c || !Mcv.Domains.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																																						}),
-																											_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
-																										}).Select(i => i.Id).ToArray() });
+							var ts = peer.Request(new TableStampRequest{ Table = t.Id, 
+																		 SuperClusters = stamp.Tables[t.Id].SuperClusters.Where(i => !t.SuperClusters.TryGetValue(i.Id, out var c) || !c.SequenceEqual(i.Hash))
+																														 .Select(i => i.Id).ToArray()});
 		
 							foreach(var i in ts.Clusters)
 							{
-								var c = t.Clusters.Find(j => j.Id.SequenceEqual(i.Id));
+								var c = t.Clusters.FirstOrDefault(j => j.Id.SequenceEqual(i.Id));
 		
 								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
 								{
 									if(c == null)
 									{
-										c = new Table<E, K>.Cluster(t, i.Id);
-										t.Clusters.Add(c);
+										c = t.AddCluster(i.Id);
 									}
 		
-									var d = peer.Request(new DownloadTableRequest {Table = t.Type, ClusterId = i.Id, Offset = 0, Length = i.Length});
+									var d = peer.Request(new DownloadTableRequest {	McvGuid = Mcv.Guid, 
+																					Table = t.Id, 
+																					ClusterId = i.Id, 
+																					Offset = 0, 
+																					Length = i.Length});
 											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
 										
@@ -1050,10 +1044,13 @@ namespace Uccs.Net
 							t.CalculateSuperClusters();
 						}
 		
-						download(Mcv.Accounts);
-						download(Mcv.Domains);
+						foreach(var i in Mcv.Tables)
+						{
+							download(i);
+						}
 		
-						var r = new Round(Mcv) {Confirmed = true};
+						var r = Mcv.CreateRound();
+						r.Confirmed = true;
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
 						var s = peer.Request(new StampRequest());
@@ -1090,7 +1087,7 @@ namespace Uccs.Net
 		
 						to = from + Mcv.P;
 		
-						var rp = peer.Request(new DownloadRoundsRequest{From = from, To = to});
+						var rp = peer.Request(new DownloadRoundsRequest {McvGuid = Mcv.Guid, From = from, To = to});
 
 						lock(Lock)
 						{

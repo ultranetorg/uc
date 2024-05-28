@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class ResourceCreation : Operation
+	public class ResourceCreation : RdsOperation
 	{
 		public Ura					Resource { get; set; }
 		public ResourceChanges		Changes { get; set; }
@@ -43,7 +43,7 @@ namespace Uccs.Net
 			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			if(RequireDomain(round, Signer, Resource.Domain, out var a) == false)
 				return;

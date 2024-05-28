@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class DomainMigration : Operation
+	public class DomainMigration : RdsOperation
 	{
 		public string			Name;
 		public string			Tld;
@@ -75,7 +75,7 @@ namespace Uccs.Net
 			Generator			= reader.Read<EntityId>();
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			var a = mcv.Domains.Find(Name, round.Id);
 
@@ -91,7 +91,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public void ConfirmedExecute(Round round)
+		public void ConfirmedExecute(RdsRound round)
 		{
 			var a = round.AffectDomain(Name);
 

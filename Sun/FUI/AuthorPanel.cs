@@ -162,46 +162,51 @@ namespace Uccs.Sun.FUI
 			//{
 			//	ShowError(ex.Message);
 			//}
+
+			throw new NotImplementedException();
 		}
 
 		private void AuctionDomain_TextChanged(object sender, EventArgs e)
 		{
-			AuctionStatus.Text = null;
+// 			AuctionStatus.Text = null;
+// 
+// 			if(Domain.IsWeb(DomainSearch.Text))
+// 			{
+// 				var a = Database.Domains.Find(DomainSearch.Text, Database.LastConfirmedRound.Id);
+// 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
+// 
+// 				if(a != null && !Domain.CanBid(a, Database.LastConfirmedRound.ConsensusTime))
+// 				{
+// 					AuctionStatus.Text = $"Auction is over";
+// 				}
+// 				else
+// 				{
+// 					Bid.Coins = a.LastBid;
+// 					AuctionStatus.Text = $"Ongoing auction:  more than {a.LastBid} UNT required";
+// 				}
+// 			}
+// 			//else
+// 			//	AuctionStatus.Text = $"Domain name must be less than {DomainEntry.ExclusiveLengthMax} characters"; 
 
-			if(DomainEntry.IsWeb(DomainSearch.Text))
-			{
-				var a = Database.Domains.Find(DomainSearch.Text, Database.LastConfirmedRound.Id);
-				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
-
-				if(a != null && !Domain.CanBid(a, Database.LastConfirmedRound.ConsensusTime))
-				{
-					AuctionStatus.Text = $"Auction is over";
-				}
-				else
-				{
-					Bid.Coins = a.LastBid;
-					AuctionStatus.Text = $"Ongoing auction:  more than {a.LastBid} UNT required";
-				}
-			}
-			//else
-			//	AuctionStatus.Text = $"Domain name must be less than {DomainEntry.ExclusiveLengthMax} characters"; 
+			throw new NotImplementedException();
 		}
 
 		private void Transfer_Click(object sender, EventArgs e)
 		{
-			try
-			{
-				if(string.IsNullOrWhiteSpace(DomainSearch.Text))
-					throw new ArgumentException("The domain is not selected");
-
-				var a = Database.Domains.Find(DomainSearch.Text, int.MaxValue);
-
-				//Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
-			}
-			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
-			{
-				ShowError(ex.Message);
-			}
+// 			try
+// 			{
+// 				if(string.IsNullOrWhiteSpace(DomainSearch.Text))
+// 					throw new ArgumentException("The domain is not selected");
+// 
+// 				var a = Database.Domains.Find(DomainSearch.Text, int.MaxValue);
+// 
+// 				//Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
+// 			}
+// 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
+// 			{
+// 				ShowError(ex.Message);
+// 			}
+			throw new NotImplementedException();
 		}
 
 		private void MakeBid_Click(object sender, EventArgs e)

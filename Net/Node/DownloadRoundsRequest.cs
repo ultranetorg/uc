@@ -7,6 +7,7 @@ namespace Uccs.Net
 {
 	public class DownloadRoundsRequest : RdcCall<DownloadRoundsResponse>
 	{
+		public Guid McvGuid { get; set; } ///
 		public int From { get; set; }
 		public int To { get; set; }
 		
@@ -25,8 +26,8 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			
-				//From	= Math.Min(From, sun.Mcv.LastConfirmedRound.Id);
-				//To		= Math.Min(To, sun.Mcv.LastConfirmedRound.Id);
+				/// USE McvGuid
+				McvGuid = McvGuid;
 
 				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)).Where(i => i != null && i.Confirmed), i => i.Write(w));
 			
@@ -45,7 +46,7 @@ namespace Uccs.Net
 		public byte[]	BaseHash{ get; set; }
 		public byte[]	Rounds { get; set; }
 
-		public Round[] Read(Mcv chain)
+		public Round[] Read(Mcv mcv)
 		{
 			if(Rounds == null)
 				return [];
@@ -53,7 +54,7 @@ namespace Uccs.Net
 			var rd = new BinaryReader(new MemoryStream(Rounds));
 
 			return rd.ReadArray(() =>{
-										var r = new Round(chain);
+										var r = mcv.CreateRound();
 										r.Read(rd);
 										return r;
 									});

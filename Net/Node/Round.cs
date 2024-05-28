@@ -44,7 +44,6 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
 		public ForeignResult[]								ConsensusEmissions = {};
-		public ForeignResult[]								ConsensusMigrations = {};
 		public Money										ConsensusExeunitFee;
 		public int											ConsensusTransactionsOverflowRound;
 
@@ -58,14 +57,12 @@ namespace Uccs.Net
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;
-		public List<DomainMigration>						Migrations;
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextDomainIds;
 		public List<long>									Last365BaseDeltas;
 		public long											PreviousDayBaseSize;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
-		public Dictionary<string, DomainEntry>				AffectedDomains = new();
 
 		public Mcv											Mcv;
 		public Zone											Zone => Mcv.Zone;
@@ -101,16 +98,20 @@ namespace Uccs.Net
 			}
 		}
 
-
 		public Round(Mcv c)
 		{
 			Mcv = c;
 		}
+
 		public override string ToString()
 		{
 			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConsensusTime}, {(Confirmed ? "Confirmed, " : "")}Hash={Hash?.ToHex()}";
 		}
 
+		public virtual IEnumerable<object> AffectedByTable(TableBase table)
+		{
+			throw new IntegrityException();
+		}
 
 		public void Distribute(Money amount, IEnumerable<AccountAddress> a)
 		{
@@ -174,7 +175,7 @@ namespace Uccs.Net
 			else
 			{
 				var ci = Mcv.Accounts.KeyToCluster(account).ToArray();
-				var c = Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ci));
+				var c = Mcv.Accounts.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
 
 				int ai;
 				
@@ -191,56 +192,8 @@ namespace Uccs.Net
 			}
 		}
 
-		public DomainEntry AffectDomain(string domain)
+		public virtual void Elect(Vote[] votes, int gq)
 		{
-			if(AffectedDomains.TryGetValue(domain, out DomainEntry a))
-				return a;
-			
-			var e = Mcv.Domains.Find(domain, Id - 1);
-
-			if(e != null)
-			{
-				AffectedDomains[domain] = e.Clone();
-				AffectedDomains[domain].Affected  = true;;
-				return AffectedDomains[domain];
-			}
-			else
-			{
-				var ci = Mcv.Domains.KeyToCluster(domain).ToArray();
-				var c = Mcv.Domains.Clusters.Find(i => i.Id.SequenceEqual(ci));
-
-				int ai;
-				
-				if(c == null)
-					NextDomainIds[ci] = 0;
-				else
-					NextDomainIds[ci] = c.NextEntityId;
-				
-				ai = NextDomainIds[ci]++;
-
-				return AffectedDomains[domain] = new DomainEntry(Mcv){	Affected = true,
-																		New = true,
-																		Id = new EntityId(ci, ai), 
-																		Address = domain};
-			}
-		}
-
-		public DomainEntry AffectDomain(EntityId id)
-		{
-			var a = AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
-			
-			if(a != null)
-				return a;
-			
-			a = Mcv.Domains.Find(id, Id - 1);
-
-			if(a == null)
-				throw new IntegrityException();
-			
-			AffectedDomains[a.Address] = a.Clone();
-			AffectedDomains[a.Address].Affected  = true;;
-
-			return AffectedDomains[a.Address];
 		}
 
 		public byte[] Summarize()
@@ -321,10 +274,6 @@ namespace Uccs.Net
 											.Where(x => Emissions.Any(e => e.Id == x.OperationId) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
 											.Order().ToArray();
 
-				ConsensusMigrations		= gu.SelectMany(i => i.Migrations).Distinct()
-											.Where(x => Migrations.Any(b => b.Id == x.OperationId) && gu.Count(b => b.Migrations.Contains(x)) >= gq)
-											.Order().ToArray();
-
 				ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
 											.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
 											.Order().ToArray();
@@ -332,11 +281,25 @@ namespace Uccs.Net
 				ConsensusFundLeavers	= gu.SelectMany(i => i.FundLeavers).Distinct()
 											.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
 											.Order().ToArray();
+
+				Elect(gu, gq);
 			}
 
 			Hashify(); /// depends on BaseHash 
 
 			return Hash;
+		}
+
+		public virtual void InitializeExecution()
+		{
+		}
+
+		public virtual void RestartExecution()
+		{
+		}
+
+		public virtual void FinishExecution()
+		{
 		}
 
 		public void Execute(IEnumerable<Transaction> transactions)
@@ -354,8 +317,9 @@ namespace Uccs.Net
 			Members				= Id == 0 ? new()								: Previous.Members;
 			Funds				= Id == 0 ? new()								: Previous.Funds;
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
-			Migrations			= Id == 0 ? new()								: Previous.Migrations;
 			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
+
+			InitializeExecution();
 
 		start: 
 			Rewards			= 0;
@@ -365,12 +329,8 @@ namespace Uccs.Net
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
 			AffectedAccounts.Clear();
-			AffectedDomains.Clear();
 
-			//foreach(var t in transactions)
-			//	foreach(var o in t.Operations)
-			//	{	o.Reward = ConsensusExeunitFee;
-			//	}
+			RestartExecution();
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -421,21 +381,12 @@ namespace Uccs.Net
 				}
 			}
 
-			foreach(var a in AffectedDomains)
-			{
-				a.Value.Affected = false;
-
-				if(a.Value.Resources != null)
-					foreach(var r in a.Value.Resources.Where(i => i.Affected))
-					{
-						r.Affected = false;
-
-						if(r.Outbounds != null)
-							foreach(var l in r.Outbounds.Where(i => i.Affected))
-								l.Affected = false;
-					}
-			}
+			FinishExecution();
 		}
+
+		public virtual void CopyConfirmed(){}
+		public virtual void RegisterForeign(Operation o){}
+		public virtual void ConfirmForeign(){}
 
 		public void Confirm()
 		{
@@ -452,7 +403,8 @@ namespace Uccs.Net
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
 			Emissions			= Emissions.ToList();
-			Migrations			= Migrations.ToList();
+
+			CopyConfirmed();
 			
 			foreach(var t in ConsensusTransactions)
 			{
@@ -464,11 +416,7 @@ namespace Uccs.Net
 						Emissions.Add(e);
 					}
 
-					if(o is DomainMigration m)
-					{
-						m.Generator = m.Transaction.Generator;
-						Migrations.Add(m);
-					}
+					RegisterForeign(o);
 				}
 			}
 
@@ -487,21 +435,7 @@ namespace Uccs.Net
 
 			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
 
-			foreach(var i in ConsensusMigrations)
-			{
-				var e = Migrations.Find(j => j.Id == i.OperationId);
-
-				if(i.Approved)
-				{
-					e.ConfirmedExecute(this);
-					Migrations.Remove(e);
-				} 
-				else
-					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
-			}
-
-			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
-
+			ConfirmForeign();
 	
 			foreach(var t in OrderedTransactions)
 			{
@@ -567,21 +501,28 @@ namespace Uccs.Net
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
-				var accs = new Dictionary<AccountAddress, AccountEntry>();
-				var doms = new Dictionary<string, DomainEntry>();
+				///var accs = new Dictionary<AccountAddress, AccountEntry>();
+				///var doms = new Dictionary<string, DomainEntry>();
+				///
+				///foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
+				///{
+				///	foreach(var i in r.AffectedAccounts)
+				///		if(!accs.ContainsKey(i.Key))
+				///			accs.Add(i.Key, i.Value);
+				///
+				///	foreach(var i in r.AffectedDomains)
+				///		if(!doms.ContainsKey(i.Key))
+				///			doms.Add(i.Key, i.Value);
+				///}
 
-				foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
+				long s = Mcv.Size;
+				
+				foreach(var t in Mcv.Tables)
 				{
-					foreach(var i in r.AffectedAccounts)
-						if(!accs.ContainsKey(i.Key))
-							accs.Add(i.Key, i.Value);
-
-					foreach(var i in r.AffectedDomains)
-						if(!doms.ContainsKey(i.Key))
-							doms.Add(i.Key, i.Value);
+					s += t.MeasureChanges(Mcv.Tail.SkipWhile(i => i != this));
 				}
 
-				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accs.Values) + Mcv.Domains.MeasureChanges(doms.Values);
+				/// + Mcv.Accounts.MeasureChanges(accs.Values) + Mcv.Domains.MeasureChanges(doms.Values);
 								
 				Last365BaseDeltas.RemoveAt(0);
 				Last365BaseDeltas.Add(s - PreviousDayBaseSize);
@@ -610,7 +551,7 @@ namespace Uccs.Net
 			Hash = Mcv.Zone.Cryptography.Hash(s.ToArray());
 		}
 
-		public void WriteBaseState(BinaryWriter writer)
+		public virtual void WriteBaseState(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Id);
 			writer.Write(Hash);
@@ -626,10 +567,9 @@ namespace Uccs.Net
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Funds);
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
-			writer.Write(Migrations, i => i.WriteBaseState(writer));
 		}
 
-		public void ReadBaseState(BinaryReader reader)
+		public virtual void ReadBaseState(BinaryReader reader)
 		{
 			Id									= reader.Read7BitEncodedInt();
 			Hash								= reader.ReadHash();
@@ -645,10 +585,9 @@ namespace Uccs.Net
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Funds					= reader.ReadList<AccountAddress>();
 			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
-			Migrations				= reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
 		}
 
-		public void WriteConfirmed(BinaryWriter writer)
+		public virtual void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConsensusTime);
 			writer.Write(ConsensusExeunitFee);
@@ -658,11 +597,10 @@ namespace Uccs.Net
 			writer.Write(ConsensusFundLeavers);
 			writer.Write(ConsensusViolators);
 			writer.Write(ConsensusEmissions);
-			writer.Write(ConsensusMigrations);
 			writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		}
 
-		public void ReadConfirmed(BinaryReader reader)
+		public virtual void ReadConfirmed(BinaryReader reader)
 		{
 			ConsensusTime						= reader.Read<Time>();
 			ConsensusExeunitFee					= reader.Read<Money>();
@@ -672,7 +610,6 @@ namespace Uccs.Net
 			ConsensusFundLeavers				= reader.ReadArray<AccountAddress>();
 			ConsensusViolators					= reader.ReadArray<AccountAddress>();
 			ConsensusEmissions					= reader.ReadArray<ForeignResult>();
-			ConsensusMigrations					= reader.ReadArray<ForeignResult>();
 			ConsensusTransactions				= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 

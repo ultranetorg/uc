@@ -28,10 +28,11 @@ namespace Uccs.Net
 		NotSeed,
 		NotMember,
 		NotSynchronized,
+		NotUnlocked,
+		NoMcv,
 		TooEearly,
 		AllNodesFailed,
 		NotOnlineYet,
-		NotUnlocked,
 		CircularRoute,
 	}
 
@@ -47,6 +48,7 @@ namespace Uccs.Net
 	{
 		None,
 		IncorrectRequest,
+		OutOfRange,
 	}
 
 	public enum ResourceError : byte

@@ -103,7 +103,7 @@ namespace Uccs.Net
 
 		public static RdcRequest FromType(RdcClass type)
 		{
-			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
+			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor([]).Invoke(null) as RdcRequest;
 		}
 
 		public RdcResponse SafeExecute(Sun sun)
@@ -152,6 +152,18 @@ namespace Uccs.Net
 
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new NodeException(NodeError.NotSynchronized);
+		}
+
+		protected Rds RequireRdsBase(Sun sun)
+		{
+			RequireBase(sun);
+
+			var r = sun.Mcv as Rds;
+
+			if(r == null)
+				throw new NodeException(NodeError.NoMcv);
+
+			return r;
 		}
 
 		protected void RequireMember(Sun sun)

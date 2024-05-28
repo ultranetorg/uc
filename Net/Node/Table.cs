@@ -3,31 +3,81 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Nethereum.Signer;
 using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public enum Tables
+	public abstract class TableBase
 	{
-		None, Accounts, Domains,
-	}
+		public const int							SuperClustersCountMax = byte.MaxValue + 1;
+		const int									ClustersCacheLimit = 1000;
 
-	public abstract class Table<E, K> : IEnumerable<E> where E : class, ITableEntry<K>
-	{
-		public class Cluster
+		public Dictionary<byte, byte[]>				SuperClusters = new();
+		public abstract IEnumerable<ClusterBase>	Clusters { get; }
+		protected ColumnFamilyHandle				MetaColumn;
+		protected ColumnFamilyHandle				MainColumn;
+		protected ColumnFamilyHandle				MoreColumn;
+		protected RocksDb							Engine;
+		protected Mcv								Mcv;
+		public abstract int							Size { get; }
+		public int									Id => Array.IndexOf(Mcv.Tables, this);
+
+		public abstract class ClusterBase
 		{
 			public const int		IdLength = 2;
 
-			public int				Round;
 			public byte[]			Id;
 			public byte				SuperId => Id[1];
 			public int				MainLength;
-			List<E>					_Entries;
-			Table<E, K>				Table;
-			byte[]					_Main;
  			public int				NextEntityId;				
 			public byte[]			Hash { get; protected set; }
+			public abstract byte[]	Main { get; }
+
+			public abstract			IEnumerable<ITableEntryBase> BaseEntries { get; }
+
+			public abstract void	Read(BinaryReader reader);
+			public abstract void	Save(WriteBatch batch);
+		}
+
+		public abstract ClusterBase		AddCluster(byte[] id);
+		public abstract long			MeasureChanges(IEnumerable<Round> tail);
+		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities);
+
+		public void CalculateSuperClusters()
+		{
+			if(!Clusters.Any())
+				return;
+
+			var ocs = Clusters.OrderBy(i => i.Id, Bytes.Comparer);
+
+			byte b = ocs.First().SuperId;
+			byte[] h = ocs.First().Hash;
+
+			foreach(var i in ocs.Skip(1))
+			{
+				if(b != i.SuperId)
+				{
+					SuperClusters[b] = h;
+					b = i.SuperId;
+					h = i.Hash;
+				}
+				else
+					h = Mcv.Zone.Cryptography.Hash(Bytes.Xor(h, i.Hash));
+			}
+
+			SuperClusters[b] = h;
+		}
+	}
+
+	public abstract class Table<E, K> : TableBase, IEnumerable<E> where E : class, ITableEntry<K>
+	{
+		public class Cluster : ClusterBase
+		{
+			List<E>			_Entries;
+			Table<E, K>		Table;
+			byte[]			_Main;
+
+			public override IEnumerable<ITableEntryBase> BaseEntries => Entries;
 
 			public List<E> Entries
 			{
@@ -40,11 +90,11 @@ namespace Uccs.Net
 							var s = new MemoryStream(Main);
 							var r = new BinaryReader(s);
 	
-							var a = r.ReadArray(() => { 
-															var e = Table.Create();
-															e.Id = new EntityId(Id, r.Read7BitEncodedInt());
-															e.ReadMain(r);
-															return e;
+							var a = r.ReadArray(() =>{ 
+														var e = Table.Create();
+														e.Id = new EntityId(Id, r.Read7BitEncodedInt());
+														e.ReadMain(r);
+														return e;
 													 });
 					
 							s = new MemoryStream(Table.Engine.Get(Id, Table.MoreColumn));
@@ -65,7 +115,7 @@ namespace Uccs.Net
 				}
 			}
 
-			public byte[] Main
+			public override byte[] Main
 			{
 				get
 				{
@@ -95,7 +145,7 @@ namespace Uccs.Net
 				}
 			}
 
-			public void Save(WriteBatch batch)
+			public override void Save(WriteBatch batch)
 			{
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
@@ -133,7 +183,7 @@ namespace Uccs.Net
 				writer.Write(Main);
 			}
 
-			public void Read(BinaryReader reader)
+			public override void Read(BinaryReader reader)
 			{
 				_Entries = reader.ReadList<E>(() => { 
 														var e = Table.Create();
@@ -149,33 +199,17 @@ namespace Uccs.Net
 			}
 		}
 
-		public const int				SuperClustersCountMax = byte.MaxValue + 1;
-		const int						ClustersCacheLimit = 1000;
-		public Tables					Type
-										{
-											get
-											{
-												if(GetType() == typeof(AccountTable)) return Tables.Accounts;
-												if(GetType() == typeof(DomainTable)) return Tables.Domains;
+		public override IEnumerable<ClusterBase>	Clusters => _Clusters;
+		public List<Cluster>						_Clusters = new();
+		public static string						MetaColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
+		public static string						MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
+		public static string						MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 
-												throw new IntegrityException();
-											}
-										}
+		protected abstract E						Create();
+		public abstract Span<byte>					KeyToCluster(K k);
+		public abstract bool						Equal(K a, K b);
 
-		public Dictionary<byte, byte[]> SuperClusters = new();
-		public List<Cluster>			Clusters = new();
-		ColumnFamilyHandle				MetaColumn;
-		ColumnFamilyHandle				MainColumn;
-		ColumnFamilyHandle				MoreColumn;
-		public static string			MetaColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
-		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
-		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
-		RocksDb							Engine;
-		protected Mcv					Mcv;
-
-		protected abstract E			Create();
-		public abstract Span<byte>		KeyToCluster(K k);
-		public abstract bool			Equal(K a, K b);
+		public override int							Size => Clusters.Sum(i => i.MainLength);
 
 		public Table(Mcv chain)
 		{
@@ -191,16 +225,24 @@ namespace Uccs.Net
 				{
 	 				var c = new Cluster(this, i.Key());
 					//c.Hash = i.Value();
-	 				Clusters.Add(c);
+	 				_Clusters.Add(c);
 				}
 			}
 
 			CalculateSuperClusters();
 		}
 
+		public override ClusterBase AddCluster(byte[] id)
+		{
+			var c = new Cluster(this, id);
+			_Clusters.Add(c);
+			
+			return c;
+		}
+
 		public void Clear()
 		{
-			Clusters.Clear();
+			_Clusters.Clear();
 			SuperClusters.Clear();
 
 			Engine.DropColumnFamily(MetaColumnName);
@@ -210,31 +252,6 @@ namespace Uccs.Net
 			MetaColumn = Engine.CreateColumnFamily(new (), MetaColumnName);
 			MainColumn = Engine.CreateColumnFamily(new (), MainColumnName);
 			MoreColumn = Engine.CreateColumnFamily(new (), MoreColumnName);
-		}
-
-		public void CalculateSuperClusters()
-		{
-			if(!Clusters.Any())
-				return;
-
-			var ocs = Clusters.OrderBy(i => i.Id, Bytes.Comparer);
-
-			byte b = ocs.First().SuperId;
-			byte[] h = ocs.First().Hash;
-
-			foreach(var i in ocs.Skip(1))
-			{
-				if(b != i.SuperId)
-				{
-					SuperClusters[b] = h;
-					b = i.SuperId;
-					h = i.Hash;
-				}
-				else
-					h = Mcv.Zone.Cryptography.Hash(Bytes.Xor(h, i.Hash));
-			}
-
-			SuperClusters[b] = h;
 		}
 
 		public class Enumerator : IEnumerator<E>
@@ -250,7 +267,7 @@ namespace Uccs.Net
 			{
 				Table = table;
 
-				Cluster = Table.Clusters.GetEnumerator();
+				Cluster = Table._Clusters.GetEnumerator();
 			}
 
 			public void Dispose()
@@ -286,7 +303,7 @@ namespace Uccs.Net
 			public void Reset()
 			{
 				Entity = null;
-				Cluster = Table.Clusters.GetEnumerator();
+				Cluster = Table._Clusters.GetEnumerator();
 			}
 		}
 
@@ -302,13 +319,13 @@ namespace Uccs.Net
 
 		Cluster GetCluster(byte[] id)
 		{
-			var c = Clusters.Find(i => i.Id.SequenceEqual(id));
+			var c = _Clusters.Find(i => i.Id.SequenceEqual(id));
 
 			if(c != null)
 				return c;
 
 			c = new Cluster(this, id);
-			Clusters.Add(c);
+			_Clusters.Add(c);
 
 			//Recycle();
 
@@ -320,7 +337,7 @@ namespace Uccs.Net
 			var cid = KeyToCluster(key).ToArray();
 			//var cid = Cluster.ToId(bcid);
 
-			var c = Clusters.Find(i => i.Id.SequenceEqual(cid));
+			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
 
 			if(c == null)
 				return default(E);
@@ -337,7 +354,7 @@ namespace Uccs.Net
 
 		public E FindEntry(EntityId id)
 		{
-			var c = Clusters.Find(i => i.Id.SequenceEqual(id.Ci));
+			var c = _Clusters.Find(i => i.Id.SequenceEqual(id.Ci));
 
 			if(c == null)
 				return default(E);
@@ -359,14 +376,14 @@ namespace Uccs.Net
 			//}
 		}
 
-		public void Save(WriteBatch batch, IEnumerable<E> entities)
+		public override void Save(WriteBatch batch, IEnumerable<object> entities)
 		{
 			if(!entities.Any())
 				return;
 
 			var cs = new HashSet<Cluster>();
 
-			foreach(var i in entities)
+			foreach(var i in entities.Cast<E>())
 			{
 				var c = GetCluster(i.Id.Ci);
 
@@ -388,20 +405,30 @@ namespace Uccs.Net
 			CalculateSuperClusters();
 		}
 
-		public long MeasureChanges(IEnumerable<E> affected)
+		public override long MeasureChanges(IEnumerable<Round> tail)
 		{
+			var affected = new Dictionary<K, E>();
+
+			foreach(var r in tail)
+			{
+				foreach(var i in r.AffectedByTable(this).Cast<E>())
+					if(!affected.ContainsKey(i.Key))
+						affected.Add(i.Key, i);
+			}
+
+
 			var se = new FakeStream();
 			var we = new BinaryWriter(se);
-			we.Write7BitEncodedInt(Clusters.Count);
+			we.Write7BitEncodedInt(_Clusters.Count);
 
 			var si = new FakeStream();
 			var wi = new BinaryWriter(si);
 
 			int n = 0;
 
-			foreach(var i in affected)
+			foreach(var i in affected.Values)
 			{
-				var c = Clusters.Find(j => j.Id.SequenceEqual(i.Id.Ci));
+				var c = _Clusters.Find(j => j.Id.SequenceEqual(i.Id.Ci));
 
 				var e = c?.Entries.Find(e => Equal(e.Key, i.Key));
 				
@@ -417,7 +444,7 @@ namespace Uccs.Net
 				i.WriteMain(wi);
 			}
 
-			wi.Write7BitEncodedInt(Clusters.Count + n);
+			wi.Write7BitEncodedInt(_Clusters.Count + n);
 
 			return si.Length - se.Length ;
 		}

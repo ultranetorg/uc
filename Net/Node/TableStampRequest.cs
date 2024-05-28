@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 
 namespace Uccs.Net
 {
 	public class TableStampRequest : RdcCall<TableStampResponse>
 	{
-		public Tables	Table { get; set; }
+		public int		Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(SuperClusters.Length > AccountTable.SuperClustersCountMax)
+			if(SuperClusters.Length > TableBase.SuperClustersCountMax)
 				throw new RequestException(RequestError.IncorrectRequest);
 
 			lock(sun.Lock)
@@ -20,14 +20,12 @@ namespace Uccs.Net
 				if(sun.Mcv.BaseState == null)
 					throw new NodeException(NodeError.TooEearly);
 
-				switch(Table)
-				{
-					case Tables.Accounts : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Domains	 : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Domains.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+				if(Table < 0 || sun.Mcv.Tables.Length <= Table)
+					throw new RequestException(RequestError.OutOfRange);
 
-					default:
-						throw new RequestException(RequestError.IncorrectRequest);
-				}
+				return new TableStampResponse{Clusters = SuperClusters	.SelectMany(s => sun.Mcv.Tables[Table].Clusters
+																		.Where(c => c.SuperId == s)
+																		.Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 			}
 		}
 	}

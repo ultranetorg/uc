@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class ResourceLinkDeletion : Operation
+	public class ResourceLinkDeletion : RdsOperation
 	{
 		public ResourceId	Source { get; set; }
 		public ResourceId	Destination { get; set; }
@@ -33,7 +33,7 @@ namespace Uccs.Net
 			Destination	= reader.Read<ResourceId>();
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			if(Require(round, Signer, Source, out var sd, out var sr) == false)
 				return;

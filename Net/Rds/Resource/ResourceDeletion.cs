@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class ResourceDeletion : Operation
+	public class ResourceDeletion : RdsOperation
 	{
 		public new ResourceId		Id { get; set; }
 
@@ -25,7 +25,7 @@ namespace Uccs.Net
 			writer.Write(Id);
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			if(Require(round, Signer, Id, out var a, out var r) == false)
 				return;

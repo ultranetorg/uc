@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 			{
 				NetworkReleases.Items.Clear();
 
-				foreach(var r in Sun.Mcv.QueryResource(NetworkQuery.Text))
+				foreach(var r in (Sun.Mcv as Rds).QueryResource(NetworkQuery.Text))
 				{
 					var i = new ListViewItem(r.Id.ToString());
 

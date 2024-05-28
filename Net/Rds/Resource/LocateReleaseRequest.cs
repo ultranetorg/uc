@@ -11,7 +11,10 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
+			{	
+				RequireRdsBase(sun);
 				RequireMember(sun);
+			}
 
 			lock(sun.SeedHub.Lock)
 				return new LocateReleaseResponse {Seeders = sun.SeedHub.Locate(this)}; 

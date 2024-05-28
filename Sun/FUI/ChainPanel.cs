@@ -123,7 +123,11 @@ namespace Uccs.Sun.FUI
 				FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
 				Emissions.Items.AddRange(r.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
-				Migrations.Items.AddRange(r.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
+				
+				if(r is RdsRound rr)
+				{
+					Migrations.Items.AddRange(rr.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
+				}
 			}
 		}
 

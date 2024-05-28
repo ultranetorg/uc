@@ -7,10 +7,12 @@ namespace Uccs.Net
 {
 	public class DomainTable : Table<DomainEntry, string>
 	{
-		public override bool		Equal(string a, string b) => a.Equals(b);
-		public override Span<byte>	KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, Cluster.IdLength));
+		public IEnumerable<RdsRound>	Tail => Mcv.Tail.Cast<RdsRound>();
 
-		public DomainTable(Mcv chain) : base(chain)
+		public override bool			Equal(string a, string b) => a.Equals(b);
+		public override Span<byte>		KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
+
+		public DomainTable(Rds rds) : base(rds)
 		{
 		}
 		
@@ -24,7 +26,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
  				if(r.AffectedDomains.TryGetValue(name, out DomainEntry v))
  					return v;
  		
@@ -36,7 +38,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			foreach(var r in Tail.Where(i => i.Id <= ridmax))
 			{
 				var a = r.AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
 				
@@ -52,7 +54,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedDomains.TryGetValue(resource.Domain, out DomainEntry a))
 				{	
 					var x = a.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
@@ -70,7 +72,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
 			{
 				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 

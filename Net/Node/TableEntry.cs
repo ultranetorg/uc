@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
-	public interface ITableEntry<K>
+	public interface ITableEntryBase
 	{
 		EntityId	Id { get; set; }
-		K			Key { get; }
 		bool		New { get; set; }
 
 		void		ReadMain(BinaryReader r);
@@ -16,5 +12,10 @@ namespace Uccs.Net
 
 		void		ReadMore(BinaryReader r);
 		void		WriteMore(BinaryWriter r);
+	}
+
+	public interface ITableEntry<K> : ITableEntryBase
+	{
+		K			Key { get; }
 	}
 }

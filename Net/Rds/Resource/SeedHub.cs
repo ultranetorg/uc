@@ -40,6 +40,7 @@ namespace Uccs.Net
 		public Dictionary<ResourceId, List<Urr>>	Resources = [];
 		public object								Lock = new ();
 		Sun											Sun;
+		Rds											Rds => Sun.Mcv as Rds;
 
 		public SeedHub(Sun sun)
 		{
@@ -86,11 +87,11 @@ namespace Uccs.Net
 						{
 							if(rzd is Urrh dh)
 							{
-								var z = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+								var z = Rds.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(z == null)
 								{
-									var e = Sun.Mcv.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+									var e = Rds.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
 									if(e?.Data == null || e.Data.Interpretation is Urrh ha && ha != dh)
 									{
@@ -101,7 +102,7 @@ namespace Uccs.Net
 							}
 							else if(rzd is Urrsd sdp)
 							{
-								var ea = Sun.Mcv.Domains.Find(rsd.Resource.DomainId, Sun.Mcv.LastConfirmedRound.Id);
+								var ea = Rds.Domains.Find(rsd.Resource.DomainId, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(!sdp.Prove(Sun.Zone.Cryptography, ea.Owner, rsd.Hash))
 								{

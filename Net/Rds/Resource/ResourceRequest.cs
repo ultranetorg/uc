@@ -27,14 +27,14 @@
 		{
  			lock(sun.Lock)
 			{	
-				RequireBase(sun);
- 			
 				Resource r;
 
+				var rds = RequireRdsBase(sun);
+
 				if(Identifier.Addres != null)
-					r = sun.Mcv.Domains.FindResource(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
+					r = rds.Domains.FindResource(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					r = sun.Mcv.Domains.FindResource(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+					r = rds.Domains.FindResource(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

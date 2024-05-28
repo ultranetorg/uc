@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Uccs.Net
 {
-	public class DomainRegistration : Operation
+	public class DomainRegistration : RdsOperation
 	{
 		public string				Address {get; set;}
 		public byte					Years {get; set;}
@@ -51,7 +51,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			var e = mcv.Domains.Find(Address, round.Id);
 						

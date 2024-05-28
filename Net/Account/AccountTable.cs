@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.IO;
-using Nethereum.Model;
-using RocksDbSharp;
-using Nethereum.Signer;
-using System.Diagnostics;
 
 namespace Uccs.Net
 {
 	public class AccountTable : Table<AccountEntry, AccountAddress>
 	{
 		public override bool		Equal(AccountAddress a, AccountAddress b) => a.Equals(b);
-		public override Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, Cluster.IdLength);
+		public override Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, ClusterBase.IdLength);
 
 		public AccountTable(Mcv chain) : base(chain)
 		{

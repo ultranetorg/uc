@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class DomainBid : Operation
+	public class DomainBid : RdsOperation
 	{
 		public string			Name;
 		public Money			Bid;
@@ -63,7 +63,7 @@ namespace Uccs.Net
 			Bid					= reader.Read<Money>();
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			var a = round.AffectDomain(Name);
 

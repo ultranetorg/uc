@@ -8,7 +8,7 @@ namespace Uccs.Net
 		None, Renew, Transfer, ChangePolicy
 	}
 
-	public class DomainUpdation : Operation
+	public class DomainUpdation : RdsOperation
 	{
 		public new EntityId			Id {get; set;}
 		public DomainAction			Action  {get; set;}
@@ -69,7 +69,7 @@ namespace Uccs.Net
 
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			var e = mcv.Domains.Find(Id, round.Id);
 			

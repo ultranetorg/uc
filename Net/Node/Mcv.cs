@@ -13,10 +13,12 @@ namespace Uccs.Net
 	public delegate void ConsensusDelegate(Round b, bool reached);
 	public delegate void RoundDelegate(Round b);
 
-	public class Mcv /// Mutual chain voting
+	public abstract class Mcv /// Mutual chain voting
 	{
 		public Log							Log;
 		
+		public abstract Guid				Guid { get; }
+
 		public const int					P = 8; /// pitch
 		public const int					DeclareToGenerateDelay = P*2;
 		public const int					TransactionPlacingLifetime = P*2;
@@ -43,9 +45,8 @@ namespace Uccs.Net
 		static readonly byte[]				ChainStateKey = [0x03];
 		static readonly byte[]				GenesisKey = [0x04];
 		public AccountTable					Accounts;
-		public DomainTable					Domains;
-		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
-													Domains.Clusters.Sum(i => i.MainLength);
+		public TableBase[] 					Tables;
+		public int							Size => Tables.Sum(i => i.Size);
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
@@ -61,30 +62,16 @@ namespace Uccs.Net
 		public bool							IsCommitReady(Round round) => (round.Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
+		protected abstract void				CreateTables(string databasepath);
+		public abstract Round				CreateRound();
+
 		public Mcv(Zone zone, Role roles, McvSettings settings, string databasepath)
 		{
 			Roles = roles & (Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
 
-			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
-
-			var cfs = new ColumnFamilies();
-			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (DomainTable.MetaColumnName,	new ()),
-																new (DomainTable.MainColumnName,	new ()),
-																new (DomainTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,				new ())})
-				cfs.Add(i);
-
-			Database = RocksDb.Open(dbo, databasepath, cfs);
-
-			Accounts = new (this);
-			Domains = new (this);
+			CreateTables(databasepath);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 
@@ -108,29 +95,12 @@ namespace Uccs.Net
 			}
 		}
 
-		Mcv(Zone zone, string databasepath)
+		protected Mcv(Zone zone, string databasepath)
 		{
 			Roles = Role.Chain;
 			Zone = zone;
 
-			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
-
-			var cfs = new ColumnFamilies();
-			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (DomainTable.MetaColumnName,	new ()),
-																new (DomainTable.MainColumnName,	new ()),
-																new (DomainTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,				new ())})
-				cfs.Add(i);
-
-			Database = RocksDb.Open(dbo, databasepath, cfs);
-
-			Accounts = new (this);
-			Domains = new (this);
+			CreateTables(databasepath);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 		}
@@ -145,7 +115,7 @@ namespace Uccs.Net
 						
 				for(int i = 0; i <=1+P + 1+P + P; i++)
 				{
-					var r = new Round(this);
+					var r = CreateRound();
 					r.Read(rd);
 		
 					Tail.Insert(0, r);
@@ -187,7 +157,7 @@ namespace Uccs.Net
 			{
 				var r = new BinaryReader(new MemoryStream(BaseState));
 		
-				LastCommittedRound = new Round(this);
+				LastCommittedRound = CreateRound();
 				LastCommittedRound.ReadBaseState(r);
 
 				LoadedRounds.Add(LastCommittedRound.Id, LastCommittedRound);
@@ -221,6 +191,10 @@ namespace Uccs.Net
 			}
 		}
 
+		public virtual void ClearTables()
+		{
+	}
+
 		public void Clear()
 		{
 			Tail.Clear();
@@ -233,7 +207,8 @@ namespace Uccs.Net
 
 			LoadedRounds.Clear();
 			Accounts.Clear();
-			Domains.Clear();
+
+			ClearTables();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);
@@ -244,7 +219,7 @@ namespace Uccs.Net
 			Database.CreateColumnFamily(new (), ChainFamilyName);
 		}
 
-		public static string CreateGenesis(Zone zone, string databasepath, AccountKey god, AccountKey f0)
+		public string CreateGenesis(AccountKey god, AccountKey f0)
 		{
 			/// 0 - emission request
 			/// 1 - vote for emission 
@@ -253,66 +228,65 @@ namespace Uccs.Net
 			/// 1+P + 1+P - decalared
 			/// 1+P + 1+P + P - joined
 
-			var m = new Mcv(zone, databasepath);
-			m.Clear();
+			Clear();
 
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
 			void write(int rid)
 			{
-				var r = m.FindRound(rid);
+				var r = FindRound(rid);
 				r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 				r.Hashify();
 				r.Write(w);
 			}
 	
-			var v0 = new Vote(m) {RoundId = 0, Time = Time.Zero, ParentHash = zone.Cryptography.ZeroHash};
+			var v0 = new Vote(this) {RoundId = 0, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
-				var t = new Transaction {Zone = zone, Nid = 0, Expiration = 0};
+				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
-				t.Fee = zone.ExeunitMinFee;
+				t.Fee = Zone.ExeunitMinFee;
 				t.AddOperation(new Emission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
-				t.Sign(f0, zone.Cryptography.ZeroHash);
+				t.Sign(f0, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 			
 				v0.Sign(god);
-				m.Add(v0);
-				v0.FundJoiners = v0.FundJoiners.Append(zone.Father0).ToArray();
+				Add(v0);
+				v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
 				write(0);
 			}
 			
 			/// UO Autor
 
-			var v1 = new Vote(m) {RoundId = 1, Time = Time.Zero, ParentHash = zone.Cryptography.ZeroHash};
+			var v1 = new Vote(this) {RoundId = 1, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 				v1.Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
 	
 				v1.Sign(god);
-				m.Add(v1);
+				Add(v1);
 				write(1);
 			}
 	
 			for(int i = 2; i <= 1+P + 1+P + P; i++)
 			{
-				var v = new Vote(m){RoundId		= i,
-									Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-									ParentHash	= i < P ? zone.Cryptography.ZeroHash : m.GetRound(i - P).Summarize() };
+				var v = new Vote(this){	RoundId		= i,
+										Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+										ParentHash	= i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize() };
 		 
 				if(i == 1+P + 1)
 				{
-					var t = new Transaction {Zone = zone, Nid = 1, Expiration = i};
+					var t = new Transaction {Zone = Zone, Nid = 1, Expiration = i};
 					t.Generator = new([0, 0], -1);
-					t.Fee = zone.ExeunitMinFee;
+					t.Fee = Zone.ExeunitMinFee;
 					t.AddOperation(new CandidacyDeclaration{Bail = 1_000_000,
-															BaseRdcIPs = [zone.Father0IP],
-															SeedHubRdcIPs = [zone.Father0IP] });
-					t.Sign(f0, zone.Cryptography.ZeroHash);
+															BaseRdcIPs = [Zone.Father0IP],
+															SeedHubRdcIPs = [Zone.Father0IP] });
+					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
 	
 				v.Sign(god);
-				m.Add(v);
+				Add(v);
 
 				write(i);
 			}
@@ -395,7 +369,8 @@ namespace Uccs.Net
 
 			if(r == null)
 			{	
-				r = new Round(this) {Id = rid};
+				r = CreateRound();
+				r.Id = rid;
 				//r.LastAccessed = DateTime.UtcNow;
 				Tail.Add(r);
 				Tail = Tail.OrderByDescending(i => i.Id).ToList();
@@ -417,7 +392,7 @@ namespace Uccs.Net
 
 			if(d != null)
 			{
-				r = new Round(this);
+				r = CreateRound();
 				r.Id			= rid; 
 				r.Confirmed		= true;
 				//r.LastAccessed	= DateTime.UtcNow;
@@ -511,8 +486,9 @@ namespace Uccs.Net
 		{
 			BaseHash = Zone.Cryptography.Hash(BaseState);
 	
-			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Domains.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var t in Tables)
+				foreach(var i in t.SuperClusters.OrderBy(i => i.Key))
+					BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 	
 		public void Commit(Round round)
@@ -526,11 +502,9 @@ namespace Uccs.Net
 
 					var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
 
-					foreach(var i in tail)
-					{
-						Accounts.Save(b, i.AffectedAccounts.Values);
-						Domains.Save(b, i.AffectedDomains.Values);
-					}
+					foreach(var r in tail)
+						foreach(var t in Tables)
+							t.Save(b, r.AffectedByTable(t));
 	
 					LastCommittedRound = tail.Last();
 
@@ -611,18 +585,5 @@ namespace Uccs.Net
 		//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
 		//	return op == null ? ops : ops.Where(op);
 		//}
-
-		public IEnumerable<Resource> QueryResource(string query)
-		{
-			var r = Ura.Parse(query);
-		
-			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
-
-			if(a == null)
-				yield break;
-
-			foreach(var i in a.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
-				yield return i;
-		}
 	}
 }

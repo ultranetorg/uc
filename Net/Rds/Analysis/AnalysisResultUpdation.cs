@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class AnalysisResultUpdation : Operation
+	public class AnalysisResultUpdation : RdsOperation
 	{
 		//public ResourceId		Resource { get; set; }
 		public ResourceId		Analysis { get; set; }
@@ -31,7 +31,7 @@ namespace Uccs.Net
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			//if(Require(round, null, Resource, out var d, out var r) == false)
 			//	return;

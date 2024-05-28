@@ -10,9 +10,9 @@ namespace Uccs.Net
 		{
  			lock(sun.Lock)
 			{	
-				RequireBase(sun);
- 				
-				return new QueryResourceResponse {Resources = sun.Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
+				var rds = RequireRdsBase(sun);
+
+				return new QueryResourceResponse {Resources = rds.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}

@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class ResourceLinkCreation : Operation
+	public class ResourceLinkCreation : RdsOperation
 	{
 		public ResourceId			Source { get; set; }
 		public ResourceId			Destination { get; set; }
@@ -41,7 +41,7 @@ namespace Uccs.Net
 			Changes		= (ResourceLinkChanges)reader.ReadByte();
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Rds mcv, RdsRound round)
 		{
 			if(Require(round, Signer, Source, out var sd, out var sr) == false)
 				return;

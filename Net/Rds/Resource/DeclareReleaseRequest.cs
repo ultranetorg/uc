@@ -8,10 +8,13 @@
 		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
+			{	
+				RequireRdsBase(sun);
 				RequireMember(sun);
+			}
 
 			lock(sun.SeedHub.Lock)
-				return new DeclareReleaseResponse {Results = sun.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray() };
+				return new DeclareReleaseResponse {Results = sun.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
 		}
 	}
 
@@ -40,5 +43,4 @@
 	{
 		public ReleaseDeclarationResult[]	Results { get; set; }
 	}
-
 }

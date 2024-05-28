@@ -1,18 +1,20 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace Uccs.Net
 {
 	public class DownloadTableRequest : RdcCall<DownloadTableResponse>
 	{
-		public Tables	Table { get; set; }
+		public Guid		McvGuid { get; set; }
+		public int		Table { get; set; }
 		public byte[]	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(	ClusterId.Length != Table<ITableEntry<int>, int>.Cluster.IdLength ||
+			if(	ClusterId.Length != TableBase.ClusterBase.IdLength ||
 				Offset < 0 ||
 				Length < 0)
 				throw new RequestException(RequestError.IncorrectRequest);
@@ -21,12 +23,10 @@ namespace Uccs.Net
 			{
 				RequireBase(sun);
 				
-				var m = Table switch
-							  {
-									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
-									Tables.Domains	=> sun.Mcv.Domains.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
-									_ => throw new RequestException(RequestError.IncorrectRequest)
-							  };
+				if(sun.Mcv.Guid != McvGuid)
+					throw new NodeException(NodeError.NoMcv);
+
+				var m = sun.Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId))?.Main;
 
 				if(m == null)
 					throw new EntityException(EntityError.NotFound);

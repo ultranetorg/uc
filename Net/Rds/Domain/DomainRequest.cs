@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net
+﻿using System.Linq;
+
+namespace Uccs.Net
 {
 	public class DomainRequest : RdcCall<DomainResponse>
 	{
@@ -30,14 +32,14 @@
 
  			lock(sun.Lock)
 			{	
-				RequireBase(sun);
+				var rds = RequireRdsBase(sun);
 
 				Domain e;
 
 				if(Identifier.Addres != null)
-					e = sun.Mcv.Domains.Find(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
+					e = rds.Domains.Find(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					e = sun.Mcv.Domains.Find(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+					e = rds.Domains.Find(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				
