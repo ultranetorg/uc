@@ -14,7 +14,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class ChainPanel : MainPanel
 	{
-		public ChainPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public ChainPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 		}
@@ -25,25 +25,24 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Sun.Lock)
 				{
-					Sun.Mcv.VoteAdded += (b) =>
-					{
-						BeginInvoke((MethodInvoker)delegate
-									{
-										lock(Sun.Lock)
-										{
-											Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
-											Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
-										}
-									});
-					};
+					Mcv.VoteAdded += (b) =>	{
+												BeginInvoke((MethodInvoker)delegate
+															{
+																lock(Sun.Lock)
+																{
+																	Round.Minimum = Mcv.Roles.HasFlag(Role.Chain) ? 0 : Mcv.Tail.Last().Id;
+																	Round.Maximum = Mcv.LastNonEmptyRound.Id;
+																}
+															});
+											};
 				}
 			}
 
 			lock(Sun.Lock)
 			{
-				Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
-				Round.Maximum = Sun.Mcv.Tail.First().Id;
-				Round.Value = Sun.Mcv.LastNonEmptyRound.Id;
+				Round.Minimum = Mcv.Roles.HasFlag(Role.Chain) ? 0 : Mcv.Tail.Last().Id;
+				Round.Maximum = Mcv.Tail.First().Id;
+				Round.Value = Mcv.LastNonEmptyRound.Id;
 			}
 		}
 
@@ -92,7 +91,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
-				var r = Sun.Mcv.FindRound((int)Round.Value);
+				var r = Mcv.FindRound((int)Round.Value);
 
 				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + "\n" +
 									r.ConsensusTime + "\n" +

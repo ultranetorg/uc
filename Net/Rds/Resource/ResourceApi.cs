@@ -14,13 +14,13 @@ namespace Uccs.Net
 	{
 	}
 
-	public class ReleaseBuildApc : SunApc
+	public class ReleaseBuildApc : RdsApc
 	{
 		public IEnumerable<string>		Sources { get; set; }
 		public string					Source { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -34,13 +34,13 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceUpdateApc : SunApc
+	public class ResourceUpdateApc : RdsApc
 	{
 		public Ura				Address { get; set; }
 		public ResourceId		Id { get; set; }
 		public ResourceData		Data { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -57,14 +57,14 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceDownloadApc : SunApc
+	public class ResourceDownloadApc : RdsApc
 	{
 		public ResourceIdentifier	Idedtifier { get; set; }
 		public string				LocalPath { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(i => i.Request(new ResourceRequest(Idedtifier)), workflow).Resource;
+			var r = sun.Call(() => new ResourceRequest(Idedtifier), workflow).Resource;
 
 			IIntegrity itg;
 
@@ -108,11 +108,11 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class ReleaseActivityProgressApc : SunApc
+	public class ReleaseActivityProgressApc : RdsApc
 	{
 		public Urr Release { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -160,13 +160,13 @@ namespace Uccs.Net
 // 		}
 // 	}
 		
-	public class QueryLocalResourcesApc : SunApc
+	public class QueryLocalResourcesApc : RdsApc
 	{
 		public string	Query { get; set; }
 		public int		Skip { get; set; } = 0;
 		public int		Take { get; set; } = int.MaxValue;
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -175,11 +175,11 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class LocalResourceApc : SunApc
+	public class LocalResourceApc : RdsApc
 	{
 		public Ura		Resource { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -188,7 +188,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class LocalReleaseApc : SunApc
+	public class LocalReleaseApc : RdsApc
 	{
 		public Urr		Address { get; set; }
 
@@ -223,18 +223,18 @@ namespace Uccs.Net
 			}
 		}
 
-		public class Release
+		public class Return
 		{
 			public DataType						Type { get; set; }
 			public MembersResponse.Member[]		DeclaredOn { get; set; }
 			public Availability					Availability { get; set; }
 			public File[]						Files { get; set; }
 
-			public Release()
+			public Return()
 			{
 			}
 
-			public Release(LocalRelease release)
+			public Return(LocalRelease release)
 			{
 				Type		= release.Type;
 				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
@@ -243,13 +243,13 @@ namespace Uccs.Net
 			}
 		}
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
 				var r = sun.ResourceHub.Find(Address);
 
-				return r != null ? new Release(r) : null;
+				return r != null ? new Return(r) : null;
 			}
 		}
 	}

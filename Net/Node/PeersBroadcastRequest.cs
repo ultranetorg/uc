@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Uccs.Net
 {
@@ -8,20 +7,20 @@ namespace Uccs.Net
 		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
 			if(Peers.Length > 1000)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(sun.Lock)
+			lock(Sun.Lock)
 			{
-				var newfresh = sun.RefreshPeers(Peers).ToArray();
+				var newfresh = Sun.RefreshPeers(Peers).ToArray();
 	
 				if(newfresh.Any())
 				{
-					foreach(var i in sun.Connections.Where(i => i != Peer))
+					foreach(var i in Sun.Connections(null).Where(i => i != Peer))
 					{
-						i.Send(new PeersBroadcastRequest{Peers = newfresh});
+						i.Post(new PeersBroadcastRequest{Peers = newfresh});
 					}
 				}
 			}

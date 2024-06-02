@@ -30,8 +30,8 @@ namespace Uccs.Net
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			Harvester				Collector;
-			Urr				Address;
+			Harvester					Collector;
+			Urr							Address;
 
 			public Hub(Harvester collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
@@ -45,7 +45,7 @@ namespace Uccs.Net
 									{
 										try
 										{
-											var lr = Collector.Sun.Call(IPs.Random(), p => p.Request(new LocateReleaseRequest {Address = Address, Count = 16}), Collector.Flow);
+											var lr = Collector.Rds.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
 	
 											lock(Collector.Lock)
 											{
@@ -61,14 +61,14 @@ namespace Uccs.Net
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Sun.Settings.ResourceHub.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Rds.Settings.ResourceHub.CollectRefreshInterval);
 									}
 								}, 
 								Collector.Flow.Cancellation);
 			}
 		}
 
-		public Sun					Sun;
+		public Rds					Rds;
 		public Flow					Flow;
 		public List<Hub>			Hubs = new();
 		public List<Seed>			Seeds = new();
@@ -80,53 +80,46 @@ namespace Uccs.Net
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		MembersResponse.Member[]	Members;
 
-		public Harvester(Sun sun, Urr address, Flow flow)
+		public Harvester(Rds sun, Urr address, Flow flow)
 		{
-			Sun = sun;
+			Rds = sun;
 			Flow = flow.CreateNested($"SeedCollector {address}");
 			Hub hlast = null;
 
- 			Thread = sun.CreateThread(() =>	{ 
-												while(Flow.Active)
-												{
-													if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
+ 			Thread = Rds.Sun.CreateThread(() =>	{ 
+													while(Flow.Active)
 													{
-														var r = Sun.Call(i =>	{
-																					var cr = i.Request(new MembersRequest());
-				
-																					if(cr.Members.Any())
-																						return cr;
-																												
-																					throw new ContinueException();
-																				}, 
-																				Flow);
-														lock(Lock)
-															Members = r.Members.ToArray();
-													
-														MembersRefreshed = DateTime.UtcNow;
-													}
-		
-													lock(Lock)
-													{
-														var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration);
-			
-														for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 														{
-															var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
-														
-															if(h != null)
-															{
-																hlast = new Hub(this, address, h.Account, h.SeedHubRdcIPs);
-																Hubs.Add(hlast);
-															}
-															else
-																break;
+															var r = Rds.Call(() => new MembersRequest(), Flow);
+
+															lock(Lock)
+																Members = r.Members.ToArray();
+													
+															MembersRefreshed = DateTime.UtcNow;
 														}
-													}
+		
+														lock(Lock)
+														{
+															var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration);
+			
+															for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+															{
+																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
+														
+												 				if(h != null)
+																{
+																	hlast = new Hub(this, address, h.Account, h.SeedHubRdcIPs);
+																	Hubs.Add(hlast);
+																}
+																else
+																	break;
+															}
+														}
 	
-													WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
-												}
- 											});
+														WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
+													}
+ 												});
 			Thread.Start();
 
 			for(int i=0; i<8; i++)
@@ -150,14 +143,14 @@ namespace Uccs.Net
 												{
 													if(s.Peer == null)
 													{
-														s.Peer = Sun.GetPeer(s.IP);
+														s.Peer = Rds.Sun.GetPeer(s.IP);
 													}
 			
 													try
 													{
 														Monitor.Exit(Lock);
 			
-														Sun.Connect(s.Peer, Flow);
+														Rds.Sun.Connect(s.Peer, Flow);
 															
 														s.Failed = DateTime.MinValue;
 													}

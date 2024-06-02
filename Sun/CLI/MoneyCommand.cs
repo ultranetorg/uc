@@ -303,7 +303,7 @@ namespace Uccs.Sun.CLI
 																		DomainLengths = [1, 5, 10, 15], 
 																		Rate = GetMoney("rate", 1)};
 
-													var r = Api<CostApc.Report>(c);
+													var r = Api<CostApc.Return>(c);
 
 													Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
 													Report($"Account One-time Fee : {r.RentAccount.ToDecimalString()}");

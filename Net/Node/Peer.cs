@@ -27,30 +27,28 @@ namespace Uccs.Net
 
 	public class Peer : RdcInterface
 	{
-		public IPAddress			IP {get; set;} 
+		public IPAddress								IP {get; set;} 
 
-		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
+		public ConnectionStatus							Status = ConnectionStatus.Disconnected;
 
-		public bool					Forced;
-		public bool					Permanent;
-		public bool					Fresh;
-		int							IdCounter = 0;
-		public DateTime				LastSeen = DateTime.MinValue;
-		public DateTime				LastTry = DateTime.MinValue;
-		public int					Retries;
+		public bool										Forced;
+		public bool										Permanent;
+		public bool										Fresh;
+		int												IdCounter = 0;
+		public DateTime									LastSeen = DateTime.MinValue;
+		public DateTime									LastTry = DateTime.MinValue;
+		public int										Retries;
 
-		public bool					Inbound;
-		public string				StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
+		public bool										Inbound;
+		public string									StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
 
-		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
-		public int					PeerRank = 0;
-		public int					ChainRank = 0;
-		public int					BaseRank = 0;
-		public int					SeedRank = 0;
+		//public Role										Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public int										PeerRank = 0;
+		public Dictionary<Guid, Dictionary<Role, int>>	Ranks = [];
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
-		Sun							Sun;
+		public Sun							Sun;
 		TcpClient					Tcp;
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
@@ -76,44 +74,45 @@ namespace Uccs.Net
 			return $"{IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
 		}
  		
-		public int GetRank(Role role)
+		public int GetRank(Guid mcvid, Role role)
 		{
-			if(role == Role.Base) return BaseRank;
-			if(role == Role.Chain) return ChainRank;
-			if(role == Role.Seed) return SeedRank;
-
-			throw new IntegrityException("Wrong rank");
+			return Ranks.TryGetValue(mcvid, out var ranks) && ranks.TryGetValue(role, out var v) ? v : 0;
+			//throw new IntegrityException("Wrong rank");
 		}
 
   		public void SaveNode(BinaryWriter w)
   		{
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
 			w.Write(PeerRank);
-			w.Write(ChainRank);
-			w.Write(SeedRank);
+			w.Write(Ranks, i => { w.Write(i.Key.ToByteArray()); 
+								  w.Write(i.Value, j => { w.Write((int)j.Key);
+														  w.Write(j.Value); });  });
   		}
   
   		public void LoadNode(BinaryReader r)
   		{
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
 			PeerRank = r.ReadInt32();
-			ChainRank = r.ReadInt32();
-			SeedRank = r.ReadInt32();
+			Ranks = r.ReadDictionary(() => new Guid(r.ReadBytes(16)), 
+									 () => r.ReadDictionary(() => (Role)r.ReadInt32(), 
+															() => r.ReadInt32()));
   		}
  
  		public void WritePeer(BinaryWriter w)
  		{
  			w.Write(IP);
-			w.Write((byte)Roles);
+			w.Write(Ranks, i => { w.Write(i.Key.ToByteArray());
+								  w.Write((int)i.Value.Keys.Aggregate(Role.None, (a, b) => a|b)); });
  		}
  
  		public void ReadPeer(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
-			var r = (Role)reader.ReadByte();
-			BaseRank	= r.HasFlag(Role.Base) ? 1 : 0;
-			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
-			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
+			Ranks = reader.ReadDictionary(() => new Guid(reader.ReadBytes(16)), 
+										  () => {
+													var r = (Role)reader.ReadInt32();
+													return Enum.GetValues<Role>().Where(i => (i & r) != 0).ToDictionary(i => i, i => 1);
+												});
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -210,9 +209,7 @@ namespace Uccs.Net
 			Writer		= new BinaryWriter(Stream);
 			Reader		= new BinaryReader(Stream);
 			LastSeen	= DateTime.UtcNow;
-			BaseRank	= h.Roles.HasFlag(Role.Base)	? 1 : 0;
-			ChainRank	= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
-			SeedRank	= h.Roles.HasFlag(Role.Seed)	? 1 : 0;
+			Ranks		= h.Roles.ToDictionary(i => i.Key, i => Enum.GetValues<Role>().Where(j => (j & i.Value) != 0).ToDictionary(i => i, i => 1));
 
 			sun.UpdatePeers([this]);
 
@@ -243,21 +240,21 @@ namespace Uccs.Net
 							
 					foreach(var i in inrq)
 					{
-						if(i is ProxyRequest px)
+// 						if(i is ProxyRequest px)
+// 						{
+// 							Task.Run(() =>	{
+// 												var rp = i.SafeExecute(Sun);
+// 
+// 												if(i.WaitResponse)
+// 													lock(Outs)
+// 														Outs.Enqueue(rp);
+// 
+// 												SendSignal.Set();
+// 											});
+// 						}
+// 						else
 						{
-							Task.Run(() =>	{
-												var rp = i.SafeExecute(Sun);
-
-												if(i.WaitResponse)
-													lock(Outs)
-														Outs.Enqueue(rp);
-
-												SendSignal.Set();
-											});
-						}
-						else
-						{
-							var rp = i.SafeExecute(Sun);
+							var rp = i.SafeExecute();
 
 							if(i.WaitResponse)
 								lock(Outs)
@@ -323,6 +320,8 @@ namespace Uccs.Net
  						{
 							var rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract);
 							rq.Peer = this;
+							rq.Sun = Sun;
+							rq.Mcv = Sun.FindMcv(rq.McvId);
 
 							lock(InRequests)
  								InRequests.Add(rq);
@@ -345,7 +344,7 @@ namespace Uccs.Net
 
 							lock(OutRequests)
 							{
-								var rq = OutRequests.Find(j => j.Id == rp.Id);
+								var rq = OutRequests.Find(i => i.Id == rp.Id);
 
 								if(rq != null)
 								{
@@ -381,7 +380,7 @@ namespace Uccs.Net
 			}
 		}
 
- 		public override void Send(RdcRequest rq)
+ 		public override void Post(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
 				throw new NodeException(NodeError.Connectivity);
@@ -394,7 +393,7 @@ namespace Uccs.Net
 			SendSignal.Set();
  		}
 
- 		public override RdcResponse Request(RdcRequest rq)
+ 		public override RdcResponse Send(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
 				throw new NodeException(NodeError.Connectivity);
@@ -443,14 +442,9 @@ namespace Uccs.Net
 					{
 						if(rq.Response.Error is NodeException e)
 						{
-							if(e.Error == NodeError.NotBase)
-								BaseRank = 0;
-		
-							if(e.Error == NodeError.NotChain)
-								ChainRank = 0;
-		
-							if(e.Error == NodeError.NotSeed)
-								SeedRank = 0;
+							if(e.Error == NodeError.NotBase)	Ranks[rq.Mcv.Guid][Role.Base] = 0;
+							if(e.Error == NodeError.NotChain)	Ranks[rq.Mcv.Guid][Role.Chain] = 0;
+							if(e.Error == NodeError.NotSeed)	Ranks[rq.Mcv.Guid][Role.Seed] = 0;
 						}
 	
 						throw rq.Response.Error;

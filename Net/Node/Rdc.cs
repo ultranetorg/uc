@@ -39,55 +39,40 @@ namespace Uccs.Net
 
 	public abstract class RdcPacket : ITypeCode
 	{
-		public int			Id {get; set;}
-		public Peer			Peer;
+		public int		Id { get; set; }
+		public Peer		Peer;
 
 		public abstract byte TypeCode { get; }
 	}
 
 	public abstract class RdcInterface
 	{
- 		//public abstract RdcResponse				Request(RdcRequest rq);
- 		//public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
- 		public abstract	void					Send(RdcRequest rq);
-
-		public Rp								Request<Rp>(RdcCall<Rp> rq) where Rp : RdcResponse => Request((RdcRequest)rq) as Rp;
-		public abstract RdcResponse				Request(RdcRequest rq);
-// 
-// 		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
-// 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
-// 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
-// 		public DownloadTableResponse			DownloadTable(Tables table, byte[] cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
-// 		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
-// 		public PlaceTransactionsResponse		SendTransactions(IEnumerable<Transaction> transactions) => Request<PlaceTransactionsResponse>(new PlaceTransactionsRequest{Transactions = transactions.ToArray()});
-// 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
-// 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
-// 		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
-// 		public DomainResponse					GetDomainInfo(string domain) => Request<DomainResponse>(new DomainRequest{Name = domain});
-// 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
-// 		public ResourceByNameResponse			FindResource(ResourceAddress resource) => Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = resource});
-// 		//public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});
-// 		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
-// 		public LocateReleaseResponse			LocateRelease(ReleaseAddress address, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Address = address, Count = count});
-// 		//public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
-// 		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
-// 		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress address, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Address = address, File = file, Offset = offset, Length = length});
-// 		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
+ 		public abstract	void					Post(RdcRequest rq);
+		public Rp								Send<Rp>(RdcCall<Rp> rq) where Rp : RdcResponse => Send((RdcRequest)rq) as Rp;
+		public abstract RdcResponse				Send(RdcRequest rq);
 	}
 
 	public abstract class RdcCall<RP> : RdcRequest where RP : RdcResponse
 	{
-		public override abstract RdcResponse Execute(Sun sun);
+	}
+
+	public abstract class RdsCall<RP> : RdcCall<RP> where RP : RdcResponse
+	{
+		public Rds Rds => Mcv as Rds;
 	}
 
 	public abstract class RdcRequest : RdcPacket
 	{
 		public override byte			TypeCode => (byte)Class;
+		public virtual bool				WaitResponse { get; protected set; } = true;
+		public Guid						McvId { get; set; }
+		
 		public ManualResetEvent			Event;
 		public RdcResponse				Response;
-		public virtual bool				WaitResponse { get; protected set; } = true;
+		public Sun						Sun;
+		public Mcv						Mcv;
 
-		public abstract RdcResponse		Execute(Sun sun);
+		public abstract RdcResponse		Execute();
 
 		public RdcClass Class
 		{
@@ -106,7 +91,7 @@ namespace Uccs.Net
 			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor([]).Invoke(null) as RdcRequest;
 		}
 
-		public RdcResponse SafeExecute(Sun sun)
+		public RdcResponse SafeExecute()
 		{
 			if(WaitResponse)
 			{
@@ -114,7 +99,7 @@ namespace Uccs.Net
 
 				try
 				{
-					rp = Execute(sun);
+					rp = Execute();
 				}
 				catch(SunException ex)
 				{
@@ -135,7 +120,7 @@ namespace Uccs.Net
 			{
 				try
 				{
-					Execute(sun);
+					Execute();
 				}
 				catch(Exception ex) when(!Debugger.IsAttached || ex is EntityException || ex is NodeException || ex is RequestException)
 				{
@@ -145,32 +130,32 @@ namespace Uccs.Net
 			}
 		}
 
-		protected void RequireBase(Sun sun)
+		protected void RequireBase()
 		{
-			if(!sun.Roles.HasFlag(Role.Base))
+			if(!Mcv.Roles.HasFlag(Role.Base))
 				throw new NodeException(NodeError.NotBase);
 
-			if(sun.Synchronization != Synchronization.Synchronized)
+			if(Mcv.Synchronization != Synchronization.Synchronized)
 				throw new NodeException(NodeError.NotSynchronized);
 		}
 
-		protected Rds RequireRdsBase(Sun sun)
+// 		protected Rds RequireRdsBase(Sun sun)
+// 		{
+// 			RequireBase();
+// 
+// 			var r = sun.Mcv as Rds;
+// 
+// 			if(r == null)
+// 				throw new NodeException(NodeError.NoMcv);
+// 
+// 			return r;
+// 		}
+
+		protected void RequireMember()
 		{
-			RequireBase(sun);
+			RequireBase();
 
-			var r = sun.Mcv as Rds;
-
-			if(r == null)
-				throw new NodeException(NodeError.NoMcv);
-
-			return r;
-		}
-
-		protected void RequireMember(Sun sun)
-		{
-			RequireBase(sun);
-
-			if(!sun.NextVoteMembers.Any(i => sun.Settings.Generators.Contains(i.Account))) 
+			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Account))) 
 				throw new NodeException(NodeError.NotMember);
 		}
 	}
@@ -194,58 +179,58 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ProxyRequest : RdcCall<ProxyResponse>
-	{
-		public byte[]			Guid { get; set; }
-		public AccountAddress	Destination { get; set; }
-		public RdcRequest		Request { get; set; }
-		public override	bool	WaitResponse => Request.WaitResponse;
-
-		public override RdcResponse Execute(Sun sun)
-		{
-			if(!sun.Roles.HasFlag(Role.Base))
-				throw new NodeException(NodeError.NotBase);
-			if(sun.Synchronization != Synchronization.Synchronized)
-				throw new NodeException(NodeError.NotSynchronized);
-
-			lock(sun.Lock)
-			{
-				if(sun.Connections.Any(i =>{
-												lock(i.InRequests) 
-													return i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid);
-											}))
-					throw new NodeException(NodeError.CircularRoute);
-			}
-
-			if(sun.Settings.Generators.Contains(Destination))
-			{
-				return new ProxyResponse {Response = Request.SafeExecute(sun)};
-			}
-			else
-			{
-				Member m;
-
-				lock(sun.Lock)
-				{
-					m = sun.Mcv.LastConfirmedRound.Members.Find(i => i.Account == Destination);
-				}
-
-				if(m?.Proxy != null)
-				{
-					sun.Connect(m.Proxy, sun.Flow);
-			
-					return new ProxyResponse {Response = m.Proxy.Request<ProxyResponse>(new ProxyRequest {Guid = Guid, Destination = Destination, Request = Request}).Response};
-				}
-			}
-
-			throw new NodeException(NodeError.NotOnlineYet);
-		}
-	}
-
-	public class ProxyResponse : RdcResponse
-	{
-		public RdcResponse Response { get; set; }
-	}
+// 	public class ProxyRequest : RdcCall<ProxyResponse>
+// 	{
+// 		public byte[]			Guid { get; set; }
+// 		public AccountAddress	Destination { get; set; }
+// 		public RdcRequest		Request { get; set; }
+// 		public override	bool	WaitResponse => Request.WaitResponse;
+// 
+// 		public override RdcResponse Execute()
+// 		{
+// 			if(!sun.Roles.HasFlag(Role.Base))
+// 				throw new NodeException(NodeError.NotBase);
+// 			if(sun.Synchronization != Synchronization.Synchronized)
+// 				throw new NodeException(NodeError.NotSynchronized);
+// 
+// 			lock(sun.Lock)
+// 			{
+// 				if(sun.Connections.Any(i =>{
+// 												lock(i.InRequests) 
+// 													return i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid);
+// 											}))
+// 					throw new NodeException(NodeError.CircularRoute);
+// 			}
+// 
+// 			if(sun.Settings.Generators.Contains(Destination))
+// 			{
+// 				return new ProxyResponse {Response = Request.SafeExecute(sun)};
+// 			}
+// 			else
+// 			{
+// 				Member m;
+// 
+// 				lock(sun.Lock)
+// 				{
+// 					m = sun.Mcv.LastConfirmedRound.Members.Find(i => i.Account == Destination);
+// 				}
+// 
+// 				if(m?.Proxy != null)
+// 				{
+// 					sun.Connect(m.Proxy, sun.Flow);
+// 			
+// 					return new ProxyResponse {Response = m.Proxy.Request<ProxyResponse>(new ProxyRequest {Guid = Guid, Destination = Destination, Request = Request}).Response};
+// 				}
+// 			}
+// 
+// 			throw new NodeException(NodeError.NotOnlineYet);
+// 		}
+// 	}
+// 
+// 	public class ProxyResponse : RdcResponse
+// 	{
+// 		public RdcResponse Response { get; set; }
+// 	}
 
 }
 

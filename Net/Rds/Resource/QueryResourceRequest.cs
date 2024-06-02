@@ -2,17 +2,15 @@
 
 namespace Uccs.Net
 {
-	public class QueryResourceRequest : RdcCall<QueryResourceResponse>
+	public class QueryResourceRequest : RdsCall<QueryResourceResponse>
 	{
 		public string		Query { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
- 			lock(sun.Lock)
+ 			lock(Rds.Lock)
 			{	
-				var rds = RequireRdsBase(sun);
-
-				return new QueryResourceResponse {Resources = rds.QueryResource(Query).Select(i => i.Address).ToArray()};
+				return new QueryResourceResponse {Resources = Rds.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}

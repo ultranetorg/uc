@@ -25,10 +25,7 @@ namespace Uccs.Sun.FUI
 				var b = new Boot(exedir);
 				var s = new Settings(exedir, b);
 
-				var sun = new Net.Sun(b.Zone, s, new Flow("Main", new Log())) {	Clock = new RealClock(), 
-																					Nas = new Nas(s), 
-																					GasAsker = new EthereumFeeForm(), 
-																					FeeAsker = new FeeForm(b.Zone)}; 
+				var sun = new Net.Sun(b.Zone, s, new Flow("Main", new Log())); 
 
 				sun.Run(new XonDocument(s.FuiRoles).Nodes);
 

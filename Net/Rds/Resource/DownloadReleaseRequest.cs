@@ -2,24 +2,24 @@
 
 namespace Uccs.Net
 {
-	public class DownloadReleaseRequest : RdcCall<DownloadReleaseResponse>
+	public class DownloadReleaseRequest : RdsCall<DownloadReleaseResponse>
 	{
-		public Urr	Address { get; set; }
+		public Urr				Address { get; set; }
 		public string			File { get; set; }
 		public long				Offset { get; set; }
 		public long				Length { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
 			if(Length > ResourceHub.PieceMaxLength)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(sun.ResourceHub.Lock)
+			lock(Rds.ResourceHub.Lock)
 			{
-				if(sun.ResourceHub == null) 
+				if(Rds.ResourceHub == null) 
 					throw new NodeException(NodeError.NotSeed);
 
-				var r = sun.ResourceHub.Find(Address);
+				var r = Rds.ResourceHub.Find(Address);
 				
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);

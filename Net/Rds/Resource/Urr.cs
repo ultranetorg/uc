@@ -239,16 +239,16 @@ namespace Uccs.Net
 
 	public class ReleaseAddressCreator
 	{
-		public UrrScheme	Type { get; set; }
-		public AccountAddress		Owner { get; set; }
-		public Ura		Resource { get; set; }
+		public UrrScheme		Type { get; set; }
+		public AccountAddress	Owner { get; set; }
+		public Ura				Resource { get; set; }
 
-		public Urr Create(Sun sun, byte[] hash)
+		public Urr Create(Rds sun, byte[] hash)
 		{
 			return Type	switch
 						{
 							UrrScheme.Urrh => new Urrh {Hash = hash},
-							UrrScheme.Urrs => Urrsd.Create(sun.Zone.Cryptography, sun.Vault.GetKey(Owner), Resource, hash),
+							UrrScheme.Urrs => Urrsd.Create(sun.Zone.Cryptography, sun.Sun.Vault.GetKey(Owner), Resource, hash),
 							_ => throw new ResourceException(ResourceError.UnknownAddressType)
 						};
 

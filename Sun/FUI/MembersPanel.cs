@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
@@ -15,7 +7,7 @@ namespace Uccs.Sun.FUI
 	{
 		Font Bold;
 
-		public MembersPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public MembersPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -30,11 +22,11 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
-				foreach(var i in Sun.Mcv.LastConfirmedRound.Members)
+				foreach(var i in Mcv.LastConfirmedRound.Members)
 				{
 					var li = Generators.Items.Add(i.Account.ToString());
 		
-					if(Sun.Settings.Generators.Contains(i.Account))
+					if(Mcv.Settings.Generators.Contains(i.Account))
 					{
 						li.Font = Bold;
 					}

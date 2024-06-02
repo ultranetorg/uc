@@ -20,7 +20,9 @@ namespace Uccs
 		{ 
 			Response = response;
 		}
+
 		public ApiCallException(string msg, Exception ex) : base(msg, ex){ }
+		public ApiCallException(string msg) : base(msg){ }
 	}
 
 	public class IPJsonConverter : JsonConverter<IPAddress>
@@ -49,7 +51,7 @@ namespace Uccs
 		}
 	}
 
-	public class JsonApiClient// : RpcClient
+	public class JsonClient// : RpcClient
 	{
 		HttpClient						Http;
 		public string					Address;
@@ -57,7 +59,7 @@ namespace Uccs
 		public int						Failures;
 		public JsonSerializerOptions	Options;
 
-		public JsonApiClient(HttpClient http, string address, string accesskey, JsonSerializerOptions options)
+		public JsonClient(HttpClient http, string address, string accesskey, JsonSerializerOptions options)
 		{
 			Http = http;
 			Address = address;
@@ -65,7 +67,7 @@ namespace Uccs
 			Options = options;
 		}
 
-		public JsonApiClient(string address, string accesskey, JsonSerializerOptions options, int timeout = 30)
+		public JsonClient(string address, string accesskey, JsonSerializerOptions options, int timeout = 30)
 		{
 			Http = new HttpClient();
 			Http.Timeout = timeout == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);

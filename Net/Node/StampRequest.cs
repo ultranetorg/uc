@@ -6,23 +6,23 @@ namespace Uccs.Net
 {
 	public class StampRequest : RdcCall<StampResponse>
 	{
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 				
-				if(sun.Mcv.BaseState == null)
+				if(Mcv.BaseState == null)
 					throw new NodeException(NodeError.TooEearly);
 
-				var r = new StampResponse {	BaseState				= sun.Mcv.BaseState,
-											BaseHash				= sun.Mcv.BaseHash,
-											LastCommitedRoundHash	= sun.Mcv.LastCommittedRound.Hash,
-											FirstTailRound			= sun.Mcv.Tail.Last().Id,
-											LastTailRound			= sun.Mcv.Tail.First().Id,
-											Tables					= sun.Mcv.Tables.Select(i => new StampResponse.Table {	Id = i.Id, 
-																															SuperClusters =	i.SuperClusters.Select(i => new StampResponse.SuperCluster{	Id = i.Key, 
-																																																		Hash = i.Value}).ToArray()}).ToArray()};
+				var r = new StampResponse {	BaseState				= Mcv.BaseState,
+											BaseHash				= Mcv.BaseHash,
+											LastCommitedRoundHash	= Mcv.LastCommittedRound.Hash,
+											FirstTailRound			= Mcv.Tail.Last().Id,
+											LastTailRound			= Mcv.Tail.First().Id,
+											Tables					= Mcv.Tables.Select(i => new StampResponse.Table {	Id = i.Id, 
+																														SuperClusters =	i.SuperClusters.Select(i => new StampResponse.SuperCluster{	Id = i.Key, 
+																																																	Hash = i.Value}).ToArray()}).ToArray()};
 
 				return r;
 			}

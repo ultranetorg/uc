@@ -23,18 +23,18 @@
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
- 			lock(sun.Lock)
+ 			lock(Sun.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 
 				Account e;
 
 				if(Identifier.Address != null)
-					e = sun.Mcv.Accounts.Find(Identifier.Address, sun.Mcv.LastConfirmedRound.Id);
+					e = Mcv.Accounts.Find(Identifier.Address, Mcv.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					e = sun.Mcv.Accounts.Find(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+					e = Mcv.Accounts.Find(Identifier.Id, Mcv.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

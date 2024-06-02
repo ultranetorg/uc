@@ -13,7 +13,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class HubPanel : MainPanel
 	{
-		public HubPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public HubPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -61,7 +61,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
-				foreach(var i in Sun.SeedHub.Releases.Take(1000))
+				foreach(var i in Rds.SeedHub.Releases.Take(1000))
 				{
 					var r = Packages.Items.Add(i.Key.ToString());
 					//r.SubItems.Add(i.Key.Resource);

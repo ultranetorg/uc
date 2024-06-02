@@ -3,21 +3,20 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class LocateReleaseRequest : RdcCall<LocateReleaseResponse>
+	public class LocateReleaseRequest : RdsCall<LocateReleaseResponse>
 	{
 		public Urr	Address { get; set; }
-		public int				Count { get; set; }
+		public int	Count { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Rds.Lock)
 			{	
-				RequireRdsBase(sun);
-				RequireMember(sun);
+				RequireMember();
 			}
 
-			lock(sun.SeedHub.Lock)
-				return new LocateReleaseResponse {Seeders = sun.SeedHub.Locate(this)}; 
+			lock(Rds.SeedHub.Lock)
+				return new LocateReleaseResponse {Seeders = Rds.SeedHub.Locate(this)}; 
 		}
 	}
 		

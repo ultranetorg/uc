@@ -11,7 +11,7 @@ namespace Uccs.Uos
 
 		public ResourceHub		ResourceHub;
 		public PackageHub		PackageHub;
-		public JsonApiClient	Sun;
+		public JsonClient	Sun;
 		HttpClient				Http = new HttpClient();
 
 		public NexusClient()
@@ -21,9 +21,9 @@ namespace Uccs.Uos
 			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
 			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
-			Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
-
-			var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Flow("GetSettings"));
+			//Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
+			//
+			//var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Flow("GetSettings"));
 
 			//ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			//PackageHub = new PackageHub(null, ProductsPath);

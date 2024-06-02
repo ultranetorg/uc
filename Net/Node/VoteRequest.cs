@@ -5,46 +5,44 @@ namespace Uccs.Net
 {
 	public class VoteRequest : RdcCall<RdcResponse>
 	{
-		public byte[]					Raw { get; set; }
-
-		public override bool			WaitResponse => false;
+		public byte[]				Raw { get; set; }
+		public override bool		WaitResponse => false;
 
 		public VoteRequest()
 		{
 		}
-
-
-		public override RdcResponse Execute(Sun sun)
+		
+		public override RdcResponse Execute()
 		{
-			if(!sun.Roles.HasFlag(Role.Base))
+			if(!Mcv.Roles.HasFlag(Role.Base))
 				throw new NodeException(NodeError.NotBase);
 
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
 
-			var v = new Vote(sun.Mcv);
+			var v = new Vote(Mcv);
 			v.RawForBroadcast = Raw;
 			v.ReadForBroadcast(br);
 
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				sun.Statistics.Consensing.Begin();
+				Sun.Statistics.Consensing.Begin();
 				
 				var accepted = false;
 
 				try
 				{
-					accepted = sun.ProcessIncoming(v, false);
+					accepted = Mcv.ProcessIncoming(v, false);
 				}
 				catch(ConfirmationException ex)
 				{
-					sun.ProcessConfirmationException(ex);
+					Mcv.ProcessConfirmationException(ex);
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 								
-				sun.Statistics.Consensing.End();
+				Sun.Statistics.Consensing.End();
 
-				if(sun.Synchronization == Synchronization.Synchronized)
+				if(Mcv.Synchronization == Synchronization.Synchronized)
 				{
 					//var r = sun.Mcv.FindRound(v.RoundId);
 					var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
@@ -53,7 +51,7 @@ namespace Uccs.Net
 					{
 						if(accepted) /// for the new vote
 						{
-							var m = sun.Mcv.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
+							var m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
 							
 							if(m != null)
 							{
@@ -69,11 +67,11 @@ namespace Uccs.Net
 
 				if(accepted)
 				{
-					sun.Broadcast(v, Peer);
-					sun.Statistics.AccpetedVotes++;
+					Sun.Broadcast(Mcv, v, Peer);
+					Sun.Statistics.AccpetedVotes++;
 				}
 				else
-					sun.Statistics.RejectedVotes++;
+					Sun.Statistics.RejectedVotes++;
 
 			}
 

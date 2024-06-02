@@ -4,13 +4,13 @@ namespace Uccs.Net
 {
 	public class FundsRequest : RdcCall<FundsResponse>
 	{
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 			
-				return new FundsResponse {Funds = sun.Mcv.LastConfirmedRound.Funds.ToArray()};
+				return new FundsResponse {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
 			}
 		}
 	}

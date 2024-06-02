@@ -34,7 +34,7 @@ namespace Uccs.Net
 
 	public class SPDIntegrity : IIntegrity
 	{
-		Urrsd		Release;
+		Urrsd			Release;
 		AccountAddress	Account;
 		Cryptography	Cryptography;
 
@@ -60,7 +60,7 @@ namespace Uccs.Net
 
 		public class Piece
 		{
-			public Harvester.Seed	Seed;
+			public Harvester.Seed		Seed;
 			public Task					Task;
 			public int					I = -1;
 			public long					Length => I * Download.File.PieceLength + Download.File.PieceLength > Download.Length ? Download.Length % Download.File.PieceLength : Download.File.PieceLength;
@@ -85,10 +85,10 @@ namespace Uccs.Net
 											{
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.Request(new DownloadReleaseRequest {Address = Download.Release.Address, 
-																										  File = Download.File.Path, 
-																										  Offset = Offset + Data.Position,
-																										  Length = Length - Data.Position}).Data;
+													var d = Download.Rds.Call(Seed.Peer, new DownloadReleaseRequest{Address = Download.Release.Address, 
+																													File = Download.File.Path, 
+																													Offset = Offset + Data.Position,
+																													Length = Length - Data.Position}).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -113,13 +113,13 @@ namespace Uccs.Net
 		public Harvester							Harvester;
 		public List<Piece>							CurrentPieces = new();
 		public Dictionary<Harvester.Seed, int>		Seeds = new();
-		Sun											Sun;
+		public Rds									Rds;
 		Flow										Flow;
 		public PieceDelegate						PieceSucceeded;
 
-		public FileDownload(Sun sun, LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester seedcollector, Flow flow)
+		public FileDownload(Rds sun, LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester seedcollector, Flow flow)
 		{
-			Sun				= sun;
+			Rds				= sun;
 			Release			= release;
 			File			= release.Find(path) ?? release.AddEmpty(path, localpath);
 			Flow			= flow;
@@ -176,7 +176,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request(new FileInfoRequest {Release = release.Address, File = path}), flow).Length;
+															l = Rds.Call(s.IP, () => new FileInfoRequest {Release = release.Address, File = path}, flow).Length;
 														}
 														catch(NodeException)
 														{
@@ -189,13 +189,13 @@ namespace Uccs.Net
 															continue;
 														}
 														
-														lock(Sun.ResourceHub.Lock)
+														lock(Rds.ResourceHub.Lock)
 														{
 															File.Init(l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
 														}
 													}
 													
-													lock(Sun.ResourceHub.Lock)
+													lock(Rds.ResourceHub.Lock)
 													{
 														if(Length > 0)
 														{
@@ -211,7 +211,7 @@ namespace Uccs.Net
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
-														else if(integrity.Verify(Sun.Zone.Cryptography.HashFile([]))) /// zero-length file
+														else if(integrity.Verify(Rds.Zone.Cryptography.HashFile([]))) /// zero-length file
 														{
 															File.Write(0, []);
 															Succeeded = true;
@@ -234,7 +234,7 @@ namespace Uccs.Net
 										if(ti == -1)
 											continue;
 
-										lock(Sun.ResourceHub.Lock)
+										lock(Rds.ResourceHub.Lock)
 										{	
 											var p = CurrentPieces.Find(i => i.Task == tasks[ti]);
 											
@@ -244,7 +244,7 @@ namespace Uccs.Net
 											{
 												Seeds[p.Seed]++;
 	
-												lock(Sun.ResourceHub.Lock)
+												lock(Rds.ResourceHub.Lock)
 												{	
 													File.Write(p.Offset, p.Data.ToArray());
 													File.CompletePiece(p.I);
@@ -254,7 +254,7 @@ namespace Uccs.Net
 	
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
-													lock(Sun.ResourceHub.Lock)
+													lock(Rds.ResourceHub.Lock)
 														if(integrity.Verify(release.Hashify(File.Path)))
 														{	
 															Succeeded = true;
@@ -297,7 +297,7 @@ namespace Uccs.Net
 										//lock(Sun.Lock)
 										//	Sun.UpdatePeers(seeds);
 		
-										lock(Sun.ResourceHub.Lock)
+										lock(Rds.ResourceHub.Lock)
 										{	
 											File.Complete();
 	
@@ -313,7 +313,7 @@ namespace Uccs.Net
 								}
 								finally
 								{
-									lock(Sun.ResourceHub.Lock)
+									lock(Rds.ResourceHub.Lock)
 									{	
 										if(Release.Type == DataType.File)
 											Release.Activity = null;
@@ -338,7 +338,7 @@ namespace Uccs.Net
 		public Task					Task;
 		public Harvester			Harvester;
 
-		public DirectoryDownload(Sun sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
+		public DirectoryDownload(Rds sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 		{
 			Release = release;
 			LocalPath = localpath;

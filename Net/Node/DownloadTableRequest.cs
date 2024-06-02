@@ -6,27 +6,23 @@ namespace Uccs.Net
 {
 	public class DownloadTableRequest : RdcCall<DownloadTableResponse>
 	{
-		public Guid		McvGuid { get; set; }
 		public int		Table { get; set; }
 		public byte[]	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
 			if(	ClusterId.Length != TableBase.ClusterBase.IdLength ||
 				Offset < 0 ||
 				Length < 0)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
-				
-				if(sun.Mcv.Guid != McvGuid)
-					throw new NodeException(NodeError.NoMcv);
+				RequireBase();
 
-				var m = sun.Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId))?.Main;
+				var m = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId))?.Main;
 
 				if(m == null)
 					throw new EntityException(EntityError.NotFound);

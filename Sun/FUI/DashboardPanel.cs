@@ -10,11 +10,11 @@ namespace Uccs.Sun.FUI
 			InitializeComponent();
 		}
 
-		public DashboardPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public DashboardPanel(Net.Sun d) : base(d)
 		{
 			InitializeComponent();
 
-			monitor.Sun	= d;
+			monitor.Mcv	= Mcv;
 
 			//d.MainStarted += c =>	{
 			//							if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
@@ -37,9 +37,9 @@ namespace Uccs.Sun.FUI
 				if(destination.Items.Count > 1)
 					destination.SelectedIndex = 1;
 
-				if(Sun.Mcv != null)
+				if(Mcv != null)
 				{
-					Sun.Mcv.VoteAdded += (b) => BeginInvoke(monitor.Invalidate);
+					Mcv.VoteAdded += (b) => BeginInvoke(monitor.Invalidate);
 				}
 			}
 		}
@@ -54,7 +54,7 @@ namespace Uccs.Sun.FUI
 
 		public override void PeriodicalRefresh()
 		{
-			var	s = (new SummaryReportApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Sun, null, null, null) as SummaryResponse).Summary;
+			var	s = (new SummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Sun, null, null, null) as SummaryApc.Return).Summary;
 
 			fields.Text = string.Join('\n', s.Select(j => j[0]));
 			values.Text = string.Join('\n', s.Select(j => j[1]));
@@ -66,7 +66,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(source.SelectedItem is AccountAddress a)
 			{
-				amount.Coins = Sun.Mcv.Accounts.Find(a, Sun.Mcv.LastConfirmedRound.Id).Balance;
+				amount.Coins = Mcv.Accounts.Find(a, Mcv.LastConfirmedRound.Id).Balance;
 			}
 		}
 
@@ -83,7 +83,7 @@ namespace Uccs.Sun.FUI
 			{
 				try
 				{
-					Sun.Transact(new UntTransfer(AccountAddress.Parse(destination.Text), amount.Coins), signer, TransactionStatus.None, new Flow("UntTransfer"));
+					Mcv.Transact(new UntTransfer(AccountAddress.Parse(destination.Text), amount.Coins), signer, TransactionStatus.None, new Flow("UntTransfer"));
 				}
 				catch(RequirementException ex)
 				{

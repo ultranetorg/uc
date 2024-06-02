@@ -16,17 +16,22 @@ namespace Uccs.Sun.FUI
 	public class BaseControl : UserControl
 	{
 		protected readonly Net.Sun	Sun;
-		protected readonly Vault	Vault;
-		protected Rds				Mcv => Sun.Mcv as Rds;
+		protected Mcv				Mcv;
+		protected Rds				Rds => Mcv as Rds;
 
 		public BaseControl()
 		{
 		}
 
-		public BaseControl(Net.Sun d, Vault v)
+		public BaseControl(Net.Sun d)
 		{
 			Sun = d;
-			Vault = v;
+		}
+
+		public BaseControl(Mcv d)
+		{
+			Mcv = d;
+			Sun = d.Sun;
 		}
 
 		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
@@ -41,7 +46,7 @@ namespace Uccs.Sun.FUI
 					}
 
 			/// TODO: too slow
-			o.AddRange(Mcv.Domains.Where(i => i.Owner == owner));
+			o.AddRange((Mcv as Rds).Domains.Where(i => i.Owner == owner));
 
 			return o;
 		}
@@ -81,7 +86,7 @@ namespace Uccs.Sun.FUI
 			IEnumerable<AccountAddress> keys;
 
 			lock(Sun.Lock)
-				keys = Vault.Wallets.Keys.ToArray();
+				keys = Sun.Vault.Wallets.Keys.ToArray();
 
 			foreach(var i in keys)
 				b.Items.Add(i);
@@ -92,12 +97,12 @@ namespace Uccs.Sun.FUI
 
 		public void BindAccounts(ComboBox b, Action filled = null)
 		{
-			Vault.AccountsChanged += () => {
-												BeginInvoke(new Action(() => { 
-																			FillAccounts(b);
-																			filled?.Invoke();
-																		}));
-											};
+			Sun.Vault.AccountsChanged += () => {
+													BeginInvoke(new Action(() => { 
+																				FillAccounts(b);
+																				filled?.Invoke();
+																			}));
+												};
 			FillAccounts(b);
 			filled?.Invoke();
 		}
@@ -170,7 +175,7 @@ namespace Uccs.Sun.FUI
 
 		public AccountKey GetPrivate(AccountAddress account)
 		{
-			if(!Vault.IsUnlocked(account))
+			if(!Sun.Vault.IsUnlocked(account))
 			{
 				var pa = new EnterPasswordForm(Sun.Settings.Secrets?.Password);
 	
@@ -187,7 +192,7 @@ namespace Uccs.Sun.FUI
 				}
 			}
 
-			return Vault.GetKey(account);
+			return Sun.Vault.GetKey(account);
 		}
 
 		public static string Dump(XonDocument doc)
@@ -233,7 +238,11 @@ namespace Uccs.Sun.FUI
 		{
 		}
 
-		public MainPanel(Net.Sun sun, Vault vault) : base(sun, vault)
+		public MainPanel(Net.Sun d) : base(d)
+		{
+		}
+
+		public MainPanel(Mcv d) : base(d)
 		{
 		}
 	}

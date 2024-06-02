@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,7 +10,7 @@ namespace Uccs.Net
 	{
 		public int[]						Versions;
 		public Guid							Nuid;
-		public Role							Roles;
+		public Dictionary<Guid, Role>		Roles;
 		public string						Zone;
 		public IPAddress					IP;
 		public bool							Permanent;
@@ -19,10 +20,11 @@ namespace Uccs.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
-			w.Write(Nuid.ToByteArray());
-			w.Write((uint)Roles);
+			w.Write(Nuid);
+			w.Write(Roles, i => {	w.Write(i.Key);
+									w.Write((uint)i.Value); });
 			w.WriteUtf8(Zone);
-			w.Write(IP.GetAddressBytes());
+			w.Write(IP);
 			w.Write(Permanent);
 			w.Write(Peers, i => i.WritePeer(w));
 			//w.Write(Generators, i => i.WriteForSharing(w));
@@ -31,10 +33,11 @@ namespace Uccs.Net
 		public void Read(BinaryReader r)
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
-			Nuid				= new Guid(r.ReadBytes(16));
-			Roles				= (Role)r.ReadUInt32();
+			Nuid				= r.ReadGuid();
+			Roles				= r.ReadDictionary(	() => r.ReadGuid(), 
+													() => (Role)r.ReadUInt32());
 			Zone				= r.ReadUtf8();
-			IP					= new IPAddress(r.ReadBytes(4));
+			IP					= r.ReadIPAddress();
 			Permanent			= r.ReadBoolean();
 			Peers				= r.Read<Peer>(i => {
 														i.Fresh = true; 

@@ -9,14 +9,14 @@ namespace Uccs.Sun.FUI
 	public partial class ChainMonitor : UserControl
 	{
 		Dictionary<AccountAddress, Brush>	Brushes = new Dictionary<AccountAddress, Brush>();
-		Dictionary<AccountAddress, Pen>	Pens = new Dictionary<AccountAddress, Pen>();
-		bool						Mode = false;
+		Dictionary<AccountAddress, Pen>		Pens = new Dictionary<AccountAddress, Pen>();
+		bool								Mode = false;
 
-		static List<Money[]>		stat;
-		Money						emission = 0;
-		BigInteger					spent = 0;
+		static List<Money[]>				stat;
+		Money								emission = 0;
+		BigInteger							spent = 0;
 
-		public Net.Sun Sun;
+		public Mcv							Mcv;
 
 		public ChainMonitor()
 		{
@@ -93,11 +93,11 @@ namespace Uccs.Sun.FUI
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Sun?.Mcv != null)
+				if(Mcv != null)
 				{
-					lock(Sun.Lock)
+					lock(Mcv.Lock)
 					{
-						if(!Sun.Mcv.Tail.Any())
+						if(!Mcv.Tail.Any())
 							return;
 
 						var s = 8;
@@ -122,7 +122,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Sun.Mcv.Tail.FirstOrDefault();
+							var last = Mcv.Tail.FirstOrDefault();
 
 							if(last == null)
 							{
@@ -133,7 +133,7 @@ namespace Uccs.Sun.FUI
 							
 							for(int i = last.Id - n + 1; i <= last.Id; i++)
 							{
-								var r = Sun.Mcv.FindRound(i);
+								var r = Mcv.FindRound(i);
 								rounds.Add(r);
 	
 								if(showt && r != null)

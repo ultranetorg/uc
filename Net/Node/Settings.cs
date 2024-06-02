@@ -27,17 +27,70 @@ namespace Uccs.Net
 		}
 	}
 
-	public class McvSettings
+	public class RdsSettings
 	{
-		public int		PeersMin;
+		public int						PeersMin;
+		public int						PeersPermanentMin = 6;
+		public Money					Bail;
+		public List<AccountAddress>		Generators = new();
+		public string					GoogleSearchEngineID;
+		public string					GoogleApiKey;
+		public List<AccountAddress>		ProposedFundJoiners = new();
+		public List<AccountAddress>		ProposedFundLeavers = new();
+		public string					Packages;
+		public string					Releases;
 
-		public McvSettings()
+		public NasSettings				Nas;
+		public SeedHubSettings			SeedHub;
+		public ResourceHubSettings		ResourceHub;
+		public Role						Roles;
+
+		public RdsSettings()
 		{
+			Nas			= new ();
+			SeedHub		= new ();
+			ResourceHub	= new ();
 		}
 
-		public McvSettings(Xon x)
+		public RdsSettings(Xon x, string profile)
 		{
-			PeersMin = x.Get<int>("PeersMin");
+			Roles					= x.Get<Role>("Roles");
+			PeersMin				= x.Get<int>("PeersMin");
+			PeersPermanentMin		= x.Get<int>("PeersPermanentMin");
+			Bail					= x.Get("Bail", Money.Zero);
+			Generators				= x.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
+			GoogleSearchEngineID	= x.Get<string>("GoogleSearchEngineID", null);
+			GoogleApiKey			= x.Get<string>("GoogleApiKey", null);
+			Packages				= x.Get("Packages", Path.Join(profile, "Packages"));
+			Releases				= x.Get("Releases", Path.Join(profile, "Releases"));
+
+			Nas			= new (x.One(nameof(Nas)));
+			SeedHub		= new (x.One(nameof(SeedHub)));
+			ResourceHub	= new (x.One(nameof(ResourceHub)));
+		}
+
+		public RdsSettings Merge(Xon x)
+		{
+			var s = new RdsSettings();
+
+			s.Roles					= Roles;				
+			s.PeersMin				= PeersMin;			
+			s.PeersPermanentMin		= PeersPermanentMin;	
+			s.Bail					= Bail;
+			s.Generators			= Generators;
+			s.GoogleSearchEngineID	= GoogleSearchEngineID;
+			s.GoogleApiKey			= GoogleApiKey;
+			s.Packages				= Packages;
+			s.Releases				= Releases;
+
+			s.Nas					= Nas;
+			s.SeedHub				= SeedHub;
+			s.ResourceHub			= ResourceHub;
+
+			if(x.Has("Roles"))
+				s.Roles = x.Get<Role>("Roles");
+
+			return s;
 		}
 	}
 
@@ -109,102 +162,6 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SunGlobals
-	{
-		public static bool				UI;
-		public static bool				DisableTimeouts;
-		public static bool				ThrowOnCorrupted;
-		public static bool				SkipSynchronization;
-		public static bool				SkipMigrationVerification;
-
-		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
-		static IEnumerable<FieldInfo>	Fields => typeof(SunGlobals).GetFields().Where(i => i.FieldType == typeof(bool));
-
-		public static string			AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
-
-		public static List<Sun>			Suns = new();
-
-		public SunGlobals()
-		{
-		}
-
-		public SunGlobals(Xon x)
-		{
-			if(x != null)
-			{
-				foreach(var i in Fields)
-				{
-					i.SetValue(this, x.Has(i.Name));
-				}
-			}
-		}
-
-		public static void CompareBase(string destibation)
-		{
-			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
-
-			var jo = new JsonSerializerOptions(SunJsonApiClient.DefaultOptions);
-			jo.WriteIndented = true;
-
-			foreach(var i in Suns)
-				Monitor.Enter(i.Lock);
-
-			void compare(Func<Sun, TableBase> get)
-			{
-				var cs = Suns.Where(i => i.Mcv != null).Select(i => new {s = i, c = get(i).Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
-	
-				while(true)
-				{
-					var x = new bool[cs.Length];
-
-					for(int i=0; i<cs.Length; i++)
-						x[i] = cs[i].c.MoveNext();
-
-					if(x.All(i => !i))
-						break;
-					else if(!x.All(i => i))
-						Debugger.Break();
-	
-					var es = cs.Select(i => new {i.s, e = i.c.Current.BaseEntries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
-	
-					while(true)
-					{
-						var y = new bool[es.Length];
-
-						for(int i=0; i<es.Length; i++)
-							y[i] = es[i].e.MoveNext();
-	
-						if(y.All(i => !i))
-							break;
-						else if(!y.All(i => i))
-							Debugger.Break();
-	
-						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
-
-						if(jes.Count() > 1)
-						{
-							foreach(var i in jes)
-							{
-								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
-							}
-							
-							Debugger.Break();
-						}
-					}
-				}
-			}
-
-			foreach(var i in Suns.Where(i => i.Mcv != null))
-			{
-				foreach(var t in i.Mcv.Tables)
-					compare(s => s.Mcv.Tables[t.Id]);
-			}
-
-			foreach(var i in Suns)
-				Monitor.Exit(i.Lock);
-		}
-	}
-
 	public class Settings
 	{
 		public const string				FileName = "Sun.settings";
@@ -212,34 +169,23 @@ namespace Uccs.Net
 		string							Path; 
 		public string					Profile;
 
+		public IPAddress				IP;
 		public string					FuiRoles;
 		public bool						Log;
-		public int						PeersPermanentMin = 6;
 		public int						PeersPermanentInboundMax = 128;
 		public int						PeersInboundMax = 16 * 1024;
 		public bool						PeersInitialRandomization = true;
-		public IPAddress				IP;
-		public Money					Bail;
 		public string					JsonServerListenAddress;
-		public List<AccountAddress>		Generators = new();
 		public AccountKey				Analyzer;
-		public string					Packages;
-		public string					Releases;
 
 		public ApiSettings				Api;
-		public McvSettings				Mcv;
-		public NasSettings				Nas;
-		public SeedHubSettings			SeedHub;
-		public ResourceHubSettings		ResourceHub;
+		public RdsSettings				Rds;
 		public SecretSettings			Secrets;
-		public string					GoogleSearchEngineID;
-		public string					GoogleApiKey;
 
 		public int						RdcQueryTimeout;
 		public int						RdcTransactingTimeout;
 
-		public List<AccountAddress>		ProposedFundJoiners = new();
-		public List<AccountAddress>		ProposedFundLeavers = new();
+
 
 		public Settings()
 		{
@@ -262,19 +208,11 @@ namespace Uccs.Net
 			var doc = new XonDocument(File.ReadAllText(Path), SunXonTextValueSerializator.Default);
 
 			FuiRoles					= doc.Get<string>("FuiRoles");
-			PeersPermanentMin			= doc.Get<int>("PeersPermanentMin");
 			PeersPermanentInboundMax	= doc.Get<int>("PeersPermanentInboundMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
-			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
+			IP							= doc.Get<IPAddress>("IP", null);
 			JsonServerListenAddress		= doc.Get<string>("JsonServerListenAddress", null);
-			Bail						= doc.Get("Bail", Money.Zero);
-			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
-			Packages					= doc.Get("Packages", System.IO.Path.Join(Profile, "Packages"));
-			Releases					= doc.Get("Releases", System.IO.Path.Join(Profile, "Releases"));
-
-			GoogleSearchEngineID		= doc.Get<string>("GoogleSearchEngineID", null);
-			GoogleApiKey				= doc.Get<string>("GoogleApiKey", null);
 
 			if(Debugger.IsAttached)
 			{
@@ -287,11 +225,8 @@ namespace Uccs.Net
 				RdcTransactingTimeout	= doc.Get("RdcTransactingTimeout", 5*60*1000);
 			}
 
-			Mcv			= new (doc.One(nameof(Mcv)));
-			Nas			= new (doc.One(nameof(Nas)));
-			Api			= new (doc.One(nameof(Api)));
-			SeedHub		= new (doc.One(nameof(SeedHub)));
-			ResourceHub	= new (doc.One(nameof(ResourceHub)));
+			Rds	= new (doc.One(nameof(Rds)), Profile);
+			Api	= new (doc.One(nameof(Api)));
 
 			if(boot.Secrets != null)	
 				LoadSecrets(boot.Secrets);
@@ -305,11 +240,8 @@ namespace Uccs.Net
 			Path		= System.IO.Path.Join(profile, FileName);
 			IP			= IPAddress.Loopback;
 
-			Mcv			= new ();
-			Nas			= new ();
+			Rds			= new ();
 			Api			= new ();
-			SeedHub		= new ();
-			ResourceHub	= new ();
 		}
 
 		public void LoadSecrets(string path)
@@ -366,6 +298,107 @@ namespace Uccs.Net
 			}
 
 			return doc;
+		}
+	}
+
+	public class SunGlobals
+	{
+		public static bool				UI;
+		public static bool				DisableTimeouts;
+		public static bool				ThrowOnCorrupted;
+		public static bool				SkipSynchronization;
+		public static bool				SkipMigrationVerification;
+
+		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
+		static IEnumerable<FieldInfo>	Fields => typeof(SunGlobals).GetFields().Where(i => i.FieldType == typeof(bool));
+
+		public static string			AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
+
+		public static List<Sun>			Suns = new();
+
+		public SunGlobals()
+		{
+		}
+
+		public SunGlobals(Xon x)
+		{
+			if(x != null)
+			{
+				foreach(var i in Fields)
+				{
+					i.SetValue(this, x.Has(i.Name));
+				}
+			}
+		}
+
+		public static void CompareBase(string destibation)
+		{
+			foreach(var i in Suns.SelectMany(i => i.Mcvs).DistinctBy(i => i.Guid))
+			{
+				CompareBase(i, Path.Join(destibation, i.GetType().Name));
+			}
+		}
+
+		public static void CompareBase(Mcv mcv, string destibation)
+		{
+			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
+
+			var jo = new JsonSerializerOptions(ApiJsonClient.DefaultOptions);
+			jo.WriteIndented = true;
+
+			foreach(var i in Suns)
+				Monitor.Enter(i.Lock);
+
+			void compare(int table)
+			{
+				var cs = Suns.Where(i => i.FindMcv(mcv.Guid) != null).Select(i => new {s = i, c = i.FindMcv(mcv.Guid).Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+	
+				while(true)
+				{
+					var x = new bool[cs.Length];
+
+					for(int i=0; i<cs.Length; i++)
+						x[i] = cs[i].c.MoveNext();
+
+					if(x.All(i => !i))
+						break;
+					else if(!x.All(i => i))
+						Debugger.Break();
+	
+					var es = cs.Select(i => new {i.s, e = i.c.Current.BaseEntries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+	
+					while(true)
+					{
+						var y = new bool[es.Length];
+
+						for(int i=0; i<es.Length; i++)
+							y[i] = es[i].e.MoveNext();
+	
+						if(y.All(i => !i))
+							break;
+						else if(!y.All(i => i))
+							Debugger.Break();
+	
+						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
+
+						if(jes.Count() > 1)
+						{
+							foreach(var i in jes)
+							{
+								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
+							}
+							
+							Debugger.Break();
+						}
+					}
+				}
+			}
+
+			foreach(var t in mcv.Tables)
+				compare(t.Id);
+
+			foreach(var i in Suns)
+				Monitor.Exit(i.Lock);
 		}
 	}
 }

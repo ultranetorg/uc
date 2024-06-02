@@ -1,18 +1,18 @@
 ﻿namespace Uccs.Net
 {
-	public class FileInfoRequest : RdcCall<FileInfoResponse>
+	public class FileInfoRequest : RdsCall<FileInfoResponse>
 	{
-		public Urr	Release { get; set; }
-		public string			File { get; set; }
+		public Urr		Release { get; set; }
+		public string	File { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.ResourceHub.Lock)
+			lock(Rds.ResourceHub.Lock)
 			{
-				if(sun.ResourceHub == null) 
+				if(Rds.ResourceHub == null) 
 					throw new NodeException(NodeError.NotSeed);
 				
-				var r = sun.ResourceHub.Find(Release);
+				var r = Rds.ResourceHub.Find(Release);
 				
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);

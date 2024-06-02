@@ -41,7 +41,7 @@ namespace Uccs.Net
 			{
 				if(_Contract == null)
 				{
-					Web3 = new Web3(Account, Settings.Nas.Provider);
+					Web3 = new Web3(Account, Settings.Rds.Nas.Provider);
 					_Contract = Web3.Eth.GetContractHandler(ContractAddress);
 				}
 
@@ -77,7 +77,7 @@ namespace Uccs.Net
 
 		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Flow workflow)
 		{
-			var w3 = new Web3(from, Settings.Nas.Provider);
+			var w3 = new Web3(from, Settings.Rds.Nas.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
 
 			var rt = new EmitFunction{AmountToSend = amount,
@@ -97,7 +97,7 @@ namespace Uccs.Net
 
 		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Flow workflow)
 		{
-			var w3 = new Web3(from, Settings.Nas.Provider);
+			var w3 = new Web3(from, Settings.Rds.Nas.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
 
 			var rt = new EmitFunction{AmountToSend = wei,

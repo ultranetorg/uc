@@ -39,12 +39,11 @@ namespace Uccs.Net
 		public Dictionary<Urr, List<Seed>>			Releases = [];
 		public Dictionary<ResourceId, List<Urr>>	Resources = [];
 		public object								Lock = new ();
-		Sun											Sun;
-		Rds											Rds => Sun.Mcv as Rds;
+		Rds											Rds;
 
-		public SeedHub(Sun sun)
+		public SeedHub(Rds sun)
 		{
-			Sun = sun;
+			Rds = sun;
 		}
 
 		public List<ReleaseDeclarationResult> ProcessIncoming(IPAddress ip, ResourceDeclaration[] resources)
@@ -56,9 +55,9 @@ namespace Uccs.Net
 				var rzd = rsd.Release;
 				//foreach(var rzd in rsd.Releases)
 				{
-					lock(Sun.Lock)
+					lock(Rds.Lock)
 					{ 
-						if(!Sun.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+						if(!Rds.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Rds.Settings.Generators.Contains(i.Account)))
 						{
 							results.Add(new (rzd, DeclarationResult.NotNearest));
 							continue;
@@ -83,15 +82,15 @@ namespace Uccs.Net
 					}
 					else
 					{
-						lock(Sun.Lock)
+						lock(Rds.Lock)
 						{
 							if(rzd is Urrh dh)
 							{
-								var z = Rds.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+								var z = Rds.Domains.FindResource(rsd.Resource, Rds.LastConfirmedRound.Id);
 	
 								if(z == null)
 								{
-									var e = Rds.Domains.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+									var e = Rds.Domains.FindResource(rsd.Resource, Rds.LastConfirmedRound.Id);
 
 									if(e?.Data == null || e.Data.Interpretation is Urrh ha && ha != dh)
 									{
@@ -102,9 +101,9 @@ namespace Uccs.Net
 							}
 							else if(rzd is Urrsd sdp)
 							{
-								var ea = Rds.Domains.Find(rsd.Resource.DomainId, Sun.Mcv.LastConfirmedRound.Id);
+								var ea = Rds.Domains.Find(rsd.Resource.DomainId, Rds.LastConfirmedRound.Id);
 	
-								if(!sdp.Prove(Sun.Zone.Cryptography, ea.Owner, rsd.Hash))
+								if(!sdp.Prove(Rds.Zone.Cryptography, ea.Owner, rsd.Hash))
 								{
 									results.Add(new (rzd, DeclarationResult.Rejected));
 									continue;

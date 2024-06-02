@@ -1,20 +1,19 @@
 ﻿namespace Uccs.Net
 {
-	public class DeclareReleaseRequest : RdcCall<DeclareReleaseResponse>//, IBinarySerializable
+	public class DeclareReleaseRequest : RdsCall<DeclareReleaseResponse>//, IBinarySerializable
 	{
 		public ResourceDeclaration[]	Resources { get; set; }
 		public override bool			WaitResponse => true;
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Sun.Lock)
 			{	
-				RequireRdsBase(sun);
-				RequireMember(sun);
+				RequireMember();
 			}
 
-			lock(sun.SeedHub.Lock)
-				return new DeclareReleaseResponse {Results = sun.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
+			lock(Rds.SeedHub.Lock)
+				return new DeclareReleaseResponse {Results = Rds.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
 		}
 	}
 

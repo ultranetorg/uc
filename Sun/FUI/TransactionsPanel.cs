@@ -12,7 +12,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
-		public TransactionsPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public TransactionsPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -79,7 +79,7 @@ namespace Uccs.Sun.FUI
 				{
 					var a = AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Sun.Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Nid);
+					var txs = Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Nid);
 
 					foreach(var i in txs)
 					{

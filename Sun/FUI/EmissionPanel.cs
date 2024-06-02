@@ -9,7 +9,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{
-		public EmissionPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public EmissionPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -89,7 +89,7 @@ namespace Uccs.Sun.FUI
 		{
 			var v = Nethereum.Util.AddressUtil.Current.IsValidAddressLength(source.Text) && 
 					eth.Wei > 0 && 
-					destination.SelectedItem != null && Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
+					destination.SelectedItem != null && Sun.Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
 
 			transfer.Enabled = v;
 		}
@@ -105,7 +105,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
-				if(Sun.Mcv?.LastConfirmedRound != null)
+				if(Mcv?.LastConfirmedRound != null)
 				{
 					estimated.Text = Emission.Calculate(eth.Wei).ToDecimalString() + " UNT";
 				}
@@ -176,23 +176,23 @@ namespace Uccs.Sun.FUI
 
 		private void finish_Click(object sender, EventArgs e)
 		{
-			transfergroup.Enabled = false;
-			finishgroup.Enabled = false;
-
-			try
-			{
-				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress), new Flow(MethodBase.GetCurrentMethod().Name));
-
-				transfergroup.Enabled = true;
-				finishgroup.Enabled = true;
-			}
-			catch(Exception ex)
-			{
-				ShowException("Emission finishing failed", ex);
-			}
-			
-			transfergroup.Enabled = true;
-			finishgroup.Enabled = true;
+			//transfergroup.Enabled = false;
+			//finishgroup.Enabled = false;
+			//
+			//try
+			//{
+			//	Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress), new Flow(MethodBase.GetCurrentMethod().Name));
+			//
+			//	transfergroup.Enabled = true;
+			//	finishgroup.Enabled = true;
+			//}
+			//catch(Exception ex)
+			//{
+			//	ShowException("Emission finishing failed", ex);
+			//}
+			//
+			//transfergroup.Enabled = true;
+			//finishgroup.Enabled = true;
 		}
 	}
 }

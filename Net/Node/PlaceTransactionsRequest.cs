@@ -6,13 +6,13 @@ namespace Uccs.Net
 	{
 		public Transaction[]	Transactions {get; set;}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireMember(sun);
+				RequireMember();
 	
-				var acc = sun.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
+				var acc = Mcv.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
 
 				return new PlaceTransactionsResponse {Accepted = acc};
 			}

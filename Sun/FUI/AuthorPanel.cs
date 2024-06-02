@@ -4,7 +4,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class DomainPanel : MainPanel
 	{
-		public DomainPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public DomainPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -38,7 +38,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(p => p.Request(new DomainRequest(DomainSearch.Text)), Sun.Flow).Domain;
+				var a = Mcv.Call(() => new DomainRequest(DomainSearch.Text), Sun.Flow).Domain;
 	
 				if(a != null)
 				{	
@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 				else 
 					Fields.Text = "Not found";
 
-				var t = Sun.Call(p => p.Request(new TimeRequest()), Sun.Flow);
+				var t = Mcv.Call(() => new TimeRequest(), Sun.Flow);
 
 				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
 				{
@@ -218,7 +218,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Sun.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
+				Rds.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

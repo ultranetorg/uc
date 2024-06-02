@@ -8,22 +8,22 @@ namespace Uccs.Net
 		public int		Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
 			if(SuperClusters.Length > TableBase.SuperClustersCountMax)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 				
-				if(sun.Mcv.BaseState == null)
+				if(Mcv.BaseState == null)
 					throw new NodeException(NodeError.TooEearly);
 
-				if(Table < 0 || sun.Mcv.Tables.Length <= Table)
+				if(Table < 0 || Mcv.Tables.Length <= Table)
 					throw new RequestException(RequestError.OutOfRange);
 
-				return new TableStampResponse{Clusters = SuperClusters	.SelectMany(s => sun.Mcv.Tables[Table].Clusters
+				return new TableStampResponse{Clusters = SuperClusters	.SelectMany(s => Mcv.Tables[Table].Clusters
 																		.Where(c => c.SuperId == s)
 																		.Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 			}

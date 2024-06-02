@@ -29,85 +29,23 @@ namespace Uccs.Sun.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			Members = new System.Windows.Forms.ListView();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			columnHeader4 = new System.Windows.Forms.ColumnHeader();
-			columnHeader3 = new System.Windows.Forms.ColumnHeader();
-			columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			columnHeader5 = new System.Windows.Forms.ColumnHeader();
-			DestLabel = new System.Windows.Forms.Label();
 			label1 = new System.Windows.Forms.Label();
 			Peers = new System.Windows.Forms.ListView();
 			columnHeader13 = new System.Windows.Forms.ColumnHeader();
 			columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			columnHeader15 = new System.Windows.Forms.ColumnHeader();
 			columnHeader11 = new System.Windows.Forms.ColumnHeader();
-			columnHeaderBR = new System.Windows.Forms.ColumnHeader();
-			columnHeaderCR = new System.Windows.Forms.ColumnHeader();
 			columnHeader16 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
-			// 
-			// Members
-			// 
-			Members.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Members.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader4, columnHeader3, columnHeader2, columnHeader5 });
-			Members.FullRowSelect = true;
-			Members.Location = new System.Drawing.Point(7, 860);
-			Members.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			Members.Name = "Members";
-			Members.Size = new System.Drawing.Size(1888, 772);
-			Members.TabIndex = 1;
-			Members.UseCompatibleStateImageBehavior = false;
-			Members.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader1
-			// 
-			columnHeader1.Text = "Account";
-			columnHeader1.Width = 300;
-			// 
-			// columnHeader4
-			// 
-			columnHeader4.Text = "Joined At";
-			columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			columnHeader4.Width = 100;
-			// 
-			// columnHeader3
-			// 
-			columnHeader3.Text = "Bail";
-			columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			columnHeader3.Width = 150;
-			// 
-			// columnHeader2
-			// 
-			columnHeader2.Text = "Base IP";
-			columnHeader2.Width = 100;
-			// 
-			// columnHeader5
-			// 
-			columnHeader5.Text = "Hub IP";
-			columnHeader5.Width = 100;
-			// 
-			// DestLabel
-			// 
-			DestLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-			DestLabel.AutoSize = true;
-			DestLabel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			DestLabel.Location = new System.Drawing.Point(7, 819);
-			DestLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			DestLabel.Name = "DestLabel";
-			DestLabel.Size = new System.Drawing.Size(114, 27);
-			DestLabel.TabIndex = 2;
-			DestLabel.Text = "Members";
-			DestLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// label1
 			// 
 			label1.AutoSize = true;
-			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label1.Location = new System.Drawing.Point(7, 33);
-			label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+			label1.Location = new System.Drawing.Point(4, 15);
+			label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(73, 27);
+			label1.Size = new System.Drawing.Size(39, 13);
 			label1.TabIndex = 2;
 			label1.Text = "Peers";
 			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -115,12 +53,12 @@ namespace Uccs.Sun.FUI
 			// Peers
 			// 
 			Peers.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Peers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeaderBR, columnHeaderCR, columnHeader16 });
+			Peers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeader16 });
 			Peers.FullRowSelect = true;
-			Peers.Location = new System.Drawing.Point(7, 83);
-			Peers.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Peers.Location = new System.Drawing.Point(4, 39);
+			Peers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			Peers.Name = "Peers";
-			Peers.Size = new System.Drawing.Size(1888, 697);
+			Peers.Size = new System.Drawing.Size(1016, 726);
 			Peers.TabIndex = 6;
 			Peers.UseCompatibleStateImageBehavior = false;
 			Peers.View = System.Windows.Forms.View.Details;
@@ -148,20 +86,6 @@ namespace Uccs.Sun.FUI
 			columnHeader11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			columnHeader11.Width = 100;
 			// 
-			// columnHeaderBR
-			// 
-			columnHeaderBR.DisplayIndex = 5;
-			columnHeaderBR.Text = "Base Rank";
-			columnHeaderBR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeaderBR.Width = 100;
-			// 
-			// columnHeaderCR
-			// 
-			columnHeaderCR.DisplayIndex = 4;
-			columnHeaderCR.Text = "Chain Rank";
-			columnHeaderCR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeaderCR.Width = 100;
-			// 
 			// columnHeader16
 			// 
 			columnHeader16.Text = "Last Seen";
@@ -169,36 +93,24 @@ namespace Uccs.Sun.FUI
 			// 
 			// NetworkPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			Controls.Add(Peers);
 			Controls.Add(label1);
-			Controls.Add(DestLabel);
-			Controls.Add(Members);
-			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			Name = "NetworkPanel";
-			Size = new System.Drawing.Size(1902, 1638);
+			Size = new System.Drawing.Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}
 
 		#endregion
-
-		private System.Windows.Forms.ListView Members;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.ColumnHeader columnHeader4;
-		private System.Windows.Forms.ColumnHeader columnHeader3;
-		private System.Windows.Forms.Label DestLabel;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Peers;
 		private System.Windows.Forms.ColumnHeader columnHeader13;
 		private System.Windows.Forms.ColumnHeader columnHeader14;
 		private System.Windows.Forms.ColumnHeader columnHeader15;
 		private System.Windows.Forms.ColumnHeader columnHeader16;
-		private System.Windows.Forms.ColumnHeader columnHeaderCR;
 		private System.Windows.Forms.ColumnHeader columnHeader11;
-		private System.Windows.Forms.ColumnHeader columnHeaderBR;
-		private System.Windows.Forms.ColumnHeader columnHeader5;
 	}
 }

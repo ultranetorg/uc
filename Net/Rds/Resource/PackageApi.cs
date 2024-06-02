@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class PackageAddApc : SunApc
+	public class PackageAddApc : RdsApc
 	{
 		public Ura						Resource { get; set; }
 		public byte[]					Complete { get; set; }
@@ -12,22 +12,22 @@ namespace Uccs.Net
 		public byte[]					Manifest { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds rds, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var h = sun.Zone.Cryptography.HashFile(Manifest);
-			var a = AddressCreator.Create(sun, h);
+			var h = rds.Zone.Cryptography.HashFile(Manifest);
+			var a = AddressCreator.Create(rds, h);
 
-			lock(sun.PackageHub.Lock)
+			lock(rds.PackageHub.Lock)
 			{
-				var p = sun.PackageHub.Get(Resource);
+				var p = rds.PackageHub.Get(Resource);
 				
-				lock(sun.ResourceHub.Lock)
+				lock(rds.ResourceHub.Lock)
 				{
 					p.Resource.AddData(DataType.Package, a);
 					
-					var r = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a, DataType.Package);
+					var r = rds.ResourceHub.Find(a) ?? rds.ResourceHub.Add(a, DataType.Package);
 
-					var path = sun.PackageHub.AddressToReleases(a);
+					var path = rds.PackageHub.AddressToReleases(a);
 
 					r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
 			
@@ -45,7 +45,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageBuildApc : SunApc
+	public class PackageBuildApc : RdsApc
 	{
 		public Ura						Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
@@ -54,18 +54,18 @@ namespace Uccs.Net
 		public Ura[]					History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
 		}
 	}
 
-	public class PackageDownloadApc : SunApc
+	public class PackageDownloadApc : RdsApc
 	{
 		public Ura		Package { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 			{	
@@ -75,22 +75,22 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageInstallApc : SunApc
+	public class PackageInstallApc : RdsApc
 	{
 		public Ura	Package { get; set; }
 
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			sun.PackageHub.Install(Package, workflow);
 			return null;
 		}
 	}
 
-	public class PackageActivityProgressApc : SunApc
+	public class PackageActivityProgressApc : RdsApc
 	{
 		public Ura	Package { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			var p = sun.PackageHub.Find(Package);
 
@@ -104,11 +104,11 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageInfoApc : SunApc
+	public class PackageInfoApc : RdsApc
 	{
 		public Ura	Package { get; set; }
 		
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rds sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
 			{

@@ -63,7 +63,7 @@ namespace Uccs
 			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(t);
 			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(t);
 			if(typeof(O) == typeof(byte[]))				return (O)(object)t.FromHex();
-			if(typeof(O).IsEnum)						Enum.Parse(t.GetType(), t); 
+			if(typeof(O).IsEnum)						return (O)Enum.Parse(typeof(O), t); 
 			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(t);
 
 			if(typeof(O).GetInterfaces().Any(i => i == typeof(ITextSerialisable)))

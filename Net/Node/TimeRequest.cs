@@ -2,13 +2,13 @@
 {
 	public class TimeRequest : RdcCall<TimeResponse>
 	{
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 				
-				return new TimeResponse {Time = sun.Mcv.LastConfirmedRound.ConsensusTime};
+				return new TimeResponse {Time = Mcv.LastConfirmedRound.ConsensusTime};
 			}
 		}
 	}

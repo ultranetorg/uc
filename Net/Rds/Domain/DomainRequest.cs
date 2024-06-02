@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class DomainRequest : RdcCall<DomainResponse>
+	public class DomainRequest : RdsCall<DomainResponse>
 	{
 		public DomainIdentifier	Identifier { get; set; }
 
@@ -25,21 +25,21 @@ namespace Uccs.Net
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
 			if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 				throw new RequestException(RequestError.IncorrectRequest);
 
- 			lock(sun.Lock)
+ 			lock(Rds.Lock)
 			{	
-				var rds = RequireRdsBase(sun);
+				RequireBase();
 
 				Domain e;
 
 				if(Identifier.Addres != null)
-					e = rds.Domains.Find(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
+					e = Rds.Domains.Find(Identifier.Addres, Rds.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					e = rds.Domains.Find(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+					e = Rds.Domains.Find(Identifier.Id, Rds.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

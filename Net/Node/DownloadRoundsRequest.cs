@@ -7,33 +7,29 @@ namespace Uccs.Net
 {
 	public class DownloadRoundsRequest : RdcCall<DownloadRoundsResponse>
 	{
-		public Guid McvGuid { get; set; } ///
 		public int From { get; set; }
 		public int To { get; set; }
 		
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 				
-				if(sun.Mcv.LastNonEmptyRound == null)	
+				if(Mcv.LastNonEmptyRound == null)	
 					throw new NodeException(NodeError.TooEearly);
 
-				if(From > sun.Mcv.LastNonEmptyRound.Id || To - From > Mcv.P)
+				if(From > Mcv.LastNonEmptyRound.Id || To - From > Mcv.P)
 					throw new InvalidRequestException("Invalid params");
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			
-				/// USE McvGuid
-				McvGuid = McvGuid;
-
-				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)).Where(i => i != null && i.Confirmed), i => i.Write(w));
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => Mcv.FindRound(i)).Where(i => i != null && i.Confirmed), i => i.Write(w));
 			
-				return new DownloadRoundsResponse {	LastNonEmptyRound	= sun.Mcv.LastNonEmptyRound.Id,
-													LastConfirmedRound	= sun.Mcv.LastConfirmedRound.Id,
-													BaseHash			= sun.Mcv.BaseHash,
+				return new DownloadRoundsResponse {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
+													LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
+													BaseHash			= Mcv.BaseHash,
 													Rounds				= s.ToArray()};
 			}
 		}

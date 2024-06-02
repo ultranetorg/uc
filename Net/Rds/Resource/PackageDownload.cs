@@ -53,7 +53,7 @@ namespace Uccs.Net
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-		public PackageDownload(Sun sun, LocalPackage package, Flow workflow)
+		public PackageDownload(Rds sun, LocalPackage package, Flow workflow)
 		{
 			Package = package;
 
@@ -77,7 +77,7 @@ namespace Uccs.Net
 											{
 												try
 												{
-													last = sun.Call(c => c.Request(new ResourceRequest(package.Resource.Address)), workflow).Resource;
+													last = sun.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
 														
 													if(last.Data.Type != DataType.Package)
 													{
@@ -110,7 +110,7 @@ namespace Uccs.Net
 													break;
 
 												case Urrsd a :
-													var au = sun.Call(c => c.Request(new DomainRequest(package.Resource.Address.Domain)), workflow).Domain;
+													var au = sun.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
 													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 													break;
 											};

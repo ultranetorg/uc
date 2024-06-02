@@ -6,14 +6,14 @@ namespace Uccs.Net
 	{
 		public Transaction[]	Transactions {get; set;}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 	
-				return new CostResponse{RentPerBytePerDay = sun.Mcv.LastConfirmedRound.RentPerBytePerDay,
-										ConsensusExeunitFee = sun.Mcv.LastConfirmedRound.ConsensusExeunitFee};
+				return new CostResponse{RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
+										ConsensusExeunitFee = Mcv.LastConfirmedRound.ConsensusExeunitFee};
 			}
 		}
 	}

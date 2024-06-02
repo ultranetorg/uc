@@ -14,7 +14,7 @@ namespace Uccs.Sun.CLI
 		public string			ExeDirectory;
 		public Zone				Zone;
 		public Net.Sun			Sun;
-		public JsonApiClient	ApiClient;
+		public JsonClient	ApiClient;
 		public Flow				Flow = new Flow("CLI", new Log()); 
 		public IPasswordAsker	PasswordAsker;
 		public Settings			Settings;
@@ -59,11 +59,11 @@ namespace Uccs.Sun.CLI
 			Sun?.Stop("The End");
 		}
 
-		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(Net.Sun sun, JsonClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
-			Zone = zone;
-			Settings = sun.Settings;
 			Sun = sun;
+			Zone = sun.Zone;
+			Settings = sun.Settings;
 			ApiClient = api;
 			Flow = workflow;
 			PasswordAsker = passwordAsker;

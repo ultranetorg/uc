@@ -6,13 +6,16 @@ namespace Uccs.Net
 {
 	public class MembersRequest : RdcCall<MembersResponse>
 	{
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 			
-				return new MembersResponse {Members = sun.NextVoteMembers//.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
+				if(Mcv.NextVoteMembers.Count == 0)
+					throw new EntityException(EntityError.NoMembers);
+
+				return new MembersResponse {Members = Mcv.NextVoteMembers//.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
 																		 .Select(i => new MembersResponse.Member {	Account = i.Account, 
 																													CastingSince = i.CastingSince,
 																													BaseRdcIPs = i.BaseRdcIPs, 

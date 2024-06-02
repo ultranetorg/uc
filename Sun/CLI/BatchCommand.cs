@@ -35,13 +35,15 @@ namespace Uccs.Sun.CLI
 									},
 
 					Execute = () =>	{
-										var results = Args.Where(i => i.Name != "await" && i.Name != "by").Select(x => {
-																															var c = Program.Create(x.Nodes, Flow);
+										var results = Args.Where(i =>	i.Name != "await" && 
+																		i.Name != "by" && 
+																		i.Name != "mcvid").Select(x => {
+																											var c = Program.Create(x.Nodes, Flow);
 
-																															var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(x.Nodes.Skip(1).First().Name));
+																											var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(x.Nodes.Skip(1).First().Name));
 
-																															return a.Execute();
-																														}
+																											return a.Execute();
+																										}
 										);
 
 										Transact(results.OfType<Operation>(), GetAccountAddress("by"), GetAwaitStage(Args));

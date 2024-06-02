@@ -13,10 +13,10 @@ namespace Uccs.Net
 		string									ReleasesPath;
 		string									PackagesPath;
 		public List<LocalPackage>				Packages = new();
-		public Sun								Sun;
+		public Rds								Sun;
 		public object							Lock = new object();
 
-		public PackageHub(Sun sun, string releasespath, string packagespath)
+		public PackageHub(Rds sun, string releasespath, string packagespath)
 		{
 			Sun = sun;
 			ReleasesPath = releasespath;

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class ResourceRequest : RdcCall<ResourceResponse>
+	public class ResourceRequest : RdsCall<ResourceResponse>
 	{
 		public ResourceIdentifier	Identifier { get; set; }
 
@@ -23,18 +23,16 @@
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
- 			lock(sun.Lock)
+ 			lock(Mcv.Lock)
 			{	
 				Resource r;
 
-				var rds = RequireRdsBase(sun);
-
 				if(Identifier.Addres != null)
-					r = rds.Domains.FindResource(Identifier.Addres, sun.Mcv.LastConfirmedRound.Id);
+					r = Rds.Domains.FindResource(Identifier.Addres, Rds.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					r = rds.Domains.FindResource(Identifier.Id, sun.Mcv.LastConfirmedRound.Id);
+					r = Rds.Domains.FindResource(Identifier.Id, Rds.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

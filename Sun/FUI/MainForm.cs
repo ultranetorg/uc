@@ -11,7 +11,7 @@ namespace Uccs.Sun.FUI
 
 		public MainForm(Net.Sun sun)
 		{
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
+			AutoScaleMode = AutoScaleMode.Inherit;
 
 			InitializeComponent();
 
@@ -37,49 +37,49 @@ namespace Uccs.Sun.FUI
 
 		void LoadUI(Net.Sun sun)
 		{
-			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Sun, sun.Vault)};
+			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Sun)};
 			navigator.Nodes.Add(dashboard);
 
-			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Sun, sun.Vault)};
-			navigator.Nodes.Add(accs);
-	
-			var auth = new TreeNode("Domains"){ Tag = new DomainPanel(Sun, sun.Vault) };
-			navigator.Nodes.Add(auth);
-	
-			var rel = new TreeNode("Resources"){ Tag = new ResourcesPanel(Sun, sun.Vault) };				
-			navigator.Nodes.Add(rel);
-
-			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Sun, sun.Vault) };
-			navigator.Nodes.Add(transfer);
-
-			var net = new TreeNode("Network"){ Tag = new NetworkPanel(Sun, sun.Vault) };
+			var net = new TreeNode("Network"){Tag = new NetworkPanel(Sun) };
 			navigator.Nodes.Add(net);
 
-			if(sun.Mcv != null)
+			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Sun)};
+			navigator.Nodes.Add(accs);
+
+			foreach(var i in sun.Mcvs)
 			{
 				var mcv = new TreeNode("Mcv"){};
 				navigator.Nodes.Add(mcv);
 			
-				var gens = new TreeNode("Members"){ Tag = new MembersPanel(Sun, sun.Vault) };
-				mcv.Nodes.Add(gens);
-
-				if(sun.Roles.HasFlag(Role.Chain))
+				var m = new TreeNode("Members"){Tag = new MembersPanel(i) };
+				mcv.Nodes.Add(m);
+	
+				if(i.Roles.HasFlag(Role.Chain))
 				{
-					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Sun, sun.Vault) };
-					mcv.Nodes.Add(txs);
-
-					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Sun, sun.Vault) };
-					mcv.Nodes.Add(exp);
+					var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(i) };
+					mcv.Nodes.Add(t);
+	
+					var c = new TreeNode("Chain"){Tag = new ChainPanel(i) };
+					mcv.Nodes.Add(c);
 				}
-
-				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, sun.Vault) };
-				///navigator.Nodes.Add(memb);
-			}
-
-			if(Sun.SeedHub != null)
-			{
-				var hub = new TreeNode("Seed Hub"){ Tag = new HubPanel(Sun, sun.Vault) };
-				navigator.Nodes.Add(hub);
+	
+				if(i is Rds rds)
+				{
+					var d = new TreeNode("Domains"){Tag = new DomainPanel(rds) };
+					mcv.Nodes.Add(d);
+		
+					var r = new TreeNode("Resources"){Tag = new ResourcesPanel(rds) };				
+					mcv.Nodes.Add(r);
+	
+					var e = new TreeNode("Emission"){Tag = new EmissionPanel(rds) };
+					mcv.Nodes.Add(e);
+	
+					if(rds.SeedHub != null)
+					{
+						var s = new TreeNode("Seed Hub"){Tag = new HubPanel(rds) };
+						mcv.Nodes.Add(s);
+					}
+				}
 			}
 
 			navigator.SelectedNode = dashboard;

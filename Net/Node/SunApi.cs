@@ -1,0 +1,223 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Numerics;
+
+namespace Uccs.Net
+{
+	public abstract class SunApc : Apc
+	{
+		public abstract object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	}
+
+	public class PropertyApc : SunApc
+	{
+		public string Path { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			object o = sun;
+
+			foreach(var i in Path.Split('.'))
+			{
+				o = o.GetType().GetProperty(i)?.GetValue(o) ?? o.GetType().GetField(i)?.GetValue(o);
+
+				if(o == null)
+					throw new NodeException(NodeError.NotFound);
+			}
+
+			switch(o)
+			{
+				case byte[] b:
+					return b.ToHex();
+
+				default:
+					return o?.ToString();
+			}
+		}
+	}
+
+	public class ExceptionApc : SunApc
+	{
+		public string Reason { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			throw new Exception("TEST");
+		}
+	}
+
+	public class ExitApc : SunApc
+	{
+		public string Reason { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			sun.Stop("Json API Call");
+			return null;
+		}
+	}
+
+	public class SettingsApc : SunApc
+	{
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				return new Response{ProfilePath	= sun.Settings.Profile, 
+									Settings	= sun.Settings}; /// TODO: serialize
+		}
+
+		public class Response
+		{
+			public string		ProfilePath {get; set;}
+			public Settings		Settings {get; set;}
+		}
+	}
+
+	public class LogReportApc : SunApc
+	{
+		public int		Limit  { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				return new Response{Log = sun.Flow.Log.Messages.TakeLast(Limit).Select(i => i.ToString()).ToArray() }; 
+		}
+
+		public class Response
+		{
+			public IEnumerable<string> Log { get; set; }
+		}
+	}
+
+	public class PeersReportApc : SunApc
+	{
+		public int		Limit { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				return new Return{Peers = sun.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new Return.Peer {
+																																				IP			= i.IP,			
+																																				Status		= i.StatusDescription,
+																																				PeerRank	= i.PeerRank,
+																																				Ranks		= i.Ranks,
+																																				LastSeen	= i.LastSeen,
+																																				LastTry		= i.LastTry,
+																																				Retries		= i.Retries	
+																																			}).ToArray()}; 
+		}
+
+		public class Return
+		{
+			public class Peer
+			{
+				public IPAddress								IP { get; set; }
+				public string									Status  { get; set; }
+				public int										PeerRank { get; set; }
+				public Dictionary<Guid, Dictionary<Role, int>>	Ranks { get; set; }
+				public DateTime									LastSeen { get; set; }
+				public DateTime									LastTry { get; set; }
+				public int										Retries { get; set; }
+			}
+
+			public IEnumerable<Peer> Peers {get; set;}
+		}
+	}
+
+	public class SummaryApc : SunApc
+	{
+		public int		Limit  { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+			{ 
+				List<KeyValuePair<string, string>> f =
+				[
+					new ("Version",						sun.Version.ToString()),
+					new ("Zone",						sun.Zone.Name),
+					new ("Profile",						sun.Settings.Profile),
+					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"),
+					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
+				];
+				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
+
+				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
+				f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));
+				f.Add(new ("Transacting (nps/μs)",	$"{sun.Statistics.Transacting	.N}/{sun.Statistics.Transacting	.Avarage.Ticks/10}"));
+				f.Add(new ("Declaring (nps/μs)",	$"{sun.Statistics.Declaring		.N}/{sun.Statistics.Declaring	.Avarage.Ticks/10}"));
+				f.Add(new ("Sending (nps/μs)",		$"{sun.Statistics.Sending		.N}/{sun.Statistics.Sending		.Avarage.Ticks/10}"));
+				f.Add(new ("Reading (nps/μs)",		$"{sun.Statistics.Reading		.N}/{sun.Statistics.Reading		.Avarage.Ticks/10}"));
+
+				sun.Statistics.Reset();
+		
+				return new Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+			}
+		}
+
+		public class Return
+		{
+			public IEnumerable<string[]> Summary {get; set;}
+		}
+	}
+
+	public class RunNodeApc : SunApc
+	{
+		public string	Settings { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			sun.RunNode(new XonDocument(Settings).Nodes);
+			
+			return null;
+		}
+	}
+
+	public class AddWalletApc : SunApc
+	{
+		public byte[]	Wallet { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				sun.Vault.AddWallet(Wallet);
+			
+			return null;
+		}
+	}
+
+	public class SaveWalletApc : SunApc
+	{
+		public AccountAddress	Account { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+				sun.Vault.SaveWallet(Account);
+			
+			return null;
+		}
+	}
+
+	public class UnlockWalletApc : SunApc
+	{
+		public AccountAddress	Account { get; set; }
+		public string			Password { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.Lock)
+			{
+				if(Account != null)
+					sun.Vault.Unlock(Account, Password);
+				else
+					foreach(var i in sun.Vault.Wallets)
+						sun.Vault.Unlock(i.Key, Password);
+			}
+
+			return null;
+		}
+	}
+}

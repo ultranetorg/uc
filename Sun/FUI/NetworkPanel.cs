@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
 {
@@ -8,7 +9,7 @@ namespace Uccs.Sun.FUI
 	{
 		Flow Flow;
 
-		public NetworkPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public NetworkPanel(Net.Sun d) : base(d)
 		{
 			InitializeComponent();
 		}
@@ -16,7 +17,6 @@ namespace Uccs.Sun.FUI
 		public override void Open(bool first)
 		{
 			Peers.Items.Clear();
-			Members.Items.Clear();
 
 			if(Flow != null && Flow.Active)
 			{
@@ -27,48 +27,33 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
+				var mids = Sun.Peers.SelectMany(p => p.Ranks).DistinctBy(i => i.Key).Select(i => i.Key);
+	
+				foreach(var i in mids)
+				{
+					var c = new ColumnHeader();
+					c.Text = i.ToString();
+					c.TextAlign = HorizontalAlignment.Center;
+					c.Width = 150;
+					Peers.Columns.Add(c);
+				}
+
 				foreach(var i in Sun.Peers.OrderByDescending(i => i.Status))
 				{
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
 					r.SubItems.Add(i.PeerRank.ToString());
-					r.SubItems.Add(i.BaseRank.ToString());
-					r.SubItems.Add(i.ChainRank.ToString());
 					r.SubItems.Add(i.LastSeen.ToString(Time.DateFormat.ToString()));
+
+					foreach(var j in mids)
+					{
+						r.SubItems.Add(i.Ranks.TryGetValue(j, out var ranks) ? string.Join(',', ranks.Select(x => $"{x.Key}={x.Value}").ToArray()) : "");
+					}
+
 					r.Tag = i;
 				}
 			}
-
-			Task.Run(() =>
-			{
-				MembersResponse rp = null;
-
-				try
-				{
-					rp = Sun.Call(p => p.Request(new MembersRequest()), Flow);
-				}
-				catch(OperationCanceledException)
-				{
-					return;
-				}
-				catch(Exception)
-				{
-				}
-
-				Invoke(new Action(() =>	{
-											foreach(var i in rp.Members.OrderBy(i => i.Account))
-											{
-												var li = Members.Items.Add(i.Account.ToString());
-
-												li.SubItems.Add("no data");
-												li.SubItems.Add("no data");
-												li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
-												li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
-											}
-										}));
-			});
-
 
 			//Task.Run(() =>	{
 			//					FundsResponse rp = null;

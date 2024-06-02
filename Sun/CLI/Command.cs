@@ -68,6 +68,19 @@ namespace Uccs.Sun.CLI
 
 		public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
 
+		//public Guid					Mcvid;
+
+		public Guid Mcvid
+		{
+			get
+			{
+				if(Has("mcvid"))
+					return Guid.Parse(GetString("mcvid"));
+				else
+					throw new SyntaxException($"Parameter 'mcvid' not provided");
+			}
+		}
+
 		static Command()
 		{
 			try
@@ -92,37 +105,66 @@ namespace Uccs.Sun.CLI
 			Flow = flow;;
 		}
 
-		public void Api(SunApc call)
-		{
-			if(Has("apitimeout"))
-				call.Timeout = GetInt("apitimeout") * 1000;
-
-			if(Program.ApiClient == null)
-				call.Execute(Program.Sun, null, null, Flow);
-			else
-				Program.ApiClient.Send(call, Flow);
-		}
-
-		public Rp Api<Rp>(SunApc call)
+		public void Api(Apc call)
 		{
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
 			if(Program.ApiClient == null) 
-				return (Rp)call.Execute(Program.Sun, null, null, Flow);
+			{	
+				if(call is SunApc s)
+				{
+					s.Execute(Program.Sun, null, null, Flow);
+					return;
+				}
+				
+				if(call is McvApc m)
+				{
+					m.Execute(Program.Sun.FindMcv(Mcvid), null, null, Flow);
+					return;
+				}
+
+				throw new Exception();
+			}
 			else
-				return Program.ApiClient.Request<Rp>(call, Flow);
+			{	
+				if(call is McvApc c)
+					c.Mcvid = Mcvid;
+
+				Program.ApiClient.Send(call, Flow);
+			}
 		}
 
-		public Rp Rdc<Rp>(RdcCall<Rp> request) where Rp : RdcResponse
+		public Rp Api<Rp>(Apc call)
+		{
+			if(Has("apitimeout"))
+				call.Timeout = GetInt("apitimeout") * 1000;
+
+			if(Program.ApiClient == null) 
+			{	
+				if(call is SunApc s)	return (Rp)s.Execute(Program.Sun, null, null, Flow);
+				if(call is McvApc m)	return (Rp)m.Execute(Program.Sun.FindMcv(Mcvid), null, null, Flow);
+
+				throw new Exception();
+			}
+			else
+			{	
+				if(call is McvApc c)
+					c.Mcvid = Mcvid;
+
+				return Program.ApiClient.Request<Rp>(call, Flow);
+			}
+		}
+
+		public Rp Rdc<Rp>(RdcCall<Rp> call) where Rp : RdcResponse
 		{
 			if(Program.ApiClient == null) 
 			{
-				return Program.Sun.Call(i => i.Request(request), Flow) as Rp;
+				return Program.Sun.FindMcv(Mcvid).Call(() => call, Flow);
 			}
 			else
 			{
-				var rp = Api<Rp>(new RdcApc {Request = request});
+				var rp = Api<Rp>(new RdcApc {Mcvid = Mcvid, Request = call});
  
  				if(rp.Error != null)
  					throw rp.Error;
@@ -134,12 +176,13 @@ namespace Uccs.Sun.CLI
 		public object Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
 		{
 			if(Program.ApiClient == null)
-				 return Program.Sun.Transact(operations, by, await, Flow);
+				 return Program.Sun.FindMcv(Mcvid).Transact(operations, by, await, Flow);
 			else
-				return Program.ApiClient.Request<string[][]>(new TransactApc  {Operations = operations,
+				return Program.ApiClient.Request<string[][]>(new TransactApc  {	Mcvid = Mcvid,
+																				Operations = operations,
 																				By = by,
 																				Await = await},
-														Flow);
+															Flow);
 		}
 
 		public Xon One(string path)

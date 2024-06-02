@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Uccs.Net
 {
@@ -7,19 +6,19 @@ namespace Uccs.Net
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireBase(sun);
+				RequireBase();
 	
 				return new TransactionStatusResponse
 						{
-							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
+							LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new{Q = t,
-																		T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
+																		T = Mcv.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
 																			?? 
-																			sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
+																			Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
 																										Nid			= i.Q.Nid,
 																										Status		= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})

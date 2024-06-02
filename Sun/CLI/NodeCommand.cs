@@ -19,10 +19,7 @@ namespace Uccs.Sun.CLI
 			var send = new CommandAction {	Names = ["s", "send"]};
 
 			run.Execute = () =>	{
-									Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow){Clock = new RealClock(),
-																									Nas = new Nas(Program.Settings),
-																									GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-																									FeeAsker = new SilentFeeAsker() };
+									Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow);
 									Program.Sun.Run(Args);
 	
 									if(ConsoleAvailable)
@@ -81,7 +78,7 @@ namespace Uccs.Sun.CLI
 										h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 										var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-										Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
+										Program.ApiClient = new ApiJsonClient(http, Args[0].Name, GetString("accesskey", null));
 
 										var v = new ConsoleLogView(false, true);
 										v.StartListening(Flow.Log);
@@ -143,7 +140,7 @@ namespace Uccs.Sun.CLI
 									h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 									var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-									Program.ApiClient = new SunJsonApiClient(http, Args[0].Name, GetString("accesskey", null));
+									Program.ApiClient = new ApiJsonClient(http, Args[0].Name, GetString("accesskey", null));
 
 									var v = new ConsoleLogView(false, true);
 									v.StartListening(Flow.Log);
@@ -191,11 +188,11 @@ namespace Uccs.Sun.CLI
 
 			var peers = new CommandAction{	Names = ["peers"],
 											Execute = () =>	{
-																var r = Api<PeersReport>(new PeersReportApc {Limit = int.MaxValue});
-			
+																var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
+																
 																Dump(	r.Peers, 
-																		["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 
-																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.BaseRank, i => i.ChainRank, i => i.SeedRank]);
+																		["IP", "Status", "PeerRank", "Mcv(s)"], 
+																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Ranks.Count]);
 													
 																return r;
 															}};

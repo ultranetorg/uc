@@ -9,7 +9,7 @@ namespace Uccs.Sun.FUI
 	{
 		public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
 
-		public AccountsPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public AccountsPanel(Net.Sun d) : base(d)
 		{
 			InitializeComponent();
 
@@ -21,7 +21,7 @@ namespace Uccs.Sun.FUI
 			{
 				accounts.Items.Clear();
 
-				foreach(var i in Vault.Wallets.Keys)
+				foreach(var i in Sun.Vault.Wallets.Keys)
 				{
 					AddRow(i);
 				}
@@ -41,7 +41,7 @@ namespace Uccs.Sun.FUI
 	
 										try
 										{
-											t = Sun.Call(p => p.Request(new AccountRequest(i.Tag as AccountAddress)), Sun.Flow).Account.Balance.ToDecimalString(); 
+											t = Mcv?.Call(() => new AccountRequest(i.Tag as AccountAddress), Sun.Flow).Account.Balance.ToDecimalString(); 
 										}
 										catch(Exception)
 										{
@@ -74,8 +74,8 @@ namespace Uccs.Sun.FUI
 			if(f.ShowDialog() == DialogResult.OK)
 			{
 				var acc = AccountKey.Create();
-				Vault.AddWallet(acc, f.Password);
-				Vault.SaveWallet(acc);
+				Sun.Vault.AddWallet(acc, f.Password);
+				Sun.Vault.SaveWallet(acc);
 				
 				AddRow(acc);
 			}
@@ -85,7 +85,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				Vault.DeleteWallet(CurrentAccout);
+				Sun.Vault.DeleteWallet(CurrentAccout);
 				accounts.Items.Remove(accounts.SelectedItems[0]);
 			}
 		}
@@ -116,7 +116,7 @@ namespace Uccs.Sun.FUI
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
-				File.WriteAllBytes(f.FileName, Vault.Wallets[CurrentAccout]);
+				File.WriteAllBytes(f.FileName, Sun.Vault.Wallets[CurrentAccout]);
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace Uccs.Sun.FUI
 
 		private void CopyAddress_Click(object sender, EventArgs e)
 		{
-			System.Windows.Forms.Clipboard.SetText(CurrentAccout.ToString());
+			Clipboard.SetText(CurrentAccout.ToString());
 		}
 	}
 

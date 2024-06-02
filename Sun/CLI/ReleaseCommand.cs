@@ -77,7 +77,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													var r = Api<LocalReleaseApc.Release>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
+													var r = Api<LocalReleaseApc.Return>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
 					
 													if(r != null)
 													{

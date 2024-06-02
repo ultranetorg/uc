@@ -4,13 +4,13 @@
 	{
 		public Transaction Transaction {get; set;}
 
-		public override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute()
 		{
-			lock(sun.Lock)
+			lock(Mcv.Lock)
 			{
-				RequireMember(sun);
+				RequireMember();
 
-				var a = sun.Mcv.Accounts.Find(Transaction.Signer, sun.Mcv.LastConfirmedRound.Id);
+				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
 				
 				if(!Transaction.EmissionOnly && a == null)
 					throw new EntityException(EntityError.NotFound);
@@ -18,17 +18,17 @@
 				Transaction.Nid = a?.LastTransactionNid + 1 ?? 0;
 				Transaction.Fee = Emission.End;
 
-				sun.TryExecute(Transaction);
+				Mcv.TryExecute(Transaction);
 				
-				var m = sun.NextVoteMembers.NearestBy(m => m.Account, Transaction.Signer).Account;
+				var m = Mcv.NextVoteMembers.NearestBy(m => m.Account, Transaction.Signer).Account;
 
 				if(Transaction.Successful)
 				{
-					return new AllocateTransactionResponse {Generetor			= sun.Mcv.Accounts.Find(m, sun.Mcv.LastConfirmedRound.Id).Id,
-															LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
-															PowHash				= sun.Mcv.LastConfirmedRound.Hash,
+					return new AllocateTransactionResponse {Generetor			= Mcv.Accounts.Find(m, Mcv.LastConfirmedRound.Id).Id,
+															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
+															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
-															MinFee				= Transaction.Operations.SumMoney(i => i.ExeUnits * sun.Mcv.LastConfirmedRound.ConsensusExeunitFee),
+															MinFee				= Transaction.Operations.SumMoney(i => i.ExeUnits * Mcv.LastConfirmedRound.ConsensusExeunitFee),
 															};
 				}				
 				else

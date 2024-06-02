@@ -25,7 +25,7 @@ namespace Uccs.Net
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
 				case Money v :	writer.Write(v); return;
-				case Guid v :	writer.Write(v.ToByteArray()); return;
+				case Guid v :	writer.Write(v); return;
 			}
 
 			if(type.IsEnum)
@@ -203,7 +203,7 @@ namespace Uccs.Net
 			}
 			else if(typeof(Guid) == type)
 			{
-				return new Guid(reader.ReadBytes(16));
+				return reader.ReadGuid();
 			}
 			else if(type.IsEnum)
 			{

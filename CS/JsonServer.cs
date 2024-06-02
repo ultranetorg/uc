@@ -48,18 +48,18 @@ namespace Uccs
 		}
 	}
 
-	public abstract class JsonApiServer
+	public abstract class JsonServer
 	{
 		HttpListener					Listener;
 		Thread							Thread;
 		string							AccessKey;
-		Flow						Flow;
+		Flow							Flow;
 		JsonSerializerOptions			Options;
 
 		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 		protected abstract Type			Create(string call);
 
-		public JsonApiServer(string profile, string address, string accesskey, JsonSerializerOptions options, Flow workflow)
+		public JsonServer(string profile, string address, string accesskey, JsonSerializerOptions options, Flow workflow)
 		{
 			AccessKey	= accesskey;
 			Options		= options;
@@ -193,7 +193,7 @@ namespace Uccs
 					return;
 				}
 				
-				var t = Type.GetType(typeof(JsonApiServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
+				var t = Type.GetType(typeof(JsonServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
 
 				if(t == null)
 				{

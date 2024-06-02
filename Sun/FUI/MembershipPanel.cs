@@ -15,7 +15,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class MembershipPanel : MainPanel
 	{
-		public MembershipPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public MembershipPanel(Net.Sun d, Vault vault) : base(d)
 		{
 			InitializeComponent();
 		}

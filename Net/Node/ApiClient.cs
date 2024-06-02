@@ -62,11 +62,11 @@ public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
 	}
 }
 
-	public class SunJsonApiClient : JsonApiClient
+	public class ApiJsonClient : JsonClient
 	{
 		public static readonly JsonSerializerOptions DefaultOptions;
 
-		static SunJsonApiClient()
+		static ApiJsonClient()
 		{
 			DefaultOptions = new JsonSerializerOptions{};
 
@@ -88,11 +88,11 @@ public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
 			DefaultOptions.TypeInfoResolver = new PolymorphicTypeResolver();
 		}
 
-		public SunJsonApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey, DefaultOptions)
+		public ApiJsonClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey, DefaultOptions)
 		{
 		}
 
-		public SunJsonApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, DefaultOptions, timeout)
+		public ApiJsonClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, DefaultOptions, timeout)
 		{
 		}
 	}

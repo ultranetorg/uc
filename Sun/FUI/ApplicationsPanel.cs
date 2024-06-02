@@ -13,7 +13,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class ApplicationsPanel : MainPanel
 	{
-		public ApplicationsPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public ApplicationsPanel(Net.Sun d, Vault vault) : base(d)
 		{
 			InitializeComponent();
 		}

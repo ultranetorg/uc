@@ -7,8 +7,8 @@ namespace Uccs.Sun.CLI
 {
 	public class AccountCommand : Command
 	{
-		public const string Keyword = "account";
-		AccountAddress		First => AccountAddress.Parse(Args[0].Name);
+		public const string		Keyword = "account";
+		AccountAddress			First => AccountAddress.Parse(Args[0].Name);
 
 		public AccountCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
@@ -30,7 +30,7 @@ namespace Uccs.Sun.CLI
 													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
 													var i = Rdc(new AccountRequest(First));
-														
+													
 													Dump(i.Account);
 
 													return i.Account;

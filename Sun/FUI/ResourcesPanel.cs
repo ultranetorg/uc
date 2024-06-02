@@ -6,7 +6,7 @@ namespace Uccs.Sun.FUI
 	{
 		Flow ManifestWorkflow;
 
-		public ResourcesPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public ResourcesPanel(Mcv mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -33,7 +33,7 @@ namespace Uccs.Sun.FUI
 
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
-			if(!Sun.Roles.HasFlag(Role.Base))
+			if(!Mcv.Roles.HasFlag(Role.Base))
 			{
 				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
 				NetworkReleases.Columns.Clear();
@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 			{
 				NetworkReleases.Items.Clear();
 
-				foreach(var r in (Sun.Mcv as Rds).QueryResource(NetworkQuery.Text))
+				foreach(var r in Rds.QueryResource(NetworkQuery.Text))
 				{
 					var i = new ListViewItem(r.Id.ToString());
 
@@ -75,7 +75,7 @@ namespace Uccs.Sun.FUI
 
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
-			if(!Sun.Roles.HasFlag(Role.Seed))
+			if(!Mcv.Roles.HasFlag(Role.Seed))
 			{
 				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
 				LocalReleases.Columns.Clear();
@@ -87,7 +87,7 @@ namespace Uccs.Sun.FUI
 
 			LocalReleases.Items.Clear();
 
-			foreach(var i in Sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
+			foreach(var i in Rds.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
 			{
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;

@@ -292,7 +292,7 @@ namespace Uccs.Net
 		{
 			if(!Loaded)
 			{
-				var d = Hub.Sun.Database.Get(Address.Raw, Hub.ReleaseFamily);
+				var d = Hub.Rds.Database.Get(Address.Raw, Hub.ReleaseFamily);
 										
 				if(d != null)
 				{
@@ -325,7 +325,7 @@ namespace Uccs.Net
 
 				b.Put(Address.Raw, s.ToArray(), Hub.ReleaseFamily);
 									
-				Hub.Sun.Database.Write(b);
+				Hub.Rds.Database.Write(b);
 			}
 		}
 

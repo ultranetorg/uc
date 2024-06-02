@@ -121,6 +121,16 @@ namespace Uccs
 			return new BigInteger(r.ReadBytes(r.ReadByte()));
 		}
 
+		public static void Write(this BinaryWriter w, Guid v)
+		{
+			w.Write(v.ToByteArray());
+		}
+
+		public static Guid ReadGuid(this BinaryReader r)
+		{
+			return new Guid(r.ReadBytes(16));
+		}
+
 		public static void Write(this BinaryWriter w, IPAddress v)
 		{
 			w.Write(v.MapToIPv4().GetAddressBytes());
@@ -273,7 +283,7 @@ namespace Uccs
 			return o;
 		}
 
-		public static Dictionary<K, V> ReadDictionary<K, V>(this BinaryReader r, Func<KeyValuePair<K, V>> a)
+		public static Dictionary<K, V> ReadDictionary<K, V>(this BinaryReader r, Func<K> k, Func<V> v)
 		{
 			var n = r.Read7BitEncodedInt();
 			
@@ -281,8 +291,7 @@ namespace Uccs
 
 			for(int i = 0; i < n; i++)
 			{
-				var kv = a();
-				o.Add(kv.Key, kv.Value);
+				o.Add(k(), v());
 			}
 
 			return o;

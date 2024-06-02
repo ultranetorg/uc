@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -63,28 +61,21 @@ namespace Uccs.Net
 
 	public class Sun : RdcInterface
 	{
-		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.None)|(ResourceHub != null ? Role.Seed : Role.None);
-
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]	Versions = {4};
 		public const string				FailureExt = "failure";
 		public const int				Timeout = 5000;
-		public const int				OperationsQueueLimit = 1000;
 
 		public Zone						Zone;
 		public Settings					Settings;
 		public Flow						Flow;
-		public JsonApiServer			ApiServer;
+		public JsonServer				ApiServer;
 		public Vault					Vault;
-		public INas						Nas;
-		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-		HttpClient						Http = new HttpClient();
-		public Mcv						Mcv;
-		public ResourceHub				ResourceHub;
-		public PackageHub				PackageHub;
-		public SeedHub					SeedHub;
+		public List<Mcv>				Mcvs = [];
 		public object					Lock = new();
 		public Clock					Clock;
+		public Mcv						FindMcv(Guid id) => Mcvs.Find(i => i.Guid == id);
+		public T						Find<T>() where T : Mcv => Mcvs.Find(i => i.GetType() == typeof(T)) as T;
 
 		public RocksDb					Database;
 		public ColumnFamilyHandle		PeersFamily => Database.GetColumnFamily(nameof(Peers));
@@ -93,54 +84,27 @@ namespace Uccs.Net
 
 		public Guid						Netid;
 		public IPAddress				IP = IPAddress.None;
+		public List<IPAddress>			IgnoredIPs = new();
 		public bool						IsPeering => MainThread != null;
-		public bool						IsClient => ListeningThread == null;
-		public Round					NextVoteRound => Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P);
-		public List<Member>				NextVoteMembers => Mcv.VotersOf(NextVoteRound);
+		public bool						IsListener => ListeningThread == null;
+		public List<Peer>				Peers = new();
+		public IEnumerable<Peer>		Connections(Mcv mcv) => Peers.Where(i => (mcv == null || i.Ranks.ContainsKey(mcv.Guid)) && i.Status == ConnectionStatus.OK);
+		public IEnumerable<Peer>		Bases(Mcv mcv) => Connections(mcv).Where(i => i.Permanent && i.GetRank(mcv.Guid, Role.Base) > 0);
 
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
 
 		public List<TcpClient>			IncomingConnections = new();
-		public List<Transaction>		IncomingTransactions = new();
-		internal List<Transaction>		OutgoingTransactions = new();
-		public List<ForeignResult>		ApprovedEmissions = new();
-		public List<ForeignResult>		ApprovedMigrations = new();
-
-		public bool						MinimalPeersReached;
-		public List<Peer>				Peers = new();
-		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
-		public IEnumerable<Peer>		Bases => Connections.Where(i => i.Permanent && i.BaseRank > 0);
-
-		public List<IPAddress>			IgnoredIPs = new();
 
 		TcpListener						Listener;
 		public Thread					MainThread;
 		Thread							ListeningThread;
-		Thread							TransactingThread;
-		Thread							SynchronizingThread;
-		AutoResetEvent					MainWakeup = new AutoResetEvent(true);
-		AutoResetEvent					TransactingWakeup = new AutoResetEvent(true);
-
-		public Synchronization			_Synchronization = Synchronization.None;
-		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		public SunDelegate				SynchronizationChanged;
+		public AutoResetEvent			MainWakeup = new AutoResetEvent(true);
 		
-		Dictionary<AccountAddress, Transaction>		LastCandidacyDeclaration = new();
-
 		public SunDelegate				Stopped;
-
-
-		public class SyncRound
-		{
-			public List<Vote>					Votes = new();
-			//public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
-		}
 		
-		public Dictionary<int, SyncRound>	SyncTail	= new();
-
-		public IGasAsker				GasAsker; 
-		public IFeeAsker				FeeAsker;
+		//public IGasAsker				GasAsker; 
+		//public IFeeAsker				FeeAsker;
 
 		public SunDelegate				MainStarted;
 		public SunDelegate				ApiStarted;
@@ -171,8 +135,7 @@ namespace Uccs.Net
 			var fs = new ColumnFamilies();
 			
 			foreach(var i in new ColumnFamilies.Descriptor[] {	new (nameof(Peers),					new ()),
-																new (ResourceHub.ReleaseFamilyName,	new ()),
-																new (ResourceHub.ResourceFamilyName,new ()) })
+																})
 				fs.Add(i);
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), fs);
@@ -180,23 +143,16 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
-	
 			return string.Join(" - ", new string[]{	(Settings.IP != null ? IP.ToString() : null),
 													(ApiServer != null ? "A" : null) +
-													(Roles.HasFlag(Role.Base) ? "B" : null) +
-													(Roles.HasFlag(Role.Chain) ? "C" : null) +
-													(Roles.HasFlag(Role.Seed) ? "S" : null),
-													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
-													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
+													string.Join(';', Mcvs)}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
 		public object Constract(Type t, byte b)
 		{
 			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
-			if(t == typeof(Vote))			return new Vote(Mcv);
+			if(t == typeof(Vote))			return null;
 			if(t == typeof(Manifest))		return new Manifest();
 			if(t == typeof(RdcRequest))		return RdcRequest.FromType((RdcClass)b); 
 			if(t == typeof(RdcResponse))	return RdcResponse.FromType((RdcClass)b); 
@@ -225,7 +181,7 @@ namespace Uccs.Net
 									});
 		}
 
-		public void Run(IEnumerable<Xon> xon)
+		public void Run(IEnumerable<Xon> xon, INas nas = null, Clock clock = null)
 		{
 			if(xon.Any(i => i.Name == "api"))
 				RunApi();
@@ -233,10 +189,7 @@ namespace Uccs.Net
 			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
 
 			if(xon.Any(i => i.Name == "peer"))
-				RunNode((xon.Any(i => i.Name == "base") ? Role.Base : Role.None) | (xon.Any(i => i.Name == "chain") ? Role.Chain : Role.None));
-
-			if(xon.Any(i => i.Name == "seed"))
-				RunSeed();
+				RunNode(xon, nas, clock);
 		}
 		
 		public void RunApi()
@@ -252,13 +205,13 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				ApiServer = new SunJsonApiServer(this, Flow);
+				ApiServer = new ApiJsonServer(this, Flow);
 			}
 		
 			ApiStarted?.Invoke(this);
 		}
 
-		public void RunNode(Role roles)
+		public void RunNode(IEnumerable<Xon> mcvs, INas nas = null, Clock clock = null)
 		{
 			if(Netid != Guid.Empty)
 				throw new NodeException(NodeError.AlreadyRunning);
@@ -273,88 +226,15 @@ namespace Uccs.Net
 				Flow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
 
 			Netid = Guid.NewGuid();
+			Clock = clock ?? new RealClock();
 
-			if(Settings.Generators.Any())
+			foreach(var i in mcvs)
 			{
-		  		try
-		  		{
-		 			new Uri(Settings.Nas.Provider);
-		  		}
-		  		catch(Exception)
-		  		{
-		  			Nas.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
-					return;
-		  		}
-
-				SeedHub = new SeedHub(this);
-			}
-
-			if(roles.HasFlag(Role.Base) || roles.HasFlag(Role.Chain))
-			{		
-				Mcv = new Rds(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
-
-				Mcv.Log = Flow.Log;
-				Mcv.VoteAdded += b => MainWakeup.Set();
-
-				Mcv.ConsensusConcluded += (r, reached) =>	{
-																if(reached)
-																{
-																	/// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
-																	var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
-					
-																	foreach(var v in notcomebacks)
-																		Broadcast(v);
-																}
-																else
-																{
-																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
-																	{
-																		i.Vote = null;
-																		i.Status = TransactionStatus.Accepted;
-																	}
-																}
-															};
-
-				Mcv.Commited += r => {
-										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
-										{
-											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
-												
-											foreach(var o in ops)
-											{
-												if(o is DomainMigration am)
-												{
-	 												if(!SunGlobals.SkipMigrationVerification)
-	 												{
-														Task.Run(() =>	{
-																			var approved = IsDnsValid(am);
-
-																			lock(Lock)
-																				ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
-																		});
-	 												}
-													else
-														ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
-												}
-	
-												if(o is Emission e)
-												{
-													Task.Run(() =>	{
-																		var v = Nas.IsEmissionValid(e);
-
-																		lock(Lock)
-																			ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-																	});
-												}
-											}
-										}
-
-										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedMigrations.RemoveAll(i => (r as RdsRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
-										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-									};
-
-				Flow.Log?.Report(this, "MCV started");
+				if(i.Name == "Rds")
+				{
+					Mcvs.Add(new Rds(this, Settings, Settings.Rds.Merge(i), Path.Join(Settings.Profile, Rds.Id.ToString()), Flow.CreateNested(nameof(Rds), Flow.Log), nas));
+					Flow.Log?.Report(this, i.Name + " started");
+				}
 			}
 
 			LoadPeers();
@@ -374,11 +254,6 @@ namespace Uccs.Net
 													lock(Lock)
 													{
 														ProcessConnectivity();
-												
-														if(Settings.Generators.Any() && Synchronization == Synchronization.Synchronized)
-														{
-															Generate();
-														}
 													}
 												}
  											});
@@ -388,57 +263,15 @@ namespace Uccs.Net
 			MainStarted?.Invoke(this);
 		}
 
-		private bool IsDnsValid(DomainMigration am)
+		public void RunMcv(IEnumerable<Xon> mcvs)
 		{
-			try
-			{
-				var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
-
-				var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
-
-				if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == am.Transaction.Signer))
-				{
-					return true;
-				}
-
-				if(am.RankCheck)
-				{
-					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
-					{
-						var cr = Http.Send(m, Flow.Cancellation);
-
-						if(cr.StatusCode == HttpStatusCode.OK)
-						{
-							JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
-
-							var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
-
-							return domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
-						}
-					}
-				}
-			}
-			catch(Exception)
-			{
-			}
-
-			return false;
-		}
-
-		public void RunSeed()
-		{
-			if(ResourceHub != null || PackageHub != null)
-				throw new NodeException(NodeError.AlreadyRunning);
-
-			ResourceHub = new ResourceHub(this, Zone, Settings.Releases);
-			PackageHub = new PackageHub(this, Settings.Releases, Settings.Packages);
 		}
 
 		public void Abort(Exception ex)
 		{
 			lock(Lock)
 			{
-				File.WriteAllText(Path.Join(Settings.Profile, "Abort." + Sun.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings.Profile, "Abort." + FailureExt), ex.ToString());
 				Flow.Log?.ReportError(this, "Abort", ex);
 	
 				Stop("Due to exception");
@@ -452,7 +285,6 @@ namespace Uccs.Net
 			ApiServer?.Stop();
 			Listener?.Stop();
 
-
 			lock(Lock)
 			{
 				foreach(var i in IncomingConnections)
@@ -464,10 +296,10 @@ namespace Uccs.Net
 
 			MainThread?.Join();
 			ListeningThread?.Join();
-			TransactingThread?.Join();
-			SynchronizingThread?.Join();
 
-			Mcv?.Database.Dispose();
+			foreach(var i in Mcvs)
+				i.Stop();
+
 			Database?.Dispose();
 
 			Flow.Log?.Report(this, "Stopped", message);
@@ -554,15 +386,29 @@ namespace Uccs.Net
 					else
 					{
 						p.Fresh = true;
-
-						bool b = p.BaseRank == 0 && i.BaseRank > 0;
-						bool c = p.ChainRank == 0 && i.ChainRank > 0;
-
-						if(b || c)
-						{
-							if(b) p.BaseRank = 1;
-							if(c) p.ChainRank = 1;
 						
+						//var old = p.Ranks.ToDictionary(i => i.Key, i => i.Value.ToDictionary());
+
+						bool changed = false;
+
+						foreach(var g in i.Ranks)
+						{	
+							if(!p.Ranks.TryGetValue(g.Key, out var ranks))
+							{
+								p.Ranks[g.Key] = ranks = new ();
+								changed = true;
+							}
+
+							foreach(var r in g.Value)
+								if(!ranks.TryGetValue(r.Key, out var rank) || rank == 0)
+								{
+									ranks[r.Key] = 1;
+									changed = true;
+								}
+						}
+
+						if(changed)
+						{
 							toupdate.Add(p);
 						}
 					}
@@ -578,28 +424,13 @@ namespace Uccs.Net
 
 		void ProcessConnectivity()
 		{
-			var needed = Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+			var broad = false;
+
+			foreach(var i in Mcvs)
+			{
+				var needed = i.Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
-			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
-												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-									.OrderBy(i => i.Retries)
-									.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
-									.Take(needed))
-			{
-				OutboundConnect(p, true);
-			}
-
-			foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
-			{
-				OutboundConnect(p, false);
-			}
-
-			if(Roles.HasFlag(Role.Base))
-			{
-				needed = Settings.Mcv.PeersMin - Bases.Count();
-
-				foreach(var p in Peers	.Where(m =>	m.BaseRank > 0 &&
-													m.Status == ConnectionStatus.Disconnected &&
+				foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 										.OrderBy(i => i.Retries)
 										.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
@@ -607,23 +438,38 @@ namespace Uccs.Net
 				{
 					OutboundConnect(p, true);
 				}
-			}
 
-			if(!MinimalPeersReached && 
-				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
-				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
-			{
-				MinimalPeersReached = true;
-				Flow.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
-
-				if(Mcv != null)
+				foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
 				{
-					Synchronize();
+					OutboundConnect(p, false);
 				}
 
-				foreach(var c in Connections)
+				if(Mcvs.Any())
 				{
-					c.Send(new PeersBroadcastRequest {Peers = Connections.Where(i => i != c).ToArray()});
+					needed = Settings.Rds.PeersMin - Bases(i).Count();
+
+					foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, Role.Base) > 0 &&
+														m.Status == ConnectionStatus.Disconnected &&
+														DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+											.OrderBy(i => i.Retries)
+											.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
+											.Take(needed))
+					{
+						OutboundConnect(p, true);
+					}
+				}
+
+				if(i.ProcessConnectivity())
+				{
+					broad = true;
+				}
+			}
+
+			if(broad)
+			{
+				foreach(var c in Connections(null))
+				{
+					c.Post(new PeersBroadcastRequest {Peers = Connections(null).Where(i => i != c).ToArray()});
 				}
 			}
 		}
@@ -649,7 +495,7 @@ namespace Uccs.Net
 	
 					lock(Lock)
 					{
-						if(Connections.Count(i => i.Inbound) <= Settings.PeersInboundMax)
+						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound) <= Settings.PeersInboundMax)
 							InboundConnect(c);
 					}
 				}
@@ -675,7 +521,7 @@ namespace Uccs.Net
 
 			var h = new Hello();
 
-			h.Roles			= Roles;
+			h.Roles			= Mcvs.ToDictionary(i => i.Guid, i => i.Settings.Roles);
 			h.Versions		= Versions;
 			h.Zone			= Zone.Name;
 			h.IP			= ip;
@@ -867,7 +713,7 @@ namespace Uccs.Net
 
 					if(h.Permanent)
 					{
-						if(Connections.Count(i => i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
+						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
 						{
 							goto failed;
 						}
@@ -955,914 +801,16 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Synchronize()
+		public Peer ChooseBestPeer(Guid mcvid, Role role, HashSet<Peer> exclusions)
 		{
-			if(Settings.IP != null && Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || SunGlobals.SkipSynchronization)
-			{
-				Synchronization = Synchronization.Synchronized;
-				return;
-			}
-
-			if(Synchronization != Synchronization.Downloading)
-			{
-				Flow.Log?.Report(this, $"{Tag.S}", "Started");
-
-				SynchronizingThread = CreateThread(Synchronizing);
-				SynchronizingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Synchronizing";
-				SynchronizingThread.Start();
-		
-				Synchronization = Synchronization.Downloading;
-			}
-		}
-
-		void Synchronizing()
-		{
-			var used = new HashSet<Peer>();
-	
-			StampResponse stamp = null;
-			Peer peer = null;
-
-			lock(Lock)
-				SyncTail.Clear();
-
-			while(Flow.Active)
-			{
-				try
-				{
-					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
-
-					peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Flow);
-
-					if(Mcv.Roles.HasFlag(Role.Base) && !Mcv.Roles.HasFlag(Role.Chain))
-					{
-						stamp = peer.Request(new StampRequest());
-		
-						void download(TableBase t)
-						{
-							var ts = peer.Request(new TableStampRequest{ Table = t.Id, 
-																		 SuperClusters = stamp.Tables[t.Id].SuperClusters.Where(i => !t.SuperClusters.TryGetValue(i.Id, out var c) || !c.SequenceEqual(i.Hash))
-																														 .Select(i => i.Id).ToArray()});
-		
-							foreach(var i in ts.Clusters)
-							{
-								var c = t.Clusters.FirstOrDefault(j => j.Id.SequenceEqual(i.Id));
-		
-								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
-								{
-									if(c == null)
-									{
-										c = t.AddCluster(i.Id);
-									}
-		
-									var d = peer.Request(new DownloadTableRequest {	McvGuid = Mcv.Guid, 
-																					Table = t.Id, 
-																					ClusterId = i.Id, 
-																					Offset = 0, 
-																					Length = i.Length});
-											
-									c.Read(new BinaryReader(new MemoryStream(d.Data)));
-										
-									lock(Lock)
-									{
-										using(var b = new WriteBatch())
-										{
-											c.Save(b);
-			
-											if(!c.Hash.SequenceEqual(i.Hash))
-											{
-												throw new SynchronizationException("Cluster hash mismatch");
-											}
-										
-											Mcv.Database.Write(b);
-										}
-									}
-		
-									Flow.Log?.Report(this, $"{Tag.S}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
-								}
-							}
-		
-							t.CalculateSuperClusters();
-						}
-		
-						foreach(var i in Mcv.Tables)
-						{
-							download(i);
-						}
-		
-						var r = Mcv.CreateRound();
-						r.Confirmed = true;
-						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
-		
-						var s = peer.Request(new StampRequest());
-
-						lock(Lock)
-						{
-							Mcv.BaseState = stamp.BaseState;
-							Mcv.LastConfirmedRound = r;
-							Mcv.LastCommittedRound = r;
-			
-							Mcv.Hashify();
-			
-							if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
-	 							Mcv.LoadedRounds[r.Id] = r;
-							else
-								throw new SynchronizationException("BaseHash mismatch");
-						}
-					}
-		
-					//int finalfrom = -1; 
-					int from = -1;
-					int to = -1;
-
-					//lock(Lock)
-					//	Mcv.Tail.RemoveAll(i => i.Id > Mcv.LastConfirmedRound.Id);
-
-					while(Flow.Active)
-					{
-						lock(Lock)
-							if(Mcv.Roles.HasFlag(Role.Chain))
-								from = Mcv.LastConfirmedRound.Id + 1;
-							else
-								from = Math.Max(stamp.FirstTailRound, Mcv.LastConfirmedRound == null ? -1 : (Mcv.LastConfirmedRound.Id + 1));
-		
-						to = from + Mcv.P;
-		
-						var rp = peer.Request(new DownloadRoundsRequest {McvGuid = Mcv.Guid, From = from, To = to});
-
-						lock(Lock)
-						{
-							var rounds = rp.Read(Mcv);
-														
-							for(int rid = from; rounds.Any() && rid <= rounds.Max(i => i.Id); rid++)
-							{
-								var r = rounds.FirstOrDefault(i => i.Id == rid);
-
-								if(r == null)
-									break;
-								
-								Flow.Log?.Report(this, $"{Tag.S}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
-									
-								if(Mcv.LastConfirmedRound.Id + 1 != rid)
-								 	throw new IntegrityException();
-	
-								if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
-								{
-									var p =	SyncTail[rid];
-									var c =	SyncTail[rid + Mcv.P];
-
-									try
-									{
-										foreach(var v in p.Votes)
-											ProcessIncoming(v, true);
-		
-										foreach(var v in c.Votes)
-											ProcessIncoming(v, true);
-									}
-									catch(ConfirmationException)
-									{
-									}
-
-									if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
-									{
-										//Mcv.Commit(Mcv.LastConfirmedRound);
-										
-										foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
-										{
-											foreach(var v in i.Value.Votes)
-												ProcessIncoming(v, true);
-										}
-										
-										Synchronization = Synchronization.Synchronized;
-										SyncTail.Clear();
-										SynchronizingThread = null;
-						
-										MainWakeup.Set();
-
-										Flow.Log?.Report(this, $"{Tag.S}", "Finished");
-										return;
-									}
-								}
-
-								Mcv.Tail.RemoveAll(i => i.Id >= rid);
-								Mcv.Tail.Insert(0, r);
-
-// 								if(r.Id == 299)
-// 									Debugger.Break();
-			
-								var h = r.Hash;
-
-								r.Hashify();
-
-								if(!r.Hash.SequenceEqual(h))
-								{
-									#if DEBUG
-										SunGlobals.CompareBase("a:\\UOTMP\\Simulation-Sun.Fast\\");
-									#endif
-									
-									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
-								}
-
-								r.Confirmed = false;
-								r.Confirm();
-
-								if(r.Members.Count == 0)
-									throw new SynchronizationException("Incorrect round (Members.Count == 0)");
-
-								Mcv.Commit(r);
-								
-								foreach(var i in SyncTail.Keys)
-									if(i <= rid)
-										SyncTail.Remove(i);
-							}
-
-							Thread.Sleep(1);
-						}
-					}
-				}
-				catch(ConfirmationException ex)
-				{
-					Flow.Log?.ReportError(this, ex.Message);
-
-					lock(Lock)
-					{	
-						//foreach(var i in SyncTail.Keys)
-						//	if(i <= ex.Round.Id)
-						//		SyncTail.Remove(i);
-
-						Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
-						//Mcv.LastConfirmedRound = Mcv.Tail.First();
-					}
-				}
-				catch(SynchronizationException ex)
-				{
-					Flow.Log?.ReportError(this, ex.Message);
-
-					used.Add(peer);
-
-					lock(Lock)
-					{	
-						//SyncTail.Clear();
-						Mcv.Clear();
-						Mcv.Initialize();
-					}
-				}
-				catch(NodeException ex)
-				{
-					if(ex.Error != NodeError.TooEearly)
-						used.Add(peer);
-				}
-				catch(EntityException)
-				{
-				}
-			}
-		}
-
-		public bool ProcessIncoming(Vote v, bool assynchronized)
-		{
-			if(!v.Valid)
-				return false;
-
-			if(!assynchronized && (Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading))
-			{
- 				//var min = SyncTail.Any() ? SyncTail.Max(i => i.Key) - Mcv.Pitch * 100 : 0; /// keep latest Pitch * 3 rounds only
- 
-				if(SyncTail.TryGetValue(v.RoundId, out var r) && r.Votes.Any(j => j.Signature.SequenceEqual(v.Signature)))
-					return false;
-
-				if(!SyncTail.TryGetValue(v.RoundId, out r))
-				{
-					r = SyncTail[v.RoundId] = new();
-				}
-
-				v.Created = DateTime.UtcNow;
-				r.Votes.Add(v);
-
-				//foreach(var i in SyncTail.Keys)
-				//{
-				//	if(i < min)
-				//	{
-				//		SyncTail.Remove(i);
-				//	}
-				//}
-			}
-			else if(assynchronized || Synchronization == Synchronization.Synchronized)
-			{
-				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
-					return false;
-
-				//if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
-				//	return false;
-
-				var r = Mcv.GetRound(v.RoundId);
-
-				if(!Mcv.VotersOf(r).Any(i => i.Account == v.Generator))
-					return false;
-
-				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
-					return false;
-								
-				if(r.Parent != null && r.Parent.Members.Count > 0)
-				{
-					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAllowableOverflow)
-						return false;
-
-					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsPerVoteLimit)
-						return false;
-
-					if(v.Transactions.Any(t => Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account != v.Generator))
-						return false;
-				}
-
-				if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
-				{
-					//r.Votes.Remove(v);
-					return false;
-				}
-
-				var pc = Mcv.Add(v);
-
-				if(pc)
-				{
-				}
-			}
-
-			return true;
-		}
-
-		public Round TryExecute(Transaction transaction)
-		{
-			var m = NextVoteMembers.NearestBy(m => m.Account, transaction.Signer).Account;
-
-			if(!Settings.Generators.Contains(m))
-				return null;
-
-			var p = Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound;
-
-			var r = Mcv.GetRound(p.Id + 1);
-			
-			r.ConsensusTime			= Time.Now(Clock);
-			r.ConsensusExeunitFee	= p.ConsensusExeunitFee;
-			r.RentPerBytePerDay		= p.RentPerBytePerDay;
-			r.Members				= p.Members;
-			r.Funds					= p.Funds;
-	
-			r.Execute([transaction]);
-
-			return r;
-		}
-
-		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
-		{
-			foreach(var t in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-											(i.EmissionOnly || i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
-											i.Expiration > Mcv.LastConfirmedRound.Id &&
-											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
-			{
-				foreach(var o in t.Operations)
-				{
-					if(o is Emission e)
-						if(!Nas.IsEmissionValid(e))
-							continue;
-
-					if(o is DomainMigration m)
-						if(!IsDnsValid(m))
-							continue;
-				}
-
-				TryExecute(t);
-				
-				if(t.Successful)
-				{
-					t.Status = TransactionStatus.Accepted;
-					IncomingTransactions.Add(t);
-
-					Flow.Log?.Report(this, "Transaction Accepted", t.ToString());
-
-					yield return t;
-				}
-			}
-
-			MainWakeup.Set();
-		}
-
-		void Generate()
-		{
-			Statistics.Generating.Begin();
-
-			var votes = new List<Vote>();
-
-
-			foreach(var g in Settings.Generators)
-			{
-				var m = NextVoteMembers.Find(i => i.Account == g);
-
-				if(m == null)
-				{
-					m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == g);
-
-					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
-
-					if(m == null && a != null && a.Balance > Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
-					{
-						var o = new CandidacyDeclaration{	Bail			= Settings.Bail,
-															BaseRdcIPs		= [Settings.IP],
-															SeedHubRdcIPs	= [Settings.IP]};
-
-						var t = new Transaction();
-						t.Flow = Flow;
-						t.Zone = Zone;
-						t.Signer = g;
- 						t.__ExpectedStatus = TransactionStatus.Confirmed;
-			
-						t.AddOperation(o);
-
-			 			Transact(t);
-
-						LastCandidacyDeclaration[g] = t;
-					}
-				}
-				else
-				{
-					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
-						OutgoingTransactions.Remove(lcd);
-
-					var r = NextVoteRound;
-
-					if(r.Id < m.CastingSince)
-						continue;
-
-					if(r.VotesOfTry.Any(i => i.Generator == g))
-						continue;
-
-					Vote createvote(Round r)
-					{
-						var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
-						
-						return new Vote(Mcv) {	RoundId			= r.Id,
-												Try				= r.Try,
-												ParentHash		= r.Parent.Hash ?? r.Parent.Summarize(),
-												Created			= Clock.Now,
-												Time			= Time.Now(Clock),
-												Violators		= Mcv.ProposeViolators(r).ToArray(),
-												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray(),
-												FundJoiners		= Settings.ProposedFundJoiners.Where(i => !Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
-												FundLeavers		= Settings.ProposedFundLeavers.Where(i => Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
-												Emissions		= ApprovedEmissions.ToArray(),
-												Migrations		= ApprovedMigrations.ToArray() };
-					}
-
-					var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
-	
-					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
-					{
-						var v = createvote(r);
-						var deferred = new List<Transaction>();
-						
-						/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
-
-						bool add(Transaction t, bool isdeferred)
-						{ 	
-							if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > r.Parent.OperationsPerVoteLimit)
-								return false;
-	
-							if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
-								return false;
-	
-							if(r.Id > t.Expiration)
-							{
-								t.Status = TransactionStatus.FailedOrNotFound;
-								IncomingTransactions.Remove(t);
-								return true;
-							}
-
-							var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account;
-
-							if(nearest != g)
-								return true;
-	
-							if(!Settings.Generators.Contains(nearest))
-							{
-								t.Status = TransactionStatus.FailedOrNotFound;
-								IncomingTransactions.Remove(t);
-								return true;
-							}
-	
-							if(!isdeferred)
-							{
-								if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
-								{
-									deferred.Add(t);
-									return true;
-								}
-							}
-							else
-								deferred.Remove(t);
-
-							t.Status = TransactionStatus.Placed;
-							v.AddTransaction(t);
-	
-							var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
-
-							if(next != null)
-							{
-								if(add(next, true) == false)
-									return false;
-							}
-	
-							Flow.Log?.Report(this, "Transaction Placed", t.ToString());
-
-							return true;
-						}
-
-						foreach(var t in txs.OrderByDescending(i => i.Fee).ToArray())
-						{
-							if(add(t, false) == false)
-								break;
-						}
-
-						if(v.Transactions.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-						{
-							v.Sign(Vault.GetKey(g));
-							votes.Add(v);
-						}
-					}
-
- 					while(r.Previous != null && !r.Previous.Confirmed && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
- 					{
- 						r = r.Previous;
- 
- 						var b = createvote(r);
- 								
- 						b.Sign(Vault.GetKey(g));
- 						votes.Add(b);
- 					}
-
-					if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-						MainWakeup.Set();
-				}
-			}
-
-			if(votes.Any())
-			{
-				try
-				{
-					foreach(var v in votes.GroupBy(i => i.RoundId).OrderBy(i => i.Key))
-					{
-						var r = Mcv.FindRound(v.Key);
-
-						foreach(var i in v)
-						{
-							Mcv.Add(i);
-						}
-					}
-
-					for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
-					{
-						var r = Mcv.GetRound(i);
-						
-						if(r.Hash == null)
-						{
-							r.ConsensusTime			= r.Previous.ConsensusTime;
-							r.ConsensusExeunitFee	= r.Previous.ConsensusExeunitFee;
-							r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
-							r.Members				= r.Previous.Members;
-							r.Funds					= r.Previous.Funds;
-						}
-
-						if(!r.Confirmed)
-						{
-							r.Execute(r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Vote.Generator)));
-						}
-					}
-				}
-				catch(ConfirmationException ex)
-				{
-					ProcessConfirmationException(ex);
-				}
-
-				foreach(var i in votes)
-				{
-					Broadcast(i);
-				}
-													
-				 Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
-			}
-
-			Statistics.Generating.End();
-		}
-
-		public void ProcessConfirmationException(ConfirmationException ex)
-		{
-			Flow.Log?.ReportError(this, ex.Message);
-			Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
-
-			//foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= ex.Round.Id && (i.Placing == PlacingStage.Placed || i.Placing == PlacingStage.Confirmed)).ToArray())
-			//{
-			//	i.Placing = PlacingStage.Accepted;
-			//}
-
-			Synchronize();
-		}
-
-		void Transacting()
-		{
-			//IEnumerable<Transaction>	accepted;
-
-			Flow.Log?.Report(this, "Transacting started");
-
-			while(Flow.Active)
-			{
-				if(!OutgoingTransactions.Any())
-					WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
-
-				var cr = Call(i => i.Request(new MembersRequest()), Flow);
-
-				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any() || !i.SeedHubRdcIPs.Any()))
-					continue;
-
-				var members = cr.Members;
-
-				RdcInterface getrdi(AccountAddress account)
-				{
-					var m = members.NearestBy(i => i.Account, account);
-
-					if(m.BaseRdcIPs.Contains(Settings.IP))
-						return this;
-
-					var p = GetPeer(m.BaseRdcIPs.Random());
-					Connect(p, Flow);
-
-					return p;
-				}
-
-				Statistics.Transacting.Begin();
-				
-				IEnumerable<IGrouping<AccountAddress, Transaction>> nones;
-
-				lock(Lock)
-					nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
-
-				foreach(var g in nones)
-				{
-					var m = members.NearestBy(i => i.Account, g.Key);
-
-					//AllocateTransactionResponse at = null;
-					RdcInterface rdi; 
-
-					try
-					{
-						rdi = getrdi(g.Key);
-					}
-					catch(NodeException)
-					{
-						Thread.Sleep(1000);
-						continue;
-					}
-
-					int nid = -1;
-					var txs = new List<Transaction>();
-
-					foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
-					{
-						try
-						{
-							t.Rdi = rdi;
-							t.Fee = 0;
-							t.Nid = 0;
-							t.Expiration = 0;
-							t.Generator = new([0, 0], -1);
-
-							t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
-
-							var at = rdi.Request(new AllocateTransactionRequest {Transaction = t});
-								
-							if(nid == -1)
-								nid = at.NextNid;
-							else
-								nid++;
-
-							t.Generator	= at.Generetor;
-							t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
-							t.Nid		 = nid;
-							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
-
-							t.Sign(Vault.GetKey(t.Signer), at.PowHash);
-							txs.Add(t);
-						}
-						catch(NodeException)
-						{
-							Thread.Sleep(1000);
-							continue;
-						}
-						catch(EntityException ex)
-						{
-							//if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-							//{
-								lock(Lock)
-								{
-									t.Status = TransactionStatus.FailedOrNotFound;
-									OutgoingTransactions.Remove(t);
-								}
-
-								t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
-
-							//} 
-							//else
-							//	Thread.Sleep(1000);
-
-							continue;
-						}
-					}
-
-					IEnumerable<byte[]> atxs = null;
-
-					try
-					{
-						atxs = rdi.Request(new PlaceTransactionsRequest{Transactions = txs.ToArray()}).Accepted;
-					}
-					catch(NodeException)
-					{
-						Thread.Sleep(1000);
-						continue;
-					}
-
-					lock(Lock)
-						foreach(var t in txs)
-						{ 
-							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
-							{
-								t.Status = TransactionStatus.Accepted;
-								t.Flow.Log?.Report(this, "Accepted", $"{t} -> {m}, {t.Rdi}");
-							}
-							else
-							{
-								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-								{
-									t.Status = TransactionStatus.FailedOrNotFound;
-									OutgoingTransactions.Remove(t);
-								} 
-								else
-								{
-									t.Status = TransactionStatus.None;
-								}
-
-								t.Flow.Log?.Report(this, "Rejected", $"{t} -> {m}, {t.Rdi}");
-							}
-						}
-				}
-
-				Transaction[] accepted;
-				
-				lock(Lock)
-					accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
-
-				if(accepted.Any())
-				{
-					foreach(var g in accepted.GroupBy(i => i.Rdi))
-					{
-						TransactionStatusResponse ts;
-
-						try
-						{
-							ts = g.Key.Request(new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
-						}
-						catch(NodeException)
-						{
-							Thread.Sleep(1000);
-							continue;
-						}
-
-						lock(Lock)
-							foreach(var i in ts.Transactions)
-							{
-								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
-																		
-								if(t.Status != i.Status)
-								{
-									t.Flow.Log?.Report(this, i.Status.ToString(), $"{t} -> {t.Generator}, {t.Rdi}");
-
-									t.Status = i.Status;
-
-									if(t.Status == TransactionStatus.FailedOrNotFound)
-									{
-										if(t.__ExpectedStatus == TransactionStatus.Confirmed)
-											t.Status = TransactionStatus.None;
-										else
-											OutgoingTransactions.Remove(t);
-									}
-									else if(t.Status == TransactionStatus.Confirmed)
-									{
-										if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-											Debugger.Break();
-										else
-											OutgoingTransactions.Remove(t);
-									}
-								}
-						}
-					}
-				}
-				
-
-				Statistics.Transacting.End();
-			}
-		}
-
-		void Transact(Transaction t)
-		{
-			if(OutgoingTransactions.Count <= OperationsQueueLimit)
-			{
-				if(TransactingThread == null)
-				{
-					TransactingThread = CreateThread(Transacting);
-
-					TransactingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Transacting";
-					TransactingThread.Start();
-				}
-
-				OutgoingTransactions.Add(t);
-				TransactingWakeup.Set();
-			} 
-			else
-			{
-				Flow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
-			}
-		}
-		
-		public Transaction Transact(Operation operation, AccountAddress signer, TransactionStatus await, Flow workflow)
-		{
-			return Transact([operation], signer, await, workflow)[0];
-		}
-
- 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
- 		{
-			if(!Vault.IsUnlocked(signer))
-			{
-				throw new NodeException(NodeError.NotUnlocked);
-			}
-
-			var p = new List<Transaction>();
-
-			while(operations.Any())
-			{
-				var t = new Transaction();
-				t.Zone = Zone;
-				t.Signer = signer;
-				t.Flow = workflow;
- 				t.__ExpectedStatus = await;
-			
-				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))
-				{
-					t.AddOperation(i);
-				}
-
- 				lock(Lock)
-				{	
- 					if(FeeAsker.Ask(this, signer, null))
- 					{
- 				 		Transact(t);
- 					}
-				}
- 
-				Await(t, await, workflow);
-
-				p.Add(t);
-
-				operations = operations.Skip(Zone.OperationsPerTransactionLimit);
-			}
-
-			return p.ToArray();
- 		}
-
-		void Await(Transaction t, TransactionStatus s, Flow workflow)
-		{
-			while(workflow.Active)
-			{ 
-				switch(s)
-				{
-					case TransactionStatus.None :				return;
-					case TransactionStatus.Accepted :			if(t.Status >= TransactionStatus.Accepted) goto end; else break;
-					case TransactionStatus.Placed :				if(t.Status >= TransactionStatus.Placed) goto end; else break;
-					case TransactionStatus.Confirmed :			if(t.Status == TransactionStatus.Confirmed) goto end; else break;
-					case TransactionStatus.FailedOrNotFound :	if(t.Status == TransactionStatus.FailedOrNotFound) goto end; else break;
-				}
-
-			}
-				Thread.Sleep(100);
-
-			end:
-				workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
-		}
-
-		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
-		{
-			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i)))
+			return Peers.Where(i => i.GetRank(mcvid, role) > 0 && (exclusions == null || !exclusions.Contains(i)))
 						.OrderByDescending(i => i.Status == ConnectionStatus.OK)
 						//.ThenBy(i => i.GetRank(role))
 						//.ThenByDescending(i => i.ReachFailures)
 						.FirstOrDefault();
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, Flow workflow)
+		public Peer Connect(Guid mcvid, Role role, HashSet<Peer> exclusions, Flow workflow)
 		{
 			Peer peer;
 				
@@ -1872,7 +820,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					peer = ChooseBestPeer(role, exclusions);
+					peer = ChooseBestPeer(mcvid, role, exclusions);
 	
 					if(peer == null)
 					{
@@ -1897,7 +845,7 @@ namespace Uccs.Net
 			throw new OperationCanceledException();
 		}
 
-		public Peer[] Connect(Role role, int n, Flow workflow)
+		public Peer[] Connect(Guid mcvid, Role role, int n, Flow workflow)
 		{
 			var peers = new HashSet<Peer>();
 				
@@ -1906,7 +854,7 @@ namespace Uccs.Net
 				Peer p;
 	
 				lock(Lock)
-					p = ChooseBestPeer(role, peers);
+					p = ChooseBestPeer(mcvid, role, peers);
 	
 				if(p != null)
 				{
@@ -1969,118 +917,6 @@ namespace Uccs.Net
 			}
 		}
 
-
-		public R Call<R>(Func<RdcInterface, R> call, Flow workflow, IEnumerable<Peer> exclusions = null)
-		{
-			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-
-			Peer p;
-				
-			while(workflow.Active)
-			{
-				Thread.Sleep(1);
-	
-				lock(Lock)
-				{
-					if(Synchronization == Synchronization.Synchronized)
-					{
-						return call(this);
-					}
-
-					p = ChooseBestPeer(Role.Base, tried);
-	
-					if(p == null)
-					{
-						tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-						continue;
-					}
-				}
-
-				tried.Add(p);
-
-				try
-				{
-					Connect(p, workflow);
-
-					return call(p);
-				}
- 				catch(NodeException)
- 				{
-					p.LastFailure[Role.Base] = DateTime.UtcNow;
- 				}
-				catch(ContinueException)
-				{
-				}
-			}
-
-			throw new OperationCanceledException();
-		}
-
-// 		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
-// 		{
-// 			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-// 
-// 			Peer p;
-// 				
-// 			while(!workflow.IsAborted)
-// 			{
-// 				Thread.Sleep(1);
-// 				workflow.ThrowIfAborted();
-// 	
-// 				lock(Lock)
-// 				{
-// 					p = ChooseBestPeer(role, excl);
-// 	
-// 					if(p == null)
-// 						if(exitifnomore)
-// 							return;
-// 						else
-// 							continue;
-// 				}
-// 
-// 				excl?.Add(p);
-// 
-// 				try
-// 				{
-// 					Connect(p, workflow);
-// 
-// 					call(p);
-// 
-// 					break;
-// 				}
-// 				catch(ConnectionFailedException)
-// 				{
-// 					p.LastFailure[role] = DateTime.UtcNow;
-// 				}
-// 				catch(RdcNodeException)
-// 				{
-// 					p.LastFailure[role] = DateTime.UtcNow;
-// 				}
-// 			}
-// 		}
-
-		public R Call<R>(IPAddress ip, Func<Peer, R> call, Flow workflow)
-		{
-			Peer p;
-				
-			p = GetPeer(ip);
-
-			Connect(p, workflow);
-
-			return call(p);
-		}
-
-		public void Send(IPAddress ip, Action<Peer> call, Flow workflow)
-		{
-			Peer p;
-				
-			p = GetPeer(ip);
-
-			Connect(p, workflow);
-
-			call(p);
-		}
-
 		//public double EstimateFee(IEnumerable<Operation> operations)
 		//{
 		//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
@@ -2101,75 +937,90 @@ namespace Uccs.Net
 // 
 // 			return null;
 // 		}
+// 
+// 		public Emission FinishEmission(AccountKey signer, Flow workflow)
+// 		{
+// 			lock(Lock)
+// 			{
+// 				var	l = Call(p =>{
+// 									try
+// 									{
+// 										return p.Request(new AccountRequest(signer));
+// 									}
+// 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
+// 									{
+// 										return new AccountResponse();
+// 									}
+// 								}, 
+// 								workflow);
+// 			
+// 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
+// 
+// 				var wei = Nas.FindEmission(signer, eid, workflow);
+// 
+// 				if(wei == 0)
+// 					throw new RequirementException("No corresponding Ethrereum transaction found");
+// 
+// 				var o = new Emission(wei, eid);
+// 
+// 				if(FeeAsker.Ask(this, signer, o))
+// 				{
+// 					Transact(o, signer, TransactionStatus.Confirmed, workflow);
+// 					return o;
+// 				}
+// 			}
+// 
+// 			return null;
+// 		}
 
-		public Emission FinishEmission(AccountKey signer, Flow workflow)
-		{
-			lock(Lock)
+		public override RdcResponse Send(RdcRequest request)
+  		{
+			var rq = request;
+
+			if(request.Peer == null) /// self call, cloning needed
 			{
-				var	l = Call(p =>{
-									try
-									{
-										return p.Request(new AccountRequest(signer));
-									}
-									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
-									{
-										return new AccountResponse();
-									}
-								}, 
-								workflow);
-			
-				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
-
-				var wei = Nas.FindEmission(signer, eid, workflow);
-
-				if(wei == 0)
-					throw new RequirementException("No corresponding Ethrereum transaction found");
-
-				var o = new Emission(wei, eid);
-
-				if(FeeAsker.Ask(this, signer, o))
-				{
-					Transact(o, signer, TransactionStatus.Confirmed, workflow);
-					return o;
-				}
+				var s = new MemoryStream();
+				BinarySerializator.Serialize(new(s), request); 
+				s.Position = 0;
+				
+				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
+				rq.Sun = this;
+				rq.Mcv = request.Mcv;
+				rq.McvId = request.McvId;
 			}
 
-			return null;
-		}
+			return rq.Execute();
+ 		}
 
-		public override RdcResponse Request(RdcRequest rq)
+		public override void Post(RdcRequest request)
   		{
+			var rq = request;
+
 			if(rq.Peer == null) /// self call, cloning needed
 			{
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
+
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
+				rq.Sun = this;
+				rq.Mcv = request.Mcv;
+				rq.McvId = request.McvId;
 			}
 
- 			return rq.Execute(this);
+ 			rq.Execute();
  		}
 
-		public override void Send(RdcRequest rq)
-  		{
-			if(rq.Peer == null) /// self call, cloning needed
-			{
-				var s = new MemoryStream();
-				BinarySerializator.Serialize(new(s), rq); 
-				s.Position = 0;
-				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
-			}
-
- 			rq.Execute(this);
- 		}
-
-		public void Broadcast(Vote vote, Peer skip = null)
+		public void Broadcast(Mcv mcv, Vote vote, Peer skip = null)
 		{
-			foreach(var i in Bases.Where(i => i != skip))
+			foreach(var i in Bases(mcv).Where(i => i != skip))
 			{
 				try
 				{
-					i.Send(new VoteRequest {Raw = vote.RawForBroadcast });
+					i.Post(new VoteRequest {Sun = this, 
+											Mcv = mcv, 
+											McvId = mcv.Guid, 
+											Raw = vote.RawForBroadcast });
 				}
 				catch(NodeException)
 				{
