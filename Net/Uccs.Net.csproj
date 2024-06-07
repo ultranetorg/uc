@@ -33,16 +33,10 @@
 		<ProjectReference Include="..\CS\Uccs.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Sun\" />
-	</ItemGroup>
-	<ItemGroup>
 	  <None Update="Rds.settings">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="Sun.boot">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Sun.settings">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

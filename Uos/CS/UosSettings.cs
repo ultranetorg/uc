@@ -7,7 +7,7 @@ using Uccs.Net;
 
 namespace Uccs.Uos
 {
-	public class UosSettings : SettingsBase
+	public class UosSettings : Settings
 	{
 		public const string				FileName = "Uos.settings";
 		public ApiSettings				Api { get; set; }
@@ -19,7 +19,7 @@ namespace Uccs.Uos
 		{
 		}
 
-		public UosSettings(string exedir, string profile, string name, Zone zone) : base(exedir, profile, FileName, NetXonTextValueSerializator.Default)
+		public UosSettings(string profile, string name, Zone zone) : base(profile, FileName, NetXonTextValueSerializator.Default)
 		{
 			Name = name;
 			Zone = zone;

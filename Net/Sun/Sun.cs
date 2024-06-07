@@ -188,7 +188,7 @@ namespace Uccs.Net
 		{
 			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
 			if(t == typeof(Manifest))		return new Manifest();
-			if(t == typeof(PeerRequest))		return PeerRequest.FromType((PeerCallClass)b); 
+			if(t == typeof(PeerRequest))	return PeerRequest.FromType((PeerCallClass)b); 
 			if(t == typeof(PeerResponse))	return PeerResponse.FromType((PeerCallClass)b); 
 			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
 			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 

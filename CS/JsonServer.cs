@@ -20,7 +20,7 @@ namespace Uccs
 		public int				Timeout {get; set;} = 60*1000;
 	}
 
-	public class ApiSettings : SettingsBase
+	public class ApiSettings : Settings
 	{
 		public ApiSettings() : base(XonTextValueSerializator.Default)
 		{

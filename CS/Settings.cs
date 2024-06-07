@@ -8,34 +8,30 @@ using System.Threading.Tasks;
 
 namespace Uccs
 {
-	public class SettingsBase
+	public class Settings
 	{
 		public string					Profile;
 		public string					Path; 
 		IXonValueSerializator			Serializator;
 		
-		public SettingsBase(IXonValueSerializator serializator)
+		public Settings(IXonValueSerializator serializator)
 		{
 			Serializator  = serializator;
 		}
 		
-		public SettingsBase(string exedir, string profile, string filename, IXonValueSerializator serializator) : this(serializator)
+		public Settings(string profile, string filename, IXonValueSerializator serializator) : this(serializator)
 		{
 			Directory.CreateDirectory(profile);
 
-			var orig = System.IO.Path.Join(exedir, filename);
+			Profile = profile;
 			Path = System.IO.Path.Join(profile, filename);
 
-			if(!File.Exists(Path))
+			if(File.Exists(Path))
 			{
-				File.Copy(orig, Path, true);
+				var x = new XonDocument(File.ReadAllText(Path), serializator);
+	
+				Load(x);
 			}
-
-			Profile = profile;
-
-			var x = new XonDocument(File.ReadAllText(Path), serializator);
-
-			Load(x);
 		}
 
  		object load(string name, Type t, Xon x)
@@ -74,7 +70,7 @@ namespace Uccs
 				}
 				else if(p.PropertyType.Name.EndsWith("Settings"))
 				{
-					var s = Activator.CreateInstance(p.PropertyType) as SettingsBase;
+					var s = Activator.CreateInstance(p.PropertyType) as Settings;
 					s.Load(i.First());
 					p.SetValue(this, s);
 				}
@@ -83,9 +79,9 @@ namespace Uccs
 			}
 		}
 
-		public SettingsBase Merge(Xon x)
+		public Settings Merge(Xon x)
 		{
-			var r = Activator.CreateInstance(GetType()) as SettingsBase;
+			var r = Activator.CreateInstance(GetType()) as Settings;
 
 			r.Profile = Profile;
 			r.Path = Path;
@@ -102,7 +98,7 @@ namespace Uccs
 					}
 					else if(p.PropertyType.Name.EndsWith("Settings"))
 					{
-						(p.GetValue(r) as SettingsBase).Merge(v);
+						(p.GetValue(r) as Settings).Merge(v);
 					}
 					else
 						p.SetValue(r, load(p.Name, p.PropertyType, v));

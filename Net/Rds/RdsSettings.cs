@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class SeedHubSettings : SettingsBase
+	public class SeedHubSettings : Settings
 	{
 		public SeedHubSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 	}
 
-	public class ResourceHubSettings : SettingsBase
+	public class ResourceHubSettings : Settings
 	{
 		public int		CollectRefreshInterval { get; set; } = 60000;
 
@@ -21,7 +21,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EthereumSettings : SettingsBase
+	public class EthereumSettings : Settings
 	{
 		public string		Provider { get; set; }
 
@@ -47,7 +47,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public RdsSettings(string exedir, string profile) : base(exedir, profile, FileName)
+		public RdsSettings(string profile) : base(profile, FileName)
 		{
 		}
 	}

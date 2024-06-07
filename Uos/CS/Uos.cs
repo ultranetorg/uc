@@ -42,7 +42,7 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 			var b = new Boot(ExeDirectory);
-			var s = new UosSettings(ExeDirectory, b.Profile, "The Uos", b.Zone);
+			var s = new UosSettings(b.Profile, "The Uos", b.Zone);
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Run();
@@ -106,7 +106,9 @@ namespace Uccs.Uos
 
 			foreach(var i in Mcvs.ToArray())
 			{	
-				Sun.Disconnect(i);
+				lock(Sun.Lock)
+					Sun.Disconnect(i);
+		
 				i.Stop();
 				Mcvs.Remove(i);
 			}
@@ -161,7 +163,7 @@ namespace Uccs.Uos
 
 		public void RunSun(SunSettings settings = null)
 		{
-			var s = settings ?? new SunSettings(ExeDirectory, Settings.Profile);
+			var s = settings ?? new SunSettings(Settings.Profile);
 
 			Sun = new Net.Sun(s, Settings.Zone, Vault, Flow);
 
@@ -173,14 +175,16 @@ namespace Uccs.Uos
 			if(Rds.Id == mcvid)
 			{
 				var m = new Rds(Sun, 
-								settings as RdsSettings ?? new RdsSettings(ExeDirectory, Settings.Profile), 
+								settings as RdsSettings ?? new RdsSettings(Settings.Profile), 
 								Path.Join(Settings.Profile, Rds.Id.ToString()),
 								Flow.CreateNested(nameof(Rds), Flow.Log),
-								ethereum ?? new Ethereum(settings as RdsSettings ?? new RdsSettings(ExeDirectory, Settings.Profile)),
+								ethereum ?? new Ethereum(settings as RdsSettings ?? new RdsSettings(Settings.Profile)),
 								clock ?? new RealClock());
 				
 				Mcvs.Add(m);
-				Sun.Connect(m);
+
+				lock(Sun.Lock)
+					Sun.Connect(m);
 
 				McvStarted?.Invoke(m);
 			}

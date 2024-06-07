@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Uccs.Net
 {
-	public class PeeringSettings : SettingsBase
+	public class PeeringSettings : Settings
 	{
 		public int		PermanentMin { get; set; } = 6;
 		public int		PermanentBaseMin { get; set; } = 6;
@@ -25,11 +25,11 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SunSettings : SettingsBase
+	public class SunSettings : Settings
 	{
 		public const string			FileName = "Sun.settings";
 
-		public IPAddress			IP { get; set; } = IPAddress.Any;
+		public IPAddress			IP { get; set; }
 		public bool					Log { get; set; }
 		public int					RdcQueryTimeout { get; set; } = 5000;
 		public int					RdcTransactingTimeout { get; set; } = 5*60*1000;
@@ -40,21 +40,13 @@ namespace Uccs.Net
 		{
 		}
 
-		public SunSettings(string exedir, string profile) : base(exedir, profile, FileName, NetXonTextValueSerializator.Default)
+		public SunSettings(string profile) : base(profile, FileName, NetXonTextValueSerializator.Default)
 		{
 			if(Debugger.IsAttached)
 			{
 				RdcQueryTimeout = int.MaxValue;
 				RdcTransactingTimeout = int.MaxValue;
 			}
-		}
-
-		public SunSettings(string profile) : base(NetXonTextValueSerializator.Default)
-		{
-			Directory.CreateDirectory(profile);
-
-			Profile		= profile;
-			Path		= System.IO.Path.Join(profile, FileName);
 		}
 	}
 

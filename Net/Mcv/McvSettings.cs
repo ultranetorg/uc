@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class McvSettings : SettingsBase
+	public class McvSettings : Settings
 	{
 		public PeeringSettings			Peering { get; set; }= new();
 		public Money					Bail { get; set; }
@@ -20,7 +20,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public McvSettings(string exedir, string profile, string filename) : base(exedir, profile, filename, NetXonTextValueSerializator.Default)
+		public McvSettings(string profile, string filename) : base(profile, filename, NetXonTextValueSerializator.Default)
 		{
 		}
 	}

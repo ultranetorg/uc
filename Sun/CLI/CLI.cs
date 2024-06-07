@@ -25,7 +25,7 @@ namespace Uccs.Sun.CLI
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new Boot(ExeDirectory);
-			Settings = new SunSettings(ExeDirectory, b.Profile);
+			Settings = new SunSettings(b.Profile);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
