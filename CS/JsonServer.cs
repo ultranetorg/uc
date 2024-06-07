@@ -257,7 +257,7 @@ namespace Uccs
 			{
 				RespondError(rp, ex.Message, HttpStatusCode.BadRequest);
 			}
-			catch(Exception ex) when (!Debugger.IsAttached)
+			catch(Exception ex) /// when (!Debugger.IsAttached)
 			{
 				RespondError(rp, ex.ToString(), HttpStatusCode.InternalServerError);
 				Flow.Log?.ReportError(this, "Request Processing Error", ex);

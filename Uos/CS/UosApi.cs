@@ -20,19 +20,28 @@ namespace Uccs.Uos
 
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 		{
-			try
+			if(call is UosApc u) 
+				return u.Execute(Uos, request, response, flow);
+				
+			if(call is SunApc s)
 			{
-				if(call is UosApc u) return u.Execute(Uos, request, response, flow);
-				if(call is SunApc s) return s.Execute(Uos.Sun, request, response, flow);
-				if(call is McvApc m) return m.Execute(Uos.Sun.FindMcv(m.Mcvid), request, response, flow);
+				if(Uos.Sun == null)
+					throw new NodeException(NodeError.NoMcv);
 
-				throw new ApiCallException("Unknown call");
+				return s.Execute(Uos.Sun, request, response, flow);
 			}
-			catch(UosException ex)
+
+			if(call is McvApc m)
 			{
-				RespondError(response, ex.ToString(), HttpStatusCode.InternalServerError);
-				return null;
+				var mcv = Uos.Sun?.FindMcv(m.Mcvid);
+
+				if(mcv == null)
+					throw new NodeException(NodeError.NoMcv);
+
+				return m.Execute(mcv, request, response, flow);
 			}
+
+			throw new ApiCallException("Unknown call");
 		}
 	}
 	

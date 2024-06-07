@@ -21,8 +21,7 @@ namespace Uccs.Net
 		public DomainTable				Domains;
 		public readonly static Guid		Id = new Guid("A8B619CB-8A8C-4C71-847A-4A182ABDE2B9");
 		public override Guid			Guid => Id;
-
-		public IEthereum						Nas;
+		public IEthereum				Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		HttpClient						Http = new HttpClient();
 
