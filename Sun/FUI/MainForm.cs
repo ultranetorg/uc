@@ -6,28 +6,38 @@ namespace Uccs.Sun.FUI
 {
 	public partial class MainForm : Form
 	{
-		public readonly Net.Sun		Sun;
+		public readonly Uos.Uos		Uos;
 		readonly Timer				Timer = new Timer();
 
-		public MainForm(Net.Sun sun)
+		DashboardPanel				Dashboard;
+
+		public MainForm(Uos.Uos uos)
 		{
+			Uos = uos;
 			AutoScaleMode = AutoScaleMode.Inherit;
 
 			InitializeComponent();
 
 			MinimumSize = Size;
-			Sun = sun;
-			Sun.MainStarted += c =>	{ 	
+
+			Uos.SunStarted += c =>	{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
-														LoadUI(sun);
+														LoadSun();
 													});
 									};
+			
+			Uos.McvStarted += c =>	{ 	
+										BeginInvoke((MethodInvoker) delegate
+													{ 
+														LoadMcv(c);
+													});
+									};
+			if(Uos.Sun != null)
+				LoadSun();
 
-			if(sun.MainThread != null)
-			{
-				LoadUI(sun);
-			}
+			foreach(var i in Uos.Mcvs)
+				LoadMcv(i);
 		}
 
 		public void BeginClose()
@@ -35,55 +45,60 @@ namespace Uccs.Sun.FUI
 			BeginInvoke(Close);
 		}
 
-		void LoadUI(Net.Sun sun)
+		void LoadSun()
 		{
-			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Sun)};
-			navigator.Nodes.Add(dashboard);
+			var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos.Sun)};
+			Navigator.Nodes.Add(dashboard);
 
-			var net = new TreeNode("Network"){Tag = new NetworkPanel(Sun) };
-			navigator.Nodes.Add(net);
+			var net = new TreeNode("Network"){Tag = new NetworkPanel(Uos.Sun) };
+			Navigator.Nodes.Add(net);
 
-			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Sun)};
-			navigator.Nodes.Add(accs);
+			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos.Sun)};
+			Navigator.Nodes.Add(accs);
 
-			foreach(var i in sun.Mcvs)
-			{
-				var mcv = new TreeNode("Mcv"){};
-				navigator.Nodes.Add(mcv);
+			Navigator.SelectedNode = dashboard;
+			Navigator.ExpandAll();
+		}
+
+		void LoadMcv(Mcv mcv)
+		{
+			Dashboard.Monitor.Mcv = mcv;
+			Dashboard.Mcvs.Add(mcv);
+
+			var root = new TreeNode("Mcv"){};
+			Navigator.Nodes.Add(root);
 			
-				var m = new TreeNode("Members"){Tag = new MembersPanel(i) };
-				mcv.Nodes.Add(m);
+			var m = new TreeNode("Members"){Tag = new MembersPanel(mcv) };
+			root.Nodes.Add(m);
 	
-				if(i.Roles.HasFlag(Role.Chain))
-				{
-					var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(i) };
-					mcv.Nodes.Add(t);
+			if(mcv.Roles.HasFlag(Role.Chain))
+			{
+				var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(mcv) };
+				root.Nodes.Add(t);
 	
-					var c = new TreeNode("Chain"){Tag = new ChainPanel(i) };
-					mcv.Nodes.Add(c);
-				}
+				var c = new TreeNode("Chain"){Tag = new ChainPanel(mcv) };
+				root.Nodes.Add(c);
+			}
 	
-				if(i is Rds rds)
-				{
-					var d = new TreeNode("Domains"){Tag = new DomainPanel(rds) };
-					mcv.Nodes.Add(d);
+			if(mcv is Rds rds)
+			{
+				var d = new TreeNode("Domains"){Tag = new DomainPanel(rds) };
+				root.Nodes.Add(d);
 		
-					var r = new TreeNode("Resources"){Tag = new ResourcesPanel(rds) };				
-					mcv.Nodes.Add(r);
+				var r = new TreeNode("Resources"){Tag = new ResourcesPanel(rds) };				
+				root.Nodes.Add(r);
 	
-					var e = new TreeNode("Emission"){Tag = new EmissionPanel(rds) };
-					mcv.Nodes.Add(e);
+				var e = new TreeNode("Emission"){Tag = new EmissionPanel(rds) };
+				root.Nodes.Add(e);
 	
-					if(rds.SeedHub != null)
-					{
-						var s = new TreeNode("Seed Hub"){Tag = new HubPanel(rds) };
-						mcv.Nodes.Add(s);
-					}
+				if(rds.SeedHub != null)
+				{
+					var s = new TreeNode("Seed Hub"){Tag = new HubPanel(rds) };
+					root.Nodes.Add(s);
 				}
 			}
 
-			navigator.SelectedNode = dashboard;
-			navigator.ExpandAll();
+			root.ExpandAll();
 		}
 
 		protected override void OnHandleCreated(EventArgs e)
@@ -109,9 +124,9 @@ namespace Uccs.Sun.FUI
 
 		void RefreshInfo(object myObject, EventArgs myEventArgs)
 		{
-			lock(Sun.Lock)
+			//lock(Uos.Lock)
 			{
-				Text = $"Ultranet Node - {Sun}";
+				Text = $"Uos - {Uos}";
 			}
 
 			foreach(var i in Controls)

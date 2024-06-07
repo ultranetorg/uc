@@ -23,7 +23,7 @@
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
  			lock(Mcv.Lock)
 			{	
@@ -44,7 +44,7 @@
 		}
 	}
 		
-	public class ResourceResponse : RdcResponse
+	public class ResourceResponse : PeerResponse
 	{
 		public Resource Resource { get; set; }
 	}

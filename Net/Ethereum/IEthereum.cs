@@ -4,7 +4,7 @@ using Nethereum.RPC.Eth.DTOs;
 
 namespace Uccs.Net
 {
-	public interface INas
+	public interface IEthereum
 	{
 		Nethereum.Web3.Accounts.Account			Account { get; }
 		bool									IsAdministrator { get; }

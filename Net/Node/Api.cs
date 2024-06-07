@@ -14,7 +14,7 @@ namespace Uccs.Net
 	    {
 	        var ti = base.GetTypeInfo(type, options);
 
-	        if(ti.Type == typeof(RdcRequest))
+	        if(ti.Type == typeof(PeerRequest))
 	        {
 	            ti.PolymorphismOptions =	new JsonPolymorphismOptions
 											{
@@ -23,14 +23,19 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in Enum.GetNames<RdcClass>().Where(i => i != RdcClass.None.ToString()).Select(i => new JsonDerivedType(typeof(RdcClass).Assembly.GetType(typeof(RdcClass).Namespace + "." + i + "Request"), i)))
+				foreach(var i in Enum.GetNames<PeerCallClass>().Where(i => i != PeerCallClass.None.ToString()).Select(i => new JsonDerivedType(typeof(PeerCallClass).Assembly.GetType(typeof(PeerCallClass).Namespace + "." + i + "Request"), i)))
 				{
+					if(i.DerivedType == null)
+					{
+						throw new IntegrityException();
+					}
+
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 
 	        }
 
-	        if(ti.Type == typeof(RdcResponse))
+	        if(ti.Type == typeof(PeerResponse))
 	        {
 	            ti.PolymorphismOptions =	new JsonPolymorphismOptions
 											{
@@ -39,7 +44,7 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in Enum.GetNames<RdcClass>().Where(i => i != RdcClass.None.ToString()).Select(i => new JsonDerivedType(typeof(RdcClass).Assembly.GetType(typeof(RdcClass).Namespace + "." + i + "Response"), i)))
+				foreach(var i in Enum.GetNames<PeerCallClass>().Where(i => i != PeerCallClass.None.ToString()).Select(i => new JsonDerivedType(typeof(PeerCallClass).Assembly.GetType(typeof(PeerCallClass).Namespace + "." + i + "Response"), i)))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -49,24 +54,11 @@ namespace Uccs.Net
 	    }
 	}
 
-public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
-{
-	public override HexBigInteger Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-	{
-		return new HexBigInteger(reader.GetString());
-	}
-
-	public override void Write(Utf8JsonWriter writer, HexBigInteger value, JsonSerializerOptions options)
-	{
-		writer.WriteStringValue(value.HexValue);
-	}
-}
-
-	public class ApiJsonClient : JsonClient
+	public class ApiClient : JsonClient
 	{
 		public static readonly JsonSerializerOptions DefaultOptions;
 
-		static ApiJsonClient()
+		static ApiClient()
 		{
 			DefaultOptions = new JsonSerializerOptions{};
 
@@ -75,7 +67,7 @@ public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
 			DefaultOptions.Converters.Add(new CoinJsonConverter());
 			DefaultOptions.Converters.Add(new AccountJsonConverter());
 			DefaultOptions.Converters.Add(new IPJsonConverter());
-			DefaultOptions.Converters.Add(new ChainTimeJsonConverter());
+			DefaultOptions.Converters.Add(new TimeJsonConverter());
 			DefaultOptions.Converters.Add(new ResourceAddressJsonConverter());
 			DefaultOptions.Converters.Add(new ReleaseAddressJsonConverter());
 			DefaultOptions.Converters.Add(new VersionJsonConverter());
@@ -88,12 +80,25 @@ public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
 			DefaultOptions.TypeInfoResolver = new PolymorphicTypeResolver();
 		}
 
-		public ApiJsonClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey, DefaultOptions)
+		public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey, DefaultOptions)
 		{
 		}
 
-		public ApiJsonClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, DefaultOptions, timeout)
+		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, DefaultOptions, timeout)
 		{
+		}
+	}
+
+	public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
+	{
+		public override HexBigInteger Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return new HexBigInteger(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, HexBigInteger value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.HexValue);
 		}
 	}
 }

@@ -4,9 +4,9 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class MembersRequest : RdcCall<MembersResponse>
+	public class MembersRequest : PeerCall<MembersResponse>
 	{
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -25,7 +25,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class MembersResponse : RdcResponse
+	public class MembersResponse : PeerResponse
 	{
 		public class Member
 		{

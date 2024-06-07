@@ -5,7 +5,7 @@ namespace Uccs.Net
 	public interface ITableEntryBase
 	{
 		EntityId	Id { get; set; }
-		bool		New { get; set; }
+		//bool		New { get; set; }
 
 		void		ReadMain(BinaryReader r);
 		void		WriteMain(BinaryWriter r);

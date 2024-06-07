@@ -6,7 +6,7 @@ namespace Uccs.Net
 	{
 		public string		Query { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
  			lock(Rds.Lock)
 			{	
@@ -15,7 +15,7 @@ namespace Uccs.Net
 		}
 	}
 		
-	public class QueryResourceResponse : RdcResponse
+	public class QueryResourceResponse : PeerResponse
 	{
 		public Ura[] Resources { get; set; }
 	}

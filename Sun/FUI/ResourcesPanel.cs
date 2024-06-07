@@ -92,7 +92,7 @@ namespace Uccs.Sun.FUI
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;
 				li.SubItems.Add(i.Datas.Count.ToString());
-				li.SubItems.Add(i.Last.ToString());
+				li.SubItems.Add(i.Last?.ToString());
 
 				LocalReleases.Items.Add(li);
 			}

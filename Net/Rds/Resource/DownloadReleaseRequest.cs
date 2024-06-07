@@ -9,7 +9,7 @@ namespace Uccs.Net
 		public long				Offset { get; set; }
 		public long				Length { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(Length > ResourceHub.PieceMaxLength)
 				throw new RequestException(RequestError.IncorrectRequest);
@@ -29,7 +29,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class DownloadReleaseResponse : RdcResponse
+	public class DownloadReleaseResponse : PeerResponse
 	{
 		public byte[] Data { get; set; }
 	}

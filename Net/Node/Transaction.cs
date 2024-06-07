@@ -34,7 +34,7 @@ namespace Uccs.Net
 		public AccountAddress			Signer { get => _Signer ??= Zone.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 		public Zone						Zone;
 		public TransactionStatus		Status;
-		public RdcInterface				Rdi;
+		public IPeer				Rdi;
 		public Flow						Flow;
 		public TransactionStatus		__ExpectedStatus = TransactionStatus.None;
 

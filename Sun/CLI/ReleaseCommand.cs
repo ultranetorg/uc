@@ -8,7 +8,7 @@ namespace Uccs.Sun.CLI
 	/// Usage: 
 	///		release publish 
 	/// </summary>
-	public class ReleaseCommand : Command
+	public class ReleaseCommand : SunCommand
 	{
 		public const string Keyword = "release";
 

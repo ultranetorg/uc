@@ -8,10 +8,9 @@ using System.Threading;
 
 namespace Uccs.Net
 {
-	public enum RdcClass : byte
+	public enum PeerCallClass : byte
 	{
 		None, 
-		Proxy, 
 		Vote,
 		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 		Domain, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
@@ -37,7 +36,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class RdcPacket : ITypeCode
+	public abstract class Packet : ITypeCode
 	{
 		public int		Id { get; set; }
 		public Peer		Peer;
@@ -45,57 +44,52 @@ namespace Uccs.Net
 		public abstract byte TypeCode { get; }
 	}
 
-	public abstract class RdcInterface
+	public abstract class IPeer
 	{
- 		public abstract	void					Post(RdcRequest rq);
-		public Rp								Send<Rp>(RdcCall<Rp> rq) where Rp : RdcResponse => Send((RdcRequest)rq) as Rp;
-		public abstract RdcResponse				Send(RdcRequest rq);
+ 		public abstract	void			Post(PeerRequest rq);
+		public abstract PeerResponse	Send(PeerRequest rq);
+		public Rp						Send<Rp>(PeerCall<Rp> rq) where Rp : PeerResponse => Send((PeerRequest)rq) as Rp;
 	}
 
-	public abstract class RdcCall<RP> : RdcRequest where RP : RdcResponse
+	public abstract class PeerCall<R> : PeerRequest where R : PeerResponse
 	{
 	}
 
-	public abstract class RdsCall<RP> : RdcCall<RP> where RP : RdcResponse
-	{
-		public Rds Rds => Mcv as Rds;
-	}
-
-	public abstract class RdcRequest : RdcPacket
+	public abstract class PeerRequest : Packet
 	{
 		public override byte			TypeCode => (byte)Class;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 		public Guid						McvId { get; set; }
 		
 		public ManualResetEvent			Event;
-		public RdcResponse				Response;
+		public PeerResponse				Response;
 		public Sun						Sun;
 		public Mcv						Mcv;
 
-		public abstract RdcResponse		Execute();
+		public abstract PeerResponse	Execute();
 
-		public RdcClass Class
+		public PeerCallClass Class
 		{
 			get
 			{
-				return Enum.Parse<RdcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
+				return Enum.Parse<PeerCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
 			}
 		}
 
-		public RdcRequest()
+		public PeerRequest()
 		{
 		}
 
-		public static RdcRequest FromType(RdcClass type)
+		public static PeerRequest FromType(PeerCallClass type)
 		{
-			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor([]).Invoke(null) as RdcRequest;
+			return Assembly.GetExecutingAssembly().GetType(typeof(PeerRequest).Namespace + "." + type + "Request").GetConstructor([]).Invoke(null) as PeerRequest;
 		}
 
-		public RdcResponse SafeExecute()
+		public PeerResponse SafeExecute()
 		{
 			if(WaitResponse)
 			{
-				RdcResponse rp;
+				PeerResponse rp;
 
 				try
 				{
@@ -103,12 +97,12 @@ namespace Uccs.Net
 				}
 				catch(SunException ex)
 				{
-					rp = RdcResponse.FromType(Class);
+					rp = PeerResponse.FromType(Class);
 					rp.Error = ex;
 				}
 				catch(Exception) when(!Debugger.IsAttached)
 				{
-					rp = RdcResponse.FromType(Class);
+					rp = PeerResponse.FromType(Class);
 					rp.Error = new NodeException(NodeError.Unknown);
 				}
 
@@ -160,21 +154,21 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class RdcResponse : RdcPacket
+	public abstract class PeerResponse : Packet
 	{
 		public override byte	TypeCode => (byte)Type;
-		public RdcClass			Type => Enum.Parse<RdcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+		public PeerCallClass			Type => Enum.Parse<PeerCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 		public SunException		Error { get; set; }
 
-		public static RdcResponse FromType(RdcClass type)
+		public static PeerResponse FromType(PeerCallClass type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor([]).Invoke(null) as RdcResponse;
+				return Assembly.GetExecutingAssembly().GetType(typeof(PeerResponse).Namespace + "." + type + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
 			}
 			catch(Exception ex)
 			{
-				throw new IntegrityException($"Wrong {nameof(RdcResponse)} type", ex);
+				throw new IntegrityException($"Wrong {nameof(PeerResponse)} type", ex);
 			}
 		}
 	}

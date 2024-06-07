@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class StampRequest : RdcCall<StampResponse>
+	public class StampRequest : PeerCall<StampResponse>
 	{
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -29,7 +29,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class StampResponse : RdcResponse
+	public class StampResponse : PeerResponse
 	{
 		public class SuperCluster
 		{

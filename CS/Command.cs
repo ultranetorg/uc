@@ -5,10 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Nethereum.ABI.Util;
-using Uccs.Net;
+using System.Reflection;
 
-namespace Uccs.Sun.CLI
+namespace Uccs
 {
 	public abstract class Command
 	{
@@ -57,29 +56,13 @@ namespace Uccs.Sun.CLI
 		}
 
 		public CommandAction[]		Actions;
-
-		protected Program			Program;
 		public List<Xon>			Args;
 		public static bool			ConsoleAvailable { get; protected set; }
-		public const string			AwaitArg = "await";
-
 		public Flow					Flow;
-		public Action				Transacted;
+
+		protected abstract Type[]	TypesForExpanding { get; }
 
 		public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
-
-		//public Guid					Mcvid;
-
-		public Guid Mcvid
-		{
-			get
-			{
-				if(Has("mcvid"))
-					return Guid.Parse(GetString("mcvid"));
-				else
-					throw new SyntaxException($"Parameter 'mcvid' not provided");
-			}
-		}
 
 		static Command()
 		{
@@ -98,91 +81,10 @@ namespace Uccs.Sun.CLI
 		{
 		}
 
-		protected Command(Program program, List<Xon> args, Flow flow)
+		protected Command(List<Xon> args, Flow flow)
 		{
-			Program = program;
 			Args = args;
 			Flow = flow;;
-		}
-
-		public void Api(Apc call)
-		{
-			if(Has("apitimeout"))
-				call.Timeout = GetInt("apitimeout") * 1000;
-
-			if(Program.ApiClient == null) 
-			{	
-				if(call is SunApc s)
-				{
-					s.Execute(Program.Sun, null, null, Flow);
-					return;
-				}
-				
-				if(call is McvApc m)
-				{
-					m.Execute(Program.Sun.FindMcv(Mcvid), null, null, Flow);
-					return;
-				}
-
-				throw new Exception();
-			}
-			else
-			{	
-				if(call is McvApc c)
-					c.Mcvid = Mcvid;
-
-				Program.ApiClient.Send(call, Flow);
-			}
-		}
-
-		public Rp Api<Rp>(Apc call)
-		{
-			if(Has("apitimeout"))
-				call.Timeout = GetInt("apitimeout") * 1000;
-
-			if(Program.ApiClient == null) 
-			{	
-				if(call is SunApc s)	return (Rp)s.Execute(Program.Sun, null, null, Flow);
-				if(call is McvApc m)	return (Rp)m.Execute(Program.Sun.FindMcv(Mcvid), null, null, Flow);
-
-				throw new Exception();
-			}
-			else
-			{	
-				if(call is McvApc c)
-					c.Mcvid = Mcvid;
-
-				return Program.ApiClient.Request<Rp>(call, Flow);
-			}
-		}
-
-		public Rp Rdc<Rp>(RdcCall<Rp> call) where Rp : RdcResponse
-		{
-			if(Program.ApiClient == null) 
-			{
-				return Program.Sun.FindMcv(Mcvid).Call(() => call, Flow);
-			}
-			else
-			{
-				var rp = Api<Rp>(new RdcApc {Mcvid = Mcvid, Request = call});
- 
- 				if(rp.Error != null)
- 					throw rp.Error;
- 
-				return rp;
-			}
-		}
-
-		public object Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
-		{
-			if(Program.ApiClient == null)
-				 return Program.Sun.FindMcv(Mcvid).Transact(operations, by, await, Flow);
-			else
-				return Program.ApiClient.Request<string[][]>(new TransactApc  {	Mcvid = Mcvid,
-																				Operations = operations,
-																				By = by,
-																				Await = await},
-															Flow);
 		}
 
 		public Xon One(string path)
@@ -238,39 +140,6 @@ namespace Uccs.Sun.CLI
 		public bool Has(string paramenter)
 		{
 			return One(paramenter) != null;
-		}
-
-		public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
-		{
-			if(Has(paramenter))
-				return AccountAddress.Parse(GetString(paramenter));
-			else
-				if(mandatory)
-					throw new SyntaxException($"Parameter '{paramenter}' not provided");
-				else
-					return null;
-		}
-
-		protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
-		{
-			if(Has(paramenter))
-				return Ura.Parse(GetString(paramenter));
-			else
-				if(mandatory)
-					throw new SyntaxException($"Parameter '{paramenter}' not provided");
-				else
-					return null;
-		}
-
-		protected Urr GetReleaseAddress(string paramenter, bool mandatory = true)
-		{
-			if(Has(paramenter))
-				return Urr.Parse(GetString(paramenter));
-			else
-				if(mandatory)
-					throw new SyntaxException($"Parameter '{paramenter}' not provided");
-				else
-					return null;
 		}
 
 		protected string GetString(string paramenter, bool mandatory = true)
@@ -342,95 +211,6 @@ namespace Uccs.Sun.CLI
 				return def;
 		}
 
-		protected Money GetMoney(string paramenter)
-		{
-			var p = One(paramenter);
-
-			if(p != null)
-				return Money.ParseDecimal(p.Get<string>());
-			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-		}
-
-		protected Money GetMoney(string paramenter, Money def)
-		{
-			var p = One(paramenter);
-
-			if(p != null)
-				return Money.ParseDecimal(p.Get<string>());
-			else
-				return def;
-		}
-
-		protected ResourceData GetData()
-		{
-			var d = One("data");
-
-			if(d != null)
-			{
-				if(d.Nodes.Any())
-				{
-					var t = GetEnum<DataType>("data");
-					
-					switch(t)
-					{
-						case DataType.Raw:
-							return new ResourceData(t, d.Get<string>("bytes").FromHex());
-
-						case DataType.File:
-						case DataType.Directory:
-						case DataType.Package:
-							return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
-				
-						case DataType.Consil:
-							return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteFee = d.Get<Money>("fee") });
-						case DataType.Analysis:
-							return new ResourceData(t, new Analysis {Release = Urr.Parse(d.Get<string>("release")), 
-																	 Payment = d.Get<Money>("payment"),
-																	 Consil  = d.Get<Ura>("consil")});
-						default:
-							throw new SyntaxException("Unknown type");
-					}
-				}
-				else if(d.Value != null)
-					return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data"))));
-			}
-
-			return null;
-		}
-
-		protected E GetEnum<E>(string paramenter, E def) where E : struct
-		{
-			var p = One(paramenter);
-
-			if(p != null)
-				return Enum.Parse<E>(p.Get<string>());
-			else
-				return def;
-		}
-
-		protected E GetEnum<E>(string paramenter) where E : struct
-		{
-			var p = One(paramenter);
-
-			if(p != null)
-				return Enum.Parse<E>(p.Get<string>());
-			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-		}
-
-		//protected AccountKey GetPrivate(string walletarg)
-		//{
-		//	string p = null;
-		//	
-		//	var a = new ConsolePasswordAsker();
-		//	a.Ask(GetString(walletarg));
-		//	p = a.Password; 
-		//
-		//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
-		//}
-
 		public void Dump(object o, Type type = null)
 		{
 			void dump(string name, object value, int tab)
@@ -454,8 +234,7 @@ namespace Uccs.Sun.CLI
 					{
 						Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
 					}
-					else if(value is IEnumerable<Dependency> ||
-							value is IEnumerable<AnalyzerResult>)
+					else if(TypesForExpanding.Contains(value.GetType()))
 					{
 						Report(new string(' ', tab * 3) + $"{name} :");
 
@@ -467,8 +246,7 @@ namespace Uccs.Sun.CLI
 					else
 						Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
 				}
-				else if(value is Resource || 
-						value is Manifest)
+				else if(TypesForExpanding.Contains(value.GetType()))
 				{
 					Report(new string(' ', tab * 3) + $"{name}");
 
@@ -540,18 +318,6 @@ namespace Uccs.Sun.CLI
 		protected void Dump(XonDocument document)
 		{
 			document.Dump((n, l) => Report(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
-		}
-
-		public static TransactionStatus GetAwaitStage(IEnumerable<Xon> args)
-		{
-			var a = args.FirstOrDefault(i => i.Name == AwaitArg);
-
-			if(a != null)
-			{
-				return Enum.GetValues<TransactionStatus>().First(i => i.ToString().ToLower() == a.Get<string>());
-			}
-			else
-				return TransactionStatus.Placed;
 		}
 	}
 }

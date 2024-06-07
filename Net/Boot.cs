@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Uccs.Net;
 
 namespace Uccs.Net
 {
@@ -8,7 +9,6 @@ namespace Uccs.Net
 	{
 		public Xon		Commnand;
 	 	public string	Profile;
-	 	public string	Secrets;
 		public Zone		Zone;
 
 		public Boot()
@@ -17,7 +17,7 @@ namespace Uccs.Net
 
 		public Boot(string exedir)
 		{
-			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Boot.xon")));
+			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Uos.boot")));
 			Commnand = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
 			if(Commnand.Has("zone"))
@@ -28,12 +28,7 @@ namespace Uccs.Net
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
 			else
-				Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
-
-				
-			if(File.Exists(Profile))
-				foreach(var i in Directory.EnumerateFiles(Profile, "*." + Uccs.Net.Sun.FailureExt))
-					File.Delete(i);
+				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
 		}
 	}
 }

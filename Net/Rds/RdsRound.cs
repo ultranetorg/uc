@@ -11,6 +11,7 @@ namespace Uccs.Net
 		public Rds								Rds => Mcv as Rds;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
 		public ForeignResult[]					ConsensusMigrations = {};
+		public ForeignResult[]					ConsensusEmissions = {};
 
 		public RdsRound(Rds rds) : base(rds)
 		{
@@ -109,9 +110,16 @@ namespace Uccs.Net
 
 		public override void Elect(Vote[] votes, int gq)
 		{
-			ConsensusMigrations	= votes	.SelectMany(i => i.Migrations).Distinct()
-										.Where(x => Migrations.Any(b => b.Id == x.OperationId) && votes.Count(b => b.Migrations.Contains(x)) >= gq)
-										.Order().ToArray();
+			var rvs = votes.Cast<RdsVote>();
+
+			ConsensusMigrations	= rvs.SelectMany(i => i.Migrations).Distinct()
+									 .Where(x => Migrations.Any(b => b.Id == x.OperationId) && rvs.Count(b => b.Migrations.Contains(x)) >= gq)
+									 .Order().ToArray();
+
+
+			ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
+									 .Where(x => Emissions.Any(e => e.Id == x.OperationId) && rvs.Count(b => b.Emissions.Contains(x)) >= gq)
+									 .Order().ToArray();
 		}
 
 		public override void CopyConfirmed()
@@ -130,6 +138,21 @@ namespace Uccs.Net
 
 		public override void ConfirmForeign()
 		{
+			foreach(var i in ConsensusEmissions)
+			{
+				var e = Emissions.Find(j => j.Id == i.OperationId);
+
+				if(i.Approved)
+				{
+					e.ConfirmedExecute(this);
+					Emissions.Remove(e);
+				} 
+				else
+					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
+			}
+
+			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+
 			foreach(var i in ConsensusMigrations)
 			{
 				var e = Migrations.Find(j => j.Id == i.OperationId);
@@ -164,6 +187,7 @@ namespace Uccs.Net
 		{
 			base.WriteConfirmed(writer);
 
+			writer.Write(ConsensusEmissions);
 			writer.Write(ConsensusMigrations);
 		}
 
@@ -171,6 +195,7 @@ namespace Uccs.Net
 		{
 			base.ReadConfirmed(reader);
 			
+			ConsensusEmissions	= reader.ReadArray<ForeignResult>();
 			ConsensusMigrations	= reader.ReadArray<ForeignResult>();
 		}
 	}

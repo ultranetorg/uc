@@ -43,7 +43,6 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
-		public ForeignResult[]								ConsensusEmissions = {};
 		public Money										ConsensusExeunitFee;
 		public int											ConsensusTransactionsOverflowRound;
 
@@ -270,18 +269,14 @@ namespace Uccs.Net
 											.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
 											.Order().ToArray();
 
-				ConsensusEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
-											.Where(x => Emissions.Any(e => e.Id == x.OperationId) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
-											.Order().ToArray();
-
-				ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
-											.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
-											.Order().ToArray();
-				
-				ConsensusFundLeavers	= gu.SelectMany(i => i.FundLeavers).Distinct()
-											.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
-											.Order().ToArray();
-
+				//ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
+				//							.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
+				//							.Order().ToArray();
+				//
+				//ConsensusFundLeavers	= gu.SelectMany(i => i.FundLeavers).Distinct()
+				//							.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
+				//							.Order().ToArray();
+				//
 				Elect(gu, gq);
 			}
 
@@ -419,21 +414,6 @@ namespace Uccs.Net
 					RegisterForeign(o);
 				}
 			}
-
-			foreach(var i in ConsensusEmissions)
-			{
-				var e = Emissions.Find(j => j.Id == i.OperationId);
-
-				if(i.Approved)
-				{
-					e.ConfirmedExecute(this);
-					Emissions.Remove(e);
-				} 
-				else
-					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
-			}
-
-			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
 
 			ConfirmForeign();
 	
@@ -596,7 +576,6 @@ namespace Uccs.Net
 			writer.Write(ConsensusFundJoiners);
 			writer.Write(ConsensusFundLeavers);
 			writer.Write(ConsensusViolators);
-			writer.Write(ConsensusEmissions);
 			writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		}
 
@@ -609,7 +588,6 @@ namespace Uccs.Net
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();
 			ConsensusFundLeavers				= reader.ReadArray<AccountAddress>();
 			ConsensusViolators					= reader.ReadArray<AccountAddress>();
-			ConsensusEmissions					= reader.ReadArray<ForeignResult>();
 			ConsensusTransactions				= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
@@ -657,7 +635,7 @@ namespace Uccs.Net
 			else
 			{
 				Votes = r.ReadList(() => {
-											var v = new Vote(Mcv);
+											var v = Mcv.CreateVote();
 											v.RoundId = Id;
 											v.Round = this;
 											v.ReadForRoundUnconfirmed(r);

@@ -35,7 +35,7 @@
     },
     "test": {
         "commandName": "Project",
-        "commandLineArgs": "node attach http://127.0.0.100:3900",
+        "commandLineArgs": "node run peer",
         "remoteDebugEnabled": false,
         "remoteDebugMachine": "ultranet.org",
         "authenticationMode": "Windows"

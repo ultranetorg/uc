@@ -9,12 +9,10 @@ namespace Uccs.Net
 {
 	public class Vote
 	{
-		//public const int			SizeMax = 65536;
 		public int					ParentId => RoundId - Mcv.P;
 
 		public List<Peer>			Peers;
 		public bool					BroadcastConfirmed;
-		//public byte[]				Hash;
 		public Round				Round;
 		public DateTime				Created;
 		AccountAddress				_Generator;
@@ -22,18 +20,13 @@ namespace Uccs.Net
 		Mcv							Mcv;
 
 		public int					RoundId;
-		//public IPAddress[]			BaseRdcIPs;
-		//public IPAddress[]			SeedHubRdcIPs;
 		public int					Try; /// TODO: revote if consensus not reached
 		public Time					Time;
 		public byte[]				ParentHash;
-		//public AccountAddress[]		MemberJoiners = {};
 		public AccountAddress[]		MemberLeavers = {};
-		public AccountAddress[]		FundJoiners = {};
-		public AccountAddress[]		FundLeavers = {};
+		///public AccountAddress[]		FundJoiners = {};
+		///public AccountAddress[]		FundLeavers = {};
 		public AccountAddress[]		Violators = {};
-		public ForeignResult[]		Emissions = {};
-		public ForeignResult[]		Migrations = {};
 		public Transaction[]		Transactions = {};
 		public byte[]				Signature { get; set; }
 
@@ -126,34 +119,30 @@ namespace Uccs.Net
 			return Mcv.Zone.Cryptography.Hash(s.ToArray());
 		}
 
-		void WriteVote(BinaryWriter writer)
+		protected virtual void WriteVote(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write(Time);
 			writer.Write(ParentHash);
 
 			writer.Write(MemberLeavers);
-			writer.Write(FundJoiners);
-			writer.Write(FundLeavers);
+			///writer.Write(FundJoiners);
+			///writer.Write(FundLeavers);
 			writer.Write(Violators);
-			writer.Write(Emissions);
-			writer.Write(Migrations);
 
 			writer.Write(Transactions, t => t.WriteForVote(writer));
 		}
 
-		void ReadVote(BinaryReader reader)
+		protected virtual void ReadVote(BinaryReader reader)
 		{
 			Try					= reader.Read7BitEncodedInt();
 			Time				= reader.Read<Time>();
 			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberLeavers		= reader.ReadArray<AccountAddress>();
-			FundJoiners			= reader.ReadArray<AccountAddress>();
-			FundLeavers			= reader.ReadArray<AccountAddress>();
+			///FundJoiners			= reader.ReadArray<AccountAddress>();
+			///FundLeavers			= reader.ReadArray<AccountAddress>();
 			Violators			= reader.ReadArray<AccountAddress>();
-			Emissions			= reader.ReadArray<ForeignResult>();
-			Migrations			= reader.ReadArray<ForeignResult>();
 
 			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction {Zone = Mcv.Zone, Vote = this};

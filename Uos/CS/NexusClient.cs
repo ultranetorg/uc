@@ -11,14 +11,14 @@ namespace Uccs.Uos
 
 		public ResourceHub		ResourceHub;
 		public PackageHub		PackageHub;
-		public JsonClient	Sun;
+		public JsonClient		Sun;
 		HttpClient				Http = new HttpClient();
 
 		public NexusClient()
 		{
-			ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
-			SunAddress		= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
-			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
+			//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
+			//SunAddress		= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
+			//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
 			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
 			//Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);

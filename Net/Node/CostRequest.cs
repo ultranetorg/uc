@@ -2,11 +2,11 @@
 
 namespace Uccs.Net
 {
-	public class CostRequest : RdcCall<CostResponse>
+	public class CostRequest : PeerCall<CostResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -18,7 +18,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class CostResponse : RdcResponse
+	public class CostResponse : PeerResponse
 	{
 		public Money RentPerBytePerDay { get; set; }
 		public Money ConsensusExeunitFee { get; set; }

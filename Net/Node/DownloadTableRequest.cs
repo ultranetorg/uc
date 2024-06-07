@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadTableRequest : RdcCall<DownloadTableResponse>
+	public class DownloadTableRequest : PeerCall<DownloadTableResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(	ClusterId.Length != TableBase.ClusterBase.IdLength ||
 				Offset < 0 ||
@@ -37,7 +37,7 @@ namespace Uccs.Net
 		}
 	}
 		
-	public class DownloadTableResponse : RdcResponse
+	public class DownloadTableResponse : PeerResponse
 	{
 		public byte[] Data { get; set; }
 	}

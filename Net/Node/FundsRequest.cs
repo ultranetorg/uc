@@ -2,9 +2,9 @@
 
 namespace Uccs.Net
 {
-	public class FundsRequest : RdcCall<FundsResponse>
+	public class FundsRequest : PeerCall<FundsResponse>
 	{
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -15,7 +15,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class FundsResponse : RdcResponse
+	public class FundsResponse : PeerResponse
 	{
 		public AccountAddress[] Funds { get; set; }
 	}

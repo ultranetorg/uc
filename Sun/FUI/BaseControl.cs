@@ -177,7 +177,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(!Sun.Vault.IsUnlocked(account))
 			{
-				var pa = new EnterPasswordForm(Sun.Settings.Secrets?.Password);
+				var pa = new EnterPasswordForm(SunGlobals.Secrets.Password);
 	
 				if(pa.Ask($"A password required to access {account} account"))
 				{

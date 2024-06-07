@@ -8,7 +8,7 @@ namespace Uccs.Net
 		public Urr	Address { get; set; }
 		public int	Count { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Rds.Lock)
 			{	
@@ -20,7 +20,7 @@ namespace Uccs.Net
 		}
 	}
 		
-	public class LocateReleaseResponse : RdcResponse
+	public class LocateReleaseResponse : PeerResponse
 	{
 		public IPAddress[]	Seeders { get; set; }
 	}

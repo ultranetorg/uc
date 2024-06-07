@@ -1,0 +1,17 @@
+// RELEASE
+
+//IP
+//CliDefaultMcv
+Log
+
+//Peering
+//{
+//	PermanentMin
+//	PermanentBaseMin
+//	PermanentInboundMax
+//	InboundMax
+//	InitialRandomization
+//}
+
+//RdcQueryTimeout
+//RdcTransactingTimeout

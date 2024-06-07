@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Uccs.Net
@@ -12,6 +14,17 @@ namespace Uccs.Net
 		public Guid	 Mcvid { get; set; }
 
 		public abstract object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	}
+
+	public class RunPeerApc : McvApc
+	{
+		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(mcv.Lock)
+				mcv.RunPeer();
+			
+			return null;
+		}
 	}
 
 	public class McvSummaryApc : McvApc
@@ -259,7 +272,7 @@ namespace Uccs.Net
 
 	public class RdcApc : McvApc
 	{
-		public RdcRequest Request { get; set; }
+		public PeerRequest Request { get; set; }
 
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
@@ -269,7 +282,7 @@ namespace Uccs.Net
 			}
 			catch(SunException ex)
 			{
-				var rp = RdcResponse.FromType(Request.Class);
+				var rp = PeerResponse.FromType(Request.Class);
 				rp.Error = ex;
 				
 				return rp;
@@ -284,7 +297,7 @@ namespace Uccs.Net
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(mcv.Sun.Lock)
-				mcv.Settings.Generators = Generators.ToList();
+				mcv.Settings.Generators = Generators.ToArray();
 
 			return null;
 		}

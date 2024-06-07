@@ -2,11 +2,11 @@
 
 namespace Uccs.Net
 {
-	public class TransactionStatusRequest : RdcCall<TransactionStatusResponse>
+	public class TransactionStatusRequest : PeerCall<TransactionStatusResponse>
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -28,7 +28,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class TransactionStatusResponse : RdcResponse
+	public class TransactionStatusResponse : PeerResponse
 	{
 		public class Item
 		{

@@ -10,7 +10,7 @@ namespace Uccs.Sun.CLI
 	/// Usage: 
 	///		release publish 
 	/// </summary>
-	public class AnalysisCommand : Command
+	public class AnalysisCommand : SunCommand
 	{
 		public const string Keyword = "analysis";
 

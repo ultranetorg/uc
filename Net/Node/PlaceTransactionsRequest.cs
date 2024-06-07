@@ -2,11 +2,11 @@
 
 namespace Uccs.Net
 {
-	public class PlaceTransactionsRequest : RdcCall<PlaceTransactionsResponse>
+	public class PlaceTransactionsRequest : PeerCall<PlaceTransactionsResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -19,7 +19,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class PlaceTransactionsResponse : RdcResponse
+	public class PlaceTransactionsResponse : PeerResponse
 	{
 		public byte[][] Accepted { get; set; }
 	}

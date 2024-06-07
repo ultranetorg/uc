@@ -13,8 +13,8 @@ namespace Uccs.Sun.FUI
 		{
 			InitializeComponent();
 
-			if(Sun.Settings.Secrets?.EthereumWallet != null)
-				browse.Text = Sun.Settings.Secrets.EthereumWallet;
+			//if(Sun.Settings.Secrets?.EthereumWallet != null)
+			//	browse.Text = Sun.Settings.Secrets.EthereumWallet;
 
 			walletChoice.Checked = true;
 
@@ -126,20 +126,20 @@ namespace Uccs.Sun.FUI
 			{
 				if(walletChoice.Checked)
 				{
-					string password = Sun.Settings.Secrets?.EthereumPassword;
-	
-					if(password == null)
-					{
-						var f = new EnterPasswordForm(Sun.Settings.Secrets?.Password);
-					
-						if(f.Ask(browse.Text))
-							password = f.Password;
-					}
-	
-					if(password != null)
-					{
-						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Sun.Zone.EthereumNetwork));
-					}
+					//string password = Sun.Settings.Secrets?.EthereumPassword;
+					//
+					//if(password == null)
+					//{
+					//	var f = new EnterPasswordForm(Sun.Settings.Secrets?.Password);
+					//
+					//	if(f.Ask(browse.Text))
+					//		password = f.Password;
+					//}
+					//
+					//if(password != null)
+					//{
+					//	a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Sun.Zone.EthereumNetwork));
+					//}
 				}
 				else if(privatekeyChoice.Checked)
 				{

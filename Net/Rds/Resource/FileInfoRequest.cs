@@ -5,7 +5,7 @@
 		public Urr		Release { get; set; }
 		public string	File { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Rds.ResourceHub.Lock)
 			{
@@ -22,7 +22,7 @@
 		}
 	}
 
-	public class FileInfoResponse : RdcResponse
+	public class FileInfoResponse : PeerResponse
 	{
 		public long Length { get; set; }
 	}

@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadRoundsRequest : RdcCall<DownloadRoundsResponse>
+	public class DownloadRoundsRequest : PeerCall<DownloadRoundsResponse>
 	{
 		public int From { get; set; }
 		public int To { get; set; }
 		
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -35,7 +35,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class DownloadRoundsResponse : RdcResponse
+	public class DownloadRoundsResponse : PeerResponse
 	{
 		public int		LastNonEmptyRound { get; set; }
 		public int		LastConfirmedRound { get; set; }

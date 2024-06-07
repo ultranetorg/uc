@@ -59,7 +59,7 @@ namespace Uccs.Net
 		Seed		= 0b00000100,
 	}
 
-	public class Sun : RdcInterface
+	public class Sun : IPeer
 	{
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]	Versions = {4};
@@ -67,13 +67,12 @@ namespace Uccs.Net
 		public const int				Timeout = 5000;
 
 		public Zone						Zone;
-		public Settings					Settings;
+		public SunSettings				Settings;
 		public Flow						Flow;
-		public JsonServer				ApiServer;
 		public Vault					Vault;
 		public List<Mcv>				Mcvs = [];
 		public object					Lock = new();
-		public Clock					Clock;
+		//public Clock					Clock;
 		public Mcv						FindMcv(Guid id) => Mcvs.Find(i => i.Guid == id);
 		public T						Find<T>() where T : Mcv => Mcvs.Find(i => i.GetType() == typeof(T)) as T;
 
@@ -82,11 +81,11 @@ namespace Uccs.Net
 		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																			.SetCreateMissingColumnFamilies(true);
 
-		public Guid						Netid;
+		public Guid						PeerId;
 		public IPAddress				IP = IPAddress.None;
 		public List<IPAddress>			IgnoredIPs = new();
 		public bool						IsPeering => MainThread != null;
-		public bool						IsListener => ListeningThread == null;
+		public bool						IsListener => ListeningThread != null;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections(Mcv mcv) => Peers.Where(i => (mcv == null || i.Ranks.ContainsKey(mcv.Guid)) && i.Status == ConnectionStatus.OK);
 		public IEnumerable<Peer>		Bases(Mcv mcv) => Connections(mcv).Where(i => i.Permanent && i.GetRank(mcv.Guid, Role.Base) > 0);
@@ -109,6 +108,8 @@ namespace Uccs.Net
 		public SunDelegate				MainStarted;
 		public SunDelegate				ApiStarted;
 
+		public static List<Sun>			All = new();
+
 		public class Tag
 		{
 			public const string P = "Peering";
@@ -117,103 +118,28 @@ namespace Uccs.Net
 			public const string ERR = "Error";
 		}
 		
-		public Sun(Zone zone, Settings settings, Flow workflow)
+		public Sun(SunSettings settings, Zone zone, Vault vault,  Flow workflow)
 		{
-			Zone = zone;
 			Settings = settings;
+			Zone = zone;
+			Vault = vault;
 			Directory.CreateDirectory(Settings.Profile);
-			
-			Flow = workflow ?? new Flow("Sun", new Log());
+
+			Flow = workflow ?? new Flow(nameof(Sun), new Log());
 
 			if(Flow.Log != null)
 			{
-				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
+				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, nameof(Sun) + ".log"), m.ToString() + Environment.NewLine);
 			}
-
-			Vault = new Vault(Zone, Settings);
 
 			var fs = new ColumnFamilies();
 			
-			foreach(var i in new ColumnFamilies.Descriptor[] {	new (nameof(Peers),					new ()),
-																})
+			foreach(var i in new ColumnFamilies.Descriptor[] {new (nameof(Peers), new ())})
 				fs.Add(i);
 
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), fs);
-		}
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, nameof(Sun)), fs);
 
-		public override string ToString()
-		{
-			return string.Join(" - ", new string[]{	(Settings.IP != null ? IP.ToString() : null),
-													(ApiServer != null ? "A" : null) +
-													string.Join(';', Mcvs)}
-						.Where(i => !string.IsNullOrWhiteSpace(i)));
-		}
-
-		public object Constract(Type t, byte b)
-		{
-			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
-			if(t == typeof(Vote))			return null;
-			if(t == typeof(Manifest))		return new Manifest();
-			if(t == typeof(RdcRequest))		return RdcRequest.FromType((RdcClass)b); 
-			if(t == typeof(RdcResponse))	return RdcResponse.FromType((RdcClass)b); 
-			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
-			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 
-			if(t == typeof(Urr))			return Urr.FromType(b); 
-
-			return null;
-		}
-
-		public Thread CreateThread(Action action)
-		{
-			return new Thread(() => { 
-										try
-										{
-											action();
-										}
-										catch(OperationCanceledException)
-										{
-										}
-										catch(Exception ex) when (!Debugger.IsAttached)
-										{
-											if(Flow.Active)
-												Abort(ex);
-										}
-									});
-		}
-
-		public void Run(IEnumerable<Xon> xon, INas nas = null, Clock clock = null)
-		{
-			if(xon.Any(i => i.Name == "api"))
-				RunApi();
-			
-			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
-
-			if(xon.Any(i => i.Name == "peer"))
-				RunNode(xon, nas, clock);
-		}
-		
-		public void RunApi()
-		{
-			if(!HttpListener.IsSupported)
-			{
-				Environment.ExitCode = -1;
-				throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
-			}
-
-			if(ApiServer != null)
-				throw new NodeException(NodeError.AlreadyRunning);
-
-			lock(Lock)
-			{
-				ApiServer = new ApiJsonServer(this, Flow);
-			}
-		
-			ApiStarted?.Invoke(this);
-		}
-
-		public void RunNode(IEnumerable<Xon> mcvs, INas nas = null, Clock clock = null)
-		{
-			if(Netid != Guid.Empty)
+			if(PeerId != Guid.Empty)
 				throw new NodeException(NodeError.AlreadyRunning);
 
 			Flow.Log?.Report(this, $"Ultranet Node {Version}");
@@ -225,17 +151,7 @@ namespace Uccs.Net
 			if(SunGlobals.Any)
 				Flow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
 
-			Netid = Guid.NewGuid();
-			Clock = clock ?? new RealClock();
-
-			foreach(var i in mcvs)
-			{
-				if(i.Name == "Rds")
-				{
-					Mcvs.Add(new Rds(this, Settings, Settings.Rds.Merge(i), Path.Join(Settings.Profile, Rds.Id.ToString()), Flow.CreateNested(nameof(Rds), Flow.Log), nas));
-					Flow.Log?.Report(this, i.Name + " started");
-				}
-			}
+			PeerId = Guid.NewGuid();
 
 			LoadPeers();
 
@@ -263,8 +179,40 @@ namespace Uccs.Net
 			MainStarted?.Invoke(this);
 		}
 
-		public void RunMcv(IEnumerable<Xon> mcvs)
+		public override string ToString()
 		{
+			return string.Join(",", new string[] {Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+		}
+
+		public object Constract(Type t, byte b)
+		{
+			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
+			if(t == typeof(Manifest))		return new Manifest();
+			if(t == typeof(PeerRequest))		return PeerRequest.FromType((PeerCallClass)b); 
+			if(t == typeof(PeerResponse))	return PeerResponse.FromType((PeerCallClass)b); 
+			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
+			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 
+			if(t == typeof(Urr))			return Urr.FromType(b); 
+
+			return null;
+		}
+
+		public Thread CreateThread(Action action)
+		{
+			return new Thread(() => { 
+										try
+										{
+											action();
+										}
+										catch(OperationCanceledException)
+										{
+										}
+										catch(Exception ex) when (!Debugger.IsAttached)
+										{
+											if(Flow.Active)
+												Abort(ex);
+										}
+									});
 		}
 
 		public void Abort(Exception ex)
@@ -274,15 +222,14 @@ namespace Uccs.Net
 				File.WriteAllText(Path.Join(Settings.Profile, "Abort." + FailureExt), ex.ToString());
 				Flow.Log?.ReportError(this, "Abort", ex);
 	
-				Stop("Due to exception");
+				Stop();
 			}
 		}
 
-		public void Stop(string message)
+		public void Stop()
 		{
 			Flow.Abort();
 
-			ApiServer?.Stop();
 			Listener?.Stop();
 
 			lock(Lock)
@@ -297,12 +244,9 @@ namespace Uccs.Net
 			MainThread?.Join();
 			ListeningThread?.Join();
 
-			foreach(var i in Mcvs)
-				i.Stop();
-
 			Database?.Dispose();
 
-			Flow.Log?.Report(this, "Stopped", message);
+			Flow.Log?.Report(this, "Stopped");
 
 			Stopped?.Invoke(this);
 		}
@@ -420,7 +364,22 @@ namespace Uccs.Net
 			}
 		}
 
-		DateTime __X = DateTime.Now;
+		public void Connect(Mcv m)
+		{
+			Mcvs.Add(m);
+
+			foreach(var c in Connections(null))
+			{
+				Post(new PeersBroadcastRequest {Peers = [new Peer {	IP = Settings.IP,
+																	Ranks = Mcvs.ToDictionary(i => i.Guid,
+																							  i => Enum.GetValues<Role>().Where(j => (j & i.Settings.Roles) != 0).ToDictionary(i => i, i => 1))}] });
+			}
+		}
+
+		public void Disconnect(Mcv m)
+		{
+			Mcvs.Remove(m);
+		}
 
 		void ProcessConnectivity()
 		{
@@ -428,12 +387,12 @@ namespace Uccs.Net
 
 			foreach(var i in Mcvs)
 			{
-				var needed = i.Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+				var needed = i.Settings.Peering.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
 				foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 										.OrderBy(i => i.Retries)
-										.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
+										.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
 										.Take(needed))
 				{
 					OutboundConnect(p, true);
@@ -444,19 +403,16 @@ namespace Uccs.Net
 					OutboundConnect(p, false);
 				}
 
-				if(Mcvs.Any())
-				{
-					needed = Settings.Rds.PeersMin - Bases(i).Count();
+				needed = i.Settings.Peering.PermanentBaseMin - Bases(i).Count();
 
-					foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, Role.Base) > 0 &&
-														m.Status == ConnectionStatus.Disconnected &&
-														DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-											.OrderBy(i => i.Retries)
-											.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
-											.Take(needed))
-					{
-						OutboundConnect(p, true);
-					}
+				foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, Role.Base) > 0 &&
+													m.Status == ConnectionStatus.Disconnected &&
+													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+										.OrderBy(i => i.Retries)
+										.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+										.Take(needed))
+				{
+					OutboundConnect(p, true);
 				}
 
 				if(i.ProcessConnectivity())
@@ -469,7 +425,7 @@ namespace Uccs.Net
 			{
 				foreach(var c in Connections(null))
 				{
-					c.Post(new PeersBroadcastRequest {Peers = Connections(null).Where(i => i != c).ToArray()});
+					Post(new PeersBroadcastRequest {Peers = Connections(null).Where(i => i != c).ToArray()});
 				}
 			}
 		}
@@ -495,7 +451,7 @@ namespace Uccs.Net
 	
 					lock(Lock)
 					{
-						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound) <= Settings.PeersInboundMax)
+						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound) <= Settings.Peering.InboundMax)
 							InboundConnect(c);
 					}
 				}
@@ -525,7 +481,7 @@ namespace Uccs.Net
 			h.Versions		= Versions;
 			h.Zone			= Zone.Name;
 			h.IP			= ip;
-			h.Nuid			= Netid;
+			h.PeerId		= PeerId;
 			h.Peers			= peers;
 			h.Permanent		= permanent;
 			//h.Generators	= Members;
@@ -593,7 +549,7 @@ namespace Uccs.Net
 						goto failed;
 					}
 
-					if(h.Nuid == Netid)
+					if(h.PeerId == PeerId)
 					{
 						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
 						IgnoredIPs.Add(peer.IP);
@@ -713,7 +669,7 @@ namespace Uccs.Net
 
 					if(h.Permanent)
 					{
-						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
+						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound && i.Permanent) + 1 > Settings.Peering.PermanentInboundMax)
 						{
 							goto failed;
 						}
@@ -729,7 +685,7 @@ namespace Uccs.Net
 						goto failed;
 					}
 
-					if(h.Nuid == Netid)
+					if(h.PeerId == PeerId)
 					{
 						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
 						if(peer != null)
@@ -973,7 +929,7 @@ namespace Uccs.Net
 // 			return null;
 // 		}
 
-		public override RdcResponse Send(RdcRequest request)
+		public override PeerResponse Send(PeerRequest request)
   		{
 			var rq = request;
 
@@ -983,7 +939,7 @@ namespace Uccs.Net
 				BinarySerializator.Serialize(new(s), request); 
 				s.Position = 0;
 				
-				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
+				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
 				rq.Sun = this;
 				rq.Mcv = request.Mcv;
 				rq.McvId = request.McvId;
@@ -992,7 +948,7 @@ namespace Uccs.Net
 			return rq.Execute();
  		}
 
-		public override void Post(RdcRequest request)
+		public override void Post(PeerRequest request)
   		{
 			var rq = request;
 
@@ -1002,7 +958,7 @@ namespace Uccs.Net
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
 
-				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
+				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
 				rq.Sun = this;
 				rq.Mcv = request.Mcv;
 				rq.McvId = request.McvId;
@@ -1026,6 +982,80 @@ namespace Uccs.Net
 				{
 				}
 			}
+		}
+
+		public static void CompareBases(string destination)
+		{
+			foreach(var i in All.SelectMany(i => i.Mcvs).DistinctBy(i => i.Guid))
+			{
+				var  d = Path.Join(destination, i.GetType().Name);
+
+				Directory.CreateDirectory(d);
+
+				CompareBase(i, d);
+			}
+		}
+
+		public static void CompareBase(Mcv mcv, string destibation)
+		{
+			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
+
+			var jo = new JsonSerializerOptions(ApiClient.DefaultOptions);
+			jo.WriteIndented = true;
+
+			foreach(var i in All)
+				Monitor.Enter(i.Lock);
+
+			void compare(int table)
+			{
+				var cs = All.Where(i => i.FindMcv(mcv.Guid) != null && i.FindMcv(mcv.Guid).Roles.HasFlag(Role.Base)).Select(i => new {s = i, c = i.FindMcv(mcv.Guid).Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+	
+				while(true)
+				{
+					var x = new bool[cs.Length];
+
+					for(int i=0; i<cs.Length; i++)
+						x[i] = cs[i].c.MoveNext();
+
+					if(x.All(i => !i))
+						break;
+					else if(!x.All(i => i))
+						Debugger.Break();
+	
+					var es = cs.Select(i => new {i.s, e = i.c.Current.BaseEntries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+	
+					while(true)
+					{
+						var y = new bool[es.Length];
+
+						for(int i=0; i<es.Length; i++)
+							y[i] = es[i].e.MoveNext();
+	
+						if(y.All(i => !i))
+							break;
+						else if(!y.All(i => i))
+							Debugger.Break();
+	
+						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
+
+						if(jes.Count() > 1)
+						{
+							foreach(var i in jes)
+							{
+								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
+							}
+							
+							Debugger.Break();
+						}
+					}
+				}
+			}
+
+			foreach(var t in mcv.Tables)
+				compare(t.Id);
+
+			foreach(var i in All)
+				Monitor.Exit(i.Lock);
 		}
 
 		//public QueryResourceResponse QueryResource(string query, Workflow workflow) => Call(c => c.QueryResource(query), workflow);

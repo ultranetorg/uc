@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class VoteRequest : RdcCall<RdcResponse>
+	public class VoteRequest : PeerCall<PeerResponse>
 	{
 		public byte[]				Raw { get; set; }
 		public override bool		WaitResponse => false;
@@ -12,7 +12,7 @@ namespace Uccs.Net
 		{
 		}
 		
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(!Mcv.Roles.HasFlag(Role.Base))
 				throw new NodeException(NodeError.NotBase);
@@ -20,7 +20,7 @@ namespace Uccs.Net
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
 
-			var v = new Vote(Mcv);
+			var v = Mcv.CreateVote();
 			v.RawForBroadcast = Raw;
 			v.ReadForBroadcast(br);
 

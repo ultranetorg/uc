@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Net
 {
-	public class AllocateTransactionRequest : RdcCall<AllocateTransactionResponse>
+	public class AllocateTransactionRequest : PeerCall<AllocateTransactionResponse>
 	{
 		public Transaction Transaction {get; set;}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Mcv.Lock)
 			{
@@ -37,7 +37,7 @@
 		}
 	}
 	
-	public class AllocateTransactionResponse : RdcResponse
+	public class AllocateTransactionResponse : PeerResponse
 	{
 		public int			LastConfirmedRid { get; set; }
 		public int			NextNid { get; set; }

@@ -32,7 +32,7 @@
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.navigator = new System.Windows.Forms.TreeView();
+			this.Navigator = new System.Windows.Forms.TreeView();
 			this.place = new System.Windows.Forms.Panel();
 			this.SuspendLayout();
 			// 
@@ -63,15 +63,15 @@
 			// 
 			// navigator
 			// 
-			this.navigator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.Navigator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-			this.navigator.HideSelection = false;
-			this.navigator.Location = new System.Drawing.Point(10, 10);
-			this.navigator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.navigator.Name = "navigator";
-			this.navigator.Size = new System.Drawing.Size(174, 768);
-			this.navigator.TabIndex = 9;
-			this.navigator.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.navigator_AfterSelect);
+			this.Navigator.HideSelection = false;
+			this.Navigator.Location = new System.Drawing.Point(10, 10);
+			this.Navigator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.Navigator.Name = "navigator";
+			this.Navigator.Size = new System.Drawing.Size(174, 768);
+			this.Navigator.TabIndex = 9;
+			this.Navigator.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.navigator_AfterSelect);
 			// 
 			// place
 			// 
@@ -90,7 +90,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1234, 788);
 			this.Controls.Add(this.place);
-			this.Controls.Add(this.navigator);
+			this.Controls.Add(this.Navigator);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "MainForm";
 			this.Padding = new System.Windows.Forms.Padding(7, 7, 7, 7);
@@ -106,7 +106,7 @@
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private System.Windows.Forms.TreeView navigator;
+		private System.Windows.Forms.TreeView Navigator;
 		private System.Windows.Forms.Panel place;
 	}
 }

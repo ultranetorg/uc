@@ -11,10 +11,10 @@ using Nethereum.Web3;
 
 namespace Uccs.Net
 {
-	public class Nas : INas
+	public class Ethereum : IEthereum
 	{
 		public const string						ContractAddress = "0xA755eB16Eb31873dCCAB4135E5659b50e9Addf57";
-		Settings								Settings;
+		RdsSettings								Settings;
 		public Web3								Web3;
 
 		ContractHandler							_Contract;
@@ -41,7 +41,7 @@ namespace Uccs.Net
 			{
 				if(_Contract == null)
 				{
-					Web3 = new Web3(Account, Settings.Rds.Nas.Provider);
+					Web3 = new Web3(Account, Settings.Ethereum.Provider);
 					_Contract = Web3.Eth.GetContractHandler(ContractAddress);
 				}
 
@@ -62,7 +62,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Nas(Settings s)
+		public Ethereum(RdsSettings s)
 		{
 			Settings = s;
 		}
@@ -71,13 +71,13 @@ namespace Uccs.Net
 		{
 			return [message,
 					$"But it is not set or incorrect.",
-		 			$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
+		 			$"It's located in {Path.Join(Settings.Profile, RdsSettings.FileName)} -> Nas -> Provider",
 		 			$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"];
 		}
 
 		public EmitFunction EstimateEmission(Nethereum.Web3.Accounts.Account from, BigInteger amount, Flow workflow)
 		{
-			var w3 = new Web3(from, Settings.Rds.Nas.Provider);
+			var w3 = new Web3(from, Settings.Ethereum.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
 
 			var rt = new EmitFunction{AmountToSend = amount,
@@ -97,7 +97,7 @@ namespace Uccs.Net
 
 		public TransactionReceipt Emit(Nethereum.Web3.Accounts.Account from, AccountAddress to, BigInteger wei, int eid, BigInteger gas, BigInteger gasprice, Flow workflow)
 		{
-			var w3 = new Web3(from, Settings.Rds.Nas.Provider);
+			var w3 = new Web3(from, Settings.Ethereum.Provider);
 			var c = w3.Eth.GetContractHandler(ContractAddress);
 
 			var rt = new EmitFunction{AmountToSend = wei,

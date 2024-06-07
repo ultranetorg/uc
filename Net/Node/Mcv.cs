@@ -36,8 +36,9 @@ namespace Uccs.Net
 		public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
 
 		public abstract Guid						Guid { get; }
-		public RdsSettings							Settings;
+		public McvSettings							Settings;
 		public Zone									Zone;
+		public IClock								Clock;
 		public Role									Roles => Settings.Roles;
 		public object								Lock => Sun.Lock;
 		public Log									Log;
@@ -80,8 +81,6 @@ namespace Uccs.Net
 
 		public List<Transaction>					IncomingTransactions = new();
 		public List<Transaction>					OutgoingTransactions = new();
-		public List<ForeignResult>					ApprovedEmissions = new();
-		public List<ForeignResult>					ApprovedMigrations = new();
 
 		public const string							ChainFamilyName = "Chain";
 		public ColumnFamilyHandle					ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
@@ -90,9 +89,13 @@ namespace Uccs.Net
 		public static int							GetValidityPeriod(int rid) => rid + P;
 
 		protected abstract void						CreateTables(string databasepath);
+		protected abstract void						GenesisCreate(Vote vote);
+		protected abstract void						GenesisInitilize(Round vote);
 		public abstract Round						CreateRound();
+		public abstract Vote						CreateVote();
+		public abstract void						FillVote(Vote vote);
 
-		protected Mcv(Zone zone, RdsSettings settings, string databasepath)
+		protected Mcv(Zone zone, McvSettings settings, string databasepath, bool skipinitload = false)
 		{
 			///Settings = new RdsSettings {Roles = Role.Chain};
 			Zone = zone;
@@ -102,30 +105,34 @@ namespace Uccs.Net
 
 			BaseHash = Zone.Cryptography.ZeroHash;
 
-			var g = Database.Get(GenesisKey);
-
-			if(g == null)
+			if(!skipinitload)
 			{
-				Initialize();
-			}
-			else
-			{
-				if(g.SequenceEqual(Zone.Genesis.FromHex()))
+				var g = Database.Get(GenesisKey);
+	
+				if(g == null)
 				{
-					Load();
+					Initialize();
 				}
 				else
-				{ 
-					Clear();
-					Initialize();
+				{
+					if(g.SequenceEqual(Zone.Genesis.FromHex()))
+					{
+						Load();
+					}
+					else
+					{ 
+						Clear();
+						Initialize();
+					}
 				}
 			}
 		}
 
-		public Mcv(Sun sun, RdsSettings settings, string databasepath, Flow flow) : this(sun.Zone, settings, databasepath)
+		public Mcv(Sun sun, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(sun.Zone, settings, databasepath)
 		{
 			Sun = sun;
 			Flow = flow;
+			Clock = clock;
 
 			VoteAdded += b => Sun.MainWakeup.Set();
 
@@ -157,11 +164,11 @@ namespace Uccs.Net
 		{
 			//var gens = LastConfirmedRound != null ? Settings.Generators.Where(i => LastConfirmedRound.Members.Any(j => j.Account == i)) : [];
 	
-			return string.Join(" - ", new string[]{	(Roles.HasFlag(Role.Base) ? "B" : null) +
+			return string.Join(", ", new string[]{	(Roles.HasFlag(Role.Base) ? "B" : null) +
 													(Roles.HasFlag(Role.Chain) ? "C" : null) +
 													(Roles.HasFlag(Role.Seed) ? "S" : null),
-													Sun.Connections(this).Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
-													$"{Synchronization} - {LastConfirmedRound?.Id} - {LastConfirmedRound?.Hash.ToHexPrefix()}",
+													Sun.Connections(this).Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													$"{Synchronization}/{LastConfirmedRound?.Id}/{LastConfirmedRound?.Hash.ToHexPrefix()}",
 													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
@@ -192,8 +199,7 @@ namespace Uccs.Net
 						if(i == 0)
 							r.ConsensusFundJoiners = [Zone.Father0];
 
-						if(i == 1)
-							r.ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+						GenesisInitilize(r);
 
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
@@ -302,8 +308,12 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var v0 = new Vote(this) {RoundId = 0, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
+			var v0 = CreateVote(); 
 			{
+				v0.RoundId = 0;
+				v0.Time = Time.Zero;
+				v0.ParentHash = Zone.Cryptography.ZeroHash;
+
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
 				t.Fee = Zone.ExeunitMinFee;
@@ -313,15 +323,19 @@ namespace Uccs.Net
 			
 				v0.Sign(god);
 				Add(v0);
-				v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
+				///v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
 				write(0);
 			}
 			
 			/// UO Autor
 
-			var v1 = new Vote(this) {RoundId = 1, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
+			var v1 = CreateVote(); 
 			{
-				v1.Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+				v1.RoundId = 1; 
+				v1.Time = Time.Zero; 
+				v1.ParentHash = Zone.Cryptography.ZeroHash;
+
+				GenesisCreate(v1);
 	
 				v1.Sign(god);
 				Add(v1);
@@ -330,9 +344,10 @@ namespace Uccs.Net
 	
 			for(int i = 2; i <= 1+P + 1+P + P; i++)
 			{
-				var v = new Vote(this){	RoundId		= i,
-										Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										ParentHash	= i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize() };
+				var v = CreateVote(); 	
+				v.RoundId		= i;
+				v.Time			= Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+				v.ParentHash	= i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize();
 		 
 				if(i == 1+P + 1)
 				{
@@ -367,8 +382,8 @@ namespace Uccs.Net
 			var s = false;
 
 			if(!MinimalPeersReached && 
-				Sun.Connections(this).Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
-				(!Roles.HasFlag(Role.Base) || Sun.Bases(this).Count() >= Settings.PeersMin))
+				Sun.Connections(this).Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
+				(!Roles.HasFlag(Role.Base) || Sun.Bases(this).Count() >= Settings.Peering.PermanentBaseMin))
 			{
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
@@ -759,7 +774,7 @@ namespace Uccs.Net
 								if(!r.Hash.SequenceEqual(h))
 								{
 									#if DEBUG
-										SunGlobals.CompareBase(this, "a:\\UOTMP\\Simulation-Sun.Fast\\");
+										Sun.CompareBase(this, "a:\\UOTMP\\Simulation-Sun.Fast\\");
 									#endif
 									
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
@@ -969,17 +984,21 @@ namespace Uccs.Net
 					{
 						var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 						
-						return new Vote(this) {	RoundId			= r.Id,
-												Try				= r.Try,
-												ParentHash		= r.Parent.Hash ?? r.Parent.Summarize(),
-												Created			= Sun.Clock.Now,
-												Time			= Time.Now(Sun.Clock),
-												Violators		= ProposeViolators(r).ToArray(),
-												MemberLeavers	= ProposeMemberLeavers(r, g).ToArray(),
-												FundJoiners		= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray(),
-												FundLeavers		= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray(),
-												Emissions		= ApprovedEmissions.ToArray(),
-												Migrations		= ApprovedMigrations.ToArray() };
+						var v = CreateVote();
+
+						v.RoundId		= r.Id;
+						v.Try			= r.Try;
+						v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
+						v.Created		= Clock.Now;
+						v.Time			= Time.Now(Clock);
+						v.Violators		= ProposeViolators(r).ToArray();
+						v.MemberLeavers	= ProposeMemberLeavers(r, g).ToArray();
+						//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
+						//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
+
+						FillVote(v);
+
+						return v;
 					}
 
 					var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
@@ -1133,7 +1152,7 @@ namespace Uccs.Net
 
 			var r = GetRound(p.Id + 1);
 			
-			r.ConsensusTime			= Time.Now(Sun.Clock);
+			r.ConsensusTime			= Time.Now(Clock);
 			r.ConsensusExeunitFee	= p.ConsensusExeunitFee;
 			r.RentPerBytePerDay		= p.RentPerBytePerDay;
 			r.Members				= p.Members;
@@ -1203,7 +1222,7 @@ namespace Uccs.Net
 
 				var members = cr.Members;
 
-				RdcInterface getrdi(AccountAddress account)
+				IPeer getrdi(AccountAddress account)
 				{
 					var m = members.NearestBy(i => i.Account, account);
 
@@ -1228,7 +1247,7 @@ namespace Uccs.Net
 					var m = members.NearestBy(i => i.Account, g.Key);
 
 					//AllocateTransactionResponse at = null;
-					RdcInterface rdi; 
+					IPeer rdi; 
 
 					try
 					{
@@ -1262,7 +1281,7 @@ namespace Uccs.Net
 							else
 								nid++;
 
-							t.Generator	= at.Generetor;
+							t.Generator	 = at.Generetor;
 							t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + TransactionPlacingLifetime;
@@ -1471,21 +1490,21 @@ namespace Uccs.Net
 				workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
 		}
 
-		public Rp Call<Rp>(RdcInterface peer, RdcCall<Rp> rq) where Rp : RdcResponse
+		public Rp Call<Rp>(IPeer peer, PeerCall<Rp> rq) where Rp : PeerResponse
 		{
 			rq.Mcv		= this;
 			rq.Sun		= Sun;
 			rq.McvId	= Guid;
 
-			return peer.Send((RdcRequest)rq) as Rp;
+			return peer.Send((PeerRequest)rq) as Rp;
 		}
 
-		public R Call<R>(Func<RdcCall<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : RdcResponse
+		public R Call<R>(Func<PeerCall<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
 		{
-			return Call((Func<RdcRequest>)call, workflow, exclusions) as R;
+			return Call((Func<PeerRequest>)call, workflow, exclusions) as R;
 		}
 
-		public RdcResponse Call(Func<RdcRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+		public PeerResponse Call(Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 		{
 			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
@@ -1542,7 +1561,7 @@ namespace Uccs.Net
 		}
 
 
-		public R Call<R>(IPAddress ip, Func<RdcCall<R>> call, Flow workflow) where R : RdcResponse
+		public R Call<R>(IPAddress ip, Func<PeerCall<R>> call, Flow workflow) where R : PeerResponse
 		{
 			var p = Sun.GetPeer(ip);
 
@@ -1556,7 +1575,7 @@ namespace Uccs.Net
 			return p.Send(c);
 		}
 
-		public void Tell(IPAddress ip, RdcRequest requet, Flow workflow)
+		public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
 		{
 			var p = Sun.GetPeer(ip);
 
@@ -1652,6 +1671,10 @@ namespace Uccs.Net
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
 					yield return t;
+		}
+
+		public void RunPeer()
+		{
 		}
 
 		//public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)

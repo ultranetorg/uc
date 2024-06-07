@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Company>uo</Company>
-    <Product>Command Line Interface for Standard Ultranet Node (SUN)</Product>
+    <Product>Standard Ultranet Node (SUN)</Product>
     <Authors>uo</Authors>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>

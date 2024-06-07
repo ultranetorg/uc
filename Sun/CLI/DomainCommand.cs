@@ -4,7 +4,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	public class DomainCommand : Command
+	public class DomainCommand : SunCommand
 	{
 		public const string Keyword = "domain";
 

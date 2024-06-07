@@ -9,8 +9,8 @@ namespace Uccs.Net
 		public EntityId					Id { get; set; }
 		public AccountAddress			Key => Address;
 		
-		[JsonIgnore]
-		public bool						New { get; set; }
+		//[JsonIgnore]
+		public bool						New;
 		
 		public HashSet<int>				Transactions = new();
 		Mcv								Mcv;

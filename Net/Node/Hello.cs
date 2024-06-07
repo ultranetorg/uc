@@ -9,7 +9,7 @@ namespace Uccs.Net
 	public class Hello
 	{
 		public int[]						Versions;
-		public Guid							Nuid;
+		public Guid							PeerId;
 		public Dictionary<Guid, Role>		Roles;
 		public string						Zone;
 		public IPAddress					IP;
@@ -20,7 +20,7 @@ namespace Uccs.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
-			w.Write(Nuid);
+			w.Write(PeerId);
 			w.Write(Roles, i => {	w.Write(i.Key);
 									w.Write((uint)i.Value); });
 			w.WriteUtf8(Zone);
@@ -33,7 +33,7 @@ namespace Uccs.Net
 		public void Read(BinaryReader r)
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
-			Nuid				= r.ReadGuid();
+			PeerId				= r.ReadGuid();
 			Roles				= r.ReadDictionary(	() => r.ReadGuid(), 
 													() => (Role)r.ReadUInt32());
 			Zone				= r.ReadUtf8();

@@ -14,18 +14,18 @@ namespace Uccs.Sun.CLI
 		public string			ExeDirectory;
 		public Zone				Zone;
 		public Net.Sun			Sun;
-		public JsonClient	ApiClient;
+		public JsonClient		ApiClient;
+		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
+		public SunSettings		Settings;
 		public Flow				Flow = new Flow("CLI", new Log()); 
-		public IPasswordAsker	PasswordAsker;
-		public Settings			Settings;
+		public ConsoleLogView	LogView = new ConsoleLogView(false, true);
 
 		public Program()
 		{
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-			PasswordAsker = new ConsolePasswordAsker();
 		
 			var b = new Boot(ExeDirectory);
-			Settings = new Settings(ExeDirectory, b);
+			Settings = new SunSettings(ExeDirectory, b.Profile);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
@@ -34,7 +34,12 @@ namespace Uccs.Sun.CLI
 
 			try
 			{
-				Execute(b.Commnand.Nodes, Flow.CreateNested("Command", new Log()));
+				//Sun = new Net.Sun(Zone, Settings, Flow);
+
+				var l = new Log();
+				LogView.StartListening(l);
+
+				Execute(b.Commnand.Nodes, Flow.CreateNested("Command", l));
 			}
 			catch(OperationCanceledException)
 			{
@@ -42,7 +47,7 @@ namespace Uccs.Sun.CLI
 			}
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
-				if(Command.ConsoleAvailable)
+				if(SunCommand.ConsoleAvailable)
 				{
 					Console.WriteLine(ex.ToString());
 
@@ -56,7 +61,9 @@ namespace Uccs.Sun.CLI
 				File.WriteAllText(Path.Join(b.Profile, "CLI." + Net.Sun.FailureExt), ex.ToString());
 			}
 
-			Sun?.Stop("The End");
+			LogView.StopListening();
+
+			//Sun?.Stop("The End");
 		}
 
 		public Program(Net.Sun sun, JsonClient api, Flow workflow, IPasswordAsker passwordAsker)
@@ -77,9 +84,9 @@ namespace Uccs.Sun.CLI
 			new Program();
 		}
 
-		public Command Create(IEnumerable<Xon> commnad, Flow f)
+		public SunCommand Create(IEnumerable<Xon> commnad, Flow f)
 		{
-			Command c;
+			SunCommand c;
 			var t = commnad.First().Name;
 
 			var args = commnad.Skip(1).ToList();
@@ -91,7 +98,6 @@ namespace Uccs.Sun.CLI
 				case NodeCommand.Keyword:		c = new NodeCommand(this, args, f); break;
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, f); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args, f); break;
-				case WalletCommand.Keyword:		c = new WalletCommand(this, args, f); break;
 				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args, f); break;
 				case NexusCommand.Keyword:		c = new NexusCommand(this, args, f); break;
 				case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
@@ -118,9 +124,9 @@ namespace Uccs.Sun.CLI
 				var v = new ConsoleLogView(false, false);
 				v.StartListening(l);
 
-				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == command.First().Name + "command");
+				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(SunCommand) && i.Name.ToLower() == command.First().Name + "command");
 
-				var c = Activator.CreateInstance(t, [this, null, Flow.CreateNested("Help", l)]) as Command;
+				var c = Activator.CreateInstance(t, [this, null, flow]) as SunCommand;
 
 				foreach(var j in c.Actions)
 				{
@@ -131,19 +137,13 @@ namespace Uccs.Sun.CLI
 					c.Report("");
 				}
 
-				v.StopListening(l);
-
 				return c;
 			}
 			else if(command.Skip(2).FirstOrDefault()?.Name == "?")
 			{
-				var l = new Log();
-				var v = new ConsoleLogView(false, false);
-				v.StartListening(l);
+				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(SunCommand) && i.Name.ToLower() == command.First().Name + "command");
 
-				var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == command.First().Name + "command");
-
-				var c = Activator.CreateInstance(t, [this, null, Flow.CreateNested("Help", l)]) as Command;
+				var c = Activator.CreateInstance(t, [this, null, flow]) as SunCommand;
 
 				var a = c.Actions.FirstOrDefault(i => i.Names.Contains(command.Skip(1).First().Name));
 
@@ -165,8 +165,6 @@ namespace Uccs.Sun.CLI
 					c.Report("");
 					c.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
 				}
-
-				v.StopListening(l);
 									
 				return c;
 			}
@@ -192,7 +190,7 @@ namespace Uccs.Sun.CLI
 					}
 					else
 					{
-						var x = c.Transact([o], c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+						var x = c.Transact([o], c.GetAccountAddress("by"), SunCommand.GetAwaitStage(command));
 
 						if(x is string[][] logs)
 						{

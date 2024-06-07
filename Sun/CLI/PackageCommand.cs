@@ -10,7 +10,7 @@ namespace Uccs.Sun.CLI
 	///		
 	/// </summary>
 
-	public class PackageCommand : Command
+	public class PackageCommand : SunCommand
 	{
 		public const string Keyword = "package";
 		Ura		Package => Ura.Parse(Args[0].Name);

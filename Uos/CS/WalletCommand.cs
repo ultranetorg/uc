@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using Uccs.Net;
 
-namespace Uccs.Sun.CLI
+namespace Uccs.Uos
 {
-	public class WalletCommand : Command
+	public class WalletCommand : UosCommand
 	{
 		public const string Keyword = "wallet";
 
-		public WalletCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
+		public WalletCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 		{
 			Actions =	[
 							new ()
@@ -39,8 +39,8 @@ namespace Uccs.Sun.CLI
 
 													if(p == null)
 													{
-														Program.PasswordAsker.Create(Vault.PasswordWarning);
-														p = Program.PasswordAsker.Password;
+														Uos.PasswordAsker.Create(Vault.PasswordWarning);
+														p = Uos.PasswordAsker.Password;
 													}
 
 													var k = AccountKey.Create();
@@ -49,8 +49,8 @@ namespace Uccs.Sun.CLI
 													Report("Public Address - " + k.ToString()); 
 													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
 
-													Api(new AddWalletApc {Wallet = Program.Zone.Cryptography.Encrypt(k, p)});
-													Api(new SaveWalletApc {Account = k});
+													Api(new AddWalletUosApc {Wallet = Uos.Settings.Zone.Cryptography.Encrypt(k, p)});
+													Api(new SaveWalletUosApc {Account = k});
 
 													return k;
 												}
@@ -79,7 +79,7 @@ namespace Uccs.Sun.CLI
 								},
 
 								Execute = () =>	{
-													Api(new UnlockWalletApc{Account = AccountAddress.Parse(Args[0].Name), 
+													Api(new UnlockWalletUosApc{Account = AccountAddress.Parse(Args[0].Name), 
 																			Password = GetString("password")});
 													return null;
 												}
@@ -118,12 +118,12 @@ namespace Uccs.Sun.CLI
 
 														if(p == null)
 														{
-															Program.PasswordAsker.Create(Vault.PasswordWarning);
-															p = Program.PasswordAsker.Password;
+															Uos.PasswordAsker.Create(Vault.PasswordWarning);
+															p = Uos.PasswordAsker.Password;
 														}
 
 														var k = new AccountKey(GetBytes("privatekey"));
-														w = Program.Zone.Cryptography.Encrypt(k, p);
+														w = Uos.Settings.Zone.Cryptography.Encrypt(k, p);
 													}
 													else if(Has("wallet"))
 													{
@@ -132,10 +132,10 @@ namespace Uccs.Sun.CLI
 													else
 														throw new SyntaxException("'privatekey' or 'wallet' must be provided");
 
-													var a = Program.Zone.Cryptography.AccountFromWallet(w);
+													var a = Uos.Settings.Zone.Cryptography.AccountFromWallet(w);
 
-													Api(new AddWalletApc {Wallet = w});
-													Api(new SaveWalletApc {Account = a});
+													Api(new AddWalletUosApc {Wallet = w});
+													Api(new SaveWalletUosApc {Account = a});
 
 													Report("Wallet imported"); 
 													Report("Account Address - " + a.ToString());

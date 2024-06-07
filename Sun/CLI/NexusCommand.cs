@@ -6,7 +6,7 @@ namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// </summary>
-	public class NexusCommand : Command
+	public class NexusCommand : SunCommand
 	{
 		public const string Keyword = "nexus";
 

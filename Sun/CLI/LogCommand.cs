@@ -6,7 +6,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	internal class LogCommand : Command
+	internal class LogCommand : SunCommand
 	{
 		public const string Keyword = "log";
 
@@ -29,20 +29,20 @@ namespace Uccs.Sun.CLI
 
 													if(ConsoleAvailable)
 													{
-														var v = new ConsoleLogView(false, true);
-														v.StartListening(Program.Sun.Flow.Log);
+														var old = Program.LogView.Log;
+														Program.LogView.StartListening(Program.Sun.Flow.Log);
 								
 														while(Flow.Active && !Console.KeyAvailable)
 														{
 															Thread.Sleep(100);
 														}
 
-														v.StopListening(Program.Sun.Flow.Log);
+														Program.LogView.StopListening();
+														Program.LogView.StartListening(old);
 													}
 
 													return null;
 												}
-
 							},
 						];
 		}

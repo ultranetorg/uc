@@ -11,7 +11,8 @@ namespace Uccs
 	public interface IXonValueSerializator
 	{
 		object	Set(Xon node, object v);
-		O		Get<O>(Xon node, object v);
+		O		Get<O>(Xon node, object v) => (O)Get(node, v, typeof(O));
+		object	Get(Xon node, object value, Type type);
 	}
 
 	public interface IXonBinaryMetaSerializator
@@ -42,6 +43,7 @@ namespace Uccs
 				val is long				||
 				val is ulong			||
 				val is IPAddress		||
+				val is Guid				||
 				val.GetType().IsEnum)
 				return val.ToString();
 			if(val is byte[] ba)	return ba.ToHex();
@@ -49,28 +51,29 @@ namespace Uccs
 			throw new NotSupportedException();
 		}
 
-		public virtual O Get<O>(Xon node, object value)
+		public virtual object Get(Xon node, object value, Type type)
 		{
 			var t = value as string;
 
-			if(typeof(O) == typeof(string))				return (O)value;
-			if(typeof(O) == typeof(byte))				return (O)(object)byte.Parse(t);
-			if(typeof(O) == typeof(sbyte))				return (O)(object)sbyte.Parse(t);
-			if(typeof(O) == typeof(short))				return (O)(object)short.Parse(t);
-			if(typeof(O) == typeof(ushort))				return (O)(object)ushort.Parse(t);
-			if(typeof(O) == typeof(int))				return (O)(object)int.Parse(t);
-			if(typeof(O) == typeof(uint))				return (O)(object)uint.Parse(t);
-			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(t);
-			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(t);
-			if(typeof(O) == typeof(byte[]))				return (O)(object)t.FromHex();
-			if(typeof(O).IsEnum)						return (O)Enum.Parse(typeof(O), t); 
-			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(t);
+			if(type == typeof(string))		return value;
+			if(type == typeof(byte))		return (object)byte.Parse(t);
+			if(type == typeof(sbyte))		return (object)sbyte.Parse(t);
+			if(type == typeof(short))		return (object)short.Parse(t);
+			if(type == typeof(ushort))		return (object)ushort.Parse(t);
+			if(type == typeof(int))			return (object)int.Parse(t);
+			if(type == typeof(uint))		return (object)uint.Parse(t);
+			if(type == typeof(long))		return (object)long.Parse(t);
+			if(type == typeof(ulong))		return (object)ulong.Parse(t);
+			if(type == typeof(byte[]))		return (object)t.FromHex();
+			if(type.IsEnum)					return Enum.Parse(type, t); 
+			if(type == typeof(IPAddress))	return (object)IPAddress.Parse(t);
+			if(type == typeof(Guid))		return (object)Guid.Parse(t);
 
-			if(typeof(O).GetInterfaces().Any(i => i == typeof(ITextSerialisable)))
+			if(type.GetInterfaces().Any(i => i == typeof(ITextSerialisable)))
 			{
-				var o = Activator.CreateInstance(typeof(O)) as ITextSerialisable;
+				var o = Activator.CreateInstance(type) as ITextSerialisable;
 				o.Read(t);
-				return (O)o;
+				return o;
 			}
 
 			throw new NotSupportedException();
@@ -104,22 +107,22 @@ namespace Uccs
 			throw new NotSupportedException();
 		}
 
-		public virtual O Get<O>(Xon node, object value)
+		public virtual object Get(Xon node, object value, Type type)
 		{
 			var v = value as byte[];
 
-			if(typeof(O) == typeof(byte[]))	return (O)(object)v;
-			if(typeof(O) == typeof(byte))	return (O)(object)v[0];
-			if(typeof(O) == typeof(short))	return (O)(object)BitConverter.ToInt16(v);
-			if(typeof(O) == typeof(int))	return (O)(object)BitConverter.ToInt32(v);
-			if(typeof(O) == typeof(long))	return (O)(object)BitConverter.ToInt64(v);
-			if(typeof(O) == typeof(string))	return (O)(object)Encoding.UTF8.GetString(v);
+			if(type == typeof(byte[]))	return v;
+			if(type == typeof(byte))	return v[0];
+			if(type == typeof(short))	return BitConverter.ToInt16(v);
+			if(type == typeof(int))		return BitConverter.ToInt32(v);
+			if(type == typeof(long))	return BitConverter.ToInt64(v);
+			if(type == typeof(string))	return Encoding.UTF8.GetString(v);
 
-			if(typeof(O).GetInterfaces().Any(i => i == typeof(IBinarySerializable)))
+			if(type.GetInterfaces().Any(i => i == typeof(IBinarySerializable)))
 			{
-				var o = Activator.CreateInstance(typeof(O)) as IBinarySerializable;
+				var o = Activator.CreateInstance(type) as IBinarySerializable;
 				o.Read(new BinaryReader(new MemoryStream(v)));
-				return (O)o;
+				return o;
 			}
 
 			throw new NotSupportedException();
@@ -150,20 +153,20 @@ namespace Uccs
 			return base.Set(node, v);
 		}
 
-		public override O Get<O>(Xon node, object value)
+		public override object Get(Xon node, object value, Type vtype)
 		{
-			if(typeof(O) == typeof(string))
+			if(vtype == typeof(string))
 			{
 				var t = Types[(node.Meta as byte[])[0]];
 	
 				var v = value as byte[];
 	
-				if(t == typeof(byte[]).FullName)	return (O)(object)v.ToHex();
-				if(t == typeof(byte).FullName)		return (O)(object)v[0].ToString();
-				if(t == typeof(short).FullName)		return (O)(object)BitConverter.ToInt16(v).ToString();
-				if(t == typeof(int).FullName)		return (O)(object)BitConverter.ToInt32(v).ToString();
-				if(t == typeof(long).FullName)		return (O)(object)BitConverter.ToInt64(v).ToString();
-				if(t == typeof(string).FullName)	return (O)(object)Encoding.UTF8.GetString(v);
+				if(t == typeof(byte[]).FullName)	return v.ToHex();
+				if(t == typeof(byte).FullName)		return v[0].ToString();
+				if(t == typeof(short).FullName)		return BitConverter.ToInt16(v).ToString();
+				if(t == typeof(int).FullName)		return BitConverter.ToInt32(v).ToString();
+				if(t == typeof(long).FullName)		return BitConverter.ToInt64(v).ToString();
+				if(t == typeof(string).FullName)	return Encoding.UTF8.GetString(v);
 				
 				var type = Assembly.GetExecutingAssembly().GetType(t);
 							
@@ -171,13 +174,13 @@ namespace Uccs
 				{
 					var o = Activator.CreateInstance(type) as IBinarySerializable;
 					o.Read(new BinaryReader(new MemoryStream(v)));
-					return (O)(object)o.ToString();
+					return o.ToString();
 				}
 	
-				return (O)(object)v.ToHex();
+				return v.ToHex();
 			} 
 			else
-				return base.Get<O>(node, value);
+				return base.Get(node, value, vtype);
 		}
 
 		public byte[] SerializeMeta(object m)
@@ -222,9 +225,9 @@ namespace Uccs
 			return v;
 		}
 
-		public O Get<O>(Xon node, object v)
+		public object Get(Xon node, object value, Type vtype)
 		{
-			return (O)v;
+			return value;
 		}
 	}
 }

@@ -88,15 +88,10 @@ namespace Uccs.Net
 							{
 								var z = Rds.Domains.FindResource(rsd.Resource, Rds.LastConfirmedRound.Id);
 	
-								if(z == null)
+								if(z?.Data == null || z.Data.Interpretation is Urrh ha && ha != dh)
 								{
-									var e = Rds.Domains.FindResource(rsd.Resource, Rds.LastConfirmedRound.Id);
-
-									if(e?.Data == null || e.Data.Interpretation is Urrh ha && ha != dh)
-									{
-										results.Add(new (rzd, DeclarationResult.Rejected));
-										continue;
-									}
+									results.Add(new (rzd, DeclarationResult.Rejected));
+									continue;
 								}
 							}
 							else if(rzd is Urrsd sdp)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Numerics;
 
 namespace Uccs.Net
 {
@@ -54,7 +53,7 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			sun.Stop("Json API Call");
+			sun.Stop();
 			return null;
 		}
 	}
@@ -71,7 +70,7 @@ namespace Uccs.Net
 		public class Response
 		{
 			public string		ProfilePath {get; set;}
-			public Settings		Settings {get; set;}
+			public SunSettings		Settings {get; set;}
 		}
 	}
 
@@ -160,64 +159,6 @@ namespace Uccs.Net
 		public class Return
 		{
 			public IEnumerable<string[]> Summary {get; set;}
-		}
-	}
-
-	public class RunNodeApc : SunApc
-	{
-		public string	Settings { get; set; }
-
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			sun.RunNode(new XonDocument(Settings).Nodes);
-			
-			return null;
-		}
-	}
-
-	public class AddWalletApc : SunApc
-	{
-		public byte[]	Wallet { get; set; }
-
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.Lock)
-				sun.Vault.AddWallet(Wallet);
-			
-			return null;
-		}
-	}
-
-	public class SaveWalletApc : SunApc
-	{
-		public AccountAddress	Account { get; set; }
-
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.Lock)
-				sun.Vault.SaveWallet(Account);
-			
-			return null;
-		}
-	}
-
-	public class UnlockWalletApc : SunApc
-	{
-		public AccountAddress	Account { get; set; }
-		public string			Password { get; set; }
-
-		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.Lock)
-			{
-				if(Account != null)
-					sun.Vault.Unlock(Account, Password);
-				else
-					foreach(var i in sun.Vault.Wallets)
-						sun.Vault.Unlock(i.Key, Password);
-			}
-
-			return null;
 		}
 	}
 }

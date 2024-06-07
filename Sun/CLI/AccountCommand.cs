@@ -5,7 +5,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	public class AccountCommand : Command
+	public class AccountCommand : SunCommand
 	{
 		public const string		Keyword = "account";
 		AccountAddress			First => AccountAddress.Parse(Args[0].Name);

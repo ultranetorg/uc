@@ -12,7 +12,7 @@ namespace Uccs.Net
 		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : PrivakeKeyWalletExtention;
 
 		Zone										Zone;
-		Settings									Settings;
+		string										Profile;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
 		public List<AccountKey>						Keys = new();
 
@@ -24,16 +24,16 @@ namespace Uccs.Net
 																		"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
 																		"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
-		public Vault(Zone zone, Settings settings)
+		public Vault(Zone zone, string profile)
 		{
 			Zone = zone;
-			Settings = settings;
+			Profile = profile;
 
-			Directory.CreateDirectory(Settings.Profile);
+			Directory.CreateDirectory(profile);
 
-			if(Directory.Exists(Settings.Profile))
+			if(Directory.Exists(profile))
 			{
-				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Zone.Cryptography)))
+				foreach(var i in Directory.EnumerateFiles(profile, "*." + WalletExt(Zone.Cryptography)))
 				{
 					Wallets[AccountAddress.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
 				}
@@ -102,7 +102,7 @@ namespace Uccs.Net
 
 		public string SaveWallet(AccountAddress account)
 		{
-			var path = Path.Combine(Settings.Profile, account.ToString() + "." + WalletExt(Zone.Cryptography));
+			var path = Path.Combine(Profile, account.ToString() + "." + WalletExt(Zone.Cryptography));
 
 			File.WriteAllBytes(path, Wallets[account]);
 
@@ -113,7 +113,7 @@ namespace Uccs.Net
 
 		public void DeleteWallet(AccountAddress account)
 		{
-			File.Delete(Path.Combine(Settings.Profile, account.ToString() + "." + WalletExt(Zone.Cryptography)));
+			File.Delete(Path.Combine(Profile, account.ToString() + "." + WalletExt(Zone.Cryptography)));
 
 			Keys.RemoveAll(i => i == account);
 

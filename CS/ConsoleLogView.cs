@@ -12,7 +12,7 @@ namespace Uccs
 
 	public class ConsoleLogView : ILogView
 	{
-		Log				Log;
+		public Log		Log { get; protected set; }
 		object			Lock = new();
 		public bool		ShowSender { get;set; } = false;
 		public bool		ShowSubject { get;set; } = false;
@@ -41,9 +41,9 @@ namespace Uccs
 			log.Reported += OnReported;
 		}
 
-		public void StopListening(Log log)
+		public void StopListening()
 		{
-			log.Reported -= OnReported;
+			Log.Reported -= OnReported;
 		}
 
 		public void OnReported(LogMessage m)

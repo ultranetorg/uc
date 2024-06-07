@@ -2,12 +2,12 @@
 
 namespace Uccs.Net
 {
-	public class PeersBroadcastRequest : RdcCall<RdcResponse>
+	public class PeersBroadcastRequest : PeerCall<PeerResponse>
 	{
 		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(Peers.Length > 1000)
 				throw new RequestException(RequestError.IncorrectRequest);

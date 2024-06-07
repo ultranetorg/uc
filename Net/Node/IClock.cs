@@ -2,17 +2,17 @@
 
 namespace Uccs.Net
 {
-	public class Clock
+	public class IClock
 	{
 		public virtual DateTime	Now {get;}
 	}
 
-	public class RealClock : Clock
+	public class RealClock : IClock
 	{
 		override public DateTime Now => DateTime.UtcNow;
 	}
 
-	public class SimulationClock : Clock
+	public class SimulationClock : IClock
 	{
 		DateTime	Time = DateTime.UtcNow;
 		DateTime	Last = DateTime.UtcNow;

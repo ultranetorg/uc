@@ -5,7 +5,7 @@
 		public ResourceDeclaration[]	Resources { get; set; }
 		public override bool			WaitResponse => true;
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			lock(Sun.Lock)
 			{	
@@ -38,7 +38,7 @@
 		}
 	}
 
-	public class DeclareReleaseResponse : RdcResponse
+	public class DeclareReleaseResponse : PeerResponse
 	{
 		public ReleaseDeclarationResult[]	Results { get; set; }
 	}

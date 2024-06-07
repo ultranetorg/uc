@@ -7,7 +7,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	public class DevCommand : Command
+	public class DevCommand : SunCommand
 	{
 		public const string Keyword = "dev";
 

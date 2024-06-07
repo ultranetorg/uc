@@ -8,80 +8,46 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	internal class NodeCommand : Command
+	internal class NodeCommand : SunCommand
 	{
 		public const string Keyword = "node";
 
 		public NodeCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
-			var run = new CommandAction{	Names = ["r", "run"]};
-			var attach = new CommandAction{	Names = ["a", "attach"] };
-			var send = new CommandAction {	Names = ["s", "send"]};
+			//var run		= new CommandAction {Names = ["r", "run"]};
+			var attach	= new CommandAction {Names = ["a", "attach"] };
+			var send	= new CommandAction {Names = ["s", "send"]};
 
-			run.Execute = () =>	{
-									Program.Sun = new Net.Sun(Program.Zone, Program.Settings, Flow);
-									Program.Sun.Run(Args);
-	
-									if(ConsoleAvailable)
-										while(Flow.Active)
-										{
-											Console.Write(Program.Zone + " > ");
-	
-											var l = new Log();
-											var v = new ConsoleLogView(false, true);
-											v.StartListening(l);
-	
-											try
-											{
-												var x = new XonDocument(Console.ReadLine());
-	
-												if(x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
-																					run.Names.Contains(x.Nodes[1].Name)  || 
-																					send.Names.Contains(x.Nodes[1].Name)))
-													throw new Exception("Not available");
-	
-												Program.Execute(x.Nodes, Flow);
-											}
-											catch(Exception ex)
-											{
-												l.ReportError(this, "Error", ex);
-											}
-	
-											v.StopListening(l);
-										}
-									else
-										WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
-
-									return null;
-								};
-
-			run.Help = new Help(){	Title = "RUN",
-									Description = "Runs a new node instance with command-line interface",
-									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
-
-									Arguments =
-									[
-										new ("flags", "One or more flags: 'api' to start JSON API Server, 'peer' to connect to Ultranet network and activate specified node roles, 'base' to enable Base support for the node database, 'chain' to enable Chain support for the node database, 'seed' to enable seed role for the node."),
-										new ("profile", "File path to local profile directory"),
-										new ("zone", "Network zone to connect")
-									],
-
-									Examples =
-									[
-										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun zone=Testzone")
-									]};
+// 			run.Execute = () =>	{
+// 								};
+// 
+// 			run.Help = new Help(){	Title = "RUN",
+// 									Description = "Runs a new node instance with command-line interface",
+// 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
+// 
+// 									Arguments =
+// 									[
+// 										new ("flags", "One or more flags: 'api' to start JSON API Server, 'peer' to connect to Ultranet network and activate specified node roles, 'base' to enable Base support for the node database, 'chain' to enable Chain support for the node database, 'seed' to enable seed role for the node."),
+// 										new ("profile", "File path to local profile directory"),
+// 										new ("zone", "Network zone to connect")
+// 									],
+// 
+// 									Examples =
+// 									[
+// 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun zone=Testzone")
+// 									]};
 			
 			attach.Execute = () =>	{
+										ReportPreambule();
+										ReportNetwork();
+										
 										var a = new Uri(Args[0].Name);
 
 										var h = new HttpClientHandler();
 										h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 										var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-										Program.ApiClient = new ApiJsonClient(http, Args[0].Name, GetString("accesskey", null));
-
-										var v = new ConsoleLogView(false, true);
-										v.StartListening(Flow.Log);
+										Program.ApiClient = new ApiClient(http, Args[0].Name, GetString("accesskey", null));
 
 										while(true)
 										{
@@ -96,7 +62,7 @@ namespace Uccs.Sun.CLI
 												var x = new XonDocument(c);
 
 												if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
-																					run.Names.Contains(x.Nodes[1].Name)  || 
+																					//run.Names.Contains(x.Nodes[1].Name)  || 
 																					send.Names.Contains(x.Nodes[1].Name)))
 													||  x.Nodes[0].Name == LogCommand.Keyword)
 												{ 
@@ -110,8 +76,6 @@ namespace Uccs.Sun.CLI
 												Flow.Log?.ReportError(this, "Error", ex);
 											}
 										}
-
-										v.StopListening(Flow.Log);
 
 										return null;
 
@@ -134,36 +98,29 @@ namespace Uccs.Sun.CLI
 
 
 			send.Execute = () => {
+									ReportPreambule();
+									ReportNetwork();
+
 									var a = new Uri(Args[0].Name);
 
 									var h = new HttpClientHandler();
 									h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 									var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-									Program.ApiClient = new ApiJsonClient(http, Args[0].Name, GetString("accesskey", null));
+									Program.ApiClient = new ApiClient(http, Args[0].Name, GetString("accesskey", null));
 
-									var v = new ConsoleLogView(false, true);
-									v.StartListening(Flow.Log);
-
-									try
+									if(Has("_confirmation"))
 									{
-										if(Has("_confirmation"))
-										{
-											Console.WriteLine("_confirmation reqested. Press any key...");
-											Console.ReadKey();
-										}
-
-										Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), flow);
-
-										if(Has("_confirmation"))
-										{
-											Console.WriteLine("_confirmation reqested. Press any key...");
-											Console.ReadKey();
-										}
+										Console.WriteLine("_confirmation reqested. Press any key...");
+										Console.ReadKey();
 									}
-									finally
+
+									Program.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), flow);
+
+									if(Has("_confirmation"))
 									{
-										v.StopListening(Flow.Log);
+										Console.WriteLine("_confirmation reqested. Press any key...");
+										Console.ReadKey();
 									}
 
 									return null;
@@ -281,7 +238,7 @@ namespace Uccs.Sun.CLI
 											new (null, "node property Mcv.Size")
 										]};
 			
-										Actions = [run, attach, send, peers, it, ot, property];
+			Actions = [attach, send, peers, it, ot, property];
 		
 		}
 

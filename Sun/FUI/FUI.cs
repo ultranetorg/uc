@@ -19,27 +19,27 @@ namespace Uccs.Sun.FUI
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-			try
-			{
-				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-				var b = new Boot(exedir);
-				var s = new Settings(exedir, b);
-
-				var sun = new Net.Sun(b.Zone, s, new Flow("Main", new Log())); 
-
-				sun.Run(new XonDocument(s.FuiRoles).Nodes);
-
-				var f = new MainForm(sun);
-				f.StartPosition = FormStartPosition.CenterScreen;
-
-				f.Closed += (s, a) => (s as MainForm).Sun.Stop("Form closed");
-
-				Application.Run(f);
-			}
-			catch(RequirementException ex)
-			{
-				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+// 			try
+// 			{
+// 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+// 				var b = new Boot(exedir);
+// 				var s = new SunSettings(exedir, b);
+// 
+// 				var sun = new Net.Sun(s, new Flow("Main", new Log())); 
+// 				
+// 				sun.Run(b.Commnand.Nodes);
+// 
+// 				var f = new MainForm(sun);
+// 				f.StartPosition = FormStartPosition.CenterScreen;
+// 
+// 				f.Closed += (s, a) => (s as MainForm).Sun.Stop("Form closed");
+// 
+// 				Application.Run(f);
+// 			}
+// 			catch(RequirementException ex)
+// 			{
+// 				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+// 			}
 		}
 	}
 }

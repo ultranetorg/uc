@@ -25,7 +25,7 @@ namespace Uccs.Net
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 				throw new RequestException(RequestError.IncorrectRequest);
@@ -51,7 +51,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class DomainResponse : RdcResponse
+	public class DomainResponse : PeerResponse
 	{
 		public Domain	Domain {get; set;}
 	}

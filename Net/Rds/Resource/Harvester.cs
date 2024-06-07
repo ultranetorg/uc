@@ -117,7 +117,7 @@ namespace Uccs.Net
 															}
 														}
 	
-														WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
+														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
 													}
  												});
 			Thread.Start();
@@ -165,7 +165,7 @@ namespace Uccs.Net
 												}
 											}
 
-											WaitHandle.WaitAny(new WaitHandle []{Flow.Cancellation.WaitHandle}, 100);
+											WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
 										}
 									}
 									catch(OperationCanceledException)

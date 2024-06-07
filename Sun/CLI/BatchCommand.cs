@@ -4,7 +4,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	public class BatchCommand : Command
+	public class BatchCommand : SunCommand
 	{
 		public const string Keyword = "batch";
 

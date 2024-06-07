@@ -10,7 +10,7 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	public class MoneyCommand : Command
+	public class MoneyCommand : SunCommand
 	{
 		public const string Keyword = "money";
 

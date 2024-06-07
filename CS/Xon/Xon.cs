@@ -158,6 +158,11 @@ namespace Uccs
 			return Serializator.Get<O>(this, Value);
 		} 
 
+		public object Get(Type type)
+		{
+			return Serializator.Get(this, Value, type);
+		} 
+
 		public O GetOr<O>(O otherwise)
 		{
 			return _Value != null ? Serializator.Get<O>(this, Value) : otherwise;
@@ -168,6 +173,13 @@ namespace Uccs
 			var n = One(name);
 
 			return Serializator.Get<O>(n, n.Value);
+		} 
+
+		public object Get(Type type, string name)
+		{
+			var n = One(name);
+
+			return Serializator.Get(n, n.Value, type);
 		} 
 
 		public O Get<O>(string name, O otherwise)

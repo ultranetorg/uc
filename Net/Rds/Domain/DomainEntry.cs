@@ -10,8 +10,8 @@ namespace Uccs.Net
 	{
 		public string			Key => Address;
 		
-		[JsonIgnore]
-		public bool				New { get; set; }
+		//[JsonIgnore]
+		public bool				New;
 		public bool				Affected;
 		Mcv						Mcv;
 		bool					ResourcesCloned;

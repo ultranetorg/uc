@@ -11,7 +11,7 @@ namespace Uccs.Sun.CLI
 	/// Usage: 
 	///		release publish 
 	/// </summary>
-	public class ResourceCommand : Command
+	public class ResourceCommand : SunCommand
 	{
 		public const string Keyword = "resource";
 

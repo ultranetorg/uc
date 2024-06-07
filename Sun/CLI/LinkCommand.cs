@@ -8,7 +8,7 @@ namespace Uccs.Sun.CLI
 	/// Usage: 
 	///		release publish 
 	/// </summary>
-	public class LinkCommand : Command
+	public class LinkCommand : SunCommand
 	{
 		public const string Keyword = "link";
 

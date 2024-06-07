@@ -4,6 +4,8 @@ namespace Uccs.Sun.FUI
 {
 	public partial class DashboardPanel : MainPanel
 	{
+		public ChainMonitor Monitor => monitor;
+		public List<Mcv>	Mcvs = new();
 
 		public DashboardPanel()
 		{
@@ -13,20 +15,10 @@ namespace Uccs.Sun.FUI
 		public DashboardPanel(Net.Sun d) : base(d)
 		{
 			InitializeComponent();
-
-			monitor.Mcv	= Mcv;
-
-			//d.MainStarted += c =>	{
-			//							if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
-			//								Core.Database.BlockAdded +=  monitor.OnBlockAdded;
-			//						};
 		}
 
 		public override void Open(bool first)
 		{
-			//if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
-			//	Core.Database.BlockAdded +=  monitor.OnBlockAdded;
-
 			if(first)
 			{
 				logbox.Log = Sun.Flow.Log;
@@ -47,9 +39,6 @@ namespace Uccs.Sun.FUI
 		public override void Close()
 		{
 			base.Close();
-
-			//if(Core.Database != null)
-			//	Core.Database.BlockAdded -= monitor.OnBlockAdded;
 		}
 
 		public override void PeriodicalRefresh()
@@ -59,7 +48,15 @@ namespace Uccs.Sun.FUI
 			fields.Text = string.Join('\n', s.Select(j => j[0]));
 			values.Text = string.Join('\n', s.Select(j => j[1]));
 		
-			 //monitor.OnBlockAdded(null);
+			foreach(var i in Mcvs)
+			{
+				var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(i, null, null, null) as SummaryApc.Return).Summary;
+
+				fields.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[0]));
+				values.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[1]));
+			}
+
+			monitor.Invalidate();
 		}
 
 		private void all_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

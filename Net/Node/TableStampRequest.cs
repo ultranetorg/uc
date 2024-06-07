@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class TableStampRequest : RdcCall<TableStampResponse>
+	public class TableStampRequest : PeerCall<TableStampResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
 			if(SuperClusters.Length > TableBase.SuperClustersCountMax)
 				throw new RequestException(RequestError.IncorrectRequest);
@@ -30,7 +30,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class TableStampResponse : RdcResponse
+	public class TableStampResponse : PeerResponse
 	{
 		public class Cluster
 		{

@@ -11,35 +11,51 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
+	public abstract class RdsCall<R> : PeerCall<R> where R : PeerResponse
+	{
+		public Rds	Rds => Mcv as Rds;
+	}
+
 	public class Rds : Mcv
 	{
 		public DomainTable				Domains;
 		public readonly static Guid		Id = new Guid("A8B619CB-8A8C-4C71-847A-4A182ABDE2B9");
 		public override Guid			Guid => Id;
 
-		public INas						Nas;
+		public IEthereum						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		HttpClient						Http = new HttpClient();
 
+		public new RdsSettings			Settings;
 		public ResourceHub				ResourceHub;
 		public PackageHub				PackageHub;
 		public SeedHub					SeedHub;
 
-		public Rds(Sun sun, Settings settings, RdsSettings rdssettings, string databasepath, Flow flow, INas nas = null) : base(sun, rdssettings, databasepath, flow)
-		{
-			Nas = nas ?? new Nas(settings);
+		public List<ForeignResult>		ApprovedEmissions = new();
+		public List<ForeignResult>		ApprovedMigrations = new();
 
-			if(rdssettings.Roles.HasFlag(Role.Seed))
+		public Rds(Zone zone, RdsSettings settings, string databasepath, bool skipinitload = false) : base(zone, settings, databasepath, skipinitload)
+		{
+			Settings = settings;
+		}
+
+		public Rds(Sun sun, RdsSettings settings, string databasepath, Flow flow, IEthereum nas, IClock clock) : base(sun, settings, databasepath, clock, flow)
+		{
+			Settings = settings;
+			Nas = nas ?? new Ethereum(settings);
+			Clock = clock ?? new RealClock();
+
+			if(settings.Roles.HasFlag(Role.Seed))
 			{
-				ResourceHub = new ResourceHub(this, Zone, Settings.Releases);
-				PackageHub = new PackageHub(this, Settings.Releases, Settings.Packages);
+				ResourceHub = new ResourceHub(this, Zone, settings.Releases);
+				PackageHub = new PackageHub(this, settings.Releases, settings.Packages);
 			}
 
 			if(Settings.Generators.Any())
 			{
 		  		try
 		  		{
-		 			new Uri(Settings.Nas.Provider);
+		 			new Uri(Settings.Ethereum.Provider);
 		  		}
 		  		catch(Exception)
 		  		{
@@ -84,14 +100,21 @@ namespace Uccs.Net
 									}
 								}
 
-								ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
+								ApprovedEmissions.RemoveAll(i => (r as RdsRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
 								ApprovedMigrations.RemoveAll(i => (r as RdsRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
 							};
 
 		}
 
-		public Rds(Zone zone, RdsSettings settings, string databasepath) : base(zone, settings, databasepath)
+		protected override void GenesisCreate(Vote vote)
 		{
+			(vote as RdsVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+		}
+
+		protected override void GenesisInitilize(Round round)
+		{
+			if(round.Id == 1)
+				(round as RdsRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
 		}
 
 		protected override void CreateTables(string databasepath)
@@ -124,6 +147,11 @@ namespace Uccs.Net
 		public override Round CreateRound()
 		{
 			return new RdsRound(this);
+		}
+
+		public override Vote CreateVote()
+		{
+			return new RdsVote(this);
 		}
 
 		public override void ClearTables()
@@ -191,5 +219,14 @@ namespace Uccs.Net
 
 			return true;
 		}
+
+		public override void FillVote(Vote vote)
+		{
+			var v = vote as RdsVote;
+
+  			v.Emissions		= ApprovedEmissions.ToArray();
+			v.Migrations	= ApprovedMigrations.ToArray();
+		}
+
 	}
 }

@@ -20,6 +20,16 @@ namespace Uccs
 		public int				Timeout {get; set;} = 60*1000;
 	}
 
+	public class ApiSettings : SettingsBase
+	{
+		public ApiSettings() : base(XonTextValueSerializator.Default)
+		{
+		}
+
+		public string	AccessKey { get; set; }
+		public string	ListenAddress { get; set; }
+	}
+
 	public class PingApc : Apc
 	{
 	}
@@ -52,30 +62,30 @@ namespace Uccs
 	{
 		HttpListener					Listener;
 		Thread							Thread;
-		string							AccessKey;
+		ApiSettings						Settings	;
 		Flow							Flow;
 		JsonSerializerOptions			Options;
 
 		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 		protected abstract Type			Create(string call);
 
-		public JsonServer(string profile, string address, string accesskey, JsonSerializerOptions options, Flow workflow)
+		public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow workflow)
 		{
-			AccessKey	= accesskey;
+			Settings	= settings;
 			Options		= options;
-			Flow	= workflow.CreateNested("JsonApiServer", new Log());
+			Flow		= workflow.CreateNested("JsonApiServer", new Log());
 
-			if(profile != null)
-			{
-				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
-			}
+			//if(profile != null)
+			//{
+			//	Flow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
+			//}
 
 			Thread = new Thread(() =>	{ 
 											try
 											{
 												Listener = new HttpListener();
 												
-												Listener.Prefixes.Add(address+"/");
+												Listener.Prefixes.Add(settings.ListenAddress + "/");
 
  												//if(ip != null)
  												//{
@@ -113,7 +123,7 @@ namespace Uccs
 											}
 										});
 
-			Thread.Name = $"{new Uri(address).Port} Aping";
+			Thread.Name = $"{new Uri(settings.ListenAddress).Port} Aping";
 			Thread.Start();
 		}
 
@@ -178,7 +188,7 @@ namespace Uccs
 			
 			try
 			{
-				if(!string.IsNullOrWhiteSpace(AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get("accesskey") != AccessKey)
+				if(!string.IsNullOrWhiteSpace(Settings.AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get("accesskey") != Settings.AccessKey)
 				{
 					RespondError(rp, HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
 					rp.Close();
@@ -247,7 +257,7 @@ namespace Uccs
 			{
 				RespondError(rp, ex.Message, HttpStatusCode.BadRequest);
 			}
-			catch(Exception ex)/// when (!Debugger.IsAttached)
+			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				RespondError(rp, ex.ToString(), HttpStatusCode.InternalServerError);
 				Flow.Log?.ReportError(this, "Request Processing Error", ex);

@@ -7,7 +7,7 @@ using Nethereum.Signer;
 
 namespace Uccs.Net
 {
-	public class MockNas : INas
+	public class MockEthereum : IEthereum
 	{
 		public Nethereum.Web3.Accounts.Account	Account { get => null; }
 		public Chain							Chain { get => Chain.Ropsten; }
@@ -15,7 +15,7 @@ namespace Uccs.Net
 
 		string									Workpath;
 
-		public MockNas(string workpath)
+		public MockEthereum(string workpath)
 		{
 			Workpath = workpath;
 		}

@@ -25,7 +25,7 @@ namespace Uccs.Net
 		None, Disconnected, Initiated, OK, Disconnecting
 	}
 
-	public class Peer : RdcInterface
+	public class Peer : IPeer
 	{
 		public IPAddress								IP {get; set;} 
 
@@ -55,9 +55,9 @@ namespace Uccs.Net
 		BinaryReader				Reader;
 		Thread						ListenThread;
 		Thread						SendThread;
-		Queue<RdcPacket>			Outs = new();
-		public List<RdcRequest>		InRequests = new();
-		List<RdcRequest>			OutRequests = new();
+		Queue<Packet>			Outs = new();
+		public List<PeerRequest>		InRequests = new();
+		List<PeerRequest>			OutRequests = new();
 		AutoResetEvent				SendSignal = new AutoResetEvent(true);
 
 		public Peer()
@@ -166,7 +166,7 @@ namespace Uccs.Net
 
 			lock(Outs)
 			{
-				foreach(var i in Outs.OfType<RdcRequest>())
+				foreach(var i in Outs.OfType<PeerRequest>())
 				{
 					if(i.Event != null && !i.Event.SafeWaitHandle.IsClosed)
 					{
@@ -230,7 +230,7 @@ namespace Uccs.Net
 				{
 					Sun.Statistics.Sending.Begin();
 	
-					RdcRequest[] inrq;
+					PeerRequest[] inrq;
 	
 					lock(InRequests)
 					{
@@ -266,9 +266,9 @@ namespace Uccs.Net
 					{
 						foreach(var i in Outs)
 						{
-							if(i is RdcRequest)
+							if(i is PeerRequest)
 								Writer.Write((byte)PacketType.Request);
-							else if(i is RdcResponse)
+							else if(i is PeerResponse)
 								Writer.Write((byte)PacketType.Response);
 							else
 								throw new IntegrityException("Wrong packet to write");
@@ -318,7 +318,7 @@ namespace Uccs.Net
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract);
+							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Sun.Constract);
 							rq.Peer = this;
 							rq.Sun = Sun;
 							rq.Mcv = Sun.FindMcv(rq.McvId);
@@ -340,7 +340,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							var rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract);
+							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Sun.Constract);
 
 							lock(OutRequests)
 							{
@@ -380,7 +380,7 @@ namespace Uccs.Net
 			}
 		}
 
- 		public override void Post(RdcRequest rq)
+ 		public override void Post(PeerRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
 				throw new NodeException(NodeError.Connectivity);
@@ -393,7 +393,7 @@ namespace Uccs.Net
 			SendSignal.Set();
  		}
 
- 		public override RdcResponse Send(RdcRequest rq)
+ 		public override PeerResponse Send(PeerRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
 				throw new NodeException(NodeError.Connectivity);

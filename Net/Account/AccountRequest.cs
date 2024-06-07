@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AccountRequest : RdcCall<AccountResponse>
+	public class AccountRequest : PeerCall<AccountResponse>
 	{
 		public AccountIdentifier Identifier {get; set;}
 		
@@ -23,7 +23,7 @@
 			Identifier = new(id);
 		}
 
-		public override RdcResponse Execute()
+		public override PeerResponse Execute()
 		{
  			lock(Sun.Lock)
 			{
@@ -46,7 +46,7 @@
 		}
 	}
 	
-	public class AccountResponse : RdcResponse
+	public class AccountResponse : PeerResponse
 	{
 		public Account Account {get; set;}
 	}
