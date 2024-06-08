@@ -15,7 +15,7 @@ namespace Uccs.Uos
 
 		protected override Type Create(string call)
 		{
-			return Type.GetType(typeof(UosApiServer).Namespace + '.' + call) ?? Assembly.GetAssembly(typeof(SunApc)).GetType(typeof(McvApc).Namespace + '.' + call);
+			return Type.GetType(typeof(UosApiServer).Namespace + '.' + call) ?? Assembly.GetAssembly(typeof(NodeApc)).GetType(typeof(McvApc).Namespace + '.' + call);
 		}
 
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -23,17 +23,17 @@ namespace Uccs.Uos
 			if(call is UosApc u) 
 				return u.Execute(Uos, request, response, flow);
 				
-			if(call is SunApc s)
+			if(call is NodeApc s)
 			{
-				if(Uos.Sun == null)
+				if(Uos.Icn == null)
 					throw new NodeException(NodeError.NoMcv);
 
-				return s.Execute(Uos.Sun, request, response, flow);
+				return s.Execute(Uos.Icn, request, response, flow);
 			}
 
 			if(call is McvApc m)
 			{
-				var mcv = Uos.Sun?.FindMcv(m.Mcvid);
+				var mcv = Uos.Icn?.FindMcv(m.Mcvid);
 
 				if(mcv == null)
 					throw new NodeException(NodeError.NoMcv);

@@ -1,4 +1,4 @@
 // RELEASE
 
-Zone = Testzone
+Zone = Localzone
 

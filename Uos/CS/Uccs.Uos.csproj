@@ -6,11 +6,11 @@
 		<Nullable>disable</Nullable>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputType>Exe</OutputType>
+		<AssemblyName>uos</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Net\Uccs.Net.csproj" />
-		<ProjectReference Include="..\..\Sun\CLI\Uccs.Sun.CLI.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -21,9 +21,6 @@
 
 	<ItemGroup>
 	  <None Update="Uos.boot">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Uos.settings">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

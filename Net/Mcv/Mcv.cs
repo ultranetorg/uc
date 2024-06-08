@@ -5,12 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-using DnsClient;
 using Nethereum.Util;
 using Nethereum.Web3;
 using RocksDbSharp;
@@ -40,9 +35,9 @@ namespace Uccs.Net
 		public Zone									Zone;
 		public IClock								Clock;
 		public Role									Roles => Settings.Roles;
-		public object								Lock => Sun.Lock;
+		public object								Lock => Node.Lock;
 		public Log									Log;
-		public Sun									Sun;
+		public Node									Node;
 		public Flow									Flow;
 		bool										MinimalPeersReached;
 
@@ -73,9 +68,9 @@ namespace Uccs.Net
 		public List<Member>							NextVoteMembers => VotersOf(NextVoteRound);
 
 
-		public Synchronization						Synchronization { set { _Synchronization = value; SynchronizationChanged?.Invoke(Sun); } get { return _Synchronization; } }
+		public Synchronization						Synchronization { set { _Synchronization = value; SynchronizationChanged?.Invoke(Node); } get { return _Synchronization; } }
 		Synchronization								_Synchronization = Synchronization.None;
-		SunDelegate									SynchronizationChanged;
+		NodeDelegate									SynchronizationChanged;
 		Thread										SynchronizingThread;
 		public Dictionary<int, List<Vote>>			SyncTail = new();
 
@@ -97,7 +92,7 @@ namespace Uccs.Net
 
 		protected Mcv(Zone zone, McvSettings settings, string databasepath, bool skipinitload = false)
 		{
-			///Settings = new RdsSettings {Roles = Role.Chain};
+			///Settings = new RdnSettings {Roles = Role.Chain};
 			Zone = zone;
 			Settings = settings;
 
@@ -128,13 +123,13 @@ namespace Uccs.Net
 			}
 		}
 
-		public Mcv(Sun sun, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(sun.Zone, settings, databasepath)
+		public Mcv(Node sun, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(sun.Zone, settings, databasepath)
 		{
-			Sun = sun;
+			Node = sun;
 			Flow = flow;
 			Clock = clock;
 
-			VoteAdded += b => Sun.MainWakeup.Set();
+			VoteAdded += b => Node.MainWakeup.Set();
 
 			ConsensusConcluded += (r, reached) =>	{
 														if(reached)
@@ -143,7 +138,7 @@ namespace Uccs.Net
 															var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
 					
 															foreach(var v in notcomebacks)
-																Sun.Broadcast(this, v);
+																Node.Broadcast(this, v);
 														}
 														else
 														{
@@ -167,7 +162,7 @@ namespace Uccs.Net
 			return string.Join(", ", new string[]{	(Roles.HasFlag(Role.Base) ? "B" : null) +
 													(Roles.HasFlag(Role.Chain) ? "C" : null) +
 													(Roles.HasFlag(Role.Seed) ? "S" : null),
-													Sun.Connections(this).Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Node.Connections(this).Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													$"{Synchronization}/{LastConfirmedRound?.Id}/{LastConfirmedRound?.Hash.ToHexPrefix()}",
 													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
@@ -382,8 +377,8 @@ namespace Uccs.Net
 			var s = false;
 
 			if(!MinimalPeersReached && 
-				Sun.Connections(this).Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
-				(!Roles.HasFlag(Role.Base) || Sun.Bases(this).Count() >= Settings.Peering.PermanentBaseMin))
+				Node.Connections(this).Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
+				(!Roles.HasFlag(Role.Base) || Node.Bases(this).Count() >= Settings.Peering.PermanentBaseMin))
 			{
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
@@ -576,7 +571,7 @@ namespace Uccs.Net
 
 		public void Synchronize()
 		{
-			if(Sun.Settings.IP != null && Sun.Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && LastNonEmptyRound.Id == LastGenesisRound || SunGlobals.SkipSynchronization)
+			if(Node.Settings.IP != null && Node.Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && LastNonEmptyRound.Id == LastGenesisRound || NodeGlobals.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -586,8 +581,8 @@ namespace Uccs.Net
 			{
 				Flow.Log?.Report(this, $"Synchronization Started");
 
-				SynchronizingThread = Sun.CreateThread(Synchronizing);
-				SynchronizingThread.Name = $"{Sun.Settings.IP?.GetAddressBytes()[3]} Synchronizing";
+				SynchronizingThread = Node.CreateThread(Synchronizing);
+				SynchronizingThread.Name = $"{Node.Settings.IP?.GetAddressBytes()[3]} Synchronizing";
 				SynchronizingThread.Start();
 		
 				Synchronization = Synchronization.Downloading;
@@ -601,7 +596,7 @@ namespace Uccs.Net
 			StampResponse stamp = null;
 			Peer peer = null;
 
-			lock(Sun.Lock)
+			lock(Node.Lock)
 				SyncTail.Clear();
 
 			while(Flow.Active)
@@ -610,7 +605,7 @@ namespace Uccs.Net
 				{
 					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Sun.Connect(Guid, Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Flow);
+					peer = Node.Connect(Guid, Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Flow);
 
 					if(Roles.HasFlag(Role.Base) && !Roles.HasFlag(Role.Chain))
 					{
@@ -640,7 +635,7 @@ namespace Uccs.Net
 											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
 										
-									lock(Sun.Lock)
+									lock(Node.Lock)
 									{
 										using(var b = new WriteBatch())
 										{
@@ -673,7 +668,7 @@ namespace Uccs.Net
 		
 						var s = Call(peer, new StampRequest());
 
-						lock(Sun.Lock)
+						lock(Node.Lock)
 						{
 							BaseState = stamp.BaseState;
 							LastConfirmedRound = r;
@@ -697,7 +692,7 @@ namespace Uccs.Net
 
 					while(Flow.Active)
 					{
-						lock(Sun.Lock)
+						lock(Node.Lock)
 							if(Roles.HasFlag(Role.Chain))
 								from = LastConfirmedRound.Id + 1;
 							else
@@ -707,7 +702,7 @@ namespace Uccs.Net
 		
 						var rp = Call(peer, new DownloadRoundsRequest {From = from, To = to});
 
-						lock(Sun.Lock)
+						lock(Node.Lock)
 						{
 							var rounds = rp.Read(this);
 														
@@ -754,7 +749,7 @@ namespace Uccs.Net
 										SyncTail.Clear();
 										SynchronizingThread = null;
 						
-										Sun.MainWakeup.Set();
+										Node.MainWakeup.Set();
 
 										Flow.Log?.Report(this, $"Synchronization Finished");
 										return;
@@ -774,7 +769,7 @@ namespace Uccs.Net
 								if(!r.Hash.SequenceEqual(h))
 								{
 									#if DEBUG
-										Sun.CompareBase(this, "a:\\UOTMP\\Simulation-Sun.Fast\\");
+										Node.CompareBase(this, "a:\\UOTMP\\Simulation-Sun.Fast\\");
 									#endif
 									
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
@@ -801,7 +796,7 @@ namespace Uccs.Net
 				{
 					Flow.Log?.ReportError(this, ex.Message);
 
-					lock(Sun.Lock)
+					lock(Node.Lock)
 					{	
 						//foreach(var i in SyncTail.Keys)
 						//	if(i <= ex.Round.Id)
@@ -817,7 +812,7 @@ namespace Uccs.Net
 
 					used.Add(peer);
 
-					lock(Sun.Lock)
+					lock(Node.Lock)
 					{	
 						//SyncTail.Clear();
 						Clear();
@@ -933,7 +928,7 @@ namespace Uccs.Net
 
 		public void Generate()
 		{
-			Sun.Statistics.Generating.Begin();
+			Node.Statistics.Generating.Begin();
 
 			var votes = new List<Vote>();
 
@@ -951,8 +946,8 @@ namespace Uccs.Net
 					if(m == null && a != null && a.Balance > Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail			= Settings.Bail,
-															BaseRdcIPs		= [Sun.Settings.IP],
-															SeedHubRdcIPs	= [Sun.Settings.IP]};
+															BaseRdcIPs		= [Node.Settings.IP],
+															SeedHubRdcIPs	= [Node.Settings.IP]};
 
 						var t = new Transaction();
 						t.Flow = Flow;
@@ -1072,7 +1067,7 @@ namespace Uccs.Net
 
 						if(v.Transactions.Any() || Tail.Any(i => LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						{
-							v.Sign(Sun.Vault.GetKey(g));
+							v.Sign(Node.Vault.GetKey(g));
 							votes.Add(v);
 						}
 					}
@@ -1083,12 +1078,12 @@ namespace Uccs.Net
  
  						var b = createvote(r);
  								
- 						b.Sign(Sun.Vault.GetKey(g));
+ 						b.Sign(Node.Vault.GetKey(g));
  						votes.Add(b);
  					}
 
 					if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Tail.Any(i => LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-						Sun.MainWakeup.Set();
+						Node.MainWakeup.Set();
 				}
 			}
 
@@ -1132,13 +1127,13 @@ namespace Uccs.Net
 
 				foreach(var i in votes)
 				{
-					Sun.Broadcast(this, i);
+					Node.Broadcast(this, i);
 				}
 													
 				 Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
 			}
 
-			Sun.Statistics.Generating.End();
+			Node.Statistics.Generating.End();
 		}
 
 		public Round TryExecute(Transaction transaction)
@@ -1188,7 +1183,7 @@ namespace Uccs.Net
 				}
 			}
 
-			Sun.MainWakeup.Set();
+			Node.MainWakeup.Set();
 		}
 
 		public void ProcessConfirmationException(ConfirmationException ex)
@@ -1226,20 +1221,20 @@ namespace Uccs.Net
 				{
 					var m = members.NearestBy(i => i.Account, account);
 
-					if(m.BaseRdcIPs.Contains(Sun.Settings.IP))
-						return Sun;
+					if(m.BaseRdcIPs.Contains(Node.Settings.IP))
+						return Node;
 
-					var p = Sun.GetPeer(m.BaseRdcIPs.Random());
-					Sun.Connect(p, Flow);
+					var p = Node.GetPeer(m.BaseRdcIPs.Random());
+					Node.Connect(p, Flow);
 
 					return p;
 				}
 
-				Sun.Statistics.Transacting.Begin();
+				Node.Statistics.Transacting.Begin();
 				
 				IEnumerable<IGrouping<AccountAddress, Transaction>> nones;
 
-				lock(Sun.Lock)
+				lock(Node.Lock)
 					nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
 				foreach(var g in nones)
@@ -1272,7 +1267,7 @@ namespace Uccs.Net
 							t.Expiration = 0;
 							t.Generator = new([0, 0], -1);
 
-							t.Sign(Sun.Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
+							t.Sign(Node.Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
 
 							var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 								
@@ -1286,7 +1281,7 @@ namespace Uccs.Net
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + TransactionPlacingLifetime;
 
-							t.Sign(Sun.Vault.GetKey(t.Signer), at.PowHash);
+							t.Sign(Node.Vault.GetKey(t.Signer), at.PowHash);
 							txs.Add(t);
 						}
 						catch(NodeException)
@@ -1298,7 +1293,7 @@ namespace Uccs.Net
 						{
 							//if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 							//{
-								lock(Sun.Lock)
+								lock(Node.Lock)
 								{
 									t.Status = TransactionStatus.FailedOrNotFound;
 									OutgoingTransactions.Remove(t);
@@ -1326,7 +1321,7 @@ namespace Uccs.Net
 						continue;
 					}
 
-					lock(Sun.Lock)
+					lock(Node.Lock)
 						foreach(var t in txs)
 						{ 
 							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
@@ -1353,7 +1348,7 @@ namespace Uccs.Net
 
 				Transaction[] accepted;
 				
-				lock(Sun.Lock)
+				lock(Node.Lock)
 					accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
 
 				if(accepted.Any())
@@ -1372,7 +1367,7 @@ namespace Uccs.Net
 							continue;
 						}
 
-						lock(Sun.Lock)
+						lock(Node.Lock)
 							foreach(var i in ts.Transactions)
 							{
 								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
@@ -1402,7 +1397,7 @@ namespace Uccs.Net
 					}
 				}
 				
-				Sun.Statistics.Transacting.End();
+				Node.Statistics.Transacting.End();
 			}
 		}
 
@@ -1412,9 +1407,9 @@ namespace Uccs.Net
 			{
 				if(TransactingThread == null)
 				{
-					TransactingThread = Sun.CreateThread(Transacting);
+					TransactingThread = Node.CreateThread(Transacting);
 
-					TransactingThread.Name = $"{Sun.Settings.IP?.GetAddressBytes()[3]} Transacting";
+					TransactingThread.Name = $"{Node.Settings.IP?.GetAddressBytes()[3]} Transacting";
 					TransactingThread.Start();
 				}
 
@@ -1434,7 +1429,7 @@ namespace Uccs.Net
 
  		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
  		{
-			if(!Sun.Vault.IsUnlocked(signer))
+			if(!Node.Vault.IsUnlocked(signer))
 			{
 				throw new NodeException(NodeError.NotUnlocked);
 			}
@@ -1454,7 +1449,7 @@ namespace Uccs.Net
 					t.AddOperation(i);
 				}
 
- 				lock(Sun.Lock)
+ 				lock(Node.Lock)
 				{	
 			 		Transact(t);
 				}
@@ -1493,7 +1488,7 @@ namespace Uccs.Net
 		public Rp Call<Rp>(IPeer peer, PeerCall<Rp> rq) where Rp : PeerResponse
 		{
 			rq.Mcv		= this;
-			rq.Sun		= Sun;
+			rq.Node		= Node;
 			rq.McvId	= Guid;
 
 			return peer.Send((PeerRequest)rq) as Rp;
@@ -1514,19 +1509,19 @@ namespace Uccs.Net
 			{
 				Thread.Sleep(1);
 	
-				lock(Sun.Lock)
+				lock(Node.Lock)
 				{
 					if(Synchronization == Synchronization.Synchronized)
 					{
 						var c = call();
 						c.Mcv	= this;
-						c.Sun	= Sun;
+						c.Node	= Node;
 						c.McvId = Guid;
 
-						return Sun.Send(c);
+						return Node.Send(c);
 					}
 
-					p = Sun.ChooseBestPeer(Guid, Role.Base, tried);
+					p = Node.ChooseBestPeer(Guid, Role.Base, tried);
 	
 					if(p == null)
 					{
@@ -1539,11 +1534,11 @@ namespace Uccs.Net
 
 				try
 				{
-					Sun.Connect(p, workflow);
+					Node.Connect(p, workflow);
 
 					var c = call();
 					c.Mcv	= this;
-					c.Sun	= Sun;
+					c.Node	= Node;
 					c.McvId = Guid;
 
 					return p.Send(c);
@@ -1563,13 +1558,13 @@ namespace Uccs.Net
 
 		public R Call<R>(IPAddress ip, Func<PeerCall<R>> call, Flow workflow) where R : PeerResponse
 		{
-			var p = Sun.GetPeer(ip);
+			var p = Node.GetPeer(ip);
 
-			Sun.Connect(p, workflow);
+			Node.Connect(p, workflow);
 
 			var c = call();
 			c.Mcv	= this;
-			c.Sun	= Sun;
+			c.Node	= Node;
 			c.McvId = Guid;
 
 			return p.Send(c);
@@ -1577,13 +1572,13 @@ namespace Uccs.Net
 
 		public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
 		{
-			var p = Sun.GetPeer(ip);
+			var p = Node.GetPeer(ip);
 
-			Sun.Connect(p, workflow);
+			Node.Connect(p, workflow);
 
 			var c = requet;
 			c.Mcv	= this;
-			c.Sun	= Sun;
+			c.Node	= Node;
 			c.McvId = Guid;
 
 			p.Post(c);

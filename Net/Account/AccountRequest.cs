@@ -25,7 +25,7 @@
 
 		public override PeerResponse Execute()
 		{
- 			lock(Sun.Lock)
+ 			lock(Node.Lock)
 			{
 				RequireBase();
 

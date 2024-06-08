@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	public interface IFeeAsker
 	{
-		bool Ask(Sun sun, AccountAddress account, Operation operation);
+		bool Ask(Node sun, AccountAddress account, Operation operation);
 	}
 
 	public class SilentFeeAsker : IFeeAsker
@@ -17,7 +17,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public bool Ask(Sun sun, AccountAddress account, Operation operation)
+		public bool Ask(Node sun, AccountAddress account, Operation operation)
 		{
 			return true;
 		}

@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
@@ -33,7 +29,7 @@ namespace Uccs.Net
 
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Sun.Lock)
+			lock(mcv.Node.Lock)
 			{ 
 				List<KeyValuePair<string, string>> f =
 				[
@@ -67,13 +63,13 @@ namespace Uccs.Net
 							return mcv.Accounts.Find(a, mcv.LastConfirmedRound.Id)?.Balance.ToDecimalString();
 						}
 	
-						foreach(var i in mcv.Sun.Vault.Wallets)
+						foreach(var i in mcv.Node.Vault.Wallets)
 						{
 							var a = i.Key.ToString();
-							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)} {(mcv.Sun.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", $"{formatbalance(i.Key),23}"));
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)} {(mcv.Node.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", $"{formatbalance(i.Key),23}"));
 						}
 	
-						if(SunGlobals.UI)
+						if(NodeGlobals.UI)
 						{
 						}
 					}
@@ -82,13 +78,13 @@ namespace Uccs.Net
 				{
 					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
 
-					foreach(var i in mcv.Sun.Vault.Wallets)
+					foreach(var i in mcv.Node.Vault.Wallets)
 					{
 						f.Add(new ($"Account", $"{i}"));
 					}
 				}
 
-				mcv.Sun.Statistics.Reset();
+				mcv.Node.Statistics.Reset();
 		
 				return new SummaryApc.Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 			}
@@ -101,7 +97,7 @@ namespace Uccs.Net
 
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Sun.Lock)
+			lock(mcv.Lock)
 				return new Return {Rounds = mcv.Tail.Take(Limit)
 													.Reverse()
 													.Select(i => new Return.Round
@@ -153,7 +149,7 @@ namespace Uccs.Net
 
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Sun.Lock)
+			lock(mcv.Lock)
 				return new VotesReportResponse{Votes = mcv	.FindRound(RoundId)?.Votes
 															.OrderBy(i => i.Generator)
 															.Take(Limit)
@@ -201,7 +197,7 @@ namespace Uccs.Net
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			var t = new Transaction {Zone = mcv.Zone, Operations = Operations.ToArray()};
-			t.Sign(mcv.Sun.Vault.GetKey(By), []);
+			t.Sign(mcv.Node.Vault.GetKey(By), []);
 
 			return mcv.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 		}
@@ -245,7 +241,7 @@ namespace Uccs.Net
 			Fee					= transaction.Fee;
 			Signature			= transaction.Signature;
 			   
-			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Sun)?.IP;
+			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Node)?.IP;
 			Signer				= transaction.Signer;
 			Status				= transaction.Status;
 			__ExpectedStatus	= transaction.__ExpectedStatus;
@@ -256,7 +252,7 @@ namespace Uccs.Net
 	{
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Sun.Lock)
+			lock(mcv.Lock)
 				return mcv.IncomingTransactions.Select(i => new ApcTransaction(i)).ToArray();
 		}
 	}
@@ -270,7 +266,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RdcApc : McvApc
+	public class PeerRequestApc : McvApc
 	{
 		public PeerRequest Request { get; set; }
 
@@ -280,7 +276,7 @@ namespace Uccs.Net
 			{
 				return mcv.Call(() => Request, workflow);
 			}
-			catch(SunException ex)
+			catch(NetException ex)
 			{
 				var rp = PeerResponse.FromType(Request.Class);
 				rp.Error = ex;
@@ -296,7 +292,7 @@ namespace Uccs.Net
 
 		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Sun.Lock)
+			lock(mcv.Lock)
 				mcv.Settings.Generators = Generators.ToArray();
 
 			return null;

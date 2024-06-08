@@ -13,7 +13,7 @@ namespace Uccs.Uos
 		public ApiSettings				Api { get; set; }
 		public Zone						Zone { get; set; }
 		public string					Name { get; set; }
-		public Guid						CliDefaultMcv { get; set; } = Rds.Id;
+		public Guid						CliDefaultMcv { get; set; } = Rdn.Id;
 
 		public UosSettings() : base(NetXonTextValueSerializator.Default)
 		{

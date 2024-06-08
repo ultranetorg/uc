@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Uccs.Uos": {
+      "commandName": "Project",
+      "commandLineArgs": "wallet c password=123"
+    }
+  }
+}

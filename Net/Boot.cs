@@ -7,9 +7,11 @@ namespace Uccs.Net
 {
 	public class Boot
 	{
-		public Xon		Commnand;
-	 	public string	Profile;
-		public Zone		Zone;
+		public const string		FileName = "Uos.boot";
+
+		public Xon				Commnand;
+	 	public string			Profile;
+		public Zone				Zone;
 
 		public Boot()
 		{
@@ -17,7 +19,7 @@ namespace Uccs.Net
 
 		public Boot(string exedir)
 		{
-			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Uos.boot")));
+			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, FileName)));
 			Commnand = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
 			if(Commnand.Has("zone"))
@@ -32,3 +34,4 @@ namespace Uccs.Net
 		}
 	}
 }
+ 

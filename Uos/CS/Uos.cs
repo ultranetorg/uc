@@ -16,7 +16,7 @@ namespace Uccs.Uos
 		public delegate void	Delegate(Uos d);
  		public delegate void	McvDelegate(Mcv d);
 	 	
-		public Net.Sun			Sun;
+		public Node				Icn; /// Inter-consensus node
 		public static bool		ConsoleAvailable { get; protected set; }
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 		public Flow				Flow = new Flow("uos", new Log()); 
@@ -27,13 +27,15 @@ namespace Uccs.Uos
 		public IClock			Clock;
 		public Delegate			Stopped;
 		public Vault			Vault;
+		static Boot				Boot;
+		static ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		
 		public Mcv				FindMcv(Guid id) => Mcvs.Find(i => i.Guid == id);
 		public T				Find<T>() where T : Mcv => Mcvs.Find(i => i.GetType() == typeof(T)) as T;
 
 		//public static List<Uos>			All = new();
 
-		public SunDelegate		SunStarted;
+		public NodeDelegate		IcnStarted;
 		public McvDelegate		McvStarted;
 
 		static void Main(string[] args)
@@ -41,8 +43,8 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentCulture = 
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
-			var b = new Boot(ExeDirectory);
-			var s = new UosSettings(b.Profile, "The Uos", b.Zone);
+			Boot = new Boot(ExeDirectory);
+			var s = new UosSettings(Boot.Profile, "The Uos", Boot.Zone);
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Run();
@@ -80,7 +82,7 @@ namespace Uccs.Uos
 			//ReportPreambule();
 			//ReportNetwork();
 			if(File.Exists(Settings.Profile))
-				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Node.FailureExt))
 					File.Delete(i);
 		
 			
@@ -94,7 +96,7 @@ namespace Uccs.Uos
 		{
 			return string.Join(" - ", new string[]{ Settings.Name,
 													ApiServer != null ? "A" : null, 
-													Sun?.ToString(), 
+													Icn?.ToString(), 
 													string.Join(" - ", Mcvs)}.Where(i => i != null));
 		}
 
@@ -106,14 +108,14 @@ namespace Uccs.Uos
 
 			foreach(var i in Mcvs.ToArray())
 			{	
-				lock(Sun.Lock)
-					Sun.Disconnect(i);
+				lock(Icn.Lock)
+					Icn.Disconnect(i);
 		
 				i.Stop();
 				Mcvs.Remove(i);
 			}
 
-			Sun.Stop();
+			Icn?.Stop();
 			Stopped?.Invoke(this);
 		}
 
@@ -122,25 +124,32 @@ namespace Uccs.Uos
 			Console.WriteLine();
 
 			if(ConsoleAvailable)
-				while(Flow.Active)
+			{
+				LogView.StartListening(Flow.Log);
+
+				if(Boot.Commnand.Nodes.Any())
 				{
-					Console.Write("uos > ");
-	
-					try
+					Execute(Boot.Commnand.Nodes, Flow);
+				} 
+				else
+				{
+					while(Flow.Active)
 					{
-						var x = new XonDocument(Console.ReadLine());
-	
-						if(x.Nodes[0].Name == "sun")
+						Console.Write("uos > ");
+		
+						try
 						{
-							var p = new Sun.CLI.Program(Sun, null, Flow, null);
-							p.Execute(x.Nodes.Skip(1), Flow);
+							var x = new XonDocument(Console.ReadLine());
+		
+							Execute(x.Nodes, Flow);
+						}
+						catch(Exception ex)
+						{
+							Flow.Log.ReportError(this, "Error", ex);
 						}
 					}
-					catch(Exception ex)
-					{
-						Flow.Log.ReportError(this, "Error", ex);
-					}
 				}
+			}
 			else
 				WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
 		}
@@ -161,30 +170,30 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunSun(SunSettings settings = null)
+		public void RunSun(NodeSettings settings = null)
 		{
-			var s = settings ?? new SunSettings(Settings.Profile);
+			var s = settings ?? new NodeSettings(Settings.Profile);
 
-			Sun = new Net.Sun(s, Settings.Zone, Vault, Flow);
+			Icn = new Net.Node(s, Settings.Zone, Vault, Flow);
 
-			SunStarted?.Invoke(Sun);
+			IcnStarted?.Invoke(Icn);
 		}
 
 		public void RunMcv(Guid mcvid, McvSettings settings = null, IEthereum ethereum = null, IClock clock = null)
 		{
-			if(Rds.Id == mcvid)
+			if(Rdn.Id == mcvid)
 			{
-				var m = new Rds(Sun, 
-								settings as RdsSettings ?? new RdsSettings(Settings.Profile), 
-								Path.Join(Settings.Profile, Rds.Id.ToString()),
-								Flow.CreateNested(nameof(Rds), Flow.Log),
-								ethereum ?? new Ethereum(settings as RdsSettings ?? new RdsSettings(Settings.Profile)),
+				var m = new Rdn(Icn, 
+								settings as RdnSettings ?? new RdnSettings(Settings.Profile), 
+								Path.Join(Settings.Profile, Rdn.Id.ToString()),
+								Flow.CreateNested(nameof(Rdn), Flow.Log),
+								ethereum ?? new Ethereum(settings as RdnSettings ?? new RdnSettings(Settings.Profile)),
 								clock ?? new RealClock());
 				
 				Mcvs.Add(m);
 
-				lock(Sun.Lock)
-					Sun.Connect(m);
+				lock(Icn.Lock)
+					Icn.Connect(m);
 
 				McvStarted?.Invoke(m);
 			}

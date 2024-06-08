@@ -26,7 +26,7 @@ namespace Uccs.Net
 
 			lock(Mcv.Lock)
 			{
-				Sun.Statistics.Consensing.Begin();
+				Node.Statistics.Consensing.Begin();
 				
 				var accepted = false;
 
@@ -40,7 +40,7 @@ namespace Uccs.Net
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 								
-				Sun.Statistics.Consensing.End();
+				Node.Statistics.Consensing.End();
 
 				if(Mcv.Synchronization == Synchronization.Synchronized)
 				{
@@ -67,11 +67,11 @@ namespace Uccs.Net
 
 				if(accepted)
 				{
-					Sun.Broadcast(Mcv, v, Peer);
-					Sun.Statistics.AccpetedVotes++;
+					Node.Broadcast(Mcv, v, Peer);
+					Node.Statistics.AccpetedVotes++;
 				}
 				else
-					Sun.Statistics.RejectedVotes++;
+					Node.Statistics.RejectedVotes++;
 
 			}
 

@@ -33,7 +33,7 @@
 		<ProjectReference Include="..\CS\Uccs.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Update="Rds.settings">
+	  <None Update="Rdn.settings">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="Sun.boot">
