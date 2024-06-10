@@ -17,6 +17,12 @@ namespace Uccs.Net
 
 		static void Serialize(BinaryWriter writer, object val, Type type)
 		{
+		
+		if(type == typeof(Peer))
+		{
+			type= type;
+		}
+
 			switch(val)
 			{
 				case bool v :	writer.Write(v); return;

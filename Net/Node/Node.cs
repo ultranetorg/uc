@@ -280,7 +280,7 @@ namespace Uccs.Net
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
 	 				var p = new Peer(new IPAddress(i.Key()));
-					p.Fresh = false;
+					p.Recent = false;
 	 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
 	 				Peers.Add(p);
 				}
@@ -292,7 +292,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Peers = Zone.Initials.Select(i => new Peer(i) {Fresh = false, LastSeen = DateTime.MinValue}).ToList();
+				Peers = Zone.Initials.Select(i => new Peer(i) {Recent = false, LastSeen = DateTime.MinValue}).ToList();
 
 				UpdatePeers(Peers);
 			}
@@ -326,14 +326,14 @@ namespace Uccs.Net
 					
 					if(p == null)
 					{
-						i.Fresh = true;
+						i.Recent = true;
 						
 						Peers.Add(i);
 						toupdate.Add(i);
 					}
 					else
 					{
-						p.Fresh = true;
+						p.Recent = true;
 						
 						//var old = p.Ranks.ToDictionary(i => i.Key, i => i.Value.ToDictionary());
 
@@ -374,9 +374,9 @@ namespace Uccs.Net
 
 			foreach(var c in Connections(null))
 			{
-				Post(new PeersBroadcastRequest {Peers = [new Peer {	IP = Settings.IP,
-																	Ranks = Mcvs.ToDictionary(i => i.Guid,
-																							  i => Enum.GetValues<Role>().Where(j => (j & i.Settings.Roles) != 0).ToDictionary(i => i, i => 1))}] });
+				c.Post(new PeersBroadcastRequest {Peers = [new Peer {	IP = Settings.IP,
+																		Ranks = Mcvs.ToDictionary(i => i.Guid,
+																								  i => Enum.GetValues<Role>().Where(j => (j & i.Settings.Roles) != 0).ToDictionary(i => i, i => 1))}] });
 			}
 		}
 
@@ -389,24 +389,24 @@ namespace Uccs.Net
 		{
 			var broad = false;
 
+			var needed = Settings.Peering.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+		
+			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
+												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+									.OrderBy(i => i.Retries)
+									.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+									.Take(needed))
+			{
+				OutboundConnect(p, true);
+			}
+
+			foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
+			{
+				OutboundConnect(p, false);
+			}
+
 			foreach(var i in Mcvs)
 			{
-				var needed = i.Settings.Peering.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
-		
-				foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
-													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-										.OrderBy(i => i.Retries)
-										.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-										.Take(needed))
-				{
-					OutboundConnect(p, true);
-				}
-
-				foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
-				{
-					OutboundConnect(p, false);
-				}
-
 				needed = i.Settings.Peering.PermanentBaseMin - Bases(i).Count();
 
 				foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, Role.Base) > 0 &&
@@ -472,25 +472,21 @@ namespace Uccs.Net
 
 		Hello CreateHello(IPAddress ip, bool permanent)
 		{
-			Peer[] peers;
-		
 			lock(Lock)
 			{
-				peers = Peers.Where(i => i.Fresh).ToArray();
-			}
+				var h = new Hello();
 
-			var h = new Hello();
-
-			h.Roles			= Mcvs.ToDictionary(i => i.Guid, i => i.Settings.Roles);
-			h.Versions		= Versions;
-			h.Zone			= Zone.Name;
-			h.IP			= ip;
-			h.PeerId		= PeerId;
-			h.Peers			= peers;
-			h.Permanent		= permanent;
-			//h.Generators	= Members;
+				h.Roles			= Mcvs.ToDictionary(i => i.Guid, i => i.Settings.Roles);
+				h.Versions		= Versions;
+				h.Zone			= Zone.Name;
+				h.IP			= ip;
+				h.PeerId		= PeerId;
+				h.Peers			= Peers.Where(i => i.Recent).ToArray();
+				h.Permanent		= permanent;
+				//h.Generators	= Members;
 			
-			return h;
+				return h;
+			}
 		}
 
 		void OutboundConnect(Peer peer, bool permanent)

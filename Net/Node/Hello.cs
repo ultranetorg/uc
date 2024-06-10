@@ -26,7 +26,7 @@ namespace Uccs.Net
 			w.WriteUtf8(Zone);
 			w.Write(IP);
 			w.Write(Permanent);
-			w.Write(Peers, i => i.WritePeer(w));
+			w.Write(Peers, i => i.Write(w));
 			//w.Write(Generators, i => i.WriteForSharing(w));
 		}
 
@@ -40,8 +40,8 @@ namespace Uccs.Net
 			IP					= r.ReadIPAddress();
 			Permanent			= r.ReadBoolean();
 			Peers				= r.Read<Peer>(i => {
-														i.Fresh = true; 
-														i.ReadPeer(r);
+														//i.Recent = true; 
+														i.Read(r);
 													}).ToArray();
 			//Generators			= r.Read<Member>(i => i.ReadForSharing(r));
 		}

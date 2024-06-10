@@ -25,7 +25,7 @@ namespace Uccs.Net
 		None, Disconnected, Initiated, OK, Disconnecting
 	}
 
-	public class Peer : IPeer
+	public class Peer : IPeer, IBinarySerializable
 	{
 		public IPAddress								IP {get; set;} 
 
@@ -33,7 +33,7 @@ namespace Uccs.Net
 
 		public bool										Forced;
 		public bool										Permanent;
-		public bool										Fresh;
+		public bool										Recent;
 		int												IdCounter = 0;
 		public DateTime									LastSeen = DateTime.MinValue;
 		public DateTime									LastTry = DateTime.MinValue;
@@ -46,19 +46,19 @@ namespace Uccs.Net
 		public int										PeerRank = 0;
 		public Dictionary<Guid, Dictionary<Role, int>>	Ranks = [];
 
-		public Dictionary<Role, DateTime>	LastFailure = new();
+		public Dictionary<Role, DateTime>				LastFailure = new();
 
-		public Node							Sun;
-		TcpClient					Tcp;
-		NetworkStream				Stream;
-		BinaryWriter				Writer;
-		BinaryReader				Reader;
-		Thread						ListenThread;
-		Thread						SendThread;
-		Queue<Packet>			Outs = new();
-		public List<PeerRequest>		InRequests = new();
-		List<PeerRequest>			OutRequests = new();
-		AutoResetEvent				SendSignal = new AutoResetEvent(true);
+		public Node										Sun;
+		TcpClient										Tcp;
+		NetworkStream									Stream;
+		BinaryWriter									Writer;
+		BinaryReader									Reader;
+		Thread											ListenThread;
+		Thread											SendThread;
+		Queue<Packet>									Outs = new();
+		public List<PeerRequest>						InRequests = new();
+		List<PeerRequest>								OutRequests = new();
+		AutoResetEvent									SendSignal = new AutoResetEvent(true);
 
 		public Peer()
 		{
@@ -84,7 +84,7 @@ namespace Uccs.Net
   		{
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
 			w.Write(PeerRank);
-			w.Write(Ranks, i => { w.Write(i.Key.ToByteArray()); 
+			w.Write(Ranks, i => { w.Write(i.Key); 
 								  w.Write(i.Value, j => { w.Write((int)j.Key);
 														  w.Write(j.Value); });  });
   		}
@@ -93,22 +93,22 @@ namespace Uccs.Net
   		{
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
 			PeerRank = r.ReadInt32();
-			Ranks = r.ReadDictionary(() => new Guid(r.ReadBytes(16)), 
+			Ranks = r.ReadDictionary(() => r.ReadGuid(), 
 									 () => r.ReadDictionary(() => (Role)r.ReadInt32(), 
 															() => r.ReadInt32()));
   		}
  
- 		public void WritePeer(BinaryWriter w)
+ 		public void Write(BinaryWriter w)
  		{
  			w.Write(IP);
-			w.Write(Ranks, i => { w.Write(i.Key.ToByteArray());
+			w.Write(Ranks, i => { w.Write(i.Key);
 								  w.Write((int)i.Value.Keys.Aggregate(Role.None, (a, b) => a|b)); });
  		}
  
- 		public void ReadPeer(BinaryReader reader)
+ 		public void Read(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
-			Ranks = reader.ReadDictionary(() => new Guid(reader.ReadBytes(16)), 
+			Ranks = reader.ReadDictionary(() => reader.ReadGuid(), 
 										  () => {
 													var r = (Role)reader.ReadInt32();
 													return Enum.GetValues<Role>().Where(i => (i & r) != 0).ToDictionary(i => i, i => 1);
@@ -142,7 +142,7 @@ namespace Uccs.Net
 
 			Forced = false;
 			Permanent = false;
-			Fresh = false;
+			Recent = false;
 			Retries = 0;
 			IdCounter = 0;
 			Inbound = false;
