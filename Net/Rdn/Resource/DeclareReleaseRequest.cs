@@ -7,7 +7,7 @@
 
 		public override PeerResponse Execute()
 		{
-			lock(Node.Lock)
+			lock(Sun.Lock)
 			{	
 				RequireMember();
 			}

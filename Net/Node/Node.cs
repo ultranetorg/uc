@@ -18,7 +18,7 @@ using RocksDbSharp;
 namespace Uccs.Net
 {
 	public delegate void VoidDelegate();
- 	public delegate void NodeDelegate(Node d);
+ 	public delegate void SunDelegate(Node d);
 
 	public class Statistics
 	{
@@ -100,13 +100,13 @@ namespace Uccs.Net
 		Thread							ListeningThread;
 		public AutoResetEvent			MainWakeup = new AutoResetEvent(true);
 		
-		public NodeDelegate				Stopped;
+		public SunDelegate				Stopped;
 		
 		//public IGasAsker				GasAsker; 
 		//public IFeeAsker				FeeAsker;
 
-		public NodeDelegate				MainStarted;
-		public NodeDelegate				ApiStarted;
+		public SunDelegate				MainStarted;
+		public SunDelegate				ApiStarted;
 
 		public static List<Node>			All = new();
 
@@ -133,8 +133,8 @@ namespace Uccs.Net
 			}
 
 			var fs = new ColumnFamilies();
-			
-			foreach(var i in new ColumnFamilies.Descriptor[] {new (nameof(Peers), new ())})
+
+			foreach(var i in new ColumnFamilies.Descriptor[] { new(nameof(Peers), new()) })
 				fs.Add(i);
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, nameof(Node)), fs);
@@ -143,14 +143,17 @@ namespace Uccs.Net
 				throw new NodeException(NodeError.AlreadyRunning);
 
 			Flow.Log?.Report(this, $"Ultranet Node {Version}");
-			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 			Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
 			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
-			Flow.Log?.Report(this, $"Profile: {Settings.Profile}");	
-			
+			Flow.Log?.Report(this, $"Profile: {Settings.Profile}");
+
 			if(NodeGlobals.Any)
 				Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
+		}
 
+		public void RunPeer()
+		{
 			PeerId = Guid.NewGuid();
 
 			LoadPeers();
@@ -162,17 +165,18 @@ namespace Uccs.Net
 				ListeningThread.Start();
 			}
 
- 			MainThread = CreateThread(() =>	{ 
-												while(Flow.Active)
-												{
-													var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
+			MainThread = CreateThread(() =>
+			{
+				while(Flow.Active)
+				{
+					var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
 
-													lock(Lock)
-													{
-														ProcessConnectivity();
-													}
-												}
- 											});
+					lock(Lock)
+					{
+						ProcessConnectivity();
+					}
+				}
+			});
 
 			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
@@ -940,7 +944,7 @@ namespace Uccs.Net
 				s.Position = 0;
 				
 				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
-				rq.Node = this;
+				rq.Sun = this;
 				rq.Mcv = request.Mcv;
 				rq.McvId = request.McvId;
 			}
@@ -959,7 +963,7 @@ namespace Uccs.Net
 				s.Position = 0;
 
 				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
-				rq.Node = this;
+				rq.Sun = this;
 				rq.Mcv = request.Mcv;
 				rq.McvId = request.McvId;
 			}
@@ -973,7 +977,7 @@ namespace Uccs.Net
 			{
 				try
 				{
-					i.Post(new VoteRequest {Node = this, 
+					i.Post(new VoteRequest {Sun = this, 
 											Mcv = mcv, 
 											McvId = mcv.Guid, 
 											Raw = vote.RawForBroadcast });

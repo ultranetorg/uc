@@ -70,7 +70,7 @@ namespace Uccs.Net
 
 		public Synchronization						Synchronization { set { _Synchronization = value; SynchronizationChanged?.Invoke(Node); } get { return _Synchronization; } }
 		Synchronization								_Synchronization = Synchronization.None;
-		NodeDelegate									SynchronizationChanged;
+		SunDelegate									SynchronizationChanged;
 		Thread										SynchronizingThread;
 		public Dictionary<int, List<Vote>>			SyncTail = new();
 
@@ -391,10 +391,7 @@ namespace Uccs.Net
 				s = true;
 			}
 
-			if(Settings.Generators.Any() && Synchronization == Synchronization.Synchronized)
-			{
-				Generate();
-			}
+			Generate();
 
 			return s;
 		}
@@ -930,8 +927,10 @@ namespace Uccs.Net
 		{
 			Node.Statistics.Generating.Begin();
 
-			var votes = new List<Vote>();
+			if(Settings.Generators.Length ==0 || Synchronization != Synchronization.Synchronized)
+				return;
 
+			var votes = new List<Vote>();
 
 			foreach(var g in Settings.Generators)
 			{
@@ -1488,7 +1487,7 @@ namespace Uccs.Net
 		public Rp Call<Rp>(IPeer peer, PeerCall<Rp> rq) where Rp : PeerResponse
 		{
 			rq.Mcv		= this;
-			rq.Node		= Node;
+			rq.Sun		= Node;
 			rq.McvId	= Guid;
 
 			return peer.Send((PeerRequest)rq) as Rp;
@@ -1515,7 +1514,7 @@ namespace Uccs.Net
 					{
 						var c = call();
 						c.Mcv	= this;
-						c.Node	= Node;
+						c.Sun	= Node;
 						c.McvId = Guid;
 
 						return Node.Send(c);
@@ -1538,7 +1537,7 @@ namespace Uccs.Net
 
 					var c = call();
 					c.Mcv	= this;
-					c.Node	= Node;
+					c.Sun	= Node;
 					c.McvId = Guid;
 
 					return p.Send(c);
@@ -1564,7 +1563,7 @@ namespace Uccs.Net
 
 			var c = call();
 			c.Mcv	= this;
-			c.Node	= Node;
+			c.Sun	= Node;
 			c.McvId = Guid;
 
 			return p.Send(c);
@@ -1578,7 +1577,7 @@ namespace Uccs.Net
 
 			var c = requet;
 			c.Mcv	= this;
-			c.Node	= Node;
+			c.Sun	= Node;
 			c.McvId = Guid;
 
 			p.Post(c);

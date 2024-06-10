@@ -63,7 +63,7 @@ namespace Uccs.Net
 		
 		public ManualResetEvent			Event;
 		public PeerResponse				Response;
-		public Node						Node;
+		public Node						Sun;
 		public Mcv						Mcv;
 
 		public abstract PeerResponse	Execute();

@@ -28,14 +28,14 @@ namespace Uccs.Uos
 		public Delegate			Stopped;
 		public Vault			Vault;
 		static Boot				Boot;
-		static ConsoleLogView	LogView = new ConsoleLogView(false, false);
+		public static			ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		
 		public Mcv				FindMcv(Guid id) => Mcvs.Find(i => i.Guid == id);
 		public T				Find<T>() where T : Mcv => Mcvs.Find(i => i.GetType() == typeof(T)) as T;
 
 		//public static List<Uos>			All = new();
 
-		public NodeDelegate		IcnStarted;
+		public SunDelegate		IcnStarted;
 		public McvDelegate		McvStarted;
 
 		static void Main(string[] args)
@@ -170,11 +170,12 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunSun(NodeSettings settings = null)
+		public void RunInc(NodeSettings settings = null)
 		{
 			var s = settings ?? new NodeSettings(Settings.Profile);
 
-			Icn = new Net.Node(s, Settings.Zone, Vault, Flow);
+			Icn = new Node(s, Settings.Zone, Vault, Flow);
+			Icn.RunPeer();
 
 			IcnStarted?.Invoke(Icn);
 		}

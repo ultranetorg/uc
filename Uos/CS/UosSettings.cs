@@ -10,9 +10,9 @@ namespace Uccs.Uos
 	public class UosSettings : Settings
 	{
 		public const string				FileName = "Uos.settings";
+		public Zone						Zone;
+		public string					Name;
 		public ApiSettings				Api { get; set; }
-		public Zone						Zone { get; set; }
-		public string					Name { get; set; }
 		public Guid						CliDefaultMcv { get; set; } = Rdn.Id;
 
 		public UosSettings() : base(NetXonTextValueSerializator.Default)

@@ -73,7 +73,7 @@ namespace Uccs
 		{
 			Settings	= settings;
 			Options		= options;
-			Flow		= workflow.CreateNested("JsonApiServer", new Log());
+			Flow		= workflow.CreateNested("JsonServer", new Log());
 
 			//if(profile != null)
 			//{

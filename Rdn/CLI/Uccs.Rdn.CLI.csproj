@@ -10,9 +10,9 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>rdn</AssemblyName>
-    <AssemblyVersion>1.0.115.0</AssemblyVersion>
-    <FileVersion>1.0.115.0</FileVersion>
-    <Version>1.0.115.0</Version>
+    <AssemblyVersion>1.0.137.0</AssemblyVersion>
+    <FileVersion>1.0.137.0</FileVersion>
+    <Version>1.0.137.0</Version>
     <BaseOutputPath>$(UO_Tmp)\Build\$(MSBuildProjectName)</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

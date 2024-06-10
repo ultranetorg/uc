@@ -1,43 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<Company>uo</Company>
-		<Authors>uo</Authors>
-		<Product>Framework</Product>
-		<PackageProjectUrl>{HOME}</PackageProjectUrl>
-		<EnableNETAnalyzers>false</EnableNETAnalyzers>
-		<AnalysisLevel>none</AnalysisLevel>
-		<AssemblyVersion>1.0.58.0</AssemblyVersion>
-		<FileVersion>1.0.58.0</FileVersion>
-		<Version>1.0.58.0</Version>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\..\_Debug\dotnet\</OutputPath>
-		<NoWarn>1701;1702;</NoWarn>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<OutputPath>..\..\_Release\dotnet\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<Optimize>false</Optimize>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="DnsClient" Version="1.7.0" />
-		<PackageReference Include="Nethereum.Web3" Version="4.20.0" />
-		<PackageReference Include="RocksDB" Version="8.11.3.46984" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\CS\Uccs.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="Rdn.settings">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Sun.boot">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Company>uo</Company>
+    <Authors>uo</Authors>
+    <Product>Framework</Product>
+    <PackageProjectUrl>{HOME}</PackageProjectUrl>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <AnalysisLevel>none</AnalysisLevel>
+    <AssemblyVersion>1.0.78.0</AssemblyVersion>
+    <FileVersion>1.0.78.0</FileVersion>
+    <Version>1.0.78.0</Version>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\_Debug\dotnet\</OutputPath>
+    <NoWarn>1701;1702;</NoWarn>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\_Release\dotnet\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DnsClient" Version="1.7.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.20.0" />
+    <PackageReference Include="RocksDB" Version="8.11.3.46984" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CS\Uccs.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Rdn.settings">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Sun.boot">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

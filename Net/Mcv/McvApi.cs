@@ -5,6 +5,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
+
 	public abstract class McvApc : Apc
 	{
 		public Guid	 Mcvid { get; set; }
@@ -23,6 +24,32 @@ namespace Uccs.Net
 		}
 	}
 
+	public class McvPropertyApc : McvApc
+	{
+		public string Path { get; set; }
+
+		public override object Execute(Mcv sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			object o = sun;
+
+			foreach(var i in Path.Split('.'))
+			{
+				o = o.GetType().GetProperty(i)?.GetValue(o) ?? o.GetType().GetField(i)?.GetValue(o);
+
+				if(o == null)
+					throw new NodeException(NodeError.NotFound);
+			}
+
+			switch(o)
+			{
+				case byte[] b:
+					return b.ToHex();
+
+				default:
+					return o?.ToString();
+			}
+		}
+	}
 	public class McvSummaryApc : McvApc
 	{
 		public int		Limit  { get; set; }

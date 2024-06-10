@@ -48,7 +48,7 @@ namespace Uccs.Net
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
-		public Node							Node;
+		public Node							Sun;
 		TcpClient					Tcp;
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
@@ -195,7 +195,7 @@ namespace Uccs.Net
 
 		public void Start(Node sun, TcpClient client, Hello h, string host, bool inbound)
 		{
-			Node = sun;
+			Sun = sun;
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
@@ -213,11 +213,11 @@ namespace Uccs.Net
 
 			sun.UpdatePeers([this]);
 
-			ListenThread = Node.CreateThread(Listening);
+			ListenThread = Sun.CreateThread(Listening);
 			ListenThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
 			ListenThread.Start();
 	
-			SendThread = Node.CreateThread(Sending);
+			SendThread = Sun.CreateThread(Sending);
 			SendThread.Name = $"{host} -> {IP.GetAddressBytes()[3]}";
 			SendThread.Start();
 		}
@@ -226,9 +226,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(Node.Flow.Active && Status == ConnectionStatus.OK)
+				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
 				{
-					Node.Statistics.Sending.Begin();
+					Sun.Statistics.Sending.Begin();
 	
 					PeerRequest[] inrq;
 	
@@ -279,14 +279,14 @@ namespace Uccs.Net
 						Outs.Clear();
 					}
 	
-					Node.Statistics.Sending.End();
+					Sun.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny([SendSignal, Node.Flow.Cancellation.WaitHandle]);
+					WaitHandle.WaitAny([SendSignal, Sun.Flow.Cancellation.WaitHandle]);
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Node.Lock)
+				lock(Sun.Lock)
 					Disconnect();
 			}
 
@@ -305,23 +305,23 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(Node.Flow.Active && Status == ConnectionStatus.OK)
+				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
 				{
 					var pk = (PacketType)Reader.ReadByte();
 
-					if(Node.Flow.Aborted || Status != ConnectionStatus.OK)
+					if(Sun.Flow.Aborted || Status != ConnectionStatus.OK)
 						return;
 					
-					Node.Statistics.Reading.Begin();
+					Sun.Statistics.Reading.Begin();
 
 					switch(pk)
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Node.Constract);
+							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Sun.Constract);
 							rq.Peer = this;
-							rq.Node = Node;
-							rq.Mcv = Node.FindMcv(rq.McvId);
+							rq.Sun = Sun;
+							rq.Mcv = Sun.FindMcv(rq.McvId);
 
 							lock(InRequests)
  								InRequests.Add(rq);
@@ -340,7 +340,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Node.Constract);
+							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Sun.Constract);
 
 							lock(OutRequests)
 							{
@@ -360,12 +360,12 @@ namespace Uccs.Net
 						}
 					}
 
-					Node.Statistics.Reading.End();
+					Sun.Statistics.Reading.End();
 				}
 	 		}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Node.Lock)
+				lock(Sun.Lock)
 					Disconnect();
 			}
 
@@ -418,7 +418,7 @@ namespace Uccs.Net
 
 				try
 				{
-					i = WaitHandle.WaitAny([rq.Event, Node.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+					i = WaitHandle.WaitAny([rq.Event, Sun.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
 				catch(ObjectDisposedException)
 				{

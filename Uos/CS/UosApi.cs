@@ -54,7 +54,7 @@ namespace Uccs.Uos
 	{
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.RunSun();
+			uos.RunInc();
 
 			return null;
 		}

@@ -45,7 +45,6 @@ namespace Uccs.Uos
 
 													var k = AccountKey.Create();
 
-													Report("Wallet created"); 
 													Report("Public Address - " + k.ToString()); 
 													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
 
@@ -137,7 +136,6 @@ namespace Uccs.Uos
 													Api(new AddWalletUosApc {Wallet = w});
 													Api(new SaveWalletUosApc {Account = a});
 
-													Report("Wallet imported"); 
 													Report("Account Address - " + a.ToString());
 			
 													return a;
