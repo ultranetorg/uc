@@ -40,7 +40,7 @@ namespace Uccs.Net
 			IP					= r.ReadIPAddress();
 			Permanent			= r.ReadBoolean();
 			Peers				= r.Read<Peer>(i => {
-														//i.Recent = true; 
+														i.Recent = true; 
 														i.Read(r);
 													}).ToArray();
 			//Generators			= r.Read<Member>(i => i.ReadForSharing(r));

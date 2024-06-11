@@ -170,7 +170,7 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunInc(NodeSettings settings = null)
+		public void RunIcn(NodeSettings settings = null)
 		{
 			var s = settings ?? new NodeSettings(Settings.Profile);
 

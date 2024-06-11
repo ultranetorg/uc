@@ -50,11 +50,11 @@ namespace Uccs.Uos
 		public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	}
 
-	public class RunSunApc : UosApc
+	public class RunIcnApc : UosApc
 	{
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.RunInc();
+			uos.RunIcn();
 
 			return null;
 		}

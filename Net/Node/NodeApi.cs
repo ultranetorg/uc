@@ -115,10 +115,10 @@ namespace Uccs.Net
 				public IPAddress								IP { get; set; }
 				public string									Status  { get; set; }
 				public int										PeerRank { get; set; }
-				public Dictionary<Guid, Dictionary<Role, int>>	Ranks { get; set; }
 				public DateTime									LastSeen { get; set; }
 				public DateTime									LastTry { get; set; }
 				public int										Retries { get; set; }
+				public Dictionary<Guid, Dictionary<Role, int>>	Ranks { get; set; }
 			}
 
 			public IEnumerable<Peer> Peers {get; set;}
