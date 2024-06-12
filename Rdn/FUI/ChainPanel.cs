@@ -30,7 +30,7 @@ namespace Uccs.Rdn.FUI
 															{
 																lock(Node.Lock)
 																{
-																	Round.Minimum = Mcv.Roles.HasFlag(Role.Chain) ? 0 : Mcv.Tail.Last().Id;
+																	Round.Minimum = Mcv.Settings.Base?.Chain != null ? 0 : Mcv.Tail.Last().Id;
 																	Round.Maximum = Mcv.LastNonEmptyRound.Id;
 																}
 															});
@@ -40,7 +40,7 @@ namespace Uccs.Rdn.FUI
 
 			lock(Node.Lock)
 			{
-				Round.Minimum = Mcv.Roles.HasFlag(Role.Chain) ? 0 : Mcv.Tail.Last().Id;
+				Round.Minimum = Mcv.Settings.Base?.Chain != null ? 0 : Mcv.Tail.Last().Id;
 				Round.Maximum = Mcv.Tail.First().Id;
 				Round.Value = Mcv.LastNonEmptyRound.Id;
 			}

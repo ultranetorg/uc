@@ -5,18 +5,20 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class SeedHubSettings : Settings
+	public class SeedSettings : Settings
 	{
-		public SeedHubSettings() : base(NetXonTextValueSerializator.Default)
+		public string	Packages { get; set; }
+		public string	Releases { get; set; }
+		public int		CollectRefreshInterval { get; set; } = 60000;
+
+		public SeedSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 	}
 
-	public class ResourceHubSettings : Settings
+	public class SeedHubSettings : Settings
 	{
-		public int		CollectRefreshInterval { get; set; } = 60000;
-
-		public ResourceHubSettings() : base(NetXonTextValueSerializator.Default)
+		public SeedHubSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 	}
@@ -36,12 +38,14 @@ namespace Uccs.Net
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
-		public string					Packages { get; set; }
-		public string					Releases { get; set; }
 
+		
+		public SeedSettings				Seed { get; set; }
 		public EthereumSettings			Ethereum { get; set; } = new ();
 		public SeedHubSettings			SeedHub { get; set; } = new ();
-		public ResourceHubSettings		ResourceHub { get; set; } = new ();
+
+		public override long			Roles =>	base.Roles | (Seed != null ? (long)RdnRole.Seed : 0);
+
 
 		public RdnSettings()
 		{

@@ -7,6 +7,16 @@ namespace Uccs.Net
 {
 	public static class Extentions
 	{
+		public static bool IsSet(this long x, Role bit)
+		{
+			return (x & (long)bit) != 0;
+		}
+
+		public static bool IsSet(this long x, RdnRole bit)
+		{
+			return (x & (long)bit) != 0;
+		}
+
 		public static Money SumMoney<T>(this IEnumerable<T> e, Func<T, Money> by)
 		{
 			var s = Money.Zero;

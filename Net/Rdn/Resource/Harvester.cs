@@ -61,7 +61,7 @@ namespace Uccs.Net
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Rdn.Settings.ResourceHub.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Rdn.RdnSettings.Seed.CollectRefreshInterval);
 									}
 								}, 
 								Collector.Flow.Cancellation);

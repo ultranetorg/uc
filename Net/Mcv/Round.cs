@@ -370,7 +370,7 @@ namespace Uccs.Net
 				a.Balance -= t.Fee;
 				a.LastTransactionNid++;
 						
-				if(Mcv.Roles.HasFlag(Role.Chain))
+				if(Mcv.Settings.Base?.Chain != null)
 				{
 					a.Transactions.Add(Id);
 				}

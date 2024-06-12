@@ -44,7 +44,7 @@ namespace Uccs.Net
 
 		//public Role										Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int										PeerRank = 0;
-		public Dictionary<Guid, Dictionary<Role, int>>	Ranks = [];
+		public Dictionary<Guid, Dictionary<long, byte>>	Ranks = [];
 
 		public Dictionary<Role, DateTime>				LastFailure = new();
 
@@ -74,9 +74,9 @@ namespace Uccs.Net
 			return $"{IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
 		}
  		
-		public int GetRank(Guid mcvid, Role role)
+		public byte GetRank(Guid mcvid, long role)
 		{
-			return Ranks.TryGetValue(mcvid, out var ranks) && ranks.TryGetValue(role, out var v) ? v : 0;
+			return Ranks.TryGetValue(mcvid, out var ranks) && ranks.TryGetValue(role, out var v) ? v : (byte)0;
 			//throw new IntegrityException("Wrong rank");
 		}
 
@@ -85,7 +85,7 @@ namespace Uccs.Net
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
 			w.Write(PeerRank);
 			w.Write(Ranks, i => { w.Write(i.Key); 
-								  w.Write(i.Value, j => { w.Write((int)j.Key);
+								  w.Write(i.Value, j => { w.Write7BitEncodedInt64(j.Key);
 														  w.Write(j.Value); });  });
   		}
   
@@ -94,15 +94,15 @@ namespace Uccs.Net
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
 			PeerRank = r.ReadInt32();
 			Ranks = r.ReadDictionary(() => r.ReadGuid(), 
-									 () => r.ReadDictionary(() => (Role)r.ReadInt32(), 
-															() => r.ReadInt32()));
+									 () => r.ReadDictionary(() => r.Read7BitEncodedInt64(), 
+															() => r.ReadByte()));
   		}
  
  		public void Write(BinaryWriter w)
  		{
  			w.Write(IP);
 			w.Write(Ranks, i => { w.Write(i.Key);
-								  w.Write((int)i.Value.Keys.Aggregate(Role.None, (a, b) => a|b)); });
+								  w.Write7BitEncodedInt64((int)i.Value.Keys.Aggregate(0L, (a, b) => a|b)); });
  		}
  
  		public void Read(BinaryReader reader)
@@ -110,8 +110,8 @@ namespace Uccs.Net
  			IP = reader.ReadIPAddress();
 			Ranks = reader.ReadDictionary(() => reader.ReadGuid(), 
 										  () => {
-													var r = (Role)reader.ReadInt32();
-													return Enum.GetValues<Role>().Where(i => (i & r) != 0).ToDictionary(i => i, i => 1);
+													var r = reader.Read7BitEncodedInt64();
+													return Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(r)).ToDictionary(i => i, i => (byte)1);
 												});
  		}
 
@@ -209,7 +209,7 @@ namespace Uccs.Net
 			Writer		= new BinaryWriter(Stream);
 			Reader		= new BinaryReader(Stream);
 			LastSeen	= DateTime.UtcNow;
-			Ranks		= h.Roles.ToDictionary(i => i.Key, i => Enum.GetValues<Role>().Where(j => (j & i.Value) != 0).ToDictionary(i => i, i => 1));
+			Ranks		= h.Roles.ToDictionary(i => i.Key, i => Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(i.Value)).ToDictionary(i => i, i => (byte)1));
 
 			sun.UpdatePeers([this]);
 
@@ -442,9 +442,9 @@ namespace Uccs.Net
 					{
 						if(rq.Response.Error is NodeException e)
 						{
-							if(e.Error == NodeError.NotBase)	Ranks[rq.Mcv.Guid][Role.Base] = 0;
-							if(e.Error == NodeError.NotChain)	Ranks[rq.Mcv.Guid][Role.Chain] = 0;
-							if(e.Error == NodeError.NotSeed)	Ranks[rq.Mcv.Guid][Role.Seed] = 0;
+							if(e.Error == NodeError.NotBase)	Ranks[rq.Mcv.Guid][(long)Role.Base] = 0;
+							if(e.Error == NodeError.NotChain)	Ranks[rq.Mcv.Guid][(long)Role.Chain] = 0;
+							if(e.Error == NodeError.NotSeed)	Ranks[rq.Mcv.Guid][(long)RdnRole.Seed] = 0;
 						}
 	
 						throw rq.Response.Error;

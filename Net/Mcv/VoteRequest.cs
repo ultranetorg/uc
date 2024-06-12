@@ -14,7 +14,7 @@ namespace Uccs.Net
 		
 		public override PeerResponse Execute()
 		{
-			if(!Mcv.Roles.HasFlag(Role.Base))
+			if(Mcv.Settings.Base == null)
 				throw new NodeException(NodeError.NotBase);
 
 			var s = new MemoryStream(Raw);

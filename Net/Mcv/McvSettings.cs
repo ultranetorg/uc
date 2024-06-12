@@ -5,6 +5,22 @@ using System.Linq;
 
 namespace Uccs.Net
 {
+	public class BaseSettings : Settings
+	{
+		public ChainSettings	Chain { get; set; }
+
+		public BaseSettings() : base(NetXonTextValueSerializator.Default)
+		{
+		}
+	}
+
+	public class ChainSettings : Settings
+	{
+		public ChainSettings() : base(NetXonTextValueSerializator.Default)
+		{
+		}
+	}
+
 	public class McvSettings : Settings
 	{
 		public PeeringSettings			Peering { get; set; }= new();
@@ -14,7 +30,10 @@ namespace Uccs.Net
 		public string					GoogleApiKey { get; set; }
 		//public List<AccountAddress>	ProposedFundJoiners = new();
 		//public List<AccountAddress>	ProposedFundLeavers = new();
-		public Role						Roles { get; set; }
+		public BaseSettings				Base { get; set; }
+
+		public virtual long				Roles =>	(Base != null ? (long)Role.Base : 0) |
+													(Base?.Chain != null ? (long)Role.Chain : 0);
 
 		public McvSettings() : base(NetXonTextValueSerializator.Default)
 		{

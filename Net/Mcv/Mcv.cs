@@ -34,7 +34,6 @@ namespace Uccs.Net
 		public McvSettings							Settings;
 		public Zone									Zone;
 		public IClock								Clock;
-		public Role									Roles => Settings.Roles;
 		public object								Lock => Node.Lock;
 		public Log									Log;
 		public Node									Node;
@@ -159,9 +158,9 @@ namespace Uccs.Net
 		{
 			//var gens = LastConfirmedRound != null ? Settings.Generators.Where(i => LastConfirmedRound.Members.Any(j => j.Account == i)) : [];
 	
-			return string.Join(", ", new string[]{	(Roles.HasFlag(Role.Base) ? "B" : null) +
-													(Roles.HasFlag(Role.Chain) ? "C" : null) +
-													(Roles.HasFlag(Role.Seed) ? "S" : null),
+			return string.Join(", ", new string[]{	(Settings.Base != null ? "B" : null) +
+													(Settings.Base?.Chain != null  ? "C" : null) +
+													(Settings is RdnSettings x && x.Seed != null  ? "S" : null),
 													Node.Connections(this).Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													$"{Synchronization}/{LastConfirmedRound?.Id}/{LastConfirmedRound?.Hash.ToHexPrefix()}",
 													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
@@ -170,7 +169,7 @@ namespace Uccs.Net
 
 		public void Initialize()
 		{
-			if(Roles.HasFlag(Role.Chain))
+			if(Settings.Base?.Chain != null)
 			{
 				Tail.Clear();
 	
@@ -232,7 +231,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Roles.HasFlag(Role.Chain))
+			if(Settings.Base?.Chain != null)
 			{
 				var s = Database.Get(ChainStateKey);
 
@@ -378,12 +377,12 @@ namespace Uccs.Net
 
 			if(!MinimalPeersReached && 
 				Node.Connections(this).Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
-				(!Roles.HasFlag(Role.Base) || Node.Bases(this).Count() >= Settings.Peering.PermanentBaseMin))
+				(Settings.Base == null || Node.Bases(this).Count() >= Settings.Peering.PermanentBaseMin))
 			{
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
 
-				if(Roles.HasFlag(Role.Base))
+				if(Settings.Base != null)
 				{
 					Synchronize();
 				}
@@ -602,9 +601,9 @@ namespace Uccs.Net
 				{
 					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Node.Connect(Guid, Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Flow);
+					peer = Node.Connect(Guid, (long)(Settings.Base.Chain != null ? Role.Chain : Role.Base), used, Flow);
 
-					if(Roles.HasFlag(Role.Base) && !Roles.HasFlag(Role.Chain))
+					if(Settings.Base?.Chain == null)
 					{
 						stamp = Call(peer, new StampRequest());
 		
@@ -690,7 +689,7 @@ namespace Uccs.Net
 					while(Flow.Active)
 					{
 						lock(Node.Lock)
-							if(Roles.HasFlag(Role.Chain))
+							if(Settings.Base?.Chain != null)
 								from = LastConfirmedRound.Id + 1;
 							else
 								from = Math.Max(stamp.FirstTailRound, LastConfirmedRound == null ? -1 : (LastConfirmedRound.Id + 1));
@@ -715,7 +714,7 @@ namespace Uccs.Net
 								if(LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
 	
-								if(Enumerable.Range(rid, P + 1).All(SyncTail.ContainsKey) && (Roles.HasFlag(Role.Chain) || FindRound(r.VotersRound) != null))
+								if(Enumerable.Range(rid, P + 1).All(SyncTail.ContainsKey) && (Settings.Base.Chain != null || FindRound(r.VotersRound) != null))
 								{
 									var p =	SyncTail[rid];
 									var c =	SyncTail[rid + P];
@@ -1520,7 +1519,7 @@ namespace Uccs.Net
 						return Node.Send(c);
 					}
 
-					p = Node.ChooseBestPeer(Guid, Role.Base, tried);
+					p = Node.ChooseBestPeer(Guid, (long)Role.Base, tried);
 	
 					if(p == null)
 					{
@@ -1627,7 +1626,7 @@ namespace Uccs.Net
 					Recycle();
 				}
 
-				if(Roles.HasFlag(Role.Chain))
+				if(Settings.Base?.Chain != null)
 				{
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);

@@ -118,7 +118,7 @@ namespace Uccs.Net
 				public DateTime									LastSeen { get; set; }
 				public DateTime									LastTry { get; set; }
 				public int										Retries { get; set; }
-				public Dictionary<Guid, Dictionary<Role, int>>	Ranks { get; set; }
+				public Dictionary<Guid, Dictionary<long, byte>>	Ranks { get; set; }
 			}
 
 			public IEnumerable<Peer> Peers {get; set;}

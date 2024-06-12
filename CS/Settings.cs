@@ -98,7 +98,14 @@ namespace Uccs
 					}
 					else if(p.PropertyType.Name.EndsWith("Settings"))
 					{
-						(p.GetValue(r) as Settings).Merge(v);
+						if(p.GetValue(r) is Settings s)
+							s.Merge(v);
+						else
+						{
+							s = Activator.CreateInstance(p.PropertyType) as Settings;
+							s.Load(v);
+							p.SetValue(r, s);
+						}
 					}
 					else
 						p.SetValue(r, load(p.Name, p.PropertyType, v));
@@ -118,12 +125,15 @@ namespace Uccs
 			{
 				if(type.Name.EndsWith("Settings"))
 				{
-					var x = parent.Add(name);
-					///var v = fi.GetValue(owner);
-
-					foreach(var f in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+					if(value != null)
 					{
-						save(x, f.Name, f.PropertyType, f.GetValue(value));
+						var x = parent.Add(name);
+						///var v = fi.GetValue(owner);
+	
+						foreach(var f in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+						{
+							save(x, f.Name, f.PropertyType, f.GetValue(value));
+						}
 					}
 				}
 				else

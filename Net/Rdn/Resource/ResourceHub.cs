@@ -16,7 +16,6 @@ namespace Uccs.Net
 		public const string				ResourceFamilyName = "Resources";
 		public const int				MembersPerDeclaration = 3;
 
-		internal string					ReleasesPath;
 		public List<LocalRelease>		Releases = new();
 		public List<LocalResource>		Resources = new();
 		public Rdn						Rdn;
@@ -25,14 +24,15 @@ namespace Uccs.Net
 		public ColumnFamilyHandle		ReleaseFamily => Rdn.Database.GetColumnFamily(ReleaseFamilyName);
 		public ColumnFamilyHandle		ResourceFamily => Rdn.Database.GetColumnFamily(ResourceFamilyName);
 		Thread							DeclaringThread;
+		SeedSettings					Settings;
 
-		public ResourceHub(Rdn rds, Zone zone, string path)
+		public ResourceHub(Rdn rds, Zone zone, SeedSettings settings)
 		{
 			Rdn = rds;
 			Zone = zone;
-			ReleasesPath = path;
+			Settings = settings;
 
-			Directory.CreateDirectory(ReleasesPath);
+			Directory.CreateDirectory(Settings.Releases);
 
 			using(var i = Rdn.Database.NewIterator(ReleaseFamily))
 			{
@@ -52,7 +52,7 @@ namespace Uccs.Net
 
 		public string ToReleases(Urr urr)
 		{
-			return Path.Join(ReleasesPath, Escape(urr.ToString()));
+			return Path.Join(Settings.Releases, Escape(urr.ToString()));
 		}
 
 		public static string Escape(string path)

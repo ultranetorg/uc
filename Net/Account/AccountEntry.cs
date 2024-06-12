@@ -33,7 +33,7 @@ namespace Uccs.Net
 											LastTransactionNid = LastTransactionNid,
 											LastEmissionId = LastEmissionId,
 											//CandidacyDeclarationRid = CandidacyDeclarationRid,
-											Transactions = Mcv.Roles.HasFlag(Role.Chain) ? new HashSet<int>(Transactions) : null};
+											Transactions = Mcv.Settings.Base?.Chain != null  ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -60,7 +60,7 @@ namespace Uccs.Net
 
 		public void WriteMore(BinaryWriter w)
 		{
-			if(Mcv.Roles.HasFlag(Role.Chain))
+			if(Mcv.Settings.Base?.Chain != null)
 			{
 				w.Write(Transactions);
 			}
@@ -68,7 +68,7 @@ namespace Uccs.Net
 
 		public void ReadMore(BinaryReader r)
 		{
-			if(Mcv.Roles.HasFlag(Role.Chain))
+			if(Mcv.Settings.Base?.Chain != null)
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}

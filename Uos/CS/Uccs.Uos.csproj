@@ -7,8 +7,8 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputType>Exe</OutputType>
     <AssemblyName>uos</AssemblyName>
-    <AssemblyVersion>1.0.145</AssemblyVersion>
-    <FileVersion>1.0.145</FileVersion>
+    <AssemblyVersion>1.0.146</AssemblyVersion>
+    <FileVersion>1.0.146</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Net\Uccs.Net.csproj" />

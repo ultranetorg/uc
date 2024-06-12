@@ -10,34 +10,32 @@ namespace Uccs.Net
 {
 	public class PackageHub
 	{
-		string									ReleasesPath;
-		string									PackagesPath;
+		SeedSettings							Settings;
 		public List<LocalPackage>				Packages = new();
 		public Rdn								Rdn;
 		public object							Lock = new object();
 
-		public PackageHub(Rdn sun, string releasespath, string packagespath)
+		public PackageHub(Rdn sun, SeedSettings settings)
 		{
 			Rdn = sun;
-			ReleasesPath = releasespath;
-			PackagesPath = packagespath;
+			Settings = settings;
 
-			Directory.CreateDirectory(PackagesPath);
+			Directory.CreateDirectory(Settings.Packages);
 		}
 
  		public string AddressToDeployment(Ura resource)
  		{
- 			return Path.Join(PackagesPath, ResourceHub.Escape(resource.ToString()));
+ 			return Path.Join(Settings.Packages, ResourceHub.Escape(resource.ToString()));
  		}
  
  		public Ura DeploymentToAddress(string path)
  		{
- 			return Ura.Parse(ResourceHub.Unescape(path.Substring(PackagesPath.Length)));
+ 			return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
  		}
 
  		public string AddressToReleases(Urr release)
  		{
- 			return Path.Join(ReleasesPath, ResourceHub.Escape(release.ToString()));
+ 			return Path.Join(Settings.Releases, ResourceHub.Escape(release.ToString()));
  		}
 
 		IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)

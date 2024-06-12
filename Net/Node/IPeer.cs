@@ -126,7 +126,7 @@ namespace Uccs.Net
 
 		protected void RequireBase()
 		{
-			if(!Mcv.Roles.HasFlag(Role.Base))
+			if(Mcv.Settings.Base == null)
 				throw new NodeException(NodeError.NotBase);
 
 			if(Mcv.Synchronization != Synchronization.Synchronized)

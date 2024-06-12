@@ -10,6 +10,11 @@ namespace Uccs
 {
 	public static class Extentions
 	{
+		public static bool IsSet(this long x, long i)
+		{
+			return (x & i) != 0;
+		}
+
 		public static string ToHex(this byte[] e)
 		{
 			return Convert.ToHexString(e);

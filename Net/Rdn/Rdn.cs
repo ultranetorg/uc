@@ -16,6 +16,13 @@ namespace Uccs.Net
 		public Rdn	Rdn => Mcv as Rdn;
 	}
 
+	[Flags]
+	public enum RdnRole : uint
+	{
+		None,
+		Seed		= 0b00000100,
+	}
+
 	public class Rdn : Mcv
 	{
 		public DomainTable				Domains;
@@ -25,7 +32,6 @@ namespace Uccs.Net
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		HttpClient						Http = new HttpClient();
 
-		public new RdnSettings			Settings;
 		public ResourceHub				ResourceHub;
 		public PackageHub				PackageHub;
 		public SeedHub					SeedHub;
@@ -33,28 +39,30 @@ namespace Uccs.Net
 		public List<ForeignResult>		ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
 
+		public RdnSettings				RdnSettings;
+
 		public Rdn(Zone zone, RdnSettings settings, string databasepath, bool skipinitload = false) : base(zone, settings, databasepath, skipinitload)
 		{
-			Settings = settings;
+			RdnSettings = settings;
 		}
 
 		public Rdn(Node sun, RdnSettings settings, string databasepath, Flow flow, IEthereum nas, IClock clock) : base(sun, settings, databasepath, clock, flow)
 		{
-			Settings = settings;
+			RdnSettings = settings;
 			Ethereum = nas ?? new Ethereum(settings);
 			Clock = clock ?? new RealClock();
 
-			if(settings.Roles.HasFlag(Role.Seed))
+			if(settings.Seed != null)
 			{
-				ResourceHub = new ResourceHub(this, Zone, settings.Releases);
-				PackageHub = new PackageHub(this, settings.Releases, settings.Packages);
+				ResourceHub = new ResourceHub(this, Zone, settings.Seed);
+				PackageHub = new PackageHub(this, settings.Seed);
 			}
 
 			if(Settings.Generators.Any())
 			{
 		  		try
 		  		{
-		 			new Uri(Settings.Ethereum.Provider);
+		 			new Uri(RdnSettings.Ethereum.Provider);
 		  		}
 		  		catch(Exception)
 		  		{

@@ -33,7 +33,7 @@ namespace Uccs.Rdn.FUI
 
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
-			if(!Mcv.Roles.HasFlag(Role.Base))
+			if(Mcv.Settings.Base == null)
 			{
 				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
 				NetworkReleases.Columns.Clear();
@@ -75,7 +75,7 @@ namespace Uccs.Rdn.FUI
 
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
-			if(!Mcv.Roles.HasFlag(Role.Seed))
+			if(Mcv.Settings is not RdnSettings r || r.Seed == null)
 			{
 				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
 				LocalReleases.Columns.Clear();

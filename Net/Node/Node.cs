@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -51,12 +52,11 @@ namespace Uccs.Net
 	}
 
 	[Flags]
-	public enum Role : uint
+	public enum Role : long
 	{
 		None,
 		Base		= 0b00000001,
-		Chain		= 0b00000011,
-		Seed		= 0b00000100,
+		Chain		= 0b00000010,
 	}
 
 	public class Node : IPeer
@@ -88,7 +88,7 @@ namespace Uccs.Net
 		public bool						IsListener => ListeningThread != null;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections(Mcv mcv) => Peers.Where(i => (mcv == null || i.Ranks.ContainsKey(mcv.Guid)) && i.Status == ConnectionStatus.OK);
-		public IEnumerable<Peer>		Bases(Mcv mcv) => Connections(mcv).Where(i => i.Permanent && i.GetRank(mcv.Guid, Role.Base) > 0);
+		public IEnumerable<Peer>		Bases(Mcv mcv) => Connections(mcv).Where(i => i.Permanent && i.GetRank(mcv.Guid, (long)Role.Base) > 0);
 
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
@@ -165,18 +165,17 @@ namespace Uccs.Net
 				ListeningThread.Start();
 			}
 
-			MainThread = CreateThread(() =>
-			{
-				while(Flow.Active)
-				{
-					var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
+			MainThread = CreateThread(() =>	{
+												while(Flow.Active)
+												{
+													var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
 
-					lock(Lock)
-					{
-						ProcessConnectivity();
-					}
-				}
-			});
+													lock(Lock)
+													{
+														ProcessConnectivity();
+													}
+												}
+											});
 
 			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
@@ -376,7 +375,7 @@ namespace Uccs.Net
 			{
 				c.Post(new PeersBroadcastRequest {Peers = [new Peer {	IP = Settings.IP,
 																		Ranks = Mcvs.ToDictionary(i => i.Guid,
-																								  i => Enum.GetValues<Role>().Where(j => (j & i.Settings.Roles) != 0).ToDictionary(i => i, i => 1))}] });
+																								  i => Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(i.Settings.Roles)).ToDictionary(i => i, i => (byte)1))}] });
 			}
 		}
 
@@ -409,7 +408,7 @@ namespace Uccs.Net
 			{
 				needed = i.Settings.Peering.PermanentBaseMin - Bases(i).Count();
 
-				foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, Role.Base) > 0 &&
+				foreach(var p in Peers	.Where(m =>	m.GetRank(i.Guid, (long)Role.Base) > 0 &&
 													m.Status == ConnectionStatus.Disconnected &&
 													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 										.OrderBy(i => i.Retries)
@@ -757,7 +756,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Peer ChooseBestPeer(Guid mcvid, Role role, HashSet<Peer> exclusions)
+		public Peer ChooseBestPeer(Guid mcvid, long role, HashSet<Peer> exclusions)
 		{
 			return Peers.Where(i => i.GetRank(mcvid, role) > 0 && (exclusions == null || !exclusions.Contains(i)))
 						.OrderByDescending(i => i.Status == ConnectionStatus.OK)
@@ -766,7 +765,7 @@ namespace Uccs.Net
 						.FirstOrDefault();
 		}
 
-		public Peer Connect(Guid mcvid, Role role, HashSet<Peer> exclusions, Flow workflow)
+		public Peer Connect(Guid mcvid, long role, HashSet<Peer> exclusions, Flow workflow)
 		{
 			Peer peer;
 				
@@ -801,7 +800,7 @@ namespace Uccs.Net
 			throw new OperationCanceledException();
 		}
 
-		public Peer[] Connect(Guid mcvid, Role role, int n, Flow workflow)
+		public Peer[] Connect(Guid mcvid, long role, int n, Flow workflow)
 		{
 			var peers = new HashSet<Peer>();
 				
@@ -1008,7 +1007,7 @@ namespace Uccs.Net
 
 			void compare(int table)
 			{
-				var cs = All.Where(i => i.FindMcv(mcv.Guid) != null && i.FindMcv(mcv.Guid).Roles.HasFlag(Role.Base)).Select(i => new {s = i, c = i.FindMcv(mcv.Guid).Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+				var cs = All.Where(i => i.FindMcv(mcv.Guid) != null && i.FindMcv(mcv.Guid).Settings.Base != null).Select(i => new {s = i, c = i.FindMcv(mcv.Guid).Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
 	
 				while(true)
 				{
