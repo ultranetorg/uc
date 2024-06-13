@@ -7,7 +7,7 @@ namespace Uccs.Uos
 		public string ProductsPath;	
 		public string SunAddress; 		
 		public string SunApiKey;
-		public Zone Zone;
+		public Zone	Zone;
 
 		public ResourceHub		ResourceHub;
 		public PackageHub		PackageHub;

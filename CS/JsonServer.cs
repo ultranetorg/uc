@@ -123,7 +123,7 @@ namespace Uccs
 											}
 										});
 
-			Thread.Name = $"{new Uri(settings.ListenAddress).Port} Aping";
+			Thread.Name = $"{settings.ListenAddress} Aping";
 			Thread.Start();
 		}
 

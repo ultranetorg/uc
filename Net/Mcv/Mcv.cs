@@ -578,7 +578,7 @@ namespace Uccs.Net
 				Flow.Log?.Report(this, $"Synchronization Started");
 
 				SynchronizingThread = Node.CreateThread(Synchronizing);
-				SynchronizingThread.Name = $"{Node.Settings.IP?.GetAddressBytes()[3]} Synchronizing";
+				SynchronizingThread.Name = $"{Node.Name} Synchronizing";
 				SynchronizingThread.Start();
 		
 				Synchronization = Synchronization.Downloading;
@@ -1407,7 +1407,7 @@ namespace Uccs.Net
 				{
 					TransactingThread = Node.CreateThread(Transacting);
 
-					TransactingThread.Name = $"{Node.Settings.IP?.GetAddressBytes()[3]} Transacting";
+					TransactingThread.Name = $"{Node.Name} Transacting";
 					TransactingThread.Start();
 				}
 

@@ -45,7 +45,7 @@ namespace Uccs.Net
 			if(rds.Node.IsListener)
 			{
 				DeclaringThread = rds.Node.CreateThread(Declaring);
-				DeclaringThread.Name = $"{Rdn.Node.Settings.IP.GetAddressBytes()[3]} Declaring";
+				DeclaringThread.Name = $"{Rdn.Node.Name} Declaring";
 				DeclaringThread.Start();
 			}
 		}

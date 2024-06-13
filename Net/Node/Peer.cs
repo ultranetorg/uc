@@ -28,6 +28,7 @@ namespace Uccs.Net
 	public class Peer : IPeer, IBinarySerializable
 	{
 		public IPAddress								IP {get; set;} 
+		public string									Name;
 
 		public ConnectionStatus							Status = ConnectionStatus.Disconnected;
 
@@ -71,7 +72,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
+			return $"{Name}, {IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
 		}
  		
 		public byte GetRank(Guid mcvid, long role)
@@ -202,6 +203,7 @@ namespace Uccs.Net
 			Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Node.Timeout;
 
 			PeerRank++;
+			Name		= h.Name;
 			Forced		= false;
 			Status		= ConnectionStatus.OK;
 			Inbound		= inbound;
@@ -214,11 +216,11 @@ namespace Uccs.Net
 			sun.UpdatePeers([this]);
 
 			ListenThread = Sun.CreateThread(Listening);
-			ListenThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
+			ListenThread.Name = $"{host} <- {h.Name}";
 			ListenThread.Start();
 	
 			SendThread = Sun.CreateThread(Sending);
-			SendThread.Name = $"{host} -> {IP.GetAddressBytes()[3]}";
+			SendThread.Name = $"{host} -> {h.Name}";
 			SendThread.Start();
 		}
 

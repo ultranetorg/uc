@@ -15,12 +15,13 @@ namespace Uccs.Net
 		public IPAddress					IP;
 		public bool							Permanent;
 		public Peer[]						Peers;
-		//public IEnumerable<Member>			Generators = new Member[]{};
+		public string						Name;
 
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
 			w.Write(PeerId);
+			w.WriteUtf8(Name);
 			w.Write(Roles, i => {	w.Write(i.Key);
 									w.Write7BitEncodedInt64(i.Value); });
 			w.WriteUtf8(Zone);
@@ -34,6 +35,7 @@ namespace Uccs.Net
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
 			PeerId				= r.ReadGuid();
+			Name				= r.ReadUtf8();
 			Roles				= r.ReadDictionary(	() => r.ReadGuid(), 
 													() => r.Read7BitEncodedInt64());
 			Zone				= r.ReadUtf8();

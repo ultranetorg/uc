@@ -174,7 +174,7 @@ namespace Uccs.Uos
 		{
 			var s = settings ?? new NodeSettings(Settings.Profile);
 
-			Icn = new Node(s, Settings.Zone, Vault, Flow);
+			Icn = new Node(Settings.Name, s, Settings.Zone, Vault, Flow);
 			Icn.RunPeer();
 
 			IcnStarted?.Invoke(Icn);

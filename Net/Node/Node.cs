@@ -5,15 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-using DnsClient;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -108,28 +103,23 @@ namespace Uccs.Net
 		public SunDelegate				MainStarted;
 		public SunDelegate				ApiStarted;
 
-		public static List<Node>			All = new();
-
-		public class Tag
-		{
-			public const string P = "Peering";
-			public const string E = "Establishing";
-			public const string S = "Synchronization";
-			public const string ERR = "Error";
-		}
+		public static List<Node>		All = new();
 		
-		public Node(NodeSettings settings, Zone zone, Vault vault,  Flow workflow)
+		public string					Name;
+
+		public Node(string name, NodeSettings settings, Zone zone, Vault vault,  Flow workflow)
 		{
+			Name = name;
 			Settings = settings;
 			Zone = zone;
 			Vault = vault;
 			Directory.CreateDirectory(Settings.Profile);
 
-			Flow = workflow ?? new Flow(nameof(Node), new Log());
+			Flow = workflow ?? new Flow(Name, new Log());
 
 			if(Flow.Log != null)
 			{
-				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, nameof(Node) + ".log"), m.ToString() + Environment.NewLine);
+				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, Name + ".log"), m.ToString() + Environment.NewLine);
 			}
 
 			var fs = new ColumnFamilies();
@@ -161,7 +151,7 @@ namespace Uccs.Net
 			if(Settings.IP != null)
 			{
 				ListeningThread = CreateThread(Listening);
-				ListeningThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Listening";
+				ListeningThread.Name = $"{Name} Listening";
 				ListeningThread.Start();
 			}
 
@@ -177,7 +167,7 @@ namespace Uccs.Net
 												}
 											});
 
-			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
+			MainThread.Name = $"{Name} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
 		}
@@ -375,7 +365,8 @@ namespace Uccs.Net
 			{
 				c.Post(new PeersBroadcastRequest {Peers = [new Peer {	IP = Settings.IP,
 																		Ranks = Mcvs.ToDictionary(i => i.Guid,
-																								  i => Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(i.Settings.Roles)).ToDictionary(i => i, i => (byte)1))}] });
+																								  i => Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(i.Settings.Roles)).ToDictionary(	i => i,
+																																																		i => (byte)1))}] });
 			}
 		}
 
@@ -437,7 +428,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Flow.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
+				Flow.Log?.Report(this, $"Listening starting {Settings.IP}:{Zone.Port}");
 
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
@@ -479,6 +470,7 @@ namespace Uccs.Net
 				h.Versions		= Versions;
 				h.Zone			= Zone.Name;
 				h.IP			= ip;
+				h.Name			= Name;
 				h.PeerId		= PeerId;
 				h.Peers			= Peers.Where(i => i.Recent).ToArray();
 				h.Permanent		= permanent;
@@ -510,7 +502,7 @@ namespace Uccs.Net
 				}
 				catch(SocketException ex) 
 				{
-					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					Flow.Log?.ReportError(this, $"To {peer.IP}. {ex.Message}" );
 					goto failed;
 				}
 	
@@ -526,7 +518,7 @@ namespace Uccs.Net
 				}
 				catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 				{
-					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					Flow.Log?.ReportError(this, $"To {peer.IP}. {ex.Message}" );
 					goto failed;
 				}
 	
@@ -550,7 +542,7 @@ namespace Uccs.Net
 
 					if(h.PeerId == PeerId)
 					{
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
+						Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
 						IgnoredIPs.Add(peer.IP);
 						Peers.Remove(peer);
 						goto failed;
@@ -559,22 +551,20 @@ namespace Uccs.Net
 					if(IP.Equals(IPAddress.None))
 					{
 						IP = h.IP;
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
+						Flow.Log?.Report(this, $"Reported IP {IP}");
 					}
 	
 					if(peer.Status == ConnectionStatus.OK)
 					{
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
+						Flow.Log?.ReportError(this, $"To {peer.IP}. Already established" );
 						tcp.Close();
 						return;
 					}
 	
 					RefreshPeers(h.Peers.Append(peer));
 	
-					peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
-						
-					Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
-	
+					peer.Start(this, tcp, h, Name, false);
+					Flow.Log?.Report(this, $"Connected to {peer}");
 					return;
 				}
 	
@@ -657,7 +647,7 @@ namespace Uccs.Net
 				}
 				catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 				{
-					Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
+					Flow.Log?.ReportError(this, $"From {ip}. WaitHello -> {ex.Message}");
 					goto failed;
 				}
 				
@@ -686,7 +676,7 @@ namespace Uccs.Net
 
 					if(h.PeerId == PeerId)
 					{
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
+						Flow.Log?.ReportError(this, $"From {ip}. It's me");
 						if(peer != null)
 						{	
 							IgnoredIPs.Add(peer.IP);
@@ -697,14 +687,14 @@ namespace Uccs.Net
 
 					if(peer != null && peer.Status == ConnectionStatus.OK)
 					{
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
+						Flow.Log?.ReportError(this, $"From {ip}. Already established" );
 						goto failed;
 					}
 	
 					if(IP.Equals(IPAddress.None))
 					{
 						IP = h.IP;
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
+						Flow.Log?.Report(this, $"Reported IP {IP}");
 					}
 		
 					try
@@ -713,7 +703,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 					{
-						Flow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
+						Flow.Log?.ReportError(this, $"From {ip}. SendHello -> {ex.Message}");
 						goto failed;
 					}
 	
@@ -737,8 +727,8 @@ namespace Uccs.Net
 	
 					//peer.InStatus = EstablishingStatus.Succeeded;
 					peer.Permanent = h.Permanent;
-					peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
-					Flow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
+					peer.Start(this, client, h, Name, true);
+					Flow.Log?.Report(this, $"Connected from {peer}");
 			
 					IncomingConnections.Remove(client);
 					//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
@@ -1041,7 +1031,7 @@ namespace Uccs.Net
 						{
 							foreach(var i in jes)
 							{
-								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
+								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Name))), i.Key);
 							}
 							
 							Debugger.Break();
