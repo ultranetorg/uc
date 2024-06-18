@@ -30,6 +30,8 @@ namespace Uccs.Net
 		NotSynchronized,
 		NotUnlocked,
 		NoMcv,
+		NoIzn,
+		NoNodeForZone,
 		TooEearly,
 		AllNodesFailed,
 		NotOnlineYet,

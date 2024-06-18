@@ -30,14 +30,14 @@ namespace Uccs.Rdn.FUI
 			Uos.McvStarted += c =>	{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
-														LoadMcv(c);
+														LoadMcv(c as McvNode);
 													});
 									};
-			if(Uos.Icn != null)
+			if(Uos.Izn != null)
 				LoadIcn();
 
-			foreach(var i in Uos.Mcvs)
-				LoadMcv(i);
+			foreach(var i in Uos.Nodes)
+				LoadMcv(i as McvNode);
 		}
 
 		public void BeginClose()
@@ -47,53 +47,53 @@ namespace Uccs.Rdn.FUI
 
 		void LoadIcn()
 		{
-			var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos.Icn)};
+			var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos)};
 			Navigator.Nodes.Add(dashboard);
 
-			var net = new TreeNode("Network"){Tag = new NetworkPanel(Uos.Icn) };
+			var net = new TreeNode("Interzone"){Tag = new NetworkPanel(Uos.Izn)};
 			Navigator.Nodes.Add(net);
 
-			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos.Icn)};
+			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos)};
 			Navigator.Nodes.Add(accs);
 
 			Navigator.SelectedNode = dashboard;
 			Navigator.ExpandAll();
 		}
 
-		void LoadMcv(Mcv mcv)
+		void LoadMcv(McvNode node)
 		{
-			Dashboard.Monitor.Mcv = mcv;
-			Dashboard.Mcvs.Add(mcv);
-
-			var root = new TreeNode("Mcv"){};
+			var root = new TreeNode(node.GetType().Name);
 			Navigator.Nodes.Add(root);
+
+			var net = new TreeNode("Network"){Tag = new NetworkPanel(node)};
+			root.Nodes.Add(net);
 			
-			var m = new TreeNode("Members"){Tag = new MembersPanel(mcv) };
+			var m = new TreeNode("Members"){Tag = new MembersPanel(node)};
 			root.Nodes.Add(m);
 	
-			if(mcv.Settings.Base?.Chain != null)
+			if(node.Mcv.Settings.Base?.Chain != null)
 			{
-				var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(mcv) };
+				var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(node)};
 				root.Nodes.Add(t);
 	
-				var c = new TreeNode("Chain"){Tag = new ChainPanel(mcv) };
+				var c = new TreeNode("Chain"){Tag = new ChainPanel(node)};
 				root.Nodes.Add(c);
 			}
 	
-			if(mcv is Net.Rdn rds)
+			if(node is Net.Rdn rdn)
 			{
-				var d = new TreeNode("Domains"){ Tag = new DomainPanel(rds) };
+				var d = new TreeNode("Domains"){ Tag = new DomainPanel(rdn)};
 				root.Nodes.Add(d);
 		
-				var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rds) };				
+				var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rdn)};
 				root.Nodes.Add(r);
 	
-				var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rds) };
+				var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
 				root.Nodes.Add(e);
 	
-				if(rds.SeedHub != null)
+				if(rdn.SeedHub != null)
 				{
-					var s = new TreeNode("Seed Hub"){ Tag = new HubPanel(rds) };
+					var s = new TreeNode("Seed Hub"){ Tag = new HubPanel(rdn)};
 					root.Nodes.Add(s);
 				}
 			}

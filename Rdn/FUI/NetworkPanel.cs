@@ -9,7 +9,7 @@ namespace Uccs.Rdn.FUI
 	{
 		Flow Flow;
 
-		public NetworkPanel(Net.Node d) : base(d)
+		public NetworkPanel(Node d) : base(d)
 		{
 			InitializeComponent();
 		}
@@ -27,7 +27,7 @@ namespace Uccs.Rdn.FUI
 
 			lock(Node.Lock)
 			{
-				var mids = Node.Peers.SelectMany(p => p.Ranks).DistinctBy(i => i.Key).Select(i => i.Key);
+				var mids = Node.Peers.SelectMany(p => p.Zones).DistinctBy(i => i.Key).Select(i => i.Key);
 	
 				foreach(var i in mids)
 				{
@@ -48,7 +48,7 @@ namespace Uccs.Rdn.FUI
 
 					foreach(var j in mids)
 					{
-						r.SubItems.Add(i.Ranks.TryGetValue(j, out var ranks) ? string.Join(',', ranks.Select(x => $"{x.Key}={x.Value}").ToArray()) : "");
+						r.SubItems.Add(i.Zones.TryGetValue(j, out var ranks) ? string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => ranks.IsSet(i)).Select(x => $"{i}").ToArray()) : "");
 					}
 
 					r.Tag = i;

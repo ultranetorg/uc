@@ -78,7 +78,7 @@ namespace Uccs.Net
 
 		internal void Load()
 		{
-			var d = Hub.Rdn.Database.Get(Encoding.UTF8.GetBytes(Address.ToString()), Hub.ResourceFamily);
+			var d = Hub.Node.Database.Get(Encoding.UTF8.GetBytes(Address.ToString()), Hub.ResourceFamily);
 										
 			if(d != null)
 			{
@@ -100,7 +100,7 @@ namespace Uccs.Net
 
 				b.Put(Encoding.UTF8.GetBytes(Address.ToString()), s.ToArray(), Hub.ResourceFamily);
 				
-				Hub.Rdn.Database.Write(b);
+				Hub.Node.Database.Write(b);
 			}
 		}
 

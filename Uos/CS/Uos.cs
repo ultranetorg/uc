@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
-using System.Text.Json;
 using Uccs.Net;
 
 namespace Uccs.Uos
@@ -16,13 +14,13 @@ namespace Uccs.Uos
 		public delegate void	Delegate(Uos d);
  		public delegate void	McvDelegate(Mcv d);
 	 	
-		public Node				Icn; /// Inter-consensus node
+		public InterzoneNode	Izn; /// Inter-consensus node
 		public static bool		ConsoleAvailable { get; protected set; }
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 		public Flow				Flow = new Flow("uos", new Log()); 
 		public static string	ExeDirectory;
 		public UosSettings		Settings;
-		public List<Mcv>		Mcvs = [];
+		public List<Node>		Nodes = [];
 		public UosApiServer		ApiServer;
 		public IClock			Clock;
 		public Delegate			Stopped;
@@ -30,13 +28,13 @@ namespace Uccs.Uos
 		static Boot				Boot;
 		public static			ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		
-		public Mcv				FindMcv(Guid id) => Mcvs.Find(i => i.Guid == id);
-		public T				Find<T>() where T : Mcv => Mcvs.Find(i => i.GetType() == typeof(T)) as T;
+		public Node				FindMcv(Guid id) => Nodes.Find(i => i.Zone.Id == id);
+		public T				Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
 		//public static List<Uos>			All = new();
 
-		public SunDelegate		IcnStarted;
-		public McvDelegate		McvStarted;
+		public NodeDelegate		IcnStarted;
+		public NodeDelegate		McvStarted;
 
 		static void Main(string[] args)
 		{
@@ -44,7 +42,7 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 			Boot = new Boot(ExeDirectory);
-			var s = new UosSettings(Boot.Profile, "The Uos", Boot.Zone);
+			var s = new UosSettings(Boot.Profile, "The Uos", Interzone.ByName(Boot.Zone));
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Run();
@@ -72,7 +70,7 @@ namespace Uccs.Uos
 			Flow = flow;
 			Clock = clock;
 
-			Vault = new Vault(Settings.Zone, Settings.Profile);
+			Vault = new Vault(Settings.Profile, settings.EncryptVault);
 
 			//Environment.SetEnvironmentVariable(BootProductsPath,productspath);
 			//Environment.SetEnvironmentVariable(BootSunAddress,	sunaddress);
@@ -94,29 +92,30 @@ namespace Uccs.Uos
 
 		public override string ToString()
 		{
-			return string.Join(" - ", new string[]{ Settings.Name,
-													ApiServer != null ? "A" : null, 
-													Icn?.ToString(), 
-													string.Join(" - ", Mcvs)}.Where(i => i != null));
+			var u = string.Join(",", new string[]{	Settings.Name,
+													ApiServer != null ? "A" : null}.Where(i => i != null)); 
+			
+			return string.Join(" - ", [u, Izn, ..Nodes]);
 		}
 
 		public void Stop()
 		{
 			Flow.Abort();
 
+			Stopped?.Invoke(this);
+
 			ApiServer?.Stop();
 
-			foreach(var i in Mcvs.ToArray())
+			foreach(var i in Nodes.ToArray())
 			{	
-				lock(Icn.Lock)
-					Icn.Disconnect(i);
+				lock(Izn.Lock)
+					Izn.Disconnect(i);
 		
 				i.Stop();
-				Mcvs.Remove(i);
+				Nodes.Remove(i);
 			}
 
-			Icn?.Stop();
-			Stopped?.Invoke(this);
+			Izn?.Stop();
 		}
 
 		public void Run()
@@ -170,34 +169,42 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunIcn(NodeSettings settings = null)
+		public void RunIcn(IznSettings settings = null)
 		{
-			var s = settings ?? new NodeSettings(Settings.Profile);
+			var f = Flow.CreateNested(nameof(Izn), new Log());
 
-			Icn = new Node(Settings.Name, s, Settings.Zone, Vault, Flow);
-			Icn.RunPeer();
+			Izn = new InterzoneNode(Settings.Name, Settings.Interzone.Id, Settings.Profile, settings, f);
+			Izn.RunPeer();
 
-			IcnStarted?.Invoke(Icn);
+			IcnStarted?.Invoke(Izn);
 		}
 
-		public void RunMcv(Guid mcvid, McvSettings settings = null, IEthereum ethereum = null, IClock clock = null)
+		public Node RunNode(Guid zuid, NodeSettings settings = null, IEthereum ethereum = null, IClock clock = null, bool peering = false)
 		{
-			if(Rdn.Id == mcvid)
+			if(	RdnZone.Local.Id		== zuid ||
+				RdnZone.Developer.Id	== zuid ||
+				RdnZone.Test.Id			== zuid)
 			{
-				var m = new Rdn(Icn, 
-								settings as RdnSettings ?? new RdnSettings(Settings.Profile), 
-								Path.Join(Settings.Profile, Rdn.Id.ToString()),
-								Flow.CreateNested(nameof(Rdn), Flow.Log),
-								ethereum ?? new Ethereum(settings as RdnSettings ?? new RdnSettings(Settings.Profile)),
-								clock ?? new RealClock());
+				var f = Flow.CreateNested(nameof(Rdn), new Log());
+
+				var n = new Rdn(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
 				
-				Mcvs.Add(m);
+				if(peering)
+				{
+					n.RunPeer();
+				}
 
-				lock(Icn.Lock)
-					Icn.Connect(m);
+				Nodes.Add(n);
 
-				McvStarted?.Invoke(m);
+				lock(Izn.Lock)
+					Izn.Connect(n);
+
+				McvStarted?.Invoke(n);
+
+				return n;
 			}
+
+			throw new NodeException(NodeError.NoNodeForZone);
 		}
 
 		public UosCommand Create(IEnumerable<Xon> commnad, Flow flow)

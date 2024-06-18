@@ -43,7 +43,7 @@ namespace Uccs.Net
 			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			if(RequireDomain(round, Signer, Resource.Domain, out var a) == false)
 				return;

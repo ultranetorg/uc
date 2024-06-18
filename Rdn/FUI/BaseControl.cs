@@ -15,23 +15,24 @@ namespace Uccs.Rdn.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected readonly Node	Node;
-		protected Mcv			Mcv;
-		protected Net.Rdn		Rdn => Mcv as Net.Rdn;
+		protected Uos.Uos			Uos;
+		protected readonly Node		Node;
+		protected McvNode			McvNode => Node as McvNode;
+		protected Mcv				Mcv => McvNode.Mcv;
+		protected Net.Rdn			RdnNode => Node as Net.Rdn;
 
 		public BaseControl()
 		{
 		}
 
-		public BaseControl(Net.Node d)
+		public BaseControl(Node d)
 		{
 			Node = d;
 		}
 
-		public BaseControl(Mcv d)
+		public BaseControl(Uos.Uos d)
 		{
-			Mcv = d;
-			Node = d.Node;
+			Uos = d;
 		}
 
 		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
@@ -46,7 +47,7 @@ namespace Uccs.Rdn.FUI
 					}
 
 			/// TODO: too slow
-			o.AddRange((Mcv as Net.Rdn).Domains.Where(i => i.Owner == owner));
+			o.AddRange((Mcv as Net.RdnMcv).Domains.Where(i => i.Owner == owner));
 
 			return o;
 		}
@@ -85,8 +86,8 @@ namespace Uccs.Rdn.FUI
 	
 			IEnumerable<AccountAddress> keys;
 
-			lock(Node.Lock)
-				keys = Node.Vault.Wallets.Keys.ToArray();
+			lock(Uos)
+				keys = Uos.Vault.Wallets.Keys.ToArray();
 
 			foreach(var i in keys)
 				b.Items.Add(i);
@@ -97,11 +98,11 @@ namespace Uccs.Rdn.FUI
 
 		public void BindAccounts(ComboBox b, Action filled = null)
 		{
-			Node.Vault.AccountsChanged += () => {
+			Uos.Vault.AccountsChanged += () => {
 													BeginInvoke(new Action(() => { 
-																				FillAccounts(b);
-																				filled?.Invoke();
-																			}));
+																					FillAccounts(b);
+																					filled?.Invoke();
+																				}));
 												};
 			FillAccounts(b);
 			filled?.Invoke();
@@ -175,7 +176,7 @@ namespace Uccs.Rdn.FUI
 
 		public AccountKey GetPrivate(AccountAddress account)
 		{
-			if(!Node.Vault.IsUnlocked(account))
+			if(!Uos.Vault.IsUnlocked(account))
 			{
 				var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
 	
@@ -183,7 +184,7 @@ namespace Uccs.Rdn.FUI
 				{
 					try
 					{
-						return Node.Vault.Unlock(account, pa.Password);
+						return Uos.Vault.Unlock(account, pa.Password);
 					}
 					catch(Exception ex)
 					{
@@ -192,7 +193,7 @@ namespace Uccs.Rdn.FUI
 				}
 			}
 
-			return Node.Vault.GetKey(account);
+			return Uos.Vault.GetKey(account);
 		}
 
 		public static string Dump(XonDocument doc)
@@ -238,11 +239,11 @@ namespace Uccs.Rdn.FUI
 		{
 		}
 
-		public MainPanel(Net.Node d) : base(d)
+		public MainPanel(Node d) : base(d)
 		{
 		}
 
-		public MainPanel(Mcv d) : base(d)
+		public MainPanel(Uos.Uos d) : base(d)
 		{
 		}
 	}

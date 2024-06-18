@@ -15,7 +15,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class MembershipPanel : MainPanel
 	{
-		public MembershipPanel(Net.Node d, Vault vault) : base(d)
+		public MembershipPanel(McvNode d, Vault vault) : base(d)
 		{
 			InitializeComponent();
 		}
@@ -29,7 +29,7 @@ namespace Uccs.Rdn.FUI
 
 				UpdateCandidateAccounts();
 
-				Bail.Coins = Node.Zone.BailMin;
+				Bail.Coins = Mcv.Zone.BailMin;
 				IP.Text = Node.IP.ToString();
 			}
 		}

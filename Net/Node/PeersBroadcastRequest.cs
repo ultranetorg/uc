@@ -12,13 +12,13 @@ namespace Uccs.Net
 			if(Peers.Length > 1000)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(Sun.Lock)
+			lock(Node.Lock)
 			{
-				var newfresh = Sun.RefreshPeers(Peers).ToArray();
+				var newfresh = Node.RefreshPeers(Peers).ToArray();
 	
 				if(newfresh.Any())
 				{
-					foreach(var i in Sun.Connections(null).Where(i => i != Peer))
+					foreach(var i in Node.Connections().Where(i => i != Peer))
 					{
 						i.Post(new PeersBroadcastRequest{Peers = newfresh});
 					}

@@ -149,7 +149,7 @@ namespace Uccs.Rdn.CLI
 																
 																Dump(	r.Peers, 
 																		["IP", "Status", "PeerRank", "Mcv(s)"], 
-																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Ranks.Count]);
+																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Zones.Count]);
 													
 																return r;
 															}};

@@ -9,7 +9,7 @@ namespace Uccs.Rdn.FUI
 	{
 		public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
 
-		public AccountsPanel(Net.Node d) : base(d)
+		public AccountsPanel(Uos.Uos d) : base(d)
 		{
 			InitializeComponent();
 
@@ -21,7 +21,7 @@ namespace Uccs.Rdn.FUI
 			{
 				accounts.Items.Clear();
 
-				foreach(var i in Node.Vault.Wallets.Keys)
+				foreach(var i in Uos.Vault.Wallets.Keys)
 				{
 					AddRow(i);
 				}
@@ -41,7 +41,7 @@ namespace Uccs.Rdn.FUI
 	
 										try
 										{
-											t = Mcv?.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account.Balance.ToDecimalString(); 
+											t = McvNode.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account.Balance.ToDecimalString(); 
 										}
 										catch(Exception)
 										{
@@ -74,8 +74,8 @@ namespace Uccs.Rdn.FUI
 			if(f.ShowDialog() == DialogResult.OK)
 			{
 				var acc = AccountKey.Create();
-				Node.Vault.AddWallet(acc, f.Password);
-				Node.Vault.SaveWallet(acc);
+				Uos.Vault.AddWallet(acc, f.Password);
+				Uos.Vault.SaveWallet(acc);
 				
 				AddRow(acc);
 			}
@@ -85,7 +85,7 @@ namespace Uccs.Rdn.FUI
 		{
 			if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				Node.Vault.DeleteWallet(CurrentAccout);
+				Uos.Vault.DeleteWallet(CurrentAccout);
 				accounts.Items.Remove(accounts.SelectedItems[0]);
 			}
 		}
@@ -112,11 +112,11 @@ namespace Uccs.Rdn.FUI
 			var f = new SaveFileDialog();
 
 			f.FileName = CurrentAccout.ToString();
-			f.DefaultExt = Vault.WalletExt(Node.Zone.Cryptography);
+			f.DefaultExt = Vault.WalletExt(Mcv.Zone.Cryptography);
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
-				File.WriteAllBytes(f.FileName, Node.Vault.Wallets[CurrentAccout]);
+				File.WriteAllBytes(f.FileName, Uos.Vault.Wallets[CurrentAccout]);
 			}
 		}
 

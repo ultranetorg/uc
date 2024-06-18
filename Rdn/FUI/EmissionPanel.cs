@@ -9,7 +9,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{
-		public EmissionPanel(Mcv mcv) : base(mcv)
+		public EmissionPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -18,7 +18,7 @@ namespace Uccs.Rdn.FUI
 
 			walletChoice.Checked = true;
 
-			DestLabel.Text += $"\n({Node.Zone.EthereumNetwork} Network)";
+			DestLabel.Text += $"\n({RdnNode.Zone.EthereumNetwork} Network)";
 		}
 
 		public override void Open(bool first)
@@ -89,7 +89,7 @@ namespace Uccs.Rdn.FUI
 		{
 			var v = Nethereum.Util.AddressUtil.Current.IsValidAddressLength(source.Text) && 
 					eth.Wei > 0 && 
-					destination.SelectedItem != null && Node.Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
+					destination.SelectedItem != null && McvNode.Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
 
 			transfer.Enabled = v;
 		}
@@ -143,7 +143,7 @@ namespace Uccs.Rdn.FUI
 				}
 				else if(privatekeyChoice.Checked)
 				{
-					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Node.Zone.EthereumNetwork);
+					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), RdnNode.Zone.EthereumNetwork);
 				}
 
 				if(a != null)

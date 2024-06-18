@@ -13,7 +13,7 @@ namespace Uccs.Net
 		public const string		Renamings = ".renamings"; /// TODO
 
 		public LocalResource	Resource;
-		public LocalRelease		Release => Resource.Last?.Interpretation is Urr a ? Hub.Rdn.ResourceHub.Find(a) : null;
+		public LocalRelease		Release => Resource.Last?.Interpretation is Urr a ? Hub.Node.ResourceHub.Find(a) : null;
 		public PackageHub		Hub;
 		Manifest				_Manifest;
 		public object			Activity;
@@ -31,7 +31,7 @@ namespace Uccs.Net
 					{
 						_Manifest = new Manifest{};
 						
-						lock(Hub.Rdn.ResourceHub.Lock)
+						lock(Hub.Node.ResourceHub.Lock)
 						{
 							_Manifest.Read(new BinaryReader(new MemoryStream(Release.Find(ManifestFile).Read())));
 						}

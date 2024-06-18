@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class TableStampRequest : PeerCall<TableStampResponse>
+	public class TableStampRequest : McvCall<TableStampResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	SuperClusters { get; set; }

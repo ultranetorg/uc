@@ -12,7 +12,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
-		public TransactionsPanel(Mcv mcv) : base(mcv)
+		public TransactionsPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 

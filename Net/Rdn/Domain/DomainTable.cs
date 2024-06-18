@@ -12,7 +12,7 @@ namespace Uccs.Net
 		public override bool			Equal(string a, string b) => a.Equals(b);
 		public override Span<byte>		KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
 
-		public DomainTable(Rdn rds) : base(rds)
+		public DomainTable(RdnMcv rds) : base(rds)
 		{
 		}
 		

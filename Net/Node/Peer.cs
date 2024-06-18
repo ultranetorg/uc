@@ -45,11 +45,11 @@ namespace Uccs.Net
 
 		//public Role										Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int										PeerRank = 0;
-		public Dictionary<Guid, Dictionary<long, byte>>	Ranks = [];
+		public Dictionary<Guid, long>					Zones = [];
 
 		public Dictionary<Role, DateTime>				LastFailure = new();
 
-		public Node										Sun;
+		public Node										Node;
 		TcpClient										Tcp;
 		NetworkStream									Stream;
 		BinaryWriter									Writer;
@@ -75,45 +75,36 @@ namespace Uccs.Net
 			return $"{Name}, {IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
 		}
  		
-		public byte GetRank(Guid mcvid, long role)
+		public bool HasRole(Guid mcvid, long role)
 		{
-			return Ranks.TryGetValue(mcvid, out var ranks) && ranks.TryGetValue(role, out var v) ? v : (byte)0;
+			return Zones.TryGetValue(mcvid, out var ranks) && ranks.IsSet(role);
 			//throw new IntegrityException("Wrong rank");
 		}
 
-  		public void SaveNode(BinaryWriter w)
+  		public void SaveNode(BinaryWriter writer)
   		{
-  			w.Write7BitEncodedInt64(LastSeen.ToBinary());
-			w.Write(PeerRank);
-			w.Write(Ranks, i => { w.Write(i.Key); 
-								  w.Write(i.Value, j => { w.Write7BitEncodedInt64(j.Key);
-														  w.Write(j.Value); });  });
+  			writer.Write7BitEncodedInt64(LastSeen.ToBinary());
+			writer.Write(PeerRank);
+			writer.Write(Zones, i => { writer.Write(i.Key); writer.Write7BitEncodedInt64(i.Value); });
   		}
   
-  		public void LoadNode(BinaryReader r)
+  		public void LoadNode(BinaryReader reader)
   		{
-  			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
-			PeerRank = r.ReadInt32();
-			Ranks = r.ReadDictionary(() => r.ReadGuid(), 
-									 () => r.ReadDictionary(() => r.Read7BitEncodedInt64(), 
-															() => r.ReadByte()));
+  			LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
+			PeerRank = reader.ReadInt32();
+			Zones = reader.ReadDictionary(() => reader.ReadGuid(), () => reader.Read7BitEncodedInt64());
   		}
  
- 		public void Write(BinaryWriter w)
+ 		public void Write(BinaryWriter writer)
  		{
- 			w.Write(IP);
-			w.Write(Ranks, i => { w.Write(i.Key);
-								  w.Write7BitEncodedInt64((int)i.Value.Keys.Aggregate(0L, (a, b) => a|b)); });
+ 			writer.Write(IP);
+			writer.Write(Zones, i => { writer.Write(i.Key); writer.Write7BitEncodedInt64(i.Value); });
  		}
  
  		public void Read(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
-			Ranks = reader.ReadDictionary(() => reader.ReadGuid(), 
-										  () => {
-													var r = reader.Read7BitEncodedInt64();
-													return Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(r)).ToDictionary(i => i, i => (byte)1);
-												});
+			Zones = reader.ReadDictionary(() => reader.ReadGuid(), () => reader.Read7BitEncodedInt64());
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -196,7 +187,7 @@ namespace Uccs.Net
 
 		public void Start(Node sun, TcpClient client, Hello h, string host, bool inbound)
 		{
-			Sun = sun;
+			Node = sun;
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
@@ -211,15 +202,15 @@ namespace Uccs.Net
 			Writer		= new BinaryWriter(Stream);
 			Reader		= new BinaryReader(Stream);
 			LastSeen	= DateTime.UtcNow;
-			Ranks		= h.Roles.ToDictionary(i => i.Key, i => Enumerable.Range(0, 64).Select(j => 1L << j).Where(j => j.IsSet(i.Value)).ToDictionary(i => i, i => (byte)1));
+			Zones		= h.Zones;
 
 			sun.UpdatePeers([this]);
 
-			ListenThread = Sun.CreateThread(Listening);
+			ListenThread = Node.CreateThread(Listening);
 			ListenThread.Name = $"{host} <- {h.Name}";
 			ListenThread.Start();
 	
-			SendThread = Sun.CreateThread(Sending);
+			SendThread = Node.CreateThread(Sending);
 			SendThread.Name = $"{host} -> {h.Name}";
 			SendThread.Start();
 		}
@@ -228,9 +219,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
+				while(Node.Flow.Active && Status == ConnectionStatus.OK)
 				{
-					Sun.Statistics.Sending.Begin();
+					Node.Statistics.Sending.Begin();
 	
 					PeerRequest[] inrq;
 	
@@ -281,14 +272,14 @@ namespace Uccs.Net
 						Outs.Clear();
 					}
 	
-					Sun.Statistics.Sending.End();
+					Node.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny([SendSignal, Sun.Flow.Cancellation.WaitHandle]);
+					WaitHandle.WaitAny([SendSignal, Node.Flow.Cancellation.WaitHandle]);
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Sun.Lock)
+				lock(Node.Lock)
 					Disconnect();
 			}
 
@@ -307,23 +298,22 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(Sun.Flow.Active && Status == ConnectionStatus.OK)
+				while(Node.Flow.Active && Status == ConnectionStatus.OK)
 				{
 					var pk = (PacketType)Reader.ReadByte();
 
-					if(Sun.Flow.Aborted || Status != ConnectionStatus.OK)
+					if(Node.Flow.Aborted || Status != ConnectionStatus.OK)
 						return;
 					
-					Sun.Statistics.Reading.Begin();
+					Node.Statistics.Reading.Begin();
 
 					switch(pk)
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Sun.Constract);
+							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Node.Constract);
 							rq.Peer = this;
-							rq.Sun = Sun;
-							rq.Mcv = Sun.FindMcv(rq.McvId);
+							rq.Node = Node;
 
 							lock(InRequests)
  								InRequests.Add(rq);
@@ -342,7 +332,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Sun.Constract);
+							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Node.Constract);
 
 							lock(OutRequests)
 							{
@@ -362,12 +352,12 @@ namespace Uccs.Net
 						}
 					}
 
-					Sun.Statistics.Reading.End();
+					Node.Statistics.Reading.End();
 				}
 	 		}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Sun.Lock)
+				lock(Node.Lock)
 					Disconnect();
 			}
 
@@ -420,7 +410,7 @@ namespace Uccs.Net
 
 				try
 				{
-					i = WaitHandle.WaitAny([rq.Event, Sun.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+					i = WaitHandle.WaitAny([rq.Event, Node.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
 				catch(ObjectDisposedException)
 				{
@@ -444,9 +434,7 @@ namespace Uccs.Net
 					{
 						if(rq.Response.Error is NodeException e)
 						{
-							if(e.Error == NodeError.NotBase)	Ranks[rq.Mcv.Guid][(long)Role.Base] = 0;
-							if(e.Error == NodeError.NotChain)	Ranks[rq.Mcv.Guid][(long)Role.Chain] = 0;
-							if(e.Error == NodeError.NotSeed)	Ranks[rq.Mcv.Guid][(long)RdnRole.Seed] = 0;
+							Node.OnRequestException(this, e);
 						}
 	
 						throw rq.Response.Error;

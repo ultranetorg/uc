@@ -13,7 +13,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class ApplicationsPanel : MainPanel
 	{
-		public ApplicationsPanel(Net.Node d, Vault vault) : base(d)
+		public ApplicationsPanel(McvNode d, Vault vault) : base(d)
 		{
 			InitializeComponent();
 		}

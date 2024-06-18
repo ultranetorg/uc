@@ -21,13 +21,10 @@ namespace Uccs.Net
 		}
 	}
 
-	public class McvSettings : Settings
+	public class McvSettings : NodeSettings
 	{
-		public PeeringSettings			Peering { get; set; }= new();
 		public Money					Bail { get; set; }
 		public AccountAddress[]			Generators { get; set; } = [];
-		public string					GoogleSearchEngineID { get; set; }
-		public string					GoogleApiKey { get; set; }
 		//public List<AccountAddress>	ProposedFundJoiners = new();
 		//public List<AccountAddress>	ProposedFundLeavers = new();
 		public BaseSettings				Base { get; set; }
@@ -35,11 +32,11 @@ namespace Uccs.Net
 		public virtual long				Roles =>	(Base != null ? (long)Role.Base : 0) |
 													(Base?.Chain != null ? (long)Role.Chain : 0);
 
-		public McvSettings() : base(NetXonTextValueSerializator.Default)
+		public McvSettings()
 		{
 		}
 
-		public McvSettings(string profile, string filename) : base(profile, filename, NetXonTextValueSerializator.Default)
+		public McvSettings(string profile) : base(profile)
 		{
 		}
 	}

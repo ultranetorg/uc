@@ -32,7 +32,7 @@ namespace Uccs.Net
 
 		private AccountAddress			_Signer;
 		public AccountAddress			Signer { get => _Signer ??= Zone.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-		public Zone						Zone;
+		public McvZone						Zone;
 		public TransactionStatus		Status;
 		public IPeer				Rdi;
 		public Flow						Flow;
@@ -102,7 +102,7 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.WriteUtf8(Zone.Name); 
+			w.Write(Zone.Id); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);

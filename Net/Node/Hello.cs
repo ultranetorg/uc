@@ -10,8 +10,8 @@ namespace Uccs.Net
 	{
 		public int[]						Versions;
 		public Guid							PeerId;
-		public Dictionary<Guid, long>		Roles;
-		public string						Zone;
+		public Dictionary<Guid, long>		Zones;
+		public Guid							ZoneId;
 		public IPAddress					IP;
 		public bool							Permanent;
 		public Peer[]						Peers;
@@ -20,11 +20,11 @@ namespace Uccs.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
+			w.Write(ZoneId);
 			w.Write(PeerId);
 			w.WriteUtf8(Name);
-			w.Write(Roles, i => {	w.Write(i.Key);
+			w.Write(Zones, i => {	w.Write(i.Key);
 									w.Write7BitEncodedInt64(i.Value); });
-			w.WriteUtf8(Zone);
 			w.Write(IP);
 			w.Write(Permanent);
 			w.Write(Peers, i => i.Write(w));
@@ -34,11 +34,11 @@ namespace Uccs.Net
 		public void Read(BinaryReader r)
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
+			ZoneId				= r.ReadGuid();
 			PeerId				= r.ReadGuid();
 			Name				= r.ReadUtf8();
-			Roles				= r.ReadDictionary(	() => r.ReadGuid(), 
+			Zones				= r.ReadDictionary(	() => r.ReadGuid(), 
 													() => r.Read7BitEncodedInt64());
-			Zone				= r.ReadUtf8();
 			IP					= r.ReadIPAddress();
 			Permanent			= r.ReadBoolean();
 			Peers				= r.Read<Peer>(i => {

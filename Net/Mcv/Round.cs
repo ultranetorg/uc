@@ -64,7 +64,7 @@ namespace Uccs.Net
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 
 		public Mcv											Mcv;
-		public Zone											Zone => Mcv.Zone;
+		public McvZone											Zone => Mcv.Zone;
 
 		public int RequiredVotes
 		{

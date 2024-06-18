@@ -8,11 +8,11 @@ namespace Uccs.Net
 {
 	public abstract class RdnOperation : Operation
 	{
-		public abstract void Execute(Rdn mcv, RdnRound round);
+		public abstract void Execute(RdnMcv mcv, RdnRound round);
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			Execute(mcv as Rdn, round as RdnRound);
+			Execute(mcv as RdnMcv, round as RdnRound);
 		}
 
 		public bool RequireDomain(RdnRound round, AccountAddress signer, string name, out DomainEntry domain)

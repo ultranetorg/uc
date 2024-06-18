@@ -7,13 +7,13 @@
 
 		public override PeerResponse Execute()
 		{
-			lock(Sun.Lock)
+			lock(Node.Lock)
 			{	
 				RequireMember();
 			}
 
-			lock(Rdn.SeedHub.Lock)
-				return new DeclareReleaseResponse {Results = Rdn.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
+			lock(Node.SeedHub.Lock)
+				return new DeclareReleaseResponse {Results = Node.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
 		}
 	}
 

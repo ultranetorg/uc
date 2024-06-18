@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class TransactionStatusRequest : PeerCall<TransactionStatusResponse>
+	public class TransactionStatusRequest : McvCall<TransactionStatusResponse>
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 
@@ -16,7 +16,7 @@ namespace Uccs.Net
 						{
 							LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new{Q = t,
-																		T = Mcv.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
+																		T = Node.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
 																			?? 
 																			Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,

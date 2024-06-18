@@ -75,7 +75,7 @@ namespace Uccs.Net
 			Generator			= reader.Read<EntityId>();
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var a = mcv.Domains.Find(Name, round.Id);
 
@@ -87,7 +87,7 @@ namespace Uccs.Net
 
 			if(RankCheck)
 			{
-				Affect(round, Signer).Balance -= mcv.Zone.DomainRankCheckFee;
+				Affect(round, Signer).Balance -= (mcv.Zone as RdnZone).DomainRankCheckFee;
 			}
 		}
 

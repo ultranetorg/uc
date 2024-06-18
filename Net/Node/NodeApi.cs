@@ -101,7 +101,7 @@ namespace Uccs.Net
 																																				IP			= i.IP,			
 																																				Status		= i.StatusDescription,
 																																				PeerRank	= i.PeerRank,
-																																				Ranks		= i.Ranks,
+																																				Zones		= i.Zones,
 																																				LastSeen	= i.LastSeen,
 																																				LastTry		= i.LastTry,
 																																				Retries		= i.Retries	
@@ -112,13 +112,13 @@ namespace Uccs.Net
 		{
 			public class Peer
 			{
-				public IPAddress								IP { get; set; }
-				public string									Status  { get; set; }
-				public int										PeerRank { get; set; }
-				public DateTime									LastSeen { get; set; }
-				public DateTime									LastTry { get; set; }
-				public int										Retries { get; set; }
-				public Dictionary<Guid, Dictionary<long, byte>>	Ranks { get; set; }
+				public IPAddress				IP { get; set; }
+				public string					Status  { get; set; }
+				public int						PeerRank { get; set; }
+				public DateTime					LastSeen { get; set; }
+				public DateTime					LastTry { get; set; }
+				public int						Retries { get; set; }
+				public Dictionary<Guid, long>	Zones { get; set; }
 			}
 
 			public IEnumerable<Peer> Peers {get; set;}
@@ -136,12 +136,15 @@ namespace Uccs.Net
 				List<KeyValuePair<string, string>> f =
 				[
 					new ("Version",						sun.Version.ToString()),
-					new ("Zone",						sun.Zone.Name),
 					new ("Profile",						sun.Settings.Profile),
-					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"),
+					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Settings.Port}"),
 					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
 				];
-				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
+
+				if(sun is Rdn m)
+				{
+					f.Add(new ("Zone",  m.Zone.Name));
+				}
 
 				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
 				f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));

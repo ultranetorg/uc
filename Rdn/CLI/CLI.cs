@@ -12,8 +12,8 @@ namespace Uccs.Rdn.CLI
 	public class Program
 	{
 		public string			ExeDirectory;
-		public Zone				Zone;
-		public Node				Node;
+		public RdnZone			Zone;
+		public Net.Rdn			Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 		public NodeSettings		Settings;
@@ -25,12 +25,12 @@ namespace Uccs.Rdn.CLI
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new Boot(ExeDirectory);
-			Settings = new NodeSettings(b.Profile);
+			Settings = new RdnSettings(b.Profile);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
 
-			Zone = b.Zone;
+			Zone = RdnZone.ByName(b.Zone);
 
 			try
 			{
@@ -66,7 +66,7 @@ namespace Uccs.Rdn.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(Node sun, JsonClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(Net.Rdn sun, JsonClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Node = sun;
 			Zone = sun.Zone;

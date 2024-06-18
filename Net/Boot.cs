@@ -7,11 +7,11 @@ namespace Uccs.Net
 {
 	public class Boot
 	{
-		public const string		FileName = "Uos.boot";
+		public const string	FileName = "Uos.boot";
 
-		public Xon				Commnand;
-	 	public string			Profile;
-		public Zone				Zone;
+		public Xon			Commnand;
+	 	public string		Profile;
+		public string		Zone;
 
 		public Boot()
 		{
@@ -22,15 +22,15 @@ namespace Uccs.Net
 			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, FileName)));
 			Commnand = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
-			if(Commnand.Has("zone"))
-				Zone = Zone.OfficialByName(Commnand.Get<string>("zone"));
+			if(Commnand.Has("Zone"))
+				Zone = Commnand.Get<string>("Zone");
 			else
-				Zone = Zone.OfficialByName(b.Get<string>("Zone"));
+				Zone = b.Get<string>("Zone");
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
 			else
-				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
+				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone);
 		}
 	}
 }

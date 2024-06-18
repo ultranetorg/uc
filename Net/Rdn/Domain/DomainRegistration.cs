@@ -51,7 +51,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var e = mcv.Domains.Find(Address, round.Id);
 						

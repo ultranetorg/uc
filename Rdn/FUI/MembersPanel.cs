@@ -7,7 +7,7 @@ namespace Uccs.Rdn.FUI
 	{
 		Font Bold;
 
-		public MembersPanel(Mcv mcv) : base(mcv)
+		public MembersPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 

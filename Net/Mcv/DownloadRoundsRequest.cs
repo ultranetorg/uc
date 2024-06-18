@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadRoundsRequest : PeerCall<DownloadRoundsResponse>
+	public class DownloadRoundsRequest : McvCall<DownloadRoundsResponse>
 	{
 		public int From { get; set; }
 		public int To { get; set; }

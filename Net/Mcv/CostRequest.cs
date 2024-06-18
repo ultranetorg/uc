@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class CostRequest : PeerCall<CostResponse>
+	public class CostRequest : McvCall<CostResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 

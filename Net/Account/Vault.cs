@@ -11,10 +11,10 @@ namespace Uccs.Net
 		public const string							PrivakeKeyWalletExtention = "sunwpk";
 		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : PrivakeKeyWalletExtention;
 
-		Zone										Zone;
 		string										Profile;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
 		public List<AccountKey>						Keys = new();
+		public Cryptography							Cryptography;
 
 		public event Action							AccountsChanged;						
 
@@ -24,16 +24,16 @@ namespace Uccs.Net
 																		"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
 																		"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
-		public Vault(Zone zone, string profile)
+		public Vault(string profile, bool encrypt)
 		{
-			Zone = zone;
 			Profile = profile;
+			Cryptography = encrypt ? new EthereumCryptography() : new NoCryptography() ;
 
 			Directory.CreateDirectory(profile);
 
 			if(Directory.Exists(profile))
 			{
-				foreach(var i in Directory.EnumerateFiles(profile, "*." + WalletExt(Zone.Cryptography)))
+				foreach(var i in Directory.EnumerateFiles(profile, "*." + WalletExt(Cryptography)))
 				{
 					Wallets[AccountAddress.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
 				}
@@ -47,14 +47,14 @@ namespace Uccs.Net
 
 		public void AddWallet(byte[] wallet)
 		{
-			var a  = Zone.Cryptography.AccountFromWallet(wallet);
+			var a  = Cryptography.AccountFromWallet(wallet);
 
 			Wallets[a] = wallet;
 		}
 
 		public void AddWallet(AccountKey key, string password)
 		{
-			Wallets[key] = key.Save(Zone.Cryptography, password);
+			Wallets[key] = key.Save(Cryptography, password);
 		}
 
 		public AccountKey AddWallet(byte[] privatekey, string password)
@@ -67,7 +67,7 @@ namespace Uccs.Net
 			if(Wallets.ContainsKey(k))
 				throw new ArgumentException();
 
-			Wallets[k] = k.Save(Zone.Cryptography, password);
+			Wallets[k] = k.Save(Cryptography, password);
 
 			return k;
 		}
@@ -77,7 +77,7 @@ namespace Uccs.Net
 			if(Keys.Contains(a))
 				return Keys.Find(i => i == a);
 
-			var p = AccountKey.Load(Zone.Cryptography, Wallets[a], password);
+			var p = AccountKey.Load(Cryptography, Wallets[a], password);
 
 			Keys.Add(p);
 
@@ -102,7 +102,7 @@ namespace Uccs.Net
 
 		public string SaveWallet(AccountAddress account)
 		{
-			var path = Path.Combine(Profile, account.ToString() + "." + WalletExt(Zone.Cryptography));
+			var path = Path.Combine(Profile, account.ToString() + "." + WalletExt(Cryptography));
 
 			File.WriteAllBytes(path, Wallets[account]);
 
@@ -113,7 +113,7 @@ namespace Uccs.Net
 
 		public void DeleteWallet(AccountAddress account)
 		{
-			File.Delete(Path.Combine(Profile, account.ToString() + "." + WalletExt(Zone.Cryptography)));
+			File.Delete(Path.Combine(Profile, account.ToString() + "." + WalletExt(Cryptography)));
 
 			Keys.RemoveAll(i => i == account);
 

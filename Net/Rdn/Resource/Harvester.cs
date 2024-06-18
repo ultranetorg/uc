@@ -45,7 +45,7 @@ namespace Uccs.Net
 									{
 										try
 										{
-											var lr = Collector.Rdn.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
+											var lr = Collector.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
 	
 											lock(Collector.Lock)
 											{
@@ -61,14 +61,14 @@ namespace Uccs.Net
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Rdn.RdnSettings.Seed.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Mcv.Settings.Seed.CollectRefreshInterval);
 									}
 								}, 
 								Collector.Flow.Cancellation);
 			}
 		}
 
-		public Rdn					Rdn;
+		public Rdn				Node;
 		public Flow					Flow;
 		public List<Hub>			Hubs = new();
 		public List<Seed>			Seeds = new();
@@ -82,16 +82,16 @@ namespace Uccs.Net
 
 		public Harvester(Rdn sun, Urr address, Flow flow)
 		{
-			Rdn = sun;
+			Node = sun;
 			Flow = flow.CreateNested($"SeedCollector {address}");
 			Hub hlast = null;
 
- 			Thread = Rdn.Node.CreateThread(() =>	{ 
+ 			Thread = Node.CreateThread(() =>	{ 
 													while(Flow.Active)
 													{
 														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 														{
-															var r = Rdn.Call(() => new MembersRequest(), Flow);
+															var r = Node.Call(() => new MembersRequest(), Flow);
 
 															lock(Lock)
 																Members = r.Members.ToArray();
@@ -143,14 +143,14 @@ namespace Uccs.Net
 												{
 													if(s.Peer == null)
 													{
-														s.Peer = Rdn.Node.GetPeer(s.IP);
+														s.Peer = Node.GetPeer(s.IP);
 													}
 			
 													try
 													{
 														Monitor.Exit(Lock);
 			
-														Rdn.Node.Connect(s.Peer, Flow);
+														Node.Connect(s.Peer, Flow);
 															
 														s.Failed = DateTime.MinValue;
 													}

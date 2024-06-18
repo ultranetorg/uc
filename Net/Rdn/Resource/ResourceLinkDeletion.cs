@@ -33,7 +33,7 @@ namespace Uccs.Net
 			Destination	= reader.Read<ResourceId>();
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			if(Require(round, Signer, Source, out var sd, out var sr) == false)
 				return;

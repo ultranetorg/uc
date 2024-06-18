@@ -8,12 +8,12 @@ namespace Uccs.Net
 	public class RdnRound : Round
 	{
 		public List<DomainMigration>			Migrations;
-		public Rdn								Rdn => Mcv as Rdn;
+		public RdnMcv								Rdn => Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
 		public ForeignResult[]					ConsensusMigrations = {};
 		public ForeignResult[]					ConsensusEmissions = {};
 
-		public RdnRound(Rdn rds) : base(rds)
+		public RdnRound(RdnMcv rds) : base(rds)
 		{
 		}
 

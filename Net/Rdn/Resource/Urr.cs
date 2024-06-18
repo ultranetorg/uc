@@ -243,7 +243,7 @@ namespace Uccs.Net
 		public AccountAddress	Owner { get; set; }
 		public Ura				Resource { get; set; }
 
-		public Urr Create(Rdn sun, byte[] hash)
+		public Urr Create(RdnMcv sun, byte[] hash)
 		{
 			return Type	switch
 						{

@@ -21,7 +21,7 @@ namespace Uccs.Net
 			DependenciesRecursiveCount		= download.DependenciesRecursiveCount;
 			DependenciesRecursiveSuccesses	= download.DependenciesRecursiveSuccesses;
 	
-			lock(download.Package.Hub.Rdn.ResourceHub.Lock)
+			lock(download.Package.Hub.Node.ResourceHub.Lock)
 			{
 				CurrentFiles = download.Package.Release?.Files	.Where(i => i.Activity is FileDownload)
 																.Select(i => new FileDownloadProgress(i.Activity as FileDownload))

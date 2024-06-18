@@ -9,20 +9,19 @@ namespace Uccs.Uos
 {
 	public class UosSettings : Settings
 	{
-		public const string				FileName = "Uos.settings";
-		public Zone						Zone;
 		public string					Name;
+		public Zone						Interzone { get; set; }
+		public bool						EncryptVault { get; set; }
 		public ApiSettings				Api { get; set; }
-		public Guid						CliDefaultMcv { get; set; } = Rdn.Id;
 
 		public UosSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 
-		public UosSettings(string profile, string name, Zone zone) : base(profile, FileName, NetXonTextValueSerializator.Default)
+		public UosSettings(string profile, string name, Zone interzone) : base(profile, NetXonTextValueSerializator.Default)
 		{
 			Name = name;
-			Zone = zone;
+			Interzone = interzone;
 		}
 	}
 }

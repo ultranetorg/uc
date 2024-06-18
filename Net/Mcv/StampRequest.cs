@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class StampRequest : PeerCall<StampResponse>
+	public class StampRequest : McvCall<StampResponse>
 	{
 		public override PeerResponse Execute()
 		{

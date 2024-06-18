@@ -31,7 +31,7 @@ namespace Uccs.Net
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			//if(Require(round, null, Resource, out var d, out var r) == false)
 			//	return;

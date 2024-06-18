@@ -11,20 +11,21 @@ namespace Uccs
 	public class Settings
 	{
 		public string					Profile;
-		public string					Path; 
+		public virtual string			FileName => GetType().Name.Remove(GetType().Name.Length - nameof(Settings).Length) + Extention;
+		public string					Path => System.IO.Path.Join(Profile, FileName); 
 		IXonValueSerializator			Serializator;
+		public const string				Extention = ".settings";
 		
 		public Settings(IXonValueSerializator serializator)
 		{
 			Serializator  = serializator;
 		}
 		
-		public Settings(string profile, string filename, IXonValueSerializator serializator) : this(serializator)
+		public Settings(string profile, IXonValueSerializator serializator) : this(serializator)
 		{
 			Directory.CreateDirectory(profile);
 
 			Profile = profile;
-			Path = System.IO.Path.Join(profile, filename);
 
 			if(File.Exists(Path))
 			{
@@ -84,7 +85,6 @@ namespace Uccs
 			var r = Activator.CreateInstance(GetType()) as Settings;
 
 			r.Profile = Profile;
-			r.Path = Path;
 
 			foreach(var p in GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
@@ -144,7 +144,7 @@ namespace Uccs
 							parent.Add(name);
 						}
 					}
-					else if(type.IsArray)
+					else if(type.IsArray && value != null)
 					{
 						foreach(var i in value as IEnumerable)
 						{
@@ -162,6 +162,8 @@ namespace Uccs
 
 				save(doc, i.Name, i.PropertyType, i.GetValue(this));
 			}
+
+			Directory.CreateDirectory(Profile);
 
 			using(var s = File.Create(Path))
 			{

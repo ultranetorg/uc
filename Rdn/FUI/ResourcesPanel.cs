@@ -6,7 +6,7 @@ namespace Uccs.Rdn.FUI
 	{
 		Flow ManifestWorkflow;
 
-		public ResourcesPanel(Mcv mcv) : base(mcv)
+		public ResourcesPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -47,7 +47,7 @@ namespace Uccs.Rdn.FUI
 			{
 				NetworkReleases.Items.Clear();
 
-				foreach(var r in Rdn.QueryResource(NetworkQuery.Text))
+				foreach(var r in RdnNode.Mcv.QueryResource(NetworkQuery.Text))
 				{
 					var i = new ListViewItem(r.Id.ToString());
 
@@ -87,7 +87,7 @@ namespace Uccs.Rdn.FUI
 
 			LocalReleases.Items.Clear();
 
-			foreach(var i in Rdn.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
+			foreach(var i in RdnNode.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
 			{
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;

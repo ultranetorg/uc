@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class TimeRequest : PeerCall<TimeResponse>
+	public class TimeRequest : McvCall<TimeResponse>
 	{
 		public override PeerResponse Execute()
 		{

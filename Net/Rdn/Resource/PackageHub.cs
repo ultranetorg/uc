@@ -10,14 +10,14 @@ namespace Uccs.Net
 {
 	public class PackageHub
 	{
-		SeedSettings							Settings;
-		public List<LocalPackage>				Packages = new();
-		public Rdn								Rdn;
-		public object							Lock = new object();
+		SeedSettings				Settings;
+		public List<LocalPackage>	Packages = new();
+		public Rdn					Node;
+		public object				Lock = new object();
 
 		public PackageHub(Rdn sun, SeedSettings settings)
 		{
-			Rdn = sun;
+			Node = sun;
 			Settings = settings;
 
 			Directory.CreateDirectory(Settings.Packages);
@@ -56,7 +56,7 @@ namespace Uccs.Net
 			if(p.Release == null)
 				return false;
 	
-			lock(Rdn.ResourceHub.Lock)
+			lock(Node.ResourceHub.Lock)
 			{
 				if(	p.Release.Availability.HasFlag(Availability.Complete) || 
 					p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsReady(i.Release)))
@@ -75,9 +75,9 @@ namespace Uccs.Net
 			if(p != null)
 				return p;
 
-			lock(Rdn.ResourceHub.Lock)
+			lock(Node.ResourceHub.Lock)
 			{
-				var r = Rdn.ResourceHub.Find(resource) ?? Rdn.ResourceHub.Add(resource);
+				var r = Node.ResourceHub.Find(resource) ?? Node.ResourceHub.Add(resource);
 				p = new LocalPackage(this, r);
 			}
 
@@ -95,9 +95,9 @@ namespace Uccs.Net
  
  			LocalResource r;
  
- 			lock(Rdn.ResourceHub.Lock)
+ 			lock(Node.ResourceHub.Lock)
  			{
- 				r = Rdn.ResourceHub.Find(resource);
+ 				r = Node.ResourceHub.Find(resource);
  
  				if(r != null)
  				{
@@ -186,7 +186,7 @@ namespace Uccs.Net
 
 			string path;
 				
-			lock(Rdn.ResourceHub)
+			lock(Node.ResourceHub)
 				path = Find(previous).Release.Find(LocalPackage.CompleteFile).LocalPath;
 
 			using(var s = new FileStream(path, FileMode.Open))
@@ -256,7 +256,7 @@ namespace Uccs.Net
 
 		public void DetermineDelta(Ura package, Manifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
-			lock(Rdn.ResourceHub.Lock)
+			lock(Node.ResourceHub.Lock)
 			{
 				var from = manifest.Parents.LastOrDefault(i => IsReady(i.Release));
 		
@@ -329,10 +329,10 @@ namespace Uccs.Net
 
 			///Add(release, m);
 			
- 			lock(Rdn.ResourceHub.Lock)
+ 			lock(Node.ResourceHub.Lock)
  			{
-				m.CompleteHash		= Rdn.ResourceHub.Zone.Cryptography.HashFile(cstream.ToArray());
-				m.IncrementalHash	= istream != null ? Rdn.ResourceHub.Zone.Cryptography.HashFile(istream.ToArray()) : null;
+				m.CompleteHash		= Node.ResourceHub.Zone.Cryptography.HashFile(cstream.ToArray());
+				m.IncrementalHash	= istream != null ? Node.ResourceHub.Zone.Cryptography.HashFile(istream.ToArray()) : null;
 
 				if(previous != null) /// a single parent supported only
 				{
@@ -347,10 +347,10 @@ namespace Uccs.Net
 					m.History = history.Append(previous).ToArray();
 				}
 
-				var h = Rdn.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
+				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
 
-				var a = addresscreator.Create(Rdn, h);
-				var r = Rdn.ResourceHub.Add(a, DataType.Package);
+				var a = addresscreator.Create(Node.Mcv, h);
+				var r = Node.ResourceHub.Add(a, DataType.Package);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
 				r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream.ToArray());
@@ -371,12 +371,12 @@ namespace Uccs.Net
 
 		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
-			var r = Rdn.ResourceHub.Find(resource);
+			var r = Node.ResourceHub.Find(resource);
 			var m = new Manifest();
 		
 			if(r != null)
 			{
-				var c = Rdn.ResourceHub.Find(r.LastAs<Urr>());
+				var c = Node.ResourceHub.Find(r.LastAs<Urr>());
 				m.Read(new BinaryReader(new MemoryStream(c.Find("m").Read())));
 			}
 		
@@ -515,7 +515,7 @@ namespace Uccs.Net
 			else if(p.Activity != null)
 				throw new ResourceException(ResourceError.Busy);
 				
-			d = new PackageDownload(Rdn, p, workflow);
+			d = new PackageDownload(Node, p, workflow);
 
 			return d;
 		}

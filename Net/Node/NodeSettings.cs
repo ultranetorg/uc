@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,33 +9,33 @@ namespace Uccs.Net
 {
 	public class PeeringSettings : Settings
 	{
-		public int		PermanentMin { get; set; } = 6;
-		public int		PermanentBaseMin { get; set; } = 6;
-		public int		PermanentInboundMax { get; set; } = 128;
-		public int		InboundMax { get; set; } = 16 * 1024;
-		public bool		InitialRandomization { get; set; } = true;
+		public int				PermanentMin { get; set; } = 6;
+		public int				PermanentBaseMin { get; set; } = 6;
+		public int				PermanentInboundMax { get; set; } = 128;
+		public int				InboundMax { get; set; } = 16 * 1024;
+		public bool				InitialRandomization { get; set; } = true;
 
 		public PeeringSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 	}
 
-	public class NodeSettings : Settings
+	public abstract class NodeSettings : Settings
 	{
-		public const string			FileName = "Sun.settings";
 
+		public ApiSettings			Api { get; set; }
 		public IPAddress			IP { get; set; }
+		public ushort				Port { get; set; }
 		public bool					Log { get; set; }
 		public int					RdcQueryTimeout { get; set; } = 5000;
 		public int					RdcTransactingTimeout { get; set; } = 5*60*1000;
-		public Guid					CliDefaultMcv { get; set; } = Rdn.Id;
 		public PeeringSettings		Peering { get; set; } = new();
 
 		public NodeSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 
-		public NodeSettings(string profile) : base(profile, FileName, NetXonTextValueSerializator.Default)
+		public NodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
 		{
 			if(Debugger.IsAttached)
 			{

@@ -14,7 +14,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class ChainPanel : MainPanel
 	{
-		public ChainPanel(Mcv mcv) : base(mcv)
+		public ChainPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 		}

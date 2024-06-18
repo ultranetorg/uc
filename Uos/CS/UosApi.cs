@@ -25,20 +25,10 @@ namespace Uccs.Uos
 				
 			if(call is NodeApc s)
 			{
-				if(Uos.Icn == null)
-					throw new NodeException(NodeError.NoMcv);
-
-				return s.Execute(Uos.Icn, request, response, flow);
-			}
-
-			if(call is McvApc m)
-			{
-				var mcv = Uos.Icn?.FindMcv(m.Mcvid);
-
-				if(mcv == null)
-					throw new NodeException(NodeError.NoMcv);
-
-				return m.Execute(mcv, request, response, flow);
+				if(Uos.Izn == null)
+					throw new NodeException(NodeError.NoIzn);
+	
+				return s.Execute(Uos.Izn, request, response, flow);
 			}
 
 			throw new ApiCallException("Unknown call");
@@ -66,7 +56,7 @@ namespace Uccs.Uos
 
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.RunMcv(Mcvid);
+			uos.RunNode(Mcvid);
 
 			return null;
 		}
@@ -98,7 +88,7 @@ namespace Uccs.Uos
 		}
 	}
 
-	public class UnlockWalletUosApc : UosApc
+	public class UnlockWalletApc : UosApc
 	{
 		public AccountAddress	Account { get; set; }
 		public string			Password { get; set; }

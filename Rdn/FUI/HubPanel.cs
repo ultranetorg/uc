@@ -13,7 +13,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class HubPanel : MainPanel
 	{
-		public HubPanel(Mcv mcv) : base(mcv)
+		public HubPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -61,7 +61,7 @@ namespace Uccs.Rdn.FUI
 
 			lock(Node.Lock)
 			{
-				foreach(var i in Rdn.SeedHub.Releases.Take(1000))
+				foreach(var i in RdnNode.SeedHub.Releases.Take(1000))
 				{
 					var r = Packages.Items.Add(i.Key.ToString());
 					//r.SubItems.Add(i.Key.Resource);

@@ -55,16 +55,49 @@ namespace Uccs.Net
 	{
 	}
 
+	public abstract class McvCall<R> : PeerCall<R> where R : PeerResponse
+	{
+		public new McvNode	Node => base.Node as McvNode;
+		public Mcv			Mcv => Node.Mcv;
+
+		protected void RequireBase()
+		{
+			if(Mcv.Settings.Base == null)
+				throw new NodeException(NodeError.NotBase);
+
+			if(Node is McvNode m && m.Synchronization != Synchronization.Synchronized)
+				throw new NodeException(NodeError.NotSynchronized);
+		}
+
+// 		protected Rdn RequireRdnBase(Sun sun)
+// 		{
+// 			RequireBase();
+// 
+// 			var r = sun.Mcv as Rdn;
+// 
+// 			if(r == null)
+// 				throw new NodeException(NodeError.NoMcv);
+// 
+// 			return r;
+// 		}
+
+		protected void RequireMember()
+		{
+			RequireBase();
+
+			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Account))) 
+				throw new NodeException(NodeError.NotMember);
+		}
+	}
+
 	public abstract class PeerRequest : Packet
 	{
 		public override byte			TypeCode => (byte)Class;
 		public virtual bool				WaitResponse { get; protected set; } = true;
-		public Guid						McvId { get; set; }
 		
 		public ManualResetEvent			Event;
 		public PeerResponse				Response;
-		public Node						Sun;
-		public Mcv						Mcv;
+		public Node						Node;
 
 		public abstract PeerResponse	Execute();
 
@@ -122,35 +155,6 @@ namespace Uccs.Net
 
 				return null;
 			}
-		}
-
-		protected void RequireBase()
-		{
-			if(Mcv.Settings.Base == null)
-				throw new NodeException(NodeError.NotBase);
-
-			if(Mcv.Synchronization != Synchronization.Synchronized)
-				throw new NodeException(NodeError.NotSynchronized);
-		}
-
-// 		protected Rdn RequireRdnBase(Sun sun)
-// 		{
-// 			RequireBase();
-// 
-// 			var r = sun.Mcv as Rdn;
-// 
-// 			if(r == null)
-// 				throw new NodeException(NodeError.NoMcv);
-// 
-// 			return r;
-// 		}
-
-		protected void RequireMember()
-		{
-			RequireBase();
-
-			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Account))) 
-				throw new NodeException(NodeError.NotMember);
 		}
 	}
 

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadTableRequest : PeerCall<DownloadTableResponse>
+	public class DownloadTableRequest : McvCall<DownloadTableResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	ClusterId { get; set; }

@@ -4,7 +4,7 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class DomainPanel : MainPanel
 	{
-		public DomainPanel(Mcv mcv) : base(mcv)
+		public DomainPanel(McvNode mcv) : base(mcv)
 		{
 			InitializeComponent();
 
@@ -38,7 +38,7 @@ namespace Uccs.Rdn.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Mcv.Call(() => new DomainRequest(DomainSearch.Text), Node.Flow).Domain;
+				var a = McvNode.Call(() => new DomainRequest(DomainSearch.Text), Node.Flow).Domain;
 	
 				if(a != null)
 				{	
@@ -47,7 +47,7 @@ namespace Uccs.Rdn.FUI
 				else 
 					Fields.Text = "Not found";
 
-				var t = Mcv.Call(() => new TimeRequest(), Node.Flow);
+				var t = McvNode.Call(() => new TimeRequest(), Node.Flow);
 
 				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
 				{
@@ -58,9 +58,9 @@ namespace Uccs.Rdn.FUI
 
 					Switch(Auction);
 				}
-				else if(Node.Vault.Wallets.Keys.Any(i => Domain.CanRegister(DomainSearch.Text, a, t.Time, i)))
+				else if(McvNode.Vault.Wallets.Keys.Any(i => Domain.CanRegister(DomainSearch.Text, a, t.Time, i)))
 					Switch(Registration);
-				else if(Node.Vault.Wallets.Keys.Any(i => i == a.Owner))
+				else if(McvNode.Vault.Wallets.Keys.Any(i => i == a.Owner))
 					Switch(Transfering);
 
 			}
@@ -218,7 +218,7 @@ namespace Uccs.Rdn.FUI
 				if(s == null)
 					return;
 
-				Rdn.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
+				McvNode.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

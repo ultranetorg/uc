@@ -18,23 +18,26 @@ namespace Uccs.Net
 
 		public List<LocalRelease>		Releases = new();
 		public List<LocalResource>		Resources = new();
-		public Rdn						Rdn;
+		public Rdn						Node;
 		public object					Lock = new object();
-		public Zone						Zone;
-		public ColumnFamilyHandle		ReleaseFamily => Rdn.Database.GetColumnFamily(ReleaseFamilyName);
-		public ColumnFamilyHandle		ResourceFamily => Rdn.Database.GetColumnFamily(ResourceFamilyName);
+		public McvZone					Zone;
+		public ColumnFamilyHandle		ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
+		public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
 		Thread							DeclaringThread;
 		SeedSettings					Settings;
 
-		public ResourceHub(Rdn rds, Zone zone, SeedSettings settings)
+		public ResourceHub(Rdn node, McvZone zone, SeedSettings settings)
 		{
-			Rdn = rds;
+			Node = node;
 			Zone = zone;
 			Settings = settings;
 
+			Settings.Releases ??= Path.Join(Node.Settings.Profile, nameof(Settings.Releases));
+			Settings.Packages ??= Path.Join(Node.Settings.Profile, nameof(Settings.Packages));
+
 			Directory.CreateDirectory(Settings.Releases);
 
-			using(var i = Rdn.Database.NewIterator(ReleaseFamily))
+			using(var i = Node.Database.NewIterator(ReleaseFamily))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
@@ -42,10 +45,14 @@ namespace Uccs.Net
 				}
 			}
 
-			if(rds.Node.IsListener)
+		}
+
+		public void RunDeclaring()
+		{ 
+			if(Node.IsListener)
 			{
-				DeclaringThread = rds.Node.CreateThread(Declaring);
-				DeclaringThread.Name = $"{Rdn.Node.Name} Declaring";
+				DeclaringThread = Node.CreateThread(Declaring);
+				DeclaringThread.Name = $"{Node.Name} Declaring";
 				DeclaringThread.Start();
 			}
 		}
@@ -131,7 +138,7 @@ namespace Uccs.Net
 			if(r != null)
 				return r;
 
-			var d = Rdn.Database.Get(address.Raw, ReleaseFamily);
+			var d = Node.Database.Get(address.Raw, ReleaseFamily);
 
 			if(d != null)
 			{
@@ -150,7 +157,7 @@ namespace Uccs.Net
 			if(r != null)
 				return r;
 
-			var d = Rdn.Database.Get(Encoding.UTF8.GetBytes(resource.ToString()), ResourceFamily);
+			var d = Node.Database.Get(Encoding.UTF8.GetBytes(resource.ToString()), ResourceFamily);
 
 			if(d != null)
 			{
@@ -222,7 +229,7 @@ namespace Uccs.Net
 			index.Save(new XonBinaryWriter(ms));
 
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
-			var a = address.Create(Rdn, h);
+			var a = address.Create(Node.Mcv, h);
  				
 			var r = Add(a, DataType.Directory);
 
@@ -243,7 +250,7 @@ namespace Uccs.Net
 			var b = File.ReadAllBytes(path);
 
 			var h = Zone.Cryptography.HashFile(b);
-			var a = address.Create(Rdn, h);
+			var a = address.Create(Node.Mcv, h);
  			
 			var r = Add(a, DataType.File);
 
@@ -274,15 +281,15 @@ namespace Uccs.Net
 
 		void Declaring()
 		{
-			Rdn.Flow.Log?.Report(this, "Declaring started");
+			Node.Flow.Log?.Report(this, "Declaring started");
 
 			var tasks = new Dictionary<AccountAddress, Task>(32);
 
-			while(Rdn.Flow.Active)
+			while(Node.Flow.Active)
 			{
-				Rdn.Node.Statistics.Declaring.Begin();
+				Node.Statistics.Declaring.Begin();
 
-				var cr = Rdn.Call(() => new MembersRequest(), Rdn.Flow);
+				var cr = Node.Call(() => new MembersRequest(), Node.Flow);
 	
 				if(!cr.Members.Any())
 					continue;
@@ -336,7 +343,7 @@ namespace Uccs.Net
 
 				if(!ds.Any())
 				{
-					Rdn.Node.Statistics.Declaring.End();
+					Node.Statistics.Declaring.End();
 					Thread.Sleep(1000);
 					continue;
 				}
@@ -349,7 +356,7 @@ namespace Uccs.Net
 
 						Monitor.Exit(Lock);
 						{
-							Task.WaitAny(ts, Rdn.Flow.Cancellation);
+							Task.WaitAny(ts, Node.Flow.Cancellation);
 						}
 						Monitor.Enter(Lock);
 					}
@@ -371,9 +378,9 @@ namespace Uccs.Net
 
 													try
 													{
-														drr = Rdn.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
+														drr = Node.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
 																																																Release = rs.Value.Address, 
-																																																Availability = rs.Value.Availability }).ToArray()}, Rdn.Flow);
+																																																Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
 													}
 													catch(OperationCanceledException)
 													{
@@ -408,7 +415,7 @@ namespace Uccs.Net
 					}
 				}
 					
-				Rdn.Node.Statistics.Declaring.End();
+				Node.Statistics.Declaring.End();
 			}
 		}
 
@@ -424,7 +431,7 @@ namespace Uccs.Net
 					throw new ResourceException(ResourceError.Busy);
 			}
 
-			var d = new FileDownload(Rdn, release, path, localpath, integrity, collector, workflow);
+			var d = new FileDownload(Node, release, path, localpath, integrity, collector, workflow);
 		
 			return d;
 		}
@@ -436,7 +443,7 @@ namespace Uccs.Net
 			else if(release.Activity != null)
 				throw new ResourceException(ResourceError.Busy);
 				
-			d = new DirectoryDownload(Rdn, release, localpath, integrity, workflow);
+			d = new DirectoryDownload(Node, release, localpath, integrity, workflow);
 
 			return d;
 		}

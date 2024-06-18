@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,62 +8,49 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DnsClient;
-using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public abstract class RdnCall<R> : PeerCall<R> where R : PeerResponse
+	public class Rdn : McvNode
 	{
-		public Rdn	Rdn => Mcv as Rdn;
-	}
+		public override long					Roles => Mcv.Settings.Roles;
+		public override Dictionary<Guid, long>	Zones => new () {{Zone.Id, Mcv.Settings.Roles}};
+		public new RdnZone						Zone => base.Zone as RdnZone;
+		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
+		public new RdnSettings					Settings => base.Settings as RdnSettings;
 
-	[Flags]
-	public enum RdnRole : uint
-	{
-		None,
-		Seed		= 0b00000100,
-	}
+		public IEthereum						Ethereum;
+		LookupClient							Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
+		HttpClient								Http = new HttpClient();
 
-	public class Rdn : Mcv
-	{
-		public DomainTable				Domains;
-		public readonly static Guid		Id = new Guid("A8B619CB-8A8C-4C71-847A-4A182ABDE2B9");
-		public override Guid			Guid => Id;
-		public IEthereum				Ethereum;
-		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-		HttpClient						Http = new HttpClient();
+		public ResourceHub						ResourceHub;
+		public PackageHub						PackageHub;
+		public SeedHub							SeedHub;
 
-		public ResourceHub				ResourceHub;
-		public PackageHub				PackageHub;
-		public SeedHub					SeedHub;
 
-		public List<ForeignResult>		ApprovedEmissions = new();
-		public List<ForeignResult>		ApprovedMigrations = new();
-
-		public RdnSettings				RdnSettings;
-
-		public Rdn(Zone zone, RdnSettings settings, string databasepath, bool skipinitload = false) : base(zone, settings, databasepath, skipinitload)
+		public Rdn(string name, Guid zoneid, string profile, RdnSettings settings, Vault vault, IEthereum ethereum, IClock clock, Flow flow) : base(name, new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
 		{
-			RdnSettings = settings;
-		}
+			base.Zone = RdnZone.ById(zoneid);
+			Ethereum = ethereum ?? new Ethereum(Settings);
 
-		public Rdn(Node sun, RdnSettings settings, string databasepath, Flow flow, IEthereum nas, IClock clock) : base(sun, settings, databasepath, clock, flow)
-		{
-			RdnSettings = settings;
-			Ethereum = nas ?? new Ethereum(settings);
-			Clock = clock ?? new RealClock();
+			base.Mcv = new RdnMcv(	this, 
+									Settings,
+									Path.Join(Settings.Profile, "Mcv"),
+									flow,
+									Ethereum,
+									clock ?? new RealClock());
 
-			if(settings.Seed != null)
+			if(Settings.Seed != null)
 			{
-				ResourceHub = new ResourceHub(this, Zone, settings.Seed);
-				PackageHub = new PackageHub(this, settings.Seed);
+				ResourceHub = new ResourceHub(this, Zone, Settings.Seed);
+				PackageHub = new PackageHub(this, Settings.Seed);
 			}
 
 			if(Settings.Generators.Any())
 			{
 		  		try
 		  		{
-		 			new Uri(RdnSettings.Ethereum.Provider);
+		 			new Uri(Settings.Ethereum.Provider);
 		  		}
 		  		catch(Exception)
 		  		{
@@ -70,113 +58,67 @@ namespace Uccs.Net
 					return;
 		  		}
 
-				SeedHub = new SeedHub(this);
+				SeedHub = new SeedHub(Mcv);
 			}
 
-			Commited += r => {
-								if(LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
-								{
-									var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
-												
-									foreach(var o in ops)
+			Mcv.Commited += r => {
+									if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
 									{
-										if(o is DomainMigration am)
+										var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
+												
+										foreach(var o in ops)
 										{
-	 										if(!NodeGlobals.SkipMigrationVerification)
-	 										{
-												Task.Run(() =>	{
-																	var approved = IsDnsValid(am);
+											if(o is DomainMigration am)
+											{
+	 											if(!NodeGlobals.SkipMigrationVerification)
+	 											{
+													Task.Run(() =>	{
+																		var approved = IsDnsValid(am);
 
-																	lock(Node.Lock)
-																		ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
-																});
-	 										}
-											else
-												ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
-										}
+																		lock(Lock)
+																			Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
+																	});
+	 											}
+												else
+													Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
+											}
 	
-										if(o is Emission e)
-										{
-											Task.Run(() =>	{
-																var v = Ethereum.IsEmissionValid(e);
+											if(o is Emission e)
+											{
+												Task.Run(() =>	{
+																	var v = Ethereum.IsEmissionValid(e);
 
-																lock(Node.Lock)
-																	ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-															});
+																	lock(Lock)
+																		Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
+																});
+											}
 										}
 									}
-								}
 
-								ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
-								ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
-							};
+									Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
+									Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
+								};
 
+			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
 		}
 
-		protected override void GenesisCreate(Vote vote)
+		public override void RunPeer()
 		{
-			(vote as RdnVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+			base.RunPeer();
+
+			if(Settings.Seed != null)
+			{
+				ResourceHub.RunDeclaring();
+			}
 		}
 
-		protected override void GenesisInitilize(Round round)
+		public override object Constract(Type t, byte b)
 		{
-			if(round.Id == 1)
-				(round as RdnRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
-		}
+			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
+			if(t == typeof(Manifest))		return new Manifest();
+			if(t == typeof(Urr))			return Urr.FromType(b); 
 
-		protected override void CreateTables(string databasepath)
-		{
-			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
-
-			var cfs = new ColumnFamilies();
-			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (DomainTable.MetaColumnName,	new ()),
-																new (DomainTable.MainColumnName,	new ()),
-																new (DomainTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,				new ()),
-																new (ResourceHub.ReleaseFamilyName,	new ()),
-																new (ResourceHub.ResourceFamilyName,new ()) 
-																})
-				cfs.Add(i);
-
-			Database = RocksDb.Open(dbo, databasepath, cfs);
-
-			Accounts = new (this);
-			Domains = new (this);
-
-			Tables = [Accounts, Domains];
-		}
-
-		public override Round CreateRound()
-		{
-			return new RdnRound(this);
-		}
-
-		public override Vote CreateVote()
-		{
-			return new RdnVote(this);
-		}
-
-		public override void ClearTables()
-		{
-			Domains.Clear();
-		}
-
-		public IEnumerable<Resource> QueryResource(string query)
-		{
-			var r = Ura.Parse(query);
-		
-			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
-
-			if(a == null)
-				yield break;
-
-			foreach(var i in a.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
-				yield return i;
+			return base.Constract(t, b);
 		}
 
 		private bool IsDnsValid(DomainMigration am)
@@ -194,7 +136,7 @@ namespace Uccs.Net
 
 				if(am.RankCheck)
 				{
-					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
+					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Mcv.Settings.GoogleApiKey}&cx={Mcv.Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
 					{
 						var cr = Http.Send(m, Flow.Cancellation);
 
@@ -227,12 +169,11 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public override void FillVote(Vote vote)
+		public override void OnRequestException(Peer peer, NodeException ex)
 		{
-			var v = vote as RdnVote;
+			base.OnRequestException(peer, ex);
 
-  			v.Emissions		= ApprovedEmissions.ToArray();
-			v.Migrations	= ApprovedMigrations.ToArray();
+			if(ex.Error == NodeError.NotSeed)	peer.Zones[base.Mcv.Zone.Id]  &= ~(long)RdnRole.Seed;
 		}
 
 	}

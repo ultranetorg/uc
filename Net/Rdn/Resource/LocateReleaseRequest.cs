@@ -15,8 +15,8 @@ namespace Uccs.Net
 				RequireMember();
 			}
 
-			lock(Rdn.SeedHub.Lock)
-				return new LocateReleaseResponse {Seeders = Rdn.SeedHub.Locate(this)}; 
+			lock(Node.SeedHub.Lock)
+				return new LocateReleaseResponse {Seeders = Node.SeedHub.Locate(this)}; 
 		}
 	}
 		

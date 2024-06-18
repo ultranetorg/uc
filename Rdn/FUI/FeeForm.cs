@@ -4,9 +4,9 @@ namespace Uccs.Rdn.FUI
 {
 	public partial class FeeForm : Form, IFeeAsker
 	{
-		Zone Zone;
+		McvZone Zone;
 
-		public FeeForm(Zone zone)
+		public FeeForm(McvZone zone)
 		{
 			Zone = zone;
 

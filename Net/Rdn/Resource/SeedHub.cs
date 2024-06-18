@@ -39,9 +39,9 @@ namespace Uccs.Net
 		public Dictionary<Urr, List<Seed>>			Releases = [];
 		public Dictionary<ResourceId, List<Urr>>	Resources = [];
 		public object								Lock = new ();
-		Rdn											Rdn;
+		RdnMcv											Rdn;
 
-		public SeedHub(Rdn sun)
+		public SeedHub(RdnMcv sun)
 		{
 			Rdn = sun;
 		}

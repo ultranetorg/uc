@@ -12,22 +12,22 @@ namespace Uccs.Net
 		public byte[]					Manifest { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Rdn rds, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rdn node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var h = rds.Zone.Cryptography.HashFile(Manifest);
-			var a = AddressCreator.Create(rds, h);
+			var h = node.Zone.Cryptography.HashFile(Manifest);
+			var a = AddressCreator.Create(node.Mcv, h);
 
-			lock(rds.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{
-				var p = rds.PackageHub.Get(Resource);
+				var p = node.PackageHub.Get(Resource);
 				
-				lock(rds.ResourceHub.Lock)
+				lock(node.ResourceHub.Lock)
 				{
 					p.Resource.AddData(DataType.Package, a);
 					
-					var r = rds.ResourceHub.Find(a) ?? rds.ResourceHub.Add(a, DataType.Package);
+					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a, DataType.Package);
 
-					var path = rds.PackageHub.AddressToReleases(a);
+					var path = node.PackageHub.AddressToReleases(a);
 
 					r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
 			

@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class PlaceTransactionsRequest : PeerCall<PlaceTransactionsResponse>
+	public class PlaceTransactionsRequest : McvCall<PlaceTransactionsResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 
@@ -12,7 +12,7 @@ namespace Uccs.Net
 			{
 				RequireMember();
 	
-				var acc = Mcv.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
+				var acc = Node.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
 
 				return new PlaceTransactionsResponse {Accepted = acc};
 			}

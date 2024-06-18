@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class MembersRequest : PeerCall<MembersResponse>
+	public class MembersRequest : McvCall<MembersResponse>
 	{
 		public override PeerResponse Execute()
 		{

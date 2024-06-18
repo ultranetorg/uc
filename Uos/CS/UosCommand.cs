@@ -7,17 +7,6 @@ namespace Uccs.Uos
 		public Uos					Uos;
 		protected override Type[]	TypesForExpanding => [];
 
-		public Guid Mcvid
-		{
-			get
-			{
-				if(Has("mcvid"))
-					return Guid.Parse(GetString("mcvid"));
-				else
-					return Uos.Settings.CliDefaultMcv;
-			}
-		}
-
 		public UosCommand(Uos uos, List<Xon> args, Flow flow) : base(args, flow)
 		{
 			Uos = uos;

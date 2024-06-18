@@ -48,7 +48,7 @@ namespace Uccs.Uos
 													Report("Public Address - " + k.ToString()); 
 													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
 
-													Api(new AddWalletUosApc {Wallet = Uos.Settings.Zone.Cryptography.Encrypt(k, p)});
+													Api(new AddWalletUosApc {Wallet = Uos.Vault.Cryptography.Encrypt(k, p)});
 													Api(new SaveWalletUosApc {Account = k});
 
 													return k;
@@ -78,7 +78,7 @@ namespace Uccs.Uos
 								},
 
 								Execute = () =>	{
-													Api(new UnlockWalletUosApc{Account = AccountAddress.Parse(Args[0].Name), 
+													Api(new UnlockWalletApc{Account = AccountAddress.Parse(Args[0].Name), 
 																			Password = GetString("password")});
 													return null;
 												}
@@ -122,7 +122,7 @@ namespace Uccs.Uos
 														}
 
 														var k = new AccountKey(GetBytes("privatekey"));
-														w = Uos.Settings.Zone.Cryptography.Encrypt(k, p);
+														w = Uos.Vault.Cryptography.Encrypt(k, p);
 													}
 													else if(Has("wallet"))
 													{
@@ -131,7 +131,7 @@ namespace Uccs.Uos
 													else
 														throw new SyntaxException("'privatekey' or 'wallet' must be provided");
 
-													var a = Uos.Settings.Zone.Cryptography.AccountFromWallet(w);
+													var a = Uos.Vault.Cryptography.AccountFromWallet(w);
 
 													Api(new AddWalletUosApc {Wallet = w});
 													Api(new SaveWalletUosApc {Account = a});

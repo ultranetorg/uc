@@ -19,7 +19,7 @@ namespace Uccs.Net
 
 		ContractHandler							_Contract;
 		Nethereum.Web3.Accounts.Account			_Account;
-		static Dictionary<Zone, IPAddress[]>	Zones = new ();
+		static Dictionary<McvZone, IPAddress[]>	Zones = new ();
 		static string							Creator;
 
 		public Nethereum.Web3.Accounts.Account Account
@@ -71,7 +71,7 @@ namespace Uccs.Net
 		{
 			return [message,
 					$"But it is not set or incorrect.",
-		 			$"It's located in {Path.Join(Settings.Profile, RdnSettings.FileName)} -> Nas -> Provider",
+		 			$"It's located in {Path.Join(Settings.Profile, new RdnSettings().FileName)} -> Ethereum -> Provider",
 		 			$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"];
 		}
 

@@ -10,7 +10,7 @@ namespace Uccs.Net
 		
 		public override bool IsValid(Mcv mcv)
 		{
-			if(!Transaction.Zone.Auctions)
+			if(!(mcv.Zone as RdnZone).Auctions)
 				return false;
 
 			if(!Domain.IsWeb(Name))
@@ -63,7 +63,7 @@ namespace Uccs.Net
 			Bid					= reader.Read<Money>();
 		}
 
-		public override void Execute(Rdn mcv, RdnRound round)
+		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var a = round.AffectDomain(Name);
 

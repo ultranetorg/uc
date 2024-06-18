@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class VoteRequest : PeerCall<PeerResponse>
+	public class VoteRequest : McvCall<PeerResponse>
 	{
 		public byte[]				Raw { get; set; }
 		public override bool		WaitResponse => false;
@@ -26,23 +26,23 @@ namespace Uccs.Net
 
 			lock(Mcv.Lock)
 			{
-				Sun.Statistics.Consensing.Begin();
+				Node.Statistics.Consensing.Begin();
 				
 				var accepted = false;
 
 				try
 				{
-					accepted = Mcv.ProcessIncoming(v, false);
+					accepted = Node.ProcessIncoming(v, false);
 				}
 				catch(ConfirmationException ex)
 				{
-					Mcv.ProcessConfirmationException(ex);
+					Node.ProcessConfirmationException(ex);
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 								
-				Sun.Statistics.Consensing.End();
+				Node.Statistics.Consensing.End();
 
-				if(Mcv.Synchronization == Synchronization.Synchronized)
+				if(Node.Synchronization == Synchronization.Synchronized)
 				{
 					//var r = sun.Mcv.FindRound(v.RoundId);
 					var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
@@ -67,11 +67,11 @@ namespace Uccs.Net
 
 				if(accepted)
 				{
-					Sun.Broadcast(Mcv, v, Peer);
-					Sun.Statistics.AccpetedVotes++;
+					Node.Broadcast(v, Peer);
+					Node.Statistics.AccpetedVotes++;
 				}
 				else
-					Sun.Statistics.RejectedVotes++;
+					Node.Statistics.RejectedVotes++;
 
 			}
 

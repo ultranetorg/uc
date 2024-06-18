@@ -113,7 +113,7 @@ namespace Uccs.Net
 		public Harvester							Harvester;
 		public List<Piece>							CurrentPieces = new();
 		public Dictionary<Harvester.Seed, int>		Seeds = new();
-		public Rdn									Rdn;
+		public Rdn								Rdn;
 		Flow										Flow;
 		public PieceDelegate						PieceSucceeded;
 

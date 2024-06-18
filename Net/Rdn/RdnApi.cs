@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -9,22 +10,42 @@ namespace Uccs.Net
 	{
 		public abstract object Execute(Rdn sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 
-		public override object Execute(Mcv mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			return Execute(mcv as Rdn, request, response, workflow);
 		}
 	}
 
+	public abstract class RdnApiServer : JsonServer
+	{
+		Rdn Node;
+
+		public RdnApiServer(Rdn node, Flow workflow) : base(node.Settings.Api, ApiClient.DefaultOptions, workflow)
+		{
+			Node = node;
+		}
+
+		protected override Type Create(string call)
+		{
+			return Type.GetType(typeof(RdnApc).Namespace + '.' + call) ?? Type.GetType(typeof(McvApc).Namespace + '.' + call);
+		}
+
+		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+		{
+			return (call as McvApc).Execute(Node, request, response, flow);
+		}
+	}
+
 	public class GetApc : RdnApc
 	{
-		public override object Execute(Rdn rds, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rdn rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			try
 			{
 				var a = Ura.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "";
 	
-				var r = rds.Call(() => new ResourceRequest(a), workflow).Resource;
+				var r = rdn.Call(() => new ResourceRequest(a), workflow).Resource;
 				var ra = r.Data?.Interpretation as Urr
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
@@ -32,10 +53,10 @@ namespace Uccs.Net
 				LocalResource s;
 				LocalRelease z;
 	
-				lock(rds.ResourceHub.Lock)
+				lock(rdn.ResourceHub.Lock)
 				{
-					s = rds.ResourceHub.Find(a) ?? rds.ResourceHub.Add(a);
-					z = rds.ResourceHub.Find(ra) ?? rds.ResourceHub.Add(ra, r.Data.Type);
+					s = rdn.ResourceHub.Find(a) ?? rdn.ResourceHub.Add(a);
+					z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra, r.Data.Type);
 				}
 	
 				IIntegrity itg = null;
@@ -49,7 +70,7 @@ namespace Uccs.Net
 						}
 						else if(r.Data.Type == DataType.Directory)
 						{
-							var	f = rds.ResourceHub.GetFile(z, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
+							var	f = rdn.ResourceHub.GetFile(z, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
 	
 							var index = new XonDocument(f.Read());
 	
@@ -58,8 +79,8 @@ namespace Uccs.Net
 						break;
 	
 					case Urrsd x :
-						var au = rds.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-						itg = new SPDIntegrity(rds.Zone.Cryptography, x, au.Owner);
+						var au = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
+						itg = new SPDIntegrity(rdn.Zone.Cryptography, x, au.Owner);
 						break;
 	
 					default:
@@ -72,8 +93,8 @@ namespace Uccs.Net
 				{
 					FileDownload d;
 	
-					lock(rds.ResourceHub.Lock)
-						d = rds.ResourceHub.DownloadFile(z, path, null, itg, null, workflow);
+					lock(rdn.ResourceHub.Lock)
+						d = rdn.ResourceHub.DownloadFile(z, path, null, itg, null, workflow);
 		
 					var ps = new List<FileDownload.Piece>();
 					int last = -1;
@@ -102,7 +123,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					lock(rds.ResourceHub.Lock)
+					lock(rdn.ResourceHub.Lock)
 					{
 						response.ContentLength64 = z.Find(path).Length;
 						response.OutputStream.Write(z.Find(path).Read());
@@ -123,9 +144,9 @@ namespace Uccs.Net
 		public byte[]			FromPrivateKey { get; set; } 
 		public BigInteger		Wei { get; set; } 
 
-		public override object Execute(Rdn sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rdn rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return sun.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), Wei, workflow);
+			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), Wei, workflow);
 		}
 	}
 
@@ -143,9 +164,9 @@ namespace Uccs.Net
 			
 		}
 
-		public override object Execute(Rdn sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rdn rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return sun.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
+			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
 			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 		}
 	}
@@ -186,14 +207,14 @@ namespace Uccs.Net
 		public byte[]	Years { get; set; }
 		public byte[]	DomainLengths { get; set; }
 
-		public override object Execute(Rdn rds, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(Rdn rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			if(Rate == 0)
 			{
 				Rate = 1;
 			}
 
-			var r = rds.Call(() => new CostRequest(), workflow);
+			var r = rdn.Call(() => new CostRequest(), workflow);
 
 			return new Return {	RentBytePerDay				= r.RentPerBytePerDay * Rate,
 								Exeunit						= r.ConsensusExeunitFee * Rate,

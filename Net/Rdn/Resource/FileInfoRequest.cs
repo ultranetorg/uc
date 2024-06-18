@@ -7,12 +7,12 @@
 
 		public override PeerResponse Execute()
 		{
-			lock(Rdn.ResourceHub.Lock)
+			lock(Node.ResourceHub.Lock)
 			{
-				if(Rdn.ResourceHub == null) 
+				if(Node.ResourceHub == null) 
 					throw new NodeException(NodeError.NotSeed);
 				
-				var r = Rdn.ResourceHub.Find(Release);
+				var r = Node.ResourceHub.Find(Release);
 				
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);

@@ -34,24 +34,24 @@ namespace Uccs.Net
 
 	public class RdnSettings : McvSettings
 	{
-		public const string				FileName = "Rdn.settings";
-
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
 
-		
+		public string					GoogleSearchEngineID { get; set; }
+		public string					GoogleApiKey { get; set; }
+
 		public SeedSettings				Seed { get; set; }
 		public EthereumSettings			Ethereum { get; set; } = new ();
 		public SeedHubSettings			SeedHub { get; set; } = new ();
 
-		public override long			Roles =>	base.Roles | (Seed != null ? (long)RdnRole.Seed : 0);
+		public override long			Roles => base.Roles | (Seed != null ? (long)RdnRole.Seed : 0);
 
 
 		public RdnSettings()
 		{
 		}
 
-		public RdnSettings(string profile) : base(profile, FileName)
+		public RdnSettings(string profile) : base(profile)
 		{
 		}
 	}
