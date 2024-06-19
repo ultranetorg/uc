@@ -137,7 +137,7 @@ namespace Uccs.Net
 				[
 					new ("Version",						sun.Version.ToString()),
 					new ("Profile",						sun.Settings.Profile),
-					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Settings.Port}"),
+					new ("IP(Reported):Port",			$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
 					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
 				];
 

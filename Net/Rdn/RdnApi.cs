@@ -16,7 +16,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class RdnApiServer : JsonServer
+	public class RdnApiServer : JsonServer
 	{
 		Rdn Node;
 

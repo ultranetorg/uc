@@ -9,6 +9,8 @@ namespace Uccs.Net
 {
 	public class PeeringSettings : Settings
 	{
+		public IPAddress		IP { get; set; }
+		public ushort			Port { get; set; }
 		public int				PermanentMin { get; set; } = 6;
 		public int				PermanentBaseMin { get; set; } = 6;
 		public int				PermanentInboundMax { get; set; } = 128;
@@ -24,8 +26,6 @@ namespace Uccs.Net
 	{
 
 		public ApiSettings			Api { get; set; }
-		public IPAddress			IP { get; set; }
-		public ushort				Port { get; set; }
 		public bool					Log { get; set; }
 		public int					RdcQueryTimeout { get; set; } = 5000;
 		public int					RdcTransactingTimeout { get; set; } = 5*60*1000;

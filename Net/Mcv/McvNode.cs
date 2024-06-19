@@ -147,7 +147,7 @@ namespace Uccs.Net
 
 		public void Synchronize()
 		{
-			if(Settings.IP != null && Settings.IP.Equals(Mcv.Zone.Father0IP) && Mcv.Settings.Generators.Contains(Mcv.Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
+			if(Settings.Peering.IP != null && Settings.Peering.IP.Equals(Mcv.Zone.Father0IP) && Mcv.Settings.Generators.Contains(Mcv.Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -509,8 +509,8 @@ namespace Uccs.Net
 					if(m == null && a != null && a.Balance > Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail			= Mcv.Settings.Bail,
-															BaseRdcIPs		= [Settings.IP],
-															SeedHubRdcIPs	= [Settings.IP]};
+															BaseRdcIPs		= [Settings.Peering.IP],
+															SeedHubRdcIPs	= [Settings.Peering.IP]};
 
 						var t = new Transaction();
 						t.Flow = Flow;
@@ -748,7 +748,7 @@ namespace Uccs.Net
 				{
 					var m = members.NearestBy(i => i.Account, account);
 
-					if(m.BaseRdcIPs.Contains(Settings.IP))
+					if(m.BaseRdcIPs.Contains(Settings.Peering.IP))
 						return this;
 
 					var p = GetPeer(m.BaseRdcIPs.Random());

@@ -174,7 +174,6 @@ namespace Uccs.Uos
 			var f = Flow.CreateNested(nameof(Izn), new Log());
 
 			Izn = new InterzoneNode(Settings.Name, Settings.Interzone.Id, Settings.Profile, settings, f);
-			Izn.RunPeer();
 
 			IcnStarted?.Invoke(Izn);
 		}
@@ -188,11 +187,6 @@ namespace Uccs.Uos
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
 				var n = new Rdn(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
-				
-				if(peering)
-				{
-					n.RunPeer();
-				}
 
 				Nodes.Add(n);
 

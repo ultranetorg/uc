@@ -69,6 +69,7 @@ namespace Uccs.Net
 		public NodeSettings							Settings;
 		public Flow									Flow;
 		public object								Lock = new();
+		protected JsonServer						ApiServer;
 
 		public RocksDb								Database;
 		public ColumnFamilyHandle					PeersFamily => Database.GetColumnFamily(nameof(Peers));
@@ -94,6 +95,8 @@ namespace Uccs.Net
 		public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
 		protected abstract void						CreateTables(ColumnFamilies columns);
+
+
 
 		public Node(string name, NodeSettings settings, Flow flow)
 		{
@@ -133,7 +136,7 @@ namespace Uccs.Net
 
 			LoadPeers();
 
-			if(Settings.IP != null)
+			if(Settings.Peering.IP != null)
 			{
 				ListeningThread = CreateThread(Listening);
 				ListeningThread.Name = $"{Name} Listening";
@@ -159,7 +162,7 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			return string.Join(",", new string[] {	Name,
-													Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+													Settings.Peering.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
 		public virtual object Constract(Type t, byte b)
@@ -209,6 +212,7 @@ namespace Uccs.Net
 		{
 			Flow.Abort();
 
+			ApiServer?.Stop();
 			Listener?.Stop();
 
 			lock(Lock)
@@ -357,9 +361,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Flow.Log?.Report(this, $"Listening starting {Settings.IP}:{Settings.Port}");
+				Flow.Log?.Report(this, $"Listening starting {Settings.Peering.IP}:{Settings.Peering.Port}");
 
-				Listener = new TcpListener(Settings.IP, Settings.Port);
+				Listener = new TcpListener(Settings.Peering.IP, Settings.Peering.Port);
 				Listener.Start();
 	
 				while(Flow.Active)
@@ -422,11 +426,11 @@ namespace Uccs.Net
 
 				try
 				{
-					tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
+					tcp = Settings.Peering.IP != null ? new TcpClient(new IPEndPoint(Settings.Peering.IP, 0)) : new TcpClient();
 
 					tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
 					//client.ReceiveTimeout = Timeout;
-					tcp.Connect(peer.IP, Settings.Port);
+					tcp.Connect(peer.IP, Zone.Port);
 				}
 				catch(SocketException ex) 
 				{
@@ -502,7 +506,7 @@ namespace Uccs.Net
 			}
 			
 			var t = CreateThread(f);
-			t.Name = Settings.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
+			t.Name = Settings.Peering.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
 			t.Start();
 						
 		}
@@ -555,7 +559,7 @@ namespace Uccs.Net
 			IncomingConnections.Add(client);
 
 			var t = CreateThread(incon);
-			t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
+			t.Name = Settings.Peering.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 			t.Start();
 
 			void incon()

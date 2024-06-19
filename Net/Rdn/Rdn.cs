@@ -28,10 +28,17 @@ namespace Uccs.Net
 		public SeedHub							SeedHub;
 
 
-		public Rdn(string name, Guid zoneid, string profile, RdnSettings settings, Vault vault, IEthereum ethereum, IClock clock, Flow flow) : base(name, new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
+		public Rdn(string name, Guid zoneid, string profile, RdnSettings settings, Vault vault, IEthereum ethereum, IClock clock, Flow flow) : base(name, settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
 		{
 			base.Zone = RdnZone.ById(zoneid);
 			Ethereum = ethereum ?? new Ethereum(Settings);
+
+			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
+		
+			if(Settings.Api != null)
+			{
+				ApiServer = new RdnApiServer(this, Flow);
+			}
 
 			base.Mcv = new RdnMcv(	this, 
 									Settings,
@@ -99,7 +106,8 @@ namespace Uccs.Net
 									Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationDurationLimit);
 								};
 
-			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
+			RunPeer();
+
 		}
 
 		public override void RunPeer()

@@ -30,12 +30,14 @@ namespace Uccs.Net
 		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, settings ?? new IznSettings(Path.Join(profile, zuid.ToString())), workflow)
 		{
 			Zone = Interzone.Byid(zuid);
+
+			RunPeer();
 		}
 
 		public override string ToString()
 		{
 			return string.Join(",", new string[] {	Connections().Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-													Settings.IP != null ? IP.ToString() : null}
+													Settings.Peering.IP != null ? IP.ToString() : null}
 													.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
@@ -49,7 +51,7 @@ namespace Uccs.Net
 
 			foreach(var c in Connections())
 			{
-				c.Post(new PeersBroadcastRequest {Peers = [new Peer {IP = Settings.IP, Zones = Zones}]});
+				c.Post(new PeersBroadcastRequest {Peers = [new Peer {IP = Settings.Peering.IP, Zones = Zones}]});
 			}
 		}
 
