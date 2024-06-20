@@ -101,7 +101,7 @@ namespace Uccs.Net
 																																				IP			= i.IP,			
 																																				Status		= i.StatusDescription,
 																																				PeerRank	= i.PeerRank,
-																																				Zones		= i.Zones,
+																																				Roles		= i.Roles,
 																																				LastSeen	= i.LastSeen,
 																																				LastTry		= i.LastTry,
 																																				Retries		= i.Retries	
@@ -112,13 +112,13 @@ namespace Uccs.Net
 		{
 			public class Peer
 			{
-				public IPAddress				IP { get; set; }
-				public string					Status  { get; set; }
-				public int						PeerRank { get; set; }
-				public DateTime					LastSeen { get; set; }
-				public DateTime					LastTry { get; set; }
-				public int						Retries { get; set; }
-				public Dictionary<Guid, long>	Zones { get; set; }
+				public IPAddress	IP { get; set; }
+				public string		Status  { get; set; }
+				public int			PeerRank { get; set; }
+				public DateTime		LastSeen { get; set; }
+				public DateTime		LastTry { get; set; }
+				public int			Retries { get; set; }
+				public long			Roles { get; set; }
 			}
 
 			public IEnumerable<Peer> Peers {get; set;}

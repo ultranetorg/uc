@@ -59,26 +59,52 @@ namespace Uccs
 				return x.Get(t);
  		}
 
-		public void Load(Xon x)
-		{
-			foreach(var i in x.Nodes.GroupBy(i => i.Name))
-			{
-				var p = GetType().GetProperty(i.Key) ?? GetType().GetProperty(i.Key + "s");
+		//public void Load(Xon x)
+		//{
+		//	foreach(var i in x.Nodes.GroupBy(i => i.Name))
+		//	{
+		//		var p = GetType().GetProperty(i.Key) ?? GetType().GetProperty(i.Key + "s");
+		//
+		//		if(p.PropertyType == typeof(bool))	
+		//		{
+		//			p.SetValue(this, true);
+		//		}
+		//		else if(p.PropertyType.Name.EndsWith("Settings"))
+		//		{
+		//			var s = Activator.CreateInstance(p.PropertyType) as Settings;
+		//			s.Load(i.First());
+		//			p.SetValue(this, s);
+		//		}
+		//		else
+		//			p.SetValue(this, load(p.Name, p.PropertyType, i.First()));
+		//	}
+		//}
 
+
+		public void Load(Xon xon)
+		{
+			foreach(var p in GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				var x = xon.One(p.Name) ?? xon.One(p.Name.TrimEnd('s'));
+		
 				if(p.PropertyType == typeof(bool))	
 				{
-					p.SetValue(this, true);
+					p.SetValue(this, x != null);
 				}
-				else if(p.PropertyType.Name.EndsWith("Settings"))
+				else if(x != null)
 				{
-					var s = Activator.CreateInstance(p.PropertyType) as Settings;
-					s.Load(i.First());
-					p.SetValue(this, s);
+					if(p.PropertyType.Name.EndsWith("Settings"))
+					{
+						var s = Activator.CreateInstance(p.PropertyType) as Settings;
+						s.Load(x);
+						p.SetValue(this, s);
+					}
+					else
+						p.SetValue(this, load(p.Name, p.PropertyType, x));
 				}
-				else
-					p.SetValue(this, load(p.Name, p.PropertyType, i.First()));
 			}
 		}
+
 
 		public Settings Merge(Xon x)
 		{

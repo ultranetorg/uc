@@ -148,8 +148,8 @@ namespace Uccs.Rdn.CLI
 																var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
 																
 																Dump(	r.Peers, 
-																		["IP", "Status", "PeerRank", "Mcv(s)"], 
-																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Zones.Count]);
+																		["IP", "Status", "PeerRank", "Roles"], 
+																		[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
 													
 																return r;
 															}};

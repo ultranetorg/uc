@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -17,12 +18,37 @@ namespace Uccs.Net
 		}
 	}
 
+	public class InterPeer : IBinarySerializable
+	{
+		public IPAddress	IP {get; set;}
+		public long			Roles {get; set;}
+
+		public void Read(BinaryReader reader)
+		{
+			IP = reader.ReadIPAddress();
+			Roles = reader.Read7BitEncodedInt64();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(IP);
+			writer.Write7BitEncodedInt64(Roles);
+		}
+	}
+
+	public class ZonePeers
+	{
+		public Guid				Zone {get; set;}
+		public List<InterPeer>	Peers {get; set;}
+	}
+
 	public class InterzoneNode : Node
 	{
-		public override long					Roles => 0;
-		public override Dictionary<Guid, long>	Zones => Nodes.ToDictionary(i => i.Zone.Id, i => i.Roles);
-
 		public List<Node>						Nodes = [];
+		public List<ZonePeers>					Zones = [];
+		public override long					Roles => 0;
+		bool									MinimalPeersReached;
+
 		//public Clock							Clock;
 		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Zone.Id == id);
 		public T								Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
@@ -36,22 +62,36 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return string.Join(",", new string[] {	Connections().Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-													Settings.Peering.IP != null ? IP.ToString() : null}
-													.Where(i => !string.IsNullOrWhiteSpace(i)));
+			return string.Join(",", new string[] {	Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Settings.Peering.IP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
 		protected override void CreateTables(ColumnFamilies columns)
 		{
 		}
 
-		public void Connect(Node m)
+		public ZonePeers GetZone(Guid id)
 		{
-			Nodes.Add(m);
+			if(Zones.Find(i => i.Zone == id) is not ZonePeers z)
+			{ 
+				z = new ZonePeers {Zone = id, Peers = [] };
+				Zones.Add(z);
+			}
 
-			foreach(var c in Connections())
+			return z;
+		}
+
+		public void Connect(Node node)
+		{
+			Nodes.Add(node);
+
+			var z = GetZone(node.Zone.Id);
+			var p = new InterPeer {IP = Settings.Peering.IP ?? IP, Roles = node.Roles};
+			z.Peers.Add(p);
+
+			foreach(var c in Connections)
 			{
-				c.Post(new PeersBroadcastRequest {Peers = [new Peer {IP = Settings.Peering.IP, Zones = Zones}]});
+				c.Post(new ZoneBroadcastRequest {Zones = [ new ZoneBroadcastRequest.Z {	Id = node.Zone.Id, Peers = [p]}]});
 			}
 		}
 
@@ -60,5 +100,16 @@ namespace Uccs.Net
 			Nodes.Remove(m);
 		}
 
+		protected override void ProcessConnectivity()
+		{
+			base.ProcessConnectivity();
+
+			if(!MinimalPeersReached && 
+				Connections.Count(i => i.Permanent) >= Settings.Peering.PermanentMin)
+			{
+				MinimalPeersReached = true;
+				Flow.Log?.Report(this, $"Minimal peers reached");
+			}
+		}
 	}
 }

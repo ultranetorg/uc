@@ -18,7 +18,7 @@ namespace Uccs.Net
 	
 				if(newfresh.Any())
 				{
-					foreach(var i in Node.Connections().Where(i => i != Peer))
+					foreach(var i in Node.Connections.Where(i => i != Peer))
 					{
 						i.Post(new PeersBroadcastRequest{Peers = newfresh});
 					}

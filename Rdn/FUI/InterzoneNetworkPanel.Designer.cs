@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Rdn.FUI
 {
-	partial class NetworkPanel
+	partial class InterzoneNetworkPanel
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -32,11 +32,6 @@ namespace Uccs.Rdn.FUI
 			label1 = new System.Windows.Forms.Label();
 			Peers = new System.Windows.Forms.ListView();
 			columnHeader13 = new System.Windows.Forms.ColumnHeader();
-			columnHeader14 = new System.Windows.Forms.ColumnHeader();
-			columnHeader15 = new System.Windows.Forms.ColumnHeader();
-			columnHeader11 = new System.Windows.Forms.ColumnHeader();
-			columnHeader16 = new System.Windows.Forms.ColumnHeader();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
 			// 
 			// label1
@@ -54,7 +49,7 @@ namespace Uccs.Rdn.FUI
 			// Peers
 			// 
 			Peers.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Peers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeader16, columnHeader1 });
+			Peers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader13 });
 			Peers.FullRowSelect = true;
 			Peers.Location = new System.Drawing.Point(4, 39);
 			Peers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -69,44 +64,14 @@ namespace Uccs.Rdn.FUI
 			columnHeader13.Text = "IP";
 			columnHeader13.Width = 100;
 			// 
-			// columnHeader14
-			// 
-			columnHeader14.Text = "Status";
-			columnHeader14.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeader14.Width = 150;
-			// 
-			// columnHeader15
-			// 
-			columnHeader15.Text = "Retries";
-			columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeader15.Width = 75;
-			// 
-			// columnHeader11
-			// 
-			columnHeader11.Text = "Rank";
-			columnHeader11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeader11.Width = 100;
-			// 
-			// columnHeader16
-			// 
-			columnHeader16.DisplayIndex = 5;
-			columnHeader16.Text = "Last Seen";
-			columnHeader16.Width = 150;
-			// 
-			// columnHeader1
-			// 
-			columnHeader1.DisplayIndex = 4;
-			columnHeader1.Text = "Roles";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// NetworkPanel
+			// InterzoneNetworkPanel
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			Controls.Add(Peers);
 			Controls.Add(label1);
 			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			Name = "NetworkPanel";
+			Name = "InterzoneNetworkPanel";
 			Size = new System.Drawing.Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
@@ -116,10 +81,5 @@ namespace Uccs.Rdn.FUI
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Peers;
 		private System.Windows.Forms.ColumnHeader columnHeader13;
-		private System.Windows.Forms.ColumnHeader columnHeader14;
-		private System.Windows.Forms.ColumnHeader columnHeader15;
-		private System.Windows.Forms.ColumnHeader columnHeader16;
-		private System.Windows.Forms.ColumnHeader columnHeader11;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
 	}
 }

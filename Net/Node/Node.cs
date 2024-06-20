@@ -58,8 +58,7 @@ namespace Uccs.Net
 	{
 		public Zone									Zone;
 		public abstract long						Roles { get; }
-		public abstract Dictionary<Guid, long>		Zones { get; }
-		public IEnumerable<Peer>					Connections() => Peers.Where(i => i.Status == ConnectionStatus.OK);
+		public IEnumerable<Peer>					Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
 
 		public System.Version						Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]				Versions = {4};
@@ -307,27 +306,12 @@ namespace Uccs.Net
 						Peers.Add(i);
 						toupdate.Add(i);
 					}
-					else
+					else if(p.Roles != i.Roles)
 					{
 						p.Recent = true;
-						
-						//var old = p.Ranks.ToDictionary(i => i.Key, i => i.Value.ToDictionary());
 
-						bool changed = false;
-
-						foreach(var z in i.Zones)
-						{	
-							if(!p.Zones.TryGetValue(z.Key, out var roles) || roles != z.Value)
-							{
-								p.Zones[z.Key] = z.Value;
-								changed = true;
-							}
-						}
-
-						if(changed)
-						{
-							toupdate.Add(p);
-						}
+						p.Roles = i.Roles;
+						toupdate.Add(p);
 					}
 				}
 	
@@ -341,8 +325,8 @@ namespace Uccs.Net
 		{
 			var needed = Settings.Peering.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
-			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
-												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected &&
+												DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
 									.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
@@ -399,8 +383,8 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.ZoneId			= Zone.Id;
-				h.Zones			= Zones;
+				h.ZoneId		= Zone.Id;
+				h.Roles			= Roles;
 				h.Versions		= Versions;
 				h.IP			= ip;
 				h.Name			= Name;
@@ -492,10 +476,14 @@ namespace Uccs.Net
 					RefreshPeers(h.Peers.Append(peer));
 	
 					peer.Start(this, tcp, h, Name, false);
-					Flow.Log?.Report(this, $"Connected to {peer}");
-					return;
+
+					foreach(var c in Connections.Where(i => i != peer))
+						Post(new PeersBroadcastRequest {Peers = [peer]});
 				}
 	
+				Flow.Log?.Report(this, $"Connected to {peer}");
+				return;
+
 				failed:
 				{
 					lock(Lock)
@@ -587,20 +575,14 @@ namespace Uccs.Net
 					if(h.Permanent)
 					{
 						if(Peers.Count(i => i.Status == ConnectionStatus.OK && i.Inbound && i.Permanent) + 1 > Settings.Peering.PermanentInboundMax)
-						{
 							goto failed;
-						}
 					}
 
 					if(!h.Versions.Any(i => Versions.Contains(i)))
-					{
 						goto failed;
-					}
 
 					if(h.ZoneId != Zone.Id)
-					{
 						goto failed;
-					}
 
 					if(h.PeerId == PeerId)
 					{
@@ -641,29 +623,20 @@ namespace Uccs.Net
 						Peers.Add(peer);
 					}
 
-					//foreach(var i in h.Generators)
-					//{
-					//	if(!Members.Any(j => j.Generator == i.Generator))
-					//	{
-					//		i.OnlineSince = ChainTime.Zero;
-					//		i.Proxy = peer;
-					//		Members.Add(i);
-					//	}
-					//}
-
 					RefreshPeers(h.Peers.Append(peer));
 	
-					//peer.InStatus = EstablishingStatus.Succeeded;
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, Name, true);
-					Flow.Log?.Report(this, $"Connected from {peer}");
-			
+								
 					IncomingConnections.Remove(client);
-					//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
-					return;
+					foreach(var c in Connections.Where(i => i != peer))
+						Post(new PeersBroadcastRequest {Peers = [peer]});
 				}
 	
+				Flow.Log?.Report(this, $"Connected from {peer}");
+				return;
+
 			failed:
 				if(peer != null)
 					lock(Lock)
@@ -676,10 +649,8 @@ namespace Uccs.Net
 
 		public Peer ChooseBestPeer(Guid mcvid, long role, HashSet<Peer> exclusions)
 		{
-			return Peers.Where(i => i.HasRole(mcvid, role) && (exclusions == null || !exclusions.Contains(i)))
+			return Peers.Where(i => i.Roles.IsSet(role) && (exclusions == null || !exclusions.Contains(i)))
 						.OrderByDescending(i => i.Status == ConnectionStatus.OK)
-						//.ThenBy(i => i.GetRank(role))
-						//.ThenByDescending(i => i.ReachFailures)
 						.FirstOrDefault();
 		}
 

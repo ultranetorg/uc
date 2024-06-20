@@ -5,11 +5,12 @@ using System.Windows.Forms;
 
 namespace Uccs.Rdn.FUI
 {
-	public partial class NetworkPanel : MainPanel
+	public partial class InterzoneNetworkPanel : MainPanel
 	{
 		Flow Flow;
+ 		new InterzoneNode Node =>  base.Node as InterzoneNode;
 
-		public NetworkPanel(Node d) : base(d)
+		public InterzoneNetworkPanel(Node d) : base(d)
 		{
 			InitializeComponent();
 		}
@@ -25,17 +26,30 @@ namespace Uccs.Rdn.FUI
 
 			Flow = Node.Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
 
+			for(int i=1; i<Peers.Columns.Count; i++)
+			{
+				Peers.Columns.RemoveAt(1);
+			}
+
 			lock(Node.Lock)
 			{
-				foreach(var p in Node.Peers.OrderByDescending(i => i.Status))
+				foreach(var i in Node.Zones)
+				{
+					var c = new ColumnHeader();
+					c.Text = i.Zone.ToString();
+					c.TextAlign = HorizontalAlignment.Center;
+					c.Width = 150;
+					Peers.Columns.Add(c);
+				}
+
+				foreach(var p in Node.Zones.SelectMany(i => i.Peers))
 				{
 					var r = Peers.Items.Add(p.IP.ToString());
-					r.SubItems.Add(p.StatusDescription);
-					r.SubItems.Add(p.Retries.ToString());
-					r.SubItems.Add(p.PeerRank.ToString());
-					r.SubItems.Add(p.LastSeen.ToString(Time.DateFormat.ToString()));
 
-					r.SubItems.Add(string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()));
+					foreach(var z in Node.Zones)
+					{
+						r.SubItems.Add(z.Peers.Contains(p) ? string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()) : "");
+					}
 
 					r.Tag = p;
 				}

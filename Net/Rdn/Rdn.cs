@@ -14,7 +14,6 @@ namespace Uccs.Net
 	public class Rdn : McvNode
 	{
 		public override long					Roles => Mcv.Settings.Roles;
-		public override Dictionary<Guid, long>	Zones => new () {{Zone.Id, Mcv.Settings.Roles}};
 		public new RdnZone						Zone => base.Zone as RdnZone;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public new RdnSettings					Settings => base.Settings as RdnSettings;
@@ -181,7 +180,7 @@ namespace Uccs.Net
 		{
 			base.OnRequestException(peer, ex);
 
-			if(ex.Error == NodeError.NotSeed)	peer.Zones[base.Mcv.Zone.Id]  &= ~(long)RdnRole.Seed;
+			if(ex.Error == NodeError.NotSeed)	peer.Roles  &= ~(long)RdnRole.Seed;
 		}
 
 	}

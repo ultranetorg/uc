@@ -15,11 +15,6 @@ namespace Uccs.Net
 		None, Request, Response
 	}
 
-	//public enum EstablishingStatus
-	//{
-	//	Failed = -1, Null = 0, Initiated = 1, Succeeded = 2, 
-	//}
-
 	public enum ConnectionStatus
 	{
 		None, Disconnected, Initiated, OK, Disconnecting
@@ -45,7 +40,7 @@ namespace Uccs.Net
 
 		//public Role										Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int										PeerRank = 0;
-		public Dictionary<Guid, long>					Zones = [];
+		public long										Roles;
 
 		public Dictionary<Role, DateTime>				LastFailure = new();
 
@@ -72,39 +67,34 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Name}, {IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
+			return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 		}
  		
-		public bool HasRole(Guid mcvid, long role)
-		{
-			return Zones.TryGetValue(mcvid, out var ranks) && ranks.IsSet(role);
-			//throw new IntegrityException("Wrong rank");
-		}
 
   		public void SaveNode(BinaryWriter writer)
   		{
   			writer.Write7BitEncodedInt64(LastSeen.ToBinary());
 			writer.Write(PeerRank);
-			writer.Write(Zones, i => { writer.Write(i.Key); writer.Write7BitEncodedInt64(i.Value); });
+			writer.Write7BitEncodedInt64(Roles);
   		}
   
   		public void LoadNode(BinaryReader reader)
   		{
   			LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
 			PeerRank = reader.ReadInt32();
-			Zones = reader.ReadDictionary(() => reader.ReadGuid(), () => reader.Read7BitEncodedInt64());
+			Roles = reader.Read7BitEncodedInt64();
   		}
  
  		public void Write(BinaryWriter writer)
  		{
  			writer.Write(IP);
-			writer.Write(Zones, i => { writer.Write(i.Key); writer.Write7BitEncodedInt64(i.Value); });
+			writer.Write7BitEncodedInt64(Roles);
  		}
  
  		public void Read(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
-			Zones = reader.ReadDictionary(() => reader.ReadGuid(), () => reader.Read7BitEncodedInt64());
+			Roles = reader.Read7BitEncodedInt64();
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -202,7 +192,7 @@ namespace Uccs.Net
 			Writer		= new BinaryWriter(Stream);
 			Reader		= new BinaryReader(Stream);
 			LastSeen	= DateTime.UtcNow;
-			Zones		= h.Zones;
+			Roles		= h.Roles;
 
 			sun.UpdatePeers([this]);
 

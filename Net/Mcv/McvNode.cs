@@ -15,7 +15,7 @@ namespace Uccs.Net
 		public Vault								Vault; 
 		public Mcv									Mcv; 
 
-		public IEnumerable<Peer>					Bases() => Connections().Where(i => i.Permanent && i.HasRole(Zone.Id, (long)Role.Base));
+		public IEnumerable<Peer>					Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
 
 		bool										MinimalPeersReached;
 		AutoResetEvent								TransactingWakeup = new AutoResetEvent(true);
@@ -47,7 +47,7 @@ namespace Uccs.Net
 													(Mcv.Settings.Base != null ? "B" : null) +
 													(Mcv.Settings.Base?.Chain != null  ? "C" : null) +
 													(Mcv.Settings is RdnSettings x && x.Seed != null  ? "S" : null),
-													Connections().Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													$"{Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}",
 													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
@@ -104,45 +104,45 @@ namespace Uccs.Net
 		{
 			base.OnRequestException(peer, ex);
 
-			if(ex.Error == NodeError.NotBase)	peer.Zones[Mcv.Zone.Id]  &= ~(long)Role.Base;
-			if(ex.Error == NodeError.NotChain)	peer.Zones[Mcv.Zone.Id]  &= ~(long)Role.Chain;
+			if(ex.Error == NodeError.NotBase)	peer.Roles  &= ~(long)Role.Base;
+			if(ex.Error == NodeError.NotChain)	peer.Roles  &= ~(long)Role.Chain;
 		}
 
 		protected override void ProcessConnectivity()
 		{
 			base.ProcessConnectivity();
 
-			var needed = Settings.Peering.PermanentBaseMin - Bases().Count();
-
-			foreach(var p in Peers	.Where(m =>	m.HasRole(Zone.Id, (long)Role.Base) &&
-												m.Status == ConnectionStatus.Disconnected &&
-												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-									.OrderBy(i => i.Retries)
-									.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-									.Take(needed))
+			if(Mcv.Settings.Base != null)
 			{
-				OutboundConnect(p, true);
+				var needed = Settings.Peering.PermanentBaseMin - Bases.Count();
+	
+				foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+										.OrderBy(i => i.Retries)
+										.ThenByDescending(i => i.Roles.IsSet(Role.Base))
+										.ThenBy(i => Settings.Peering.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+										.Take(needed))
+				{
+					OutboundConnect(p, true);
+				}
 			}
-
+	
 			if(!MinimalPeersReached && 
-				Connections().Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
-				(Mcv.Settings.Base == null || Bases().Count() >= Settings.Peering.PermanentBaseMin))
+				Connections.Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
+				(Mcv.Settings.Base == null || Bases.Count() >= Settings.Peering.PermanentBaseMin))
 			{
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
-
+	
 				if(Mcv.Settings.Base != null)
 				{
 					Synchronize();
 				}
-
-				foreach(var c in Connections())
-				{
-					Post(new PeersBroadcastRequest {Peers = Connections().Where(i => i != c).ToArray()});
-				}
 			}
-
-			Generate();
+	
+			if(Mcv.Settings.Base != null && MinimalPeersReached)
+			{
+				Generate();
+			}
 		}
 
 		public void Synchronize()
@@ -345,7 +345,7 @@ namespace Uccs.Net
 								if(!r.Hash.SequenceEqual(h))
 								{
 									#if DEBUG
-										CompareBase(Mcv, "a:\\UOTMP\\Simulation-Sun.Fast\\");
+									//	CompareBase(Mcv, "a:\\UOTMP\\Simulation-Sun.Fast\\");
 									#endif
 									
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
@@ -1104,7 +1104,7 @@ namespace Uccs.Net
 
 		public void Broadcast(Vote vote, Peer skip = null)
 		{
-			foreach(var i in Bases().Where(i => i != skip))
+			foreach(var i in Bases.Where(i => i != skip))
 			{
 				try
 				{
