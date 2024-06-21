@@ -92,7 +92,6 @@
 			// 
 			// pictureBox1
 			// 
-			pictureBox1.Image = Properties.Resources.Golden_key_icon_svg;
 			pictureBox1.Location = new System.Drawing.Point(26, 32);
 			pictureBox1.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
 			pictureBox1.Name = "pictureBox1";

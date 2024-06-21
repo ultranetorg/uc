@@ -14,7 +14,6 @@ namespace Uccs.Net
 		public Guid							ZoneId;
 		public IPAddress					IP;
 		public bool							Permanent;
-		public Peer[]						Peers;
 		public string						Name;
 
 		public void Write(BinaryWriter w)
@@ -26,8 +25,6 @@ namespace Uccs.Net
 			w.Write7BitEncodedInt64(Roles);
 			w.Write(IP);
 			w.Write(Permanent);
-			w.Write(Peers, i => i.Write(w));
-			//w.Write(Generators, i => i.WriteForSharing(w));
 		}
 
 		public void Read(BinaryReader r)
@@ -39,11 +36,6 @@ namespace Uccs.Net
 			Roles				= r.Read7BitEncodedInt64();
 			IP					= r.ReadIPAddress();
 			Permanent			= r.ReadBoolean();
-			Peers				= r.Read<Peer>(i => {
-														i.Recent = true; 
-														i.Read(r);
-													}).ToArray();
-			//Generators			= r.Read<Member>(i => i.ReadForSharing(r));
 		}
 	}
 }

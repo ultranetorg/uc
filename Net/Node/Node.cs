@@ -389,7 +389,6 @@ namespace Uccs.Net
 				h.IP			= ip;
 				h.Name			= Name;
 				h.PeerId		= PeerId;
-				h.Peers			= Peers.Where(i => i.Recent).ToArray();
 				h.Permanent		= permanent;
 			
 				return h;
@@ -473,9 +472,10 @@ namespace Uccs.Net
 						return;
 					}
 	
-					RefreshPeers(h.Peers.Append(peer));
+					RefreshPeers([peer]);
 	
 					peer.Start(this, tcp, h, Name, false);
+					peer.Post(new PeersBroadcastRequest{Peers = Peers.Where(i => i.Recent).ToArray()});
 
 					foreach(var c in Connections.Where(i => i != peer))
 						Post(new PeersBroadcastRequest {Peers = [peer]});
@@ -623,15 +623,17 @@ namespace Uccs.Net
 						Peers.Add(peer);
 					}
 
-					RefreshPeers(h.Peers.Append(peer));
+					RefreshPeers([peer]);
 	
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, Name, true);
+					peer.Post(new PeersBroadcastRequest{Peers = Peers.Where(i => i.Recent).ToArray()});
 								
-					IncomingConnections.Remove(client);
 	
 					foreach(var c in Connections.Where(i => i != peer))
 						Post(new PeersBroadcastRequest {Peers = [peer]});
+
+					IncomingConnections.Remove(client);
 				}
 	
 				Flow.Log?.Report(this, $"Connected from {peer}");

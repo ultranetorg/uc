@@ -22,7 +22,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class NodeSettings : Settings
+	public abstract class NodeSettings : SavableSettings
 	{
 
 		public ApiSettings			Api { get; set; }

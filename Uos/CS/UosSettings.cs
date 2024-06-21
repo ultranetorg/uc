@@ -7,7 +7,7 @@ using Uccs.Net;
 
 namespace Uccs.Uos
 {
-	public class UosSettings : Settings
+	public class UosSettings : SavableSettings
 	{
 		public string					Name;
 		public Zone						Interzone { get; set; }

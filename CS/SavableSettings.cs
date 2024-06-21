@@ -10,32 +10,14 @@ namespace Uccs
 {
 	public class Settings
 	{
-		public string					Profile;
-		public virtual string			FileName => GetType().Name.Remove(GetType().Name.Length - nameof(Settings).Length) + Extention;
-		public string					Path => System.IO.Path.Join(Profile, FileName); 
-		IXonValueSerializator			Serializator;
-		public const string				Extention = ".settings";
+		protected IXonValueSerializator			Serializator;
 		
 		public Settings(IXonValueSerializator serializator)
 		{
 			Serializator  = serializator;
 		}
-		
-		public Settings(string profile, IXonValueSerializator serializator) : this(serializator)
-		{
-			Directory.CreateDirectory(profile);
 
-			Profile = profile;
-
-			if(File.Exists(Path))
-			{
-				var x = new XonDocument(File.ReadAllText(Path), serializator);
-	
-				Load(x);
-			}
-		}
-
- 		object load(string name, Type t, Xon x)
+ 		protected object Load(string name, Type t, Xon x)
  		{
 			if(t.IsArray)
 			{
@@ -50,7 +32,7 @@ namespace Uccs
 	
 				for(int i=0; i<n; i++)
 				{
-					a.GetMethod("Set").Invoke(l, [i, load(name.TrimEnd('s'), t.GetElementType(), m[i])]);
+					a.GetMethod("Set").Invoke(l, [i, Load(name.TrimEnd('s'), t.GetElementType(), m[i])]);
 				}
 
 				return l;
@@ -58,28 +40,6 @@ namespace Uccs
 			else
 				return x.Get(t);
  		}
-
-		//public void Load(Xon x)
-		//{
-		//	foreach(var i in x.Nodes.GroupBy(i => i.Name))
-		//	{
-		//		var p = GetType().GetProperty(i.Key) ?? GetType().GetProperty(i.Key + "s");
-		//
-		//		if(p.PropertyType == typeof(bool))	
-		//		{
-		//			p.SetValue(this, true);
-		//		}
-		//		else if(p.PropertyType.Name.EndsWith("Settings"))
-		//		{
-		//			var s = Activator.CreateInstance(p.PropertyType) as Settings;
-		//			s.Load(i.First());
-		//			p.SetValue(this, s);
-		//		}
-		//		else
-		//			p.SetValue(this, load(p.Name, p.PropertyType, i.First()));
-		//	}
-		//}
-
 
 		public void Load(Xon xon)
 		{
@@ -100,15 +60,40 @@ namespace Uccs
 						p.SetValue(this, s);
 					}
 					else
-						p.SetValue(this, load(p.Name, p.PropertyType, x));
+						p.SetValue(this, Load(p.Name, p.PropertyType, x));
 				}
 			}
 		}
+	}
 
-
-		public Settings Merge(Xon x)
+	public class SavableSettings : Settings
+	{
+		public string					Profile;
+		public virtual string			FileName => GetType().Name.Remove(GetType().Name.Length - nameof(Settings).Length) + Extention;
+		public string					Path => System.IO.Path.Join(Profile, FileName); 
+		public const string				Extention = ".settings";
+		
+		public SavableSettings(IXonValueSerializator serializator) : base(serializator)
 		{
-			var r = Activator.CreateInstance(GetType()) as Settings;
+		}
+		
+		public SavableSettings(string profile, IXonValueSerializator serializator) : this(serializator)
+		{
+			Directory.CreateDirectory(profile);
+
+			Profile = profile;
+
+			if(File.Exists(Path))
+			{
+				var x = new XonDocument(File.ReadAllText(Path), serializator);
+	
+				Load(x);
+			}
+		}
+
+		public SavableSettings Merge(Xon x)
+		{
+			var r = Activator.CreateInstance(GetType()) as SavableSettings;
 
 			r.Profile = Profile;
 
@@ -124,17 +109,17 @@ namespace Uccs
 					}
 					else if(p.PropertyType.Name.EndsWith("Settings"))
 					{
-						if(p.GetValue(r) is Settings s)
+						if(p.GetValue(r) is SavableSettings s)
 							s.Merge(v);
 						else
 						{
-							s = Activator.CreateInstance(p.PropertyType) as Settings;
+							s = Activator.CreateInstance(p.PropertyType) as SavableSettings;
 							s.Load(v);
 							p.SetValue(r, s);
 						}
 					}
 					else
-						p.SetValue(r, load(p.Name, p.PropertyType, v));
+						p.SetValue(r, Load(p.Name, p.PropertyType, v));
 				} 
 				else
 					p.SetValue(r, p.GetValue(this));
