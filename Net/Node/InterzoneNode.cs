@@ -66,8 +66,11 @@ namespace Uccs.Net
 													Settings.Peering.IP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
-		protected override void CreateTables(ColumnFamilies columns)
+		protected override void Share(Peer peer)
 		{
+			peer.Post(new ShareZonesRequest {	Broadcast = false,
+												Zones = Zones.Select(i => new ShareZonesRequest.Z {	Id = i.Zone, 
+																									Peers = i.Peers.ToArray()}).ToArray()});
 		}
 
 		public ZonePeers GetZone(Guid id)
@@ -91,7 +94,7 @@ namespace Uccs.Net
 
 			foreach(var c in Connections)
 			{
-				c.Post(new ZoneBroadcastRequest {Zones = [ new ZoneBroadcastRequest.Z {	Id = node.Zone.Id, Peers = [p]}]});
+				c.Post(new ShareZonesRequest {Broadcast = true, Zones = [new ShareZonesRequest.Z {Id = node.Zone.Id, Peers = [p]}]});
 			}
 		}
 

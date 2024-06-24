@@ -13,7 +13,7 @@ namespace Uccs.Net
 		None, 
 		Vote,
 		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
-		ZoneBroadcast, 
+		ShareZones, 
 		Domain, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		Cost

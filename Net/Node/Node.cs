@@ -93,9 +93,8 @@ namespace Uccs.Net
 		Thread										ListeningThread;
 		public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
-		protected abstract void						CreateTables(ColumnFamilies columns);
-
-
+		protected virtual void						CreateTables(ColumnFamilies columns) {}
+		protected virtual void						Share(Peer peer) {}
 
 		public Node(string name, NodeSettings settings, Flow flow)
 		{
@@ -479,6 +478,8 @@ namespace Uccs.Net
 
 					foreach(var c in Connections.Where(i => i != peer))
 						Post(new PeersBroadcastRequest {Peers = [peer]});
+
+					Share(peer);
 				}
 	
 				Flow.Log?.Report(this, $"Connected to {peer}");
@@ -628,10 +629,11 @@ namespace Uccs.Net
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, Name, true);
 					peer.Post(new PeersBroadcastRequest{Peers = Peers.Where(i => i.Recent).ToArray()});
-								
-	
+									
 					foreach(var c in Connections.Where(i => i != peer))
 						Post(new PeersBroadcastRequest {Peers = [peer]});
+
+					Share(peer);
 
 					IncomingConnections.Remove(client);
 				}

@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class ZoneBroadcastRequest : InterzoneCall<PeerResponse>
+	public class ShareZonesRequest : InterzoneCall<PeerResponse>
 	{
 		public class Z
 		{
@@ -14,6 +14,7 @@ namespace Uccs.Net
 		}
 
 		public Z[]				Zones { get; set; }
+		public bool				Broadcast { get; set; }
 		public override bool	WaitResponse => false;
 
 		public override PeerResponse Execute()
@@ -61,11 +62,12 @@ namespace Uccs.Net
 
 			}
 				
-			if(fresh.Any())
+			if(fresh.Any() && Broadcast)
 			{
 				foreach(var i in Node.Connections.Where(i => i != Peer))
 				{
-					i.Post(new ZoneBroadcastRequest{Zones = fresh.Select(i => new Z {	Id = i.Zone, 
+					i.Post(new ShareZonesRequest {	Broadcast = true,
+													Zones = fresh.Select(i => new Z {	Id = i.Zone, 
 																						Peers = i.Peers.ToArray()}).ToArray()});
 				}
 			}
