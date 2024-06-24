@@ -28,7 +28,7 @@ namespace Uccs.Uos
 		static Boot				Boot;
 		public static			ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		
-		public Node				FindMcv(Guid id) => Nodes.Find(i => i.Zone.Id == id);
+		public Node				Find(Guid id) => Nodes.Find(i => i.Zone.Id == id);
 		public T				Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
 		//public static List<Uos>			All = new();
