@@ -2,10 +2,6 @@
 
 namespace Uccs.Tests
 {
-	public class A
-	{
-		public ResourceActivityProgress Progress {get;set; }
-	}
 
 	class Program
 	{

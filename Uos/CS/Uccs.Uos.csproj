@@ -11,7 +11,7 @@
     <FileVersion>1.0.146</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Net\Uccs.Net.csproj" />
+    <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="UosApi.cs">

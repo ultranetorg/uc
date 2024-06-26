@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace Uccs
 {
@@ -22,6 +25,14 @@ namespace Uccs
 
 	public interface ITypeCode
 	{
-		byte TypeCode { get; }
+		public static Dictionary<Type, byte>								Codes = [];
+		public static Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
+// 
+// 		public static void Register(Assembly assembly, Type type, Type @enum, byte code)
+// 		{
+// 			assembly.GetType(type.Namespace + "." + Enum.GetName(@enum, code)).GetConstructor([])
+// 		}
+
+	//	byte TypeCode { get; }
 	}
 }

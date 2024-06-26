@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using Uccs.Net;
+using Uccs.Rdn;
 
 namespace Uccs.Uos
 {
@@ -186,7 +187,7 @@ namespace Uccs.Uos
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new Rdn(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
+				var n = new Rdn.RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
 
 				Nodes.Add(n);
 

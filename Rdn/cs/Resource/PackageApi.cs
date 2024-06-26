@@ -1,0 +1,131 @@
+using System.Net;
+
+namespace Uccs.Rdn
+{
+	public class PackageAddApc : RdnApc
+	{
+		public Ura						Resource { get; set; }
+		public byte[]					Complete { get; set; }
+		public byte[]					Incremental { get; set; }
+		public byte[]					Manifest { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
+
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			var h = node.Zone.Cryptography.HashFile(Manifest);
+			var a = AddressCreator.Create(node.Mcv, h);
+
+			lock(node.PackageHub.Lock)
+			{
+				var p = node.PackageHub.Get(Resource);
+				
+				lock(node.ResourceHub.Lock)
+				{
+					p.Resource.AddData(DataType.Package, a);
+					
+					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a, DataType.Package);
+
+					var path = node.PackageHub.AddressToReleases(a);
+
+					r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
+			
+					if(Complete != null)
+						r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.ManifestFile), Complete);
+		
+					if(Incremental != null)
+						r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.ManifestFile), Incremental);
+										
+					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+				}
+			}
+
+			return null;
+		}
+	}
+
+	public class PackageBuildApc : RdnApc
+	{
+		public Ura						Resource { get; set; }
+		public IEnumerable<string>		Sources { get; set; }
+		public string					DependenciesPath { get; set; }
+		public Ura						Previous { get; set; }
+		public Ura[]					History { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
+		}
+	}
+
+	public class PackageDownloadApc : RdnApc
+	{
+		public Ura		Package { get; set; }
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+			{	
+				sun.PackageHub.Download(Package, workflow);
+				return null;
+			}
+		}
+	}
+
+	public class PackageInstallApc : RdnApc
+	{
+		public Ura	Package { get; set; }
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			sun.PackageHub.Install(Package, workflow);
+			return null;
+		}
+	}
+
+	public class PackageActivityProgressApc : RdnApc
+	{
+		public Ura	Package { get; set; }
+		
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			var p = sun.PackageHub.Find(Package);
+
+			lock(sun.PackageHub.Lock)
+				if(p?.Activity is PackageDownload dl)
+					return new PackageDownloadProgress(dl);
+				if(p?.Activity is Deployment dp)
+					return new DeploymentProgress(dp);
+				else
+					return null;
+		}
+	}
+
+	public class PackageInfoApc : RdnApc
+	{
+		public Ura	Package { get; set; }
+		
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+			{
+				var p = sun.PackageHub.Find(Package);
+
+				if(p == null)
+					throw new ResourceException(ResourceError.NotFound);
+
+				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
+										Availability	= p.Release.Availability,
+										Manifest		= p.Manifest };
+			}
+		}
+	}
+
+	public class PackageInfo
+	{
+		public bool				Ready { get; set; }
+		public Availability		Availability { get; set; }
+		public Manifest			Manifest { get; set; }
+	}
+}

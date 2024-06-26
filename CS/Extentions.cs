@@ -158,6 +158,13 @@ namespace Uccs
 			return o;
 		}
 
+		public static T ReadVirtual<T>(this BinaryReader r) where T : IBinarySerializable, ITypeCode
+		{
+			var o = (T)ITypeCode.Contructors[typeof(T)][r.ReadByte()].Invoke(null);
+			o.Read(r);
+			return o;
+		}
+
 		public static T Read<T>(this BinaryReader r, Func<byte, T> construct) where T : class, IBinarySerializable
 		{
 			var o = construct(r.ReadByte()) as T;
@@ -168,7 +175,7 @@ namespace Uccs
 		public static void Write(this BinaryWriter w, IBinarySerializable o)
 		{
 			if(o is ITypeCode c)
-				w.Write(c.TypeCode);
+				w.Write(ITypeCode.Codes[o.GetType()]);
 
 			o.Write(w);
 		}
