@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -76,12 +76,15 @@ namespace Uccs.Net
 			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
 		}
 
-		public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey, DefaultOptions)
+
+		public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 		{
+			Options = DefaultOptions;
 		}
 
-		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, DefaultOptions, timeout)
+		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
+			Options = DefaultOptions;
 		}
 	}
 

@@ -59,22 +59,20 @@ namespace Uccs
 		public int						Failures;
 		public JsonSerializerOptions	Options;
 
-		public JsonClient(HttpClient http, string address, string accesskey, JsonSerializerOptions options)
+		public JsonClient(HttpClient http, string address, string accesskey)
 		{
 			Http = http;
 			Address = address;
 			Key = accesskey;
-			Options = options;
 		}
 
-		public JsonClient(string address, string accesskey, JsonSerializerOptions options, int timeout = 30)
+		public JsonClient(string address, string accesskey, int timeout = 30)
 		{
 			Http = new HttpClient();
 			Http.Timeout = timeout == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
 
 			Address = address;
 			Key = accesskey;
-			Options = options;
 		}
 
 		public HttpResponseMessage Send(Apc request, Flow workflow)

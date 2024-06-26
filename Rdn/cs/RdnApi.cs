@@ -16,32 +16,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class OperationJsonConverter : JsonConverter<Operation>
-	{
-		public Func<Operation>	Create;
-
-		public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			var s = reader.GetString().Split(':');
-			var o = new RdnMcv().CreateOperation(int.Parse(s[0]));
- 			
-			o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
-
-			return o;
-		}
-
-		public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			value.Write(w);
-			
-			writer.WriteStringValue(ITypeCode.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
-		}
-	}
-
-	public class RdnPolymorphicTypeResolver : ApiTypeResolver
+	public class RdnTypeResolver : ApiTypeResolver
 	{
 	    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
 	    {
@@ -77,7 +52,7 @@ namespace Uccs.Rdn
 	{
 		RdnNode Node;
 
-		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow)
+		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow, RdnApiClient.DefaultOptions)
 		{
 			Node = node;
 		}
@@ -96,24 +71,34 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class RdnApiClient : ApiClient
+	public class RdnApiClient : McvApiClient
 	{
+		new public static readonly JsonSerializerOptions DefaultOptions;
+		
 		static RdnApiClient()
 		{
-			DefaultOptions.Converters.Add(new OperationJsonConverter());
+			DefaultOptions = new JsonSerializerOptions{};
+			DefaultOptions.IgnoreReadOnlyProperties = true;
+			DefaultOptions.TypeInfoResolver = new RdnTypeResolver();
+
+			foreach(var i in McvApiClient.DefaultOptions.Converters)
+			{
+				DefaultOptions.Converters.Add(i);
+			}
+
 			DefaultOptions.Converters.Add(new ResourceAddressJsonConverter {});
 			DefaultOptions.Converters.Add(new ReleaseAddressJsonConverter());
 			DefaultOptions.Converters.Add(new ResourceDataJsonConverter());
-
-			DefaultOptions.TypeInfoResolver = new RdnPolymorphicTypeResolver();
 		}
 
 		public RdnApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 		{
+			Options = DefaultOptions;
 		}
 
 		public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
+			Options = DefaultOptions;
 		}
 	}
 

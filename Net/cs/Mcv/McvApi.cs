@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
@@ -15,11 +19,36 @@ namespace Uccs.Net
 		}
 	}
 
+	public class OperationJsonConverter : JsonConverter<Operation>
+	{
+		public Func<Operation>	Create;
+
+		public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			var s = reader.GetString().Split(':');
+			var o = ITypeCode.Contruct<Operation>(byte.Parse(s[0]));
+ 			
+			o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
+
+			return o;
+		}
+
+		public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			value.Write(w);
+			
+			writer.WriteStringValue(ITypeCode.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
+		}
+	}
+
 	public abstract class McvApiServer : JsonServer
 	{
 		McvNode Node;
 	
-		public McvApiServer(McvNode uos, Flow workflow) : base(uos.Settings.Api, ApiClient.DefaultOptions, workflow)
+		public McvApiServer(McvNode uos, Flow workflow, JsonSerializerOptions options = null) : base(uos.Settings.Api, options ?? McvApiClient.DefaultOptions, workflow)
 		{
 			Node = uos;
 		}
@@ -35,6 +64,34 @@ namespace Uccs.Net
 		}
 	}
 
+	public class McvApiClient : ApiClient
+	{
+		new public static readonly JsonSerializerOptions DefaultOptions;
+
+		static McvApiClient()
+		{
+			DefaultOptions = new JsonSerializerOptions{};
+			DefaultOptions.IgnoreReadOnlyProperties = true;
+			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
+
+			foreach(var i in ApiClient.DefaultOptions.Converters)
+			{
+				DefaultOptions.Converters.Add(i);
+			}
+
+			DefaultOptions.Converters.Add(new OperationJsonConverter());
+		}
+
+		public McvApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+		{
+			Options = DefaultOptions;
+		}
+
+		public McvApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+		{
+			Options = DefaultOptions;
+		}
+	}
 
 	public class RunPeerApc : McvApc
 	{
@@ -227,8 +284,8 @@ namespace Uccs.Net
 	public class TransactApc : McvApc
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
-		public AccountAddress			By  { get; set; }
-		public TransactionStatus		Await  { get; set; } = TransactionStatus.Confirmed;
+		public AccountAddress			By { get; set; }
+		public TransactionStatus		Await { get; set; } = TransactionStatus.Confirmed;
 
 		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
