@@ -24,7 +24,7 @@ namespace Uccs.Rdn
 
 	        if(ti.Type == typeof(PeerRequest))
 	        {
-				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest))).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
 					if(i.DerivedType == null)
 						throw new IntegrityException();
@@ -35,7 +35,7 @@ namespace Uccs.Rdn
 
 	        if(ti.Type == typeof(PeerResponse))
 	        {
-				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				{
 					if(i.DerivedType == null)
 						throw new IntegrityException();

@@ -16,12 +16,12 @@
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\_Debug\dotnet\</OutputPath>
+    <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>
     <NoWarn>1701;1702;</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\_Release\dotnet\</OutputPath>
+    <OutputPath>..\..\..\_Release\dotnet\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>false</Optimize>
   </PropertyGroup>
