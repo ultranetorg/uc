@@ -1,13 +1,7 @@
-﻿using Nethereum.Hex.HexTypes;
-using Nethereum.Web3;
-using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Numerics;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
-using Uccs.Net;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class CreatePasswordForm : Form
 	{

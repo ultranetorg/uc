@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	partial class FlowControlForm
 	{
@@ -29,7 +29,7 @@ namespace Uccs.Rdn.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.Logview = new Uccs.Rdn.FUI.Logbox();
+			this.Logview = new Uccs.Net.FUI.Logbox();
 			this.Abort = new System.Windows.Forms.Button();
 			this.Exit = new System.Windows.Forms.Button();
 			this.SuspendLayout();

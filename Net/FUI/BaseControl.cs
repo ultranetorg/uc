@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Windows.Forms;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	// 	public class ProductModel
 	// 	{

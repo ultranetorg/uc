@@ -1,10 +1,9 @@
 ﻿using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Numerics;
 using System.Windows.Forms;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class ChainMonitor : UserControl
 	{

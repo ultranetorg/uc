@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nethereum.Signer;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{

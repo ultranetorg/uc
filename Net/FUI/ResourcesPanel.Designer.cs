@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	partial class ResourcesPanel
 	{

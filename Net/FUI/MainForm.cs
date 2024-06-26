@@ -1,8 +1,8 @@
-﻿using System.Threading;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using Uccs.Rdn;
 using Timer = System.Windows.Forms.Timer;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class MainForm : Form
 	{

@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	partial class MembershipPanel
 	{
@@ -37,7 +37,7 @@ namespace Uccs.Rdn.FUI
 			this.label4 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.Bail = new Uccs.Rdn.FUI.CoinEdit();
+			this.Bail = new Uccs.Net.FUI.CoinEdit();
 			this.Declarations = new System.Windows.Forms.ListView();
 			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();

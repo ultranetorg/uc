@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class MembersPanel : MainPanel
 	{

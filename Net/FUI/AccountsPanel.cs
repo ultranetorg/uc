@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Nethereum.KeyStore.Crypto;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class AccountsPanel : MainPanel
 	{

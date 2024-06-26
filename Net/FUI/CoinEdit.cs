@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using Nethereum.Util;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public class CoinEdit : TextBox
 	{

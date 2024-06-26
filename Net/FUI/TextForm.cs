@@ -1,13 +1,6 @@
-﻿using Nethereum.Contracts;
-using Nethereum.Contracts.ContractHandlers;
-using Nethereum.Hex.HexTypes;
-using Nethereum.Util;
-using Nethereum.Web3;
-using System;
-using System.Numerics;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class TextForm : Form
 	{

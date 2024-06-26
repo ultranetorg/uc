@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	partial class DomainPanel
 	{
@@ -34,7 +34,7 @@ namespace Uccs.Rdn.FUI
 			this.label5 = new System.Windows.Forms.Label();
 			this.NewOwner = new System.Windows.Forms.TextBox();
 			this.Registration = new System.Windows.Forms.GroupBox();
-			this.Cost = new Uccs.Rdn.FUI.CoinEdit();
+			this.Cost = new Uccs.Net.FUI.CoinEdit();
 			this.Years = new System.Windows.Forms.NumericUpDown();
 			this.register = new System.Windows.Forms.Button();
 			this.RegistrationStatus = new System.Windows.Forms.Label();
@@ -45,7 +45,7 @@ namespace Uccs.Rdn.FUI
 			this.RegisrationSigner = new System.Windows.Forms.ComboBox();
 			this.DomainTitle = new System.Windows.Forms.TextBox();
 			this.Auction = new System.Windows.Forms.GroupBox();
-			this.Bid = new Uccs.Rdn.FUI.CoinEdit();
+			this.Bid = new Uccs.Net.FUI.CoinEdit();
 			this.MakeBid = new System.Windows.Forms.Button();
 			this.label11 = new System.Windows.Forms.Label();
 			this.AuctionStatus = new System.Windows.Forms.Label();

@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	partial class EmissionPanel
 	{
@@ -31,7 +31,7 @@ namespace Uccs.Rdn.FUI
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EmissionPanel));
 			this.transfergroup = new System.Windows.Forms.GroupBox();
-			this.eth = new Uccs.Rdn.FUI.CoinEdit();
+			this.eth = new Uccs.Net.FUI.CoinEdit();
 			this.privatekeyChoice = new System.Windows.Forms.RadioButton();
 			this.walletChoice = new System.Windows.Forms.RadioButton();
 			this.label8 = new System.Windows.Forms.Label();
@@ -374,7 +374,7 @@ namespace Uccs.Rdn.FUI
 		private System.Windows.Forms.TextBox privatekey;
 		private System.Windows.Forms.GroupBox finishgroup;
 		private System.Windows.Forms.Button finish;
-		private Uccs.Rdn.FUI.CoinEdit eth;
+		private Uccs.Net.FUI.CoinEdit eth;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Unfinished;

@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace Uccs.Rdn.FUI
+﻿namespace Uccs.Net.FUI
 {
 	public partial class DashboardPanel : MainPanel
 	{

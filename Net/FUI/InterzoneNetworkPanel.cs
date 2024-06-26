@@ -1,9 +1,8 @@
 ﻿using System.Data;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class InterzoneNetworkPanel : MainPanel
 	{

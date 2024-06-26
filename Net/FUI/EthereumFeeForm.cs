@@ -3,8 +3,9 @@ using System.Windows.Forms;
 using Nethereum.Contracts;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Web3;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn.FUI
+namespace Uccs.Net.FUI
 {
 	public partial class EthereumFeeForm : Form, IGasAsker
 	{
