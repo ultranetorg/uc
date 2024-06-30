@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "Uccs.Uos": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Profile 1": {
       "commandName": "Project",
-      "commandLineArgs": "node run profile=/home/king/Devzone-uos-profiles/78.47.204.100"
+      "commandLineArgs": "node run profile=A:\\1"
     }
   }
 }

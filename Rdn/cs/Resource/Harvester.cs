@@ -55,7 +55,7 @@ namespace Uccs.Rdn
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Mcv.Settings.Seed.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
 									}
 								}, 
 								Collector.Flow.Cancellation);

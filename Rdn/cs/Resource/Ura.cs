@@ -158,7 +158,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class ResourceAddressJsonConverter : JsonConverter<Ura>
+	public class UraJsonConverter : JsonConverter<Ura>
 	{
 		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{

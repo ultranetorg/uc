@@ -46,7 +46,7 @@ namespace Uccs.Uos
 			var s = new UosSettings(Boot.Profile, "The Uos", Interzone.ByName(Boot.Zone));
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
-			u.Run();
+			u.Execute(Boot.Commnand.Nodes, u.Flow);
 			u.Stop();
 		}
 
@@ -118,41 +118,6 @@ namespace Uccs.Uos
 
 			Izn?.Stop();
 		}
-
-		public void Run()
-		{
-			Console.WriteLine();
-
-			if(ConsoleAvailable)
-			{
-				LogView.StartListening(Flow.Log);
-
-				if(Boot.Commnand.Nodes.Any())
-				{
-					Execute(Boot.Commnand.Nodes, Flow);
-				} 
-				else
-				{
-					while(Flow.Active)
-					{
-						Console.Write("uos > ");
-		
-						try
-						{
-							var x = new XonDocument(Console.ReadLine());
-		
-							Execute(x.Nodes, Flow);
-						}
-						catch(Exception ex)
-						{
-							Flow.Log.ReportError(this, "Error", ex);
-						}
-					}
-				}
-			}
-			else
-				WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
-		}
 		
 		public void RunApi()
 		{
@@ -182,12 +147,12 @@ namespace Uccs.Uos
 		public Node RunNode(Guid zuid, NodeSettings settings = null, IEthereum ethereum = null, IClock clock = null, bool peering = false)
 		{
 			if(	RdnZone.Local.Id		== zuid ||
-				RdnZone.Developer.Id	== zuid ||
+				RdnZone.Developer0.Id	== zuid ||
 				RdnZone.Test.Id			== zuid)
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new Rdn.RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
+				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
 
 				Nodes.Add(n);
 
@@ -212,13 +177,15 @@ namespace Uccs.Uos
 			switch(t)
 			{
 				case WalletCommand.Keyword:		c = new WalletCommand(this, args, flow); break;
+				case NodeCommand.Keyword:		c = new NodeCommand(this, args, flow); break;
 
 				default:
-					throw new SyntaxException("Unknown command");
+					throw new SyntaxException($"Unknown command '{t}'");
 			}
 
 			return c;
 		}
+
 		public object Execute(IEnumerable<Xon> command, Flow flow)
 		{
 			if(Flow.Aborted)

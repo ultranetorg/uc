@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.79.0</AssemblyVersion>
-    <FileVersion>1.0.79.0</FileVersion>
-    <Version>1.0.79.0</Version>
+    <AssemblyVersion>1.0.135.0</AssemblyVersion>
+    <FileVersion>1.0.135.0</FileVersion>
+    <Version>1.0.135.0</Version>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,8 +22,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\..\_Release\dotnet\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>false</Optimize>
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.7.0" />

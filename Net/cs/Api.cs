@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -25,9 +25,6 @@ namespace Uccs.Net
 
 				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
-					if(i.DerivedType == null)
-						throw new IntegrityException();
-
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }
@@ -43,9 +40,6 @@ namespace Uccs.Net
 
 				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				{
-					if(i.DerivedType == null)
-						throw new IntegrityException();
-
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }

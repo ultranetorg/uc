@@ -23,7 +23,7 @@ namespace Uccs.Uos
 	
 										while(Flow.Active)
 										{
-											Console.Write("uos > ");
+											Console.Write("uos >");
 	
 											try
 											{
@@ -34,7 +34,7 @@ namespace Uccs.Uos
 																				 ))
 													throw new Exception("Not available");
 	
-												Uos.Execute(x.Nodes, Flow);
+												Uos.Execute(x.Nodes, flow);
 											}
 											catch(Exception ex)
 											{
@@ -51,7 +51,7 @@ namespace Uccs.Uos
 								};
 
 			run.Help = new Help(){	Title = "RUN",
-									Description = "Runs a new node instance with command-line interface",
+									Description = "Runs a new instance with command-line interface",
 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
 
 									Arguments =
@@ -62,7 +62,7 @@ namespace Uccs.Uos
 
 									Examples =
 									[
-										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun zone=Testzone")
+										new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun interzone=Testzone")
 									]};
 			
 			Actions = [run];

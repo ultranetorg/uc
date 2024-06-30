@@ -71,7 +71,7 @@ namespace Uccs.Net.FUI
 			var m = new TreeNode("Members"){Tag = new MembersPanel(node)};
 			root.Nodes.Add(m);
 	
-			if(node.Mcv.Settings.Base?.Chain != null)
+			if(node.Mcv?.Settings.Base?.Chain != null)
 			{
 				var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(node)};
 				root.Nodes.Add(t);

@@ -1,4 +1,4 @@
 // RELEASE
 
-Zone = Localzone
+Interzone = Developer0
 

@@ -127,7 +127,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone as RdnZone, settings, databasepath)
+		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone as McvZone, settings, databasepath)
 		{
 			Node = node;
 			Flow = flow;

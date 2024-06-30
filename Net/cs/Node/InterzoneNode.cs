@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -53,9 +54,12 @@ namespace Uccs.Net
 		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Zone.Id == id);
 		public T								Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
-		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, settings ?? new IznSettings(Path.Join(profile, zuid.ToString())), workflow)
+		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Interzone.Byid(zuid), settings ?? new IznSettings(profile), workflow)
 		{
-			Zone = Interzone.Byid(zuid);
+			if(Settings.Api != null)
+			{
+				ApiServer = new NodeApiServer(this, Flow);
+			}
 
 			RunPeer();
 		}

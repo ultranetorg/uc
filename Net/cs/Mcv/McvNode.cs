@@ -23,6 +23,7 @@ namespace Uccs.Net
 
 	public abstract class McvNode : Node
 	{
+		public new McvZone							Zone => base.Zone as McvZone;
 		public Vault								Vault; 
 		public Mcv									Mcv; 
 
@@ -44,7 +45,7 @@ namespace Uccs.Net
 
 		public static List<McvNode>					All = new();
 
-		public McvNode(string name, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, nodesettings, flow)
+		public McvNode(string name, Zone zone, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, zone, nodesettings, flow)
 		{
 			Vault = vault;
 		}
@@ -89,7 +90,7 @@ namespace Uccs.Net
 			//if(t == typeof(PeerRequest)	 && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Request").GetConstructor([]).Invoke(null) as PeerRequest;
 			//if(t == typeof(PeerResponse) && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
 			//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
-			if(t == typeof(Transaction))	return new Transaction {Zone = Mcv.Zone, Mcv = Mcv}; 
+			if(t == typeof(Transaction))	return new Transaction {Zone = Zone, Mcv = Mcv}; 
 
 			return base.Constract(t, b);
 		}
@@ -98,30 +99,33 @@ namespace Uccs.Net
 		{
 			base.RunPeer();
 
-			Mcv.VoteAdded += b => MainWakeup.Set();
-
-			Mcv.ConsensusConcluded += (r, reached) =>	{
-															if(reached)
-															{
-																/// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
-																var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
-					
-																foreach(var v in notcomebacks)
-																	Broadcast(v);
-															}
-															else
-															{
-																foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
+			if(Mcv != null)
+			{
+				Mcv.VoteAdded += b => MainWakeup.Set();
+	
+				Mcv.ConsensusConcluded += (r, reached) =>	{
+																if(reached)
 																{
-																	i.Vote = null;
-																	i.Status = TransactionStatus.Accepted;
+																	/// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
+																	var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
+						
+																	foreach(var v in notcomebacks)
+																		Broadcast(v);
 																}
-															}
-														};
-
-			Mcv.Commited += r => {
-									IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-								 };
+																else
+																{
+																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
+																	{
+																		i.Vote = null;
+																		i.Status = TransactionStatus.Accepted;
+																	}
+																}
+															};
+	
+				Mcv.Commited += r => {
+										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+									 };
+			}
 		}
 
 		public override void Stop()
@@ -130,7 +134,7 @@ namespace Uccs.Net
 
 			TransactingThread?.Join();
 			SynchronizingThread?.Join();
-			Mcv.Stop();
+			Mcv?.Stop();
 
 			base.Stop();
 		}
@@ -147,7 +151,7 @@ namespace Uccs.Net
 		{
 			base.ProcessConnectivity();
 
-			if(Mcv.Settings.Base != null)
+			if(Mcv != null)
 			{
 				var needed = Settings.Peering.PermanentBaseMin - Bases.Count();
 	
@@ -163,18 +167,18 @@ namespace Uccs.Net
 	
 			if(!MinimalPeersReached && 
 				Connections.Count(i => i.Permanent) >= Settings.Peering.PermanentMin && 
-				(Mcv.Settings.Base == null || Bases.Count() >= Settings.Peering.PermanentBaseMin))
+				(Mcv == null || Bases.Count() >= Settings.Peering.PermanentBaseMin))
 			{
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
 	
-				if(Mcv.Settings.Base != null)
+				if(Mcv != null)
 				{
 					Synchronize();
 				}
 			}
 	
-			if(Mcv.Settings.Base != null && MinimalPeersReached)
+			if(Mcv != null && MinimalPeersReached)
 			{
 				Generate();
 			}
@@ -182,7 +186,7 @@ namespace Uccs.Net
 
 		public void Synchronize()
 		{
-			if(Settings.Peering.IP != null && Settings.Peering.IP.Equals(Mcv.Zone.Father0IP) && Mcv.Settings.Generators.Contains(Mcv.Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
+			if(Settings.Peering.IP != null && Settings.Peering.IP.Equals(Zone.Father0IP) && Mcv.Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -216,7 +220,7 @@ namespace Uccs.Net
 				{
 					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Connect(Mcv.Zone.Id, (long)(Mcv.Settings.Base.Chain != null ? Role.Chain : Role.Base), used, Flow);
+					peer = Connect(Zone.Id, (long)(Mcv.Settings.Base.Chain != null ? Role.Chain : Role.Base), used, Flow);
 
 					if(Mcv.Settings.Base?.Chain == null)
 					{
@@ -549,7 +553,7 @@ namespace Uccs.Net
 
 						var t = new Transaction();
 						t.Flow = Flow;
-						t.Zone = Mcv.Zone;
+						t.Zone = Zone;
 						t.Signer = g;
  						t.__ExpectedStatus = TransactionStatus.Confirmed;
 			
@@ -829,7 +833,7 @@ namespace Uccs.Net
 							t.Expiration = 0;
 							t.Generator = new([0, 0], -1);
 
-							t.Sign(Vault.GetKey(t.Signer), Mcv.Zone.Cryptography.ZeroHash);
+							t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
 
 							var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 								
@@ -1001,12 +1005,12 @@ namespace Uccs.Net
 			while(operations.Any())
 			{
 				var t = new Transaction();
-				t.Zone = Mcv.Zone;
+				t.Zone = Zone;
 				t.Signer = signer;
 				t.Flow = workflow;
  				t.__ExpectedStatus = await;
 			
-				foreach(var i in operations.Take(Mcv.Zone.OperationsPerTransactionLimit))
+				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))
 				{
 					t.AddOperation(i);
 				}
@@ -1020,7 +1024,7 @@ namespace Uccs.Net
 
 				p.Add(t);
 
-				operations = operations.Skip(Mcv.Zone.OperationsPerTransactionLimit);
+				operations = operations.Skip(Zone.OperationsPerTransactionLimit);
 			}
 
 			return p.ToArray();
@@ -1178,7 +1182,7 @@ namespace Uccs.Net
 			void compare(int table)
 			{
 				var cs = All.OfType<McvNode>()
-							.Where(i => i.Zone.Id == mcv.Zone.Id && i.Mcv.Settings.Base != null)
+							.Where(i => i.Zone.Id == mcv.Zone.Id && i.Mcv != null)
 							.Select(i => new {s = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()})
 							.ToArray();
 	

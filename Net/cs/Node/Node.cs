@@ -131,9 +131,10 @@ namespace Uccs.Net
 			}
 		}
 
-		public Node(string name, NodeSettings settings, Flow flow)
+		public Node(string name, Zone zone, NodeSettings settings, Flow flow)
 		{
 			Name = name;
+			Zone = zone;
 			Settings = settings;
 			Flow = flow;
 

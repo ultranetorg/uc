@@ -44,23 +44,26 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class McvApiServer : JsonServer
+	public abstract class McvApiServer : NodeApiServer
 	{
 		McvNode Node;
 	
-		public McvApiServer(McvNode uos, Flow workflow, JsonSerializerOptions options = null) : base(uos.Settings.Api, options ?? McvApiClient.DefaultOptions, workflow)
+		public McvApiServer(McvNode node, Flow workflow, JsonSerializerOptions options = null) : base(node, workflow, options ?? McvApiClient.DefaultOptions)
 		{
-			Node = uos;
+			Node = node;
 		}
 	
 		protected override Type Create(string call)
 		{
-			return Type.GetType(typeof(McvApiServer).Namespace + '.' + call);
+			return Type.GetType(typeof(McvApiServer).Namespace + '.' + call) ?? base.Create(call);
 		}
 	
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 		{
-			return (call as McvApc).Execute(Node, request, response, flow);
+			if(call is McvApc m)
+				return m.Execute(Node, request, response, flow);
+			else
+				return (call as NodeApc).Execute(Node, request, response, flow);
 		}
 	}
 

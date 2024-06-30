@@ -10,7 +10,7 @@ namespace Uccs.Uos
 	public class UosSettings : SavableSettings
 	{
 		public string					Name;
-		public Zone						Interzone { get; set; }
+		public Zone						Interzone;
 		public bool						EncryptVault { get; set; }
 		public ApiSettings				Api { get; set; }
 

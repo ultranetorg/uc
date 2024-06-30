@@ -38,13 +38,6 @@ namespace Uccs.Rdn
 
 		static Urr()
 		{
-			ITypeCode.Contructors[typeof(Urr)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr)) && !i.IsAbstract))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<UrrScheme>(i.Name);
-				ITypeCode.Contructors[typeof(Urr)][(byte)Enum.Parse<UrrScheme>(i.Name)] = i.GetConstructor([]);
-			}
 		}
 
 		public override string ToString()
@@ -216,10 +209,9 @@ namespace Uccs.Rdn
 			Resource = reader.Read<Ura>();
 			Signature = reader.ReadBytes(Cryptography.SignatureSize);
 		}
-
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<Urr>
+	public class UrrJsonConverter : JsonConverter<Urr>
 	{
 		public override Urr Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{

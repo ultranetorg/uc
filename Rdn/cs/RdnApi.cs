@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Nethereum.Hex.HexTypes;
 
 namespace Uccs.Rdn
 {
@@ -26,9 +27,6 @@ namespace Uccs.Rdn
 	        {
 				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
-					if(i.DerivedType == null)
-						throw new IntegrityException();
-
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }
@@ -37,9 +35,6 @@ namespace Uccs.Rdn
 	        {
 				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				{
-					if(i.DerivedType == null)
-						throw new IntegrityException();
-
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }
@@ -86,8 +81,8 @@ namespace Uccs.Rdn
 				DefaultOptions.Converters.Add(i);
 			}
 
-			DefaultOptions.Converters.Add(new ResourceAddressJsonConverter {});
-			DefaultOptions.Converters.Add(new ReleaseAddressJsonConverter());
+			DefaultOptions.Converters.Add(new UraJsonConverter());
+			DefaultOptions.Converters.Add(new UrrJsonConverter());
 			DefaultOptions.Converters.Add(new ResourceDataJsonConverter());
 		}
 

@@ -2,12 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 
 namespace Uccs.Net
 {
 	public abstract class NodeApc : Apc
 	{
 		public abstract object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	}
+
+	public class NodeApiServer : JsonServer
+	{
+		Node Node;
+	
+		public NodeApiServer(Node node, Flow workflow, JsonSerializerOptions options = null) : base(node.Settings.Api, options ?? ApiClient.DefaultOptions, workflow)
+		{
+			Node = node;
+		}
+ 	
+ 		protected override Type Create(string call)
+ 		{
+ 			return Type.GetType(typeof(NodeApiServer).Namespace + '.' + call);
+ 		}
+	
+		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+		{
+			return (call as NodeApc).Execute(Node, request, response, flow);
+		}
 	}
 
 	public class PropertyApc : NodeApc

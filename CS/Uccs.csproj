@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.145.0</AssemblyVersion>
-    <FileVersion>1.0.145.0</FileVersion>
-    <Version>1.0.145.0</Version>
+    <AssemblyVersion>1.0.202.0</AssemblyVersion>
+    <FileVersion>1.0.202.0</FileVersion>
+    <Version>1.0.202.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\_Debug\dotnet\</OutputPath>

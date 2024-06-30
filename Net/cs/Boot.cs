@@ -22,10 +22,10 @@ namespace Uccs.Net
 			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, FileName)));
 			Commnand = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
-			if(Commnand.Has("Zone"))
-				Zone = Commnand.Get<string>("Zone");
+			if(Commnand.Has("interzone"))
+				Zone = Commnand.Get<string>("interzone");
 			else
-				Zone = b.Get<string>("Zone");
+				Zone = b.Get<string>("Interzone");
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
