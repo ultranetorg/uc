@@ -743,7 +743,11 @@ namespace Uccs.Net
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			foreach(var t in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-											(i.EmissionOnly || i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
+											(
+#if IMMISION
+											i.EmissionOnly || 
+#endif
+											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
@@ -843,7 +847,11 @@ namespace Uccs.Net
 								nid++;
 
 							t.Generator	 = at.Generetor;
-							t.Fee		 = t.EmissionOnly ? 0 : at.MinFee;
+							#if IMMISSION
+								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
+							#else
+								t.Fee	 = at.MinFee;
+							#endif
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 

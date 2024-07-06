@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-
-namespace Uccs.Rdn
+﻿namespace Uccs.Rdn
 {
 	public class RdnXonTextValueSerializator : NetXonTextValueSerializator
 	{

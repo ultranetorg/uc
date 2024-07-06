@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading;
-using Nethereum.Util;
-using Nethereum.Web3;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -443,11 +438,11 @@ namespace Uccs.Net
 
 		public void Hashify()
 		{
-			BaseHash = Zone.Cryptography.Hash(BaseState);
+			BaseHash = Cryptography.Hash(BaseState);
 	
 			foreach(var t in Tables)
 				foreach(var i in t.SuperClusters.OrderBy(i => i.Key))
-					BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+					BaseHash = Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 

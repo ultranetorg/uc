@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -19,7 +18,10 @@ namespace Uccs.Net
 		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this));
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
+
+#if IMMISSION
 		public bool						EmissionOnly => Operations.All(i => i is Immission);
+#endif
 
 		public Mcv						Mcv;
 		public Vote						Vote;
@@ -43,7 +45,7 @@ namespace Uccs.Net
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
 					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
-					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+					(!mcv.Zone.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction()
@@ -76,7 +78,7 @@ namespace Uccs.Net
 				{
 					r.NextBytes(new Span<byte>(x, 32, PoWLength));
 					
-					h = Zone.Cryptography.Hash(x);
+					h = Cryptography.Hash(x);
 				
 				}
 				while(h[0] != 0 || h[1] != 0);
@@ -112,7 +114,7 @@ namespace Uccs.Net
 			w.WriteBytes(Tag);
 			w.Write(Operations, i => i.Write(w));
 
-			return Zone.Cryptography.Hash(s.ToArray());
+			return Cryptography.Hash(s.ToArray());
 		}
 
  		public void	WriteConfirmed(BinaryWriter writer)

@@ -1,4 +1,5 @@
-﻿
+﻿#if ETHEREUM
+
 namespace Uccs.Net.FUI
 {
 	partial class EmissionPanel
@@ -383,3 +384,4 @@ namespace Uccs.Net.FUI
 		private System.Windows.Forms.Button RefreshUnfinished;
 	}
 }
+#endif

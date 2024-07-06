@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿#if ETHEREUM
+using System.Numerics;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Signer;
 
@@ -69,3 +70,4 @@ namespace Uccs.Rdn
 		}
 	}
 }
+#endif

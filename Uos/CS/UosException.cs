@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 
 	public abstract class UosException : Exception

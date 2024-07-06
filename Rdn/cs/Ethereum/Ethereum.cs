@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿#if ETHEREUM
+using System.Net;
 using System.Numerics;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Hex.HexTypes;
@@ -261,4 +262,19 @@ namespace Uccs.Rdn
 // 		}
 
 	}
+
+	public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
+	{
+		public override HexBigInteger Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return new HexBigInteger(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, HexBigInteger value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.HexValue);
+		}
+	}
+
 }
+#endif

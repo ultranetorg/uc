@@ -1,4 +1,5 @@
-﻿namespace Uccs.Net.FUI
+﻿#if ETHEREUM
+namespace Uccs.Net.FUI
 {
 	partial class EthereumFeeForm
 	{
@@ -247,3 +248,4 @@
 		private System.Windows.Forms.PictureBox pictureBox1;
 	}
 }
+#endif

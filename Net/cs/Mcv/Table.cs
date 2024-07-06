@@ -62,7 +62,7 @@ namespace Uccs.Net
 					h = i.Hash;
 				}
 				else
-					h = Mcv.Zone.Cryptography.Hash(Bytes.Xor(h, i.Hash));
+					h = Cryptography.Hash(Bytes.Xor(h, i.Hash));
 			}
 
 			SuperClusters[b] = h;
@@ -160,7 +160,7 @@ namespace Uccs.Net
 				_Main = s.ToArray();
 				batch.Put(Id, _Main, Table.MainColumn);
 
-				Hash = Table.Mcv.Zone.Cryptography.Hash(_Main);
+				Hash = Cryptography.Hash(_Main);
 				MainLength = _Main.Length;
 				
 				s.SetLength(0);

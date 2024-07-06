@@ -1,18 +1,11 @@
-﻿using Uccs.Net;
-
-namespace Uccs.Tests
+﻿namespace Uccs.Tests
 {
 
 	class Program
 	{
 		public static void Main(string[] args)
 		{
-			AddressTests.Ueas();
-			AddressTests.Resource();
-			AddressTests.Release();
-			AddressTests.Package();
-
-			Xon.Basic();
+			AccountKeyTests.Main();
 
 			//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 

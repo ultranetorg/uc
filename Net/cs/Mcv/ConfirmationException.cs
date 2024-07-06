@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {

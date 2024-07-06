@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿#if ETHEREUM
+using System.Numerics;
 using System.Windows.Forms;
 using Nethereum.Contracts;
 using Nethereum.Contracts.ContractHandlers;
@@ -68,3 +69,4 @@ namespace Uccs.Net.FUI
 
 	}
 }
+#endif

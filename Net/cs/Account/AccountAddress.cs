@@ -1,20 +1,17 @@
-﻿using Nethereum.Signer;
-using Nethereum.Util;
-using System;
-using System.Linq;
-using System.Text;
-using Nethereum.Hex.HexConvertors.Extensions;
-using System.IO;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
 	public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 	{
+		public const string		Prefix = "0x";
 		public const int		Length = 20;
-		public byte[]			Bytes;
+		public virtual byte[]	Bytes { get; protected set; }
 		public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
 		//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
@@ -26,11 +23,9 @@ namespace Uccs.Net
 		{
 		}
 
-		public AccountAddress(EthECKey k)
+		public AccountAddress(AccountKey k)
 		{
-			var initaddr = Sha3Keccack.Current.CalculateHash(k.GetPubKeyNoPrefix());
-			Bytes = new byte[initaddr.Length - 12];
-			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
+			Bytes = k.GetPublicAddressAsBytes();
 
 			if(Bytes.Length != Length)
 				throw new IntegrityException("Bytes.Length != Length");
@@ -56,12 +51,15 @@ namespace Uccs.Net
 
 		public static AccountAddress Parse(string pubaddr)
 		{
-			return new AccountAddress(AddressUtil.Current.ConvertToValid20ByteAddress(pubaddr).HexToByteArray());
+			if(pubaddr[0] == '0' && pubaddr[1] == 'x')
+				return new AccountAddress(pubaddr.Substring(2).FromHex());
+			else
+				throw new FormatException();
 		}
 
 		public override string ToString()
 		{
-			return Bytes != null ? "0x" + Bytes.ToHex() : "";
+			return Bytes != null ? Prefix + Bytes.ToHex() : "";
 		}
 
 		public static bool operator == (AccountAddress a, AccountAddress b)
@@ -119,63 +117,6 @@ namespace Uccs.Net
 			return CompareTo(other as object);
 		}
 	}
-	
-	public class AccountKey : AccountAddress
-	{
-		[JsonIgnore]
-		public EthECKey		Key { get; protected set; }
-
-		public AccountKey(EthECKey k)
-		{
-			Key = k;
-
-			var initaddr = Sha3Keccack.Current.CalculateHash(k.GetPubKeyNoPrefix());
-			Bytes = new byte[initaddr.Length - 12];
-			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
-
-			if(Bytes.Length != Length)
-				throw new IntegrityException("Bytes.Length != Length");
-		}
-
-		public AccountKey(byte[] privatekay)
-		{
-			Key = new EthECKey(privatekay, true);
-
-			var initaddr = Sha3Keccack.Current.CalculateHash(Key.GetPubKeyNoPrefix());
-			Bytes = new byte[initaddr.Length - 12];
-			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
-		}
-	
-		public static AccountKey Create()
-		{
-			return new AccountKey(EthECKey.GenerateKey());
-		}
-
-		public new static AccountKey Parse(string privatekay)
-		{
-			return new AccountKey(new EthECKey(privatekay));
-		}
-
-		public static AccountKey Load(Cryptography cryptography, string path, string password)
-		{
-			return new AccountKey(new EthECKey(cryptography.Decrypt(File.ReadAllBytes(path), password), true));
-		}
-
-		public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
-		{
-			return new AccountKey(new EthECKey(cryptography.Decrypt(wallet, password), true));
-		}
-
-		public void Save(Cryptography cryptography, string path, string password)
-		{
-			File.WriteAllBytes(path, cryptography.Encrypt(this, password));
-		}
-
-		public byte[] Save(Cryptography cryptography, string password)
-		{
-			return cryptography.Encrypt(this, password);
-		}
-	}	
 
 	public class AccountJsonConverter : JsonConverter<AccountAddress>
 	{

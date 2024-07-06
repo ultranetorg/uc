@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Reflection;
 using Uccs.Net;
-using Uccs.Rdn;
 
 namespace Uccs.Uos
 {
@@ -144,7 +143,7 @@ namespace Uccs.Uos
 			IcnStarted?.Invoke(Izn);
 		}
 
-		public Node RunNode(Guid zuid, NodeSettings settings = null, IEthereum ethereum = null, IClock clock = null, bool peering = false)
+		public Node RunNode(Guid zuid, NodeSettings settings = null, IClock clock = null, bool peering = false)
 		{
 			if(	RdnZone.Local.Id		== zuid ||
 				RdnZone.Developer0.Id	== zuid ||
@@ -152,7 +151,7 @@ namespace Uccs.Uos
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, ethereum, clock, f);
+				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, clock, f);
 
 				Nodes.Add(n);
 

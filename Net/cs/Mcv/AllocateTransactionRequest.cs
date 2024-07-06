@@ -1,4 +1,7 @@
-﻿namespace Uccs.Net
+﻿using System;
+using System.Numerics;
+
+namespace Uccs.Net
 {
 	public class AllocateTransactionRequest : McvCall<AllocateTransactionResponse>
 	{
@@ -12,11 +15,12 @@
 
 				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
 				
+#if IMMISSION
 				if(!Transaction.EmissionOnly && a == null)
 					throw new EntityException(EntityError.NotFound);
-
+#endif
 				Transaction.Nid = a?.LastTransactionNid + 1 ?? 0;
-				Transaction.Fee = Immission.End;
+				Transaction.Fee = new Money(double.MaxValue/(double)Money.One);
 
 				Mcv.TryExecute(Transaction);
 				

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Uccs.Tests
 {
-	public static class AddressTests
+	public static class UraTests
 	{
 		static byte[] RandomBytes(int n)
 		{

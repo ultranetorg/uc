@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Web3;
 
 namespace Uccs.Rdn.CLI
 {
@@ -31,6 +29,7 @@ namespace Uccs.Rdn.CLI
 
 
 			Actions =	[
+#if ETHEREUM
 							new ()
 							{
 								Names = ["eee", "estimateethereumemission"],
@@ -242,6 +241,7 @@ namespace Uccs.Rdn.CLI
 													return null;
  												}
 							},
+#endif
 
 							new ()
 							{

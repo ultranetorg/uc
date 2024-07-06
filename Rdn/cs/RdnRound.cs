@@ -117,9 +117,11 @@
 									 .Order().ToArray();
 
 
+			#if IMMISSION
 			ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
 									 .Where(x => Emissions.Any(e => e.Id == x.OperationId) && rvs.Count(b => b.Emissions.Contains(x)) >= gq)
 									 .Order().ToArray();
+			#endif
 		}
 
 		public override void CopyConfirmed()
@@ -138,6 +140,7 @@
 
 		public override void ConfirmForeign()
 		{
+			#if IMMISSION
 			foreach(var i in ConsensusEmissions)
 			{
 				var e = Emissions.Find(j => j.Id == i.OperationId);
@@ -152,6 +155,7 @@
 			}
 
 			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+			#endif
 
 			foreach(var i in ConsensusMigrations)
 			{

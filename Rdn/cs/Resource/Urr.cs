@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn
@@ -185,7 +184,7 @@ namespace Uccs.Rdn
 			w.Write(Resource);
 			w.Write(hash);
 
-			return cryptography.AccountFrom(Signature, cryptography.Hash(s.ToArray())) == account;
+			return cryptography.AccountFrom(Signature, Cryptography.Hash(s.ToArray())) == account;
 		}
 
 		public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
@@ -195,7 +194,7 @@ namespace Uccs.Rdn
 			w.Write(resource);
 			w.Write(hash);
 
-			return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
+			return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, Cryptography.Hash(s.ToArray()))};
 		}
 
 		protected override void WriteMore(BinaryWriter writer)

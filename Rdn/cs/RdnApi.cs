@@ -1,9 +1,7 @@
 ﻿using System.Net;
 using System.Numerics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Nethereum.Hex.HexTypes;
 
 namespace Uccs.Rdn
 {
@@ -200,6 +198,7 @@ namespace Uccs.Rdn
 		}
 	}
 
+#if ETHEREUM
 	public class EstimateEmitApc : RdnApc
 	{
 		public byte[]			FromPrivateKey { get; set; } 
@@ -245,6 +244,7 @@ namespace Uccs.Rdn
 			return o;
 		}
 	}
+#endif
 
 	public class CostApc : RdnApc
 	{

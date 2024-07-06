@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Nethereum.Hex.HexTypes;
 
 namespace Uccs.Net
 {
@@ -65,7 +64,10 @@ namespace Uccs.Net
 			DefaultOptions.Converters.Add(new VersionJsonConverter());
 			DefaultOptions.Converters.Add(new XonDocumentJsonConverter());
 			DefaultOptions.Converters.Add(new BigIntegerJsonConverter());
+
+#if ETHEREUM
 			DefaultOptions.Converters.Add(new HexBigIntegerJsonConverter());
+#endif
 
 			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
 		}
@@ -79,19 +81,6 @@ namespace Uccs.Net
 		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
 			Options = DefaultOptions;
-		}
-	}
-
-	public class HexBigIntegerJsonConverter : JsonConverter<HexBigInteger>
-	{
-		public override HexBigInteger Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return new HexBigInteger(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, HexBigInteger value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.HexValue);
 		}
 	}
 }

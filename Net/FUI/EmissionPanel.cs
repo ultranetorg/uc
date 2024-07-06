@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if ETHEREUM
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -195,3 +196,4 @@ namespace Uccs.Net.FUI
 		}
 	}
 }
+#endif

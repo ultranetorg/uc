@@ -88,8 +88,8 @@ namespace Uccs.Net.FUI
 				var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rdn)};
 				root.Nodes.Add(r);
 	
-				var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
-				root.Nodes.Add(e);
+				//var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
+				//root.Nodes.Add(e);
 	
 				if(rdn.SeedHub != null)
 				{

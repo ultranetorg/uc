@@ -74,7 +74,7 @@ namespace Uccs.Rdn.CLI
 													var k = AccountKey.Create();
 
 													Report("Public Address - " + k.ToString()); 
-													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
+													Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
 													return null;
 												}
 							},

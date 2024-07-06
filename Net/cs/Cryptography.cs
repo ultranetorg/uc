@@ -1,46 +1,57 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Blake2Fast;
 using Nethereum.KeyStore;
-using Nethereum.Signer;
-using Nethereum.Util;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net
 {
 	public abstract class Cryptography
 	{
-		public static readonly Cryptography	No = new NoCryptography();
-		public static readonly Cryptography	Ethereum = new EthereumCryptography();
+		public static readonly Cryptography				No = new NoCryptography();
+		public static readonly Cryptography				Ethereum = new EthereumCryptography();
 
-		public const int					SignatureSize = 65;
-		public const int					HashSize = 32;
-		public const int					PrivateKeyLength = 32;
-		public virtual byte[]				ZeroSignature => new byte[SignatureSize];
-		public virtual byte[]				ZeroHash  => new byte[HashSize];
+		public const int								SignatureSize = 65;
+		public const int								HashSize = 32;
+		public const int								PrivateKeyLength = 32;
+		public virtual byte[]							ZeroSignature => new byte[SignatureSize];
+		public virtual byte[]							ZeroHash  => new byte[HashSize];
 
-		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
-		public abstract AccountAddress		AccountFromWallet(byte[] wallet);
-		public abstract AccountAddress		AccountFrom(byte[] signature, byte[] hash);
-		public abstract byte[]				Encrypt(AccountKey key, string password);
-		public abstract byte[]				Decrypt(byte[] input, string password);
+		public abstract byte[]							Sign(AccountKey pk, byte[] hash);
+		public abstract AccountAddress					AccountFromWallet(byte[] wallet);
+		public abstract AccountAddress					AccountFrom(byte[] signature, byte[] hash);
+		public abstract byte[]							Encrypt(AccountKey key, string password);
+		public abstract byte[]							Decrypt(byte[] input, string password);
 
-		public static readonly SecureRandom	Random = new SecureRandom();
+		public static readonly SecureRandom				Random = new SecureRandom();
+
+		[ThreadStatic]
+		public static DZen.Security.Cryptography.SHA3	SHA;
 
 		protected Cryptography()
 		{
 		}
 
-		public byte[] Hash(byte[] data)
+		public static byte[] Hash(byte[] data)
 		{
-			return Sha3Keccack.Current.CalculateHash(data);
+			if(SHA == null)
+			{
+				SHA = new DZen.Security.Cryptography.SHA3256Managed();
+				SHA.UseKeccakPadding = true;
+			}
+
+			return SHA.ComputeHash(data);
+			//return Sha3Keccack.Current.CalculateHash(data);
+			
+			//return SHA256.HashData(data);
+			//return Blake2b.ComputeHash(32, data);
 		}
 
 		public byte[] HashFile(byte[] data)
 		{
-			return SHA256.HashData(data);
+			return System.Security.Cryptography.SHA256.HashData(data);
 		}
 
 // 		public byte[] Hash(byte[] data)
@@ -92,7 +103,7 @@ namespace Uccs.Net
 			//
 			//return b.DoFinal(key.GetPrivateKeyAsBytes());
 
-			return key.Key.GetPrivateKeyAsBytes();
+			return key.GetPrivateKeyAsBytes();
 		}
 
 		public override byte[] Decrypt(byte[] input, string password)
@@ -124,36 +135,49 @@ namespace Uccs.Net
 
 		static EthereumCryptography()
 		{
-			EthECKey.SignRecoverable = true;
+			AccountKey.SignRecoverable = true;
 			service = new KeyStoreService();
 		}
 
 		public override byte[] Sign(AccountKey k, byte[] h)
 		{
-			var sig = k.Key.SignAndCalculateV(h);
+			var sig = k.SignAndCalculateV(h);
+
+			var o = new byte[SignatureSize];
 	
-			var s = new byte[SignatureSize];
-	
-			Array.Copy(sig.R, 0, s, 32 - sig.R.Length,		sig.R.Length);
-			Array.Copy(sig.S, 0, s, 32 + 32 - sig.S.Length,	sig.S.Length);
-			Array.Copy(sig.V, 0, s, 32 + 32,				1);
+			var r = sig.R.ToByteArrayUnsigned();
+			var s = sig.S.ToByteArrayUnsigned();
+
+			Array.Copy(r,	  0, o, 32 - r.Length,		r.Length);
+			Array.Copy(s,	  0, o, 32 + 32 - s.Length,	s.Length);
+			Array.Copy(sig.V, 0, o, 32 + 32,			1);
 	
 			//if(new Account(k) != AccountFrom(s, h))
 			//	throw new IntegrityException("Member-Signature inconsistency");						
 	
-			return s;
+			return o;
 		}
 
 		public override AccountAddress AccountFrom(byte[] signature, byte[] hash)
 		{
-			var r = new byte[32];
-			var s = new byte[32];
-			Array.Copy(signature, 0,	r, 0, r.Length);
-			Array.Copy(signature, 32,	s, 0, s.Length);
-	
-			var sig = EthECDSASignatureFactory.FromComponents(r, s, signature[64]);
-	
-			return new AccountAddress(EthECKey.RecoverFromSignature(sig, hash));
+ 			var r = new byte[32];
+ 			var s = new byte[32];
+ 			Array.Copy(signature, 0,	r, 0, r.Length);
+ 			Array.Copy(signature, 32,	s, 0, s.Length);
+ 	
+			var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
+										 new Org.BouncyCastle.Math.BigInteger(1, s))
+										 {V = [signature[64]]};
+
+ 			//var sig = EthECDSASignatureFactory.FromComponents(r, s, signature[64]);
+// 	
+// 
+//             SecpECDSASignature.TryCreateFromDer(ss.ToDER(), out var signature);
+//             var recoverable = new SecpRecoverableECDSASignature(signature, sig[64]);
+//             ECPubKey.TryRecover(Context.Instance, recoverable, hash, out var pubKey);
+//             return new AccountAddress(new ECKey(pubKey.ToBytes(false), false));
+			
+			return new AccountAddress(AccountKey.RecoverFromSignature(sig, hash));
 		}
 
 		public override AccountAddress AccountFromWallet(byte[] wallet)
@@ -165,7 +189,7 @@ namespace Uccs.Net
 
 		public override byte[] Encrypt(AccountKey key, string password)
 		{
-			return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.Key.GetPrivateKeyAsBytes(), key.Key.GetPublicAddress()));
+			return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.GetPrivateKeyAsBytes(), key.GetPublicAddress()));
 		}
 
 		public override byte[] Decrypt(byte[] input, string password)

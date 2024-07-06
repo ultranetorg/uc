@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Uccs.Net;
+﻿using Uccs.Net;
 
 namespace Uccs.Uos
 {
@@ -46,7 +42,7 @@ namespace Uccs.Uos
 													var k = AccountKey.Create();
 
 													Report("Public Address - " + k.ToString()); 
-													Report("Private Key    - " + k.Key.GetPrivateKeyAsBytes().ToHex());
+													Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
 
 													Api(new AddWalletUosApc {Wallet = Uos.Vault.Cryptography.Encrypt(k, p)});
 													Api(new SaveWalletUosApc {Account = k});

@@ -1,10 +1,4 @@
-﻿using Nethereum.Contracts;
-using Nethereum.Contracts.ContractHandlers;
-using Nethereum.Web3;
-using System.Collections.Generic;
-using System.Numerics;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public interface IFeeAsker
 	{

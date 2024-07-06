@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿#if ETHEREUM
+
+using System.IO;
 using System.Numerics;
 
 namespace Uccs.Net
@@ -122,3 +124,5 @@ namespace Uccs.Net
 		}
 	}
 }
+
+#endif

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿#if ETHEREUM
+using System.Numerics;
 using Nethereum.Contracts;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Web3;
@@ -43,3 +44,4 @@ namespace Uccs.Rdn
 		}
 	}
 }
+#endif

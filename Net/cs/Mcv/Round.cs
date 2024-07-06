@@ -49,13 +49,15 @@ namespace Uccs.Net
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Money										Rewards;
+		public Dictionary<AccountEntry, Money>				Rewards = [];
 		public Money										Emission;
 		public Money										RentPerBytePerDay;
 		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
+#if ETHEREUM
 		public List<Immission>								Emissions;
+#endif
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextDomainIds;
 		public List<long>									Last365BaseDeltas;
@@ -127,40 +129,29 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Distribute(Money amount, IEnumerable<AccountAddress> a, int ashare, IEnumerable<AccountAddress> b, int bshare)
+		public void Distribute(Dictionary<AccountEntry, Money> a, int ashare, IEnumerable<AccountAddress> b, int bshare)
 		{
-			var s = amount * new Money(ashare)/new Money(ashare + bshare);
+			var total = a.SumMoney(i => i.Value);
+			var s = total * ashare/(ashare + bshare);
 
 			if(a.Any())
 			{
 				var x = s/a.Count();
 		
-				foreach(var i in a.Skip(1))
+				foreach(var i in a)
 				{
-					//RewardOrPay(i, x);
-					AffectAccount(i).Balance += x;
+					AffectAccount(i.Key.Key).Balance += x;
 				}
-
-				var v = s - (x * (a.Count() - 1));
-				
-				//RewardOrPay(a.First(), v);
-				AffectAccount(a.First()).Balance += v;
 			}
 
 			if(b.Any())
 			{
-				s = amount - s;
-				var x = s/b.Count();
+				var x = (total - s)/b.Count();
 		
-				foreach(var i in b.Skip(1))
+				foreach(var i in b)
 				{
-					//RewardOrPay(i, x);
 					AffectAccount(i).Balance += x;
 				}
-
-				var v = s - (x * (b.Count() - 1));
-				//RewardOrPay(b.First(), v);
-				AffectAccount(b.First()).Balance += v;
 			}
 		}
 
@@ -313,18 +304,19 @@ namespace Uccs.Net
 
 			Members				= Id == 0 ? new()								: Previous.Members;
 			Funds				= Id == 0 ? new()								: Previous.Funds;
+#if IMMISSION
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
+#endif
 			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
 
 			InitializeExecution();
 
 		start: 
-			Rewards			= 0;
 			Emission		= Id == 0 ? 0 : Previous.Emission;
-
 			NextAccountIds	= new (Bytes.EqualityComparer);
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
+			Rewards.Clear();
 			AffectedAccounts.Clear();
 
 			RestartExecution();
@@ -354,10 +346,12 @@ namespace Uccs.Net
 					if(o.Error != null)
 						goto start;
 
-					if(o is not Net.Immission)
+#if ETHEREUM
+					if(o is not Immission)
 					{
 						f += o.ExeUnits * ConsensusExeunitFee;
 					}
+#endif
 
 					r += o.Reward; 
 				
@@ -368,7 +362,15 @@ namespace Uccs.Net
 					}
 				}
 
-				Rewards += r + t.Fee;
+				if(t.Generator.Ei != -1)
+				{
+					var g = Mcv.Accounts.Find(t.Generator, Id);
+					if(Rewards.TryGetValue(g, out var x))
+						Rewards[g] = x + r + t.Fee;
+					else
+						Rewards[g] = r + t.Fee;
+				}
+
 				a.Balance -= t.Fee;
 				a.LastTransactionNid++;
 						
@@ -399,7 +401,9 @@ namespace Uccs.Net
 			PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
+#if ETHEREUM
 			Emissions			= Emissions.ToList();
+#endif
 
 			CopyConfirmed();
 			
@@ -407,11 +411,13 @@ namespace Uccs.Net
 			{
 				foreach(var o in t.Operations)
 				{
+#if ETHEREUM
 					if(o is Immission e)
 					{
 						e.Generator = e.Transaction.Generator;
 						Emissions.Add(e);
 					}
+#endif
 
 					RegisterForeign(o);
 				}
@@ -434,7 +440,7 @@ namespace Uccs.Net
 			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Account == i)))
 			{
 				AffectAccount(i.Account).AvarageUptime = 0;
-				Rewards += i.Bail;
+				Rewards[Mcv.Accounts.Find(i.Account, Id)] += i.Bail;
 				Members.Remove(i);
 			}
 
@@ -478,7 +484,20 @@ namespace Uccs.Net
 			if(Mcv.IsCommitReady(this))
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
-				Distribute(tail.SumMoney(i => i.Rewards), Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, Funds, 1);
+				var r = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => Mcv.Accounts.Find(i.Account, Id), i => Money.Zero);
+
+				foreach(var i in tail)
+				{
+					foreach(var j in i.Rewards)
+					{
+						if(r.TryGetValue(j.Key, out var x))
+							r[j.Key] = x + j.Value;
+						else
+							r[j.Key] = j.Value;
+					}
+				}
+
+				Distribute(r, 9, Funds, 1);
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
@@ -530,7 +549,7 @@ namespace Uccs.Net
 			w.Write(Id > 0 ? Previous.Hash : Mcv.Zone.Cryptography.ZeroHash);
 			WriteConfirmed(w);
 
-			Hash = Mcv.Zone.Cryptography.Hash(s.ToArray());
+			Hash = Cryptography.Hash(s.ToArray());
 		}
 
 		public virtual void WriteBaseState(BinaryWriter writer)
@@ -548,7 +567,9 @@ namespace Uccs.Net
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Funds);
+#if ETHEREUM
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
+#endif
 		}
 
 		public virtual void ReadBaseState(BinaryReader reader)
@@ -566,7 +587,9 @@ namespace Uccs.Net
 			Emission				= reader.Read<Money>();
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Funds					= reader.ReadList<AccountAddress>();
+#if ETHEREUM
 			Emissions				= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
+#endif
 		}
 
 		public virtual void WriteConfirmed(BinaryWriter writer)

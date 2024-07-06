@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Uccs.Rdn
+﻿namespace Uccs.Rdn
 {
 	public class CostRequest : RdnCall<CostResponse>
 	{

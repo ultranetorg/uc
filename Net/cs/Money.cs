@@ -4,16 +4,15 @@ using System.IO;
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Nethereum.Util;
 
 namespace Uccs.Net
 {
 	public struct Money : IComparable, IComparable<Money>, IEquatable<Money>, IBinarySerializable, ITextSerialisable
 	{
-		readonly static BigInteger		One = 1_000_000_000_000_000_000;
-		public readonly static Money	Zero = new Money();
-		public readonly static Money	Min = new Money{Attos = 1};
-		public BigInteger				Attos;
+		public static BigInteger			One = 1_000_000_000_000_000_000;
+		public readonly static Money		Zero = new Money();
+		public readonly static Money		Min = new Money{Attos = 1};
+		public BigInteger					Attos;
 
 		public static implicit operator Money(long value) => new Money(value);
 		public static implicit operator Money(double value) => new Money(value);
@@ -41,7 +40,8 @@ namespace Uccs.Net
 
 		public void Read(string text)
 		{
-			Attos = Nethereum.Web3.Web3.Convert.ToWei(BigDecimal.Parse(text));
+			//Attos = Nethereum.Web3.Web3.Convert.ToWei(BigDecimal.Parse(text));
+			Attos = new BigInteger((double)One * double.Parse(text));
 		}
 
 		Money(BigInteger a)
@@ -54,11 +54,6 @@ namespace Uccs.Net
 			Attos = new BigInteger(a);
 		}
 
-		public Money(BigDecimal d)
-		{
-			Attos = Nethereum.Web3.Web3.Convert.ToWei(d);
-		}
-
 		public Money(long n)
 		{
 			Attos = One * n;
@@ -66,7 +61,7 @@ namespace Uccs.Net
 
 		public Money(double n)
 		{
-			Attos = Nethereum.Web3.Web3.Convert.ToWei(n);
+			Attos = new BigInteger((double)One * n);
 		}
 
 		public static Money FromWei(BigInteger a)
@@ -81,7 +76,9 @@ namespace Uccs.Net
 
 		public static Money ParseDecimal(string text)
 		{
-			return new Money(BigDecimal.Parse(text)); 
+			var m = new Money();
+			m.Read(text);
+			return m; 
 		}
 
 		public Money(BinaryReader r)
@@ -93,11 +90,6 @@ namespace Uccs.Net
 
 			Attos = BigInteger.Zero;
 			Read(r);
-		}
-
-		public BigDecimal ToDecimal()
-		{
-			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos);
 		}
 
 		public static explicit operator decimal(Money c)
@@ -112,7 +104,8 @@ namespace Uccs.Net
 		
 		public string ToDecimalString()
 		{
-			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
+			//return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
+			return ((double)Attos / (double)One).ToString();
 		}
 
 		public int CompareTo(object obj)

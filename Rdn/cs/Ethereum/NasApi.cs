@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿#if ETHEREUM
+using System.Numerics;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts;
 
@@ -86,3 +87,4 @@ namespace Uccs.Rdn
         public virtual string ReturnValue1 { get; set; }
     }
 }
+#endif

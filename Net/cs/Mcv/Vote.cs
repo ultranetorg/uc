@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -116,7 +114,7 @@ namespace Uccs.Net
 
 			WriteVote(w);
 
-			return Mcv.Zone.Cryptography.Hash(s.ToArray());
+			return Cryptography.Hash(s.ToArray());
 		}
 
 		protected virtual void WriteVote(BinaryWriter writer)

@@ -97,7 +97,7 @@ namespace Uccs.Net.FUI
 
 				if(a != null)
 				{
-					TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.Key.GetPrivateKey());
+					TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.GetPrivateKey());
 				}
 			}
 			catch(Exception ex)

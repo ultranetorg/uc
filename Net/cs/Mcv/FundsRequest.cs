@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class FundsRequest : McvCall<FundsResponse>
 	{

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿#if ETHEREUM
+using System.Numerics;
 using Nethereum.RPC.Eth.DTOs;
 
 namespace Uccs.Rdn
@@ -17,3 +18,4 @@ namespace Uccs.Rdn
 		string[]								ReportEthereumJsonAPIWarning(string message, bool aserror);
 	}
 }
+#endif

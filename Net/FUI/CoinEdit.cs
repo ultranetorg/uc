@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
 using System.Windows.Forms;
-using Nethereum.Util;
 
 namespace Uccs.Net.FUI
 {
@@ -19,11 +18,11 @@ namespace Uccs.Net.FUI
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : new Money(decimal.Parse(Text));
+				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : Money.ParseDecimal(Text);
 			}
 			set
 			{
-				Text = value.ToDecimal().ToString();
+				Text = value.ToDecimalString();
 			}
 		}
 
@@ -31,7 +30,7 @@ namespace Uccs.Net.FUI
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Nethereum.Web3.Web3.Convert.ToWei(BigDecimal.Parse(Text));
+				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Money.ParseDecimal(Text).Attos;
 			}
 		}
 

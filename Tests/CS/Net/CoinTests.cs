@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
-using Xunit;
+﻿using Xunit;
 
 namespace Uccs.Net.Tests
 {
