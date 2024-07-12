@@ -51,7 +51,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadBytes(Table<ITableEntry<int>, int>.Cluster.IdLength);
+			Ci	= reader.ReadBytes(TableBase.ClusterBase.IdLength);
 			Ei	= reader.Read7BitEncodedInt();
 		}
 
@@ -68,7 +68,7 @@ namespace Uccs.Net
 
 		public bool Equals(EntityId a)
 		{
-			return Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Ei == a.Ei;
+			return a is not null && Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Ei == a.Ei;
 		}
 
 		public int CompareTo(EntityId a)
@@ -89,7 +89,7 @@ namespace Uccs.Net
 
 		public static bool operator == (EntityId left, EntityId right)
 		{
-			return left.Equals(right);
+			return left is null && right is null || left is not null && left.Equals(right);
 		}
 
 		public static bool operator != (EntityId left, EntityId right)

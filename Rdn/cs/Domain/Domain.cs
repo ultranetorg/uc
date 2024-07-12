@@ -36,13 +36,13 @@ namespace Uccs.Rdn
 
 		public EntityId				Id { get; set; }
 		public string				Address { get; set; }
-		public AccountAddress		Owner { get; set; }
+		public EntityId				Owner { get; set; }
 		public Time					Expiration { get; set; }
-		public AccountAddress		ComOwner { get; set; }
-		public AccountAddress		OrgOwner { get; set; }
-		public AccountAddress		NetOwner { get; set; }
+		public EntityId				ComOwner { get; set; }
+		public EntityId				OrgOwner { get; set; }
+		public EntityId				NetOwner { get; set; }
 		public Time					FirstBidTime { get; set; } = Time.Empty;
-		public AccountAddress		LastWinner { get; set; }
+		public EntityId				LastWinner { get; set; }
 		public Money				LastBid { get; set; }
 		public Time					LastBidTime { get; set; } = Time.Empty;
 		public int					NextResourceId { get; set; }
@@ -77,9 +77,9 @@ namespace Uccs.Rdn
 			return i == -1 ? name : name.Substring(i + 1);
 		}
 
-		public static bool IsOwner(Domain domain, AccountAddress account, Time time)
+		public static bool IsOwner(Domain domain, Account account, Time time)
 		{
-			return domain.Owner == account && !IsExpired(domain, time);
+			return domain.Owner == account.Id && !IsExpired(domain, time);
 		}
 
 		public static bool IsExpired(Domain a, Time time) 
@@ -88,17 +88,17 @@ namespace Uccs.Rdn
 					a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
 		}
 
-		public static bool CanRenew(Domain domain, AccountAddress by, Time time)
+		public static bool CanRenew(Domain domain, Account by, Time time)
 		{
-			return  domain != null && domain.Owner == by &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
-															time <= domain.Expiration;
+			return  domain != null && domain.Owner == by.Id &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
+																time <= domain.Expiration;
 		}
 
-		public static bool CanRegister(string name, Domain domain, Time time, AccountAddress by)
+		public static bool CanRegister(string name, Domain domain, Time time, Account by)
 		{
 			return	domain == null && !IsWeb(name) || /// available
 					domain != null && !IsWeb(name) && domain.Owner != null && time > domain.Expiration || /// not renewed by current owner
-					domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by &&	
+					domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by.Id &&	
 						time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 						time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
 						time < domain.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an domain during special period

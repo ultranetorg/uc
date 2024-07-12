@@ -69,6 +69,7 @@
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var e = mcv.Domains.Find(Id, round.Id);
+			var s = mcv.Accounts.Find(Signer, round.Id);
 			
 			if(e == null)
 			{
@@ -80,7 +81,7 @@
 			{
 				if(Action == DomainAction.Renew)
 				{	
-					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
+					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, s))
 					{
 						Error = NotAvailable;
 						return;
@@ -96,14 +97,14 @@
 
 				if(Action == DomainAction.Transfer)
 				{
-					if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
+					if(!Domain.IsOwner(e, s, round.ConsensusTime))
 					{
 						Error = NotOwner;
 						return;
 					}
 
 					e = round.AffectDomain(e.Address);
-					e.Owner	= Owner;
+					e.Owner	= round.AffectAccount(Owner).Id;
 				}
 			} 
 			else
@@ -118,7 +119,7 @@
 
 				if(Action == DomainAction.Renew)
 				{
-					if(!Domain.CanRenew(e, Signer, round.ConsensusTime))
+					if(!Domain.CanRenew(e, s, round.ConsensusTime))
 					{
 						Error = NotAvailable;
 						return;
@@ -141,7 +142,7 @@
 						return;
 					}
 
-					if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
+					if(!Domain.IsOwner(p, s, round.ConsensusTime))
 					{
 						Error = NotOwner;
 						return;
@@ -165,21 +166,21 @@
 						return;
 					}
 
-					if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
+					if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, s, round.ConsensusTime))
 					{
 						Error = NotAvailable;
 						return;
 					}
 
-					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
-																		  !(Domain.IsOwner(p, Signer, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
+					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, s, round.ConsensusTime) && 
+																		  !(Domain.IsOwner(p, s, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
 					{
 						Error = NotAvailable;
 						return;
 					}
 
 					e = round.AffectDomain(e.Address);
-					e.Owner	= Owner;
+					e.Owner	= round.AffectAccount(Owner).Id;
 				}
 			}
 		}

@@ -30,45 +30,45 @@ namespace Uccs.Net.FUI
 
 		private void Search_Click(object sender, EventArgs e)
 		{
-			Fields.Text = null;
-			Values.Text = null;
-
-			try
-			{
-				Registration.Visible	= false;
-				Auction.Visible			= false;
-				Transfering.Visible		= false;
-
-				var a = McvNode.Call(() => new DomainRequest(DomainSearch.Text), Node.Flow).Domain;
-	
-				if(a != null)
-				{	
-					Dump(a, Fields, Values);
-				}
-				else 
-					Fields.Text = "Not found";
-
-				var t = McvNode.Call(() => new TimeRequest(), Node.Flow);
-
-				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
-				{
-					if(a != null)
-						AuctionStatus.Text = $"Current bid is {a.LastBid}. Send higher than this amount to outbid.";
-					else
-						AuctionStatus.Text = "Start the auction by sending first bid";
-
-					Switch(Auction);
-				}
-				else if(McvNode.Vault.Wallets.Keys.Any(i => Domain.CanRegister(DomainSearch.Text, a, t.Time, i)))
-					Switch(Registration);
-				else if(McvNode.Vault.Wallets.Keys.Any(i => i == a.Owner))
-					Switch(Transfering);
-
-			}
-			catch(Exception ex)
-			{
-				Fields.Text = "Error : " + ex.Message;
-			}
+// 			Fields.Text = null;
+// 			Values.Text = null;
+// 
+// 			try
+// 			{
+// 				Registration.Visible	= false;
+// 				Auction.Visible			= false;
+// 				Transfering.Visible		= false;
+// 
+// 				var a = McvNode.Call(() => new DomainRequest(DomainSearch.Text), Node.Flow).Domain;
+// 	
+// 				if(a != null)
+// 				{	
+// 					Dump(a, Fields, Values);
+// 				}
+// 				else 
+// 					Fields.Text = "Not found";
+// 
+// 				var t = McvNode.Call(() => new TimeRequest(), Node.Flow);
+// 
+// 				if(Domain.IsWeb(DomainSearch.Text) && (a == null || Domain.CanBid(a, t.Time)))
+// 				{
+// 					if(a != null)
+// 						AuctionStatus.Text = $"Current bid is {a.LastBid}. Send higher than this amount to outbid.";
+// 					else
+// 						AuctionStatus.Text = "Start the auction by sending first bid";
+// 
+// 					Switch(Auction);
+// 				}
+// 				else if(McvNode.Vault.Wallets.Keys.Any(i => Domain.CanRegister(DomainSearch.Text, a, t.Time, i)))
+// 					Switch(Registration);
+// 				else if(McvNode.Vault.Wallets.Keys.Any(i => i == a.Owner))
+// 					Switch(Transfering);
+// 
+// 			}
+// 			catch(Exception ex)
+// 			{
+// 				Fields.Text = "Error : " + ex.Message;
+// 			}
 		}
 
 		void Switch(GroupBox group)

@@ -99,6 +99,18 @@ namespace Uccs.Net
 
 			return e;
 		}
-	}
 
+		public AccountEntry RequireAccount(Round round, AccountAddress account)
+		{
+			var a = round.Mcv.Accounts.Find(account, round.Id);
+
+			if(a == null)
+			{
+				Error = NotFound;
+				return a;
+			}
+
+			return a;
+		}
+	}
 }

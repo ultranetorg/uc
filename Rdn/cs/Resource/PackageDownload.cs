@@ -46,13 +46,13 @@
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-		public PackageDownload(RdnNode sun, LocalPackage package, Flow workflow)
+		public PackageDownload(RdnNode node, LocalPackage package, Flow workflow)
 		{
 			Package = package;
 
-			lock(sun.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{
-				if(sun.PackageHub.IsReady(package.Resource.Address))
+				if(node.PackageHub.IsReady(package.Resource.Address))
 				{
 					Downloaded = true;
 					return;
@@ -70,11 +70,11 @@
 											{
 												try
 												{
-													last = sun.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
+													last = node.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
 														
 													if(last.Data.Type != DataType.Package)
 													{
-														lock(sun.PackageHub.Lock)
+														lock(node.PackageHub.Lock)
 															Package.Activity = null;
 
 														return;
@@ -88,9 +88,9 @@
 												}
 											}
 
-											lock(sun.ResourceHub.Lock)
+											lock(node.ResourceHub.Lock)
 											{
-												sun.ResourceHub.Add(last.Data.Interpretation as Urr, DataType.Package);
+												node.ResourceHub.Add(last.Data.Interpretation as Urr, DataType.Package);
 												package.Resource.AddData(last.Data);
 											}
 
@@ -103,35 +103,36 @@
 													break;
 
 												case Urrsd a :
-													var au = sun.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
-													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+													var d = node.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
+													var aa = node.Call(() => new AccountRequest(d.Owner), workflow).Account;
+													itg = new SPDIntegrity(node.Zone.Cryptography, a, aa.Address);
 													break;
 											};
 	
-											SeedCollector = new Harvester(sun, package.Release.Address, workflow);
+											SeedCollector = new Harvester(node, package.Release.Address, workflow);
 	
-											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, Path.Join(sun.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
+											node.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
 	
 											bool incrementable;
 	
-											lock(sun.PackageHub.Lock)
+											lock(node.PackageHub.Lock)
 											{
-												sun.PackageHub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
+												node.PackageHub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
 									
 												foreach(var i in deps)
 												{
-													if(!sun.PackageHub.ExistsRecursively(i.Package))
+													if(!node.PackageHub.ExistsRecursively(i.Package))
 													{
-														var dd = sun.PackageHub.Download(i.Package, workflow);
+														var dd = node.PackageHub.Download(i.Package, workflow);
 														Dependencies.Add(dd);
 													}
 												}
 											}
 	
-											lock(sun.ResourceHub)
-	 											FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
+											lock(node.ResourceHub)
+	 											FileDownload = node.ResourceHub.DownloadFile(Package.Release, 
 																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
-																							Path.Join(sun.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
+																							Path.Join(node.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																							new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																							SeedCollector,
 																							workflow);
@@ -141,7 +142,7 @@
 	
 											SeedCollector.Stop();
 	
-											lock(sun.PackageHub.Lock)
+											lock(node.PackageHub.Lock)
 											{
 												var a = Availability.None;
 
@@ -161,7 +162,7 @@
 										}
 										finally
 										{
-											lock(sun.PackageHub.Lock)
+											lock(node.PackageHub.Lock)
 												Package.Activity = null;
 										}
 									},

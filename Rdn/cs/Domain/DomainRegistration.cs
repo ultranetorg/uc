@@ -51,10 +51,11 @@
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var e = mcv.Domains.Find(Address, round.Id);
-						
+			var s = mcv.Accounts.Find(Signer, round.Id);
+
 			if(Domain.IsRoot(Address))
 			{
-				if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
+				if(!Domain.CanRegister(Address, e, round.ConsensusTime, s))
 				{
 					Error = NotAvailable;
 					return;
@@ -67,7 +68,7 @@
 								
 				e.SpaceReserved	= e.SpaceUsed;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-				e.Owner			= Signer;
+				e.Owner			= s.Id;
 				e.LastWinner	= null;
 				e.LastBid		= 0;
 				e.LastBidTime	= Time.Empty;
@@ -86,7 +87,7 @@
 					return;
 				}
 
-				if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
+				if(!Domain.IsOwner(p, s, round.ConsensusTime))
 				{
 					Error = NotOwner;
 					return;
@@ -100,7 +101,7 @@
 
 				e = round.AffectDomain(Address);
 
-				e.Owner			= Owner;
+				e.Owner			= round.AffectAccount(Owner).Id;
 				e.ParentPolicy	= Policy;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 

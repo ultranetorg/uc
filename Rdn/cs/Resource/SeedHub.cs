@@ -36,11 +36,11 @@ namespace Uccs.Rdn
 		public Dictionary<Urr, List<Seed>>			Releases = [];
 		public Dictionary<ResourceId, List<Urr>>	Resources = [];
 		public object								Lock = new ();
-		RdnMcv											Rdn;
+		RdnMcv										Node;
 
 		public SeedHub(RdnMcv sun)
 		{
-			Rdn = sun;
+			Node = sun;
 		}
 
 		public List<ReleaseDeclarationResult> ProcessIncoming(IPAddress ip, ResourceDeclaration[] resources)
@@ -52,9 +52,9 @@ namespace Uccs.Rdn
 				var rzd = rsd.Release;
 				//foreach(var rzd in rsd.Releases)
 				{
-					lock(Rdn.Lock)
+					lock(Node.Lock)
 					{ 
-						if(!Rdn.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Rdn.Settings.Generators.Contains(i.Account)))
+						if(!Node.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Node.Settings.Generators.Contains(i.Account)))
 						{
 							results.Add(new (rzd, DeclarationResult.NotNearest));
 							continue;
@@ -79,11 +79,11 @@ namespace Uccs.Rdn
 					}
 					else
 					{
-						lock(Rdn.Lock)
+						lock(Node.Lock)
 						{
 							if(rzd is Urrh dh)
 							{
-								var z = Rdn.Domains.FindResource(rsd.Resource, Rdn.LastConfirmedRound.Id);
+								var z = Node.Domains.FindResource(rsd.Resource, Node.LastConfirmedRound.Id);
 	
 								if(z?.Data == null || z.Data.Interpretation is Urrh ha && ha != dh)
 								{
@@ -93,9 +93,10 @@ namespace Uccs.Rdn
 							}
 							else if(rzd is Urrsd sdp)
 							{
-								var ea = Rdn.Domains.Find(rsd.Resource.DomainId, Rdn.LastConfirmedRound.Id);
+								var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
+								var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
 	
-								if(!sdp.Prove(Rdn.Zone.Cryptography, ea.Owner, rsd.Hash))
+								if(!sdp.Prove(Node.Zone.Cryptography, o.Address, rsd.Hash))
 								{
 									results.Add(new (rzd, DeclarationResult.Rejected));
 									continue;

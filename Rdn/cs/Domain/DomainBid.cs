@@ -64,6 +64,7 @@
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var a = round.AffectDomain(Name);
+			var s = mcv.Accounts.Find(Signer, round.Id);
 
  			if(!Domain.IsExpired(a, round.ConsensusTime))
  			{
@@ -75,7 +76,7 @@
 					a.FirstBidTime		= round.ConsensusTime;
 					a.LastBid			= Bid;
 					a.LastBidTime		= round.ConsensusTime;
-					a.LastWinner		= Signer;
+					a.LastWinner		= s.Id;
 						
 					return;
 				}
@@ -83,12 +84,14 @@
 				{
 					if(a.LastBid < Bid) /// outbid
 					{
-						Affect(round, a.LastWinner).STBalance += a.LastBid;
+						var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
+						
+						Affect(round, lw.Address).STBalance += a.LastBid;
 						Affect(round, Signer).STBalance -= Bid;
 						
 						a.LastBid		= Bid;
 						a.LastBidTime	= round.ConsensusTime;
-						a.LastWinner	= Signer;
+						a.LastWinner	= s.Id;
 				
 						return;
 					}
@@ -105,7 +108,7 @@
 				a.FirstBidTime		= round.ConsensusTime;
 				a.LastBid			= Bid;
 				a.LastBidTime		= round.ConsensusTime;
-				a.LastWinner		= Signer;
+				a.LastWinner		= s.Id;
 			
 				return;
 			}

@@ -109,19 +109,19 @@ namespace Uccs.Rdn
 				if(f.HasFlag(DomainFlag.Auction))
 				{
 					FirstBidTime	= reader.Read<Time>();
-					LastWinner		= reader.ReadAccount();
+					LastWinner		= reader.Read<EntityId>();
 					LastBidTime		= reader.Read<Time>();
 					LastBid			= reader.Read<Money>();
 				}
 
-				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AccountAddress>();
-				if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AccountAddress>();
+				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();
+				if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<EntityId>();
+				if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<EntityId>();
 			}
 
 			if(f.HasFlag(DomainFlag.Owned))
 			{
-				Owner		= reader.ReadAccount();
+				Owner		= reader.Read<EntityId>();
 				Expiration	= reader.Read<Time>();
 			}
 
@@ -134,7 +134,7 @@ namespace Uccs.Rdn
 												var a = new Resource();
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
 												a.Address = new Ura{Domain = Address, 
-																				Resource = reader.ReadUtf8()};
+																	Resource = reader.ReadUtf8()};
 												a.ReadMain(reader);
 												return a;
 											}).ToArray();

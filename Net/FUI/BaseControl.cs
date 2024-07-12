@@ -20,7 +20,7 @@ namespace Uccs.Net.FUI
 		protected readonly Node		Node;
 		protected McvNode			McvNode => Node as McvNode;
 		protected Mcv				Mcv => McvNode.Mcv;
-		protected RdnNode				RdnNode => Node as RdnNode;
+		protected RdnNode			RdnNode => Node as RdnNode;
 
 		public BaseControl()
 		{
@@ -36,22 +36,22 @@ namespace Uccs.Net.FUI
 			Uos = d;
 		}
 
-		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
-		{
-			var o = new List<DomainEntry>();
-			
-			foreach(var r in Mcv.Tail.Cast<RdnRound>())
-				foreach(var a in r.AffectedDomains)
-					if(a.Value.Owner == owner && !o.Any(i => i.Address == a.Key))
-					{
-						o.Add(a.Value);
-					}
-
-			/// TODO: too slow
-			o.AddRange((Mcv as RdnMcv).Domains.Where(i => i.Owner == owner));
-
-			return o;
-		}
+// 		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
+// 		{
+// 			var o = new List<DomainEntry>();
+// 			
+// 			foreach(var r in Mcv.Tail.Cast<RdnRound>())
+// 				foreach(var a in r.AffectedDomains)
+// 					if(a.Value.Owner == owner && !o.Any(i => i.Address == a.Key))
+// 					{
+// 						o.Add(a.Value);
+// 					}
+// 
+// 			/// TODO: too slow
+// 			o.AddRange((Mcv as RdnMcv).Domains.Where(i => i.Owner == owner));
+// 
+// 			return o;
+// 		}
 
 // 		public IEnumerable<ProductModel> FindProducts(AccountAddress owner)
 // 		{

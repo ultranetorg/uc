@@ -4,6 +4,7 @@ namespace Uccs.Net
 {
 	public class Account : IBinarySerializable
 	{
+		public EntityId					Id { get; set; }
 		public AccountAddress			Address { get; set; }
 		public Money					STBalance { get; set; }
 		public Money					EUBalance { get; set; }

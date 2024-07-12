@@ -50,6 +50,7 @@
 
 		public bool RequireDomain(RdnRound round, AccountAddress signer, string name, out DomainEntry domain)
 		{
+			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 			domain = round.Rdn.Domains.Find(name, round.Id);
 
 			if(domain == null)
@@ -64,7 +65,7 @@
 				return false;
 			}
 
-			if(signer != null && domain.Owner != signer)
+			if(signer != null && domain.Owner != s.Id)
 			{
 				Error = NotOwner;
 				return false;
@@ -75,6 +76,7 @@
 
 		public bool RequireDomain(RdnRound round, AccountAddress signer, EntityId id, out DomainEntry domain)
 		{
+			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 			domain = round.Rdn.Domains.Find(id, round.Id);
 
 			if(domain == null)
@@ -89,7 +91,7 @@
 				return false;
 			}
 
-			if(signer != null && domain.Owner != signer)
+			if(signer != null && domain.Owner != s.Id)
 			{
 				Error = NotOwner;
 				return false;

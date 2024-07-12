@@ -138,8 +138,9 @@ namespace Uccs.Rdn
 						break;
 	
 					case Urrsd x :
-						var au = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-						itg = new SPDIntegrity(rdn.Zone.Cryptography, x, au.Owner);
+						var d = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
+						var aa = rdn.Call(() => new AccountRequest(d.Owner), workflow).Account;
+						itg = new SPDIntegrity(rdn.Zone.Cryptography, x, aa.Address);
 						break;
 	
 					default:

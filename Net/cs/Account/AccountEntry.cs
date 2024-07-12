@@ -5,7 +5,6 @@ namespace Uccs.Net
 {
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
-		public EntityId					Id { get; set; }
 		public AccountAddress			Key => Address;
 		
 		//[JsonIgnore]

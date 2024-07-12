@@ -92,17 +92,18 @@
 		public void ConfirmedExecute(RdnRound round)
 		{
 			var a = round.AffectDomain(Name);
+			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 
 			switch(Tld)
 			{
-				case "com" : a.ComOwner = Signer; break;
-				case "org" : a.OrgOwner = Signer; break;
-				case "net" : a.NetOwner = Signer; break;
+				case "com" : a.ComOwner = s.Id; break;
+				case "org" : a.OrgOwner = s.Id; break;
+				case "net" : a.NetOwner = s.Id; break;
 			}
 
-			if((a.ComOwner == Signer && a.OrgOwner == Signer && a.NetOwner == Signer) || RankApproved)
+			if((a.ComOwner == s.Id && a.OrgOwner == s.Id && a.NetOwner == s.Id) || RankApproved)
 			{
-				a.Owner = Signer;
+				a.Owner = s.Id;
 			}
 		}
 	}
