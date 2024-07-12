@@ -63,7 +63,7 @@
 					return;
 				}
 
-				Pay(round, Mcv.EntityLength, Mcv.Forever);
+				PayForSpacetime(round, Mcv.EntityLength, Mcv.Forever);
 			}
 			else
 				Allocate(round, sd, Mcv.EntityLength);

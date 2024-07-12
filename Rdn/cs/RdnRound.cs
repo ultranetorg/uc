@@ -14,7 +14,7 @@
 
 		public override Money AccountAllocationFee(Account account)
 		{
-			return RdnOperation.SpaceFee(RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever);
+			return RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever);
 		}
 
 		public override IEnumerable<object> AffectedByTable(TableBase table)
@@ -167,7 +167,7 @@
 					Migrations.Remove(e);
 				} 
 				else
-					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
+					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AverageUptime -= 10;
 			}
 
 			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);

@@ -9,32 +9,32 @@
 			Execute(mcv as RdnMcv, round as RdnRound);
 		}
 
-		public void Pay(Round round, int length, Time time)
+		public void PayForSpacetime(Round round, int length, Time time)
 		{
-			var fee = SpaceFee(round.RentPerBytePerDay, length, time);
+			var fee = SpacetimeFee(length, time);
 			
-			round.AffectAccount(Signer).Balance -= fee;
+			round.AffectAccount(Signer).STBalance -= fee;
 		}
 
-		public static Money SpaceFee(Money rentperbyteperday, int length, Time time)
+		public static Money SpacetimeFee(int length, Time time)
 		{
-			return rentperbyteperday * length * Mcv.TimeFactor(time);
+			return length * Mcv.TimeFactor(time);
 		}
 
-		public static Money NameFee(int years, Money rentPerBytePerDay, string address)
+		public static Money NameFee(int years, string address)
 		{
 			var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
 
 			l = Math.Min(l, 10);
 
-			return Mcv.TimeFactor(Time.FromYears(years)) * rentPerBytePerDay * 1_000_000_000/(l * l * l * l);
+			return Mcv.TimeFactor(Time.FromYears(years)) * 10_000/(l * l * l * l);
 		}
 
 		public void Allocate(Round round, Domain domain, int toallocate)
 		{
 			if(domain.SpaceReserved < domain.SpaceUsed + toallocate)
 			{
-				Pay(round, domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
+				PayForSpacetime(round, domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
 	
 				domain.SpaceReserved = 
 				domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);

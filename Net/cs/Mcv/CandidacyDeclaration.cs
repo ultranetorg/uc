@@ -46,7 +46,7 @@ namespace Uccs.Net
 			}
 
 			
-			Affect(round, Signer).Balance -= Bail;
+			Affect(round, Signer).MRBalance -= Bail;
 
 			//var e = Affect(round, Signer);
 

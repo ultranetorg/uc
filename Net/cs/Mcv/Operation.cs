@@ -20,8 +20,10 @@ namespace Uccs.Net
 	public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		public string			Error;
-		public int				ExeUnits;
-		public Money			Reward;
+		public int				STSpent;
+		public int				EUSpent;
+		public Money			STReward;
+		public Money			EUReward;
 		public Transaction		Transaction;
 		public AccountAddress	Signer => Transaction.Signer;
 		public abstract string	Description { get; }
@@ -90,9 +92,9 @@ namespace Uccs.Net
 		{
 			var e = round.AffectAccount(account);	
 
-			if(e.New) /// new Account
+			if(e.New && (Signer != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 			{
-				round.AffectAccount(Signer).Balance -= round.AccountAllocationFee(e);
+				round.AffectAccount(Signer).STBalance -= round.AccountAllocationFee(e);
 			}
 
 			return e;

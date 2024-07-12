@@ -65,7 +65,8 @@
  			if(j == -1)
 			{
 				an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
-				Affect(round, Signer).Balance += an.Payment/c.Analyzers.Length;
+				Affect(round, Signer).STBalance += an.STPayment/c.Analyzers.Length;
+				Affect(round, Signer).EUBalance += an.EUPayment/c.Analyzers.Length;
 			}
  			else
 				an.Results[j].Result = Result;

@@ -545,7 +545,7 @@ namespace Uccs.Net
 
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(m == null && a != null && a.Balance > Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
+					if(m == null && a != null && a.MRBalance > Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail			= Mcv.Settings.Bail,
 															BaseRdcIPs		= [Settings.Peering.IP],
@@ -661,7 +661,7 @@ namespace Uccs.Net
 							return true;
 						}
 
-						foreach(var t in txs.OrderByDescending(i => i.Fee).ToArray())
+						foreach(var t in txs.OrderByDescending(i => i.EUFee).ToArray())
 						{
 							if(add(t, false) == false)
 								break;
@@ -711,7 +711,7 @@ namespace Uccs.Net
 						{
 							r.ConsensusTime			= r.Previous.ConsensusTime;
 							r.ConsensusExeunitFee	= r.Previous.ConsensusExeunitFee;
-							r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
+							///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
 							r.Members				= r.Previous.Members;
 							r.Funds					= r.Previous.Funds;
 						}
@@ -747,7 +747,7 @@ namespace Uccs.Net
 #if IMMISION
 											i.EmissionOnly || 
 #endif
-											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
+											i.EUFee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
@@ -832,7 +832,8 @@ namespace Uccs.Net
 						try
 						{
 							t.Rdi = rdi;
-							t.Fee = 0;
+							//t.STFee = 0;
+							t.EUFee = 0;
 							t.Nid = 0;
 							t.Expiration = 0;
 							t.Generator = new([0, 0], -1);
@@ -849,9 +850,9 @@ namespace Uccs.Net
 							t.Generator	 = at.Generetor;
 							#if IMMISSION
 								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
-							#else
-								t.Fee	 = at.MinFee;
 							#endif
+							//t.STFee		 = at.STCost;
+							t.EUFee		 = at.EUCostMinimum;
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 

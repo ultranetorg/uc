@@ -30,7 +30,8 @@ namespace Uccs.Net
 		public int						Expiration;
 		public byte[]					PoW;
 		public byte[]					Tag;
-		public Money					Fee;
+		//public Money					STFee;
+		public Money					EUFee;
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;
@@ -109,7 +110,8 @@ namespace Uccs.Net
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);
-			w.Write(Fee);
+			//w.Write(STFee);
+			w.Write(EUFee);
 			w.WriteBytes(PoW);
 			w.WriteBytes(Tag);
 			w.Write(Operations, i => i.Write(w));
@@ -122,7 +124,8 @@ namespace Uccs.Net
 			writer.Write(Generator);
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
-			writer.Write(Fee);
+			//writer.Write(STFee);
+			writer.Write(EUFee);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>{
 											writer.Write(ITypeCode.Codes[i.GetType()]); 
@@ -137,7 +140,8 @@ namespace Uccs.Net
 			Generator	= reader.Read<EntityId>();
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
-			Fee			= reader.Read<Money>();
+			//STFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Money>();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
  													var o = Mcv.CreateOperation(reader.ReadByte());
@@ -155,7 +159,8 @@ namespace Uccs.Net
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
-			writer.Write(Fee);
+			//writer.Write(STFee);
+			writer.Write(EUFee);
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i => {
@@ -172,7 +177,8 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.Read<Money>();
+			//STFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Money>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
@@ -192,7 +198,8 @@ namespace Uccs.Net
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
-			writer.Write(Fee);
+			//writer.Write(STFee);
+			writer.Write(EUFee);
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>	{
@@ -209,7 +216,8 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.Read<Money>();
+			//STFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Money>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {

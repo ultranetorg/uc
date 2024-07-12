@@ -165,19 +165,13 @@ namespace Uccs.Net
 
 					if(mcv.Synchronization == Synchronization.Synchronized)
 					{
-						string formatbalance(AccountAddress a)
-						{
-							return mcv.Mcv.Accounts.Find(a, mcv.Mcv.LastConfirmedRound.Id)?.Balance.ToDecimalString();
-						}
-	
 						foreach(var i in mcv.Vault.Wallets)
 						{
 							var a = i.Key.ToString();
-							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", $"{formatbalance(i.Key),23}"));
-						}
-	
-						if(NodeGlobals.UI)
-						{
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
+							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.STBalance.ToDecimalString()}"));
+							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.EUBalance.ToDecimalString()}"));
+							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToDecimalString()}"));
 						}
 					}
 				}
@@ -320,7 +314,7 @@ namespace Uccs.Net
 		public int						Expiration { get; set; }
 		public byte[]					PoW { get; set; }
 		public byte[]					Tag { get; set; }
-		public Money					Fee { get; set; }
+		public Money					EUFee { get; set; }
 		public byte[]					Signature { get; set; }
 			 
 		public AccountAddress			Signer { get; set; }
@@ -345,7 +339,7 @@ namespace Uccs.Net
 			Expiration			= transaction.Expiration;
 			PoW					= transaction.PoW;
 			Tag					= transaction.Tag;
-			Fee					= transaction.Fee;
+			EUFee				= transaction.EUFee;
 			Signature			= transaction.Signature;
 			   
 			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Node)?.IP;

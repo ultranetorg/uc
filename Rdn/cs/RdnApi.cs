@@ -250,8 +250,8 @@ namespace Uccs.Rdn
 	{
 		public class Return
 		{
-			public Money		RentBytePerDay { get; set; }
-			public Money		Exeunit { get; set; }
+			//public Money		RentBytePerDay { get; set; }
+			//public Money		Exeunit { get; set; }
 
 			public Money		RentAccount { get; set; }
 
@@ -277,18 +277,18 @@ namespace Uccs.Rdn
 
 			var r = rdn.Call(() => new CostRequest(), workflow);
 
-			return new Return {	RentBytePerDay				= r.RentPerBytePerDay * Rate,
-								Exeunit						= r.ConsensusExeunitFee * Rate,
+			return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
+								//Exeunit						= r.ConsensusExeunitFee * Rate,
 				
-								RentAccount					= RdnOperation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+								RentAccount					= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-								RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, r.RentPerBytePerDay, new string(' ', l)) * Rate).ToArray()).ToArray(),
+								RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 					
-								RentResource				= Years.Select(y => RdnOperation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceForever			= RdnOperation.SpaceFee(r.RentPerBytePerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
+								RentResource				= Years.Select(y => RdnOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceForever			= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
 				
-								RentResourceData			= Years.Select(y => RdnOperation.SpaceFee(r.RentPerBytePerDay, 1, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceDataForever		= RdnOperation.SpaceFee(r.RentPerBytePerDay, 1, Mcv.Forever) * Rate};
+								RentResourceData			= Years.Select(y => RdnOperation.SpacetimeFee(1, Time.FromYears(y)) * Rate).ToArray(),
+								RentResourceDataForever		= RdnOperation.SpacetimeFee(1, Mcv.Forever) * Rate};
 		}
 	}
 }

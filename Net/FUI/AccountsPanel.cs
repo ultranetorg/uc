@@ -36,11 +36,11 @@ namespace Uccs.Net.FUI
 					i.SubItems[1].Tag = true;
 	
 					Task.Run(() =>	{
-										string t = null;
+										Account e = null;
 	
 										try
 										{
-											t = McvNode.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account.Balance.ToDecimalString(); 
+											e = McvNode.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account; 
 										}
 										catch(Exception)
 										{
@@ -48,7 +48,9 @@ namespace Uccs.Net.FUI
 	
 										Invoke(	(MethodInvoker) delegate
 												{
-													i.SubItems[1].Text = t ?? "..."; 
+													i.SubItems[1].Text = e?.STBalance.ToDecimalString() ?? "..."; 
+													i.SubItems[2].Text = e?.EUBalance.ToDecimalString() ?? "..."; 
+													i.SubItems[3].Text = e?.MRBalance.ToDecimalString() ?? "..."; 
 													i.SubItems[1].Tag = false;
 												});
 									});

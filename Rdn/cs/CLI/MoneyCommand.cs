@@ -269,7 +269,7 @@ namespace Uccs.Rdn.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));
+													return new UntTransfer(GetAccountAddress("to"), GetMoney("st", Money.Zero), GetMoney("eu", Money.Zero), GetMoney("mr", Money.Zero));
 												}
 							},
 
@@ -300,9 +300,9 @@ namespace Uccs.Rdn.CLI
 
 													var r = Api<CostApc.Return>(c);
 
-													Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
-													Report($"Account One-time Fee : {r.RentAccount.ToDecimalString()}");
-													Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
+													//Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
+													Report($"Account One-time Bye-Year Fee : {r.RentAccount.ToDecimalString()}");
+													//Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
 
 													Report($"");
 

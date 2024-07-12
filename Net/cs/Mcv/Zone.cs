@@ -123,12 +123,12 @@ namespace Uccs.Net
 		public Money				BailMin											= 1000;
 		public bool					PoW												= false;
 		public int					MembersLimit									= 1000;
-		public Money				ExeunitMinFee									= 0.001;
+		//public Money				ExeunitMinFee									= 0.001;
 		public long					TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
-		public Money				RentPerBytePerDayMinimum						= 0;
+		//public Money				RentPerBytePerDayMinimum						= 0;
 		public int					TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int					TransactionsPerVoteAllowableOverflowMuliplier	= 10;
-		public int					TransactionsFeeOverflowFactor					= 10;
+		public int					TransactionsFeeOverflowFactor					= 2;
 		public int					OperationsPerTransactionLimit					= 100;
 		public int					OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
 

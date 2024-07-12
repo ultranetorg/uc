@@ -64,11 +64,11 @@ namespace Uccs.Rdn
 
 			a = round.AffectDomain(a.Id);
 			
-			ExeUnits = 0; /// the first is alredy paid
+			EUSpent = 0; /// the first is alredy paid
 
 			void execute(Ura resource)
 			{
-				ExeUnits++;
+				EUSpent++;
 
 				var r = a.AffectResource(resource.Resource);
 	
@@ -119,7 +119,7 @@ namespace Uccs.Rdn
 
 					r.Flags	|= ResourceFlags.Sealed;
 
-					Pay(round, r.Length, Mcv.Forever);
+					PayForSpacetime(round, r.Length, Mcv.Forever);
 					Free(a, r.Length);
 				}
 

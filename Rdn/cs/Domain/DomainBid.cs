@@ -69,7 +69,7 @@
  			{
 				if(a.LastWinner == null) /// first bid
 				{
-					Affect(round, Signer).Balance -= Bid;
+					Affect(round, Signer).STBalance -= Bid;
 					
 					a.Owner				= null;
 					a.FirstBidTime		= round.ConsensusTime;
@@ -83,8 +83,8 @@
 				{
 					if(a.LastBid < Bid) /// outbid
 					{
-						Affect(round, a.LastWinner).Balance += a.LastBid;
-						Affect(round, Signer).Balance -= Bid;
+						Affect(round, a.LastWinner).STBalance += a.LastBid;
+						Affect(round, Signer).STBalance -= Bid;
 						
 						a.LastBid		= Bid;
 						a.LastBidTime	= round.ConsensusTime;
@@ -97,9 +97,9 @@
  			else
  			{
 				/// dont refund previous winner if any
-				Reward += a.LastBid;
+				STReward += a.LastBid;
 
-				Affect(round, Signer).Balance -= Bid;
+				Affect(round, Signer).STBalance -= Bid;
 				
 				a.Owner				= null;
 				a.FirstBidTime		= round.ConsensusTime;

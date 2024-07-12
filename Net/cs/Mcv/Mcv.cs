@@ -24,7 +24,8 @@ namespace Uccs.Net
 		public const int							EntityRentYearsMax = 10;
 		public const int							OperationsQueueLimit = 1000;
 		public static readonly Time					Forever = Time.FromYears(30);
-		public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
+		//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
+		public static Money							TimeFactor(Time time) => new Money(time.Days)/Time.FromYears(1).Days;
 
 		public McvSettings							Settings;
 		public McvZone								Zone;
@@ -147,7 +148,7 @@ namespace Uccs.Net
 					if(r.Id > 0)
 					{
 						r.ConsensusTime = r.Confirmed ? r.ConsensusTime : r.Votes.First().Time;
-						r.ConsensusExeunitFee = Zone.ExeunitMinFee;
+						r.ConsensusExeunitFee = 1;
 					}
 	
 					if(i <= 1+P + 1+P)
@@ -459,7 +460,7 @@ namespace Uccs.Net
 			
 			r.ConsensusTime			= Time.Now(Clock);
 			r.ConsensusExeunitFee	= p.ConsensusExeunitFee;
-			r.RentPerBytePerDay		= p.RentPerBytePerDay;
+			///r.RentPerBytePerDay		= p.RentPerBytePerDay;
 			r.Members				= p.Members;
 			r.Funds					= p.Funds;
 	

@@ -66,7 +66,7 @@ namespace Uccs.Rdn
 			{
 				r.Flags	|= ResourceFlags.Sealed;
 
-				Pay(round, r.Length, Mcv.Forever);
+				PayForSpacetime(round, r.Length, Mcv.Forever);
 			}
 			else
 				Allocate(round, a, r.Length);

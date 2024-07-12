@@ -20,7 +20,7 @@ namespace Uccs.Net
 					throw new EntityException(EntityError.NotFound);
 #endif
 				Transaction.Nid = a?.LastTransactionNid + 1 ?? 0;
-				Transaction.Fee = new Money(double.MaxValue/(double)Money.One);
+				Transaction.EUFee = new Money(double.MaxValue/(double)Money.One); /// "very big"
 
 				Mcv.TryExecute(Transaction);
 				
@@ -32,7 +32,8 @@ namespace Uccs.Net
 															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
-															MinFee				= Transaction.Operations.SumMoney(i => i.ExeUnits * Mcv.LastConfirmedRound.ConsensusExeunitFee),
+															STCost				= Transaction.Operations.SumMoney(i => i.STSpent),
+															EUCostMinimum			= Transaction.Operations.SumMoney(i => i.EUSpent * Mcv.LastConfirmedRound.ConsensusExeunitFee),
 															};
 				}				
 				else
@@ -46,7 +47,8 @@ namespace Uccs.Net
 		public int			LastConfirmedRid { get; set; }
 		public int			NextNid { get; set; }
 		public byte[]		PowHash { get; set; }
-		public Money		MinFee { get; set; }
+		public Money		STCost { get; set; }
+		public Money		EUCostMinimum { get; set; }
 		public EntityId		Generetor { get; set; }
 	}
 }

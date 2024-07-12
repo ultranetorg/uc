@@ -91,9 +91,9 @@ namespace Uccs.Rdn
 
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
-				t.Fee = Zone.ExeunitMinFee;
+				t.EUFee = 1;
 				//t.AddOperation(new Immission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new UntTransfer(f0, 1000_000_000));
+				t.AddOperation(new UntTransfer(f0, 10_000_000, 1000_000, 1000));
 				t.Sign(god, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 			
@@ -127,10 +127,10 @@ namespace Uccs.Rdn
 				{
 					var t = new Transaction {Zone = Zone, Nid = 0, Expiration = i};
 					t.Generator = new([0, 0], -1);
-					t.Fee = 0;
-					t.AddOperation(new CandidacyDeclaration{Bail = 0,
-															BaseRdcIPs = [Zone.Father0IP],
-															SeedHubRdcIPs = [Zone.Father0IP] });
+					t.EUFee = 1;
+					t.AddOperation(new CandidacyDeclaration {Bail = 0,
+															 BaseRdcIPs = [Zone.Father0IP],
+															 SeedHubRdcIPs = [Zone.Father0IP] });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}

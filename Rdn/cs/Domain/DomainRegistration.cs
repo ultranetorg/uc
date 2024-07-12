@@ -63,7 +63,7 @@
 				e = round.AffectDomain(Address);
 						
 				if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-					Reward += e.LastBid;
+					STReward += e.LastBid;
 								
 				e.SpaceReserved	= e.SpaceUsed;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
@@ -73,8 +73,8 @@
 				e.LastBidTime	= Time.Empty;
 				e.FirstBidTime	= Time.Empty;
 							
-				Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, Address);
-				Pay(round, e.SpaceUsed, Time.FromYears(Years));
+				Affect(round, Signer).STBalance -= NameFee(Years, Address);
+				PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
 			}
 			else
 			{
@@ -104,7 +104,7 @@
 				e.ParentPolicy	= Policy;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
-				Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, new string(' ', Domain.NameLengthMax));
+				Affect(round, Signer).STBalance -= NameFee(Years, new string(' ', Domain.NameLengthMax));
 			}
 		}
 	}

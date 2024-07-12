@@ -27,7 +27,9 @@ namespace Uccs.Net
 		{
 			return new AccountEntry(Mcv){	Id = Id,
 											Address = Address,
-											Balance = Balance,
+											STBalance = STBalance,
+											EUBalance = EUBalance,
+											MRBalance = MRBalance,
 											//Bail = Bail,
 											LastTransactionNid = LastTransactionNid,
 											LastEmissionId = LastEmissionId,
@@ -72,18 +74,5 @@ namespace Uccs.Net
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}
 		}
-
-		public XonDocument ToXon()
-		{
-			var d = new XonDocument(new XonTextValueSerializator());
-
-			d.Add("Address").Value					= Address;
-			d.Add("LastTransactionId").Value		= LastTransactionNid;
-			d.Add("Balance").Value					= Balance;
-			d.Add("LastEmissionId").Value			= LastEmissionId;
-
-			return d;
-		}
-
 	}
 }

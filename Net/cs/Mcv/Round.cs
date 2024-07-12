@@ -49,9 +49,11 @@ namespace Uccs.Net
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Dictionary<AccountEntry, Money>				Rewards = [];
+		public Dictionary<AccountEntry, Money>				STRewards = [];
+		public Dictionary<AccountEntry, Money>				EURewards = [];
+		//public Dictionary<AccountEntry, Money>				MRRewards = [];
 		public Money										Emission;
-		public Money										RentPerBytePerDay;
+		//public Money										RentPerBytePerDay;
 		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
@@ -60,15 +62,15 @@ namespace Uccs.Net
 #endif
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextDomainIds;
-		public List<long>									Last365BaseDeltas;
-		public long											PreviousDayBaseSize;
+		//public List<long>									Last365BaseDeltas;
+		//public long											PreviousDayBaseSize;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 
 		public Mcv											Mcv;
 		public McvZone										Zone => Mcv.Zone;
 
-		public abstract										Money AccountAllocationFee(Account account);
+		public abstract Money								AccountAllocationFee(Account account);
 
 		public int RequiredVotes
 		{
@@ -116,45 +118,6 @@ namespace Uccs.Net
 			throw new IntegrityException();
 		}
 
-		public void Distribute(Money amount, IEnumerable<AccountAddress> a)
-		{
-			if(a.Any())
-			{
-				var x = amount/a.Count();
-	
-				foreach(var i in a.Skip(1))
-					AffectAccount(i).Balance += x;
-	
-				AffectAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
-			}
-		}
-
-		public void Distribute(Dictionary<AccountEntry, Money> a, int ashare, IEnumerable<AccountAddress> b, int bshare)
-		{
-			var total = a.SumMoney(i => i.Value);
-			var s = total * ashare/(ashare + bshare);
-
-			if(a.Any())
-			{
-				var x = s/a.Count();
-		
-				foreach(var i in a)
-				{
-					AffectAccount(i.Key.Key).Balance += x;
-				}
-			}
-
-			if(b.Any())
-			{
-				var x = (total - s)/b.Count();
-		
-				foreach(var i in b)
-				{
-					AffectAccount(i).Balance += x;
-				}
-			}
-		}
-
 		public AccountEntry AffectAccount(AccountAddress account)
 		{
 			if(AffectedAccounts.TryGetValue(account, out AccountEntry a))
@@ -196,8 +159,8 @@ namespace Uccs.Net
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 						
-			ConsensusExeunitFee					= Id == 0 ? Zone.ExeunitMinFee	: Previous.ConsensusExeunitFee;
-			ConsensusTransactionsOverflowRound	= Id == 0 ? 0					: Previous.ConsensusTransactionsOverflowRound;
+			ConsensusExeunitFee					= Id == 0 ? 1 : Previous.ConsensusExeunitFee;
+			ConsensusTransactionsOverflowRound	= Id == 0 ? 0 : Previous.ConsensusTransactionsOverflowRound;
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 
@@ -232,7 +195,7 @@ namespace Uccs.Net
 			}
 			else 
 			{
-				if(ConsensusExeunitFee > Zone.ExeunitMinFee && Id - ConsensusTransactionsOverflowRound > Mcv.P)
+				if(ConsensusExeunitFee > 1 && Id - ConsensusTransactionsOverflowRound > Mcv.P)
 					ConsensusExeunitFee /= Zone.TransactionsFeeOverflowFactor;
 			}
 			
@@ -307,7 +270,7 @@ namespace Uccs.Net
 #if IMMISSION
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
 #endif
-			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
+			///RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
 
 			InitializeExecution();
 
@@ -316,7 +279,8 @@ namespace Uccs.Net
 			NextAccountIds	= new (Bytes.EqualityComparer);
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
-			Rewards.Clear();
+			STRewards.Clear();
+			EURewards.Clear();
 			AffectedAccounts.Clear();
 
 			RestartExecution();
@@ -333,29 +297,33 @@ namespace Uccs.Net
 					goto start;
 				}
 
-				Money f = 0;
-				Money r = 0;
+				//Money f = 0;
+				Money st = 0;
+				Money eu = 0;
 
 				foreach(var o in t.Operations)
 				{
-					o.ExeUnits = 1;
-					o.Reward = 0;
+					o.STSpent = 0;
+					o.EUSpent = 1;
+					o.STReward = 0;
+					o.EUReward = 0;
 
 					o.Execute(Mcv, this);
 
 					if(o.Error != null)
 						goto start;
 
-#if ETHEREUM
+					#if ETHEREUM
 					if(o is not Immission)
 					{
 						f += o.ExeUnits * ConsensusExeunitFee;
 					}
-#endif
+					#endif
 
-					r += o.Reward; 
+					st += o.STReward; 
+					eu += o.EUReward; 
 				
-					if(t.Fee < f || a.Balance - f < 0)
+					if(a.STBalance - st < 0 || t.EUFee < eu || a.EUBalance - eu < 0)
 					{
 						o.Error = Operation.NotEnoughUNT;
 						goto start;
@@ -365,13 +333,20 @@ namespace Uccs.Net
 				if(t.Generator.Ei != -1)
 				{
 					var g = Mcv.Accounts.Find(t.Generator, Id);
-					if(Rewards.TryGetValue(g, out var x))
-						Rewards[g] = x + r + t.Fee;
+
+					if(STRewards.TryGetValue(g, out var x))
+						STRewards[g] = x + st;
 					else
-						Rewards[g] = r + t.Fee;
+						STRewards[g] = st;
+
+					if(EURewards.TryGetValue(g, out var y))
+						EURewards[g] = y + t.EUFee;
+					else
+						EURewards[g] = t.EUFee;
 				}
 
-				a.Balance -= t.Fee;
+				a.STBalance -= st;
+				a.EUBalance -= t.EUFee;
 				a.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
@@ -397,8 +372,8 @@ namespace Uccs.Net
 
 			Execute(ConsensusTransactions);
 
-			Last365BaseDeltas	= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
-			PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
+			///Last365BaseDeltas	= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
+			///PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
 #if ETHEREUM
@@ -439,16 +414,15 @@ namespace Uccs.Net
 
 			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Account == i)))
 			{
-				AffectAccount(i.Account).AvarageUptime = 0;
-				Rewards[Mcv.Accounts.Find(i.Account, Id)] += i.Bail;
+				AffectAccount(i.Account).AverageUptime = 0;
 				Members.Remove(i);
 			}
 
 			foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Account == i)))
 			{
 				var a = AffectAccount(i.Account);
-				a.Balance += i.Bail;
-				a.AvarageUptime = (a.AvarageUptime + Id - i.CastingSince)/(a.AvarageUptime == 0 ? 1 : 2);
+				a.MRBalance += i.Bail;
+				a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 				Members.Remove(i);
 			}
 
@@ -459,7 +433,7 @@ namespace Uccs.Net
 
 			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
 								.Select(i => i.MaxBy(i => i.Bail))
-								.OrderByDescending(i => Mcv.Accounts.Find(i.Signer, Id).AvarageUptime)
+								.OrderByDescending(i => Mcv.Accounts.Find(i.Signer, Id).AverageUptime)
 								.ThenBy(i => i.Bail)
 								.ThenBy(i => i.Signer)
 								.Take(Mcv.Zone.MembersLimit - Members.Count))
@@ -475,7 +449,7 @@ namespace Uccs.Net
 
 			foreach(var i in cds) /// refund the rest
 			{
-				AffectAccount(i.Transaction.Signer).Balance += i.Bail;
+				AffectAccount(i.Transaction.Signer).MRBalance += i.Bail;
 			}
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
@@ -484,56 +458,70 @@ namespace Uccs.Net
 			if(Mcv.IsCommitReady(this))
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
-				var r = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => Mcv.Accounts.Find(i.Account, Id), i => Money.Zero);
 
-				foreach(var i in tail)
+				var members = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => AffectAccount(i.Account), i => Money.Zero);
+
+				Money distribute(Func<Round, Dictionary<AccountEntry, Money>> getroundrewards, Action<AccountEntry, Money> credit)
 				{
-					foreach(var j in i.Rewards)
+					Money a = 0;
+
+					foreach(var r in tail)
 					{
-						if(r.TryGetValue(j.Key, out var x))
-							r[j.Key] = x + j.Value;
-						else
-							r[j.Key] = j.Value;
+						foreach(var j in getroundrewards(r))
+						{
+							credit(AffectAccount(j.Key.Address), members.TryGetValue(j.Key, out var x) ? x + j.Value*45/100 : j.Value*45/100); /// 45%
+							a += j.Value;
+						}
 					}
+					
+					foreach(var j in members)
+					{
+						credit(j.Key, a*45/100/members.Count); /// 45%
+					}
+
+					if(Funds.Any())
+					{
+						foreach(var i in Funds)
+						{
+							credit(AffectAccount(i), a/10/Funds.Count); /// 10%
+						}
+					}
+
+					return a;
 				}
 
-				Distribute(r, 9, Funds, 1);
+				var st = distribute(r => r.STRewards, (a, r) => a.STBalance += r);
+				var eu = distribute(r => r.EURewards, (a, r) => a.EUBalance += r);
+
+				foreach(var i in members)
+					i.Key.STBalance += 1000;
+
+				if(eu < 1000_000)
+					foreach(var i in members)
+						i.Key.EUBalance += 1000;
+
+				foreach(var j in members)
+					j.Key.MRBalance += 1;
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
-				///var accs = new Dictionary<AccountAddress, AccountEntry>();
-				///var doms = new Dictionary<string, DomainEntry>();
+				///long s = Mcv.Size;
 				///
-				///foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
+				///foreach(var t in Mcv.Tables)
 				///{
-				///	foreach(var i in r.AffectedAccounts)
-				///		if(!accs.ContainsKey(i.Key))
-				///			accs.Add(i.Key, i.Value);
-				///
-				///	foreach(var i in r.AffectedDomains)
-				///		if(!doms.ContainsKey(i.Key))
-				///			doms.Add(i.Key, i.Value);
+				///	s += t.MeasureChanges(Mcv.Tail.SkipWhile(i => i != this));
 				///}
-
-				long s = Mcv.Size;
-				
-				foreach(var t in Mcv.Tables)
-				{
-					s += t.MeasureChanges(Mcv.Tail.SkipWhile(i => i != this));
-				}
-
-				/// + Mcv.Accounts.MeasureChanges(accs.Values) + Mcv.Domains.MeasureChanges(doms.Values);
-								
-				Last365BaseDeltas.RemoveAt(0);
-				Last365BaseDeltas.Add(s - PreviousDayBaseSize);
-
-				if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowthPerYear)
-				{
-					RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowthPerYear;
-				}
-
-				PreviousDayBaseSize = s;
+				///
+				///Last365BaseDeltas.RemoveAt(0);
+				///Last365BaseDeltas.Add(s - PreviousDayBaseSize);
+				///
+				///if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowthPerYear)
+				///{
+				///	RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowthPerYear;
+				///}
+				///
+				///PreviousDayBaseSize = s;
 			}
 			
 			Confirmed = true;
@@ -560,9 +548,9 @@ namespace Uccs.Net
 			writer.Write(ConsensusExeunitFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			
-			writer.Write(RentPerBytePerDay);
-			writer.Write7BitEncodedInt64(PreviousDayBaseSize);
-			writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
+			///writer.Write(RentPerBytePerDay);
+			///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
+			///writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
 			
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
@@ -580,9 +568,9 @@ namespace Uccs.Net
 			ConsensusExeunitFee					= reader.Read<Money>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
-			RentPerBytePerDay		= reader.Read<Money>();
-			PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
-			Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
+			//RentPerBytePerDay		= reader.Read<Money>();
+			//PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
+			//Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
 			
 			Emission				= reader.Read<Money>();
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();

@@ -90,8 +90,8 @@
 					e.SpaceReserved	= e.SpaceUsed;
 					e.Expiration = e.Expiration + Time.FromYears(Years);
 							
-					Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, e.Address);
-					Pay(round, e.SpaceUsed, Time.FromYears(Years));
+					Affect(round, Signer).STBalance -= NameFee(Years, e.Address);
+					PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
 				}
 
 				if(Action == DomainAction.Transfer)
@@ -129,8 +129,8 @@
 					e.Expiration	= e.Expiration + Time.FromYears(Years);
 					e.SpaceReserved	= e.SpaceUsed;
 	
-					Affect(round, Signer).Balance -= NameFee(Years, round.RentPerBytePerDay, new string(' ', Domain.NameLengthMax));
-					Pay(round, e.SpaceUsed, Time.FromYears(Years));
+					Affect(round, Signer).STBalance -= NameFee(Years, new string(' ', Domain.NameLengthMax));
+					PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
 				}
 
 				if(Action == DomainAction.ChangePolicy)

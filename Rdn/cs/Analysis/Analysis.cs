@@ -2,7 +2,7 @@
 {
 	public class Consil : IBinarySerializable
  	{
- 		public Money			PerByteFee;
+ 		public Money			PerByteSTFee;
 		public AccountAddress[]	Analyzers;
 
  		public byte[]			Raw {
@@ -19,19 +19,19 @@
 
 		public void Read(BinaryReader reader)
 		{
-			PerByteFee	= reader.Read<Money>();
-			Analyzers	= reader.ReadArray<AccountAddress>();
+			PerByteSTFee	= reader.Read<Money>();
+			Analyzers		= reader.ReadArray<AccountAddress>();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(PerByteFee);
+			writer.Write(PerByteSTFee);
 			writer.Write(Analyzers);
 		}
 
 		public Consil Clone()
 		{
-			return new Consil {	PerByteFee	= PerByteFee, 
+			return new Consil {	PerByteSTFee= PerByteSTFee, 
 								Analyzers	= Analyzers.Clone() as AccountAddress[]};
 		}
 	}
@@ -58,7 +58,8 @@
 	public class Analysis : IBinarySerializable
 	{
 		public Urr					Release { get; set; }
-		public Money				Payment { get; set; }
+		public Money				STPayment { get; set; }
+		public Money				EUPayment { get; set; }
 		public Ura					Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
 
@@ -76,23 +77,25 @@
 
 		public override string ToString()
 		{
-			return $"{Release}, Payment={Payment}, Consil={Consil}, Results={Results.Length}";
+			return $"{Release}, STPayment={STPayment}, EUPayment={EUPayment}, Consil={Consil}, Results={Results.Length}";
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Release = reader.ReadVirtual<Urr>();
-			Consil	= reader.Read<Ura>();
-			Payment	= reader.Read<Money>();
-			Results	= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
-																  Result = (AnalysisResult)reader.ReadByte() });
+			Release		= reader.ReadVirtual<Urr>();
+			Consil		= reader.Read<Ura>();
+			STPayment	= reader.Read<Money>();
+			EUPayment	= reader.Read<Money>();
+			Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
+																	  Result = (AnalysisResult)reader.ReadByte() });
 		}
 
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write(Release);
 			writer.Write(Consil);
-			writer.Write(Payment);
+			writer.Write(STPayment);
+			writer.Write(EUPayment);
 			writer.Write(Results, i => { writer.Write(i.Analyzer);
 										 writer.Write((byte)i.Result); });
 		}
@@ -100,8 +103,9 @@
 		public Analysis Clone()
 		{
 			return new Analysis {Release	= Release, 
-								 Payment	= Payment, 
 								 Consil		= Consil,	
+								 STPayment	= STPayment, 
+								 EUPayment	= EUPayment, 
 								 Results	= Results.Clone() as AnalyzerResult[]};
 		}
 	}

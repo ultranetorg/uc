@@ -199,10 +199,11 @@ namespace Uccs.Rdn.CLI
 				
 						case DataType.Consil:
 							return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteFee = d.Get<Money>("fee") });
+																	PerByteSTFee = d.Get<Money>("pbstf") });
 						case DataType.Analysis:
 							return new ResourceData(t, new Analysis {Release = Urr.Parse(d.Get<string>("release")), 
-																	 Payment = d.Get<Money>("payment"),
+																	 STPayment = d.Get<Money>("stpayment"),
+																	 EUPayment = d.Get<Money>("eupayment"),
 																	 Consil  = d.Get<Ura>("consil")});
 						default:
 							throw new SyntaxException("Unknown type");
