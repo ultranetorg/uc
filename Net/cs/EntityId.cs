@@ -8,7 +8,6 @@ namespace Uccs.Net
 	{
 		public byte[]	Ci { get; set; }
 		public int		Ei { get; set; }
-		byte[]			_Serial;
 
 		public EntityId()
 		{
@@ -18,23 +17,6 @@ namespace Uccs.Net
 		{
 			Ci = ci;
 			Ei = ei;
-		}
-
-		public byte[] Serial
-		{
-			get
-			{
-				if(_Serial == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Serial = s.ToArray();
-				}
-
-				return _Serial;
-			}
 		}
 
 		public override string ToString()

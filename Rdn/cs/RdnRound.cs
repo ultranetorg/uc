@@ -177,6 +177,7 @@
 		{
 			base.WriteBaseState(writer);
 
+			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Migrations, i => i.WriteBaseState(writer));
 		}
 
@@ -184,7 +185,8 @@
 		{
 			base.ReadBaseState(reader);
 
-			Migrations = reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
+			Members		= reader.Read<RdnMember>(m => m.ReadBaseState(reader)).Cast<Member>().ToList();
+			Migrations	= reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)

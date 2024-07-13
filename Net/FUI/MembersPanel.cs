@@ -73,10 +73,10 @@ namespace Uccs.Net.FUI
 						var bli = BaseRdcIPs.Items.Add(i.ToString());
 					}
 
-					foreach(var i in (e.Item.Tag as Member).SeedHubRdcIPs)
-					{
-						var li = SeedHubRdcIPs.Items.Add(i.ToString());
-					}
+					//foreach(var i in (e.Item.Tag as Member).SeedHubRdcIPs)
+					//{
+					//	var li = SeedHubRdcIPs.Items.Add(i.ToString());
+					//}
 
 					///foreach(var i in (e.Item.Tag as Member).Proxies)
 					{

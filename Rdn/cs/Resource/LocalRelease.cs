@@ -166,7 +166,7 @@ namespace Uccs.Rdn
 
 	public class Declaration
 	{
-		public MembersResponse.Member	Member;
+		public Member					Member;
 		public DeclarationStatus		Status;
 		public DateTime					Failed;
 	}

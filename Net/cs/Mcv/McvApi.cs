@@ -155,7 +155,7 @@ namespace Uccs.Net
 					f.Add(new ("Synchronization",		$"{mcv.Synchronization}"));
 					f.Add(new ("Size",					$"{mcv.Mcv.Size}"));
 					f.Add(new ("Members",				$"{mcv.Mcv.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
+					//f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
 					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToDecimalString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
 					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));

@@ -28,12 +28,7 @@ namespace Uccs.Net
 		{
 			return e.MinBy(m => Bytes.Xor(by(m).Bytes, account.Bytes), Bytes.Comparer);
 		}
-
-		public static IEnumerable<MembersResponse.Member> OrderByNearest(this IEnumerable<MembersResponse.Member> e, byte[] hash)
-		{
-			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);
-		}
-
+ 
 		public static IEnumerable<Member> OrderByNearest(this IEnumerable<Member> e, byte[] hash)
 		{
 			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);

@@ -11,6 +11,7 @@ namespace Uccs.Rdn
 	{
 		None = 0, 
 		Domain = McvPeerCallClass._Last + 1, 
+		RdnMembers,
 		QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease, Cost
 	}
 

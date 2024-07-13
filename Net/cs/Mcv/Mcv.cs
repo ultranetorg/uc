@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -72,6 +74,8 @@ namespace Uccs.Net
 		public abstract Operation					CreateOperation(int type);
 		public abstract Round						CreateRound();
 		public abstract Vote						CreateVote();
+		public abstract Member						CreateMember(Round round, CandidacyDeclaration declaration);
+		public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 		public abstract void						FillVote(Vote vote);
 
 		static Mcv()
@@ -221,6 +225,10 @@ namespace Uccs.Net
 
 		public void Clear()
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			Tail.Clear();
 
 			BaseState = null;
@@ -250,6 +258,10 @@ namespace Uccs.Net
 
 		public bool Add(Vote vote)
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			var r = GetRound(vote.RoundId);
 
 			vote.Round = r;
@@ -319,6 +331,10 @@ namespace Uccs.Net
 
 		public Round GetRound(int rid)
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			var r = FindRound(rid);
 
 			if(r == null)
@@ -335,6 +351,10 @@ namespace Uccs.Net
 
 		public Round FindRound(int rid)
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			foreach(var i in Tail)
 				if(i.Id == rid)
 					return i;
@@ -364,6 +384,10 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			if(LoadedRounds.Count > Zone.CommitLength)
 			{
 				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.CommitLength))
@@ -375,11 +399,18 @@ namespace Uccs.Net
 
 		public List<Member> VotersOf(Round round)
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			return FindRound(round.VotersRound).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
 		public bool ConsensusFailed(Round r)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			var m = VotersOf(r);
 
 			var e = r.Eligible;
@@ -421,6 +452,9 @@ namespace Uccs.Net
 		
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			var g = round.Id > P ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
@@ -428,6 +462,9 @@ namespace Uccs.Net
 
 		public IEnumerable<AccountAddress> ProposeMemberLeavers(Round round, AccountAddress generator)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			var prevs = Enumerable.Range(round.ParentId - P, P).Select(i => FindRound(i));
 
 			var ls = VotersOf(round).Where(i =>	i.CastingSince <= round.ParentId &&/// in previous Pitch number of rounds
@@ -439,6 +476,10 @@ namespace Uccs.Net
 
 		public void Hashify()
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			BaseHash = Cryptography.Hash(BaseState);
 	
 			foreach(var t in Tables)
@@ -449,6 +490,9 @@ namespace Uccs.Net
 
 		public Round TryExecute(Transaction transaction)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			var m = NextVoteMembers.NearestBy(m => m.Account, transaction.Signer).Account;
 
 			if(!Settings.Generators.Contains(m))
@@ -471,6 +515,10 @@ namespace Uccs.Net
 		
 		public void Commit(Round round)
 		{
+			if(Node != null)
+				if(!Monitor.IsEntered(Lock))
+					Debugger.Break();
+
 			using(var b = new WriteBatch())
 			{
 				if(IsCommitReady(round))
@@ -537,6 +585,9 @@ namespace Uccs.Net
 
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in r.Transactions)
 					if(transaction_predicate == null || transaction_predicate(t))
@@ -547,6 +598,9 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
+			if(!Monitor.IsEntered(Lock))
+				Debugger.Break();
+
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
 					yield return t;

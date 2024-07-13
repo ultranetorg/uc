@@ -228,7 +228,7 @@ namespace Uccs.Net
 		
 						void download(TableBase t)
 						{
-							var ts = Call(peer, new TableStampRequest{	Table = t.Id, 
+							var ts = Call(peer, new TableStampRequest  {Table = t.Id, 
 																		SuperClusters = stamp.Tables[t.Id].SuperClusters.Where(i => !t.SuperClusters.TryGetValue(i.Id, out var c) || !c.SequenceEqual(i.Hash))
 																														.Select(i => i.Id).ToArray()});
 		
@@ -238,20 +238,20 @@ namespace Uccs.Net
 		
 								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
 								{
-									if(c == null)
-									{
-										c = t.AddCluster(i.Id);
-									}
 		
 									var d = Call(peer, new DownloadTableRequest{Table = t.Id, 
 																				ClusterId = i.Id, 
 																				Offset = 0, 
 																				Length = i.Length});
-											
-									c.Read(new BinaryReader(new MemoryStream(d.Data)));
-										
-									lock(Lock)
+									lock(Mcv.Lock)
 									{
+										if(c == null)
+										{
+											c = t.AddCluster(i.Id);
+										}
+
+										c.Read(new BinaryReader(new MemoryStream(d.Data)));
+	
 										using(var b = new WriteBatch())
 										{
 											c.Save(b);
@@ -547,17 +547,13 @@ namespace Uccs.Net
 
 					if(m == null && a != null && a.MRBalance > Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
-						var o = new CandidacyDeclaration{	Bail			= Mcv.Settings.Bail,
-															BaseRdcIPs		= [Settings.Peering.IP],
-															SeedHubRdcIPs	= [Settings.Peering.IP]};
-
 						var t = new Transaction();
 						t.Flow = Flow;
 						t.Zone = Zone;
 						t.Signer = g;
  						t.__ExpectedStatus = TransactionStatus.Confirmed;
 			
-						t.AddOperation(o);
+						t.AddOperation(Mcv.CreateCandidacyDeclaration());
 
 			 			Transact(t);
 
@@ -782,7 +778,7 @@ namespace Uccs.Net
 
 				var cr = Call(() => new MembersRequest(), Flow);
 
-				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any() || !i.SeedHubRdcIPs.Any()))
+				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any()))
 					continue;
 
 				var members = cr.Members;

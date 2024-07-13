@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -234,6 +236,9 @@ namespace Uccs.Net
 
 		public override ClusterBase AddCluster(byte[] id)
 		{
+			if(!Monitor.IsEntered(Mcv.Lock))
+				Debugger.Break();
+
 			var c = new Cluster(this, id);
 			_Clusters.Add(c);
 			
@@ -242,6 +247,10 @@ namespace Uccs.Net
 
 		public void Clear()
 		{
+			if(Mcv.Node != null)
+				if(!Monitor.IsEntered(Mcv.Lock))
+					Debugger.Break();
+
 			_Clusters.Clear();
 			SuperClusters.Clear();
 
@@ -319,6 +328,10 @@ namespace Uccs.Net
 
 		Cluster GetCluster(byte[] id)
 		{
+			if(Mcv.Node != null)
+				if(!Monitor.IsEntered(Mcv.Lock))
+					Debugger.Break();
+
 			var c = _Clusters.Find(i => i.Id.SequenceEqual(id));
 
 			if(c != null)
@@ -407,6 +420,9 @@ namespace Uccs.Net
 
 		public override long MeasureChanges(IEnumerable<Round> tail)
 		{
+			if(!Monitor.IsEntered(Mcv.Lock))
+				Debugger.Break();
+
 			var affected = new Dictionary<K, E>();
 
 			foreach(var r in tail)

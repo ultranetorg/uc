@@ -221,10 +221,10 @@ namespace Uccs.Rdn
 
 		public class Return
 		{
-			public DataType						Type { get; set; }
-			public MembersResponse.Member[]		DeclaredOn { get; set; }
-			public Availability					Availability { get; set; }
-			public File[]						Files { get; set; }
+			public DataType			Type { get; set; }
+			public Member[]			DeclaredOn { get; set; }
+			public Availability		Availability { get; set; }
+			public File[]			Files { get; set; }
 
 			public Return()
 			{

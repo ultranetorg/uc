@@ -6,8 +6,8 @@ namespace Uccs.Rdn
 	public enum RdnOperationClass
 	{
 		None = 0, 
-		CandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
-		Immission				= OperationClass.Immission, 
+		RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
+		//Immission				= OperationClass.Immission, 
 		UntTransfer				= OperationClass.UntTransfer, 
 
 		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
@@ -18,23 +18,22 @@ namespace Uccs.Rdn
 	public abstract class RdnCall<R> : McvCall<R> where R : PeerResponse
 	{
 		public new RdnNode	Node => base.Node as RdnNode;
-		public RdnMcv			Rdn => Node.Mcv;
+		public RdnMcv		Rdn => Node.Mcv;
 	}
 
 	[Flags]
 	public enum RdnRole : uint
 	{
 		None,
-		Seed		= 0b00000100,
+		Seed = 0b00000100,
 	}
 
 	public class RdnMcv : Mcv
 	{
-		public new RdnSettings  Settings => base.Settings as RdnSettings;
-		public DomainTable		Domains;
-
-		public List<ForeignResult>		ApprovedEmissions = new();
-		public List<ForeignResult>		ApprovedMigrations = new();
+		public new RdnSettings		Settings => base.Settings as RdnSettings;
+		public DomainTable			Domains;
+		public List<ForeignResult>	ApprovedEmissions = new();
+		public List<ForeignResult>	ApprovedMigrations = new();
 
 		static RdnMcv()
 		{
@@ -128,9 +127,9 @@ namespace Uccs.Rdn
 					var t = new Transaction {Zone = Zone, Nid = 0, Expiration = i};
 					t.Generator = new([0, 0], -1);
 					t.EUFee = 1;
-					t.AddOperation(new CandidacyDeclaration {Bail = 0,
-															 BaseRdcIPs = [Zone.Father0IP],
-															 SeedHubRdcIPs = [Zone.Father0IP] });
+					t.AddOperation(new RdnCandidacyDeclaration  {Bail = 0,
+																 BaseRdcIPs = [Zone.Father0IP],
+																 SeedHubRdcIPs = [Zone.Father0IP] });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
@@ -195,6 +194,23 @@ namespace Uccs.Rdn
 		public override Vote CreateVote()
 		{
 			return new RdnVote(this);
+		}
+
+		public override Member CreateMember(Round round, CandidacyDeclaration declaration)
+		{
+			return new RdnMember{CastingSince	= round.Id + DeclareToGenerateDelay,
+								 Bail			= declaration.Bail,
+								 Account		= declaration.Signer, 
+								 BaseRdcIPs		= declaration.BaseRdcIPs, 
+								 SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
+		}
+
+		public override CandidacyDeclaration CreateCandidacyDeclaration()
+		{
+			return new RdnCandidacyDeclaration {Bail			= Settings.Bail,
+												BaseRdcIPs		= [Settings.Peering.IP],
+												SeedHubRdcIPs	= [Settings.Peering.IP]};
+
 		}
 
 		public override void ClearTables()

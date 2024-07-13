@@ -72,7 +72,7 @@ namespace Uccs.Rdn
 		int							hubsgoodmax = 8;
 		Thread						Thread;
 		DateTime					MembersRefreshed = DateTime.MinValue;
-		MembersResponse.Member[]	Members;
+		RdnMember[]					Members;
 
 		public Harvester(RdnNode sun, Urr address, Flow flow)
 		{
@@ -85,7 +85,7 @@ namespace Uccs.Rdn
 													{
 														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 														{
-															var r = Node.Call(() => new MembersRequest(), Flow);
+															var r = Node.Call(() => new RdnMembersRequest(), Flow);
 
 															lock(Lock)
 																Members = r.Members.ToArray();
@@ -95,7 +95,7 @@ namespace Uccs.Rdn
 		
 														lock(Lock)
 														{
-															var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration);
+															var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnMember>();
 			
 															for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 															{

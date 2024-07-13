@@ -4,11 +4,10 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class CandidacyDeclaration : Operation
+	public abstract class CandidacyDeclaration : Operation
 	{
 		public Money			Bail;
 		public IPAddress[]		BaseRdcIPs;
-		public IPAddress[]		SeedHubRdcIPs;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	IsValid(Mcv mcv) => Bail >= Transaction.Zone.BailMin;
 		
@@ -16,25 +15,16 @@ namespace Uccs.Net
 		{
 		}
 
-		public CandidacyDeclaration(Money bail, IPAddress[] baseRdcIPs, IPAddress[] seedHubRdcIPs)
-		{
-			Bail = bail;
-			BaseRdcIPs = baseRdcIPs;
-			SeedHubRdcIPs = seedHubRdcIPs;
-		}
-
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Bail			= reader.Read<Money>();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
-			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Bail);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
-			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
 		}
 
 		public override void Execute(Mcv mcv, Round round)

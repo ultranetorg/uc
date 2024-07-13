@@ -283,12 +283,12 @@ namespace Uccs.Rdn
 			{
 				Node.Statistics.Declaring.Begin();
 
-				var cr = Node.Call(() => new MembersRequest(), Node.Flow);
+				var cr = Node.Call(() => new RdnMembersRequest(), Node.Flow);
 	
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceId, LocalRelease>>();
+				var ds = new Dictionary<RdnMember, Dictionary<ResourceId, LocalRelease>>();
 
 				lock(Lock)
 				{
@@ -310,7 +310,7 @@ namespace Uccs.Rdn
 									foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
 																																					var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
 																																					return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																				}))
+																																				}).Cast<RdnMember>())
 									{
 										var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
 										rss[r.Id] = l;

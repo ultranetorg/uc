@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Uccs.Net
 {
@@ -52,7 +54,7 @@ namespace Uccs.Net
 		public Dictionary<AccountEntry, Money>				STRewards = [];
 		public Dictionary<AccountEntry, Money>				EURewards = [];
 		//public Dictionary<AccountEntry, Money>				MRRewards = [];
-		public Money										Emission;
+		//public Money										Emission;
 		//public Money										RentPerBytePerDay;
 		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
 		public List<Member>									Members = new();
@@ -275,7 +277,7 @@ namespace Uccs.Net
 			InitializeExecution();
 
 		start: 
-			Emission		= Id == 0 ? 0 : Previous.Emission;
+			//Emission		= Id == 0 ? 0 : Previous.Emission;
 			NextAccountIds	= new (Bytes.EqualityComparer);
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
@@ -364,6 +366,10 @@ namespace Uccs.Net
 
 		public void Confirm()
 		{
+			if(Mcv.Node != null)
+				if(!Monitor.IsEntered(Mcv.Lock))
+					Debugger.Break();
+
 			if(Confirmed)
 				throw new IntegrityException();
 
@@ -439,11 +445,7 @@ namespace Uccs.Net
 								.Take(Mcv.Zone.MembersLimit - Members.Count))
 			{
 
-				Members.Add(new Member{	CastingSince	= Id + Mcv.DeclareToGenerateDelay,
-										Bail			= i.Bail,
-										Account			= i.Signer, 
-										BaseRdcIPs		= i.BaseRdcIPs, 
-										SeedHubRdcIPs	= i.SeedHubRdcIPs});
+				Members.Add(Mcv.CreateMember(this, i));
 				cds.Remove(i);
 			}
 
@@ -552,8 +554,7 @@ namespace Uccs.Net
 			///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
 			///writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
 			
-			writer.Write(Emission);
-			writer.Write(Members, i => i.WriteBaseState(writer));
+			//writer.Write(Emission);
 			writer.Write(Funds);
 #if ETHEREUM
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
@@ -572,8 +573,7 @@ namespace Uccs.Net
 			//PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
 			//Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
 			
-			Emission				= reader.Read<Money>();
-			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
+			//Emission				= reader.Read<Money>();
 			Funds					= reader.ReadList<AccountAddress>();
 #if ETHEREUM
 			Emissions				= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
