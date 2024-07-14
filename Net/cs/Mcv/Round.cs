@@ -17,7 +17,7 @@ namespace Uccs.Net
 		public Round										Parent => Mcv.FindRound(ParentId);
 		public Round										Child => Mcv.FindRound(Id + Mcv.P);
 		public int											TransactionsPerVoteExecutionLimit		=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
-		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMuliplier;
+		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMultiplier;
 		public int											OperationsPerVoteLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
 
 		public int											Try = 0;
@@ -168,7 +168,7 @@ namespace Uccs.Net
 
 			if(tn > Mcv.Zone.TransactionsPerRoundLimit)
 			{
-				ConsensusExeunitFee *= Mcv.Zone.TransactionsFeeOverflowFactor;
+				ConsensusExeunitFee *= Mcv.Zone.TransactionsOverflowFeeFactor;
 				ConsensusTransactionsOverflowRound = Id;
 
 				var e = tn - Mcv.Zone.TransactionsPerRoundLimit;
@@ -198,7 +198,7 @@ namespace Uccs.Net
 			else 
 			{
 				if(ConsensusExeunitFee > 1 && Id - ConsensusTransactionsOverflowRound > Mcv.P)
-					ConsensusExeunitFee /= Zone.TransactionsFeeOverflowFactor;
+					ConsensusExeunitFee /= Zone.TransactionsOverflowFeeFactor;
 			}
 			
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
@@ -471,7 +471,7 @@ namespace Uccs.Net
 					{
 						foreach(var j in getroundrewards(r))
 						{
-							credit(AffectAccount(j.Key.Address), members.TryGetValue(j.Key, out var x) ? x + j.Value*45/100 : j.Value*45/100); /// 45%
+							credit(AffectAccount(j.Key.Address), members.TryGetValue(j.Key, out var x) ? x + j.Value * 45/100 : j.Value * 45/100); /// 45%
 							a += j.Value;
 						}
 					}
@@ -496,14 +496,14 @@ namespace Uccs.Net
 				var eu = distribute(r => r.EURewards, (a, r) => a.EUBalance += r);
 
 				foreach(var i in members)
-					i.Key.STBalance += 1000;
+					i.Key.STBalance += Zone.STCommitReward;
 
-				if(eu < 1000_000)
+				if(eu < Zone.EUCommitRewardOperationCountBelowTrigger)
 					foreach(var i in members)
-						i.Key.EUBalance += 1000;
+						i.Key.EUBalance += Zone.EUCommitReward;
 
 				foreach(var j in members)
-					j.Key.MRBalance += 1;
+					j.Key.MRBalance += Zone.MRCommitReward;
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)

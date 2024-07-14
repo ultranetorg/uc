@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Blake2Fast;
-using Nethereum.KeyStore;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net
@@ -11,7 +12,7 @@ namespace Uccs.Net
 	public abstract class Cryptography
 	{
 		public static readonly Cryptography				No = new NoCryptography();
-		public static readonly Cryptography				Ethereum = new EthereumCryptography();
+		public static readonly Cryptography				Normal = new NormalCryptography();
 
 		public const int								SignatureSize = 65;
 		public const int								HashSize = 32;
@@ -23,12 +24,12 @@ namespace Uccs.Net
 		public abstract AccountAddress					AccountFromWallet(byte[] wallet);
 		public abstract AccountAddress					AccountFrom(byte[] signature, byte[] hash);
 		public abstract byte[]							Encrypt(AccountKey key, string password);
-		public abstract byte[]							Decrypt(byte[] input, string password);
+		public abstract AccountKey						Decrypt(byte[] input, string password);
 
 		public static readonly SecureRandom				Random = new SecureRandom();
 
-		[ThreadStatic]
-		public static DZen.Security.Cryptography.SHA3	SHA;
+		///[ThreadStatic]
+		//public static DZen.Security.Cryptography.SHA3	SHA;
 
 		protected Cryptography()
 		{
@@ -36,17 +37,17 @@ namespace Uccs.Net
 
 		public static byte[] Hash(byte[] data)
 		{
-			if(SHA == null)
-			{
-				SHA = new DZen.Security.Cryptography.SHA3256Managed();
-				SHA.UseKeccakPadding = true;
-			}
-
-			return SHA.ComputeHash(data);
+			//if(SHA == null)
+			//{
+			//	SHA = new DZen.Security.Cryptography.SHA3256Managed();
+			//	SHA.UseKeccakPadding = true;
+			//}
+			//
+			//return SHA.ComputeHash(data);
 			//return Sha3Keccack.Current.CalculateHash(data);
 			
 			//return SHA256.HashData(data);
-			//return Blake2b.ComputeHash(32, data);
+			return Blake2b.ComputeHash(32, data);
 		}
 
 		public byte[] HashFile(byte[] data)
@@ -106,7 +107,7 @@ namespace Uccs.Net
 			return key.GetPrivateKeyAsBytes();
 		}
 
-		public override byte[] Decrypt(byte[] input, string password)
+		public override AccountKey Decrypt(byte[] input, string password)
 		{
 			////if(string.IsNullOrWhiteSpace(password))
 			////	throw new UserException("Non-empty password required");
@@ -120,7 +121,7 @@ namespace Uccs.Net
 			//
 			//return b.DoFinal(input);
 
-			return input;
+			return new AccountKey(input);
 		}
 
 		public override AccountAddress AccountFromWallet(byte[] wallet)
@@ -129,14 +130,11 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EthereumCryptography : Cryptography
+	public class NormalCryptography : Cryptography
 	{
-		static KeyStoreService	service;
-
-		static EthereumCryptography()
+		static NormalCryptography()
 		{
 			AccountKey.SignRecoverable = true;
-			service = new KeyStoreService();
 		}
 
 		public override byte[] Sign(AccountKey k, byte[] h)
@@ -187,14 +185,78 @@ namespace Uccs.Net
 			return AccountAddress.Parse(j.GetProperty("address").GetString());
 		}
 
+		//public override byte[] Encrypt(AccountKey key, string password)
+		//{
+		//	return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.GetPrivateKeyAsBytes(), key.GetPublicAddress()));
+		//}
+		//
+		//public override byte[] Decrypt(byte[] input, string password)
+		//{
+		//	return service.DecryptKeyStoreFromJson(password, Encoding.UTF8.GetString(input));
+		//}
+
 		public override byte[] Encrypt(AccountKey key, string password)
 		{
-			return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.GetPrivateKeyAsBytes(), key.GetPublicAddress()));
+            byte[] iv = RandomNumberGenerator.GetBytes(16);
+
+			using(Aes aesAlg = Aes.Create())
+			{
+				aesAlg.Key = Hash(Encoding.UTF8.GetBytes(password));
+				aesAlg.IV = iv;
+				ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+				byte[] encryptedBytes;
+				
+				using(var msEncrypt = new MemoryStream())
+				{
+					using(var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+					{
+						csEncrypt.Write(key.GetPrivateKeyAsBytes(), 0, key.GetPrivateKeyAsBytes().Length);
+					}
+					encryptedBytes = msEncrypt.ToArray();
+				}
+
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+				
+				w.WriteBytes(key.GetPublicAddressAsBytes());
+				w.WriteBytes(iv);
+				w.WriteBytes(encryptedBytes);
+
+				return s.ToArray();
+			}
 		}
 
-		public override byte[] Decrypt(byte[] input, string password)
+		public override AccountKey Decrypt(byte[] wallet, string password)
 		{
-			return service.DecryptKeyStoreFromJson(password, Encoding.UTF8.GetString(input));
+			var s = new MemoryStream(wallet);
+			var r = new BinaryReader(s);
+				
+			var pub = r.ReadBytes();
+			var iv = r.ReadBytes();
+			var data = r.ReadBytes();
+
+			using(Aes aesAlg = Aes.Create())
+			{
+				aesAlg.Key = Hash(Encoding.UTF8.GetBytes(password));
+				aesAlg.IV = iv;
+
+				ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+				byte[] decryptedBytes;
+
+				using(var msDecrypt = new System.IO.MemoryStream(data))
+				{
+					using(var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+					{
+						using(var msPlain = new System.IO.MemoryStream())
+						{
+							csDecrypt.CopyTo(msPlain);
+							decryptedBytes = msPlain.ToArray();
+						}
+					}
+				}
+
+				return new AccountKey(decryptedBytes);
+			}
 		}
 	}
 

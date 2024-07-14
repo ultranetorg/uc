@@ -41,12 +41,12 @@ namespace Uccs.Net
 
 		public static AccountKey Load(Cryptography cryptography, string path, string password)
 		{
-			return new AccountKey(cryptography.Decrypt(File.ReadAllBytes(path), password));
+			return cryptography.Decrypt(File.ReadAllBytes(path), password);
 		}
 
 		public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
 		{
-			return new AccountKey(cryptography.Decrypt(wallet, password));
+			return cryptography.Decrypt(wallet, password);
 		}
 
 		public void Save(Cryptography cryptography, string path, string password)

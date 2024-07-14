@@ -7,9 +7,9 @@ namespace Uccs.Net
 {
 	public class Vault
 	{
-		public const string							EthereumWalletExtention = "sunwe";
-		public const string							PrivakeKeyWalletExtention = "sunwpk";
-		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : PrivakeKeyWalletExtention;
+		public const string							EncryptedWalletExtention = "uwa";
+		public const string							PrivakeKeyWalletExtention = "uwpk";
+		public static string						WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : PrivakeKeyWalletExtention;
 
 		string										Profile;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
@@ -27,7 +27,7 @@ namespace Uccs.Net
 		public Vault(string profile, bool encrypt)
 		{
 			Profile = profile;
-			Cryptography = encrypt ? new EthereumCryptography() : new NoCryptography() ;
+			Cryptography = encrypt ? new NormalCryptography() : new NoCryptography() ;
 
 			Directory.CreateDirectory(profile);
 

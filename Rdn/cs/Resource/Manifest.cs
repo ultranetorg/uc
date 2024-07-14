@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn
 {
@@ -111,7 +111,7 @@ namespace Uccs.Rdn
 		}
 
 		public void Read(BinaryReader r)
-		{
+		{						
 			Release				= r.Read<Ura>();
 			AddedDependencies	= r.ReadArray<Dependency>();
 			RemovedDependencies = r.ReadArray<Dependency>();

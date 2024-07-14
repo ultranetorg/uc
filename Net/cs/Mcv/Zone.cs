@@ -117,23 +117,26 @@ namespace Uccs.Net
 	public abstract class McvZone : Zone
 	{
 		public string				Genesis;	
- 		public Cryptography			Cryptography									= Cryptography.Ethereum;
+ 		public Cryptography			Cryptography									= Cryptography.Normal;
 		public int					CommitLength									= 1000;
-		public int					ExternalVerificationDurationLimit				= 100;
+		public int					ExternalVerificationRoundDurationLimit			= 1000;
 		public Money				BailMin											= 1000;
 		public bool					PoW												= false;
 		public int					MembersLimit									= 1000;
 		//public Money				ExeunitMinFee									= 0.001;
-		public long					TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
-		//public Money				RentPerBytePerDayMinimum						= 0;
+		//public long				TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
 		public int					TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
-		public int					TransactionsPerVoteAllowableOverflowMuliplier	= 10;
-		public int					TransactionsFeeOverflowFactor					= 2;
+		public int					TransactionsPerVoteAllowableOverflowMultiplier	= 10;
+		public int					TransactionsOverflowFeeFactor					= 2;
 		public int					OperationsPerTransactionLimit					= 100;
 		public int					OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
+		public Money				STCommitReward									= 1000;
+		public Money				EUCommitReward									= 1000;
+		public Money				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
+		public Money				MRCommitReward									= 1;
 
-		public AccountAddress		God												= AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
-		public AccountAddress		Father0											= AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+		public AccountAddress		God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
+		public AccountAddress		Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 		public IPAddress			Father0IP;
 		public ZoneCreation			Creation;
 	}

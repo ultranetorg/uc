@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Rdn.CLI
 {

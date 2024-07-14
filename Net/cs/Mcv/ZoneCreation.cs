@@ -10,7 +10,7 @@ namespace Uccs.Net
 			AccountKey		_Key;
 			byte[]			_PrivateKey;
 
-			public string	EthereumWalletPath => System.IO.Path.Join(PathWithoutExtention + "." + Vault.EthereumWalletExtention);
+			public string	EthereumWalletPath => System.IO.Path.Join(PathWithoutExtention + "." + Vault.EncryptedWalletExtention);
 
 			public AccountKey Key
 			{

@@ -170,7 +170,7 @@
 					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AverageUptime -= 10;
 			}
 
-			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationRoundDurationLimit);
 		}
 
 		public override void WriteBaseState(BinaryWriter writer)

@@ -26,14 +26,14 @@ namespace Uccs.Tests
 			var k = AccountKey.Create();
 			var kk = AccountKey.Create();
 
-			var s = Cryptography.Ethereum.Sign(k, h);
+			var s = Cryptography.Normal.Sign(k, h);
 
 
 			Assert.True(k == new AccountKey(k.GetPrivateKeyAsBytes()));
 			Assert.True(k == AccountKey.Parse(k.GetPrivateKey()));
 			Assert.True(k == AccountAddress.Parse(k.ToString()));
-			Assert.True(Cryptography.Ethereum.Valid(s, h, k));
-			Assert.False(Cryptography.Ethereum.Valid(s, h, kk));
+			Assert.True(Cryptography.Normal.Valid(s, h, k));
+			Assert.False(Cryptography.Normal.Valid(s, h, kk));
  		}
 	}
 }
