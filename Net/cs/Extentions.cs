@@ -12,9 +12,9 @@ namespace Uccs.Net
 			return (x & (long)bit) != 0;
 		}
 
-		public static Money SumMoney<T>(this IEnumerable<T> e, Func<T, Money> by)
+		public static Unit SumMoney<T>(this IEnumerable<T> e, Func<T, Unit> by)
 		{
-			var s = Money.Zero;
+			var s = Unit.Zero;
 
 			foreach(var i in e)
 			{

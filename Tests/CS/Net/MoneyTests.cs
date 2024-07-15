@@ -9,21 +9,21 @@ namespace Uccs.Tests
 		[Fact]
 		public static void Main()
 		{
-			Assert.Equal(new Money(0), Money.Zero);
+			Assert.Equal(new Unit(0), Unit.Zero);
 
-			Assert.True("0.001" == new Money(0.001).ToString());
-			Assert.True("1" == new Money(1).ToString());
+			Assert.True("0.001" == new Unit(0.001).ToString());
+			Assert.True("1" == new Unit(1).ToString());
 			
 
 			void pts1(string a)
 			{ 
-				Assert.True(a == Money.Parse(a).ToString());
-				Assert.True('-' + a == Money.Parse('-' + a).ToString());
+				Assert.True(a == Unit.Parse(a).ToString());
+				Assert.True('-' + a == Unit.Parse('-' + a).ToString());
 			}
 
 			void pts2(string a, string b)
 			{ 
-				Assert.True(Money.Parse(a).ToString() == b);
+				Assert.True(Unit.Parse(a).ToString() == b);
 			}
 
 			pts1("0.000000000000000001");
@@ -35,8 +35,8 @@ namespace Uccs.Tests
 			pts2("0123", "123");
 			pts2("123.000", "123");
 
-			Assert.Throws<FormatException>(() => Money.Parse("0.0000000000000000001"));
-			Assert.Throws<FormatException>(() => Money.Parse("11111111111111111111111111111111111111111111.0000000000000000001"));
+			Assert.Throws<FormatException>(() => Unit.Parse("0.0000000000000000001"));
+			Assert.Throws<FormatException>(() => Unit.Parse("11111111111111111111111111111111111111111111.0000000000000000001"));
 		}
 
 		//[Theory]

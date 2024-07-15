@@ -314,7 +314,7 @@ namespace Uccs.Net
 		public int						Expiration { get; set; }
 		public byte[]					PoW { get; set; }
 		public byte[]					Tag { get; set; }
-		public Money					EUFee { get; set; }
+		public Unit					EUFee { get; set; }
 		public byte[]					Signature { get; set; }
 			 
 		public AccountAddress			Signer { get; set; }

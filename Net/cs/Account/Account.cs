@@ -6,16 +6,16 @@ namespace Uccs.Net
 	{
 		public EntityId					Id { get; set; }
 		public AccountAddress			Address { get; set; }
-		public Money					STBalance { get; set; }
-		public Money					EUBalance { get; set; }
-		public Money					MRBalance { get; set; }
+		public Unit					STBalance { get; set; }
+		public Unit					EUBalance { get; set; }
+		public Unit					MRBalance { get; set; }
 		//public Money					Bail { get; set; }
 		//public BailStatus				BailStatus { get; set; }
 		public int						LastTransactionNid { get; set; } = -1;
 		public int						LastEmissionId  { get; set; } = -1;
 		//public int						CandidacyDeclarationRid  { get; set; } = -1;
 
-		public Money					AverageUptime { get; set; }
+		public Unit					AverageUptime { get; set; }
 
 		public virtual void Write(BinaryWriter writer)
 		{
@@ -38,12 +38,12 @@ namespace Uccs.Net
 		public virtual void Read(BinaryReader reader)
 		{
 			Address				= reader.ReadAccount();
-			STBalance 			= reader.Read<Money>();
-			EUBalance 			= reader.Read<Money>();
-			MRBalance 			= reader.Read<Money>();
+			STBalance 			= reader.Read<Unit>();
+			EUBalance 			= reader.Read<Unit>();
+			MRBalance 			= reader.Read<Unit>();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
-			AverageUptime		= reader.Read<Money>();
+			AverageUptime		= reader.Read<Unit>();
 
 			//CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
 			//

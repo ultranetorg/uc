@@ -254,18 +254,18 @@ namespace Uccs.Rdn
 			//public Money		RentBytePerDay { get; set; }
 			//public Money		Exeunit { get; set; }
 
-			public Money		RentAccount { get; set; }
+			public Unit		RentAccount { get; set; }
 
-			public Money[][]	RentDomain { get; set; }
+			public Unit[][]	RentDomain { get; set; }
 			
-			public Money[]		RentResource { get; set; }
-			public Money		RentResourceForever { get; set; }
+			public Unit[]		RentResource { get; set; }
+			public Unit		RentResourceForever { get; set; }
 
-			public Money[]		RentResourceData { get; set; }
-			public Money		RentResourceDataForever { get; set; }
+			public Unit[]		RentResourceData { get; set; }
+			public Unit		RentResourceDataForever { get; set; }
 		}
 
-		public Money	Rate { get; set; } = 1;
+		public Unit	Rate { get; set; } = 1;
 		public byte[]	Years { get; set; }
 		public byte[]	DomainLengths { get; set; }
 

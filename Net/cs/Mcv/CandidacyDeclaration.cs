@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public abstract class CandidacyDeclaration : Operation
 	{
-		public Money			Bail;
+		public Unit			Bail;
 		public IPAddress[]		BaseRdcIPs;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	IsValid(Mcv mcv) => Bail >= Transaction.Zone.BailMin;
@@ -17,7 +17,7 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Bail			= reader.Read<Money>();
+			Bail			= reader.Read<Unit>();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 		}
 

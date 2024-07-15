@@ -25,12 +25,12 @@
 			Transaction.STReward += fee;
 		}
 
-		public static Money SpacetimeFee(int length, Time time)
+		public static Unit SpacetimeFee(int length, Time time)
 		{
 			return length * Mcv.TimeFactor(time);
 		}
 
-		public static Money NameFee(int years, string address)
+		public static Unit NameFee(int years, string address)
 		{
 			var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
 

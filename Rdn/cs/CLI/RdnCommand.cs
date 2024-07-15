@@ -157,22 +157,22 @@ namespace Uccs.Rdn.CLI
 					return null;
 		}
 
-		protected Money GetMoney(string paramenter)
+		protected Unit GetMoney(string paramenter)
 		{
 			var p = One(paramenter);
 
 			if(p != null)
-				return Money.Parse(p.Get<string>());
+				return Unit.Parse(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected Money GetMoney(string paramenter, Money def)
+		protected Unit GetMoney(string paramenter, Unit def)
 		{
 			var p = One(paramenter);
 
 			if(p != null)
-				return Money.Parse(p.Get<string>());
+				return Unit.Parse(p.Get<string>());
 			else
 				return def;
 		}
@@ -199,11 +199,11 @@ namespace Uccs.Rdn.CLI
 				
 						case DataType.Consil:
 							return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteSTFee = d.Get<Money>("pbstf") });
+																	PerByteSTFee = d.Get<Unit>("pbstf") });
 						case DataType.Analysis:
 							return new ResourceData(t, new Analysis {Release = Urr.Parse(d.Get<string>("release")), 
-																	 STPayment = d.Get<Money>("stpayment"),
-																	 EUPayment = d.Get<Money>("eupayment"),
+																	 STPayment = d.Get<Unit>("stpayment"),
+																	 EUPayment = d.Get<Unit>("eupayment"),
 																	 Consil  = d.Get<Ura>("consil")});
 						default:
 							throw new SyntaxException("Unknown type");

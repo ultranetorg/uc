@@ -6,9 +6,9 @@ namespace Uccs.Net
 	public class UntTransfer : Operation
 	{
 		public AccountAddress	To;
-		public Money			STAmount;
-		public Money			EUAmount;
-		public Money			MRAmount;
+		public Unit			STAmount;
+		public Unit			EUAmount;
+		public Unit			MRAmount;
 		public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(STAmount > 0 ? STAmount + " ST" : null),
 																							  (EUAmount > 0 ? EUAmount + " EU" : null), 
 																							  (MRAmount > 0 ? MRAmount + " MR" : null)}.Where(i => i != null))} -> {To}";
@@ -18,7 +18,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public UntTransfer(AccountAddress to, Money st, Money eu, Money mr)
+		public UntTransfer(AccountAddress to, Unit st, Unit eu, Unit mr)
 		{
 			if(to == null)
 				throw new RequirementException("Destination account is null or invalid");
@@ -32,9 +32,9 @@ namespace Uccs.Net
 		public override void ReadConfirmed(BinaryReader r)
 		{
 			To			= r.ReadAccount();
-			STAmount	= r.Read<Money>();
-			EUAmount	= r.Read<Money>();
-			MRAmount	= r.Read<Money>();
+			STAmount	= r.Read<Unit>();
+			EUAmount	= r.Read<Unit>();
+			MRAmount	= r.Read<Unit>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter w)

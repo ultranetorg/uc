@@ -2,7 +2,7 @@
 {
 	public class Consil : IBinarySerializable
  	{
- 		public Money			PerByteSTFee;
+ 		public Unit			PerByteSTFee;
 		public AccountAddress[]	Analyzers;
 
  		public byte[]			Raw {
@@ -19,7 +19,7 @@
 
 		public void Read(BinaryReader reader)
 		{
-			PerByteSTFee	= reader.Read<Money>();
+			PerByteSTFee	= reader.Read<Unit>();
 			Analyzers		= reader.ReadArray<AccountAddress>();
 		}
 
@@ -58,8 +58,8 @@
 	public class Analysis : IBinarySerializable
 	{
 		public Urr					Release { get; set; }
-		public Money				STPayment { get; set; }
-		public Money				EUPayment { get; set; }
+		public Unit				STPayment { get; set; }
+		public Unit				EUPayment { get; set; }
 		public Ura					Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
 
@@ -84,8 +84,8 @@
 		{
 			Release		= reader.ReadVirtual<Urr>();
 			Consil		= reader.Read<Ura>();
-			STPayment	= reader.Read<Money>();
-			EUPayment	= reader.Read<Money>();
+			STPayment	= reader.Read<Unit>();
+			EUPayment	= reader.Read<Unit>();
 			Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																	  Result = (AnalysisResult)reader.ReadByte() });
 		}

@@ -45,14 +45,14 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
-		public Money										ConsensusExeunitFee;
+		public Unit										ConsensusExeunitFee;
 		public int											ConsensusTransactionsOverflowRound;
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Dictionary<AccountEntry, Money>				STRewards = [];
-		public Dictionary<AccountEntry, Money>				EURewards = [];
+		public Dictionary<AccountEntry, Unit>				STRewards = [];
+		public Dictionary<AccountEntry, Unit>				EURewards = [];
 		//public Dictionary<AccountEntry, Money>				MRRewards = [];
 		//public Money										Emission;
 		//public Money										RentPerBytePerDay;
@@ -72,7 +72,7 @@ namespace Uccs.Net
 		public Mcv											Mcv;
 		public McvZone										Zone => Mcv.Zone;
 
-		public abstract Money								AccountAllocationFee(Account account);
+		public abstract Unit								AccountAllocationFee(Account account);
 
 		public int RequiredVotes
 		{
@@ -470,11 +470,11 @@ namespace Uccs.Net
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
 
-				var members = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => AffectAccount(i.Account), i => Money.Zero);
+				var members = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => AffectAccount(i.Account), i => Unit.Zero);
 
-				Money distribute(Func<Round, Dictionary<AccountEntry, Money>> getroundrewards, Action<AccountEntry, Money> credit)
+				Unit distribute(Func<Round, Dictionary<AccountEntry, Unit>> getroundrewards, Action<AccountEntry, Unit> credit)
 				{
-					Money a = 0;
+					Unit a = 0;
 
 					foreach(var r in tail)
 					{
@@ -575,7 +575,7 @@ namespace Uccs.Net
 			Id									= reader.Read7BitEncodedInt();
 			Hash								= reader.ReadHash();
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExeunitFee					= reader.Read<Money>();
+			ConsensusExeunitFee					= reader.Read<Unit>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
 			//RentPerBytePerDay		= reader.Read<Money>();
@@ -604,7 +604,7 @@ namespace Uccs.Net
 		public virtual void ReadConfirmed(BinaryReader reader)
 		{
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExeunitFee					= reader.Read<Money>();
+			ConsensusExeunitFee					= reader.Read<Unit>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			ConsensusMemberLeavers				= reader.ReadArray<AccountAddress>();
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();

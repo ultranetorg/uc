@@ -12,7 +12,7 @@
 		{
 		}
 
-		public override Money AccountAllocationFee(Account account)
+		public override Unit AccountAllocationFee(Account account)
 		{
 			return RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever);
 		}

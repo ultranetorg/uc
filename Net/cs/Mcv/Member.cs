@@ -6,7 +6,7 @@ namespace Uccs.Net
 	public class Member
 	{
 		public AccountAddress	Account { get; set; }
-		public Money			Bail { get; set; }
+		public Unit			Bail { get; set; }
 		public IPAddress[]		BaseRdcIPs { get; set; } = [];
 		public int				CastingSince { get; set; }
 		public Peer         	Proxy;
@@ -27,7 +27,7 @@ namespace Uccs.Net
  		public virtual void ReadBaseState(BinaryReader reader)
  		{
 			Account			= reader.ReadAccount();
-			Bail			= reader.Read<Money>();
+			Bail			= reader.Read<Unit>();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
  			CastingSince	= reader.Read7BitEncodedInt();
 		}

@@ -11,8 +11,8 @@ namespace Uccs.Net.FUI
 		Dictionary<AccountAddress, Pen>		Pens = new Dictionary<AccountAddress, Pen>();
 		bool								Mode = false;
 
-		static List<Money[]>				stat;
-		Money								emission = 0;
+		static List<Unit[]>				stat;
+		Unit								emission = 0;
 		BigInteger							spent = 0;
 
 		public Mcv							Mcv;

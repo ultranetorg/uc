@@ -5,8 +5,8 @@ namespace Uccs.Net
 {
 	public struct Portion
 	{
-		public Money	Factor;
-		public Money	Amount;
+		public Unit	Factor;
+		public Unit	Amount;
 	}
 
 	public enum OperationClass

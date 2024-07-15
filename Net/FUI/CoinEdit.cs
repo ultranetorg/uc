@@ -14,11 +14,11 @@ namespace Uccs.Net.FUI
 			Text = "0.000000";
 		}
 
-		public Money Coins
+		public Unit Coins
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : Money.Parse(Text);
+				return string.IsNullOrWhiteSpace(Text) ? Unit.Zero : Unit.Parse(Text);
 			}
 			set
 			{
@@ -30,7 +30,7 @@ namespace Uccs.Net.FUI
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Money.Parse(Text).Attos;
+				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Unit.Parse(Text).Attos;
 			}
 		}
 

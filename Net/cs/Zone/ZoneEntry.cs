@@ -9,7 +9,7 @@ namespace Uccs.Net
 		public Guid			Key => Address;
 		
 		public Guid			Address { get; set; }
-		public Money		Balance { get; set; }
+		public Unit		Balance { get; set; }
 		public byte[]		IncomingBlockEmptyHash { get; set; }
 		public byte[]		IncomingBlockHash { get; set; }
 		public byte[]		OutgoingBlockEmptyHash { get; set; }
@@ -42,7 +42,7 @@ namespace Uccs.Net
 		public void Read(BinaryReader reader)
 		{
 			Address = reader.ReadGuid();
-			Balance = reader.Read<Money>();
+			Balance = reader.Read<Unit>();
 		}
 
 		public void WriteMain(BinaryWriter w)

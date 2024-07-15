@@ -18,7 +18,7 @@
 
 	public class McvSettings : NodeSettings
 	{
-		public Money					Bail { get; set; }
+		public Unit					Bail { get; set; }
 		public AccountAddress[]			Generators { get; set; } = [];
 		//public List<AccountAddress>	ProposedFundJoiners = new();
 		//public List<AccountAddress>	ProposedFundLeavers = new();

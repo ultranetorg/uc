@@ -22,7 +22,7 @@ namespace Uccs.Net
 				case short v :	writer.Write(v); return;
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
-				case Money v :	writer.Write(v); return;
+				case Unit v :	writer.Write(v); return;
 				case Guid v :	writer.Write(v); return;
 			}
 
@@ -196,9 +196,9 @@ namespace Uccs.Net
 			{
 				return reader.Read7BitEncodedInt64(); 
 			}
-			else if(typeof(Money) == type)
+			else if(typeof(Unit) == type)
 			{
-				var c = new Money(); 
+				var c = new Unit(); 
 				c.Read(reader);
 				return c;
 			}

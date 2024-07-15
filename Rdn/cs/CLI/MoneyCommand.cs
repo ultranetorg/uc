@@ -268,7 +268,7 @@ namespace Uccs.Rdn.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new UntTransfer(GetAccountAddress("to"), GetMoney("st", Money.Zero), GetMoney("eu", Money.Zero), GetMoney("mr", Money.Zero));
+													return new UntTransfer(GetAccountAddress("to"), GetMoney("st", Unit.Zero), GetMoney("eu", Unit.Zero), GetMoney("mr", Unit.Zero));
 												}
 							},
 
@@ -307,7 +307,7 @@ namespace Uccs.Rdn.CLI
 
 													Dump(	r.RentDomain,
 															["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
-															[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToString()))]);
+															[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Unit[], int, object>((j, i) => j[li].ToString()))]);
 
 													Report($"");
 

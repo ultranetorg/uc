@@ -120,7 +120,7 @@ namespace Uccs.Net
  		public Cryptography			Cryptography									= Cryptography.Normal;
 		public int					CommitLength									= 1000;
 		public int					ExternalVerificationRoundDurationLimit			= 1000;
-		public Money				BailMin											= 1000;
+		public Unit				BailMin											= 1000;
 		public bool					PoW												= false;
 		public int					MembersLimit									= 1000;
 		//public Money				ExeunitMinFee									= 0.001;
@@ -130,10 +130,10 @@ namespace Uccs.Net
 		public int					TransactionsOverflowFeeFactor					= 2;
 		public int					OperationsPerTransactionLimit					= 100;
 		public int					OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
-		public Money				STCommitReward									= 1000;
-		public Money				EUCommitReward									= 1000;
-		public Money				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
-		public Money				MRCommitReward									= 1;
+		public Unit				STCommitReward									= 1000;
+		public Unit				EUCommitReward									= 1000;
+		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
+		public Unit				MRCommitReward									= 1;
 
 		public AccountAddress		God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 		public AccountAddress		Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

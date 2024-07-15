@@ -21,7 +21,7 @@ namespace Uccs.Rdn
 		public override ushort					BasePort => 020;
  		
 		public bool								Auctions				= false;
-		public Money							DomainRankCheckEUFee	= 5;
+		public Unit							DomainRankCheckEUFee	= 5;
 
  		public static readonly RdnZone			Local = new RdnLocalZone();
  		public static readonly RdnZone			Test = new RdnTestZone();

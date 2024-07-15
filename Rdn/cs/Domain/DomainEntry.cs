@@ -111,7 +111,7 @@ namespace Uccs.Rdn
 					FirstBidTime	= reader.Read<Time>();
 					LastWinner		= reader.Read<EntityId>();
 					LastBidTime		= reader.Read<Time>();
-					LastBid			= reader.Read<Money>();
+					LastBid			= reader.Read<Unit>();
 				}
 
 				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();

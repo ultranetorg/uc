@@ -16,7 +16,7 @@ namespace Uccs.Net
 			if(	val is AccountAddress	||
 				val is Time)
 				return val.ToString();
-			if(val is Money c)		return c.ToString();
+			if(val is Unit c)		return c.ToString();
 
 			return base.Set(node, val);
 		}
@@ -27,7 +27,7 @@ namespace Uccs.Net
 
 			if(type == typeof(AccountAddress))		return AccountAddress.Parse(v);
 			if(type == typeof(Time))				return Time.Parse(v);
-			if(type == typeof(Money))				return Money.Parse(v);
+			if(type == typeof(Unit))				return Unit.Parse(v);
 
 			return base.Get(node, value, type);
 		}

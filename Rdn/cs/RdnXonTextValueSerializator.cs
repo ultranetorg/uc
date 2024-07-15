@@ -15,7 +15,7 @@
 				val is Ura
 				)
 				return val.ToString();
-			if(val is Money c)		return c.ToString();
+			if(val is Unit c)		return c.ToString();
 
 			return base.Set(node, val);
 		}

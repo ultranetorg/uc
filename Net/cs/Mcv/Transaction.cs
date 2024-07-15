@@ -31,10 +31,10 @@ namespace Uccs.Net
 		public byte[]					PoW;
 		public byte[]					Tag;
 		//public Money					STFee;
-		public Money					EUFee;
-		public Money					EUSpent;
-		public Money					STReward;
-		public Money					EUReward;
+		public Unit					EUFee;
+		public Unit					EUSpent;
+		public Unit					STReward;
+		public Unit					EUReward;
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;
@@ -144,7 +144,7 @@ namespace Uccs.Net
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			//STFee		= reader.Read<Money>();
-			EUFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Unit>();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
  													var o = Mcv.CreateOperation(reader.ReadByte());
@@ -181,7 +181,7 @@ namespace Uccs.Net
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
 			//STFee		= reader.Read<Money>();
-			EUFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Unit>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
@@ -220,7 +220,7 @@ namespace Uccs.Net
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
 			//STFee		= reader.Read<Money>();
-			EUFee		= reader.Read<Money>();
+			EUFee		= reader.Read<Unit>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {
