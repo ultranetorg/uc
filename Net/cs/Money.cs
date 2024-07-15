@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,6 +11,7 @@ namespace Uccs.Net
 	public struct Money : IComparable, IComparable<Money>, IEquatable<Money>, IBinarySerializable, ITextSerialisable
 	{
 		public static BigInteger			One = 1_000_000_000_000_000_000;
+		public const byte					Precision = 18;
 		public readonly static Money		Zero = new Money();
 		public readonly static Money		Min = new Money{Attos = 1};
 		public BigInteger					Attos;
@@ -34,14 +36,55 @@ namespace Uccs.Net
 		public static bool operator <=	(Money a, Money b)	=> a.Attos <= b.Attos;
 		public static bool operator >=	(Money a, Money b)	=> a.Attos >= b.Attos;
 
-		static Money()
+		public override string ToString()
 		{
+			//return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
+			//return ((double)Attos / (double)One).ToString();
+			var a = Attos.ToString().TrimStart('-');
+
+			string o;
+			
+			if(a.Length <= Precision)
+			{
+				o = Attos == 0 ? "0" : ("0." + a.ToString().PadLeft(Precision, '0').TrimEnd('0'));
+			}
+			else
+			{
+				o = a.TakeLast(Precision).All(i => i == '0') ? a.Substring(0, a.Length - Precision) : a.Insert(a.Length - Precision, ".").TrimEnd('0');
+			}
+
+			if(Attos.Sign == -1)
+				o = '-' + o;
+
+			return o;
 		}
 
 		public void Read(string text)
 		{
+			var t = text;
+			
+			if(t[0] == '-')
+				t = t.Substring(1);
+
+			var i = t.IndexOf('.');
+
+			if(i == -1)
+			{
+				Attos = BigInteger.Parse(t) * One;
+			} 
+			else
+			{
+				if(t.Length - i - 1 > Precision)
+					throw new FormatException();
+
+				Attos = BigInteger.Parse(t.Substring(0, i)) * One + BigInteger.Parse(t.Substring(i + 1).PadRight(Precision, '0'));
+			}
+
+			if(text[0] == '-')
+				Attos *= -1;
+
 			//Attos = Nethereum.Web3.Web3.Convert.ToWei(BigDecimal.Parse(text));
-			Attos = new BigInteger((double)One * double.Parse(text));
+			//Attos = new BigInteger((double)One * double.Parse(text));
 		}
 
 		Money(BigInteger a)
@@ -74,7 +117,7 @@ namespace Uccs.Net
 			return new Money(a);
 		}
 
-		public static Money ParseDecimal(string text)
+		public static Money Parse(string text)
 		{
 			var m = new Money();
 			m.Read(text);
@@ -95,17 +138,6 @@ namespace Uccs.Net
 		public static explicit operator decimal(Money c)
 		{
 			return (decimal)c.Attos/(decimal)One;
-		}
-
-		override public string ToString()
-		{
-			return ToDecimalString();
-		}
-		
-		public string ToDecimalString()
-		{
-			//return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
-			return ((double)Attos / (double)One).ToString();
 		}
 
 		public int CompareTo(object obj)

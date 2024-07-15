@@ -255,7 +255,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public void Execute(IEnumerable<Transaction> transactions)
+		public void Execute(IEnumerable<Transaction> transactions, bool trying = false)
 		{
 			if(Confirmed)
 				throw new IntegrityException();
@@ -289,9 +289,9 @@ namespace Uccs.Net
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
-				var a = AffectAccount(t.Signer);
+				var s = AffectAccount(t.Signer);
 
-				if(t.Nid != a.LastTransactionNid + 1)
+				if(t.Nid != s.LastTransactionNid + 1)
 				{
 					foreach(var o in t.Operations)
 						o.Error = Operation.NotSequential;
@@ -299,35 +299,44 @@ namespace Uccs.Net
 					goto start;
 				}
 
-				//Money f = 0;
-				Money st = 0;
-				Money eu = 0;
+				t.EUSpent = 0;
+				t.STReward = 0;
 
 				foreach(var o in t.Operations)
 				{
-					o.STSpent = 0;
-					o.EUSpent = 1;
-					o.STReward = 0;
-					o.EUReward = 0;
+					o.Signer = s;
+					t.EUSpent += ConsensusExeunitFee;
 
 					o.Execute(Mcv, this);
 
 					if(o.Error != null)
 						goto start;
 
-					#if ETHEREUM
+					#if IMMISION
 					if(o is not Immission)
 					{
 						f += o.ExeUnits * ConsensusExeunitFee;
 					}
 					#endif
 
-					st += o.STReward; 
-					eu += o.EUReward; 
+					//st += o.STReward; 
+					//eu += o.EUReward; 
 				
-					if(a.STBalance - st < 0 || t.EUFee < eu || a.EUBalance - eu < 0)
+					if(s.STBalance < 0)
 					{
-						o.Error = Operation.NotEnoughUNT;
+						o.Error = Operation.NotEnoughST;
+						goto start;
+					}
+				
+					if(s.EUBalance < 0 || t.EUSpent > t.EUFee || (!trying && s.EUBalance < t.EUFee))
+					{
+						o.Error = Operation.NotEnoughEU;
+						goto start;
+					}
+				
+					if(s.MRBalance < 0)
+					{
+						o.Error = Operation.NotEnoughMR;
 						goto start;
 					}
 				}
@@ -337,23 +346,23 @@ namespace Uccs.Net
 					var g = Mcv.Accounts.Find(t.Generator, Id);
 
 					if(STRewards.TryGetValue(g, out var x))
-						STRewards[g] = x + st;
+						STRewards[g] = x + t.STReward;
 					else
-						STRewards[g] = st;
+						STRewards[g] = t.STReward;
 
-					if(EURewards.TryGetValue(g, out var y))
-						EURewards[g] = y + t.EUFee;
+					if(EURewards.TryGetValue(g, out x))
+						EURewards[g] = x + t.EUFee + t.EUReward;
 					else
-						EURewards[g] = t.EUFee;
+						EURewards[g] = t.EUFee + t.EUReward;
 				}
 
-				a.STBalance -= st;
-				a.EUBalance -= t.EUFee;
-				a.LastTransactionNid++;
+				//s.STBalance -= st;
+				//s.EUBalance -= t.EUFee;
+				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
 				{
-					a.Transactions.Add(Id);
+					s.Transactions.Add(Id);
 				}
 			}
 
@@ -382,9 +391,9 @@ namespace Uccs.Net
 			///PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
-#if ETHEREUM
+			#if IMMISION
 			Emissions			= Emissions.ToList();
-#endif
+			#endif
 
 			CopyConfirmed();
 			
@@ -439,9 +448,9 @@ namespace Uccs.Net
 
 			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
 								.Select(i => i.MaxBy(i => i.Bail))
-								.OrderByDescending(i => Mcv.Accounts.Find(i.Signer, Id).AverageUptime)
+								.OrderByDescending(i => i.Signer.AverageUptime)
 								.ThenBy(i => i.Bail)
-								.ThenBy(i => i.Signer)
+								.ThenBy(i => i.Signer.Address)
 								.Take(Mcv.Zone.MembersLimit - Members.Count))
 			{
 

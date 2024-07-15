@@ -41,7 +41,7 @@ namespace Uccs.Rdn
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(RequireDomain(round, Signer, Resource.Domain, out var a) == false)
+			if(RequireSignerDomain(round, Resource.Domain, out var a) == false)
 				return;
 
 			var r = a.Resources?.FirstOrDefault(i => i.Address == Resource);
@@ -66,7 +66,7 @@ namespace Uccs.Rdn
 			{
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForSpacetime(round, r.Length, Mcv.Forever);
+				PayForSpacetime(r.Length, Mcv.Forever);
 			}
 			else
 				Allocate(round, a, r.Length);

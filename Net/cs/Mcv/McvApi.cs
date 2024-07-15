@@ -156,7 +156,7 @@ namespace Uccs.Net
 					f.Add(new ("Size",					$"{mcv.Mcv.Size}"));
 					f.Add(new ("Members",				$"{mcv.Mcv.LastConfirmedRound?.Members.Count}"));
 					//f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
-					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToDecimalString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
 					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(mcv.Mcv.LastNonEmptyRound != null ? mcv.Mcv.LastNonEmptyRound.Id : null)}"));
@@ -169,9 +169,9 @@ namespace Uccs.Net
 						{
 							var a = i.Key.ToString();
 							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
-							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.STBalance.ToDecimalString()}"));
-							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.EUBalance.ToDecimalString()}"));
-							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToDecimalString()}"));
+							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.STBalance.ToString()}"));
+							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.EUBalance.ToString()}"));
+							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToString()}"));
 						}
 					}
 				}

@@ -20,12 +20,8 @@ namespace Uccs.Net
 	public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		public string			Error;
-		public int				STSpent;
-		public int				EUSpent;
-		public Money			STReward;
-		public Money			EUReward;
 		public Transaction		Transaction;
-		public AccountAddress	Signer => Transaction.Signer;
+		public AccountEntry		Signer;
 		public abstract string	Description { get; }
 
 		public const string		Rejected = "Rejected";
@@ -39,7 +35,9 @@ namespace Uccs.Net
 		public const string		NoData = "NoData";
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
-		public const string		NotEnoughUNT = "Not enough UNT";
+		public const string		NotEnoughST = "Not enough spacetime";
+		public const string		NotEnoughEU = "Not enough execution units";
+		public const string		NotEnoughMR = "Not enough membership rights";
 		public const string		NoAnalyzers = "No analyzers";
 		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
@@ -92,9 +90,9 @@ namespace Uccs.Net
 		{
 			var e = round.AffectAccount(account);	
 
-			if(e.New && (Signer != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
+			if(e.New && (Signer.Address != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 			{
-				round.AffectAccount(Signer).STBalance -= round.AccountAllocationFee(e);
+				Signer.STBalance -= round.AccountAllocationFee(e);
 			}
 
 			return e;

@@ -47,15 +47,15 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			if(Signer != chain.Zone.God || round.Id > Mcv.LastGenesisRound)
+			if(Signer.Address != chain.Zone.God || round.Id > Mcv.LastGenesisRound)
 			{
-				var from = Affect(round, Signer);
-				from.STBalance -= STAmount;
-				from.EUBalance -= EUAmount;
-				from.MRBalance -= MRAmount;
+				Signer.STBalance -= STAmount;
+				Signer.EUBalance -= EUAmount;
+				Signer.MRBalance -= MRAmount;
 			}
 		
 			var to = Affect(round, To);
+
 			to.STBalance += STAmount;
 			to.EUBalance += EUAmount;
 			to.MRBalance += MRAmount;

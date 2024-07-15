@@ -9,11 +9,20 @@
 			Execute(mcv as RdnMcv, round as RdnRound);
 		}
 
-		public void PayForSpacetime(Round round, int length, Time time)
+		public void PayForSpacetime(int length, Time time)
 		{
 			var fee = SpacetimeFee(length, time);
 			
-			round.AffectAccount(Signer).STBalance -= fee;
+			Signer.STBalance	 -= fee;
+			Transaction.STReward += fee;
+		}
+
+		public void PayForName(string address, int years)
+		{
+			var fee = NameFee(years, address);
+			
+			Signer.STBalance	 -= fee;
+			Transaction.STReward += fee;
 		}
 
 		public static Money SpacetimeFee(int length, Time time)
@@ -34,7 +43,10 @@
 		{
 			if(domain.SpaceReserved < domain.SpaceUsed + toallocate)
 			{
-				PayForSpacetime(round, domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
+				var f = SpacetimeFee(domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
+
+				Signer.STBalance	 -= f;
+				Transaction.STReward += f;
 	
 				domain.SpaceReserved = 
 				domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);
@@ -43,14 +55,18 @@
 				domain.SpaceUsed += (short)toallocate;
 		}
 
-		public void Free(Domain domain, int toallocate)
+		public void Free(Domain domain, int tofree) /// WE DONT REFUND
 		{
-			domain.SpaceUsed -= (short)toallocate;
+			//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
+
+			domain.SpaceUsed -= (short)tofree;
+		
+			//Signer.STBalance += f;
+			//STReward -= f;
 		}
 
-		public bool RequireDomain(RdnRound round, AccountAddress signer, string name, out DomainEntry domain)
+		public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
 		{
-			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 			domain = round.Rdn.Domains.Find(name, round.Id);
 
 			if(domain == null)
@@ -65,7 +81,7 @@
 				return false;
 			}
 
-			if(signer != null && domain.Owner != s.Id)
+			if(domain.Owner != Signer.Id)
 			{
 				Error = NotOwner;
 				return false;
@@ -74,9 +90,8 @@
 			return true;
 		}
 
-		public bool RequireDomain(RdnRound round, AccountAddress signer, EntityId id, out DomainEntry domain)
+		public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
 		{
-			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 			domain = round.Rdn.Domains.Find(id, round.Id);
 
 			if(domain == null)
@@ -91,7 +106,7 @@
 				return false;
 			}
 
-			if(signer != null && domain.Owner != s.Id)
+			if(domain.Owner != Signer.Id)
 			{
 				Error = NotOwner;
 				return false;
@@ -100,11 +115,51 @@
 			return true;
 		}
 
-		public bool Require(RdnRound round, AccountAddress signer, ResourceId id, out DomainEntry domain, out Resource resource)
+		public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
+		{
+			domain = round.Rdn.Domains.Find(id, round.Id);
+
+			if(domain == null)
+			{
+				Error = NotFound;
+				return false;
+			}
+
+			if(Domain.IsExpired(domain, round.ConsensusTime))
+			{
+				Error = Expired;
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool RequireResource(RdnRound round, ResourceId id, out DomainEntry domain, out Resource resource)
 		{
 			resource = null;
 
-			if(RequireDomain(round, signer, id.DomainId, out domain) == false)
+			if(RequireDomain(round, id.DomainId, out domain) == false)
+			{
+				Error = NotFound;
+				return false; 
+			}
+
+			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
+			
+			if(resource == null)
+			{
+				Error = NotFound;
+				return false; 
+			}
+
+			return true; 
+		}
+
+		public bool RequireSignerResource(RdnRound round, ResourceId id, out DomainEntry domain, out Resource resource)
+		{
+			resource = null;
+
+			if(RequireSignerDomain(round, id.DomainId, out domain) == false)
 			{
 				Error = NotFound;
 				return false; 

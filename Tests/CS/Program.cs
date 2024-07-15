@@ -1,11 +1,16 @@
-﻿namespace Uccs.Tests
+﻿using Uccs.Net;
+
+namespace Uccs.Tests
 {
 
 	class Program
 	{
 		public static void Main(string[] args)
 		{
-			AccountKeyTests.Main();
+			MoneyTests.Main();
+			//AccountKeyTests.Main();
+
+
 
 			//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 

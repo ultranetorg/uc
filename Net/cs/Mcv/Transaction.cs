@@ -32,6 +32,9 @@ namespace Uccs.Net
 		public byte[]					Tag;
 		//public Money					STFee;
 		public Money					EUFee;
+		public Money					EUSpent;
+		public Money					STReward;
+		public Money					EUReward;
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;

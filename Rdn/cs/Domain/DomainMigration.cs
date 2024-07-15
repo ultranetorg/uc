@@ -85,25 +85,25 @@
 
 			if(RankCheck)
 			{
-				Affect(round, Signer).EUBalance -= (mcv.Zone as RdnZone).DomainRankCheckEUFee;
+				Signer.EUBalance	 -= (mcv.Zone as RdnZone).DomainRankCheckEUFee;
+				Transaction.EUReward -= (mcv.Zone as RdnZone).DomainRankCheckEUFee;
 			}
 		}
 
 		public void ConfirmedExecute(RdnRound round)
 		{
 			var a = round.AffectDomain(Name);
-			var s = round.Rdn.Accounts.Find(Signer, round.Id);
 
 			switch(Tld)
 			{
-				case "com" : a.ComOwner = s.Id; break;
-				case "org" : a.OrgOwner = s.Id; break;
-				case "net" : a.NetOwner = s.Id; break;
+				case "com" : a.ComOwner = Signer.Id; break;
+				case "org" : a.OrgOwner = Signer.Id; break;
+				case "net" : a.NetOwner = Signer.Id; break;
 			}
 
-			if((a.ComOwner == s.Id && a.OrgOwner == s.Id && a.NetOwner == s.Id) || RankApproved)
+			if((a.ComOwner == Signer.Id && a.OrgOwner == Signer.Id && a.NetOwner == Signer.Id) || RankApproved)
 			{
-				a.Owner = s.Id;
+				a.Owner = Signer.Id;
 			}
 		}
 	}

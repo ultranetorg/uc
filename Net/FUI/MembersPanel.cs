@@ -33,7 +33,7 @@ namespace Uccs.Net.FUI
 		
 					li.Tag = i;
 					li.SubItems.Add(i.CastingSince.ToString());
-					li.SubItems.Add(i.Bail.ToDecimalString());
+					li.SubItems.Add(i.Bail.ToString());
 					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 			}

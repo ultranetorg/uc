@@ -34,6 +34,8 @@ namespace Uccs.Tests
 			Assert.True(k == AccountAddress.Parse(k.ToString()));
 			Assert.True(Cryptography.Normal.Valid(s, h, k));
 			Assert.False(Cryptography.Normal.Valid(s, h, kk));
+						
+			Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  		}
 	}
 }

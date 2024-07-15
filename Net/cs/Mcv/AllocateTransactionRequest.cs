@@ -1,7 +1,4 @@
-﻿using System;
-using System.Numerics;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class AllocateTransactionRequest : McvCall<AllocateTransactionResponse>
 	{
@@ -11,7 +8,7 @@ namespace Uccs.Net
 		{
 			lock(Mcv.Lock)
 			{
-				RequireMember();
+				var m = RequireMemberFor(Transaction.Signer);
 
 				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
 				
@@ -19,21 +16,22 @@ namespace Uccs.Net
 				if(!Transaction.EmissionOnly && a == null)
 					throw new EntityException(EntityError.NotFound);
 #endif
-				Transaction.Nid = a?.LastTransactionNid + 1 ?? 0;
-				Transaction.EUFee = new Money(double.MaxValue/(double)Money.One); /// "very big"
+				Transaction.Nid		= a?.LastTransactionNid + 1 ?? 0;
+				Transaction.EUFee	= a?.EUBalance ?? 0;
 
-				Mcv.TryExecute(Transaction);
+				var r = Mcv.TryExecute(Transaction);
 				
-				var m = Mcv.NextVoteMembers.NearestBy(m => m.Account, Transaction.Signer).Account;
-
 				if(Transaction.Successful)
 				{
-					return new AllocateTransactionResponse {Generetor			= Mcv.Accounts.Find(m, Mcv.LastConfirmedRound.Id).Id,
+					var b = r.AffectedAccounts[Transaction.Signer];
+					
+					return new AllocateTransactionResponse {Generetor			= Mcv.Accounts.Find(m.Account, Mcv.LastConfirmedRound.Id).Id,
 															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
-															STCost				= Transaction.Operations.SumMoney(i => i.STSpent),
-															EUCostMinimum			= Transaction.Operations.SumMoney(i => i.EUSpent * Mcv.LastConfirmedRound.ConsensusExeunitFee),
+															STCost				= a.STBalance - b.STBalance,
+															EUCostMinimum		= Transaction.EUSpent,
+															//EUCostMinimum		= Transaction.Operations.SumMoney(i => i.EUSpent * Mcv.LastConfirmedRound.ConsensusExeunitFee),
 															};
 				}				
 				else

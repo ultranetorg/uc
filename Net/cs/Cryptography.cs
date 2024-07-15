@@ -55,11 +55,6 @@ namespace Uccs.Net
 			return System.Security.Cryptography.SHA256.HashData(data);
 		}
 
-// 		public byte[] Hash(byte[] data)
-// 		{
-// 			return Sha3Keccack.Current.CalculateHash(data);
-// 		}
-
 		public virtual bool Valid(byte[] signature, byte[] hash, AccountAddress a)
 		{
 			return AccountFrom(signature, hash) == a;
@@ -92,35 +87,11 @@ namespace Uccs.Net
 
 		public override byte[] Encrypt(AccountKey key, string password)
 		{
-			//if(string.IsNullOrWhiteSpace(password))
-			//	throw new RequirementException("Non-empty password required");
-			//
-			//var pkey = Hash(Encoding.UTF8.GetBytes(password));
-			//
-			//var e = new AesEngine();
-			//
-			//var b = new PaddedBufferedBlockCipher(e);
-			//b.Init(true, new KeyParameter(pkey));
-			//
-			//return b.DoFinal(key.GetPrivateKeyAsBytes());
-
 			return key.GetPrivateKeyAsBytes();
 		}
 
 		public override AccountKey Decrypt(byte[] input, string password)
 		{
-			////if(string.IsNullOrWhiteSpace(password))
-			////	throw new UserException("Non-empty password required");
-			//
-			//var key = Hash(Encoding.UTF8.GetBytes(password));
-			//
-			//var e = new AesEngine();
-			//
-			//var b = new PaddedBufferedBlockCipher(e);
-			//b.Init(false, new KeyParameter(key));
-			//
-			//return b.DoFinal(input);
-
 			return new AccountKey(input);
 		}
 
@@ -132,11 +103,6 @@ namespace Uccs.Net
 
 	public class NormalCryptography : Cryptography
 	{
-		static NormalCryptography()
-		{
-			AccountKey.SignRecoverable = true;
-		}
-
 		public override byte[] Sign(AccountKey k, byte[] h)
 		{
 			var sig = k.SignAndCalculateV(h);
@@ -149,9 +115,6 @@ namespace Uccs.Net
 			Array.Copy(r,	  0, o, 32 - r.Length,		r.Length);
 			Array.Copy(s,	  0, o, 32 + 32 - s.Length,	s.Length);
 			Array.Copy(sig.V, 0, o, 32 + 32,			1);
-	
-			//if(new Account(k) != AccountFrom(s, h))
-			//	throw new IntegrityException("Member-Signature inconsistency");						
 	
 			return o;
 		}
@@ -166,14 +129,6 @@ namespace Uccs.Net
 			var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
 										 new Org.BouncyCastle.Math.BigInteger(1, s))
 										 {V = [signature[64]]};
-
- 			//var sig = EthECDSASignatureFactory.FromComponents(r, s, signature[64]);
-// 	
-// 
-//             SecpECDSASignature.TryCreateFromDer(ss.ToDER(), out var signature);
-//             var recoverable = new SecpRecoverableECDSASignature(signature, sig[64]);
-//             ECPubKey.TryRecover(Context.Instance, recoverable, hash, out var pubKey);
-//             return new AccountAddress(new ECKey(pubKey.ToBytes(false), false));
 			
 			return new AccountAddress(AccountKey.RecoverFromSignature(sig, hash));
 		}
@@ -184,16 +139,6 @@ namespace Uccs.Net
 
 			return AccountAddress.Parse(j.GetProperty("address").GetString());
 		}
-
-		//public override byte[] Encrypt(AccountKey key, string password)
-		//{
-		//	return Encoding.UTF8.GetBytes(service.EncryptAndGenerateDefaultKeyStoreAsJson(password, key.GetPrivateKeyAsBytes(), key.GetPublicAddress()));
-		//}
-		//
-		//public override byte[] Decrypt(byte[] input, string password)
-		//{
-		//	return service.DecryptKeyStoreFromJson(password, Encoding.UTF8.GetString(input));
-		//}
 
 		public override byte[] Encrypt(AccountKey key, string password)
 		{
@@ -243,11 +188,11 @@ namespace Uccs.Net
 				ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 				byte[] decryptedBytes;
 
-				using(var msDecrypt = new System.IO.MemoryStream(data))
+				using(var msDecrypt = new MemoryStream(data))
 				{
 					using(var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 					{
-						using(var msPlain = new System.IO.MemoryStream())
+						using(var msPlain = new MemoryStream())
 						{
 							csDecrypt.CopyTo(msPlain);
 							decryptedBytes = msPlain.ToArray();

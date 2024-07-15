@@ -18,11 +18,11 @@ namespace Uccs.Net.FUI
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : Money.ParseDecimal(Text);
+				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : Money.Parse(Text);
 			}
 			set
 			{
-				Text = value.ToDecimalString();
+				Text = value.ToString();
 			}
 		}
 
@@ -30,7 +30,7 @@ namespace Uccs.Net.FUI
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Money.ParseDecimal(Text).Attos;
+				return string.IsNullOrWhiteSpace(Text) ? BigInteger.Zero : Money.Parse(Text).Attos;
 			}
 		}
 

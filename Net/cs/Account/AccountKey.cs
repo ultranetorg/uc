@@ -11,27 +11,6 @@ namespace Uccs.Net
 {
 	public class AccountKey : AccountAddress
 	{
-// 		[JsonIgnore]
-// 
-// 		public AccountKey(AccountKey k)
-// 		{
-// 			var initaddr = Sha3Keccack.Current.CalculateHash(k.GetPubKeyNoPrefix());
-// 			Bytes = new byte[initaddr.Length - 12];
-// 			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
-// 
-// 			if(Bytes.Length != Length)
-// 				throw new IntegrityException("Bytes.Length != Length");
-// 		}
-// 
-// 		public AccountKey(byte[] privatekay)
-// 		{
-// 			Key = new AccountKey(privatekay, true);
-// 
-// 			var initaddr = Sha3Keccack.Current.CalculateHash(Key.GetPubKeyNoPrefix());
-// 			Bytes = new byte[initaddr.Length - 12];
-// 			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
-// 		}
-// 	
         public override byte[]	Bytes { get => GetPublicAddressAsBytes(); protected set => throw new NotSupportedException(); }
 
 		public new static AccountKey Parse(string privatekay)
@@ -60,13 +39,6 @@ namespace Uccs.Net
 		}
 
         private static readonly SecureRandom SecureRandom = new SecureRandom();
-
-#if NETCOREAPP3_1 || NET5_0_OR_GREATER
-        /// <summary>
-        /// Enables / Disables whilst signing creating a recoverable id, as opposed to afterward. When enabled this uses NBitcoin.Secp256k1 as opposed to BouncyCastle to create the signature.
-        /// </summary>
-        public static bool SignRecoverable { get; set; } = false;
-#endif
         public static byte DEFAULT_PREFIX = 0x04;
         private readonly ECKey _ecKey;
         private byte[] _publicKey;

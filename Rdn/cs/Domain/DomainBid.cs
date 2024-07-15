@@ -42,41 +42,40 @@
 			writer.Write(Bid);
 		}
 
-		public void WriteBaseState(BinaryWriter writer)
-		{
-			writer.Write(Id);
-			writer.Write(Signer);
-			writer.WriteUtf8(Name);
-			writer.Write(Bid);
-		}
-
-		public void ReadBaseState(BinaryReader reader)
-		{
-			_Id	= reader.Read<OperationId>();
-
-			Transaction = new Transaction();
-			
-			Transaction.Signer	= reader.ReadAccount();
-			Name				= reader.ReadUtf8();
-			Bid					= reader.Read<Money>();
-		}
+// 		public void WriteBaseState(BinaryWriter writer)
+// 		{
+// 			writer.Write(Id);
+// 			writer.Write(Signer);
+// 			writer.WriteUtf8(Name);
+// 			writer.Write(Bid);
+// 		}
+// 
+// 		public void ReadBaseState(BinaryReader reader)
+// 		{
+// 			_Id	= reader.Read<OperationId>();
+// 
+// 			Transaction = new Transaction();
+// 			
+// 			Transaction.Signer	= reader.ReadAccount();
+// 			Name				= reader.ReadUtf8();
+// 			Bid					= reader.Read<Money>();
+// 		}
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var a = round.AffectDomain(Name);
-			var s = mcv.Accounts.Find(Signer, round.Id);
 
  			if(!Domain.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
-					Affect(round, Signer).STBalance -= Bid;
+					Signer.STBalance -= Bid;
 					
 					a.Owner				= null;
 					a.FirstBidTime		= round.ConsensusTime;
 					a.LastBid			= Bid;
 					a.LastBidTime		= round.ConsensusTime;
-					a.LastWinner		= s.Id;
+					a.LastWinner		= Signer.Id;
 						
 					return;
 				}
@@ -87,11 +86,11 @@
 						var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
 						
 						Affect(round, lw.Address).STBalance += a.LastBid;
-						Affect(round, Signer).STBalance -= Bid;
+						Signer.STBalance -= Bid;
 						
 						a.LastBid		= Bid;
 						a.LastBidTime	= round.ConsensusTime;
-						a.LastWinner	= s.Id;
+						a.LastWinner	= Signer.Id;
 				
 						return;
 					}
@@ -100,15 +99,15 @@
  			else
  			{
 				/// dont refund previous winner if any
-				STReward += a.LastBid;
+				Transaction.STReward += a.LastBid;
 
-				Affect(round, Signer).STBalance -= Bid;
+				Signer.STBalance -= Bid;
 				
 				a.Owner				= null;
 				a.FirstBidTime		= round.ConsensusTime;
 				a.LastBid			= Bid;
 				a.LastBidTime		= round.ConsensusTime;
-				a.LastWinner		= s.Id;
+				a.LastWinner		= Signer.Id;
 			
 				return;
 			}

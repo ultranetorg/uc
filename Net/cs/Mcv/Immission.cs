@@ -1,4 +1,4 @@
-﻿#if ETHEREUM
+﻿#if IMMISION
 
 using System.IO;
 using System.Numerics;

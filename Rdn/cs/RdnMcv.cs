@@ -90,7 +90,7 @@ namespace Uccs.Rdn
 
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
-				t.EUFee = 1;
+				//t.EUFee = 1;
 				//t.AddOperation(new Immission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
 				t.AddOperation(new UntTransfer(f0, 10_000_000, 1000_000, 1000));
 				t.Sign(god, Zone.Cryptography.ZeroHash);
@@ -126,7 +126,7 @@ namespace Uccs.Rdn
 				{
 					var t = new Transaction {Zone = Zone, Nid = 0, Expiration = i};
 					t.Generator = new([0, 0], -1);
-					t.EUFee = 1;
+					//t.EUFee = 1;
 					t.AddOperation(new RdnCandidacyDeclaration  {Bail = 0,
 																 BaseRdcIPs = [Zone.Father0IP],
 																 SeedHubRdcIPs = [Zone.Father0IP] });
@@ -200,7 +200,7 @@ namespace Uccs.Rdn
 		{
 			return new RdnMember{CastingSince	= round.Id + DeclareToGenerateDelay,
 								 Bail			= declaration.Bail,
-								 Account		= declaration.Signer, 
+								 Account		= declaration.Transaction.Signer, 
 								 BaseRdcIPs		= declaration.BaseRdcIPs, 
 								 SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
 		}

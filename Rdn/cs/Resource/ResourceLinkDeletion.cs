@@ -32,10 +32,10 @@
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(Require(round, Signer, Source, out var sd, out var sr) == false)
+			if(RequireSignerResource(round, Source, out var sd, out var sr) == false)
 				return;
 
-			if(Require(round, null, Destination, out var dd, out var dr) == false)
+			if(RequireResource(round, Destination, out var dd, out var dr) == false)
 				return;
 
 			var l = sr.Outbounds.First(i => i.Destination == dr.Id);

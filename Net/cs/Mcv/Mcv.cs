@@ -152,13 +152,15 @@ namespace Uccs.Net
 					if(r.Id > 0)
 					{
 						r.ConsensusTime = r.Confirmed ? r.ConsensusTime : r.Votes.First().Time;
-						r.ConsensusExeunitFee = 1;
 					}
 	
 					if(i <= 1+P + 1+P)
 					{
 						if(i == 0)
 							r.ConsensusFundJoiners = [Zone.Father0];
+						
+						if(i == 1+P + 1+P)
+							r.ConsensusExeunitFee = 1;
 
 						GenesisInitilize(r);
 
@@ -508,7 +510,7 @@ namespace Uccs.Net
 			r.Members				= p.Members;
 			r.Funds					= p.Funds;
 	
-			r.Execute([transaction]);
+			r.Execute([transaction], true);
 
 			return r;
 		}

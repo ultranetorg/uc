@@ -32,7 +32,7 @@
 			//if(Require(round, null, Resource, out var d, out var r) == false)
 			//	return;
 
-			if(Require(round, null, Analysis, out var ad, out var ar) == false)
+			if(RequireResource(round, Analysis, out var ad, out var ar) == false)
 				return;
 
 			var c = mcv.Domains.FindResource((ar.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
@@ -43,7 +43,7 @@
 				return;
 			}
 
-			var aix = Array.IndexOf(c.Analyzers, Signer);
+			var aix = Array.IndexOf(c.Analyzers, Signer.Address);
 
 			if(aix == -1)
 			{
@@ -65,8 +65,9 @@
  			if(j == -1)
 			{
 				an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
-				Affect(round, Signer).STBalance += an.STPayment/c.Analyzers.Length;
-				Affect(round, Signer).EUBalance += an.EUPayment/c.Analyzers.Length;
+
+				Signer.STBalance += an.STPayment/c.Analyzers.Length;
+				Signer.EUBalance += an.EUPayment/c.Analyzers.Length;
 			}
  			else
 				an.Results[j].Result = Result;

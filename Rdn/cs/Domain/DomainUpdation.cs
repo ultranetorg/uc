@@ -69,7 +69,6 @@
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var e = mcv.Domains.Find(Id, round.Id);
-			var s = mcv.Accounts.Find(Signer, round.Id);
 			
 			if(e == null)
 			{
@@ -81,7 +80,7 @@
 			{
 				if(Action == DomainAction.Renew)
 				{	
-					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, s))
+					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
 					{
 						Error = NotAvailable;
 						return;
@@ -90,14 +89,14 @@
 					e = round.AffectDomain(e.Address);
 					e.SpaceReserved	= e.SpaceUsed;
 					e.Expiration = e.Expiration + Time.FromYears(Years);
-							
-					Affect(round, Signer).STBalance -= NameFee(Years, e.Address);
-					PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
+					
+					PayForName(e.Address, Years);
+					PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 				}
 
 				if(Action == DomainAction.Transfer)
 				{
-					if(!Domain.IsOwner(e, s, round.ConsensusTime))
+					if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
 					{
 						Error = NotOwner;
 						return;
@@ -119,7 +118,7 @@
 
 				if(Action == DomainAction.Renew)
 				{
-					if(!Domain.CanRenew(e, s, round.ConsensusTime))
+					if(!Domain.CanRenew(e, Signer, round.ConsensusTime))
 					{
 						Error = NotAvailable;
 						return;
@@ -129,9 +128,9 @@
 
 					e.Expiration	= e.Expiration + Time.FromYears(Years);
 					e.SpaceReserved	= e.SpaceUsed;
-	
-					Affect(round, Signer).STBalance -= NameFee(Years, new string(' ', Domain.NameLengthMax));
-					PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
+
+					PayForName(new string(' ', Domain.NameLengthMax), Years);
+					PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 				}
 
 				if(Action == DomainAction.ChangePolicy)
@@ -142,7 +141,7 @@
 						return;
 					}
 
-					if(!Domain.IsOwner(p, s, round.ConsensusTime))
+					if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
 					{
 						Error = NotOwner;
 						return;
@@ -166,14 +165,14 @@
 						return;
 					}
 
-					if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, s, round.ConsensusTime))
+					if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
 					{
 						Error = NotAvailable;
 						return;
 					}
 
-					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, s, round.ConsensusTime) && 
-																		  !(Domain.IsOwner(p, s, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
+					if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
+																		  !(Domain.IsOwner(p, Signer, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
 					{
 						Error = NotAvailable;
 						return;

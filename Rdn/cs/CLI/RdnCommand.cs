@@ -162,7 +162,7 @@ namespace Uccs.Rdn.CLI
 			var p = One(paramenter);
 
 			if(p != null)
-				return Money.ParseDecimal(p.Get<string>());
+				return Money.Parse(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -172,7 +172,7 @@ namespace Uccs.Rdn.CLI
 			var p = One(paramenter);
 
 			if(p != null)
-				return Money.ParseDecimal(p.Get<string>());
+				return Money.Parse(p.Get<string>());
 			else
 				return def;
 		}

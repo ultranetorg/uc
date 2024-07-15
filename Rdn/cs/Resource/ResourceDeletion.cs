@@ -23,7 +23,7 @@ namespace Uccs.Rdn
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(Require(round, Signer, Id, out var a, out var r) == false)
+			if(RequireSignerResource(round, Id, out var a, out var r) == false)
 				return;
 
 			if(r.Flags.HasFlag(ResourceFlags.Sealed))

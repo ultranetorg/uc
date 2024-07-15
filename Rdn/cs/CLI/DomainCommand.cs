@@ -35,7 +35,7 @@
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new DomainBid(First, Money.ParseDecimal(GetString("amount")));
+													return new DomainBid(First, Money.Parse(GetString("amount")));
 												}
 							},
 

@@ -29,14 +29,14 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(round.Members.Any(i => i.Account == Signer))
+			if(round.Members.Any(i => i.Account == Signer.Address))
 			{
 				Error = "Changing candidacy declaration is not allowed while being a member";
 				return;
 			}
 
 			
-			Affect(round, Signer).MRBalance -= Bail;
+			Signer.MRBalance -= Bail;
 
 			//var e = Affect(round, Signer);
 

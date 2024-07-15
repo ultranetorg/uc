@@ -51,11 +51,10 @@
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
 			var e = mcv.Domains.Find(Address, round.Id);
-			var s = mcv.Accounts.Find(Signer, round.Id);
 
 			if(Domain.IsRoot(Address))
 			{
-				if(!Domain.CanRegister(Address, e, round.ConsensusTime, s))
+				if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
 				{
 					Error = NotAvailable;
 					return;
@@ -64,18 +63,18 @@
 				e = round.AffectDomain(Address);
 						
 				if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-					STReward += e.LastBid;
+					Transaction.STReward += e.LastBid;
 								
 				e.SpaceReserved	= e.SpaceUsed;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-				e.Owner			= s.Id;
+				e.Owner			= Signer.Id;
 				e.LastWinner	= null;
 				e.LastBid		= 0;
 				e.LastBidTime	= Time.Empty;
 				e.FirstBidTime	= Time.Empty;
 							
-				Affect(round, Signer).STBalance -= NameFee(Years, Address);
-				PayForSpacetime(round, e.SpaceUsed, Time.FromYears(Years));
+				PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
+				PayForName(Address, Years);
 			}
 			else
 			{
@@ -87,7 +86,7 @@
 					return;
 				}
 
-				if(!Domain.IsOwner(p, s, round.ConsensusTime))
+				if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
 				{
 					Error = NotOwner;
 					return;
@@ -105,7 +104,7 @@
 				e.ParentPolicy	= Policy;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
-				Affect(round, Signer).STBalance -= NameFee(Years, new string(' ', Domain.NameLengthMax));
+				PayForName(new string(' ', Domain.NameLengthMax), Years);
 			}
 		}
 	}

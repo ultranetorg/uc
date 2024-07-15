@@ -59,16 +59,16 @@ namespace Uccs.Rdn
 		{
 			var rs = new HashSet<int>();
 
-			if(Require(round, Signer, Resource, out var a, out var x) == false)
+			if(RequireSignerResource(round, Resource, out var a, out var x) == false)
 				return;
 
 			a = round.AffectDomain(a.Id);
 			
-			EUSpent = 0; /// the first is alredy paid
+			Transaction.EUSpent -= round.ConsensusExeunitFee; /// the first is alredy paid
 
 			void execute(Ura resource)
 			{
-				EUSpent++;
+				Transaction.EUSpent += round.ConsensusExeunitFee;
 
 				var r = a.AffectResource(resource.Resource);
 	
@@ -119,7 +119,7 @@ namespace Uccs.Rdn
 
 					r.Flags	|= ResourceFlags.Sealed;
 
-					PayForSpacetime(round, r.Length, Mcv.Forever);
+					Signer.STBalance -= SpacetimeFee(r.Length, Mcv.Forever);
 					Free(a, r.Length);
 				}
 

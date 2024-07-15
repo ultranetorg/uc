@@ -300,26 +300,26 @@ namespace Uccs.Rdn.CLI
 													var r = Api<CostApc.Return>(c);
 
 													//Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
-													Report($"Account One-time Bye-Year Fee : {r.RentAccount.ToDecimalString()}");
+													Report($"Account One-time Bye-Year Fee : {r.RentAccount.ToString()}");
 													//Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
 
 													Report($"");
 
 													Dump(	r.RentDomain,
 															["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
-															[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToDecimalString()))]);
+															[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToString()))]);
 
 													Report($"");
 
 													Dump(	r.RentResource.Append(r.RentResourceForever),
 															["Resource Rent>", "Cost>"],
-															[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToDecimalString()]);
+															[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
 
 													Report($"");
 
 													Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
 															["Resource Data Per Byte Rent>", "Cost>"],
-															[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToDecimalString()]);
+															[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
 
 													return r;
 												}

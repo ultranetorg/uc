@@ -76,6 +76,18 @@ namespace Uccs.Net
 			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Account))) 
 				throw new NodeException(NodeError.NotMember);
 		}
+
+		protected Member RequireMemberFor(AccountAddress signer)
+		{
+			RequireBase();
+
+			var m = Mcv.NextVoteMembers.NearestBy(m => m.Account, signer);
+
+			if(!Mcv.Settings.Generators.Contains(m.Account)) 
+				throw new NodeException(NodeError.NotMember);
+
+			return m;
+		}
 	}
 
 	public abstract class PeerRequest : Packet
