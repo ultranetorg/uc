@@ -2,11 +2,11 @@
 
 namespace Uccs.Rdn.CLI
 {
-	public class MoneyCommand : RdnCommand
+	public class EconomyCommand : RdnCommand
 	{
-		public const string Keyword = "money";
+		public const string Keyword = "economy";
 
-		public MoneyCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
+		public EconomyCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
 
 			var fromA =	new Help.Argument("from (A)", "Using wallet file")
@@ -249,26 +249,28 @@ namespace Uccs.Rdn.CLI
 								Help = new Help
 								{ 
 									Title = "TRANSFER",
-									Description = "Send UNT tokens from one account to another.",
-									Syntax = "money t|transfer to=UAA amount=UNT by=UAA",
+									Description = "Send  from one account to another.",
+									Syntax = $"{Keyword} t|transfer to=UAA st=UNT|eu=UNT|mr=UNT by=UAA",
 
 									Arguments =
 									[
 										new ("to", "Account public address that funds are credited to"),
-										new ("amount", "Amount of UNT to be transferred"),
+										new ("st", "Amount of SpaceTime to be transferred"),
+										new ("eu", "Amount of ExecutionUnits to be transferred"),
+										new ("mr", "Amount of MembershipRights to be transferred"),
 										new ("by", "Account public address funds are debited from")
 									],
 
 									Examples =
 									[
-										new (null, "money transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca amount=1.000 by=0x0000fffb3f90771533b1739480987cee9f08d754")
+										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca eu=1.5 mr=2 by=0x0000fffb3f90771533b1739480987cee9f08d754")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new UntTransfer(GetAccountAddress("to"), GetMoney("st", Unit.Zero), GetMoney("eu", Unit.Zero), GetMoney("mr", Unit.Zero));
+													return new UnitTransfer(GetAccountAddress("to"), GetMoney("st", Unit.Zero), GetMoney("eu", Unit.Zero), GetMoney("mr", Unit.Zero));
 												}
 							},
 
@@ -280,13 +282,13 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "COST",
 									Description = "Gets information about current cost of various ULTRANET resources.",
-									Syntax = "money c|cost",
+									Syntax = $"{Keyword} c|cost",
 
 									Arguments = [],
 
 									Examples =
 									[
-										new (null, "money cost")
+										new (null, $"{Keyword} cost")
 									]
 								},
 

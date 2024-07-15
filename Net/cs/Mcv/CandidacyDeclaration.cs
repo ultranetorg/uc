@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public abstract class CandidacyDeclaration : Operation
 	{
-		public Unit			Bail;
+		public Unit				Bail;
 		public IPAddress[]		BaseRdcIPs;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	IsValid(Mcv mcv) => Bail >= Transaction.Zone.BailMin;
@@ -34,8 +34,7 @@ namespace Uccs.Net
 				Error = "Changing candidacy declaration is not allowed while being a member";
 				return;
 			}
-
-			
+						
 			Signer.MRBalance -= Bail;
 
 			//var e = Affect(round, Signer);

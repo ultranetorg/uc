@@ -14,7 +14,7 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Immission,
-		UntTransfer
+		UnitTransfer
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable

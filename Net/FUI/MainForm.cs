@@ -62,6 +62,8 @@ namespace Uccs.Net.FUI
 
 		void LoadMcv(McvNode node)
 		{
+			Dashboard.Monitor.Mcv = node.Mcv;
+
 			var root = new TreeNode(node.GetType().Name);
 			Navigator.Nodes.Add(root);
 

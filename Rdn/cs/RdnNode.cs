@@ -21,7 +21,7 @@ namespace Uccs.Rdn
 		public override ushort					BasePort => 020;
  		
 		public bool								Auctions				= false;
-		public Unit							DomainRankCheckEUFee	= 5;
+		public Unit								DomainRankCheckEUFee	= 5;
 
  		public static readonly RdnZone			Local = new RdnLocalZone();
  		public static readonly RdnZone			Test = new RdnTestZone();
@@ -55,7 +55,7 @@ namespace Uccs.Rdn
 			PoW				= false;
 			Auctions		= true;
 			CommitLength	= 100;
-			BailMin			= 0.000_000_001;
+			BailMin			= 1;
 
 			Initials		= Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
 		}

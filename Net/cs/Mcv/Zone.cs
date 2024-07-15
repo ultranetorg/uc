@@ -63,6 +63,10 @@ namespace Uccs.Net
 																	ZoneScope.Developer9 => 29000,
 																	ZoneScope.PublicTest		 => 30000,
 																	_ => throw new IntegrityException()};
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 
 	public abstract class Interzone : Zone
@@ -116,28 +120,28 @@ namespace Uccs.Net
 
 	public abstract class McvZone : Zone
 	{
-		public string				Genesis;	
- 		public Cryptography			Cryptography									= Cryptography.Normal;
-		public int					CommitLength									= 1000;
-		public int					ExternalVerificationRoundDurationLimit			= 1000;
+		public string			Genesis;	
+ 		public Cryptography		Cryptography									= Cryptography.Normal;
+		public int				CommitLength									= 1000;
+		public int				ExternalVerificationRoundDurationLimit			= 1000;
 		public Unit				BailMin											= 1000;
-		public bool					PoW												= false;
-		public int					MembersLimit									= 1000;
-		//public Money				ExeunitMinFee									= 0.001;
-		//public long				TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
-		public int					TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
-		public int					TransactionsPerVoteAllowableOverflowMultiplier	= 10;
-		public int					TransactionsOverflowFeeFactor					= 2;
-		public int					OperationsPerTransactionLimit					= 100;
-		public int					OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
+		public bool				PoW												= false;
+		public int				MembersLimit									= 1000;
+		//public Money			ExeunitMinFee									= 0.001;
+		//public long			TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
+		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
+		public int				TransactionsPerVoteAllowableOverflowMultiplier	= 10;
+		public int				TransactionsOverflowFeeFactor					= 2;
+		public int				OperationsPerTransactionLimit					= 100;
+		public int				OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
 		public Unit				STCommitReward									= 1000;
 		public Unit				EUCommitReward									= 1000;
 		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
 		public Unit				MRCommitReward									= 1;
 
-		public AccountAddress		God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
-		public AccountAddress		Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
-		public IPAddress			Father0IP;
-		public ZoneCreation			Creation;
+		public AccountAddress	God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
+		public AccountAddress	Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
+		public IPAddress		Father0IP;
+		public ZoneCreation		Creation;
 	}
 }

@@ -7,7 +7,7 @@ namespace Uccs.Rdn.CLI
 	{
 		public string			ExeDirectory;
 		public RdnZone			Zone;
-		public RdnNode				Node;
+		public RdnNode			Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 		public NodeSettings		Settings;
@@ -92,7 +92,7 @@ namespace Uccs.Rdn.CLI
 				case NodeCommand.Keyword:		c = new NodeCommand(this, args, f); break;
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, f); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args, f); break;
-				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args, f); break;
+				case EconomyCommand.Keyword:		c = new EconomyCommand(this, args, f); break;
 				case NexusCommand.Keyword:		c = new NexusCommand(this, args, f); break;
 				case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
 				case PackageCommand.Keyword:	c = new PackageCommand(this, args, f); break;

@@ -545,7 +545,7 @@ namespace Uccs.Net
 
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(m == null && a != null && a.MRBalance > Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
+					if(m == null && a != null && a.MRBalance >= Mcv.Settings.Bail && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
 					{
 						var t = new Transaction();
 						t.Flow = Flow;
