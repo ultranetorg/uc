@@ -11,13 +11,13 @@
 		public LocalResource	Resource;
 		public LocalRelease		Release => Resource.Last?.Interpretation is Urr a ? Hub.Node.ResourceHub.Find(a) : null;
 		public PackageHub		Hub;
-		Manifest				_Manifest;
+		PackageManifest				_Manifest;
 		public object			Activity;
 
 		//public HistoryRelease	HistoryRelease => History.Releases.First(i => i.Hash.SequenceEqual(Address.Hash));
 		//public History			History => Hub.Sun.ResourceHub.Find(Address).LastAs<History>();
 
-		public Manifest	Manifest
+		public PackageManifest	Manifest
 		{
 			get
 			{
@@ -25,7 +25,7 @@
 				{
 					if(Release.IsReady(ManifestFile))
 					{
-						_Manifest = new Manifest{};
+						_Manifest = new PackageManifest{};
 						
 						lock(Hub.Node.ResourceHub.Lock)
 						{
@@ -47,7 +47,7 @@
 			Resource = resource;
 		}
 
-		public LocalPackage(PackageHub hub, LocalResource resource, Manifest manifest)
+		public LocalPackage(PackageHub hub, LocalResource resource, PackageManifest manifest)
 		{
 			if(resource == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);

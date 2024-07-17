@@ -39,7 +39,7 @@
 
 								Execute = () =>	{
 													Ura p = null;
-													Manifest m = null;
+													PackageManifest m = null;
 
 													try
 													{

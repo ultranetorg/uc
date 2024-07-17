@@ -249,7 +249,7 @@ namespace Uccs.Rdn
 			Build(stream, incs, rems, workflow);
 		}
 
-		public void DetermineDelta(Ura package, Manifest manifest, out bool canincrement, out List<Dependency> dependencies)
+		public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
 			lock(Node.ResourceHub.Lock)
 			{
@@ -319,8 +319,8 @@ namespace Uccs.Rdn
 				BuildIncremental(istream, resource, previous, files, workflow);
 			}
 			
-			var m = File.Exists(dependenciespath) ? Manifest.LoadCompleteDependencies(dependenciespath)
-												  : new Manifest{CompleteDependencies = new Dependency[0]};
+			var m = File.Exists(dependenciespath) ? PackageManifest.LoadCompleteDependencies(dependenciespath)
+												  : new PackageManifest{CompleteDependencies = new Dependency[0]};
 
 			///Add(release, m);
 			
@@ -331,7 +331,7 @@ namespace Uccs.Rdn
 
 				if(previous != null) /// a single parent supported only
 				{
-					var pm = new Manifest();
+					var pm = new PackageManifest();
 					pm.Read(new BinaryReader(new MemoryStream(Find(previous).Release.Find(LocalPackage.ManifestFile).Read())));
 				
 					var d = new ParentPackage {	Release				= previous,
@@ -367,7 +367,7 @@ namespace Uccs.Rdn
 		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
 			var r = Node.ResourceHub.Find(resource);
-			var m = new Manifest();
+			var m = new PackageManifest();
 		
 			if(r != null)
 			{

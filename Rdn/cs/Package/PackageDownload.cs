@@ -39,7 +39,7 @@
 		public bool								Downloaded;
 		public List<PackageDownload>			Dependencies = new();
 		public Task								Task;
-		public Harvester						SeedCollector;
+		public SeedFinder						SeedCollector;
 
 		public bool								Succeeded => Downloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
@@ -109,7 +109,7 @@
 													break;
 											};
 	
-											SeedCollector = new Harvester(node, package.Release.Address, workflow);
+											SeedCollector = new SeedFinder(node, package.Release.Address, workflow);
 	
 											node.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
 	

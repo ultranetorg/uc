@@ -55,7 +55,7 @@ namespace Uccs.Rdn
 
 		public class Piece
 		{
-			public Harvester.Seed		Seed;
+			public SeedFinder.Seed		Seed;
 			public Task					Task;
 			public int					I = -1;
 			public long					Length => I * Download.File.PieceLength + Download.File.PieceLength > Download.Length ? Download.Length % Download.File.PieceLength : Download.File.PieceLength;
@@ -69,7 +69,7 @@ namespace Uccs.Rdn
 				I = piece;
 			}
 
-			public Piece(FileDownload download, Harvester.Seed peer, int piece)
+			public Piece(FileDownload download, SeedFinder.Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
@@ -105,20 +105,20 @@ namespace Uccs.Rdn
 		public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 
 		public Task									Task;
-		public Harvester							Harvester;
+		public SeedFinder							Harvester;
 		public List<Piece>							CurrentPieces = new();
-		public Dictionary<Harvester.Seed, int>		Seeds = new();
+		public Dictionary<SeedFinder.Seed, int>		Seeds = new();
 		public RdnNode									Rdn;
 		Flow										Flow;
 		public PieceDelegate						PieceSucceeded;
 
-		public FileDownload(RdnNode sun, LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester seedcollector, Flow flow)
+		public FileDownload(RdnNode sun, LocalRelease release, string path, string localpath, IIntegrity integrity, SeedFinder seedcollector, Flow flow)
 		{
 			Rdn				= sun;
 			Release			= release;
 			File			= release.Find(path) ?? release.AddEmpty(path, localpath);
 			Flow			= flow;
-			Harvester		= seedcollector ?? new Harvester(sun, release.Address, flow);
+			Harvester		= seedcollector ?? new SeedFinder(sun, release.Address, flow);
 
 			if(File.Status == LocalFileStatus.Completed)
 			{
@@ -151,7 +151,7 @@ namespace Uccs.Rdn
 
 											if(File.Status != LocalFileStatus.Inited || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
-												Harvester.Seed[] seeds;
+												SeedFinder.Seed[] seeds;
 	
 												lock(Harvester.Lock)
 													seeds = Harvester.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
@@ -331,14 +331,14 @@ namespace Uccs.Rdn
 		public int					TotalCount;
 		public List<FileDownload>	CurrentDownloads = new();
 		public Task					Task;
-		public Harvester			Harvester;
+		public SeedFinder			Harvester;
 
 		public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 		{
 			Release = release;
 			LocalPath = localpath;
 			Release.Activity = this;
-			Harvester = new Harvester(sun, release.Address, workflow);
+			Harvester = new SeedFinder(sun, release.Address, workflow);
 
 			void run()
 			{
@@ -464,7 +464,7 @@ namespace Uccs.Rdn
 		{
 		}
 
-		public ReleaseDownloadProgress(Harvester seedCollector)
+		public ReleaseDownloadProgress(SeedFinder seedCollector)
 		{
 			Hubs	= seedCollector.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
 			Seeds	= seedCollector.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();

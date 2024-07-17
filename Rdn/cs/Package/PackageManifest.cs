@@ -17,7 +17,7 @@ namespace Uccs.Rdn
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
-		public Ura	Package { get; set; }
+		public Ura				Package { get; set; }
 		public DependencyType	Type { get; set; }
 		public DependencyFlag	Flags { get; set; }
 
@@ -99,7 +99,7 @@ namespace Uccs.Rdn
 
 	public class ParentPackage : IBinarySerializable
 	{
-		public Ura	Release { get; set; }
+		public Ura				Release { get; set; }
 		public Dependency[]		AddedDependencies { get; set; }
 		public Dependency[]		RemovedDependencies { get; set; }
 
@@ -118,15 +118,15 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class Manifest : IBinarySerializable
+	public class PackageManifest : IBinarySerializable
 	{
-		public byte[]					CompleteHash { get; set; }
-		public Dependency[]				CompleteDependencies { get; set; }
-		public byte[]					IncrementalHash { get; set; }
-		public ParentPackage[]			Parents { get; set; }
-		public Ura[]		History { get; set; }
+		public byte[]			CompleteHash { get; set; }
+		public Dependency[]		CompleteDependencies { get; set; }
+		public byte[]			IncrementalHash { get; set; }
+		public ParentPackage[]	Parents { get; set; }
+		public Ura[]			History { get; set; }
 
-		public const string				Extension = "manifest";
+		public const string		Extension = "manifest";
 
 		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
@@ -144,15 +144,15 @@ namespace Uccs.Rdn
  			}
  		}
 
-		public Manifest()
+		public PackageManifest()
 		{
 		}
 
-		public static Manifest LoadCompleteDependencies(string filepath)
+		public static PackageManifest LoadCompleteDependencies(string filepath)
 		{
 			var d = new XonDocument(File.ReadAllText(filepath));
 
-			var m = new Manifest();
+			var m = new PackageManifest();
 			m.CompleteDependencies = d.One("Complete/Dependencies").Nodes.Select(i => Dependency.FromXon(i)).ToArray();
 
 			return m;

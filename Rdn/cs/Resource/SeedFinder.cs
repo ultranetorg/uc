@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn
 {
-	public class Harvester
+	public class SeedFinder
 	{
 		public class Seed
 		{
@@ -24,28 +24,28 @@ namespace Uccs.Rdn
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			Harvester					Collector;
+			SeedFinder					Finder;
 			Urr							Address;
 
-			public Hub(Harvester collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(SeedFinder collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
-				Collector = collector;
+				Finder = collector;
 				Address = hash;
 				Member = member;
 				IPs = ips.ToArray();
 
 				Task.Run(() =>	{
-									while(Collector.Flow.Active)
+									while(Finder.Flow.Active)
 									{
 										try
 										{
-											var lr = Collector.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
+											var lr = Finder.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Finder.Flow);
 	
-											lock(Collector.Lock)
+											lock(Finder.Lock)
 											{
-												var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
+												var seeds = lr.Seeders.Where(i => !Finder.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 	
-												Collector.Seeds.AddRange(seeds);
+												Finder.Seeds.AddRange(seeds);
 											}
 										}
 										catch(Exception ex) when (ex is NodeException || ex is EntityException)
@@ -55,10 +55,10 @@ namespace Uccs.Rdn
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
+										WaitHandle.WaitAny([Finder.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
 									}
 								}, 
-								Collector.Flow.Cancellation);
+								Finder.Flow.Cancellation);
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace Uccs.Rdn
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		RdnMember[]					Members;
 
-		public Harvester(RdnNode sun, Urr address, Flow flow)
+		public SeedFinder(RdnNode sun, Urr address, Flow flow)
 		{
 			Node = sun;
 			Flow = flow.CreateNested($"SeedCollector {address}");

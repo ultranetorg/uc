@@ -254,7 +254,7 @@ namespace Uccs.Rdn
 			return r;
 		}
 
-		public LocalFile GetFile(LocalRelease release, string file, string localpath, IIntegrity integrity, Harvester harvester, Flow workflow)
+		public LocalFile GetFile(LocalRelease release, string file, string localpath, IIntegrity integrity, SeedFinder harvester, Flow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -413,7 +413,7 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string path, string localpath, IIntegrity integrity, Harvester collector, Flow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string path, string localpath, IIntegrity integrity, SeedFinder collector, Flow workflow)
 		{
 			var f = release.Files.Find(i => i.Path == path);
 			

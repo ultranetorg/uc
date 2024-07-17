@@ -126,6 +126,6 @@ namespace Uccs.Rdn
 	{
 		public bool				Ready { get; set; }
 		public Availability		Availability { get; set; }
-		public Manifest			Manifest { get; set; }
+		public PackageManifest			Manifest { get; set; }
 	}
 }

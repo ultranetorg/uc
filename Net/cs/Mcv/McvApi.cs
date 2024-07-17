@@ -155,13 +155,14 @@ namespace Uccs.Net
 					f.Add(new ("Synchronization",		$"{mcv.Synchronization}"));
 					f.Add(new ("Size",					$"{mcv.Mcv.Size}"));
 					f.Add(new ("Members",				$"{mcv.Mcv.LastConfirmedRound?.Members.Count}"));
-					//f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
-					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToString()}"));
-					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
-					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));
-					f.Add(new ("Last Non-Empty Round",	$"{(mcv.Mcv.LastNonEmptyRound != null ? mcv.Mcv.LastNonEmptyRound.Id : null)}"));
-					f.Add(new ("Last Payload Round",	$"{(mcv.Mcv.LastPayloadRound != null ? mcv.Mcv.LastPayloadRound.Id : null)}"));
 					f.Add(new ("Base Hash",				mcv.Mcv.BaseHash.ToHex()));
+					//f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
+					f.Add(new ("Last Confirmed Round",	$"{mcv.Mcv.LastConfirmedRound?.Id}"));
+					f.Add(new ("Last Non-Empty Round",	$"{mcv.Mcv.LastNonEmptyRound?.Id}"));
+					f.Add(new ("Last Payload Round",	$"{mcv.Mcv.LastPayloadRound?.Id}"));
+					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToString()}"));
+					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));
+					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
 
 					if(mcv.Synchronization == Synchronization.Synchronized)
 					{
