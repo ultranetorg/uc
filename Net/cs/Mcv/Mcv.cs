@@ -319,10 +319,9 @@ namespace Uccs.Net
 				}
 				else if(ConsensusFailed(r))
 				{
+					r.Parent.Hash = null;
 					r.FirstArrivalTime = DateTime.MaxValue;
 					r.Try++;
-
-					r.Parent.Hash = null;
 
 					ConsensusConcluded(r, false);
 				}
