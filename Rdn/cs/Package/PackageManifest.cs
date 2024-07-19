@@ -120,13 +120,15 @@ namespace Uccs.Rdn
 
 	public class PackageManifest : IBinarySerializable
 	{
-		public byte[]			CompleteHash { get; set; }
-		public Dependency[]		CompleteDependencies { get; set; }
-		public byte[]			IncrementalHash { get; set; }
-		public ParentPackage[]	Parents { get; set; }
-		public Ura[]			History { get; set; }
+		public byte[]					CompleteHash { get; set; }
+		public Dependency[]				CompleteDependencies { get; set; }
+		public byte[]					IncrementalHash { get; set; }
+		public ParentPackage[]			Parents { get; set; }
+		public Ura[]					History { get; set; }
 
-		public const string		Extension = "manifest";
+		public string					Startup { get; set; }
+
+		public const string				Extension = "manifest";
 
 		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);

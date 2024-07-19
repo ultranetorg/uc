@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 namespace Uccs.Net
 {
@@ -67,6 +68,32 @@ namespace Uccs.Net
 		{
 			return Name;
 		}
+
+		static Zone()
+		{
+			ITypeCode.Contructors[typeof(PeerRequest)] = [];
+			ITypeCode.Contructors[typeof(PeerResponse)] = [];
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+			{	
+				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+				{
+					ITypeCode.Codes[i] = (byte)c;
+					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
+				}
+			}
+
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+			{	
+				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+				{
+					ITypeCode.Codes[i] = (byte)c;
+					ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
+				}
+			}
+		}
+
 	}
 
 	public abstract class Interzone : Zone

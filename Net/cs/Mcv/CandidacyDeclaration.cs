@@ -6,10 +6,10 @@ namespace Uccs.Net
 {
 	public abstract class CandidacyDeclaration : Operation
 	{
-		public Unit				Bail;
+		public Unit				Pledge;
 		public IPAddress[]		BaseRdcIPs;
-		public override string	Description => $"{Bail} UNT";
-		public override bool	IsValid(Mcv mcv) => Bail >= Transaction.Zone.BailMin;
+		public override string	Description => $"{Pledge} UNT";
+		public override bool	IsValid(Mcv mcv) => Pledge >= Transaction.Zone.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -17,13 +17,13 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Bail			= reader.Read<Unit>();
+			Pledge			= reader.Read<Unit>();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Bail);
+			writer.Write(Pledge);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 		}
 
@@ -35,7 +35,7 @@ namespace Uccs.Net
 				return;
 			}
 						
-			Signer.MRBalance -= Bail;
+			Signer.MRBalance -= Pledge;
 
 			//var e = Affect(round, Signer);
 

@@ -14,7 +14,7 @@ namespace Uccs.Rdn
 
 		public RdnCandidacyDeclaration(Unit bail, IPAddress[] baseRdcIPs, IPAddress[] seedHubRdcIPs)
 		{
-			Bail = bail;
+			Pledge = bail;
 			BaseRdcIPs = baseRdcIPs;
 			SeedHubRdcIPs = seedHubRdcIPs;
 		}

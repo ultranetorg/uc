@@ -447,9 +447,9 @@ namespace Uccs.Net
 											.ToList();
 
 			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
-								.Select(i => i.MaxBy(i => i.Bail))
+								.Select(i => i.MaxBy(i => i.Pledge))
 								.OrderByDescending(i => i.Signer.AverageUptime)
-								.ThenBy(i => i.Bail)
+								.ThenBy(i => i.Pledge)
 								.ThenBy(i => i.Signer.Address)
 								.Take(Mcv.Zone.MembersLimit - Members.Count))
 			{
@@ -460,7 +460,7 @@ namespace Uccs.Net
 
 			foreach(var i in cds) /// refund the rest
 			{
-				AffectAccount(i.Transaction.Signer).MRBalance += i.Bail;
+				AffectAccount(i.Transaction.Signer).MRBalance += i.Pledge;
 			}
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));

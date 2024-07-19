@@ -1,16 +1,37 @@
-﻿namespace Uccs
+﻿using System.IO;
+
+namespace Uccs
 {
-	public class Platform
+	public class Platform : IBinarySerializable
 	{
 		public PlatformFamily	Family;
-		public byte				Brand;
-		public byte				Version;
-		public byte				Architecture;
+		public PlatformBrand	Brand;
+		public PlatformVersion	Version;
+		public Architecture		Architecture;
+
+		public static Platform Current;
+
+		public void Read(BinaryReader reader)
+		{
+			Family			= (PlatformFamily)reader.ReadByte();
+			Brand			= (PlatformBrand)reader.Read7BitEncodedInt();
+			Version			= (PlatformVersion)reader.Read7BitEncodedInt();
+			Architecture	= (Architecture)reader.Read7BitEncodedInt();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write((byte)Family);
+			writer.Write7BitEncodedInt((int)Brand);
+			writer.Write7BitEncodedInt((int)Version);
+			writer.Write7BitEncodedInt((int)Architecture);
+		}
 	}
 
 	public enum PlatformFamily : byte
 	{
 		Any = 0,
+		Last = 1,
 
 		Android	= 40,
 		iOS		= 80,
@@ -18,24 +39,41 @@
 		Unix	= 160,
 		UOS		= 200,
 		Windows	= 240,
+	}
 
-		Last = Windows,
+	public enum PlatformBrand : byte
+	{
+		Any = 0,
+		Last = 1,
+	}
+
+	public enum PlatformVersion : byte
+	{
+		Any = 0,
+		Last = 1,
+	}
+
+	public enum Architecture : byte
+	{
+		Any = 0,
+		Last = 1,
+
+		x86_32 = 1,
+		x86_64 = 2,
+		IA64 = 3,
+		ARM = 4,
+		ARM64 = 5,
 	}
 
 	public enum WindowsBrand : byte
 	{
-		Any = 0,
-
-		MicrosoftWindows = 1,
-		MicrosoftWindowsServer = 1,
-
-		Last = MicrosoftWindowsServer,
+		MicrosoftWindows = 10,
+		MicrosoftWindowsServer = 20,
 	}
 
 	public enum MicrosoftWindows : byte
 	{
-		Any = 0,
-		_1_01,
+		_1_01 = 10,
 		_1_02,
 		_1_03,
 		_1_04,
@@ -80,14 +118,11 @@
 		NT_10_22000,
 		NT_10_22621,
 		NT_10_22631,
-		Last = NT_10_22631
 	}
 
 	public enum MicrosoftWindowsServer : byte
 	{
-		Any = 0,
-
-		NT_3_1,
+		NT_3_1 = 10,
 		NT_3_5,
 		NT_3_51,
 		NT_4_0,
@@ -107,21 +142,6 @@
 		NT_10_0_19042,
 		NT_10_0_20348,
 		NT_10_0_25398,
-
-		Last = NT_10_0_25398
-	}
-
-	public enum Architecture : byte
-	{
-		Any = 0,
-
-		x86_32 = 1,
-		x86_64 = 2,
-		IA64 = 3,
-		ARM = 4,
-		ARM64 = 5,
-
-		Last = ARM64
 	}
 
 // 	public class Platform : IEquatable<Platform>

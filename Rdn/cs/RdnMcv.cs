@@ -127,7 +127,7 @@ namespace Uccs.Rdn
 					var t = new Transaction {Zone = Zone, Nid = 0, Expiration = i};
 					t.Generator = new([0, 0], -1);
 					//t.EUFee = 1;
-					t.AddOperation(new RdnCandidacyDeclaration  {Bail = 0,
+					t.AddOperation(new RdnCandidacyDeclaration  {Pledge = 0,
 																 BaseRdcIPs = [Zone.Father0IP],
 																 SeedHubRdcIPs = [Zone.Father0IP] });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
@@ -199,7 +199,7 @@ namespace Uccs.Rdn
 		public override Member CreateMember(Round round, CandidacyDeclaration declaration)
 		{
 			return new RdnMember{CastingSince	= round.Id + DeclareToGenerateDelay,
-								 Bail			= declaration.Bail,
+								 Bail			= declaration.Pledge,
 								 Account		= declaration.Transaction.Signer, 
 								 BaseRdcIPs		= declaration.BaseRdcIPs, 
 								 SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
@@ -207,7 +207,7 @@ namespace Uccs.Rdn
 
 		public override CandidacyDeclaration CreateCandidacyDeclaration()
 		{
-			return new RdnCandidacyDeclaration {Bail			= Settings.Bail,
+			return new RdnCandidacyDeclaration {Pledge			= Settings.Bail,
 												BaseRdcIPs		= [Settings.Peering.IP],
 												SeedHubRdcIPs	= [Settings.Peering.IP]};
 

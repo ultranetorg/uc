@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 
 namespace Uccs.Rdn
 {
@@ -27,6 +28,34 @@ namespace Uccs.Rdn
 		{
 			return Name;
 		}
+
+		static RdnZone()
+		{
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+			{	
+				var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")));
+				
+				ITypeCode.Codes[i] = (byte)c;
+				ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
+			}
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+			{	
+				var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")));
+
+				ITypeCode.Codes[i] = (byte)c;
+				ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
+			}
+
+			ITypeCode.Contructors[typeof(Urr)] = [];
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr)) && !i.IsAbstract))
+			{
+				ITypeCode.Codes[i] = (byte)Enum.Parse<UrrScheme>(i.Name);
+				ITypeCode.Contructors[typeof(Urr)][(byte)Enum.Parse<UrrScheme>(i.Name)] = i.GetConstructor([]);
+			}
+		}
+
 	}
 
 	public class RdnLocalZone : RdnZone
