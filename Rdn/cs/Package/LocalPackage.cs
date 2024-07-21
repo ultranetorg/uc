@@ -11,8 +11,8 @@
 		public LocalResource	Resource;
 		public LocalRelease		Release => Resource.Last?.Interpretation is Urr a ? Hub.Node.ResourceHub.Find(a) : null;
 		public PackageHub		Hub;
-		PackageManifest				_Manifest;
 		public object			Activity;
+		PackageManifest			_Manifest;
 
 		//public HistoryRelease	HistoryRelease => History.Releases.First(i => i.Hash.SequenceEqual(Address.Hash));
 		//public History			History => Hub.Sun.ResourceHub.Find(Address).LastAs<History>();

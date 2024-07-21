@@ -158,6 +158,18 @@ namespace Uccs
 			return o;
 		}
 
+		public static T ReadNullable<T>(this BinaryReader r) where T : IBinarySerializable, new()
+		{
+			if(r.ReadBoolean())
+			{
+				var o = new T();
+				o.Read(r);
+				return o;
+			}
+			else
+				return default;
+		}
+
 		public static T ReadVirtual<T>(this BinaryReader r) where T : IBinarySerializable, ITypeCode
 		{
 			var o = (T)ITypeCode.Contructors[typeof(T)][r.ReadByte()].Invoke(null);
@@ -178,6 +190,19 @@ namespace Uccs
 				w.Write(ITypeCode.Codes[o.GetType()]);
 
 			o.Write(w);
+		}
+
+		public static void WriteNullable(this BinaryWriter w, IBinarySerializable o)
+		{
+			w.Write(o != null);
+
+			if(o != null)
+			{
+				if(o is ITypeCode c)
+					w.Write(ITypeCode.Codes[o.GetType()]);
+	
+				o.Write(w);
+			}
 		}
 
 		public static void Write<T>(this BinaryWriter w, IEnumerable<T> items, Action<T> a)

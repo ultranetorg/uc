@@ -15,19 +15,19 @@ namespace Uccs.Uos
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs args)
 		{
-			var rp = Nexus.PackageHub.DeploymentToAddress(args.RequestingAssembly.Location);
-
-			var r = Nexus.PackageHub.Find(rp);
-
-			foreach(var i in r.Manifest.CriticalDependencies)
-			{
-				var dp = Path.Join(Nexus.PackageHub.AddressToDeployment(i.Package), new AssemblyName(args.Name).Name + ".dll");
-
-				if(File.Exists(dp))
-				{
-					return Assembly.LoadFile(dp);
-				}
-			}
+// 			var rp = Nexus.PackageHub.DeploymentToAddress(args.RequestingAssembly.Location);
+// 
+// 			var r = Nexus.PackageHub.Find(rp);
+// 
+// 			foreach(var i in r.Manifest.CriticalDependencies)
+// 			{
+// 				var dp = Path.Join(Nexus.PackageHub.AddressToDeployment(i.Package), new AssemblyName(args.Name).Name + ".dll");
+// 
+// 				if(File.Exists(dp))
+// 				{
+// 					return Assembly.LoadFile(dp);
+// 				}
+// 			}
 
 			return null;
 		}

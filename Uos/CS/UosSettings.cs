@@ -8,6 +8,7 @@ namespace Uccs.Uos
 		public Zone						Interzone;
 		public bool						EncryptVault { get; set; }
 		public ApiSettings				Api { get; set; }
+		public string					Packages { get; set; }
 
 		public UosSettings() : base(NetXonTextValueSerializator.Default)
 		{

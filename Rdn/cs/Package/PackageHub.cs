@@ -7,7 +7,7 @@ namespace Uccs.Rdn
 	{
 		SeedSettings				Settings;
 		public List<LocalPackage>	Packages = new();
-		public RdnNode					Node;
+		public RdnNode				Node;
 		public object				Lock = new object();
 
 		public PackageHub(RdnNode sun, SeedSettings settings)
@@ -15,18 +15,7 @@ namespace Uccs.Rdn
 			Node = sun;
 			Settings = settings;
 
-			Directory.CreateDirectory(Settings.Packages);
 		}
-
- 		public string AddressToDeployment(Ura resource)
- 		{
- 			return Path.Join(Settings.Packages, ResourceHub.Escape(resource.ToString()));
- 		}
- 
- 		public Ura DeploymentToAddress(string path)
- 		{
- 			return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
- 		}
 
  		public string AddressToReleases(Urr release)
  		{
@@ -276,7 +265,7 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura[] history, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
+		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
 			var cstream = new MemoryStream();
 			var istream = (MemoryStream)null;
@@ -339,7 +328,7 @@ namespace Uccs.Rdn
 												RemovedDependencies	= pm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
 					
 					m.Parents = [d];
-					m.History = history.Append(previous).ToArray();
+					m.History = Find(previous).Manifest.History.Append(previous).ToArray();
 				}
 
 				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
@@ -363,28 +352,28 @@ namespace Uccs.Rdn
 				return a;
  			}
 		}
+ 
+//  		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow flow)
+//  		{
+//  			var r = Node.ResourceHub.Find(resource);
+//  			var m = new PackageManifest();
+//  		
+//  			if(r != null)
+//  			{
+//  				var c = Node.ResourceHub.Find(r.LastAs<Urr>());
+//  				m.Read(new BinaryReader(new MemoryStream(c.Find(LocalPackage.ManifestFile).Read())));
+//  			}
+//  		
+//  			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, flow);
+//  		}
 
-		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow workflow)
-		{
-			var r = Node.ResourceHub.Find(resource);
-			var m = new PackageManifest();
-		
-			if(r != null)
-			{
-				var c = Node.ResourceHub.Find(r.LastAs<Urr>());
-				m.Read(new BinaryReader(new MemoryStream(c.Find("m").Read())));
-			}
-		
-			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, workflow);
-		}
-
-		public Deployment Deploy(Ura package, Flow workflow)
+		public Deployment Deploy(Ura package, Func<Ura, string> todeployment, Flow workflow)
 		{
 			var	d = new Deployment();
 
 			void collect(LocalPackage parent, Ura address)
 			{
-				var m = new DeploymentMerge{Target = Find(address)};
+				var m = new DeploymentMerge {Target = Find(address)};
 				d.Merges.Add(m);
 
 				var p = m.Target;
@@ -452,7 +441,7 @@ namespace Uccs.Rdn
 										{
 											foreach(var e in a.Entries)
 											{
-												var f = Path.Join(AddressToDeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+												var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
 												Directory.CreateDirectory(Path.GetDirectoryName(f));
 												e.ExtractToFile(f, true);
@@ -472,7 +461,7 @@ namespace Uccs.Rdn
 												{
 													if(e.Name != LocalPackage.Removals)
 													{
-														var f = Path.Join(AddressToDeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+														var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
 														Directory.CreateDirectory(Path.GetDirectoryName(f));
 														e.ExtractToFile(f, true);
@@ -485,7 +474,7 @@ namespace Uccs.Rdn
 
 															while(!sr.EndOfStream)
 															{
-																File.Delete(Path.Join(AddressToDeployment(s.Target.Resource.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+																File.Delete(Path.Join(todeployment(s.Target.Resource.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
 															}
 														}
 													}
@@ -495,6 +484,8 @@ namespace Uccs.Rdn
 
 										i.Key.Activity = null;
 									}
+
+									File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
 								}
 							});
 
@@ -513,26 +504,6 @@ namespace Uccs.Rdn
 			d = new PackageDownload(Node, p, workflow);
 
 			return d;
-		}
-
-		public void Install(Ura package, Flow workflow)
-		{
-			bool e; 
-
-			lock(Lock)
-				e = ExistsRecursively(package);
-
-			if(!e)
-			{
-				PackageDownload d;
-
-				lock(Lock)
-					d = Download(package, workflow);
-
-				d.Task.Wait(workflow.Cancellation);
-			}
-				
-			Deploy(package, workflow);
 		}
 	}
 }

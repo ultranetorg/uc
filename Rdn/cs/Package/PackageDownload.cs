@@ -8,6 +8,10 @@
 		public FileDownloadProgress[]		CurrentFiles { get; set; } = [];
 		public PackageDownloadProgress[]	Dependencies { get; set; } = [];
 
+		public PackageDownloadProgress()
+		{
+		}
+
 		public PackageDownloadProgress(PackageDownload download)
 		{
 			Succeeded						= download.Succeeded;
@@ -82,7 +86,7 @@
 
 													break;
 												}
-												catch(EntityException)
+												catch(EntityException ex)
 												{
 													Thread.Sleep(100);
 												}

@@ -52,12 +52,12 @@ namespace Uccs.Tests
  		[Fact]
  		public static void Package()
  		{
- 			var p = new HashSet<PackageAddress>(){PackageAddress.Parse("ura:a/p/r/v")};
-			Assert.Contains(PackageAddress.Parse($"{Ura.Scheme}:a/p/r/v"), p);
-			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p/r/v-"), p);
-			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p/r-/v"), p);
-			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a/p-/r/v"), p);
-			Assert.DoesNotContain(PackageAddress.Parse($"{Ura.Scheme}:a-/p/r/v"), p);
+ 			var p = new HashSet<AprvAddress>(){AprvAddress.Parse("ura:a/p/r/v")};
+			Assert.Contains(AprvAddress.Parse($"{Ura.Scheme}:a/p/r/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p/r/v-"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p/r-/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p-/r/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a-/p/r/v"), p);
  		}
 
 		[Fact]

@@ -27,7 +27,6 @@ namespace Uccs.Rdn
 			Settings = settings;
 
 			Settings.Releases ??= Path.Join(Node.Settings.Profile, nameof(Settings.Releases));
-			Settings.Packages ??= Path.Join(Node.Settings.Profile, nameof(Settings.Packages));
 
 			Directory.CreateDirectory(Settings.Releases);
 
@@ -293,7 +292,7 @@ namespace Uccs.Rdn
 				lock(Lock)
 				{
 					foreach(var r in Resources.Where(i => i.Id != null && i.Last?.Interpretation is Urr))
-					{	
+					{
 						//foreach(var d in r.Datas)
 						var d = r.Last;
 

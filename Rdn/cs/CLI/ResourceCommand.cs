@@ -259,13 +259,11 @@
 								Execute = () =>	{
 													var r = Api<Resource>(new ResourceDownloadApc{Idedtifier = new(First), LocalPath = GetString("localpath", null)});
 
-													ReleaseDownloadProgress p = null;
-						
 													while(Flow.Active)
 													{
-														p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
+														var p = Api<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
 
-														if(p == null)
+														if(p is null)
 															break;
 
 														Report(p.ToString());

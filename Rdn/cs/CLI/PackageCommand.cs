@@ -41,25 +41,10 @@
 													Ura p = null;
 													PackageManifest m = null;
 
-													try
-													{
-														p = GetResourceAddress("previous", false);
-															//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args[0].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
-						
-														if(p != null)
-														{
-															m = Api<PackageInfo>(new PackageInfoApc {Package = p}).Manifest;
-														}
-													}
-													catch(EntityException ex) when(ex.Error == EntityError.NotFound)
-													{
-													}
-
 													var r = Api<Urr>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
 																							Sources			 = GetString("sources").Split(','), 
 																							DependenciesPath = GetString("dependencies", false),
-																							Previous		 = p,
-																							History			 = m?.History,
+																							Previous		 = GetResourceAddress("previous", false),
 																							AddressCreator	 = new(){	
 																														Type = GetEnum("addresstype", UrrScheme.Urrh),
 																														Owner = GetAccountAddress("owner", false),
@@ -127,13 +112,11 @@
 
 													try
 													{
-														PackageDownloadProgress d;
-						
 														do
 														{
-															d = Api<PackageDownloadProgress>(new PackageActivityProgressApc {Package = Package});
+															var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 							
-															if(d == null)
+															if(d is null)
 															{	
 																if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
 																{
@@ -147,61 +130,7 @@
 
 															Thread.Sleep(500);
 														}
-														while(d != null && Flow.Active);
-													}
-													catch(OperationCanceledException)
-													{
-													}
-
-													return null;
-												}
-							},
-
-							new ()
-							{
-								Names = ["i", "install"],
-
-								Help = new Help
-								{ 
-									Title = "INSTALL",
-									Description = "If needed, downloads specified package and its dependencies recursively and unpacks its content to the 'Packages' directory",
-									Syntax = "release i|install PACKAGE_ADDRESS",
-
-									Arguments =
-									[
-										new ("<first>", "Address of a package to install")
-									],
-
-									Examples =
-									[
-										new (null, "package i company/application/windows/1.2.3")
-									]
-								},
-
-								Execute = () =>	{
-													Api(new PackageInstallApc {Package = Package});
-
-													try
-													{
-														ResourceActivityProgress d = null;
-						
-														do
-														{
-															d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
-							
-															if(d == null)
-															{	
-																if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
-																	Flow.Log?.ReportError(this, "Failed");
-								
-																break;
-															}
-															else
-																Report(d.ToString());
-
-															Thread.Sleep(500);
-														}
-														while(d != null && Flow.Active);
+														while(Flow.Active);
 													}
 													catch(OperationCanceledException)
 													{

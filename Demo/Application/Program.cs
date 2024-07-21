@@ -31,34 +31,33 @@ namespace Uccs.Demo.Application
 			var f = new Form1();
 
 
-			Task.Run(() =>
-					 {
-						var v = Ura.Parse("uo/democomponent/dotnet/0.0.0");
+			Task.Run(() =>	{
+								var v = Ura.Parse("_uo/demo.component/dotnet/0.0.0");
 						
-						Application.Nexus.Sun.Send(new PackageInstallApc {Package = v}, new Flow($"InstallPackage {v}"));
+								///Application.Nexus.Sun.Send(new PackageInstallApc {Package = v}, new Flow($"InstallPackage {v}"));
 
-						PackageDownloadProgress s = null;
+								PackageDownloadProgress s = null;
 
-						do
-						{
-							Thread.Sleep(1);
-							s = Application.Nexus.Sun.Request<PackageDownloadProgress>(new PackageActivityProgressApc {Package = v}, new Flow("GetReleaseStatus"));
-						}
-						while(!s.Succeeded);
+								do
+								{
+									Thread.Sleep(1);
+									s = Application.Nexus.Sun.Request<PackageDownloadProgress>(new PackageActivityProgressApc {Package = v}, new Flow("GetReleaseStatus"));
+								}
+								while(!s.Succeeded);
 
-						f.BeginInvoke(new Action(	() =>
-													{
-														var a = Assembly.LoadFile(Path.Join(Application.Nexus.PackageHub.AddressToDeployment(v), "Uccs.Demo.Component.dll"));
-														var ct = a.GetType("DemoComponent.ComponentControl");
-														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
-
-														c.Location = f.pictureBox1.Location;
-														c.Size = f.pictureBox1.Size;
-
-														f.Controls.Remove(f.pictureBox1);
-														f.Controls.Add(c);
-													}));
-					 });
+								f.BeginInvoke(new Action(	() =>
+															{
+																///var a = Assembly.LoadFile(Path.Join(Application.Nexus.PackageHub.AddressToDeployment(v), "Uccs.Demo.Component.dll"));
+																///var ct = a.GetType("DemoComponent.ComponentControl");
+																///var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
+																///
+																///c.Location = f.pictureBox1.Location;
+																///c.Size = f.pictureBox1.Size;
+																///
+																///f.Controls.Remove(f.pictureBox1);
+																///f.Controls.Add(c);
+															}));
+							 });
 
 			f.Show();
 		}

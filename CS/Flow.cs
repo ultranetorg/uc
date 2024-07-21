@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Uccs
@@ -40,7 +41,8 @@ namespace Uccs
 
 		public void CancelAfter(int timeout)
 		{ 
-			CancellationSource.CancelAfter(timeout);
+			if(!Debugger.IsAttached)
+				CancellationSource.CancelAfter(timeout);
 		}
 		
 		public Flow CreateNested(string name, Log log = null)

@@ -108,4 +108,14 @@ namespace Uccs.Uos
 		}
 	}
 
+	public class AprvInstallApc : UosApc
+	{
+		public AprvAddress	Package { get; set; }
+	
+		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			uos.Install(Package, workflow);
+			return null;
+		}
+	}
 }

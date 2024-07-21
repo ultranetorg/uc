@@ -18,6 +18,10 @@
 		public Ura		Complete { get; set; }	
 		public Ura[]	Incrementals { get; set; }	
 
+		public DeploymentMergeProgress()
+		{
+		}
+
 		public DeploymentMergeProgress(DeploymentMerge merge)
 		{
 			Target			= merge.Target.Resource.Address;

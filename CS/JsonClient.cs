@@ -73,7 +73,7 @@ namespace Uccs
 			Key = accesskey;
 		}
 
-		public HttpResponseMessage Send(Apc request, Flow workflow)
+		public HttpResponseMessage Send(Apc request, Flow flow)
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
@@ -83,7 +83,7 @@ namespace Uccs
 	
 				try
 				{
-					var rp = Http.Send(m, workflow.Cancellation);
+					var rp = Http.Send(m, flow.Cancellation);
 	
 					if(rp.StatusCode != System.Net.HttpStatusCode.OK)
 						throw new ApiCallException(rp, rp.Content.ReadAsStringAsync().Result);
@@ -108,19 +108,16 @@ namespace Uccs
 				var cr = await Http.SendAsync(m, workflow.Cancellation);
 
 				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-					throw new ApiCallException(cr, cr.ReasonPhrase);
+					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
 
 				return cr;
 			}
 		}
 
-		public Rp Request<Rp>(Apc request, Flow workflow)
+		public Rp Request<Rp>(Apc request, Flow flow)
 		{
-			using(var cr = Send(request, workflow))
+			using(var cr = Send(request, flow))
 			{
-				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
-
 				try
 				{
 					return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
@@ -132,13 +129,10 @@ namespace Uccs
 			}
 		}
 
-		public async Task<Rp> RequestAsync<Rp>(Apc request, Flow workflow)
+		public async Task<Rp> RequestAsync<Rp>(Apc request, Flow flow)
 		{
-			using(var cr = await SendAsync(request, workflow))
+			using(var cr = await SendAsync(request, flow))
 			{
-				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
-
 				try
 				{
 					return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);

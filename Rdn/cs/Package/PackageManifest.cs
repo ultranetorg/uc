@@ -118,6 +118,38 @@ namespace Uccs.Rdn
 		}
 	}
 
+	public class Execution : IBinarySerializable
+	{
+		public string		Path { get; set; }
+		public string		Arguments { get; set; }
+
+		public override string ToString()
+		{
+			return $"{Path}, {Arguments}";
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Path = reader.ReadUtf8();
+			Arguments = reader.ReadUtf8();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.WriteUtf8(Path);
+			writer.WriteUtf8(Arguments);
+		}
+
+		public void Read(Xon xon)
+		{
+		}
+
+		internal void Write(Xon peratn)
+		{
+		}
+	}	
+
+
 	public class PackageManifest : IBinarySerializable
 	{
 		public byte[]					CompleteHash { get; set; }
@@ -125,8 +157,7 @@ namespace Uccs.Rdn
 		public byte[]					IncrementalHash { get; set; }
 		public ParentPackage[]			Parents { get; set; }
 		public Ura[]					History { get; set; }
-
-		public string					Startup { get; set; }
+		public Execution				Execution { get; set; }
 
 		public const string				Extension = "manifest";
 
@@ -183,6 +214,7 @@ namespace Uccs.Rdn
 			writer.WriteBytes(IncrementalHash);
 			writer.Write(CompleteDependencies);
 			writer.Write(Parents);
+			writer.WriteNullable(Execution);
 		}
 
 		public void Read(BinaryReader reader)
@@ -192,6 +224,7 @@ namespace Uccs.Rdn
 			IncrementalHash			= reader.ReadBytes();
 			CompleteDependencies	= reader.ReadArray<Dependency>();
 			Parents					= reader.ReadArray<ParentPackage>();
+			Execution				= reader.ReadNullable<Execution>();
 		}
 
 // 		public void Save(string filepath)

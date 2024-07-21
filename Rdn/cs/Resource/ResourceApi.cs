@@ -4,8 +4,10 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Rdn
 {
-	[JsonDerivedType(typeof(FileDownloadProgress), typeDiscriminator: "FileDownloadProgress")]
-	[JsonDerivedType(typeof(ReleaseDownloadProgress), typeDiscriminator: "ReleaseDownloadProgress")]
+	[JsonDerivedType(typeof(FileDownloadProgress),		typeDiscriminator: "FileDownloadProgress")]
+	[JsonDerivedType(typeof(ReleaseDownloadProgress),	typeDiscriminator: "ReleaseDownloadProgress")]
+	[JsonDerivedType(typeof(PackageDownloadProgress),	typeDiscriminator: "PackageDownloadProgress")]
+	[JsonDerivedType(typeof(DeploymentProgress),		typeDiscriminator: "DeploymentProgress")]
 	public class ResourceActivityProgress
 	{
 	}

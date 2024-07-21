@@ -4,7 +4,7 @@
 	///  ultranet:testzone:uo/app/dotnet7/0123456789ABCDEF
 	/// </summary>
 
-	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
+	public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAddress>, IEquatable<AprvAddress>
 	{
 		public string			Domain		{ get ; set; }
 		public string			Product		{ get ; set; }
@@ -13,7 +13,9 @@
 
 		public string			APR => $"{Domain}/{Product}/{Realization}";
 
-		public PackageAddress(string domain, string product, string realization, string veriosn)
+		public static implicit operator Ura(AprvAddress value) => new Ura(value.Domain, $"{value.Product}/{value.Realization}/{value.Version}");
+
+		public AprvAddress(string domain, string product, string realization, string veriosn)
 		{
 			Domain = domain;
 			Product = product;
@@ -21,7 +23,7 @@
 			Version = veriosn;
 		}
 
-		public PackageAddress(Ura resource, string version)
+		public AprvAddress(Ura resource, string version)
 		{
 			Domain		= resource.Domain;
 
@@ -32,7 +34,18 @@
 			Version		= version; 
 		}
 
-		public PackageAddress()
+		public AprvAddress(Ura resource)
+		{
+			Domain		= resource.Domain;
+
+			var j = resource.Resource.Split('/');
+			
+			Product		= j[0];
+			Realization = j[1];
+			Version		= j[2]; 
+		}
+
+		public AprvAddress()
 		{
 		}
 
@@ -41,10 +54,10 @@
 			return $"{Ura.Scheme}:{Domain}/{Product}/{Realization}/{Version}";
 		}
 
-		public static PackageAddress Parse(string v)
+		public static AprvAddress Parse(string v)
 		{
 			var r = Ura.Parse(v);
-			var a = new PackageAddress();
+			var a = new AprvAddress();
 			var p = r.Resource.Split('/');
 
 			a.Domain		= r.Domain;
@@ -60,17 +73,17 @@
 		//	return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
 		//}
 
-		public PackageAddress ReplaceVersion(string version)
+		public AprvAddress ReplaceVersion(string version)
 		{
-			return new PackageAddress(Domain, Product, Realization, version);
+			return new AprvAddress(Domain, Product, Realization, version);
 		}
 
 		public int CompareTo(object obj)
 		{
-			return CompareTo(obj as PackageAddress);
+			return CompareTo(obj as AprvAddress);
 		}
 
-		public int CompareTo(PackageAddress o)
+		public int CompareTo(AprvAddress o)
 		{
 			var a = Domain.CompareTo(o.Domain);
 			if(a != 0)
@@ -110,10 +123,10 @@
 
 		public override bool Equals(object obj)
 		{
-			return Equals(obj as PackageAddress);
+			return Equals(obj as AprvAddress);
 		}
 
-		public bool Equals(PackageAddress o)
+		public bool Equals(AprvAddress o)
 		{
 			return	o is not null && 
 					Domain		== o.Domain && 
@@ -127,12 +140,12 @@
 			return Domain.GetHashCode();
 		}
 
-		public static bool operator == (PackageAddress left, PackageAddress right)
+		public static bool operator == (AprvAddress left, AprvAddress right)
 		{
 			return left is null && right is null || left is not null && left.Equals(right);
 		}
 
-		public static bool operator != (PackageAddress left, PackageAddress right)
+		public static bool operator != (AprvAddress left, AprvAddress right)
 		{
 			return !(left == right);
 		}

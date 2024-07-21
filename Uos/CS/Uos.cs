@@ -70,6 +70,9 @@ namespace Uccs.Uos
 			Flow = flow;
 			Clock = clock;
 
+			Settings.Packages ??= Path.Join(Settings.Profile, nameof(Settings.Packages));
+			Directory.CreateDirectory(Settings.Packages);
+
 			Vault = new Vault(Settings.Profile, settings.EncryptVault);
 
 			//Environment.SetEnvironmentVariable(BootProductsPath,productspath);
@@ -177,6 +180,8 @@ namespace Uccs.Uos
 			{
 				case WalletCommand.Keyword:		c = new WalletCommand(this, args, flow); break;
 				case NodeCommand.Keyword:		c = new NodeCommand(this, args, flow); break;
+				case StartCommand.Keyword:		c = new StartCommand(this, args, flow); break;
+				case AprvCommand.Keyword:		c = new AprvCommand(this, args, flow); break;
 
 				default:
 					throw new SyntaxException($"Unknown command '{t}'");
@@ -255,6 +260,83 @@ namespace Uccs.Uos
 				
 				return r;
 			}
+		}
+
+ 		public string AddressToDeployment(AprvAddress resource)
+ 		{
+ 			return Path.Join(Settings.Packages, ResourceHub.Escape(resource.APR), ResourceHub.Escape(resource.Version));
+ 		}
+  
+  		//public Ura DeploymentToAddress(string path)
+  		//{
+  		//	return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
+  		//}
+
+		public byte[] GetCurrentHash(AprvAddress address)
+		{
+			var h = Path.Join(AddressToDeployment(address), ".hash");
+			
+			return File.Exists(h) ? File.ReadAllText(h).FromHex() : null;
+		}
+
+		public void Install(AprvAddress address, Flow flow)
+		{
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			var c = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+
+			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
+
+			var p = a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow);
+
+			if(p == null || !p.Manifest.CompleteHash.SequenceEqual(GetCurrentHash(address)))
+			{
+				if(p == null || !p.Ready)
+				{
+					a.Send(new PackageDownloadApc {Package = address}, flow);
+	
+					do
+					{
+						var d = a.Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
+			
+						if(d is null)
+						{	
+							if(!a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow).Ready)
+							{
+								flow.Log?.ReportError(this, "Failed");
+								return;
+							}
+							else
+								break;
+						}
+	
+						Thread.Sleep(100);
+					}
+					while(Flow.Active);
+				}
+
+				Find<RdnNode>().PackageHub.Deploy(address, a => AddressToDeployment(new AprvAddress(a)), flow);
+
+				do
+				{
+					var d = a.Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
+			
+					if(d is null)
+					{	
+						if(!a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow).Ready)
+						{
+							flow.Log?.ReportError(this, "Failed");
+							return;
+						}
+						else
+							break;
+					}
+	
+					Thread.Sleep(100);
+				}
+				while(Flow.Active);
+			}
+			
 		}
     }
 }

@@ -220,8 +220,10 @@ namespace Uccs
 
 				object execute(Apc call)
 				{
-					var f = Flow.CreateNested(MethodBase.GetCurrentMethod().Name, new Log());
+					var f = Flow.CreateNested(rq.Url.ToString(), new Log());
+
 					f.CancelAfter(call.Timeout);
+
 					return Execute(call, rq, rp, f);
 				}
 
@@ -241,7 +243,7 @@ namespace Uccs
 				{
 					var r = execute(c);
 	
-					if(r != null)
+					//if(r != null)
 					{
 						respondjson(r);
 					}

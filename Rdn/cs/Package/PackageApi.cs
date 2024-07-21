@@ -5,6 +5,7 @@ namespace Uccs.Rdn
 	public class PackageAddApc : RdnApc
 	{
 		public Ura						Resource { get; set; }
+		public ResourceId				Id { get; set; }
 		public byte[]					Complete { get; set; }
 		public byte[]					Incremental { get; set; }
 		public byte[]					Manifest { get; set; }
@@ -21,6 +22,7 @@ namespace Uccs.Rdn
 				
 				lock(node.ResourceHub.Lock)
 				{
+					p.Resource.Id = Id;
 					p.Resource.AddData(DataType.Package, a);
 					
 					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a, DataType.Package);
@@ -30,10 +32,10 @@ namespace Uccs.Rdn
 					r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
 			
 					if(Complete != null)
-						r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.ManifestFile), Complete);
+						r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.CompleteFile), Complete);
 		
 					if(Incremental != null)
-						r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.ManifestFile), Incremental);
+						r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.IncrementalFile), Incremental);
 										
 					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 				}
@@ -49,13 +51,12 @@ namespace Uccs.Rdn
 		public IEnumerable<string>		Sources { get; set; }
 		public string					DependenciesPath { get; set; }
 		public Ura						Previous { get; set; }
-		public Ura[]					History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
+				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow);
 		}
 	}
 
@@ -70,17 +71,6 @@ namespace Uccs.Rdn
 				sun.PackageHub.Download(Package, workflow);
 				return null;
 			}
-		}
-	}
-
-	public class PackageInstallApc : RdnApc
-	{
-		public Ura	Package { get; set; }
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			sun.PackageHub.Install(Package, workflow);
-			return null;
 		}
 	}
 
@@ -113,7 +103,7 @@ namespace Uccs.Rdn
 				var p = sun.PackageHub.Find(Package);
 
 				if(p == null)
-					throw new ResourceException(ResourceError.NotFound);
+					return null;
 
 				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
 										Availability	= p.Release.Availability,
@@ -126,6 +116,30 @@ namespace Uccs.Rdn
 	{
 		public bool				Ready { get; set; }
 		public Availability		Availability { get; set; }
-		public PackageManifest			Manifest { get; set; }
+		public PackageManifest	Manifest { get; set; }
 	}
+
+	//public class DeploymentInfoApc : RdnApc
+	//{
+	//	public Ura	Package { get; set; }
+	//
+	//	public class Result
+	//	{
+	//		public byte[]		Hash { get; set; }
+	//		public string		Path { get; set; }
+	//	}
+	//
+	//	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	//	{
+	//		lock(sun.PackageHub.Lock)
+	//		{
+	//			var p = sun.PackageHub.AddressToDeployment(Package);
+	//
+	//			var h = Path.Join(p, ".hash");
+	//
+	//			return new Result {	Path = p,
+	//								Hash = File.Exists(h) ? File.ReadAllText(h).FromHex() : null};
+	//		}
+	//	}
+	//}
 }
