@@ -34,8 +34,8 @@ namespace Uccs.Net
 		public class Cluster
 		{
 			public byte[]	Id { get; set; }
-			public int		Length { get; set; }
 			public byte[]	Hash { get; set; }
+			public int		Length { get; set; }
 		}
 	
 		public Cluster[]	Clusters { get; set; }

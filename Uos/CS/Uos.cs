@@ -95,10 +95,9 @@ namespace Uccs.Uos
 
 		public override string ToString()
 		{
-			var u = string.Join(",", new string[]{	Settings.Name,
-													ApiServer != null ? "A" : null}.Where(i => i != null)); 
-			
-			return string.Join(" - ", [u, Izn, ..Nodes]);
+			return string.Join(" - ", new string[]{	Settings.Name,
+													ApiServer != null ? "A" : null,
+													Izn.ToString()}.Where(i => i != null));
 		}
 
 		public void Stop()

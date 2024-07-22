@@ -117,7 +117,8 @@ namespace Uccs.Rdn
 
 		public override string ToString()
 		{
-			return string.Join(", ", new string[]{	Name,
+			return string.Join(", ", new string[]{	GetType().Name,
+													Name,
 													(Settings.Api != null ? "A" : null) +
 													(Settings.Base != null ? "B" : null) +
 													(Settings.Base?.Chain != null  ? "C" : null) +

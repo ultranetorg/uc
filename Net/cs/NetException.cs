@@ -44,7 +44,8 @@ namespace Uccs.Net
 		NotFound,
 		ExcutionFailed,
 		EmissionFailed,
-		NoMembers
+		NoMembers,
+		HashMismatach
 	}
 
 	public enum RequestError : byte

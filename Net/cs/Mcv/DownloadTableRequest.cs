@@ -7,6 +7,7 @@ namespace Uccs.Net
 	public class DownloadTableRequest : McvCall<DownloadTableResponse>
 	{
 		public int		Table { get; set; }
+		public byte[]	Hash { get; set; }
 		public byte[]	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
@@ -22,12 +23,15 @@ namespace Uccs.Net
 			{
 				RequireBase();
 
-				var m = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId))?.Main;
+				var c = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId));
 
-				if(m == null)
+				if(c == null)
 					throw new EntityException(EntityError.NotFound);
 	
-				var s = new MemoryStream(m);
+				if(!c.Hash.SequenceEqual(Hash))
+					throw new EntityException(EntityError.HashMismatach);
+
+				var s = new MemoryStream(c.Main);
 				var r = new BinaryReader(s);
 	
 				s.Position = Offset;

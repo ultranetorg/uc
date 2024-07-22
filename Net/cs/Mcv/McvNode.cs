@@ -239,7 +239,8 @@ namespace Uccs.Net
 								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
 								{
 		
-									var d = Call(peer, new DownloadTableRequest{Table = t.Id, 
+									var d = Call(peer, new DownloadTableRequest{Table = t.Id,
+																				Hash = i.Hash,
 																				ClusterId = i.Id, 
 																				Offset = 0, 
 																				Length = i.Length});
