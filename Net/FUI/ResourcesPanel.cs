@@ -76,16 +76,6 @@ namespace Uccs.Net.FUI
 
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
-			if(Mcv.Settings is not RdnSettings r || r.Seed == null)
-			{
-				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
-				LocalReleases.Columns.Clear();
-				LocalReleases.Columns.Add(new ColumnHeader() { Width = 500 });
-				LocalReleases.Items.Clear();
-				LocalReleases.Items.Add(new ListViewItem("Seed role is not enabled"));
-				return;
-			}
-
 			LocalReleases.Items.Clear();
 
 			foreach(var i in RdnNode.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
@@ -93,7 +83,9 @@ namespace Uccs.Net.FUI
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;
 				li.SubItems.Add(i.Datas.Count.ToString());
-				li.SubItems.Add(i.Last?.ToString());
+				li.SubItems.Add(i.Last?.Type.ToString());
+				li.SubItems.Add(i.Last?.Interpretation.ToString());
+				li.SubItems.Add(i.Last?.Value.Length.ToString());
 
 				LocalReleases.Items.Add(li);
 			}
