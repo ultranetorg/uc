@@ -207,7 +207,7 @@ namespace Uccs.Rdn
 
 		public override CandidacyDeclaration CreateCandidacyDeclaration()
 		{
-			return new RdnCandidacyDeclaration {Pledge			= Settings.Bail,
+			return new RdnCandidacyDeclaration {Pledge			= Settings.Pledge,
 												BaseRdcIPs		= [Settings.Peering.IP],
 												SeedHubRdcIPs	= [Settings.Peering.IP]};
 

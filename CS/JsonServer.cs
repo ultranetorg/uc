@@ -17,7 +17,7 @@ namespace Uccs
 		public const string		Postfix = "Apc";
 		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
 
-		public int				Timeout {get; set;} = 60*1000;
+		public int				Timeout {get; set;} = System.Threading.Timeout.Infinite;
 	}
 
 	public class ApiSettings : Settings

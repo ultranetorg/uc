@@ -151,7 +151,7 @@ namespace Uccs.Net
  		public Cryptography		Cryptography									= Cryptography.Normal;
 		public int				CommitLength									= 1000;
 		public int				ExternalVerificationRoundDurationLimit			= 1000;
-		public Unit				BailMin											= 1000;
+		public Unit				PladgeMin										= 1;
 		public bool				PoW												= false;
 		public int				MembersLimit									= 1000;
 		//public Money			ExeunitMinFee									= 0.001;

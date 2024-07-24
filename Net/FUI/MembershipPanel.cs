@@ -16,7 +16,7 @@
 
 				UpdateCandidateAccounts();
 
-				Bail.Coins = Mcv.Zone.BailMin;
+				Bail.Coins = Mcv.Zone.PladgeMin;
 				IP.Text = Node.IP.ToString();
 			}
 		}

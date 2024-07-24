@@ -31,10 +31,10 @@ namespace Uccs.Net
 		public byte[]					PoW;
 		public byte[]					Tag;
 		//public Money					STFee;
-		public Unit					EUFee;
-		public Unit					EUSpent;
-		public Unit					STReward;
-		public Unit					EUReward;
+		public Unit						EUFee;
+		public Unit						EUSpent;
+		public Unit						STReward;
+		public Unit						EUReward;
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;

@@ -154,13 +154,12 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{ 
-				List<KeyValuePair<string, string>> f =
-				[
-					new ("Version",						sun.Version.ToString()),
-					new ("Profile",						sun.Settings.Profile),
-					new ("IP(Reported):Port",			$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
-					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
-				];
+				List<KeyValuePair<string, string>> f =	[
+															new ("Version",					sun.Version.ToString()),
+															new ("Profile",					sun.Settings.Profile),
+															new ("IP(Reported):Port",		$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
+															new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
+														];
 
 				if(sun is McvNode m)
 				{

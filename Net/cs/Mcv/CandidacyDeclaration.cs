@@ -9,7 +9,7 @@ namespace Uccs.Net
 		public Unit				Pledge;
 		public IPAddress[]		BaseRdcIPs;
 		public override string	Description => $"{Pledge} UNT";
-		public override bool	IsValid(Mcv mcv) => Pledge >= Transaction.Zone.BailMin;
+		public override bool	IsValid(Mcv mcv) => Pledge >= Transaction.Zone.PladgeMin;
 		
 		public CandidacyDeclaration()
 		{

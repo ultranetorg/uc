@@ -114,7 +114,7 @@ namespace Uccs.Net
 
 			if(Flow.Log != null)
 			{
-				Flow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Node.log"), m.ToString() + Environment.NewLine);
+				new FileLog(Flow.Log, nameof(Node), Settings.Profile);
 			}
 
 			var cf = new ColumnFamilies();

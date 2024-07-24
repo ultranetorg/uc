@@ -71,7 +71,6 @@ namespace Uccs.Rdn
 			PoW				= false;
 			Auctions		= true;
 			CommitLength	= 100;
-			BailMin			= 1;
 
 			Initials		= Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
 		}

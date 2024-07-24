@@ -7,7 +7,8 @@ namespace Uccs.Tests
 	{
 		public static void Main(string[] args)
 		{
-			MoneyTests.Main();
+			LogTests.Main();
+			//MoneyTests.Main();
 			//AccountKeyTests.Main();
 
 

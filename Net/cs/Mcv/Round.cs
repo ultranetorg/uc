@@ -356,8 +356,8 @@ namespace Uccs.Net
 						EURewards[g] = t.EUFee + t.EUReward;
 				}
 
-				//s.STBalance -= st;
-				//s.EUBalance -= t.EUFee;
+				//s.STBalance -= t.STReward;
+				s.EUBalance -= t.EUFee;
 				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
