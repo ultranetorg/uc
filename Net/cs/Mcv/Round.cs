@@ -436,7 +436,7 @@ namespace Uccs.Net
 			foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Account == i)))
 			{
 				var a = AffectAccount(i.Account);
-				a.MRBalance += i.Bail;
+				a.MRBalance += i.Pledge;
 				a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 				Members.Remove(i);
 			}

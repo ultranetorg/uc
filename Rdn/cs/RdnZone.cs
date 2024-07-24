@@ -31,6 +31,9 @@ namespace Uccs.Rdn
 
 		static RdnZone()
 		{
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
+				ITypeCode.Contructors[typeof(PeerRequest)] = [];
+
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
 			{	
 				var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")));
@@ -38,6 +41,9 @@ namespace Uccs.Rdn
 				ITypeCode.Codes[i] = (byte)c;
 				ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
 			}
+
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerResponse)))
+				ITypeCode.Contructors[typeof(PeerResponse)] = [];
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
 			{	

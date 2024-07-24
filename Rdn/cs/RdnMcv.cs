@@ -199,7 +199,7 @@ namespace Uccs.Rdn
 		public override Member CreateMember(Round round, CandidacyDeclaration declaration)
 		{
 			return new RdnMember{CastingSince	= round.Id + DeclareToGenerateDelay,
-								 Bail			= declaration.Pledge,
+								 Pledge			= declaration.Pledge,
 								 Account		= declaration.Transaction.Signer, 
 								 BaseRdcIPs		= declaration.BaseRdcIPs, 
 								 SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};

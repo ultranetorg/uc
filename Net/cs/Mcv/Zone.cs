@@ -62,7 +62,7 @@ namespace Uccs.Net
 																	ZoneScope.Developer7 => 27000,
 																	ZoneScope.Developer8 => 28000,
 																	ZoneScope.Developer9 => 29000,
-																	ZoneScope.PublicTest		 => 30000,
+																	ZoneScope.PublicTest => 30000,
 																	_ => throw new IntegrityException()};
 		public override string ToString()
 		{
@@ -71,8 +71,8 @@ namespace Uccs.Net
 
 		static Zone()
 		{
-			ITypeCode.Contructors[typeof(PeerRequest)] = [];
-			ITypeCode.Contructors[typeof(PeerResponse)] = [];
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
+				ITypeCode.Contructors[typeof(PeerRequest)] = [];
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
 			{	
@@ -82,7 +82,9 @@ namespace Uccs.Net
 					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
 				}
 			}
-
+	
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerResponse)))
+				ITypeCode.Contructors[typeof(PeerResponse)] = [];
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
 			{	
@@ -170,5 +172,41 @@ namespace Uccs.Net
 		public AccountAddress	Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 		public IPAddress		Father0IP;
 		public ZoneCreation		Creation;
+
+		static McvZone()
+		{
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
+				ITypeCode.Contructors[typeof(PeerRequest)] = [];
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+			{	
+				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+				{
+					ITypeCode.Codes[i] = (byte)c;
+					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
+				}
+			}
+	
+			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerResponse)))
+				ITypeCode.Contructors[typeof(PeerResponse)] = [];
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+			{	
+				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+				{
+					ITypeCode.Codes[i] = (byte)c;
+					ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
+				}
+			}
+
+			if(!ITypeCode.Contructors.ContainsKey(typeof(Operation)))
+				ITypeCode.Contructors[typeof(Operation)] = [];
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
+			{
+				ITypeCode.Codes[i] = (byte)Enum.Parse<OperationClass>(i.Name);
+				ITypeCode.Contructors[typeof(Operation)][(byte)Enum.Parse<OperationClass>(i.Name)]  = i.GetConstructor([]);
+			}
+		}
 	}
 }

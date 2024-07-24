@@ -66,23 +66,6 @@ namespace Uccs.Net
 
 		static McvNode()
 		{
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
-			{	
-				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
-				{
-					ITypeCode.Codes[i] = (byte)c;
-					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
-				}
-			}
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-			{	
-				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
-				{
-					ITypeCode.Codes[i] = (byte)c;
-					ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
-				}
-			}
 		}
 
 		public override object Constract(Type t, byte b)

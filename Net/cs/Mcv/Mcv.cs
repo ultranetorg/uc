@@ -78,18 +78,6 @@ namespace Uccs.Net
 		public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 		public abstract void						FillVote(Vote vote);
 
-		static Mcv()
-		{
-			if(!ITypeCode.Contructors.ContainsKey(typeof(Operation)))
-				ITypeCode.Contructors[typeof(Operation)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<OperationClass>(i.Name);
-				ITypeCode.Contructors[typeof(Operation)][(byte)Enum.Parse<OperationClass>(i.Name)]  = i.GetConstructor([]);
-			}
-  		}
-
 		public Mcv()
 		{
   		}
