@@ -141,14 +141,12 @@ namespace Uccs.Net
 		{
 			lock(mcv.Lock)
 			{ 
-				List<KeyValuePair<string, string>> f =	[
-															new ("Incoming Transactions",	$"{mcv.IncomingTransactions.Count}"),
-															new ("Outgoing Transactions",	$"{mcv.OutgoingTransactions.Count}"),
-															new ("    Pending Delegation",	$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
-															new ("    Accepted",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
-															new ("    Placed",				$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-															new ("    Confirmed",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}"),
-														];
+				List<KeyValuePair<string, string>> f = [new ("Incoming Transactions",	$"{mcv.IncomingTransactions.Count}"),
+														new ("Outgoing Transactions",	$"{mcv.OutgoingTransactions.Count}"),
+														new ("    Pending Delegation",	$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
+														new ("    Accepted",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
+														new ("    Placed",				$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+														new ("    Confirmed",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
 				
 				if(mcv.Mcv != null)
 				{
