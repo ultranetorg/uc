@@ -67,6 +67,7 @@ namespace Uccs.Net
 		Busy,
 		NotFound,
 		HashMismatch,
+		//DownloadFailed
 	}
 
 	[JsonDerivedType(typeof(NodeException), typeDiscriminator: "Node")]

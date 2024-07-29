@@ -136,7 +136,7 @@ namespace Uccs.Rdn
 
 		public class Realization
 		{
-			public string			Name;
+			public Ura				Address;
 			public Expression		Requirement;
 
 			public Realization()
@@ -145,7 +145,7 @@ namespace Uccs.Rdn
 
 			public Realization(Xon xon)
 			{
-				Name = xon.Get<string>();
+				Address = xon.Get<Ura>();
 				Requirement = new Expression(xon);
 			}
 		}

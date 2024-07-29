@@ -180,7 +180,7 @@ namespace Uccs.Rdn
 		//public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
 		public object					Activity;
 		Availability					_Availability;
-		DataType						_Type;
+		//long							_Type;
 		List<LocalFile>					_Files;
 		bool							Loaded;
 		ResourceHub						Hub;
@@ -205,26 +205,20 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public DataType Type
-		{
-			get
-			{ 
-				Load();
-				return _Type; 
-			}
-		}
-
-		public LocalRelease(ResourceHub hub, Urr address, DataType type)	
-		{
-			Hub = hub;
-			Address = address;
-			_Type = type;
-		}
+		//public long Type
+		//{
+		//	get
+		//	{ 
+		//		Load();
+		//		return _Type; 
+		//	}
+		//}
 
 		public LocalRelease(ResourceHub hub, Urr address)	
 		{
 			Hub = hub;
 			Address = address;
+			//_Type = type;
 		}
 
 		public override string ToString()
@@ -295,7 +289,7 @@ namespace Uccs.Rdn
 					var s = new MemoryStream(d);
 					var r = new BinaryReader(s);
 	
-					_Type			= (DataType)r.ReadByte();
+					//_Type			= r.Read7BitEncodedInt64();
 					_Availability	= (Availability)r.ReadByte();
 					_Files			= r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
 				}
@@ -315,7 +309,7 @@ namespace Uccs.Rdn
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 								
-				w.Write((byte)Type);
+				//w.Write7BitEncodedInt64(Type);
 				w.Write((byte)Availability);
 				w.Write(Files);
 

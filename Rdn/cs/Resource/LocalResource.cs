@@ -23,13 +23,13 @@ namespace Uccs.Rdn
 			Address = resource;
 		}
 
-		public T LastAs<T>() where T : class  // where T : IBinarySerializable, new()
-		{
-			//var t = new T();
-			//t.Read(new BinaryReader(new MemoryStream(Last)));
-			//return t;
-			return Last?.Interpretation as T;
-		}
+		//public T LastAs<T>() where T : IBinarySerializable, new()
+		//{
+		//	//var t = new T();
+		//	//t.Read(new BinaryReader(new MemoryStream(Last)));
+		//	//return t;
+		//	return Last.Read<T>();
+		//}
 
 		public void AddData(ResourceData data)
 		{
@@ -51,12 +51,13 @@ namespace Uccs.Rdn
 			Save();
 		}
 
-		public void AddData(DataType type, object interpretation)
+		public void AddData(DataType type, object value)
 		{
 			if(Datas == null)
 				Datas = new();
 
-			var i = Datas.Find(i => i.Type == type && i.Interpretation.Equals(interpretation));
+			var v = ResourceData.Serialize(value);
+			var i = Datas.Find(i => i.Type == type && i.Value.SequenceEqual(v));
 
 			if(i != null)
 			{
@@ -65,7 +66,7 @@ namespace Uccs.Rdn
 			}
 			else
 			{ 
-				Datas.Add(new ResourceData(type, interpretation));
+				Datas.Add(new ResourceData(type, v));
 			}
 		
 			Save();

@@ -2,20 +2,9 @@
 {
 	public class Consil : IBinarySerializable
  	{
- 		public Unit			PerByteSTFee;
+ 		public Unit				PerByteSTFee;
 		public AccountAddress[]	Analyzers;
 
- 		public byte[]			Raw {
-										get
-										{
-											var s = new MemoryStream();
-											var w = new BinaryWriter(s);
-											
-											Write(w);
-											
-											return s.ToArray();
-										}
-									}
 
 		public void Read(BinaryReader reader)
 		{
@@ -58,22 +47,10 @@
 	public class Analysis : IBinarySerializable
 	{
 		public Urr					Release { get; set; }
-		public Unit				STPayment { get; set; }
-		public Unit				EUPayment { get; set; }
+		public Unit					STPayment { get; set; }
+		public Unit					EUPayment { get; set; }
 		public Ura					Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
-
- 		public byte[]				Raw {
-											get
-											{
-												var s = new MemoryStream();
-												var w = new BinaryWriter(s);
-												
-												Write(w);
-												
-												return s.ToArray();
-											}
-										}
 
 		public override string ToString()
 		{

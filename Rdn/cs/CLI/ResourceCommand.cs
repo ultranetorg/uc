@@ -257,11 +257,11 @@
 								},
 
 								Execute = () =>	{
-													var r = Api<Resource>(new ResourceDownloadApc{Idedtifier = new(First), LocalPath = GetString("localpath", null)});
+													var r = Api<Resource>(new ResourceDownloadApc{Identifier = new(First), LocalPath = GetString("localpath", null)});
 
 													while(Flow.Active)
 													{
-														var p = Api<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as Urr});
+														var p = Api<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
 
 														if(p is null)
 															break;

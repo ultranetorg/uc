@@ -334,7 +334,7 @@ namespace Uccs.Rdn
 				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
 
 				var a = addresscreator.Create(Node.Mcv, h);
-				var r = Node.ResourceHub.Add(a, DataType.Package);
+				var r = Node.ResourceHub.Add(a);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
 				r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream.ToArray());
@@ -345,7 +345,7 @@ namespace Uccs.Rdn
 				r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 				var p = Get(resource);
-				p.Resource.AddData(DataType.Package, a);
+				p.Resource.AddData(new DataType(DataType.File, ContentType.Rdn_PackageManifest), a);
 
 				workflow.Log?.Report(this, $"Address: {a}");
 

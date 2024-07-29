@@ -57,16 +57,16 @@ namespace Uccs.Rdn
 
 	public class ResourceDownloadApc : RdnApc
 	{
-		public ResourceIdentifier	Idedtifier { get; set; }
+		public ResourceIdentifier	Identifier { get; set; }
 		public string				LocalPath { get; set; }
 
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(() => new ResourceRequest(Idedtifier), workflow).Resource;
+			var r = sun.Call(() => new ResourceRequest(Identifier), workflow).Resource;
 
 			IIntegrity itg;
 
-			var urr = r.Data.Interpretation as Urr;
+			var urr = r.Data.Parse<Urr>();
 
 			switch(urr)
 			{ 
@@ -88,14 +88,14 @@ namespace Uccs.Rdn
 				var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
 				lrs.AddData(r.Data);
 
-				var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr, r.Data.Type);
+				var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr);
 
-				if(r.Data.Type == DataType.File)
+				if(r.Data.Type.Control == DataType.File)
 				{
-					sun.ResourceHub.DownloadFile(lrl, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
+					sun.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
 					return r;
 				}
-				else if(r.Data.Type == DataType.Directory)
+				else if(r.Data.Type.Control == DataType.Directory)
 				{
 					sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
 					return r;
@@ -121,7 +121,7 @@ namespace Uccs.Rdn
 					var s = new ReleaseDownloadProgress(f.Harvester);
 	
 					s.Succeeded	= f.Succeeded;
-					s.CurrentFiles = new [] {new FileDownloadProgress(f)};
+					s.CurrentFiles = [new FileDownloadProgress(f)];
 	
 					return s;
 				}
@@ -223,7 +223,6 @@ namespace Uccs.Rdn
 
 		public class Return
 		{
-			public DataType			Type { get; set; }
 			public Member[]			DeclaredOn { get; set; }
 			public Availability		Availability { get; set; }
 			public File[]			Files { get; set; }
@@ -234,7 +233,6 @@ namespace Uccs.Rdn
 
 			public Return(LocalRelease release)
 			{
-				Type		= release.Type;
 				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
 				Availability= release.Availability;
 				Files		= release.Files.Select(i => new File(i)).ToArray();

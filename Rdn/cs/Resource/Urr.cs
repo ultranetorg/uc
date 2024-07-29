@@ -124,6 +124,17 @@ namespace Uccs.Rdn
  		public override bool	Equals(object obj) => Equals(obj as Urrh);
 		public override bool	Equals(Urr o) => o is Urrh a && Hash.SequenceEqual(a.Hash);
 
+		public new static Urrh Parse(string t)
+		{
+			UAddress.Parse(t, out var s, out var z, out var o);
+
+			var a = new Urrh();
+
+			a.Zone = z;
+			a.ParseSpecific(o);
+
+			return a;
+		}
 		public override string ToString()
 		{
 			return UAddress.ToString(Scheme, Zone, Hash.ToHex());

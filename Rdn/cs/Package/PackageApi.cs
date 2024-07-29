@@ -23,9 +23,9 @@ namespace Uccs.Rdn
 				lock(node.ResourceHub.Lock)
 				{
 					p.Resource.Id = Id;
-					p.Resource.AddData(DataType.Package, a);
+					p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Rdn_PackageManifest), a));
 					
-					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a, DataType.Package);
+					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a);
 
 					var path = node.PackageHub.AddressToReleases(a);
 

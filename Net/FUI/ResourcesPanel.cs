@@ -84,7 +84,7 @@ namespace Uccs.Net.FUI
 				li.Tag = i;
 				li.SubItems.Add(i.Datas.Count.ToString());
 				li.SubItems.Add(i.Last?.Type.ToString());
-				li.SubItems.Add(i.Last?.Interpretation.ToString());
+				li.SubItems.Add(i.Last?.Value.ToHex(32));
 				li.SubItems.Add(i.Last?.Value.Length.ToString());
 
 				LocalReleases.Items.Add(li);

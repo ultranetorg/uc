@@ -93,6 +93,35 @@ namespace Uccs.Rdn
 		{
 			Options = DefaultOptions;
 		}
+
+		public LocalReleaseApc.Return Download(Ura address, Flow flow)
+		{
+  			var r = Request<Resource>(new ResourceDownloadApc {Identifier = new (address)}, flow);
+
+			do
+			{
+				var d = Request<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+			
+				if(d is null)
+				{
+					var lrr = Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+						
+					if(lrr.Availability == Availability.Full)
+					{
+						return lrr;
+					}
+// 					else
+// 					{
+// 						throw new ResourceException(ResourceError.);
+// 					}
+				}
+	
+				Thread.Sleep(100);
+			}
+			while(flow.Active);
+
+			throw new OperationCanceledException();
+		}
 	}
 
 	public class GetApc : RdnApc
@@ -105,7 +134,7 @@ namespace Uccs.Rdn
 				var path = request.QueryString["path"] ?? "";
 	
 				var r = rdn.Call(() => new ResourceRequest(a), workflow).Resource;
-				var ra = r.Data?.Interpretation as Urr
+				var ra = r.Data?.Parse<Urr>()
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
 	
@@ -115,7 +144,7 @@ namespace Uccs.Rdn
 				lock(rdn.ResourceHub.Lock)
 				{
 					s = rdn.ResourceHub.Find(a) ?? rdn.ResourceHub.Add(a);
-					z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra, r.Data.Type);
+					z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra);
 				}
 	
 				IIntegrity itg = null;
@@ -123,13 +152,13 @@ namespace Uccs.Rdn
 				switch(ra)
 				{ 
 					case Urrh x :
-						if(r.Data.Type == DataType.File)
+						if(r.Data.Type.Control == DataType.File)
 						{
 							itg = new DHIntegrity(x.Hash); 
 						}
-						else if(r.Data.Type == DataType.Directory)
+						else if(r.Data.Type.Control == DataType.Directory)
 						{
-							var	f = rdn.ResourceHub.GetFile(z, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
+							var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
 	
 							var index = new XonDocument(f.Read());
 	
@@ -154,7 +183,7 @@ namespace Uccs.Rdn
 					FileDownload d;
 	
 					lock(rdn.ResourceHub.Lock)
-						d = rdn.ResourceHub.DownloadFile(z, path, null, itg, null, workflow);
+						d = rdn.ResourceHub.DownloadFile(z, true, path, null, itg, null, workflow);
 		
 					var ps = new List<FileDownload.Piece>();
 					int last = -1;

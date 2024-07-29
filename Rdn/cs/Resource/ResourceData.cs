@@ -1,34 +1,140 @@
-﻿using System.Net;
+﻿using System.Numerics;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn
 {
+
+	public class DataType : IEquatable<DataType>, IBinarySerializable
+	{
+		public string Control;
+		public string Content;
+
+		public static readonly string	Self							= null;
+		public static readonly string	File							= From([1]);
+		public static readonly string	Directory						= From([2]);
+		public static readonly string	Redirect						= From([100]);
+		public static readonly string		Redirect_Uri				= From([100, 0]);
+		public static readonly string		Redirect_IPAddress			= From([100, 1]);
+		public static readonly string			Redirect_IP4			= From([100, 1, 0]);
+		public static readonly string			Redirect_IP6			= From([100, 1, 1]);
+		public static readonly string		Redirect_ProductRealization	= From([100, 100]);
+
+		public DataType()
+		{
+		}
+
+		public DataType(string control, string content)
+		{
+			Control = control;
+			Content = content;
+		}
+
+		public DataType(byte[] control, byte[] content)
+		{
+			Control = From(control);
+			Content = From(content);
+		}
+
+		public static string From(byte[] x)
+		{
+			return x.ToHex();
+		}
+
+		public static string Parse(string t)
+		{
+			return typeof(DataType).GetField(t).GetValue(null) as string;
+		}
+
+		public override string ToString()
+		{
+			return $"{Control}, {Content}";
+		}
+
+		///public bool IsValueDerived(short[] value)
+		///{
+		///	return value.Length <= Control.Length && Control.Take(value.Length).SequenceEqual(value);
+		///}
+		///
+		///public bool IsContentDerived(short[] content)
+		///{
+		///	BitOperations.
+		///
+		///	return content.Length <= Content.Length && Content.Take(content.Length).SequenceEqual(content);
+		///}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as DataType);
+		}
+
+		public bool Equals(DataType o)
+		{
+			return o is not null && Control == o.Control && Content == o.Content;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Control, Content);
+		}
+
+		public static bool operator == (DataType left, DataType right)
+		{
+			return  left is null && right is null || left is not null && left.Equals(right);
+		}
+
+		public static bool operator != (DataType left, DataType right)
+		{
+			return !(left == right);
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.WriteBytes(Control?.FromHex());
+			writer.WriteBytes(Content?.FromHex());
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Control	= reader.ReadBytes()?.ToHex();
+			Content = reader.ReadBytes()?.ToHex();
+		}
+	}
+
+	public class ContentType
+	{
+		public static readonly string	Unknown 					= null;
+		public static readonly string	Raw 						= null;
+		public static readonly string	Text						= DataType.From([10]);
+		public static readonly string	Image						= DataType.From([20]);
+		public static readonly string	Audio						= DataType.From([30]);
+		public static readonly string	Video						= DataType.From([40]);
+		public static readonly string	Font						= DataType.From([50]);
+		public static readonly string	Applied						= DataType.From([100]);
+		public static readonly string		Rdn						= DataType.From([100, 0]);
+		public static readonly string			Rdn_ProductManifest	= DataType.From([100, 0, 0]);
+		public static readonly string			Rdn_PackageManifest	= DataType.From([100, 0, 1]);
+ 		public static readonly string			Rdn_Consil			= DataType.From([100, 0, 2]);
+ 		public static readonly string			Rdn_Analysis		= DataType.From([100, 0, 3]);
+
+		public static string Parse(string t)
+		{
+			return typeof(ContentType).GetField(t).GetValue(null) as string;
+		}
+	}
+// 
+// 	public interface IResourceValue
+// 	{
+// 		byte[]		Transform();
+//  	}
+
 	public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	{
 		public const short	LengthMax = 8192;
 
 		public DataType		Type;
-		byte[]				_Value;
-		object				_Interpretation;
-
- 		public byte[] Value
- 		{
- 			get
- 			{
- 				if(_Value == null)
- 				{
- 					var s = new MemoryStream();
- 					var w = new BinaryWriter(s);
- 			
- 					WriteInterpetation(w);
- 
- 					_Value = s.ToArray();
- 				}
- 
- 				return _Value;
- 			}
- 		}
+		public byte[]		Value;
 		
  		public string Hex
  		{
@@ -37,25 +143,24 @@ namespace Uccs.Rdn
  				var s = new MemoryStream();
  				var w = new BinaryWriter(s);
  			
-				w.Write7BitEncodedInt((int)Type);
- 				WriteInterpetation(w);
- 
+				Write(w);
+ 		
  				return s.ToArray().ToHex();
  			}
  		}
-
-		public object Interpretation
-		{
-			get
-			{
-				if(_Interpretation == null && _Value != null)
-				{
-					ReadInterpetation(new BinaryReader(new MemoryStream(_Value)));
-				}
-
-				return _Interpretation;
-			}
-		}
+// 
+// 		public object Interpretation
+// 		{
+// 			get
+// 			{
+// 				if(_Interpretation == null && _Value != null)
+// 				{
+// 					ReadInterpetation(new BinaryReader(new MemoryStream(_Value)));
+// 				}
+// 
+// 				return _Interpretation;
+// 			}
+// 		}
 
 		public ResourceData()
 		{
@@ -66,10 +171,26 @@ namespace Uccs.Rdn
 			Read(reader);
 		}
 
-		public ResourceData(DataType type, object interpretation)
+		public ResourceData(DataType type, object value)
 		{
 			Type = type;
-			_Interpretation = interpretation;
+			Value = Serialize(value);
+		}
+
+		public static byte[] Serialize(object o)
+		{
+			switch(o)
+			{
+				case byte[] s:	 return s;
+				case string s:	 return Encoding.UTF8.GetBytes(s);
+				case Urr s:		 return Encoding.UTF8.GetBytes(s.ToString());
+				case Ura s:		 return Encoding.UTF8.GetBytes(s.ToString());
+				case Consil a:	 return (a as IBinarySerializable).Raw;
+				case Analysis a: return (a as IBinarySerializable).Raw;
+
+				default :
+					throw new ResourceException(ResourceError.UnknownDataType);
+			}
 		}
 
 		//public static ResourceData FromValue(DataType type, byte[] value)
@@ -80,99 +201,74 @@ namespace Uccs.Rdn
 
 		public override string ToString()
 		{
-			return $"{Type}, {Value.Length}, {Interpretation}";
+			return $"{Type}, {Value.Length}";
 		}
 
-		public void Read(BinaryReader reader)
+		public T Read<T>() where T : IBinarySerializable, new()
 		{
-			Type = (DataType)reader.Read7BitEncodedInt();
-			ReadInterpetation(reader);
+			return new BinaryReader(new MemoryStream(Value)).Read<T>();
 		}
 
-		public void ReadInterpetation(BinaryReader reader)
+		public T Parse<T>()
 		{
-			switch(Type)
-			{
-				case DataType.Raw:
-					_Interpretation = reader.ReadBytes();
-					break;
-
-				case DataType.Redirect:
-				case DataType.Uri:
-					_Interpretation = reader.ReadUtf8();
-					break;
-
-				case DataType.IPAddress:
-					_Interpretation = new IPAddress(reader.ReadBytes());
-					break;
-
-				case DataType.File:
-				case DataType.Directory:
-				case DataType.Package: 
-					_Interpretation = reader.ReadVirtual<Urr>();
-					break;
-
-				case DataType.Consil:
-					_Interpretation = reader.Read<Consil>();
-					break;
-
-				case DataType.Analysis:
-					_Interpretation = reader.Read<Analysis>();
-					break;
-
-
-				default:
-					throw new ResourceException(ResourceError.UnknownDataType);
-			}
+			return (T) typeof(T).GetMethod("Parse", [typeof(string)]).Invoke(null, [Encoding.UTF8.GetString(Value)]);
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt((int)Type);
-				
-			if(_Value != null)
-			{
-				writer.Write(_Value);
-			} 
-			else
-			{
-				WriteInterpetation(writer);
-			}
+			writer.Write(Type);
+			writer.WriteBytes(Value);
 		}
 
-		void WriteInterpetation(BinaryWriter writer)
+		public void Read(BinaryReader reader)
 		{
-			switch(Type)
-			{
-				case DataType.Raw:
-					writer.WriteBytes(Interpretation as byte[]);
-					break;
-	
-				case DataType.Redirect:
-				case DataType.Uri:
-					writer.WriteUtf8(Interpretation as string);
-					break;
-				
-				case DataType.IPAddress:
-					writer.WriteBytes((Interpretation as IPAddress).GetAddressBytes());
-					break;
-				
-				case DataType.File:
-				case DataType.Directory:
-				case DataType.Package: 
-				case DataType.Consil:
-				case DataType.Analysis:
-					writer.Write(Interpretation as IBinarySerializable);
-					break;
-
-				default:
-					throw new ResourceException(ResourceError.UnknownDataType);
-			}
+			Type	= reader.Read<DataType>();
+			Value	= reader.ReadBytes();
 		}
+// 
+// 		public void ReadInterpetation(BinaryReader reader)
+// 		{
+// 			switch(BaseType)
+// 			{
+// 				case DataBaseType.Bytes:	_Interpretation = reader.ReadBytes();	break;
+// 				case DataBaseType.UTF8:		_Interpretation = reader.ReadUtf8();	break;
+// 				case DataBaseType.Ura:		_Interpretation = reader.Read<Ura>();	break;
+// 				case DataBaseType.Urr:		_Interpretation = reader.ReadVirtual<Urr>(); break;
+// 
+// 				//case DataType.Consil:	_Interpretation = reader.Read<Consil>(); break;
+// 				//case DataType.Analysis:	_Interpretation = reader.Read<Analysis>(); break;
+// 
+// 
+// 				default:
+// 					throw new ResourceException(ResourceError.UnknownDataType);
+// 			}
+// 		}
+// 
+// 		void WriteInterpetation(BinaryWriter writer)
+// 		{
+// 			switch(BaseType)
+// 			{
+// 				case DataBaseType.Bytes:
+// 					writer.WriteBytes(Interpretation as byte[]);
+// 					break;
+// 	
+// 				case DataBaseType.UTF8:
+// 					writer.WriteUtf8(Interpretation as string);
+// 					break;
+// 				
+// 				case DataBaseType.Ura:
+// 				case DataBaseType.Urr:
+// 					writer.Write(Interpretation as IBinarySerializable);
+// 					break;
+// 
+// 				default:
+// 					throw new ResourceException(ResourceError.UnknownDataType);
+// 			}
+// 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Value);
+			return HashCode.Combine(Type, Value);
 		}
 
 		public override bool Equals(object obj)
@@ -198,46 +294,7 @@ namespace Uccs.Rdn
 		
 		public ResourceData Clone()
 		{
-			object i = null;
-
-			if(_Interpretation == null)
-			{
-				return new ResourceData {Type = Type, _Value = _Value};
-			} 
-			else
-			{
-				switch(_Interpretation)
-				{
-					case byte[] v:
-						i = v.Clone();
-						break;
-
-					case string v:
-						i = v.Clone();
-						break;
-
-					case IPAddress v:
-						i = new IPAddress(v.GetAddressBytes());
-						break;
-
-					case Urr v: 
-						i = Urr.FromRaw(v.Raw);
-						break;
-
-					case Consil v:
-						i = v.Clone();
-						break;
-
-					case Analysis v:
-						i = v.Clone();
-						break;
-
-					default:
-						throw new ResourceException(ResourceError.UnknownDataType);
-				}
-				
-				return new ResourceData {Type = Type, _Interpretation = i, _Value = _Value};
-			}
+			return new ResourceData {Type = Type, Value = Value};
 		}
 	}
 

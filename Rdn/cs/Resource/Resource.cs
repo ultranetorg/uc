@@ -10,27 +10,6 @@ namespace Uccs.Rdn
 		Data			= 0b______10,
 	}
 
-	public enum DataType : short
-	{
-		None		= 0,
-		Raw			= 1,
-
-		Redirect	= 2,
-		IPAddress	= 3, 
-		Uri			= 4,
-
-		File		= 100, 
-		Directory	= 101, 
-		Package		= 102, 
-
-		FirstMime	= 10000, 
-
-		Consil		= 20000, 
-		Analysis	= 20001, 
-
-		ADAO		= 20002
-	}
-
 	[Flags]
 	public enum ResourceChanges : byte
 	{
@@ -93,7 +72,7 @@ namespace Uccs.Rdn
 		bool						OutboundsCloned;
 		bool						InboundsCloned;
 
-		public short				Length => (short)(Mcv.EntityLength + (Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0));
+		public short				Length => (short)(Mcv.EntityLength + (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0)); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 		public override string ToString()
 		{

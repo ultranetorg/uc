@@ -185,29 +185,33 @@ namespace Uccs.Rdn.CLI
 			{
 				if(d.Nodes.Any())
 				{
-					var t = GetEnum<DataType>("data");
-					
-					switch(t)
-					{
-						case DataType.Raw:
-							return new ResourceData(t, d.Get<string>("bytes").FromHex());
+					var ctl = DataType.Parse(GetString("data"));
+					var cnt = GetString("data/type", false) is string a ? ContentType.Parse(a) : null;
+					var t = new DataType(ctl, cnt);
 
-						case DataType.File:
-						case DataType.Directory:
-						case DataType.Package:
-							return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
+					if(ctl == DataType.Self)
+					{	
+						if(cnt == ContentType.Unknown)
+							return new ResourceData(t, d.Get<string>("hex").FromHex());
 				
-						case DataType.Consil:
-							return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+						if(cnt == ContentType.Rdn_Consil)
+							return new ResourceData(t, new Consil{	Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
 																	PerByteSTFee = d.Get<Unit>("pbstf") });
-						case DataType.Analysis:
-							return new ResourceData(t, new Analysis {Release = Urr.Parse(d.Get<string>("release")), 
-																	 STPayment = d.Get<Unit>("stpayment"),
-																	 EUPayment = d.Get<Unit>("eupayment"),
-																	 Consil  = d.Get<Ura>("consil")});
-						default:
-							throw new SyntaxException("Unknown type");
+						
+						if(cnt == ContentType.Rdn_Analysis)
+							return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
+																	STPayment	= d.Get<Unit>("stpayment"),
+																	EUPayment	= d.Get<Unit>("eupayment"),
+																	Consil		= d.Get<Ura>("consil")});
 					}
+					else
+					{
+						if(	ctl == DataType.File ||
+							ctl == DataType.Directory)
+							return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
+					}
+
+					throw new SyntaxException("Unknown type");
 				}
 				else if(d.Value != null)
 					return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data"))));

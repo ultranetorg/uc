@@ -68,6 +68,45 @@
 			return a;
 		}
 
+		public static bool TryParse(string v, out AprvAddress address)
+		{
+			var r = Ura.Parse(v);
+			var p = r.Resource.Split('/');
+
+			address = null;
+
+			if(p.Length != 4)
+				return false;
+
+			address = new AprvAddress();
+
+			address.Domain		= r.Domain;
+			address.Product		= p[0];
+			address.Realization	= p[1];
+			address.Version		= p[2]; 
+
+			return true;
+		}
+
+		public static bool TryParseAPR(string v, out AprvAddress address)
+		{
+			var r = Ura.Parse(v);
+			var p = r.Resource.Split('/');
+
+			address = null;
+
+			if(p.Length != 4)
+				return false;
+
+			address = new AprvAddress();
+
+			address.Domain		= r.Domain;
+			address.Product		= p[0];
+			address.Realization	= p[1];
+
+			return true;
+		}
+
 		//public static Version ParseVesion(string v)
 		//{
 		//	return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));

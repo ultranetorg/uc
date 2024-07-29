@@ -42,6 +42,13 @@ namespace Uccs.Rdn
 			Resource = resource;
 		}
 
+		public Ura(Ura a)
+		{
+			Zone		= a.Zone;
+			Domain		= a.Domain;
+			Resource	= a.Resource;
+		}
+
 		public override string ToString()
 		{
 			return UAddress.ToString(Scheme, Zone, $"{Domain}/{Resource}");

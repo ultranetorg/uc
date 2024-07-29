@@ -76,7 +76,7 @@
 												{
 													last = node.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
 														
-													if(last.Data.Type != DataType.Package)
+													if(last.Data.Type != new DataType(DataType.File, ContentType.Rdn_PackageManifest))
 													{
 														lock(node.PackageHub.Lock)
 															Package.Activity = null;
@@ -94,13 +94,13 @@
 
 											lock(node.ResourceHub.Lock)
 											{
-												node.ResourceHub.Add(last.Data.Interpretation as Urr, DataType.Package);
+												node.ResourceHub.Add(last.Data.Parse<Urr>());
 												package.Resource.AddData(last.Data);
 											}
 
 											IIntegrity itg = null;
 
-											switch(last.Data.Interpretation)
+											switch(last.Data.Parse<Urr>())
 											{ 
 												case Urrh a :
 													itg = new DHIntegrity(a.Hash); 
@@ -115,7 +115,7 @@
 	
 											SeedCollector = new SeedFinder(node, package.Release.Address, workflow);
 	
-											node.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
+											node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
 	
 											bool incrementable;
 	
@@ -135,8 +135,9 @@
 	
 											lock(node.ResourceHub)
 	 											FileDownload = node.ResourceHub.DownloadFile(Package.Release, 
+																							false,
 																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
-																							Path.Join(node.PackageHub.AddressToReleases(last.Data.Interpretation as Urr), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
+																							Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																							new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																							SeedCollector,
 																							workflow);

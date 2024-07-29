@@ -62,13 +62,16 @@ namespace Uccs.Rdn
 					{
 						bool valid()
 						{
-							if(rzd is Urrh dh)
+							if(rzd is Urrh urrh)
 							{
-								var r = Node.Domains.FindResource(rsd.Resource, Node.LastConfirmedRound.Id);
-	
-								if(r?.Data?.Interpretation is Urrh ha && ha == dh)
+								lock(Node.Lock)
 								{
-									return true;
+									var r = Node.Domains.FindResource(rsd.Resource, Node.LastConfirmedRound.Id);
+		
+									if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
+									{
+										return true;
+									}
 								}
 							}
 							///else if(rzd is Urrsd sdp)

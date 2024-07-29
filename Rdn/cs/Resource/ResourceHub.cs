@@ -65,12 +65,12 @@ namespace Uccs.Rdn
 			return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
 		}
 
-		public LocalRelease Add(byte[] address, DataType type)
+		public LocalRelease Add(byte[] address)
 		{
 			if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
 				throw new ResourceException(ResourceError.AlreadyExists);
 		
-			var r = new LocalRelease(this, Urr.FromRaw(address), type);
+			var r = new LocalRelease(this, Urr.FromRaw(address));
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 		
 			Releases.Add(r);
@@ -78,12 +78,12 @@ namespace Uccs.Rdn
 			return r;
 		}
 
-		public LocalRelease Add(Urr address, DataType type)
+		public LocalRelease Add(Urr address)
 		{
 			if(Releases.Any(i => i.Address == address))
 				throw new ResourceException(ResourceError.AlreadyExists);
 
-			var r = new LocalRelease(this, address, type);
+			var r = new LocalRelease(this, address);
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 	
 			Releases.Add(r);
@@ -135,7 +135,7 @@ namespace Uccs.Rdn
 
 			if(d != null)
 			{
-				r = new LocalRelease(this, address, DataType.None);
+				r = new LocalRelease(this, address);
 				Releases.Add(r);
 				return r;
 			}
@@ -224,7 +224,7 @@ namespace Uccs.Rdn
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
 			var a = address.Create(Node.Mcv, h);
  				
-			var r = Add(a, DataType.Directory);
+			var r = Add(a);
 
 			r.AddCompleted(LocalRelease.Index, null, ms.ToArray());
 
@@ -245,7 +245,7 @@ namespace Uccs.Rdn
 			var h = Zone.Cryptography.HashFile(b);
 			var a = address.Create(Node.Mcv, h);
  			
-			var r = Add(a, DataType.File);
+			var r = Add(a);
 
  			r.AddExisting("", path);
 			r.Complete(Availability.Full);
@@ -253,7 +253,7 @@ namespace Uccs.Rdn
 			return r;
 		}
 
-		public LocalFile GetFile(LocalRelease release, string file, string localpath, IIntegrity integrity, SeedFinder harvester, Flow workflow)
+		public LocalFile GetFile(LocalRelease release, bool single, string file, string localpath, IIntegrity integrity, SeedFinder harvester, Flow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -261,7 +261,7 @@ namespace Uccs.Rdn
 			{
 				if(!release.IsReady(file))
 				{
-					var d = DownloadFile(release, file, localpath, integrity, harvester, workflow);
+					var d = DownloadFile(release, single, file, localpath, integrity, harvester, workflow);
 			
 					t = d.Task;
 				}
@@ -291,45 +291,24 @@ namespace Uccs.Rdn
 
 				lock(Lock)
 				{
-					foreach(var r in Resources.Where(i => i.Id != null && i.Last?.Interpretation is Urr))
+					foreach(var r in Resources.Where(i => i.Id != null && (i.Last?.Type.Control == DataType.File || i.Last?.Type.Control == DataType.Directory)))
 					{
 						//foreach(var d in r.Datas)
 						var d = r.Last;
 
-						switch(d.Type)
+						var l = Find(d.Parse<Urr>());
+
+						if(l != null && l.Availability != Availability.None)
 						{
-							case DataType.File:
-							case DataType.Directory:
-							case DataType.Package:
+							foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
+																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																		}).Cast<RdnMember>())
 							{
-								var l = Find(d.Interpretation as Urr);
+								var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
+								rss[r.Id] = l;
+							}
 
-								if(l != null && l.Availability != Availability.None)
-								{
-									foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
-																																					var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																					return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																				}).Cast<RdnMember>())
-									{
-										var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-										rss[r.Id] = l;
-									}
-
-								}
-								break;
-							}								
-							//{	
-							//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
-							//	{
-							//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-							//		{
-							//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
-							//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
-							//		}
-							//	}
-							//
-							//	break;
-							//}
 						}
 					}
 				}
@@ -412,7 +391,7 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string path, string localpath, IIntegrity integrity, SeedFinder collector, Flow workflow)
+		public FileDownload DownloadFile(LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedFinder collector, Flow workflow)
 		{
 			var f = release.Files.Find(i => i.Path == path);
 			
@@ -424,7 +403,7 @@ namespace Uccs.Rdn
 					throw new ResourceException(ResourceError.Busy);
 			}
 
-			var d = new FileDownload(Node, release, path, localpath, integrity, collector, workflow);
+			var d = new FileDownload(Node, release, single, path, localpath, integrity, collector, workflow);
 		
 			return d;
 		}

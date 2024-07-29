@@ -103,7 +103,7 @@
 					
 													Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
 														 ["#", "Flags", "Destination", "Destination Data"],
-														 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.Interpretation]);
+														 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
 
 													return r;
 												}
@@ -137,7 +137,7 @@
 																		
 													Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
 														 ["#", "Source", "Source Data"],
-														 [i => i.L, i => i.R.Address, i => i.R.Data?.Interpretation]);
+														 [i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
 
 													return r;
 												}

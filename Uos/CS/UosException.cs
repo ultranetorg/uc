@@ -1,7 +1,7 @@
 ﻿namespace Uccs.Net
 {
 
-	public abstract class UosException : Exception
+	public class UosException : Exception
 	{
 		public UosException()
 		{

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 using Uccs.Net;
 
@@ -276,6 +277,72 @@ namespace Uccs.Uos
 			var h = Path.Join(AddressToDeployment(address), ".hash");
 			
 			return File.Exists(h) ? File.ReadAllText(h).FromHex() : null;
+		}
+
+		public void Start(Ura address, Flow flow)
+		{
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			var c = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+
+			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
+
+			var d = a.Request<LocalResource>(new LocalResourceApc {Resource = address}, flow)?.Last
+					?? 
+					a.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
+
+			if(d == null)
+				throw new UosException("Incorrent resource type");
+
+			Ura apr = null;
+			Ura aprv = null;
+
+			if(d.Type.Content == ContentType.Rdn_ProductManifest)
+			{
+				var lrr = a.Download(address, flow);
+
+				var m = new ProductManifest();
+				m.Load(lrr.Files[0].Path);
+
+				var consts = new Dictionary<string, object>{{"F", PlatformFamily.Windows},
+															{"B", WindowsBrand.MicrosoftWindows},
+															{"V", MicrosoftWindows.NT_10_10240},
+															{"A", Architecture.Any}};
+
+				apr = m.Realizations.FirstOrDefault(i => (bool)i.Requirement.Evaluate(consts) == true).Address;
+			}
+			else if(d.Type.Control == DataType.Redirect_ProductRealization)
+			{
+				aprv = d.Parse<Ura>();
+			}
+			else if(d.Type.Content == ContentType.Rdn_PackageManifest)
+			{
+				aprv = address;
+			}
+			else
+				throw new UosException("Incorrent resource type");
+
+			if(aprv == null)
+			{
+				d = a.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
+
+				aprv = d.Parse<Ura>();
+			}
+
+			Install(new AprvAddress(aprv), flow);
+
+ 			var pmpath = Directory.EnumerateFiles(AddressToDeployment(new AprvAddress(aprv)), "." + PackageManifest.Extension).First();
+ 
+ 			var pm = new PackageManifest();
+ 			pm.Read(new BinaryReader(new MemoryStream(File.ReadAllBytes(pmpath))));
+ 
+ 			var p = new Process();
+ 			p.StartInfo.UseShellExecute = true;
+ 			p.StartInfo.FileName = pm.Execution.Path;
+ 			p.StartInfo.Arguments = pm.Execution.Arguments;
+ 
+ 			p.Start();
+
 		}
 
 		public void Install(AprvAddress address, Flow flow)

@@ -108,11 +108,11 @@ namespace Uccs.Rdn
 		public SeedFinder							Harvester;
 		public List<Piece>							CurrentPieces = new();
 		public Dictionary<SeedFinder.Seed, int>		Seeds = new();
-		public RdnNode									Rdn;
-		Flow										Flow;
+		public RdnNode								Rdn;
 		public PieceDelegate						PieceSucceeded;
+		Flow										Flow;
 
-		public FileDownload(RdnNode sun, LocalRelease release, string path, string localpath, IIntegrity integrity, SeedFinder seedcollector, Flow flow)
+		public FileDownload(RdnNode sun, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedFinder seedcollector, Flow flow)
 		{
 			Rdn				= sun;
 			Release			= release;
@@ -132,7 +132,7 @@ namespace Uccs.Rdn
 					File.Reset();
 			}
 
-			if(release.Type == DataType.File)
+			if(single)
 				Release.Activity = this;
 			
 			File.Activity = this;
@@ -296,7 +296,7 @@ namespace Uccs.Rdn
 										{	
 											File.Complete();
 	
-											if(Release.Type == DataType.File) /// means ResourseType = File
+											if(single) /// means ResourseType = File
 											{
 												Release.Complete(Availability.Full);
 											}
@@ -310,7 +310,7 @@ namespace Uccs.Rdn
 								{
 									lock(Rdn.ResourceHub.Lock)
 									{	
-										if(Release.Type == DataType.File)
+										if(single)
 											Release.Activity = null;
 
 										File.Activity = null;
@@ -344,7 +344,7 @@ namespace Uccs.Rdn
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, LocalRelease.Index, null, integrity, Harvester, workflow);
+					sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, Harvester, workflow);
 
 					var index = new XonDocument(release.Find(LocalRelease.Index).Read());
 	
@@ -376,7 +376,7 @@ namespace Uccs.Rdn
 	
 							lock(sun.ResourceHub.Lock)
 							{
-								var dd = sun.ResourceHub.DownloadFile(release, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), Harvester, workflow);
+								var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), Harvester, workflow);
 	
 								if(dd != null)
 								{
