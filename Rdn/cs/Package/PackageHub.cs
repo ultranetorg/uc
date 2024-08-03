@@ -45,7 +45,7 @@ namespace Uccs.Rdn
 				if(	p.Release.Availability.HasFlag(Availability.Complete) || 
 					p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsReady(i.Release)))
 				{
-					return p.Manifest.CriticalDependencies.All(i => IsReady(i.Package));
+					return p.Manifest.CriticalDependencies.All(i => IsReady(i.Address));
 				}
 				else
 					return false;
@@ -130,7 +130,7 @@ namespace Uccs.Rdn
 
 			foreach(var i in p.Manifest.CompleteDependencies)
 			{
-				if(i.Type == DependencyType.Critical && !ExistsRecursively(i.Package))
+				if(i.Type == DependencyType.Critical && !ExistsRecursively(i.Address))
 					return false;
 			}
 
@@ -238,11 +238,11 @@ namespace Uccs.Rdn
 			Build(stream, incs, rems, workflow);
 		}
 
-		public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
+		public void DetermineDelta(Ura package, VersionManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
 			lock(Node.ResourceHub.Lock)
 			{
-				var from = manifest.Parents.LastOrDefault(i => IsReady(i.Release));
+				var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Release));
 		
 				if(from != null)
 				{
@@ -308,8 +308,8 @@ namespace Uccs.Rdn
 				BuildIncremental(istream, resource, previous, files, workflow);
 			}
 			
-			var m = File.Exists(dependenciespath) ? PackageManifest.LoadCompleteDependencies(dependenciespath)
-												  : new PackageManifest{CompleteDependencies = new Dependency[0]};
+			var m = File.Exists(dependenciespath) ? VersionManifest.Load(dependenciespath)
+												  : new VersionManifest{CompleteDependencies = []};
 
 			///Add(release, m);
 			
@@ -320,15 +320,14 @@ namespace Uccs.Rdn
 
 				if(previous != null) /// a single parent supported only
 				{
-					var pm = new PackageManifest();
-					pm.Read(new BinaryReader(new MemoryStream(Find(previous).Release.Find(LocalPackage.ManifestFile).Read())));
+					var vm = VersionManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
 				
 					var d = new ParentPackage {	Release				= previous,
-												AddedDependencies	= m.CompleteDependencies.Where(i => !pm.CompleteDependencies.Contains(i)).ToArray(),
-												RemovedDependencies	= pm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
+												AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
+												RemovedDependencies	= vm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
 					
 					m.Parents = [d];
-					m.History = Find(previous).Manifest.History.Append(previous).ToArray();
+					m.History = (Find(previous).Manifest.History ?? []).Append(previous).ToArray();
 				}
 
 				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
@@ -414,15 +413,15 @@ namespace Uccs.Rdn
 				var deps = new HashSet<Ura>();
 
 				foreach(var j in m.Complete.Manifest.CompleteDependencies)
-					deps.Add(j.Package);
+					deps.Add(j.Address);
 
 				foreach(var i in m.Incrementals.AsEnumerable().Reverse())
 				{
 					foreach(var j in i.Value.AddedDependencies)
-						deps.Add(j.Package);
+						deps.Add(j.Address);
 		
 					foreach(var j in i.Value.RemovedDependencies)
-						deps.Remove(j.Package);
+						deps.Remove(j.Address);
 				}
 	
 				foreach(var i in deps)
@@ -485,7 +484,8 @@ namespace Uccs.Rdn
 										i.Key.Activity = null;
 									}
 
-									File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
+									//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
+									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(todeployment(s.Target.Resource.Address),'.' + VersionManifest.Extension));
 								}
 							});
 

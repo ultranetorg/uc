@@ -346,7 +346,7 @@ namespace Uccs.Rdn
 				{
 					sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, Harvester, workflow);
 
-					var index = new XonDocument(release.Find(LocalRelease.Index).Read());
+					var index = new Xon(release.Find(LocalRelease.Index).Read());
 	
 					void enumearate(Xon xon)
 					{

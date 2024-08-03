@@ -312,9 +312,9 @@ namespace Uccs
 			}
 		}
 
-		protected void Dump(XonDocument document)
+		protected void Dump(Xon xon)
 		{
-			document.Dump((n, l) => Report(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
+			xon.Dump((n, l) => Report(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
 		}
 	}
 }

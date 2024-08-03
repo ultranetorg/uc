@@ -8,8 +8,8 @@ namespace Uccs.Rdn
 
 	public class DataType : IEquatable<DataType>, IBinarySerializable
 	{
-		public string Control;
-		public string Content;
+		public string Control { get; set; }
+		public string Content { get; set; }
 
 		public static readonly string	Self							= null;
 		public static readonly string	File							= From([1]);

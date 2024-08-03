@@ -197,7 +197,7 @@ namespace Uccs.Net.FUI
 			return Uos.Vault.GetKey(account);
 		}
 
-		public static string Dump(XonDocument doc)
+		public static string Dump(Xon doc)
 		{
 			string t = "";
 			doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);

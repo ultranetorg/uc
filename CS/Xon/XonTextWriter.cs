@@ -33,11 +33,36 @@ namespace Uccs
 			Write(s);
 		}
 
+		string Quotate(string v, bool isname)
+		{
+			string s = null;
+
+			var q = v.IndexOfAny(new char[]{' ', '\t', '\r', '\n', '{', '}' }) != -1 || v.IndexOf("//") != -1 || (!isname || v.Contains('='));
+			var qq = v.IndexOf('\"') != -1;
+
+			if(q || qq)
+			{
+				s += '\"';
+			}
+
+			if(qq)
+				s += v.Replace("\"", "\"\"");
+			else
+				s += v;
+
+			if(q || qq)
+			{
+				s += '\"';
+			}
+
+			return s;
+		}
+
 		public void Write(ref string s, Xon n, int d)
 		{
 			string t = new string('\t', d);
 
-			s += t + (n.IsDifferenceDeleted ? "-" : "") + n.Name;
+			s += t + (n.IsDifferenceDeleted ? '-' : "") + Quotate(n.Name, true);
 			
 			///if(IsWriteTypes && n.GetValue() != null)
 			///{
@@ -49,24 +74,8 @@ namespace Uccs
 				
 				if(!string.IsNullOrEmpty(v))
 				{
-					var q = v.IndexOfAny(new char[]{' ', '\t', '\r', '\n', '{', '}' }) != -1 || v.IndexOf("//") != -1;
-					var qq = v.IndexOf('\"') != -1;
-	
-					s += " = ";
-					if(q || qq)
-					{
-						s += "\"";
-					}
-	
-					if(qq)
-						v = v.Replace("\"", "\"\"");
-	
-					s += v;
-	
-					if(q || qq)
-					{
-						s += "\"";
-					}
+
+					s += " = " + Quotate(v, false);
 				}
 			}
 
@@ -74,12 +83,12 @@ namespace Uccs
 
 			if(n.Nodes.Count() > 0)
 			{
-				s += t + "{" + NewLine;
+				s += t + '{' + NewLine;
 				foreach(var i in n.Nodes)
 				{
 					Write(ref s, i, d+1);
 				}
-				s += t + "}" + NewLine;
+				s += t + '}' + NewLine;
 			}
 		}
 	}

@@ -53,6 +53,9 @@ namespace Uccs
 
 		public virtual object Get(Xon node, object value, Type type)
 		{
+			if(value == null)
+				return null;
+
 			var t = value as string;
 
 			if(type == typeof(string))		return value;
@@ -109,6 +112,9 @@ namespace Uccs
 
 		public virtual object Get(Xon node, object value, Type type)
 		{
+			if(value == null)
+				return null;
+
 			var v = value as byte[];
 
 			if(type == typeof(byte[]))	return v;

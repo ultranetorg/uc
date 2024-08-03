@@ -125,9 +125,9 @@
 									
 												foreach(var i in deps)
 												{
-													if(!node.PackageHub.ExistsRecursively(i.Package))
+													if(!node.PackageHub.ExistsRecursively(i.Address))
 													{
-														var dd = node.PackageHub.Download(i.Package, workflow);
+														var dd = node.PackageHub.Download(i.Address, workflow);
 														Dependencies.Add(dd);
 													}
 												}

@@ -11,7 +11,7 @@ namespace Uccs.Rdn.CLI
 		protected override Type[]	TypesForExpanding => [	typeof(IEnumerable<Dependency>), 
 															typeof(IEnumerable<AnalyzerResult>), 
 															typeof(Resource), 
-															typeof(PackageManifest)];
+															typeof(VersionManifest)];
 		static RdnCommand()
 		{
 			try

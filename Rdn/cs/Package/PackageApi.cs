@@ -116,7 +116,7 @@ namespace Uccs.Rdn
 	{
 		public bool				Ready { get; set; }
 		public Availability		Availability { get; set; }
-		public PackageManifest	Manifest { get; set; }
+		public VersionManifest	Manifest { get; set; }
 	}
 
 	//public class DeploymentInfoApc : RdnApc

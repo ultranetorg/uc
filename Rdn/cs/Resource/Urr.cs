@@ -117,7 +117,16 @@ namespace Uccs.Rdn
  	{
 		public const string		Scheme = "urrh";
 
- 		public byte[]			Hash { get; set; }
+		public Urrh()
+		{
+		}
+
+		public Urrh(byte[] hash)
+		{
+			Hash = hash;
+		}
+
+		public byte[]			Hash { get; set; }
  		public override byte[]	MemberOrderKey => Hash;
  		
 		public override int		GetHashCode() => BitConverter.ToInt32(Hash);

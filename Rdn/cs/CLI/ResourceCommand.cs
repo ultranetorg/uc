@@ -40,11 +40,10 @@
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
 													Transacted = () =>	{
-																			var	r = Rdc(new ResourceRequest(First)).Resource;
-
-																			Api(new ResourceUpdateApc{	Address = r.Address,
-																										Data = r.Data, 
-																										Id = r.Id});
+																			//var	r = Rdc(new ResourceRequest(First)).Resource;
+													
+																			Api(new LocalResourceUpdateApc {Address = First,
+																											Data = GetData()});
 																		};
 
 													return new ResourceCreation(First, GetData(), Has("seal"));
@@ -111,11 +110,8 @@
 													var	r = Rdc(new ResourceRequest(First)).Resource;
 
 													Transacted = () =>	{
-																			var	r = Rdc(new ResourceRequest(First)).Resource;
-
-																			Api(new ResourceUpdateApc{	Address = r.Address,
-																										Data = r.Data, 
-																										Id = r.Id});
+																			Api(new LocalResourceUpdateApc {Address = First,
+																											Data = GetData()});
 																		};
 
 													var o =	new ResourceUpdation(r.Id);
@@ -221,7 +217,7 @@
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 
-													var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args.Any() ? Args[0].Name : null});
+													var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = Args.Any() ? Args[0].Name : null});
 					
 													Dump(	r, 
 															["Address", "Releases", "Type", "Data", "Length"], 
@@ -261,7 +257,7 @@
 
 													while(Flow.Active)
 													{
-														var p = Api<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
+														var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
 
 														if(p is null)
 															break;

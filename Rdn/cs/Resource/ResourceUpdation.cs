@@ -8,7 +8,7 @@ namespace Uccs.Rdn
 
 		public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
 														(!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
-		public override string		Description => $"{Resource}, [{Changes}], [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
+		public override string		Description => $"{Resource}, [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
 		{

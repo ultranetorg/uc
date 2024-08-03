@@ -39,7 +39,7 @@
 
 								Execute = () =>	{
 													Ura p = null;
-													PackageManifest m = null;
+													VersionManifest m = null;
 
 													var r = Api<Urr>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
 																							Sources			 = GetString("sources").Split(','), 

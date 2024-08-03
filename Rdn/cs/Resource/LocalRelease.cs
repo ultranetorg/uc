@@ -238,28 +238,28 @@ namespace Uccs.Rdn
 			return Files.Last();
 		}
 
-		public LocalFile AddExisting(string path, string localpath)
-		{
-			if(Files.Any(i => i.Path == path))
-				throw new IntegrityException($"File {path} already exists");
-
-			var f = new LocalFile(this, path, localpath, null);
-			Files.Add(f);
-
-			f.Complete(); /// implicit Save called
-
-			return f;
-		}
+		//public LocalFile AddExisting(string path, string localpath)
+		//{
+		//	if(Files.Any(i => i.Path == path))
+		//		throw new IntegrityException($"File {path} already exists");
+		//
+		//	var f = new LocalFile(this, path, localpath, null);
+		//	Files.Add(f);
+		//
+		//	f.Complete(); /// implicit Save called
+		//
+		//	return f;
+		//}
 
 		public LocalFile AddCompleted(string path, string localpath, byte[] data)
 		{
 			if(Files.Any(i => i.Path == path))
 				throw new IntegrityException($"File {path} already exists");
 
-			var f = new LocalFile(this, path, localpath, data);
+			var f = new LocalFile(this, path, path.StartsWith('\0') ? null : (localpath ?? Hub.ToReleases(Address)), data);
 			Files.Add(f);
 
-			if(localpath != null)
+			if(!path.StartsWith('\0') && data != null)
 			{
 				f.Write(0, data);
 			}

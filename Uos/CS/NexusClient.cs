@@ -74,7 +74,7 @@ namespace Uccs.Uos
 			/// 
 			/// 	Environment.SetEnvironmentVariable("PATH", setenv(r, Environment.GetEnvironmentVariable("PATH")));
 			/// 	
-			/// 	var s = new XonDocument(File.ReadAllText(f));
+			/// 	var s = new Xon(File.ReadAllText(f));
 			/// 	
 			/// 	Process.Start(s.Get<string>("Executable"), s.Get<string>("Arguments"));
 			/// }

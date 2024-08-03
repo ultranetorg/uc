@@ -83,7 +83,7 @@ namespace Uccs
 
 			if(File.Exists(Path))
 			{
-				var x = new XonDocument(File.ReadAllText(Path), serializator);
+				var x = new Xon(File.ReadAllText(Path), serializator);
 	
 				Load(x);
 			}
@@ -126,9 +126,9 @@ namespace Uccs
 			return r;
 		}
 		
-		public XonDocument Save()
+		public Xon Save()
 		{
-			var doc = new XonDocument(Serializator);
+			var doc = new Xon(Serializator);
 
 			void save(Xon parent, string name, Type type, object value)
 			{

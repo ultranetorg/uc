@@ -147,7 +147,7 @@ namespace Uccs.Rdn
 
 		public override object Constract(Type t, byte b)
 		{
-			if(t == typeof(PackageManifest))		return new PackageManifest();
+			if(t == typeof(VersionManifest))		return new VersionManifest();
 
 			return base.Constract(t, b);
 		}

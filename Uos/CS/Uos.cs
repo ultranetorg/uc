@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using Uccs.Net;
 
 namespace Uccs.Uos
@@ -301,15 +302,9 @@ namespace Uccs.Uos
 			{
 				var lrr = a.Download(address, flow);
 
-				var m = new ProductManifest();
-				m.Load(lrr.Files[0].Path);
+				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(a.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 
-				var consts = new Dictionary<string, object>{{"F", PlatformFamily.Windows},
-															{"B", WindowsBrand.MicrosoftWindows},
-															{"V", MicrosoftWindows.NT_10_10240},
-															{"A", Architecture.Any}};
-
-				apr = m.Realizations.FirstOrDefault(i => (bool)i.Requirement.Evaluate(consts) == true).Address;
+				apr = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Address;
 			}
 			else if(d.Type.Control == DataType.Redirect_ProductRealization)
 			{
@@ -331,15 +326,16 @@ namespace Uccs.Uos
 
 			Install(new AprvAddress(aprv), flow);
 
- 			var pmpath = Directory.EnumerateFiles(AddressToDeployment(new AprvAddress(aprv)), "." + PackageManifest.Extension).First();
+ 			var vmpath = Directory.EnumerateFiles(AddressToDeployment(new AprvAddress(aprv)), "*." + VersionManifest.Extension).First();
  
- 			var pm = new PackageManifest();
- 			pm.Read(new BinaryReader(new MemoryStream(File.ReadAllBytes(pmpath))));
+ 			var vm = VersionManifest.Load(vmpath);
  
+			var exe = vm.MatchExecution(Platform.Current);
+
  			var p = new Process();
  			p.StartInfo.UseShellExecute = true;
- 			p.StartInfo.FileName = pm.Execution.Path;
- 			p.StartInfo.Arguments = pm.Execution.Arguments;
+ 			p.StartInfo.FileName = Path.Join(AddressToDeployment(new AprvAddress(aprv)), exe.Path);
+ 			p.StartInfo.Arguments = exe.Arguments;
  
  			p.Start();
 

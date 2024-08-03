@@ -100,20 +100,20 @@ namespace Uccs.Rdn
 
 			do
 			{
-				var d = Request<ResourceActivityProgress>(new ReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+				var d = Request<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
 			
 				if(d is null)
 				{
-					var lrr = Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+					return Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
 						
-					if(lrr.Availability == Availability.Full)
-					{
-						return lrr;
-					}
-// 					else
-// 					{
-// 						throw new ResourceException(ResourceError.);
-// 					}
+					//if(lrr.Availability == Availability.Full)
+					//{
+					//	return lrr;
+					//}
+ 					//else
+ 					//{
+ 					//	throw new ResourceException(ResourceError.);
+ 					//}
 				}
 	
 				Thread.Sleep(100);
@@ -160,7 +160,7 @@ namespace Uccs.Rdn
 						{
 							var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
 	
-							var index = new XonDocument(f.Read());
+							var index = new Xon(f.Read());
 	
 							itg = new DHIntegrity(index.Get<byte[]>(path)); 
 						}

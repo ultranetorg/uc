@@ -59,7 +59,7 @@ namespace Uccs.Net
 					return;
 				}
 
-	 			case XonDocument v:
+	 			case Xon v:
 				{	
 					var s = new MemoryStream();
 					v.Save(new XonBinaryWriter(s));
@@ -223,8 +223,8 @@ namespace Uccs.Net
 				return reader.ReadUtf8(); else 
 			if(typeof(IPAddress) == type)
 				return reader.ReadIPAddress();
-			else if(type == typeof(XonDocument))
-				return new XonDocument(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
+			else if(type == typeof(Xon))
+				return new Xon(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
 			else if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
 			{
 				var ltype = type.GetElementType().MakeArrayType(1);

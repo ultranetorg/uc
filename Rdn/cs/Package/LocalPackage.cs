@@ -12,12 +12,12 @@
 		public LocalRelease		Release => Resource.Last != null && Resource.Last.Type.Content == ContentType.Rdn_PackageManifest ? Hub.Node.ResourceHub.Find(Resource.Last.Parse<Urr>()) : null;
 		public PackageHub		Hub;
 		public object			Activity;
-		PackageManifest			_Manifest;
+		VersionManifest			_Manifest;
 
 		//public HistoryRelease	HistoryRelease => History.Releases.First(i => i.Hash.SequenceEqual(Address.Hash));
 		//public History			History => Hub.Sun.ResourceHub.Find(Address).LastAs<History>();
 
-		public PackageManifest	Manifest
+		public VersionManifest	Manifest
 		{
 			get
 			{
@@ -25,11 +25,9 @@
 				{
 					if(Release.IsReady(ManifestFile))
 					{
-						_Manifest = new PackageManifest{};
-						
 						lock(Hub.Node.ResourceHub.Lock)
 						{
-							_Manifest.Read(new BinaryReader(new MemoryStream(Release.Find(ManifestFile).Read())));
+							_Manifest = VersionManifest.Load(Release.Find(ManifestFile).LocalPath);
 						}
 					}
 				}
@@ -47,7 +45,7 @@
 			Resource = resource;
 		}
 
-		public LocalPackage(PackageHub hub, LocalResource resource, PackageManifest manifest)
+		public LocalPackage(PackageHub hub, LocalResource resource, VersionManifest manifest)
 		{
 			if(resource == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);

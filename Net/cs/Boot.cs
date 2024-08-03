@@ -18,8 +18,8 @@ namespace Uccs.Net
 
 		public Boot(string exedir)
 		{
-			var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, FileName)));
-			Commnand = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
+			var b = new Xon(File.ReadAllText(Path.Combine(exedir, FileName)));
+			Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
 			if(Commnand.Has("interzone"))
 				Zone = Commnand.Get<string>("interzone");

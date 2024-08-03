@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using RocksDbSharp;
 
 namespace Uccs.Rdn
@@ -12,13 +13,13 @@ namespace Uccs.Rdn
 
 		public List<LocalRelease>		Releases = new();
 		public List<LocalResource>		Resources = new();
-		public RdnNode						Node;
+		public RdnNode					Node;
 		public object					Lock = new object();
 		public McvZone					Zone;
 		public ColumnFamilyHandle		ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
 		public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
+		public SeedSettings				Settings;
 		Thread							DeclaringThread;
-		SeedSettings					Settings;
 
 		public ResourceHub(RdnNode node, McvZone zone, SeedSettings settings)
 		{
@@ -166,7 +167,7 @@ namespace Uccs.Rdn
 		public LocalRelease Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
 		{
 			var files = new Dictionary<string, string>();
-			var index = new XonDocument(new XonBinaryValueSerializator());
+			var index = new Xon(new XonBinaryValueSerializator());
 
 			void adddir(string basepath, Xon parent, string dir, string dest)
 			{
@@ -230,7 +231,7 @@ namespace Uccs.Rdn
 
 			foreach(var i in files)
 			{
-				r.AddExisting(i.Value, i.Key);
+				r.AddCompleted(i.Value, i.Key, null);
 			}
 			
 			r.Complete(Availability.Full);
@@ -247,7 +248,7 @@ namespace Uccs.Rdn
  			
 			var r = Add(a);
 
- 			r.AddExisting("", path);
+ 			r.AddCompleted("", path, null);
 			r.Complete(Availability.Full);
 
 			return r;
@@ -276,7 +277,7 @@ namespace Uccs.Rdn
 		{
 			Node.Flow.Log?.Report(this, "Declaring started");
 
-			var tasks = new Dictionary<AccountAddress, Task>(32);
+			var tasks = new Dictionary<object, Task>(32);
 
 			while(Node.Flow.Active)
 			{
@@ -287,50 +288,78 @@ namespace Uccs.Rdn
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<RdnMember, Dictionary<ResourceId, LocalRelease>>();
+				var ds = new Dictionary<RdnMember, Dictionary<LocalResource, LocalRelease>>();
+				var us = new List<LocalResource>();
 
 				lock(Lock)
 				{
-					foreach(var r in Resources.Where(i => i.Id != null && (i.Last?.Type.Control == DataType.File || i.Last?.Type.Control == DataType.Directory)))
+					foreach(var r in Resources.Where(i => i.Last?.Type.Control == DataType.File || i.Last?.Type.Control == DataType.Directory))
 					{
-						//foreach(var d in r.Datas)
-						var d = r.Last;
-
-						var l = Find(d.Parse<Urr>());
-
-						if(l != null && l.Availability != Availability.None)
+						if(r.Id == null)
 						{
-							foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
-																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																		}).Cast<RdnMember>())
+							us.Add(r);
+						} 
+						else
+						{
+							//foreach(var d in r.Datas)
+							var d = r.Last;
+	
+							var l = Find(d.Parse<Urr>());
+	
+							if(l != null && l.Availability != Availability.None)
 							{
-								var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-								rss[r.Id] = l;
+								foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
+																																				var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																				return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																			})
+																																.Cast<RdnMember>())
+								{
+									var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
+									rss[r] = l;
+								}
 							}
-
 						}
 					}
 				}
 
-				if(!ds.Any())
+				if(ds.Count == 0 && us.Count == 0)
 				{
 					Node.Statistics.Declaring.End();
 					Thread.Sleep(1000);
 					continue;
 				}
 
+				if(tasks.Count >= 32)
+				{
+					Task.WaitAny(tasks.Values.ToArray(), Node.Flow.Cancellation);
+				}
+
 				lock(Lock)
 				{
-					if(tasks.Count >= 32)
+					foreach(var r in us)
 					{
-						var ts = tasks.Select(i => i.Value).ToArray();
+						var t = Task.Run(() =>	{
+													try
+													{
+														var cr = Node.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
+														
+														lock(Lock)
+														{
+															r.Id = cr.Resource.Id;
+															r.Save();
 
-						Monitor.Exit(Lock);
-						{
-							Task.WaitAny(ts, Node.Flow.Cancellation);
-						}
-						Monitor.Enter(Lock);
+															tasks.Remove(r);
+														}
+													}
+													catch(NetException) ///when(!Debugger.IsAttached)
+													{
+													}
+													catch(OperationCanceledException)
+													{
+														return;
+													}
+												});
+						tasks[r] = t;
 					}
 
 					foreach(var i in ds)
@@ -350,15 +379,15 @@ namespace Uccs.Rdn
 
 													try
 													{
-														drr = Node.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
+														drr = Node.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
 																																																Release = rs.Value.Address, 
 																																																Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
 													}
-													catch(OperationCanceledException)
+													catch(NodeException)/// when(!Debugger.IsAttached)
 													{
 														return;
 													}
-													catch(NodeException)
+													catch(OperationCanceledException)
 													{
 														return;
 													}

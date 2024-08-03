@@ -1,162 +1,196 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Uccs.Rdn
 {
+	public class PlatformExpression
+	{
+		public string				Operator;
+		public PlatformExpression[]	Operands;
+		
+		const string				Greater			= ">";
+		const string				GreaterOrEqual	= ">=";
+		const string				Less			= "<";
+		const string				LessOrEqual		= "<=";
+		const string				Equal			= "==";
+		const string				Not				= "NOT";
+		const string				Or				= "OR";
+		const string				And				= "AND";
+
+		static bool 				IsOperation(string name) =>	name == Greater			||
+																name == GreaterOrEqual	||
+																name == Less			||
+																name == LessOrEqual		||
+																name == Equal			||
+																name == Not				||
+																name == Or				||
+																name == And;
+
+		public bool					Match(Platform platform) => (bool)Evaluate(new (){	{"F", platform.Family},
+																						{"B", platform.Brand},
+																						{"V", platform.Version},
+																						{"A", platform.Architecture}}); 
+
+		public PlatformExpression()
+		{
+		}
+
+		public Xon ToXon(IXonValueSerializator serializator)
+		{					
+			var o = new Xon{Name = Operator};
+			
+			if(IsOperation(Operator))
+				o.Nodes.AddRange(Operands.Select(i => i.ToXon(serializator)));
+
+			return o;
+		}
+
+		public static PlatformExpression FromXon(Xon xon)
+		{
+			var e = new PlatformExpression();
+
+			e.Operator = xon.Name;
+
+			if(IsOperation(xon.Name))
+			{
+				e.Operands = xon.Nodes.Select(FromXon).ToArray();
+			}
+
+			return e;
+			//if(Enum.TryParse<PlatfromOperator>(x.Name, out var o))
+			//	e.Operator = o;
+			//else
+			//	e.Name = x.Name;
+			//
+			//e.Operands = x.Nodes.Select(FromXon).ToArray();
+
+			//return e;
+		}
+
+		public object Evaluate(Dictionary<string, object> consts)
+		{
+			switch(Operator)
+			{
+				case Not:
+					return !(bool)Operands[0].Evaluate(consts);
+
+				case And:
+					return Operands.All(i => (bool)i.Evaluate(consts));
+
+				case Or:
+					return Operands.Any(i => (bool)i.Evaluate(consts));
+
+				case Equal:
+				{	
+					var a = Operands[0].Evaluate(consts);
+					return Operands.Skip(1).All(i => a.Equals(i.Evaluate(consts)));
+				}
+
+				case Greater:
+					return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) > 0;
+
+				case GreaterOrEqual:
+					return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) >= 0;
+
+				case Less:
+					return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) < 0;
+
+				case LessOrEqual:
+					return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) <= 0;
+
+				default:
+					return consts.TryGetValue(Operator, out var v) ? v : Platform.ParseIdentifier(Operator);
+			}
+		}
+	}
+
+	public class Realization
+	{
+		public Ura					Address;
+		public string				Name => Address.Resource.Substring(Address.Resource.LastIndexOf('/') + 1);
+		public PlatformExpression	Condition;
+		public string				Channel;
+
+		public Realization()
+		{
+		}
+
+		public static Realization FromXon(Xon xon)
+		{
+			var r = new Realization();
+
+			r.Address = xon.Get<Ura>();
+			r.Channel = xon.Get<string>("Channel");
+			r.Condition = PlatformExpression.FromXon(xon.One("Condition").Nodes.First());
+
+			return r;
+		}
+
+		public Xon ToXon(IXonValueSerializator serializator)
+		{
+			var x = new Xon(serializator);
+			
+			x.Name = "Realization";
+			x.Value = Address.ToString();
+			x.Add("Channel").Value = Channel;
+			x.Add("Condition").Nodes.Add(Condition.ToXon(serializator));
+
+			return x;
+		}
+	}
+
 	public class ProductManifest
 	{
-		public enum Operator : byte
+		public const string		Extension = "rdnpm";
+
+		public Realization[]	Realizations;
+		public string			Title;
+
+		public Realization		MatchRealization(Platform platform) => Realizations.FirstOrDefault(i => i.Condition.Match(platform)); 
+
+  		public byte[] Raw
+  		{
+  			get
+  			{
+ 	 			var s = new MemoryStream();
+ 	 	
+				ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+		
+ 	 			return s.ToArray();
+  			}
+  		}
+
+		public ProductManifest()
 		{
-			None, Argument, Greater, GreaterOrEqual, Less, LessOrEqual, Equal, Not, Or, And
 		}
 
-		public class Expression
+		public static ProductManifest Parse(string text)
 		{
-			public Operator			Operator;
-			public Expression[]		Operands;
-			public string			Name;
-
-			public Expression()
-			{
-			}
-
-			public Expression(Xon xon)
-			{
-				Parse(xon);
-			}
-
-			Expression Parse(Xon xon)
-			{
-				if(xon.Name == "==")
-				{
-					var e = new Expression();
-					e.Operator = Operator.Equal;
-					e.Operands = [Parse(xon.Nodes[0]), Parse(xon.Nodes[1])];
-					return e;
-				}
-				else if(xon.Name == ">")
-				{
-					var e = new Expression();
-					e.Operator = Operator.Greater;
-					e.Operands = [Parse(xon.Nodes[0]), Parse(xon.Nodes[1])];
-					return e;
-				}
-				else if(xon.Name == ">=")
-				{
-					var e = new Expression();
-					e.Operator = Operator.GreaterOrEqual;
-					e.Operands = [Parse(xon.Nodes[0]), Parse(xon.Nodes[1])];
-					return e;
-				}
-				else if(xon.Name == "<")
-				{
-					var e = new Expression();
-					e.Operator = Operator.Less;
-					e.Operands = [Parse(xon.Nodes[0]), Parse(xon.Nodes[1])];
-					return e;
-				}
-				else if(xon.Name == "<=")
-				{
-					var e = new Expression();
-					e.Operator = Operator.LessOrEqual;
-					e.Operands = [Parse(xon.Nodes[0]), Parse(xon.Nodes[1])];
-					return e;
-				}
-				else if(xon.Name == "NOT")
-				{
-					var e = new Expression();
-					e.Operator = Operator.Not;
-					e.Operands = [Parse(xon.Nodes[0])];
-					return e;
-				}
-				else if(xon.Name == "OR")
-				{
-					var e = new Expression();
-					e.Operator = Operator.Or;
-					e.Operands = xon.Nodes.Select(i => new Expression(i)).ToArray();
-					return e;
-				}
-				else if(xon.Name == "AND")
-				{
-					var e = new Expression();
-					e.Operator = Operator.And;
-					e.Operands = xon.Nodes.Select(i => new Expression()).ToArray();
-					return e;
-				}
-				else
-				{
-					var e = new Expression();
-					e.Operator = Operator.Argument;
-					e.Name = xon.Name;
-					return e;
-				}
-			}
-
-			public object Evaluate(Dictionary<string, object> consts)
-			{
-				switch(Operator)
-				{
-					case Operator.Argument:
-						return consts[Name];
-
-					case Operator.Not:
-						return !(bool)Operands[0].Evaluate(consts);
-
-					case Operator.And:
-						return Operands.All(i => (bool)i.Evaluate(consts));
-
-					case Operator.Or:
-						return Operands.Any(i => (bool)i.Evaluate(consts));
-
-					case Operator.Equal:
-					{	
-						var a = Operands[0].Evaluate(consts);
-						return Operands.Skip(1).All(i => a.Equals(i.Evaluate(consts)));
-					}
-
-					case Operator.Greater:
-						return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) > 0;
-
-					case Operator.GreaterOrEqual:
-						return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) >= 0;
-
-					case Operator.Less:
-						return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) < 0;
-
-					case Operator.LessOrEqual:
-						return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) <= 0;
-				}
-
-				return false;
-			}
+			return FromXon(new Xon(text));
 		}
 
-		public class Realization
+		public static ProductManifest Load(string path)
 		{
-			public Ura				Address;
-			public Expression		Requirement;
-
-			public Realization()
-			{
-			}
-
-			public Realization(Xon xon)
-			{
-				Address = xon.Get<Ura>();
-				Requirement = new Expression(xon);
-			}
+			return FromXon(new Xon(File.ReadAllText(path)));
 		}
 
-		public Realization[]		Realizations;
-
-		public void Load(string path)
+		public static ProductManifest FromXon(Xon xon)
 		{
-			var x = new XonDocument(File.ReadAllText(path));
+			var m = new ProductManifest();
 
-			Realizations = x.Many("Realization").Select(i => new Realization(i)).ToArray();
+			m.Title			= xon.Get<string>("Title");
+			m.Realizations	= xon.Many("Realization").Select(Realization.FromXon).ToArray();
+
+			return m;
+		}
+
+		public Xon ToXon(IXonValueSerializator serializator)
+		{
+			var x = new Xon(serializator);
+			
+			x.Add("Title").Value = Title;
+			x.Nodes.AddRange(Realizations.Select(i => i.ToXon(serializator)));
+
+			return x;
 		}
 	}
 }

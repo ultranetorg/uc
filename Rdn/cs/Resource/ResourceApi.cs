@@ -11,44 +11,16 @@ namespace Uccs.Rdn
 	public class ResourceActivityProgress
 	{
 	}
-
-	public class ReleaseBuildApc : RdnApc
+	
+	public class LocalResourceAddApc : RdnApc
 	{
-		public IEnumerable<string>		Sources { get; set; }
-		public string					Source { get; set; }
-		public ReleaseAddressCreator	AddressCreator { get; set; }
+		public Ura		Address { get; set; }
 
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
-				if(Source != null)
-					return sun.ResourceHub.Add(Source, AddressCreator, workflow).Address;
-				else if(Sources != null && Sources.Any())
-					return sun.ResourceHub.Add(Sources, AddressCreator, workflow).Address;
-			}
-
-			return null;
-		}
-	}
-
-	public class ResourceUpdateApc : RdnApc
-	{
-		public Ura				Address { get; set; }
-		public ResourceId		Id { get; set; }
-		public ResourceData		Data { get; set; }
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{
-				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
-				r.Id = Id;
-				
-				if(Data != null)
-				{
-					r.AddData(Data);
-				}
+				sun.ResourceHub.Add(Address);
 			}
 
 			return null;
@@ -105,8 +77,85 @@ namespace Uccs.Rdn
 			}
 		}
 	}
+
+	public class LocalReleaseBuildApc : RdnApc
+	{
+		public IEnumerable<string>		Sources { get; set; }
+		public string					Source { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				if(Source != null)
+					return sun.ResourceHub.Add(Source, AddressCreator, workflow).Address;
+				else if(Sources != null && Sources.Any())
+					return sun.ResourceHub.Add(Sources, AddressCreator, workflow).Address;
+			}
+
+			return null;
+		}
+	}
 	
-	public class ReleaseActivityProgressApc : RdnApc
+	public class LocalReleaseAddApc : RdnApc
+	{
+		public Ura			Resource { get; set; }
+		public ResourceData	Data  { get; set; }
+		public Urr			Release { get; set; }
+		public byte[]		Content { get; set; }
+		public string		Path  { get; set; }
+		public string		LocalPath  { get; set; }
+		public Availability	Availability { get; set; } = Availability.Full;
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				var rc = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
+				rc.AddData(Data);
+
+				if(Release != null)
+				{
+					var rl = sun.ResourceHub.Find(Release);
+					
+					if(rl == null)
+					{
+						rl = sun.ResourceHub.Add(Release);
+						rl.AddCompleted(Path, LocalPath, Content);
+						rl.Complete(Availability);
+					}
+				}
+			}
+
+			return null;
+		}
+	}
+
+	public class LocalResourceUpdateApc : RdnApc
+	{
+		public Ura				Address { get; set; }
+		public ResourceId		Id { get; set; }
+		public ResourceData		Data { get; set; }
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+				r.Id = Id;
+				
+				if(Data != null)
+				{
+					r.AddData(Data);
+				}
+			}
+
+			return null;
+		}
+	}
+	
+	public class LocalReleaseActivityProgressApc : RdnApc
 	{
 		public Urr Release { get; set; }
 		
@@ -140,6 +189,27 @@ namespace Uccs.Rdn
 		}
 	}
 	
+	public class LocalReleaseReadApc : RdnApc
+	{
+		public Urr			Address { get; set; }
+		public string		Path  { get; set; }
+		public long			Offset  { get; set; } = 0;
+		public long			Length  { get; set; } = -1;
+
+		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				var rc = sun.ResourceHub.Find(Address);
+
+				if(rc == null)
+					throw new ResourceException(ResourceError.NotFound);
+
+				return rc.Find(Path).Read();
+			}
+		}
+	}
+	
 // 	public class ResourceEntityCall : SunApiCall
 // 	{
 // 		public ResourceAddress	Resource { get; set; }
@@ -158,7 +228,7 @@ namespace Uccs.Rdn
 // 		}
 // 	}
 		
-	public class QueryLocalResourcesApc : RdnApc
+	public class LocalResourcesSearchApc : RdnApc
 	{
 		public string	Query { get; set; }
 		public int		Skip { get; set; } = 0;
@@ -223,6 +293,7 @@ namespace Uccs.Rdn
 
 		public class Return
 		{
+			public Urr				Address { get; set; }
 			public Member[]			DeclaredOn { get; set; }
 			public Availability		Availability { get; set; }
 			public File[]			Files { get; set; }
@@ -233,6 +304,7 @@ namespace Uccs.Rdn
 
 			public Return(LocalRelease release)
 			{
+				Address		= release.Address;
 				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
 				Availability= release.Availability;
 				Files		= release.Files.Select(i => new File(i)).ToArray();

@@ -19,7 +19,7 @@
 	
 											try
 											{
-												var x = new XonDocument(Console.ReadLine());
+												var x = new Xon(Console.ReadLine());
 	
 												if(x.Nodes[0].Name == Keyword && (
 																					run.Names.Contains(x.Nodes[1].Name) 

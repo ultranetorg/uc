@@ -51,7 +51,7 @@
 
 											try
 											{
-												var x = new XonDocument(c);
+												var x = new Xon(c);
 
 												if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
 																					//run.Names.Contains(x.Nodes[1].Name)  || 

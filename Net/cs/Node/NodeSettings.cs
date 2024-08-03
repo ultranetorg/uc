@@ -65,7 +65,7 @@ namespace Uccs.Net
 		{
 			Path = path;
 
-			var d = new XonDocument(File.ReadAllText(path));
+			var d = new Xon(File.ReadAllText(path));
 			
 			Password			= d.Get<string>("Password");
 

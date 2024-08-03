@@ -62,7 +62,7 @@ namespace Uccs.Net
 			DefaultOptions.Converters.Add(new IPJsonConverter());
 			DefaultOptions.Converters.Add(new TimeJsonConverter());
 			DefaultOptions.Converters.Add(new VersionJsonConverter());
-			DefaultOptions.Converters.Add(new XonDocumentJsonConverter());
+			DefaultOptions.Converters.Add(new XonJsonConverter());
 			DefaultOptions.Converters.Add(new BigIntegerJsonConverter());
 
 #if ETHEREUM
