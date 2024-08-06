@@ -2,7 +2,7 @@
 {
 	public class RdnVote : Vote
 	{
-		public ForeignResult[]		Emissions = {};
+		//public ForeignResult[]		Emissions = {};
 		public ForeignResult[]		Migrations = {};
 
 		public RdnVote(Mcv mcv) : base(mcv)
@@ -13,7 +13,7 @@
 		{
 			base.WriteVote(writer);
 
-			writer.Write(Emissions);
+			//writer.Write(Emissions);
 			writer.Write(Migrations);
 		}
 
@@ -21,7 +21,7 @@
 		{
 			base.ReadVote(reader);
 
-			Emissions	= reader.ReadArray<ForeignResult>();
+			//Emissions	= reader.ReadArray<ForeignResult>();
 			Migrations	= reader.ReadArray<ForeignResult>();
 		}
 	}

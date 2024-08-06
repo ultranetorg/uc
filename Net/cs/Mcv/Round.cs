@@ -45,7 +45,7 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
-		public Unit										ConsensusExeunitFee;
+		public Unit											ConsensusExeunitFee;
 		public int											ConsensusTransactionsOverflowRound;
 
 		public bool											Confirmed = false;
@@ -505,14 +505,14 @@ namespace Uccs.Net
 				var eu = distribute(r => r.EURewards, (a, r) => a.EUBalance += r);
 
 				foreach(var i in members)
-					i.Key.STBalance += Zone.STCommitReward;
+					i.Key.STBalance += Zone.STCommitReward/members.Count;
 
 				if(eu < Zone.EUCommitRewardOperationCountBelowTrigger)
 					foreach(var i in members)
-						i.Key.EUBalance += Zone.EUCommitReward;
+						i.Key.EUBalance += Zone.EUCommitReward/members.Count;
 
 				foreach(var j in members)
-					j.Key.MRBalance += Zone.MRCommitReward;
+					j.Key.MRBalance += Zone.MRCommitReward/members.Count;
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)

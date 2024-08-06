@@ -6,7 +6,7 @@
 		public RdnMcv							Rdn => Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
 		public ForeignResult[]					ConsensusMigrations = {};
-		public ForeignResult[]					ConsensusEmissions = {};
+		//public ForeignResult[]					ConsensusEmissions = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
 		{
@@ -193,7 +193,9 @@
 		{
 			base.WriteConfirmed(writer);
 
+			#if IMMISSION
 			writer.Write(ConsensusEmissions);
+			#endif
 			writer.Write(ConsensusMigrations);
 		}
 
@@ -201,7 +203,9 @@
 		{
 			base.ReadConfirmed(reader);
 			
+			#if IMMISSION
 			ConsensusEmissions	= reader.ReadArray<ForeignResult>();
+			#endif
 			ConsensusMigrations	= reader.ReadArray<ForeignResult>();
 		}
 	}

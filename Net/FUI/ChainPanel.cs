@@ -114,7 +114,7 @@ namespace Uccs.Net.FUI
 				FundJoiners.Items.AddRange(r.ConsensusFundJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
 				FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-				Emissions.Items.AddRange((r as RdnRound)?.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
+				//Emissions.Items.AddRange((r as RdnRound)?.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
 				
 				if(r is RdnRound rr)
 				{

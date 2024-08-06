@@ -20,7 +20,7 @@ namespace Uccs.Net
 		public const int							DeclareToGenerateDelay = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
 		public const int							LastGenesisRound = 1+P + 1+P + P;
-		public static readonly Unit				BalanceMin = new Unit(0.000_000_001);
+		public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
 		public const int							EntityLength = 100;
 		public const int							EntityRentYearsMin = 1;
 		public const int							EntityRentYearsMax = 10;

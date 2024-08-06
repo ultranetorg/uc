@@ -56,7 +56,9 @@ namespace Uccs.Rdn
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.PackageHub.Lock)
+			{	
 				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow);
+			}
 		}
 	}
 
@@ -80,15 +82,18 @@ namespace Uccs.Rdn
 		
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var p = sun.PackageHub.Find(Package);
-
 			lock(sun.PackageHub.Lock)
-				if(p?.Activity is PackageDownload dl)
-					return new PackageDownloadProgress(dl);
-				if(p?.Activity is Deployment dp)
-					return new DeploymentProgress(dp);
-				else
-					return null;
+			{
+				var p = sun.PackageHub.Find(Package);
+	
+				lock(sun.PackageHub.Lock)
+					if(p?.Activity is PackageDownload dl)
+						return new PackageDownloadProgress(dl);
+					if(p?.Activity is Deployment dp)
+						return new DeploymentProgress(dp);
+					else
+						return null;
+			}
 		}
 	}
 

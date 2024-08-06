@@ -78,9 +78,7 @@
 														
 													if(last.Data.Type != new DataType(DataType.File, ContentType.Rdn_PackageManifest))
 													{
-														lock(node.PackageHub.Lock)
-															Package.Activity = null;
-
+														Package.Activity = null;
 														return;
 													}
 
@@ -102,14 +100,14 @@
 
 											switch(last.Data.Parse<Urr>())
 											{ 
-												case Urrh a :
-													itg = new DHIntegrity(a.Hash); 
+												case Urrh u:
+													itg = new DHIntegrity(u.Hash); 
 													break;
 
-												case Urrsd a :
+												case Urrsd u:
 													var d = node.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
 													var aa = node.Call(() => new AccountRequest(d.Owner), workflow).Account;
-													itg = new SPDIntegrity(node.Zone.Cryptography, a, aa.Address);
+													itg = new SPDIntegrity(node.Zone.Cryptography, u, aa.Address);
 													break;
 											};
 	
@@ -147,18 +145,20 @@
 	
 											SeedCollector.Stop();
 	
-											lock(node.PackageHub.Lock)
-											{
-												var a = Availability.None;
+											var a = Availability.None;
 
+											lock(node.ResourceHub.Lock)
+											{
 												if(Package.Release.IsReady(LocalPackage.CompleteFile))
 													a |= Availability.Complete;
 
 												if(Package.Release.IsReady(LocalPackage.IncrementalFile))
 													a |= Availability.Incremental;
+											}
 
+											lock(node.PackageHub.Lock)
+											{
 												Package.Release.Complete(a);
-
 												Downloaded = true;
 											}
 										}

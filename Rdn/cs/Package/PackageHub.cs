@@ -240,28 +240,25 @@ namespace Uccs.Rdn
 
 		public void DetermineDelta(Ura package, VersionManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
-			lock(Node.ResourceHub.Lock)
-			{
-				var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Release));
+			var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Release));
 		
-				if(from != null)
-				{
-					var deps = Find(from.Release).Manifest.CompleteDependencies.ToList();
+			if(from != null)
+			{
+				var deps = Find(from.Release).Manifest.CompleteDependencies.ToList();
 
-					deps.AddRange(from.AddedDependencies);
-					deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
+				deps.AddRange(from.AddedDependencies);
+				deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
 								
-					deps.AddRange(manifest.CompleteDependencies.Where(i => !deps.Contains(i)));
-					deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
+				deps.AddRange(manifest.CompleteDependencies.Where(i => !deps.Contains(i)));
+				deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
 					
-					dependencies = deps;
-					canincrement = true; /// we have all incremental packages since last complete one
-				}
-				else
-				{
-					dependencies = manifest.CompleteDependencies.ToList();
-					canincrement = false;
-				}
+				dependencies = deps;
+				canincrement = true; /// we have all incremental packages since last complete one
+			}
+			else
+			{
+				dependencies = manifest.CompleteDependencies.ToList();
+				canincrement = false;
 			}
 		}
 

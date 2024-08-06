@@ -24,28 +24,28 @@ namespace Uccs.Rdn
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			SeedFinder					Finder;
+			SeedFinder					Collector;
 			Urr							Address;
 
 			public Hub(SeedFinder collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
-				Finder = collector;
+				Collector = collector;
 				Address = hash;
 				Member = member;
 				IPs = ips.ToArray();
 
 				Task.Run(() =>	{
-									while(Finder.Flow.Active)
+									while(Collector.Flow.Active)
 									{
 										try
 										{
-											var lr = Finder.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Finder.Flow);
+											var lr = Collector.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
 	
-											lock(Finder.Lock)
+											lock(Collector.Lock)
 											{
-												var seeds = lr.Seeders.Where(i => !Finder.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
+												var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 	
-												Finder.Seeds.AddRange(seeds);
+												Collector.Seeds.AddRange(seeds);
 											}
 										}
 										catch(Exception ex) when (ex is NodeException || ex is EntityException)
@@ -55,10 +55,10 @@ namespace Uccs.Rdn
 										{
 										}
 
-										WaitHandle.WaitAny([Finder.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
+										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
 									}
 								}, 
-								Finder.Flow.Cancellation);
+								Collector.Flow.Cancellation);
 			}
 		}
 
@@ -69,7 +69,6 @@ namespace Uccs.Rdn
 		public object				Lock = new object();
 		//public AutoResetEvent		SeedsFound = new(true);
 
-		int							hubsgoodmax = 8;
 		Thread						Thread;
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		RdnMember[]					Members;
@@ -97,7 +96,7 @@ namespace Uccs.Rdn
 														{
 															var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnMember>();
 			
-															for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+															for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
 															{
 																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
 														

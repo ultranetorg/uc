@@ -143,7 +143,11 @@ namespace Uccs.Rdn
 			lock(sun.ResourceHub.Lock)
 			{
 				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
-				r.Id = Id;
+				
+				if(Id != null)
+				{
+					r.Id = Id;
+				}
 				
 				if(Data != null)
 				{

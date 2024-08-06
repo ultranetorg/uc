@@ -32,7 +32,7 @@ namespace Uccs.Rdn
 	{
 		public new RdnSettings		Settings => base.Settings as RdnSettings;
 		public DomainTable			Domains;
-		public List<ForeignResult>	ApprovedEmissions = new();
+		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>	ApprovedMigrations = new();
 
 		static RdnMcv()
@@ -145,13 +145,15 @@ namespace Uccs.Rdn
 
 		protected override void GenesisCreate(Vote vote)
 		{
-			(vote as RdnVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+			//(vote as RdnVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
 		}
 
 		protected override void GenesisInitilize(Round round)
 		{
+			#if IMMISSION
 			if(round.Id == 1)
 				(round as RdnRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+			#endif
 		}
 
 		protected override void CreateTables(string databasepath)
@@ -235,7 +237,7 @@ namespace Uccs.Rdn
 		{
 			var v = vote as RdnVote;
 
-  			v.Emissions		= ApprovedEmissions.ToArray();
+  			//v.Emissions		= ApprovedEmissions.ToArray();
 			v.Migrations	= ApprovedMigrations.ToArray();
 		}
 
