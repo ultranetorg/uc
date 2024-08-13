@@ -241,6 +241,34 @@ namespace Uccs.Rdn.CLI
  												}
 							},
 #endif
+							new ()
+							{
+								Names = ["ab", "allocatebandwidth"],
+
+								Help = new Help
+								{ 
+									Title = "Allocate Bandwidth",
+									Description = "Allocate execution bandwidth",
+									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EU days=NUMBER by=UAA",
+
+									Arguments =
+									[
+										new ("bandwidth", "Amount of EU allocated per day"),
+										new ("days", "Number of days to allocate bandwidth for"),
+									],
+
+									Examples =
+									[
+										new (null, $"{Keyword} allocatebandwidth bandwidth=100 days=2 by=0x0000fffb3f90771533b1739480987cee9f08d754")
+									]
+								},
+
+								Execute = () =>	{
+													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+
+													return new BandwidthAllocation {Bandwidth = GetMoney("bandwidth"), Days = (short)GetInt("days")};
+												}
+							},
 
 							new ()
 							{

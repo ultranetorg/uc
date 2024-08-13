@@ -1,5 +1,18 @@
 ﻿namespace Uccs.Rdn
 {
+	public enum RdnOperationClass
+	{
+		None = 0, 
+		RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
+		//Immission				= OperationClass.Immission, 
+		UnitTransfer			= OperationClass.UnitTransfer, 
+		BandwidthAllocation		= OperationClass.BandwidthAllocation,
+
+		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
+		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
+		AnalysisResultUpdation
+	}
+
 	public abstract class RdnOperation : Operation
 	{
 		public abstract void Execute(RdnMcv mcv, RdnRound round);

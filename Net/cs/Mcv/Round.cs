@@ -16,9 +16,12 @@ namespace Uccs.Net
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
 		public Round										Child => Mcv.FindRound(Id + Mcv.P);
-		public int											TransactionsPerVoteExecutionLimit		=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
-		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMultiplier;
-		public int											OperationsPerVoteLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
+		public int											PerVoteTransactionsLimit				=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
+		//public int											PerVoteTransactionsAcceptableOverflow	=> PerVoteTransactionsLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMultiplier;
+		public int											PerVoteOperationsLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
+		public int											PerVoteBandwidthAllocationLimit			=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
+
+		public bool											IsLastInCommit => (Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
@@ -53,7 +56,7 @@ namespace Uccs.Net
 
 		public Dictionary<AccountEntry, Unit>				STRewards = [];
 		public Dictionary<AccountEntry, Unit>				EURewards = [];
-		//public Dictionary<AccountEntry, Money>				MRRewards = [];
+		//public Dictionary<AccountEntry, Money>			MRRewards = [];
 		//public Money										Emission;
 		//public Money										RentPerBytePerDay;
 		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
@@ -62,17 +65,20 @@ namespace Uccs.Net
 #if ETHEREUM
 		public List<Immission>								Emissions;
 #endif
+		public Unit[]										NextBandwidthAllocations;
+		//public long										PreviousDayBaseSize;
+
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextDomainIds;
-		//public List<long>									Last365BaseDeltas;
-		//public long											PreviousDayBaseSize;
-
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 
 		public Mcv											Mcv;
 		public McvZone										Zone => Mcv.Zone;
 
 		public abstract Unit								AccountAllocationFee(Account account);
+		public virtual void									CopyConfirmed(){}
+		public virtual void									RegisterForeign(Operation o){}
+		public virtual void									ConfirmForeign(){}
 
 		public int RequiredVotes
 		{
@@ -128,7 +134,7 @@ namespace Uccs.Net
 			var e = Mcv.Accounts.Find(account, Id - 1);	
 
 			if(e != null)
-				return AffectedAccounts[account] = e.Clone();
+				a = AffectedAccounts[account] = e.Clone();
 			else
 			{
 				var ci = Mcv.Accounts.KeyToCluster(account).ToArray();
@@ -143,10 +149,12 @@ namespace Uccs.Net
 				
 				ai = NextAccountIds[ci]++;
 
-				return AffectedAccounts[account] = new AccountEntry(Mcv) {	Id = new EntityId(ci, ai), 
-																			Address = account,
-																			New = true};
+				a = AffectedAccounts[account] = new AccountEntry(Mcv) {	Id = new EntityId(ci, ai), 
+																		Address = account,
+																		New = true};
 			}
+
+			return a;
 		}
 
 		public virtual void Elect(Vote[] votes, int gq)
@@ -166,12 +174,12 @@ namespace Uccs.Net
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 
-			if(tn > Mcv.Zone.TransactionsPerRoundLimit)
+			if(tn > Mcv.Zone.TransactionsPerRoundExecutionLimit)
 			{
 				ConsensusExeunitFee *= Mcv.Zone.TransactionsOverflowFeeFactor;
 				ConsensusTransactionsOverflowRound = Id;
 
-				var e = tn - Mcv.Zone.TransactionsPerRoundLimit;
+				var e = tn - Mcv.Zone.TransactionsPerRoundExecutionLimit;
 
 				var gi = gu.AsEnumerable().GetEnumerator();
 
@@ -180,7 +188,7 @@ namespace Uccs.Net
 					if(!gi.MoveNext())
 						gi.Reset();
 					
-					if(gi.Current.Transactions.Length > TransactionsPerVoteExecutionLimit)
+					if(gi.Current.Transactions.Length > PerVoteTransactionsLimit)
 					{
 						e--;
 						gi.Current.TransactionCountExcess++;
@@ -267,17 +275,21 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 					o.Error = null;
 
-			Members				= Id == 0 ? new()								: Previous.Members;
-			Funds				= Id == 0 ? new()								: Previous.Funds;
-#if IMMISSION
+			Members						= Id == 0 ? new()																						 : Previous.Members;
+			Funds						= Id == 0 ? new()																						 : Previous.Funds;
+			NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Zone.BandwidthAllocationDaysMaximum + 1).Select(i => Unit.Zero).ToArray(): Previous.NextBandwidthAllocations.ToArray();
+
+			#if IMMISSION
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
-#endif
+			#endif
 			///RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
 
 			InitializeExecution();
 
 		start: 
+			#if IMMISSION
 			//Emission		= Id == 0 ? 0 : Previous.Emission;
+			#endif
 			NextAccountIds	= new (Bytes.EqualityComparer);
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
@@ -300,6 +312,7 @@ namespace Uccs.Net
 				}
 
 				t.EUSpent = 0;
+				t.EUReward = 0;
 				t.STReward = 0;
 
 				foreach(var o in t.Operations)
@@ -318,22 +331,35 @@ namespace Uccs.Net
 						f += o.ExeUnits * ConsensusExeunitFee;
 					}
 					#endif
+					
+					if(t.EUFee == 0 && s.BandwidthExpiration >= ConsensusTime)
+					{
+						if(s.BandwidthTodayTime < ConsensusTime) /// switch to this day
+						{	
+							s.BandwidthTodayTime		= ConsensusTime;
+							s.BandwidthTodayAvailable	= s.BandwidthNext;
+						}
 
-					//st += o.STReward; 
-					//eu += o.EUReward; 
-				
+						s.BandwidthTodayAvailable -= t.EUSpent;
+
+						if(s.BandwidthTodayAvailable < 0)
+						{
+							o.Error = Operation.NotEnoughEU;
+							goto start;
+						}
+					}
+					else if(s.EUBalance < t.EUSpent || (!trying && (s.EUBalance < t.EUFee || t.EUSpent > t.EUFee)))
+					{
+						o.Error = Operation.NotEnoughEU;
+						goto start;
+					}
+					
 					if(s.STBalance < 0)
 					{
 						o.Error = Operation.NotEnoughST;
 						goto start;
 					}
-				
-					if(s.EUBalance < 0 || t.EUSpent > t.EUFee || (!trying && s.EUBalance < t.EUFee))
-					{
-						o.Error = Operation.NotEnoughEU;
-						goto start;
-					}
-				
+					
 					if(s.MRBalance < 0)
 					{
 						o.Error = Operation.NotEnoughMR;
@@ -369,10 +395,6 @@ namespace Uccs.Net
 			FinishExecution();
 		}
 
-		public virtual void CopyConfirmed(){}
-		public virtual void RegisterForeign(Operation o){}
-		public virtual void ConfirmForeign(){}
-
 		public void Confirm()
 		{
 			if(Mcv.Node != null)
@@ -387,8 +409,8 @@ namespace Uccs.Net
 
 			Execute(ConsensusTransactions);
 
-			///Last365BaseDeltas	= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
-			///PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
+			///Last365BaseDeltas		= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
+			///PreviousDayBaseSize		= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
 			#if IMMISION
@@ -466,7 +488,7 @@ namespace Uccs.Net
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 			Funds.AddRange(ConsensusFundJoiners);
 			
-			if(Mcv.IsCommitReady(this))
+			if(IsLastInCommit)
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
 
@@ -517,6 +539,8 @@ namespace Uccs.Net
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
+				NextBandwidthAllocations = NextBandwidthAllocations.Skip(1).Append(0).ToArray();
+
 				///long s = Mcv.Size;
 				///
 				///foreach(var t in Mcv.Tables)
@@ -562,6 +586,7 @@ namespace Uccs.Net
 			///writer.Write(RentPerBytePerDay);
 			///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
 			///writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
+			writer.Write(NextBandwidthAllocations);
 			
 			//writer.Write(Emission);
 			writer.Write(Funds);
@@ -579,14 +604,15 @@ namespace Uccs.Net
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
 			//RentPerBytePerDay		= reader.Read<Money>();
-			//PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
+			//PreviousDayBaseSize	= reader.Read7BitEncodedInt64();
 			//Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
+			NextBandwidthAllocations			= reader.ReadArray<Unit>();
 			
-			//Emission				= reader.Read<Money>();
-			Funds					= reader.ReadList<AccountAddress>();
-#if ETHEREUM
-			Emissions				= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
-#endif
+			//Emission							= reader.Read<Money>();
+			Funds								= reader.ReadList<AccountAddress>();
+			#if ETHEREUM
+			Emissions							= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
+			#endif
 		}
 
 		public virtual void WriteConfirmed(BinaryWriter writer)

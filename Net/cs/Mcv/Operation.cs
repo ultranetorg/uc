@@ -13,8 +13,9 @@ namespace Uccs.Net
 	{
 		None = 0, 
 		CandidacyDeclaration, 
-		Immission,
-		UnitTransfer
+		//Immission,
+		UnitTransfer,
+		BandwidthAllocation
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable
@@ -42,6 +43,7 @@ namespace Uccs.Net
 		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 		public const string		NotRelease = "Data valus is not a release";
+		public const string		LimitReached = "Limit Reached";
 
 		protected OperationId	_Id;
 		

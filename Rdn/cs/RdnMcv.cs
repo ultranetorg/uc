@@ -3,18 +3,6 @@ using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
-	public enum RdnOperationClass
-	{
-		None = 0, 
-		RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
-		//Immission				= OperationClass.Immission, 
-		UnitTransfer			= OperationClass.UnitTransfer, 
-
-		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
-		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
-		AnalysisResultUpdation
-	}
-
 	public abstract class RdnCall<R> : McvCall<R> where R : PeerResponse
 	{
 		public new RdnNode	Node => base.Node as RdnNode;
@@ -30,10 +18,10 @@ namespace Uccs.Rdn
 
 	public class RdnMcv : Mcv
 	{
-		public new RdnSettings		Settings => base.Settings as RdnSettings;
-		public DomainTable			Domains;
+		public new RdnSettings			Settings => base.Settings as RdnSettings;
+		public DomainTable				Domains;
 		//public List<ForeignResult>	ApprovedEmissions = new();
-		public List<ForeignResult>	ApprovedMigrations = new();
+		public List<ForeignResult>		ApprovedMigrations = new();
 
 		static RdnMcv()
 		{

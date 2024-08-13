@@ -7,8 +7,8 @@ namespace Uccs
 {
 	public interface IBinarySerializable
 	{
-		void	Write(BinaryWriter writer);
-		void	Read(BinaryReader reader);
+		void			Write(BinaryWriter writer);
+		void			Read(BinaryReader reader);
 
  		public byte[]	Raw {
 								get

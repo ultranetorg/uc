@@ -488,10 +488,10 @@ namespace Uccs.Net
 								
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
-					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAllowableOverflow)
+					if(v.Transactions.Length > r.Parent.PerVoteTransactionsLimit)
 						return false;
 
-					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsPerVoteLimit)
+					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit)
 						return false;
 
 					if(v.Transactions.Any(t => Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account != v.Generator))
@@ -584,68 +584,73 @@ namespace Uccs.Net
 					{
 						var v = createvote(r);
 						var deferred = new List<Transaction>();
+						var pp = r.Parent.Previous;
 						
 						/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
 
-						bool add(Transaction t, bool isdeferred)
-						{ 	
-							if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > r.Parent.OperationsPerVoteLimit)
-								return false;
-	
-							if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
-								return false;
-	
-							if(r.Id > t.Expiration)
-							{
-								t.Status = TransactionStatus.FailedOrNotFound;
-								IncomingTransactions.Remove(t);
-								return true;
-							}
+						bool tryplace(Transaction t, bool ba, bool isdeferred)	{ 	
+																					if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
+																						return false;
 
-							var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account;
-
-							if(nearest != g)
-								return true;
+																					if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > (ba ? pp.PerVoteBandwidthAllocationLimit : pp.PerVoteOperationsLimit))
+																						return false;
 	
-							if(!Mcv.Settings.Generators.Contains(nearest))
-							{
-								t.Status = TransactionStatus.FailedOrNotFound;
-								IncomingTransactions.Remove(t);
-								return true;
-							}
+																					if(r.Id > t.Expiration)
+																					{
+																						t.Status = TransactionStatus.FailedOrNotFound;
+																						IncomingTransactions.Remove(t);
+																						return true;
+																					}
+
+																					var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account;
+
+																					if(nearest != g)
+																						return true;
 	
-							if(!isdeferred)
-							{
-								if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
-								{
-									deferred.Add(t);
-									return true;
-								}
-							}
-							else
-								deferred.Remove(t);
-
-							t.Status = TransactionStatus.Placed;
-							v.AddTransaction(t);
+																					if(!Mcv.Settings.Generators.Contains(nearest))
+																					{
+																						t.Status = TransactionStatus.FailedOrNotFound;
+																						IncomingTransactions.Remove(t);
+																						return true;
+																					}
 	
-							var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
+																					if(!isdeferred)
+																					{
+																						if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
+																						{
+																							deferred.Add(t);
+																							return true;
+																						}
+																					}
+																					else
+																						deferred.Remove(t);
 
-							if(next != null)
-							{
-								if(add(next, true) == false)
-									return false;
-							}
+																					t.Status = TransactionStatus.Placed;
+																					v.AddTransaction(t);
 	
-							Flow.Log?.Report(this, "Transaction Placed", t.ToString());
+																					var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
 
-							return true;
-						}
+																					if(next != null)
+																					{
+																						if(tryplace(next, ba, true) == false)
+																							return false;
+																					}
+	
+																					Flow.Log?.Report(this, "Transaction Placed", t.ToString());
 
-						foreach(var t in txs.OrderByDescending(i => i.EUFee).ToArray())
-						{
-							if(add(t, false) == false)
+																					return true;
+																				}
+
+						var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
+
+						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration >= pp.ConsensusTime && (i.a.BandwidthTodayTime < pp.ConsensusTime && i.a.BandwidthNext >= i.t.EUSpent ||
+																										 i.a.BandwidthTodayAvailable >= i.t.EUSpent)))
+							if(false == tryplace(t.t, true, false))
 								break;
-						}
+
+						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.EUFee))
+							if(false == tryplace(t.t, false, false))
+								break;
 
 						if(v.Transactions.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						{
@@ -723,13 +728,15 @@ namespace Uccs.Net
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			foreach(var t in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-											(
+											//(
 #if IMMISION
 											i.EmissionOnly || 
 #endif
-											i.EUFee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee) &&
+											//i.EUFee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee
+											//) &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
-											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
+											i.Valid(Mcv))
+								.OrderByDescending(i => i.Nid))
 			{
 				if(t.Operations.Any(o => ! ProcessIncomingOperation(o)))
 					continue;

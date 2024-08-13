@@ -9,6 +9,8 @@ namespace Uccs.Net
 		
 		//[JsonIgnore]
 		public bool						New;
+		//public Unit						RoundBandwidthReserve = 0;
+		//public Time						RoundBandwidthReserveExpiration = Time.Empty;
 		
 		public HashSet<int>				Transactions = new();
 		Mcv								Mcv;
@@ -24,16 +26,21 @@ namespace Uccs.Net
 
 		public AccountEntry Clone()
 		{
-			return new AccountEntry(Mcv){	Id = Id,
-											Address = Address,
-											STBalance = STBalance,
-											EUBalance = EUBalance,
-											MRBalance = MRBalance,
-											//Bail = Bail,
-											LastTransactionNid = LastTransactionNid,
-											LastEmissionId = LastEmissionId,
-											//CandidacyDeclarationRid = CandidacyDeclarationRid,
-											Transactions = Mcv.Settings.Base?.Chain != null  ? new HashSet<int>(Transactions) : null};
+			return new AccountEntry(Mcv){	Id						= Id,
+											Address					= Address,
+											STBalance				= STBalance,
+											EUBalance				= EUBalance,
+											MRBalance				= MRBalance,
+											LastTransactionNid		= LastTransactionNid,
+											LastEmissionId			= LastEmissionId,
+											
+											BandwidthNext			= BandwidthNext,
+											BandwidthExpiration		= BandwidthExpiration,
+											BandwidthToday			= BandwidthToday,
+											BandwidthTodayTime		= BandwidthTodayTime,
+											BandwidthTodayAvailable	= BandwidthTodayAvailable,
+
+											Transactions			= Mcv.Settings.Base.Chain != null ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)

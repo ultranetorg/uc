@@ -64,7 +64,6 @@ namespace Uccs.Net
 		public const string							ChainFamilyName = "Chain";
 		public ColumnFamilyHandle					ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
-		public bool									IsCommitReady(Round round) => (round.Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public static int							GetValidityPeriod(int rid) => rid + P;
 
 		public abstract string						CreateGenesis(AccountKey god, AccountKey f0);
@@ -188,7 +187,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Settings.Base?.Chain != null)
+			if(Settings.Base.Chain != null)
 			{
 				var s = Database.Get(ChainStateKey);
 
@@ -510,7 +509,7 @@ namespace Uccs.Net
 
 			using(var b = new WriteBatch())
 			{
-				if(IsCommitReady(round))
+				if(round.IsLastInCommit)
 				{
 					//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
 					//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");

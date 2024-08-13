@@ -30,9 +30,7 @@
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
 															STCost				= a.STBalance - b.STBalance,
-															EUCostMinimum		= Transaction.EUSpent,
-															//EUCostMinimum		= Transaction.Operations.SumMoney(i => i.EUSpent * Mcv.LastConfirmedRound.ConsensusExeunitFee),
-															};
+															EUCostMinimum		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.EUSpent};
 				}				
 				else
 					throw new EntityException(EntityError.ExcutionFailed);
@@ -45,8 +43,8 @@
 		public int			LastConfirmedRid { get; set; }
 		public int			NextNid { get; set; }
 		public byte[]		PowHash { get; set; }
-		public Unit		STCost { get; set; }
-		public Unit		EUCostMinimum { get; set; }
+		public Unit			STCost { get; set; }
+		public Unit			EUCostMinimum { get; set; }
 		public EntityId		Generetor { get; set; }
 	}
 }

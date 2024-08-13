@@ -79,7 +79,7 @@ namespace Uccs.Net
 				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
 				{
 					ITypeCode.Codes[i] = (byte)c;
-					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
+					ITypeCode.Contructors[typeof(PeerRequest)][(byte)c] = i.GetConstructor([]);
 				}
 			}
 	
@@ -158,15 +158,19 @@ namespace Uccs.Net
 		public int				MembersLimit									= 1000;
 		//public Money			ExeunitMinFee									= 0.001;
 		//public long			TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
-		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
-		public int				TransactionsPerVoteAllowableOverflowMultiplier	= 10;
+		public int				TransactionsPerRoundAbsoluteLimit				= 15_000;
+		public int				TransactionsPerRoundExecutionLimit				= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
-		public int				OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
+		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
 		public Unit				STCommitReward									= 1_000_000;
 		public Unit				EUCommitReward									= 1_000_000;
 		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
 		public Unit				MRCommitReward									= 1000;
+		
+		public int				BandwidthAllocationDaysMaximum					=> 365; // 50%
+		public int				BandwidthAllocationPerDayMaximum				=> OperationsPerRoundLimit * 24 * 3600 / 2; /// 50%
+		public int				BandwidthAllocationPerRoundMaximum				=> OperationsPerRoundLimit / 2; /// 50%
 
 		public AccountAddress	God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 		public AccountAddress	Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

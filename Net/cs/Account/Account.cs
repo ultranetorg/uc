@@ -4,53 +4,61 @@ namespace Uccs.Net
 {
 	public class Account : IBinarySerializable
 	{
-		public EntityId					Id { get; set; }
-		public AccountAddress			Address { get; set; }
-		public Unit					STBalance { get; set; }
-		public Unit					EUBalance { get; set; }
-		public Unit					MRBalance { get; set; }
-		//public Money					Bail { get; set; }
-		//public BailStatus				BailStatus { get; set; }
-		public int						LastTransactionNid { get; set; } = -1;
-		public int						LastEmissionId  { get; set; } = -1;
-		//public int						CandidacyDeclarationRid  { get; set; } = -1;
-
-		public Unit					AverageUptime { get; set; }
+		public EntityId			Id { get; set; }
+		public AccountAddress	Address { get; set; }
+		public Unit				STBalance { get; set; }
+		public Unit				EUBalance { get; set; }
+		public Unit				MRBalance { get; set; }
+		public int				LastTransactionNid { get; set; } = -1;
+		public int				LastEmissionId  { get; set; } = -1;
+		public Unit				AverageUptime { get; set; }
+		
+		public Unit				BandwidthNext { get; set; }
+		public Time				BandwidthExpiration { get; set; } = Time.Empty;
+		public Unit				BandwidthToday { get; set; }
+		public Time				BandwidthTodayTime { get; set; }
+		public Unit				BandwidthTodayAvailable { get; set; }
 
 		public virtual void Write(BinaryWriter writer)
 		{
 			writer.Write(Address);
-			writer.Write(STBalance);
 			writer.Write(EUBalance);
+			writer.Write(STBalance);
 			writer.Write(MRBalance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
 			writer.Write(AverageUptime);
 			
-			//writer.Write7BitEncodedInt(CandidacyDeclarationRid);
-			//
-			//if(CandidacyDeclarationRid != -1)
-			//{
-			//	writer.Write(Bail);
-			//}
+			writer.Write(BandwidthNext);
+			
+			if(BandwidthNext > 0)
+			{
+				writer.Write(BandwidthExpiration);
+				writer.Write(BandwidthToday);
+				writer.Write(BandwidthTodayTime);
+				writer.Write(BandwidthTodayAvailable);
+			}
 		}
 
 		public virtual void Read(BinaryReader reader)
 		{
 			Address				= reader.ReadAccount();
-			STBalance 			= reader.Read<Unit>();
 			EUBalance 			= reader.Read<Unit>();
+			STBalance 			= reader.Read<Unit>();
 			MRBalance 			= reader.Read<Unit>();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
 			AverageUptime		= reader.Read<Unit>();
 
-			//CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
-			//
-			//if(CandidacyDeclarationRid != -1)
-			//{
-			//	Bail = reader.Read<Money>();
-			//}
+			BandwidthNext = reader.Read<Unit>();
+
+			if(BandwidthNext > 0)
+			{
+				BandwidthExpiration		= reader.Read<Time>();
+				BandwidthToday			= reader.Read<Unit>();
+				BandwidthTodayTime		= reader.Read<Time>();
+				BandwidthTodayAvailable	= reader.Read<Unit>();
+			}
 		}
 	}
 }

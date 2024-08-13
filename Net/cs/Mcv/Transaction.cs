@@ -109,7 +109,7 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Zone.Id); 
+			w.Write(Zone.Id);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);
