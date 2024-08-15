@@ -348,13 +348,13 @@ namespace Uccs.Net
 							goto start;
 						}
 					}
-					else if(s.EUBalance < t.EUSpent || (!trying && (s.EUBalance < t.EUFee || t.EUSpent > t.EUFee)))
+					else if(s.ECBalance < t.EUSpent || (!trying && (s.ECBalance < t.EUFee || t.EUSpent > t.EUFee)))
 					{
 						o.Error = Operation.NotEnoughEU;
 						goto start;
 					}
 					
-					if(s.STBalance < 0)
+					if(s.BYBalance < 0)
 					{
 						o.Error = Operation.NotEnoughST;
 						goto start;
@@ -383,7 +383,7 @@ namespace Uccs.Net
 				}
 
 				//s.STBalance -= t.STReward;
-				s.EUBalance -= t.EUFee;
+				s.ECBalance -= t.EUFee;
 				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
@@ -523,15 +523,15 @@ namespace Uccs.Net
 					return a;
 				}
 
-				var st = distribute(r => r.STRewards, (a, r) => a.STBalance += r);
-				var eu = distribute(r => r.EURewards, (a, r) => a.EUBalance += r);
+				var st = distribute(r => r.STRewards, (a, r) => a.BYBalance += r);
+				var eu = distribute(r => r.EURewards, (a, r) => a.ECBalance += r);
 
 				foreach(var i in members)
-					i.Key.STBalance += Zone.STCommitReward/members.Count;
+					i.Key.BYBalance += Zone.STCommitReward/members.Count;
 
 				if(eu < Zone.EUCommitRewardOperationCountBelowTrigger)
 					foreach(var i in members)
-						i.Key.EUBalance += Zone.EUCommitReward/members.Count;
+						i.Key.ECBalance += Zone.EUCommitReward/members.Count;
 
 				foreach(var j in members)
 					j.Key.MRBalance += Zone.MRCommitReward/members.Count;

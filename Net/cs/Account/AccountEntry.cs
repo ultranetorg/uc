@@ -28,8 +28,8 @@ namespace Uccs.Net
 		{
 			return new AccountEntry(Mcv){	Id						= Id,
 											Address					= Address,
-											STBalance				= STBalance,
-											EUBalance				= EUBalance,
+											BYBalance				= BYBalance,
+											ECBalance				= ECBalance,
 											MRBalance				= MRBalance,
 											LastTransactionNid		= LastTransactionNid,
 											LastEmissionId			= LastEmissionId,

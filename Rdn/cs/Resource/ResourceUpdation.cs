@@ -119,7 +119,7 @@ namespace Uccs.Rdn
 
 					r.Flags	|= ResourceFlags.Sealed;
 
-					Signer.STBalance -= SpacetimeFee(r.Length, Mcv.Forever);
+					Signer.BYBalance -= SpacetimeFee(r.Length, Mcv.Forever);
 					Free(a, r.Length);
 				}
 

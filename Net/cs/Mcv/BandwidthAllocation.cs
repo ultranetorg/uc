@@ -32,7 +32,7 @@ namespace Uccs.Net
 			{
 				var d = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
 				
-				Signer.EUBalance += Signer.BandwidthNext * d;
+				Signer.ECBalance += Signer.BandwidthNext * d;
 
 				for(int i=1; i<=d; i++)
 					round.NextBandwidthAllocations[i] -= Signer.BandwidthNext;

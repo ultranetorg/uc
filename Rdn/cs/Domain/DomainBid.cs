@@ -69,7 +69,7 @@
  			{
 				if(a.LastWinner == null) /// first bid
 				{
-					Signer.STBalance -= Bid;
+					Signer.BYBalance -= Bid;
 					
 					a.Owner				= null;
 					a.FirstBidTime		= round.ConsensusTime;
@@ -85,8 +85,8 @@
 					{
 						var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
 						
-						Affect(round, lw.Address).STBalance += a.LastBid;
-						Signer.STBalance -= Bid;
+						Affect(round, lw.Address).BYBalance += a.LastBid;
+						Signer.BYBalance -= Bid;
 						
 						a.LastBid		= Bid;
 						a.LastBidTime	= round.ConsensusTime;
@@ -101,7 +101,7 @@
 				/// dont refund previous winner if any
 				Transaction.STReward += a.LastBid;
 
-				Signer.STBalance -= Bid;
+				Signer.BYBalance -= Bid;
 				
 				a.Owner				= null;
 				a.FirstBidTime		= round.ConsensusTime;

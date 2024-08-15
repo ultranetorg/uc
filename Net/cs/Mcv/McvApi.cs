@@ -168,8 +168,8 @@ namespace Uccs.Net
 						{
 							var a = i.Key.ToString();
 							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
-							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.STBalance.ToString()}"));
-							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.EUBalance.ToString()}"));
+							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
+							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.ECBalance.ToString()}"));
 							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToString()}"));
 						}
 					}

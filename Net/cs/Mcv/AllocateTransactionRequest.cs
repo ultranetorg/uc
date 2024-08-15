@@ -17,7 +17,7 @@
 					throw new EntityException(EntityError.NotFound);
 #endif
 				Transaction.Nid		= a?.LastTransactionNid + 1 ?? 0;
-				Transaction.EUFee	= a?.EUBalance ?? 0;
+				Transaction.EUFee	= a?.ECBalance ?? 0;
 
 				var r = Mcv.TryExecute(Transaction);
 				
@@ -29,7 +29,7 @@
 															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
-															STCost				= a.STBalance - b.STBalance,
+															STCost				= a.BYBalance - b.BYBalance,
 															EUCostMinimum		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.EUSpent};
 				}				
 				else

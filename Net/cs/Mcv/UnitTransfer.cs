@@ -49,15 +49,15 @@ namespace Uccs.Net
 		{
 			if(Signer.Address != chain.Zone.God || round.Id > Mcv.LastGenesisRound)
 			{
-				Signer.STBalance -= STAmount;
-				Signer.EUBalance -= EUAmount;
+				Signer.BYBalance -= STAmount;
+				Signer.ECBalance -= EUAmount;
 				Signer.MRBalance -= MRAmount;
 			}
 		
 			var to = Affect(round, To);
 
-			to.STBalance += STAmount;
-			to.EUBalance += EUAmount;
+			to.BYBalance += STAmount;
+			to.ECBalance += EUAmount;
 			to.MRBalance += MRAmount;
 		}
 	}

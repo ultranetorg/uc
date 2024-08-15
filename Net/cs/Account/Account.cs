@@ -6,8 +6,8 @@ namespace Uccs.Net
 	{
 		public EntityId			Id { get; set; }
 		public AccountAddress	Address { get; set; }
-		public Unit				STBalance { get; set; }
-		public Unit				EUBalance { get; set; }
+		public Unit				BYBalance { get; set; }
+		public Unit				ECBalance { get; set; }
 		public Unit				MRBalance { get; set; }
 		public int				LastTransactionNid { get; set; } = -1;
 		public int				LastEmissionId  { get; set; } = -1;
@@ -22,8 +22,8 @@ namespace Uccs.Net
 		public virtual void Write(BinaryWriter writer)
 		{
 			writer.Write(Address);
-			writer.Write(EUBalance);
-			writer.Write(STBalance);
+			writer.Write(ECBalance);
+			writer.Write(BYBalance);
 			writer.Write(MRBalance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
@@ -43,8 +43,8 @@ namespace Uccs.Net
 		public virtual void Read(BinaryReader reader)
 		{
 			Address				= reader.ReadAccount();
-			EUBalance 			= reader.Read<Unit>();
-			STBalance 			= reader.Read<Unit>();
+			ECBalance 			= reader.Read<Unit>();
+			BYBalance 			= reader.Read<Unit>();
 			MRBalance 			= reader.Read<Unit>();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();

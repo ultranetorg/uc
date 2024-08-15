@@ -26,7 +26,7 @@
 		{
 			var fee = SpacetimeFee(length, time);
 			
-			Signer.STBalance	 -= fee;
+			Signer.BYBalance	 -= fee;
 			Transaction.STReward += fee;
 		}
 
@@ -34,7 +34,7 @@
 		{
 			var fee = NameFee(years, address);
 			
-			Signer.STBalance	 -= fee;
+			Signer.BYBalance	 -= fee;
 			Transaction.STReward += fee;
 		}
 
@@ -58,7 +58,7 @@
 			{
 				var f = SpacetimeFee(domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
 
-				Signer.STBalance	 -= f;
+				Signer.BYBalance	 -= f;
 				Transaction.STReward += f;
 	
 				domain.SpaceReserved = 

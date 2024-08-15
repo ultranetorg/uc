@@ -94,7 +94,7 @@ namespace Uccs.Net
 
 			if(e.New && (Signer.Address != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 			{
-				Signer.STBalance -= round.AccountAllocationFee(e);
+				Signer.BYBalance -= round.AccountAllocationFee(e);
 			}
 
 			return e;
