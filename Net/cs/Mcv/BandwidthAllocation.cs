@@ -54,8 +54,8 @@ namespace Uccs.Net
 			Signer.BandwidthNext		= Bandwidth;
 			Signer.BandwidthExpiration	= round.ConsensusTime + Time.FromDays(Days);
 			
-			Transaction.EUSpent		+= Bandwidth * Days;
-			Transaction.EUReward	+= Bandwidth * Days;
+			Transaction.ECSpent		+= Bandwidth * Days;
+			Transaction.ECReward	+= Bandwidth * Days;
 		}
 	}
 }

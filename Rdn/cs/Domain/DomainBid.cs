@@ -99,7 +99,7 @@
  			else
  			{
 				/// dont refund previous winner if any
-				Transaction.STReward += a.LastBid;
+				Transaction.BYReward += a.LastBid;
 
 				Signer.BYBalance -= Bid;
 				

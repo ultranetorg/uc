@@ -2,25 +2,25 @@
 {
 	public class Consil : IBinarySerializable
  	{
- 		public Unit				PerByteSTFee;
+ 		public Unit				PerByteBYFee;
 		public AccountAddress[]	Analyzers;
 
 
 		public void Read(BinaryReader reader)
 		{
-			PerByteSTFee	= reader.Read<Unit>();
+			PerByteBYFee	= reader.Read<Unit>();
 			Analyzers		= reader.ReadArray<AccountAddress>();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(PerByteSTFee);
+			writer.Write(PerByteBYFee);
 			writer.Write(Analyzers);
 		}
 
 		public Consil Clone()
 		{
-			return new Consil {	PerByteSTFee= PerByteSTFee, 
+			return new Consil {	PerByteBYFee= PerByteBYFee, 
 								Analyzers	= Analyzers.Clone() as AccountAddress[]};
 		}
 	}
@@ -47,22 +47,22 @@
 	public class Analysis : IBinarySerializable
 	{
 		public Urr					Release { get; set; }
-		public Unit					STPayment { get; set; }
-		public Unit					EUPayment { get; set; }
+		public Unit					BYPayment { get; set; }
+		public Unit					ECPayment { get; set; }
 		public Ura					Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
 
 		public override string ToString()
 		{
-			return $"{Release}, STPayment={STPayment}, EUPayment={EUPayment}, Consil={Consil}, Results={Results.Length}";
+			return $"{Release}, STPayment={BYPayment}, EUPayment={ECPayment}, Consil={Consil}, Results={Results.Length}";
 		}
 
 		public void Read(BinaryReader reader)
 		{
 			Release		= reader.ReadVirtual<Urr>();
 			Consil		= reader.Read<Ura>();
-			STPayment	= reader.Read<Unit>();
-			EUPayment	= reader.Read<Unit>();
+			BYPayment	= reader.Read<Unit>();
+			ECPayment	= reader.Read<Unit>();
 			Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																	  Result = (AnalysisResult)reader.ReadByte() });
 		}
@@ -71,8 +71,8 @@
 		{
 			writer.Write(Release);
 			writer.Write(Consil);
-			writer.Write(STPayment);
-			writer.Write(EUPayment);
+			writer.Write(BYPayment);
+			writer.Write(ECPayment);
 			writer.Write(Results, i => { writer.Write(i.Analyzer);
 										 writer.Write((byte)i.Result); });
 		}
@@ -81,8 +81,8 @@
 		{
 			return new Analysis {Release	= Release, 
 								 Consil		= Consil,	
-								 STPayment	= STPayment, 
-								 EUPayment	= EUPayment, 
+								 BYPayment	= BYPayment, 
+								 ECPayment	= ECPayment, 
 								 Results	= Results.Clone() as AnalyzerResult[]};
 		}
 	}

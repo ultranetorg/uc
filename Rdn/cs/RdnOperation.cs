@@ -27,7 +27,7 @@
 			var fee = SpacetimeFee(length, time);
 			
 			Signer.BYBalance	 -= fee;
-			Transaction.STReward += fee;
+			Transaction.BYReward += fee;
 		}
 
 		public void PayForName(string address, int years)
@@ -35,7 +35,7 @@
 			var fee = NameFee(years, address);
 			
 			Signer.BYBalance	 -= fee;
-			Transaction.STReward += fee;
+			Transaction.BYReward += fee;
 		}
 
 		public static Unit SpacetimeFee(int length, Time time)
@@ -59,7 +59,7 @@
 				var f = SpacetimeFee(domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
 
 				Signer.BYBalance	 -= f;
-				Transaction.STReward += f;
+				Transaction.BYReward += f;
 	
 				domain.SpaceReserved = 
 				domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);

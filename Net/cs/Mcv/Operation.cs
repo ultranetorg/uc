@@ -36,8 +36,8 @@ namespace Uccs.Net
 		public const string		NoData = "NoData";
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
-		public const string		NotEnoughST = "Not enough spacetime";
-		public const string		NotEnoughEU = "Not enough execution units";
+		public const string		NotEnoughBY = "Not enough spacetime";
+		public const string		NotEnoughEC = "Not enough execution units";
 		public const string		NotEnoughMR = "Not enough membership rights";
 		public const string		NoAnalyzers = "No analyzers";
 		public const string		NotOwner = "The signer does not own the entity";

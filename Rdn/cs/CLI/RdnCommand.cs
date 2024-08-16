@@ -105,7 +105,7 @@ namespace Uccs.Rdn.CLI
 				 return Program.Node.Transact(operations, by, await, Flow);
 			else
 				return Program.ApiClient.Request<string[][]>(new TransactApc{Operations = operations,
-																			 By = by,
+																			 Signer = by,
 																			 Await = await},
 															Flow);
 		}
@@ -196,12 +196,12 @@ namespace Uccs.Rdn.CLI
 				
 						if(cnt == ContentType.Rdn_Consil)
 							return new ResourceData(t, new Consil{	Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteSTFee = d.Get<Unit>("pbstf") });
+																	PerByteBYFee = d.Get<Unit>("pbstf") });
 						
 						if(cnt == ContentType.Rdn_Analysis)
 							return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
-																	STPayment	= d.Get<Unit>("stpayment"),
-																	EUPayment	= d.Get<Unit>("eupayment"),
+																	BYPayment	= d.Get<Unit>("stpayment"),
+																	ECPayment	= d.Get<Unit>("eupayment"),
 																	Consil		= d.Get<Ura>("consil")});
 					}
 					else

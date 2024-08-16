@@ -52,7 +52,7 @@ namespace Uccs.Net.FUI
 																			li.SubItems.Add(i.Nid.ToString());
 																			li.SubItems.Add(i.Signer.ToString());
 																			li.SubItems.Add(i.Operations.Length.ToString());
-																			li.SubItems.Add(i.EUFee.ToString());
+																			li.SubItems.Add(i.ECFee.ToString());
 																			return li;
 																		}).ToArray());
 		}

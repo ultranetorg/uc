@@ -90,7 +90,7 @@ namespace Uccs.Rdn.CLI
 								// 
 								// 					try
 								// 					{
-								// 						eid = Rdc(new AccountRequest {Account = GetAccountAddress("by")}).Account.LastEmissionId + 1;
+								// 						eid = Rdc(new AccountRequest {Account = GetAccountAddress("signer")}).Account.LastEmissionId + 1;
 								// 					}
 								// 					catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 								// 					{
@@ -178,7 +178,7 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "EMIT IN ULTRANET",
 									Description = "Places a special transaction on ULTRANET side which tells the network to retrieve emission info from the Ethereum side, check it and if everything is correct, credit a specified account with a corresponding amount of UNT",
-									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=EID amount=UNT by=UAA",
+									Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=EID amount=UNT signer=UAA",
 
 									Arguments =
 									[
@@ -186,12 +186,12 @@ namespace Uccs.Rdn.CLI
 										fromB,
 										new ("eid", "Emission sequence identifier, zero-based"),
 										new ("amount", "Amount of ETH to be verified and converted into UNT"),
-										new ("by", "Ultranet account address where UNTs are credited to")
+										new ("signer", "Ultranet account address where UNTs are credited to")
 									],
 
 									Examples =
 									[
-										new (null, "money eiu from{wallet=C:\\aaaabbbbccccddddd111122223333.json password=thesuccessoroftheweb} amount=1000 by=0x0000fffb3f90771533b1739480987cee9f08d754")
+										new (null, "money eiu from{wallet=C:\\aaaabbbbccccddddd111122223333.json password=thesuccessoroftheweb} amount=1000 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
 									]
 								},
 
@@ -210,17 +210,17 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "FIND EMISSION",
 									Description = "Requires Ethereum provider is configured. Retrieves an amount of ETH of existing emission transaction on the Ethereum side.",
-									Syntax = "money fe|findemission eid=INT by=UAA",
+									Syntax = "money fe|findemission eid=INT signer=UAA",
 
 									Arguments =
 									[
 										new ("eid", "Emission sequence Id. First emission has eid=0, next emission has eid=1, and so on."),
-										new ("by", "Address of destination Ultranet account")
+										new ("signer", "Address of destination Ultranet account")
 									],
 
 									Examples =
 									[
-										new (null, "money findemission eid=0 by=0x4C05950D7B413B2FBCF6C5B7858C4CDB0736E2DE")
+										new (null, "money findemission eid=0 signer=0x4C05950D7B413B2FBCF6C5B7858C4CDB0736E2DE")
 									]		
 								},
 
@@ -229,7 +229,7 @@ namespace Uccs.Rdn.CLI
 												
 												
 													var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
-																							By = GetAccountAddress("by"), 
+																							By = GetAccountAddress("signer"), 
 																							Await = GetAwaitStage(Args) });
 												
 													if(e > 0)
@@ -249,7 +249,7 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "Allocate Bandwidth",
 									Description = "Allocate execution bandwidth",
-									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EU days=NUMBER by=UAA",
+									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EU days=NUMBER signer=UAA",
 
 									Arguments =
 									[
@@ -259,7 +259,7 @@ namespace Uccs.Rdn.CLI
 
 									Examples =
 									[
-										new (null, $"{Keyword} allocatebandwidth bandwidth=100 days=2 by=0x0000fffb3f90771533b1739480987cee9f08d754")
+										new (null, $"{Keyword} allocatebandwidth bandwidth=100 days=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
 									]
 								},
 
@@ -278,27 +278,27 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "TRANSFER",
 									Description = "Send  from one account to another.",
-									Syntax = $"{Keyword} t|transfer to=UAA st=UNT|eu=UNT|mr=UNT by=UAA",
+									Syntax = $"{Keyword} t|transfer to=UAA by=UNT|eu=UNT|mr=UNT signer=UAA",
 
 									Arguments =
 									[
 										new ("to", "Account public address that funds are credited to"),
-										new ("st", "Amount of SpaceTime to be transferred"),
-										new ("eu", "Amount of ExecutionUnits to be transferred"),
-										new ("mr", "Amount of MembershipRights to be transferred"),
-										new ("by", "Account public address funds are debited from")
+										new ("by", "Amount of Byte-Years to be transferred"),
+										new ("ec", "Amount of Execution Cycles to be transferred"),
+										new ("mr", "Amount of Membership Rights to be transferred"),
+										new ("signer", "Account public address where funds are debited from")
 									],
 
 									Examples =
 									[
-										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca eu=1.5 mr=2 by=0x0000fffb3f90771533b1739480987cee9f08d754")
+										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca eu=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
 									]
 								},
 
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new UnitTransfer(GetAccountAddress("to"), GetMoney("st", Unit.Zero), GetMoney("eu", Unit.Zero), GetMoney("mr", Unit.Zero));
+													return new UnitTransfer(GetAccountAddress("to"), GetMoney("by", Unit.Zero), GetMoney("ec", Unit.Zero), GetMoney("mr", Unit.Zero));
 												}
 							},
 

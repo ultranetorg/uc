@@ -163,7 +163,7 @@ namespace Uccs.Net
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
-		public Unit				STCommitReward									= 1_000_000;
+		public Unit				BYCommitReward									= 1_000_000;
 		public Unit				EUCommitReward									= 1_000_000;
 		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
 		public Unit				MRCommitReward									= 1000;

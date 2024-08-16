@@ -179,12 +179,12 @@ namespace Uccs.Rdn.CLI
 				{
 					if(c.Has("estimate"))
 					{
-						var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress("by")});
+						var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress("signer")});
 						c.Dump(rp);
 					}
 					else
 					{
-						var x = c.Transact([o], c.GetAccountAddress("by"), RdnCommand.GetAwaitStage(command));
+						var x = c.Transact([o], c.GetAccountAddress("signer"), RdnCommand.GetAwaitStage(command));
 
 						if(x is string[][] logs)
 						{

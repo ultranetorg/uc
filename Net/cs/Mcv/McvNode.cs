@@ -643,12 +643,12 @@ namespace Uccs.Net
 
 						var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
 
-						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration >= pp.ConsensusTime && (i.a.BandwidthTodayTime < pp.ConsensusTime && i.a.BandwidthNext >= i.t.EUSpent ||
-																										 i.a.BandwidthTodayAvailable >= i.t.EUSpent)))
+						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration >= pp.ConsensusTime && (i.a.BandwidthTodayTime < pp.ConsensusTime && i.a.BandwidthNext >= i.t.ECSpent ||
+																										 i.a.BandwidthTodayAvailable >= i.t.ECSpent)))
 							if(false == tryplace(t.t, true, false))
 								break;
 
-						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.EUFee))
+						foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.ECFee))
 							if(false == tryplace(t.t, false, false))
 								break;
 
@@ -820,7 +820,7 @@ namespace Uccs.Net
 						{
 							t.Rdi = rdi;
 							//t.STFee = 0;
-							t.EUFee = 0;
+							t.ECFee = 0;
 							t.Nid = 0;
 							t.Expiration = 0;
 							t.Generator = new([0, 0], -1);
@@ -839,7 +839,7 @@ namespace Uccs.Net
 								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 							#endif
 							//t.STFee		 = at.STCost;
-							t.EUFee		 = at.EUCostMinimum;
+							t.ECFee		 = at.ECCostMinimum;
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 

@@ -63,7 +63,7 @@
 				e = round.AffectDomain(Address);
 						
 				if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-					Transaction.STReward += e.LastBid;
+					Transaction.BYReward += e.LastBid;
 								
 				e.SpaceReserved	= e.SpaceUsed;
 				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);

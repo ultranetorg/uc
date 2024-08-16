@@ -54,8 +54,8 @@ namespace Uccs.Net
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Dictionary<AccountEntry, Unit>				STRewards = [];
-		public Dictionary<AccountEntry, Unit>				EURewards = [];
+		public Dictionary<AccountEntry, Unit>				BYRewards = [];
+		public Dictionary<AccountEntry, Unit>				ECRewards = [];
 		//public Dictionary<AccountEntry, Money>			MRRewards = [];
 		//public Money										Emission;
 		//public Money										RentPerBytePerDay;
@@ -293,8 +293,8 @@ namespace Uccs.Net
 			NextAccountIds	= new (Bytes.EqualityComparer);
 			NextDomainIds	= new (Bytes.EqualityComparer);
 
-			STRewards.Clear();
-			EURewards.Clear();
+			BYRewards.Clear();
+			ECRewards.Clear();
 			AffectedAccounts.Clear();
 
 			RestartExecution();
@@ -311,14 +311,14 @@ namespace Uccs.Net
 					goto start;
 				}
 
-				t.EUSpent = 0;
-				t.EUReward = 0;
-				t.STReward = 0;
+				t.ECSpent = 0;
+				t.ECReward = 0;
+				t.BYReward = 0;
 
 				foreach(var o in t.Operations)
 				{
 					o.Signer = s;
-					t.EUSpent += ConsensusExeunitFee;
+					t.ECSpent += ConsensusExeunitFee;
 
 					o.Execute(Mcv, this);
 
@@ -332,7 +332,7 @@ namespace Uccs.Net
 					}
 					#endif
 					
-					if(t.EUFee == 0 && s.BandwidthExpiration >= ConsensusTime)
+					if(t.ECFee == 0 && s.BandwidthExpiration >= ConsensusTime)
 					{
 						if(s.BandwidthTodayTime < ConsensusTime) /// switch to this day
 						{	
@@ -340,23 +340,23 @@ namespace Uccs.Net
 							s.BandwidthTodayAvailable	= s.BandwidthNext;
 						}
 
-						s.BandwidthTodayAvailable -= t.EUSpent;
+						s.BandwidthTodayAvailable -= t.ECSpent;
 
 						if(s.BandwidthTodayAvailable < 0)
 						{
-							o.Error = Operation.NotEnoughEU;
+							o.Error = Operation.NotEnoughEC;
 							goto start;
 						}
 					}
-					else if(s.ECBalance < t.EUSpent || (!trying && (s.ECBalance < t.EUFee || t.EUSpent > t.EUFee)))
+					else if(s.ECBalance < t.ECSpent || (!trying && (s.ECBalance < t.ECFee || t.ECSpent > t.ECFee)))
 					{
-						o.Error = Operation.NotEnoughEU;
+						o.Error = Operation.NotEnoughEC;
 						goto start;
 					}
 					
 					if(s.BYBalance < 0)
 					{
-						o.Error = Operation.NotEnoughST;
+						o.Error = Operation.NotEnoughBY;
 						goto start;
 					}
 					
@@ -371,19 +371,19 @@ namespace Uccs.Net
 				{
 					var g = Mcv.Accounts.Find(t.Generator, Id);
 
-					if(STRewards.TryGetValue(g, out var x))
-						STRewards[g] = x + t.STReward;
+					if(BYRewards.TryGetValue(g, out var x))
+						BYRewards[g] = x + t.BYReward;
 					else
-						STRewards[g] = t.STReward;
+						BYRewards[g] = t.BYReward;
 
-					if(EURewards.TryGetValue(g, out x))
-						EURewards[g] = x + t.EUFee + t.EUReward;
+					if(ECRewards.TryGetValue(g, out x))
+						ECRewards[g] = x + t.ECFee + t.ECReward;
 					else
-						EURewards[g] = t.EUFee + t.EUReward;
+						ECRewards[g] = t.ECFee + t.ECReward;
 				}
 
 				//s.STBalance -= t.STReward;
-				s.ECBalance -= t.EUFee;
+				s.ECBalance -= t.ECFee;
 				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
@@ -523,13 +523,13 @@ namespace Uccs.Net
 					return a;
 				}
 
-				var st = distribute(r => r.STRewards, (a, r) => a.BYBalance += r);
-				var eu = distribute(r => r.EURewards, (a, r) => a.ECBalance += r);
+				var by = distribute(r => r.BYRewards, (a, r) => a.BYBalance += r);
+				var ec = distribute(r => r.ECRewards, (a, r) => a.ECBalance += r);
 
 				foreach(var i in members)
-					i.Key.BYBalance += Zone.STCommitReward/members.Count;
+					i.Key.BYBalance += Zone.BYCommitReward/members.Count;
 
-				if(eu < Zone.EUCommitRewardOperationCountBelowTrigger)
+				if(ec < Zone.EUCommitRewardOperationCountBelowTrigger)
 					foreach(var i in members)
 						i.Key.ECBalance += Zone.EUCommitReward/members.Count;
 

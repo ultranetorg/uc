@@ -43,7 +43,7 @@ namespace Uccs.Rdn
 		public EntityId				NetOwner { get; set; }
 		public Time					FirstBidTime { get; set; } = Time.Empty;
 		public EntityId				LastWinner { get; set; }
-		public Unit				LastBid { get; set; }
+		public Unit					LastBid { get; set; }
 		public Time					LastBidTime { get; set; } = Time.Empty;
 		public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }

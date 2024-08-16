@@ -66,8 +66,8 @@
 			{
 				an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
 
-				Signer.BYBalance += an.STPayment/c.Analyzers.Length;
-				Signer.ECBalance += an.EUPayment/c.Analyzers.Length;
+				Signer.BYBalance += an.BYPayment/c.Analyzers.Length;
+				Signer.ECBalance += an.ECPayment/c.Analyzers.Length;
 			}
  			else
 				an.Results[j].Result = Result;

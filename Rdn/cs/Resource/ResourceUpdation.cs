@@ -64,11 +64,11 @@ namespace Uccs.Rdn
 
 			a = round.AffectDomain(a.Id);
 			
-			Transaction.EUSpent -= round.ConsensusExeunitFee; /// the first is alredy paid
+			Transaction.ECSpent -= round.ConsensusExeunitFee; /// the first is alredy paid
 
 			void execute(Ura resource)
 			{
-				Transaction.EUSpent += round.ConsensusExeunitFee;
+				Transaction.ECSpent += round.ConsensusExeunitFee;
 
 				var r = a.AffectResource(resource.Resource);
 	

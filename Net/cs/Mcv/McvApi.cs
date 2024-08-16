@@ -168,8 +168,8 @@ namespace Uccs.Net
 						{
 							var a = i.Key.ToString();
 							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
-							f.Add(new ("   ST", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
-							f.Add(new ("   EU", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.ECBalance.ToString()}"));
+							f.Add(new ("   BY", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
+							f.Add(new ("   EC", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.ECBalance.ToString()}"));
 							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToString()}"));
 						}
 					}
@@ -280,12 +280,12 @@ namespace Uccs.Net
 	public class TransactApc : McvApc
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
-		public AccountAddress			By { get; set; }
+		public AccountAddress			Signer { get; set; }
 		public TransactionStatus		Await { get; set; } = TransactionStatus.Confirmed;
 
 		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return mcv.Transact(Operations, By, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
+			return mcv.Transact(Operations, Signer, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
 		}
 	}
 
@@ -338,7 +338,7 @@ namespace Uccs.Net
 			Expiration			= transaction.Expiration;
 			PoW					= transaction.PoW;
 			Tag					= transaction.Tag;
-			EUFee				= transaction.EUFee;
+			EUFee				= transaction.ECFee;
 			Signature			= transaction.Signature;
 			   
 			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Node)?.IP;
