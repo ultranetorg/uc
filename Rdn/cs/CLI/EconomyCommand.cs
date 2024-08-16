@@ -249,11 +249,11 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "Allocate Bandwidth",
 									Description = "Allocate execution bandwidth",
-									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EU days=NUMBER signer=UAA",
+									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EC days=NUMBER signer=UAA",
 
 									Arguments =
 									[
-										new ("bandwidth", "Amount of EU allocated per day"),
+										new ("bandwidth", "Amount of EC allocated per day"),
 										new ("days", "Number of days to allocate bandwidth for"),
 									],
 
@@ -278,7 +278,7 @@ namespace Uccs.Rdn.CLI
 								{ 
 									Title = "TRANSFER",
 									Description = "Send  from one account to another.",
-									Syntax = $"{Keyword} t|transfer to=UAA by=UNT|eu=UNT|mr=UNT signer=UAA",
+									Syntax = $"{Keyword} t|transfer to=UAA by=UNT|ec=UNT|mr=UNT signer=UAA",
 
 									Arguments =
 									[
@@ -291,7 +291,7 @@ namespace Uccs.Rdn.CLI
 
 									Examples =
 									[
-										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca eu=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
 									]
 								},
 

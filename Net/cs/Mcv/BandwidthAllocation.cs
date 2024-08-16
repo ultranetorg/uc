@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		public Unit				Bandwidth;
 		public short			Days;
-		public override string	Description => $"Allocation of {Bandwidth} EU for {Days} days";
+		public override string	Description => $"Allocation of {Bandwidth} EC for {Days} days";
 		public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Zone.BandwidthAllocationDaysMaximum;
 		
 		public BandwidthAllocation()
