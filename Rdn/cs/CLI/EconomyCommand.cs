@@ -251,16 +251,14 @@ namespace Uccs.Rdn.CLI
 									Description = "Allocate execution bandwidth",
 									Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EC days=NUMBER signer=UAA",
 
-									Arguments =
-									[
-										new ("bandwidth", "Amount of EC allocated per day"),
-										new ("days", "Number of days to allocate bandwidth for"),
-									],
+									Arguments =	[
+													new ("bandwidth", "Amount of EC allocated per day"),
+													new ("days", "Number of days to allocate bandwidth for"),
+												],
 
-									Examples =
-									[
-										new (null, $"{Keyword} allocatebandwidth bandwidth=100 days=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-									]
+									Examples =	[
+													new (null, $"{Keyword} allocatebandwidth bandwidth=100 days=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+												]
 								},
 
 								Execute = () =>	{
@@ -280,19 +278,17 @@ namespace Uccs.Rdn.CLI
 									Description = "Send  from one account to another.",
 									Syntax = $"{Keyword} t|transfer to=UAA by=UNT|ec=UNT|mr=UNT signer=UAA",
 
-									Arguments =
-									[
-										new ("to", "Account public address that funds are credited to"),
-										new ("by", "Amount of Byte-Years to be transferred"),
-										new ("ec", "Amount of Execution Cycles to be transferred"),
-										new ("mr", "Amount of Membership Rights to be transferred"),
-										new ("signer", "Account public address where funds are debited from")
-									],
+									Arguments =	[
+													new ("to", "Account public address that funds are credited to"),
+													new ("by", "Amount of Byte-Years to be transferred"),
+													new ("ec", "Amount of Execution Cycles to be transferred"),
+													new ("mr", "Amount of Membership Rights to be transferred"),
+													new ("signer", "Account public address where funds are debited from")
+												],
 
-									Examples =
-									[
-										new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-									]
+									Examples =	[
+													new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+												]
 								},
 
 								Execute = () =>	{
@@ -314,10 +310,9 @@ namespace Uccs.Rdn.CLI
 
 									Arguments = [],
 
-									Examples =
-									[
-										new (null, $"{Keyword} cost")
-									]
+									Examples =	[
+													new (null, $"{Keyword} cost")
+												]
 								},
 
 								Execute = () =>	{

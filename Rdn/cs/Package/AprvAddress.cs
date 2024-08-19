@@ -1,7 +1,7 @@
 ﻿namespace Uccs.Rdn
 {
 	/// <summary>
-	///  ultranet:testzone:uo/app/dotnet7/0123456789ABCDEF
+	///  ultranet:testzone:uo/app/dotnet/1.23.456
 	/// </summary>
 
 	public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAddress>, IEquatable<AprvAddress>

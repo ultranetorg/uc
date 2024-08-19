@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyVersion>1.0.700.0</AssemblyVersion>
-    <FileVersion>1.0.700.0</FileVersion>
-    <Version>1.0.700.0</Version>
+    <AssemblyVersion>1.0.724.0</AssemblyVersion>
+    <FileVersion>1.0.724.0</FileVersion>
+    <Version>1.0.724.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\demo.library.a.dotnet\0.0.0</OutputPath>
@@ -23,8 +23,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibraryAA\Uccs.Demo.LibraryAA.csproj">
-      <Private>False</Private>
-      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+      <Private>True</Private>
+      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
     </ProjectReference>
   </ItemGroup>
 </Project>

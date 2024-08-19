@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Uccs.Uos
+﻿namespace Uccs.Uos
 {
 	public class StartCommand : UosCommand
 	{

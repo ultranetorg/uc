@@ -194,7 +194,7 @@ namespace Uccs.Net
 		public Unit Floor => new Unit(Attos/ One * One);
 	}
 
-	public class CoinJsonConverter : JsonConverter<Unit>
+	public class UnitJsonConverter : JsonConverter<Unit>
 	{
 		public override Unit Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{

@@ -57,7 +57,7 @@ namespace Uccs.Net
 
 			DefaultOptions.IgnoreReadOnlyProperties = true;
 
-			DefaultOptions.Converters.Add(new CoinJsonConverter());
+			DefaultOptions.Converters.Add(new UnitJsonConverter());
 			DefaultOptions.Converters.Add(new AccountJsonConverter());
 			DefaultOptions.Converters.Add(new IPJsonConverter());
 			DefaultOptions.Converters.Add(new TimeJsonConverter());

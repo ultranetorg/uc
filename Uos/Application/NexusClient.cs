@@ -4,22 +4,22 @@ namespace Uccs.Uos
 {
 	public class NexusClient
 	{
-		public string ProductsPath;	
-		public string SunAddress; 		
-		public string SunApiKey;
-		public McvZone	Zone;
-
-		public ResourceHub		ResourceHub;
-		public PackageHub		PackageHub;
+		public string			ProductsPath;	
+		public string			SunAddress; 		
+		public string			SunApiKey;
+		//public McvZone			Zone;
+		//
+		//public ResourceHub		ResourceHub;
+		//public PackageHub		PackageHub;
 		public JsonClient		Sun;
 		HttpClient				Http = new HttpClient();
 
 		public NexusClient()
 		{
 			//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
-			//SunAddress		= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
+			//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 			//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
-			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
+			//Zone			=	Environment.GetEnvironmentVariable(Nexus.BootZone);
 
 			//Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 			//
@@ -29,7 +29,7 @@ namespace Uccs.Uos
 			//PackageHub = new PackageHub(null, ProductsPath);
 		}
 
-		public void Start(Uri address, Flow workflow)
+		public void Start(Uri address, Flow flow)
 		{
 			///var s = Sun.Request<PackageDownloadReport>(new PackageDownloadReportCall {Package = PackageAddress.Parse(address.LocalPath)}, workflow);
 			///

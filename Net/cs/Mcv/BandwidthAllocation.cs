@@ -28,11 +28,11 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Signer.BandwidthExpiration > round.ConsensusTime) /// refund what is left
+			if(Signer.BandwidthExpiration > round.ConsensusTime) /// refund 50% for what is left
 			{
 				var d = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
 				
-				Signer.ECBalance += Signer.BandwidthNext * d;
+				Signer.ECBalance += Signer.BandwidthNext * d / 2;
 
 				for(int i=1; i<=d; i++)
 					round.NextBandwidthAllocations[i] -= Signer.BandwidthNext;

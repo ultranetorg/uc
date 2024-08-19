@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyVersion>1.0.700.0</AssemblyVersion>
-    <FileVersion>1.0.700.0</FileVersion>
-    <Version>1.0.700.0</Version>
+    <AssemblyVersion>1.0.724.0</AssemblyVersion>
+    <FileVersion>1.0.724.0</FileVersion>
+    <Version>1.0.724.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\demo.library.aa.dotnet\0.0.0</OutputPath>
@@ -21,4 +21,17 @@
     <OutputPath>..\..\..\_Release\demo.library.aa.dotnet\0.0.0</OutputPath>
     <Optimize>True</Optimize>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 </Project>

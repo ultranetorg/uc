@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Uccs.Uos
+﻿namespace Uccs.Uos
 {
 	public class AprvCommand : UosCommand
 	{
@@ -24,7 +22,7 @@ namespace Uccs.Uos
 
 													Examples =
 													[
-														new (null, "package i company/application/windows/1.2.3")
+														new (null, $"{Keyword} i company/application/windows/1.2.3")
 													]
 												},
 

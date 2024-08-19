@@ -33,7 +33,7 @@ namespace Uccs.Rdn
 		public bool IsReady(Ura package) 
 		{
 			var p = Find(package);
-				
+			
 			if(p == null)
 				return false;
 
@@ -445,7 +445,6 @@ namespace Uccs.Rdn
 										}
 									}
 
-									s.Complete.Activity = null;
 
 									foreach(var i in s.Incrementals)
 									{
@@ -483,6 +482,29 @@ namespace Uccs.Rdn
 
 									//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
 									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(todeployment(s.Target.Resource.Address),'.' + VersionManifest.Extension));
+
+									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Flags.HasFlag(DependencyFlag.SideBySide)))
+									{
+										var d = Find(i.Address);
+										
+										while(d == null || d.Activity != null)
+											if(workflow.Active)
+												Thread.Sleep(100);
+											else
+												return;
+
+										foreach(var fs in Directory.EnumerateFiles(todeployment(i.Address), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + VersionManifest.Extension))
+										{
+											var fd = Path.Join(todeployment(s.Target.Resource.Address), fs.Substring(todeployment(i.Address).Length + 1));
+											Directory.CreateDirectory(Path.GetDirectoryName(fd));
+
+											File.Copy(fs, fd, true);
+										}
+										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+										
+									}
+
+									s.Complete.Activity = null;
 								}
 							});
 

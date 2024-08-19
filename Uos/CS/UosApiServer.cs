@@ -44,7 +44,8 @@ namespace Uccs.Uos
 	{
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.RunIcn();
+			lock(uos)
+				uos.RunIcn();
 
 			return null;
 		}
@@ -56,7 +57,8 @@ namespace Uccs.Uos
 
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.RunNode(Mcvid);
+			lock(uos)
+				uos.RunNode(Mcvid);
 
 			return null;
 		}
