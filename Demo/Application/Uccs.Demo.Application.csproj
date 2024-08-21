@@ -10,9 +10,9 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyVersion>1.0.724.0</AssemblyVersion>
-    <FileVersion>1.0.724.0</FileVersion>
-    <Version>1.0.724.0</Version>
+    <AssemblyVersion>1.0.732.0</AssemblyVersion>
+    <FileVersion>1.0.732.0</FileVersion>
+    <Version>1.0.732.0</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -31,10 +31,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uos\Application\Uccs.Uos.Application.csproj">
-      <Private>True</Private>
-      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
+    <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
     <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
       <Private>True</Private>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>

@@ -130,7 +130,7 @@ namespace Uccs.Rdn
 
 			foreach(var i in p.Manifest.CompleteDependencies)
 			{
-				if(i.Type == DependencyType.Critical && !ExistsRecursively(i.Address))
+				if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Address))
 					return false;
 			}
 
@@ -483,7 +483,7 @@ namespace Uccs.Rdn
 									//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
 									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(todeployment(s.Target.Resource.Address),'.' + VersionManifest.Extension));
 
-									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Flags.HasFlag(DependencyFlag.SideBySide)))
+									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Flags.HasFlag(DependencyFlag.Merge)))
 									{
 										var d = Find(i.Address);
 										

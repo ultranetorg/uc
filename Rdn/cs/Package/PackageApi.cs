@@ -97,7 +97,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class PackageInfoApc : RdnApc
+	public class PackageApc : RdnApc
 	{
 		public Ura	Package { get; set; }
 		

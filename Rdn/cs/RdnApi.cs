@@ -68,6 +68,9 @@ namespace Uccs.Rdn
 	{
 		new public static readonly JsonSerializerOptions DefaultOptions;
 		
+		public LocalResource			GetLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+		public LocalReleaseApc.Return	GetLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
+
 		static RdnApiClient()
 		{
 			DefaultOptions = new JsonSerializerOptions{};

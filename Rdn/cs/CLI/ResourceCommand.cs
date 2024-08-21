@@ -178,7 +178,7 @@
 								},
 
 								Execute = () =>	{
-													var r = Api<LocalResource>(new LocalResourceApc {Resource = First});
+													var r = Api<LocalResource>(new LocalResourceApc {Address = First});
 					
 													if(r != null)
 													{

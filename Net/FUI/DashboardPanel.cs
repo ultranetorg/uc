@@ -18,7 +18,7 @@
 			{
 				Logbox.Log = Uos.Flow.Log;
 
-				var m = Uos.Nodes.OfType<McvNode>().FirstOrDefault();
+				var m = Uos.Nodes.Select(i => i.Node).OfType<McvNode>().FirstOrDefault();
 				
 				if(m?.Mcv != null)
 				{
@@ -40,7 +40,7 @@
 			fields.Text = string.Join('\n', s.Select(j => j[0]));
 			values.Text = string.Join('\n', s.Select(j => j[1]));
 		
-			foreach(var i in Uos.Nodes.OfType<McvNode>())
+			foreach(var i in Uos.Nodes.Select(i => i.Node).OfType<McvNode>())
 			{
 				var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(i, null, null, null) as SummaryApc.Return).Summary;
 

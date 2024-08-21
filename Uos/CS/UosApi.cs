@@ -51,9 +51,9 @@ namespace Uccs.Uos
 		}
 	}
 
-	public class RunMcvApc : UosApc
+	public class RunNodeApc : UosApc
 	{
-		public Guid Mcvid { get; set; }
+		public Guid		Mcvid { get; set; }
 
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
@@ -61,6 +61,17 @@ namespace Uccs.Uos
 				uos.RunNode(Mcvid);
 
 			return null;
+		}
+	}
+
+	public class NodeInfoApc : UosApc
+	{
+		public Guid		Mcvid { get; set; }
+
+		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(uos)
+				return uos.Nodes.Find(i => i.Node.Zone.Id == Mcvid);
 		}
 	}
 
@@ -110,14 +121,13 @@ namespace Uccs.Uos
 		}
 	}
 
-	public class AprvInstallApc : UosApc
+	public class PackageInstallApc : UosApc
 	{
 		public AprvAddress	Package { get; set; }
 	
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			uos.Install(Package, workflow);
-			return null;
+			return uos.Install(Package, workflow);
 		}
 	}
 }

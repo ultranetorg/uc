@@ -24,7 +24,6 @@ namespace Uccs.Net
 
 	public abstract class NodeSettings : SavableSettings
 	{
-
 		public ApiSettings			Api { get; set; }
 		public bool					Log { get; set; }
 		public int					RdcQueryTimeout { get; set; } = 5000;

@@ -20,14 +20,14 @@ namespace Uccs.Net.FUI
 
 			MinimumSize = Size;
 
-			Uos.IcnStarted += c =>	{ 	
+			Uos.IznStarted += c =>	{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
 														LoadIcn();
 													});
 									};
 			
-			Uos.McvStarted += c =>	{ 	
+			Uos.NodeStarted += c =>	{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
 														LoadMcv(c as McvNode);
@@ -37,7 +37,7 @@ namespace Uccs.Net.FUI
 				LoadIcn();
 
 			foreach(var i in Uos.Nodes)
-				LoadMcv(i as McvNode);
+				LoadMcv(i.Node as McvNode);
 		}
 
 		public void BeginClose()

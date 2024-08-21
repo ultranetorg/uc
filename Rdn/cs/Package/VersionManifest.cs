@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn
 {
-	public enum DependencyType
+	public enum DependencyNeed
 	{
 		None, Critical, Deferred
 	}
@@ -12,19 +12,19 @@ namespace Uccs.Rdn
 	public enum DependencyFlag : byte
 	{
 		None, 
-		SideBySide			= 0b0000_0001, 
+		Merge				= 0b0000_0001, 
 		AutoUpdateAllowed	= 0b0000_0010
 	}
 
 	public class Dependency : IEquatable<Dependency>
 	{
 		public Ura				Address { get; set; }
-		public DependencyType	Type { get; set; }
+		public DependencyNeed	Need { get; set; }
 		public DependencyFlag	Flags { get; set; }
 
 		public override string ToString()
 		{
-			return $"{Address}, {Type}, {Flags}";
+			return $"{Address}, {Need}, {Flags}";
 		}
 
 		//public void Read(BinaryReader reader)
@@ -48,12 +48,12 @@ namespace Uccs.Rdn
 
 		public bool Equals(Dependency other)
 		{
-			return other is not null && Type == other.Type && Flags == other.Flags && Address == other.Address;
+			return other is not null && Need == other.Need && Flags == other.Flags && Address == other.Address;
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Type, Flags, Address);
+			return HashCode.Combine(Need, Flags, Address);
 		}
 
 		public static bool operator ==(Dependency left, Dependency right)
@@ -71,8 +71,8 @@ namespace Uccs.Rdn
 			var d = new Dependency();
 			
 			d.Address	= Ura.Parse(xon.Name);
-			d.Type		= Enum.Parse<DependencyType>(xon.Get<string>("Type"));
-			d.Flags		|= xon.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.None;
+			d.Need		= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
+			d.Flags		|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
 			d.Flags		|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
 
 			return d;
@@ -83,7 +83,7 @@ namespace Uccs.Rdn
 			var x = new Xon(serializator);
 
 			x.Name = Address.ToString();
-			x.Add("Type").Value = Type;
+			x.Add("Need").Value = Need;
 			
 			foreach(var i in Enum.GetValues<DependencyFlag>().Where(i => i != DependencyFlag.None))
 			{
@@ -198,7 +198,7 @@ namespace Uccs.Rdn
 		public Execution				MatchExecution(Platform platform) => Executions.FirstOrDefault(i => i.Condition.Match(platform)); 
 
 		[JsonIgnore]
-		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
+		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
 
   		public byte[] Raw
   		{

@@ -78,7 +78,7 @@
 								},
 
 								Execute = () =>	{
-													var r = Api<PackageInfo>(new PackageInfoApc {Package = Package});
+													var r = Api<PackageInfo>(new PackageApc {Package = Package});
 					
 													Dump(r);
 
@@ -118,7 +118,7 @@
 							
 															if(d is null)
 															{	
-																if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
+																if(!Api<PackageInfo>(new PackageApc {Package = Package}).Ready)
 																{
 																	Flow.Log?.ReportError(this, "Failed");
 																}

@@ -127,7 +127,6 @@ namespace Uccs.Net
 			writer.Write(Generator);
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
-			//writer.Write(STFee);
 			writer.Write(ECFee);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>{
@@ -143,7 +142,6 @@ namespace Uccs.Net
 			Generator	= reader.Read<EntityId>();
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
-			//STFee		= reader.Read<Money>();
 			ECFee		= reader.Read<Unit>();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {

@@ -11,11 +11,17 @@ namespace Uccs.Uos
 		//
 		//public ResourceHub		ResourceHub;
 		//public PackageHub		PackageHub;
-		public JsonClient		Sun;
+		public ApiClient		Uos;
+		public RdnApiClient		Rdn;
 		HttpClient				Http = new HttpClient();
+
 
 		public NexusClient()
 		{
+			var hch = new HttpClientHandler();
+			hch.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			var http = new HttpClient(hch) {Timeout = Timeout.InfiniteTimeSpan};
+
 			//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 			//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 			//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
@@ -27,6 +33,24 @@ namespace Uccs.Uos
 
 			//ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			//PackageHub = new PackageHub(null, ProductsPath);
+
+			Uos = new ApiClient(http, Environment.GetEnvironmentVariable(Uccs.Uos.Uos.ApiAddressEnvKey), Environment.GetEnvironmentVariable(Uccs.Uos.Uos.ApiKeyEnvKey));
+
+			var s = Uos.Request<NodeInstance>(new NodeInfoApc {Mcvid = RdnZone.Local.Id}, new Flow(GetType().Name));
+
+			Rdn = new RdnApiClient(http, s.Api.ListenAddress, s.Api.AccessKey);
+		}
+
+		public PackageInfo GetPackage(AprvAddress package, Flow flow)
+		{
+			var p = Rdn.Request<PackageInfo>(new PackageApc {Package = package}, flow);
+
+			if(p == null)
+			{
+				return Uos.Request<PackageInfo>(new PackageInstallApc {Package = package}, flow);
+			}
+
+			return p;
 		}
 
 		public void Start(Uri address, Flow flow)

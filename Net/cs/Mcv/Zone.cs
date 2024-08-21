@@ -163,10 +163,10 @@ namespace Uccs.Net
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
-		public Unit				BYCommitReward									= 1_000_000;
-		public Unit				EUCommitReward									= 1_000_000;
+		public Unit				BYCommitEmission									= 1_000_000;
+		public Unit				ECCommitEmission									= 1_000_000;
 		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
-		public Unit				MRCommitReward									= 1000;
+		public Unit				MRCommitEmission									= 1000;
 		
 		public int				BandwidthAllocationDaysMaximum					=> 365; // 50%
 		public int				BandwidthAllocationPerDayMaximum				=> OperationsPerRoundLimit * 24 * 3600 / 2; /// 50%

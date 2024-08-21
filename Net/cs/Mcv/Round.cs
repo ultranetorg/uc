@@ -492,7 +492,7 @@ namespace Uccs.Net
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
 
-				var members = Members.Where(i => i.CastingSince <= tail.First().Id).ToDictionary(i => AffectAccount(i.Account), i => Unit.Zero);
+				var members = Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => AffectAccount(i.Account)).ToArray();
 
 				Unit distribute(Func<Round, Dictionary<AccountEntry, Unit>> getroundrewards, Action<AccountEntry, Unit> credit)
 				{
@@ -500,23 +500,23 @@ namespace Uccs.Net
 
 					foreach(var r in tail)
 					{
-						foreach(var j in getroundrewards(r))
+						foreach(var rmr in getroundrewards(r))
 						{
-							credit(AffectAccount(j.Key.Address), members.TryGetValue(j.Key, out var x) ? x + j.Value * 45/100 : j.Value * 45/100); /// 45%
-							a += j.Value;
+							credit(AffectAccount(rmr.Key.Address), rmr.Value * 50/100); /// 50% to a member itself
+							a += rmr.Value;
 						}
 					}
 					
 					foreach(var j in members)
 					{
-						credit(j.Key, a*45/100/members.Count); /// 45%
+						credit(j, a*40/100/members.Length); /// 40% evenly among all
 					}
 
 					if(Funds.Any())
 					{
 						foreach(var i in Funds)
 						{
-							credit(AffectAccount(i), a/10/Funds.Count); /// 10%
+							credit(AffectAccount(i), a/10/Funds.Count); /// 10% to funds
 						}
 					}
 
@@ -527,14 +527,14 @@ namespace Uccs.Net
 				var ec = distribute(r => r.ECRewards, (a, r) => a.ECBalance += r);
 
 				foreach(var i in members)
-					i.Key.BYBalance += Zone.BYCommitReward/members.Count;
+					i.BYBalance += Zone.BYCommitEmission/members.Length;
 
 				if(ec < Zone.EUCommitRewardOperationCountBelowTrigger)
 					foreach(var i in members)
-						i.Key.ECBalance += Zone.EUCommitReward/members.Count;
+						i.ECBalance += Zone.ECCommitEmission/members.Length;
 
 				foreach(var j in members)
-					j.Key.MRBalance += Zone.MRCommitReward/members.Count;
+					j.MRBalance += Zone.MRCommitEmission/members.Length;
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)

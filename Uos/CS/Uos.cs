@@ -3,40 +3,45 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using Uccs.Net;
+using Uccs.Rdn.Package;
 
 namespace Uccs.Uos
 {
+	public class NodeInstance
+	{
+		public ApiSettings	Api { get; set; }
+		public Node			Node;
+	}
+
 	public class Uos
 	{
-		public const string BootProductsPath	= "Uos.Nexus.ProductsPath";
-		public const string BootSunAddress 		= "Uos.Nexus.SunAddress";
-		public const string BootSunApiKey		= "Uos.Nexus.SunApiKey";
-		public const string BootZone		 	= "Uos.Nexus.Zone";
+		public const string			ApiAddressEnvKey	= "UosApiAddress";
+		public const string			ApiKeyEnvKey	 	= "UosApiKey";
 
-		public delegate void	Delegate(Uos d);
- 		public delegate void	McvDelegate(Mcv d);
+		public delegate void		Delegate(Uos d);
+ 		public delegate void		McvDelegate(Mcv d);
 	 	
-		public InterzoneNode	Izn; /// Inter-consensus node
-		public static bool		ConsoleAvailable { get; protected set; }
-		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
-		public Flow				Flow = new Flow("uos", new Log()); 
-		public static string	ExeDirectory;
-		public UosSettings		Settings;
-		public List<Node>		Nodes = [];
-		public UosApiServer		ApiServer;
-		public IClock			Clock;
-		public Delegate			Stopped;
-		public Vault			Vault;
-		static Boot				Boot;
-		public static			ConsoleLogView	LogView = new ConsoleLogView(false, false);
+		public InterzoneNode		Izn; /// Inter-consensus node
+		public static bool			ConsoleAvailable { get; protected set; }
+		public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
+		public Flow					Flow = new Flow("uos", new Log()); 
+		public static string		ExeDirectory;
+		public UosSettings			Settings;
+		public List<NodeInstance>	Nodes = [];
+		public UosApiServer			ApiServer;
+		public IClock				Clock;
+		public Delegate				Stopped;
+		public Vault				Vault;
+		static Boot					Boot;
+		public static				ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		
-		public Node				Find(Guid id) => Nodes.Find(i => i.Zone.Id == id);
-		public T				Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
+		public Node					Find(Guid id) => Nodes.Find(i => i.Node.Zone.Id == id)?.Node;
+		public T					Find<T>() where T : Node => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
 
 		//public static List<Uos>			All = new();
 
-		public NodeDelegate		IcnStarted;
-		public NodeDelegate		McvStarted;
+		public NodeDelegate			IznStarted;
+		public NodeDelegate			NodeStarted;
 
 		static void Main(string[] args)
 		{
@@ -85,7 +90,7 @@ namespace Uccs.Uos
 			//ReportPreambule();
 			//ReportNetwork();
 			if(File.Exists(Settings.Profile))
-				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Node.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Node.FailureExt))
 					File.Delete(i);
 		
 			
@@ -113,9 +118,9 @@ namespace Uccs.Uos
 			foreach(var i in Nodes.ToArray())
 			{	
 				lock(Izn.Lock)
-					Izn.Disconnect(i);
+					Izn.Disconnect(i.Node);
 		
-				i.Stop();
+				i.Node.Stop();
 				Nodes.Remove(i);
 			}
 
@@ -144,7 +149,7 @@ namespace Uccs.Uos
 
 			Izn = new InterzoneNode(Settings.Name, Settings.Interzone.Id, Settings.Profile, settings, f);
 
-			IcnStarted?.Invoke(Izn);
+			IznStarted?.Invoke(Izn);
 		}
 
 		public Node RunNode(Guid zuid, NodeSettings settings = null, IClock clock = null, bool peering = false)
@@ -157,12 +162,12 @@ namespace Uccs.Uos
 
 				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, clock, f);
 
-				Nodes.Add(n);
+				Nodes.Add(new NodeInstance {Api = settings?.Api, Node = n});
 
 				lock(Izn.Lock)
 					Izn.Connect(n);
 
-				McvStarted?.Invoke(n);
+				NodeStarted?.Invoke(n);
 
 				return n;
 			}
@@ -179,10 +184,10 @@ namespace Uccs.Uos
 
 			switch(t)
 			{
-				case WalletCommand.Keyword:		c = new WalletCommand(this, args, flow); break;
-				case NodeCommand.Keyword:		c = new NodeCommand(this, args, flow); break;
-				case StartCommand.Keyword:		c = new StartCommand(this, args, flow); break;
-				case AprvCommand.Keyword:		c = new AprvCommand(this, args, flow); break;
+				case WalletCommand.Keyword:	c = new WalletCommand(this, args, flow); break;
+				case NodeCommand.Keyword:	c = new NodeCommand(this, args, flow); break;
+				case StartCommand.Keyword:	c = new StartCommand(this, args, flow); break;
+				case AprvCommand.Keyword:	c = new AprvCommand(this, args, flow); break;
 
 				default:
 					throw new SyntaxException($"Unknown command '{t}'");
@@ -288,7 +293,7 @@ namespace Uccs.Uos
 
 			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
 
-			var d = a.Request<LocalResource>(new LocalResourceApc {Resource = address}, flow)?.Last
+			var d = a.Request<LocalResource>(new LocalResourceApc {Address = address}, flow)?.Last
 					?? 
 					a.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 
@@ -338,10 +343,9 @@ namespace Uccs.Uos
  			p.StartInfo.Arguments = exe.Arguments;
  
  			p.Start();
-
 		}
 
-		public void Install(AprvAddress address, Flow flow)
+		public PackageInfo Install(AprvAddress address, Flow flow)
 		{
 			var h = new HttpClientHandler();
 			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
@@ -349,7 +353,7 @@ namespace Uccs.Uos
 
 			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
 
-			var p = a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow);
+			var p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
 
 			if(p == null || !p.Manifest.CompleteHash.SequenceEqual(GetCurrentHash(address)))
 			{
@@ -363,18 +367,19 @@ namespace Uccs.Uos
 			
 						if(d is null)
 						{	
-							if(!a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow).Ready)
+							p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
+
+							if(p.Ready)
 							{
-								flow.Log?.ReportError(this, "Failed");
-								return;
+								break;
 							}
 							else
-								break;
+								throw new PackageException("Download failed for unknown reason");
 						}
 	
 						Thread.Sleep(100);
 					}
-					while(Flow.Active);
+					while(flow.Active);
 				}
 
 				Find<RdnNode>().PackageHub.Deploy(address, a => AddressToDeployment(new AprvAddress(a)), flow);
@@ -385,20 +390,24 @@ namespace Uccs.Uos
 			
 					if(d is null)
 					{	
-						if(!a.Request<PackageInfo>(new PackageInfoApc {Package = address}, flow).Ready)
+						p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
+
+						if(p.Ready)
 						{
-							flow.Log?.ReportError(this, "Failed");
-							return;
+							return p;
 						}
 						else
-							break;
+							throw new PackageException("Deploy failed for unknown reason");
 					}
 	
 					Thread.Sleep(100);
 				}
-				while(Flow.Active);
+				while(flow.Active);
 			}
-			
+			else 
+				return p;
+
+			throw new OperationCanceledException();
 		}
     }
 }

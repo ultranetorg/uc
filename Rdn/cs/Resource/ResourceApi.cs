@@ -249,13 +249,13 @@ namespace Uccs.Rdn
 	
 	public class LocalResourceApc : RdnApc
 	{
-		public Ura		Resource { get; set; }
+		public Ura		Address { get; set; }
 		
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
-				return sun.ResourceHub.Resources.Find(i => i.Address == Resource);
+				return sun.ResourceHub.Resources.Find(i => i.Address == Address);
 			}
 		}
 	}
