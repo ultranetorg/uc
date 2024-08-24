@@ -3,16 +3,16 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyVersion>1.0.732.0</AssemblyVersion>
-    <FileVersion>1.0.732.0</FileVersion>
-    <Version>1.0.732.0</Version>
+    <AssemblyVersion>1.0.853.0</AssemblyVersion>
+    <FileVersion>1.0.853.0</FileVersion>
+    <Version>1.0.853.0</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -40,12 +40,12 @@
 	{
 		public LocalPackage						Package;
 		public FileDownload						FileDownload;
-		public bool								Downloaded;
+		public bool								IsDownloaded;
 		public List<PackageDownload>			Dependencies = new();
 		public Task								Task;
 		public SeedFinder						SeedCollector;
 
-		public bool								Succeeded => Downloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public bool								Succeeded => IsDownloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
@@ -56,9 +56,9 @@
 
 			lock(node.PackageHub.Lock)
 			{
-				if(node.PackageHub.IsReady(package.Resource.Address))
+				if(node.PackageHub.IsAvailable(package.Resource.Address))
 				{
-					Downloaded = true;
+					IsDownloaded = true;
 					return;
 				}
 			}
@@ -159,7 +159,7 @@
 											lock(node.PackageHub.Lock)
 											{
 												Package.Release.Complete(a);
-												Downloaded = true;
+												IsDownloaded = true;
 											}
 										}
 										catch(Exception) when(workflow.Aborted)

@@ -1,4 +1,4 @@
-﻿namespace DemoComponent
+﻿namespace Uccs.Demo.Component
 {
 	public partial class ComponentControl : UserControl
 	{

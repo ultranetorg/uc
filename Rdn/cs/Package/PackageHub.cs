@@ -5,17 +5,22 @@ namespace Uccs.Rdn
 {
 	public class PackageHub
 	{
-		SeedSettings				Settings;
+		public SeedSettings			Settings;
 		public List<LocalPackage>	Packages = new();
 		public RdnNode				Node;
 		public object				Lock = new object();
+		public string				DeploymentPath;
 
 		public PackageHub(RdnNode sun, SeedSettings settings)
 		{
 			Node = sun;
 			Settings = settings;
-
 		}
+
+ 		public static string AddressToDeployment(string packagespath, AprvAddress resource)
+ 		{
+ 			return Path.Join(packagespath, ResourceHub.Escape(resource.APR), ResourceHub.Escape(resource.Version));
+ 		}
 
  		public string AddressToReleases(Urr release)
  		{
@@ -30,7 +35,7 @@ namespace Uccs.Rdn
 													.Where(i => i is not null);
 		}
 
-		public bool IsReady(Ura package) 
+		public bool IsAvailable(Ura package) 
 		{
 			var p = Find(package);
 			
@@ -43,9 +48,9 @@ namespace Uccs.Rdn
 			lock(Node.ResourceHub.Lock)
 			{
 				if(	p.Release.Availability.HasFlag(Availability.Complete) || 
-					p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsReady(i.Release)))
+					p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Release)))
 				{
-					return p.Manifest.CriticalDependencies.All(i => IsReady(i.Address));
+					return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Address));
 				}
 				else
 					return false;
@@ -240,7 +245,7 @@ namespace Uccs.Rdn
 
 		public void DetermineDelta(Ura package, VersionManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 		{
-			var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Release));
+			var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Release));
 		
 			if(from != null)
 			{
@@ -363,152 +368,174 @@ namespace Uccs.Rdn
 //  			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, flow);
 //  		}
 
-		public Deployment Deploy(Ura package, Func<Ura, string> todeployment, Flow workflow)
+		public void Deploy(Ura address, string packagespath, Flow flow)
 		{
-			var	d = new Deployment();
-
-			void collect(LocalPackage parent, Ura address)
+			lock(Lock)
 			{
-				var m = new DeploymentMerge {Target = Find(address)};
-				d.Merges.Add(m);
+				var p = Find(address);
 
-				var p = m.Target;
-
-				while(true)
+				if(p == null || !IsAvailable(address))
 				{
-					if(p.Release.Availability.HasFlag(Availability.Complete))
-					{
-						if(p.Activity == null)
-							p.Activity = d;
-						else
-							throw new ResourceException(ResourceError.Busy);
-					
-						m.Complete = p;
-
-						break;
-					}
-					else if(p.Release.Availability.HasFlag(Availability.Incremental))
-					{	
-						if(p.Activity == null)
-							p.Activity = d;
-						else
-							throw new ResourceException(ResourceError.Busy);
-
-						var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Release));
-
-						if(pp == null)
-							throw new ResourceException(ResourceError.RequiredPackagesNotFound);
-
-						m.Incrementals.Insert(0, new (p, pp));
-
-						p = Find(pp.Release);
-					}
+					Download(address, flow).Task.ContinueWith(t =>	{
+																		lock(Lock)
+																			deploy();
+																	});
 				}
+				else
+					deploy();
 
-				//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
-				
-				var deps = new HashSet<Ura>();
-
-				foreach(var j in m.Complete.Manifest.CompleteDependencies)
-					deps.Add(j.Address);
-
-				foreach(var i in m.Incrementals.AsEnumerable().Reverse())
-				{
-					foreach(var j in i.Value.AddedDependencies)
-						deps.Add(j.Address);
-		
-					foreach(var j in i.Value.RemovedDependencies)
-						deps.Remove(j.Address);
-				}
-	
-				foreach(var i in deps)
-					collect(p, i);
 			}
 
-			lock(Lock)
-				collect(null, package);
+			void deploy()
+			{
+				var p = Find(address);
+				
+				var rdnvm = Path.Join(AddressToDeployment(packagespath, new(address)), '.' + VersionManifest.Extension);
 
-			Task.Run(() =>	{ 
-								foreach(var s in d.Merges.AsEnumerable().Reverse())
-								{
-									using(var fs = new FileStream(s.Complete.Release.Find(LocalPackage.CompleteFile).LocalPath, FileMode.Open))
+				if(File.Exists(rdnvm) && p.Manifest.CompleteHash.SequenceEqual(VersionManifest.Load(rdnvm).CompleteHash))
+					return;
+
+				var	d = new Deployment();
+
+				void collect(LocalPackage parent, Ura address)	{
+																	var m = new DeploymentMerge {Target = Find(address)};
+																	d.Merges.Add(m);
+
+																	var p = m.Target;
+
+																	while(true)
+																	{
+																		if(p.Release.Availability.HasFlag(Availability.Complete))
+																		{
+																			if(p.Activity == null)
+																				p.Activity = d;
+																			else
+																				throw new ResourceException(ResourceError.Busy);
+					
+																			m.Complete = p;
+
+																			break;
+																		}
+																		else if(p.Release.Availability.HasFlag(Availability.Incremental))
+																		{	
+																			if(p.Activity == null)
+																				p.Activity = d;
+																			else
+																				throw new ResourceException(ResourceError.Busy);
+
+																			var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Release));
+
+																			if(pp == null)
+																				throw new ResourceException(ResourceError.RequiredPackagesNotFound);
+
+																			m.Incrementals.Insert(0, new (p, pp));
+
+																			p = Find(pp.Release);
+																		}
+																	}
+
+																	//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
+				
+																	var deps = new HashSet<Ura>();
+
+																	foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																		deps.Add(j.Address);
+
+																	foreach(var i in m.Incrementals.AsEnumerable().Reverse())
+																	{
+																		foreach(var j in i.Value.AddedDependencies)
+																			deps.Add(j.Address);
+		
+																		foreach(var j in i.Value.RemovedDependencies)
+																			deps.Remove(j.Address);
+																	}
+	
+																	foreach(var i in deps)
+																		collect(p, i);
+																}
+
+				collect(null, address);
+
+				Task.Run(() =>	{ 
+									foreach(var s in d.Merges.AsEnumerable().Reverse())
 									{
-										using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
+										using(var fs = new FileStream(s.Complete.Release.Find(LocalPackage.CompleteFile).LocalPath, FileMode.Open))
 										{
-											foreach(var e in a.Entries)
+											using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
 											{
-												var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+												foreach(var e in a.Entries)
+												{
+													var f = Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
-												Directory.CreateDirectory(Path.GetDirectoryName(f));
-												e.ExtractToFile(f, true);
+													Directory.CreateDirectory(Path.GetDirectoryName(f));
+													e.ExtractToFile(f, true);
+												}
 											}
 										}
-									}
 
-
-									foreach(var i in s.Incrementals)
-									{
-										using(var fs = new FileStream(i.Key.Release.Find(LocalPackage.IncrementalFile).LocalPath, FileMode.Open))
+										foreach(var i in s.Incrementals)
 										{
-											using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
+											using(var fs = new FileStream(i.Key.Release.Find(LocalPackage.IncrementalFile).LocalPath, FileMode.Open))
 											{
-												foreach(var e in z.Entries)
+												using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
 												{
-													if(e.Name != LocalPackage.Removals)
+													foreach(var e in z.Entries)
 													{
-														var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
-									
-														Directory.CreateDirectory(Path.GetDirectoryName(f));
-														e.ExtractToFile(f, true);
-													} 
-													else
-													{
-														using(var es = e.Open())
+														if(e.Name != LocalPackage.Removals)
 														{
-															var sr = new StreamReader(es);
-
-															while(!sr.EndOfStream)
+															var f = Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									
+															Directory.CreateDirectory(Path.GetDirectoryName(f));
+															e.ExtractToFile(f, true);
+														} 
+														else
+														{
+															using(var es = e.Open())
 															{
-																File.Delete(Path.Join(todeployment(s.Target.Resource.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+																var sr = new StreamReader(es);
+
+																while(!sr.EndOfStream)
+																{
+																	File.Delete(Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+																}
 															}
 														}
 													}
 												}
 											}
+
+											i.Key.Activity = null;
 										}
 
-										i.Key.Activity = null;
-									}
+										//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
 
-									//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
-									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(todeployment(s.Target.Resource.Address),'.' + VersionManifest.Extension));
-
-									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Flags.HasFlag(DependencyFlag.Merge)))
-									{
-										var d = Find(i.Address);
-										
-										while(d == null || d.Activity != null)
-											if(workflow.Active)
-												Thread.Sleep(100);
-											else
-												return;
-
-										foreach(var fs in Directory.EnumerateFiles(todeployment(i.Address), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + VersionManifest.Extension))
+										foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical && i.Flags.HasFlag(DependencyFlag.Merge)))
 										{
-											var fd = Path.Join(todeployment(s.Target.Resource.Address), fs.Substring(todeployment(i.Address).Length + 1));
-											Directory.CreateDirectory(Path.GetDirectoryName(fd));
-
-											File.Copy(fs, fd, true);
-										}
-										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+											var d = Find(i.Address);
 										
+											while(d == null || d.Activity != null)
+												if(flow.Active)
+													Thread.Sleep(100);
+												else
+													return;
+
+											foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, new(i.Address)), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + VersionManifest.Extension))
+											{
+												var fd = Path.Join(AddressToDeployment(packagespath, new (s.Target.Resource.Address)), fs.Substring(AddressToDeployment(packagespath, new (i.Address)).Length + 1));
+												Directory.CreateDirectory(Path.GetDirectoryName(fd));
+
+												File.Copy(fs, fd, true);
+											}
+											//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+										
+										}
+
+										File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), '.' + VersionManifest.Extension), true);
+
+										s.Complete.Activity = null;
 									}
-
-									s.Complete.Activity = null;
-								}
-							});
-
-			return d;
+								});
+			}
 		}
 
 		public PackageDownload Download(Ura package, Flow workflow)

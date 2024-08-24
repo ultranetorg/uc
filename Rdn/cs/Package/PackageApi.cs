@@ -53,11 +53,11 @@ namespace Uccs.Rdn
 		public Ura						Previous { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(sun.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{	
-				return sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow);
+				return node.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow);
 			}
 		}
 	}
@@ -66,11 +66,11 @@ namespace Uccs.Rdn
 	{
 		public Ura		Package { get; set; }
 
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(sun.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{	
-				sun.PackageHub.Download(Package, workflow);
+				node.PackageHub.Download(Package, workflow);
 				return null;
 			}
 		}
@@ -80,13 +80,13 @@ namespace Uccs.Rdn
 	{
 		public Ura	Package { get; set; }
 		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(sun.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{
-				var p = sun.PackageHub.Find(Package);
+				var p = node.PackageHub.Find(Package);
 	
-				lock(sun.PackageHub.Lock)
+				lock(node.PackageHub.Lock)
 					if(p?.Activity is PackageDownload dl)
 						return new PackageDownloadProgress(dl);
 					if(p?.Activity is Deployment dp)
@@ -97,31 +97,51 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class PackageApc : RdnApc
+	public class LocalPackageApc : RdnApc
 	{
-		public Ura	Package { get; set; }
+		public Ura	Address { get; set; }
 		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(sun.PackageHub.Lock)
+			lock(node.PackageHub.Lock)
 			{
-				var p = sun.PackageHub.Find(Package);
+				var p = node.PackageHub.Find(Address);
 
 				if(p == null)
 					return null;
 
-				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
-										Availability	= p.Release.Availability,
-										Manifest		= p.Manifest };
+				return new PackageInfo(p);
 			}
 		}
 	}
 
 	public class PackageInfo
 	{
-		public bool				Ready { get; set; }
-		public Availability		Availability { get; set; }
+		public bool				Available { get; set; }
+		public string			Path { get; set; }
 		public VersionManifest	Manifest { get; set; }
+
+		public PackageInfo()
+		{
+		}
+
+		public PackageInfo(LocalPackage package)
+		{
+			Available = package.Hub.IsAvailable(package.Resource.Address);
+			Manifest = package.Manifest;
+		}
+	}
+
+	public class PackageDeployApc : RdnApc
+	{
+		public AprvAddress	Address { get; set; }
+		public string		DeploymentPath { get; set; }
+	
+		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+		{
+			node.PackageHub.Deploy(Address, DeploymentPath ?? node.PackageHub.DeploymentPath, flow);
+			return null;
+		}
 	}
 
 	//public class DeploymentInfoApc : RdnApc
@@ -134,11 +154,11 @@ namespace Uccs.Rdn
 	//		public string		Path { get; set; }
 	//	}
 	//
-	//	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	//	{
-	//		lock(sun.PackageHub.Lock)
+	//		lock(node.PackageHub.Lock)
 	//		{
-	//			var p = sun.PackageHub.AddressToDeployment(Package);
+	//			var p = node.PackageHub.AddressToDeployment(Package);
 	//
 	//			var h = Path.Join(p, ".hash");
 	//

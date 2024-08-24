@@ -8,7 +8,7 @@
 	public class PackageCommand : RdnCommand
 	{
 		public const string Keyword = "package";
-		Ura		Package => Ura.Parse(Args[0].Name);
+		Ura					Package => Ura.Parse(Args[0].Name);
 
 		public PackageCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
 		{
@@ -45,11 +45,9 @@
 																							Sources			 = GetString("sources").Split(','), 
 																							DependenciesPath = GetString("dependencies", false),
 																							Previous		 = GetResourceAddress("previous", false),
-																							AddressCreator	 = new(){	
-																														Type = GetEnum("addresstype", UrrScheme.Urrh),
+																							AddressCreator	 = new()   {Type = GetEnum("addresstype", UrrScheme.Urrh),
 																														Owner = GetAccountAddress("owner", false),
-																														Resource = Ura.Parse(Args[0].Name)
-																													} });
+																														Resource = Ura.Parse(Args[0].Name)} });
 													Dump($"Address : {r}");
 
 													return r;
@@ -78,7 +76,7 @@
 								},
 
 								Execute = () =>	{
-													var r = Api<PackageInfo>(new PackageApc {Package = Package});
+													var r = Api<PackageInfo>(new LocalPackageApc {Address = Package});
 					
 													Dump(r);
 
@@ -108,7 +106,7 @@
 								},
 
 								Execute = () =>	{
-													var h = Api<byte[]>(new PackageDownloadApc {Package = Package});
+													Api(new PackageDownloadApc {Package = Package});
 
 													try
 													{
@@ -118,7 +116,7 @@
 							
 															if(d is null)
 															{	
-																if(!Api<PackageInfo>(new PackageApc {Package = Package}).Ready)
+																if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
 																{
 																	Flow.Log?.ReportError(this, "Failed");
 																}
@@ -139,6 +137,59 @@
 													return null;
 												}
 							},
+
+							new ()
+							{
+								Names = ["dp", "deploy"],
+
+								Help = new Help
+								{ 
+									Title = "DEPLOY",
+									Description = "If needed, downloads specified package and its dependencies recursively and deploys its content to the 'Packages' directory",
+									Syntax = $"{Keyword} i|install PACKAGE_ADDRESS destination=PATH",
+
+									Arguments =	[
+													new ("<first>", "Address of a package to install"),
+													new ("destination", "Packages destination path")
+												],
+
+									Examples =	[
+													new (null, $"{Keyword} deploy company/application/windows/1.2.3")
+												]
+								},
+
+								Execute = () =>	{
+													Api(new PackageDeployApc  {Address = AprvAddress.Parse(Args[0].Name),
+																				DeploymentPath = GetString("destination", null)});
+
+													try
+													{
+														do
+														{
+															var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+							
+															if(d is null)
+															{	
+																if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+																{
+																	Flow.Log?.ReportError(this, "Failed");
+																}
+
+																break;
+															}
+
+															Report(d.ToString());
+
+															Thread.Sleep(500);
+														}
+														while(Flow.Active);
+													}
+													catch(OperationCanceledException)
+													{
+													}
+													return null;
+												}
+							}
 						];
 		}
 	}

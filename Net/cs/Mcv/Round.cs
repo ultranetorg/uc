@@ -65,7 +65,7 @@ namespace Uccs.Net
 #if ETHEREUM
 		public List<Immission>								Emissions;
 #endif
-		public Unit[]										NextBandwidthAllocations;
+		public Unit[]										NextBandwidthAllocations = [];
 		//public long										PreviousDayBaseSize;
 
 		public Dictionary<byte[], int>						NextAccountIds;

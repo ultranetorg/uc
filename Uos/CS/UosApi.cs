@@ -34,6 +34,23 @@ namespace Uccs.Uos
 			throw new ApiCallException("Unknown call");
 		}
 	}
+
+	public class UosApiClient : ApiClient
+	{
+		//public PackageInfo			GetPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new PackageGetApc {Address = address}, flow);
+
+		static UosApiClient()
+		{
+		}
+
+		public UosApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+		{
+		}
+
+		public UosApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+		{
+		}
+	}
 	
 	public abstract class UosApc : Apc
 	{
@@ -121,13 +138,22 @@ namespace Uccs.Uos
 		}
 	}
 
-	public class PackageInstallApc : UosApc
-	{
-		public AprvAddress	Package { get; set; }
-	
-		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return uos.Install(Package, workflow);
-		}
-	}
+	//public class PackageGetApc : UosApc
+	//{
+	//	public AprvAddress	Address { get; set; }
+	//
+	//	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	//	{
+	//		var p = uos.Rdn.FindLocalPackage(Address, flow);
+ 	//		
+	//		if(p == null || !p.Available)
+	//		{
+	//			p = uos.Rdn.DeployPackage(Address, uos.Settings.Packages, flow);
+	//		}
+	//
+	//		p.Path = PackageHub.AddressToDeployment(uos.Settings.Packages, Address);
+	//
+	//		return p;
+	//	}
+	//}
 }

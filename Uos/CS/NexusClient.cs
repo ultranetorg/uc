@@ -11,7 +11,7 @@ namespace Uccs.Uos
 		//
 		//public ResourceHub		ResourceHub;
 		//public PackageHub		PackageHub;
-		public ApiClient		Uos;
+		public UosApiClient		Uos;
 		public RdnApiClient		Rdn;
 		HttpClient				Http = new HttpClient();
 
@@ -34,7 +34,7 @@ namespace Uccs.Uos
 			//ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			//PackageHub = new PackageHub(null, ProductsPath);
 
-			Uos = new ApiClient(http, Environment.GetEnvironmentVariable(Uccs.Uos.Uos.ApiAddressEnvKey), Environment.GetEnvironmentVariable(Uccs.Uos.Uos.ApiKeyEnvKey));
+			Uos = new UosApiClient(http, Environment.GetEnvironmentVariable(Application.ApiAddressEnvKey), Environment.GetEnvironmentVariable(Application.ApiKeyEnvKey));
 
 			var s = Uos.Request<NodeInstance>(new NodeInfoApc {Mcvid = RdnZone.Local.Id}, new Flow(GetType().Name));
 
@@ -43,11 +43,13 @@ namespace Uccs.Uos
 
 		public PackageInfo GetPackage(AprvAddress package, Flow flow)
 		{
-			var p = Rdn.Request<PackageInfo>(new PackageApc {Package = package}, flow);
+			var p = Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
 
 			if(p == null)
 			{
-				return Uos.Request<PackageInfo>(new PackageInstallApc {Package = package}, flow);
+				Uos.Send(new PackageDeployApc {Address = package}, flow);
+
+				return Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
 			}
 
 			return p;

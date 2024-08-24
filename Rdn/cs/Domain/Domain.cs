@@ -27,6 +27,7 @@ namespace Uccs.Rdn
 		public const int			NameLengthMax = 256;
 		public const char			NormalPrefix = '_';
 		public const char			National = '~';
+		public const char			Subdomain = '~';
 
 		public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
 		public static readonly Time	Prolongation = Time.FromDays(30);
@@ -64,7 +65,7 @@ namespace Uccs.Rdn
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 
-			if(Regex.Match(name, $@"^[a-z0-9{NormalPrefix}{National}.]+$").Success == false)
+			if(Regex.Match(name, $@"^{NormalPrefix}?[a-z0-9]+[a-z0-9{Subdomain}{National}]*").Success == false)
 				return false;
 
 			return true;

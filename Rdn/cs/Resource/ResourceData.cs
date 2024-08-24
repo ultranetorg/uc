@@ -181,12 +181,13 @@ namespace Uccs.Rdn
 		{
 			switch(o)
 			{
-				case byte[] s:	 return s;
-				case string s:	 return Encoding.UTF8.GetBytes(s);
-				case Urr s:		 return Encoding.UTF8.GetBytes(s.ToString());
-				case Ura s:		 return Encoding.UTF8.GetBytes(s.ToString());
-				case Consil a:	 return (a as IBinarySerializable).Raw;
-				case Analysis a: return (a as IBinarySerializable).Raw;
+				case byte[] s:		return s;
+				case string s:		return Encoding.UTF8.GetBytes(s);
+				case Urr s:			return Encoding.UTF8.GetBytes(s.ToString());
+				case Ura s:			return Encoding.UTF8.GetBytes(s.ToString());
+				case AprvAddress s:	return Encoding.UTF8.GetBytes(s.ToString());
+				case Consil a:		return (a as IBinarySerializable).Raw;
+				case Analysis a:	return (a as IBinarySerializable).Raw;
 
 				default :
 					throw new ResourceException(ResourceError.UnknownDataType);

@@ -66,10 +66,7 @@ namespace Uccs.Rdn
 
 	public class RdnApiClient : McvApiClient
 	{
-		new public static readonly JsonSerializerOptions DefaultOptions;
-		
-		public LocalResource			GetLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApc.Return	GetLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
+		new public static readonly JsonSerializerOptions	DefaultOptions;
 
 		static RdnApiClient()
 		{
@@ -95,6 +92,39 @@ namespace Uccs.Rdn
 		public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
 			Options = DefaultOptions;
+		}
+		
+		public LocalResource								FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+		public LocalReleaseApc.Return						FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
+		public PackageInfo									FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+		
+		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
+		{
+			Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
+
+			do
+			{
+				var d = Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
+			
+				if(d is null)
+				{
+					return Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+						
+					//if(lrr.Availability == Availability.Full)
+					//{
+					//	return lrr;
+					//}
+ 					//else
+ 					//{
+ 					//	throw new ResourceException(ResourceError.);
+ 					//}
+				}
+	
+				Thread.Sleep(100);
+			}
+			while(flow.Active);
+
+			throw new OperationCanceledException();
 		}
 
 		public LocalReleaseApc.Return Download(Ura address, Flow flow)

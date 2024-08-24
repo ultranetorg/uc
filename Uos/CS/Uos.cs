@@ -3,7 +3,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using Uccs.Net;
-using Uccs.Rdn.Package;
 
 namespace Uccs.Uos
 {
@@ -15,9 +14,6 @@ namespace Uccs.Uos
 
 	public class Uos
 	{
-		public const string			ApiAddressEnvKey	= "UosApiAddress";
-		public const string			ApiKeyEnvKey	 	= "UosApiKey";
-
 		public delegate void		Delegate(Uos d);
  		public delegate void		McvDelegate(Mcv d);
 	 	
@@ -29,6 +25,7 @@ namespace Uccs.Uos
 		public UosSettings			Settings;
 		public List<NodeInstance>	Nodes = [];
 		public UosApiServer			ApiServer;
+		public RdnApiClient			Rdn;
 		public IClock				Clock;
 		public Delegate				Stopped;
 		public Vault				Vault;
@@ -160,9 +157,9 @@ namespace Uccs.Uos
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Vault, clock, f);
+				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Settings.Packages, Vault, clock, f);
 
-				Nodes.Add(new NodeInstance {Api = settings?.Api, Node = n});
+				Nodes.Add(new NodeInstance {Api = n.Settings.Api, Node = n});
 
 				lock(Izn.Lock)
 					Izn.Connect(n);
@@ -187,7 +184,6 @@ namespace Uccs.Uos
 				case WalletCommand.Keyword:	c = new WalletCommand(this, args, flow); break;
 				case NodeCommand.Keyword:	c = new NodeCommand(this, args, flow); break;
 				case StartCommand.Keyword:	c = new StartCommand(this, args, flow); break;
-				case AprvCommand.Keyword:	c = new AprvCommand(this, args, flow); break;
 
 				default:
 					throw new SyntaxException($"Unknown command '{t}'");
@@ -267,22 +263,17 @@ namespace Uccs.Uos
 				return r;
 			}
 		}
-
- 		public string AddressToDeployment(AprvAddress resource)
- 		{
- 			return Path.Join(Settings.Packages, ResourceHub.Escape(resource.APR), ResourceHub.Escape(resource.Version));
- 		}
   
   		//public Ura DeploymentToAddress(string path)
   		//{
   		//	return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
   		//}
 
-		public byte[] GetCurrentHash(AprvAddress address)
+		public VersionManifest GetCurrentManifest(AprvAddress address)
 		{
-			var h = Path.Join(AddressToDeployment(address), ".hash");
+			var h = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, address), "." + VersionManifest.Extension);
 			
-			return File.Exists(h) ? File.ReadAllText(h).FromHex() : null;
+			return File.Exists(h) ? VersionManifest.FromXon(new Xon(File.ReadAllText(h))) : null;
 		}
 
 		public void Start(Ura address, Flow flow)
@@ -291,123 +282,76 @@ namespace Uccs.Uos
 			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
 			var c = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 
-			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
+			var rdn = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
 
-			var d = a.Request<LocalResource>(new LocalResourceApc {Address = address}, flow)?.Last
+			var d = rdn.Request<LocalResource>(new LocalResourceApc {Address = address}, flow)?.Last
 					?? 
-					a.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
+					rdn.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 
 			if(d == null)
 				throw new UosException("Incorrent resource type");
 
 			Ura apr = null;
-			Ura aprv = null;
+			AprvAddress aprv = null;
 
 			if(d.Type.Content == ContentType.Rdn_ProductManifest)
 			{
-				var lrr = a.Download(address, flow);
+				var lrr = rdn.Download(address, flow);
 
-				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(a.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
+				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(rdn.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 
 				apr = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Address;
 			}
 			else if(d.Type.Control == DataType.Redirect_ProductRealization)
 			{
-				aprv = d.Parse<Ura>();
+				aprv = d.Parse<AprvAddress>();
 			}
 			else if(d.Type.Content == ContentType.Rdn_PackageManifest)
 			{
-				aprv = address;
+				aprv = new (address);
 			}
 			else
 				throw new UosException("Incorrent resource type");
 
 			if(aprv == null)
 			{
-				d = a.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
-
-				aprv = d.Parse<Ura>();
+				d = rdn.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
+				aprv = d.Parse<AprvAddress>();
 			}
 
-			Install(new AprvAddress(aprv), flow);
+			var p = rdn.FindLocalPackage(aprv, flow);
 
- 			var vmpath = Directory.EnumerateFiles(AddressToDeployment(new AprvAddress(aprv)), "*." + VersionManifest.Extension).First();
+			if(p == null || !p.Available || GetCurrentManifest(aprv).CompleteHash.SequenceEqual(p.Manifest.CompleteHash))
+			{
+				rdn.DeployPackage(aprv, Settings.Packages, flow);
+
+
+			}
+
+ 			var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
  
  			var vm = VersionManifest.Load(vmpath);
  
 			var exe = vm.MatchExecution(Platform.Current);
 
- 			var p = new Process();
- 			p.StartInfo.UseShellExecute = true;
- 			p.StartInfo.FileName = Path.Join(AddressToDeployment(new AprvAddress(aprv)), exe.Path);
- 			p.StartInfo.Arguments = exe.Arguments;
- 
- 			p.Start();
+			SetupApplicationEnvironemnt(aprv);
+
+ 			var ps = new Process();
+ 			ps.StartInfo.UseShellExecute = true;
+ 			ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
+ 			ps.StartInfo.Arguments = exe.Arguments;
+
+ 			ps.Start();
 		}
 
-		public PackageInfo Install(AprvAddress address, Flow flow)
+		public void SetupApplicationEnvironemnt(AprvAddress address)
 		{
-			var h = new HttpClientHandler();
-			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-			var c = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+			Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.ListenAddress);
+			Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
+			Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
+			Environment.SetEnvironmentVariable(Application.PackagesPathKey,		Settings.Packages);
 
-			var a = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
-
-			var p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
-
-			if(p == null || !p.Manifest.CompleteHash.SequenceEqual(GetCurrentHash(address)))
-			{
-				if(p == null || !p.Ready)
-				{
-					a.Send(new PackageDownloadApc {Package = address}, flow);
-	
-					do
-					{
-						var d = a.Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
-			
-						if(d is null)
-						{	
-							p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
-
-							if(p.Ready)
-							{
-								break;
-							}
-							else
-								throw new PackageException("Download failed for unknown reason");
-						}
-	
-						Thread.Sleep(100);
-					}
-					while(flow.Active);
-				}
-
-				Find<RdnNode>().PackageHub.Deploy(address, a => AddressToDeployment(new AprvAddress(a)), flow);
-
-				do
-				{
-					var d = a.Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
-			
-					if(d is null)
-					{	
-						p = a.Request<PackageInfo>(new PackageApc {Package = address}, flow);
-
-						if(p.Ready)
-						{
-							return p;
-						}
-						else
-							throw new PackageException("Deploy failed for unknown reason");
-					}
-	
-					Thread.Sleep(100);
-				}
-				while(flow.Active);
-			}
-			else 
-				return p;
-
-			throw new OperationCanceledException();
+			Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, new AprvAddress(address));
 		}
     }
 }

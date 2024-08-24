@@ -29,8 +29,7 @@ namespace Uccs.Rdn
 		public PackageHub						PackageHub;
 		public SeedHub							SeedHub;
 
-
-		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, Vault vault, IClock clock, Flow flow) : base(name, RdnZone.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
+		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, RdnZone.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
 		{
 			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
 		
@@ -42,7 +41,7 @@ namespace Uccs.Rdn
 			if(Settings.Seed != null)
 			{
 				ResourceHub = new ResourceHub(this, Zone, Settings.Seed);
-				PackageHub = new PackageHub(this, Settings.Seed);
+				PackageHub = new PackageHub(this, Settings.Seed){DeploymentPath = packagespath};
 			}
 
 			if(Settings.Base != null)
