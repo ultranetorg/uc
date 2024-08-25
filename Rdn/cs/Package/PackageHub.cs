@@ -443,7 +443,7 @@ namespace Uccs.Rdn
 
 																	foreach(var i in m.Incrementals.AsEnumerable().Reverse())
 																	{
-																		foreach(var j in i.Value.AddedDependencies)
+																		foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
 																			deps.Add(j.Address);
 		
 																		foreach(var j in i.Value.RemovedDependencies)

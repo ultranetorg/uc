@@ -37,29 +37,32 @@
 			controlaa1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			controlaa1.BackgroundImageLayout = ImageLayout.None;
 			controlaa1.BorderStyle = BorderStyle.FixedSingle;
-			controlaa1.Location = new Point(42, 65);
+			controlaa1.Location = new Point(31, 52);
+			controlaa1.Margin = new Padding(1, 0, 1, 0);
 			controlaa1.Name = "controlaa1";
-			controlaa1.Size = new Size(346, 351);
+			controlaa1.Size = new Size(187, 166);
 			controlaa1.TabIndex = 0;
 			// 
 			// label1
 			// 
 			label1.AutoSize = true;
 			label1.Location = new Point(-1, 0);
+			label1.Margin = new Padding(2, 0, 2, 0);
 			label1.Name = "label1";
-			label1.Size = new Size(193, 32);
+			label1.Size = new Size(97, 15);
 			label1.TabIndex = 1;
 			label1.Text = "Library A Control";
 			// 
 			// UserControlA
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			BorderStyle = BorderStyle.FixedSingle;
 			Controls.Add(label1);
 			Controls.Add(controlaa1);
+			Margin = new Padding(2, 1, 2, 1);
 			Name = "UserControlA";
-			Size = new Size(955, 1160);
+			Size = new Size(514, 544);
 			ResumeLayout(false);
 			PerformLayout();
 		}

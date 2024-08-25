@@ -5,7 +5,6 @@ namespace Uccs.Rdn
 	public class PackageAddApc : RdnApc
 	{
 		public Ura						Resource { get; set; }
-		public ResourceId				Id { get; set; }
 		public byte[]					Complete { get; set; }
 		public byte[]					Incremental { get; set; }
 		public byte[]					Manifest { get; set; }
@@ -22,7 +21,6 @@ namespace Uccs.Rdn
 				
 				lock(node.ResourceHub.Lock)
 				{
-					p.Resource.Id = Id;
 					p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Rdn_PackageManifest), a));
 					
 					var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a);

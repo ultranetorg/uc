@@ -319,14 +319,7 @@ namespace Uccs.Uos
 				aprv = d.Parse<AprvAddress>();
 			}
 
-			var p = rdn.FindLocalPackage(aprv, flow);
-
-			if(p == null || !p.Available || GetCurrentManifest(aprv).CompleteHash.SequenceEqual(p.Manifest.CompleteHash))
-			{
-				rdn.DeployPackage(aprv, Settings.Packages, flow);
-
-
-			}
+			rdn.DeployPackage(aprv, Settings.Packages, flow);
 
  			var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
  

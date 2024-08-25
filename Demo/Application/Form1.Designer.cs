@@ -36,28 +36,31 @@
 			// userControla1
 			// 
 			userControla1.BorderStyle = BorderStyle.FixedSingle;
-			userControla1.Location = new Point(12, 12);
+			userControla1.Location = new Point(6, 6);
+			userControla1.Margin = new Padding(1, 0, 1, 0);
 			userControla1.Name = "userControla1";
-			userControla1.Size = new Size(705, 1242);
+			userControla1.Size = new Size(379, 583);
 			userControla1.TabIndex = 0;
 			// 
 			// pictureBox1
 			// 
 			pictureBox1.Image = Properties.Resources.exolon_a;
-			pictureBox1.Location = new Point(740, 12);
+			pictureBox1.Location = new Point(398, 6);
+			pictureBox1.Margin = new Padding(2, 1, 2, 1);
 			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new Size(812, 1242);
+			pictureBox1.Size = new Size(437, 583);
 			pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
 			pictureBox1.TabIndex = 1;
 			pictureBox1.TabStop = false;
 			// 
 			// Form1
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1576, 1275);
+			ClientSize = new Size(849, 598);
 			Controls.Add(pictureBox1);
 			Controls.Add(userControla1);
+			Margin = new Padding(2, 1, 2, 1);
 			Name = "Form1";
 			Text = "Form1";
 			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();

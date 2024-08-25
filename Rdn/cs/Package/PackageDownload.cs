@@ -121,7 +121,7 @@
 											{
 												node.PackageHub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
 									
-												foreach(var i in deps)
+												foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
 												{
 													if(!node.PackageHub.ExistsRecursively(i.Address))
 													{

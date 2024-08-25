@@ -94,9 +94,9 @@ namespace Uccs.Rdn
 			Options = DefaultOptions;
 		}
 		
-		public LocalResource								FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApc.Return						FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
-		public PackageInfo									FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+		public LocalReleaseApc.Return	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
+		public PackageInfo				FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 		
 		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
 		{
@@ -157,7 +157,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class GetApc : RdnApc
+	public class HttpGetApc : RdnApc
 	{
 		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
