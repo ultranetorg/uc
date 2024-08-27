@@ -100,7 +100,7 @@ namespace Uccs.Net
 
 	public abstract class Interzone : Zone
 	{
-		public override ushort				BasePort => 010;
+		public override ushort				BasePort => 010; /// 00XX0
 		public override	string				Name => Scope.ToString();
 
 		public static readonly Interzone	Local = new LocalInterzone();
@@ -112,15 +112,17 @@ namespace Uccs.Net
 		public static Interzone				ByName(string name) => Official.First(i => i.Name == name);
 		public static Interzone				Byid(Guid zoneid) => Official.First(i => i.Id == zoneid);
 
+		public abstract Guid				DefaultRdn { get; }
 	}
 
 	public class LocalInterzone : Interzone
 	{
 		public override	ZoneScope	Scope => ZoneScope.Local;
+		public override Guid		DefaultRdn => new Guid("FFFFFFFF-1002-0000-0000-000000000000");
 
 		public LocalInterzone()
 		{
-			Id			= new Guid("FFFFFFFF-0000-0000-0000-000000010010");
+			Id			= new Guid("FFFFFFFF-1001-0000-0000-000000000000");
 			Initials	= LocalInitials;
 		}
 	}
@@ -128,10 +130,11 @@ namespace Uccs.Net
 	public class Developer0Interzone : Interzone
 	{
 		public override	ZoneScope	Scope => ZoneScope.Developer0;
+		public override Guid		DefaultRdn => new Guid("FFFFFFFF-2002-0000-0000-000000000000");
 
 		public Developer0Interzone()
 		{
-			Id			= new Guid("FFFFFFFF-0000-0000-0000-000000020010");
+			Id			= new Guid("FFFFFFFF-2001-0000-0000-000000000000");
 			Initials	= UOInitials;
 		}
 	}
@@ -139,10 +142,11 @@ namespace Uccs.Net
 	public class PublicTestInterzone : Interzone
 	{
 		public override	ZoneScope	Scope => ZoneScope.PublicTest;
+		public override Guid		DefaultRdn => new Guid("30020000-0000-0000-0000-000000000000");
 
 		public PublicTestInterzone()
 		{
-			Id			= new Guid("00000000-0000-0000-0000-000000030010");
+			Id			= new Guid("30010000-0000-0000-0000-000000000000");
 			Initials	= UOInitials;
 		}
 	}
@@ -163,10 +167,10 @@ namespace Uccs.Net
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
-		public Unit				BYCommitEmission									= 1_000_000;
-		public Unit				ECCommitEmission									= 1_000_000;
+		public Unit				BYCommitEmission								= 1_000_000;
+		public Unit				ECCommitEmission								= 1_000_000;
 		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
-		public Unit				MRCommitEmission									= 1000;
+		public Unit				MRCommitEmission								= 1000;
 		
 		public int				BandwidthAllocationDaysMaximum					=> 365; // 50%
 		public int				BandwidthAllocationPerDayMaximum				=> OperationsPerRoundLimit * 24 * 3600 / 2; /// 50%

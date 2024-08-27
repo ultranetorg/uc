@@ -5,7 +5,7 @@ namespace Uccs.Uos
 	public class UosSettings : SavableSettings
 	{
 		public string					Name;
-		public Zone						Interzone;
+		public Interzone				Interzone;
 		public bool						EncryptVault { get; set; }
 		public ApiSettings				Api { get; set; }
 		public string					Packages { get; set; }
@@ -14,7 +14,7 @@ namespace Uccs.Uos
 		{
 		}
 
-		public UosSettings(string profile, string name, Zone interzone) : base(profile, NetXonTextValueSerializator.Default)
+		public UosSettings(string profile, string name, Interzone interzone) : base(profile, NetXonTextValueSerializator.Default)
 		{
 			Name = name;
 			Interzone = interzone;

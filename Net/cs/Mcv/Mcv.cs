@@ -147,7 +147,7 @@ namespace Uccs.Net
 							r.ConsensusFundJoiners = [Zone.Father0];
 						
 						if(i == 1+P + 1+P)
-							r.ConsensusExeunitFee = 1;
+							r.ConsensusExecutionFee = 1;
 
 						GenesisInitilize(r);
 
@@ -491,7 +491,7 @@ namespace Uccs.Net
 			var r = GetRound(p.Id + 1);
 			
 			r.ConsensusTime			= Time.Now(Clock);
-			r.ConsensusExeunitFee	= p.ConsensusExeunitFee;
+			r.ConsensusExecutionFee	= p.ConsensusExecutionFee;
 			///r.RentPerBytePerDay		= p.RentPerBytePerDay;
 			r.Members				= p.Members;
 			r.Funds					= p.Funds;

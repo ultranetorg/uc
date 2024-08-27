@@ -48,7 +48,7 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
-		public Unit											ConsensusExeunitFee;
+		public Unit											ConsensusExecutionFee;
 		public int											ConsensusTransactionsOverflowRound;
 
 		public bool											Confirmed = false;
@@ -169,14 +169,14 @@ namespace Uccs.Net
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 						
-			ConsensusExeunitFee					= Id == 0 ? 1 : Previous.ConsensusExeunitFee;
+			ConsensusExecutionFee					= Id == 0 ? 1 : Previous.ConsensusExecutionFee;
 			ConsensusTransactionsOverflowRound	= Id == 0 ? 0 : Previous.ConsensusTransactionsOverflowRound;
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 
 			if(tn > Mcv.Zone.TransactionsPerRoundExecutionLimit)
 			{
-				ConsensusExeunitFee *= Mcv.Zone.TransactionsOverflowFeeFactor;
+				ConsensusExecutionFee *= Mcv.Zone.TransactionsOverflowFeeFactor;
 				ConsensusTransactionsOverflowRound = Id;
 
 				var e = tn - Mcv.Zone.TransactionsPerRoundExecutionLimit;
@@ -205,8 +205,8 @@ namespace Uccs.Net
 			}
 			else 
 			{
-				if(ConsensusExeunitFee > 1 && Id - ConsensusTransactionsOverflowRound > Mcv.P)
-					ConsensusExeunitFee /= Zone.TransactionsOverflowFeeFactor;
+				if(ConsensusExecutionFee > 1 && Id - ConsensusTransactionsOverflowRound > Mcv.P)
+					ConsensusExecutionFee /= Zone.TransactionsOverflowFeeFactor;
 			}
 			
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
@@ -318,7 +318,7 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 				{
 					o.Signer = s;
-					t.ECSpent += ConsensusExeunitFee;
+					t.ECSpent += ConsensusExecutionFee;
 
 					o.Execute(Mcv, this);
 
@@ -580,7 +580,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Id);
 			writer.Write(Hash);
 			writer.Write(ConsensusTime);
-			writer.Write(ConsensusExeunitFee);
+			writer.Write(ConsensusExecutionFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			
 			///writer.Write(RentPerBytePerDay);
@@ -600,7 +600,7 @@ namespace Uccs.Net
 			Id									= reader.Read7BitEncodedInt();
 			Hash								= reader.ReadHash();
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExeunitFee					= reader.Read<Unit>();
+			ConsensusExecutionFee					= reader.Read<Unit>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
 			//RentPerBytePerDay		= reader.Read<Money>();
@@ -618,7 +618,7 @@ namespace Uccs.Net
 		public virtual void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConsensusTime);
-			writer.Write(ConsensusExeunitFee);
+			writer.Write(ConsensusExecutionFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			writer.Write(ConsensusMemberLeavers);
 			writer.Write(ConsensusFundJoiners);
@@ -630,7 +630,7 @@ namespace Uccs.Net
 		public virtual void ReadConfirmed(BinaryReader reader)
 		{
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExeunitFee					= reader.Read<Unit>();
+			ConsensusExecutionFee					= reader.Read<Unit>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			ConsensusMemberLeavers				= reader.ReadArray<AccountAddress>();
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();

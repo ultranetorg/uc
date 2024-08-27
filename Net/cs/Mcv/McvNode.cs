@@ -695,7 +695,7 @@ namespace Uccs.Net
 						if(r.Hash == null)
 						{
 							r.ConsensusTime			= r.Previous.ConsensusTime;
-							r.ConsensusExeunitFee	= r.Previous.ConsensusExeunitFee;
+							r.ConsensusExecutionFee	= r.Previous.ConsensusExecutionFee;
 							///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
 							r.Members				= r.Previous.Members;
 							r.Funds					= r.Previous.Funds;

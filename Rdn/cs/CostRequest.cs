@@ -11,7 +11,7 @@
 				RequireBase();
 	
 				return new CostResponse{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-										ConsensusExeunitFee = Mcv.LastConfirmedRound.ConsensusExeunitFee};
+										ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusExecutionFee};
 			}
 		}
 	}
@@ -19,7 +19,7 @@
 	public class CostResponse : PeerResponse
 	{
 		//public Money RentPerBytePerDay { get; set; }
-		public Unit ConsensusExeunitFee { get; set; }
+		public Unit ConsensusExecutionFee { get; set; }
 	}
 }
 

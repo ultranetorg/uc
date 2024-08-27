@@ -10,6 +10,16 @@ namespace Uccs.Uos
 	{
 		public ApiSettings	Api { get; set; }
 		public Node			Node;
+		public Guid			Id;
+		RdnApiClient		_Rdn;
+
+		public RdnApiClient Rdn
+		{
+  			get
+  			{
+				return _Rdn ??= new RdnApiClient(Uos.ApiHttpClient, Api.ListenAddress, Api.AccessKey);
+  			}
+		}
 	}
 
 	public class Uos
@@ -31,27 +41,15 @@ namespace Uccs.Uos
 		public Vault				Vault;
 		static Boot					Boot;
 		public static				ConsoleLogView	LogView = new ConsoleLogView(false, false);
-		
-		public Node					Find(Guid id) => Nodes.Find(i => i.Node.Zone.Id == id)?.Node;
+		public static HttpClient	ApiHttpClient;
+
+		public Node					Find(Guid id) => Nodes.Find(i => i.Id == id)?.Node;
 		public T					Find<T>() where T : Node => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
 
 		//public static List<Uos>			All = new();
 
 		public NodeDelegate			IznStarted;
 		public NodeDelegate			NodeStarted;
-
-		static void Main(string[] args)
-		{
-			Thread.CurrentThread.CurrentCulture = 
-			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
-			Boot = new Boot(ExeDirectory);
-			var s = new UosSettings(Boot.Profile, "The Uos", Interzone.ByName(Boot.Zone));
-			
-			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
-			u.Execute(Boot.Commnand.Nodes, u.Flow);
-			u.Stop();
-		}
 
 		static Uos()
 		{
@@ -66,6 +64,23 @@ namespace Uccs.Uos
 			{
 				ConsoleAvailable = false;
 			}
+
+  	  		var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+		}
+
+		static void Main(string[] args)
+		{
+			Thread.CurrentThread.CurrentCulture = 
+			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+
+			Boot = new Boot(ExeDirectory);
+			var s = new UosSettings(Boot.Profile, "The Uos", Interzone.ByName(Boot.Zone));
+			
+			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
+			u.Execute(Boot.Commnand.Nodes, u.Flow);
+			u.Stop();
 		}
 
 		public Uos(UosSettings settings, Flow flow, IClock clock)
@@ -149,17 +164,17 @@ namespace Uccs.Uos
 			IznStarted?.Invoke(Izn);
 		}
 
-		public Node RunNode(Guid zuid, NodeSettings settings = null, IClock clock = null, bool peering = false)
+		public Node RunNode(Guid id, NodeSettings settings = null, IClock clock = null, bool peering = false)
 		{
-			if(	RdnZone.Local.Id		== zuid ||
-				RdnZone.Developer0.Id	== zuid ||
-				RdnZone.Test.Id			== zuid)
+			if(Settings.Interzone.DefaultRdn == id)
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new RdnNode(Settings.Name, zuid, Settings.Profile, settings as RdnSettings, Settings.Packages, Vault, clock, f);
+				var n = new RdnNode(Settings.Name, id, Settings.Profile, settings as RdnSettings, Settings.Packages, Vault, clock, f);
 
-				Nodes.Add(new NodeInstance {Api = n.Settings.Api, Node = n});
+				Nodes.Add(new NodeInstance {Id = id,
+											Api = n.Settings.Api,
+											Node = n});
 
 				lock(Izn.Lock)
 					Izn.Connect(n);
@@ -278,13 +293,9 @@ namespace Uccs.Uos
 
 		public void Start(Ura address, Flow flow)
 		{
-			var h = new HttpClientHandler();
-			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-			var c = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+			var rdn = Nodes.Find(i => i.Id == Settings.Interzone.DefaultRdn).Rdn;
 
-			var rdn = new RdnApiClient(c, Find<RdnNode>().Settings.Api.ListenAddress, Find<RdnNode>().Settings.Api.AccessKey);
-
-			var d = rdn.Request<LocalResource>(new LocalResourceApc {Address = address}, flow)?.Last
+			var d = rdn.FindLocalResource(address, flow)?.Last
 					?? 
 					rdn.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 

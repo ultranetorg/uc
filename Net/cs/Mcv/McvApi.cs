@@ -158,7 +158,7 @@ namespace Uccs.Net
 					f.Add(new ("Last Confirmed Round",	$"{mcv.Mcv.LastConfirmedRound?.Id}"));
 					f.Add(new ("Last Non-Empty Round",	$"{mcv.Mcv.LastNonEmptyRound?.Id}"));
 					f.Add(new ("Last Payload Round",	$"{mcv.Mcv.LastPayloadRound?.Id}"));
-					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExecutionFee.ToString()}"));
 					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
 
