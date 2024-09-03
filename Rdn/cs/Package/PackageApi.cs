@@ -55,7 +55,7 @@ namespace Uccs.Rdn
 		{
 			lock(node.PackageHub.Lock)
 			{	
-				return node.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow);
+				return new LocalReleaseApe(node.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
 			}
 		}
 	}

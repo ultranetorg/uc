@@ -41,13 +41,13 @@
 													Ura p = null;
 													VersionManifest m = null;
 
-													var r = Api<Urr>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
-																							Sources			 = GetString("sources").Split(','), 
-																							DependenciesPath = GetString("dependencies", false),
-																							Previous		 = GetResourceAddress("previous", false),
-																							AddressCreator	 = new()   {Type = GetEnum("addresstype", UrrScheme.Urrh),
-																														Owner = GetAccountAddress("owner", false),
-																														Resource = Ura.Parse(Args[0].Name)} });
+													var r = Api<LocalReleaseApe>(new PackageBuildApc{Resource		 = Ura.Parse(Args[0].Name), 
+																											Sources			 = GetString("sources").Split(','), 
+																											DependenciesPath = GetString("dependencies", false),
+																											Previous		 = GetResourceAddress("previous", false),
+																											AddressCreator	 = new()   {Type = GetEnum("addresstype", UrrScheme.Urrh),
+																																		Owner = GetAccountAddress("owner", false),
+																																		Resource = Ura.Parse(Args[0].Name)} });
 													Dump($"Address : {r}");
 
 													return r;

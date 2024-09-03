@@ -87,8 +87,17 @@ namespace Uccs.Tests
 
 			Assert.True(a == Urr.Parse(a.ToString()));
 
-			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, ApiClient.DefaultOptions), ApiClient.DefaultOptions));
-			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, ApiClient.DefaultOptions), ApiClient.DefaultOptions));
+
+
+			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
+			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
+			
+			Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions).RR);
+		}
+
+		class A
+		{
+			public Urr RR {get;set; }
 		}
 
 		//[Theory]

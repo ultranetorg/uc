@@ -267,7 +267,7 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
+		public LocalRelease AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
 		{
 			var cstream = new MemoryStream();
 			var istream = (MemoryStream)null;
@@ -350,7 +350,7 @@ namespace Uccs.Rdn
 
 				workflow.Log?.Report(this, $"Address: {a}");
 
-				return a;
+				return r;
  			}
 		}
  

@@ -89,9 +89,9 @@ namespace Uccs.Rdn
 			lock(sun.ResourceHub.Lock)
 			{
 				if(Source != null)
-					return sun.ResourceHub.Add(Source, AddressCreator, workflow).Address;
+					return new LocalReleaseApe(sun.ResourceHub.Add(Source, AddressCreator, workflow));
 				else if(Sources != null && Sources.Any())
-					return sun.ResourceHub.Add(Sources, AddressCreator, workflow).Address;
+					return new LocalReleaseApe(sun.ResourceHub.Add(Sources, AddressCreator, workflow));
 			}
 
 			return null;
@@ -259,61 +259,62 @@ namespace Uccs.Rdn
 			}
 		}
 	}
+
+	public class LocalReleaseApe
+	{
+		public Urr				Address { get; set; }
+		public Member[]			DeclaredOn { get; set; }
+		public Availability		Availability { get; set; }
+		//public File[]			Files { get; set; }
+
+		public LocalReleaseApe()
+		{
+		}
+
+		public LocalReleaseApe(LocalRelease release)
+		{
+			Address		= release.Address;
+			DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
+			Availability= release.Availability;
+			//Files		= release.Files.Select(i => new File(i)).ToArray();
+		}
+	}
 	
 	public class LocalReleaseApc : RdnApc
 	{
 		public Urr		Address { get; set; }
 
-		public class File
-		{
-			public string			Path { get; set; }
-			public int				PieceLength { get; set; }
-			public long				Length { get; set; }
-			public bool[]			Pieces { get; set; }
+// 		public class File
+// 		{
+// 			public string			Path { get; set; }
+// 			public int				PieceLength { get; set; }
+// 			public long				Length { get; set; }
+// 			public bool[]			Pieces { get; set; }
+// 
+// 			public int[]			CompletedPieces { get; set; }
+// 			public long				CompletedLength { get; set; }
+// 			public LocalFileStatus	Status { get; set; }
+// 
+// 			public File()
+// 			{
+// 			}
+// 
+// 			public File(LocalFile i)
+// 			{
+// 				Path =			i.Path;			
+// 				PieceLength	=	i.PieceLength;
+// 				Length =		i.Length;
+// 				Pieces =		i.Pieces;
+// 				Status =		i.Status;
+// 				
+// 				if(i.Pieces != null)
+// 				{
+// 					CompletedPieces = i.CompletedPieces.ToArray();
+// 					CompletedLength = i.CompletedLength;
+// 				}
+// 			}
+// 		}
 
-			public int[]			CompletedPieces { get; set; }
-			public long				CompletedLength { get; set; }
-			public LocalFileStatus	Status { get; set; }
-
-			public File()
-			{
-			}
-
-			public File(LocalFile i)
-			{
-				Path =			i.Path;			
-				PieceLength	=	i.PieceLength;
-				Length =		i.Length;
-				Pieces =		i.Pieces;
-				Status =		i.Status;
-				
-				if(i.Pieces != null)
-				{
-					CompletedPieces = i.CompletedPieces.ToArray();
-					CompletedLength = i.CompletedLength;
-				}
-			}
-		}
-
-		public class Return
-		{
-			public Urr				Address { get; set; }
-			public Member[]			DeclaredOn { get; set; }
-			public Availability		Availability { get; set; }
-			public File[]			Files { get; set; }
-
-			public Return()
-			{
-			}
-
-			public Return(LocalRelease release)
-			{
-				Address		= release.Address;
-				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
-				Availability= release.Availability;
-				Files		= release.Files.Select(i => new File(i)).ToArray();
-			}
-		}
 		
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
@@ -321,7 +322,7 @@ namespace Uccs.Rdn
 			{	
 				var r = sun.ResourceHub.Find(Address);
 
-				return r != null ? new Return(r) : null;
+				return r != null ? new LocalReleaseApe(r) : null;
 			}
 		}
 	}

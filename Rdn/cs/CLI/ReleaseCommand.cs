@@ -37,13 +37,13 @@
 													if(!Has("source") && !Has("sources"))
 														throw new SyntaxException("Unknown arguments");
 
-													var a = Api<Urr>(new LocalReleaseBuildApc {	Source = GetString("source", null),
-																							Sources = GetString("sources", null)?.Split(','),
-																							AddressCreator = new()	{	
-																														Type = GetEnum("addresstype", UrrScheme.Urrh),
-																														Owner = GetAccountAddress("owner", false),
-																														Resource = Ura.Parse(Args[0].Name)
-																													} });
+													var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc {	Source = GetString("source", null),
+																													Sources = GetString("sources", null)?.Split(','),
+																													AddressCreator = new()	{	
+																																				Type = GetEnum("addresstype", UrrScheme.Urrh),
+																																				Owner = GetAccountAddress("owner", false),
+																																				Resource = Ura.Parse(Args[0].Name)
+																																			} });
 
 													Report($"Address   : {a}");
 
@@ -73,7 +73,7 @@
 								},
 
 								Execute = () =>	{
-													var r = Api<LocalReleaseApc.Return>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
+													var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
 					
 													if(r != null)
 													{

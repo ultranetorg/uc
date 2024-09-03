@@ -95,7 +95,7 @@ namespace Uccs.Rdn
 		}
 		
 		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApc.Return	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = address}, flow);
+		public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 		public PackageInfo				FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 		
 		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
@@ -127,7 +127,7 @@ namespace Uccs.Rdn
 			throw new OperationCanceledException();
 		}
 
-		public LocalReleaseApc.Return Download(Ura address, Flow flow)
+		public LocalReleaseApe Download(Ura address, Flow flow)
 		{
   			var r = Request<Resource>(new ResourceDownloadApc {Identifier = new (address)}, flow);
 
@@ -137,7 +137,7 @@ namespace Uccs.Rdn
 			
 				if(d is null)
 				{
-					return Request<LocalReleaseApc.Return>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+					return Request<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
 						
 					//if(lrr.Availability == Availability.Full)
 					//{

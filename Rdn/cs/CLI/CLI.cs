@@ -7,7 +7,7 @@ namespace Uccs.Rdn.CLI
 	{
 		public string			ExeDirectory;
 		public RdnZone			Zone;
-		public RdnNode			Node;
+		internal RdnNode		Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 		public NodeSettings		Settings;
@@ -60,11 +60,9 @@ namespace Uccs.Rdn.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(RdnNode sun, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(RdnSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
-			Node = sun;
-			Zone = sun.Zone;
-			Settings = sun.Settings;
+			Settings = settings;
 			ApiClient = api;
 			Flow = workflow;
 			PasswordAsker = passwordAsker;

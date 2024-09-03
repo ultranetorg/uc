@@ -7,7 +7,7 @@ namespace Uccs.Tests
 	{
 		public static void Main(string[] args)
 		{
-			LogTests.Main();
+			UraTests.Release();
 			//MoneyTests.Main();
 			//AccountKeyTests.Main();
 
