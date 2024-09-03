@@ -5,9 +5,8 @@ namespace Uccs.Net
 {
 	public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IComparable<TransactionId>
 	{
-		public int			Ri { get; private set; }
-		public int			Ti { get; private set; }
-		byte[]				_Serial;
+		public int	Ri { get; private set; }
+		public int	Ti { get; private set; }
 
 		public TransactionId()
 		{
@@ -21,24 +20,10 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
+			if(Ti == -1)
+				Ti = Ti;
+
 			return $"{Ri}-{Ti}";
-		}
-
-		public byte[] Serial
-		{
-			get
-			{
-				if(_Serial == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Serial = s.ToArray();
-				}
-
-				return _Serial;
-			}
 		}
 
 		public void Read(BinaryReader reader)
@@ -87,3 +72,4 @@ namespace Uccs.Net
 		}
 	}
 }
+	

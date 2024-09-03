@@ -748,7 +748,7 @@ namespace Uccs.Net
 					t.Status = TransactionStatus.Accepted;
 					IncomingTransactions.Add(t);
 
-					Flow.Log?.Report(this, "Transaction Accepted", t.ToString());
+					//Flow.Log?.Report(this, "Transaction Accepted", t.ToString());
 
 					yield return t;
 				}
@@ -861,7 +861,7 @@ namespace Uccs.Net
 									OutgoingTransactions.Remove(t);
 								}
 
-								t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
+								//t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
 
 							//} 
 							//else
@@ -889,10 +889,12 @@ namespace Uccs.Net
 							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
 							{
 								t.Status = TransactionStatus.Accepted;
-								t.Flow.Log?.Report(this, "Accepted", $"{t} -> {m}, {t.Rdi}");
+								//t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted} by Member={m}");
 							}
 							else
 							{
+								//t.Flow.Log?.Report(this, $"{t.Status} by Member={m}");
+
 								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 								{
 									t.Status = TransactionStatus.FailedOrNotFound;
@@ -902,8 +904,6 @@ namespace Uccs.Net
 								{
 									t.Status = TransactionStatus.None;
 								}
-
-								t.Flow.Log?.Report(this, "Rejected", $"{t} -> {m}, {t.Rdi}");
 							}
 						}
 				}
@@ -936,7 +936,7 @@ namespace Uccs.Net
 																		
 								if(t.Status != i.Status)
 								{
-									t.Flow.Log?.Report(this, i.Status.ToString(), $"{t} -> {t.Generator}, {t.Rdi}");
+									//t.Flow.Log?.Report(this, $"{i.Status}, Id={i.Id}, Nid={i.Nid} -> Placed by MemberId={t.Generator}");
 
 									t.Status = i.Status;
 
@@ -1044,7 +1044,8 @@ namespace Uccs.Net
 			Thread.Sleep(100);
 
 			end:
-				workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
+			;
+				//workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
 		}
 
 		public Rp Call<Rp>(IPeer peer, PeerCall<Rp> rq) where Rp : PeerResponse

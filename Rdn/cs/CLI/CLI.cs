@@ -60,7 +60,7 @@ namespace Uccs.Rdn.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(RdnNode sun, JsonClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(RdnNode sun, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Node = sun;
 			Zone = sun.Zone;

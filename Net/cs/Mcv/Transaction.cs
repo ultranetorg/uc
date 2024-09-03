@@ -15,7 +15,7 @@ namespace Uccs.Net
 		const int						TagLengthMax = 1024;
 
 		public int						Nid;
-		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this));
+		public TransactionId			Id => Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default;
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 
@@ -58,7 +58,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+			return $"Id={Id}, Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)
