@@ -35,5 +35,21 @@ namespace Uccs.Uos
 
 			throw new Exception();
 		}
+
+		public Rp RdnRequest<Rp>(Apc call)
+		{
+			if(Has("apitimeout"))
+				call.Timeout = GetInt("apitimeout") * 1000;
+
+			return Uos.Rdn.Request<Rp>(call, Flow);
+		}
+
+		public void RdnSend(Apc call)
+		{
+			if(Has("apitimeout"))
+				call.Timeout = GetInt("apitimeout") * 1000;
+
+			Uos.Rdn.Send(call, Flow);
+		}
 	}
 }

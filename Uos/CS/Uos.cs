@@ -20,6 +20,11 @@ namespace Uccs.Uos
 				return _Rdn ??= new RdnApiClient(Uos.ApiHttpClient, Api.ListenAddress, Api.AccessKey);
   			}
 		}
+
+		public override string ToString()
+		{
+			return Node.ToString();
+		}
 	}
 
 	public class Uos
@@ -35,7 +40,6 @@ namespace Uccs.Uos
 		public UosSettings			Settings;
 		public List<NodeInstance>	Nodes = [];
 		public UosApiServer			ApiServer;
-		public RdnApiClient			Rdn;
 		public IClock				Clock;
 		public Delegate				Stopped;
 		public Vault				Vault;
@@ -46,6 +50,7 @@ namespace Uccs.Uos
 		public Node					Find(Guid id) => Nodes.Find(i => i.Id == id)?.Node;
 		public T					Find<T>() where T : Node => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
 
+		public RdnApiClient			Rdn => Nodes.Find(i => i.Id == Settings.Interzone.DefaultRdn).Rdn;
 		//public static List<Uos>			All = new();
 
 		public NodeDelegate			IznStarted;
@@ -196,9 +201,10 @@ namespace Uccs.Uos
 
 			switch(t)
 			{
-				case WalletCommand.Keyword:	c = new WalletCommand(this, args, flow); break;
-				case NodeCommand.Keyword:	c = new NodeCommand(this, args, flow); break;
-				case StartCommand.Keyword:	c = new StartCommand(this, args, flow); break;
+				case WalletCommand.Keyword:		c = new WalletCommand(this, args, flow); break;
+				case NodeCommand.Keyword:		c = new NodeCommand(this, args, flow); break;
+				case StartCommand.Keyword:		c = new StartCommand(this, args, flow); break;
+				case PackageCommand.Keyword:	c = new PackageCommand(this, args, flow); break;
 
 				default:
 					throw new SyntaxException($"Unknown command '{t}'");

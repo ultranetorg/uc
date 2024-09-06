@@ -93,7 +93,6 @@ namespace Uccs.Rdn.CLI
 				case EconomyCommand.Keyword:		c = new EconomyCommand(this, args, f); break;
 				case NexusCommand.Keyword:		c = new NexusCommand(this, args, f); break;
 				case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
-				case PackageCommand.Keyword:	c = new PackageCommand(this, args, f); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args, f); break;
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, f); break;
 				case LogCommand.Keyword:		c = new LogCommand(this, args, f); break;

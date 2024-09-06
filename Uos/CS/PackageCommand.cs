@@ -1,16 +1,16 @@
-﻿namespace Uccs.Rdn.CLI
+﻿namespace Uccs.Uos
 {
 	/// <summary>
 	/// Usage: 
 	///		
 	/// </summary>
 
-	public class PackageCommand : RdnCommand
+	public class PackageCommand : UosCommand
 	{
 		public const string Keyword = "package";
 		Ura					Package => Ura.Parse(Args[0].Name);
 
-		public PackageCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
+		public PackageCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 		{
 			Actions =	[
 							new ()
@@ -23,13 +23,12 @@
 									Description = "Builds and deploys a package to a node filebase for distribution via RDN",
 									Syntax = "package c|create PACKAGE_ADDRESS [sources=PATH,PATH,...,PATH] dependencies=PATH previous=PACKAGE_ADDRESS",
 
-									Arguments =
-									[
-										new ("<first>", "Resource address of package to create"),
-										new ("sources", "A list of paths to files separated by comma"),
-										new ("dependencies", "A path to manifest file where complete dependencies are defined"),
-										new ("previous", "Address of previous release")
-									],
+									Arguments =	[
+													new ("<first>", "Resource address of package to create"),
+													new ("sources", "A list of paths to files separated by comma"),
+													new ("dependencies", "A path to manifest file where complete dependencies are defined"),
+													new ("previous", "Address of previous release")
+												],
 
 									Examples =
 									[
@@ -41,11 +40,11 @@
 													Ura p = null;
 													VersionManifest m = null;
 
-													var r = Api<LocalReleaseApe>(new PackageBuildApc{Resource		 = Ura.Parse(Args[0].Name), 
+													var r = RdnRequest<LocalReleaseApe>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
 																											Sources			 = GetString("sources").Split(','), 
 																											DependenciesPath = GetString("dependencies", false),
 																											Previous		 = GetResourceAddress("previous", false),
-																											AddressCreator	 = new()   {Type = GetEnum("addresstype", UrrScheme.Urrh),
+																											AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
 																																		Owner = GetAccountAddress("owner", false),
 																																		Resource = Ura.Parse(Args[0].Name)} });
 													Dump($"Address : {r}");
@@ -64,19 +63,17 @@
 									Description = "Gets information about local copy of a specified package",
 									Syntax = "package l|local PACKAGE_ADDRESS",
 
-									Arguments =
-									[
-										new ("<first>", "Address of local package to get information about")
-									],
+									Arguments =	[
+													new ("<first>", "Address of local package to get information about")
+												],
 
-									Examples =
-									[
-										new (null, "package l company/application/windows/1.2.3")
-									]
+									Examples =	[
+													new (null, "package l company/application/windows/1.2.3")
+												]
 								},
 
 								Execute = () =>	{
-													var r = Api<PackageInfo>(new LocalPackageApc {Address = Package});
+													var r = RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package});
 					
 													Dump(r);
 
@@ -94,29 +91,27 @@
 									Description = "Downloads a specified package by its address",
 									Syntax = "package d|download PACKAGE_ADDRESS",
 
-									Arguments =
-									[
-										new ("<first>", "Address of a package to download")
-									],
+									Arguments =	[
+													new ("<first>", "Address of a package to download")
+												],
 
-									Examples =
-									[
-										new (null, "package d company/application/windows/1.2.3")
-									]
+									Examples =	[
+													new (null, "package d company/application/windows/1.2.3")
+												]
 								},
 
 								Execute = () =>	{
-													Api(new PackageDownloadApc {Package = Package});
+													RdnSend(new PackageDownloadApc {Package = Package});
 
 													try
 													{
 														do
 														{
-															var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+															var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 							
 															if(d is null)
 															{	
-																if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+																if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
 																{
 																	Flow.Log?.ReportError(this, "Failed");
 																}
@@ -159,18 +154,18 @@
 								},
 
 								Execute = () =>	{
-													Api(new PackageDeployApc  {Address = AprvAddress.Parse(Args[0].Name),
-																				DeploymentPath = GetString("destination", null)});
+													RdnSend(new PackageDeployApc{	Address = AprvAddress.Parse(Args[0].Name),
+																					DeploymentPath = GetString("destination", null)});
 
 													try
 													{
 														do
 														{
-															var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+															var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 							
 															if(d is null)
 															{	
-																if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+																if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
 																{
 																	Flow.Log?.ReportError(this, "Failed");
 																}
@@ -191,6 +186,17 @@
 												}
 							}
 						];
+		}
+
+		protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
+		{
+			if(Has(paramenter))
+				return Ura.Parse(GetString(paramenter));
+			else
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 	}
 }
