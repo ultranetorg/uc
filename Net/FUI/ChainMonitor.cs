@@ -139,7 +139,7 @@ namespace Uccs.Net.FUI
 								{
 									nid = Math.Max(nid, i);
 									ntry = Math.Max(ntry, r.Try);
-									nv = r.Id >= Mcv.DeclareToGenerateDelay ? Math.Max(nv, IntLength((r.Majority != null ? r.Majority.Count() : 0)) + 1 + IntLength(r.RequiredVotes)) : 0;
+									nv = r.Id >= Mcv.DeclareToGenerateDelay ? Math.Max(nv, IntLength(r.MajorityByParentHash?.Count() ?? 0) + 1 + IntLength(r.MinimumForConsensus)) : 0;
 									//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
 									nl = Math.Max(nl, r.ConsensusMemberLeavers.Length);
 		
@@ -212,7 +212,7 @@ namespace Uccs.Net.FUI
 																r.Id, 
 																r.Try,
 																r.Confirmed ? "c" : " ",
-																r.Id > Mcv.DeclareToGenerateDelay ? $"{(r.Majority != null ? r.Majority.Count() : 0)}/{r.RequiredVotes}" : null,
+																r.Id > Mcv.DeclareToGenerateDelay ? $"{r.MajorityByParentHash?.Count() ?? 0}/{r.MinimumForConsensus}" : null,
 																r.Members.Count,
 																//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
 																r.ConsensusMemberLeavers.Length,

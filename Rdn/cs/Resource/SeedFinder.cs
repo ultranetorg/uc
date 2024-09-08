@@ -94,7 +94,7 @@ namespace Uccs.Rdn
 		
 														lock(Lock)
 														{
-															var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnMember>();
+															var nearest = Members.OrderByXor(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnMember>();
 			
 															for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
 															{

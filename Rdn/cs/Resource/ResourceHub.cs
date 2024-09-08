@@ -308,11 +308,11 @@ namespace Uccs.Rdn
 	
 							if(l != null && l.Availability != Availability.None)
 							{
-								foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
-																																				var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																				return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																			})
-																																.Cast<RdnMember>())
+								foreach(var m in cr.Members.OrderByXor(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
+																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																		})
+																															.Cast<RdnMember>())
 								{
 									var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
 									rss[r] = l;

@@ -51,7 +51,7 @@ namespace Uccs.Rdn
 				{
 					lock(Node.Lock)
 					{ 
-						if(!Node.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Node.Settings.Generators.Contains(i.Account)))
+						if(!Node.NextVoteMembers.OrderByXor(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Node.Settings.Generators.Contains(i.Account)))
 						{
 							yield return new (rzd, DeclarationResult.NotNearest);
 							continue;

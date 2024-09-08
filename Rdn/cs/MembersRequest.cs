@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Net;
-
-namespace Uccs.Rdn
+﻿namespace Uccs.Rdn
 {
 	public class RdnMembersRequest : McvCall<RdnMembersResponse>
 	{

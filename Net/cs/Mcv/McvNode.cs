@@ -480,11 +480,19 @@ namespace Uccs.Net
 
 				var r = Mcv.GetRound(v.RoundId);
 
-				if(!Mcv.VotersOf(r).Any(i => i.Account == v.Generator))
+				if(!r.Voters.Any(i => i.Account == v.Generator))
 					return false;
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
+
+				var e = r.Votes.Find(i => i.Generator == v.Generator);
+				
+				if(e != null) /// FORK
+				{
+					r.Votes.Remove(e);
+					r.Forkers.Add(e.Generator);
+				}	
 								
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
@@ -494,7 +502,7 @@ namespace Uccs.Net
 					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit)
 						return false;
 
-					if(v.Transactions.Any(t => Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account != v.Generator))
+					if(v.Transactions.Any(t => r.Voters.NearestBy(m => m.Account, t.Signer).Account != v.Generator))
 						return false;
 				}
 
@@ -514,14 +522,14 @@ namespace Uccs.Net
 		{
 			Statistics.Generating.Begin();
 
-			if(Mcv.Settings.Generators.Length ==0 || Synchronization != Synchronization.Synchronized)
+			if(Mcv.Settings.Generators.Length == 0 || Synchronization != Synchronization.Synchronized)
 				return;
 
 			var votes = new List<Vote>();
 
 			foreach(var g in Mcv.Settings.Generators)
 			{
-				var m = Mcv.NextVoteMembers.Find(i => i.Account == g);
+				var m = Mcv.NextVoteMembers.FirstOrDefault(i => i.Account == g);
 
 				if(m == null)
 				{
@@ -529,7 +537,7 @@ namespace Uccs.Net
 
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(m == null && a != null && a.MRBalance >= Mcv.Settings.Pledge && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Status > TransactionStatus.Placed))
+					if(m == null && a != null && a.MRBalance >= Mcv.Settings.Pledge && (!LastCandidacyDeclaration.TryGetValue(g, out var dt) || dt.Status > TransactionStatus.Placed))
 					{
 						var t = new Transaction();
 						t.Flow = Flow;
@@ -568,8 +576,8 @@ namespace Uccs.Net
 						v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
 						v.Created		= Mcv.Clock.Now;
 						v.Time			= Time.Now(Mcv.Clock);
-						v.Violators		= Mcv.ProposeViolators(r).ToArray();
-						v.MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray();
+						v.Violators		= r.ProposeViolators().ToArray();
+						v.MemberLeavers	= r.ProposeMemberLeavers(g).ToArray();
 						//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 						//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
 
@@ -602,7 +610,7 @@ namespace Uccs.Net
 																						return true;
 																					}
 
-																					var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account;
+																					var nearest = r.Voters.NearestBy(m => m.Account, t.Signer).Account;
 
 																					if(nearest != g)
 																						return true;
@@ -659,7 +667,7 @@ namespace Uccs.Net
 						}
 					}
 
- 					while(r.Previous != null && !r.Previous.Confirmed && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+ 					while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
  					{
  						r = r.Previous;
  

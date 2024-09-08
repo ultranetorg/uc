@@ -17,6 +17,7 @@ namespace Uccs.Net
 	public abstract class Mcv /// Mutual chain voting
 	{
 		public const int							P = 8; /// pitch
+		public const int							VotesMaximum = 21; /// pitch
 		public const int							DeclareToGenerateDelay = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
 		public const int							LastGenesisRound = 1+P + 1+P + P;
@@ -55,10 +56,10 @@ namespace Uccs.Net
 		public Dictionary<int, Round>				LoadedRounds = new();
 		public Round								LastConfirmedRound;
 		public Round								LastCommittedRound;
-		public Round								LastNonEmptyRound	=> Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
-		public Round								LastPayloadRound	=> Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
+		public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
+		public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 		public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
-		public List<Member>							NextVoteMembers => VotersOf(NextVoteRound);
+		public List<Member>							NextVoteMembers => FindRound(NextVoteRound.VotersRound).Members;
 
 
 		public const string							ChainFamilyName = "Chain";
@@ -281,13 +282,13 @@ namespace Uccs.Net
 				{
 					ConsensusConcluded(r, true);
 
-					var mh = r.Majority.Key;
+					var mh = r.MajorityByParentHash.Key;
 	 		
 					if(p.Hash == null || !mh.SequenceEqual(p.Hash))
 					{
 						p.Summarize();
 						
-						if(!mh.SequenceEqual((p.Hash)))
+						if(!mh.SequenceEqual(p.Hash))
 						{
 							#if DEBUG
 							///var x = r.Eligible.Select(i => i.ParentHash.ToHex());
@@ -385,27 +386,18 @@ namespace Uccs.Net
 			}
 		}
 
-		public List<Member> VotersOf(Round round)
-		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
-			return FindRound(round.VotersRound).Members/*.Where(i => i.JoinedAt < r.Id)*/;
-		}
-
 		public bool ConsensusFailed(Round r)
 		{
 			if(!Monitor.IsEntered(Lock))
 				Debugger.Break();
 
-			var m = VotersOf(r);
+			var m = r.Voters;
 
-			var e = r.Eligible;
+			var e = r.VotesOfTry;
 			
-			var d = m.Count - e.Count();
+			var d = m.Count() - e.Count();
 
-			var q = r.RequiredVotes;
+			var q = r.MinimumForConsensus;
 
 			return e.Any() && e.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).All(i => i.Count() + d < q);
 		}
@@ -437,30 +429,6 @@ namespace Uccs.Net
 		///	}
 		///}
 
-		
-		public IEnumerable<AccountAddress> ProposeViolators(Round round)
-		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
-			var g = round.Id > P ? VotersOf(round) : new();
-			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
-			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
-		}
-
-		public IEnumerable<AccountAddress> ProposeMemberLeavers(Round round, AccountAddress generator)
-		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
-			var prevs = Enumerable.Range(round.ParentId - P, P).Select(i => FindRound(i));
-
-			var ls = VotersOf(round).Where(i =>	i.CastingSince <= round.ParentId &&/// in previous Pitch number of rounds
-												!round.Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// ??? sent less than MinVotesPerPitch of required blocks
-												!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
-									.Select(i => i.Account);
-			return ls;
-		}
 
 		public void Hashify()
 		{
