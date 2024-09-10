@@ -553,7 +553,7 @@ namespace Uccs.Net
 				foreach(var i in members)
 					i.BYBalance += Zone.BYCommitEmission/members.Length;
 
-				if(ec < Zone.EUCommitRewardOperationCountBelowTrigger)
+				if(ec < Zone.OperationsPerRoundLimit)
 					foreach(var i in members)
 						i.ECBalance += Zone.ECCommitEmission/members.Length;
 

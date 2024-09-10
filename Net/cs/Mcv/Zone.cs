@@ -163,16 +163,16 @@ namespace Uccs.Net
 		//public Money			ExeunitMinFee									= 0.001;
 		//public long			TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
 		public int				TransactionsPerRoundAbsoluteLimit				= 15_000;
-		public int				TransactionsPerRoundExecutionLimit				= 5_000; /// for 5000 tx/sec signature recovering
+		public int				TransactionsPerRoundExecutionLimit				= 5_000; /// for 5000 tx/s signature recovering
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
 		public Unit				BYCommitEmission								= 1_000_000;
 		public Unit				ECCommitEmission								= 1_000_000;
-		public Unit				EUCommitRewardOperationCountBelowTrigger		= 10_0000_000; /// 10`000 ops per round
+		//public Unit				ECCommitRewardOperationCountBelowTrigger		=> OperationsPerRoundLimit;
 		public Unit				MRCommitEmission								= 1000;
 		
-		public int				BandwidthAllocationDaysMaximum					=> 365; // 50%
+		public int				BandwidthAllocationDaysMaximum					=> 365;
 		public int				BandwidthAllocationPerDayMaximum				=> OperationsPerRoundLimit * 24 * 3600 / 2; /// 50%
 		public int				BandwidthAllocationPerRoundMaximum				=> OperationsPerRoundLimit / 2; /// 50%
 

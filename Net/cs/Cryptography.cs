@@ -50,6 +50,21 @@ namespace Uccs.Net
 			return Blake2b.ComputeHash(32, data);
 		}
 
+		public static byte[] Hash(byte[] iv, byte[] data)
+		{
+			//if(SHA == null)
+			//{
+			//	SHA = new DZen.Security.Cryptography.SHA3256Managed();
+			//	SHA.UseKeccakPadding = true;
+			//}
+			//
+			//return SHA.ComputeHash(data);
+			//return Sha3Keccack.Current.CalculateHash(data);
+			
+			//return SHA256.HashData(data);
+			return Blake2b.ComputeHash(32, iv, data);
+		}
+
 		public byte[] HashFile(byte[] data)
 		{
 			return System.Security.Cryptography.SHA256.HashData(data);

@@ -562,7 +562,7 @@ namespace Uccs.Net
 					if(r.Id < m.CastingSince)
 						continue;
 
-					if(r.VotesOfTry.Any(i => i.Generator == g))
+					if(r.VotesOfTry.Any(i => i.Generator == g) || !r.Voters.Any(i => i.Account == g))
 						continue;
 
 					Vote createvote(Round r)
