@@ -486,12 +486,17 @@ namespace Uccs.Net
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
+				if(r.Forkers.Contains(v.Generator))
+					return false;
+
 				var e = r.Votes.Find(i => i.Generator == v.Generator);
 				
 				if(e != null) /// FORK
 				{
 					r.Votes.Remove(e);
 					r.Forkers.Add(e.Generator);
+
+					return false;
 				}	
 								
 				if(r.Parent != null && r.Parent.Members.Count > 0)
