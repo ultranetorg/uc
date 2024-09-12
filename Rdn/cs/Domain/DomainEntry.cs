@@ -70,7 +70,7 @@ namespace Uccs.Rdn
 					writer.Write(FirstBidTime);
 					writer.Write(LastWinner);
 					writer.Write(LastBidTime);
-					writer.Write(LastBid);
+					writer.Write7BitEncodedInt64(LastBid);
 				}
 
 				if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
@@ -111,7 +111,7 @@ namespace Uccs.Rdn
 					FirstBidTime	= reader.Read<Time>();
 					LastWinner		= reader.Read<EntityId>();
 					LastBidTime		= reader.Read<Time>();
-					LastBid			= reader.Read<Unit>();
+					LastBid			= reader.Read7BitEncodedInt64();
 				}
 
 				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();

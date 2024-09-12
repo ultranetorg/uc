@@ -28,7 +28,7 @@ namespace Uccs.Net
 		public const int							OperationsQueueLimit = 1000;
 		public static readonly Time					Forever = Time.FromYears(30);
 		//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
-		public static Unit							TimeFactor(Time time) => new Unit(time.Days)/Time.FromYears(1).Days;
+		public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
 		public McvSettings							Settings;
 		public McvZone								Zone;

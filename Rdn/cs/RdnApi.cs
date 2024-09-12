@@ -320,14 +320,14 @@ namespace Uccs.Rdn
 
 			public Unit[][]	RentDomain { get; set; }
 			
-			public Unit[]		RentResource { get; set; }
+			public Unit[]	RentResource { get; set; }
 			public Unit		RentResourceForever { get; set; }
 
-			public Unit[]		RentResourceData { get; set; }
+			public Unit[]	RentResourceData { get; set; }
 			public Unit		RentResourceDataForever { get; set; }
 		}
 
-		public Unit	Rate { get; set; } = 1;
+		public Unit		Rate { get; set; } = 1;
 		public byte[]	Years { get; set; }
 		public byte[]	DomainLengths { get; set; }
 

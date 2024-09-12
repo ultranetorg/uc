@@ -6,7 +6,7 @@ namespace Uccs.Net
 	public class Member
 	{
 		public AccountAddress	Account { get; set; }
-		public Unit				Pledge { get; set; }
+		public long				Pledge { get; set; }
 		public IPAddress[]		BaseRdcIPs { get; set; } = [];
 		public int				CastingSince { get; set; }
 		public Peer         	Proxy;
@@ -19,7 +19,7 @@ namespace Uccs.Net
   		public virtual void WriteBaseState(BinaryWriter writer)
  		{
  			writer.Write(Account);
-			writer.Write(Pledge);
+			writer.Write7BitEncodedInt64(Pledge);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 			writer.Write7BitEncodedInt(CastingSince);
  		}
@@ -27,7 +27,7 @@ namespace Uccs.Net
  		public virtual void ReadBaseState(BinaryReader reader)
  		{
 			Account			= reader.ReadAccount();
-			Pledge			= reader.Read<Unit>();
+			Pledge			= reader.Read7BitEncodedInt64();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
  			CastingSince	= reader.Read7BitEncodedInt();
 		}

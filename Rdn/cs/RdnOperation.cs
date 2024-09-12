@@ -38,18 +38,18 @@
 			Transaction.BYReward += fee;
 		}
 
-		public static Unit SpacetimeFee(int length, Time time)
+		public static long SpacetimeFee(int length, Time time)
 		{
-			return length * Mcv.TimeFactor(time);
+			return Mcv.ApplyTimeFactor(time, length);
 		}
 
-		public static Unit NameFee(int years, string address)
+		public static long NameFee(int years, string address)
 		{
 			var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
 
 			l = Math.Min(l, 10);
 
-			return Mcv.TimeFactor(Time.FromYears(years)) * 10_000/(l * l * l * l);
+			return Mcv.ApplyTimeFactor(Time.FromYears(years), 10_000) / (l * l * l * l);
 		}
 
 		public void Allocate(Round round, Domain domain, int toallocate)

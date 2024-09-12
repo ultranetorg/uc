@@ -53,14 +53,14 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
-		public Unit											ConsensusExecutionFee;
+		public long											ConsensusExecutionFee;
 		public int											ConsensusTransactionsOverflowRound;
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Dictionary<AccountEntry, Unit>				BYRewards = [];
-		public Dictionary<AccountEntry, Unit>				ECRewards = [];
+		public Dictionary<AccountEntry, long>				BYRewards = [];
+		public Dictionary<AccountEntry, long>				ECRewards = [];
 		//public Dictionary<AccountEntry, Money>			MRRewards = [];
 		//public Money										Emission;
 		//public Money										RentPerBytePerDay;
@@ -70,7 +70,7 @@ namespace Uccs.Net
 #if ETHEREUM
 		public List<Immission>								Emissions;
 #endif
-		public Unit[]										NextBandwidthAllocations = [];
+		public long[]										NextBandwidthAllocations = [];
 		//public long										PreviousDayBaseSize;
 
 		public Dictionary<byte[], int>						NextAccountIds;
@@ -80,7 +80,7 @@ namespace Uccs.Net
 		public Mcv											Mcv;
 		public McvZone										Zone => Mcv.Zone;
 
-		public abstract Unit								AccountAllocationFee(Account account);
+		public abstract long								AccountAllocationFee(Account account);
 		public virtual void									CopyConfirmed(){}
 		public virtual void									RegisterForeign(Operation o){}
 		public virtual void									ConfirmForeign(){}
@@ -297,9 +297,9 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 					o.Error = null;
 
-			Members						= Id == 0 ? new()																						 : Previous.Members;
-			Funds						= Id == 0 ? new()																						 : Previous.Funds;
-			NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Zone.BandwidthAllocationDaysMaximum + 1).Select(i => Unit.Zero).ToArray(): Previous.NextBandwidthAllocations.ToArray();
+			Members						= Id == 0 ? new()																					: Previous.Members;
+			Funds						= Id == 0 ? new()																					: Previous.Funds;
+			NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Zone.BandwidthAllocationDaysMaximum + 1).Select(i => 0L).ToArray()	: Previous.NextBandwidthAllocations.ToArray();
 
 			#if IMMISSION
 			Emissions			= Id == 0 ? new()								: Previous.Emissions;
@@ -490,11 +490,11 @@ namespace Uccs.Net
 											.OfType<CandidacyDeclaration>()
 											.ToList();
 
-			foreach(var i in cds.GroupBy(i => i.Signer.Address)
+			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
 								.Select(i => i.MaxBy(i => i.Pledge))
 								.OrderByDescending(i => i.Signer.AverageUptime)
 								.ThenBy(i => i.Pledge)
-								.ThenBy(i => i.Signer.Address)
+								.ThenBy(i => i.Transaction.Signer)
 								.Take(Mcv.Zone.MembersLimit - Members.Count))
 			{
 
@@ -518,9 +518,9 @@ namespace Uccs.Net
 
 				var members = Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => AffectAccount(i.Account)).ToArray();
 
-				Unit distribute(Func<Round, Dictionary<AccountEntry, Unit>> getroundrewards, Action<AccountEntry, Unit> credit)
+				long distribute(Func<Round, Dictionary<AccountEntry, long>> getroundrewards, Action<AccountEntry, long> credit)
 				{
-					Unit a = 0;
+					long a = 0;
 
 					foreach(var r in tail)
 					{
@@ -604,13 +604,13 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Id);
 			writer.Write(Hash);
 			writer.Write(ConsensusTime);
-			writer.Write(ConsensusExecutionFee);
+			writer.Write7BitEncodedInt64(ConsensusExecutionFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			
 			///writer.Write(RentPerBytePerDay);
 			///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
 			///writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
-			writer.Write(NextBandwidthAllocations);
+			writer.Write(NextBandwidthAllocations, writer.Write7BitEncodedInt64);
 			
 			//writer.Write(Emission);
 			writer.Write(Funds);
@@ -624,13 +624,13 @@ namespace Uccs.Net
 			Id									= reader.Read7BitEncodedInt();
 			Hash								= reader.ReadHash();
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExecutionFee					= reader.Read<Unit>();
+			ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
 			//RentPerBytePerDay		= reader.Read<Money>();
 			//PreviousDayBaseSize	= reader.Read7BitEncodedInt64();
 			//Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
-			NextBandwidthAllocations			= reader.ReadArray<Unit>();
+			NextBandwidthAllocations			= reader.ReadArray(reader.Read7BitEncodedInt64);
 			
 			//Emission							= reader.Read<Money>();
 			Funds								= reader.ReadList<AccountAddress>();
@@ -642,7 +642,7 @@ namespace Uccs.Net
 		public virtual void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConsensusTime);
-			writer.Write(ConsensusExecutionFee);
+			writer.Write7BitEncodedInt64(ConsensusExecutionFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			writer.Write(ConsensusMemberLeavers);
 			writer.Write(ConsensusFundJoiners);
@@ -654,7 +654,7 @@ namespace Uccs.Net
 		public virtual void ReadConfirmed(BinaryReader reader)
 		{
 			ConsensusTime						= reader.Read<Time>();
-			ConsensusExecutionFee					= reader.Read<Unit>();
+			ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			ConsensusMemberLeavers				= reader.ReadArray<AccountAddress>();
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();

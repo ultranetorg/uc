@@ -2,19 +2,19 @@
 {
 	public class Consil : IBinarySerializable
  	{
- 		public Unit				PerByteBYFee;
+ 		public long				PerByteBYFee;
 		public AccountAddress[]	Analyzers;
 
 
 		public void Read(BinaryReader reader)
 		{
-			PerByteBYFee	= reader.Read<Unit>();
+			PerByteBYFee	= reader.Read7BitEncodedInt64();
 			Analyzers		= reader.ReadArray<AccountAddress>();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(PerByteBYFee);
+			writer.Write7BitEncodedInt64(PerByteBYFee);
 			writer.Write(Analyzers);
 		}
 
@@ -47,8 +47,8 @@
 	public class Analysis : IBinarySerializable
 	{
 		public Urr					Release { get; set; }
-		public Unit					BYPayment { get; set; }
-		public Unit					ECPayment { get; set; }
+		public long					BYPayment { get; set; }
+		public long					ECPayment { get; set; }
 		public Ura					Consil	{ get; set; }
 		public AnalyzerResult[]		Results { get; set; }
 
@@ -61,8 +61,8 @@
 		{
 			Release		= reader.ReadVirtual<Urr>();
 			Consil		= reader.Read<Ura>();
-			BYPayment	= reader.Read<Unit>();
-			ECPayment	= reader.Read<Unit>();
+			BYPayment	= reader.Read7BitEncodedInt64();
+			ECPayment	= reader.Read7BitEncodedInt64();
 			Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																	  Result = (AnalysisResult)reader.ReadByte() });
 		}
@@ -71,8 +71,8 @@
 		{
 			writer.Write(Release);
 			writer.Write(Consil);
-			writer.Write(BYPayment);
-			writer.Write(ECPayment);
+			writer.Write7BitEncodedInt64(BYPayment);
+			writer.Write7BitEncodedInt64(ECPayment);
 			writer.Write(Results, i => { writer.Write(i.Analyzer);
 										 writer.Write((byte)i.Result); });
 		}

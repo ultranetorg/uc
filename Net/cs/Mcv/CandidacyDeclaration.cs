@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public abstract class CandidacyDeclaration : Operation
 	{
-		public Unit				Pledge;
+		public long				Pledge;
 		public IPAddress[]		BaseRdcIPs;
 		public override string	Description => $"{Pledge} UNT";
 		public override bool	IsValid(Mcv mcv) => Pledge >= Transaction.Zone.PledgeMin;
@@ -17,13 +17,13 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Pledge			= reader.Read<Unit>();
-			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
+			Pledge		= reader.Read7BitEncodedInt64();
+			BaseRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Pledge);
+			writer.Write7BitEncodedInt64(Pledge);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 		}
 

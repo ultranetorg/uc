@@ -219,7 +219,7 @@ namespace Uccs.Net.FUI
 				if(s == null)
 					return;
 
-				McvNode.Transact(new DomainBid(null, Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
+				McvNode.Transact(new DomainBid(null, (long)Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
 			}
 			catch(Exception ex)
 			{

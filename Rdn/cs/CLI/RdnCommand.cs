@@ -157,22 +157,22 @@ namespace Uccs.Rdn.CLI
 					return null;
 		}
 
-		protected Unit GetMoney(string paramenter)
+		protected long GetMoney(string paramenter)
 		{
 			var p = One(paramenter);
 
 			if(p != null)
-				return Unit.Parse(p.Get<string>());
+				return long.Parse(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected Unit GetMoney(string paramenter, Unit def)
+		protected long GetMoney(string paramenter, long def)
 		{
 			var p = One(paramenter);
 
 			if(p != null)
-				return Unit.Parse(p.Get<string>());
+				return long.Parse(p.Get<string>());
 			else
 				return def;
 		}
@@ -196,12 +196,12 @@ namespace Uccs.Rdn.CLI
 				
 						if(cnt == ContentType.Rdn_Consil)
 							return new ResourceData(t, new Consil{	Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																	PerByteBYFee = d.Get<Unit>("pbstf") });
+																	PerByteBYFee = d.Get<long>("pbstf") });
 						
 						if(cnt == ContentType.Rdn_Analysis)
 							return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
-																	BYPayment	= d.Get<Unit>("stpayment"),
-																	ECPayment	= d.Get<Unit>("eupayment"),
+																	BYPayment	= d.Get<long>("stpayment"),
+																	ECPayment	= d.Get<long>("expayment"),
 																	Consil		= d.Get<Ura>("consil")});
 					}
 					else

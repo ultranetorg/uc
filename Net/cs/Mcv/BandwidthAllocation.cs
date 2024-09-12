@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class BandwidthAllocation : Operation
 	{
-		public Unit				Bandwidth;
+		public long				Bandwidth;
 		public short			Days;
 		public override string	Description => $"Allocation of {Bandwidth} EC for {Days} days";
 		public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Zone.BandwidthAllocationDaysMaximum;
@@ -16,13 +16,13 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Bandwidth	= reader.Read<Unit>();
+			Bandwidth	= reader.Read7BitEncodedInt64();
 			Days		= reader.ReadInt16();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Bandwidth);
+			writer.Write7BitEncodedInt64(Bandwidth);
 			writer.Write(Days);
 		}
 

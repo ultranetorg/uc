@@ -43,8 +43,8 @@
 		public int			LastConfirmedRid { get; set; }
 		public int			NextNid { get; set; }
 		public byte[]		PowHash { get; set; }
-		public Unit			BYCost { get; set; }
-		public Unit			ECCostMinimum { get; set; }
+		public long			BYCost { get; set; }
+		public long			ECCostMinimum { get; set; }
 		public EntityId		Generetor { get; set; }
 	}
 }

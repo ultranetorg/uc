@@ -85,8 +85,8 @@
 
 			if(RankCheck)
 			{
-				Signer.ECBalance	 -= (mcv.Zone as RdnZone).DomainRankCheckEUFee;
-				Transaction.ECReward -= (mcv.Zone as RdnZone).DomainRankCheckEUFee;
+				Signer.ECBalance	 -= (mcv.Zone as RdnZone).DomainRankCheckECFee;
+				Transaction.ECReward -= (mcv.Zone as RdnZone).DomainRankCheckECFee;
 			}
 		}
 

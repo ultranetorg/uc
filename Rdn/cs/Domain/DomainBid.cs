@@ -3,7 +3,7 @@
 	public class DomainBid : RdnOperation
 	{
 		public string			Name;
-		public Unit			Bid;
+		public long				Bid;
 		public override string	Description => $"{Bid} UNT for {Name}";
 		
 		public override bool IsValid(Mcv mcv)
@@ -14,7 +14,7 @@
 			if(!Domain.IsWeb(Name))
 				return false;
 
-			if(Bid <= Unit.Zero)
+			if(Bid <= 0)
 				return false;
 
 			return true;
@@ -24,7 +24,7 @@
 		{
 		}
 
-		public DomainBid(string name,  Unit bid)
+		public DomainBid(string name, long bid)
 		{
 			Name = name;
 			Bid = bid;
@@ -33,13 +33,13 @@
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Name	= reader.ReadUtf8();
-			Bid		= reader.Read<Unit>();
+			Bid		= reader.Read7BitEncodedInt64();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.WriteUtf8(Name);
-			writer.Write(Bid);
+			writer.Write7BitEncodedInt64(Bid);
 		}
 
 // 		public void WriteBaseState(BinaryWriter writer)

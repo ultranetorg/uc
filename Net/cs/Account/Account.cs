@@ -6,58 +6,58 @@ namespace Uccs.Net
 	{
 		public EntityId			Id { get; set; }
 		public AccountAddress	Address { get; set; }
-		public Unit				BYBalance { get; set; }
-		public Unit				ECBalance { get; set; }
-		public Unit				MRBalance { get; set; }
+		public long				BYBalance { get; set; }
+		public long				ECBalance { get; set; }
+		public long				MRBalance { get; set; }
 		public int				LastTransactionNid { get; set; } = -1;
 		public int				LastEmissionId  { get; set; } = -1;
-		public Unit				AverageUptime { get; set; }
+		public long				AverageUptime { get; set; }
 		
-		public Unit				BandwidthNext { get; set; }
+		public long				BandwidthNext { get; set; }
 		public Time				BandwidthExpiration { get; set; } = Time.Empty;
-		public Unit				BandwidthToday { get; set; }
+		public long				BandwidthToday { get; set; }
 		public Time				BandwidthTodayTime { get; set; }
-		public Unit				BandwidthTodayAvailable { get; set; }
+		public long				BandwidthTodayAvailable { get; set; }
 
 		public virtual void Write(BinaryWriter writer)
 		{
 			writer.Write(Address);
-			writer.Write(ECBalance);
-			writer.Write(BYBalance);
-			writer.Write(MRBalance);
+			writer.Write7BitEncodedInt64(ECBalance);
+			writer.Write7BitEncodedInt64(BYBalance);
+			writer.Write7BitEncodedInt64(MRBalance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
-			writer.Write(AverageUptime);
+			writer.Write7BitEncodedInt64(AverageUptime);
 			
-			writer.Write(BandwidthNext);
+			writer.Write7BitEncodedInt64(BandwidthNext);
 			
 			if(BandwidthNext > 0)
 			{
 				writer.Write(BandwidthExpiration);
-				writer.Write(BandwidthToday);
+				writer.Write7BitEncodedInt64(BandwidthToday);
 				writer.Write(BandwidthTodayTime);
-				writer.Write(BandwidthTodayAvailable);
+				writer.Write7BitEncodedInt64(BandwidthTodayAvailable);
 			}
 		}
 
 		public virtual void Read(BinaryReader reader)
 		{
 			Address				= reader.ReadAccount();
-			ECBalance 			= reader.Read<Unit>();
-			BYBalance 			= reader.Read<Unit>();
-			MRBalance 			= reader.Read<Unit>();
+			ECBalance 			= reader.Read7BitEncodedInt64();
+			BYBalance 			= reader.Read7BitEncodedInt64();
+			MRBalance 			= reader.Read7BitEncodedInt64();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
-			AverageUptime		= reader.Read<Unit>();
+			AverageUptime		= reader.Read7BitEncodedInt64();
 
-			BandwidthNext = reader.Read<Unit>();
+			BandwidthNext = reader.Read7BitEncodedInt64();
 
 			if(BandwidthNext > 0)
 			{
 				BandwidthExpiration		= reader.Read<Time>();
-				BandwidthToday			= reader.Read<Unit>();
+				BandwidthToday			= reader.Read7BitEncodedInt64();
 				BandwidthTodayTime		= reader.Read<Time>();
-				BandwidthTodayAvailable	= reader.Read<Unit>();
+				BandwidthTodayAvailable	= reader.Read7BitEncodedInt64();
 			}
 		}
 	}

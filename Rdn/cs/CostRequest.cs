@@ -19,7 +19,7 @@
 	public class CostResponse : PeerResponse
 	{
 		//public Money RentPerBytePerDay { get; set; }
-		public Unit ConsensusExecutionFee { get; set; }
+		public long ConsensusExecutionFee { get; set; }
 	}
 }
 

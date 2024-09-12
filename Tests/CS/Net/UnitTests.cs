@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Uccs.Tests
 {
-	public static class MoneyTests
+	public static class UnitTests
 	{
 		[Fact]
 		public static void Main()
