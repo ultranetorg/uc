@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
 
 namespace Uccs.Net
@@ -153,6 +151,9 @@ namespace Uccs.Net
 
 	public abstract class McvZone : Zone
 	{
+		public const int		IdealRoundsPerDay								= 60*60*24;
+		public Time				ECLifetime { get; protected set; }				= Time.FromYears(1);
+
 		public string			Genesis;	
  		public Cryptography		Cryptography									= Cryptography.Normal;
 		public int				CommitLength									= 1000;
@@ -166,15 +167,15 @@ namespace Uccs.Net
 		public int				TransactionsPerRoundExecutionLimit				= 5_000; /// for 5000 tx/s signature recovering
 		public int				TransactionsOverflowFeeFactor					= 2;
 		public int				OperationsPerTransactionLimit					= 100;
-		public int				OperationsPerRoundLimit							=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
-		public long				BYCommitEmission								= 1_000_000;
-		public long				ECCommitEmission								= 1_000_000;
-		//public Unit				ECCommitRewardOperationCountBelowTrigger		=> OperationsPerRoundLimit;
-		public long				MRCommitEmission								= 1000;
+		public int				ECPerRoundLimit									=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
+		public long				ECDayEmission									=> ECPerRoundLimit * IdealRoundsPerDay;
+		public long				BYDayEmission									= 1024L * IdealRoundsPerDay;
+		//public Unit				ECCommitRewardOperationCountBelowTrigger	=> OperationsPerRoundLimit;
+		public long				MRDayEmission									= 1000;
 		
 		public int				BandwidthAllocationDaysMaximum					=> 365;
-		public int				BandwidthAllocationPerDayMaximum				=> OperationsPerRoundLimit * 24 * 3600 / 2; /// 50%
-		public int				BandwidthAllocationPerRoundMaximum				=> OperationsPerRoundLimit / 2; /// 50%
+		public int				BandwidthAllocationPerDayMaximum				=> ECPerRoundLimit * IdealRoundsPerDay / 2; /// 50%
+		public int				BandwidthAllocationPerRoundMaximum				=> ECPerRoundLimit / 2; /// 50%
 
 		public AccountAddress	God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 		public AccountAddress	Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

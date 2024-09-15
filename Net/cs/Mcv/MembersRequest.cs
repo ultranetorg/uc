@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Net;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class MembersRequest : McvCall<MembersResponse>
 	{

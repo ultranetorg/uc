@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class Vault
 	{

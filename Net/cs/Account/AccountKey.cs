@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using NBitcoin.Secp256k1;
+﻿using NBitcoin.Secp256k1;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;

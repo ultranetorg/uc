@@ -200,8 +200,8 @@ namespace Uccs.Rdn.CLI
 						
 						if(cnt == ContentType.Rdn_Analysis)
 							return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
+																	ECPayment	= [new (Time.Zero, d.Get<long>("expayment"))],
 																	BYPayment	= d.Get<long>("stpayment"),
-																	ECPayment	= d.Get<long>("expayment"),
 																	Consil		= d.Get<Ura>("consil")});
 					}
 					else

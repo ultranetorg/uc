@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Uccs.Net.Vgo
+﻿namespace Uccs.Net.Vgo
 {
 	public enum TransactionType
 	{

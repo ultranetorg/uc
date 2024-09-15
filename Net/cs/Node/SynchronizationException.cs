@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class SynchronizationException : Exception
 	{

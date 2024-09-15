@@ -17,7 +17,7 @@
 					throw new EntityException(EntityError.NotFound);
 #endif
 				Transaction.Nid		= a?.LastTransactionNid + 1 ?? 0;
-				Transaction.ECFee	= a?.ECBalance ?? 0;
+				Transaction.ECFee	= a?.GetECBalance(Mcv.LastConfirmedRound.ConsensusTime) ?? 0;
 
 				var r = Mcv.TryExecute(Transaction);
 				

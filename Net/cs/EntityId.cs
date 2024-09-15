@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
 	{

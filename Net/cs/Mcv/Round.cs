@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
+﻿using System.Diagnostics;
 
 namespace Uccs.Net
 {
@@ -18,7 +13,7 @@ namespace Uccs.Net
 		public Round										Child => Mcv.FindRound(Id + Mcv.P);
 		public int											PerVoteTransactionsLimit				=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
 		//public int											PerVoteTransactionsAcceptableOverflow	=> PerVoteTransactionsLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMultiplier;
-		public int											PerVoteOperationsLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
+		public int											PerVoteOperationsLimit					=> Mcv.Zone.ECPerRoundLimit / Members.Count;
 		public int											PerVoteBandwidthAllocationLimit			=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 		public bool											IsLastInCommit => (Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
@@ -166,7 +161,7 @@ namespace Uccs.Net
 			var all = VotesOfTry.ToArray();
 			var s = Id < Mcv.DeclareToGenerateDelay ? [] : Selected.ToArray();
 						
-			ConsensusExecutionFee				= Id == 0 ? 1 : Previous.ConsensusExecutionFee;
+			ConsensusExecutionFee				= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
 			ConsensusTransactionsOverflowRound	= Id == 0 ? 0 : Previous.ConsensusTransactionsOverflowRound;
 
 			var tn = all.Sum(i => i.Transactions.Length);
@@ -334,7 +329,7 @@ namespace Uccs.Net
 				}
 
 				t.ECSpent = 0;
-				t.ECReward = 0;
+				//t.ECReward = 0;
 				t.BYReward = 0;
 
 				foreach(var o in t.Operations)
@@ -370,7 +365,7 @@ namespace Uccs.Net
 							goto start;
 						}
 					}
-					else if(s.ECBalance < t.ECSpent || (!trying && (s.ECBalance < t.ECFee || t.ECSpent > t.ECFee)))
+					else if(s.GetECBalance(ConsensusTime) < t.ECSpent || (!trying && (s.GetECBalance(ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
 					{
 						o.Error = Operation.NotEnoughEC;
 						goto start;
@@ -398,14 +393,14 @@ namespace Uccs.Net
 					else
 						BYRewards[g] = t.BYReward;
 
-					if(ECRewards.TryGetValue(g, out x))
-						ECRewards[g] = x + t.ECFee + t.ECReward;
-					else
-						ECRewards[g] = t.ECFee + t.ECReward;
+					//if(ECRewards.TryGetValue(g, out x))
+					//	ECRewards[g] = x + t.ECFee + t.ECReward;
+					//else
+					//	ECRewards[g] = t.ECFee + t.ECReward;
 				}
 
 				//s.STBalance -= t.STReward;
-				s.ECBalance -= t.ECFee;
+				s.ECBalanceSubtract(t.ECFee);
 				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
@@ -514,56 +509,63 @@ namespace Uccs.Net
 			
 			if(IsLastInCommit)
 			{
-				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
-
-				var members = Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => AffectAccount(i.Account)).ToArray();
-
-				long distribute(Func<Round, Dictionary<AccountEntry, long>> getroundrewards, Action<AccountEntry, long> credit)
-				{
-					long a = 0;
-
-					foreach(var r in tail)
-					{
-						foreach(var rmr in getroundrewards(r))
-						{
-							credit(AffectAccount(rmr.Key.Address), rmr.Value * 50/100); /// 50% to a member itself
-							a += rmr.Value;
-						}
-					}
-					
-					foreach(var j in members)
-					{
-						credit(j, a*40/100/members.Length); /// 40% evenly among all
-					}
-
-					if(Funds.Any())
-					{
-						foreach(var i in Funds)
-						{
-							credit(AffectAccount(i), a/10/Funds.Count); /// 10% to funds
-						}
-					}
-
-					return a;
-				}
-
-				var by = distribute(r => r.BYRewards, (a, r) => a.BYBalance += r);
-				var ec = distribute(r => r.ECRewards, (a, r) => a.ECBalance += r);
-
-				foreach(var i in members)
-					i.BYBalance += Zone.BYCommitEmission/members.Length;
-
-				if(ec < Zone.OperationsPerRoundLimit)
-					foreach(var i in members)
-						i.ECBalance += Zone.ECCommitEmission/members.Length;
-
-				foreach(var j in members)
-					j.MRBalance += Zone.MRCommitEmission/members.Length;
+				///var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
+				///
+				///var members = Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => AffectAccount(i.Account)).ToArray();
+				///
+				///long distribute(Func<Round, Dictionary<AccountEntry, long>> getroundrewards, Action<AccountEntry, long> credit)
+				///{
+				///	long a = 0;
+				///
+				///	foreach(var r in tail)
+				///	{
+				///		foreach(var rmr in getroundrewards(r))
+				///		{
+				///			credit(AffectAccount(rmr.Key.Address), rmr.Value * 50/100); /// 50% to a member itself
+				///			a += rmr.Value;
+				///		}
+				///	}
+				///	
+				///	foreach(var j in members)
+				///	{
+				///		credit(j, a*40/100/members.Length); /// 40% evenly among all
+				///	}
+				///
+				///	if(Funds.Any())
+				///	{
+				///		foreach(var i in Funds)
+				///		{
+				///			credit(AffectAccount(i), a/10/Funds.Count); /// 10% to funds
+				///		}
+				///	}
+				///
+				///	return a;
+				///}
+				///
+				///var by = distribute(r => r.BYRewards, (a, r) => a.BYBalance += r);
+				///var ec = distribute(r => r.ECRewards, (a, r) => a.ECBalance += r);
+				///
+				///foreach(var i in members)
+				///	i.BYBalance += Zone.BYCommitEmission/members.Length;
+				///
+				///if(ec < Zone.OperationsPerRoundLimit)
+				///	foreach(var i in members)
+				///		i.ECBalance += Zone.ECCommitEmission/members.Length;
+				///
+				///foreach(var j in members)
+				///	j.MRBalance += Zone.MRCommitEmission/members.Length;
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
 				NextBandwidthAllocations = NextBandwidthAllocations.Skip(1).Append(0).ToArray();
+
+				foreach(var i in Members./*Where(i => i.CastingSince <= tail.First().Id).*/Select(i => AffectAccount(i.Account)))
+				{
+					i.ECBalanceAdd(new ExecutionReservation (ConsensusTime + Zone.ECLifetime, Zone.ECDayEmission / Members.Count));
+					i.BYBalance += Zone.BYDayEmission / Members.Count;
+					i.MRBalance += Zone.MRDayEmission / Members.Count;
+				}
 
 				///long s = Mcv.Size;
 				///
@@ -581,6 +583,7 @@ namespace Uccs.Net
 				///}
 				///
 				///PreviousDayBaseSize = s;
+				///
 			}
 			
 			Confirmed = true;

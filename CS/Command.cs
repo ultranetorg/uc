@@ -172,6 +172,16 @@ namespace Uccs
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
+		protected int GetInt(string paramenter, int def)
+		{
+			var p = One(paramenter);
+
+			if(p != null)
+				return int.Parse(p.Get<string>());
+			else
+				return def;
+		}
+
 		protected byte[] GetBytes(string paramenter, bool mandatory = true)
 		{
 			var p = One(paramenter);

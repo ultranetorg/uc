@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public enum TransactionStatus
 	{
@@ -32,9 +28,10 @@ namespace Uccs.Net
 		public byte[]					Tag;
 		//public Money					STFee;
 		public long						ECFee;
+		
 		public long						ECSpent;
 		public long						BYReward;
-		public long						ECReward;
+		//public long					ECReward;
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;

@@ -294,7 +294,7 @@ namespace Uccs.Rdn.CLI
 								Execute = () =>	{
 													Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-													return new UnitTransfer(GetAccountAddress("to"), GetMoney("by", 0), GetMoney("ec", 0), GetMoney("mr", 0));
+													return new UnitTransfer(GetAccountAddress("to"), GetMoney("ec", 0), new Time(GetInt("ecexpiration", -1)), GetMoney("by", 0), GetMoney("mr", 0));
 												}
 							},
 

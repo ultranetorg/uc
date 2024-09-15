@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class PeersBroadcastRequest : PeerCall<PeerResponse>
 	{

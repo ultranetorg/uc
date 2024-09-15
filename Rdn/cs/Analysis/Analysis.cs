@@ -46,11 +46,11 @@
 
 	public class Analysis : IBinarySerializable
 	{
-		public Urr					Release { get; set; }
-		public long					BYPayment { get; set; }
-		public long					ECPayment { get; set; }
-		public Ura					Consil	{ get; set; }
-		public AnalyzerResult[]		Results { get; set; }
+		public Urr						Release { get; set; }
+		public ExecutionReservation[]	ECPayment { get; set; }
+		public long						BYPayment { get; set; }
+		public Ura						Consil	{ get; set; }
+		public AnalyzerResult[]			Results { get; set; }
 
 		public override string ToString()
 		{
@@ -62,7 +62,7 @@
 			Release		= reader.ReadVirtual<Urr>();
 			Consil		= reader.Read<Ura>();
 			BYPayment	= reader.Read7BitEncodedInt64();
-			ECPayment	= reader.Read7BitEncodedInt64();
+			ECPayment	= reader.ReadArray<ExecutionReservation>();
 			Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																	  Result = (AnalysisResult)reader.ReadByte() });
 		}
@@ -72,7 +72,7 @@
 			writer.Write(Release);
 			writer.Write(Consil);
 			writer.Write7BitEncodedInt64(BYPayment);
-			writer.Write7BitEncodedInt64(ECPayment);
+			writer.Write(ECPayment);
 			writer.Write(Results, i => { writer.Write(i.Analyzer);
 										 writer.Write((byte)i.Result); });
 		}
@@ -81,8 +81,8 @@
 		{
 			return new Analysis {Release	= Release, 
 								 Consil		= Consil,	
+								 ECPayment	= ECPayment.ToArray(),
 								 BYPayment	= BYPayment, 
-								 ECPayment	= ECPayment, 
 								 Results	= Results.Clone() as AnalyzerResult[]};
 		}
 	}

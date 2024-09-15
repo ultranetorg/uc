@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
@@ -29,7 +26,7 @@ namespace Uccs.Net
 			return new AccountEntry(Mcv){	Id						= Id,
 											Address					= Address,
 											BYBalance				= BYBalance,
-											ECBalance				= ECBalance,
+											ECBalance				= ECBalance.ToList(),
 											MRBalance				= MRBalance,
 											LastTransactionNid		= LastTransactionNid,
 											LastEmissionId			= LastEmissionId,

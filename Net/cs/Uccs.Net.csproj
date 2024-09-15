@@ -13,7 +13,7 @@
     <AssemblyVersion>1.0.167.0</AssemblyVersion>
     <FileVersion>1.0.167.0</FileVersion>
     <Version>1.0.167.0</Version>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

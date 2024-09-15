@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IComparable<TransactionId>
 	{

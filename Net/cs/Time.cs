@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -13,7 +11,7 @@ namespace Uccs.Net
 
 		public static readonly Time	Zero = new Time(0);
 		public static readonly Time	Empty = new Time(-1);
-		public static DateTime		Start = new DateTime(2020, 1, 1);
+		public static DateTime		Start = new DateTime(2024, 1, 1);
 		public static Time			Now(IClock clock) => new Time(clock.Now - Start);
 
 		public static Time			operator-  (Time a, Time b) => new Time(a.Days - b.Days);

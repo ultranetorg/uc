@@ -80,7 +80,7 @@ namespace Uccs.Rdn
 				t.Generator = new([0, 0], -1);
 				//t.EUFee = 1;
 				//t.AddOperation(new Immission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new UnitTransfer(f0, 10_000_000, 1000_000, 1000));
+				t.AddOperation(new UnitTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission, 1000));
 				t.Sign(god, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 			

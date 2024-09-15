@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class BandwidthAllocation : Operation
 	{
@@ -28,11 +25,11 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Signer.BandwidthExpiration > round.ConsensusTime) /// refund 50% for what is left
+			if(Signer.BandwidthExpiration > round.ConsensusTime) /// reclaim
 			{
 				var d = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
-				
-				Signer.ECBalance += Signer.BandwidthNext * d / 2;
+				 
+				/// Signer.ECBalance += Signer.BandwidthNext * d / 2;  /// refund 50% for what is left
 
 				for(int i=1; i<=d; i++)
 					round.NextBandwidthAllocations[i] -= Signer.BandwidthNext;
@@ -55,7 +52,7 @@ namespace Uccs.Net
 			Signer.BandwidthExpiration	= round.ConsensusTime + Time.FromDays(Days);
 			
 			Transaction.ECSpent		+= Bandwidth * Days;
-			Transaction.ECReward	+= Bandwidth * Days;
+			//Transaction.ECReward	+= Bandwidth * Days;
 		}
 	}
 }

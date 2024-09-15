@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public interface ITableEntryBase
 	{

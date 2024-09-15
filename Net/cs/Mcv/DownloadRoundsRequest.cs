@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class DownloadRoundsRequest : McvCall<DownloadRoundsResponse>
 	{
