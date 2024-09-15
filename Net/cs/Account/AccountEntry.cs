@@ -54,7 +54,6 @@
 		public void WriteMain(BinaryWriter w)
 		{
 			Write(w);
-
 		}
 
 		public void ReadMain(BinaryReader r)
@@ -76,6 +75,11 @@
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}
+		}
+
+		public void Cleanup(Round lastInCommit)
+		{
+			ECBalance?.RemoveAll(i => i.Expiration < lastInCommit.ConsensusTime);
 		}
 	}
 }

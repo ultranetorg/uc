@@ -5,6 +5,8 @@
 		EntityId	Id { get; set; }
 		//bool		New { get; set; }
 
+		void		Cleanup(Round lastInCommit);
+
 		void		ReadMain(BinaryReader r);
 		void		WriteMain(BinaryWriter r);
 

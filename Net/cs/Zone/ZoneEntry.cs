@@ -6,7 +6,7 @@
 		public Guid			Key => Address;
 		
 		public Guid			Address { get; set; }
-		public Unit		Balance { get; set; }
+		public Unit			Balance { get; set; }
 		public byte[]		IncomingBlockEmptyHash { get; set; }
 		public byte[]		IncomingBlockHash { get; set; }
 		public byte[]		OutgoingBlockEmptyHash { get; set; }
@@ -58,6 +58,10 @@
 		}
 
 		public void ReadMore(BinaryReader r)
+		{
+		}
+
+		public void Cleanup(Round lastInCommit)
 		{
 		}
 	}

@@ -34,11 +34,19 @@ namespace Uccs.Net
 
 			public abstract void	Read(BinaryReader reader);
 			public abstract void	Save(WriteBatch batch);
+
+			public void Cleanup(Round lastInCommit)
+			{
+				foreach(var i in BaseEntries)
+				{
+					i.Cleanup(lastInCommit);
+				}
+			}
 		}
 
 		public abstract ClusterBase		AddCluster(byte[] id);
 		public abstract long			MeasureChanges(IEnumerable<Round> tail);
-		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities);
+		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
 
 		public void CalculateSuperClusters()
 		{
@@ -321,7 +329,7 @@ namespace Uccs.Net
  			return new Enumerator(this);
  		}
 
-		Cluster GetCluster(byte[] id)
+		public Cluster GetCluster(byte[] id)
 		{
 			if(Mcv.Node != null)
 				if(!Monitor.IsEntered(Mcv.Lock))
@@ -384,7 +392,7 @@ namespace Uccs.Net
 			//}
 		}
 
-		public override void Save(WriteBatch batch, IEnumerable<object> entities)
+		public override void Save(WriteBatch batch, IEnumerable<object> entities, Round lastInCommit)
 		{
 			if(!entities.Any())
 				return;
@@ -407,6 +415,7 @@ namespace Uccs.Net
 
 			foreach(var i in cs)
 			{
+				i.Cleanup(lastInCommit);
 				i.Save(batch);
 			}
 

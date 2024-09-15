@@ -190,15 +190,23 @@ namespace Uccs.Net
 
 				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-				for(int i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
+				if(BaseState == null) /// clear to avoid genesis loading issues, it must be created - not loaded
 				{
-					var r = FindRound(i);
-
-					Tail.Insert(0, r);
-		
-					r.Confirmed = false;
-					//Execute(r, r.ConfirmedTransactions);
-					r.Confirm();
+					Clear();
+					Initialize();
+				} 
+				else
+				{
+					for(int i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
+					{
+						var r = FindRound(i);
+	
+						Tail.Insert(0, r);
+			
+						r.Confirmed = false;
+						//Execute(r, r.ConfirmedTransactions);
+						r.Confirm();
+					}
 				}
 			}
 		}
@@ -480,7 +488,7 @@ namespace Uccs.Net
 
 					foreach(var r in tail)
 						foreach(var t in Tables)
-							t.Save(b, r.AffectedByTable(t));
+							t.Save(b, r.AffectedByTable(t), round);
 	
 					LastCommittedRound = tail.Last();
 

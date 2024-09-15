@@ -96,6 +96,10 @@ namespace Uccs.Rdn
 										});
 		}
 
+		public void Cleanup(Round lastInCommit)
+		{
+		}
+
 		public void ReadMain(BinaryReader reader)
 		{
 			var f			= (DomainFlag)reader.ReadByte();
