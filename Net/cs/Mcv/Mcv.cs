@@ -190,7 +190,7 @@ namespace Uccs.Net
 
 				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-				if(BaseState == null) /// clear to avoid genesis loading issues, it must be created - not loaded
+				if(lcr.Id < Zone.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
 				{
 					Clear();
 					Initialize();
