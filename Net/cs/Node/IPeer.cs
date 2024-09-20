@@ -69,17 +69,17 @@ namespace Uccs.Net
 		{
 			RequireBase();
 
-			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Account))) 
+			if(!Mcv.NextVoteMembers.Any(i => Mcv.Settings.Generators.Contains(i.Address))) 
 				throw new NodeException(NodeError.NotMember);
 		}
 
-		protected Member RequireMemberFor(AccountAddress signer)
+		protected Generator RequireMemberFor(AccountAddress signer)
 		{
 			RequireBase();
 
-			var m = Mcv.NextVoteMembers.NearestBy(m => m.Account, signer);
+			var m = Mcv.NextVoteMembers.NearestBy(m => m.Address, signer);
 
-			if(!Mcv.Settings.Generators.Contains(m.Account)) 
+			if(!Mcv.Settings.Generators.Contains(m.Address)) 
 				throw new NodeException(NodeError.NotMember);
 
 			return m;

@@ -62,7 +62,7 @@
 		{
 			Signer = signer;
 
-			if(powhash.SequenceEqual(Zone.Cryptography.ZeroHash) || !Zone.PoW)
+			if(!Zone.PoW || powhash.SequenceEqual(Zone.Cryptography.ZeroHash))
 			{
 				PoW = new byte[PoWLength];
 			}

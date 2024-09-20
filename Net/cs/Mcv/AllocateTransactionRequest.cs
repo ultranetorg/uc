@@ -25,7 +25,7 @@
 				{
 					var b = r.AffectedAccounts[Transaction.Signer];
 					
-					return new AllocateTransactionResponse {Generetor			= Mcv.Accounts.Find(m.Account, Mcv.LastConfirmedRound.Id).Id,
+					return new AllocateTransactionResponse {Generator			= m.Id,
 															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
@@ -45,6 +45,6 @@
 		public byte[]		PowHash { get; set; }
 		public long			BYCost { get; set; }
 		public long			ECCostMinimum { get; set; }
-		public EntityId		Generetor { get; set; }
+		public EntityId		Generator { get; set; }
 	}
 }

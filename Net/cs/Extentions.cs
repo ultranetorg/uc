@@ -24,15 +24,20 @@
 			return e.MinBy(m => Cryptography.Hash(by(m).Bytes, account.Bytes), Bytes.Comparer);
 		}
  
-		public static IEnumerable<Member> OrderByXor(this IEnumerable<Member> e, byte[] hash)
+		public static IEnumerable<T> OrderByHash<T>(this IEnumerable<T> e, Func<T, byte[]> by, byte[] hash)
 		{
-			return e.OrderBy(i => Cryptography.Hash(i.Account.Bytes, hash), Bytes.Comparer);
+			return e.OrderBy(i => Cryptography.Hash(by(i), hash), Bytes.Comparer);
 		}
- 
-		public static IEnumerable<Vote> OrderByXor(this IEnumerable<Vote> e, byte[] hash)
-		{
-			return e.OrderBy(i => Cryptography.Hash(i.Generator.Bytes, hash), Bytes.Comparer);
-		}
+//  
+// 		public static IEnumerable<Generator> OrderByHash(this IEnumerable<Generator> e, byte[] hash)
+// 		{
+// 			return e.OrderBy(i => Cryptography.Hash(i.Address.Bytes, hash), Bytes.Comparer);
+// 		}
+//  
+// 		public static IEnumerable<Vote> OrderByHash(this IEnumerable<Vote> e, byte[] hash)
+// 		{
+// 			return e.OrderBy(i => Cryptography.Hash(i.Generator.Bytes, hash), Bytes.Comparer);
+// 		}
 
 		public static byte[] ReadHash(this BinaryReader r)
 		{

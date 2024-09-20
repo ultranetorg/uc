@@ -51,7 +51,7 @@
 
 		public int CompareTo(EntityId a)
 		{
-			if(!Ci.SequenceEqual(a.Ci))	
+			if(Ci[0] != a.Ci[0] || Ci[1] != a.Ci[1])
 				return Bytes.Comparer.Compare(Ci, a.Ci);
 			
 			if(Ei != a.Ei)
@@ -62,7 +62,7 @@
 
 		public override int GetHashCode()
 		{
-			return Ci.GetHashCode();
+			return Ci[0];
 		}
 
 		public static bool operator == (EntityId left, EntityId right)

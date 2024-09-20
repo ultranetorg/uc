@@ -12,9 +12,9 @@ namespace Uccs.Net
 	{
 		public const int							P = 8; /// pitch
 		public const int							VotesMaximum = 21; /// pitch
-		public const int							DeclareToGenerateDelay = P*2;
+		public const int							JoinToVote = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
-		public const int							LastGenesisRound = 1+P + 1+P + P;
+		public const int							LastGenesisRound = P*3 - 1;
 		public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
 		public const int							EntityLength = 100;
 		public const int							EntityRentYearsMin = 1;
@@ -53,7 +53,7 @@ namespace Uccs.Net
 		public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 		public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 		public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
-		public List<Member>							NextVoteMembers => FindRound(NextVoteRound.VotersRound).Members;
+		public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
 		public const string							ChainFamilyName = "Chain";
@@ -68,7 +68,7 @@ namespace Uccs.Net
 		public abstract Operation					CreateOperation(int type);
 		public abstract Round						CreateRound();
 		public abstract Vote						CreateVote();
-		public abstract Member						CreateMember(Round round, CandidacyDeclaration declaration);
+		public abstract Generator					CreateGenerator();
 		public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 		public abstract void						FillVote(Vote vote);
 
@@ -109,7 +109,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone as McvZone, settings, databasepath)
+		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone, settings, databasepath)
 		{
 			Node = node;
 			Flow = flow;
@@ -118,35 +118,26 @@ namespace Uccs.Net
 
 		public void Initialize()
 		{
-			if(Settings.Base?.Chain != null)
+			if(Settings.Base.Chain != null)
 			{
 				Tail.Clear();
 	
  				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.FromHex()));
 						
-				for(int i = 0; i <=1+P + 1+P + P; i++)
+				for(int i = 0; i <= LastGenesisRound; i++)
 				{
 					var r = CreateRound();
 					r.Read(rd);
 		
 					Tail.Insert(0, r);
 	
-					if(r.Id > 0)
+					if(i < P*2)
 					{
-						r.ConsensusTime = r.Confirmed ? r.ConsensusTime : r.Votes.First().Time;
-					}
-	
-					if(i <= 1+P + 1+P)
-					{
-						if(i == 0)
-							r.ConsensusFundJoiners = [Zone.Father0];
-						
-						if(i == 1+P + 1+P)
-							r.ConsensusExecutionFee = 1;
+						r.ConsensusFundJoiners = [Zone.Father0];
+						//r.ConsensusExecutionFee = 1;
+						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
 						GenesisInitilize(r);
-
-						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
 						r.Hashify();
 						r.Confirm();
@@ -393,11 +384,10 @@ namespace Uccs.Net
 			if(!Monitor.IsEntered(Lock))
 				Debugger.Break();
 
-			var m = r.Voters;
-
+			var s = r.Voters;
 			var e = r.VotesOfTry;
 			
-			var d = m.Count() - e.Count();
+			var d = s.Count() - e.Count();
 
 			var q = r.MinimumForConsensus;
 
@@ -451,7 +441,7 @@ namespace Uccs.Net
 			if(!Monitor.IsEntered(Lock))
 				Debugger.Break();
 
-			var m = NextVoteMembers.NearestBy(m => m.Account, transaction.Signer).Account;
+			var m = NextVoteMembers.NearestBy(m => m.Address, transaction.Signer).Address;
 
 			if(!Settings.Generators.Contains(m))
 				return null;
@@ -463,8 +453,9 @@ namespace Uccs.Net
 			r.ConsensusTime			= Time.Now(Clock);
 			r.ConsensusExecutionFee	= p.ConsensusExecutionFee;
 			///r.RentPerBytePerDay		= p.RentPerBytePerDay;
-			r.Members				= p.Members;
-			r.Funds					= p.Funds;
+			//r.Candidates			= p.Candidates;
+			//r.Members				= p.Members;
+			//r.Funds				= p.Funds;
 	
 			r.Execute([transaction], true);
 

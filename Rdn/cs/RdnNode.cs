@@ -53,7 +53,7 @@ namespace Uccs.Rdn
 										clock ?? new RealClock());
 
 				Mcv.Commited += r => {
-										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Address)))
 										{
 											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
 													

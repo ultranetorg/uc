@@ -48,7 +48,7 @@
 					{
 						if(accepted) /// for the new vote
 						{
-							var m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
+							var m = Mcv.LastConfirmedRound.Members.Find(i => i.Address == v.Generator);
 							
 							if(m != null)
 							{

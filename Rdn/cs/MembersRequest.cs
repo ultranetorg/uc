@@ -11,13 +11,13 @@
 				if(Mcv.NextVoteMembers.Count == 0)
 					throw new EntityException(EntityError.NoMembers);
 
-				return new RdnMembersResponse {Members = Mcv.NextVoteMembers.Cast<RdnMember>().ToArray()};
+				return new RdnMembersResponse {Members = Mcv.NextVoteMembers.Cast<RdnGenerator>().ToArray()};
 			}
 		}
 	}
 
 	public class RdnMembersResponse : PeerResponse
 	{
-		public RdnMember[] Members { get; set; }
+		public RdnGenerator[] Members { get; set; }
 	}
 }

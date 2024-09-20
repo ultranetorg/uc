@@ -5,36 +5,35 @@ namespace Uccs.Net
 	public abstract class Round : IBinarySerializable
 	{
 		public int											Id;
-		public int											ParentId => Id - Mcv.P;
-		public int											VotersRound => Id - Mcv.DeclareToGenerateDelay;
-		public Round										Previous =>	Mcv.FindRound(Id - 1);
-		public Round										Next =>	Mcv.FindRound(Id + 1);
-		public Round										Parent => Mcv.FindRound(ParentId);
-		public Round										Child => Mcv.FindRound(Id + Mcv.P);
-		public int											PerVoteTransactionsLimit				=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
-		//public int											PerVoteTransactionsAcceptableOverflow	=> PerVoteTransactionsLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMultiplier;
-		public int											PerVoteOperationsLimit					=> Mcv.Zone.ECPerRoundLimit / Members.Count;
-		public int											PerVoteBandwidthAllocationLimit			=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
+		public int											ParentId	=> Id - Mcv.P;
+		public int											VotersId	=> Id - Mcv.JoinToVote;
+		public Round										VotersRound	=> Mcv.FindRound(VotersId);
+		public Round										Previous	=> Mcv.FindRound(Id - 1);
+		public Round										Next		=> Mcv.FindRound(Id + 1);
+		public Round										Parent		=> Mcv.FindRound(ParentId);
+		public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
+		public int											PerVoteTransactionsLimit		=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
+		public int											PerVoteOperationsLimit			=> Mcv.Zone.ECPerRoundLimit / Members.Count;
+		public int											PerVoteBandwidthAllocationLimit	=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 		public bool											IsLastInCommit => (Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-		public IEnumerable<Member>							Voters => Mcv.FindRound(VotersRound).Members.Take(Mcv.VotesMaximum);
+		public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members.Take(Mcv.VotesMaximum);
 
 		public List<Vote>									Votes = new();
 		public List<AccountAddress>							Forkers = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-		//public IEnumerable<Vote>							Eligible => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>							Selected
 															{
 																get
 																{
-																	var vr = Mcv.FindRound(VotersRound);
+																	var vr = Mcv.FindRound(VotersId);
 
-																	return VotesOfTry.OrderByXor(vr.Hash).Take(Mcv.VotesMaximum);
+																	return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesMaximum);
 																}
 															}
 		public IGrouping<byte[], Vote>						MajorityByParentHash => Selected.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
@@ -44,10 +43,10 @@ namespace Uccs.Net
 
 		public Time											ConsensusTime;
 		public Transaction[]								ConsensusTransactions = {};
-		public AccountAddress[]								ConsensusMemberLeavers = {};
+		public EntityId[]									ConsensusMemberLeavers = {};
+		public EntityId[]									ConsensusViolators = {};
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
-		public AccountAddress[]								ConsensusViolators = {};
 		public long											ConsensusExecutionFee;
 		public int											ConsensusTransactionsOverflowRound;
 
@@ -56,11 +55,8 @@ namespace Uccs.Net
 
 		public Dictionary<AccountEntry, long>				BYRewards = [];
 		public Dictionary<AccountEntry, long>				ECRewards = [];
-		//public Dictionary<AccountEntry, Money>			MRRewards = [];
-		//public Money										Emission;
-		//public Money										RentPerBytePerDay;
-		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
-		public List<Member>									Members = new();
+		public List<Generator>								Candidates = new();
+		public List<Generator>								Members = new();
 		public List<AccountAddress>							Funds;
 #if ETHEREUM
 		public List<Immission>								Emissions;
@@ -71,6 +67,7 @@ namespace Uccs.Net
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextDomainIds;
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
+		public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 
 		public Mcv											Mcv;
 		public McvZone										Zone => Mcv.Zone;
@@ -89,9 +86,9 @@ namespace Uccs.Net
 				if(VotesOfTry.Count() < MinimumForConsensus)
 					return false;
 
-				var voters = Voters;
+				var voters = Voters.ToArray();
 			
-				return MajorityByParentHash.Count(i => voters.Any(v => v.Account == i.Generator)) >= MinimumForConsensus;
+				return MajorityByParentHash.Count(i => voters.Any(v => v.Address == i.Generator)) >= MinimumForConsensus;
 			}
 		}
 
@@ -150,18 +147,45 @@ namespace Uccs.Net
 			return a;
 		}
 
+		public Generator AffectCandidate(EntityId id)
+		{
+			if(AffectedCandidates.TryGetValue(id, out Generator a))
+				return a;
+
+			if(Id > 0 && Candidates == Previous.Candidates)
+			{
+				Candidates = Previous.Candidates.ToList();
+			}
+
+			var c = Candidates.Find(i => i.Id == id);
+
+			if(c == null)
+			{
+				c = AffectedCandidates[id] = Mcv.CreateGenerator();
+				Candidates.Add(c);
+			}
+			else
+			{
+				Candidates.Remove(c);
+				c = AffectedCandidates[id] = c.Clone();
+				Candidates.Add(c);
+			}
+
+			return c;
+		}
+
 		public virtual void Elect(Vote[] votes, int gq)
 		{
 		}
 
 		public byte[] Summarize()
 		{
-			var voters = Id < Mcv.DeclareToGenerateDelay ? [] : Voters;
+			var voters = Id < Mcv.JoinToVote ? [] : Voters;
 			var min = VotesMinimumOf(voters.Count());
 			var all = VotesOfTry.ToArray();
-			var s = Id < Mcv.DeclareToGenerateDelay ? [] : Selected.ToArray();
+			var s = Id < Mcv.JoinToVote ? [] : Selected.ToArray();
 						
-			ConsensusExecutionFee				= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
+			ConsensusExecutionFee				= Id == 0 ? 0 : (Previous.Id == 0 ? 1 : Previous.ConsensusExecutionFee);
 			ConsensusTransactionsOverflowRound	= Id == 0 ? 0 : Previous.ConsensusTransactionsOverflowRound;
 
 			var tn = all.Sum(i => i.Transactions.Length);
@@ -220,7 +244,7 @@ namespace Uccs.Net
 			if(Id >= Mcv.P)
 			{
 				ConsensusMemberLeavers = s.SelectMany(i => i.MemberLeavers).Distinct()
-										  .Where(x => Members.Any(j => j.Account == x) && s.Count(b => b.MemberLeavers.Contains(x)) >= min)
+										  .Where(x => Members.Any(j => j.Id == x) && s.Count(b => b.MemberLeavers.Contains(x)) >= min)
 										  .Order().ToArray();
 
 				ConsensusViolators = s.SelectMany(i => i.Violators).Distinct()
@@ -243,22 +267,23 @@ namespace Uccs.Net
 			return Hash;
 		}
 		
-		public IEnumerable<AccountAddress> ProposeViolators()
+		public IEnumerable<EntityId> ProposeViolators()
 		{
-			var g = Id > Mcv.P ? Voters : [];
-			var gv = VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			//var g = Id > Mcv.P ? Voters : [];
+			//var gv = VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			//
+			//return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
 
-			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+			return Forkers.Select(i => Mcv.Accounts.Find(i, Previous.Id).Id);
 		}
 
-		public IEnumerable<AccountAddress> ProposeMemberLeavers(AccountAddress generator)
+		public IEnumerable<EntityId> ProposeMemberLeavers(AccountAddress generator)
 		{
 			var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
-			var l = Parent.Voters.Where(i => i.CastingSince <= ParentId &&/// in previous Pitch number of rounds
-											!Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// did not sent a vote
-											!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
-								.Select(i => i.Account);
+			var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
+											!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
+								.Select(i => i.Id);
 
 // 			if(l.Any())
 // 			{
@@ -292,6 +317,7 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 					o.Error = null;
 
+			Candidates					= Id == 0 ? new()																					: Previous.Candidates;
 			Members						= Id == 0 ? new()																					: Previous.Members;
 			Funds						= Id == 0 ? new()																					: Previous.Funds;
 			NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Zone.BandwidthAllocationDaysMaximum + 1).Select(i => 0L).ToArray()	: Previous.NextBandwidthAllocations.ToArray();
@@ -312,6 +338,7 @@ namespace Uccs.Net
 
 			BYRewards.Clear();
 			ECRewards.Clear();
+			AffectedCandidates.Clear();
 			AffectedAccounts.Clear();
 
 			RestartExecution();
@@ -376,12 +403,6 @@ namespace Uccs.Net
 						o.Error = Operation.NotEnoughBY;
 						goto start;
 					}
-					
-					if(s.MRBalance < 0)
-					{
-						o.Error = Operation.NotEnoughMR;
-						goto start;
-					}
 				}
 
 				if(t.Generator.Ei != -1)
@@ -428,6 +449,7 @@ namespace Uccs.Net
 
 			///Last365BaseDeltas		= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
 			///PreviousDayBaseSize		= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
+			//Candidates			= Candidates.ToList();
 			Members				= Members.ToList();
 			Funds				= Funds.ToList();
 			#if IMMISION
@@ -466,43 +488,55 @@ namespace Uccs.Net
 				#endif
 			}
 
-			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Account == i)))
+			foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 			{
-				AffectAccount(i.Account).AverageUptime = 0;
+				AffectAccount(i.Address).AverageUptime = 0;
 				Members.Remove(i);
 			}
 
-			foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Account == i)))
+			foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
 			{
-				var a = AffectAccount(i.Account);
-				a.MRBalance += i.Pledge;
+				var a = AffectAccount(i.Address);
+				//a.MRBalance += i.Pledge;
 				a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 				Members.Remove(i);
 			}
 
-			var cds = ConsensusTransactions	.Where(i => !ConsensusViolators.Contains(i.Signer) && !ConsensusMemberLeavers.Contains(i.Signer))
-											.SelectMany(i => i.Operations)
-											.OfType<CandidacyDeclaration>()
-											.ToList();
+// 			var cds = ConsensusTransactions	.Where(i => !ConsensusViolators.Contains(AffectedAccounts[i.Signer].Id) && !ConsensusMemberLeavers.Contains(AffectedAccounts[i.Signer].Id))
+// 											.SelectMany(i => i.Operations)
+// 											.OfType<CandidacyDeclaration>()
+// 											.ToList();
+// 
+// 			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
+// 								.Select(i => i.MaxBy(i => i.Pledge))
+// 								.OrderByDescending(i => i.Signer.AverageUptime)
+// 								.ThenBy(i => i.Pledge)
+// 								.ThenBy(i => i.Transaction.Signer)
+// 								.Take(Mcv.Zone.MembersLimit - Members.Count))
+// 			{
+// 
+// 				Members.Add(Mcv.CreateMember(this, i));
+// 				cds.Remove(i);
+// 			}
 
-			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
-								.Select(i => i.MaxBy(i => i.Pledge))
-								.OrderByDescending(i => i.Signer.AverageUptime)
-								.ThenBy(i => i.Pledge)
-								.ThenBy(i => i.Transaction.Signer)
-								.Take(Mcv.Zone.MembersLimit - Members.Count))
+			foreach(var i in Candidates	.Where(i => i.Registered == ConsensusTime)
+										.OrderByHash(i => i.Address.Bytes, Hash)
+										.Take(Mcv.Zone.MembersLimit - Members.Count).ToArray())
 			{
-
-				Members.Add(Mcv.CreateMember(this, i));
-				cds.Remove(i);
+				var c = AffectCandidate(i.Id);
+				
+				c.CastingSince = Id + Mcv.JoinToVote;
+				
+				Candidates.Remove(c);
+				Members.Add(c);
 			}
 
-			Members = Members.OrderByXor(Hash).ToList();
+			Members = Members.OrderByHash(i => i.Address.Bytes, Hash).ToList();
 
-			foreach(var i in cds) /// refund the rest
-			{
-				AffectAccount(i.Transaction.Signer).MRBalance += i.Pledge;
-			}
+// 			foreach(var i in cds) /// refund the rest
+// 			{
+// 				AffectAccount(i.Transaction.Signer).MRBalance += i.Pledge;
+// 			}
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 			Funds.AddRange(ConsensusFundJoiners);
@@ -560,11 +594,10 @@ namespace Uccs.Net
 			{
 				NextBandwidthAllocations = NextBandwidthAllocations.Skip(1).Append(0).ToArray();
 
-				foreach(var i in Members./*Where(i => i.CastingSince <= tail.First().Id).*/Select(i => AffectAccount(i.Account)))
+				foreach(var i in Members./*Where(i => i.CastingSince <= tail.First().Id).*/Select(i => AffectAccount(i.Address)))
 				{
 					i.ECBalanceAdd(new ExecutionReservation (ConsensusTime + Zone.ECLifetime, Zone.ECDayEmission / Members.Count));
 					i.BYBalance += Zone.BYDayEmission / Members.Count;
-					i.MRBalance += Zone.MRDayEmission / Members.Count;
 				}
 
 				///long s = Mcv.Size;
@@ -617,9 +650,9 @@ namespace Uccs.Net
 			
 			//writer.Write(Emission);
 			writer.Write(Funds);
-#if ETHEREUM
+			#if ETHEREUM
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
-#endif
+			#endif
 		}
 
 		public virtual void ReadBaseState(BinaryReader reader)
@@ -637,6 +670,7 @@ namespace Uccs.Net
 			
 			//Emission							= reader.Read<Money>();
 			Funds								= reader.ReadList<AccountAddress>();
+
 			#if ETHEREUM
 			Emissions							= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
 			#endif
@@ -648,9 +682,9 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt64(ConsensusExecutionFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			writer.Write(ConsensusMemberLeavers);
+			writer.Write(ConsensusViolators);
 			writer.Write(ConsensusFundJoiners);
 			writer.Write(ConsensusFundLeavers);
-			writer.Write(ConsensusViolators);
 			writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		}
 
@@ -659,10 +693,10 @@ namespace Uccs.Net
 			ConsensusTime						= reader.Read<Time>();
 			ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
-			ConsensusMemberLeavers				= reader.ReadArray<AccountAddress>();
+			ConsensusMemberLeavers				= reader.ReadArray<EntityId>();
+			ConsensusViolators					= reader.ReadArray<EntityId>();
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();
 			ConsensusFundLeavers				= reader.ReadArray<AccountAddress>();
-			ConsensusViolators					= reader.ReadArray<AccountAddress>();
 			ConsensusTransactions				= reader.Read(() =>	new Transaction {Mcv = Mcv, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 

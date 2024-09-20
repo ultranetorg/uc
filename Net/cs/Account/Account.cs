@@ -34,7 +34,6 @@
 		public AccountAddress				Address { get; set; }
 		public List<ExecutionReservation>	ECBalance { get; set; }
 		public long							BYBalance { get; set; }
-		public long							MRBalance { get; set; }
 		public int							LastTransactionNid { get; set; } = -1;
 		public int							LastEmissionId  { get; set; } = -1;
 		public long							AverageUptime { get; set; }
@@ -134,7 +133,6 @@
 			writer.Write(Address);
 			writer.Write(ECBalance);
 			writer.Write7BitEncodedInt64(BYBalance);
-			writer.Write7BitEncodedInt64(MRBalance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
 			writer.Write7BitEncodedInt64(AverageUptime);
@@ -155,7 +153,6 @@
 			Address				= reader.ReadAccount();
 			ECBalance 			= reader.ReadList<ExecutionReservation>();
 			BYBalance 			= reader.Read7BitEncodedInt64();
-			MRBalance 			= reader.Read7BitEncodedInt64();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
 			AverageUptime		= reader.Read7BitEncodedInt64();

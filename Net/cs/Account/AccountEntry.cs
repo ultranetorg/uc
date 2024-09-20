@@ -27,7 +27,6 @@
 											Address					= Address,
 											BYBalance				= BYBalance,
 											ECBalance				= ECBalance.ToList(),
-											MRBalance				= MRBalance,
 											LastTransactionNid		= LastTransactionNid,
 											LastEmissionId			= LastEmissionId,
 											

@@ -16,10 +16,10 @@
 		public int					Try; /// TODO: revote if consensus not reached
 		public Time					Time;
 		public byte[]				ParentHash;
-		public AccountAddress[]		MemberLeavers = {};
+		public EntityId[]			MemberLeavers = {};
 		///public AccountAddress[]		FundJoiners = {};
 		///public AccountAddress[]		FundLeavers = {};
-		public AccountAddress[]		Violators = {};
+		public EntityId[]			Violators = {};
 		public Transaction[]		Transactions = {};
 		public byte[]				Signature { get; set; }
 
@@ -132,10 +132,10 @@
 			Time				= reader.Read<Time>();
 			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
-			MemberLeavers		= reader.ReadArray<AccountAddress>();
+			MemberLeavers		= reader.ReadArray<EntityId>();
 			///FundJoiners			= reader.ReadArray<AccountAddress>();
 			///FundLeavers			= reader.ReadArray<AccountAddress>();
-			Violators			= reader.ReadArray<AccountAddress>();
+			Violators			= reader.ReadArray<EntityId>();
 
 			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction {Zone = Mcv.Zone, Mcv = Mcv, Vote = this};

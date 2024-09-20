@@ -6,17 +6,16 @@
 		public long				BYAmount;
 		public long				ECAmount;
 		public Time				ECExpiration;
-		public long				MRAmount;
 		public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(ECAmount > 0 ? ECAmount + " EC" : null), 
 																							  (BYAmount > 0 ? BYAmount + " BY" : null),
-																							  (MRAmount > 0 ? MRAmount + " MR" : null)}.Where(i => i != null))} -> {To}";
-		public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECAmount > 0 || MRAmount > 0 ;
+																							  }.Where(i => i != null))} -> {To}";
+		public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECAmount > 0;
 
 		public UnitTransfer()
 		{
 		}
 
-		public UnitTransfer(AccountAddress to, long ec, Time expiration, long by, long mr)
+		public UnitTransfer(AccountAddress to, long ec, Time expiration, long by)
 		{
 			if(to == null)
 				throw new RequirementException("Destination account is null or invalid");
@@ -25,7 +24,6 @@
 			ECAmount	= ec;
 			ECExpiration= expiration;
 			BYAmount	= by;
-			MRAmount	= mr;
 		}
 
 		public override void ReadConfirmed(BinaryReader r)
@@ -34,7 +32,6 @@
 			ECAmount		= r.Read7BitEncodedInt64();
 			ECExpiration	= r.Read<Time>();
 			BYAmount		= r.Read7BitEncodedInt64();
-			MRAmount		= r.Read7BitEncodedInt64();
 		}
 
 		public override void WriteConfirmed(BinaryWriter w)
@@ -43,7 +40,6 @@
 			w.Write7BitEncodedInt64(ECAmount);
 			w.Write(ECExpiration);
 			w.Write7BitEncodedInt64(BYAmount);
-			w.Write7BitEncodedInt64(MRAmount);
 		}
 
 		public override void Execute(Mcv chain, Round round)
@@ -77,7 +73,6 @@
 				}
 
 				Signer.BYBalance -= BYAmount;
-				Signer.MRBalance -= MRAmount;
 			}
 
 			var to = Affect(round, To);
@@ -88,8 +83,6 @@
 				to.ECBalanceAdd(d);
 
 			to.BYBalance += BYAmount;
-			to.MRBalance += MRAmount;
-
 		}
 	}
 }

@@ -158,8 +158,9 @@ namespace Uccs.Net
  		public Cryptography		Cryptography									= Cryptography.Normal;
 		public int				CommitLength									= 1000;
 		public int				ExternalVerificationRoundDurationLimit			= 1000;
-		public long				PledgeMin										= 1;
+		//public long				PledgeMin										= 1;
 		public bool				PoW												= false;
+		public int				CandidatesMaximum									= 1000_0000;
 		public int				MembersLimit									= 1000;
 		//public Money			ExeunitMinFee									= 0.001;
 		//public long			TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
@@ -171,7 +172,6 @@ namespace Uccs.Net
 		public long				ECDayEmission									=> ECPerRoundLimit * IdealRoundsPerDay;
 		public long				BYDayEmission									= 1024L * IdealRoundsPerDay;
 		//public Unit				ECCommitRewardOperationCountBelowTrigger	=> OperationsPerRoundLimit;
-		public long				MRDayEmission									= 1000;
 		
 		public int				BandwidthAllocationDaysMaximum					=> 365;
 		public int				BandwidthAllocationPerDayMaximum				=> ECPerRoundLimit * IdealRoundsPerDay / 2; /// 50%

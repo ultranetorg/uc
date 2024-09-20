@@ -18,7 +18,7 @@
 
 	public class McvSettings : NodeSettings
 	{
-		public long						Pledge { get; set; }
+		//public long						Pledge { get; set; }
 		public AccountAddress[]			Generators { get; set; } = [];
 		//public List<AccountAddress>	ProposedFundJoiners = new();
 		//public List<AccountAddress>	ProposedFundLeavers = new();

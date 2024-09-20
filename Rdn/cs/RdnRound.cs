@@ -177,7 +177,8 @@
 		{
 			base.WriteBaseState(writer);
 
-			writer.Write(Members, i => i.WriteBaseState(writer));
+			writer.Write(Candidates, i => i.WriteCandidate(writer));  
+			writer.Write(Members, i => i.WriteMember(writer));  
 			writer.Write(Migrations, i => i.WriteBaseState(writer));
 		}
 
@@ -185,7 +186,8 @@
 		{
 			base.ReadBaseState(reader);
 
-			Members		= reader.Read<RdnMember>(m => m.ReadBaseState(reader)).Cast<Member>().ToList();
+			Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
+			Members		= reader.Read<RdnGenerator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
 			Migrations	= reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
 		}
 

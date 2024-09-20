@@ -24,16 +24,16 @@ namespace Uccs.Net.FUI
 			{
 				foreach(var i in Mcv.LastConfirmedRound.Members)
 				{
-					var li = Generators.Items.Add(i.Account.ToString());
+					var li = Generators.Items.Add(i.Address.ToString());
 		
-					if(Mcv.Settings.Generators.Contains(i.Account))
+					if(Mcv.Settings.Generators.Contains(i.Address))
 					{
 						li.Font = Bold;
 					}
 		
 					li.Tag = i;
 					li.SubItems.Add(i.CastingSince.ToString());
-					li.SubItems.Add(i.Pledge.ToString());
+					//li.SubItems.Add(i.Pledge.ToString());
 					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 			}
@@ -68,7 +68,7 @@ namespace Uccs.Net.FUI
 			{
 				lock(Node.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Member).BaseRdcIPs)
+					foreach(var i in (e.Item.Tag as Generator).BaseRdcIPs)
 					{
 						var bli = BaseRdcIPs.Items.Add(i.ToString());
 					}

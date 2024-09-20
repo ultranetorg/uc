@@ -288,7 +288,7 @@ namespace Uccs.Rdn
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<RdnMember, Dictionary<LocalResource, LocalRelease>>();
+				var ds = new Dictionary<RdnGenerator, Dictionary<LocalResource, LocalRelease>>();
 				var us = new List<LocalResource>();
 
 				lock(Lock)
@@ -308,11 +308,13 @@ namespace Uccs.Rdn
 	
 							if(l != null && l.Availability != Availability.None)
 							{
-								foreach(var m in cr.Members.OrderByXor(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
-																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																		})
-																															.Cast<RdnMember>())
+								foreach(var m in cr.Members	.OrderByHash(i => i.Address.Bytes, l.Address.MemberOrderKey)
+															.Take(MembersPerDeclaration)
+															.Where(m =>	{
+																			var d = l.DeclaredOn.Find(dm => dm.Member.Address == m.Address);
+																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																		})
+															.Cast<RdnGenerator>())
 								{
 									var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
 									rss[r] = l;
@@ -366,7 +368,7 @@ namespace Uccs.Rdn
 					{
 						foreach(var r in i.Value.Select(i => i.Value))
 						{
-							var d = r.DeclaredOn.Find(j => j.Member.Account == i.Key.Account);
+							var d = r.DeclaredOn.Find(j => j.Member.Address == i.Key.Address);
 
 							if(d == null)
 								r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
@@ -396,7 +398,7 @@ namespace Uccs.Rdn
 													{
 														foreach(var r in drr.Results)
 														{	
-															var x = Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account);
+															var x = Find(r.Address).DeclaredOn.Find(j => j.Member.Address == i.Key.Address);
 
 															if(r.Result == DeclarationResult.Accepted)
 																x.Status = DeclarationStatus.Accepted;
@@ -409,10 +411,10 @@ namespace Uccs.Rdn
 																Find(r.Address).DeclaredOn.Remove(x);
 														}
 
-														tasks.Remove(i.Key.Account);
+														tasks.Remove(i.Key.Address);
 													}
 												});
-						tasks[i.Key.Account] = t;
+						tasks[i.Key.Address] = t;
 					}
 				}
 					

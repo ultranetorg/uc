@@ -35,7 +35,7 @@
 
 													var rp = Rdc(new MembersRequest());
 	
-													var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args[0].Name));
+													var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
 
 													if(m == null)
 														throw new EntityException(EntityError.NotFound);

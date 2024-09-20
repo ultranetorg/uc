@@ -18,6 +18,6 @@
 
 	public class MembersResponse : PeerResponse
 	{
-		public Member[] Members { get; set; }
+		public Generator[] Members { get; set; }
 	}
 }

@@ -165,7 +165,6 @@ namespace Uccs.Net
 							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
 							f.Add(new ("   BY", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
 							f.Add(new ("   EC", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.GetECBalance(mcv.Mcv.LastConfirmedRound.ConsensusTime).ToString()}"));
-							f.Add(new ("   MR", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.MRBalance.ToString()}"));
 						}
 					}
 				}

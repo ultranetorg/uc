@@ -107,7 +107,7 @@ namespace Uccs.Net.FUI
 				LoadOperations(txs.SelectMany(i => i.Operations));
 
 				if(r.Id > 0)
-					MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Account == j.Account)).Select(i => new ListViewItem(i.ToString())).ToArray());
+					MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Address == j.Address)).Select(i => new ListViewItem(i.ToString())).ToArray());
 				MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 				Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 

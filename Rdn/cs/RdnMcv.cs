@@ -50,12 +50,9 @@ namespace Uccs.Rdn
 
 		public override string CreateGenesis(AccountKey god, AccountKey f0)
 		{
-			/// 0 - emission request
-			/// 1 - vote for emission 
-			/// 1+P	 - emited
-			/// 1+P + 1 - candidacy declaration
-			/// 1+P + 1+P - decalared
-			/// 1+P + 1+P + P - joined
+			/// 0	- declare F0
+			/// P	- confirmed F0 membership
+			/// P+P	- F0 start voting for P+P-P-1 = P-1
 
 			Clear();
 
@@ -64,7 +61,7 @@ namespace Uccs.Rdn
 
 			void write(int rid)
 			{
-				var r = FindRound(rid);
+				var r = GetRound(rid);
 				r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 				r.Hashify();
 				r.Write(w);
@@ -78,10 +75,14 @@ namespace Uccs.Rdn
 
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
-				//t.EUFee = 1;
-				//t.AddOperation(new Immission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new UnitTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission, 1000));
+				t.AddOperation(new UnitTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission));
 				t.Sign(god, Zone.Cryptography.ZeroHash);
+				v0.AddTransaction(t);
+
+				t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
+				t.Generator = new([0, 0], -1);
+				t.AddOperation(new RdnCandidacyDeclaration {BaseRdcIPs = [Zone.Father0IP], SeedHubRdcIPs = [Zone.Father0IP] });
+				t.Sign(f0, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 			
 				v0.Sign(god);
@@ -89,40 +90,15 @@ namespace Uccs.Rdn
 				///v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
 				write(0);
 			}
-			
-			var v1 = CreateVote(); 
+	
+			for(int i = 1; i <= LastGenesisRound; i++)
 			{
-				v1.RoundId = 1; 
-				v1.Time = Time.Zero; 
-				v1.ParentHash = Zone.Cryptography.ZeroHash;
-
-				GenesisCreate(v1);
-	
-				v1.Sign(god);
-				Add(v1);
-				write(1);
-			}
-	
-			for(int i = 2; i <= 1+P + 1+P + P; i++)
-			{
-				var v = CreateVote(); 	
-				v.RoundId		= i;
-				v.Time			= Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-				v.ParentHash	= i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize();
-		 
-				if(i == 1+P + 1)
-				{
-					var t = new Transaction {Zone = Zone, Nid = 0, Expiration = i};
-					t.Generator = new([0, 0], -1);
-					//t.EUFee = 1;
-					t.AddOperation(new RdnCandidacyDeclaration  {Pledge = 0,
-																 BaseRdcIPs = [Zone.Father0IP],
-																 SeedHubRdcIPs = [Zone.Father0IP] });
-					t.Sign(f0, Zone.Cryptography.ZeroHash);
-					v.AddTransaction(t);
-				}
-	
-				v.Sign(god);
+				var v = CreateVote();
+				v.RoundId	 = i;
+				v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+				v.ParentHash = i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize();
+		
+				v.Sign(i < JoinToVote ? god : f0);
 				Add(v);
 
 				write(i);
@@ -186,18 +162,22 @@ namespace Uccs.Rdn
 			return new RdnVote(this);
 		}
 
-		public override Member CreateMember(Round round, CandidacyDeclaration declaration)
+		//public override Candidate CreateCandidate(Round round, CandidacyDeclaration declaration)
+		//{
+		//	return new RdnCandidate{Registered		= round.ConsensusTime,
+		//							Account			= declaration.Signer.Id,
+		//							BaseRdcIPs		= declaration.BaseRdcIPs, 
+		//							SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
+		//}
+
+		public override Generator CreateGenerator()
 		{
-			return new RdnMember{CastingSince	= round.Id + DeclareToGenerateDelay,
-								 Pledge			= declaration.Pledge,
-								 Account		= declaration.Transaction.Signer, 
-								 BaseRdcIPs		= declaration.BaseRdcIPs, 
-								 SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
+			return new RdnGenerator();
 		}
 
 		public override CandidacyDeclaration CreateCandidacyDeclaration()
 		{
-			return new RdnCandidacyDeclaration {Pledge			= Settings.Pledge,
+			return new RdnCandidacyDeclaration {//Pledge			= Settings.Pledge,
 												BaseRdcIPs		= [Settings.Peering.IP],
 												SeedHubRdcIPs	= [Settings.Peering.IP]};
 

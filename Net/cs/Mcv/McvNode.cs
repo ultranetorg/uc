@@ -32,7 +32,6 @@ namespace Uccs.Net
 		NodeDelegate								SynchronizationChanged;
 		Thread										SynchronizingThread;
 		public Dictionary<int, List<Vote>>			SyncTail = new();
-		Dictionary<AccountAddress, Transaction>		LastCandidacyDeclaration = new();
 
 		public List<Transaction>					IncomingTransactions = new();
 		public List<Transaction>					OutgoingTransactions = new();
@@ -311,7 +310,7 @@ namespace Uccs.Net
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
 	
-								if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Base.Chain != null || Mcv.FindRound(r.VotersRound) != null))
+								if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Base.Chain != null || Mcv.FindRound(r.VotersId) != null))
 								{
 									var p =	SyncTail[rid];
 									var c =	SyncTail[rid + Mcv.P];
@@ -474,7 +473,7 @@ namespace Uccs.Net
 
 				var r = Mcv.GetRound(v.RoundId);
 
-				if(!r.Voters.Any(i => i.Account == v.Generator))
+				if(!r.Voters.Any(i => i.Address == v.Generator))
 					return false;
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
@@ -501,7 +500,7 @@ namespace Uccs.Net
 					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit)
 						return false;
 
-					if(v.Transactions.Any(t => r.Voters.NearestBy(m => m.Account, t.Signer).Account != v.Generator))
+					if(v.Transactions.Any(t => r.Voters.NearestBy(m => m.Address, t.Signer).Address != v.Generator))
 						return false;
 				}
 
@@ -528,15 +527,18 @@ namespace Uccs.Net
 
 			foreach(var g in Mcv.Settings.Generators)
 			{
-				var m = Mcv.NextVoteMembers.FirstOrDefault(i => i.Account == g);
+				var ge = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
+
+				if(ge == null)
+					continue;
+
+				var m = Mcv.NextVoteMembers.Find(i => i.Id == ge.Id);
 
 				if(m == null)
 				{
-					m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == g);
+					m = Mcv.LastConfirmedRound.Candidates.Find(i => i.Id == ge.Id && i.Registered == Mcv.LastConfirmedRound.ConsensusTime);
 
-					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
-
-					if(m == null && a != null && a.MRBalance >= Mcv.Settings.Pledge && (!LastCandidacyDeclaration.TryGetValue(g, out var dt) || dt.Status > TransactionStatus.Placed))
+					if(m == null && !OutgoingTransactions.Any(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration)))
 					{
 						var t = new Transaction();
 						t.Flow = Flow;
@@ -547,21 +549,16 @@ namespace Uccs.Net
 						t.AddOperation(Mcv.CreateCandidacyDeclaration());
 
 			 			Transact(t);
-
-						LastCandidacyDeclaration[g] = t;
 					}
 				}
 				else
 				{
-					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
-						OutgoingTransactions.Remove(lcd);
-
 					var r = Mcv.NextVoteRound;
 
 					if(r.Id < m.CastingSince)
 						continue;
 
-					if(r.VotesOfTry.Any(i => i.Generator == g) || !r.Voters.Any(i => i.Account == g))
+					if(r.VotesOfTry.Any(i => i.Generator == g) || !r.Voters.Any(i => i.Id == ge.Id))
 						continue;
 
 					Vote createvote(Round r)
@@ -609,7 +606,7 @@ namespace Uccs.Net
 																						return true;
 																					}
 
-																					var nearest = r.Voters.NearestBy(m => m.Account, t.Signer).Account;
+																					var nearest = r.Voters.NearestBy(m => m.Address, t.Signer).Address;
 
 																					if(nearest != g)
 																						return true;
@@ -666,7 +663,7 @@ namespace Uccs.Net
 						}
 					}
 
- 					while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+ 					while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
  					{
  						r = r.Previous;
  
@@ -763,6 +760,7 @@ namespace Uccs.Net
 
 			MainWakeup.Set();
 		}
+
 		void Transacting()
 		{
 			//IEnumerable<Transaction>	accepted;
@@ -783,7 +781,7 @@ namespace Uccs.Net
 
 				IPeer getrdi(AccountAddress account)
 				{
-					var m = members.NearestBy(i => i.Account, account);
+					var m = members.NearestBy(i => i.Address, account);
 
 					if(m.BaseRdcIPs.Contains(Settings.Peering.IP))
 						return this;
@@ -803,7 +801,7 @@ namespace Uccs.Net
 
 				foreach(var g in nones)
 				{
-					var m = members.NearestBy(i => i.Account, g.Key);
+					var m = members.NearestBy(i => i.Address, g.Key);
 
 					//AllocateTransactionResponse at = null;
 					IPeer rdi; 
@@ -841,7 +839,7 @@ namespace Uccs.Net
 							else
 								nid++;
 
-							t.Generator	 = at.Generetor;
+							t.Generator	 = at.Generator;
 							#if IMMISSION
 								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 							#endif
@@ -878,41 +876,44 @@ namespace Uccs.Net
 						}
 					}
 
-					IEnumerable<byte[]> atxs = null;
-
-					try
+					if(txs.Any())
 					{
-						atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = txs.ToArray()}).Accepted;
-					}
-					catch(NodeException)
-					{
-						Thread.Sleep(1000);
-						continue;
-					}
+						IEnumerable<byte[]> atxs = null;
 
-					lock(Lock)
-						foreach(var t in txs)
-						{ 
-							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
-							{
-								t.Status = TransactionStatus.Accepted;
-								//t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted} by Member={m}");
-							}
-							else
-							{
-								//t.Flow.Log?.Report(this, $"{t.Status} by Member={m}");
+						try
+						{
+							atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = txs.ToArray()}).Accepted;
+						}
+						catch(NodeException)
+						{
+							Thread.Sleep(1000);
+							continue;
+						}
 
-								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+						lock(Lock)
+							foreach(var t in txs)
+							{ 
+								if(atxs.Any(s => s.SequenceEqual(t.Signature)))
 								{
-									t.Status = TransactionStatus.FailedOrNotFound;
-									OutgoingTransactions.Remove(t);
-								} 
+									t.Status = TransactionStatus.Accepted;
+									//t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted} by Member={m}");
+								}
 								else
 								{
-									t.Status = TransactionStatus.None;
+									//t.Flow.Log?.Report(this, $"{t.Status} by Member={m}");
+
+									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+									{
+										t.Status = TransactionStatus.FailedOrNotFound;
+										OutgoingTransactions.Remove(t);
+									} 
+									else
+									{
+										t.Status = TransactionStatus.None;
+									}
 								}
 							}
-						}
+					}
 				}
 
 				Transaction[] accepted;

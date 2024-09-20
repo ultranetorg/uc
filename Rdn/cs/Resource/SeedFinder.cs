@@ -71,7 +71,7 @@ namespace Uccs.Rdn
 
 		Thread						Thread;
 		DateTime					MembersRefreshed = DateTime.MinValue;
-		RdnMember[]					Members;
+		RdnGenerator[]					Members;
 
 		public SeedFinder(RdnNode sun, Urr address, Flow flow)
 		{
@@ -94,15 +94,15 @@ namespace Uccs.Rdn
 		
 														lock(Lock)
 														{
-															var nearest = Members.OrderByXor(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnMember>();
+															var nearest = Members.OrderByHash(i => i.Address.Bytes, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
 			
 															for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
 															{
-																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
+																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
 														
 												 				if(h != null)
 																{
-																	hlast = new Hub(this, address, h.Account, h.SeedHubRdcIPs);
+																	hlast = new Hub(this, address, h.Address, h.SeedHubRdcIPs);
 																	Hubs.Add(hlast);
 																}
 																else

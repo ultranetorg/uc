@@ -50,7 +50,7 @@ namespace Uccs.Net.FUI
 												{
 													i.SubItems[1].Text = e?.BYBalance.ToString() ?? "..."; 
 													i.SubItems[2].Text = e?.ECBalance.ToString() ?? "..."; 
-													i.SubItems[3].Text = e?.MRBalance.ToString() ?? "..."; 
+													i.SubItems[3].Text = null; 
 													i.SubItems[1].Tag = false;
 												});
 									});

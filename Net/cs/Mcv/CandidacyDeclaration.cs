@@ -4,49 +4,56 @@ namespace Uccs.Net
 {
 	public abstract class CandidacyDeclaration : Operation
 	{
-		public long				Pledge;
 		public IPAddress[]		BaseRdcIPs;
-		public override string	Description => $"{Pledge} UNT";
-		public override bool	IsValid(Mcv mcv) => Pledge >= Transaction.Zone.PledgeMin;
-		
+
+		public override string	Description => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
+				
+		protected Generator		Affected;
+
 		public CandidacyDeclaration()
 		{
 		}
 
+		public override bool IsValid(Mcv mcv) => true;
+
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Pledge		= reader.Read7BitEncodedInt64();
-			BaseRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+			BaseRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt64(Pledge);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(round.Members.Any(i => i.Account == Signer.Address))
+			if(round.Candidates.Count(i => i.Registered == round.ConsensusTime) >= mcv.Zone.CandidatesMaximum)
 			{
-				Error = "Changing candidacy declaration is not allowed while being a member";
+				Error = "Limit reached";
 				return;
 			}
-						
-			Signer.MRBalance -= Pledge;
 
-			//var e = Affect(round, Signer);
+			if(round.Members.Any(i => i.Id == Signer.Id))
+			{
+				Error = "Already member";
+				return;
+			}
 
-			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
+			var c = round.Candidates.Find(i => i.Id == Signer.Id);
 
-			//if(e.BailStatus != BailStatus.Siezed) /// first, return existing if not previously Siezed
-			//	e.Balance += e.Bail;
+			if(c != null && c.Registered == round.ConsensusTime)
+			{
+				Error = "Already registered";
+				return;
+			}
 
-			//e.Balance += e.Bail;
-			//e.Balance -= Bail; /// then, subtract a new bail
-			//e.Bail = Bail;
-			//e.CandidacyDeclarationRid = round.Id;
-			//e.BailStatus = BailStatus.Active;
+			Affected = round.AffectCandidate(Signer.Id);
+			
+			Affected.Id			= Signer.Id;
+			Affected.Address	= Signer.Address;
+			Affected.BaseRdcIPs	= BaseRdcIPs;
+			Affected.Registered	= round.ConsensusTime;
 		}
 	}
 }
