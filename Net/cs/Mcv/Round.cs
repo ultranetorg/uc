@@ -12,9 +12,9 @@ namespace Uccs.Net
 		public Round										Next		=> Mcv.FindRound(Id + 1);
 		public Round										Parent		=> Mcv.FindRound(ParentId);
 		public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
-		public int											PerVoteTransactionsLimit		=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
-		public int											PerVoteOperationsLimit			=> Mcv.Zone.ECPerRoundLimit / Members.Count;
-		public int											PerVoteBandwidthAllocationLimit	=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
+		public long											PerVoteTransactionsLimit		=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
+		public long											PerVoteOperationsLimit			=> Mcv.Zone.ExecutionsCyclesPerRoundMaximum / Members.Count;
+		public long											PerVoteBandwidthAllocationLimit	=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 		public bool											IsLastInCommit => (Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 
@@ -421,7 +421,7 @@ namespace Uccs.Net
 				}
 
 				//s.STBalance -= t.STReward;
-				s.ECBalanceSubtract(t.ECFee);
+				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
 				s.LastTransactionNid++;
 						
 				if(Mcv.Settings.Base?.Chain != null)
@@ -519,6 +519,34 @@ namespace Uccs.Net
 // 				cds.Remove(i);
 // 			}
 
+// 			foreach(var i in Candidates	.Where(i => i.Registered == ConsensusTime)
+// 										.Select(i => Mcv.Accounts.Find(i.Id, Id))
+// 										.OrderByHash(i => i.Address.Bytes, Hash)
+// 										.ToArray())
+// 			{
+// 				var a = AffectAccount(i.Address);
+// 					
+// 				if(a.GetECBalance(ConsensusTime) >= Zone.JoinCost)
+// 				{
+// 					a.ECBalanceSubtract(Zone.JoinCost);
+// 
+// 					var c = AffectCandidate(i.Id);
+// 
+// 					c.CastingSince = Id + Mcv.JoinToVote;
+// 						
+// 					Candidates.Remove(c);
+// 					Members.Add(c);
+// 				}
+// 				else
+// 				{
+// 					var c = AffectCandidate(i.Id);
+// 					Candidates.Remove(c);
+// 				}
+// 
+// 				if(Members.Count == Zone.MembersLimit)
+// 					break;
+// 			}
+
 			foreach(var i in Candidates	.Where(i => i.Registered == ConsensusTime)
 										.OrderByHash(i => i.Address.Bytes, Hash)
 										.Take(Mcv.Zone.MembersLimit - Members.Count).ToArray())
@@ -531,6 +559,7 @@ namespace Uccs.Net
 				Members.Add(c);
 			}
 
+			Candidates.RemoveAll(i => i.Registered != ConsensusTime);
 			Members = Members.OrderByHash(i => i.Address.Bytes, Hash).ToList();
 
 // 			foreach(var i in cds) /// refund the rest

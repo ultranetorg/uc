@@ -75,11 +75,11 @@
 			}
 		}
 
-		public void ECBalanceSubtract(long x)
+		public void ECBalanceSubtract(Time expiration, long x)
 		{
 			int c = 0;
 
-			foreach(var i in ECBalance ?? [])
+			foreach(var i in ECBalance?.Where(i => i.Expiration >= expiration) ?? [])
 			{
 				x -= i.Amount;
 
@@ -100,12 +100,12 @@
 				ECBalance[0] = new (ECBalance[0].Expiration, -x);
 		}
 
-		public List<ExecutionReservation> ECBalanceDelta(long x)
+		public List<ExecutionReservation> ECBalanceDelta(Time expiration, long x)
 		{
 			int c = 0;
 			long a = 0;
 
-			foreach(var i in ECBalance ?? [])
+			foreach(var i in ECBalance?.Where(i => i.Expiration >= expiration) ?? [])
 			{
 				if(a + i.Amount <= x)
 				{

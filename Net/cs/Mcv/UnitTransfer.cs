@@ -68,8 +68,8 @@
 						return;
 					}
 					
-					d = Signer.ECBalanceDelta(ECAmount);
-					Signer.ECBalanceSubtract(ECAmount);
+					d = Signer.ECBalanceDelta(round.ConsensusTime, ECAmount);
+					Signer.ECBalanceSubtract(round.ConsensusTime, ECAmount);
 				}
 
 				Signer.BYBalance -= BYAmount;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 
@@ -157,7 +158,7 @@ namespace Uccs
 			var p = One(paramenter);
 
 			if(p != null)
-				return long.Parse(p.Get<string>());
+				return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -167,7 +168,7 @@ namespace Uccs
 			var p = One(paramenter);
 
 			if(p != null)
-				return int.Parse(p.Get<string>());
+				return int.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -177,7 +178,7 @@ namespace Uccs
 			var p = One(paramenter);
 
 			if(p != null)
-				return int.Parse(p.Get<string>());
+				return int.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 			else
 				return def;
 		}

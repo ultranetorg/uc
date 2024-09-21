@@ -151,34 +151,35 @@ namespace Uccs.Net
 
 	public abstract class McvZone : Zone
 	{
-		public const int		IdealRoundsPerDay								= 60*60*24;
-		public Time				ECLifetime { get; protected set; }				= Time.FromYears(1);
+		public const long		IdealRoundsPerDay						= 60*60*24;
+		public Time				ECLifetime { get; protected set; }		= Time.FromYears(1);
 
 		public string			Genesis;	
- 		public Cryptography		Cryptography									= Cryptography.Normal;
-		public int				CommitLength									= 1000;
-		public int				ExternalVerificationRoundDurationLimit			= 1000;
-		//public long				PledgeMin										= 1;
-		public bool				PoW												= false;
-		public int				CandidatesMaximum									= 1000_0000;
-		public int				MembersLimit									= 1000;
-		//public Money			ExeunitMinFee									= 0.001;
-		//public long			TargetBaseGrowthPerYear							= 100L*1024*1024*1024;
-		public int				TransactionsPerRoundAbsoluteLimit				= 15_000;
-		public int				TransactionsPerRoundExecutionLimit				= 5_000; /// for 5000 tx/s signature recovering
-		public int				TransactionsOverflowFeeFactor					= 2;
-		public int				OperationsPerTransactionLimit					= 100;
-		public int				ECPerRoundLimit									=> TransactionsPerRoundAbsoluteLimit * OperationsPerTransactionLimit;
-		public long				ECDayEmission									=> ECPerRoundLimit * IdealRoundsPerDay;
-		public long				BYDayEmission									= 1024L * IdealRoundsPerDay;
-		//public Unit				ECCommitRewardOperationCountBelowTrigger	=> OperationsPerRoundLimit;
+ 		public Cryptography		Cryptography							= Cryptography.Normal;
+		public int				CommitLength							= 1000;
+		public int				ExternalVerificationRoundDurationLimit	= 1000;
+		//public long				PledgeMin							= 1;
+		public bool				PoW										= false;
+		public int				MembersLimit							= 1000;
+		//public Money			ExeunitMinFee							= 0.001;
+		//public long			TargetBaseGrowthPerYear					= 100L*1024*1024*1024;
+		public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
+		public long				TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
+		public long				TransactionsOverflowFeeFactor			= 2;
+		public int				OperationsPerTransactionLimit			= 100;
+		public long				ExecutionsCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * OperationsPerTransactionLimit;
+		public long				ECDayEmission							=> ExecutionsCyclesPerRoundMaximum * IdealRoundsPerDay;
+		public long				BYDayEmission							= 1024L * IdealRoundsPerDay;
+		public long				ECEmission								=> ECDayEmission * 365;
+		public long				CandidatesMaximum						=> MembersLimit * 100;
+		public long				DeclarationCost							=> 10_000_000;
 		
-		public int				BandwidthAllocationDaysMaximum					=> 365;
-		public int				BandwidthAllocationPerDayMaximum				=> ECPerRoundLimit * IdealRoundsPerDay / 2; /// 50%
-		public int				BandwidthAllocationPerRoundMaximum				=> ECPerRoundLimit / 2; /// 50%
+		public int				BandwidthAllocationDaysMaximum			=> 365;
+		public long				BandwidthAllocationPerDayMaximum		=> ExecutionsCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
+		public long				BandwidthAllocationPerRoundMaximum		=> ExecutionsCyclesPerRoundMaximum / 2; /// 50%
 
-		public AccountAddress	God												= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
-		public AccountAddress	Father0											= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
+		public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
+		public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 		public IPAddress		Father0IP;
 		public ZoneCreation		Creation;
 

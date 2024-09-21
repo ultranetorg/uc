@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 
 namespace Uccs.Rdn.CLI
@@ -162,7 +163,7 @@ namespace Uccs.Rdn.CLI
 			var p = One(paramenter);
 
 			if(p != null)
-				return long.Parse(p.Get<string>());
+				return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -172,7 +173,7 @@ namespace Uccs.Rdn.CLI
 			var p = One(paramenter);
 
 			if(p != null)
-				return long.Parse(p.Get<string>());
+				return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 			else
 				return def;
 		}

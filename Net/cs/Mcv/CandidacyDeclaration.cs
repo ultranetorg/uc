@@ -48,12 +48,21 @@ namespace Uccs.Net
 				return;
 			}
 
+			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Zone.DeclarationCost)
+			{
+				Error = NotEnoughEC;
+				return;
+			}
+
+			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Zone.DeclarationCost);
+
 			Affected = round.AffectCandidate(Signer.Id);
 			
 			Affected.Id			= Signer.Id;
 			Affected.Address	= Signer.Address;
 			Affected.BaseRdcIPs	= BaseRdcIPs;
 			Affected.Registered	= round.ConsensusTime;
+			
 		}
 	}
 }

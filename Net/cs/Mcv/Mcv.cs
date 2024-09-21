@@ -188,7 +188,7 @@ namespace Uccs.Net
 				} 
 				else
 				{
-					for(int i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
+					for(var i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
 					{
 						var r = FindRound(i);
 	
