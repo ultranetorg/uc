@@ -13,7 +13,7 @@ namespace Uccs.Net
 		public Round										Parent		=> Mcv.FindRound(ParentId);
 		public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
 		public long											PerVoteTransactionsLimit		=> Mcv.Zone.TransactionsPerRoundAbsoluteLimit / Members.Count;
-		public long											PerVoteOperationsLimit			=> Mcv.Zone.ExecutionsCyclesPerRoundMaximum / Members.Count;
+		public long											PerVoteOperationsLimit			=> Mcv.Zone.ExecutionCyclesPerRoundMaximum / Members.Count;
 		public long											PerVoteBandwidthAllocationLimit	=> Mcv.Zone.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 		public bool											IsLastInCommit => (Id + 1) % Zone.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 

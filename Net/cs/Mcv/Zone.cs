@@ -160,23 +160,23 @@ namespace Uccs.Net
 		public int				ExternalVerificationRoundDurationLimit	= 1000;
 		//public long				PledgeMin							= 1;
 		public bool				PoW										= false;
-		public int				MembersLimit							= 1000;
+		public int				MembersLimit							= 5000;
 		//public Money			ExeunitMinFee							= 0.001;
 		//public long			TargetBaseGrowthPerYear					= 100L*1024*1024*1024;
 		public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
 		public long				TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
 		public long				TransactionsOverflowFeeFactor			= 2;
-		public int				OperationsPerTransactionLimit			= 100;
-		public long				ExecutionsCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * OperationsPerTransactionLimit;
-		public long				ECDayEmission							=> ExecutionsCyclesPerRoundMaximum * IdealRoundsPerDay;
+		public int				ExecutionCyclesPerTransactionLimit		= 100;
+		public long				ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
+		public long				ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
 		public long				BYDayEmission							= 1024L * IdealRoundsPerDay;
 		public long				ECEmission								=> ECDayEmission * 365;
 		public long				CandidatesMaximum						=> MembersLimit * 100;
-		public long				DeclarationCost							=> 10_000_000;
+		public long				DeclarationCost							=> 1_000_000;
 		
 		public int				BandwidthAllocationDaysMaximum			=> 365;
-		public long				BandwidthAllocationPerDayMaximum		=> ExecutionsCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
-		public long				BandwidthAllocationPerRoundMaximum		=> ExecutionsCyclesPerRoundMaximum / 2; /// 50%
+		public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
+		public long				BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 
 		public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 		public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

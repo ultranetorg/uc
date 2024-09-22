@@ -1014,7 +1014,7 @@ namespace Uccs.Net
 				t.Flow = workflow;
  				t.__ExpectedStatus = await;
 			
-				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))
+				foreach(var i in operations.Take(Zone.ExecutionCyclesPerTransactionLimit))
 				{
 					t.AddOperation(i);
 				}
@@ -1028,7 +1028,7 @@ namespace Uccs.Net
 
 				p.Add(t);
 
-				operations = operations.Skip(Zone.OperationsPerTransactionLimit);
+				operations = operations.Skip(Zone.ExecutionCyclesPerTransactionLimit);
 			}
 
 			return p.ToArray();

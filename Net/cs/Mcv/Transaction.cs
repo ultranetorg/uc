@@ -45,7 +45,7 @@
 		public bool Valid(Mcv mcv)
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
-					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
+					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.ExecutionCyclesPerTransactionLimit &&
 					(!mcv.Zone.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
