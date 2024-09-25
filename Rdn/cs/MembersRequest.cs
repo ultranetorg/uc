@@ -8,10 +8,10 @@
 			{
 				RequireBase();
 			
-				if(Mcv.NextVoteMembers.Count == 0)
+				if(Mcv.NextVoteRound.VotersRound.Members.Count == 0)
 					throw new EntityException(EntityError.NoMembers);
 
-				return new RdnMembersResponse {Members = Mcv.NextVoteMembers.Cast<RdnGenerator>().ToArray()};
+				return new RdnMembersResponse {Members = Mcv.NextVoteRound.VotersRound.Members.Cast<RdnGenerator>().ToArray()};
 			}
 		}
 	}

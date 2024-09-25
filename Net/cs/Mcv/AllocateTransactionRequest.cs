@@ -11,6 +11,9 @@
 				var m = RequireMemberFor(Transaction.Signer);
 
 				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
+
+				if(a == null)
+					throw new EntityException(EntityError.NotFound);
 				
 #if IMMISSION
 				if(!Transaction.EmissionOnly && a == null)

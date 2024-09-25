@@ -53,7 +53,7 @@ namespace Uccs.Net
 		public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 		public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 		public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
-		public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
+		//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
 		public const string							ChainFamilyName = "Chain";
@@ -133,8 +133,12 @@ namespace Uccs.Net
 	
 					if(i < P*2)
 					{
-						r.ConsensusFundJoiners = [Zone.Father0];
-						//r.ConsensusExecutionFee = 1;
+						if(i > 0)
+							r.ConsensusExecutionFee = 1;
+
+						if(i == 0)
+							r.ConsensusFundJoiners = [Zone.Father0];
+						
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
 						GenesisInitilize(r);
@@ -441,7 +445,7 @@ namespace Uccs.Net
 			if(!Monitor.IsEntered(Lock))
 				Debugger.Break();
 
-			var m = NextVoteMembers.NearestBy(m => m.Address, transaction.Signer).Address;
+			var m = NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
 
 			if(!Settings.Generators.Contains(m))
 				return null;

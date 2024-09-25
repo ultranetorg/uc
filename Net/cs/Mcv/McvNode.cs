@@ -17,26 +17,28 @@ namespace Uccs.Net
 
 	public abstract class McvNode : Node
 	{
-		public new McvZone							Zone => base.Zone as McvZone;
-		public Vault								Vault; 
-		public Mcv									Mcv; 
+		public new McvZone									Zone => base.Zone as McvZone;
+		public Vault										Vault; 
+		public Mcv											Mcv; 
 
-		public IEnumerable<Peer>					Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
+		public IEnumerable<Peer>							Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
 
-		bool										MinimalPeersReached;
-		AutoResetEvent								TransactingWakeup = new AutoResetEvent(true);
-		Thread										TransactingThread;
+		bool												MinimalPeersReached;
+		AutoResetEvent										TransactingWakeup = new AutoResetEvent(true);
+		Thread												TransactingThread;
 
-		public Synchronization						Synchronization { set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		Synchronization								_Synchronization = Synchronization.None;
-		NodeDelegate								SynchronizationChanged;
-		Thread										SynchronizingThread;
-		public Dictionary<int, List<Vote>>			SyncTail = new();
+		public Synchronization								Synchronization { set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
+		Synchronization										_Synchronization = Synchronization.None;
+		NodeDelegate										SynchronizationChanged;
+		Thread												SynchronizingThread;
+		public Dictionary<int, List<Vote>>					SyncTail = new();
 
-		public List<Transaction>					IncomingTransactions = new();
-		public List<Transaction>					OutgoingTransactions = new();
+		public List<Transaction>							IncomingTransactions = new();
+		public List<Transaction>							OutgoingTransactions = new();
 
-		public static List<McvNode>					All = new();
+		public static List<McvNode>							All = new();
+
+		List<AccountAddress>								CandidacyDeclarations = [];
 
 		public McvNode(string name, Zone zone, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, zone, nodesettings, flow)
 		{
@@ -465,15 +467,12 @@ namespace Uccs.Net
 			}
 			else if(assynchronized || Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
+				if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
 					return false;
-
-				//if(v.RoundId <= LastVotedRound.Id - Pitch / 2)
-				//	return false;
-
+				
 				var r = Mcv.GetRound(v.RoundId);
-
-				if(!r.Voters.Any(i => i.Address == v.Generator))
+				
+				if(!r.VotersRound.Members.Any(i => i.Address == v.Generator))
 					return false;
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
@@ -500,7 +499,7 @@ namespace Uccs.Net
 					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit)
 						return false;
 
-					if(v.Transactions.Any(t => r.Voters.NearestBy(m => m.Address, t.Signer).Address != v.Generator))
+					if(v.Transactions.Any(t => r.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address != v.Generator))
 						return false;
 				}
 
@@ -516,6 +515,26 @@ namespace Uccs.Net
 			return true;
 		}
 
+		/// <summary>
+		/// 0	declaration
+		/// 1
+		/// 2
+		/// 3
+		/// 4
+		/// 5
+		/// 6
+		/// 7	last confirmed
+		/// 8	declaration voting, first vote for
+		/// 9
+		/// 10
+		/// 11
+		/// 12
+		/// 13
+		/// 14
+		/// 15	
+		/// 16	first vote
+		/// </summary>
+
 		public void Generate()
 		{
 			Statistics.Generating.Begin();
@@ -527,43 +546,55 @@ namespace Uccs.Net
 
 			foreach(var g in Mcv.Settings.Generators)
 			{
-				var ge = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
+				//if(g == Zone.Father0	&& Mcv.NextVoteRound.Previous.Votes.Any(i => i.Generator == g)
+				//						&& Mcv.NextVoteRound.Previous.Previous.Votes.Any(i => i.Generator == g)
+				//						&& Mcv.NextVoteRound.Previous.Previous.Previous.Votes.Any(i => i.Generator == g)
+				//					)
+				//	votes = votes;
 
-				if(ge == null)
-					continue;
-
-				var m = Mcv.NextVoteMembers.Find(i => i.Id == ge.Id);
+				var m = Mcv.NextVoteRound.VotersRound.Members.Find(i => i.Address == g);
 
 				if(m == null)
 				{
-					m = Mcv.LastConfirmedRound.Candidates.Find(i => i.Id == ge.Id && i.Registered == Mcv.LastConfirmedRound.ConsensusTime);
+					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g && i.Registered == Mcv.LastConfirmedRound.ConsensusTime))
+						continue;
 
-					if(m == null && !OutgoingTransactions.Any(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration)))
+					if(!CandidacyDeclarations.Contains(g))
 					{
 						var t = new Transaction();
-						t.Flow = Flow;
-						t.Zone = Zone;
+						t.Flow	 = Flow;
+						t.Zone	 = Zone;
 						t.Signer = g;
- 						t.__ExpectedStatus = TransactionStatus.Confirmed;
-			
+	 					t.__ExpectedStatus = TransactionStatus.Confirmed;
+				
 						t.AddOperation(Mcv.CreateCandidacyDeclaration());
-
-			 			Transact(t);
+	
+						CandidacyDeclarations.Add(g);
+	
+				 		Transact(t);
+					} 
+					else
+					{
+						if(!OutgoingTransactions.Any(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration)))
+							CandidacyDeclarations.Remove(g);
 					}
 				}
 				else
 				{
+					CandidacyDeclarations.Remove(g);
+					OutgoingTransactions.RemoveAll(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration));
+
 					var r = Mcv.NextVoteRound;
 
-					if(r.Id < m.CastingSince)
-						continue;
+					//if(r.Id < m.CastingSince)
+					//	continue;
 
-					if(r.VotesOfTry.Any(i => i.Generator == g) || !r.Voters.Any(i => i.Id == ge.Id))
+					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
 					Vote createvote(Round r)
 					{
-						var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
+						//var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 						
 						var v = Mcv.CreateVote();
 
@@ -583,8 +614,10 @@ namespace Uccs.Net
 					}
 
 					var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
+
+					var must = r.Voters.Any(i => i.Address == g) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
 	
-					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
+					if(txs.Any() || must)
 					{
 						var v = createvote(r);
 						var deferred = new List<Transaction>();
@@ -606,15 +639,16 @@ namespace Uccs.Net
 																						return true;
 																					}
 
-																					var nearest = r.Voters.NearestBy(m => m.Address, t.Signer).Address;
+																					var nearest = r.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address;
 
 																					if(nearest != g)
-																						return true;
-	
-																					if(!Mcv.Settings.Generators.Contains(nearest))
 																					{
-																						t.Status = TransactionStatus.FailedOrNotFound;
-																						IncomingTransactions.Remove(t);
+																						if(!Mcv.Settings.Generators.Contains(nearest))
+																						{
+																							t.Status = TransactionStatus.FailedOrNotFound;
+																							IncomingTransactions.Remove(t);
+																						}
+
 																						return true;
 																					}
 	
@@ -656,7 +690,7 @@ namespace Uccs.Net
 							if(false == tryplace(t.t, false, false))
 								break;
 
-						if(v.Transactions.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+						if(v.Transactions.Any() || must)
 						{
 							v.Sign(Vault.GetKey(g));
 							votes.Add(v);
@@ -668,7 +702,7 @@ namespace Uccs.Net
  						r = r.Previous;
  
  						var b = createvote(r);
- 								
+ 						
  						b.Sign(Vault.GetKey(g));
  						votes.Add(b);
  					}

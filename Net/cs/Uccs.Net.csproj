@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.167.0</AssemblyVersion>
-    <FileVersion>1.0.167.0</FileVersion>
-    <Version>1.0.167.0</Version>
+    <AssemblyVersion>1.0.168.0</AssemblyVersion>
+    <FileVersion>1.0.168.0</FileVersion>
+    <Version>1.0.168.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -26,10 +26,10 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DnsClient" Version="1.7.0" />
-    <PackageReference Include="NBitcoin.Secp256k1" Version="3.1.1" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
-    <PackageReference Include="RocksDB" Version="8.11.3.46984" />
+    <PackageReference Include="DnsClient" Version="1.8.0" />
+    <PackageReference Include="NBitcoin.Secp256k1" Version="3.1.5" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="RocksDB" Version="9.4.0.50294" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>

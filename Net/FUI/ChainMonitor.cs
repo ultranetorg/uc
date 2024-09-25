@@ -194,8 +194,8 @@ namespace Uccs.Net.FUI
 							{
 								if(!Brushes.ContainsKey(i))
 								{
-									Brushes[i] = new SolidBrush(Color.FromArgb(i[2], i[3], i[4]));
-									Pens[i] = new Pen(Color.FromArgb(i[2], i[3], i[4]));
+									Brushes[i]	= new SolidBrush(Color.FromArgb(i[3], i[4], i[5]));
+									Pens[i]		= new Pen(Color.FromArgb(i[3], i[4], i[5]));
 								}
 							}
 	
@@ -224,11 +224,11 @@ namespace Uccs.Net.FUI
 			
 									foreach(var m in generators)
 									{
-										var bk = r.Votes.FirstOrDefault(i => i.Generator == m);
+										var v = r.Votes.FirstOrDefault(i => i.Generator == m);
 		
-										if(bk != null)
+										if(v != null)
 										{
-											if(bk is Vote v && v.Transactions.Any())	
+											if(v.Transactions.Any())	
 												e.Graphics.FillRectangle(Brushes[m], x, y, s, s); 
 											else
 												e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);

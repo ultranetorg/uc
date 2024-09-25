@@ -48,7 +48,7 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public long											ConsensusExecutionFee;
-		public int											ConsensusTransactionsOverflowRound;
+		public int											ConsensusOverloadRound;
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
@@ -185,15 +185,15 @@ namespace Uccs.Net
 			var all = VotesOfTry.ToArray();
 			var s = Id < Mcv.JoinToVote ? [] : Selected.ToArray();
 						
-			ConsensusExecutionFee				= Id == 0 ? 0 : (Previous.Id == 0 ? 1 : Previous.ConsensusExecutionFee);
-			ConsensusTransactionsOverflowRound	= Id == 0 ? 0 : Previous.ConsensusTransactionsOverflowRound;
+			ConsensusExecutionFee	= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
+			ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
 
 			var tn = all.Sum(i => i.Transactions.Length);
 
 			if(tn > Mcv.Zone.TransactionsPerRoundExecutionLimit)
 			{
-				ConsensusExecutionFee *= Mcv.Zone.TransactionsOverflowFeeFactor;
-				ConsensusTransactionsOverflowRound = Id;
+				ConsensusExecutionFee *= Mcv.Zone.OverloadFeeFactor;
+				ConsensusOverloadRound = Id;
 
 				var e = tn - Mcv.Zone.TransactionsPerRoundExecutionLimit;
 
@@ -221,8 +221,8 @@ namespace Uccs.Net
 			}
 			else 
 			{
-				if(ConsensusExecutionFee > 1 && Id - ConsensusTransactionsOverflowRound > Mcv.P)
-					ConsensusExecutionFee /= Zone.TransactionsOverflowFeeFactor;
+				if(ConsensusExecutionFee > 1 && Id - ConsensusOverloadRound > Mcv.P)
+					ConsensusExecutionFee /= Zone.OverloadFeeFactor;
 			}
 			
 			if(Id > 0)
@@ -281,14 +281,15 @@ namespace Uccs.Net
 		{
 			var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
-			var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
+			var l = Parent.Voters.Where(i => 
+											!Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
 											!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
 								.Select(i => i.Id);
 
-// 			if(l.Any())
-// 			{
-// 				Debugger.Break();
-// 			}
+  			if(l.Any())
+  			{
+  				l =l;
+  			}
 
 			return l;
 		}
@@ -670,7 +671,7 @@ namespace Uccs.Net
 			writer.Write(Hash);
 			writer.Write(ConsensusTime);
 			writer.Write7BitEncodedInt64(ConsensusExecutionFee);
-			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
+			writer.Write7BitEncodedInt(ConsensusOverloadRound);
 			
 			///writer.Write(RentPerBytePerDay);
 			///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
@@ -690,7 +691,7 @@ namespace Uccs.Net
 			Hash								= reader.ReadHash();
 			ConsensusTime						= reader.Read<Time>();
 			ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
-			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
+			ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 			
 			//RentPerBytePerDay		= reader.Read<Money>();
 			//PreviousDayBaseSize	= reader.Read7BitEncodedInt64();
@@ -709,7 +710,7 @@ namespace Uccs.Net
 		{
 			writer.Write(ConsensusTime);
 			writer.Write7BitEncodedInt64(ConsensusExecutionFee);
-			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
+			writer.Write7BitEncodedInt(ConsensusOverloadRound);
 			writer.Write(ConsensusMemberLeavers);
 			writer.Write(ConsensusViolators);
 			writer.Write(ConsensusFundJoiners);
@@ -721,7 +722,7 @@ namespace Uccs.Net
 		{
 			ConsensusTime						= reader.Read<Time>();
 			ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
-			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
+			ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 			ConsensusMemberLeavers				= reader.ReadArray<EntityId>();
 			ConsensusViolators					= reader.ReadArray<EntityId>();
 			ConsensusFundJoiners				= reader.ReadArray<AccountAddress>();
