@@ -165,14 +165,14 @@ namespace Uccs.Net
 		//public long			TargetBaseGrowthPerYear					= 100L*1024*1024*1024;
 		public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
 		public long				TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
-		public long				OverloadFeeFactor			= 2;
+		public long				OverloadFeeFactor						= 2;
 		public int				ExecutionCyclesPerTransactionLimit		= 100;
 		public long				ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
 		public long				ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
 		public long				BYDayEmission							= 1024L * IdealRoundsPerDay;
 		public long				ECEmission								=> ECDayEmission * 365;
-		public long				CandidatesMaximum						=> MembersLimit * 100;
-		public long				DeclarationCost							=> 1_000_000;
+		public long				CandidatesMaximum						=> 5000 * 10;
+		public long				DeclarationCost							=> 1000_000;
 		
 		public int				BandwidthAllocationDaysMaximum			=> 365;
 		public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%

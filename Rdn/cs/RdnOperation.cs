@@ -5,7 +5,7 @@
 		None = 0, 
 		RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
 		//Immission				= OperationClass.Immission, 
-		UnitTransfer			= OperationClass.UnitTransfer, 
+		UtilityTransfer			= OperationClass.UtilityTransfer, 
 		BandwidthAllocation		= OperationClass.BandwidthAllocation,
 
 		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,

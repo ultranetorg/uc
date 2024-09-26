@@ -11,7 +11,7 @@
 		None = 0, 
 		CandidacyDeclaration, 
 		//Immission,
-		UnitTransfer,
+		UtilityTransfer,
 		BandwidthAllocation
 	}
 

@@ -165,11 +165,7 @@ namespace Uccs.Net
 				Candidates.Add(c);
 			}
 			else
-			{
-				Candidates.Remove(c);
-				c = AffectedCandidates[id] = c.Clone();
-				Candidates.Add(c);
-			}
+				throw new IntegrityException();
 
 			return c;
 		}
@@ -448,13 +444,10 @@ namespace Uccs.Net
 
 			Execute(ConsensusTransactions);
 
-			///Last365BaseDeltas		= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => 0L).ToList() : Previous.Last365BaseDeltas.ToList();
-			///PreviousDayBaseSize		= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
-			//Candidates			= Candidates.ToList();
-			Members				= Members.ToList();
-			Funds				= Funds.ToList();
+			Members		= Members.ToList();
+			Funds		= Funds.ToList();
 			#if IMMISION
-			Emissions			= Emissions.ToList();
+			Emissions	= Emissions.ToList();
 			#endif
 
 			CopyConfirmed();
@@ -503,54 +496,7 @@ namespace Uccs.Net
 				Members.Remove(i);
 			}
 
-// 			var cds = ConsensusTransactions	.Where(i => !ConsensusViolators.Contains(AffectedAccounts[i.Signer].Id) && !ConsensusMemberLeavers.Contains(AffectedAccounts[i.Signer].Id))
-// 											.SelectMany(i => i.Operations)
-// 											.OfType<CandidacyDeclaration>()
-// 											.ToList();
-// 
-// 			foreach(var i in cds.GroupBy(i => i.Transaction.Signer)
-// 								.Select(i => i.MaxBy(i => i.Pledge))
-// 								.OrderByDescending(i => i.Signer.AverageUptime)
-// 								.ThenBy(i => i.Pledge)
-// 								.ThenBy(i => i.Transaction.Signer)
-// 								.Take(Mcv.Zone.MembersLimit - Members.Count))
-// 			{
-// 
-// 				Members.Add(Mcv.CreateMember(this, i));
-// 				cds.Remove(i);
-// 			}
-
-// 			foreach(var i in Candidates	.Where(i => i.Registered == ConsensusTime)
-// 										.Select(i => Mcv.Accounts.Find(i.Id, Id))
-// 										.OrderByHash(i => i.Address.Bytes, Hash)
-// 										.ToArray())
-// 			{
-// 				var a = AffectAccount(i.Address);
-// 					
-// 				if(a.GetECBalance(ConsensusTime) >= Zone.JoinCost)
-// 				{
-// 					a.ECBalanceSubtract(Zone.JoinCost);
-// 
-// 					var c = AffectCandidate(i.Id);
-// 
-// 					c.CastingSince = Id + Mcv.JoinToVote;
-// 						
-// 					Candidates.Remove(c);
-// 					Members.Add(c);
-// 				}
-// 				else
-// 				{
-// 					var c = AffectCandidate(i.Id);
-// 					Candidates.Remove(c);
-// 				}
-// 
-// 				if(Members.Count == Zone.MembersLimit)
-// 					break;
-// 			}
-
-			foreach(var i in Candidates	.Where(i => i.Registered == ConsensusTime)
-										.OrderByHash(i => i.Address.Bytes, Hash)
-										.Take(Mcv.Zone.MembersLimit - Members.Count).ToArray())
+			foreach(var i in Candidates.OrderByHash(i => i.Address.Bytes, Hash).Take(Mcv.Zone.MembersLimit - Members.Count).ToArray())
 			{
 				var c = AffectCandidate(i.Id);
 				
@@ -560,65 +506,10 @@ namespace Uccs.Net
 				Members.Add(c);
 			}
 
-			Candidates.RemoveAll(i => i.Registered != ConsensusTime);
 			Members = Members.OrderByHash(i => i.Address.Bytes, Hash).ToList();
-
-// 			foreach(var i in cds) /// refund the rest
-// 			{
-// 				AffectAccount(i.Transaction.Signer).MRBalance += i.Pledge;
-// 			}
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 			Funds.AddRange(ConsensusFundJoiners);
-			
-			if(IsLastInCommit)
-			{
-				///var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
-				///
-				///var members = Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => AffectAccount(i.Account)).ToArray();
-				///
-				///long distribute(Func<Round, Dictionary<AccountEntry, long>> getroundrewards, Action<AccountEntry, long> credit)
-				///{
-				///	long a = 0;
-				///
-				///	foreach(var r in tail)
-				///	{
-				///		foreach(var rmr in getroundrewards(r))
-				///		{
-				///			credit(AffectAccount(rmr.Key.Address), rmr.Value * 50/100); /// 50% to a member itself
-				///			a += rmr.Value;
-				///		}
-				///	}
-				///	
-				///	foreach(var j in members)
-				///	{
-				///		credit(j, a*40/100/members.Length); /// 40% evenly among all
-				///	}
-				///
-				///	if(Funds.Any())
-				///	{
-				///		foreach(var i in Funds)
-				///		{
-				///			credit(AffectAccount(i), a/10/Funds.Count); /// 10% to funds
-				///		}
-				///	}
-				///
-				///	return a;
-				///}
-				///
-				///var by = distribute(r => r.BYRewards, (a, r) => a.BYBalance += r);
-				///var ec = distribute(r => r.ECRewards, (a, r) => a.ECBalance += r);
-				///
-				///foreach(var i in members)
-				///	i.BYBalance += Zone.BYCommitEmission/members.Length;
-				///
-				///if(ec < Zone.OperationsPerRoundLimit)
-				///	foreach(var i in members)
-				///		i.ECBalance += Zone.ECCommitEmission/members.Length;
-				///
-				///foreach(var j in members)
-				///	j.MRBalance += Zone.MRCommitEmission/members.Length;
-			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
 			{
@@ -629,24 +520,6 @@ namespace Uccs.Net
 					i.ECBalanceAdd(new ExecutionReservation (ConsensusTime + Zone.ECLifetime, Zone.ECDayEmission / Members.Count));
 					i.BYBalance += Zone.BYDayEmission / Members.Count;
 				}
-
-				///long s = Mcv.Size;
-				///
-				///foreach(var t in Mcv.Tables)
-				///{
-				///	s += t.MeasureChanges(Mcv.Tail.SkipWhile(i => i != this));
-				///}
-				///
-				///Last365BaseDeltas.RemoveAt(0);
-				///Last365BaseDeltas.Add(s - PreviousDayBaseSize);
-				///
-				///if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowthPerYear)
-				///{
-				///	RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowthPerYear;
-				///}
-				///
-				///PreviousDayBaseSize = s;
-				///
 			}
 			
 			Confirmed = true;

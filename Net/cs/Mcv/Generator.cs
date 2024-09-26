@@ -6,7 +6,7 @@ namespace Uccs.Net
 	{
 		public AccountAddress	Address { get; set; }
 		public EntityId			Id { get; set; }
-		public Time				Registered { get; set; }
+		public int				Registered { get; set; }
 		public IPAddress[]		BaseRdcIPs { get; set; } = [];
 		public int				CastingSince { get; set; }
 		
@@ -36,14 +36,14 @@ namespace Uccs.Net
   		public virtual void WriteCandidate(BinaryWriter writer)
  		{
  			writer.Write(Id);
- 			writer.Write(Registered);
+ 			writer.Write7BitEncodedInt(Registered);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
  		}
  
  		public virtual void ReadCandidate(BinaryReader reader)
  		{
 			Id			= reader.Read<EntityId>();
-			Registered	= reader.Read<Time>();
+			Registered	= reader.Read7BitEncodedInt();
 			BaseRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 		}
 

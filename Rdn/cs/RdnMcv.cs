@@ -75,7 +75,7 @@ namespace Uccs.Rdn
 
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
-				t.AddOperation(new UnitTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission));
+				t.AddOperation(new UtilityTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission));
 				t.Sign(god, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 

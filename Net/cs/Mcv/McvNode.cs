@@ -467,8 +467,8 @@ namespace Uccs.Net
 			}
 			else if(assynchronized || Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
-					return false;
+				//if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
+				//	return false;
 				
 				var r = Mcv.GetRound(v.RoundId);
 				
@@ -556,7 +556,7 @@ namespace Uccs.Net
 
 				if(m == null)
 				{
-					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g && i.Registered == Mcv.LastConfirmedRound.ConsensusTime))
+					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
 						continue;
 
 					if(!CandidacyDeclarations.Contains(g))

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class UnitTransfer : Operation
+	public class UtilityTransfer : Operation
 	{
 		public AccountAddress	To;
 		public long				BYAmount;
@@ -11,11 +11,11 @@
 																							  }.Where(i => i != null))} -> {To}";
 		public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECAmount > 0;
 
-		public UnitTransfer()
+		public UtilityTransfer()
 		{
 		}
 
-		public UnitTransfer(AccountAddress to, long ec, Time expiration, long by)
+		public UtilityTransfer(AccountAddress to, long ec, Time expiration, long by)
 		{
 			if(to == null)
 				throw new RequirementException("Destination account is null or invalid");
