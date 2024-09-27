@@ -97,6 +97,7 @@ namespace Uccs.Rdn.CLI
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, f); break;
 				case LogCommand.Keyword:		c = new LogCommand(this, args, f); break;
 				case LinkCommand.Keyword:		c = new LinkCommand(this, args, f); break;
+				case BandwidthCommand.Keyword:	c = new BandwidthCommand(this, args, f); break;
 				default:
 					throw new SyntaxException("Unknown command");
 			}
