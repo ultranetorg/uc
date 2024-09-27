@@ -1,12 +1,10 @@
 ﻿using System.Reflection;
-using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
-
 	public enum ExceptionClass : byte
 	{
-		None, NodeException, RequestException, EntityException, ResourceException
+		None, NodeException, RequestException, EntityException, _Next
 	}
 
 	public enum NodeError : byte
@@ -52,34 +50,14 @@ namespace Uccs.Net
 		OutOfRange,
 	}
 
-	public enum ResourceError : byte
-	{
-		None,
-		UnknownDataType,
-		UnknownAddressType,
-		BothResourceAndReleaseNotFound,
-		RequiredPackagesNotFound,
-		AlreadyExists,
-		NotSupportedDataType,
-		Busy,
-		NotFound,
-		HashMismatch,
-		//DownloadFailed
-	}
-
-	[JsonDerivedType(typeof(NodeException), typeDiscriminator: "Node")]
-	[JsonDerivedType(typeof(RequestException), typeDiscriminator: "Request")]
-	[JsonDerivedType(typeof(EntityException), typeDiscriminator: "Entity")]
-	[JsonDerivedType(typeof(ResourceException), typeDiscriminator: "Resource")]
 	public abstract class NetException : Exception, ITypeCode, IBinarySerializable 
 	{
-		//public byte				TypeCode => (byte)Class;
 		public abstract int		ErrorCode {get; set;}
-		//public ExceptionClass	Class => Enum.Parse<ExceptionClass>(GetType().Name);	
 
 		static NetException()
 		{
-			ITypeCode.Contructors[typeof(NetException)] = [];
+			if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
+				ITypeCode.Contructors[typeof(NetException)] = [];
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
 			{
@@ -155,20 +133,4 @@ namespace Uccs.Net
 			Error = erorr;
 		}
  	}
-
-	public class ResourceException : NetException
-	{
-		public override int				ErrorCode { get => (int)Error; set => Error = (ResourceError)value; }
-		public ResourceError			Error { get; protected set; }
-		public override string			Message => Error.ToString();
-
-		public ResourceException()
-		{
-		}
-
-		public ResourceException(ResourceError erorr) : base(erorr.ToString())
-		{
-			Error = erorr;
-		}
-	}
 }

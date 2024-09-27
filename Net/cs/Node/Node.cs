@@ -874,8 +874,5 @@ namespace Uccs.Net
 
  			rq.Execute();
  		}
-
-		//public QueryResourceResponse QueryResource(string query, Workflow workflow) => Call(c => c.QueryResource(query), workflow);
-		//public ResourceResponse FindResource(ResourceAddress query, Workflow workflow) => Call(c => c.FindResource(query), workflow);
 	}
 }

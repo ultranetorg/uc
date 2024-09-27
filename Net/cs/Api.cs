@@ -39,6 +39,21 @@ namespace Uccs.Net
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }
+
+	        if(ti.Type == typeof(NetException))
+	        {
+	            ti.PolymorphismOptions =	new JsonPolymorphismOptions
+											{
+												TypeDiscriminatorPropertyName = "$type",
+												IgnoreUnrecognizedTypeDiscriminators = true,
+												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+											};
+
+				foreach(var i in typeof(ExceptionClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+				{
+					ti.PolymorphismOptions.DerivedTypes.Add(i);
+				}
+	        }
 	
 	        return ti;
 	    }

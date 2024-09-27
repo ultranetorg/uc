@@ -60,8 +60,14 @@ namespace Uccs.Rdn
 				ITypeCode.Codes[i] = (byte)Enum.Parse<UrrScheme>(i.Name);
 				ITypeCode.Contructors[typeof(Urr)][(byte)Enum.Parse<UrrScheme>(i.Name)] = i.GetConstructor([]);
 			}
-		}
 
+			if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
+				ITypeCode.Contructors[typeof(NetException)] = [];
+
+			ITypeCode.Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
+			ITypeCode.Contructors[typeof(NetException)][(byte)ExceptionClass._Next] = typeof(ResourceException).GetConstructor([]);
+
+		}
 	}
 
 	public class RdnLocalZone : RdnZone

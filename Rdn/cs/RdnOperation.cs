@@ -15,6 +15,8 @@
 
 	public abstract class RdnOperation : Operation
 	{
+		public const string		CantChangeSealedResource = "Cant change sealed resource";
+
 		public abstract void Execute(RdnMcv mcv, RdnRound round);
 
 		public override void Execute(Mcv mcv, Round round)

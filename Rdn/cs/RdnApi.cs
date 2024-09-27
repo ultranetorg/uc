@@ -36,6 +36,14 @@ namespace Uccs.Rdn
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
 	        }
+
+	        if(ti.Type == typeof(NetException))
+	        {
+				foreach(var i in typeof(ResourceException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+				{
+					ti.PolymorphismOptions.DerivedTypes.Add(i);
+				}
+	        }
 	
 	        return ti;
 	    }
@@ -95,7 +103,7 @@ namespace Uccs.Rdn
 		}
 		
 		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
+		public LocalReleaseApe			FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 		public PackageInfo				FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 		
 		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
