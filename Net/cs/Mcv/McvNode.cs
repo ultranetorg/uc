@@ -878,7 +878,7 @@ namespace Uccs.Net
 								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 							#endif
 							//t.STFee		 = at.STCost;
-							t.ECFee		 = at.ECCostMinimum;
+							t.ECFee		 = at.ECCost;
 							t.Nid		 = nid;
 							t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 

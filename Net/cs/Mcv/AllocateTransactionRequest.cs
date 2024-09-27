@@ -33,7 +33,7 @@
 															PowHash				= Mcv.LastConfirmedRound.Hash,
 															NextNid				= Transaction.Nid,
 															BYCost				= a.BYBalance - b.BYBalance,
-															ECCostMinimum		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.ECSpent};
+															ECCost				= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.ECSpent};
 				}				
 				else
 					throw new EntityException(EntityError.ExcutionFailed);
@@ -47,7 +47,7 @@
 		public int			NextNid { get; set; }
 		public byte[]		PowHash { get; set; }
 		public long			BYCost { get; set; }
-		public long			ECCostMinimum { get; set; }
+		public long			ECCost { get; set; }
 		public EntityId		Generator { get; set; }
 	}
 }
