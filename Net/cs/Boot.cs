@@ -17,10 +17,10 @@
 			var b = new Xon(File.ReadAllText(Path.Combine(exedir, FileName)));
 			Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
-			if(Commnand.Has("interzone"))
-				Net = Commnand.Get<string>("interzone");
+			if(Commnand.Has("nexus"))
+				Net = Commnand.Get<string>("nexus");
 			else
-				Net = b.Get<string>("Interzone");
+				Net = b.Get<string>("Nexus");
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");

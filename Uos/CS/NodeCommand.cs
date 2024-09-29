@@ -54,7 +54,7 @@
 
 									Examples =
 									[
-										new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun interzone=Testzone")
+										new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun nexus=PublicTest")
 									]};
 			
 			Actions = [run];

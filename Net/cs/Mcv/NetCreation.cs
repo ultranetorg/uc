@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class ZoneCreation
+	public class NetCreation
 	{
 		public class Father
 		{

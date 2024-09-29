@@ -50,7 +50,7 @@ namespace Uccs.Net.FUI
 			var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos)};
 			Navigator.Nodes.Add(dashboard);
 
-			var net = new TreeNode("Interzone"){Tag = new InterzoneNetworkPanel(Uos.Izn)};
+			var net = new TreeNode("Interzone"){Tag = new NexusNetworkPanel(Uos.Izn)};
 			Navigator.Nodes.Add(net);
 
 			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos)};

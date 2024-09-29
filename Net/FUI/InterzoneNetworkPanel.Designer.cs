@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Net.FUI
 {
-	partial class InterzoneNetworkPanel
+	partial class NexusNetworkPanel
 	{
 		/// <summary> 
 		/// Required designer variable.

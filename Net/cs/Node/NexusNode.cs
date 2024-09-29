@@ -31,16 +31,16 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ZonePeers
+	public class NetPeers
 	{
 		public Guid				Net {get; set;}
 		public List<InterPeer>	Peers {get; set;}
 	}
 
-	public class InterzoneNode : Node
+	public class NexusNode : Node
 	{
 		public List<Node>						Nodes = [];
-		public List<ZonePeers>					Zones = [];
+		public List<NetPeers>					Nets = [];
 		public override long					Roles => 0;
 		bool									MinimalPeersReached;
 
@@ -48,7 +48,7 @@ namespace Uccs.Net
 		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Net.Id == id);
 		public T								Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
-		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Nexus.Byid(zuid), settings ?? new IznSettings(profile), workflow)
+		public NexusNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Nexus.Byid(zuid), settings ?? new IznSettings(profile), workflow)
 		{
 			if(Settings.Api != null)
 			{
@@ -66,17 +66,17 @@ namespace Uccs.Net
 
 		protected override void Share(Peer peer)
 		{
-			peer.Post(new ShareZonesRequest {	Broadcast = false,
-												Zones = Zones.Select(i => new ShareZonesRequest.Z {	Id = i.Net, 
+			peer.Post(new ShareNetsRequest {	Broadcast = false,
+												Nets = Nets.Select(i => new ShareNetsRequest.Z {	Id = i.Net, 
 																									Peers = i.Peers.ToArray()}).ToArray()});
 		}
 
-		public ZonePeers GetZone(Guid id)
+		public NetPeers GetNet(Guid id)
 		{
-			if(Zones.Find(i => i.Net == id) is not ZonePeers z)
+			if(Nets.Find(i => i.Net == id) is not NetPeers z)
 			{ 
-				z = new ZonePeers {Net = id, Peers = [] };
-				Zones.Add(z);
+				z = new NetPeers {Net = id, Peers = [] };
+				Nets.Add(z);
 			}
 
 			return z;
@@ -86,13 +86,13 @@ namespace Uccs.Net
 		{
 			Nodes.Add(node);
 
-			var z = GetZone(node.Net.Id);
+			var z = GetNet(node.Net.Id);
 			var p = new InterPeer {IP = Settings.Peering.IP ?? IP, Roles = node.Roles};
 			z.Peers.Add(p);
 
 			foreach(var c in Connections)
 			{
-				c.Post(new ShareZonesRequest {Broadcast = true, Zones = [new ShareZonesRequest.Z {Id = node.Net.Id, Peers = [p]}]});
+				c.Post(new ShareNetsRequest {Broadcast = true, Nets = [new ShareNetsRequest.Z {Id = node.Net.Id, Peers = [p]}]});
 			}
 		}
 

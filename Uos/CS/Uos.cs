@@ -32,7 +32,7 @@ namespace Uccs.Uos
 		public delegate void		Delegate(Uos d);
  		public delegate void		McvDelegate(Mcv d);
 	 	
-		public InterzoneNode		Izn; /// Inter-consensus node
+		public NexusNode		Izn; /// Inter-consensus node
 		public static bool			ConsoleAvailable { get; protected set; }
 		public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
 		public Flow					Flow = new Flow("uos", new Log()); 
@@ -50,7 +50,7 @@ namespace Uccs.Uos
 		public Node					Find(Guid id) => Nodes.Find(i => i.Id == id)?.Node;
 		public T					Find<T>() where T : Node => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
 
-		public RdnApiClient			Rdn => Nodes.Find(i => i.Id == Settings.Interzone.DefaultRdn).Rdn;
+		public RdnApiClient			Rdn => Nodes.Find(i => i.Id == Settings.Nexus.DefaultRdn).Rdn;
 		//public static List<Uos>			All = new();
 
 		public NodeDelegate			IznStarted;
@@ -102,7 +102,7 @@ namespace Uccs.Uos
 			//Environment.SetEnvironmentVariable(BootProductsPath,productspath);
 			//Environment.SetEnvironmentVariable(BootSunAddress,	sunaddress);
 			//Environment.SetEnvironmentVariable(BootSunApiKey,	sunapikey);
-			//Environment.SetEnvironmentVariable(BootZone,		net.Name);
+			//Environment.SetEnvironmentVariable(BootNet,		net.Name);
 
 			//ReportPreambule();
 			//ReportNetwork();
@@ -164,14 +164,14 @@ namespace Uccs.Uos
 		{
 			var f = Flow.CreateNested(nameof(Izn), new Log());
 
-			Izn = new InterzoneNode(Settings.Name, Settings.Interzone.Id, Settings.Profile, settings, f);
+			Izn = new NexusNode(Settings.Name, Settings.Nexus.Id, Settings.Profile, settings, f);
 
 			IznStarted?.Invoke(Izn);
 		}
 
 		public Node RunNode(Guid id, NodeSettings settings = null, IClock clock = null, bool peering = false)
 		{
-			if(Settings.Interzone.DefaultRdn == id)
+			if(Settings.Nexus.DefaultRdn == id)
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
@@ -189,7 +189,7 @@ namespace Uccs.Uos
 				return n;
 			}
 
-			throw new NodeException(NodeError.NoNodeForZone);
+			throw new NodeException(NodeError.NoNodeForNet);
 		}
 
 		public UosCommand Create(IEnumerable<Xon> commnad, Flow flow)
@@ -299,7 +299,7 @@ namespace Uccs.Uos
 
 		public void Start(Ura address, Flow flow)
 		{
-			var rdn = Nodes.Find(i => i.Id == Settings.Interzone.DefaultRdn).Rdn;
+			var rdn = Nodes.Find(i => i.Id == Settings.Nexus.DefaultRdn).Rdn;
 
 			var d = rdn.FindLocalResource(address, flow)?.Last
 					?? 

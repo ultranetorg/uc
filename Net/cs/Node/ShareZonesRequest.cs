@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class ShareZonesRequest : InterzoneCall<PeerResponse>
+	public class ShareNetsRequest : NexusCall<PeerResponse>
 	{
 		public class Z
 		{
@@ -8,7 +8,7 @@
 			public InterPeer[]	Peers {get; set;}
 		}
 
-		public Z[]				Zones { get; set; }
+		public Z[]				Nets { get; set; }
 		public bool				Broadcast { get; set; }
 		public override bool	WaitResponse => false;
 
@@ -17,16 +17,16 @@
 			//if(Peers.Length > 1000)
 			//	throw new RequestException(RequestError.IncorrectRequest);
 		
-			var fresh = new List<ZonePeers>();
+			var fresh = new List<NetPeers>();
 
 			lock(Node.Lock)
 			{
 													
-				foreach(var z in Zones)
+				foreach(var z in Nets)
 				{
-					var kz = Node.GetZone(z.Id);
+					var kz = Node.GetNet(z.Id);
 
-					ZonePeers fz = null;
+					NetPeers fz = null;
 
 					foreach(var p in z.Peers)
 					{
@@ -61,8 +61,8 @@
 			{
 				foreach(var i in Node.Connections.Where(i => i != Peer))
 				{
-					i.Post(new ShareZonesRequest {	Broadcast = true,
-													Zones = fresh.Select(i => new Z {	Id = i.Net, 
+					i.Post(new ShareNetsRequest {	Broadcast = true,
+													Nets = fresh.Select(i => new Z {	Id = i.Net, 
 																						Peers = i.Peers.ToArray()}).ToArray()});
 				}
 			}

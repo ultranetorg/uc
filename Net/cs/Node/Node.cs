@@ -52,7 +52,7 @@ namespace Uccs.Net
 	{
 		None = 0, 
 		PeersBroadcast, 
-		ShareZones,
+		ShareNets,
 		
 		_Last = 99
 	}
@@ -402,7 +402,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.ZoneId		= Net.Id;
+				h.NetId		= Net.Id;
 				h.Roles			= Roles;
 				h.Versions		= Versions;
 				h.IP			= ip;
@@ -467,7 +467,7 @@ namespace Uccs.Net
 					if(!h.Versions.Any(i => Versions.Contains(i)))
 						goto failed;
 
-					if(h.ZoneId != Net.Id)
+					if(h.NetId != Net.Id)
 						goto failed;
 
 					if(h.PeerId == PeerId)
@@ -602,7 +602,7 @@ namespace Uccs.Net
 					if(!h.Versions.Any(i => Versions.Contains(i)))
 						goto failed;
 
-					if(h.ZoneId != Net.Id)
+					if(h.NetId != Net.Id)
 						goto failed;
 
 					if(h.PeerId == PeerId)

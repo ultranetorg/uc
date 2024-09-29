@@ -29,7 +29,7 @@ namespace Uccs.Rdn
 		public PackageHub						PackageHub;
 		public SeedHub							SeedHub;
 
-		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, Rdn.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
+		public RdnNode(string name, Guid id, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, Rdn.ById(id), settings ?? new RdnSettings(Path.Join(profile, id.ToString())), vault, flow)
 		{
 			Flow.Log?.Report(this, $"Net: {Net.Name}");
 		

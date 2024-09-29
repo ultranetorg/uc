@@ -92,7 +92,7 @@
 				}
 
 				Signer.ECBalanceSubtract(round.ConsensusTime, (mcv.Net as Rdn).DomainRankCheckECFee);
-				//Transaction.ECReward -= (mcv.Net as RdnZone).DomainRankCheckECFee;
+				//Transaction.ECReward -= (mcv.Net as RdnNet).DomainRankCheckECFee;
 			}
 		}
 

@@ -17,7 +17,7 @@ namespace Uccs.Rdn
 
 		ContractHandler							_Contract;
 		Nethereum.Web3.Accounts.Account			_Account;
-		static Dictionary<McvZone, IPAddress[]>	Zones = new ();
+		static Dictionary<McvNet, IPAddress[]>	Nets = new ();
 		static string							Creator;
 
 		public Nethereum.Web3.Accounts.Account Account
@@ -148,16 +148,16 @@ namespace Uccs.Rdn
 
 // 		public IPAddress[] GetInitials(Net net, Workflow workflow)
 // 		{
-// 			lock(Zones)
+// 			lock(Nets)
 // 			{
 // 				var ips = new List<IPAddress>();
 // 
-// 				if(!Zones.ContainsKey(net))
+// 				if(!Nets.ContainsKey(net))
 // 				{
 // 					try
 // 					{
-// 						var input = new GetZoneFunction{Name = net.Name};
-// 						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
+// 						var input = new GetNetFunction{Name = net.Name};
+// 						var z = Contract.QueryAsync<GetNetFunction, string>(input).Result;
 // 	
 // 						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
 // 						{
@@ -178,7 +178,7 @@ namespace Uccs.Rdn
 // 							ips.Add(ip);
 // 						}
 // 
-// 						Zones[net] = ips.ToArray();
+// 						Nets[net] = ips.ToArray();
 // 					}
 // 					catch(Exception ex) when (ex is not RequirementException)
 // 					{
@@ -196,17 +196,17 @@ namespace Uccs.Rdn
 // 					if(!ips.Any())
 // 					{
 // 						workflow?.Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
-// 						Zones[net] = net.Initials;
+// 						Nets[net] = net.Initials;
 // 					}
 // 				}
 // 
-// 				return Zones[net];
+// 				return Nets[net];
 // 			}
 // 		}
 
-// 		public async Task SetZone(Net net, string nodes, IGasAsker asker)
+// 		public async Task SetNet(Net net, string nodes, IGasAsker asker)
 // 		{
-// 			var f = new SetZoneFunction
+// 			var f = new SetNetFunction
 // 			{
 // 				Name = net.Name,
 // 				Nodes = nodes
@@ -233,9 +233,9 @@ namespace Uccs.Rdn
 // 			}
 // 		}
 // 
-// 		public async Task RemoveZone(Net net, IGasAsker asker)
+// 		public async Task RemoveNet(Net net, IGasAsker asker)
 // 		{
-// 			var f = new RemoveZoneFunction
+// 			var f = new RemoveNetFunction
 // 			{
 // 				Name = net.Name
 // 			};

@@ -4,12 +4,12 @@ using System.Windows.Forms;
 
 namespace Uccs.Net.FUI
 {
-	public partial class InterzoneNetworkPanel : MainPanel
+	public partial class NexusNetworkPanel : MainPanel
 	{
 		Flow Flow;
- 		new InterzoneNode Node =>  base.Node as InterzoneNode;
+ 		new NexusNode Node =>  base.Node as NexusNode;
 
-		public InterzoneNetworkPanel(Node d) : base(d)
+		public NexusNetworkPanel(Node d) : base(d)
 		{
 			InitializeComponent();
 		}
@@ -32,7 +32,7 @@ namespace Uccs.Net.FUI
 
 			lock(Node.Lock)
 			{
-				foreach(var i in Node.Zones)
+				foreach(var i in Node.Nets)
 				{
 					var c = new ColumnHeader();
 					c.Text = i.Net.ToString();
@@ -41,11 +41,11 @@ namespace Uccs.Net.FUI
 					Peers.Columns.Add(c);
 				}
 
-				foreach(var p in Node.Zones.SelectMany(i => i.Peers))
+				foreach(var p in Node.Nets.SelectMany(i => i.Peers))
 				{
 					var r = Peers.Items.Add(p.IP.ToString());
 
-					foreach(var z in Node.Zones)
+					foreach(var z in Node.Nets)
 					{
 						r.SubItems.Add(z.Peers.Contains(p) ? string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()) : "");
 					}

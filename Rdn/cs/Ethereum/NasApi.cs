@@ -14,19 +14,19 @@ namespace Uccs.Rdn
         public virtual byte[] Secret { get; set; }
     }
 
-    public partial class RemoveZoneFunction : RemoveZoneFunctionBase { }
+    public partial class RemoveNetFunction : RemoveNetFunctionBase { }
 
-    [Function("RemoveZone")]
-    public class RemoveZoneFunctionBase : FunctionMessage
+    [Function("RemoveNet")]
+    public class RemoveNetFunctionBase : FunctionMessage
     {
         [Parameter("string", "name", 1)]
         public virtual string Name { get; set; }
     }
 
-    public partial class SetZoneFunction : SetZoneFunctionBase { }
+    public partial class SetNetFunction : SetNetFunctionBase { }
 
-    [Function("SetZone")]
-    public class SetZoneFunctionBase : FunctionMessage
+    [Function("SetNet")]
+    public class SetNetFunctionBase : FunctionMessage
     {
         [Parameter("string", "name", 1)]
         public virtual string Name { get; set; }
@@ -51,10 +51,10 @@ namespace Uccs.Rdn
         public virtual byte[] Secret { get; set; }
     }
 
-    public partial class GetZoneFunction : GetZoneFunctionBase { }
+    public partial class GetNetFunction : GetNetFunctionBase { }
 
-    [Function("GetZone", "string")]
-    public class GetZoneFunctionBase : FunctionMessage
+    [Function("GetNet", "string")]
+    public class GetNetFunctionBase : FunctionMessage
     {
         [Parameter("string", "name", 1)]
         public virtual string Name { get; set; }
@@ -78,10 +78,10 @@ namespace Uccs.Rdn
         public virtual BigInteger ReturnValue1 { get; set; }
     }
 
-    public partial class GetZoneOutputDTO : GetZoneOutputDTOBase { }
+    public partial class GetNetOutputDTO : GetNetOutputDTOBase { }
 
     [FunctionOutput]
-    public class GetZoneOutputDTOBase : IFunctionOutputDTO 
+    public class GetNetOutputDTOBase : IFunctionOutputDTO 
     {
         [Parameter("string", "", 1)]
         public virtual string ReturnValue1 { get; set; }

@@ -7,7 +7,7 @@ namespace Uccs.Uos
 		public string			ProductsPath;	
 		public string			SunAddress; 		
 		public string			SunApiKey;
-		//public McvZone			Net;
+		//public McvNet			Net;
 		//
 		//public ResourceHub		ResourceHub;
 		//public PackageHub		PackageHub;
@@ -25,7 +25,7 @@ namespace Uccs.Uos
 			//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 			//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 			//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
-			//Net			=	Environment.GetEnvironmentVariable(Nexus.BootZone);
+			//Net			=	Environment.GetEnvironmentVariable(Nexus.BootNet);
 
 			//Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 			//

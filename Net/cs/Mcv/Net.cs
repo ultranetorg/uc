@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Uccs.Net
 {
-	public enum ZoneScope
+	public enum NetScope
 	{
 		None, 
 		Local, 
@@ -24,7 +24,7 @@ namespace Uccs.Net
 	{
 		public abstract string		Name { get; }
 		public Guid					Id;
-		public abstract	ZoneScope	Scope { get; }
+		public abstract	NetScope	Scope { get; }
 		public abstract ushort		BasePort { get; }
 		public ushort				Port => (ushort)(ScopeBasePort + BasePort);
 
@@ -49,18 +49,18 @@ namespace Uccs.Net
 												.ToArray();
 
 		public ushort				ScopeBasePort => Scope switch  {/// Format: XX000
-																	ZoneScope.Local		 => 10000, 
-																	ZoneScope.Developer0 => 20000,
-																	ZoneScope.Developer1 => 21000,
-																	ZoneScope.Developer2 => 22000,
-																	ZoneScope.Developer3 => 23000,
-																	ZoneScope.Developer4 => 24000,
-																	ZoneScope.Developer5 => 25000,
-																	ZoneScope.Developer6 => 26000,
-																	ZoneScope.Developer7 => 27000,
-																	ZoneScope.Developer8 => 28000,
-																	ZoneScope.Developer9 => 29000,
-																	ZoneScope.PublicTest => 30000,
+																	NetScope.Local		 => 10000, 
+																	NetScope.Developer0 => 20000,
+																	NetScope.Developer1 => 21000,
+																	NetScope.Developer2 => 22000,
+																	NetScope.Developer3 => 23000,
+																	NetScope.Developer4 => 24000,
+																	NetScope.Developer5 => 25000,
+																	NetScope.Developer6 => 26000,
+																	NetScope.Developer7 => 27000,
+																	NetScope.Developer8 => 28000,
+																	NetScope.Developer9 => 29000,
+																	NetScope.PublicTest => 30000,
 																	_ => throw new IntegrityException()};
 		public override string ToString()
 		{
@@ -108,14 +108,14 @@ namespace Uccs.Net
 		public static readonly Nexus[]	Official = {Local, Developer0, PublicTest};
 
 		public static Nexus				ByName(string name) => Official.First(i => i.Name == name);
-		public static Nexus				Byid(Guid zoneid) => Official.First(i => i.Id == zoneid);
+		public static Nexus				Byid(Guid id) => Official.First(i => i.Id == id);
 
 		public abstract Guid			DefaultRdn { get; }
 	}
 
 	public class LocalNexus : Nexus
 	{
-		public override	ZoneScope	Scope => ZoneScope.Local;
+		public override	NetScope	Scope => NetScope.Local;
 		public override Guid		DefaultRdn => new Guid("FFFFFFFF-1002-0000-0000-000000000000");
 
 		public LocalNexus()
@@ -127,7 +127,7 @@ namespace Uccs.Net
 
 	public class Developer0Nexus : Nexus
 	{
-		public override	ZoneScope	Scope => ZoneScope.Developer0;
+		public override	NetScope	Scope => NetScope.Developer0;
 		public override Guid		DefaultRdn => new Guid("FFFFFFFF-2002-0000-0000-000000000000");
 
 		public Developer0Nexus()
@@ -139,7 +139,7 @@ namespace Uccs.Net
 
 	public class PublicTestNexus : Nexus
 	{
-		public override	ZoneScope	Scope => ZoneScope.PublicTest;
+		public override	NetScope	Scope => NetScope.PublicTest;
 		public override Guid		DefaultRdn => new Guid("30020000-0000-0000-0000-000000000000");
 
 		public PublicTestNexus()
@@ -181,7 +181,7 @@ namespace Uccs.Net
 		public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 		public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 		public IPAddress		Father0IP;
-		public ZoneCreation		Creation;
+		public NetCreation		Creation;
 
 		static McvNet()
 		{

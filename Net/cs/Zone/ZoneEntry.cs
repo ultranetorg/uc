@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class ZoneEntry : ITableEntry<Guid>, IBinarySerializable
+	public class NetEntry : ITableEntry<Guid>, IBinarySerializable
 	{
 		public EntityId		Id { get; set; }
 		public Guid			Key => Address;
@@ -14,18 +14,18 @@
 		
 		Mcv					Mcv;
 
-		public ZoneEntry()
+		public NetEntry()
 		{
 		}
 
-		public ZoneEntry(Mcv chain)
+		public NetEntry(Mcv chain)
 		{
 			Mcv = chain;
 		}
 
-		public ZoneEntry Clone()
+		public NetEntry Clone()
 		{
-			return new ZoneEntry(Mcv){	Id = Id,
+			return new NetEntry(Mcv){	Id = Id,
 										Address = Address,
 										Balance = Balance};
 		}

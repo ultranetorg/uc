@@ -26,7 +26,7 @@ namespace Uccs.Net
 		NotUnlocked,
 		NoMcv,
 		NoIzn,
-		NoNodeForZone,
+		NoNodeForNet,
 		TooEearly,
 		AllNodesFailed,
 		NotOnlineYet,
