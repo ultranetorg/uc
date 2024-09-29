@@ -107,7 +107,7 @@
 												case Urrsd u:
 													var d = node.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
 													var aa = node.Call(() => new AccountRequest(d.Owner), workflow).Account;
-													itg = new SPDIntegrity(node.Zone.Cryptography, u, aa.Address);
+													itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Address);
 													break;
 											};
 	

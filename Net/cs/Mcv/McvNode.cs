@@ -17,7 +17,7 @@ namespace Uccs.Net
 
 	public abstract class McvNode : Node
 	{
-		public new McvZone									Zone => base.Zone as McvZone;
+		public new McvNet									Net => base.Net as McvNet;
 		public Vault										Vault; 
 		public Mcv											Mcv; 
 
@@ -40,7 +40,7 @@ namespace Uccs.Net
 
 		List<AccountAddress>								CandidacyDeclarations = [];
 
-		public McvNode(string name, Zone zone, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, zone, nodesettings, flow)
+		public McvNode(string name, Net net, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, net, nodesettings, flow)
 		{
 			Vault = vault;
 		}
@@ -68,7 +68,7 @@ namespace Uccs.Net
 			//if(t == typeof(PeerRequest)	 && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Request").GetConstructor([]).Invoke(null) as PeerRequest;
 			//if(t == typeof(PeerResponse) && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
 			//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
-			if(t == typeof(Transaction))	return new Transaction {Zone = Zone, Mcv = Mcv}; 
+			if(t == typeof(Transaction))	return new Transaction {Net = Net, Mcv = Mcv}; 
 
 			return base.Constract(t, b);
 		}
@@ -164,7 +164,7 @@ namespace Uccs.Net
 
 		public void Synchronize()
 		{
-			if(Settings.Peering.IP != null && Settings.Peering.IP.Equals(Zone.Father0IP) && Mcv.Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
+			if(Settings.Peering.IP != null && Settings.Peering.IP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Contains(Net.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -198,7 +198,7 @@ namespace Uccs.Net
 				{
 					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Connect(Zone.Id, (long)(Mcv.Settings.Base.Chain != null ? Role.Chain : Role.Base), used, Flow);
+					peer = Connect(Net.Id, (long)(Mcv.Settings.Base.Chain != null ? Role.Chain : Role.Base), used, Flow);
 
 					if(Mcv.Settings.Base?.Chain == null)
 					{
@@ -546,7 +546,7 @@ namespace Uccs.Net
 
 			foreach(var g in Mcv.Settings.Generators)
 			{
-				//if(g == Zone.Father0	&& Mcv.NextVoteRound.Previous.Votes.Any(i => i.Generator == g)
+				//if(g == Net.Father0	&& Mcv.NextVoteRound.Previous.Votes.Any(i => i.Generator == g)
 				//						&& Mcv.NextVoteRound.Previous.Previous.Votes.Any(i => i.Generator == g)
 				//						&& Mcv.NextVoteRound.Previous.Previous.Previous.Votes.Any(i => i.Generator == g)
 				//					)
@@ -563,7 +563,7 @@ namespace Uccs.Net
 					{
 						var t = new Transaction();
 						t.Flow	 = Flow;
-						t.Zone	 = Zone;
+						t.Net	 = Net;
 						t.Signer = g;
 	 					t.__ExpectedStatus = TransactionStatus.Confirmed;
 				
@@ -864,7 +864,7 @@ namespace Uccs.Net
 							t.Expiration = 0;
 							t.Generator = new([0, 0], -1);
 
-							t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
+							t.Sign(Vault.GetKey(t.Signer), Net.Cryptography.ZeroHash);
 
 							var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 								
@@ -1043,12 +1043,12 @@ namespace Uccs.Net
 			while(operations.Any())
 			{
 				var t = new Transaction();
-				t.Zone = Zone;
+				t.Net = Net;
 				t.Signer = signer;
 				t.Flow = workflow;
  				t.__ExpectedStatus = await;
 			
-				foreach(var i in operations.Take(Zone.ExecutionCyclesPerTransactionLimit))
+				foreach(var i in operations.Take(Net.ExecutionCyclesPerTransactionLimit))
 				{
 					t.AddOperation(i);
 				}
@@ -1062,7 +1062,7 @@ namespace Uccs.Net
 
 				p.Add(t);
 
-				operations = operations.Skip(Zone.ExecutionCyclesPerTransactionLimit);
+				operations = operations.Skip(Net.ExecutionCyclesPerTransactionLimit);
 			}
 
 			return p.ToArray();
@@ -1122,7 +1122,7 @@ namespace Uccs.Net
 						return Send(c);
 					}
 
-					p = ChooseBestPeer(Zone.Id, (long)Role.Base, tried);
+					p = ChooseBestPeer(Net.Id, (long)Role.Base, tried);
 	
 					if(p == null)
 					{
@@ -1198,7 +1198,7 @@ namespace Uccs.Net
 
 		public static void CompareBases(string destination)
 		{
-			foreach(var i in All.OfType<McvNode>().DistinctBy(i => i.Zone.Id))
+			foreach(var i in All.OfType<McvNode>().DistinctBy(i => i.Net.Id))
 			{
 				var  d = Path.Join(destination, i.GetType().Name);
 
@@ -1221,7 +1221,7 @@ namespace Uccs.Net
 			void compare(int table)
 			{
 				var cs = All.OfType<McvNode>()
-							.Where(i => i.Zone.Id == mcv.Zone.Id && i.Mcv != null)
+							.Where(i => i.Net.Id == mcv.Net.Id && i.Mcv != null)
 							.Select(i => new {s = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()})
 							.ToArray();
 	

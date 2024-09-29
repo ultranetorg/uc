@@ -49,17 +49,17 @@ namespace Uccs.Rdn
 			return BigInteger.Parse(File.ReadAllText(p));
 		}
 
-		public string GetZone(McvZone zone)
+		public string GetZone(McvZone net)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task RemoveZone(McvZone zone, IGasAsker asker)
+		public Task RemoveZone(McvZone net, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task SetZone(McvZone zone, string nodes, IGasAsker asker)
+		public Task SetZone(McvZone net, string nodes, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}

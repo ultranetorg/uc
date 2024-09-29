@@ -25,7 +25,7 @@ namespace Uccs.Net
 		public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
 		public McvSettings							Settings;
-		public McvZone								Zone;
+		public McvNet								Net;
 		public McvNode								Node;
 		public IClock								Clock;
 		public object								Lock => Node.Lock;
@@ -76,15 +76,15 @@ namespace Uccs.Net
 		{
   		}
 
-		protected Mcv(McvZone zone, McvSettings settings, string databasepath, bool skipinitload = false)
+		protected Mcv(McvNet net, McvSettings settings, string databasepath, bool skipinitload = false)
 		{
 			///Settings = new RdnSettings {Roles = Role.Chain};
-			Zone = zone;
+			Net = net;
 			Settings = settings;
 
 			CreateTables(databasepath);
 
-			BaseHash = Zone.Cryptography.ZeroHash;
+			BaseHash = Net.Cryptography.ZeroHash;
 
 			if(!skipinitload)
 			{
@@ -96,7 +96,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					if(g.SequenceEqual(Zone.Genesis.FromHex()))
+					if(g.SequenceEqual(Net.Genesis.FromHex()))
 					{
 						Load();
 					}
@@ -109,7 +109,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone, settings, databasepath)
+		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Net, settings, databasepath)
 		{
 			Node = node;
 			Flow = flow;
@@ -122,7 +122,7 @@ namespace Uccs.Net
 			{
 				Tail.Clear();
 	
- 				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.FromHex()));
+ 				var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
 						
 				for(int i = 0; i <= LastGenesisRound; i++)
 				{
@@ -137,7 +137,7 @@ namespace Uccs.Net
 							r.ConsensusExecutionFee = 1;
 
 						if(i == 0)
-							r.ConsensusFundJoiners = [Zone.Father0];
+							r.ConsensusFundJoiners = [Net.Father0];
 						
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
@@ -153,7 +153,7 @@ namespace Uccs.Net
 					throw new IntegrityException("Genesis construction failed");
 			}
 		
-			Database.Put(GenesisKey, Zone.Genesis.FromHex());
+			Database.Put(GenesisKey, Net.Genesis.FromHex());
 		}
 		
 		public void Load()
@@ -185,14 +185,14 @@ namespace Uccs.Net
 
 				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-				if(lcr.Id < Zone.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
+				if(lcr.Id < Net.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
 				{
 					Clear();
 					Initialize();
 				} 
 				else
 				{
-					for(var i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
+					for(var i = lcr.Id - lcr.Id % Net.CommitLength; i <= lcr.Id; i++)
 					{
 						var r = FindRound(i);
 	
@@ -219,7 +219,7 @@ namespace Uccs.Net
 			Tail.Clear();
 
 			BaseState = null;
-			BaseHash = Zone.Cryptography.ZeroHash;
+			BaseHash = Net.Cryptography.ZeroHash;
 
 			LastCommittedRound = null;
 			LastConfirmedRound = null;
@@ -374,9 +374,9 @@ namespace Uccs.Net
 				if(!Monitor.IsEntered(Lock))
 					Debugger.Break();
 
-			if(LoadedRounds.Count > Zone.CommitLength)
+			if(LoadedRounds.Count > Net.CommitLength)
 			{
-				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.CommitLength))
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
 				{
 					LoadedRounds.Remove(i.Key);
 				}
@@ -479,7 +479,7 @@ namespace Uccs.Net
 					//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
 					//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");
 
-					var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
+					var tail = Tail.AsEnumerable().Reverse().Take(Net.CommitLength);
 
 					foreach(var r in tail)
 						foreach(var t in Tables)

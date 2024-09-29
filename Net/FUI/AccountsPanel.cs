@@ -113,7 +113,7 @@ namespace Uccs.Net.FUI
 			var f = new SaveFileDialog();
 
 			f.FileName = CurrentAccout.ToString();
-			f.DefaultExt = Vault.WalletExt(Mcv.Zone.Cryptography);
+			f.DefaultExt = Vault.WalletExt(Mcv.Net.Cryptography);
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{

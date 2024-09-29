@@ -12,7 +12,7 @@
 	public class UAddress : IBinarySerializable, IEquatable<UAddress> 
 	{
 		public string			Scheme { get; set; }
-		public string			Zone { get; set; }
+		public string			Net { get; set; }
 		public string			Entity{ get; set; }
 
 		public bool				Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
@@ -21,21 +21,21 @@
 		{
 		}
 
-		public UAddress(string scheme, string zone, string entity)
+		public UAddress(string scheme, string net, string entity)
 		{
 			Scheme = scheme;
-			Zone = zone;
+			Net = net;
 			Entity = entity;
 		}
 
 		public override string ToString()
 		{
-			return ToString(Scheme, Zone, Entity);
+			return ToString(Scheme, Net, Entity);
 		}
 
-		public static string ToString(string scheme, string zone, string entity)
+		public static string ToString(string scheme, string net, string entity)
 		{
-			return (scheme == null ? null : (scheme + ':')) + (zone == null ? $"{entity}" : $"{zone}:{entity}");
+			return (scheme == null ? null : (scheme + ':')) + (net == null ? $"{entity}" : $"{net}:{entity}");
 		}
 
 		public static UAddress Parse(string v)
@@ -45,7 +45,7 @@
 			return new UAddress(s, z, e);
 		}
 
-		public static void Parse(string v, out string protocol, out string zone, out string other)
+		public static void Parse(string v, out string protocol, out string net, out string other)
 		{
 			int i;
 			
@@ -56,7 +56,7 @@
 				protocol = v.Substring(0, a);
 			else
 			{
-				zone = null;
+				net = null;
 				protocol = null;
 				other = v;
 				return;
@@ -64,12 +64,12 @@
 				
 			if(a != -1 && b != -1 && v[a] == ':' && v[b] == ':')
 			{
-				zone = v.Substring(a + 1, b - a - 1);
+				net = v.Substring(a + 1, b - a - 1);
 				i = b + 1; 
 			}
 			else
 			{
-				zone = null;
+				net = null;
 				i = a + 1;
 			}
 
@@ -83,7 +83,7 @@
 
 		public bool Equals(UAddress o)
 		{
-			return Scheme == o.Scheme && Zone == o.Zone && Entity == o.Entity;
+			return Scheme == o.Scheme && Net == o.Net && Entity == o.Entity;
 		}
 
  		public override int GetHashCode()
@@ -101,8 +101,8 @@
 			if(Scheme.CompareTo(other.Scheme) != 0)
 				return Scheme.CompareTo(other.Scheme);
 
-			if(Zone != other.Zone)
-				return Zone.CompareTo(other.Zone);
+			if(Net != other.Net)
+				return Net.CompareTo(other.Net);
 
 			if(Entity.CompareTo(other.Entity) != 0)
 				return Entity.CompareTo(other.Entity);

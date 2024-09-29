@@ -48,7 +48,7 @@ namespace Uccs.Rdn
 
 				case Urrsd a :
 					///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
-					///.itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+					///.itg = new SPDIntegrity(sun.Net.Cryptography, a, au.Owner);
 					throw new NotSupportedException();
 					
 				default:

@@ -206,7 +206,7 @@ namespace Uccs.Rdn
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
-														else if(integrity.Verify(Rdn.Zone.Cryptography.HashFile([]))) /// zero-length file
+														else if(integrity.Verify(Rdn.Net.Cryptography.HashFile([]))) /// zero-length file
 														{
 															File.Write(0, []);
 															Succeeded = true;

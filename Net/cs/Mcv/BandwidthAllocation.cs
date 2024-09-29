@@ -5,7 +5,7 @@
 		public long				Bandwidth;
 		public short			Days;
 		public override string	Description => $"Allocation of {Bandwidth} EC for {Days} days";
-		public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Zone.BandwidthAllocationDaysMaximum;
+		public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Net.BandwidthAllocationDaysMaximum;
 		
 		public BandwidthAllocation()
 		{
@@ -37,7 +37,7 @@
 
 			for(int i=1; i<=Days; i++)
 			{
-				if(round.NextBandwidthAllocations[i] + Bandwidth < mcv.Zone.BandwidthAllocationPerDayMaximum)
+				if(round.NextBandwidthAllocations[i] + Bandwidth < mcv.Net.BandwidthAllocationPerDayMaximum)
 				{
 					round.NextBandwidthAllocations[i] += Bandwidth;
 				}

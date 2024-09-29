@@ -6,7 +6,7 @@
 
 		public Xon			Commnand;
 	 	public string		Profile;
-		public string		Zone;
+		public string		Net;
 
 		public Boot()
 		{
@@ -18,14 +18,14 @@
 			Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
 			if(Commnand.Has("interzone"))
-				Zone = Commnand.Get<string>("interzone");
+				Net = Commnand.Get<string>("interzone");
 			else
-				Zone = b.Get<string>("Interzone");
+				Net = b.Get<string>("Interzone");
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
 			else
-				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone);
+				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Net);
 		}
 	}
 }

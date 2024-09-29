@@ -88,7 +88,7 @@
 		{
 			var e = round.AffectAccount(account);	
 
-			if(e.New && (Signer.Address != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
+			if(e.New && (Signer.Address != round.Mcv.Net.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 			{
 				Signer.BYBalance -= round.AccountAllocationFee(e);
 			}

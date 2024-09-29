@@ -33,7 +33,7 @@ namespace Uccs.Net
 
 	public class ZonePeers
 	{
-		public Guid				Zone {get; set;}
+		public Guid				Net {get; set;}
 		public List<InterPeer>	Peers {get; set;}
 	}
 
@@ -45,10 +45,10 @@ namespace Uccs.Net
 		bool									MinimalPeersReached;
 
 		//public Clock							Clock;
-		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Zone.Id == id);
+		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Net.Id == id);
 		public T								Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
-		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Interzone.Byid(zuid), settings ?? new IznSettings(profile), workflow)
+		public InterzoneNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Nexus.Byid(zuid), settings ?? new IznSettings(profile), workflow)
 		{
 			if(Settings.Api != null)
 			{
@@ -67,15 +67,15 @@ namespace Uccs.Net
 		protected override void Share(Peer peer)
 		{
 			peer.Post(new ShareZonesRequest {	Broadcast = false,
-												Zones = Zones.Select(i => new ShareZonesRequest.Z {	Id = i.Zone, 
+												Zones = Zones.Select(i => new ShareZonesRequest.Z {	Id = i.Net, 
 																									Peers = i.Peers.ToArray()}).ToArray()});
 		}
 
 		public ZonePeers GetZone(Guid id)
 		{
-			if(Zones.Find(i => i.Zone == id) is not ZonePeers z)
+			if(Zones.Find(i => i.Net == id) is not ZonePeers z)
 			{ 
-				z = new ZonePeers {Zone = id, Peers = [] };
+				z = new ZonePeers {Net = id, Peers = [] };
 				Zones.Add(z);
 			}
 
@@ -86,13 +86,13 @@ namespace Uccs.Net
 		{
 			Nodes.Add(node);
 
-			var z = GetZone(node.Zone.Id);
+			var z = GetZone(node.Net.Id);
 			var p = new InterPeer {IP = Settings.Peering.IP ?? IP, Roles = node.Roles};
 			z.Peers.Add(p);
 
 			foreach(var c in Connections)
 			{
-				c.Post(new ShareZonesRequest {Broadcast = true, Zones = [new ShareZonesRequest.Z {Id = node.Zone.Id, Peers = [p]}]});
+				c.Post(new ShareZonesRequest {Broadcast = true, Zones = [new ShareZonesRequest.Z {Id = node.Net.Id, Peers = [p]}]});
 			}
 		}
 

@@ -210,7 +210,7 @@ namespace Uccs.Rdn
 					case Urrsd x :
 						var d = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
 						var aa = rdn.Call(() => new AccountRequest(d.Owner), workflow).Account;
-						itg = new SPDIntegrity(rdn.Zone.Cryptography, x, aa.Address);
+						itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
 						break;
 	
 					default:
@@ -277,7 +277,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), Wei, workflow);
+			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnZone).EthereumNetwork)), Wei, workflow);
 		}
 	}
 
@@ -297,7 +297,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
+			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnZone).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
 			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 		}
 	}

@@ -7,7 +7,7 @@ namespace Uccs.Uos
 		public string			ProductsPath;	
 		public string			SunAddress; 		
 		public string			SunApiKey;
-		//public McvZone			Zone;
+		//public McvZone			Net;
 		//
 		//public ResourceHub		ResourceHub;
 		//public PackageHub		PackageHub;
@@ -25,18 +25,18 @@ namespace Uccs.Uos
 			//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 			//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 			//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
-			//Zone			=	Environment.GetEnvironmentVariable(Nexus.BootZone);
+			//Net			=	Environment.GetEnvironmentVariable(Nexus.BootZone);
 
 			//Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 			//
 			//var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Flow("GetSettings"));
 
-			//ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
+			//ResourceHub = new ResourceHub(null, Net, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			//PackageHub = new PackageHub(null, ProductsPath);
 
 			Uos = new UosApiClient(http, Environment.GetEnvironmentVariable(Application.ApiAddressEnvKey), Environment.GetEnvironmentVariable(Application.ApiKeyEnvKey));
 
-			var s = Uos.Request<NodeInstance>(new NodeInfoApc {Mcvid = RdnZone.Local.Id}, new Flow(GetType().Name));
+			var s = Uos.Request<NodeInstance>(new NodeInfoApc { Mcvid = Uccs.Rdn.Rdn.Local.Id}, new Flow(GetType().Name));
 
 			Rdn = new RdnApiClient(http, s.Api.ListenAddress, s.Api.AccessKey);
 		}

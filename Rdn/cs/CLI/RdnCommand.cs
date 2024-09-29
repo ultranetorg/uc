@@ -42,7 +42,7 @@ namespace Uccs.Rdn.CLI
 
 		protected void ReportNetwork()
 		{
-			Flow.Log.Report($"Current Zone    : {Program.Zone}");
+			Flow.Log.Report($"Current Net    : {Program.Net}");
 		}
 
 		public void Api(Apc call)

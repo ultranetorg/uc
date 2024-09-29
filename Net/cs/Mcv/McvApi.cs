@@ -290,7 +290,7 @@ namespace Uccs.Net
 
 		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var t = new Transaction {Zone = mcv.Mcv.Zone, Operations = Operations.ToArray()};
+			var t = new Transaction {Net = mcv.Mcv.Net, Operations = Operations.ToArray()};
 			t.Sign(mcv.Vault.GetKey(By), []);
 
 			return mcv.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);

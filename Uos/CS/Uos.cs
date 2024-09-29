@@ -81,7 +81,7 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 			Boot = new Boot(ExeDirectory);
-			var s = new UosSettings(Boot.Profile, "The Uos", Interzone.ByName(Boot.Zone));
+			var s = new UosSettings(Boot.Profile, "The Uos", Nexus.ByName(Boot.Net));
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Execute(Boot.Commnand.Nodes, u.Flow);
@@ -102,7 +102,7 @@ namespace Uccs.Uos
 			//Environment.SetEnvironmentVariable(BootProductsPath,productspath);
 			//Environment.SetEnvironmentVariable(BootSunAddress,	sunaddress);
 			//Environment.SetEnvironmentVariable(BootSunApiKey,	sunapikey);
-			//Environment.SetEnvironmentVariable(BootZone,		zone.Name);
+			//Environment.SetEnvironmentVariable(BootZone,		net.Name);
 
 			//ReportPreambule();
 			//ReportNetwork();

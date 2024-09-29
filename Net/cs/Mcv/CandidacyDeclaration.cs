@@ -42,13 +42,13 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Zone.DeclarationCost)
+			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Net.DeclarationCost)
 			{
 				Error = NotEnoughEC;
 				return;
 			}
 
-			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Zone.DeclarationCost);
+			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
 
 			Affected = round.AffectCandidate(Signer.Id);
 			
@@ -57,7 +57,7 @@ namespace Uccs.Net
 			Affected.BaseRdcIPs	= BaseRdcIPs;
 			Affected.Registered	= round.Id;
 			
-			if(round.Candidates.Count >= mcv.Zone.CandidatesMaximum)
+			if(round.Candidates.Count >= mcv.Net.CandidatesMaximum)
 			{
 				round.Candidates.RemoveAt(0);
 			}

@@ -15,7 +15,7 @@ namespace Uccs.Rdn
  	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
  	{
  		public abstract byte[]			MemberOrderKey { get; }
-		public string					Zone { get; set; }
+		public string					Net { get; set; }
  		public byte[]					Raw {
 												get
 												{
@@ -59,7 +59,7 @@ namespace Uccs.Rdn
 								_ => throw new FormatException()
 							};
 
-			a.Zone = z;
+			a.Net = z;
 			a.ParseSpecific(o);
 
 			return a;
@@ -139,14 +139,14 @@ namespace Uccs.Rdn
 
 			var a = new Urrh();
 
-			a.Zone = z;
+			a.Net = z;
 			a.ParseSpecific(o);
 
 			return a;
 		}
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Zone, Hash.ToHex());
+			return UAddress.ToString(Scheme, Net, Hash.ToHex());
 		}
 
 		public override void ParseSpecific(string t)
@@ -184,7 +184,7 @@ namespace Uccs.Rdn
  
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Zone, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
+			return UAddress.ToString(Scheme, Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
 		}
 		
 		public override void ParseSpecific(string t)
@@ -254,7 +254,7 @@ namespace Uccs.Rdn
 			return Type	switch
 						{
 							UrrScheme.Urrh => new Urrh {Hash = hash},
-							UrrScheme.Urrsd => Urrsd.Create(sun.Zone.Cryptography, sun.Node.Vault.GetKey(Owner), Resource, hash),
+							UrrScheme.Urrsd => Urrsd.Create(sun.Net.Cryptography, sun.Node.Vault.GetKey(Owner), Resource, hash),
 							_ => throw new ResourceException(ResourceError.UnknownAddressType)
 						};
 

@@ -28,7 +28,7 @@ namespace Uccs.Rdn.CLI
 	
 															var t = DateTime.Now;
 	
-															client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
+															client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.Port);
 				
 															Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	
@@ -51,7 +51,7 @@ namespace Uccs.Rdn.CLI
 													var host = Args[0].Name;
 													var s = host.Split(':');
 
-													var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
+													var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.Port);
 													Listener.Start();
 
 													Report($"Listening...");

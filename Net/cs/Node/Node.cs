@@ -60,7 +60,7 @@ namespace Uccs.Net
 
 	public abstract class Node : IPeer
 	{
-		public Zone									Zone;
+		public Net									Net;
 		public abstract long						Roles { get; }
 		public IEnumerable<Peer>					Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
 
@@ -100,10 +100,10 @@ namespace Uccs.Net
 		protected virtual void						CreateTables(ColumnFamilies columns) {}
 		protected virtual void						Share(Peer peer) {}
 
-		public Node(string name, Zone zone, NodeSettings settings, Flow flow)
+		public Node(string name, Net net, NodeSettings settings, Flow flow)
 		{
 			Name = name;
-			Zone = zone;
+			Net = net;
 			Settings = settings;
 			Flow = flow;
 
@@ -286,7 +286,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Peers = Zone.Initials.Select(i => new Peer(i) {Recent = false, LastSeen = DateTime.MinValue}).ToList();
+				Peers = Net.Initials.Select(i => new Peer(i) {Recent = false, LastSeen = DateTime.MinValue}).ToList();
 
 				UpdatePeers(Peers);
 			}
@@ -402,7 +402,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.ZoneId		= Zone.Id;
+				h.ZoneId		= Net.Id;
 				h.Roles			= Roles;
 				h.Versions		= Versions;
 				h.IP			= ip;
@@ -432,7 +432,7 @@ namespace Uccs.Net
 
 					tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
 					//client.ReceiveTimeout = Timeout;
-					tcp.Connect(peer.IP, Zone.Port);
+					tcp.Connect(peer.IP, Net.Port);
 				}
 				catch(SocketException ex) 
 				{
@@ -467,7 +467,7 @@ namespace Uccs.Net
 					if(!h.Versions.Any(i => Versions.Contains(i)))
 						goto failed;
 
-					if(h.ZoneId != Zone.Id)
+					if(h.ZoneId != Net.Id)
 						goto failed;
 
 					if(h.PeerId == PeerId)
@@ -602,7 +602,7 @@ namespace Uccs.Net
 					if(!h.Versions.Any(i => Versions.Contains(i)))
 						goto failed;
 
-					if(h.ZoneId != Zone.Id)
+					if(h.ZoneId != Net.Id)
 						goto failed;
 
 					if(h.PeerId == PeerId)

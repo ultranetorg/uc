@@ -59,7 +59,7 @@ namespace Uccs.Rdn.CLI
 
 													if(Has("from/key"))
 													{
-														from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Zone.EthereumNetwork);
+														from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Net.EthereumNetwork);
 													}
 													else
 													{
@@ -77,7 +77,7 @@ namespace Uccs.Rdn.CLI
 
 														from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																												p, 
-																												new BigInteger((int)Program.Zone.EthereumNetwork));
+																												new BigInteger((int)Program.Net.EthereumNetwork));
 													}
 			
 													var f = Api<EmitFunction>(new EstimateEmitApc  {FromPrivateKey = from.PrivateKey.HexToByteArray(),
@@ -136,7 +136,7 @@ namespace Uccs.Rdn.CLI
 
 													if(Has("from/key"))
 													{
-														from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Zone.EthereumNetwork);
+														from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Net.EthereumNetwork);
 													}
 													else
 													{
@@ -154,7 +154,7 @@ namespace Uccs.Rdn.CLI
 
 														from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																												p, 
-																												new BigInteger((int)Program.Zone.EthereumNetwork));
+																												new BigInteger((int)Program.Net.EthereumNetwork));
 													}
 			
 													var t = Api<TransactionReceipt>(new EmitApc{FromPrivateKey = from.PrivateKey.HexToByteArray(),

@@ -154,7 +154,7 @@
 					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
 			}
 
-			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationDurationLimit);
 			#endif
 
 			foreach(var i in ConsensusMigrations)
@@ -170,7 +170,7 @@
 					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AverageUptime -= 10;
 			}
 
-			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationRoundDurationLimit);
+			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);
 		}
 
 		public override void WriteBaseState(BinaryWriter writer)

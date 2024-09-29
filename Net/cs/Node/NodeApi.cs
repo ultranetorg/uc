@@ -160,7 +160,7 @@ namespace Uccs.Net
 
 				if(sun is McvNode m)
 				{
-					f.Add(new ("Zone",  m.Zone.Name));
+					f.Add(new ("Net",  m.Net.Name));
 				}
 
 				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));

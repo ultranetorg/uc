@@ -46,7 +46,7 @@
 		{
 			List<ExecutionReservation> d = null;
 
-			if(Signer.Address != chain.Zone.God || round.Id > Mcv.LastGenesisRound)
+			if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
 			{
 				if(ECExpiration != Time.Empty)
 				{

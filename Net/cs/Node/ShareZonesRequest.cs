@@ -34,7 +34,7 @@
 						{
 							if(fz == null)
 							{
-								fz = new (){Zone = z.Id, Peers = []};
+								fz = new (){Net = z.Id, Peers = []};
 								fresh.Add(fz);
 							}
 
@@ -45,7 +45,7 @@
 						{
 							if(fz == null)
 							{
-								fz = new (){Zone = z.Id, Peers = []};
+								fz = new (){Net = z.Id, Peers = []};
 								fresh.Add(fz);
 							}
 
@@ -62,7 +62,7 @@
 				foreach(var i in Node.Connections.Where(i => i != Peer))
 				{
 					i.Post(new ShareZonesRequest {	Broadcast = true,
-													Zones = fresh.Select(i => new Z {	Id = i.Zone, 
+													Zones = fresh.Select(i => new Z {	Id = i.Net, 
 																						Peers = i.Peers.ToArray()}).ToArray()});
 				}
 			}

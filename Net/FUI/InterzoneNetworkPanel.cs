@@ -35,7 +35,7 @@ namespace Uccs.Net.FUI
 				foreach(var i in Node.Zones)
 				{
 					var c = new ColumnHeader();
-					c.Text = i.Zone.ToString();
+					c.Text = i.Net.ToString();
 					c.TextAlign = HorizontalAlignment.Center;
 					c.Width = 150;
 					Peers.Columns.Add(c);

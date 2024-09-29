@@ -79,7 +79,7 @@ namespace Uccs.Rdn
 							///	var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
 							///	var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
 							///
-							///	if(!sdp.Prove(Node.Zone.Cryptography, o.Address, rsd.Hash))
+							///	if(!sdp.Prove(Node.Net.Cryptography, o.Address, rsd.Hash))
 							///	{
 							///		return false;
 							///	}

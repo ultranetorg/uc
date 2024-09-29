@@ -88,7 +88,7 @@ namespace Uccs.Uos
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(uos)
-				return uos.Nodes.Find(i => i.Node.Zone.Id == Mcvid);
+				return uos.Nodes.Find(i => i.Node.Net.Id == Mcvid);
 		}
 	}
 

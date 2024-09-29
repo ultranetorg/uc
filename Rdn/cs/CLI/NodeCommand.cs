@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn.CLI
 {
-	internal class NodeCommand : RdnCommand
+	public class NodeCommand : RdnCommand
 	{
 		public const string Keyword = "node";
 
@@ -15,18 +15,18 @@
 // 
 // 			run.Help = new Help(){	Title = "RUN",
 // 									Description = "Runs a new node instance with command-line interface",
-// 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
+// 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [net=ZONE]",
 // 
 // 									Arguments =
 // 									[
 // 										new ("flags", "One or more flags: 'api' to start JSON API Server, 'peer' to connect to Ultranet network and activate specified node roles, 'base' to enable Base support for the node database, 'chain' to enable Chain support for the node database, 'seed' to enable seed role for the node."),
 // 										new ("profile", "File path to local profile directory"),
-// 										new ("zone", "Network zone to connect")
+// 										new ("net", "Network net to connect")
 // 									],
 // 
 // 									Examples =
 // 									[
-// 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun zone=Testzone")
+// 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun net=Testzone")
 // 									]};
 			
 			attach.Execute = () =>	{
@@ -73,7 +73,7 @@
 
 									};
 
-			attach.Help = new Help{ Title = "ATTACH",
+			attach.Help = new Help{ Title = "Attach",
 									Description = "Connects to existing node instance via JSON RPC protocol",
 									Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey=PASSWORD",
 
@@ -118,7 +118,7 @@
 									return null;
 								};
 
-			send.Help = new Help {	Title = "SEND",
+			send.Help = new Help {	Title = "Send",
 									Description = "Send spicified command to existing running node",
 									Syntax = $"{Keyword} {send.NamesSyntax} HOST accesskey=PASSWORD command",
 
@@ -146,7 +146,7 @@
 																return r;
 															}};
 
-			peers.Help = new () {	Title = "PEERS",
+			peers.Help = new () {	Title = "Peers",
 									Description = "Gets a list of existing connections",
 									Syntax = $"{Keyword} {peers.NamesSyntax}",
 
@@ -172,7 +172,7 @@
 															return r;
 														}};
 
-			it.Help = new Help{	Title = "INCOMING TRANSACTIONS",
+			it.Help = new Help{	Title = "Incoming Transactions",
 								Description = "Gets current list of incomming transactions",
 								Syntax = $"{Keyword} {it.NamesSyntax}",
 
@@ -198,7 +198,7 @@
 															return r;
 														}};
 
-			ot.Help = new Help{ Title = "OUTGOING TRANSACTIONS",
+			ot.Help = new Help{ Title = "Outgoing Transactions",
 								Description = "Gets current list of outgoing transactions",
 								Syntax = $"{Keyword} {ot.NamesSyntax}",
 
@@ -219,7 +219,7 @@
 																}};
 
 
-			property.Help = new Help {	Title = "PROPERTY",
+			property.Help = new Help {	Title = "Property",
 										Description = "Displays a value of node internal state",
 										Syntax = $"{Keyword} {property.NamesSyntax} TEXT",
 
@@ -230,7 +230,44 @@
 											new (null, "node property Mcv.Size")
 										]};
 			
-			Actions = [attach, send, peers, it, ot, property];
+			var mebbership = new CommandAction(){
+													Names = ["m", "membership"],
+
+													Help = new Help
+													{ 
+														Title = "Membership",
+														Description = "Get information about membership status of specified account",
+														Syntax = "nexus m|membership UAA",
+
+														Arguments =
+														[
+															new ("<first>>", "Ultranet account public address to check the membership status")
+														],
+
+														Examples =
+														[
+															new (null, $"{Keyword} m 0x0000fffb3f90771533b1739480987cee9f08d754")
+														]
+													},
+
+													Execute = () =>	{
+																		Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+
+																		var rp = Rdc(new MembersRequest());
+	
+																		var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
+
+																		if(m == null)
+																			throw new EntityException(EntityError.NotFound);
+
+																		Dump(m);
+
+																		return m;
+																	}
+												};
+
+
+			Actions = [attach, send, mebbership, peers, it, ot, property];
 		
 		}
 

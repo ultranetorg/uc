@@ -6,7 +6,7 @@ namespace Uccs.Rdn.CLI
 	public class Program
 	{
 		public string			ExeDirectory;
-		public RdnZone			Zone;
+		public Rdn			Net;
 		internal RdnNode		Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
@@ -24,11 +24,11 @@ namespace Uccs.Rdn.CLI
 			if(!b.Commnand.Nodes.Any())
 				return;
 
-			Zone = RdnZone.ByName(b.Zone);
+			Net = Rdn.ByName(b.Net);
 
 			try
 			{
-				//Sun = new Net.Sun(Zone, Settings, Flow);
+				//Sun = new Net.Sun(Net, Settings, Flow);
 
 				var l = new Log();
 				LogView.StartListening(l);
@@ -52,7 +52,7 @@ namespace Uccs.Rdn.CLI
 				}
 
 				Directory.CreateDirectory(b.Profile);
-				File.WriteAllText(Path.Join(b.Profile, "CLI." + Net.Node.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(b.Profile, "CLI." + Uccs.Net.Node.FailureExt), ex.ToString());
 			}
 
 			LogView.StopListening();
@@ -91,7 +91,6 @@ namespace Uccs.Rdn.CLI
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, f); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args, f); break;
 				case EconomyCommand.Keyword:	c = new EconomyCommand(this, args, f); break;
-				case NexusCommand.Keyword:		c = new NexusCommand(this, args, f); break;
 				case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args, f); break;
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, f); break;

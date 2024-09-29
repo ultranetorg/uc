@@ -40,11 +40,11 @@ namespace Uccs.Tests
  		{
  			var s = new List<Ura>(){	Ura.Parse($"{Ura.Scheme}:a/r"),
 										Ura.Parse($"{Ura.Scheme}:aa/rr"),
-										Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")};
+										Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")};
 
 			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:a/r")) == 1);
 			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:aa/rr")) == 1);
-			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")) == 1);
 
 			Assert.DoesNotContain(Ura.Parse("ura:wrong.aaa/rrr"), s);
  		}

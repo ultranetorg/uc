@@ -317,8 +317,8 @@ namespace Uccs.Rdn
 			
  			lock(Node.ResourceHub.Lock)
  			{
-				m.CompleteHash		= Node.ResourceHub.Zone.Cryptography.HashFile(cstream.ToArray());
-				m.IncrementalHash	= istream != null ? Node.ResourceHub.Zone.Cryptography.HashFile(istream.ToArray()) : null;
+				m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream.ToArray());
+				m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream.ToArray()) : null;
 
 				if(previous != null) /// a single parent supported only
 				{
@@ -332,7 +332,7 @@ namespace Uccs.Rdn
 					m.History = (Find(previous).Manifest.History ?? []).Append(previous).ToArray();
 				}
 
-				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
+				var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
 
 				var a = addresscreator.Create(Node.Mcv, h);
 				var r = Node.ResourceHub.Add(a);

@@ -35,8 +35,8 @@
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;
-		public AccountAddress			Signer { get => _Signer ??= Zone.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-		public McvZone					Zone;
+		public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
+		public McvNet					Net;
 		public TransactionStatus		Status;
 		public IPeer					Rdi;
 		public Flow						Flow;
@@ -45,8 +45,8 @@
 		public bool Valid(Mcv mcv)
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
-					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.ExecutionCyclesPerTransactionLimit &&
-					(!mcv.Zone.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
+					(!mcv.Net.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction()
@@ -62,7 +62,7 @@
 		{
 			Signer = signer;
 
-			if(!Zone.PoW || powhash.SequenceEqual(Zone.Cryptography.ZeroHash))
+			if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
 			{
 				PoW = new byte[PoWLength];
 			}
@@ -87,7 +87,7 @@
 				PoW = x.Skip(32).ToArray();
             }
 
-			Signature = Zone.Cryptography.Sign(signer, Hashify());
+			Signature = Net.Cryptography.Sign(signer, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -106,7 +106,7 @@
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Zone.Id);
+			w.Write(Net.Id);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);

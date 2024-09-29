@@ -3,24 +3,24 @@ using System.Reflection;
 
 namespace Uccs.Rdn
 {
-	public abstract class RdnZone : McvZone
+	public abstract class Rdn : McvNet
 	{
-		public override	string					Name => "Rdn" + Scope.ToString();
-		public override ushort					BasePort => 020;
+		public override	string				Name => "Rdn" + Scope.ToString();
+		public override ushort				BasePort => 020;
  		
-		public bool								Auctions				= false;
-		public long								DomainRankCheckECFee	= 5;
+		public bool							Auctions				= false;
+		public long							DomainRankCheckECFee	= 5;
 
- 		public static readonly RdnZone			Local = new RdnLocalZone();
- 		public static readonly RdnZone			Test = new RdnTestZone();
- 		public static readonly RdnZone			Developer0 = new RdnDeveloper0Zone();
-		public static readonly RdnZone			Main = null;
-		public static readonly RdnZone[]		Official = [Local, Developer0, Test];
+ 		public static readonly Rdn			Local = new RdnLocalZone();
+ 		public static readonly Rdn			Test = new RdnTestZone();
+ 		public static readonly Rdn			Developer0 = new RdnDeveloper0Zone();
+		public static readonly Rdn			Main = null;
+		public static readonly Rdn[]		Official = [Local, Developer0, Test];
 
-		public static RdnZone					ByName(string name) => Official.First(i => i.Name == name);
-		public static RdnZone					ById(Guid zoneid) => Official.First(i => i.Id == zoneid);
+		public static Rdn					ByName(string name) => Official.First(i => i.Name == name);
+		public static Rdn					ById(Guid zoneid) => Official.First(i => i.Id == zoneid);
 		
-		public RdnZone()
+		public Rdn()
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace Uccs.Rdn
 			return Name;
 		}
 
-		static RdnZone()
+		static Rdn()
 		{
 			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
 				ITypeCode.Contructors[typeof(PeerRequest)] = [];
@@ -70,7 +70,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class RdnLocalZone : RdnZone
+	public class RdnLocalZone : Rdn
 	{	
 		public override	ZoneScope	Scope => ZoneScope.Local;
 		
@@ -89,7 +89,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class RdnDeveloper0Zone : RdnZone
+	public class RdnDeveloper0Zone : Rdn
 	{
 		public override	ZoneScope	Scope => ZoneScope.Developer0;
 	
@@ -105,7 +105,7 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class RdnTestZone : RdnZone
+	public class RdnTestZone : Rdn
 	{
 		public override	ZoneScope	Scope => ZoneScope.PublicTest;
 	

@@ -18,7 +18,7 @@ namespace Uccs.Rdn
 	public class RdnNode : McvNode
 	{
 		public override long					Roles => Mcv == null ? 0 : Mcv.Settings.Roles;
-		public new RdnZone						Zone => base.Zone as RdnZone;
+		public new Rdn					Net => base.Net as Rdn;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public new RdnSettings					Settings => base.Settings as RdnSettings;
 
@@ -29,9 +29,9 @@ namespace Uccs.Rdn
 		public PackageHub						PackageHub;
 		public SeedHub							SeedHub;
 
-		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, RdnZone.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
+		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, Rdn.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
 		{
-			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
+			Flow.Log?.Report(this, $"Net: {Net.Name}");
 		
 			if(Settings.Api != null)
 			{
@@ -40,7 +40,7 @@ namespace Uccs.Rdn
 
 			if(Settings.Seed != null)
 			{
-				ResourceHub = new ResourceHub(this, Zone, Settings.Seed);
+				ResourceHub = new ResourceHub(this, Net, Settings.Seed);
 				PackageHub = new PackageHub(this, Settings.Seed){DeploymentPath = packagespath};
 			}
 
@@ -88,8 +88,8 @@ namespace Uccs.Rdn
 											}
 										}
 	
-										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationRoundDurationLimit);
-										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationRoundDurationLimit);
+										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
 									};
 
 				if(Settings.Generators.Any())

@@ -48,7 +48,7 @@
 			{
 				if(_Generator == null)
 				{
-					_Generator = Mcv.Zone.Cryptography.AccountFrom(Signature, Hashify());
+					_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, Hashify());
 				}
 
 				return _Generator;
@@ -95,7 +95,7 @@
 		public void Sign(AccountKey generator)
 		{
 			_Generator = generator;
-			Signature = Mcv.Zone.Cryptography.Sign(generator, Hashify());
+			Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
 		}
 
 		protected byte[] Hashify()
@@ -103,7 +103,7 @@
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.WriteUtf8(Mcv.Zone.Name);
+			w.WriteUtf8(Mcv.Net.Name);
 			w.Write(_Generator);
 			w.Write7BitEncodedInt(RoundId);
 
@@ -138,7 +138,7 @@
 			Violators			= reader.ReadArray<EntityId>();
 
 			Transactions = reader.ReadArray(() =>	{
-														var t = new Transaction {Zone = Mcv.Zone, Mcv = Mcv, Vote = this};
+														var t = new Transaction {Net = Mcv.Net, Mcv = Mcv, Vote = this};
 														t.ReadForVote(reader);
 														return t;
 													});

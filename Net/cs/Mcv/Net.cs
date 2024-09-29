@@ -20,15 +20,15 @@ namespace Uccs.Net
 		PublicTest
 	}
 
-	public abstract class Zone
+	public abstract class Net
 	{
 		public abstract string		Name { get; }
-		public IPAddress[]			Initials;
 		public Guid					Id;
 		public abstract	ZoneScope	Scope { get; }
 		public abstract ushort		BasePort { get; }
 		public ushort				Port => (ushort)(ScopeBasePort + BasePort);
 
+		public IPAddress[]			Initials;
 		public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
 		public IPAddress[]			UOInitials = @"78.47.204.100 78.47.198.218 78.47.205.229 78.47.214.161 78.47.214.166 78.47.214.170 78.47.214.171
 													 185.196.8.170 185.196.8.171 185.196.8.172 185.196.8.173 185.196.8.174
@@ -67,7 +67,7 @@ namespace Uccs.Net
 			return Name;
 		}
 
-		static Zone()
+		static Net()
 		{
 			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
 				ITypeCode.Contructors[typeof(PeerRequest)] = [];
@@ -96,60 +96,60 @@ namespace Uccs.Net
 
 	}
 
-	public abstract class Interzone : Zone
+	public abstract class Nexus : Net
 	{
-		public override ushort				BasePort => 010; /// 00XX0
-		public override	string				Name => Scope.ToString();
+		public override ushort			BasePort => 010; /// 00XX0
+		public override	string			Name => Scope.ToString();
 
-		public static readonly Interzone	Local = new LocalInterzone();
- 		public static readonly Interzone	PublicTest = new PublicTestInterzone();
- 		public static readonly Interzone	Developer0 = new Developer0Interzone();
-		public static readonly Interzone	Main = null;
-		public static readonly Interzone[]	Official = {Local, Developer0, PublicTest};
+		public static readonly Nexus	Local = new LocalNexus();
+ 		public static readonly Nexus	PublicTest = new PublicTestNexus();
+ 		public static readonly Nexus	Developer0 = new Developer0Nexus();
+		public static readonly Nexus	Main = null;
+		public static readonly Nexus[]	Official = {Local, Developer0, PublicTest};
 
-		public static Interzone				ByName(string name) => Official.First(i => i.Name == name);
-		public static Interzone				Byid(Guid zoneid) => Official.First(i => i.Id == zoneid);
+		public static Nexus				ByName(string name) => Official.First(i => i.Name == name);
+		public static Nexus				Byid(Guid zoneid) => Official.First(i => i.Id == zoneid);
 
-		public abstract Guid				DefaultRdn { get; }
+		public abstract Guid			DefaultRdn { get; }
 	}
 
-	public class LocalInterzone : Interzone
+	public class LocalNexus : Nexus
 	{
 		public override	ZoneScope	Scope => ZoneScope.Local;
 		public override Guid		DefaultRdn => new Guid("FFFFFFFF-1002-0000-0000-000000000000");
 
-		public LocalInterzone()
+		public LocalNexus()
 		{
 			Id			= new Guid("FFFFFFFF-1001-0000-0000-000000000000");
 			Initials	= LocalInitials;
 		}
 	}
 
-	public class Developer0Interzone : Interzone
+	public class Developer0Nexus : Nexus
 	{
 		public override	ZoneScope	Scope => ZoneScope.Developer0;
 		public override Guid		DefaultRdn => new Guid("FFFFFFFF-2002-0000-0000-000000000000");
 
-		public Developer0Interzone()
+		public Developer0Nexus()
 		{
 			Id			= new Guid("FFFFFFFF-2001-0000-0000-000000000000");
 			Initials	= UOInitials;
 		}
 	}
 
-	public class PublicTestInterzone : Interzone
+	public class PublicTestNexus : Nexus
 	{
 		public override	ZoneScope	Scope => ZoneScope.PublicTest;
 		public override Guid		DefaultRdn => new Guid("30020000-0000-0000-0000-000000000000");
 
-		public PublicTestInterzone()
+		public PublicTestNexus()
 		{
 			Id			= new Guid("30010000-0000-0000-0000-000000000000");
 			Initials	= UOInitials;
 		}
 	}
 
-	public abstract class McvZone : Zone
+	public abstract class McvNet : Net
 	{
 		public const long		IdealRoundsPerDay						= 60*60*24;
 		public Time				ECLifetime { get; protected set; }		= Time.FromYears(1);
@@ -183,7 +183,7 @@ namespace Uccs.Net
 		public IPAddress		Father0IP;
 		public ZoneCreation		Creation;
 
-		static McvZone()
+		static McvNet()
 		{
 			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
 				ITypeCode.Contructors[typeof(PeerRequest)] = [];
