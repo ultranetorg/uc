@@ -5,7 +5,7 @@
 		public class Z
 		{
 			public Guid			Id {get; set;}
-			public InterPeer[]	Peers {get; set;}
+			public NexusPeer[]	Peers {get; set;}
 		}
 
 		public Z[]				Nets { get; set; }
@@ -30,7 +30,7 @@
 
 					foreach(var p in z.Peers)
 					{
-						if(kz.Peers.Find(i => i.IP.Equals(p.IP)) is not InterPeer kp)
+						if(kz.Peers.Find(i => i.IP.Equals(p.IP)) is not NexusPeer kp)
 						{
 							if(fz == null)
 							{

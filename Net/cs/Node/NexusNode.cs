@@ -2,18 +2,18 @@
 
 namespace Uccs.Net
 {
-	public class IznSettings : NodeSettings
+	public class NexusNodeSettings : NodeSettings
 	{
-		public IznSettings()
+		public NexusNodeSettings()
 		{
 		}
 
-		public IznSettings(string profile) : base(profile)
+		public NexusNodeSettings(string profile) : base(profile)
 		{
 		}
 	}
 
-	public class InterPeer : IBinarySerializable
+	public class NexusPeer : IBinarySerializable
 	{
 		public IPAddress	IP {get; set;}
 		public long			Roles {get; set;}
@@ -34,7 +34,7 @@ namespace Uccs.Net
 	public class NetPeers
 	{
 		public Guid				Net {get; set;}
-		public List<InterPeer>	Peers {get; set;}
+		public List<NexusPeer>	Peers {get; set;}
 	}
 
 	public class NexusNode : Node
@@ -48,7 +48,7 @@ namespace Uccs.Net
 		public Node								FindMcv(Guid id) => Nodes.Find(i => i.Net.Id == id);
 		public T								Find<T>() where T : Node => Nodes.Find(i => i.GetType() == typeof(T)) as T;
 
-		public NexusNode(string name, Guid zuid, string profile, IznSettings settings, Flow workflow) : base(name, Nexus.Byid(zuid), settings ?? new IznSettings(profile), workflow)
+		public NexusNode(string name, Guid zuid, string profile, NexusNodeSettings settings, Flow workflow) : base(name, Nexus.Byid(zuid), settings ?? new NexusNodeSettings(profile), workflow)
 		{
 			if(Settings.Api != null)
 			{
@@ -87,7 +87,7 @@ namespace Uccs.Net
 			Nodes.Add(node);
 
 			var z = GetNet(node.Net.Id);
-			var p = new InterPeer {IP = Settings.Peering.IP ?? IP, Roles = node.Roles};
+			var p = new NexusPeer {IP = Settings.Peering.IP ?? IP, Roles = node.Roles};
 			z.Peers.Add(p);
 
 			foreach(var c in Connections)

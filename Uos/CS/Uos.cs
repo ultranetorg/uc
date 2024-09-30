@@ -160,7 +160,7 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunIcn(IznSettings settings = null)
+		public void RunIcn(NexusNodeSettings settings = null)
 		{
 			var f = Flow.CreateNested(nameof(Izn), new Log());
 
