@@ -11,7 +11,7 @@ namespace Uccs.Net
 	public abstract class Mcv /// Mutual chain voting
 	{
 		public const int							P = 8; /// pitch
-		public const int							VotesMaximum = 21; /// pitch
+		public const int							VotesRequired = 125; /// 1000/8
 		public const int							JoinToVote = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
 		public const int							LastGenesisRound = P*3 - 1;

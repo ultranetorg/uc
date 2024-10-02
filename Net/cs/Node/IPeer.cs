@@ -144,7 +144,7 @@ namespace Uccs.Net
 				{
 					Execute();
 				}
-				catch(Exception ex) when(!Debugger.IsAttached || ex is EntityException || ex is NodeException || ex is RequestException)
+				catch(Exception ex) when(!Debugger.IsAttached || ex is NetException)
 				{
 				}
 

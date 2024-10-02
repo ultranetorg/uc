@@ -21,7 +21,7 @@ namespace Uccs.Net
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-		public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members.Take(Mcv.VotesMaximum);
+		public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members.Take(Mcv.VotesRequired);
 
 		public List<Vote>									Votes = new();
 		public List<AccountAddress>							Forkers = new();
@@ -33,7 +33,7 @@ namespace Uccs.Net
 																{
 																	var vr = Mcv.FindRound(VotersId);
 
-																	return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesMaximum);
+																	return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesRequired);
 																}
 															}
 		public IGrouping<byte[], Vote>						MajorityByParentHash => Selected.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
@@ -108,7 +108,7 @@ namespace Uccs.Net
 			if(n == 2)	return 2;
 			if(n == 4)	return 3;
 		
-			return Math.Min(n, Mcv.VotesMaximum) * 2/3;
+			return Math.Min(n, Mcv.VotesRequired) * 2/3;
 		}
 
 		public virtual IEnumerable<object> AffectedByTable(TableBase table)

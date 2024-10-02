@@ -18,7 +18,7 @@ namespace Uccs.Rdn
 	public class RdnNode : McvNode
 	{
 		public override long					Roles => Mcv == null ? 0 : Mcv.Settings.Roles;
-		public new Rdn					Net => base.Net as Rdn;
+		public new Rdn							Net => base.Net as Rdn;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public new RdnSettings					Settings => base.Settings as RdnSettings;
 

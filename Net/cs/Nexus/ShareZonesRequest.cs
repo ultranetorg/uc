@@ -5,7 +5,7 @@
 		public class Z
 		{
 			public Guid			Id {get; set;}
-			public NexusPeer[]	Peers {get; set;}
+			public Endpoint[]	Peers {get; set;}
 		}
 
 		public Z[]				Nets { get; set; }
@@ -14,23 +14,22 @@
 
 		public override PeerResponse Execute()
 		{
-			//if(Peers.Length > 1000)
-			//	throw new RequestException(RequestError.IncorrectRequest);
-		
-			var fresh = new List<NetPeers>();
+			if(!Node.Settings.IsHub)
+				throw new NexusException(NexusError.NotHub);
+
+			var fresh = new List<NexusNode.Cluster>();
 
 			lock(Node.Lock)
 			{
-													
 				foreach(var z in Nets)
 				{
 					var kz = Node.GetNet(z.Id);
 
-					NetPeers fz = null;
+					NexusNode.Cluster fz = null;
 
 					foreach(var p in z.Peers)
 					{
-						if(kz.Peers.Find(i => i.IP.Equals(p.IP)) is not NexusPeer kp)
+						if(kz.Peers.Find(i => i.IP.Equals(p.IP)) is not Endpoint kp)
 						{
 							if(fz == null)
 							{
@@ -55,15 +54,15 @@
 					}
 				}
 
-			}
 				
-			if(fresh.Any() && Broadcast)
-			{
-				foreach(var i in Node.Connections.Where(i => i != Peer))
+				if(fresh.Any() && Broadcast)
 				{
-					i.Post(new ShareNetsRequest {	Broadcast = true,
-													Nets = fresh.Select(i => new Z {	Id = i.Net, 
-																						Peers = i.Peers.ToArray()}).ToArray()});
+					foreach(var i in Node.Connections.Where(i => i != Peer))
+					{
+						i.Post(new ShareNetsRequest {Broadcast = true,
+													 Nets = fresh.Select(i => new Z {Id = i.Net, 
+																					 Peers = i.Peers.ToArray()}).ToArray()});
+					}
 				}
 			}
 

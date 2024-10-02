@@ -4,7 +4,9 @@ namespace Uccs.Net
 {
 	public enum ExceptionClass : byte
 	{
-		None, NodeException, RequestException, EntityException, _Next
+		None, NodeException, RequestException, EntityException, 
+		_Next,
+		NexusException = _Next
 	}
 
 	public enum NodeError : byte

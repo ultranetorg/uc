@@ -32,7 +32,7 @@ namespace Uccs.Net.FUI
 
 			lock(Node.Lock)
 			{
-				foreach(var i in Node.Nets)
+				foreach(var i in Node.Clusters)
 				{
 					var c = new ColumnHeader();
 					c.Text = i.Net.ToString();
@@ -41,11 +41,11 @@ namespace Uccs.Net.FUI
 					Peers.Columns.Add(c);
 				}
 
-				foreach(var p in Node.Nets.SelectMany(i => i.Peers))
+				foreach(var p in Node.Clusters.SelectMany(i => i.Peers))
 				{
 					var r = Peers.Items.Add(p.IP.ToString());
 
-					foreach(var z in Node.Nets)
+					foreach(var z in Node.Clusters)
 					{
 						r.SubItems.Add(z.Peers.Contains(p) ? string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()) : "");
 					}

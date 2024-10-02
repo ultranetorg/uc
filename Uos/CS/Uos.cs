@@ -134,9 +134,6 @@ namespace Uccs.Uos
 
 			foreach(var i in Nodes.ToArray())
 			{	
-				lock(Izn.Lock)
-					Izn.Disconnect(i.Node);
-		
 				i.Node.Stop();
 				Nodes.Remove(i);
 			}
@@ -182,7 +179,7 @@ namespace Uccs.Uos
 											Node = n});
 
 				lock(Izn.Lock)
-					Izn.Connect(n);
+					Izn.Declare(n.Net.Id, n.Settings.Roles);
 
 				NodeStarted?.Invoke(n);
 
