@@ -138,7 +138,7 @@
 			Violators			= reader.ReadArray<EntityId>();
 
 			Transactions = reader.ReadArray(() =>	{
-														var t = new Transaction {Net = Mcv.Net, Mcv = Mcv, Vote = this};
+														var t = new Transaction {Net = Mcv.Net, Vote = this};
 														t.ReadForVote(reader);
 														return t;
 													});

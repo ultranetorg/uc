@@ -20,7 +20,6 @@
 #endif
 
 		public McvNet					Net;
-		public Mcv						Mcv;
 		public Vote						Vote;
 		public Round					Round;
 		public EntityId					Generator;

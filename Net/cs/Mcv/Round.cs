@@ -600,7 +600,7 @@ namespace Uccs.Net
 			ConsensusViolators		= reader.ReadArray<EntityId>();
 			ConsensusFundJoiners	= reader.ReadArray<AccountAddress>();
 			ConsensusFundLeavers	= reader.ReadArray<AccountAddress>();
-			ConsensusTransactions	= reader.Read(() =>	new Transaction {Mcv = Mcv, Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConsensusTransactions	= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)
@@ -654,7 +654,6 @@ namespace Uccs.Net
 												
 											foreach(var i in v.Transactions)
 											{
-												i.Mcv = Mcv;
 												i.Net = Mcv.Net;
 												i.Round = this;
 											}
