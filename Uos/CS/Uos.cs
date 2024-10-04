@@ -17,7 +17,7 @@ namespace Uccs.Uos
 		{
   			get
   			{
-				return _Rdn ??= new RdnApiClient(Uos.ApiHttpClient, Api.ListenAddress, Api.AccessKey);
+				return _Rdn ??= new RdnApiClient(Uos.ApiHttpClient, (Node as RdnNode).Net, Api.ListenAddress, Api.AccessKey);
   			}
 		}
 
@@ -32,7 +32,7 @@ namespace Uccs.Uos
 		public delegate void		Delegate(Uos d);
  		public delegate void		McvDelegate(Mcv d);
 	 	
-		public NexusNode		Izn; /// Inter-consensus node
+		public NexusNode			Izn; /// Inter-consensus node
 		public static bool			ConsoleAvailable { get; protected set; }
 		public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
 		public Flow					Flow = new Flow("uos", new Log()); 

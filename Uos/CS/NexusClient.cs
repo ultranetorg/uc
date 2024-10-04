@@ -38,7 +38,7 @@ namespace Uccs.Uos
 
 			var s = Uos.Request<NodeInstance>(new NodeInfoApc { Mcvid = Uccs.Rdn.Rdn.Local.Id}, new Flow(GetType().Name));
 
-			Rdn = new RdnApiClient(http, s.Api.ListenAddress, s.Api.AccessKey);
+			Rdn = new RdnApiClient(http, null, s.Api.ListenAddress, s.Api.AccessKey);
 		}
 
 		public PackageInfo GetPackage(AprvAddress package, Flow flow)

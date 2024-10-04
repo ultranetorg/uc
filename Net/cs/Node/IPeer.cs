@@ -2,24 +2,6 @@
 
 namespace Uccs.Net
 {
-	public class TransactionsAddress : IBinarySerializable
-	{
-		public AccountAddress	Account { get; set; }
-		public int				Nid { get; set; }
-
-		public void Read(BinaryReader r)
-		{
-			Account = r.ReadAccount();
-			Nid = r.Read7BitEncodedInt();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.Write(Account); 
-			w.Write7BitEncodedInt(Nid);
-		}
-	}
-
 	public abstract class Packet : ITypeCode
 	{
 		public int		Id { get; set; }
@@ -125,12 +107,12 @@ namespace Uccs.Net
 				}
 				catch(NetException ex)
 				{
-					rp = ITypeCode.Contructors[typeof(PeerResponse)][ITypeCode.Codes[GetType()]].Invoke(null) as PeerResponse;
+					rp = Node.Constract(typeof(PeerResponse), Node.TypeToCode(GetType())) as PeerResponse;
 					rp.Error = ex;
 				}
 				catch(Exception) when(!Debugger.IsAttached)
 				{
-					rp = ITypeCode.Contructors[typeof(PeerResponse)][ITypeCode.Codes[GetType()]].Invoke(null) as PeerResponse;
+					rp = Node.Constract(typeof(PeerResponse), Node.TypeToCode(GetType())) as PeerResponse;
 					rp.Error = new NodeException(NodeError.Unknown);
 				}
 

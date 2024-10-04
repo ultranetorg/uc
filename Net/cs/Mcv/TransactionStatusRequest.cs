@@ -1,5 +1,23 @@
 ﻿namespace Uccs.Net
 {
+	public class TransactionsAddress : IBinarySerializable
+	{
+		public AccountAddress	Account { get; set; }
+		public int				Nid { get; set; }
+
+		public void Read(BinaryReader r)
+		{
+			Account = r.ReadAccount();
+			Nid = r.Read7BitEncodedInt();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write(Account); 
+			w.Write7BitEncodedInt(Nid);
+		}
+	}
+
 	public class TransactionStatusRequest : McvCall<TransactionStatusResponse>
 	{
 		public TransactionsAddress[]	Transactions { get; set; }

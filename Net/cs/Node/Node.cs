@@ -97,6 +97,9 @@ namespace Uccs.Net
 		Thread										ListeningThread;
 		public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
+		public Dictionary<Type, byte>								Codes = [];
+		public Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
+
 		protected virtual void						CreateTables(ColumnFamilies columns) {}
 		protected virtual void						Share(Peer peer) {}
 
@@ -131,6 +134,35 @@ namespace Uccs.Net
 
 			if(NodeGlobals.Any)
 				Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
+
+
+			Contructors[typeof(PeerRequest)] = [];
+			Contructors[typeof(PeerResponse)] = [];
+			Contructors[typeof(NetException)] = [];
+ 
+ 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+ 			{	
+ 				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+ 				{
+ 					Codes[i] = (byte)c;
+ 					Contructors[typeof(PeerRequest)][(byte)c] = i.GetConstructor([]);
+ 				}
+ 			}
+ 	 
+ 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+ 			{	
+ 				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+ 				{
+ 					Codes[i] = (byte)c;
+ 					Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
+ 				}
+ 			}
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
+			{
+				Codes[i] = (byte)Enum.Parse<ExceptionClass>(i.Name);
+				Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(i.Name)]  = i.GetConstructor([]);
+			}
 		}
 
 		public virtual void RunPeer()
@@ -188,9 +220,14 @@ namespace Uccs.Net
 // 			return (int)Enum.Parse<PeerCallClass>(request.GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 // 		}
 
-		public virtual object Constract(Type t, byte b)
+		public virtual object Constract(Type type, byte code)
 		{
-			return null;
+			return Contructors.TryGetValue(type, out var t) && t.TryGetValue(code, out var c) ? c.Invoke(null) : null;
+		}
+
+		public virtual byte TypeToCode(Type code)
+		{
+			return Codes[code];
 		}
 
 		public Thread CreateThread(Action action)
@@ -848,7 +885,7 @@ namespace Uccs.Net
 			if(request.Peer == null) /// self call, cloning needed
 			{
 				var s = new MemoryStream();
-				BinarySerializator.Serialize(new(s), request); 
+				BinarySerializator.Serialize(new(s), request, TypeToCode); 
 				s.Position = 0;
 				
 				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
@@ -865,7 +902,7 @@ namespace Uccs.Net
 			if(rq.Peer == null) /// self call, cloning needed
 			{
 				var s = new MemoryStream();
-				BinarySerializator.Serialize(new(s), rq); 
+				BinarySerializator.Serialize(new(s), rq, TypeToCode); 
 				s.Position = 0;
 
 				rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);

@@ -22,6 +22,11 @@ namespace Uccs.Rdn
 		
 		public Rdn()
 		{
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
+			{
+				Codes[i] = (byte)Enum.Parse<RdnOperationClass>(i.Name);
+				Contructors[typeof(Operation)][(byte)Enum.Parse<RdnOperationClass>(i.Name)]  = i.GetConstructor([]);
+			}
 		}
 
 		public override string ToString()
@@ -31,42 +36,41 @@ namespace Uccs.Rdn
 
 		static Rdn()
 		{
-			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
-				ITypeCode.Contructors[typeof(PeerRequest)] = [];
+			//if(!ITypeCode.Contructors.ContainsKey(typeof(PeerRequest)))
+			//	ITypeCode.Contructors[typeof(PeerRequest)] = [];
+			//
+			//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+			//{	
+			//	var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")));
+			//	
+			//	ITypeCode.Codes[i] = (byte)c;
+			//	ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
+			//}
+			//
+			//if(!ITypeCode.Contructors.ContainsKey(typeof(PeerResponse)))
+			//	ITypeCode.Contructors[typeof(PeerResponse)] = [];
+			//
+			//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+			//{	
+			//	var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")));
+			//
+			//	ITypeCode.Codes[i] = (byte)c;
+			//	ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
+			//}
 
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
-			{	
-				var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")));
-				
-				ITypeCode.Codes[i] = (byte)c;
-				ITypeCode.Contructors[typeof(PeerRequest)][(byte)c]  = i.GetConstructor([]);
-			}
-
-			if(!ITypeCode.Contructors.ContainsKey(typeof(PeerResponse)))
-				ITypeCode.Contructors[typeof(PeerResponse)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-			{	
-				var c = Enum.Parse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")));
-
-				ITypeCode.Codes[i] = (byte)c;
-				ITypeCode.Contructors[typeof(PeerResponse)][(byte)c]  = i.GetConstructor([]);
-			}
-
-			ITypeCode.Contructors[typeof(Urr)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr)) && !i.IsAbstract))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<UrrScheme>(i.Name);
-				ITypeCode.Contructors[typeof(Urr)][(byte)Enum.Parse<UrrScheme>(i.Name)] = i.GetConstructor([]);
-			}
-
-			if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
-				ITypeCode.Contructors[typeof(NetException)] = [];
-
-			ITypeCode.Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
-			ITypeCode.Contructors[typeof(NetException)][(byte)ExceptionClass._Next] = typeof(ResourceException).GetConstructor([]);
-
+			//ITypeCode.Contructors[typeof(Urr)] = [];
+			//
+			//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr)) && !i.IsAbstract))
+			//{
+			//	ITypeCode.Codes[i] = (byte)Enum.Parse<UrrScheme>(i.Name);
+			//	ITypeCode.Contructors[typeof(Urr)][(byte)Enum.Parse<UrrScheme>(i.Name)] = i.GetConstructor([]);
+			//}
+			
+			//if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
+			//	ITypeCode.Contructors[typeof(NetException)] = [];
+			//
+			//ITypeCode.Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
+			//ITypeCode.Contructors[typeof(NetException)][(byte)ExceptionClass._Next] = typeof(ResourceException).GetConstructor([]);
 		}
 	}
 

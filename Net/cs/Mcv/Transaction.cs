@@ -19,6 +19,7 @@
 		public bool						EmissionOnly => Operations.All(i => i is Immission);
 #endif
 
+		public McvNet					Net;
 		public Mcv						Mcv;
 		public Vote						Vote;
 		public Round					Round;
@@ -36,7 +37,6 @@
 
 		private AccountAddress			_Signer;
 		public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-		public McvNet					Net;
 		public TransactionStatus		Status;
 		public IPeer					Rdi;
 		public Flow						Flow;
@@ -127,7 +127,7 @@
 			writer.Write7BitEncodedInt64(ECFee);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>{
-											writer.Write(ITypeCode.Codes[i.GetType()]); 
+											writer.Write(Net.Codes[i.GetType()]); 
 											i.Write(writer); 
 										 });
  		}
@@ -142,7 +142,7 @@
 			ECFee		= reader.Read7BitEncodedInt64();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
- 													var o = Mcv.CreateOperation(reader.ReadByte());
+ 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
  													o.Transaction = this;
  													o.Read(reader); 
  													return o; 
@@ -162,7 +162,7 @@
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i => {
-											writer.Write(ITypeCode.Codes[i.GetType()]); 
+											writer.Write(Net.Codes[i.GetType()]); 
 											i.Write(writer); 
 										  });
  		}
@@ -180,7 +180,7 @@
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
- 													var o = Mcv.CreateOperation(reader.ReadByte());
+ 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
  													//o.Placing		= PlacingStage.Confirmed;
  													o.Transaction	= this;
  													o.Read(reader); 
@@ -201,7 +201,7 @@
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>	{
-												writer.Write(ITypeCode.Codes[i.GetType()]); 
+												writer.Write(Net.Codes[i.GetType()]); 
 												i.Write(writer); 
 											});
 		}
@@ -219,7 +219,7 @@
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {
-													var o = Mcv.CreateOperation(reader.ReadByte());
+													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
 													o.Transaction = this;
 													o.Read(reader); 
 													return o; 

@@ -59,7 +59,7 @@
 
 		public void Read(BinaryReader reader)
 		{
-			Release		= reader.ReadVirtual<Urr>();
+			Release		= Urr.ReadVirtual(reader);
 			Consil		= reader.Read<Ura>();
 			BYPayment	= reader.Read7BitEncodedInt64();
 			ECPayment	= reader.ReadArray<ExecutionReservation>();
@@ -69,7 +69,7 @@
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(Release);
+			Release.WriteVirtual(writer);
 			writer.Write(Consil);
 			writer.Write7BitEncodedInt64(BYPayment);
 			writer.Write(ECPayment);

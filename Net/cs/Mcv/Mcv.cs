@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -65,12 +66,15 @@ namespace Uccs.Net
 		protected abstract void						CreateTables(string databasepath);
 		protected abstract void						GenesisCreate(Vote vote);
 		protected abstract void						GenesisInitilize(Round vote);
-		public abstract Operation					CreateOperation(int type);
 		public abstract Round						CreateRound();
 		public abstract Vote						CreateVote();
 		public abstract Generator					CreateGenerator();
 		public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 		public abstract void						FillVote(Vote vote);
+
+		static Mcv()
+		{
+  		}
 
 		public Mcv()
 		{

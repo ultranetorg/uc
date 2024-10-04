@@ -53,7 +53,7 @@ namespace Uccs.Rdn
 	{
 		RdnNode Node;
 
-		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow, RdnApiClient.DefaultOptions)
+		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow, RdnApiClient.CreateOptions(node.Net))
 		{
 			Node = node;
 		}
@@ -74,32 +74,30 @@ namespace Uccs.Rdn
 
 	public class RdnApiClient : McvApiClient
 	{
-		new public static readonly JsonSerializerOptions	DefaultOptions;
-
-		static RdnApiClient()
+		new public static JsonSerializerOptions CreateOptions(Net.Net net)
 		{
-			DefaultOptions = new JsonSerializerOptions{};
-			DefaultOptions.IgnoreReadOnlyProperties = true;
-			DefaultOptions.TypeInfoResolver = new RdnTypeResolver();
+			var o = McvApiClient.CreateOptions(net);
 
-			foreach(var i in McvApiClient.DefaultOptions.Converters)
-			{
-				DefaultOptions.Converters.Add(i);
-			}
+			o.TypeInfoResolver = new RdnTypeResolver();
+			
+			o.Converters.Add(new UraJsonConverter());
+			o.Converters.Add(new UrrJsonConverter());
+			o.Converters.Add(new ResourceDataJsonConverter());
 
-			DefaultOptions.Converters.Add(new UraJsonConverter());
-			DefaultOptions.Converters.Add(new UrrJsonConverter());
-			DefaultOptions.Converters.Add(new ResourceDataJsonConverter());
+			return o;
 		}
 
-		public RdnApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+		public RdnApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
+			
 		}
 
-		public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+		public RdnApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
 		}
 		
 		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using RocksDbSharp;
 
@@ -43,6 +44,24 @@ namespace Uccs.Net
 		public McvNode(string name, Net net, NodeSettings nodesettings, Vault vault, Flow flow) : base(name, net, nodesettings, flow)
 		{
 			Vault = vault;
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+			{	
+				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+				{
+					Codes[i] = (byte)c;
+					Contructors[typeof(PeerRequest)][(byte)c] = i.GetConstructor([]);
+				}
+			}
+
+			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+			{	
+				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+				{
+					Codes[i] = (byte)c;
+					Contructors[typeof(PeerResponse)][(byte)c] = i.GetConstructor([]);
+				}
+			}
 		}
 
 		public override string ToString()
@@ -70,7 +89,38 @@ namespace Uccs.Net
 			//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
 			if(t == typeof(Transaction))	return new Transaction {Net = Net, Mcv = Mcv}; 
 
+// 			if(t == typeof(PeerRequest))		
+// 			{
+// 				var o = typeof(McvNode).Assembly.GetType(typeof(McvNode).Namespace + "." + ((McvPeerCallClass)b).ToString() + "Request");
+// 				
+// 				if(o != null)
+// 					return o.GetConstructor([]).Invoke(null);
+// 			}
+// 
+// 			if(t == typeof(PeerResponse))		
+// 			{
+// 				var o = typeof(McvNode).Assembly.GetType(typeof(McvNode).Namespace + "." + ((McvPeerCallClass)b).ToString() + "Response");
+// 				
+// 				if(o != null)
+// 					return o.GetConstructor([]).Invoke(null);
+// 			}
+
 			return base.Constract(t, b);
+		}
+		
+		public override byte TypeToCode(Type i)
+		{
+			//McvPeerCallClass c = 0;
+			//
+			//if(i.IsSubclassOf(typeof(PeerRequest)))
+			//	if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Request")), out c))
+			//		return (byte)c;
+			//
+			//if(i.IsSubclassOf(typeof(PeerResponse)))
+			//	if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Response")), out c))
+			//		return (byte)c;
+
+			return base.TypeToCode(i);
 		}
 
 		public override void RunPeer()
@@ -1212,7 +1262,7 @@ namespace Uccs.Net
 		{
 			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 
-			var jo = new JsonSerializerOptions(ApiClient.DefaultOptions);
+			var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
 			jo.WriteIndented = true;
 
 			foreach(var i in All)

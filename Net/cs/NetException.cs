@@ -58,14 +58,14 @@ namespace Uccs.Net
 
 		static NetException()
 		{
-			if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
-				ITypeCode.Contructors[typeof(NetException)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<ExceptionClass>(i.Name);
-				ITypeCode.Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(i.Name)]  = i.GetConstructor([]);
-			}
+//			if(!ITypeCode.Contructors.ContainsKey(typeof(NetException)))
+//				ITypeCode.Contructors[typeof(NetException)] = [];
+//
+//			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
+//			{
+//				ITypeCode.Codes[i] = (byte)Enum.Parse<ExceptionClass>(i.Name);
+//				ITypeCode.Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(i.Name)]  = i.GetConstructor([]);
+//			}
 		}
 
 		public NetException()

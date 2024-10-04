@@ -8,7 +8,7 @@ namespace Uccs.Uos
 	{
 		Uos Uos;
 
-		public UosApiServer(Uos uos, Flow workflow) : base(uos.Settings.Api, ApiClient.DefaultOptions, workflow)
+		public UosApiServer(Uos uos, Flow workflow) : base(uos.Settings.Api, ApiClient.CreateOptions(), workflow)
 		{
 			Uos = uos;
 		}

@@ -16,12 +16,17 @@ namespace Uccs.Net
 
 	public class OperationJsonConverter : JsonConverter<Operation>
 	{
-		public Func<Operation>	Create;
+		Net Net;
+
+		public OperationJsonConverter(Net net)
+		{
+			Net = net;
+		}
 
 		public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			var s = reader.GetString().Split(':');
-			var o = ITypeCode.Contruct<Operation>(byte.Parse(s[0]));
+			var o = Net.Contruct<Operation>(byte.Parse(s[0]));
  			
 			o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
 
@@ -35,7 +40,7 @@ namespace Uccs.Net
 			
 			value.Write(w);
 			
-			writer.WriteStringValue(ITypeCode.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
+			writer.WriteStringValue(Net.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
 		}
 	}
 
@@ -43,7 +48,7 @@ namespace Uccs.Net
 	{
 		McvNode Node;
 	
-		public McvApiServer(McvNode node, Flow workflow, JsonSerializerOptions options = null) : base(node, workflow, options ?? McvApiClient.DefaultOptions)
+		public McvApiServer(McvNode node, Flow workflow, JsonSerializerOptions options = null) : base(node, workflow, options ?? McvApiClient.CreateOptions(node.Net))
 		{
 			Node = node;
 		}
@@ -64,30 +69,28 @@ namespace Uccs.Net
 
 	public class McvApiClient : ApiClient
 	{
-		new public static readonly JsonSerializerOptions DefaultOptions;
+		public Net Net;
 
-		static McvApiClient()
+		public static JsonSerializerOptions CreateOptions(Net net)
 		{
-			DefaultOptions = new JsonSerializerOptions{};
-			DefaultOptions.IgnoreReadOnlyProperties = true;
-			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
+			var o = CreateOptions();
 
-			foreach(var i in ApiClient.DefaultOptions.Converters)
-			{
-				DefaultOptions.Converters.Add(i);
-			}
-
-			DefaultOptions.Converters.Add(new OperationJsonConverter());
+			o.Converters.Add(new OperationJsonConverter(net));
+			
+			return o;
 		}
 
-		public McvApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+		public McvApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, address, accesskey)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
+			
 		}
 
-		public McvApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+		public McvApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
 		}
 	}
 
@@ -288,12 +291,12 @@ namespace Uccs.Net
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var t = new Transaction {Net = mcv.Mcv.Net, Operations = Operations.ToArray()};
-			t.Sign(mcv.Vault.GetKey(By), []);
+			var t = new Transaction {Net = node.Mcv.Net, Mcv = node.Mcv, Operations = Operations.ToArray()};
+			t.Sign(node.Vault.GetKey(By), []);
 
-			return mcv.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
+			return node.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 		}
 	}
 
@@ -372,7 +375,7 @@ namespace Uccs.Net
 			}
 			catch(NetException ex)
 			{
-				var rp = ITypeCode.Contructors[typeof(PeerResponse)][ITypeCode.Codes[Request.GetType()]].Invoke(null) as PeerResponse;
+				var rp = mcv.Constract(typeof(PeerResponse), mcv.TypeToCode(Request.GetType())) as PeerResponse;
 				rp.Error = ex;
 				
 				return rp;

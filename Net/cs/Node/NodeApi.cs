@@ -12,7 +12,7 @@ namespace Uccs.Net
 	{
 		Node Node;
 	
-		public NodeApiServer(Node node, Flow workflow, JsonSerializerOptions options = null) : base(node.Settings.Api, options ?? ApiClient.DefaultOptions, workflow)
+		public NodeApiServer(Node node, Flow workflow, JsonSerializerOptions options = null) : base(node.Settings.Api, options ?? ApiClient.CreateOptions(), workflow)
 		{
 			Node = node;
 		}

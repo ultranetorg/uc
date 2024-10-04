@@ -25,15 +25,6 @@ namespace Uccs.Rdn
 
 		static RdnMcv()
 		{
-			if(!ITypeCode.Contructors.ContainsKey(typeof(Operation)))
-				ITypeCode.Contructors[typeof(Operation)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<RdnOperationClass>(i.Name);
-				ITypeCode.Contructors[typeof(Operation)][(byte)Enum.Parse<RdnOperationClass>(i.Name)]  = i.GetConstructor([]);
-			}
-
 		}
 
 		public RdnMcv()
@@ -73,13 +64,13 @@ namespace Uccs.Rdn
 				v0.Time = Time.Zero;
 				v0.ParentHash = Net.Cryptography.ZeroHash;
 
-				var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+				var t = new Transaction {Mcv = this, Net = Net, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
 				t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
 				t.Sign(god, Net.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 
-				t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+				t = new Transaction {Mcv = this, Net = Net, Nid = 0, Expiration = 0};
 				t.Generator = new([0, 0], -1);
 				t.AddOperation(new RdnCandidacyDeclaration {BaseRdcIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP] });
 				t.Sign(f0, Net.Cryptography.ZeroHash);
@@ -142,14 +133,6 @@ namespace Uccs.Rdn
 			Domains = new (this);
 
 			Tables = [Accounts, Domains];
-		}
-
-		public override Operation CreateOperation(int type)
-		{
-			return	(typeof(Operation).Assembly.GetType(typeof(Operation).Namespace + "." + (RdnOperationClass)type)
-					??
-					typeof(RdnOperation).Assembly.GetType(typeof(RdnOperationClass).Namespace + "." + (RdnOperationClass)type))
-					.GetConstructor([]).Invoke(null) as Operation;
 		}
 
 		public override Round CreateRound()

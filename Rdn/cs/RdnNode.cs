@@ -146,9 +146,60 @@ namespace Uccs.Rdn
 
 		public override object Constract(Type t, byte b)
 		{
-			if(t == typeof(VersionManifest))		return new VersionManifest();
+			if(t == typeof(VersionManifest))	
+				return new VersionManifest();
+
+			if(t == typeof(PeerRequest))		
+			{
+				var o = typeof(RdnNode).Assembly.GetType(typeof(RdnNode).Namespace + "." + ((RdnPeerCallClass)b).ToString() + "Request");
+				
+				if(o != null)
+					return o.GetConstructor([]).Invoke(null);
+			}
+
+			if(t == typeof(PeerResponse))		
+			{
+				var o = typeof(RdnNode).Assembly.GetType(typeof(RdnNode).Namespace + "." + ((RdnPeerCallClass)b).ToString() + "Response");
+				
+				if(o != null)
+					return o.GetConstructor([]).Invoke(null);
+			}
+
+			if(t == typeof(Urr))
+			{
+				var o = typeof(RdnNode).Assembly.GetType(typeof(RdnNode).Namespace + "." + ((UrrScheme)b).ToString());
+				
+				if(o != null)
+					return o.GetConstructor([]).Invoke(null);
+			}
+
+			if(t == typeof(NetException))
+				if(b == (byte)ExceptionClass._Next)
+					return new ResourceException();
 
 			return base.Constract(t, b);
+		}
+
+		public override byte TypeToCode(Type i)
+		{
+			RdnPeerCallClass c = 0;
+
+			if(i.IsSubclassOf(typeof(PeerRequest)))
+				if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Request")), out c))
+					return (byte)c;
+	
+			if(i.IsSubclassOf(typeof(PeerResponse)))
+				if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Response")), out c))
+					return (byte)c;
+
+			if(i.IsSubclassOf(typeof(Urr)))
+				if(Enum.TryParse<UrrScheme>(i.Name, true, out var u))
+					return (byte)u;
+
+			if(i == typeof(ResourceException))
+				return (byte)ExceptionClass._Next;
+
+			return base.TypeToCode(i);
 		}
 
 		private bool IsDnsValid(DomainMigration am)

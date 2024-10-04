@@ -250,7 +250,7 @@ namespace Uccs.Net
 							else
 								throw new IntegrityException("Wrong packet to write");
 	
-							BinarySerializator.Serialize(Writer, i);
+							BinarySerializator.Serialize(Writer, i, Node.TypeToCode);
 						}
 						
 						Outs.Clear();
@@ -295,7 +295,7 @@ namespace Uccs.Net
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Node.Constract);
+							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Node.Constract);
 							rq.Peer = this;
 							rq.Node = Node;
 

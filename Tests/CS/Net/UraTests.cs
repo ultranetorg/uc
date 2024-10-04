@@ -89,10 +89,10 @@ namespace Uccs.Tests
 
 
 
-			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
-			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
+			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)));
+			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)));
 			
-			Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions).RR);
+			Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)).RR);
 		}
 
 		class A

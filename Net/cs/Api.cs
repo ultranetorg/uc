@@ -61,38 +61,38 @@ namespace Uccs.Net
 
 	public class ApiClient : JsonClient
 	{
-		public static readonly JsonSerializerOptions DefaultOptions;
-
-		static ApiClient()
+		public static JsonSerializerOptions CreateOptions()
 		{
-			DefaultOptions = new JsonSerializerOptions{};
-
-			DefaultOptions.IgnoreReadOnlyProperties = true;
-
-			DefaultOptions.Converters.Add(new UnitJsonConverter());
-			DefaultOptions.Converters.Add(new AccountJsonConverter());
-			DefaultOptions.Converters.Add(new IPJsonConverter());
-			DefaultOptions.Converters.Add(new TimeJsonConverter());
-			DefaultOptions.Converters.Add(new VersionJsonConverter());
-			DefaultOptions.Converters.Add(new XonJsonConverter());
-			DefaultOptions.Converters.Add(new BigIntegerJsonConverter());
+			var o = new JsonSerializerOptions{};
+			
+			o.IgnoreReadOnlyProperties = true;
+			
+			o.Converters.Add(new UnitJsonConverter());
+			o.Converters.Add(new AccountJsonConverter());
+			o.Converters.Add(new IPJsonConverter());
+			o.Converters.Add(new TimeJsonConverter());
+			o.Converters.Add(new VersionJsonConverter());
+			o.Converters.Add(new XonJsonConverter());
+			o.Converters.Add(new BigIntegerJsonConverter());
 
 #if ETHEREUM
 			DefaultOptions.Converters.Add(new HexBigIntegerJsonConverter());
 #endif
 
-			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
+			o.TypeInfoResolver = new ApiTypeResolver();
+
+			return o;
 		}
 
 
 		public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions();
 		}
 
 		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions();
 		}
 	}
 }

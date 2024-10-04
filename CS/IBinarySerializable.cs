@@ -25,10 +25,10 @@ namespace Uccs
 
 	public interface ITypeCode
 	{
-		public static Dictionary<Type, byte>								Codes = [];
-		public static Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
+		//public static Dictionary<Type, byte>								Codes = [];
+		//public static Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
 
-		public static T Contruct<T>(byte code) => (T)Contructors[typeof(T)][code].Invoke(null);
+		//public static T Contruct<T>(byte code) => (T)Contructors[typeof(T)][code].Invoke(null);
 // 
 // 		public static void Register(Assembly assembly, Type type, Type @enum, byte code)
 // 		{

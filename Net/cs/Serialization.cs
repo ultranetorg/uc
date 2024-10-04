@@ -5,12 +5,12 @@ namespace Uccs.Net
 {
 	public class BinarySerializator
 	{
-		public static void Serialize(BinaryWriter writer, object o)
+		public static void Serialize(BinaryWriter writer, object o, Func<Type, byte> typetocode)
 		{
-			Serialize(writer, o, o.GetType());
+			Serialize(writer, o, o.GetType(), typetocode);
 		}
 
-		static void Serialize(BinaryWriter writer, object val, Type type)
+		static void Serialize(BinaryWriter writer, object val, Type type, Func<Type, byte> typetocode)
 		{
 			switch(val)
 			{
@@ -73,7 +73,7 @@ namespace Uccs.Net
 							
 					foreach(var j in v)
 					{
-						Serialize(writer, j, type.GetElementType());
+						Serialize(writer, j, type.GetElementType(), typetocode);
 					}
 					return;
 				}
@@ -81,7 +81,7 @@ namespace Uccs.Net
 
 			if(val is ITypeCode t)
 			{
-				writer.Write(ITypeCode.Codes[val.GetType()]);
+				writer.Write(typetocode(val.GetType()));
 			}
 
 			if(val is IBinarySerializable bs)
@@ -92,7 +92,7 @@ namespace Uccs.Net
 			{
 				foreach(var i in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
-					Serialize(writer, i.GetValue(val), i.PropertyType);
+					Serialize(writer, i.GetValue(val), i.PropertyType, typetocode);
 				}
 			}
 		}
@@ -134,8 +134,8 @@ namespace Uccs.Net
 
 			if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 			{	
-				//o = construct(type, reader.ReadByte());
-				o = ITypeCode.Contructors[type][reader.ReadByte()].Invoke(null);
+				var c = reader.ReadByte();
+				o = construct(type, c);
 			}
 			else
 				o = construct(type, 0) ?? type.GetConstructor([]).Invoke(null);
