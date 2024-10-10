@@ -5,7 +5,9 @@ namespace Uccs.Net.FUI
 {
 	public partial class HubPanel : MainPanel
 	{
-		public HubPanel(McvNode mcv) : base(mcv)
+		RdnNode Node;
+
+		public HubPanel(RdnNode mcv)
 		{
 			InitializeComponent();
 
@@ -51,9 +53,9 @@ namespace Uccs.Net.FUI
 			Packages.Items.Clear();
 			Seeds.Items.Clear();
 
-			lock(Node.Lock)
+			lock(Node.SeedHub.Lock)
 			{
-				foreach(var i in RdnNode.SeedHub.Releases.Take(1000))
+				foreach(var i in Node.SeedHub.Releases.Take(1000))
 				{
 					var r = Packages.Items.Add(i.Key.ToString());
 					//r.SubItems.Add(i.Key.Resource);
@@ -71,7 +73,7 @@ namespace Uccs.Net.FUI
 			{
 				Seeds.Items.Clear();
 
-				lock(Node.Lock)
+				lock(Node.SeedHub.Lock)
 				{
 					foreach(var i in e.Item.Tag as List<Seed>)
 					{

@@ -105,7 +105,8 @@
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Net.Id);
+			w.Write((byte)Net.Land);
+			w.WriteUtf8(Net.Address);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);

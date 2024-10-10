@@ -36,7 +36,7 @@
 											BandwidthTodayTime		= BandwidthTodayTime,
 											BandwidthTodayAvailable	= BandwidthTodayAvailable,
 
-											Transactions			= Mcv.Settings.Base.Chain != null ? new HashSet<int>(Transactions) : null};
+											Transactions			= Mcv.Settings.Chain != null ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -62,7 +62,7 @@
 
 		public void WriteMore(BinaryWriter w)
 		{
-			if(Mcv.Settings.Base?.Chain != null)
+			if(Mcv.Settings.Chain != null)
 			{
 				w.Write(Transactions);
 			}
@@ -70,7 +70,7 @@
 
 		public void ReadMore(BinaryReader r)
 		{
-			if(Mcv.Settings.Base?.Chain != null)
+			if(Mcv.Settings.Chain != null)
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}

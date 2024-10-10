@@ -43,7 +43,7 @@ namespace Uccs.Rdn
 
 		public void RunDeclaring()
 		{ 
-			if(Node.IsListener)
+			if(Node.Peering.IsListener)
 			{
 				DeclaringThread = Node.CreateThread(Declaring);
 				DeclaringThread.Name = $"{Node.Name} Declaring";
@@ -223,7 +223,7 @@ namespace Uccs.Rdn
 			index.Save(new XonBinaryWriter(ms));
 
 			var h = Net.Cryptography.HashFile(ms.ToArray());
-			var a = address.Create(Node.Mcv, h);
+			var a = address.Create(Node.Vault, h);
  				
 			var r = Add(a);
 
@@ -244,7 +244,7 @@ namespace Uccs.Rdn
 			var b = File.ReadAllBytes(path);
 
 			var h = Net.Cryptography.HashFile(b);
-			var a = address.Create(Node.Mcv, h);
+			var a = address.Create(Node.Vault, h);
  			
 			var r = Add(a);
 
@@ -281,9 +281,9 @@ namespace Uccs.Rdn
 
 			while(Node.Flow.Active)
 			{
-				Node.Statistics.Declaring.Begin();
+				Node.Peering.Statistics.Declaring.Begin();
 
-				var cr = Node.Call(() => new RdnMembersRequest(), Node.Flow);
+				var cr = Node.Peering.Call(() => new RdnMembersRequest(), Node.Flow);
 	
 				if(!cr.Members.Any())
 					continue;
@@ -326,7 +326,7 @@ namespace Uccs.Rdn
 
 				if(ds.Count == 0 && us.Count == 0)
 				{
-					Node.Statistics.Declaring.End();
+					Node.Peering.Statistics.Declaring.End();
 					Thread.Sleep(1000);
 					continue;
 				}
@@ -343,7 +343,7 @@ namespace Uccs.Rdn
 						var t = Task.Run(() =>	{
 													try
 													{
-														var cr = Node.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
+														var cr = Node.Peering.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
 														
 														lock(Lock)
 														{
@@ -381,9 +381,9 @@ namespace Uccs.Rdn
 
 													try
 													{
-														drr = Node.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
-																																																Release = rs.Value.Address, 
-																																																Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
+														drr = Node.Peering.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
+																																																		Release = rs.Value.Address, 
+																																																		Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
 													}
 													catch(NodeException)/// when(!Debugger.IsAttached)
 													{
@@ -418,7 +418,7 @@ namespace Uccs.Rdn
 					}
 				}
 					
-				Node.Statistics.Declaring.End();
+				Node.Peering.Statistics.Declaring.End();
 			}
 		}
 

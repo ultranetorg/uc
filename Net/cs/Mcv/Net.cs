@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Uccs.Net
 {
-	public enum NetScope
+	public enum Land
 	{
 		None, 
 		Local, 
@@ -22,9 +22,11 @@ namespace Uccs.Net
 
 	public abstract class Net
 	{
-		public abstract string		Name { get; }
-		public Guid					Id;
-		public abstract	NetScope	Scope { get; }
+		public const string			Root = "rdn";
+
+		public abstract string		Address { get; }
+		//public Guid					Id;
+		public abstract	Land		Land { get; }
 		public abstract ushort		BasePort { get; }
 		public ushort				Port => (ushort)(ScopeBasePort + BasePort);
 
@@ -35,19 +37,20 @@ namespace Uccs.Net
 												.Select(i => IPAddress.Parse(i))
 												.ToArray();
 
-		public ushort				ScopeBasePort => Scope switch  {/// Format: XX000
-																	NetScope.Local		 => 10000, 
-																	NetScope.Developer0 => 20000,
-																	NetScope.Developer1 => 21000,
-																	NetScope.Developer2 => 22000,
-																	NetScope.Developer3 => 23000,
-																	NetScope.Developer4 => 24000,
-																	NetScope.Developer5 => 25000,
-																	NetScope.Developer6 => 26000,
-																	NetScope.Developer7 => 27000,
-																	NetScope.Developer8 => 28000,
-																	NetScope.Developer9 => 29000,
-																	NetScope.PublicTest => 30000,
+		public ushort				ScopeBasePort => Land switch  {/// Format: XX000
+																	Land.None		=> 10000,
+																	Land.Local		=> 10000, 
+																	Land.Developer0 => 20000,
+																	Land.Developer1 => 21000,
+																	Land.Developer2 => 22000,
+																	Land.Developer3 => 23000,
+																	Land.Developer4 => 24000,
+																	Land.Developer5 => 25000,
+																	Land.Developer6 => 26000,
+																	Land.Developer7 => 27000,
+																	Land.Developer8 => 28000,
+																	Land.Developer9 => 29000,
+																	Land.PublicTest => 30000,
 																	_ => throw new IntegrityException()};
 
 
@@ -58,7 +61,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Name;
+			return Address;
 		}
 
 		static Net()
@@ -90,58 +93,48 @@ namespace Uccs.Net
 
 	}
 
-	public abstract class Nexus : Net
-	{
-		public override ushort			BasePort => 010; /// 00XX0
-		public override	string			Name => Scope.ToString();
-
-		public static readonly Nexus	Local = new LocalNexus();
- 		public static readonly Nexus	PublicTest = new PublicTestNexus();
- 		public static readonly Nexus	Developer0 = new Developer0Nexus();
-		public static readonly Nexus	Main = null;
-		public static readonly Nexus[]	Official = {Local, Developer0, PublicTest};
-
-		public static Nexus				ByName(string name) => Official.First(i => i.Name == name);
-		public static Nexus				Byid(Guid id) => Official.First(i => i.Id == id);
-
-		public abstract Guid			DefaultRdn { get; }
-	}
-
-	public class LocalNexus : Nexus
-	{
-		public override	NetScope	Scope => NetScope.Local;
-		public override Guid		DefaultRdn => new Guid("FFFFFFFF-1002-0000-0000-000000000000");
-
-		public LocalNexus()
-		{
-			Id			= new Guid("FFFFFFFF-1001-0000-0000-000000000000");
-			Initials	= LocalInitials;
-		}
-	}
-
-	public class Developer0Nexus : Nexus
-	{
-		public override	NetScope	Scope => NetScope.Developer0;
-		public override Guid		DefaultRdn => new Guid("FFFFFFFF-2002-0000-0000-000000000000");
-
-		public Developer0Nexus()
-		{
-			Id			= new Guid("FFFFFFFF-2001-0000-0000-000000000000");
-			Initials	= UOInitials;
-		}
-	}
-
-	public class PublicTestNexus : Nexus
-	{
-		public override	NetScope	Scope => NetScope.PublicTest;
-		public override Guid		DefaultRdn => new Guid("30020000-0000-0000-0000-000000000000");
-
-		public PublicTestNexus()
-		{
-			Id			= new Guid("30010000-0000-0000-0000-000000000000");
-			Initials	= UOInitials;
-		}
-	}
+// 	public abstract class NetToNet : Net
+// 	{
+// 		public override ushort				BasePort => 010; /// 00XX0
+// 
+// 		public static readonly NetToNet		Local = new LocalNexus();
+//  		public static readonly NetToNet		PublicTest = new PublicTestNexus();
+//  		public static readonly NetToNet		Developer0 = new Developer0Nexus();
+// 		public static readonly NetToNet		Main = null;
+// 		public static readonly NetToNet[]	Official = {Local, Developer0, PublicTest};
+// 
+// 		public static NetToNet				ByName(string name) => Official.First(i => i.Name == name);
+// 	}
+ 
+// 	public class LocalNexus : NetToNet
+// 	{
+// 		public override	NetScope	Scope => NetScope.Local;
+// 
+// 		public LocalNexus()
+// 		{
+// 			Initials	= [];
+// 		}
+// 	}
+// 
+// 	public class Developer0Nexus : NetToNet
+// 	{
+// 		public override	NetScope	Scope => NetScope.Developer0;
+// 
+// 		public Developer0Nexus()
+// 		{
+// 			Initials	= [];
+// 		}
+// 	}
+// 
+// 	public class PublicTestNexus : NetToNet
+// 	{
+// 		public override	NetScope	Scope => NetScope.PublicTest;
+// 
+// 		public PublicTestNexus()
+// 		{
+// 			Initials	= [];
+// 		}
+// 	}
 
 	public abstract class McvNet : Net
 	{

@@ -16,24 +16,8 @@ namespace Uccs.Net.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected Uos.Uos			Uos;
-		protected readonly Node		Node;
-		protected McvNode			McvNode => Node as McvNode;
-		protected Mcv				Mcv => McvNode.Mcv;
-		protected RdnNode			RdnNode => Node as RdnNode;
-
 		public BaseControl()
 		{
-		}
-
-		public BaseControl(Node d)
-		{
-			Node = d;
-		}
-
-		public BaseControl(Uos.Uos d)
-		{
-			Uos = d;
 		}
 
 // 		public IEnumerable<DomainEntry> FindAuthors(AccountAddress owner)
@@ -81,33 +65,33 @@ namespace Uccs.Net.FUI
 // 			return o;
 // 		}
 
-		protected void FillAccounts(ComboBox b)
-		{
-			b.Items.Clear();
-	
-			IEnumerable<AccountAddress> keys;
-
-			lock(Uos)
-				keys = Uos.Vault.Wallets.Keys.ToArray();
-
-			foreach(var i in keys)
-				b.Items.Add(i);
-		
-			if(b.Items.Count > 0)
-				b.SelectedIndex = 0;
-		}
-
-		public void BindAccounts(ComboBox b, Action filled = null)
-		{
-			Uos.Vault.AccountsChanged += () => {
-													BeginInvoke(new Action(() => { 
-																					FillAccounts(b);
-																					filled?.Invoke();
-																				}));
-												};
-			FillAccounts(b);
-			filled?.Invoke();
-		}
+// 		protected void FillAccounts(ComboBox b)
+// 		{
+// 			b.Items.Clear();
+// 	
+// 			IEnumerable<AccountAddress> keys;
+// 
+// 			lock(Uos)
+// 				keys = Uos.Vault.Wallets.Keys.ToArray();
+// 
+// 			foreach(var i in keys)
+// 				b.Items.Add(i);
+// 		
+// 			if(b.Items.Count > 0)
+// 				b.SelectedIndex = 0;
+// 		}
+// 
+// 		public void BindAccounts(ComboBox b, Action filled = null)
+// 		{
+// 			Uos.Vault.AccountsChanged += () => {
+// 													BeginInvoke(new Action(() => { 
+// 																					FillAccounts(b);
+// 																					filled?.Invoke();
+// 																				}));
+// 												};
+// 			FillAccounts(b);
+// 			filled?.Invoke();
+// 		}
 
 // 		public void BindProducts(ComboBox b)
 // 		{
@@ -175,27 +159,27 @@ namespace Uccs.Net.FUI
 			MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		public AccountKey GetPrivate(AccountAddress account)
-		{
-			if(!Uos.Vault.IsUnlocked(account))
-			{
-				var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
-	
-				if(pa.Ask($"A password required to access {account} account"))
-				{
-					try
-					{
-						return Uos.Vault.Unlock(account, pa.Password);
-					}
-					catch(Exception ex)
-					{
-						throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
-					}
-				}
-			}
-
-			return Uos.Vault.GetKey(account);
-		}
+ 		public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
+ 		{
+ 			if(!uos.Vault.IsUnlocked(account))
+ 			{
+ 				var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
+ 	
+ 				if(pa.Ask($"A password required to access {account} account"))
+ 				{
+ 					try
+ 					{
+ 						return uos.Vault.Unlock(account, pa.Password);
+ 					}
+ 					catch(Exception ex)
+ 					{
+ 						throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
+ 					}
+ 				}
+ 			}
+ 
+ 			return uos.Vault.GetKey(account);
+ 		}
 
 		public static string Dump(Xon doc)
 		{
@@ -237,14 +221,6 @@ namespace Uccs.Net.FUI
 		public virtual void PeriodicalRefresh(){ }
 
 		public MainPanel()
-		{
-		}
-
-		public MainPanel(Node d) : base(d)
-		{
-		}
-
-		public MainPanel(Uos.Uos d) : base(d)
 		{
 		}
 	}

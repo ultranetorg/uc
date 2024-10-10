@@ -6,8 +6,6 @@ namespace Uccs.Net
 	{
 		public int		Id { get; set; }
 		public Peer		Peer;
-
-		public abstract byte TypeCode { get; }
 	}
 
 	public abstract class IPeer
@@ -23,15 +21,16 @@ namespace Uccs.Net
 
 	public abstract class McvCall<R> : PeerCall<R> where R : PeerResponse
 	{
-		public new McvNode	Node => base.Node as McvNode;
-		public Mcv			Mcv => Node.Mcv;
+		public new McvTcpPeering	Peering => base.Peering as McvTcpPeering;
+		public new McvNode			Node => base.Node as McvNode;
+		public Mcv					Mcv => Node.Mcv;
 
 		protected void RequireBase()
 		{
-			if(Mcv.Settings.Base == null)
+			if(Node.Mcv == null)
 				throw new NodeException(NodeError.NotBase);
 
-			if(Node is McvNode m && m.Synchronization != Synchronization.Synchronized)
+			if(Peering.Synchronization != Synchronization.Synchronized)
 				throw new NodeException(NodeError.NotSynchronized);
 		}
 
@@ -51,7 +50,7 @@ namespace Uccs.Net
 		{
 			RequireBase();
 
-			if(!Mcv.NextVoteRound.VotersRound.Members.Any(i => Mcv.Settings.Generators.Contains(i.Address))) 
+			if(!Node.Mcv.NextVoteRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Contains(i.Address))) 
 				throw new NodeException(NodeError.NotMember);
 		}
 
@@ -59,9 +58,9 @@ namespace Uccs.Net
 		{
 			RequireBase();
 
-			var m = Mcv.NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, signer);
+			var m = Node.Mcv.NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, signer);
 
-			if(!Mcv.Settings.Generators.Contains(m.Address)) 
+			if(!Node.Mcv.Settings.Generators.Contains(m.Address)) 
 				throw new NodeException(NodeError.NotMember);
 
 			return m;
@@ -70,11 +69,11 @@ namespace Uccs.Net
 
 	public abstract class PeerRequest : Packet
 	{
-		public override byte			TypeCode => (byte)Class;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 		
 		public ManualResetEvent			Event;
 		public PeerResponse				Response;
+		public TcpPeering				Peering;
 		public Node						Node;
 
 		public abstract PeerResponse	Execute();
@@ -107,12 +106,12 @@ namespace Uccs.Net
 				}
 				catch(NetException ex)
 				{
-					rp = Node.Constract(typeof(PeerResponse), Node.TypeToCode(GetType())) as PeerResponse;
+					rp = Peering.Constract(typeof(PeerResponse), Peering.TypeToCode(GetType())) as PeerResponse;
 					rp.Error = ex;
 				}
 				catch(Exception) when(!Debugger.IsAttached)
 				{
-					rp = Node.Constract(typeof(PeerResponse), Node.TypeToCode(GetType())) as PeerResponse;
+					rp = Peering.Constract(typeof(PeerResponse), Peering.TypeToCode(GetType())) as PeerResponse;
 					rp.Error = new NodeException(NodeError.Unknown);
 				}
 
@@ -137,7 +136,6 @@ namespace Uccs.Net
 
 	public abstract class PeerResponse : Packet
 	{
-		public override byte	TypeCode => (byte)Class;
 		public PeerCallClass	Class => Enum.Parse<PeerCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 		public NetException		Error { get; set; }
 

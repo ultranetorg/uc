@@ -2,7 +2,7 @@
 {
 	public interface IFeeAsker
 	{
-		bool Ask(Node sun, AccountAddress account, Operation operation);
+		bool Ask(TcpPeering sun, AccountAddress account, Operation operation);
 	}
 
 	public class SilentFeeAsker : IFeeAsker
@@ -11,7 +11,7 @@
 		{
 		}
 
-		public bool Ask(Node sun, AccountAddress account, Operation operation)
+		public bool Ask(TcpPeering sun, AccountAddress account, Operation operation)
 		{
 			return true;
 		}

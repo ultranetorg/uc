@@ -34,7 +34,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(() => new ResourceRequest(Identifier), workflow).Resource;
+			var r = sun.Peering.Call(() => new ResourceRequest(Identifier), workflow).Resource;
 
 			IIntegrity itg;
 

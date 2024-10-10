@@ -22,14 +22,6 @@ namespace Uccs.Uos
 		{
 			if(call is UosApc u) 
 				return u.Execute(Uos, request, response, flow);
-				
-			if(call is NodeApc s)
-			{
-				if(Uos.Izn == null)
-					throw new NodeException(NodeError.NoIzn);
-	
-				return s.Execute(Uos.Izn, request, response, flow);
-			}
 
 			throw new ApiCallException("Unknown call");
 		}
@@ -57,25 +49,14 @@ namespace Uccs.Uos
 		public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	}
 
-	public class RunIcnApc : UosApc
-	{
-		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(uos)
-				uos.RunIcn();
-
-			return null;
-		}
-	}
-
 	public class RunNodeApc : UosApc
 	{
-		public Guid		Mcvid { get; set; }
+		public string	Net { get; set; }
 
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(uos)
-				uos.RunNode(Mcvid);
+				uos.RunNode(Net);
 
 			return null;
 		}
@@ -83,12 +64,12 @@ namespace Uccs.Uos
 
 	public class NodeInfoApc : UosApc
 	{
-		public Guid		Mcvid { get; set; }
+		public string	Net { get; set; }
 
 		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			lock(uos)
-				return uos.Nodes.Find(i => i.Node.Net.Id == Mcvid);
+				return uos.Nodes.Find(i => i.Node.Net.Address == Net);
 		}
 	}
 

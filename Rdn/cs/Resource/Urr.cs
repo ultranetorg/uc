@@ -262,12 +262,12 @@ namespace Uccs.Rdn
 		public AccountAddress	Owner { get; set; }
 		public Ura				Resource { get; set; }
 
-		public Urr Create(RdnMcv sun, byte[] hash)
+		public Urr Create(Vault vault, byte[] hash)
 		{
 			return Type	switch
 						{
 							UrrScheme.Urrh => new Urrh {Hash = hash},
-							UrrScheme.Urrsd => Urrsd.Create(sun.Net.Cryptography, sun.Node.Vault.GetKey(Owner), Resource, hash),
+							UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.GetKey(Owner), Resource, hash),
 							_ => throw new ResourceException(ResourceError.UnknownAddressType)
 						};
 

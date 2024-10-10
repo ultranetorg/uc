@@ -36,7 +36,7 @@ namespace Uccs.Uos
 
 			Uos = new UosApiClient(http, Environment.GetEnvironmentVariable(Application.ApiAddressEnvKey), Environment.GetEnvironmentVariable(Application.ApiKeyEnvKey));
 
-			var s = Uos.Request<NodeInstance>(new NodeInfoApc { Mcvid = Uccs.Rdn.Rdn.Local.Id}, new Flow(GetType().Name));
+			var s = Uos.Request<NodeInstance>(new NodeInfoApc {Net = Uccs.Rdn.Rdn.Local.Address}, new Flow(GetType().Name));
 
 			Rdn = new RdnApiClient(http, null, s.Api.ListenAddress, s.Api.AccessKey);
 		}

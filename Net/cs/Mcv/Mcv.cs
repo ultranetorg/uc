@@ -25,13 +25,11 @@ namespace Uccs.Net
 		//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
 		public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
+		public object								Lock = new();
 		public McvSettings							Settings;
 		public McvNet								Net;
-		public McvNode								Node;
 		public IClock								Clock;
-		public object								Lock => Node.Lock;
 		public Log									Log;
-		public Flow									Flow;
 
 		public RocksDb								Database;
 		public byte[]								BaseState;
@@ -47,7 +45,19 @@ namespace Uccs.Net
 		public ConsensusDelegate					ConsensusConcluded;
 		public RoundDelegate						Commited;
 
-		public List<Round>							Tail = new();
+		bool										_init = true;
+		List<Round>									_Tail = [];
+		public List<Round>							Tail
+													{
+														set => _Tail = value;
+														get 
+														{
+															if(!_init && !Monitor.IsEntered(Lock))
+																Debugger.Break();
+
+															return _Tail;
+														}
+													}
 		public Dictionary<int, Round>				LoadedRounds = new();
 		public Round								LastConfirmedRound;
 		public Round								LastCommittedRound;
@@ -71,10 +81,6 @@ namespace Uccs.Net
 		public abstract Generator					CreateGenerator();
 		public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 		public abstract void						FillVote(Vote vote);
-
-		static Mcv()
-		{
-  		}
 
 		public Mcv()
 		{
@@ -111,18 +117,18 @@ namespace Uccs.Net
 					}
 				}
 			}
+
+			_init = false;
 		}
 
-		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Net, settings, databasepath)
+		public Mcv(McvNet net, McvSettings settings, string databasepath, IClock clock) : this(net, settings, databasepath)
 		{
-			Node = node;
-			Flow = flow;
 			Clock = clock;
 		}
 
 		public void Initialize()
 		{
-			if(Settings.Base.Chain != null)
+			if(Settings.Chain != null)
 			{
 				Tail.Clear();
 	
@@ -181,7 +187,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Settings.Base.Chain != null)
+			if(Settings.Chain != null)
 			{
 				var s = Database.Get(ChainStateKey);
 
@@ -216,10 +222,6 @@ namespace Uccs.Net
 
 		public void Clear()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			Tail.Clear();
 
 			BaseState = null;
@@ -249,10 +251,6 @@ namespace Uccs.Net
 
 		public bool Add(Vote vote)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			var r = GetRound(vote.RoundId);
 
 			vote.Round = r;
@@ -321,10 +319,6 @@ namespace Uccs.Net
 
 		public Round GetRound(int rid)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			var r = FindRound(rid);
 
 			if(r == null)
@@ -341,10 +335,6 @@ namespace Uccs.Net
 
 		public Round FindRound(int rid)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			foreach(var i in Tail)
 				if(i.Id == rid)
 					return i;
@@ -374,10 +364,6 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			if(LoadedRounds.Count > Net.CommitLength)
 			{
 				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
@@ -389,9 +375,6 @@ namespace Uccs.Net
 
 		public bool ConsensusFailed(Round r)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			var s = r.Voters;
 			var e = r.VotesOfTry;
 			
@@ -432,10 +415,6 @@ namespace Uccs.Net
 
 		public void Hashify()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			BaseHash = Cryptography.Hash(BaseState);
 	
 			foreach(var t in Tables)
@@ -446,9 +425,6 @@ namespace Uccs.Net
 
 		public Round TryExecute(Transaction transaction)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			var m = NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
 
 			if(!Settings.Generators.Contains(m))
@@ -472,10 +448,6 @@ namespace Uccs.Net
 		
 		public void Commit(Round round)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			using(var b = new WriteBatch())
 			{
 				if(round.IsLastInCommit)
@@ -517,7 +489,7 @@ namespace Uccs.Net
 					Recycle();
 				}
 
-				if(Settings.Base?.Chain != null)
+				if(Settings.Chain != null)
 				{
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
@@ -542,9 +514,6 @@ namespace Uccs.Net
 
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in r.Transactions)
 					if(transaction_predicate == null || transaction_predicate(t))
@@ -555,9 +524,6 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
 					yield return t;

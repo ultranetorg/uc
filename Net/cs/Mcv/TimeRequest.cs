@@ -4,7 +4,7 @@
 	{
 		public override PeerResponse Execute()
 		{
-			lock(Mcv.Lock)
+			lock(Peering.Lock)
 			{
 				RequireBase();
 				

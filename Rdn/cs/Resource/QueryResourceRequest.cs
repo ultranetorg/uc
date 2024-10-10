@@ -6,9 +6,9 @@
 
 		public override PeerResponse Execute()
 		{
- 			lock(Rdn.Lock)
+ 			lock(Mcv.Lock)
 			{	
-				return new QueryResourceResponse {Resources = Rdn.QueryResource(Query).Select(i => i.Address).ToArray()};
+				return new QueryResourceResponse {Resources = Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}

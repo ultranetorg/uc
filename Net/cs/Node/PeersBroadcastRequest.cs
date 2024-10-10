@@ -10,13 +10,13 @@
 			if(Peers.Length > 1000)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			lock(Node.Lock)
+			lock(Peering.Lock)
 			{
-				var newfresh = Node.RefreshPeers(Peers).ToArray();
+				var newfresh = Peering.RefreshPeers(Peers).ToArray();
 	
 				if(newfresh.Any())
 				{
-					foreach(var i in Node.Connections.Where(i => i != Peer))
+					foreach(var i in Peering.Connections.Where(i => i != Peer))
 					{
 						i.Post(new PeersBroadcastRequest{Peers = newfresh});
 					}

@@ -9,17 +9,8 @@ namespace Uccs.Uos
 	public class NodeInstance
 	{
 		public ApiSettings	Api { get; set; }
-		public Node			Node;
-		public Guid			Id;
-		RdnApiClient		_Rdn;
-
-		public RdnApiClient Rdn
-		{
-  			get
-  			{
-				return _Rdn ??= new RdnApiClient(Uos.ApiHttpClient, (Node as RdnNode).Net, Api.ListenAddress, Api.AccessKey);
-  			}
-		}
+		public McvNode		Node;
+		public string		Net;
 
 		public override string ToString()
 		{
@@ -32,7 +23,6 @@ namespace Uccs.Uos
 		public delegate void		Delegate(Uos d);
  		public delegate void		McvDelegate(Mcv d);
 	 	
-		public NexusNode			Izn; /// Inter-consensus node
 		public static bool			ConsoleAvailable { get; protected set; }
 		public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
 		public Flow					Flow = new Flow("uos", new Log()); 
@@ -47,13 +37,12 @@ namespace Uccs.Uos
 		public static				ConsoleLogView	LogView = new ConsoleLogView(false, false);
 		public static HttpClient	ApiHttpClient;
 
-		public Node					Find(Guid id) => Nodes.Find(i => i.Id == id)?.Node;
-		public T					Find<T>() where T : Node => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
+		public McvNode				Find(string net) => Nodes.Find(i => i.Net == net)?.Node;
+		public T					Find<T>() where T : class => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
 
-		public RdnApiClient			Rdn => Nodes.Find(i => i.Id == Settings.Nexus.DefaultRdn).Rdn;
-		//public static List<Uos>			All = new();
+		RdnApiClient				_Rdn;
+		public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.RootRdn, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.AccessKey);
 
-		public NodeDelegate			IznStarted;
 		public NodeDelegate			NodeStarted;
 
 		static Uos()
@@ -81,7 +70,7 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 			Boot = new Boot(ExeDirectory);
-			var s = new UosSettings(Boot.Profile, "The Uos", Nexus.ByName(Boot.Net));
+			var s = new UosSettings(Boot.Profile, "The Uos", Rdn.Rdn.ByLand(Boot.Land));
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Execute(Boot.Commnand.Nodes, u.Flow);
@@ -121,7 +110,8 @@ namespace Uccs.Uos
 		{
 			return string.Join(" - ", new string[]{	Settings.Name,
 													ApiServer != null ? "A" : null,
-													Izn?.ToString()}.Where(i => i != null));
+													///Rdn?.ToString()
+													}.Where(i => i != null));
 		}
 
 		public void Stop()
@@ -137,8 +127,6 @@ namespace Uccs.Uos
 				i.Node.Stop();
 				Nodes.Remove(i);
 			}
-
-			Izn?.Stop();
 		}
 		
 		public void RunApi()
@@ -157,29 +145,17 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public void RunIcn(NexusNodeSettings settings = null)
+		public McvNode RunNode(string net, Settings settings = null, IClock clock = null, bool peering = false)
 		{
-			var f = Flow.CreateNested(nameof(Izn), new Log());
-
-			Izn = new NexusNode(Settings.Name, Settings.Nexus.Id, Settings.Profile, settings, f);
-
-			IznStarted?.Invoke(Izn);
-		}
-
-		public Node RunNode(Guid id, NodeSettings settings = null, IClock clock = null, bool peering = false)
-		{
-			if(Settings.Nexus.DefaultRdn == id)
+			if(net == Net.Net.Root)
 			{
 				var f = Flow.CreateNested(nameof(Rdn), new Log());
 
-				var n = new RdnNode(Settings.Name, id, Settings.Profile, settings as RdnSettings, Settings.Packages, Vault, clock, f);
+				var n = new RdnNode(Settings.Name, Settings.RootRdn, Settings.Profile, settings as RdnNodeSettings, Settings.Packages, Vault, clock, f);
 
-				Nodes.Add(new NodeInstance {Id = id,
+				Nodes.Add(new NodeInstance {Net = net,
 											Api = n.Settings.Api,
 											Node = n});
-
-				lock(Izn.Lock)
-					Izn.Declare(n.Net.Id, n.Settings.Roles);
 
 				NodeStarted?.Invoke(n);
 
@@ -296,11 +272,9 @@ namespace Uccs.Uos
 
 		public void Start(Ura address, Flow flow)
 		{
-			var rdn = Nodes.Find(i => i.Id == Settings.Nexus.DefaultRdn).Rdn;
-
-			var d = rdn.FindLocalResource(address, flow)?.Last
+			var d = RdnApi.FindLocalResource(address, flow)?.Last
 					?? 
-					rdn.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
+					RdnApi.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 
 			if(d == null)
 				throw new UosException("Incorrent resource type");
@@ -310,9 +284,9 @@ namespace Uccs.Uos
 
 			if(d.Type.Content == ContentType.Rdn_ProductManifest)
 			{
-				var lrr = rdn.Download(address, flow);
+				var lrr = RdnApi.Download(address, flow);
 
-				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(rdn.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
+				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 
 				apr = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Address;
 			}
@@ -329,11 +303,11 @@ namespace Uccs.Uos
 
 			if(aprv == null)
 			{
-				d = rdn.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
+				d = RdnApi.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
 				aprv = d.Parse<AprvAddress>();
 			}
 
-			rdn.DeployPackage(aprv, Settings.Packages, flow);
+			RdnApi.DeployPackage(aprv, Settings.Packages, flow);
 
  			var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
  

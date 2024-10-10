@@ -53,7 +53,7 @@ namespace Uccs.Rdn
 	{
 		RdnNode Node;
 
-		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow, RdnApiClient.CreateOptions(node.Net))
+		public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions(node.Net))
 		{
 			Node = node;
 		}
@@ -100,9 +100,9 @@ namespace Uccs.Rdn
 			Net = net;
 		}
 		
-		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApe			FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-		public PackageInfo				FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+		public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+		public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
+		public PackageInfo		FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 		
 		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
 		{
@@ -172,7 +172,7 @@ namespace Uccs.Rdn
 				var a = Ura.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "";
 	
-				var r = rdn.Call(() => new ResourceRequest(a), workflow).Resource;
+				var r = rdn.Peering.Call(() => new ResourceRequest(a), workflow).Resource;
 				var ra = r.Data?.Parse<Urr>()
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
@@ -206,8 +206,8 @@ namespace Uccs.Rdn
 						break;
 	
 					case Urrsd x :
-						var d = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-						var aa = rdn.Call(() => new AccountRequest(d.Owner), workflow).Account;
+						var d = rdn.Peering.Call(() => new DomainRequest(a.Domain), workflow).Domain;
+						var aa = rdn.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
 						itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
 						break;
 	
@@ -344,7 +344,7 @@ namespace Uccs.Rdn
 				Rate = 1;
 			}
 
-			var r = rdn.Call(() => new CostRequest(), workflow);
+			var r = rdn.Peering.Call(() => new CostRequest(), workflow);
 
 			return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 								//Exeunit						= r.ConsensusExeunitFee * Rate,

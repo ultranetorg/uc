@@ -2,7 +2,7 @@
 {
 	public class AllocateTransactionRequest : McvCall<AllocateTransactionResponse>
 	{
-		public Transaction Transaction {get; set;}
+		public Transaction Transaction { get; set; }
 
 		public override PeerResponse Execute()
 		{

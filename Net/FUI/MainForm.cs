@@ -20,44 +20,27 @@ namespace Uccs.Net.FUI
 
 			MinimumSize = Size;
 
-			Uos.IznStarted += c =>	{ 	
-										BeginInvoke((MethodInvoker) delegate
-													{ 
-														LoadIcn();
-													});
-									};
-			
-			Uos.NodeStarted += c =>	{ 	
-										BeginInvoke((MethodInvoker) delegate
-													{ 
-														LoadMcv(c as McvNode);
-													});
-									};
-			if(Uos.Izn != null)
-				LoadIcn();
-
-			foreach(var i in Uos.Nodes)
-				LoadMcv(i.Node as McvNode);
-		}
-
-		public void BeginClose()
-		{
-			BeginInvoke(Close);
-		}
-
-		void LoadIcn()
-		{
 			var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos)};
 			Navigator.Nodes.Add(dashboard);
-
-			var net = new TreeNode("Nexus"){Tag = new NexusNetworkPanel(Uos.Izn)};
-			Navigator.Nodes.Add(net);
 
 			var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos)};
 			Navigator.Nodes.Add(accs);
 
 			Navigator.SelectedNode = dashboard;
 			Navigator.ExpandAll();
+			
+			Uos.NodeStarted += c =>	{ 	
+										BeginInvoke(() =>	{ 
+																LoadMcv(c as McvNode);
+															});
+									};
+			foreach(var i in Uos.Nodes)
+				LoadMcv(i.Node);
+		}
+
+		public void BeginClose()
+		{
+			BeginInvoke(Close);
 		}
 
 		void LoadMcv(McvNode node)
@@ -67,13 +50,13 @@ namespace Uccs.Net.FUI
 			var root = new TreeNode(node.GetType().Name);
 			Navigator.Nodes.Add(root);
 
-			var net = new TreeNode("Network"){Tag = new NetworkPanel(node)};
+			var net = new TreeNode("Network"){Tag = new NetworkPanel(node.Peering)};
 			root.Nodes.Add(net);
 			
 			var m = new TreeNode("Members"){Tag = new MembersPanel(node)};
 			root.Nodes.Add(m);
 	
-			if(node.Mcv?.Settings.Base?.Chain != null)
+			if(node.Mcv?.Settings.Chain != null)
 			{
 				var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(node)};
 				root.Nodes.Add(t);

@@ -7,7 +7,10 @@ namespace Uccs.Net.FUI
 {
 	public partial class ChainPanel : MainPanel
 	{
-		public ChainPanel(McvNode mcv) : base(mcv)
+		McvNode Node;
+		Mcv		Mcv;
+
+		public ChainPanel(McvNode mcv)
 		{
 			InitializeComponent();
 		}
@@ -16,14 +19,14 @@ namespace Uccs.Net.FUI
 		{
 			if(first)
 			{
-				lock(Node.Lock)
+				lock(Mcv.Lock)
 				{
 					Mcv.VoteAdded += (b) =>	{
 												BeginInvoke((MethodInvoker)delegate
 															{
-																lock(Node.Lock)
+																lock(Mcv.Lock)
 																{
-																	Round.Minimum = Mcv.Settings.Base?.Chain != null ? 0 : Mcv.Tail.Last().Id;
+																	Round.Minimum = Mcv.Settings.Chain != null ? 0 : Mcv.Tail.Last().Id;
 																	Round.Maximum = Mcv.LastNonEmptyRound.Id;
 																}
 															});
@@ -31,9 +34,9 @@ namespace Uccs.Net.FUI
 				}
 			}
 
-			lock(Node.Lock)
+			lock(Mcv.Lock)
 			{
-				Round.Minimum = Mcv.Settings.Base?.Chain != null ? 0 : Mcv.Tail.Last().Id;
+				Round.Minimum = Mcv.Settings.Chain != null ? 0 : Mcv.Tail.Last().Id;
 				Round.Maximum = Mcv.Tail.First().Id;
 				Round.Value = Mcv.LastNonEmptyRound.Id;
 			}
@@ -82,7 +85,7 @@ namespace Uccs.Net.FUI
 			Emissions.Items.Clear();
 			Migrations.Items.Clear();
 
-			lock(Node.Lock)
+			lock(Mcv.Lock)
 			{
 				var r = Mcv.FindRound((int)Round.Value);
 
@@ -103,6 +106,7 @@ namespace Uccs.Net.FUI
 											}).ToArray());
 
 				var txs = r.Confirmed ? r.ConsensusTransactions : r.OrderedTransactions;
+
 				LoadTransactions(txs);
 				LoadOperations(txs.SelectMany(i => i.Operations));
 
@@ -130,7 +134,7 @@ namespace Uccs.Net.FUI
 
 			if(e.IsSelected && e.Item.Tag is Vote p)
 			{
-				lock(Node.Lock)
+				lock(Mcv.Lock)
 				{
 					LoadTransactions(p.Transactions);
 					LoadOperations(p.Transactions.SelectMany(i => i.Operations));
@@ -146,7 +150,7 @@ namespace Uccs.Net.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Node.Lock)
+				lock(Mcv.Lock)
 				{
 					LoadOperations((e.Item.Tag as Transaction).Operations);
 				}

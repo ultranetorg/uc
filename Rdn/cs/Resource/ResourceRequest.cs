@@ -30,9 +30,9 @@
 				Resource r;
 
 				if(Identifier.Addres != null)
-					r = Rdn.Domains.FindResource(Identifier.Addres, Rdn.LastConfirmedRound.Id);
+					r = Mcv.Domains.FindResource(Identifier.Addres, Mcv.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					r = Rdn.Domains.FindResource(Identifier.Id, Rdn.LastConfirmedRound.Id);
+					r = Mcv.Domains.FindResource(Identifier.Id, Mcv.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

@@ -5,7 +5,7 @@ namespace Uccs.Uos
 	public class UosSettings : SavableSettings
 	{
 		public string			Name;
-		public Nexus			Nexus;
+		public Rdn.Rdn			RootRdn;
 		public bool				EncryptVault { get; set; }
 		public ApiSettings		Api { get; set; }
 		public string			Packages { get; set; }
@@ -14,10 +14,10 @@ namespace Uccs.Uos
 		{
 		}
 
-		public UosSettings(string profile, string name, Nexus nexus) : base(profile, NetXonTextValueSerializator.Default)
+		public UosSettings(string profile, string name, Rdn.Rdn root) : base(profile, NetXonTextValueSerializator.Default)
 		{
 			Name = name;
-			Nexus = nexus;
+			RootRdn = root;
 		}
 	}
 }

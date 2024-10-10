@@ -5,9 +5,11 @@ namespace Uccs.Net.FUI
 {
 	public partial class MembersPanel : MainPanel
 	{
-		Font Bold;
+		Font	Bold;
+		McvNode	Node;
+		Mcv		Mcv;
 
-		public MembersPanel(McvNode mcv) : base(mcv)
+		public MembersPanel(McvNode mcv)
 		{
 			InitializeComponent();
 
@@ -20,7 +22,7 @@ namespace Uccs.Net.FUI
 			Generators.Items.Clear();
 			Proxies.Items.Clear();
 
-			lock(Node.Lock)
+			lock(Mcv.Lock)
 			{
 				foreach(var i in Mcv.LastConfirmedRound.Members)
 				{
@@ -66,7 +68,7 @@ namespace Uccs.Net.FUI
 		{
 			if(e.IsSelected)
 			{
-				lock(Node.Lock)
+				//lock(Node.Lock)
 				{
 					foreach(var i in (e.Item.Tag as Generator).BaseRdcIPs)
 					{

@@ -5,7 +5,7 @@ namespace Uccs.Net.FUI
 {
 	public partial class DomainPanel : MainPanel
 	{
-		public DomainPanel(McvNode mcv) : base(mcv)
+		public DomainPanel(RdnNode mcv)
 		{
 			InitializeComponent();
 
@@ -18,13 +18,13 @@ namespace Uccs.Net.FUI
 		{
 			if(first)
 			{
-				BindAccounts(RegisrationSigner);
-				BindAccounts(AuctionSigner);
-		
-				DomainTitle_TextChanged(null, null);
-
-				Fields.Text = null;
-				Values.Text = null;
+			//	BindAccounts(RegisrationSigner);
+			//	BindAccounts(AuctionSigner);
+			//
+			//	DomainTitle_TextChanged(null, null);
+			//
+			//	Fields.Text = null;
+			//	Values.Text = null;
 			}
 		}
 
@@ -142,7 +142,7 @@ namespace Uccs.Net.FUI
 		{
 			RegistrationStatus.Text = null;
 
-			lock(Node.Lock)
+			//lock(Node.Lock)
 			{
 				//Cost.Coins = DomainRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 			}
@@ -212,19 +212,19 @@ namespace Uccs.Net.FUI
 
 		private void MakeBid_Click(object sender, EventArgs e)
 		{
-			try
-			{
-				var s = GetPrivate(AuctionSigner.SelectedItem as AccountAddress);
-
-				if(s == null)
-					return;
-
-				McvNode.Transact(new DomainBid(null, (long)Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
-			}
-			catch(Exception ex)
-			{
-				ShowError(ex.Message);
-			}
+// 			try
+// 			{
+// 				var s = GetPrivate(AuctionSigner.SelectedItem as AccountAddress);
+// 
+// 				if(s == null)
+// 					return;
+// 
+// 				McvNode.Peering.Transact(new DomainBid(null, (long)Bid.Coins), s, TransactionStatus.None, new Flow("MakeBid_Click"));
+// 			}
+// 			catch(Exception ex)
+// 			{
+// 				ShowError(ex.Message);
+// 			}
 		}
 	}
 }

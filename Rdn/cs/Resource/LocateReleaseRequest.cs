@@ -9,10 +9,8 @@ namespace Uccs.Rdn
 
 		public override PeerResponse Execute()
 		{
-			lock(Rdn.Lock)
-			{	
+			lock(Mcv.Lock)
 				RequireMember();
-			}
 
 			lock(Node.SeedHub.Lock)
 				return new LocateReleaseResponse {Seeders = Node.SeedHub.Locate(this)}; 

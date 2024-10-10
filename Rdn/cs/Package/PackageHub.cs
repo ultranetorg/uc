@@ -11,10 +11,11 @@ namespace Uccs.Rdn
 		public object				Lock = new object();
 		public string				DeploymentPath;
 
-		public PackageHub(RdnNode sun, SeedSettings settings)
+		public PackageHub(RdnNode sun, SeedSettings settings, string deploymentpath)
 		{
 			Node = sun;
 			Settings = settings;
+			DeploymentPath = deploymentpath;
 		}
 
  		public static string AddressToDeployment(string packagespath, AprvAddress resource)
@@ -334,7 +335,7 @@ namespace Uccs.Rdn
 
 				var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
 
-				var a = addresscreator.Create(Node.Mcv, h);
+				var a = addresscreator.Create(Node.Vault, h);
 				var r = Node.ResourceHub.Add(a);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);

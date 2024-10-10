@@ -1,12 +1,14 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
 	public abstract class RdnCall<R> : McvCall<R> where R : PeerResponse
 	{
-		public new RdnNode	Node => base.Node as RdnNode;
-		public RdnMcv		Rdn => Node.Mcv;
+		public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
+		public new RdnNode			Node => base.Node as RdnNode;
+		public new RdnMcv			Mcv => base.Mcv as RdnMcv;
 	}
 
 	[Flags]
@@ -18,25 +20,24 @@ namespace Uccs.Rdn
 
 	public class RdnMcv : Mcv
 	{
-		public new RdnSettings			Settings => base.Settings as RdnSettings;
 		public DomainTable				Domains;
 		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
-
-		static RdnMcv()
-		{
-		}
+		IPAddress[]						BaseIPs;
+		IPAddress[]						SeedHubIPs;
 
 		public RdnMcv()
 		{
   		}
 
-		public RdnMcv(McvNet net, RdnSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
+		public RdnMcv(Rdn net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
 		{
 		}
 
-		public RdnMcv(RdnNode sun, RdnSettings settings, string databasepath, Flow flow, IClock clock) : base(sun, settings, databasepath, clock, flow)
+		public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, clock)
 		{
+			BaseIPs = baseips;
+			SeedHubIPs = seedhubips;
 		}
 
 		public override string CreateGenesis(AccountKey god, AccountKey f0)
@@ -145,14 +146,6 @@ namespace Uccs.Rdn
 			return new RdnVote(this);
 		}
 
-		//public override Candidate CreateCandidate(Round round, CandidacyDeclaration declaration)
-		//{
-		//	return new RdnCandidate{Registered		= round.ConsensusTime,
-		//							Account			= declaration.Signer.Id,
-		//							BaseRdcIPs		= declaration.BaseRdcIPs, 
-		//							SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
-		//}
-
 		public override Generator CreateGenerator()
 		{
 			return new RdnGenerator();
@@ -160,9 +153,8 @@ namespace Uccs.Rdn
 
 		public override CandidacyDeclaration CreateCandidacyDeclaration()
 		{
-			return new RdnCandidacyDeclaration {//Pledge			= Settings.Pledge,
-												BaseRdcIPs		= [Settings.Peering.IP],
-												SeedHubRdcIPs	= [Settings.Peering.IP]};
+			return new RdnCandidacyDeclaration {BaseRdcIPs		= BaseIPs,
+												SeedHubRdcIPs	= SeedHubIPs};
 
 		}
 

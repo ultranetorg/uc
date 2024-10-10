@@ -6,7 +6,7 @@
 
 		public Xon			Commnand;
 	 	public string		Profile;
-		public string		Net;
+		public Land			Land;
 
 		public Boot()
 		{
@@ -18,14 +18,14 @@
 			Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
 			if(Commnand.Has("nexus"))
-				Net = Commnand.Get<string>("nexus");
+				Land = Enum.Parse<Land>(Commnand.Get<string>("nexus"));
 			else
-				Net = b.Get<string>("Nexus");
+				Land = Enum.Parse<Land>(b.Get<string>("Land"));
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
 			else
-				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Net);
+				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Land.ToString());
 		}
 	}
 }

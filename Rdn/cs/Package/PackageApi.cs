@@ -13,7 +13,7 @@ namespace Uccs.Rdn
 		public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			var h = node.Net.Cryptography.HashFile(Manifest);
-			var a = AddressCreator.Create(node.Mcv, h);
+			var a = AddressCreator.Create(node.Vault, h);
 
 			lock(node.PackageHub.Lock)
 			{

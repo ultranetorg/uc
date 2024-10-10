@@ -7,10 +7,8 @@
 
 		public override PeerResponse Execute()
 		{
-			lock(Node.Lock)
-			{	
+			lock(Node.Mcv.Lock)
 				RequireMember();
-			}
 
 			lock(Node.SeedHub.Lock)
 				return new DeclareReleaseResponse {Results = Node.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};

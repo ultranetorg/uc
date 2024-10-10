@@ -228,11 +228,11 @@ namespace Uccs.Net
 	
 				var n = reader.Read7BitEncodedInt();
 	
-				var l = ltype.GetConstructor(new Type[] {typeof(int)}).Invoke(new object[]{n});
+				var l = ltype.GetConstructor([typeof(int)]).Invoke([n]);
 	
 				for(int i=0; i<n; i++)
 				{
-					l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetElementType(), construct)});
+					l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType(), construct)]);
 				}
 
 				return l;

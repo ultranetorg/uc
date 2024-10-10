@@ -6,11 +6,11 @@ namespace Uccs.Rdn.CLI
 	public class Program
 	{
 		public string			ExeDirectory;
-		public Rdn			Net;
-		internal RdnNode		Node;
+		public Rdn				Net;
+		internal RdnTcpPeering	Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
-		public NodeSettings		Settings;
+		public RdnNodeSettings	Settings;
 		public Flow				Flow = new Flow("CLI", new Log()); 
 		public ConsoleLogView	LogView = new ConsoleLogView(false, true);
 
@@ -19,12 +19,12 @@ namespace Uccs.Rdn.CLI
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new Boot(ExeDirectory);
-			Settings = new RdnSettings(b.Profile);
+			Settings = new RdnNodeSettings(b.Profile);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
 
-			Net = Rdn.ByName(b.Net);
+			Net = Rdn.ByLand(b.Land);
 
 			try
 			{
@@ -60,7 +60,7 @@ namespace Uccs.Rdn.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(RdnSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(RdnNodeSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Settings = settings;
 			ApiClient = api;

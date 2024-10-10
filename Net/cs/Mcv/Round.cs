@@ -282,11 +282,6 @@ namespace Uccs.Net
 											!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
 								.Select(i => i.Id);
 
-  			if(l.Any())
-  			{
-  				l =l;
-  			}
-
 			return l;
 		}
 
@@ -421,7 +416,7 @@ namespace Uccs.Net
 				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
 				s.LastTransactionNid++;
 						
-				if(Mcv.Settings.Base?.Chain != null)
+				if(Mcv.Settings.Chain != null)
 				{
 					s.Transactions.Add(Id);
 				}
@@ -432,10 +427,10 @@ namespace Uccs.Net
 
 		public void Confirm()
 		{
-			if(Mcv.Node != null)
-				if(!Monitor.IsEntered(Mcv.Lock))
-					Debugger.Break();
-
+// 			if(Mcv.Node != null)
+// 				if(!Monitor.IsEntered(Mcv.Lock))
+// 					Debugger.Break();
+// 
 			if(Confirmed)
 				throw new IntegrityException();
 

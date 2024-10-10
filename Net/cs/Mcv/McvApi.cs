@@ -48,7 +48,7 @@ namespace Uccs.Net
 	{
 		McvNode Node;
 	
-		public McvApiServer(McvNode node, Flow workflow, JsonSerializerOptions options = null) : base(node, workflow, options ?? McvApiClient.CreateOptions(node.Net))
+		public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options = null) : base(node, settings, workflow, options ?? McvApiClient.CreateOptions(node.Net))
 		{
 			Node = node;
 		}
@@ -94,24 +94,24 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RunPeerApc : McvApc
-	{
-		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(node.Lock)
-				node.RunPeer();
-			
-			return null;
-		}
-	}
+// 	public class RunPeerApc : McvApc
+// 	{
+// 		public override object Execute(McvTcpPeering node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+// 		{
+// 			lock(node.Lock)
+// 				node.RunPeer();
+// 			
+// 			return null;
+// 		}
+// 	}
 
 	public class McvPropertyApc : McvApc
 	{
 		public string Path { get; set; }
 
-		public override object Execute(McvNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			object o = sun;
+			object o = node;
 
 			foreach(var i in Path.Split('.'))
 			{
@@ -131,43 +131,125 @@ namespace Uccs.Net
 			}
 		}
 	}
+
+
+	public class PeersReportApc : McvApc
+	{
+		public int		Limit { get; set; }
+
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(node.Peering.Lock)
+				return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new Return.Peer {
+																																						IP			= i.IP,			
+																																						Status		= i.StatusDescription,
+																																						PeerRank	= i.PeerRank,
+																																						Roles		= i.Roles,
+																																						LastSeen	= i.LastSeen,
+																																						LastTry		= i.LastTry,
+																																						Retries		= i.Retries	
+																																					}).ToArray()}; 
+		}
+
+		public class Return
+		{
+			public class Peer
+			{
+				public IPAddress	IP { get; set; }
+				public string		Status  { get; set; }
+				public int			PeerRank { get; set; }
+				public DateTime		LastSeen { get; set; }
+				public DateTime		LastTry { get; set; }
+				public int			Retries { get; set; }
+				public long			Roles { get; set; }
+			}
+
+			public IEnumerable<Peer> Peers {get; set;}
+		}
+	}
+
+// 	public class SummaryApc : NodeApc
+// 	{
+// 		public int		Limit  { get; set; }
+// 
+// 		public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+// 		{
+// 			lock(sun.Lock)
+// 			{ 
+// 				List<KeyValuePair<string, string>> f =	[
+// 															new ("Version",					sun.Version.ToString()),
+// 															new ("Profile",					sun.Settings.Profile),
+// 															new ("IP(Reported):Port",		$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
+// 															new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
+// 														];
+// 
+// 				if(sun is McvTcpPeering m)
+// 				{
+// 					f.Add(new ("Net",  m.Net.Address));
+// 				}
+// 
+// 				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
+// 				f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));
+// 				f.Add(new ("Transacting (nps/μs)",	$"{sun.Statistics.Transacting	.N}/{sun.Statistics.Transacting	.Avarage.Ticks/10}"));
+// 				f.Add(new ("Declaring (nps/μs)",	$"{sun.Statistics.Declaring		.N}/{sun.Statistics.Declaring	.Avarage.Ticks/10}"));
+// 				f.Add(new ("Sending (nps/μs)",		$"{sun.Statistics.Sending		.N}/{sun.Statistics.Sending		.Avarage.Ticks/10}"));
+// 				f.Add(new ("Reading (nps/μs)",		$"{sun.Statistics.Reading		.N}/{sun.Statistics.Reading		.Avarage.Ticks/10}"));
+// 
+// 				sun.Statistics.Reset();
+// 		
+// 				return new Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+// 			}
+// 		}
+// 
+// 		public class Return
+// 		{
+// 			public IEnumerable<string[]> Summary {get; set;}
+// 		}
+// 	}
+
+
 	public class McvSummaryApc : McvApc
 	{
 		public int		Limit  { get; set; }
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(mcv.Lock)
-			{ 
-				List<KeyValuePair<string, string>> f = [new ("Incoming Transactions",	$"{mcv.IncomingTransactions.Count}"),
-														new ("Outgoing Transactions",	$"{mcv.OutgoingTransactions.Count}"),
-														new ("    Pending Delegation",	$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
-														new ("    Accepted",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
-														new ("    Placed",				$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-														new ("    Confirmed",			$"{mcv.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
-				
-				if(mcv.Mcv != null)
-				{
-					f.Add(new ("Synchronization",		$"{mcv.Synchronization}"));
-					f.Add(new ("Size",					$"{mcv.Mcv.Size}"));
-					f.Add(new ("Members",				$"{mcv.Mcv.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Base Hash",				mcv.Mcv.BaseHash.ToHex()));
-					//f.Add(new ("Emission",				$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
-					f.Add(new ("Last Confirmed Round",	$"{mcv.Mcv.LastConfirmedRound?.Id}"));
-					f.Add(new ("Last Non-Empty Round",	$"{mcv.Mcv.LastNonEmptyRound?.Id}"));
-					f.Add(new ("Last Payload Round",	$"{mcv.Mcv.LastPayloadRound?.Id}"));
-					f.Add(new ("ExeunitMinFee",			$"{mcv.Mcv.LastConfirmedRound?.ConsensusExecutionFee.ToString()}"));
-					f.Add(new ("Loaded Rounds",			$"{mcv.Mcv.LoadedRounds.Count}"));
-					f.Add(new ("SyncCache Blocks",		$"{mcv.SyncTail.Sum(i => i.Value.Count)}"));
+ 		public class Return
+ 		{
+ 			public IEnumerable<string[]> Summary {get; set;}
+ 		}
 
-					if(mcv.Synchronization == Synchronization.Synchronized)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			lock(node.Mcv.Lock)
+			{ 
+				List<KeyValuePair<string, string>> f = [new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
+														new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
+														new ("    Pending Delegation",	$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
+														new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
+														new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+														new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
+				
+				if(node.Mcv != null)
+				{
+					f.Add(new ("Synchronization",		$"{node.Peering.Synchronization}"));
+					f.Add(new ("Size",					$"{node.Mcv.Size}"));
+					f.Add(new ("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}"));
+					f.Add(new ("Base Hash",				node.Mcv.BaseHash.ToHex()));
+					//f.Add(new ("Emission",			$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
+					f.Add(new ("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}"));
+					f.Add(new ("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}"));
+					f.Add(new ("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}"));
+					f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusExecutionFee.ToString()}"));
+					f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
+					f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
+
+					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
-						foreach(var i in mcv.Vault.Wallets)
+						foreach(var i in node.Vault.Wallets)
 						{
 							var a = i.Key.ToString();
-							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(mcv.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
-							f.Add(new ("   BY", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
-							f.Add(new ("   EC", $"{mcv.Mcv.Accounts.Find(i.Key, mcv.Mcv.LastConfirmedRound.Id)?.GetECBalance(mcv.Mcv.LastConfirmedRound.ConsensusTime).ToString()}"));
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
+							f.Add(new ("   BY", $"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
+							f.Add(new ("   EC", $"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.GetECBalance(node.Mcv.LastConfirmedRound.ConsensusTime).ToString()}"));
 						}
 					}
 				}
@@ -175,15 +257,15 @@ namespace Uccs.Net
 				{
 					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
 
-					foreach(var i in mcv.Vault.Wallets)
+					foreach(var i in node.Vault.Wallets)
 					{
 						f.Add(new ($"Account", $"{i}"));
 					}
 				}
 
-				mcv.Statistics.Reset();
+				node.Peering.Statistics.Reset();
 		
-				return new SummaryApc.Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+				return new Return {Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 			}
 		}
 	}
@@ -192,10 +274,10 @@ namespace Uccs.Net
 	{
 		public int		Limit  { get; set; }
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Lock)
-				return new Return {Rounds = mcv.Mcv.Tail.Take(Limit)
+			lock(node.Mcv.Lock)
+				return new Return {Rounds = node.Mcv.Tail.Take(Limit)
 														.Reverse()
 														.Select(i => new Return.Round
 																	{
@@ -204,9 +286,9 @@ namespace Uccs.Net
 																		Confirmed = i.Confirmed,
 																		Time = i.ConsensusTime,
 																		Hash = i.Hash,
-																		Votes = i.Votes.Select(b => new Return.Vote {	Generator = b.Generator, 
-																																	IsPayload = b.Transactions.Any(), 
-																																	/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
+																		Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Generator, 
+																																IsPayload = b.Transactions.Any(), 
+																																/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
 																		JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.Signer),
 																	})
 														.ToArray()}; 
@@ -244,10 +326,10 @@ namespace Uccs.Net
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Lock)
-				return new VotesReportResponse{Votes = mcv.Mcv	.FindRound(RoundId)?.Votes
+			lock(node.Mcv.Lock)
+				return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
 																.OrderBy(i => i.Generator)
 																.Take(Limit)
 																.Select(i => new VotesReportResponse.Vote
@@ -282,7 +364,7 @@ namespace Uccs.Net
 
 		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return mcv.Transact(Operations, Signer, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
+			return mcv.Peering.Transact(Operations, Signer, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
 		}
 	}
 
@@ -296,7 +378,7 @@ namespace Uccs.Net
 			var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
 			t.Sign(node.Vault.GetKey(By), []);
 
-			return node.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
+			return node.Peering.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 		}
 	}
 
@@ -338,7 +420,7 @@ namespace Uccs.Net
 			EUFee				= transaction.ECFee;
 			Signature			= transaction.Signature;
 			   
-			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as Node)?.IP;
+			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as TcpPeering)?.IP;
 			Signer				= transaction.Signer;
 			Status				= transaction.Status;
 			__ExpectedStatus	= transaction.__ExpectedStatus;
@@ -347,19 +429,19 @@ namespace Uccs.Net
 
 	public class IncomingTransactionsApc : McvApc
 	{
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Lock)
-				return mcv.IncomingTransactions.Select(i => new ApcTransaction(i)).ToArray();
+			lock(node.Peering.Lock)
+				return node.Peering.IncomingTransactions.Select(i => new ApcTransaction(i)).ToArray();
 		}
 	}
 
 	public class OutgoingTransactionsApc : McvApc
 	{
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Lock)
-				return mcv.OutgoingTransactions.Select(i => new ApcTransaction(i)).ToArray();
+			lock(node.Peering.Lock)
+				return node.Peering.OutgoingTransactions.Select(i => new ApcTransaction(i)).ToArray();
 		}
 	}
 
@@ -367,15 +449,15 @@ namespace Uccs.Net
 	{
 		public PeerRequest Request { get; set; }
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
 			try
 			{
-				return mcv.Call(() => Request, workflow);
+				return node.Peering.Call(() => Request, workflow);
 			}
 			catch(NetException ex)
 			{
-				var rp = mcv.Constract(typeof(PeerResponse), mcv.TypeToCode(Request.GetType())) as PeerResponse;
+				var rp = node.Peering.Constract(typeof(PeerResponse), node.Peering.TypeToCode(Request.GetType())) as PeerResponse;
 				rp.Error = ex;
 				
 				return rp;
@@ -387,10 +469,10 @@ namespace Uccs.Net
 	{
 		public IEnumerable<AccountAddress>	 Generators {get; set;}
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			lock(mcv.Lock)
-				mcv.Mcv.Settings.Generators = Generators.ToArray();
+			lock(node.Mcv.Lock)
+				node.Mcv.Settings.Generators = Generators.ToArray();
 
 			return null;
 		}

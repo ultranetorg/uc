@@ -23,7 +23,7 @@ namespace Uccs.Net.FUI
 			Close();
 		}
 
-		public bool Ask(Uccs.Net.Node sun, AccountAddress account, Operation operation)
+		public bool Ask(Uccs.Net.TcpPeering sun, AccountAddress account, Operation operation)
 		{
 			from.Text = account.ToString();
 			
