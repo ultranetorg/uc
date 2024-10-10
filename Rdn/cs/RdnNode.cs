@@ -106,12 +106,6 @@ namespace Uccs.Rdn
 
 			if(Settings.Seed != null)
 			{
-				if(!Database.TryGetColumnFamily(ResourceHub.ReleaseFamilyName, out var cf))
-					Database.CreateColumnFamily(new (), ResourceHub.ReleaseFamilyName);
-
-				if(!Database.TryGetColumnFamily(ResourceHub.ResourceFamilyName, out cf))
-					Database.CreateColumnFamily(new (), ResourceHub.ResourceFamilyName);
-
 				ResourceHub = new ResourceHub(this, Net, Settings.Seed);
 				PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
 

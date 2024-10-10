@@ -143,9 +143,10 @@ namespace Uccs.Net
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
 			{
-				Codes[i] = (byte)Enum.Parse<ExceptionClass>(i.Name);
+				var n = i.Name.Remove(i.Name.IndexOf("Exception"));
+				Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
 				var x = i.GetConstructor([]);
-				Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(i.Name)] = () => x.Invoke(null);
+				Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
 			}
 		}
 

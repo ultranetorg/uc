@@ -31,6 +31,9 @@ namespace Uccs.Rdn
 
 			Directory.CreateDirectory(Settings.Releases);
 
+			if(!Node.Database.TryGetColumnFamily(ReleaseFamilyName, out var cf))	Node.Database.CreateColumnFamily(new (), ReleaseFamilyName);
+			if(!Node.Database.TryGetColumnFamily(ResourceFamilyName, out cf))		Node.Database.CreateColumnFamily(new (), ResourceFamilyName);
+
 			using(var i = Node.Database.NewIterator(ReleaseFamily))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
