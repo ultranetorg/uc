@@ -18,7 +18,7 @@
 		}
 	}
 
-	public class TransactionStatusRequest : McvCall<TransactionStatusResponse>
+	public class TransactionStatusRequest : McvPpc<TransactionStatusResponse>
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 

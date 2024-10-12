@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class DomainRequest : RdnCall<DomainResponse>
+	public class DomainRequest : RdnPpc<DomainResponse>
 	{
 		public DomainIdentifier	Identifier { get; set; }
 

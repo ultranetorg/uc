@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class VoteRequest : McvCall<PeerResponse>
+	public class VoteRequest : McvPpc<PeerResponse>
 	{
 		public byte[]				Raw { get; set; }
 		public override bool		WaitResponse => false;

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class MembersRequest : McvCall<MembersResponse>
+	public class MembersRequest : McvPpc<MembersResponse>
 	{
 		public override PeerResponse Execute()
 		{

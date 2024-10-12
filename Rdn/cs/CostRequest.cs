@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class CostRequest : RdnCall<CostResponse>
+	public class CostRequest : RdnPpc<CostResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 

@@ -6,12 +6,12 @@ namespace Uccs.Net.FUI
 
 	public partial class NetworkPanel : MainPanel
 	{
-		Flow Flow;
 		TcpPeering Peering;
-		McvNode Node;
 
 		public NetworkPanel(TcpPeering peering)
 		{
+			Peering = peering;
+
 			InitializeComponent();
 		}
 
@@ -19,14 +19,7 @@ namespace Uccs.Net.FUI
 		{
 			Peers.Items.Clear();
 
-			if(Flow != null && Flow.Active)
-			{
-				Flow.Abort();
-			}
-
-			Flow = Node.Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
-
-			lock(Node.Peering.Lock)
+			lock(Peering.Lock)
 			{
 				foreach(var p in Peering.Peers.OrderByDescending(i => i.Status))
 				{

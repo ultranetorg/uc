@@ -61,7 +61,7 @@ namespace Uccs.Rdn.CLI
 			return Program.ApiClient.Request<Rp>(call, Flow);
 		}
 
-		public Rp Rdc<Rp>(PeerCall<Rp> call) where Rp : PeerResponse
+		public Rp Rdc<Rp>(Ppc<Rp> call) where Rp : PeerResponse
 		{
 			var rp = Api<Rp>(new PeerRequestApc {Request = call});
  

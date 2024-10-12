@@ -12,14 +12,14 @@ namespace Uccs.Net
 	{
  		public abstract	void			Post(PeerRequest rq);
 		public abstract PeerResponse	Send(PeerRequest rq);
-		public Rp						Send<Rp>(PeerCall<Rp> rq) where Rp : PeerResponse => Send((PeerRequest)rq) as Rp;
+		public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : PeerResponse => Send((PeerRequest)rq) as Rp;
 	}
 
-	public abstract class PeerCall<R> : PeerRequest where R : PeerResponse
+	public abstract class Ppc<R> : PeerRequest where R : PeerResponse /// Peer-to-Peer Call
 	{
 	}
 
-	public abstract class McvCall<R> : PeerCall<R> where R : PeerResponse
+	public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 	{
 		public new McvTcpPeering	Peering => base.Peering as McvTcpPeering;
 		public new McvNode			Node => base.Node as McvNode;
@@ -78,11 +78,11 @@ namespace Uccs.Net
 
 		public abstract PeerResponse	Execute();
 
-		public PeerCallClass Class
+		public PtpCallClass Class
 		{
 			get
 			{
-				return Enum.Parse<PeerCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
+				return Enum.Parse<PtpCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
 			}
 		}
 
@@ -136,7 +136,7 @@ namespace Uccs.Net
 
 	public abstract class PeerResponse : Packet
 	{
-		public PeerCallClass	Class => Enum.Parse<PeerCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+		public PtpCallClass	Class => Enum.Parse<PtpCallClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 		public NetException		Error { get; set; }
 
 		static PeerResponse()

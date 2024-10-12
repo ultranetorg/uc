@@ -1,7 +1,8 @@
 ﻿namespace Uccs.Net
 {
-	public class PeersBroadcastRequest : PeerCall<PeerResponse>
+	public class SharePeersRequest : McvPpc<PeerResponse>
 	{
+		public bool					Broadcast { get; set; }
 		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;
 
@@ -14,11 +15,11 @@
 			{
 				var newfresh = Peering.RefreshPeers(Peers).ToArray();
 	
-				if(newfresh.Any())
+				if(Broadcast && newfresh.Any())
 				{
 					foreach(var i in Peering.Connections.Where(i => i != Peer))
 					{
-						i.Post(new PeersBroadcastRequest{Peers = newfresh});
+						i.Post(new SharePeersRequest {Broadcast = true, Peers = newfresh});
 					}
 				}
 			}

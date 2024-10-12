@@ -1,10 +1,9 @@
 ﻿using System.Net;
-using System.Reflection;
 using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
-	public abstract class RdnCall<R> : McvCall<R> where R : PeerResponse
+	public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse
 	{
 		public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
 		public new RdnNode			Node => base.Node as RdnNode;

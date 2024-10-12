@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class DownloadTableRequest : McvCall<DownloadTableResponse>
+	public class DownloadTableRequest : McvPpc<DownloadTableResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	Hash { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class DeclareReleaseRequest : RdnCall<DeclareReleaseResponse>//, IBinarySerializable
+	public class DeclareReleaseRequest : RdnPpc<DeclareReleaseResponse>//, IBinarySerializable
 	{
 		public ResourceDeclaration[]	Resources { get; set; }
 		public override bool			WaitResponse => true;

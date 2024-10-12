@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class DownloadReleaseRequest : RdnCall<DownloadReleaseResponse>
+	public class DownloadReleaseRequest : RdnPpc<DownloadReleaseResponse>
 	{
 		public Urr				Address { get; set; }
 		public string			File { get; set; }

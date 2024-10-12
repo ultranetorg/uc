@@ -8,7 +8,7 @@ namespace Uccs.Net.FUI
 	{
 		Flow Flow;
 
-		public NtnNetworkPanel(TcpPeering node)
+		public NtnNetworkPanel(HomoTcpPeering node)
 		{
 			InitializeComponent();
 		}

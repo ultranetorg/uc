@@ -56,9 +56,10 @@ namespace Uccs.Net
 		{
 		}
 
-		public Peer(IPAddress ip)
+		public Peer(IPAddress ip, ushort port)
 		{
 			IP = ip;
+			Port = port;
 		}
 
 		public override string ToString()
@@ -66,6 +67,30 @@ namespace Uccs.Net
 			return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 		}
  		
+		public static bool operator == (Peer a, Peer b)
+		{
+			return a is null && b is null || a is not null && a.Equals(b);
+		}
+
+		public static bool operator != (Peer a, Peer b)
+		{
+			return !(a == b);
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Peer a && Equals(a);  
+		}
+
+		public bool Equals(Peer a)
+		{
+			return a is not null && IP.Equals(a.IP);
+		}
+
+		public override int GetHashCode()
+		{
+			return IP.GetHashCode();
+		}
 
   		public void SaveNode(BinaryWriter writer)
   		{
@@ -183,7 +208,7 @@ namespace Uccs.Net
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-			Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : TcpPeering.Timeout;
+			Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : HomoTcpPeering.Timeout;
 
 			PeerRank++;
 			Name		= h.Name;
@@ -195,8 +220,6 @@ namespace Uccs.Net
 			Reader		= new BinaryReader(Stream);
 			LastSeen	= DateTime.UtcNow;
 			Roles		= h.Roles;
-
-			peering.UpdatePeers([this]);
 
 			ListenThread = Peering.Node.CreateThread(Listening);
 			ListenThread.Name = $"{Peering.Node.Name} <- {h.Name}";

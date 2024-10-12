@@ -61,10 +61,7 @@ namespace Uccs.Net
 
 		public static bool operator == (AccountAddress a, AccountAddress b)
 		{
-			var x = a as object;
-			var y = b as object;
-
-			return x == y || (x == null && y == null) || (x != null && y != null && a.Bytes.SequenceEqual(b.Bytes));
+			return a is null && b is null || a is not null && a.Equals(b);
 		}
 
 		public static bool operator != (AccountAddress a, AccountAddress b)
@@ -74,20 +71,17 @@ namespace Uccs.Net
 
 		public override bool Equals(object o)
 		{
-			if(o is AccountAddress)
-				return Equals((AccountAddress)o);
-
-			return false; 
+			return o is AccountAddress a && Equals(a);  
 		}
 
 		public bool Equals(AccountAddress a)
 		{
-			return this == a;
+			return a is not null && a.Bytes.SequenceEqual(Bytes);
 		}
 
 		public override int GetHashCode()
 		{
-			return Bytes[0].GetHashCode() ^ Bytes[1].GetHashCode();
+			return Bytes[0] << 8 & Bytes[1];
 		}
 
 		public int CompareTo(object obj)

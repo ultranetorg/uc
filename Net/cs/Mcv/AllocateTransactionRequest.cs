@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AllocateTransactionRequest : McvCall<AllocateTransactionResponse>
+	public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 	{
 		public Transaction Transaction { get; set; }
 

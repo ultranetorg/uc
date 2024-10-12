@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class ResourceRequest : RdnCall<ResourceResponse>
+	public class ResourceRequest : RdnPpc<ResourceResponse>
 	{
 		public ResourceIdentifier	Identifier { get; set; }
 

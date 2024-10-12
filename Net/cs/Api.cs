@@ -19,7 +19,7 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+				foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -34,7 +34,7 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class QueryResourceRequest : RdnCall<QueryResourceResponse>
+	public class QueryResourceRequest : RdnPpc<QueryResourceResponse>
 	{
 		public string		Query { get; set; }
 

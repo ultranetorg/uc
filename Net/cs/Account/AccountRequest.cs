@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AccountRequest : McvCall<AccountResponse>
+	public class AccountRequest : McvPpc<AccountResponse>
 	{
 		public AccountIdentifier		Identifier {get; set;}
 

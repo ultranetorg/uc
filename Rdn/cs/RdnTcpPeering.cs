@@ -1,12 +1,11 @@
 ﻿using System.Reflection;
-using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
-	public enum RdnPeerCallClass : byte
+	public enum RdnPpcClass : byte
 	{
 		None = 0, 
-		Domain = McvPeerCallClass._Last + 1, 
+		Domain = McvPpcClass._Last + 1, 
 		RdnMembers,
 		QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease, Cost
 	}
@@ -25,7 +24,7 @@ namespace Uccs.Rdn
 
  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
  			{	
- 				if(Enum.TryParse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+ 				if(Enum.TryParse<RdnPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
  				{
  					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);
@@ -39,7 +38,7 @@ namespace Uccs.Rdn
  	 
  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
  			{	
- 				if(Enum.TryParse<RdnPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+ 				if(Enum.TryParse<RdnPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
  				{
  					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);

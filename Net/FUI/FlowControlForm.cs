@@ -4,11 +4,11 @@ namespace Uccs.Net.FUI
 {
 	public partial class FlowControlForm : Form
 	{
-		Uccs.Net.TcpPeering				Sun;
+		Uccs.Net.HomoTcpPeering				Sun;
 		Operation			Operation;
 		Flow			Vizor;
 
-		public FlowControlForm(Uccs.Net.TcpPeering sun, Flow vizor)
+		public FlowControlForm(Uccs.Net.HomoTcpPeering sun, Flow vizor)
 		{
 			InitializeComponent();
 

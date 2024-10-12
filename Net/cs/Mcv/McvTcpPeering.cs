@@ -6,20 +6,33 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public enum McvPeerCallClass : byte
+	public enum McvPpcClass : byte
 	{
 		None = 0, 
-		Vote = PeerCallClass._Last+1,
-		Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
+		SharePeers = PtpCallClass._Last + 1, 
+		Vote, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		
 		_Last = 199
 	}
 
-	public abstract class McvTcpPeering : TcpPeering
+	public enum Synchronization
+	{
+		None, Downloading, Synchronized
+	}
+
+	[Flags]
+	public enum Role : long
+	{
+		None,
+		Base		= 0b00000001,
+		Chain		= 0b00000010,
+	}
+
+	public abstract class McvTcpPeering : HomoTcpPeering
 	{
 		new public McvNode						Node => base.Node as McvNode;
-		new public McvNet						Net => Node.Net;
+		public McvNet							Net => Node.Net;
 		public Mcv								Mcv => Node.Mcv; 
 		public Vault							Vault; 
 
@@ -47,7 +60,7 @@ namespace Uccs.Net
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
 			{	
-				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+				if(Enum.TryParse<McvPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
 				{
 					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);
@@ -61,7 +74,7 @@ namespace Uccs.Net
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
 			{	
-				if(Enum.TryParse<McvPeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+				if(Enum.TryParse<McvPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
 				{
 					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);
@@ -196,6 +209,13 @@ namespace Uccs.Net
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"Minimal peers reached");
 	
+				if(IsListener)
+				{
+					foreach(var c in Connections/*.Where(i => i != peer)*/)
+						Post(new SharePeersRequest {Broadcast = true, 
+													Peers = [new Peer(IP, Net.Port) {Roles = Roles}]});
+				}
+
 				if(Mcv != null)
 				{
 					lock(Mcv.Lock)
@@ -246,7 +266,7 @@ namespace Uccs.Net
 				{
 					WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 
-					peer = Connect((long)(Mcv.Settings.Chain != null ? Role.Chain : Role.Base), used, Flow);
+					peer = Connect(Mcv.Settings.Roles, used, Flow);
 
 					if(Mcv.Settings.Chain == null)
 					{
@@ -1137,14 +1157,14 @@ namespace Uccs.Net
 				//workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
 		}
 
-		public Rp Call<Rp>(IPeer peer, PeerCall<Rp> rq) where Rp : PeerResponse
+		public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : PeerResponse
 		{
 			rq.Peering	= this;
 
 			return peer.Send((PeerRequest)rq) as Rp;
 		}
 
-		public R Call<R>(Func<PeerCall<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
+		public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
 		{
 			return Call((Func<PeerRequest>)call, workflow, exclusions) as R;
 		}
@@ -1202,7 +1222,7 @@ namespace Uccs.Net
 		}
 
 
-		public R Call<R>(IPAddress ip, Func<PeerCall<R>> call, Flow workflow) where R : PeerResponse
+		public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : PeerResponse
 		{
 			var p = GetPeer(ip);
 

@@ -420,7 +420,7 @@ namespace Uccs.Net
 			EUFee				= transaction.ECFee;
 			Signature			= transaction.Signature;
 			   
-			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as TcpPeering)?.IP;
+			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
 			Signer				= transaction.Signer;
 			Status				= transaction.Status;
 			__ExpectedStatus	= transaction.__ExpectedStatus;

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class RdnMembersRequest : McvCall<RdnMembersResponse>
+	public class RdnMembersRequest : McvPpc<RdnMembersResponse>
 	{
 		public override PeerResponse Execute()
 		{

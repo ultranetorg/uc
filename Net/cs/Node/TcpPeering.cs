@@ -1,9 +1,6 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using RocksDbSharp;
 
 namespace Uccs.Net
 {
@@ -34,34 +31,17 @@ namespace Uccs.Net
 		}
 	}
 
-	public enum Synchronization
-	{
-		None, Downloading, Synchronized
-	}
-
-	[Flags]
-	public enum Role : long
-	{
-		None,
-		Base		= 0b00000001,
-		Chain		= 0b00000010,
-	}
-
-	public enum PeerCallClass : byte
+	public enum PtpCallClass : byte
 	{
 		None = 0, 
-		PeersBroadcast, 
-		
 		_Last = 99
 	}
-
 
 	public abstract class TcpPeering : IPeer
 	{
 		public System.Version						Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]				Versions = {5};
 
-		public long									Roles;
 		public IEnumerable<Peer>					Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
 
 		public const int							Timeout = 5000;
@@ -70,11 +50,7 @@ namespace Uccs.Net
 		public Flow									Flow;
 		public object								Lock = new ();
 
-		public ColumnFamilyHandle					PeersFamily => Node.Database.GetColumnFamily(Net.Address + nameof(Peers));
-
-		public Net									Net;
 		public Node									Node;
-		public Guid									PeerId;
 		public IPAddress							IP = IPAddress.None;
 		public List<IPAddress>						IgnoredIPs = new();
 		public bool									IsPeering => MainThread != null;
@@ -85,59 +61,56 @@ namespace Uccs.Net
 
 		public List<TcpClient>						IncomingConnections = new();
 
-		TcpListener									Listener;
-		Thread										MainThread;
-		Thread										ListeningThread;
+		protected TcpListener						Listener;
+		protected Thread							MainThread;
+		protected Thread							ListeningThread;
 		public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
 		public Dictionary<Type, byte>							Codes = [];
 		public Dictionary<Type, Dictionary<byte, Func<object>>>	Contructors = [];
 
-		protected virtual void						Share(Peer peer) {}
+		protected abstract Hello					CreateHello(IPAddress ip, bool permanent);
+		protected abstract bool						ValidateHello(Hello hello, Peer peer);
+		protected virtual void						OnConnected(Peer peer) {}
 
-		public TcpPeering(Node node, Net net, PeeringSettings settings, long roles, Flow flow)
+		public TcpPeering(Node node, PeeringSettings settings, Flow flow)
 		{
 			Node = node;
-			Net = net;
 			Settings = settings;
-			Roles = roles;
 			Flow = flow;
 
-			Flow.Log?.Report(this, $"Ultranet Node {Version}");
+			Flow.Log?.Report(this, $"Version: {Version}");
 			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 			Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
 			//Flow.Log?.Report(this, $"Profile: {Settings.Profile}");
-
-			if(!Node.Database.TryGetColumnFamily(net.Address + nameof(Peers), out var cf))
-				Node.Database.CreateColumnFamily(new (), net.Address + nameof(Peers));
 
 			Contructors[typeof(PeerRequest)] = [];
 			Contructors[typeof(PeerResponse)] = [];
 			Contructors[typeof(NetException)] = [];
  
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
- 			{	
- 				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Request", null), out var c))
- 				{
- 					Codes[i] = (byte)c;
-					var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
-																			var r = x.Invoke(null) as PeerRequest;
-																			r.Node = node;
-																			return r;
-																		};
- 				}
- 			}
- 	 
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
- 			{	
- 				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Response", null), out var c))
- 				{
- 					Codes[i] = (byte)c;
-					var x = i.GetConstructor([]);
-					Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
- 				}
- 			}
+//  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+//  			{	
+//  				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Request", null), out var c))
+//  				{
+//  					Codes[i] = (byte)c;
+// 					var x = i.GetConstructor([]);
+//  					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
+// 																			var r = x.Invoke(null) as PeerRequest;
+// 																			r.Node = node;
+// 																			return r;
+// 																		};
+//  				}
+//  			}
+//  	 
+//  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+//  			{	
+//  				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Response", null), out var c))
+//  				{
+//  					Codes[i] = (byte)c;
+// 					var x = i.GetConstructor([]);
+// 					Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
+//  				}
+//  			}
 
 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
 			{
@@ -146,38 +119,6 @@ namespace Uccs.Net
 				var x = i.GetConstructor([]);
 				Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
 			}
-		}
-
-		public virtual void Run()
-		{
-			if(PeerId != Guid.Empty)
-				throw new NodeException(NodeError.AlreadyRunning);
-
-			PeerId = Guid.NewGuid();
-
-			LoadPeers();
-
-			if(Settings.IP != null)
-			{
-				ListeningThread = Node.CreateThread(Listening);
-				ListeningThread.Name = $"{Node.Name} Listening";
-				ListeningThread.Start();
-			}
-
-			MainThread = Node.CreateThread(() =>	{
-														while(Flow.Active)
-														{
-															var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
-
-															lock(Lock)
-															{
-																ProcessConnectivity();
-															}
-														}
-													});
-
-			MainThread.Name = $"{Node.Name} Main";
-			MainThread.Start();
 		}
 
 		public virtual void Stop()
@@ -228,107 +169,14 @@ namespace Uccs.Net
 				if(p != null)
 					return p;
 	
-				p = new Peer(ip);
+				p = new Peer(ip, 0);
 				Peers.Add(p);
 			}
 
 			return p;
 		}
 
-		void LoadPeers()
-		{
-			using(var i = Node.Database.NewIterator(PeersFamily))
-			{
-				for(i.SeekToFirst(); i.Valid(); i.Next())
-				{
-	 				var p = new Peer(new IPAddress(i.Key()));
-					p.Recent = false;
-	 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
-	 				Peers.Add(p);
-				}
-			}
-			
-			if(Peers.Any())
-			{
-				Flow.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
-			}
-			else
-			{
-				Peers = Net.Initials?.Select(i => new Peer(i) {Recent = false, LastSeen = DateTime.MinValue}).ToList() ?? [];
-
-				UpdatePeers(Peers);
-			}
-		}
-
-		public void UpdatePeers(IEnumerable<Peer> peers)
-		{
-			using(var b = new WriteBatch())
-			{
-				foreach(var i in peers)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					i.SaveNode(w);
-					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
-				}
-	
-				Node.Database.Write(b);
-			}
-		}
-
-		public List<Peer> RefreshPeers(IEnumerable<Peer> peers)
-		{
-			lock(Lock)
-			{
-				var toupdate = new List<Peer>();
-													
-				foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
-				{
-					var p = Peers.Find(j => j.IP.Equals(i.IP));
-					
-					if(p == null)
-					{
-						i.Recent = true;
-						
-						Peers.Add(i);
-						toupdate.Add(i);
-					}
-					else if(p.Roles != i.Roles)
-					{
-						p.Recent = true;
-
-						p.Roles = i.Roles;
-						toupdate.Add(p);
-					}
-				}
-	
-				UpdatePeers(toupdate);
-
-				return toupdate;
-			}
-		}
-
-		protected virtual void ProcessConnectivity()
-		{
-			var needed = Settings.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
-		
-			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected &&
-												DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
-									.OrderBy(i => i.Retries)
-									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-									.Take(needed))
-			{
-				OutboundConnect(p, true);
-			}
-
-			foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
-			{
-				OutboundConnect(p, false);
-			}
-
-		}
-
-		void Listening()
+		protected void Listening()
 		{
 			try
 			{
@@ -364,24 +212,6 @@ namespace Uccs.Net
 			}
 		}
 
-		Hello CreateHello(IPAddress ip, bool permanent)
-		{
-			lock(Lock)
-			{
-				var h = new Hello();
-
-				h.Net			= Net.Address;
-				h.Roles			= Roles;
-				h.Versions		= Versions;
-				h.IP			= ip;
-				h.Name			= Node.Name;
-				h.PeerId		= PeerId;
-				h.Permanent		= permanent;
-			
-				return h;
-			}
-		}
-
 		protected void OutboundConnect(Peer peer, bool permanent)
 		{
 			peer.Status = ConnectionStatus.Initiated;
@@ -400,7 +230,7 @@ namespace Uccs.Net
 
 					tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
 					//client.ReceiveTimeout = Timeout;
-					tcp.Connect(peer.IP, Net.Port);
+					tcp.Connect(peer.IP, peer.Port);
 				}
 				catch(SocketException ex) 
 				{
@@ -432,17 +262,8 @@ namespace Uccs.Net
 						return;
 					}
 
-					if(!h.Versions.Any(i => Versions.Contains(i)))
-						goto failed;
-
-					if(h.Net != Net.Address)
-						goto failed;
-
-					if(h.PeerId == PeerId)
+					if(ValidateHello(h, peer) == false)
 					{
-						Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
-						IgnoredIPs.Add(peer.IP);
-						Peers.Remove(peer);
 						goto failed;
 					}
 													
@@ -452,22 +273,11 @@ namespace Uccs.Net
 						Flow.Log?.Report(this, $"Reported IP {IP}");
 					}
 	
-					if(peer.Status == ConnectionStatus.OK)
-					{
-						Flow.Log?.ReportError(this, $"To {peer.IP}. Already established" );
-						tcp.Close();
-						return;
-					}
-	
-					RefreshPeers([peer]);
 	
 					peer.Start(this, tcp, h, false);
-					peer.Post(new PeersBroadcastRequest{Peers = Peers.Where(i => i.Recent).ToArray()});
+					peer.Post(new SharePeersRequest {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
 
-					foreach(var c in Connections.Where(i => i != peer))
-						Post(new PeersBroadcastRequest {Peers = [peer]});
-
-					Share(peer);
+					OnConnected(peer);
 				}
 	
 				Flow.Log?.Report(this, $"Connected to {peer}");
@@ -567,26 +377,8 @@ namespace Uccs.Net
 							goto failed;
 					}
 
-					if(!h.Versions.Any(i => Versions.Contains(i)))
-						goto failed;
-
-					if(h.Net != Net.Address)
-						goto failed;
-
-					if(h.PeerId == PeerId)
+					if(ValidateHello(h, peer) == false)
 					{
-						Flow.Log?.ReportError(this, $"From {ip}. It's me");
-						if(peer != null)
-						{	
-							IgnoredIPs.Add(peer.IP);
-							Peers.Remove(peer);
-						}
-						goto failed;
-					}
-
-					if(peer != null && peer.Status == ConnectionStatus.OK)
-					{
-						Flow.Log?.ReportError(this, $"From {ip}. Already established" );
 						goto failed;
 					}
 	
@@ -608,20 +400,15 @@ namespace Uccs.Net
 	
 					if(peer == null)
 					{
-						peer = new Peer(ip);
+						peer = new Peer(ip, 0);
 						Peers.Add(peer);
 					}
-
-					RefreshPeers([peer]);
 	
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, true);
-					peer.Post(new PeersBroadcastRequest{Peers = Peers.Where(i => i.Recent).ToArray()});
-									
-					foreach(var c in Connections.Where(i => i != peer))
-						Post(new PeersBroadcastRequest {Peers = [peer]});
+					peer.Post(new SharePeersRequest {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
 
-					Share(peer);
+					OnConnected(peer);
 
 					IncomingConnections.Remove(client);
 				}
@@ -646,14 +433,12 @@ namespace Uccs.Net
 						.FirstOrDefault();
 		}
 
-		public Peer Connect(long role, HashSet<Peer> exclusions, Flow workflow)
+		public Peer Connect(long role, HashSet<Peer> exclusions, Flow flow)
 		{
 			Peer peer;
 				
-			while(workflow.Active)
+			while(flow.Active)
 			{
-				Thread.Sleep(1);
-	
 				lock(Lock)
 				{
 					peer = ChooseBestPeer(role, exclusions);
@@ -669,7 +454,7 @@ namespace Uccs.Net
 
 				try
 				{
-					Connect(peer, workflow);
+					Connect(peer, flow);
 	
 					return peer;
 				}
@@ -681,39 +466,39 @@ namespace Uccs.Net
 			throw new OperationCanceledException();
 		}
 
-		public Peer[] Connect(long role, int n, Flow workflow)
-		{
-			var peers = new HashSet<Peer>();
-				
-			while(workflow.Active)
-			{
-				Peer p;
-	
-				lock(Lock)
-					p = ChooseBestPeer(role, peers);
-	
-				if(p != null)
-				{
-					try
-					{
-						Connect(p, workflow);
-					}
-					catch(NodeException)
-					{
-						continue;
-					}
-
-					peers.Add(p);
-
-					if(peers.Count == n)
-					{
-						return peers.ToArray();
-					}
-				}
-			}
-
-			throw new OperationCanceledException();
-		}
+// 		public Peer[] Connect(long role, int n, Flow workflow)
+// 		{
+// 			var peers = new HashSet<Peer>();
+// 				
+// 			while(workflow.Active)
+// 			{
+// 				Peer p;
+// 	
+// 				lock(Lock)
+// 					p = ChooseBestPeer(role, peers);
+// 	
+// 				if(p != null)
+// 				{
+// 					try
+// 					{
+// 						Connect(p, workflow);
+// 					}
+// 					catch(NodeException)
+// 					{
+// 						continue;
+// 					}
+// 
+// 					peers.Add(p);
+// 
+// 					if(peers.Count == n)
+// 					{
+// 						return peers.ToArray();
+// 					}
+// 				}
+// 			}
+// 
+// 			throw new OperationCanceledException();
+// 		}
 
 		public void Connect(Peer peer, Flow workflow)
 		{

@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn
 {
-	public class LocateReleaseRequest : RdnCall<LocateReleaseResponse>
+	public class LocateReleaseRequest : RdnPpc<LocateReleaseResponse>
 	{
 		public Urr	Address { get; set; }
 		public int	Count { get; set; }

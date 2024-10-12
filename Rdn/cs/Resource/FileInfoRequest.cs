@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class FileInfoRequest : RdnCall<FileInfoResponse>
+	public class FileInfoRequest : RdnPpc<FileInfoResponse>
 	{
 		public Urr		Release { get; set; }
 		public string	File { get; set; }

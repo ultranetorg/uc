@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class StampRequest : McvCall<StampResponse>
+	public class StampRequest : McvPpc<StampResponse>
 	{
 		public override PeerResponse Execute()
 		{

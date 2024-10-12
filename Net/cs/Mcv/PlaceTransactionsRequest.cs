@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class PlaceTransactionsRequest : McvCall<PlaceTransactionsResponse>
+	public class PlaceTransactionsRequest : McvPpc<PlaceTransactionsResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 

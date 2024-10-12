@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class TableStampRequest : McvCall<TableStampResponse>
+	public class TableStampRequest : McvPpc<TableStampResponse>
 	{
 		public int		Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
