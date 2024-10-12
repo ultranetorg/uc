@@ -5,6 +5,20 @@ using DnsClient;
 
 namespace Uccs.Rdn
 {
+	public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse
+	{
+		public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
+		public new RdnNode			Node => base.Node as RdnNode;
+		public new RdnMcv			Mcv => base.Mcv as RdnMcv;
+	}
+
+	[Flags]
+	public enum RdnRole : uint
+	{
+		None,
+		Seed = 0b00000100,
+	}
+
 	public class RdnNode : McvNode
 	{
 		new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;

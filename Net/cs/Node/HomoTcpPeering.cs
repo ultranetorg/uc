@@ -212,5 +212,37 @@ namespace Uccs.Net
 			//RefreshPeers([peer]);
 
 		}
+
+		public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : PeerResponse
+		{
+			rq.Peering	= this;
+
+			return peer.Send((PeerRequest)rq) as Rp;
+		}
+
+		public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : PeerResponse
+		{
+			var p = GetPeer(ip);
+
+			Connect(p, workflow);
+
+			var c = call();
+			c.Peering	= this;
+
+			return p.Send(c);
+		}
+
+		public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
+		{
+			var p = GetPeer(ip);
+
+			Connect(p, workflow);
+
+			var c = requet;
+			c.Peering	= this;
+
+			p.Post(c);
+
+		}
 	}
 }

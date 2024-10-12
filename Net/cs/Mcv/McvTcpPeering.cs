@@ -212,8 +212,8 @@ namespace Uccs.Net
 				if(IsListener)
 				{
 					foreach(var c in Connections/*.Where(i => i != peer)*/)
-						Post(new SharePeersRequest {Broadcast = true, 
-													Peers = [new Peer(IP, Net.Port) {Roles = Roles}]});
+						c.Post(new SharePeersRequest {Broadcast = true, 
+													  Peers = [new Peer(IP, Net.Port) {Roles = Roles}]});
 				}
 
 				if(Mcv != null)
@@ -1149,19 +1149,9 @@ namespace Uccs.Net
 				}
 
 			}
-			
-			Thread.Sleep(100);
 
 			end:
 			;
-				//workflow.Log?.Report(this, $"Transaction is {t.Status}", t.ToString());
-		}
-
-		public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : PeerResponse
-		{
-			rq.Peering	= this;
-
-			return peer.Send((PeerRequest)rq) as Rp;
 		}
 
 		public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
@@ -1184,7 +1174,7 @@ namespace Uccs.Net
 					if(Synchronization == Synchronization.Synchronized)
 					{
 						var c = call();
-						c.Peering	= this;
+						c.Peering = this;
 
 						return Send(c);
 					}
@@ -1205,7 +1195,7 @@ namespace Uccs.Net
 					Connect(p, workflow);
 
 					var c = call();
-					c.Peering	= this;
+					c.Peering = this;
 
 					return p.Send(c);
 				}
@@ -1219,32 +1209,6 @@ namespace Uccs.Net
 			}
 
 			throw new OperationCanceledException();
-		}
-
-
-		public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : PeerResponse
-		{
-			var p = GetPeer(ip);
-
-			Connect(p, workflow);
-
-			var c = call();
-			c.Peering	= this;
-
-			return p.Send(c);
-		}
-
-		public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
-		{
-			var p = GetPeer(ip);
-
-			Connect(p, workflow);
-
-			var c = requet;
-			c.Peering	= this;
-
-			p.Post(c);
-
 		}
 
 		public void Broadcast(Vote vote, Peer skip = null)

@@ -43,6 +43,10 @@ namespace Uccs.Net
 		}
 	}
 
+	public abstract class NtnPpc<R> : Ppc<R> where R : PeerResponse
+	{
+	}
+
 //	public class Cluster
 //	{
 //		public string			Net {get; set;}

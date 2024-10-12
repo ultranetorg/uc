@@ -219,14 +219,20 @@ namespace Uccs.Net
 
 		public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
+			List<KeyValuePair<string, string>> f;
+
+			lock(node.Peering.Lock)
+			{
+				f = [new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
+					 new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
+					 new ("    Pending Delegation",	$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
+					 new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
+					 new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+					 new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
+			}
+
 			lock(node.Mcv.Lock)
 			{ 
-				List<KeyValuePair<string, string>> f = [new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
-														new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
-														new ("    Pending Delegation",	$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
-														new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
-														new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-														new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
 				
 				if(node.Mcv != null)
 				{
