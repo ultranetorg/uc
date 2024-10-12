@@ -51,7 +51,6 @@ namespace Uccs.Net
 	{
 		None = 0, 
 		PeersBroadcast, 
-		ShareNets,
 		
 		_Last = 99
 	}
@@ -82,7 +81,6 @@ namespace Uccs.Net
 		public bool									IsListener => ListeningThread != null;
 		public List<Peer>							Peers = new();
 
-		public Statistics							PrevStatistics = new();
 		public Statistics							Statistics = new();
 
 		public List<TcpClient>						IncomingConnections = new();
@@ -102,8 +100,8 @@ namespace Uccs.Net
 			Node = node;
 			Net = net;
 			Settings = settings;
-			Flow = flow;
 			Roles = roles;
+			Flow = flow;
 
 			Flow.Log?.Report(this, $"Ultranet Node {Version}");
 			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
@@ -119,7 +117,7 @@ namespace Uccs.Net
  
  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
  			{	
- 				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+ 				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Request", null), out var c))
  				{
  					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);
@@ -133,7 +131,7 @@ namespace Uccs.Net
  	 
  			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
  			{	
- 				if(Enum.TryParse<PeerCallClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+ 				if(Enum.TryParse<PeerCallClass>(i.Name.Replace("Response", null), out var c))
  				{
  					Codes[i] = (byte)c;
 					var x = i.GetConstructor([]);

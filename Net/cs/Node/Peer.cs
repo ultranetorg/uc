@@ -18,6 +18,8 @@ namespace Uccs.Net
 	{
 		public IPAddress								IP {get; set;} 
 		public string									Name;
+		public string									Net;
+		public ushort									Port;
 
 		public ConnectionStatus							Status = ConnectionStatus.Disconnected;
 
@@ -67,27 +69,33 @@ namespace Uccs.Net
 
   		public void SaveNode(BinaryWriter writer)
   		{
+			//writer.WriteUtf8(Net);
+			writer.Write(Port);
+			writer.Write7BitEncodedInt64(Roles);
   			writer.Write7BitEncodedInt64(LastSeen.ToBinary());
 			writer.Write(PeerRank);
-			writer.Write7BitEncodedInt64(Roles);
   		}
   
   		public void LoadNode(BinaryReader reader)
   		{
+			//Net = reader.ReadUtf8();
+			Port = reader.ReadUInt16();
+			Roles = reader.Read7BitEncodedInt64();
   			LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
 			PeerRank = reader.ReadInt32();
-			Roles = reader.Read7BitEncodedInt64();
   		}
  
  		public void Write(BinaryWriter writer)
  		{
  			writer.Write(IP);
+ 			writer.Write(Port);
 			writer.Write7BitEncodedInt64(Roles);
  		}
  
  		public void Read(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
+			Port = reader.ReadUInt16();
 			Roles = reader.Read7BitEncodedInt64();
  		}
 
@@ -169,9 +177,9 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Start(TcpPeering sun, TcpClient client, Hello h, bool inbound)
+		public void Start(TcpPeering peering, TcpClient client, Hello h, bool inbound)
 		{
-			Peering = sun;
+			Peering = peering;
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
@@ -188,7 +196,7 @@ namespace Uccs.Net
 			LastSeen	= DateTime.UtcNow;
 			Roles		= h.Roles;
 
-			sun.UpdatePeers([this]);
+			peering.UpdatePeers([this]);
 
 			ListenThread = Peering.Node.CreateThread(Listening);
 			ListenThread.Name = $"{Peering.Node.Name} <- {h.Name}";
