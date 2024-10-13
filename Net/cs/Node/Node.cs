@@ -10,7 +10,7 @@ namespace Uccs.Net
 		//public abstract long						Roles { get; }
 
 		public string				Name;
-		//public Net					Net;
+		public Net					Net;
 		public string				Profile;
 		public Flow					Flow;
 
@@ -22,10 +22,10 @@ namespace Uccs.Net
 
 		//protected virtual void		CreateTables(ColumnFamilies columns) {}
 
-		public Node(string name, string profile, Flow flow)
+		public Node(string name, Net net, string profile, Flow flow)
 		{
-			Name = name;
-			//Net = net;
+			Name = name ?? Guid.NewGuid().ToString();
+			Net = net;
 			Profile = profile;
 			Flow = flow;
 

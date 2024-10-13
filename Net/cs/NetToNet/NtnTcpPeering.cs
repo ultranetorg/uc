@@ -4,29 +4,14 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public abstract class HomoTcpPeering : TcpPeering
+	public abstract class NtnTcpPeering : TcpPeering
 	{
-		public long					Roles;
-		public ColumnFamilyHandle	PeersFamily => Node.Database.GetColumnFamily(PeersColumn);
-		string						PeersColumn => GetType().Name + nameof(Peers);
-
-		public HomoTcpPeering(Node node, Net net, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
+		public NtnTcpPeering(Node node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
 		{
-			Roles = roles;
-
-			Flow.Log?.Report(this, $"Ultranet Node {Version}");
-			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
-			Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			//Flow.Log?.Report(this, $"Profile: {Settings.Profile}");
-
-			if(!Node.Database.TryGetColumnFamily(PeersColumn, out _))
-				Node.Database.CreateColumnFamily(new (), PeersColumn);
 		}
 
 		public virtual void Run()
 		{
-			LoadPeers();
-
 			if(Settings.IP != null)
 			{
 				ListeningThread = Node.CreateThread(Listening);
@@ -52,8 +37,8 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return string.Join(",", new string[] {Node.Name,
-												  Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+			return string.Join(",", new object[] {Node.Name,
+												  Settings?.IP}.Where(i => i != null));
 		}
 
 		protected override Hello CreateOutboundHello(Peer peer, bool permanent)
@@ -63,7 +48,7 @@ namespace Uccs.Net
 				var h = new Hello();
 
 				h.Net			= Node.Net.Address;
-				h.Roles			= Roles;
+				h.Roles			= 0;
 				h.Versions		= Versions;
 				h.IP			= peer.IP;
 				h.Name			= Node.Name;
@@ -80,7 +65,7 @@ namespace Uccs.Net
 				var h = new Hello();
 
 				h.Net			= Node.Net.Address;
-				h.Roles			= Roles;
+				h.Roles			= 0;
 				h.Versions		= Versions;
 				h.IP			= ip;
 				h.Name			= Node.Name;
@@ -94,8 +79,16 @@ namespace Uccs.Net
 			if(!hello.Versions.Any(i => Versions.Contains(i)))
 				return false;
 
-			if(hello.Net != Node.Net.Address)
-				return false;
+			if(inbound)
+			{
+				//if(hello.Net )
+				//	return false;
+			}
+			else
+			{
+				if(hello.Net != peer.Net)
+					return false;
+			}
 
 			if(hello.Name == Node.Name)
 			{
@@ -137,49 +130,6 @@ namespace Uccs.Net
 			return p;
 		}
 
-		void LoadPeers()
-		{
-			using(var i = Node.Database.NewIterator(PeersFamily))
-			{
-				for(i.SeekToFirst(); i.Valid(); i.Next())
-				{
-	 				var p = new Peer();
-					p.IP = new IPAddress(i.Key());
-					p.Recent = false;
-	 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
-	 				Peers.Add(p);
-				}
-			}
-			
-			if(Peers.Any())
-			{
-				Flow.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
-			}
-			else
-			{
-				Peers = Node.Net.Initials?.Select(i => new Peer(i, Node.Net.Port) { Recent = false, 
-																					LastSeen = DateTime.MinValue}).ToList() ?? [];
-
-				SavePeers(Peers);
-			}
-		}
-
-		public void SavePeers(IEnumerable<Peer> peers)
-		{
-			using(var b = new WriteBatch())
-			{
-				foreach(var i in peers)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					i.SaveNode(w);
-					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
-				}
-	
-				Node.Database.Write(b);
-			}
-		}
-
 		public List<Peer> RefreshPeers(IEnumerable<Peer> peers)
 		{
 			lock(Lock)
@@ -206,8 +156,6 @@ namespace Uccs.Net
 						affected.Add(p);
 					}
 				}
-	
-				SavePeers(affected);
 
 				return affected;
 			}

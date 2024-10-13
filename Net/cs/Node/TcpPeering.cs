@@ -69,8 +69,9 @@ namespace Uccs.Net
 		public Dictionary<Type, byte>							Codes = [];
 		public Dictionary<Type, Dictionary<byte, Func<object>>>	Contructors = [];
 
-		protected abstract Hello					CreateHello(IPAddress ip, bool permanent);
-		protected abstract bool						ValidateHello(Hello hello, Peer peer);
+		protected abstract Hello					CreateOutboundHello(Peer peer, bool permanent);
+		protected abstract Hello					CreateInboundHello(IPAddress ip, Hello inbound);
+		protected abstract bool						ValidateHello(bool inbound, Hello hello, Peer peer);
 		protected virtual void						OnConnected(Peer peer) {}
 
 		public TcpPeering(Node node, PeeringSettings settings, Flow flow)
@@ -158,24 +159,6 @@ namespace Uccs.Net
 		{
 		}
 
-		public Peer GetPeer(IPAddress ip)
-		{
-			Peer p = null;
-
-			lock(Lock)
-			{
-				p = Peers.Find(i => i.IP.Equals(ip));
-	
-				if(p != null)
-					return p;
-	
-				p = new Peer(ip, 0);
-				Peers.Add(p);
-			}
-
-			return p;
-		}
-
 		protected void Listening()
 		{
 			try
@@ -245,7 +228,7 @@ namespace Uccs.Net
 					tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
 					tcp.ReceiveTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
 
-					Peer.SendHello(tcp, CreateHello(peer.IP, permanent));
+					Peer.SendHello(tcp, CreateOutboundHello(peer, permanent));
 					h = Peer.WaitHello(tcp);
 				}
 				catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
@@ -262,7 +245,7 @@ namespace Uccs.Net
 						return;
 					}
 
-					if(ValidateHello(h, peer) == false)
+					if(ValidateHello(false, h, peer) == false)
 					{
 						goto failed;
 					}
@@ -325,22 +308,26 @@ namespace Uccs.Net
 
 			if(peer != null)
 			{
-				if(peer.Status == ConnectionStatus.OK || peer.Status == ConnectionStatus.Initiated)
+				if(peer.Status != ConnectionStatus.Disconnected)
 				{
 					client.Close();
 					return;
 				}
 
-				peer.Disconnect();
-				
-				Monitor.Exit(Lock);
+				//if(peer.Status == ConnectionStatus.Initiated && !peer.Inbound)
+				//{
+				//}
 
-				while(Flow.Active && peer.Status != ConnectionStatus.Disconnected) 
-					Thread.Sleep(1);
-
-				Monitor.Enter(Lock);
-								
-				peer.Status = ConnectionStatus.Initiated;
+				//peer.Disconnect();
+				//
+				//Monitor.Exit(Lock);
+				//
+				//while(Flow.Active && peer.Status != ConnectionStatus.Disconnected) 
+				//	Thread.Sleep(1);
+				//
+				//Monitor.Enter(Lock);
+				//				
+				//peer.Status = ConnectionStatus.Initiated;
 			}
 
 			IncomingConnections.Add(client);
@@ -369,7 +356,7 @@ namespace Uccs.Net
 				lock(Lock)
 				{
 					if(Flow.Aborted)
-						return;
+						goto failed;
 
 					if(h.Permanent)
 					{
@@ -377,7 +364,7 @@ namespace Uccs.Net
 							goto failed;
 					}
 
-					if(ValidateHello(h, peer) == false)
+					if(ValidateHello(true, h, peer) == false)
 					{
 						goto failed;
 					}
@@ -390,7 +377,7 @@ namespace Uccs.Net
 		
 					try
 					{
-						Peer.SendHello(client, CreateHello(ip, false));
+						Peer.SendHello(client, CreateInboundHello(ip, h));
 					}
 					catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 					{

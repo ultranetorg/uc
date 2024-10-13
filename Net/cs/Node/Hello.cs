@@ -5,7 +5,6 @@ namespace Uccs.Net
 	public class Hello
 	{
 		public int[]						Versions;
-		public Guid							PeerId;
 		public long							Roles;
 		public string						Net;
 		public IPAddress					IP;
@@ -16,7 +15,6 @@ namespace Uccs.Net
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
 			w.WriteUtf8(Net);
-			w.Write(PeerId);
 			w.WriteUtf8(Name);
 			w.Write7BitEncodedInt64(Roles);
 			w.Write(IP);
@@ -27,7 +25,6 @@ namespace Uccs.Net
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
 			Net					= r.ReadUtf8();
-			PeerId				= r.ReadGuid();
 			Name				= r.ReadUtf8();
 			Roles				= r.Read7BitEncodedInt64();
 			IP					= r.ReadIPAddress();
