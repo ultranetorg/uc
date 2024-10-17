@@ -1,0 +1,37 @@
+﻿<controls:BaseTextFormControl
+    x:Class="UC.Umc.Views.Controls.FormEntryControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:Name="This"
+    x:TypeArguments="controls:FormEntryControl"
+    ControlTemplate="{DynamicResource ControlOutline}">
+    <controls:BaseTextFormControl.Resources>
+        <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
+    </controls:BaseTextFormControl.Resources>
+
+    <Entry
+        BindingContext="{x:Reference This}"
+        ClearButtonVisibility="{Binding ClearButtonVisibility}"
+        FontSize="14"
+        IsEnabled="{Binding IsEnabled}"
+        IsReadOnly="{Binding IsReadOnly}"
+        IsPassword="{Binding IsPassword}"
+        IsTextPredictionEnabled="{Binding IsTextPredictionEnabled}"
+        Keyboard="{Binding Keyboard}"
+        MaxLength="{Binding MaxLength}"
+        Placeholder="{Binding Placeholder}"
+        Style="{DynamicResource ActiveEntryStyle}"
+        Text="{Binding Value}">
+        <Entry.Behaviors>
+            <toolkit:EventToCommandBehavior Command="{Binding TextChanged}" EventName="TextChanged" />
+            <toolkit:MaskedBehavior Mask="{Binding EntryMask, Source={x:Reference This}}" />
+            <toolkit:TextValidationBehavior
+                Flags="ValidateOnValueChanged"
+                MaximumLength="{Binding MaxLength, Source={x:Reference This}}"
+                MinimumLength="{Binding MinLength, Source={x:Reference This}}"
+                RegexPattern="{Binding RegexValidationPattern}" />
+        </Entry.Behaviors>
+    </Entry>
+</controls:BaseTextFormControl>

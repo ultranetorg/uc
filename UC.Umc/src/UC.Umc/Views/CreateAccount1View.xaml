@@ -1,0 +1,45 @@
+﻿<ContentView
+    x:Class="UC.Umc.Views.CreateAccount1View"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    x:DataType="vm:CreateAccount1ViewModel">
+    <StackLayout Padding="4" Spacing="32">
+        <StackLayout>
+            <Label FontSize="18" Text="Choose account password" />
+            <Label
+                FontSize="13"
+                Style="{StaticResource Regular}"
+                Text="Use strong password for account" />
+        </StackLayout>
+        <controls:FormEntryControl IsPassword="True" Value="{Binding Password}" TextChanged="{Binding TextChangedCommand}">
+            <controls:FormEntryControl.Behaviors>
+                <toolkit:MultiValidationBehavior>
+                    <toolkit:TextValidationBehavior MinimumLength="8" />
+                    <toolkit:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="LowercaseLetter" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="UppercaseLetter" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
+                </toolkit:MultiValidationBehavior>
+            </controls:FormEntryControl.Behaviors>
+        </controls:FormEntryControl>
+        <Button
+            Margin="0,-8,0,0"
+            Style="{StaticResource RandomizeButton}"
+            Command="{Binding RandomizeCommand}" />
+        <Label
+            FontSize="13"
+            Style="{StaticResource Regular}"
+            Text="Characteristics of strong passwords" />
+        <StackLayout>
+            <views:ImageTextColumn Text="At least 8 characters - the more characters the better" IsEnabledImage="{Binding CharCountDone}"/>
+            <views:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="{Binding BothCasesDone}"/>
+            <views:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="{Binding NumbersIncluded}"/>  
+            <views:ImageTextColumn Text="Inclusion of at least one special character e.g !@#" IsEnabledImage="{Binding SpecialCharacterIncluded}"/>
+        </StackLayout>
+    </StackLayout>
+</ContentView>

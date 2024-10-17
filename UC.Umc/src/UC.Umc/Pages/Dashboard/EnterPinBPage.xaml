@@ -1,0 +1,77 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Dashboard.EnterPinBPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    Title="Enter Pin"
+    x:Name="page">
+    
+    <views:CustomPage.Resources>
+        <Style TargetType="Label" BasedOn="{StaticResource NumberLabel}">
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+        </Style>
+    </views:CustomPage.Resources>
+    
+    <views:CustomPage.MainContent>
+        <ScrollView>
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="70">
+                <StackLayout Spacing="20">
+                    <Image HorizontalOptions="Center" Style="{StaticResource Logo}" />
+                    <Label
+                        FontSize="18"
+                        Text="Ultranet User Center" />
+                </StackLayout>
+                <IndicatorView HorizontalOptions="Center">
+                    <IndicatorView.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>0</x:String>
+                            <x:String>0</x:String>
+                            <x:String>0</x:String>
+                            <x:String>0</x:String>
+                            <x:String>0</x:String>
+                            <x:String>0</x:String>
+                        </x:Array>
+                    </IndicatorView.ItemsSource>
+                    <IndicatorView.IndicatorTemplate>
+                        <DataTemplate>
+                            <Button Margin="5" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="14" WidthRequest="14" CornerRadius="7"/>
+                        </DataTemplate>
+                    </IndicatorView.IndicatorTemplate>
+                </IndicatorView>
+                <Grid
+                    ColumnDefinitions="*,*,*"
+                    RowDefinitions="*,*,*,*"
+                    RowSpacing="40"
+                    VerticalOptions="EndAndExpand">
+                    <Label Grid.Row="0" Grid.Column="0" Text="1" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="2" />
+                    <Label Grid.Row="0" Grid.Column="2" Text="3" />
+                    <Label Grid.Row="1" Grid.Column="0" Text="4" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="5" />
+                    <Label Grid.Row="1" Grid.Column="2" Text="6" />
+                    <Label Grid.Row="2" Grid.Column="0" Text="7" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="8" />
+                    <Label Grid.Row="2" Grid.Column="2" Text="9" />
+                    <ImageButton
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Padding="1"
+                        HeightRequest="32"
+                        Style="{StaticResource Backspace}"
+                        WidthRequest="32" />
+                    <Label Grid.Row="3" Grid.Column="1" Text="0" />
+                    <ImageButton
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Padding="1"
+                        HeightRequest="32"
+                        HorizontalOptions="Center"
+                        Style="{StaticResource LogOut}"
+                        WidthRequest="32"
+                        VerticalOptions="Center" />
+                </Grid>
+            </StackLayout>
+        </ScrollView>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

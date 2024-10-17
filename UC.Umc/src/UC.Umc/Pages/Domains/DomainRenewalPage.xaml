@@ -1,0 +1,150 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Domains.DomainRenewalPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:domains="clr-namespace:UC.Umc.ViewModels.Domains"
+    x:DataType="domains:DomainRenewalViewModel"
+    Title="Author Registration"
+    x:Name="page">
+    <views:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto"
+            RowSpacing="30">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
+                        <StackLayout Padding="5" Spacing="30">
+                                <StackLayout>
+                                    <Label FontSize="18" Text="Choose renewal period" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Your need specify renewal period" />
+                                </StackLayout>
+                                <StackLayout>
+                                    <Label Style="{StaticResource DashLabel}" Text="Author to renew" />
+                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                        <Border
+                                            Grid.ColumnSpan="2"
+                                            HeightRequest="60"
+                                            Style="{StaticResource AccountCardBorder}">
+                                            <Grid RowDefinitions="Auto,Auto">
+                                                <Label
+                                                    Grid.Row="0"
+                                                    Grid.Column="0"
+                                                    FontSize="13"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=Author.Name}"
+                                                    VerticalOptions="Center" />
+                                                <Label
+                                                    Grid.Row="1"
+                                                    Grid.Column="0"
+                                                    FontSize="10"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=Author.ActiveDue}"
+                                                    VerticalOptions="Center" />
+                                            </Grid>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=SelectAuthorCommand}" />
+                                            </Border.GestureRecognizers>
+                                        </Border>
+                                        <Image
+                                            Grid.Column="1"
+                                            HorizontalOptions="Center"
+                                            InputTransparent="True"
+                                            Style="{StaticResource BottomArrowsIcon}"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </StackLayout>
+                                <StackLayout>
+                                    <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
+                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                        <views:AccountView
+                                            Grid.ColumnSpan="2"
+                                            BorderStyle="{StaticResource AccountCardBorderDark}"
+                                            Account="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=Account}">
+                                            <views:AccountView.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=SelectAccountCommand}" />
+                                            </views:AccountView.GestureRecognizers>
+                                        </views:AccountView>
+                                        <Image
+                                            Grid.Column="1"
+                                            HorizontalOptions="Center"
+                                            InputTransparent="True"
+                                            Style="{StaticResource BottomArrowsIcon}"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </StackLayout>
+                                <StackLayout Spacing="15">
+                                    <Grid ColumnDefinitions="*,*">
+                                        <Label
+                                            Grid.Column="0"
+                                            Style="{StaticResource DashLabel}"
+                                            Text="Renewal period"
+                                            VerticalOptions="Center" />
+                                        <controls:BorderEntry
+                                            Keyboard="Numeric"
+                                            Text="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=Period}"
+                                            Grid.Column="1"
+                                            FontSize="24"
+                                            RightPadding="35">
+                                            <controls:BorderEntry.Behaviors>
+                                                <toolkit:CharactersValidationBehavior
+                                                    x:Name="cb2"
+                                                    CharacterType="Letter"
+                                                    Flags="ValidateOnValueChanged"
+                                                    InvalidStyle="{StaticResource InvalidEntry}"
+                                                    MaximumCharacterTypeCount="30"
+                                                    MinimumCharacterTypeCount="1"
+                                                    ValidStyle="{StaticResource Valid}" />
+                                            </controls:BorderEntry.Behaviors>
+                                        </controls:BorderEntry>
+                                    </Grid>
+                                    <views:LabelPair Text1="Estimated end date" Text2="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRenewalViewModel}}, Path=EstimatedDate}" />
+                                    <views:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
+                                </StackLayout>
+                            </StackLayout>
+                        
+                        <!--Step #2-->
+                        <StackLayout Padding="5" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm renewal of this author?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Clicking 'Confirm' button, renewal will start" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <views:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRegistrationViewModel}}, Path=Title}" />
+                                <views:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRegistrationViewModel}}, Path=Commission}" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="From Account" />
+                                <views:AccountView
+                                    BorderStyle="{StaticResource AccountCardBorder}"
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type domains:DomainRegistrationViewModel}}, Path=Account}"/>
+                            </StackLayout>
+                        </StackLayout>
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+        </Grid>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

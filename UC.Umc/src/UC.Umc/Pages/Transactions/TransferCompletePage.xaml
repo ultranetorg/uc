@@ -1,0 +1,44 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Transactions.TransferCompletePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:transactions="clr-namespace:UC.Umc.ViewModels.Transactions"
+    xmlns:common="clr-namespace:UC.Umc.Models.Common"
+    x:DataType="transactions:TransferCompleteViewModel"
+    Title="Transfer Сompleted"
+    x:Name="page">
+    <views:CustomPage.MainContent>
+        <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
+            <StackLayout>
+                <Label Style="{StaticResource DashLabel}" Text="Transfering from Ethereum account" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="{Binding Account.Address}" />
+            </StackLayout>
+            <StackLayout>
+                <Label Style="{StaticResource DashLabel}" Text="To Ultranet Account" />
+                <views:AccountView
+                    Account="{Binding Account}"
+                    BorderStyle="{StaticResource AccountCardBorderDark}" />
+            </StackLayout>
+            <Image
+                HeightRequest="64"
+                Margin="0,32"
+                HorizontalOptions="Center"
+                Source="{FontImage Size=304, Color={StaticResource Primary}, FontFamily=icomoon, Glyph={x:Static common:IconFont.Done}}"
+                VerticalOptions="Center" />
+            <StackLayout Spacing="8">
+                <views:LabelPair Text1="You will receive" Text2="{Binding UntAmount}" />
+                <views:LabelPair Text1="You have paid ETH comission" Text2="{Binding EthComission, StringFormat='{0} ETH'}" />
+                <views:LabelPair Text1="You have paid UNT comission" Text2="{Binding UntComission, StringFormat='{0} UNT'}" />
+                <views:LabelPair Text1="Transaction date and time" Text2="{Binding TransactionDate}" />
+            </StackLayout>
+
+            <StackLayout VerticalOptions="EndAndExpand">
+                <Button Command="{Binding TransactionsCommand}" Text="Transactions" />
+            </StackLayout>
+        </StackLayout>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

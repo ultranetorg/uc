@@ -1,0 +1,190 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Dashboard.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:dashboard="clr-namespace:UC.Umc.ViewModels.Dashboard"
+    xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:DataType="dashboard:DashboardViewModel"
+    ios:Page.UseSafeArea="True"
+    Title="Ultranet User Center">
+    
+    <views:CustomPage.Resources>
+        <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
+        <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
+        <Style TargetType="controls:ImageTextButton">
+            <Setter Property="TintColor" Value="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" />
+            <Setter Property="ImageStyle" Value="{StaticResource DashBoard}" />
+        </Style>
+        <DataTemplate x:DataType="models:TransactionModel" x:Key="TransactionTemplate">
+            <Grid ColumnDefinitions="*,25">
+                <Label
+                    Grid.Column="0"
+                    FontSize="11"
+                    MaxLines="1"
+                    Style="{StaticResource Regular}"
+                    FontAttributes="Bold"
+                    Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
+                    VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}" FontAttributes="Bold" />
+                                <Span Text=", " />
+                                <Span Text="{Binding DisplayDetails}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                <ImageButton
+                    Grid.Column="2"
+                    Padding="2"
+                    HeightRequest="23"
+                    Source="{Binding Status, Converter={StaticResource StatusToImageConverter}}"
+                    VerticalOptions="Center"
+                    WidthRequest="23" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:DataType="models:AccountModel" x:Key="WalletTemplate">
+            <Grid ColumnDefinitions="*,2*,*" ColumnSpacing="20">
+                <Label
+                    Grid.Column="0"
+                    MaxLines="1"
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
+                    Text="{Binding Name}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Column="1"
+                    MaxLines="1"
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
+                    Text="{Binding Address}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Column="2"
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
+                    VerticalOptions="Center"
+                    FontAttributes="Bold"
+                    Text="{Binding DisplayAmount}"/>
+            </Grid>
+        </DataTemplate>
+    </views:CustomPage.Resources>
+    
+    <Shell.TitleView>
+        <views:PageTitleNotificationsView
+            Title="Ultranet User Center"
+            TitleStyle="{StaticResource TitleLabel}" />
+    </Shell.TitleView>
+    
+    <views:CustomPage.MainContent>
+        <ScrollView>
+            <Grid Padding="{StaticResource PagePadding}">
+                <StackLayout>
+                    <Label
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        Style="{StaticResource DashLabel}"
+                        Margin="0,8"
+                        Text="Accounts" />
+                    <Border Style="{StaticResource SquareBorder}">
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding Accounts}"
+                            BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
+                            Spacing="5" />
+                    </Border>
+                
+                    <Label
+                        FontSize="12"
+                        Style="{StaticResource DashLabel}"
+                        Text="Transactions"
+                        FontAttributes="Bold"
+                        Margin="0,8" />
+                
+                    <Border Style="{StaticResource SquareBorder}">
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding Transactions}"
+                            BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}" />
+                    </Border>
+                    <StackLayout Padding="8">
+                        <views:LabelPair Text1="Accounts" Text2="{Binding NumberOfAccounts}" />
+                        <views:LabelPair Text1="Auctions (outbidded)" Text2="{Binding AuctionsOutbidded}" />
+                        <views:LabelPair Text1="Domains (renewal needed)" Text2="{Binding AuthorsRenewal}" />
+                        <views:LabelPair Text1="Resources" Text2="{Binding NumberOfProducts}" />
+                        <views:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
+                        <views:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
+                    </StackLayout>
+                    <Grid
+                        Margin="-12,0"
+                        ColumnDefinitions="*,*,*,*"
+                        ColumnSpacing="0"
+                        RowDefinitions="Auto,Auto,Auto"
+                        RowSpacing="0">
+                        <controls:ImageTextButton
+                            Command="{Binding AccountsExcuteCommand}"
+                            ImageSource="accounts.png"
+                            Text="Accounts" />
+                        <controls:ImageTextButton
+                            Grid.Column="1"
+                            Command="{Binding AuthorsExcuteCommand}"
+                            ImageSource="domains.png"
+                            Text="Domains" />
+                        <controls:ImageTextButton
+                            Grid.Column="2"
+                            Command="{Binding ProductsExcuteCommand}"
+                            ImageSource="products.png"
+                            Text="Resources" />
+                        <controls:ImageTextButton
+                            Grid.Column="3"
+                            Command="{Binding TransactionsExcuteCommand}"
+                            ImageSource="transactions.png"
+                            Text="Transactions" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Command="{Binding SearchExcuteCommand}"
+                            ImageSource="info_md.png"
+                            Text="Search" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Command="{Binding NetworkExcuteCommand}"
+                            ImageSource="network.png"
+                            Text="Network" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Command="{Binding ETHTransferExcuteCommand}"
+                            ImageSource="transfer.png"
+                            Text="ETH-UNT Transfer" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            Command="{Binding HelpExcuteCommand}"
+                            ImageSource="help.png"
+                            Text="Help" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Command="{Binding WhatsNewExcuteCommand}"
+                            ImageSource="updates.png"
+                            Text="What's New" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Command="{Binding SettingsExcuteCommand}"
+                            ImageSource="settings.png"
+                            Text="Settings" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Command="{Binding AboutExcuteCommand}"
+                            ImageSource="info.png"
+                            Text="About" />
+                    </Grid>
+                </StackLayout>
+            </Grid>
+        </ScrollView>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

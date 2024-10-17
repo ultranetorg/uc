@@ -1,0 +1,129 @@
+﻿<views:CustomPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:resources="clr-namespace:UC.Umc.ViewModels.Resources"
+    x:Class="UC.Umc.Pages.Resources.ResourceTransferPage"
+    x:DataType="resources:ResourceTransferViewModel"
+    Title="Transfer Product">
+    
+    <views:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto"
+            RowSpacing="30">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
+                        <StackLayout Spacing="24">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Choose your Product and destination account" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="You need to specify your product and destination account to transfer." />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Transfer Product" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <Border
+                                        BindingContext="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Product}"
+                                        Grid.ColumnSpan="2"
+                                        HeightRequest="60"
+                                        Style="{StaticResource AccountCardBorder}">
+                                        <Grid 
+                                            Margin="8"
+                                            RowDefinitions="Auto,Auto"
+                                            x:DataType="models:ResourceModel">
+                                            <Label
+                                                Grid.Row="0"
+                                                Grid.Column="0"
+                                                FontSize="13"
+                                                Text="{Binding Name}"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Author" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <Border
+                                        BindingContext="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Author}"
+                                        Grid.ColumnSpan="2"
+                                        HeightRequest="60"
+                                        Style="{StaticResource AccountCardBorder}">
+                                        <Grid 
+                                            Margin="8"
+                                            RowDefinitions="Auto,Auto"
+                                            x:DataType="models:DomainModel">
+                                            <Label
+                                                Grid.Row="0"
+                                                Grid.Column="0"
+                                                FontSize="13"
+                                                Text="{Binding Name}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Grid.Column="0"
+                                                FontSize="10"
+                                                Text="{Binding ActiveDue}"
+                                                VerticalOptions="Center" />
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=SelectAuthorCommand}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            
+                            <views:LabelPair
+                                Text1="Estimated commission"
+                                Text2="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Commission}" />
+                        </StackLayout>
+                        
+                        <!--Step #2-->
+                        <StackLayout Padding="4" Spacing="32">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm the transfer of this Product?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Clicking 'Confirm' button, transfer will start" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <views:LabelPair Text1="Transfering Product:" Text2="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Product.Name}" />
+                                <views:LabelPair Text1="With comission:" Text2="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Commission}" />
+                                <views:LabelPair Text1="To Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type resources:ResourceTransferViewModel}}, Path=Author.Name}" />
+                            </StackLayout>
+                        </StackLayout>
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+        </Grid>
+    </views:CustomPage.MainContent>
+
+</views:CustomPage>

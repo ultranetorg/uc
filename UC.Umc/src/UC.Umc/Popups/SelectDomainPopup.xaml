@@ -1,0 +1,91 @@
+﻿<toolkit:Popup
+    x:Class="UC.Umc.Popups.SelectDomainPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:const="clr-namespace:UC.Umc.Common.Constants"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Size="{x:Static const:SizeConstants.ExtraMedium}"
+    Color="Transparent"
+    VerticalOptions="End"
+    x:Name="page"
+    x:DataType="vm:SelectDomainViewModel">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            HorizontalOptions="FillAndExpand"
+            RowDefinitions="Auto,Auto,Auto"
+            RowSpacing="12">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="24,Auto"
+                RowSpacing="16">
+                <Border
+                    Grid.Row="0"
+                    HorizontalOptions="CenterAndExpand"
+                    Style="{StaticResource PopupHandleBorder}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Row="1"
+                    FontSize="18"
+                    HorizontalOptions="Center"
+                    Text="Select author to transfer" />
+            </Grid>
+            
+            <ListView
+                Grid.Row="1"
+                HeightRequest="300"
+                ItemsSource="{Binding Domains}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DomainModel">
+                        <ViewCell>
+                            <Border
+                                Margin="16,4"
+                                Padding="0"
+                                Style="{StaticResource TransactionCard}">
+                                <Grid
+                                    Padding="12,4"
+                                    ColumnDefinitions="*,Auto">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="{Binding Name}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="1"
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding ActiveDue}"
+                                        VerticalOptions="Center" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                    <Grid.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Grid"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource White}}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Grid"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </DataTrigger>
+                                    </Grid.Triggers>
+                                </Grid>
+                            </Border>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+            <Button
+                Grid.Row="2"
+                Margin="16,8"
+                Command="{Binding CloseCommand}"
+                Text="Confirm" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

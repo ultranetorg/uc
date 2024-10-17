@@ -1,0 +1,135 @@
+﻿<toolkit:Popup
+    x:Class="UC.Umc.Popups.SourceAccountPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:const="clr-namespace:UC.Umc.Common.Constants"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:DataType="vm:SourceAccountViewModel"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Size="{x:Static const:SizeConstants.Large}"
+    Color="Transparent"
+    VerticalOptions="End"
+    x:Name="page">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            HorizontalOptions="FillAndExpand"
+            RowDefinitions="Auto,Auto,Auto"
+            RowSpacing="4">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="24,Auto"
+                RowSpacing="16">
+                <Border
+                    Grid.Row="0"
+                    HorizontalOptions="CenterAndExpand"
+                    Style="{StaticResource PopupHandleBorder}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Row="1"
+                    FontSize="18"
+                    HorizontalOptions="Center"
+                    Text="Source Account" />
+            </Grid>
+            <Grid
+                Grid.Row="1"
+                RowDefinitions="Auto,*"
+                RowSpacing="8"> 
+                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        TextChanged="{Binding FilterAccountsCommand}"
+                        Value="{Binding Filter, Mode=TwoWay}" />
+                    <Image
+                        Margin="12,0"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        HorizontalOptions="End"
+                        Style="{StaticResource SearchIcon}"
+                        VerticalOptions="Center" />
+                </AbsoluteLayout>
+                <ListView
+                    Grid.Row="1"
+                    SelectedItem="{Binding Account}"
+                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
+                    HeightRequest="400"
+                    SelectionMode="None"
+                    ItemsSource="{Binding Accounts}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:AccountModel">
+                            <ViewCell>
+                                <Border
+                                    Margin="12,4"
+                                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Grid
+                                        ColumnDefinitions="*,Auto,12"
+                                        ColumnSpacing="8"
+                                        Padding="4,8"
+                                        RowDefinitions="Auto,Auto">
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            Margin="12,4,0,0"
+                                            FontSize="12"
+                                            Text="{Binding Name}" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Margin="12,0,0,4"
+                                            FontSize="8"
+                                            FontAttributes="None"
+                                            TextColor="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"
+                                            Text="{Binding Address}" />
+                                        <Label
+                                            Grid.RowSpan="2"
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            Text="{Binding RoundedBalance, StringFormat='{0} UNT'}"
+                                            VerticalOptions="Center" />
+                                        <Border
+                                            Grid.RowSpan="2"
+                                            Grid.Column="2"
+                                            StrokeShape="RoundRectangle 0,20"
+                                            Margin="0,-12,-6,-12"
+                                            HeightRequest="60"
+                                            WidthRequest="18"
+                                            Background="{Binding Color}" />                                        
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding ItemTappedCommand, Source={RelativeSource AncestorType={x:Type vm:SourceAccountViewModel}}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Grid.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Grid"
+                                                Value="True">
+                                                <Setter Property="Background" Value="{Binding Color}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Grid"
+                                                Value="False">
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                            </DataTrigger>
+                                        </Grid.Triggers>
+                                    </Grid>
+                                </Border>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            <Button
+                Grid.Row="2"
+                Margin="16,8"
+                Command="{Binding CloseCommand}"
+                Text="Confirm" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

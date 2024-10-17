@@ -1,0 +1,313 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Transactions.ETHTransferPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fi="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:transactions="clr-namespace:UC.Umc.ViewModels.Transactions"
+    xmlns:common="clr-namespace:UC.Umc.Models.Common"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:DataType="transactions:ETHTransferViewModel"
+    Title="ETH-UNT Transfer"
+    x:Name="page">
+    
+    <Shell.TitleView>
+        <FlexLayout
+            AlignItems="Center"
+            Direction="Row"
+            JustifyContent="SpaceBetween"
+            Margin="12,2">
+            <Label
+                FontFamily="SemiBold"
+                Style="{StaticResource TitleLabel}"
+                TextColor="{StaticResource PrimaryLight}"
+                Text="ETH-UNT Transfer" />
+            <AbsoluteLayout
+                HeightRequest="40"
+                WidthRequest="40">
+                <ImageButton
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Aspect="AspectFill"
+                    Opacity="0.5"
+                    HeightRequest="44"
+                    Source="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static common:IconFont.Dots}}"
+                    Command="{Binding OpenOptionsPopupCommand}" />
+            </AbsoluteLayout>
+        </FlexLayout>
+    </Shell.TitleView>
+    
+    <views:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto,Auto"
+            RowSpacing="16">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <StackLayout Spacing="24">
+                            <StackLayout Spacing="16">
+                                <StackLayout>
+                                    <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                                </StackLayout>
+            
+                                <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
+                
+                                <controls:SelectPrivateKey
+                                    IsPrivateKey="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=IsPrivateKey}"
+                                    IsWalletPath="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=IsFilePath}"
+                                    SelectionChangedCommand="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=ChangeKeySourceCommand}" />
+
+                                <StackLayout
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=IsPrivateKey}"
+                                    Spacing="8"
+                                    VerticalOptions="End">
+                                    <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Please specify Ultranet account private key" />
+                                    <controls:FormEntryControl HeightRequest="44" Value="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=PrivateKey}" />
+                                </StackLayout>
+                    
+                                <StackLayout
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=IsFilePath}"
+                                    Spacing="8"
+                                    VerticalOptions="End">
+                                    <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Please specify Ultranet account private key" />
+                                    <Grid
+                                        ColumnDefinitions="*,44"
+                                        ColumnSpacing="8"
+                                        HeightRequest="44">
+                                        <controls:FormEntryControl
+                                            Grid.Column="0"
+                                            IsReadOnly="True"
+                                            Value="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=WalletFilePath}" />
+                                        <Button
+                                            Grid.Column="1"
+                                            Margin="0,16,0,0"
+                                            CornerRadius="12"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=OpenFilePickerCommand}"
+                                            Text="..." />
+                                    </Grid>
+                                    <controls:FormEntryControl
+                                        HeightRequest="44"
+                                        Placeholder="Please specify a file password"
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=ShowFilePassword}"
+                                        Value="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=WalletFilePassword}" />
+                                </StackLayout>
+                            </StackLayout>
+        
+                            <Grid
+                                ColumnDefinitions="*,36,*"
+                                VerticalOptions="EndAndExpand">
+                                <StackLayout Grid.Column="0" Spacing="8">
+                                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                                    <AbsoluteLayout>
+                                        <controls:FormEntryControl
+                                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                                            AbsoluteLayout.LayoutFlags="All"
+                                            Value="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=EthAmount}"
+                                            Margin="0,-8,0,0">
+                                            <controls:FormEntryControl.Behaviors>
+                                                <toolkit:CharactersValidationBehavior
+                                                    x:Name="cb1"
+                                                    CharacterType="Letter"
+                                                    Flags="ValidateOnValueChanged"
+                                                    InvalidStyle="{StaticResource InvalidEntry}"
+                                                    MaximumCharacterTypeCount="30"
+                                                    MinimumCharacterTypeCount="1"
+                                                    ValidStyle="{StaticResource Valid}" />
+                                            </controls:FormEntryControl.Behaviors>
+                                        </controls:FormEntryControl>
+                                        <Label
+                                            Margin="8,12,12,8"
+                                            AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                                            Style="{StaticResource UNTLabel}"
+                                            Text="ETH" />
+                                    </AbsoluteLayout>
+                                    <StackLayout >
+                                        <!--<Label
+                                            FontSize="12"
+                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                                            Text="Validation text message"
+                                            TextColor="{StaticResource Red}" />-->
+                                    </StackLayout>
+                                </StackLayout>
+                                <Image
+                                    Grid.Column="1"
+                                    Style="{StaticResource RightArrowIcon}"
+                                    Margin="0,20,0,0">
+                                    <Image.Behaviors>
+                                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <StackLayout Grid.Column="2" Spacing="8">
+                                    <Label Style="{StaticResource DashLabelValue}" Text="350 ETH available" />
+                                    <AbsoluteLayout>
+                                        <controls:FormEntryControl
+                                            Margin="0,-8,0,0"
+                                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                                            IsReadOnly="True"
+                                            Value="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=UntAmount}"
+                                            AbsoluteLayout.LayoutFlags="All">
+                                            <controls:FormEntryControl.Behaviors>
+                                                <toolkit:CharactersValidationBehavior
+                                                    x:Name="cb2"
+                                                    CharacterType="Letter"
+                                                    Flags="ValidateOnValueChanged"
+                                                    InvalidStyle="{StaticResource InvalidEntry}"
+                                                    MaximumCharacterTypeCount="30"
+                                                    MinimumCharacterTypeCount="1"
+                                                    ValidStyle="{StaticResource Valid}" />
+                                            </controls:FormEntryControl.Behaviors>
+                                        </controls:FormEntryControl>
+                                        <Label
+                                            Margin="8,12,12,8"
+                                            AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                                            Style="{StaticResource UNTLabel}"
+                                            Text="UNT" />
+                                    </AbsoluteLayout>
+                                    <StackLayout>
+                                        <!--<Label
+                                            FontSize="12"
+                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
+                                            Text="Validation text message"
+                                            TextColor="{StaticResource Red}" />-->
+                                    </StackLayout>
+                                </StackLayout>
+                            </Grid>
+                        </StackLayout>
+                        <StackLayout Padding="4" Spacing="32">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Select Ultranet Account" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Destination Ultranet Account" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Destination Account that will receive Ultranet tokens" />
+                            </StackLayout>
+                            <Grid ColumnDefinitions="*,36">
+                                <views:AccountView
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=Account}"
+                                    BorderStyle="{StaticResource AccountCardBorderDark}"
+                                    Grid.ColumnSpan="2">
+                                    <views:AccountView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=ShowAccountsPopupCommand}" />
+                                    </views:AccountView.GestureRecognizers>
+                                </views:AccountView>
+                                <Image
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    InputTransparent="True"
+                                    Style="{StaticResource BottomArrowIcon}" />
+                            </Grid>
+                        </StackLayout>
+                        <StackLayout Padding="5" Spacing="25">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Confirm Transfer" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="0x2d7a6adeb37dcb6e0a796dc6b15d3e8889092cd9" />
+                            </StackLayout>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Ethereum amount to transfer" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=EthAmount, StringFormat='{0} ETH'}" />
+                            </Grid>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="To destination Ultranet Account" />
+                                <views:AccountView
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=Account}"
+                                    BorderStyle="{StaticResource AccountBorder}" />
+                            </StackLayout>
+                            <StackLayout Spacing="10">
+                                <views:LabelPair Text1="UNT amount" Text2="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=UntAmount, StringFormat='{0} UNT'}" />
+                                <views:LabelPair Text1="ETH comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=EthCommission, StringFormat='{0} ETH'}" />
+                                <views:LabelPair Text1="UNT comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type transactions:ETHTransferViewModel}}, Path=UntCommission, StringFormat='{0} UNT'}" />
+                            </StackLayout>
+                        </StackLayout>
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <Grid
+                Grid.Row="2"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="16">
+                <Grid.Triggers>
+                    <DataTrigger
+                        Binding="{Binding Position}"
+                        TargetType="Grid"
+                        Value="2">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Grid.Triggers>
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding PrevCommand}"
+                    Style="{StaticResource PrevButton}" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding NextWorkaroundCommand}"
+                    Style="{StaticResource NextButton}" />
+            </Grid>
+            <StackLayout Grid.Row="2" IsVisible="False">
+                <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
+                <Button
+                    Style="{StaticResource LabelButton}"
+                    Command="{Binding PrevCommand}"
+                    Text="Cancel" />
+                <StackLayout.Triggers>
+                    <DataTrigger
+                        Binding="{Binding Position}"
+                        TargetType="StackLayout"
+                        Value="2">
+                        <Setter Property="IsVisible" Value="True" />
+                    </DataTrigger>
+                </StackLayout.Triggers>
+            </StackLayout>
+        </Grid>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

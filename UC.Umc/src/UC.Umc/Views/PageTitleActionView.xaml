@@ -1,0 +1,33 @@
+﻿<views:BasePageTitleView
+    x:Class="UC.Umc.Views.PageTitleActionView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    x:TypeArguments="views:PageTitleActionView"
+    x:Name="This">
+    <FlexLayout
+        AlignItems="Center"
+        BindingContext="{x:Reference This}"
+        Direction="Row"
+        JustifyContent="SpaceBetween"
+        Margin="12,2">
+        <Label
+            FontFamily="SemiBold"
+            Style="{Binding TitleStyle}"
+            TextColor="{StaticResource PrimaryLight}"
+            Text="{Binding Title}" />
+        <AbsoluteLayout
+            IsVisible="{Binding IconSource}"
+            HeightRequest="40"
+            WidthRequest="40">
+            <ImageButton
+                AbsoluteLayout.LayoutBounds="0,1,1,1"
+                AbsoluteLayout.LayoutFlags="All"
+                Aspect="AspectFill"
+                HeightRequest="44"
+                Style="{Binding IconStyle}"
+                Source="{Binding IconSource}"
+                Command="{Binding TapCommand}"/>
+        </AbsoluteLayout>
+    </FlexLayout>
+</views:BasePageTitleView>

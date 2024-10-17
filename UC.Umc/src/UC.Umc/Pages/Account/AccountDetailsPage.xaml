@@ -1,0 +1,244 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Account.AccountDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:common="clr-namespace:UC.Umc.Models.Common"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:accounts="clr-namespace:UC.Umc.ViewModels.Accounts"
+    Title="Account Details"
+    x:DataType="accounts:AccountDetailsViewModel"
+    x:Name="page">
+    
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            Title="Account Details"
+            TitleStyle="{StaticResource TitleLabel}"
+            IconSource="delete_button.png"
+            TapCommand="{Binding DeleteCommand}" />
+    </Shell.TitleView>
+    
+    <views:CustomPage.Resources>
+        <DataTemplate x:Key="ColorsTemplate" x:DataType="common:AccountColor">
+            <Border
+                Padding="0"
+                BackgroundColor="{Binding Color}"
+                StrokeShape="RoundRectangle 16"
+                HeightRequest="34"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                WidthRequest="34">
+                <ImageButton
+                    BackgroundColor="{Binding Color}"
+                    Command="{Binding BindingContext.SetAccountColorCommand, Source={x:Reference page}}"
+                    CommandParameter="{Binding .}"
+                    BorderColor="Transparent"
+                    CornerRadius="15"
+                    HeightRequest="30"
+                    WidthRequest="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="AuthorsTemplate" x:DataType="models:DomainModel">
+            <Border
+                HeightRequest="22"
+                HorizontalOptions="Start"
+                Style="{StaticResource ButtonBorder}"
+                VerticalOptions="Center">
+                <Label
+                    Style="{StaticResource ButtonLabel}"
+                    Text="{Binding Name}"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ProductsTemplate" x:DataType="models:ResourceModel">
+            <StackLayout>
+                <Border
+                    HeightRequest="22"
+                    HorizontalOptions="Start"
+                    Style="{StaticResource ButtonBorder}"
+                    VerticalOptions="Center">
+                    <Label
+                        Style="{StaticResource ButtonLabel}"
+                        Text="{Binding Name}"
+                        VerticalOptions="Center" />
+                </Border>
+            </StackLayout>
+        </DataTemplate>
+    </views:CustomPage.Resources>
+    <views:CustomPage.MainContent>
+        <ScrollView>
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="16">
+                <Grid
+                    ColumnDefinitions="64,*,Auto"
+                    ColumnSpacing="20"
+                    RowDefinitions="32,40">
+                    <Border
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="0"
+                        Padding="0"
+                        Background="{Binding Background}"
+                        StrokeShape="RoundRectangle 8"
+                        HeightRequest="60"
+                        VerticalOptions="Center"
+                        WidthRequest="60">
+                        <Label
+                            HorizontalOptions="Center"
+                            TextColor="{StaticResource PrimaryLight}"
+                            Text="{Binding Account.IconCode}"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Style="{StaticResource DashLabel}"
+                        Text="Account color"
+                        VerticalOptions="Center"
+                        FontAttributes="Bold" />
+                    <ScrollView
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        HorizontalScrollBarVisibility="Never"
+                        Orientation="Horizontal">
+                        <StackLayout
+                            Padding="4"
+                            BindableLayout.ItemsSource="{Binding ColorsCollection}"
+                            BindableLayout.ItemTemplate="{StaticResource ColorsTemplate}"
+                            Orientation="Horizontal"
+                            Spacing="12" />
+                    </ScrollView>
+                    <Grid
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        ColumnDefinitions="65,25"
+                        ColumnSpacing="0">
+                        <Label
+                            Grid.Column="0"
+                            Text="Random"
+                            TextColor="{StaticResource PrimaryDark}"
+                            VerticalOptions="Center"
+                            FontAttributes="Bold" />
+                        <ImageButton
+                            Grid.Column="1"
+                            Style="{StaticResource Random}"
+                            Command="{Binding SetAccountColorCommand}"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Grid>
+                <StackLayout Spacing="4">
+                    <Label Style="{StaticResource DashLabel}" Text="Account" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Medium}"
+                        Text="{Binding Account.Address}" />
+                </StackLayout>
+                
+                <controls:FormEntryControl
+                    Placeholder="Account Name"
+                    Value="{Binding AccountName}"
+                    ErrorMessage="{Binding AccountNameError}"
+                    Margin="0,8,0,0"
+                    MaxLength="30"
+                    MinLength="1" />
+                
+                <StackLayout Spacing="4">
+                    <Label
+                        Style="{StaticResource DashLabel}"
+                        Margin="0"
+                        Text="Balance" />
+                    <Label
+                        FontSize="13"
+                        Text="{Binding Account.DisplayAmount}" 
+                        FontAttributes="Bold"
+                        Style="{StaticResource Medium}" />
+                </StackLayout>
+                
+                <Grid ColumnDefinitions="*,48" RowDefinitions="24,16">
+                    <Label
+                        Grid.Row="0"
+                        Style="{StaticResource DashLabel}"
+                        Text="Hide" />
+                    <Label
+                        Grid.Row="1"
+                        FontSize="13"
+                        Style="{StaticResource Medium}"
+                        Text="Account from Dashboard" />
+                    <controls:SwitchView
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type accounts:AccountDetailsViewModel}}}"/>
+                </Grid>
+                <Grid RowDefinitions="Auto,23">
+                    <Label
+                        Grid.Row="0"
+                        Style="{StaticResource DashLabel}"
+                        Text="Domains" />
+                    <ScrollView
+                        Grid.Row="1"
+                        HorizontalScrollBarVisibility="Never"
+                        Orientation="Horizontal">
+                        <StackLayout
+                            BindableLayout.ItemsSource="{Binding Domains}"
+                            BindableLayout.ItemTemplate="{StaticResource AuthorsTemplate}"
+                            Orientation="Horizontal"
+                            Spacing="10" />
+                    </ScrollView>
+                </Grid>
+                <Grid RowDefinitions="Auto,23">
+                    <Label
+                        Grid.Row="0"
+                        Style="{StaticResource DashLabel}"
+                        Text="Resources" />
+                    <CollectionView
+                        Grid.Row="1"
+                        ItemTemplate="{StaticResource ProductsTemplate}"
+                        ItemsSource="{Binding Resources}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.Footer>
+                            <StackLayout Padding="{StaticResource SidePadding}">
+                                <Label
+                                    Style="{StaticResource Medium}"
+                                    Text="and 100 more"
+                                    TextColor="{StaticResource Primary}"
+                                    TextDecorations="Underline"
+                                    VerticalOptions="CenterAndExpand" />
+                            </StackLayout>
+                        </CollectionView.Footer>
+                    </CollectionView>
+                </Grid>
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12"
+                    RowDefinitions="Auto,Auto,Auto"
+                    RowSpacing="12">
+                    <Button
+                        Grid.Row="0"
+                        Grid.ColumnSpan="2"
+                        Text="Backup" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Command="{Binding ShowPrivateKeyCommand}"
+                        Text="Show private key" />
+                    <Button
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Text="Receive"
+                        Command="{Binding ReceiveCommand}" />
+                    <Button
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Text="Send"
+                        Command="{Binding SendCommand}" />
+                </Grid>
+            </StackLayout>
+        </ScrollView>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

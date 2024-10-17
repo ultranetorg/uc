@@ -1,0 +1,122 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Transactions.TransactionsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:transactions="clr-namespace:UC.Umc.ViewModels.Transactions"
+    xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:DataType="transactions:TransactionsViewModel"
+    Title="Transactions"
+    x:Name="page">
+    <views:CustomPage.Resources>
+        <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
+    </views:CustomPage.Resources>
+    <views:CustomPage.MainContent>
+        <Grid Padding="16,8" RowDefinitions="64,96,*">
+            <AbsoluteLayout Grid.Row="0">
+                <controls:FormEntryControl
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    TextChanged="{Binding SearchTransactionsCommand}"
+                    Value="{Binding Filter, Mode=TwoWay}"/>
+                <Image
+                    Margin="12,0"
+                    AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    HorizontalOptions="End"
+                    Style="{StaticResource SearchIcon}"
+                    VerticalOptions="Center" />
+            </AbsoluteLayout>
+            <AbsoluteLayout Margin="0,0,0,8" Grid.Row="1">
+                <views:AccountView
+                    BorderStyle="{StaticResource AccountCardBorderDark}"
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Account="{Binding Account}">
+                    <views:AccountView.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                    </views:AccountView.GestureRecognizers>
+                </views:AccountView>
+                <Image
+                    Margin="12,0"
+                    AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    HorizontalOptions="End"
+                    Style="{StaticResource BottomArrowsIcon}"
+                    VerticalOptions="Center" />
+                <ImageButton
+                    Margin="-12"
+                    AbsoluteLayout.LayoutBounds="1,0,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    Style="{StaticResource Cancel}" HeightRequest="36" WidthRequest="36" CornerRadius="12"
+                    Command="{Binding ResetAccountCommand}"
+                    VerticalOptions="Center" />
+            </AbsoluteLayout>
+            <CollectionView
+                Grid.Row="2"
+                ItemsSource="{Binding Transactions}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TransactionModel">
+                        <StackLayout>
+                            <Border
+                                Margin="0,4"
+                                Padding="0,0,8,0"
+                                Style="{StaticResource TransactionCard}">
+                                <Grid
+                                    ColumnDefinitions="56,3*,*"
+                                    ColumnSpacing="16"
+                                    RowDefinitions="32,32"
+                                    RowSpacing="4">
+                                    <Image
+                                        Grid.RowSpan="2"
+                                        Grid.Column="0"
+                                        HeightRequest="24"
+                                        HorizontalOptions="Center"
+                                        Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
+                                        VerticalOptions="Center"
+                                        WidthRequest="24" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        Text="{Binding Name}"
+                                        VerticalOptions="End" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        FontSize="10"
+                                        Opacity="0.4"
+                                        Text="{Binding Date}"
+                                        VerticalOptions="Start" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        Text="{Binding DisplayUNT}"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="End" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        Opacity="0.4"
+                                        Text="{Binding DisplayUSD}"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Start" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </views:CustomPage.MainContent>
+</views:CustomPage>

@@ -1,0 +1,70 @@
+﻿<toolkit:Popup
+    x:Class="UC.Umc.Popups.AccountOptionsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:const="clr-namespace:UC.Umc.Common.Constants"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:SizeConstants.Medium}"
+    VerticalOptions="End"
+    x:Name="page"
+    x:DataType="vm:AccountOptionsViewModel">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            ColumnDefinitions="*,*"
+            ColumnSpacing="12"
+            RowDefinitions="12,Auto,Auto,Auto,Auto,Auto"
+            RowSpacing="12"
+            Padding="24,16"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
+            <Border
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                HorizontalOptions="CenterAndExpand"
+                Margin="0,0,0,12"
+                Style="{StaticResource PopupHandleBorder}" />
+
+            <views:AccountView
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Margin="0,4"
+                BorderStyle="{StaticResource AccountCardBorderDark}"
+                Account="{Binding Account}" />
+            
+            <Button
+                Grid.Row="2"
+                Grid.ColumnSpan="2"
+                Command="{Binding ShowPrivateKeyCommand}"
+                Text="Show private key" />
+            <Button
+                Grid.Row="3"
+                Grid.Column="0"
+                Style="{StaticResource DeleteButton}"
+                Command="{Binding DeleteCommand}"
+                Text="Delete" />
+            <Button
+                Grid.Row="3"
+                Grid.Column="1"
+                Text="Backup"
+                Command="{Binding BackupCommand}" />
+            <Button
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                Text="Hide from dashboard"
+                Command="{Binding HideFromDashboardCommand}" />
+            <Button
+                Grid.Row="5"
+                Grid.Column="0"
+                Command="{Binding ReceiveCommand}"
+                Text="Receive" />
+            <Button
+                Grid.Row="5"
+                Grid.Column="1"
+                Command="{Binding SendCommand}"
+                Text="Send" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

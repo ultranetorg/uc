@@ -1,0 +1,31 @@
+﻿<toolkit:Popup
+    x:Class="UC.Umc.Popups.ResourceOptionsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:const="clr-namespace:UC.Umc.Common.Constants"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:SizeConstants.Small}"
+    VerticalOptions="End"
+    x:Name="page"
+    x:DataType="vm:ResourceOptionsViewModel">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            RowDefinitions="12,Auto"
+            RowSpacing="10"
+            Padding="24,16"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
+            <Border
+                Grid.Row="0"
+                HorizontalOptions="CenterAndExpand"
+                Margin="0,0,0,8"
+                Style="{StaticResource PopupHandleBorder}" />
+            <Button
+                Grid.Row="1"
+                Command="{Binding TransferProductCommand}"
+                Text="Transfer" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

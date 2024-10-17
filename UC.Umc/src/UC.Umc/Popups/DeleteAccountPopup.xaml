@@ -1,0 +1,77 @@
+﻿<toolkit:Popup
+    x:Class="UC.Umc.Popups.DeleteAccountPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:const="clr-namespace:UC.Umc.Common.Constants"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:SizeConstants.Medium}"
+    VerticalOptions="End"
+    x:DataType="vm:DeleteAccountPopupViewModel"
+    x:Name="page">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            HorizontalOptions="FillAndExpand"
+            RowDefinitions="12,Auto,Auto,Auto,Auto,Auto"
+            Padding="12,4"
+            RowSpacing="8">
+            <Border
+                Grid.Row="0"
+                HorizontalOptions="CenterAndExpand"
+                Style="{StaticResource PopupHandleBorder}" />
+            <Label
+                Grid.Row="1"
+                FontSize="18"
+                HorizontalOptions="Center"
+                Text="Delete confirmation" />
+
+            <views:AccountView BorderStyle="{StaticResource AccountCardBorderDark}" Margin="0,4" Account="{Binding Account}" Grid.Row="2" />
+            
+            <StackLayout Grid.Row="3" Spacing="4">
+                <Label Style="{StaticResource SubText}" Text="If you wish to delete account please specify next text" />
+                <AbsoluteLayout HeightRequest="56">
+                    <Rectangle Opacity="0.3"
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        Stroke="{StaticResource DeleteRed}"
+                        StrokeDashArray="4,4,4,4"
+                        StrokeDashOffset="9"
+                        StrokeThickness="1.1"
+                        VerticalOptions="FillAndExpand" />
+                    <Label
+                        Grid.Row="1"
+                        AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        FontSize="14"
+                        Text="{Binding TextToConfirm}"
+                        TextColor="{StaticResource Red}"
+                        VerticalOptions="CenterAndExpand" />
+                </AbsoluteLayout>
+            </StackLayout>
+            
+            <controls:FormEntryControl
+                Grid.Row="4"
+                Placeholder="{Binding TextToConfirm}"
+                Value="{Binding TextInput, Mode=TwoWay}"/>
+
+            <Grid
+                Grid.Row="5"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding CloseCommand}"
+                    Style="{StaticResource DeleteButton}"
+                    Text="Delete" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding CloseCommand}"
+                    Text="Cancel" />
+            </Grid>
+        </Grid>
+    </Border>
+</toolkit:Popup>

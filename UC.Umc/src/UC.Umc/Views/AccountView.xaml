@@ -1,0 +1,55 @@
+﻿<ContentView
+    x:Class="UC.Umc.Views.AccountView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="Page">
+    <Border
+        BindingContext="{x:Reference Page}"
+        Style="{Binding BorderStyle}">
+        <Grid
+            BindingContext="{Binding Account}"
+            Padding="14"
+            ColumnDefinitions="60,*"
+            ColumnSpacing="10"
+            InputTransparent="False"
+            RowDefinitions="20,20,20"
+            RowSpacing="0">
+            
+            <Border
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                Grid.Column="0"
+                Background="{Binding Color}"
+                HorizontalOptions="Center"
+                Style="{StaticResource AccountColorBorder}">
+                <Label
+                    HorizontalOptions="Center"
+                    Style="{StaticResource CodeLabel}"
+                    Text="{Binding IconCode, TargetNullValue=''}"
+                    VerticalOptions="Center" />
+            </Border>
+            
+            <Label
+                Grid.Row="0"
+                Grid.Column="1"
+                FontSize="13" VerticalOptions="Center"
+                Text="{Binding Name}" />
+            
+            <Label
+                IsVisible="{Binding ShowAmount}"
+                Grid.Row="1"
+                Grid.Column="1"
+                FontSize="12"
+                VerticalOptions="Center"
+                Text="{Binding DisplayAmount}" />
+
+            <Label VerticalOptions="Center"
+                Grid.Row="2"
+                Grid.Column="1"
+                MaxLines="1"
+                Opacity="0.3"
+                Style="{StaticResource Light}"
+                Text="{Binding Address, TargetNullValue=''}" />
+        </Grid>
+    </Border>
+</ContentView>

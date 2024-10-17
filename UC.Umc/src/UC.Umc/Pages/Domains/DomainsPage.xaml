@@ -1,0 +1,192 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Domains.DomainsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:domains="clr-namespace:UC.Umc.ViewModels.Domains"
+    x:DataType="domains:DomainViewModel"
+    Title="Domains"
+    x:Name="page">
+
+    <views:CustomPage.Resources>
+        <converters:DomainToImageConverter x:Key="DomainToImageConverter" />
+    </views:CustomPage.Resources>
+
+    <views:CustomPage.MainContent>
+        <Grid RowDefinitions="48,40,*" RowSpacing="4" Margin="16,0,16,4">
+            <Grid
+                Grid.Row="0"
+                ColumnDefinitions="4*,*"
+                Margin="8,4">
+                <AbsoluteLayout
+                    HeightRequest="60"
+                    WidthRequest="290"
+                    Grid.Row="0">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        TextChanged="{Binding SearchAuthorsCommand}"
+                        Value="{Binding Filter, Mode=TwoWay}"/>
+                    <Image
+                        Margin="12,0"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        HorizontalOptions="End"
+                        Style="{StaticResource SearchIcon}"
+                        VerticalOptions="Center" />
+                </AbsoluteLayout>
+                <AbsoluteLayout
+                    HorizontalOptions="End"
+                    Grid.Column="1"
+                    HeightRequest="40"
+                    WidthRequest="40">
+                    <ImageButton
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        Aspect="AspectFill"
+                        HeightRequest="44"
+                        Source="account_sort"
+                        Command="{Binding SortAuthorsCommand}"/>
+                </AbsoluteLayout>
+            </Grid>
+            <CollectionView
+                ItemSizingStrategy="MeasureAllItems"
+                Grid.Row="1"
+                ItemsSource="{Binding AuthorsFilter}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            HeightRequest="32"
+                            HorizontalOptions="Start"
+                            Style="{StaticResource ButtonBorder}"
+                            VerticalOptions="Center">
+                            <Label
+                                FontSize="12"
+                                Style="{StaticResource ButtonLabel}"
+                                Text="{Binding .}"
+                                VerticalOptions="Center" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding FilterAuthorsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <CollectionView
+                Grid.Row="2"
+                ItemsSource="{Binding Domains}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DomainModel">
+                        <Border
+                            Margin="0,4"
+                            HeightRequest="60"
+                            Style="{StaticResource AccountCardBorder}">
+                            <Border.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding BidStatus}"
+                                    TargetType="Border"
+                                    Value="{Static models:BidStatus.Higher}">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="1,0">
+                                                <GradientStop Offset="0.9" Color="Transparent" />
+                                                <GradientStop Offset="1.4" Color="{StaticResource HigherColor}" />
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding BidStatus}"
+                                    TargetType="Border"
+                                    Value="{Static models:BidStatus.Lower}">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="1,0">
+                                                <GradientStop Offset="0.9" Color="Transparent" />
+                                                <GradientStop Offset="1.4" Color="{StaticResource LowerColor}" />
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Border.Triggers>
+
+                            <Border Style="{StaticResource AccountCardBorder}">
+                                <Grid
+                                    Padding="14"
+                                    ColumnDefinitions="*,2*,2*,30"
+                                    ColumnSpacing="10"
+                                    RowDefinitions="*,*"
+                                    Style="{StaticResource AccountGrid}">
+                                    <Image
+                                        Grid.Column="0"
+                                        Grid.RowSpan="2"
+                                        Source="{Binding Status, Converter={StaticResource DomainToImageConverter}}">
+                                        <Image.Behaviors>
+                                            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        FontSize="13"
+                                        Text="{Binding Name}" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        Text="{Binding DisplayLine1}"
+                                        VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding BidStatus}"
+                                                TargetType="Label"
+                                                Value="{Static models:BidStatus.Higher}">
+                                                <Setter Property="TextColor" Value="{StaticResource HigherColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding BidStatus}"
+                                                TargetType="Label"
+                                                Value="{Static models:BidStatus.Lower}">
+                                                <Setter Property="TextColor" Value="{StaticResource LowerColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        Text="{Binding DisplayLine2}"
+                                        VerticalOptions="Center" />
+                                    <ImageButton
+                                        Grid.RowSpan="2"
+                                        Grid.Column="3"
+                                        Padding="1"
+                                        Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                        CommandParameter="{Binding .}"
+                                        Style="{StaticResource Dots}"
+                                        VerticalOptions="Center" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                            CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </Border>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </views:CustomPage.MainContent>
+
+</views:CustomPage>

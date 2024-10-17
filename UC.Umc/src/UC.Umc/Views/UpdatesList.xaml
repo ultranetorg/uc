@@ -1,0 +1,72 @@
+﻿<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="Page"
+    x:Class="UC.Umc.Views.UpdatesList">
+    <StackLayout BindingContext="{x:Reference Page}" Spacing="16">
+        <Grid
+            ColumnDefinitions="*,Auto"
+            VerticalOptions="Center">
+            <Label
+                Grid.Column="0"
+                FontSize="14"
+                Text="UUC version 1.23.4567"
+                VerticalOptions="Center" />
+            <Label
+                Grid.Column="1"
+                FontSize="12"
+                HorizontalOptions="EndAndExpand"
+                Opacity="0.6"
+                Text="18 Dec 2028"
+                VerticalOptions="Center" />
+        </Grid>
+        <StackLayout>
+            <Border
+                BackgroundColor="{StaticResource Green}"
+                StrokeShape="RoundRectangle 8"
+                HeightRequest="32"
+                HorizontalOptions="Start"
+                WidthRequest="72">
+                <Label
+                    HorizontalOptions="Center"
+                    Text="Added"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </Border>
+            <StackLayout Margin="0,4" Spacing="4" BindableLayout.ItemsSource="{Binding AddedList}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
+                            <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+        </StackLayout>
+        <StackLayout>
+            <Border
+                BackgroundColor="{StaticResource BlueLight}"
+                StrokeShape="RoundRectangle 8"
+                HeightRequest="32"
+                HorizontalOptions="Start"
+                WidthRequest="72">
+                <Label
+                    HorizontalOptions="Center"
+                    Text="Fixed"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </Border>
+            <StackLayout Margin="0,4" Spacing="4" BindableLayout.ItemsSource="{Binding FixedList}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
+                            <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+        </StackLayout>
+    </StackLayout>
+</ContentView>

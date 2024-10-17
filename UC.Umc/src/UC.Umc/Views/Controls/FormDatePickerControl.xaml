@@ -1,0 +1,22 @@
+﻿<controls:BaseFormControl
+    x:Class="UC.Umc.Views.Controls.FormDatePickerControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    x:Name="This"
+    x:TypeArguments="controls:FormDatePickerControl, system:DateTime"
+    ControlTemplate="{StaticResource ControlOutline}">
+    <controls:BaseFormControl.Resources>
+        <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
+    </controls:BaseFormControl.Resources>
+
+    <DatePicker
+        BindingContext="{x:Reference This}"
+        Date="{Binding Value}"
+        FontSize="14"
+        Format="{Binding Format}"
+        IsEnabled="{Binding IsEnabled}"
+        MaximumDate="{Binding MaxDate}"
+        MinimumDate="{Binding MinDate}" />
+</controls:BaseFormControl>

@@ -1,0 +1,141 @@
+﻿<views:CustomPage
+    x:Class="UC.Umc.Pages.Domains.DomainDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
+    xmlns:domains="clr-namespace:UC.Umc.ViewModels.Domains"
+    x:DataType="domains:DomainDetailsViewModel"
+    Title="Author Details"
+    x:Name="page">
+    
+    <views:CustomPage.Resources>
+        <DataTemplate x:Key="ProductsTemplate" x:DataType="models:ResourceModel">
+            <StackLayout>
+                <Border
+                    HeightRequest="22"
+                    HorizontalOptions="Start"
+                    Style="{StaticResource ButtonBorder}"
+                    VerticalOptions="Center">
+                    <Label
+                        Style="{StaticResource ButtonLabel}"
+                        Text="{Binding Name}"
+                        VerticalOptions="Center" />
+                </Border>
+            </StackLayout>
+        </DataTemplate>
+        <DataTemplate x:Key="BidsTemplate" x:DataType="models:Bid">
+            <Grid ColumnDefinitions="*,*,2*">
+                <Label Grid.Column="0" Text="{Binding Amount}" Style="{StaticResource DashLabelValue}" />
+                <Label Grid.Column="1" Text="{Binding Date}" Style="{StaticResource DashLabelValue}" />
+                <Label Grid.Column="2" Text="{Binding BidBy}" Style="{StaticResource DashLabelValue}" TextDecorations="Underline" />
+            </Grid>
+        </DataTemplate>
+    </views:CustomPage.Resources>
+    
+    <views:CustomPage.MainContent>
+        <ScrollView>
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
+                <StackLayout Spacing="16">
+                    <views:LabelPair Text1="Name" Text2="{Binding Domain.Name}" />
+                    <views:LabelPair IsVisible="{Binding HasOwner}" Text1="Title" Text2="{Binding Domain.Title}" />
+                    <views:LabelPair IsVisible="{Binding HasOwner}" Text1="Owner" Text2="{Binding Domain.Owner}" />
+                    
+                    <Grid IsVisible="{Binding HasOwner}" RowDefinitions="Auto,23">
+                        <Label
+                            Grid.Row="0"
+                            Style="{StaticResource DashLabel}"
+                            Text="Resources" />
+                        <CollectionView
+                            Grid.Row="1"
+                            ItemTemplate="{StaticResource ProductsTemplate}"
+                            ItemsSource="{Binding Resources}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.Footer>
+                                <StackLayout Padding="{StaticResource SidePadding}">
+                                    <Label
+                                        Style="{StaticResource Medium}"
+                                        Text="and 100 more"
+                                        TextColor="{StaticResource Primary}"
+                                        TextDecorations="Underline"
+                                        VerticalOptions="CenterAndExpand" />
+                                </StackLayout>
+                            </CollectionView.Footer>
+                        </CollectionView>
+                    </Grid>
+                    
+                    <views:LabelPair IsVisible="{Binding HasOwner}" Text1="Expired at" Text2="{Binding Domain.ActiveDue}" />
+                    <views:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Status" Text2="{Binding Domain.Name}" />
+                    <views:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Current bid" Text2="{Binding Domain.CurrentBid}" />
+                    <views:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Maximum bid by" Text2="{Binding Domain.MaximumBidBy}" />
+                    <views:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Auction ends" Text2="{Binding Domain.AuctionDue}" />
+                    
+                    <Grid IsVisible="{Binding IsMyAuthor}" ColumnDefinitions="*,48" RowDefinitions="24,16">
+                        <Label
+                            Grid.Row="0"
+                            Style="{StaticResource DashLabel}"
+                            Text="Hide" />
+                        <Label
+                            Grid.Row="1"
+                            FontSize="13"
+                            Style="{StaticResource Medium}"
+                            Text="Author from Domains List" />
+                        <controls:SwitchView
+                            Grid.RowSpan="2"
+                            Grid.Column="1"
+                            VerticalOptions="Center"
+                            SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type domains:DomainDetailsViewModel}}}"/>
+                    </Grid>
+                    
+                    <Grid IsVisible="{Binding IsOnAuction}" ColumnDefinitions="*,*,2*" Padding="0,0,8,0">
+                        <Label Grid.Column="0" Text="Amount" Style="{StaticResource DashLabel}" />
+                        <Label Grid.Column="1" Text="Date" Style="{StaticResource DashLabel}" />
+                        <Label Grid.Column="2" Text="Bid by" HorizontalTextAlignment="End" Style="{StaticResource DashLabel}" />
+                    </Grid>
+                    <VerticalStackLayout
+                        IsVisible="{Binding IsOnAuction}"
+                        BindableLayout.ItemTemplate="{StaticResource BidsTemplate}"
+                        BindableLayout.ItemsSource="{Binding BidsHistory}" />
+                    
+                </StackLayout>
+                <StackLayout Spacing="12" VerticalOptions="EndAndExpand">
+                    <Button
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        IsVisible="{Binding IsMyAuthor}"
+                        Command="{Binding RenewAuthorCommand}"
+                        Text="Renew" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        IsVisible="{Binding IsMyAuthor}"
+                        Command="{Binding TransferAuthorCommand}"
+                        Style="{StaticResource DeleteButton}"
+                        Text="Transfer" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        IsVisible="{Binding CanRegister}"
+                        Command="{Binding RegisterAuthorCommand}"
+                        Text="Register" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        IsVisible="{Binding IsOnAuction}"
+                        Command="{Binding WatchAuthorCommand}"
+                        Text="{Binding WatchAuthorText}" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="Make a bid"
+                        IsVisible="{Binding IsOnAuction}"
+                        Command="{Binding MakeBidCommand}" />
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </views:CustomPage.MainContent>
+</views:CustomPage>
