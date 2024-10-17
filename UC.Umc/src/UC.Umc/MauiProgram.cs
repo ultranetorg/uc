@@ -20,6 +20,7 @@ namespace UC.Umc
 				.ConfigurePages()
 				.ConfigureFonts(fonts =>
 				{
+					fonts.AddFont("icomoon.ttf", "icomoon");
 					fonts.AddFont("Montserrat-Bold.ttf", "Bold");
 					fonts.AddFont("Montserrat-Italic.ttf", "Italic");
 					fonts.AddFont("Montserrat-Light.ttf", "Light");

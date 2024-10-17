@@ -23,7 +23,7 @@ public partial class DomainRegistrationViewModel(ILogger<DomainRegistrationViewM
 		{
 			InitializeLoading();
 
-			Title = ((DomainViewModel) query[QueryKeys.AUTHOR]).Title;
+			Title = ((DomainsViewModel) query[QueryKeys.AUTHOR]).Title;
 #if DEBUG
 			_logger.LogDebug("ApplyQueryAttributes Title: {Title}", Title);
 #endif

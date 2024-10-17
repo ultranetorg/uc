@@ -17,7 +17,7 @@ public static class ViewModelExtensions
 		// ViewModels.
 		builder.Services.AddSingleton<ShellViewModel>();
 		builder.Services.AddSingleton<DashboardViewModel>();
-		builder.Services.AddSingleton<DomainViewModel>();
+		builder.Services.AddSingleton<DomainsViewModel>();
 		builder.Services.AddSingleton<ManageAccountsViewModel>();
 		builder.Services.AddSingleton<ResourceViewModel>();
 		builder.Services.AddSingleton<TransactionsViewModel>();

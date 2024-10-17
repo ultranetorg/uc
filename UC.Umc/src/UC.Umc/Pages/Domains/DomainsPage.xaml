@@ -8,7 +8,7 @@
     xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
     xmlns:controls="clr-namespace:UC.Umc.Views.Controls"
     xmlns:domains="clr-namespace:UC.Umc.ViewModels.Domains"
-    x:DataType="domains:DomainViewModel"
+    x:DataType="domains:DomainsViewModel"
     Title="Domains"
     x:Name="page">
 
@@ -56,7 +56,7 @@
             <CollectionView
                 ItemSizingStrategy="MeasureAllItems"
                 Grid.Row="1"
-                ItemsSource="{Binding AuthorsFilter}">
+                ItemsSource="{Binding DomainsFilter}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
@@ -74,7 +74,7 @@
                                 VerticalOptions="Center" />
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding FilterAuthorsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                    Command="{Binding FilterAuthorsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainsViewModel}}}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                         </Border>
@@ -171,13 +171,13 @@
                                         Grid.RowSpan="2"
                                         Grid.Column="3"
                                         Padding="1"
-                                        Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                        Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainsViewModel}}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"
                                         VerticalOptions="Center" />
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainViewModel}}}"
+                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type domains:DomainsViewModel}}}"
                                             CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
                                 </Grid>

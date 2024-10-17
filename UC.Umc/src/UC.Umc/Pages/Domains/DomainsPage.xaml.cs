@@ -6,15 +6,15 @@ namespace UC.Umc.Pages.Domains;
 
 public partial class DomainsPage : CustomPage
 {
-	private DomainViewModel Vm => (BindingContext as DomainViewModel)!;
+	private DomainsViewModel Vm => (BindingContext as DomainsViewModel)!;
 
 	public DomainsPage()
 	{
 		InitializeComponent();
-		BindingContext = Ioc.Default.GetService<DomainViewModel>();
+		BindingContext = Ioc.Default.GetService<DomainsViewModel>();
 	}
 
-	public DomainsPage(DomainViewModel vm)
+	public DomainsPage(DomainsViewModel vm)
 	{
 		InitializeComponent();
 		BindingContext = vm;
