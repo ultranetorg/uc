@@ -45,13 +45,13 @@ public partial class DashboardViewModel
 	public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.ACCOUNTS);
 
 	[RelayCommand]
-	public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.AUTHORS);
+	public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.DOMAINS);
 
 	[RelayCommand]
-	public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.PRODUCTS);
+	public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.RESOURCES);
 
 	[RelayCommand]
-	public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.PRODUCT_SEARCH);
+	public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.RESOURCE_SEARCH);
 
 	[RelayCommand]
 	public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.TRANSACTIONS);

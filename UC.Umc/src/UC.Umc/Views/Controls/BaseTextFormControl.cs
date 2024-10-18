@@ -1,9 +1,10 @@
 ﻿#if IOS
 using UIKit;
 #elif ANDROID
-using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 using Android.Content.Res;
+using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 #endif
+
 using System.Windows.Input;
 using Microsoft.Maui.Converters;
 using Microsoft.Maui.Handlers;
@@ -28,8 +29,8 @@ public abstract class BaseTextFormControl<T> : BaseFormControl<T, string>
 	public static readonly BindableProperty MinLengthProperty =
 		BindableProperty.Create(nameof(MinLength), typeof(int), typeof(T), DEFAULT_MIN_LENGTH);
 
-	 public static readonly BindableProperty RegexValidationPatternProperty =
-		BindableProperty.Create(nameof(RegexValidationPattern), typeof(string), typeof(T));
+	public static readonly BindableProperty RegexValidationPatternProperty =
+	   BindableProperty.Create(nameof(RegexValidationPattern), typeof(string), typeof(T));
 
 	public static readonly BindableProperty TextChangedProperty =
 		BindableProperty.Create(nameof(TextChanged), typeof(ICommand), typeof(T), null,
@@ -76,8 +77,8 @@ public abstract class BaseTextFormControl<T> : BaseFormControl<T, string>
 	protected override void ControlHandlerMapper<Z>(Z handler, IView _)
 	{
 #if IOS
-		const UITextBorderStyle borderStyler = UITextBorderStyle.None;
-		var backgroundColor = UIColor.Clear;
+        const UITextBorderStyle borderStyler = UITextBorderStyle.None;
+        var backgroundColor = UIColor.Clear;
 #elif ANDROID
 		var backgroundTintList = ColorStateList.ValueOf(Colors.Transparent.ToAndroid());
 #endif
@@ -86,7 +87,7 @@ public abstract class BaseTextFormControl<T> : BaseFormControl<T, string>
 		{
 			case IEntryHandler entryHandler:
 #if IOS
-				entryHandler.PlatformView.BorderStyle = borderStyler;
+                entryHandler.PlatformView.BorderStyle = borderStyler;
 #elif ANDROID
 				entryHandler.PlatformView.BackgroundTintList = backgroundTintList;
 #endif

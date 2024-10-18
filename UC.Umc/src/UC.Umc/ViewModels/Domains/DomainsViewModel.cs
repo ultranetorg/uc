@@ -103,7 +103,7 @@ public partial class DomainsViewModel(IDomainsService service, ILogger<DomainsVi
 			new Dictionary<string, object>() { { QueryKeys.AUTHOR, author } });
 
 	[RelayCommand]
-	private async Task SortAuthorsAsync()
+	public async Task SortAuthorsAsync()
 	{
 		// Authors.OrderBy(x => x.Name);
 		await Task.Delay(10);

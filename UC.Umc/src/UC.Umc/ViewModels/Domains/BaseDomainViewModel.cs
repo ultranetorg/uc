@@ -37,7 +37,7 @@ public abstract partial class BaseDomainViewModel(ILogger logger) : BaseViewMode
 	[RelayCommand]
 	private async Task RenewAuthorAsync()
 	{
-		await Navigation.GoToAsync(Routes.AUTHOR_RENEWAL,
+		await Navigation.GoToAsync(Routes.DOMAIN_RENEWAL,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Domain }
@@ -48,7 +48,7 @@ public abstract partial class BaseDomainViewModel(ILogger logger) : BaseViewMode
 	[RelayCommand]
 	private async Task RegisterAuthorAsync()
 	{
-		await Navigation.GoToAsync(Routes.AUTHOR_REGISTRATION,
+		await Navigation.GoToAsync(Routes.DOMAIN_REGISTRATION,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Domain }
@@ -70,7 +70,7 @@ public abstract partial class BaseDomainViewModel(ILogger logger) : BaseViewMode
 	[RelayCommand]
 	private async Task TransferAuthorAsync()
 	{
-		await Navigation.GoToAsync(Routes.AUTHOR_TRANSFER,
+		await Navigation.GoToAsync(Routes.DOMAIN_TRANSFER,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Domain }

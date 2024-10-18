@@ -34,7 +34,7 @@ public partial class ShellViewModel : ObservableObject
 		Icon = "authors_light.png",
 		IconDark = "authors_dark.png",
 		TargetType = typeof(DomainsPage),
-		Route = Routes.AUTHORS
+		Route = Routes.DOMAINS
 	};
 
 	public AppSection Resources { get; set; } = new()
@@ -43,7 +43,7 @@ public partial class ShellViewModel : ObservableObject
 		Icon = "products_light.png",
 		IconDark = "products_dark.png",
 		TargetType = typeof(ResourcesPage),
-		Route = Routes.PRODUCTS
+		Route = Routes.RESOURCES
 	};
 
 	public AppSection ProductsSearch { get; set; } = new()
@@ -52,7 +52,7 @@ public partial class ShellViewModel : ObservableObject
 		Icon = "products_light.png",
 		IconDark = "products_dark.png",
 		TargetType = typeof(ResourcesSearchPage),
-		Route = Routes.PRODUCT_SEARCH
+		Route = Routes.RESOURCE_SEARCH
 	};
 
 	public AppSection Transactions { get; set; } = new()

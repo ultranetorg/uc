@@ -24,16 +24,16 @@ internal static class Routes
 	public const string DELETE_ACCOUNT = nameof(DeleteAccountPage);
 	public const string PRIVATE_KEY = nameof(PrivateKeyPage);
 
-	public const string AUTHORS = nameof(DomainsPage);
-	public const string AUTHOR_DETAILS = nameof(DomainDetailsPage);
-	public const string AUTHOR_REGISTRATION = nameof(DomainRegistrationPage);
-	public const string AUTHOR_RENEWAL = nameof(DomainRenewalPage);
-	public const string AUTHOR_TRANSFER = nameof(DomainTransferPage);
+	public const string DOMAINS = nameof(DomainsPage);
+	public const string DOMAIN_DETAILS = nameof(DomainDetailsPage);
+	public const string DOMAIN_REGISTRATION = nameof(DomainRegistrationPage);
+	public const string DOMAIN_RENEWAL = nameof(DomainRenewalPage);
+	public const string DOMAIN_TRANSFER = nameof(DomainTransferPage);
 	public const string MAKE_BID = nameof(MakeBidPage);
-	public const string PRODUCTS = nameof(ResourcesPage);
-	public const string PRODUCT_SEARCH = nameof(ResourcesSearchPage);
-	public const string PRODUCT_REGISTRATION = nameof(ResourceRegistrationPage);
-	public const string PRODUCT_TRANSFER = nameof(ResourceTransferPage);
+	public const string RESOURCES = nameof(ResourcesPage);
+	public const string RESOURCE_SEARCH = nameof(ResourcesSearchPage);
+	public const string RESOURCE_REGISTRATION = nameof(ResourceRegistrationPage);
+	public const string RESOURCE_TRANSFER = nameof(ResourceTransferPage);
 
 	public const string SEND = nameof(SendPage);
 	public const string TRANSACTIONS = nameof(TransactionsPage);

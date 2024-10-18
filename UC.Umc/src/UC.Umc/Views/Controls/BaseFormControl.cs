@@ -4,6 +4,7 @@ using UIKit;
 using Android.Content.Res;
 using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 #endif
+
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Maui.Handlers;
 
@@ -25,7 +26,7 @@ public abstract class BaseFormControl<T, U> : ContentView
 
 	public string ErrorMessage
 	{
-		get => (string)GetValue(ErrorMessageProperty);
+		get => (string) GetValue(ErrorMessageProperty);
 		set
 		{
 			SetControlStyles();
@@ -35,7 +36,7 @@ public abstract class BaseFormControl<T, U> : ContentView
 
 	public string Placeholder
 	{
-		get => (string)GetValue(PlaceholderProperty);
+		get => (string) GetValue(PlaceholderProperty);
 		set => SetValue(PlaceholderProperty, value);
 	}
 
@@ -44,7 +45,7 @@ public abstract class BaseFormControl<T, U> : ContentView
 		get
 		{
 			SetControlStyles();
-			return (U)GetValue(ValueProperty);
+			return (U) GetValue(ValueProperty);
 		}
 		set
 		{
@@ -57,42 +58,30 @@ public abstract class BaseFormControl<T, U> : ContentView
 
 	protected abstract void ControlHandler();
 
-	protected BaseFormControl()
-	{
-		Logger = Ioc.Default.GetService<ILogger<T>>();
-	}
-
 	protected virtual void SetControlStyles()
 	{
-		try
+		const string activeBorderStyle = "ActiveBorderStyle";
+		const string activeSpanStyle = "ActiveSpanStyle";
+		var activeControlStyle = $"Active{FormControlType}Style";
+
+		if (string.IsNullOrWhiteSpace(ErrorMessage))
 		{
-			const string activeBorderStyle = "ActiveBorderStyle";
-			const string activeSpanStyle = "ActiveSpanStyle";
-			var activeControlStyle = $"Active{FormControlType}Style";
-
-			if (string.IsNullOrWhiteSpace(ErrorMessage))
+			Resources[activeBorderStyle] = Resources["ValidBorderStyle"];
+			Resources[activeSpanStyle] = Resources["ValidTextStyle"];
+			if (!string.IsNullOrWhiteSpace(FormControlType))
 			{
-				Resources[activeBorderStyle] = Resources["ValidBorderStyle"];
-				Resources[activeSpanStyle] = Resources["ValidTextStyle"];
-				if (!string.IsNullOrWhiteSpace(FormControlType))
-				{
-					Resources[activeControlStyle] = Resources[$"Valid{FormControlType}Style"];
-				}
-			}
-			else
-			{
-				Resources[activeBorderStyle] = Resources["InvalidBorderStyle"];
-				Resources[activeSpanStyle] = Resources["InvalidTextStyle"];
-
-				if (!string.IsNullOrWhiteSpace(FormControlType))
-				{
-					Resources[activeControlStyle] = Resources[$"Invalid{FormControlType}Style"];
-				}
+				Resources[activeControlStyle] = Resources[$"Valid{FormControlType}Style"];
 			}
 		}
-		catch (Exception ex)
+		else
 		{
-			Logger.LogError(ex, "SetControlStyles Error: {Ex}", ex.Message);
+			Resources[activeBorderStyle] = Resources["InvalidBorderStyle"];
+			Resources[activeSpanStyle] = Resources["InvalidTextStyle"];
+
+			if (!string.IsNullOrWhiteSpace(FormControlType))
+			{
+				Resources[activeControlStyle] = Resources[$"Invalid{FormControlType}Style"];
+			}
 		}
 	}
 
@@ -102,7 +91,7 @@ public abstract class BaseFormControl<T, U> : ContentView
 	protected virtual void ControlHandlerMapper<Z>(Z handler, IView _) where Z : IViewHandler
 	{
 #if IOS
-		const UITextBorderStyle borderStyler = UITextBorderStyle.None;
+        const UITextBorderStyle borderStyler = UITextBorderStyle.None;
 #elif ANDROID
 		var backgroundTintList = ColorStateList.ValueOf(Colors.Transparent.ToAndroid());
 #endif
@@ -111,14 +100,14 @@ public abstract class BaseFormControl<T, U> : ContentView
 		{
 			case IDatePickerHandler datePickerHandler:
 #if IOS
-				datePickerHandler.PlatformView.BorderStyle = borderStyler;
+                datePickerHandler.PlatformView.BorderStyle = borderStyler;
 #elif ANDROID
 				datePickerHandler.PlatformView.BackgroundTintList = backgroundTintList;
 #endif
 				break;
 			case ITimePickerHandler timePickerHandler:
 #if IOS
-				timePickerHandler.PlatformView.BorderStyle = borderStyler;
+                timePickerHandler.PlatformView.BorderStyle = borderStyler;
 #elif ANDROID
 				timePickerHandler.PlatformView.BackgroundTintList = backgroundTintList;
 #endif

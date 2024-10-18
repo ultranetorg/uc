@@ -34,7 +34,7 @@
 
     <FlyoutItem
         Title="{Binding Resources.Title}"
-        Route="{Static constants:Routes.AUTHORS}">
+        Route="{Static constants:Routes.DOMAINS}">
         <ShellContent
             Title="{Binding Resources.Title}"
             Icon="{AppThemeBinding Light=Domains.Icon,Dark=Domains.IconDark}"
@@ -43,7 +43,7 @@
     
     <FlyoutItem
         Title="{Binding Resources.Title}"
-        Route="{Static constants:Routes.PRODUCTS}">
+        Route="{Static constants:Routes.RESOURCES}">
         <ShellContent
             Title="{Binding Resources.Title}"
             Icon="{AppThemeBinding Light=Resources.Icon,Dark=Resources.IconDark}"
@@ -52,7 +52,7 @@
 
     <FlyoutItem
         Title="{Binding ProductsSearch.Title}"
-        Route="{Static constants:Routes.PRODUCT_SEARCH}">
+        Route="{Static constants:Routes.RESOURCE_SEARCH}">
         <ShellContent
             Title="{Binding ProductsSearch.Title}"
             Icon="{AppThemeBinding Light=ProductsSearch.Icon,Dark=ProductsSearch.IconDark}"
