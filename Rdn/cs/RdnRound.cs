@@ -3,10 +3,9 @@
 	public class RdnRound : Round
 	{
 		public List<DomainMigration>			Migrations;
-		public RdnMcv							Rdn => Mcv as RdnMcv;
+		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
 		public ForeignResult[]					ConsensusMigrations = {};
-		//public ForeignResult[]					ConsensusEmissions = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
 		{
@@ -14,7 +13,7 @@
 
 		public override long AccountAllocationFee(Account account)
 		{
-			return RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever);
+			return RdnOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 		}
 
 		public override IEnumerable<object> AffectedByTable(TableBase table)
@@ -22,7 +21,7 @@
 			if(table == Mcv.Accounts)
 				return AffectedAccounts.Values;
 
-			if(table == Rdn.Domains)
+			if(table == Mcv.Domains)
 				return AffectedDomains.Values;
 
 			throw new IntegrityException();
@@ -33,7 +32,7 @@
 			if(AffectedDomains.TryGetValue(domain, out DomainEntry a))
 				return a;
 			
-			var e = Rdn.Domains.Find(domain, Id - 1);
+			var e = Mcv.Domains.Find(domain, Id - 1);
 
 			if(e != null)
 			{
@@ -43,8 +42,8 @@
 			}
 			else
 			{
-				var ci = Rdn.Domains.KeyToCluster(domain).ToArray();
-				var c = Rdn.Domains.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Domains.KeyToCluster(domain).ToArray();
+				var c = Mcv.Domains.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
 
 				int ai;
 				
@@ -69,7 +68,7 @@
 			if(a != null)
 				return a;
 			
-			a = Rdn.Domains.Find(id, Id - 1);
+			a = Mcv.Domains.Find(id, Id - 1);
 
 			if(a == null)
 				throw new IntegrityException();
@@ -110,12 +109,11 @@
 
 		public override void Elect(Vote[] votes, int gq)
 		{
-			var rvs = votes.Cast<RdnVote>();
+			var vs = votes.Cast<RdnVote>();
 
-			ConsensusMigrations	= rvs.SelectMany(i => i.Migrations).Distinct()
-									 .Where(x => Migrations.Any(b => b.Id == x.OperationId) && rvs.Count(b => b.Migrations.Contains(x)) >= gq)
+			ConsensusMigrations	= vs.SelectMany(i => i.Migrations).Distinct()
+									 .Where(x => Migrations.Any(b => b.Id == x.OperationId) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
 									 .Order().ToArray();
-
 
 			#if IMMISSION
 			ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
@@ -140,6 +138,20 @@
 
 		public override void ConfirmForeign()
 		{
+			foreach(var i in ConsensusNtnStates)
+			{
+				var b = Mcv.NtnBlocks.Find(j => j.State.Hash.SequenceEqual(i));
+
+				if(b == null)
+					throw new ConfirmationException(this, []);
+
+				var d = AffectDomain(b.Net);
+				d.NtnSelfHash	= b.State.Hash;
+				d.ChildNet		= b.State;
+
+				Mcv.NtnBlocks.Remove(b);
+			}
+
 			#if IMMISSION
 			foreach(var i in ConsensusEmissions)
 			{

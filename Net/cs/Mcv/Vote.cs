@@ -1,26 +1,27 @@
 ﻿namespace Uccs.Net
 {
-	public class Vote
+	public class Vote : IBinarySerializable
 	{
 		public int					ParentId => RoundId - Mcv.P;
 
-		public List<Peer>			Peers;
+		//public List<Peer>			Peers;
 		public bool					BroadcastConfirmed;
 		public Round				Round;
 		public DateTime				Created;
 		AccountAddress				_Generator;
-		byte[]						_RawForBroadcast;
+		byte[]						_RawPayload;
 		Mcv							Mcv;
 
 		public int					RoundId;
 		public int					Try; /// TODO: revote if consensus not reached
 		public Time					Time;
 		public byte[]				ParentHash;
-		public EntityId[]			MemberLeavers = {};
+		public EntityId[]			MemberLeavers = [];
 		///public AccountAddress[]		FundJoiners = {};
 		///public AccountAddress[]		FundLeavers = {};
-		public EntityId[]			Violators = {};
-		public Transaction[]		Transactions = {};
+		public EntityId[]			Violators = [];
+		public byte[][]				NntBlocks = [];
+		public Transaction[]		Transactions = [];
 		public byte[]				Signature { get; set; }
 
 		public int					TransactionCountExcess;
@@ -55,25 +56,24 @@
 			}
 		}
 
-		public byte[] RawForBroadcast
+		public byte[] RawPayload
 		{
 			get
 			{ 
-				if(_RawForBroadcast == null)
+				if(_RawPayload == null)
 				{
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
 
-					WriteForBroadcast(w);
+					WritePayload(w);
 
-					_RawForBroadcast = s.ToArray();
-
+					_RawPayload = s.ToArray();
 				}
 			
-				return _RawForBroadcast; 
+				return _RawPayload; 
 			}
 
-			set { _RawForBroadcast = value; }
+			set { _RawPayload = value; }
 		}
 
 		public Vote(Mcv c)
@@ -105,15 +105,14 @@
 
 			w.Write((byte)Mcv.Net.Land);
 			w.WriteUtf8(Mcv.Net.Address);
-			w.Write(_Generator);
+			//w.Write(_Generator);
 			w.Write7BitEncodedInt(RoundId);
-
-			WriteVote(w);
+			w.WriteBytes(RawPayload);
 
 			return Cryptography.Hash(s.ToArray());
 		}
 
-		protected virtual void WriteVote(BinaryWriter writer)
+		protected virtual void WritePayload(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write(Time);
@@ -123,20 +122,22 @@
 			///writer.Write(FundJoiners);
 			///writer.Write(FundLeavers);
 			writer.Write(Violators);
+			writer.Write(NntBlocks, writer.WriteBytes);
 
 			writer.Write(Transactions, t => t.WriteForVote(writer));
 		}
 
-		protected virtual void ReadVote(BinaryReader reader)
+		protected virtual void ReadPayload(BinaryReader reader)
 		{
 			Try					= reader.Read7BitEncodedInt();
 			Time				= reader.Read<Time>();
 			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberLeavers		= reader.ReadArray<EntityId>();
-			///FundJoiners			= reader.ReadArray<AccountAddress>();
-			///FundLeavers			= reader.ReadArray<AccountAddress>();
+			///FundJoiners		= reader.ReadArray<AccountAddress>();
+			///FundLeavers		= reader.ReadArray<AccountAddress>();
 			Violators			= reader.ReadArray<EntityId>();
+			NntBlocks			= reader.ReadArray(reader.ReadBytes);
 
 			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction {Net = Mcv.Net, Vote = this};
@@ -145,34 +146,37 @@
 													});
 		}
 
-		public void WriteForBroadcast(BinaryWriter writer)
+		public void Write(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write(Signature);
-			writer.Write(Generator);
-			WriteVote(writer);
+			writer.WriteBytes(RawPayload);
 		}
 
-		public void ReadForBroadcast(BinaryReader reader)
+		public void Read(BinaryReader reader)
 		{
 			RoundId		= reader.Read7BitEncodedInt();
 			Signature	= reader.ReadSignature();
-			_Generator	= reader.ReadAccount();
-			ReadVote(reader);
+			_RawPayload	= reader.ReadBytes();
 		}
 
 		public void WriteForRoundUnconfirmed(BinaryWriter writer)
 		{
 			writer.Write(Signature);
 			writer.Write(Generator);
-			WriteVote(writer);
+			WritePayload(writer);
 		}
 
 		public void ReadForRoundUnconfirmed(BinaryReader reader)
 		{
 			Signature	= reader.ReadSignature();
 			_Generator	= reader.ReadAccount();
-			ReadVote(reader);
+			ReadPayload(reader);
+		}
+
+		public void Restore()
+		{
+			ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
 		}
 	}
 }

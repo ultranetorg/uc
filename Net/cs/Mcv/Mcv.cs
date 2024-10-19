@@ -67,6 +67,8 @@ namespace Uccs.Net
 		//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
+		public List<NtnBlock>						NtnBlocks = [];
+
 		public const string							ChainFamilyName = "Chain";
 		public ColumnFamilyHandle					ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
@@ -279,7 +281,6 @@ namespace Uccs.Net
 			{
 				if(r.ConsensusReached)
 				{
-					ConsensusConcluded(r, true);
 
 					var mh = r.MajorityByParentHash.Key;
 	 		
@@ -301,6 +302,7 @@ namespace Uccs.Net
 					p.Confirm();
 					Commit(p);
 
+					ConsensusConcluded(r, true);
 					return true;
 	
 				}

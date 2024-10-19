@@ -2,7 +2,6 @@
 
 namespace Uccs.Rdn
 {
-
 	public enum ResourceError : byte
 	{
 		None,

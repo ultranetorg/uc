@@ -2,8 +2,8 @@
 {
 	public class VoteRequest : McvPpc<PeerResponse>
 	{
-		public byte[]				Raw { get; set; }
-		public override bool		WaitResponse => false;
+		public Vote				Vote { get; set; }
+		public override bool	WaitResponse => false;
 
 		public VoteRequest()
 		{
@@ -13,13 +13,6 @@
 		{
 			if(Node.Mcv == null)
 				throw new NodeException(NodeError.NotBase);
-
-			var s = new MemoryStream(Raw);
-			var br = new BinaryReader(s);
-
-			var v = Mcv.CreateVote();
-			v.RawForBroadcast = Raw;
-			v.ReadForBroadcast(br);
 
 			lock(Peering.Lock)
 			{
@@ -31,7 +24,7 @@
 	
 					try
 					{
-						accepted = Peering.ProcessIncoming(v, false);
+						accepted = Peering.ProcessIncoming(Vote, false);
 					}
 					catch(ConfirmationException ex)
 					{
@@ -41,33 +34,33 @@
 									
 					Peering.Statistics.Consensing.End();
 	
-					if(Peering.Synchronization == Synchronization.Synchronized)
-					{
-						//var r = sun.Mcv.FindRound(v.RoundId);
-						var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
-	
-						if(_v != null) /// added or existed
-						{
-							if(accepted) /// for the new vote
-							{
-								var m = Mcv.LastConfirmedRound.Members.Find(i => i.Address == v.Generator);
-								
-								if(m != null)
-								{
-									//m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
-									//m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
-									m.Proxy			= Peer;
-								}
-							}
-							else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote
-								_v.BroadcastConfirmed = true;
-						}
-					}
+					//if(Peering.Synchronization == Synchronization.Synchronized)
+					//{
+					//	//var r = sun.Mcv.FindRound(v.RoundId);
+					//	var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
+					//
+					//	if(_v != null) /// added or existed
+					//	{
+					//		if(accepted) /// for the added vote
+					//		{
+					//			var m = Mcv.LastConfirmedRound.Members.Find(i => i.Address == v.Generator);
+					//			
+					//			if(m != null)
+					//			{
+					//				//m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
+					//				//m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
+					//				m.Proxy			= Peer;
+					//			}
+					//		}
+					//		else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote
+					//			_v.BroadcastConfirmed = true;
+					//	}
+					//}
 	
 					if(accepted)
 					{
-						Peering.Broadcast(v, Peer);
-						Peering.Statistics.AccpetedVotes++;
+						Peering.Broadcast(Vote, Peer);
+						Peering.Statistics.AcceptedVotes++;
 					}
 					else
 						Peering.Statistics.RejectedVotes++;

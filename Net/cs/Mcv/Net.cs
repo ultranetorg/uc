@@ -6,18 +6,26 @@ namespace Uccs.Net
 	public enum Land
 	{
 		None, 
-		Local, 
-		Developer0,
-		Developer1,
-		Developer2,
-		Developer3,
-		Developer4,
-		Developer5,
-		Developer6,
-		Developer7,
-		Developer8,
-		Developer9,
-		PublicTest
+		Local		= 00, 
+		Developer0	= 10,
+		Developer1	= 11,
+		Developer2	= 12,
+		Developer3	= 13,
+		Developer4	= 14,
+		Developer5	= 15,
+		Developer6	= 16,
+		Developer7	= 17,
+		Developer8	= 18,
+		Developer9	= 19,
+		PublicTest	= 20,
+		Main		= 30
+	}
+
+	public enum KnownSystem
+	{
+		Ntn = 010,
+		Rdn = 020,
+		Uos = 900,
 	}
 
 	public abstract class Net
@@ -25,10 +33,11 @@ namespace Uccs.Net
 		public const string			Root = "rdn";
 
 		public abstract string		Address { get; }
+		public abstract string		Name { get; }
 		//public Guid					Id;
 		public abstract	Land		Land { get; }
 		public abstract ushort		BasePort { get; }
-		public ushort				Port => (ushort)(ScopeBasePort + BasePort);
+		public ushort				Port => (ushort)((ushort)Land * 1000 + BasePort);
 
 		public IPAddress[]			Initials;
 		public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
@@ -36,23 +45,6 @@ namespace Uccs.Net
 												.Split(new char[] {'\r', '\n', '\t', ' '}, StringSplitOptions.RemoveEmptyEntries)
 												.Select(i => IPAddress.Parse(i))
 												.ToArray();
-
-		public ushort				ScopeBasePort => Land switch  {/// Format: XX000
-																	Land.None		=> 10000,
-																	Land.Local		=> 10000, 
-																	Land.Developer0 => 20000,
-																	Land.Developer1 => 21000,
-																	Land.Developer2 => 22000,
-																	Land.Developer3 => 23000,
-																	Land.Developer4 => 24000,
-																	Land.Developer5 => 25000,
-																	Land.Developer6 => 26000,
-																	Land.Developer7 => 27000,
-																	Land.Developer8 => 28000,
-																	Land.Developer9 => 29000,
-																	Land.PublicTest => 30000,
-																	_ => throw new IntegrityException()};
-
 
 		public Dictionary<Type, byte>								Codes = [];
 		public Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
@@ -93,18 +85,12 @@ namespace Uccs.Net
 
 	}
 
-// 	public abstract class NetToNet : Net
-// 	{
-// 		public override ushort				BasePort => 010; /// 00XX0
-// 
-// 		public static readonly NetToNet		Local = new LocalNexus();
-//  		public static readonly NetToNet		PublicTest = new PublicTestNexus();
-//  		public static readonly NetToNet		Developer0 = new Developer0Nexus();
-// 		public static readonly NetToNet		Main = null;
-// 		public static readonly NetToNet[]	Official = {Local, Developer0, PublicTest};
-// 
-// 		public static NetToNet				ByName(string name) => Official.First(i => i.Name == name);
-// 	}
+ 	public class Ntn
+ 	{
+ 		public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
+
+		public static ushort	GetPort(Land land) => (ushort)((ushort)land * 1000 + BasePort);
+ 	}
  
 // 	public class LocalNexus : NetToNet
 // 	{

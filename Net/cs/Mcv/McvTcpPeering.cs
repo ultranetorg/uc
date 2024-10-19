@@ -41,18 +41,16 @@ namespace Uccs.Net
 		bool									MinimalPeersReached;
 		AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 		Thread									TransactingThread;
-
-		//public Synchronization				Synchronization { set { _Synchronization = value; } get { return _Synchronization; } }
-		public Synchronization					Synchronization = Synchronization.None;
-		Thread									SynchronizingThread;
-		public Dictionary<int, List<Vote>>		SyncTail = new();
-
 		public List<Transaction>				IncomingTransactions = new();
 		public List<Transaction>				OutgoingTransactions = new();
 
-		public static List<McvTcpPeering>		All = new();
+		public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
+		Thread									SynchronizingThread;
+		public Dictionary<int, List<Vote>>		SyncTail = new();
 
 		List<AccountAddress>					CandidacyDeclarations = [];
+		
+		public static List<McvTcpPeering>		All = new();
 
 		public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, Vault vault, Flow flow) : base(node, node.Net, settings, roles, flow)
 		{
@@ -146,11 +144,11 @@ namespace Uccs.Net
 				Mcv.ConsensusConcluded += (r, reached) =>	{
 																if(reached)
 																{
-																	/// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
-																	var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
-						
-																	foreach(var v in notcomebacks)
-																		Broadcast(v);
+																	///// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
+																	//var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
+																	//
+																	//foreach(var v in notcomebacks)
+																	//	Broadcast(v);
 																}
 																else
 																{
@@ -505,12 +503,12 @@ namespace Uccs.Net
 			Synchronize();
 		}
 
-		public bool ProcessIncoming(Vote v, bool assynchronized)
+		public bool ProcessIncoming(Vote v, bool fromsynchronization)
 		{
 			if(!v.Valid)
 				return false;
 
-			if(!assynchronized && (Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading))
+			if(!fromsynchronization && Synchronization == Synchronization.Downloading)
 			{
  				//var min = SyncTail.Any() ? SyncTail.Max(i => i.Key) - Pitch * 100 : 0; /// keep latest Pitch * 3 rounds only
  
@@ -533,17 +531,17 @@ namespace Uccs.Net
 				//	}
 				//}
 			}
-			else if(assynchronized || Synchronization == Synchronization.Synchronized)
+			else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 			{
-				//if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
-				//	return false;
+				if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
+					return false;
 				
 				var r = Mcv.GetRound(v.RoundId);
-				
-				if(!r.VotersRound.Members.Any(i => i.Address == v.Generator))
-					return false;
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+					return false;
+									
+				if(!r.VotersRound.Members.Any(i => i.Address == v.Generator))
 					return false;
 
 				if(r.Forkers.Contains(v.Generator))
@@ -557,7 +555,9 @@ namespace Uccs.Net
 					r.Forkers.Add(e.Generator);
 
 					return false;
-				}	
+				}
+
+				v.Restore();
 								
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
@@ -673,6 +673,8 @@ namespace Uccs.Net
 						v.Time			= Time.Now(Mcv.Clock);
 						v.Violators		= r.ProposeViolators().ToArray();
 						v.MemberLeavers	= r.ProposeMemberLeavers(g).ToArray();
+						v.NntBlocks		= Mcv.NtnBlocks.Select(i => i.State.Hash).ToArray();
+
 						//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 						//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
 
@@ -1217,7 +1219,7 @@ namespace Uccs.Net
 			{
 				try
 				{
-					var v = new VoteRequest {Raw = vote.RawForBroadcast} as PeerRequest;
+					var v = new VoteRequest {Vote = vote} as PeerRequest;
 					v.Peering = this;
 					i.Post(v);
 				}

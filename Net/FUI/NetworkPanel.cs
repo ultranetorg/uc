@@ -6,9 +6,9 @@ namespace Uccs.Net.FUI
 
 	public partial class NetworkPanel : MainPanel
 	{
-		TcpPeering Peering;
+		HomoTcpPeering Peering;
 
-		public NetworkPanel(TcpPeering peering)
+		public NetworkPanel(HomoTcpPeering peering)
 		{
 			Peering = peering;
 

@@ -49,6 +49,7 @@ namespace Uccs.Net
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public long											ConsensusExecutionFee;
 		public int											ConsensusOverloadRound;
+		public byte[][]										ConsensusNtnStates = [];
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
@@ -246,6 +247,10 @@ namespace Uccs.Net
 				ConsensusViolators = s.SelectMany(i => i.Violators).Distinct()
 									  .Where(x => s.Count(b => b.Violators.Contains(x)) >= min)
 									  .Order().ToArray();
+
+				ConsensusNtnStates	= s.SelectMany(i => i.NntBlocks).Distinct(Bytes.EqualityComparer)
+										.Where(v => s.Count(i => i.NntBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
+										.Order(Bytes.Comparer).ToArray();
 
 				//ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
 				//							.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Net.MembersLimit * 2/3)

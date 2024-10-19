@@ -12,7 +12,7 @@
 		CandidacyDeclaration, 
 		//Immission,
 		UtilityTransfer,
-		BandwidthAllocation
+		BandwidthAllocation,
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable

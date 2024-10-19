@@ -1,14 +1,19 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
+using System.Net.Sockets;
 using RocksDbSharp;
 
 namespace Uccs.Net
 {
 	public abstract class HomoTcpPeering : TcpPeering
 	{
-		public long					Roles;
-		public ColumnFamilyHandle	PeersFamily => Node.Database.GetColumnFamily(PeersColumn);
-		string						PeersColumn => GetType().Name + nameof(Peers);
+		public List<Peer>						Peers = [];
+		public IEnumerable<Peer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
+		protected override IEnumerable<Peer>	PeersToDisconnect => Peers;
+
+		public long								Roles;
+		public ColumnFamilyHandle				PeersFamily => Node.Database.GetColumnFamily(PeersColumn);
+		string									PeersColumn => GetType().Name + nameof(Peers);
 
 		public HomoTcpPeering(Node node, Net net, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
 		{
@@ -23,37 +28,37 @@ namespace Uccs.Net
 				Node.Database.CreateColumnFamily(new (), PeersColumn);
 		}
 
-		public virtual void Run()
+		public override void Run()
 		{
 			LoadPeers();
 
-			if(Settings.IP != null)
-			{
-				ListeningThread = Node.CreateThread(Listening);
-				ListeningThread.Name = $"{Node.Name} Listening";
-				ListeningThread.Start();
-			}
-
-			MainThread = Node.CreateThread(() =>	{
-														while(Flow.Active)
-														{
-															var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
-
-															lock(Lock)
-															{
-																ProcessConnectivity();
-															}
-														}
-													});
-
-			MainThread.Name = $"{Node.Name} Main";
-			MainThread.Start();
+			base.Run();
 		}
 
 		public override string ToString()
 		{
 			return string.Join(",", new string[] {Node.Name,
 												  Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+		}
+
+		protected override void AddPeer(Peer peer)
+		{
+			Peers.Add(peer);
+		}
+
+		protected override void RemovePeer(Peer peer)
+		{
+			Peers.Remove(peer);
+		}
+
+		protected override Peer FindPeer(IPAddress ip)
+		{
+			return Peers.Find(i => i.IP.Equals(ip));
+		}
+
+		protected override bool Consider(TcpClient client)
+		{
+			return Connections.Count(i => i.Inbound) < Settings.InboundMax;
 		}
 
 		protected override Hello CreateOutboundHello(Peer peer, bool permanent)
@@ -89,8 +94,11 @@ namespace Uccs.Net
 			}
 		}
 
-		protected override bool ValidateHello(bool inbound, Hello hello, Peer peer)
+		protected override bool Consider(bool inbound, Hello hello, Peer peer)
 		{
+			if(hello.Permanent && Connections.Count(i => i.Inbound && i.Permanent) >= Settings.PermanentInboundMax)
+				return false;
+
 			if(!hello.Versions.Any(i => Versions.Contains(i)))
 				return false;
 
@@ -157,7 +165,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Peers = Node.Net.Initials?.Select(i => new Peer(i, Node.Net.Port) { Recent = false, 
+				Peers = Node.Net.Initials?.Select(i => new Peer(i, Node.Net.Port)  {Recent = false, 
 																					LastSeen = DateTime.MinValue}).ToList() ?? [];
 
 				SavePeers(Peers);
@@ -213,7 +221,7 @@ namespace Uccs.Net
 			}
 		}
 
-		protected virtual void ProcessConnectivity()
+		protected override void ProcessConnectivity()
 		{
 			var needed = Settings.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
@@ -236,7 +244,47 @@ namespace Uccs.Net
 		protected override void OnConnected(Peer peer)
 		{
 			//RefreshPeers([peer]);
+			peer.Post(new SharePeersRequest {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
+		}
 
+		public Peer ChooseBestPeer(long role, HashSet<Peer> exclusions)
+		{
+			return Peers.Where(i => i.Roles.IsSet(role) && (exclusions == null || !exclusions.Contains(i)))
+						.OrderByDescending(i => i.Status == ConnectionStatus.OK)
+						.FirstOrDefault();
+		}
+
+		public Peer Connect(long role, HashSet<Peer> exclusions, Flow flow)
+		{
+			Peer peer;
+				
+			while(flow.Active)
+			{
+				lock(Lock)
+				{
+					peer = ChooseBestPeer(role, exclusions);
+	
+					if(peer == null)
+					{
+						exclusions?.Clear();
+						continue;
+					}
+				}
+
+				exclusions?.Add(peer);
+
+				try
+				{
+					Connect(peer, flow);
+	
+					return peer;
+				}
+				catch(NodeException)
+				{
+				}
+			}
+
+			throw new OperationCanceledException();
 		}
 
 		public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : PeerResponse

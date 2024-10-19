@@ -24,9 +24,9 @@ namespace Uccs.Net
 		{
 		}
 
-		public Endpoint(IPAddress iP, long roles)
+		public Endpoint(IPAddress ip, long roles)
 		{
-			IP = iP;
+			IP = ip;
 			Roles = roles;
 		}
 
@@ -41,10 +41,6 @@ namespace Uccs.Net
 			writer.Write(IP);
 			writer.Write7BitEncodedInt64(Roles);
 		}
-	}
-
-	public abstract class NtnPpc<R> : Ppc<R> where R : PeerResponse
-	{
 	}
 
 //	public class Cluster

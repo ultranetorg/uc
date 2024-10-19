@@ -8,6 +8,8 @@
 		UtilityTransfer			= OperationClass.UtilityTransfer, 
 		BandwidthAllocation		= OperationClass.BandwidthAllocation,
 
+		ChildNetInitialization,
+
 		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
 		AnalysisResultUpdation
@@ -16,6 +18,7 @@
 	public abstract class RdnOperation : Operation
 	{
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
+		public const string		NotRoot = "Not root domain";
 
 		public abstract void Execute(RdnMcv mcv, RdnRound round);
 
@@ -82,7 +85,7 @@
 
 		public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(name, round.Id);
+			domain = round.Mcv.Domains.Find(name, round.Id);
 
 			if(domain == null)
 			{
@@ -107,7 +110,7 @@
 
 		public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(id, round.Id);
+			domain = round.Mcv.Domains.Find(id, round.Id);
 
 			if(domain == null)
 			{
@@ -132,7 +135,7 @@
 
 		public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(id, round.Id);
+			domain = round.Mcv.Domains.Find(id, round.Id);
 
 			if(domain == null)
 			{

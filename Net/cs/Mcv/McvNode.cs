@@ -42,7 +42,6 @@
 		public Vault			Vault; 
 		public Mcv				Mcv;
 		public McvTcpPeering	Peering;
-		public HomoTcpPeering		NtnPeering;
 		//public NodeSettings	Settings;
 
 		public McvNode(string name, McvNet net, string profile, Flow flow, Vault vault) : base(name, net, profile, flow)

@@ -30,21 +30,23 @@ namespace Uccs.Rdn
 
 		public DomainEntry Clone()
 		{
-			return new DomainEntry(Mcv) {	Id = Id,
-											Address = Address,
-											Owner = Owner,
-											Expiration = Expiration,
-											FirstBidTime = FirstBidTime,
-											LastWinner = LastWinner,
-											LastBid = LastBid,
-											LastBidTime = LastBidTime,
-											ComOwner = ComOwner,
-											OrgOwner = OrgOwner,
-											NetOwner = NetOwner,
-											Resources = Resources,
-											NextResourceId = NextResourceId,
-											SpaceReserved = SpaceReserved,
-											SpaceUsed = SpaceUsed };
+			return new DomainEntry(Mcv){Id = Id,
+										Address = Address,
+										Owner = Owner,
+										Expiration = Expiration,
+										FirstBidTime = FirstBidTime,
+										LastWinner = LastWinner,
+										LastBid = LastBid,
+										LastBidTime = LastBidTime,
+										ComOwner = ComOwner,
+										OrgOwner = OrgOwner,
+										NetOwner = NetOwner,
+										Resources = Resources,
+										NextResourceId = NextResourceId,
+										SpaceReserved = SpaceReserved,
+										SpaceUsed = SpaceUsed,
+										ChildNet = ChildNet,
+										NtnSelfHash = NtnSelfHash};
 		}
 
 		public void WriteMain(BinaryWriter writer)
@@ -56,6 +58,7 @@ namespace Uccs.Rdn
 			if(ComOwner != null)	f |= DomainFlag.ComOwned;
 			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
 			if(NetOwner != null)	f |= DomainFlag.NetOwned;
+			if(ChildNet != null)	f |= DomainFlag.ChildNet;
 
 			writer.Write((byte)f);
 			writer.WriteUtf8(Address);
@@ -94,6 +97,12 @@ namespace Uccs.Rdn
 											writer.WriteUtf8(i.Address.Resource);
 											i.WriteMain(writer);
 										});
+
+			if(f.HasFlag(DomainFlag.ChildNet))
+			{
+				writer.Write(ChildNet);
+				writer.Write(NtnSelfHash);
+			}
 		}
 
 		public void Cleanup(Round lastInCommit)
@@ -142,6 +151,12 @@ namespace Uccs.Rdn
 												a.ReadMain(reader);
 												return a;
 											}).ToArray();
+
+			if(f.HasFlag(DomainFlag.ChildNet))
+			{
+				ChildNet	= reader.Read<NtnState>();
+				NtnSelfHash = reader.ReadHash();
+			}
 		}
 
 		public void WriteMore(BinaryWriter w)

@@ -32,6 +32,7 @@ namespace Uccs.Rdn
 	{
 		public McvSettings				Mcv { get; set; }
 		public PeeringSettings			Peering { get; set; } = new();
+		public PeeringSettings			NtnPeering { get; set; } = new();
 		public ApiSettings				Api { get; set; }
 		public bool						Log { get; set; }
 		public int						RdcQueryTimeout { get; set; } = 5000;

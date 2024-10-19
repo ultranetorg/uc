@@ -5,13 +5,6 @@ using DnsClient;
 
 namespace Uccs.Rdn
 {
-	public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse
-	{
-		public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
-		public new RdnNode			Node => base.Node as RdnNode;
-		public new RdnMcv			Mcv => base.Mcv as RdnMcv;
-	}
-
 	[Flags]
 	public enum RdnRole : uint
 	{
@@ -32,6 +25,7 @@ namespace Uccs.Rdn
 		public PackageHub				PackageHub;
 		public SeedHub					SeedHub;
 		public JsonServer				ApiServer;
+		public RdnNtnTcpPeering			NtnPeering;
 
 		public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
 		{
@@ -112,9 +106,12 @@ namespace Uccs.Rdn
 
 					SeedHub = new SeedHub(Mcv);
 				}
+
+				NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
 			}
 
 			base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
+
 
 			if(Settings.Seed != null)
 			{
@@ -145,6 +142,7 @@ namespace Uccs.Rdn
 
 			ApiServer?.Stop();
 			Peering.Stop();
+			NtnPeering?.Stop();
 			Mcv?.Stop();
 
 			base.Stop();
