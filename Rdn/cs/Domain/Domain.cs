@@ -22,6 +22,14 @@ namespace Uccs.Rdn
 		Programmatic	= 0b11111111, 
 	}
 
+	public enum NtnStatus
+	{
+		None,
+		Initialized,
+		BlockRecieved,
+		BlockSent
+	}
+
 	public class Domain// : IBinarySerializable
 	{
 		//public const int			ExclusiveLengthMax = 12;
@@ -52,7 +60,7 @@ namespace Uccs.Rdn
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
 		public DomainChildPolicy	ParentPolicy { get; set; }
-		public NtnState				ChildNet { get; set; }
+		public NtnState				NtnChildNet { get; set; }
 		public byte[]				NtnSelfHash { get; set; }
 
 		public static bool			IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 

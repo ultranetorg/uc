@@ -13,7 +13,7 @@
 		{
 			lock(Peering.Lock)
 			{
-				var b = Peering.ProcessIncoming(Raw);
+				var b = Peering.ProcessIncoming(Raw, Peer);
 	
 				//if(Peering.Synchronization == Synchronization.Synchronized)
 				//{

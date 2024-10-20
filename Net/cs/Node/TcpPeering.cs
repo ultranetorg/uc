@@ -358,6 +358,9 @@ namespace Uccs.Net
 					if(Flow.Aborted)
 						goto failed;
 
+					if(peer == null)
+						peer = new Peer(ip, 0);
+
 					if(Consider(true, h, peer) == false)
 						goto failed;
 	
@@ -377,11 +380,7 @@ namespace Uccs.Net
 						goto failed;
 					}
 	
-					if(peer == null)
-					{
-						peer = new Peer(ip, 0);
-						AddPeer(peer);
-					}
+					AddPeer(peer);
 	
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, true);

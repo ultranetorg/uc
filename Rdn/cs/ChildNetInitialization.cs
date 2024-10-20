@@ -39,7 +39,7 @@
 			if(RequireSignerDomain(round, Domain, out var e) == false)
 				return;
 
-			if(e.ChildNet != null)
+			if(e.NtnChildNet != null)
 			{
 				Error = AlreadyExists;
 				return;
@@ -53,7 +53,7 @@
 
 			e = round.AffectDomain(Domain);
 
- 			e.ChildNet = Net;
+ 			e.NtnChildNet = Net;
 		}
 	}
 }

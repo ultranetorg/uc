@@ -38,7 +38,7 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			return string.Join(",", new string[] {Node.Name,
-												  Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+												  Settings?.IP.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
 		protected override void AddPeer(Peer peer)
@@ -67,7 +67,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.Net			= Node.Net.Address;
+				h.Net			= Node.Net.Name;
 				h.Roles			= Roles;
 				h.Versions		= Versions;
 				h.IP			= peer.IP;
@@ -84,7 +84,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.Net			= Node.Net.Address;
+				h.Net			= Node.Net.Name;
 				h.Roles			= Roles;
 				h.Versions		= Versions;
 				h.IP			= ip;
@@ -102,7 +102,7 @@ namespace Uccs.Net
 			if(!hello.Versions.Any(i => Versions.Contains(i)))
 				return false;
 
-			if(hello.Net != Node.Net.Address)
+			if(hello.Net != Node.Net.Name)
 				return false;
 
 			if(hello.Name == Node.Name)
@@ -165,8 +165,8 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Peers = Node.Net.Initials?.Select(i => new Peer(i, Node.Net.Port)  {Recent = false, 
-																					LastSeen = DateTime.MinValue}).ToList() ?? [];
+				Peers = Node.Net.Initials.Select(i => new Peer(i, Node.Net.Port){Recent = false, 
+																				 LastSeen = DateTime.MinValue}).ToList() ?? [];
 
 				SavePeers(Peers);
 			}

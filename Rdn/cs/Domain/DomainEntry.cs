@@ -45,8 +45,9 @@ namespace Uccs.Rdn
 										NextResourceId = NextResourceId,
 										SpaceReserved = SpaceReserved,
 										SpaceUsed = SpaceUsed,
-										ChildNet = ChildNet,
-										NtnSelfHash = NtnSelfHash};
+										NtnChildNet = NtnChildNet,
+										NtnSelfHash = NtnSelfHash,
+										};
 		}
 
 		public void WriteMain(BinaryWriter writer)
@@ -58,7 +59,7 @@ namespace Uccs.Rdn
 			if(ComOwner != null)	f |= DomainFlag.ComOwned;
 			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
 			if(NetOwner != null)	f |= DomainFlag.NetOwned;
-			if(ChildNet != null)	f |= DomainFlag.ChildNet;
+			if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
 
 			writer.Write((byte)f);
 			writer.WriteUtf8(Address);
@@ -100,7 +101,7 @@ namespace Uccs.Rdn
 
 			if(f.HasFlag(DomainFlag.ChildNet))
 			{
-				writer.Write(ChildNet);
+				writer.Write(NtnChildNet);
 				writer.Write(NtnSelfHash);
 			}
 		}
@@ -154,7 +155,7 @@ namespace Uccs.Rdn
 
 			if(f.HasFlag(DomainFlag.ChildNet))
 			{
-				ChildNet	= reader.Read<NtnState>();
+				NtnChildNet	= reader.Read<NtnState>();
 				NtnSelfHash = reader.ReadHash();
 			}
 		}

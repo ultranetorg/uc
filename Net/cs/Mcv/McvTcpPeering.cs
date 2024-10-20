@@ -209,9 +209,9 @@ namespace Uccs.Net
 	
 				if(IsListener)
 				{
-					foreach(var c in Connections/*.Where(i => i != peer)*/)
+					foreach(var c in Connections)
 						c.Post(new SharePeersRequest {Broadcast = true, 
-													  Peers = [new Peer(IP, Net.Port) {Roles = Roles}]});
+													  Peers = [new Peer(IP, Settings.Port) {Roles = Roles}]});
 				}
 
 				if(Mcv != null)

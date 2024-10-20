@@ -9,7 +9,8 @@ namespace Uccs.Net
 	public enum NtnPpcClass : byte
 	{
 		None = 0, 
-		NtnBlock
+		NtnBlock,
+		NtnStateHash
 	}
 
 	public abstract class NtnPpc<R> : Ppc<R> where R : PeerResponse
@@ -19,7 +20,7 @@ namespace Uccs.Net
 
 	public abstract class NtnTcpPeering : TcpPeering
 	{
-		public abstract NtnBlock					ProcessIncoming(byte[] raw);
+		public abstract NtnBlock					ProcessIncoming(byte[] raw, Peer peer);
 		public abstract byte[]						GetStateHash(string net);
 
 		protected override IEnumerable<Peer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
@@ -85,7 +86,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.Net			= Node.Net.Address;
+				h.Net			= Node.Net.Name;
 				h.Roles			= 0;
 				h.Versions		= Versions;
 				h.IP			= peer.IP;
@@ -102,7 +103,7 @@ namespace Uccs.Net
 			{
 				var h = new Hello();
 
-				h.Net			= Node.Net.Address;
+				h.Net			= Node.Net.Name;
 				h.Roles			= 0;
 				h.Versions		= Versions;
 				h.IP			= ip;

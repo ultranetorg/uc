@@ -147,7 +147,7 @@
 
 				var d = AffectDomain(b.Net);
 				d.NtnSelfHash	= b.State.Hash;
-				d.ChildNet		= b.State;
+				d.NtnChildNet		= b.State;
 
 				Mcv.NtnBlocks.Remove(b);
 			}

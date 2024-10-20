@@ -48,14 +48,21 @@
 			if(inbound)
 			{
 				lock(Node.Mcv.Lock)
-					if(Node.Mcv.Domains.Find(hello.Net, Node.Mcv.LastConfirmedRound.Id)?.ChildNet == null)
+				{	
+					var n = Node.Mcv.Domains.Find(hello.Net, Node.Mcv.LastConfirmedRound.Id)?.NtnChildNet;
+					
+					if(n == null)
 						return false;
+
+					if(!n.Peers.Any(i => i.IP.Equals(peer.IP)))
+						return false;
+				}
 			}
 
 			return true;
 		}
 
-		public override NtnBlock ProcessIncoming(byte[] raw)
+		public override NtnBlock ProcessIncoming(byte[] raw, Peer peer)
 		{
 			lock(Node.Mcv.Lock)
 			{
