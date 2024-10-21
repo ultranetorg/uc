@@ -533,7 +533,7 @@ namespace Uccs.Net
 			}
 			else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
+				if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P + 1 < v.RoundId)
 					return false;
 				
 				var r = Mcv.GetRound(v.RoundId);
@@ -547,7 +547,7 @@ namespace Uccs.Net
 				if(r.Forkers.Contains(v.Generator))
 					return false;
 
-				var e = r.Votes.Find(i => i.Generator == v.Generator);
+				var e = r.VotesOfTry.FirstOrDefault(i => i.Generator == v.Generator);
 				
 				if(e != null) /// FORK
 				{
@@ -576,6 +576,11 @@ namespace Uccs.Net
 					//r.Votes.Remove(v);
 					return false;
 				}
+
+// 				for(int i = r.Id - 1; i > Mcv.LastConfirmedRound.Id; i--)
+// 				{
+// 					Mcv.GetRound(i);
+// 				}
 
 				Mcv.Add(v);
 			}

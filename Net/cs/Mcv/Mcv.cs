@@ -11,7 +11,7 @@ namespace Uccs.Net
 
 	public abstract class Mcv /// Mutual chain voting
 	{
-		public const int							P = 8; /// pitch
+		public const int							P = 6; /// pitch
 		public const int							VotesRequired = 125; /// 1000/8
 		public const int							JoinToVote = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
@@ -288,7 +288,7 @@ namespace Uccs.Net
 					{
 						p.Summarize();
 						
-						if(!mh.SequenceEqual(p.Hash))
+						if(p.Hash == null || !mh.SequenceEqual(p.Hash))
 						{
 							#if DEBUG
 							///var x = r.Eligible.Select(i => i.ParentHash.ToHex());
@@ -327,7 +327,6 @@ namespace Uccs.Net
 			{	
 				r = CreateRound();
 				r.Id = rid;
-				//r.LastAccessed = DateTime.UtcNow;
 				Tail.Add(r);
 				Tail = Tail.OrderByDescending(i => i.Id).ToList();
 			}

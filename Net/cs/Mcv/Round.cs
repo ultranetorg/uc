@@ -177,6 +177,9 @@ namespace Uccs.Net
 
 		public byte[] Summarize()
 		{
+			if(!VotesOfTry.Any())
+				return null;
+
 			var voters = Id < Mcv.JoinToVote ? [] : Voters;
 			var min = VotesMinimumOf(voters.Count());
 			var all = VotesOfTry.ToArray();
