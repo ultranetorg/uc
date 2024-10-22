@@ -49,6 +49,33 @@ namespace Uccs.Uos
 		public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	}
 
+	public class PropertyApc : UosApc
+	{
+		public string Path { get; set; }
+
+		public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		{
+			object o = uos;
+
+			foreach(var i in Path.Split('.'))
+			{
+				o = o.GetType().GetProperty(i)?.GetValue(o) ?? o.GetType().GetField(i)?.GetValue(o);
+
+				if(o == null)
+					throw new NodeException(NodeError.NotFound);
+			}
+
+			switch(o)
+			{
+				case byte[] b:
+					return b.ToHex();
+
+				default:
+					return o?.ToString();
+			}
+		}
+	}
+
 	public class RunNodeApc : UosApc
 	{
 		public string	Net { get; set; }
