@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     xmlns:transactions="clr-namespace:UC.Umc.ViewModels.Transactions"
     xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
     xmlns:controls="clr-namespace:UC.Umc.Views.Controls"

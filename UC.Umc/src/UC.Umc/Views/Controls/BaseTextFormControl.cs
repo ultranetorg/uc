@@ -24,7 +24,7 @@ public abstract class BaseTextFormControl<T> : BaseFormControl<T, string>
 
 	public static readonly BindableProperty KeyboardProperty =
 		BindableProperty.Create(nameof(Keyboard), typeof(Keyboard), typeof(T),
-			Keyboard.Default, coerceValue: (_, v) => (Keyboard)v ?? Keyboard.Default);
+			Keyboard.Default, coerceValue: (_, v) => (Keyboard) v ?? Keyboard.Default);
 
 	public static readonly BindableProperty MinLengthProperty =
 		BindableProperty.Create(nameof(MinLength), typeof(int), typeof(T), DEFAULT_MIN_LENGTH);

@@ -1,10 +1,18 @@
 ﻿<views:BasePageTitleView
     x:Class="UC.Umc.Views.PageTitleNotificationsView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Name="This"
     x:TypeArguments="views:PageTitleNotificationsView">
+
+    <views:BasePageTitleView.Resources>
+        <ResourceDictionary>
+            <toolkit:IsStringNotNullOrWhiteSpaceConverter x:Key="IsStringNotNullOrWhiteSpaceConverter" />
+        </ResourceDictionary>
+    </views:BasePageTitleView.Resources>
+
     <FlexLayout
         AlignItems="Center"
         BindingContext="{x:Reference This}"
@@ -25,7 +33,7 @@
             <Border
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"
-                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpace}}"
+                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpaceConverter}}"
                 Style="{StaticResource BadgeBorder}">
                 <Label
                     x:Name="BadgeValueLabel"

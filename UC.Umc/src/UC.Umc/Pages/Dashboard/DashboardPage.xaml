@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:dashboard="clr-namespace:UC.Umc.ViewModels.Dashboard"
     xmlns:converters="clr-namespace:UC.Umc.Common.Converters"
@@ -12,9 +11,8 @@
     x:DataType="dashboard:DashboardViewModel"
     ios:Page.UseSafeArea="True"
     Title="Ultranet User Center">
-    
+
     <views:CustomPage.Resources>
-        <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
         <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
         <Style TargetType="controls:ImageTextButton">
             <Setter Property="TintColor" Value="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" />
@@ -73,13 +71,13 @@
             </Grid>
         </DataTemplate>
     </views:CustomPage.Resources>
-    
+
     <Shell.TitleView>
         <views:PageTitleNotificationsView
             Title="Ultranet User Center"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>
-    
+
     <views:CustomPage.MainContent>
         <ScrollView>
             <Grid Padding="{StaticResource PagePadding}">
@@ -187,4 +185,5 @@
             </Grid>
         </ScrollView>
     </views:CustomPage.MainContent>
+
 </views:CustomPage>
