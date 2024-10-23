@@ -4,17 +4,17 @@ using UC.Umc.Views;
 
 namespace UC.Umc.Pages.Account;
 
-public partial class ManageAccountsPage : CustomPage
+public partial class AccountsPage : CustomPage
 {
-	private ManageAccountsViewModel Vm => (BindingContext as ManageAccountsViewModel)!;
+	private AccountsViewModel Vm => (BindingContext as AccountsViewModel)!;
 
-	public ManageAccountsPage()
+	public AccountsPage()
 	{
 		InitializeComponent();
-		BindingContext = Ioc.Default.GetService<ManageAccountsViewModel>();
+		BindingContext = Ioc.Default.GetService<AccountsViewModel>();
 	}
 
-	public ManageAccountsPage(ManageAccountsViewModel vm)
+	public AccountsPage(AccountsViewModel vm)
 	{
 		InitializeComponent();
 		BindingContext = vm;

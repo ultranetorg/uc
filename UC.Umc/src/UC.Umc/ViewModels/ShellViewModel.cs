@@ -24,7 +24,7 @@ public partial class ShellViewModel : ObservableObject
 		Title = nameof(Accounts),
 		Icon = "accounts_light.png",
 		IconDark = "accounts_dark.png",
-		TargetType = typeof(ManageAccountsPage),
+		TargetType = typeof(AccountsPage),
 		Route = Routes.ACCOUNTS
 	};
 

@@ -17,7 +17,7 @@ internal static class Routes
 	public const string WHATS_NEW = nameof(WhatsNewPage);
 	public const string SETTINGS = nameof(SettingsPage);
 
-	public const string ACCOUNTS = nameof(ManageAccountsPage);
+	public const string ACCOUNTS = nameof(AccountsPage);
 	public const string ACCOUNT_DETAILS = nameof(AccountDetailsPage);
 	public const string CREATE_ACCOUNT = nameof(CreateAccountPage);
 	public const string RESTORE_ACCOUNT = nameof(RestoreAccountPage);

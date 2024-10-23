@@ -29,7 +29,7 @@
                 AbsoluteLayout.LayoutFlags="All"
                 Aspect="AspectFill"
                 HeightRequest="48"
-                Source="bell_dark.png"/>
+                Source="bell_dark.png" />
             <Border
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"

@@ -8,7 +8,7 @@ using UC.Umc.Services.Accounts;
 
 namespace UC.Umc.ViewModels.Accounts;
 
-public partial class ManageAccountsViewModel(IAccountsService service, ILogger<ManageAccountsViewModel> logger)
+public partial class AccountsViewModel(IAccountsService service, ILogger<AccountsViewModel> logger)
 	: BaseViewModel(logger)
 {
 	[ObservableProperty]
@@ -25,8 +25,6 @@ public partial class ManageAccountsViewModel(IAccountsService service, ILogger<M
 	{
 		try
 		{
-			Guard.IsNotNull(account);
-
 			await ShowPopup(new AccountOptionsPopup(account));
 		}
 		catch(ArgumentException ex)

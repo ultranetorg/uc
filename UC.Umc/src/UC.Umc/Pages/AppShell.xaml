@@ -29,7 +29,7 @@
         <ShellContent
             Title="{Binding Accounts.Title}"
             Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
-            ContentTemplate="{DataTemplate account:ManageAccountsPage}" />
+            ContentTemplate="{DataTemplate account:AccountsPage}" />
     </FlyoutItem>
 
     <FlyoutItem
