@@ -107,7 +107,10 @@ namespace Uccs.Rdn
 					SeedHub = new SeedHub(Mcv);
 				}
 
-				NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+				if(Settings.NtnPeering != null)
+				{
+					NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+				}
 			}
 
 			base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
