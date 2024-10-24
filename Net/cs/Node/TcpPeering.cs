@@ -89,7 +89,7 @@ namespace Uccs.Net
 			Flow.Log?.Report(this, $"Version: {Version}");
 			Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 			Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			//Flow.Log?.Report(this, $"Profile: {Settings.Profile}");
+			Flow.Log?.Report(this, $"Name: {Node.Name}");
 
 			Contructors[typeof(PeerRequest)] = [];
 			Contructors[typeof(PeerResponse)] = [];
@@ -166,7 +166,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Flow.Log?.Report(this, $"Listening starting {Settings.IP}:{Settings.Port}");
+				Flow.Log?.Report(this, $"Listening {Settings.IP}:{Settings.Port}");
 
 				Listener = new TcpListener(Settings.IP, Settings.Port);
 				Listener.Start();
