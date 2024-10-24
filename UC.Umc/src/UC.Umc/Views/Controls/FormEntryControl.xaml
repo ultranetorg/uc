@@ -12,6 +12,11 @@
         <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
     </controls:BaseTextFormControl.Resources>
 
+    <!--
+        TODO: Entry styling not work due to MAUI issue. MAUI Github issue: https://github.com/dotnet/maui/issues/24093. Task in Notion:
+        UMC-22. Code to restore: Style="{DynamicResource ActiveEntryStyle}"
+        [MAUI]
+    -->
     <Entry
         BindingContext="{x:Reference This}"
         ClearButtonVisibility="{Binding ClearButtonVisibility}"
@@ -23,7 +28,6 @@
         Keyboard="{Binding Keyboard}"
         MaxLength="{Binding MaxLength}"
         Placeholder="{Binding Placeholder}"
-        Style="{DynamicResource ActiveEntryStyle}"
         Text="{Binding Value}">
         <Entry.Behaviors>
             <toolkit:EventToCommandBehavior Command="{Binding TextChanged}" EventName="TextChanged" />

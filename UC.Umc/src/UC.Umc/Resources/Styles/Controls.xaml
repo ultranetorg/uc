@@ -526,28 +526,28 @@
         <Setter Property="IndicatorsShape" Value="Circle" />
         <Setter Property="IndicatorSize" Value="10" />
     </Style>
-    
+
     <Style ApplyToDerivedTypes="True" TargetType="ListView">
         <Setter Property="SeparatorVisibility" Value="None" />
         <Setter Property="HasUnevenRows" Value="True" />
         <Setter Property="SelectionMode" Value="None" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-    </Style>   
-    
+    </Style>
+
     <Style ApplyToDerivedTypes="True" TargetType="controls:SwitchView">
         <Setter Property="OffColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
         <Setter Property="OnColor" Value="{StaticResource Primary}" />
         <Setter Property="CornerRadius" Value="3" />
         <Setter Property="HeightRequest" Value="24" />
     </Style>
-    
+
     <Style x:Key="Valid" TargetType="controls:BorderEntry">
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
     </Style>
     <Style x:Key="InvalidEntry" TargetType="controls:BorderEntry">
         <Setter Property="BorderColor" Value="{StaticResource Red}" />
     </Style>
-    
+
     <Style ApplyToDerivedTypes="True" TargetType="Picker">
         <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
         <Setter Property="FontSize" Value="13" />
@@ -555,7 +555,7 @@
         <Setter Property="TitleColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
         <Setter Property="FontFamily" Value="Medium" />
     </Style>
-    
+
     <Style ApplyToDerivedTypes="True" TargetType="Entry">
         <Setter Property="TextColor" Value="White" />
         <Setter Property="FontSize" Value="14" />
@@ -568,7 +568,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="Medium" />
     </Style>
-    
+
     <Style
         x:Key="EntryPicker"
         ApplyToDerivedTypes="True"
@@ -612,7 +612,7 @@
         <Setter Property="FontFamily" Value="SemiBold" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
     </Style>
-    
+
     <Style x:Key="ValidBorderStyle" TargetType="Border">
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}" />
     </Style>

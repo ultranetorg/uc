@@ -33,7 +33,7 @@
     </FlyoutItem>
 
     <FlyoutItem
-        Title="{Binding Resources.Title}"
+        Title="{Binding Domains.Title}"
         Route="{Static constants:Routes.DOMAINS}">
         <ShellContent
             Title="{Binding Resources.Title}"

@@ -15,6 +15,7 @@
             <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
             <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryLight}}" />
         </Style>
+
         <DataTemplate x:Key="AccountCard" x:DataType="models:AccountModel">
             <Border Margin="16,4" Style="{StaticResource AccountCardBorder}">
                 <SwipeView>
@@ -92,6 +93,69 @@
                 </SwipeView>
             </Border>
         </DataTemplate>
+
+        <!-- ReSharper disable once InconsistentNaming -->
+        <DataTemplate x:Key="AccountCard_Desktop" x:DataType="models:AccountModel">
+            <Border Margin="16,4" Style="{StaticResource AccountCardBorder}">
+                <Grid
+                    Padding="12"
+                    ColumnDefinitions="60,*,30"
+                    ColumnSpacing="8"
+                    RowDefinitions="20,20,20"
+                    RowSpacing="0"
+                    Style="{StaticResource AccountGrid}">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference Page}}"
+                            CommandParameter="{Binding .}" />
+                    </Grid.GestureRecognizers>
+                    <Border
+                        Grid.Row="0"
+                        Grid.RowSpan="3"
+                        Grid.Column="0"
+                        Background="{Binding Color}"
+                        Style="{StaticResource AccountColorBorder}">
+                        <Label
+                            HorizontalOptions="Center"
+                            Style="{StaticResource CodeLabel}"
+                            Text="{Binding IconCode}"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        FontSize="13"
+                        Text="{Binding Name}"
+                        VerticalOptions="Center" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        FontSize="12"
+                        VerticalOptions="Center"
+                        FontAttributes="Bold"
+                        Text="{Binding DisplayAmount}"/>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        MaxLines="1"
+                        Opacity="0.3"
+                        FontSize="10"
+                        Style="{StaticResource Light}"
+                        Text="{Binding Address}"
+                        VerticalOptions="Center" />
+                    <ImageButton
+                        Grid.RowSpan="3"
+                        Grid.Column="2"
+                        Padding="1"
+                        Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference Page}}"
+                        CommandParameter="{Binding .}"
+                        Style="{StaticResource Dots}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </DataTemplate>
     </views:CustomPage.Resources>
 
     <Shell.TitleView>
@@ -104,10 +168,15 @@
 
     <views:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
+            <!--
+                TODO: ItemTemplate uses different DataTemplates because SwipeView component not working under desktop OSes. MAUI Github
+                issue: https://github.com/dotnet/maui/issues/8870. Task in Notion: UMC-21.
+                [MAUI]
+            -->
             <CollectionView
                 Grid.Row="0"
                 ItemsSource="{Binding Accounts}"
-                ItemTemplate="{StaticResource AccountCard}"
+                ItemTemplate="{OnPlatform Default={StaticResource AccountCard}, MacCatalyst={StaticResource AccountCard_Desktop}, WinUI={StaticResource AccountCard_Desktop}}"
                 SelectionMode="None">
             </CollectionView>
             <Border
