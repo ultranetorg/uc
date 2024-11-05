@@ -23,7 +23,7 @@ namespace Uccs.Net
 
 	public enum KnownSystem
 	{
-		Ntn = 010,
+		//Ntn = 010,
 		Rdn = 020,
 		Uos = 900,
 	}
@@ -38,6 +38,7 @@ namespace Uccs.Net
 		public abstract	Land		Land { get; }
 		public abstract ushort		BasePort { get; }
 		public ushort				Port => (ushort)((ushort)Land * 1000 + BasePort);
+		public ushort				NtnPort => (ushort)(Port + 1);
 
 		public IPAddress[]			Initials;
 		public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
@@ -57,12 +58,12 @@ namespace Uccs.Net
 		}
 	}
 
- 	public class Ntn
- 	{
- 		public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
-
-		public static ushort	GetPort(Land land) => (ushort)((ushort)land * 1000 + BasePort);
- 	}
+//  	public class Ntn
+//  	{
+//  		public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
+// 
+// 		public static ushort	GetPort(Land land) => (ushort)((ushort)land * 1000 + BasePort);
+//  	}
  
 // 	public class LocalNexus : NetToNet
 // 	{
