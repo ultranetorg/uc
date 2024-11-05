@@ -376,7 +376,7 @@ namespace Uccs.Net
 								Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
 									
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
-								 	throw new IntegrityException();
+								 	throw new SynchronizationException();
 	
 								if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 								{

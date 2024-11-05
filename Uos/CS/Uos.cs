@@ -70,7 +70,7 @@ namespace Uccs.Uos
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 			Boot = new Boot(ExeDirectory);
-			var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByLand(Boot.Land));
+			var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
 			
 			var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
 			u.Execute(Boot.Commnand.Nodes, u.Flow);

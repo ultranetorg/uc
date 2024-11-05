@@ -24,7 +24,7 @@ namespace Uccs.Rdn.CLI
 			if(!b.Commnand.Nodes.Any())
 				return;
 
-			Net = Rdn.ByLand(b.Land);
+			Net = Rdn.ByZone(b.Zone);
 
 			try
 			{

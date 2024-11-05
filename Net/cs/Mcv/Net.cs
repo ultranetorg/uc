@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Uccs.Net
 {
-	public enum Land
+	public enum Zone
 	{
 		None, 
 		Local		= 00, 
@@ -35,9 +35,9 @@ namespace Uccs.Net
 		public abstract string		Address { get; }
 		public abstract string		Name { get; }
 		//public Guid					Id;
-		public abstract	Land		Land { get; }
+		public abstract	Zone		Zone { get; }
 		public abstract ushort		BasePort { get; }
-		public ushort				Port => (ushort)((ushort)Land * 1000 + BasePort);
+		public ushort				Port => (ushort)((ushort)Zone * 1000 + BasePort);
 		public ushort				NtnPort => (ushort)(Port + 1);
 
 		public IPAddress[]			Initials;
@@ -62,7 +62,7 @@ namespace Uccs.Net
 //  	{
 //  		public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
 // 
-// 		public static ushort	GetPort(Land land) => (ushort)((ushort)land * 1000 + BasePort);
+// 		public static ushort	GetPort(Zone land) => (ushort)((ushort)land * 1000 + BasePort);
 //  	}
  
 // 	public class LocalNexus : NetToNet

@@ -103,7 +103,7 @@
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write((byte)Mcv.Net.Land);
+			w.Write((byte)Mcv.Net.Zone);
 			w.WriteUtf8(Mcv.Net.Address);
 			//w.Write(_Generator);
 			w.Write7BitEncodedInt(RoundId);

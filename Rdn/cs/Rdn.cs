@@ -18,7 +18,7 @@ namespace Uccs.Rdn
 		public static readonly Rdn		Main = null;
 		public static readonly Rdn[]	Official = [Local, Developer0, Test];
 
-		public static Rdn				ByLand(Land name) => Official.First(i => i.Land == name);
+		public static Rdn				ByZone(Zone name) => Official.First(i => i.Zone == name);
 		
 		public Rdn()
 		{
@@ -32,7 +32,7 @@ namespace Uccs.Rdn
 
 	public class RdnLocal : Rdn
 	{	
-		public override	Land	Land => Land.Local;
+		public override	Zone	Zone => Zone.Local;
 		
 		public RdnLocal()
 		{
@@ -50,7 +50,7 @@ namespace Uccs.Rdn
 
 	public class RdnDeveloper0 : Rdn
 	{
-		public override	Land	Land => Land.Developer0;
+		public override	Zone	Zone => Zone.Developer0;
 	
 		public RdnDeveloper0()
 		{
@@ -65,7 +65,7 @@ namespace Uccs.Rdn
 
 	public class RdnPublicTest : Rdn
 	{
-		public override	Land	Land => Land.PublicTest;
+		public override	Zone	Zone => Zone.PublicTest;
 	
 		public RdnPublicTest()
 		{
