@@ -6,7 +6,7 @@ namespace Uccs.Net
 	public enum Zone
 	{
 		None, 
-		Local		= 00, 
+		Local		= 01, 
 		Developer0	= 10,
 		Developer1	= 11,
 		Developer2	= 12,

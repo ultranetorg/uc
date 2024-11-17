@@ -40,19 +40,18 @@
 
 								Help = new Help { 
 													Title = "Utility Transfer",
-													Description = "Send  from one account to another.",
-													Syntax = $"{Keyword} t|transfer to=UAA by=UNT|ec=UNT|mr=UNT signer=UAA",
+													Description = "Send utility from one account to another.",
+													Syntax = $"{Keyword} ut|utilitytransfer to=UAA by=UNT|ec=UNT signer=UAA",
 
 													Arguments =	[
 																	new ("to", "Account public address that funds are credited to"),
 																	new ("by", "Amount of Byte-Years to be transferred"),
 																	new ("ec", "Amount of Execution Cycles to be transferred"),
-																	new ("mr", "Amount of Membership Rights to be transferred"),
 																	new ("signer", "Account public address where funds are debited from")
 																],
 
 													Examples =	[
-																	new (null, $"{Keyword} transfer to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 mr=2 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+																	new (null, $"{Keyword} ut to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
 																]
 												},
 

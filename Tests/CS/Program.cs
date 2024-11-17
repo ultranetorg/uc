@@ -10,6 +10,7 @@ namespace Uccs.Tests
 			UraTests.Release();
 			//MoneyTests.Main();
 			//AccountKeyTests.Main();
+			XonTest.Custom();
 
 
 

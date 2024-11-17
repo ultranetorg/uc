@@ -120,7 +120,7 @@ namespace Uccs.Rdn
 
 			r.Address = xon.Get<Ura>();
 			r.Channel = xon.Get<string>("Channel");
-			r.Condition = PlatformExpression.FromXon(xon.One("Condition").Nodes.First());
+			r.Condition = xon.Has("Condition") ? PlatformExpression.FromXon(xon.One("Condition").Nodes.First()) : null;
 
 			return r;
 		}
