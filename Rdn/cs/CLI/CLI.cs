@@ -188,7 +188,7 @@ namespace Uccs.Rdn.CLI
 							if(i.Status != TransactionStatus.FailedOrNotFound)
 								c.Dump(i);
 							else
-								c.Flow.Log?.Report(i.Status.ToString());
+								c.Flow.Log?.Report($"   {nameof(ApcTransaction.Status)} : {i.Status}");
 						}
 
 						c.Transacted?.Invoke();
