@@ -405,9 +405,9 @@ namespace Uccs.Net
 					}
 				}
 
-				if(t.Generator.Ei != -1)
+				if(t.Member.Ei != -1)
 				{
-					var g = Mcv.Accounts.Find(t.Generator, Id);
+					var g = Mcv.Accounts.Find(t.Member, Id);
 
 					if(BYRewards.TryGetValue(g, out var x))
 						BYRewards[g] = x + t.BYReward;

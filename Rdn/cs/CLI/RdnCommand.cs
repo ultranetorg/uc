@@ -9,10 +9,10 @@ namespace Uccs.Rdn.CLI
 		public const string			AwaitArg = "await";
 		public Action				Transacted;
 		protected Program			Program;
-		protected override Type[]	TypesForExpanding => [	typeof(IEnumerable<Dependency>), 
-															typeof(IEnumerable<AnalyzerResult>), 
-															typeof(Resource), 
-															typeof(VersionManifest)];
+		protected override Type[]	TypesForExpanding => [typeof(IEnumerable<Dependency>), 
+														  typeof(IEnumerable<AnalyzerResult>), 
+														  typeof(Resource), 
+														  typeof(VersionManifest)];
 		static RdnCommand()
 		{
 			try
@@ -71,14 +71,13 @@ namespace Uccs.Rdn.CLI
 			return rp;
 		}
 
-		public object Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
+		public ApcTransaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 		{
-			return Program.ApiClient.Request<string[][]>(new TransactApc{Operations = operations,
-																		 Signer = by,
-																		 Await = await},
-															Flow);
+			return Program.ApiClient.Request<ApcTransaction[]>(new TransactApc {Operations = operations,
+																				Signer = signer,
+																				Await = await},
+																Flow);
 		}
-
 
 		//protected AccountKey GetPrivate(string walletarg)
 		//{

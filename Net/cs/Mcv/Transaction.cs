@@ -10,8 +10,21 @@
 		const int						PoWLength = 16;
 		const int						TagLengthMax = 1024;
 
-		public int						Nid;
-		public TransactionId			Id => Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default;
+		public int						Nid { get; set; }
+		TransactionId					_Id;
+		public TransactionId			Id
+										{ 
+											set => _Id = value; 
+											get
+											{
+												if(_Id != default)
+													return _Id;
+
+												_Id = Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default; 
+
+												return _Id;
+											}
+										 }
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 
@@ -22,8 +35,8 @@
 		public McvNet					Net;
 		public Vote						Vote;
 		public Round					Round;
-		public EntityId					Generator;
-		public int						Expiration;
+		public EntityId					Member;
+		public int						Expiration { get; set; }
 		public byte[]					PoW;
 		public byte[]					Tag;
 		//public Money					STFee;
@@ -32,7 +45,7 @@
 		public long						ECSpent;
 		public long						BYReward;
 		//public long					ECReward;
-		public byte[]					Signature;
+		public byte[]					Signature { get; set; }
 
 		private AccountAddress			_Signer;
 		public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
@@ -107,7 +120,7 @@
 
 			w.Write((byte)Net.Zone);
 			w.WriteUtf8(Net.Address);
-			w.Write(Generator);
+			w.Write(Member);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);
 			//w.Write(STFee);
@@ -121,7 +134,7 @@
 
  		public void	WriteConfirmed(BinaryWriter writer)
  		{
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt64(ECFee);
@@ -136,7 +149,7 @@
  		{
 			Status		= TransactionStatus.Confirmed;
 
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			ECFee		= reader.Read7BitEncodedInt64();
@@ -153,7 +166,7 @@
  		{
 			writer.Write((byte)__ExpectedStatus);
 
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -171,7 +184,7 @@
  		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
@@ -192,7 +205,7 @@
 		{
 			writer.Write((byte)__ExpectedStatus);
 		
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -210,7 +223,7 @@
 		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 		
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();

@@ -937,7 +937,7 @@ namespace Uccs.Net
 							t.ECFee = 0;
 							t.Nid = 0;
 							t.Expiration = 0;
-							t.Generator = new([0, 0], -1);
+							t.Member = new([0, 0], -1);
 
 							t.Sign(Vault.GetKey(t.Signer), Net.Cryptography.ZeroHash);
 
@@ -948,7 +948,7 @@ namespace Uccs.Net
 							else
 								nid++;
 
-							t.Generator	 = at.Generator;
+							t.Member	 = at.Generator;
 							#if IMMISSION
 								t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 							#endif
@@ -1069,7 +1069,10 @@ namespace Uccs.Net
 										if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
 											Debugger.Break();
 										else
+										{
+											t.Id = i.Id; 
 											OutgoingTransactions.Remove(t);
+										}
 									}
 								}
 						}

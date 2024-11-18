@@ -181,13 +181,14 @@ namespace Uccs.Rdn.CLI
 					}
 					else
 					{
-						var x = c.Transact([o], c.GetAccountAddress("signer"), RdnCommand.GetAwaitStage(command));
+						var txs = c.Transact([o], c.GetAccountAddress("signer"), RdnCommand.GetAwaitStage(command));
 
-						if(x is string[][] logs)
-						{
-							foreach(var i in logs)
-								foreach(var j in i)
-									c.Flow.Log?.Report(j);
+						foreach(var i in txs)
+						{	
+							if(i.Status != TransactionStatus.FailedOrNotFound)
+								c.Dump(i);
+							else
+								c.Flow.Log?.Report(i.Status.ToString());
 						}
 
 						c.Transacted?.Invoke();

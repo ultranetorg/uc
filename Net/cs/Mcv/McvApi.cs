@@ -370,7 +370,7 @@ namespace Uccs.Net
 
 		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return mcv.Peering.Transact(Operations, Signer, Await, workflow).Select(i => i.Flow.Log.Messages.Select(i => i.ToString()));
+			return mcv.Peering.Transact(Operations, Signer, Await, workflow).Select(i => new ApcTransaction(i));
 		}
 	}
 
@@ -390,9 +390,8 @@ namespace Uccs.Net
 
 	public class ApcTransaction
 	{
-		public int						Nid { get; set; }
 		public TransactionId			Id { get; set; }
-		public bool						Successful { get; set; }
+		public int						Nid { get; set; }
 			
 		public EntityId					Member { get; set; }
 		public int						Expiration { get; set; }
@@ -403,7 +402,7 @@ namespace Uccs.Net
 			 
 		public AccountAddress			Signer { get; set; }
 		public TransactionStatus		Status { get; set; }
-		public IPAddress				MemberNexus { get; set; }
+		public IPAddress				MemberEndpoint { get; set; }
 		public TransactionStatus		__ExpectedStatus { get; set; }
 
 		public IEnumerable<Operation>	Operations  { get; set; }
@@ -417,16 +416,15 @@ namespace Uccs.Net
 			Nid					= transaction.Nid;
 			Id					= transaction.Id;
 			Operations			= transaction.Operations.ToArray();
-			Successful			= transaction.Successful;
 			   
-			Member				= transaction.Generator;
+			Member				= transaction.Member;
 			Expiration			= transaction.Expiration;
 			PoW					= transaction.PoW;
 			Tag					= transaction.Tag;
 			EUFee				= transaction.ECFee;
 			Signature			= transaction.Signature;
 			   
-			MemberNexus			= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
+			MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
 			Signer				= transaction.Signer;
 			Status				= transaction.Status;
 			__ExpectedStatus	= transaction.__ExpectedStatus;

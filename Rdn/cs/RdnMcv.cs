@@ -51,13 +51,13 @@ namespace Uccs.Rdn
 				v0.ParentHash = Net.Cryptography.ZeroHash;
 
 				var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Generator = new([0, 0], -1);
+				t.Member = new([0, 0], -1);
 				t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
 				t.Sign(god, Net.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 
 				t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Generator = new([0, 0], -1);
+				t.Member = new([0, 0], -1);
 				t.AddOperation(new RdnCandidacyDeclaration {BaseRdcIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP] });
 				t.Sign(f0, Net.Cryptography.ZeroHash);
 				v0.AddTransaction(t);

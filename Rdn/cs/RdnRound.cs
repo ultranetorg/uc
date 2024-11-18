@@ -131,7 +131,7 @@
 		{
 			if(o is DomainMigration m)
 			{
-				m.Generator = m.Transaction.Generator;
+				m.Generator = m.Transaction.Member;
 				Migrations.Add(m);
 			}
 		}
