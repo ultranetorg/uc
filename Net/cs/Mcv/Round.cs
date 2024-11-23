@@ -21,21 +21,21 @@ namespace Uccs.Net
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-		public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members.Take(Mcv.VotesRequired);
+		public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members;
 
 		public List<Vote>									Votes = new();
 		public List<AccountAddress>							Forkers = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-		public IEnumerable<Vote>							Selected
-															{
-																get
-																{
-																	var vr = Mcv.FindRound(VotersId);
-
-																	return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesRequired);
-																}
-															}
+		public IEnumerable<Vote>							Selected => VotesOfTry;
+															//{
+															//	get
+															//	{
+															//		var vr = Mcv.FindRound(VotersId);
+															//
+															//		return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesRequired);
+															//	}
+															//}
 		public IGrouping<byte[], Vote>						MajorityByParentHash => Selected.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
@@ -109,7 +109,8 @@ namespace Uccs.Net
 			if(n == 2)	return 2;
 			if(n == 4)	return 3;
 		
-			return Math.Min(n, Mcv.VotesRequired) * 2/3;
+			///return Math.Min(n, Mcv.VotesRequired) * 2/3;
+			return n * 2/3;
 		}
 
 		public virtual IEnumerable<object> AffectedByTable(TableBase table)
