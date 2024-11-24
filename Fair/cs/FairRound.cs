@@ -72,7 +72,8 @@
 					throw new IntegrityException();
 
 				AffectedPublishers[id] = e.Clone();
-				AffectedPublishers[id].Affected  = true;;
+				AffectedPublishers[id].Affected  = true;
+
 				return AffectedPublishers[id];
 			}
 		}

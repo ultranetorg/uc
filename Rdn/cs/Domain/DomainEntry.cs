@@ -4,9 +4,6 @@ namespace Uccs.Rdn
 {
 	public class DomainEntry : Domain, ITableEntry
 	{
-		public string			Key => Address;
-		
-		//[JsonIgnore]
 		public bool				New;
 		public bool				Affected;
 		Mcv						Mcv;

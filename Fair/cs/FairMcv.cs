@@ -5,11 +5,8 @@ namespace Uccs.Fair
 {
 	public class FairMcv : Mcv
 	{
-		public PublisherTable				Publishers;
-		//public List<ForeignResult>	ApprovedEmissions = new();
-		public List<ForeignResult>		ApprovedMigrations = new();
+		public PublisherTable			Publishers;
 		IPAddress[]						BaseIPs;
-		IPAddress[]						SeedHubIPs;
 
 		public FairMcv()
 		{
@@ -19,69 +16,9 @@ namespace Uccs.Fair
 		{
 		}
 
-		public FairMcv(Fair sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, clock)
+		public FairMcv(Fair sun, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(sun, settings, databasepath, clock)
 		{
 			BaseIPs = baseips;
-			SeedHubIPs = seedhubips;
-		}
-
-		public override string CreateGenesis(AccountKey god, AccountKey f0)
-		{
-			/// 0	- declare F0
-			/// P	- confirmed F0 membership
-			/// P+P	- F0 start voting for P+P-P-1 = P-1
-
-			Clear();
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			void write(int rid)
-			{
-				var r = GetRound(rid);
-				r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-				r.Hashify();
-				r.Write(w);
-			}
-	
-			var v0 = CreateVote(); 
-			{
-				v0.RoundId = 0;
-				v0.Time = Time.Zero;
-				v0.ParentHash = Net.Cryptography.ZeroHash;
-
-				var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Member = new([0, 0], -1);
-				t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
-				t.Sign(god, Net.Cryptography.ZeroHash);
-				v0.AddTransaction(t);
-
-				t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Member = new([0, 0], -1);
-				t.AddOperation(new CandidacyDeclaration {BaseRdcIPs = [Net.Father0IP]});
-				t.Sign(f0, Net.Cryptography.ZeroHash);
-				v0.AddTransaction(t);
-			
-				v0.Sign(god);
-				Add(v0);
-				///v0.FundJoiners = v0.FundJoiners.Append(Net.Father0).ToArray();
-				write(0);
-			}
-	
-			for(int i = 1; i <= LastGenesisRound; i++)
-			{
-				var v = CreateVote();
-				v.RoundId	 = i;
-				v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-				v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
-		
-				v.Sign(i < JoinToVote ? god : f0);
-				Add(v);
-
-				write(i);
-			}
-						
-			return s.ToArray().ToHex();
 		}
 
 		protected override void GenesisCreate(Vote vote)
@@ -148,8 +85,6 @@ namespace Uccs.Fair
 
 		public override void FillVote(Vote vote)
 		{
-  			//v.Emissions		= ApprovedEmissions.ToArray();
-			//v.Migrations	= ApprovedMigrations.ToArray();
 		}
 	}
 }

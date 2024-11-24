@@ -2,12 +2,9 @@
 {
 	public class AccountEntry : Account, ITableEntry
 	{
-		public AccountAddress			Key => Address;
-		
-		//[JsonIgnore]
 		public bool						New;
-		//public Unit						RoundBandwidthReserve = 0;
-		//public Time						RoundBandwidthReserveExpiration = Time.Empty;
+		//public Unit					RoundBandwidthReserve = 0;
+		//public Time					RoundBandwidthReserveExpiration = Time.Empty;
 		
 		public HashSet<int>				Transactions = new();
 		Mcv								Mcv;

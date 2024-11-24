@@ -4,9 +4,6 @@ namespace Uccs.Fair
 {
 	public class PublisherEntry : Publisher, ITableEntry
 	{
-		public object			Key => null;
-		
-		//[JsonIgnore]
 		public bool				New;
 		public bool				Affected;
 		Mcv						Mcv;

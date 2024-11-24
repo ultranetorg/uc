@@ -40,7 +40,7 @@ namespace Uccs.Fair
 
 			if(Settings.Mcv != null)
 			{
-				base.Mcv = new FairMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+				base.Mcv = new FairMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
 			}
 
 			base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);

@@ -2,7 +2,6 @@
 {
 	public class AccountTable : Table<AccountEntry>
 	{
-		public bool			Equal(AccountAddress a, AccountAddress b) => a.Equals(b);
 		public Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, ClusterBase.IdLength);
 
 		public AccountTable(Mcv chain) : base(chain)
@@ -21,9 +20,9 @@
 			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
 
 			if(c == null)
-				return default;
+				return null;
 
-			var e = c.Entries.Find(i => Equal(i.Key, key));
+			var e = c.Entries.Find(i => i.Address == key);
 
 			return e;
 		}

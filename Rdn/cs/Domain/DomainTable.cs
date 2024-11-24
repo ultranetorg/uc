@@ -6,8 +6,7 @@ namespace Uccs.Rdn
 	{
 		public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-		public bool				Equal(string a, string b) => a.Equals(b);
-		public Span<byte>		KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
+		public Span<byte>				KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
 
 		public DomainTable(RdnMcv rds) : base(rds)
 		{
@@ -20,9 +19,9 @@ namespace Uccs.Rdn
 			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
 
 			if(c == null)
-				return default;
+				return null;
 
-			var e = c.Entries.Find(i => Equal(i.Key, key));
+			var e = c.Entries.Find(i => i.Address == key);
 
 			return e;
 		}

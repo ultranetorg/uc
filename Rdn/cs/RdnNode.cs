@@ -39,12 +39,6 @@ namespace Uccs.Rdn
 			if(NodeGlobals.Any)
 				Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-			if(Settings.Api != null)
-			{
-				ApiServer = new RdnApiServer(this, Settings.Api, Flow);
-			}
-
-
 			if(Settings.Mcv != null)
 			{
 				base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
@@ -121,6 +115,11 @@ namespace Uccs.Rdn
 				PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
 
 				ResourceHub.RunDeclaring();
+			}
+
+			if(Settings.Api != null)
+			{
+				ApiServer = new RdnApiServer(this, Settings.Api, Flow);
 			}
 		}
 
