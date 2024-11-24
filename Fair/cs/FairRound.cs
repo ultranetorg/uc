@@ -4,7 +4,7 @@
 	{
 		public new FairMcv							Mcv => base.Mcv as FairMcv;
 		public Dictionary<EntityId, PublisherEntry>	AffectedPublishers = new();
-		public Dictionary<byte[], int>				NextPublisherIds;
+		public Dictionary<ushort, int>				NextPublisherIds = new ();
 
 		public FairRound(FairMcv rds) : base(rds)
 		{
@@ -28,7 +28,7 @@
 
 		public PublisherEntry AffectPublisher(EntityId id)
 		{
-			byte[] ci;
+			ushort ci;
 
 			if(id == null)
 			{
@@ -36,15 +36,15 @@
 				
 				if(Mcv.Publishers.Clusters.Count() == 0)
 				{	
-					ci = [0, 0];
+					ci = 0;
 					NextPublisherIds[ci] = 0;
 				}
 				else
 				{	
 					if(Mcv.Publishers.Clusters.Count() < TableBase.ClustersCountMax)
 					{	
-						var i = Enumerable.Range(0, TableBase.ClustersCountMax).First(i => Mcv.Publishers.Clusters.All(c => c.Id[0] != (i & 0x00ff) || c.Id[1] != i >> 8));
-						ci = [(byte)(i & 0x00ff), (byte)(i >> 8)];
+						var i = Enumerable.Range(0, TableBase.ClustersCountMax).First(i => Mcv.Publishers.Clusters.All(c => c.Id != i));
+						ci = (ushort)i;
 						NextPublisherIds[ci] = 0;
 					}
 					else	
@@ -85,6 +85,7 @@
 		public override void RestartExecution()
 		{
 			AffectedPublishers.Clear();
+			NextPublisherIds.Clear();
 		}
 
 		public override void FinishExecution()

@@ -278,7 +278,7 @@ namespace Uccs.Net
 		
 							foreach(var i in ts.Clusters)
 							{
-								var c = t.Clusters.FirstOrDefault(j => j.Id.SequenceEqual(i.Id));
+								var c = t.Clusters.FirstOrDefault(j => j.Id == i.Id);
 		
 								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
 								{
@@ -310,7 +310,7 @@ namespace Uccs.Net
 										}
 									}
 		
-									Flow.Log?.Report(this, $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
+									Flow.Log?.Report(this, $"Cluster downloaded {t.GetType().Name}, {c.Id}");
 								}
 							}
 		
@@ -937,7 +937,7 @@ namespace Uccs.Net
 							t.ECFee = 0;
 							t.Nid = 0;
 							t.Expiration = 0;
-							t.Member = new([0, 0], -1);
+							t.Member = new(0, -1);
 
 							t.Sign(Vault.GetKey(t.Signer), Net.Cryptography.ZeroHash);
 
@@ -1265,7 +1265,7 @@ namespace Uccs.Net
 			{
 				var cs = All.OfType<McvTcpPeering>()
 							.Where(i => i.Net.Address == mcv.Net.Address && i.Mcv != null)
-							.Select(i => new {s = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator()})
+							.Select(i => new {s = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id).ToArray().AsEnumerable().GetEnumerator()})
 							.ToArray();
 	
 				while(true)

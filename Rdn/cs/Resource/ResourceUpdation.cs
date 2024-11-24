@@ -129,7 +129,7 @@ namespace Uccs.Rdn
 					{
 						foreach(var i in r.Inbounds)
 						{
-							if(i.Ci.SequenceEqual(a.Id.Ci) && i.Di == a.Id.Ei)
+							if(i.Ci == a.Id.Ci && i.Di == a.Id.Ei)
 							{
 								var l = mcv.Domains.FindResource(i, round.Id);
 

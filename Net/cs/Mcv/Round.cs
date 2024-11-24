@@ -65,7 +65,7 @@ namespace Uccs.Net
 		public long[]										NextBandwidthAllocations = [];
 		//public long										PreviousDayBaseSize;
 
-		public Dictionary<byte[], int>						NextAccountIds;
+		public Dictionary<ushort, int>						NextAccountIds;
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 
@@ -128,8 +128,8 @@ namespace Uccs.Net
 				a = AffectedAccounts[account] = e.Clone();
 			else
 			{
-				var ci = Mcv.Accounts.KeyToCluster(account).ToArray();
-				var c = Mcv.Accounts.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Accounts.KeyToCluster(account);
+				var c = Mcv.Accounts.Clusters.FirstOrDefault(i => i.Id == ci);
 
 				int ai;
 				
@@ -333,7 +333,7 @@ namespace Uccs.Net
 			#if IMMISSION
 			//Emission		= Id == 0 ? 0 : Previous.Emission;
 			#endif
-			NextAccountIds	= new (Bytes.EqualityComparer);
+			NextAccountIds	= new ();
 
 			BYRewards.Clear();
 			ECRewards.Clear();

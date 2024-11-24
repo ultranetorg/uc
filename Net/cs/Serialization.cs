@@ -17,6 +17,7 @@ namespace Uccs.Net
 				case bool v :	writer.Write(v); return;
 				case byte v :	writer.Write(v); return;
 				case short v :	writer.Write(v); return;
+				case ushort v :	writer.Write(v); return;
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
 				case Unit v :	writer.Write(v); return;
@@ -184,6 +185,10 @@ namespace Uccs.Net
 			else if(typeof(short) == type)
 			{	
 				return reader.ReadInt16(); 
+			}
+			else if(typeof(ushort) == type)
+			{	
+				return reader.ReadUInt16(); 
 			}
 			else if(typeof(int) == type)
 			{	

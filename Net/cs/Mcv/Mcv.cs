@@ -153,13 +153,13 @@ namespace Uccs.Net
 				v0.ParentHash = Net.Cryptography.ZeroHash;
 
 				var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Member = new([0, 0], -1);
+				t.Member = new(0, -1);
 				t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
 				t.Sign(god, Net.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
 
 				t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-				t.Member = new([0, 0], -1);
+				t.Member = new(0, -1);
 				t.AddOperation(candidacydeclaration);
 				t.Sign(f0, Net.Cryptography.ZeroHash);
 				v0.AddTransaction(t);

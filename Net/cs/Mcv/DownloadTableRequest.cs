@@ -4,14 +4,13 @@
 	{
 		public int		Table { get; set; }
 		public byte[]	Hash { get; set; }
-		public byte[]	ClusterId { get; set; }
+		public ushort	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
 		public override PeerResponse Execute()
 		{
-			if(	ClusterId.Length != TableBase.ClusterBase.IdLength ||
-				Offset < 0 ||
+			if(	Offset < 0 ||
 				Length < 0)
 				throw new RequestException(RequestError.IncorrectRequest);
 
@@ -19,7 +18,7 @@
 			{
 				RequireBase();
 
-				var c = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ClusterId));
+				var c = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id == ClusterId);
 
 				if(c == null)
 					throw new EntityException(EntityError.NotFound);

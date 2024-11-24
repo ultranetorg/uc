@@ -2,7 +2,7 @@
 {
 	public class ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
 	{
-		public byte[]	Ci { get; set; }
+		public ushort	Ci { get; set; }
 		public int		Di { get; set; }
 		public int		Ri { get; set; }
 		byte[]			_Serial;
@@ -13,7 +13,7 @@
 		{
 		}
 
-		public ResourceId(byte[] ci, int ai, int ri)
+		public ResourceId(ushort ci, int ai, int ri)
 		{
 			Ci = ci;
 			Di = ai;
@@ -39,19 +39,19 @@
 
 		public override string ToString()
 		{
-			return $"{Ci?.ToHex()}-{Di}-{Ri}";
+			return $"{Ci}-{Di}-{Ri}";
 		}
 
 		public static ResourceId Parse(string t)
 		{
 			var a = t.Split('-');
 
-			return new ResourceId(a[0].FromHex(), int.Parse(a[1]), int.Parse(a[2]));
+			return new ResourceId(ushort.Parse(a[0]), int.Parse(a[1]), int.Parse(a[2]));
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadBytes(DomainTable.Cluster.IdLength);
+			Ci	= reader.ReadUInt16();
 			Di	= reader.Read7BitEncodedInt();
 			Ri	= reader.Read7BitEncodedInt();
 		}
@@ -70,13 +70,13 @@
 
 		public bool Equals(ResourceId a)
 		{
-			return a is not null && Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Di == a.Di && Ri == a.Ri;
+			return a is not null && Ci == a.Ci && Di == a.Di && Ri == a.Ri;
 		}
 
 		public int CompareTo(ResourceId a)
 		{
-			if(!Ci.SequenceEqual(a.Ci))	
-				return Bytes.Comparer.Compare(Ci, a.Ci);
+			if(Ci != a.Ci)	
+				return Ci.CompareTo(a.Ci);
 			
 			if(Di != a.Di)
 				return Di.CompareTo(a.Di);

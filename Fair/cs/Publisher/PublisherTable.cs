@@ -41,7 +41,7 @@ namespace Uccs.Fair
 
  			foreach(var r in Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedPublishers.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.C) && i.Value.Id.Ei == id.D).Value?.Products?.FirstOrDefault(i => i.Id.P == id.P);
+				var x = r.AffectedPublishers.FirstOrDefault(i => i.Value.Id.Ci == id.C && i.Value.Id.Ei == id.D).Value?.Products?.FirstOrDefault(i => i.Id.P == id.P);
 
 				if(x != null)
 					return x;

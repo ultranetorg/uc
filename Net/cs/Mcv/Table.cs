@@ -22,10 +22,13 @@ namespace Uccs.Net
 
 		public abstract class ClusterBase
 		{
-			public const int		IdLength = 2;
+			//public const int		IdLength = 2;
 
-			public byte[]			Id;
-			public byte				SuperId => Id[1];
+			public static byte[]	ToBytes(ushort id) => [(byte)(id >> 8), (byte)(id & 0xff)];
+			public static ushort	FromBytes(byte[] id) => (ushort)(id[0]<< 8 | id[1]);
+
+			public ushort			Id;
+			public byte				SuperId => (byte)(Id >> 8);
 			public int				MainLength;
  			public int				NextEntityId;				
 			public byte[]			Hash { get; protected set; }
@@ -45,7 +48,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public abstract ClusterBase		AddCluster(byte[] id);
+		public abstract ClusterBase		AddCluster(ushort id);
 		//public abstract long			MeasureChanges(IEnumerable<Round> tail);
 		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
 
@@ -54,7 +57,7 @@ namespace Uccs.Net
 			if(!Clusters.Any())
 				return;
 
-			var ocs = Clusters.OrderBy(i => i.Id, Bytes.Comparer);
+			var ocs = Clusters.OrderBy(i => i.Id);
 
 			byte b = ocs.First().SuperId;
 			byte[] h = ocs.First().Hash;
@@ -103,7 +106,7 @@ namespace Uccs.Net
 														return e;
 													 });
 					
-							s = new MemoryStream(Table.Engine.Get(Id, Table.MoreColumn));
+							s = new MemoryStream(Table.Engine.Get(ToBytes(Id), Table.MoreColumn));
 							r = new BinaryReader(s);
 	
 							for(int i = 0; i < a.Length; i++)
@@ -127,19 +130,19 @@ namespace Uccs.Net
 				{
 					if(_Main == null)
 					{
-						_Main = Table.Engine.Get(Id, Table.MainColumn);
+						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
 					}
 
 					return _Main;
 				}
 			}
 
-			public Cluster(Table<E> table, byte[] id)
+			public Cluster(Table<E> table, ushort id)
 			{
 				Table = table;
 				Id = id;
 
-				var m = Table.Engine.Get(Id, Table.MetaColumn);
+				var m = Table.Engine.Get(ToBytes(id), Table.MetaColumn);
 
 				if(m != null)
 				{
@@ -164,7 +167,7 @@ namespace Uccs.Net
 										});
 
 				_Main = s.ToArray();
-				batch.Put(Id, _Main, Table.MainColumn);
+				batch.Put(ToBytes(Id), _Main, Table.MainColumn);
 
 				Hash = Cryptography.Hash(_Main);
 				MainLength = _Main.Length;
@@ -174,14 +177,14 @@ namespace Uccs.Net
 				w.Write7BitEncodedInt(_Main.Length);
 				w.Write7BitEncodedInt(NextEntityId);
 
-				batch.Put(Id, s.ToArray(), Table.MetaColumn);
+				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
 
 				s.SetLength(0);
 
 				foreach(var i in entities)
 					i.WriteMore(w);
 
-				batch.Put(Id, s.ToArray(), Table.MoreColumn);
+				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
 			}
 
 			public void Write(BinaryWriter writer)
@@ -191,17 +194,17 @@ namespace Uccs.Net
 
 			public override void Read(BinaryReader reader)
 			{
-				_Entries = reader.ReadList<E>(() => { 
+				_Entries = reader.ReadList(() => { 
 														var e = Table.Create();
 														e.Id = new EntityId(Id, reader.Read7BitEncodedInt());
 														e.ReadMain(reader);
 														return e;
-													});;
+												});;
 			}
 
 			public override string ToString()
 			{
-				return $"{Id.ToHex()}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={Hash?.ToHex()}";
+				return $"{Id}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={Hash?.ToHex()}";
 			}
 		}
 
@@ -229,7 +232,7 @@ namespace Uccs.Net
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
-	 				var c = new Cluster(this, i.Key());
+	 				var c = new Cluster(this, Cluster.FromBytes(i.Key()));
 					//c.Hash = i.Value();
 	 				_Clusters.Add(c);
 				}
@@ -238,7 +241,7 @@ namespace Uccs.Net
 			CalculateSuperClusters();
 		}
 
-		public override ClusterBase AddCluster(byte[] id)
+		public override ClusterBase AddCluster(ushort id)
 		{
 			var c = new Cluster(this, id);
 			_Clusters.Add(c);
@@ -323,9 +326,9 @@ namespace Uccs.Net
  			return new Enumerator(this);
  		}
 
-		public Cluster GetCluster(byte[] id)
+		public Cluster GetCluster(ushort id)
 		{
-			var c = _Clusters.Find(i => i.Id.SequenceEqual(id));
+			var c = _Clusters.Find(i => i.Id == id);
 
 			if(c != null)
 				return c;
@@ -340,7 +343,7 @@ namespace Uccs.Net
 
 		public E FindEntry(EntityId id)
 		{
-			var c = _Clusters.Find(i => i.Id.SequenceEqual(id.Ci));
+			var c = _Clusters.Find(i => i.Id == id.Ci);
 
 			if(c == null)
 				return default(E);

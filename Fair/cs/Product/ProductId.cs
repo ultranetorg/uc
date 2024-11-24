@@ -2,10 +2,9 @@
 {
 	public class ProductId : IBinarySerializable, IEquatable<ProductId>, IComparable<ProductId>
 	{
-		public byte[]	C { get; set; }
+		public ushort	C { get; set; }
 		public int		D { get; set; }
 		public int		P { get; set; }
-		byte[]			_Serial;
 
 		public EntityId	PublisherId => new EntityId(C, D);
 
@@ -13,45 +12,28 @@
 		{
 		}
 
-		public ProductId(byte[] c, int d, int p)
+		public ProductId(ushort c, int d, int p)
 		{
 			C = c;
 			D = d;
 			P = p;
 		}
 
-		public byte[] Serial
-		{
-			get
-			{
-				if(_Serial == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Serial = s.ToArray();
-				}
-
-				return _Serial;
-			}
-		}
-
 		public override string ToString()
 		{
-			return $"{C?.ToHex()}-{D}-{P}";
+			return $"{C}-{D}-{P}";
 		}
 
 		public static ProductId Parse(string t)
 		{
 			var a = t.Split('-');
 
-			return new ProductId(a[0].FromHex(), int.Parse(a[1]), int.Parse(a[2]));
+			return new ProductId(ushort.Parse(a[0]), int.Parse(a[1]), int.Parse(a[2]));
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			C	= reader.ReadBytes(PublisherTable.Cluster.IdLength);
+			C	= reader.ReadUInt16();
 			D	= reader.Read7BitEncodedInt();
 			P	= reader.Read7BitEncodedInt();
 		}
@@ -70,13 +52,13 @@
 
 		public bool Equals(ProductId a)
 		{
-			return a is not null && C[0] == a.C[0] && C[1] == a.C[1] && D == a.D && P == a.P;
+			return a is not null && C == a.C && D == a.D && P == a.P;
 		}
 
 		public int CompareTo(ProductId a)
 		{
-			if(!C.SequenceEqual(a.C))	
-				return Bytes.Comparer.Compare(C, a.C);
+			if(C != a.C)
+				return C.CompareTo(a.C);
 			
 			if(D != a.D)
 				return D.CompareTo(a.D);

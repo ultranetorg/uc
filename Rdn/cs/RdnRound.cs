@@ -5,7 +5,7 @@
 		public List<DomainMigration>			Migrations;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
-		public Dictionary<byte[], int>			NextDomainIds;
+		public Dictionary<ushort, int>			NextDomainIds = new();
 		public ForeignResult[]					ConsensusMigrations = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
@@ -43,8 +43,8 @@
 			}
 			else
 			{
-				var ci = Mcv.Domains.KeyToCluster(domain).ToArray();
-				var c = Mcv.Domains.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Domains.KeyToCluster(domain);
+				var c = Mcv.Domains.Clusters.FirstOrDefault(i => i.Id == ci);
 
 				int ai;
 				
@@ -88,7 +88,7 @@
 		public override void RestartExecution()
 		{
 			AffectedDomains.Clear();
-			NextDomainIds	= new (Bytes.EqualityComparer);
+			NextDomainIds.Clear();
 		}
 
 		public override void FinishExecution()

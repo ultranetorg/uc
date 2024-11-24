@@ -31,7 +31,7 @@
 	{
 		public class Cluster
 		{
-			public byte[]	Id { get; set; }
+			public ushort	Id { get; set; }
 			public byte[]	Hash { get; set; }
 			public int		Length { get; set; }
 		}

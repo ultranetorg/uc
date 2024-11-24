@@ -2,14 +2,14 @@
 {
 	public class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
 	{
-		public byte[]	Ci { get; set; }
+		public ushort	Ci { get; set; }
 		public int		Ei { get; set; }
 
 		public EntityId()
 		{
 		}
 
-		public EntityId(byte[] ci, int ei)
+		public EntityId(ushort ci, int ei)
 		{
 			Ci = ci;
 			Ei = ei;
@@ -17,19 +17,19 @@
 
 		public override string ToString()
 		{
-			return $"{Ci?.ToHex()}-{Ei}";
+			return $"{Ci}-{Ei}";
 		}
 
 		public static EntityId Parse(string t)
 		{
 			var i = t.IndexOf('-');
 
-			return new EntityId(t.Substring(0, i).FromHex(), int.Parse(t.Substring(i + 1)));
+			return new EntityId(ushort.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadBytes(TableBase.ClusterBase.IdLength);
+			Ci	= reader.ReadUInt16();
 			Ei	= reader.Read7BitEncodedInt();
 		}
 
@@ -46,13 +46,13 @@
 
 		public bool Equals(EntityId a)
 		{
-			return a is not null && Ci[0] == a.Ci[0] && Ci[1] == a.Ci[1] && Ei == a.Ei;
+			return a is not null && Ci == a.Ci && Ei == a.Ei;
 		}
 
 		public int CompareTo(EntityId a)
 		{
-			if(Ci[0] != a.Ci[0] || Ci[1] != a.Ci[1])
-				return Bytes.Comparer.Compare(Ci, a.Ci);
+			if(Ci != a.Ci)
+				return Ci.CompareTo(a.Ci);
 			
 			if(Ei != a.Ei)
 				return Ei.CompareTo(a.Ei);
@@ -62,7 +62,7 @@
 
 		public override int GetHashCode()
 		{
-			return Ci[0];
+			return Ci.GetHashCode();
 		}
 
 		public static bool operator == (EntityId left, EntityId right)

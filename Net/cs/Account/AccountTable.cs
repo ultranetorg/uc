@@ -2,7 +2,7 @@
 {
 	public class AccountTable : Table<AccountEntry>
 	{
-		public Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, ClusterBase.IdLength);
+		public ushort	KeyToCluster(AccountAddress account) => (ushort)(account.Bytes[0] << 8  | account.Bytes[1]);
 
 		public AccountTable(Mcv chain) : base(chain)
 		{
@@ -15,9 +15,9 @@
 
 		public AccountEntry FindEntry(AccountAddress key)
 		{
-			var cid = KeyToCluster(key).ToArray();
+			var cid = KeyToCluster(key);
 
-			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
+			var c = _Clusters.Find(i => i.Id == cid);
 
 			if(c == null)
 				return null;

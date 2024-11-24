@@ -6,7 +6,7 @@ namespace Uccs.Rdn
 	{
 		public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-		public Span<byte>				KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
+		public ushort					KeyToCluster(string domain) => Cluster.FromBytes(Encoding.UTF8.GetBytes(domain, 0, sizeof(ushort)));
 
 		public DomainTable(RdnMcv rds) : base(rds)
 		{
@@ -14,9 +14,9 @@ namespace Uccs.Rdn
 
 		public DomainEntry FindEntry(string key)
 		{
-			var cid = KeyToCluster(key).ToArray();
+			var cid = KeyToCluster(key);
 
-			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
+			var c = _Clusters.Find(i => i.Id == cid);
 
 			if(c == null)
 				return null;
@@ -84,7 +84,7 @@ namespace Uccs.Rdn
 
  			foreach(var r in Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci == id.Ci && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 
 				if(x != null)
 					return x;
