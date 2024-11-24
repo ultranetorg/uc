@@ -7,7 +7,7 @@ namespace Uccs.Rdn
 		None = 0, 
 		Domain = McvPpcClass._Last + 1, 
 		RdnMembers,
-		QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease, Cost
+		QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease
 	}
 
 	public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse

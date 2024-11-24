@@ -2,15 +2,29 @@
 
 namespace Uccs.Rdn
 {
-	public class DomainTable : Table<DomainEntry, string>
+	public class DomainTable : Table<DomainEntry>
 	{
 		public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-		public override bool			Equal(string a, string b) => a.Equals(b);
-		public override Span<byte>		KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
+		public bool				Equal(string a, string b) => a.Equals(b);
+		public Span<byte>		KeyToCluster(string domain) => new Span<byte>(Encoding.UTF8.GetBytes(domain, 0, ClusterBase.IdLength));
 
 		public DomainTable(RdnMcv rds) : base(rds)
 		{
+		}
+
+		public DomainEntry FindEntry(string key)
+		{
+			var cid = KeyToCluster(key).ToArray();
+
+			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
+
+			if(c == null)
+				return default;
+
+			var e = c.Entries.Find(i => Equal(i.Key, key));
+
+			return e;
 		}
 		
 		protected override DomainEntry Create()

@@ -380,7 +380,8 @@ namespace Uccs.Net
 						goto failed;
 					}
 	
-					AddPeer(peer);
+					if(FindPeer(ip) == null)
+						AddPeer(peer);
 	
 					peer.Permanent = h.Permanent;
 					peer.Start(this, client, h, true);

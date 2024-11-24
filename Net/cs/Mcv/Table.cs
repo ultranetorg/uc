@@ -6,7 +6,8 @@ namespace Uccs.Net
 {
 	public abstract class TableBase
 	{
-		public const int							SuperClustersCountMax = byte.MaxValue + 1;
+		public const int							ClustersCountMax = 256 * 256;
+		public const int							SuperClustersCountMax = 256;
 		const int									ClustersCacheLimit = 1000;
 
 		public Dictionary<byte, byte[]>				SuperClusters = new();
@@ -45,7 +46,7 @@ namespace Uccs.Net
 		}
 
 		public abstract ClusterBase		AddCluster(byte[] id);
-		public abstract long			MeasureChanges(IEnumerable<Round> tail);
+		//public abstract long			MeasureChanges(IEnumerable<Round> tail);
 		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
 
 		public void CalculateSuperClusters()
@@ -74,12 +75,12 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class Table<E, K> : TableBase, IEnumerable<E> where E : class, ITableEntry<K>
+	public abstract class Table<E> : TableBase, IEnumerable<E> where E : class, ITableEntry
 	{
 		public class Cluster : ClusterBase
 		{
 			List<E>			_Entries;
-			Table<E, K>		Table;
+			Table<E>		Table;
 			byte[]			_Main;
 
 			public override IEnumerable<ITableEntryBase> BaseEntries => Entries;
@@ -133,7 +134,7 @@ namespace Uccs.Net
 				}
 			}
 
-			public Cluster(Table<E, K> table, byte[] id)
+			public Cluster(Table<E> table, byte[] id)
 			{
 				Table = table;
 				Id = id;
@@ -211,8 +212,8 @@ namespace Uccs.Net
 		public static string						MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 
 		protected abstract E						Create();
-		public abstract Span<byte>					KeyToCluster(K k);
-		public abstract bool						Equal(K a, K b);
+		//public abstract Span<byte>					KeyToCluster(K k);
+		//public abstract bool						Equal(K a, K b);
 
 		public override int							Size => Clusters.Sum(i => i.MainLength);
 
@@ -266,9 +267,9 @@ namespace Uccs.Net
 
 			IEnumerator<Cluster>	Cluster;
 			IEnumerator<E>			Entity;
-			Table<E, K>				Table;
+			Table<E>				Table;
 
-			public Enumerator(Table<E, K> table)
+			public Enumerator(Table<E> table)
 			{
 				Table = table;
 
@@ -337,26 +338,6 @@ namespace Uccs.Net
 			return c;
 		}
 
-		public E FindEntry(K key)
-		{
-			var cid = KeyToCluster(key).ToArray();
-			//var cid = Cluster.ToId(bcid);
-
-			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
-
-			if(c == null)
-				return default(E);
-
-			var e = c.Entries.Find(i => Equal(i.Key, key));
-
-// 			if(e != null)
-// 			{
-// 				e.LastAccessed = DateTime.UtcNow;
-// 			}
-
-			return e;
-		}
-
 		public E FindEntry(EntityId id)
 		{
 			var c = _Clusters.Find(i => i.Id.SequenceEqual(id.Ci));
@@ -392,7 +373,7 @@ namespace Uccs.Net
 			{
 				var c = GetCluster(i.Id.Ci);
 
-				var e = c.Entries.Find(e => Equal(e.Key, i.Key));
+				var e = c.Entries.Find(e => e.Id.Ei == i.Id.Ei);
 				
 				if(e != null)
 					c.Entries.Remove(e);
@@ -411,48 +392,48 @@ namespace Uccs.Net
 			CalculateSuperClusters();
 		}
 
-		public override long MeasureChanges(IEnumerable<Round> tail)
-		{
-			var affected = new Dictionary<K, E>();
-
-			foreach(var r in tail)
-			{
-				foreach(var i in r.AffectedByTable(this).Cast<E>())
-					if(!affected.ContainsKey(i.Key))
-						affected.Add(i.Key, i);
-			}
-
-
-			var se = new FakeStream();
-			var we = new BinaryWriter(se);
-			we.Write7BitEncodedInt(_Clusters.Count);
-
-			var si = new FakeStream();
-			var wi = new BinaryWriter(si);
-
-			int n = 0;
-
-			foreach(var i in affected.Values)
-			{
-				var c = _Clusters.Find(j => j.Id.SequenceEqual(i.Id.Ci));
-
-				var e = c?.Entries.Find(e => Equal(e.Key, i.Key));
-				
-				if(e != null)
-				{
-					we.Write7BitEncodedInt(e.Id.Ei);
-					e.WriteMain(we);
-				}
-				else
-					n++;
-
-				wi.Write7BitEncodedInt(i.Id.Ei);
-				i.WriteMain(wi);
-			}
-
-			wi.Write7BitEncodedInt(_Clusters.Count + n);
-
-			return si.Length - se.Length ;
-		}
+		///public override long MeasureChanges(IEnumerable<Round> tail)
+		///{
+		///	var affected = new Dictionary<K, E>();
+		///
+		///	foreach(var r in tail)
+		///	{
+		///		foreach(var i in r.AffectedByTable(this).Cast<E>())
+		///			if(!affected.ContainsKey(i.Key))
+		///				affected.Add(i.Key, i);
+		///	}
+		///
+		///
+		///	var se = new FakeStream();
+		///	var we = new BinaryWriter(se);
+		///	we.Write7BitEncodedInt(_Clusters.Count);
+		///
+		///	var si = new FakeStream();
+		///	var wi = new BinaryWriter(si);
+		///
+		///	int n = 0;
+		///
+		///	foreach(var i in affected.Values)
+		///	{
+		///		var c = _Clusters.Find(j => j.Id.SequenceEqual(i.Id.Ci));
+		///
+		///		var e = c?.Entries.Find(e => e.Id.Ei == i.Id.Ei);
+		///		
+		///		if(e != null)
+		///		{
+		///			we.Write7BitEncodedInt(e.Id.Ei);
+		///			e.WriteMain(we);
+		///		}
+		///		else
+		///			n++;
+		///
+		///		wi.Write7BitEncodedInt(i.Id.Ei);
+		///		i.WriteMain(wi);
+		///	}
+		///
+		///	wi.Write7BitEncodedInt(_Clusters.Count + n);
+		///
+		///	return si.Length - se.Length ;
+		///}
 	}
 }

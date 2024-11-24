@@ -2,13 +2,13 @@ namespace Uccs.Rdn
 {
 	public class ResourceCreation : RdnOperation
 	{
-		public Ura					Resource { get; set; }
+		public Ura					Address { get; set; }
 		public ResourceChanges		Changes { get; set; }
 		public ResourceData			Data { get; set; }
 
 		public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
 														(!Changes.HasFlag(ResourceChanges.NullData));
-		public override string		Description => $"{Resource}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+		public override string		Description => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
 		public ResourceCreation()
 		{
@@ -16,7 +16,7 @@ namespace Uccs.Rdn
 
 		public ResourceCreation(Ura resource, ResourceData data, bool seal)
 		{
-			Resource = resource;
+			Address = resource;
 			Data = data;
 
 			if(Data != null)	Changes |= ResourceChanges.SetData;
@@ -25,7 +25,7 @@ namespace Uccs.Rdn
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource	= reader.Read<Ura>();
+			Address	= reader.Read<Ura>();
 			Changes		= (ResourceChanges)reader.ReadByte();
 
 			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
@@ -33,7 +33,7 @@ namespace Uccs.Rdn
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Resource);
+			writer.Write(Address);
 			writer.Write((byte)Changes);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
@@ -41,10 +41,10 @@ namespace Uccs.Rdn
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(RequireSignerDomain(round, Resource.Domain, out var a) == false)
+			if(RequireSignerDomain(round, Address.Domain, out var a) == false)
 				return;
 
-			var r = a.Resources?.FirstOrDefault(i => i.Address == Resource);
+			var r = a.Resources?.FirstOrDefault(i => i.Address == Address);
 					
 			if(r != null)
 			{
@@ -52,8 +52,8 @@ namespace Uccs.Rdn
 				return;
 			}
 
-			a = round.AffectDomain(Resource.Domain);
-			r = a.AffectResource(Resource.Resource);
+			a = round.AffectDomain(Address.Domain);
+			r = a.AffectResource(Address.Resource);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{

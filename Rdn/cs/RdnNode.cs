@@ -115,7 +115,6 @@ namespace Uccs.Rdn
 
 			base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
 
-
 			if(Settings.Seed != null)
 			{
 				ResourceHub = new ResourceHub(this, Net, Settings.Seed);

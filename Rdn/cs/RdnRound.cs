@@ -5,6 +5,7 @@
 		public List<DomainMigration>			Migrations;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
+		public Dictionary<byte[], int>			NextDomainIds;
 		public ForeignResult[]					ConsensusMigrations = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
@@ -87,6 +88,7 @@
 		public override void RestartExecution()
 		{
 			AffectedDomains.Clear();
+			NextDomainIds	= new (Bytes.EqualityComparer);
 		}
 
 		public override void FinishExecution()

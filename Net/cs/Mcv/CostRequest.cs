@@ -1,9 +1,7 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Net
 {
-	public class CostRequest : RdnPpc<CostResponse>
+	public class CostRequest : McvPpc<CostResponse>
 	{
-		public Transaction[]	Transactions {get; set;}
-
 		public override PeerResponse Execute()
 		{
 			lock(Peering.Lock)

@@ -66,7 +66,6 @@ namespace Uccs.Net
 		//public long										PreviousDayBaseSize;
 
 		public Dictionary<byte[], int>						NextAccountIds;
-		public Dictionary<byte[], int>						NextDomainIds;
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 
@@ -335,7 +334,6 @@ namespace Uccs.Net
 			//Emission		= Id == 0 ? 0 : Previous.Emission;
 			#endif
 			NextAccountIds	= new (Bytes.EqualityComparer);
-			NextDomainIds	= new (Bytes.EqualityComparer);
 
 			BYRewards.Clear();
 			ECRewards.Clear();

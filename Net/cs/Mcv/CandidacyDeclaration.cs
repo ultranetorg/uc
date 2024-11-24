@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public abstract class CandidacyDeclaration : Operation
+	public class CandidacyDeclaration : Operation
 	{
 		public IPAddress[]		BaseRdcIPs;
 

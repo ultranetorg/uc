@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AccountEntry : Account, ITableEntry<AccountAddress>
+	public class AccountEntry : Account, ITableEntry
 	{
 		public AccountAddress			Key => Address;
 		

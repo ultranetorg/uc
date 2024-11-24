@@ -12,7 +12,7 @@ namespace Uccs.Net
 		SharePeers = PtpCallClass._Last + 1, 
 		Vote, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
-		
+		Cost,
 		_Last = 199
 	}
 

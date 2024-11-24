@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn
 {
-	public class DomainEntry : Domain, ITableEntry<string>
+	public class DomainEntry : Domain, ITableEntry
 	{
 		public string			Key => Address;
 		

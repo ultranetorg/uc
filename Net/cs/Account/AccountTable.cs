@@ -1,9 +1,9 @@
 ﻿namespace Uccs.Net
 {
-	public class AccountTable : Table<AccountEntry, AccountAddress>
+	public class AccountTable : Table<AccountEntry>
 	{
-		public override bool		Equal(AccountAddress a, AccountAddress b) => a.Equals(b);
-		public override Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, ClusterBase.IdLength);
+		public bool			Equal(AccountAddress a, AccountAddress b) => a.Equals(b);
+		public Span<byte>	KeyToCluster(AccountAddress account) => new Span<byte>(account.Bytes, 0, ClusterBase.IdLength);
 
 		public AccountTable(Mcv chain) : base(chain)
 		{
@@ -12,6 +12,20 @@
 		protected override AccountEntry Create()
 		{
 			return new AccountEntry(Mcv);
+		}
+
+		public AccountEntry FindEntry(AccountAddress key)
+		{
+			var cid = KeyToCluster(key).ToArray();
+
+			var c = _Clusters.Find(i => i.Id.SequenceEqual(cid));
+
+			if(c == null)
+				return default;
+
+			var e = c.Entries.Find(i => Equal(i.Key, key));
+
+			return e;
 		}
 
 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)

@@ -25,6 +25,7 @@ namespace Uccs.Net
 	{
 		//Ntn = 010,
 		Rdn = 020,
+		Fair = 030,
 		Uos = 900,
 	}
 
