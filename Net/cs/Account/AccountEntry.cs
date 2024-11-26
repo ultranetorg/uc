@@ -6,7 +6,7 @@
 		//public Unit					RoundBandwidthReserve = 0;
 		//public Time					RoundBandwidthReserveExpiration = Time.Empty;
 		
-		public HashSet<int>				Transactions = new();
+		public List<int>				Transactions = new();
 		Mcv								Mcv;
 
 		public AccountEntry()
@@ -33,7 +33,7 @@
 											BandwidthTodayTime		= BandwidthTodayTime,
 											BandwidthTodayAvailable	= BandwidthTodayAvailable,
 
-											Transactions			= Mcv.Settings.Chain != null ? new HashSet<int>(Transactions) : null};
+											Transactions			= Mcv.Settings.Chain != null ? new List<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -69,7 +69,7 @@
 		{
 			if(Mcv.Settings.Chain != null)
 			{
-				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
+				Transactions = r.ReadList(() => r.Read7BitEncodedInt());
 			}
 		}
 

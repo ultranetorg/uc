@@ -88,6 +88,19 @@ namespace Uccs.Net
 
 			public override IEnumerable<ITableEntryBase> BaseEntries => Entries;
 
+			public override byte[] Main
+			{
+				get
+				{
+					if(_Main == null)
+					{
+						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
+					}
+
+					return _Main;
+				}
+			}
+
 			public List<E> Entries
 			{
 				get
@@ -99,7 +112,7 @@ namespace Uccs.Net
 							var s = new MemoryStream(Main);
 							var r = new BinaryReader(s);
 	
-							var a = r.ReadArray(() =>{ 
+							var a = r.ReadList(() =>{ 
 														var e = Table.Create();
 														e.Id = new EntityId(Id, r.Read7BitEncodedInt());
 														e.ReadMain(r);
@@ -109,31 +122,18 @@ namespace Uccs.Net
 							s = new MemoryStream(Table.Engine.Get(ToBytes(Id), Table.MoreColumn));
 							r = new BinaryReader(s);
 	
-							for(int i = 0; i < a.Length; i++)
+							for(int i = 0; i < a.Count; i++)
 							{
 								a[i].ReadMore(r);
 							}
 	
-							_Entries = a.ToList();
+							_Entries = a;
 						}
 						else
 							_Entries = new ();
 					}
 
 					return _Entries;
-				}
-			}
-
-			public override byte[] Main
-			{
-				get
-				{
-					if(_Main == null)
-					{
-						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
-					}
-
-					return _Main;
 				}
 			}
 
