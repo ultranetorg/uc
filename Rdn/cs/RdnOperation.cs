@@ -162,7 +162,9 @@
 				return false; 
 			}
 
-			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
+			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
+
+			resource = s.Resources.FirstOrDefault(i => i.Id == id);
 			
 			if(resource == null)
 			{
@@ -183,7 +185,9 @@
 				return false; 
 			}
 
-			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
+			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
+
+			resource = s.Resources.FirstOrDefault(i => i.Id == id);
 			
 			if(resource == null)
 			{

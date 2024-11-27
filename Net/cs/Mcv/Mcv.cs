@@ -276,10 +276,6 @@ namespace Uccs.Net
 			}
 		}
 
-		public virtual void ClearTables()
-		{
-		}
-
 		public void Clear()
 		{
 			Tail.Clear();
@@ -291,9 +287,10 @@ namespace Uccs.Net
 			LastConfirmedRound = null;
 
 			LoadedRounds.Clear();
-			Accounts.Clear();
+			//Accounts.Clear();
 
-			ClearTables();
+			foreach(var i in Tables)
+				i.Clear();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);

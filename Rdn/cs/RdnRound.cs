@@ -5,7 +5,9 @@
 		public List<DomainMigration>			Migrations;
 		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
+		public Dictionary<EntityId, SiteEntry>	AffectedSites = new();
 		public Dictionary<ushort, int>			NextDomainIds = new();
+		public Dictionary<ushort, int>			NextSiteIds = new();
 		public ForeignResult[]					ConsensusMigrations = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
@@ -25,6 +27,9 @@
 			if(table == Mcv.Domains)
 				return AffectedDomains.Values;
 
+			if(table == Mcv.Sites)
+				return AffectedSites.Values;
+
 			throw new IntegrityException();
 		}
 
@@ -38,7 +43,7 @@
 			if(e != null)
 			{
 				AffectedDomains[domain] = e.Clone();
-				AffectedDomains[domain].Affected  = true;;
+				//AffectedDomains[domain].Affected  = true;;
 				return AffectedDomains[domain];
 			}
 			else
@@ -55,7 +60,7 @@
 				
 				ai = NextDomainIds[ci]++;
 
-				return AffectedDomains[domain] = new DomainEntry(Mcv){	Affected = true,
+				return AffectedDomains[domain] = new DomainEntry(Mcv){	//Affected = true,
 																		New = true,
 																		Id = new EntityId(ci, ai), 
 																		Address = domain};
@@ -75,9 +80,41 @@
 				throw new IntegrityException();
 			
 			AffectedDomains[a.Address] = a.Clone();
-			AffectedDomains[a.Address].Affected  = true;;
+			//AffectedDomains[a.Address].Affected  = true;;
 
 			return AffectedDomains[a.Address];
+		}
+
+		public SiteEntry AffectSite(EntityId id)
+		{
+			if(AffectedSites.TryGetValue(id, out var a))
+				return a;
+			
+			var e = Mcv.Sites.Find(id, Id - 1);
+
+			if(e != null)
+			{
+				AffectedSites[id] = e.Clone();
+				//AffectedSites[domain].Affected  = true;;
+				return AffectedSites[id];
+			}
+			else
+			{
+				var c = Mcv.Sites.Clusters.FirstOrDefault(i => i.Id == id.Ci);
+
+				int i;
+				
+				if(c == null)
+					NextSiteIds[id.Ci] = 0;
+				else
+					NextSiteIds[id.Ci] = c.NextEntityId;
+				
+				i = NextSiteIds[id.Ci]++;
+
+				return AffectedSites[id] = new SiteEntry(Mcv){	//Affected = true,
+																New = true,
+																Id = new EntityId(id.Ci, i)};
+			}
 		}
 
 		public override void InitializeExecution()
@@ -88,14 +125,16 @@
 		public override void RestartExecution()
 		{
 			AffectedDomains.Clear();
+			AffectedSites.Clear();
 			NextDomainIds.Clear();
+			NextSiteIds.Clear();
 		}
 
 		public override void FinishExecution()
 		{
-			foreach(var a in AffectedDomains)
+			foreach(var a in AffectedSites)
 			{
-				a.Value.Affected = false;
+				//a.Value.Affected = false;
 
 				if(a.Value.Resources != null)
 					foreach(var r in a.Value.Resources.Where(i => i.Affected))
@@ -149,7 +188,7 @@
 
 				var d = AffectDomain(b.Net);
 				d.NtnSelfHash	= b.State.Hash;
-				d.NtnChildNet		= b.State;
+				d.NtnChildNet	= b.State;
 
 				Mcv.NtnBlocks.Remove(b);
 			}

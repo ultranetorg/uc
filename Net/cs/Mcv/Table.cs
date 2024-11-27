@@ -49,6 +49,7 @@ namespace Uccs.Net
 		}
 
 		public abstract ClusterBase		AddCluster(ushort id);
+		public abstract void			Clear();
 		//public abstract long			MeasureChanges(IEnumerable<Round> tail);
 		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
 
@@ -249,7 +250,7 @@ namespace Uccs.Net
 			return c;
 		}
 
-		public void Clear()
+		public override void Clear()
 		{
 			_Clusters.Clear();
 			SuperClusters.Clear();

@@ -8,7 +8,7 @@
 		{
  			lock(Mcv.Lock)
 			{	
-				return new QueryResourceResponse {Resources = Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
+				return new QueryResourceResponse {Resources = Mcv.SearchResources(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}

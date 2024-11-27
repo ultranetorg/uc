@@ -59,10 +59,11 @@ namespace Uccs.Rdn
 		{
 			var rs = new HashSet<int>();
 
-			if(RequireSignerResource(round, Resource, out var a, out var x) == false)
+			if(RequireSignerResource(round, Resource, out var d, out var x) == false)
 				return;
 
-			a = round.AffectDomain(a.Id);
+			d = round.AffectDomain(d.Id);
+			var s = round.AffectSite(d.Id);
 			
 			Transaction.ECSpent -= round.ConsensusExecutionFee; /// the first is alredy paid
 
@@ -70,7 +71,7 @@ namespace Uccs.Rdn
 			{
 				Transaction.ECSpent += round.ConsensusExecutionFee;
 
-				var r = a.AffectResource(resource.Resource);
+				var r = s.AffectResource(d, resource.Resource);
 	
 				if(rs.Contains(r.Id.Ri))
 					return;
@@ -89,7 +90,7 @@ namespace Uccs.Rdn
 					r.Data		= Data;
 					r.Updated	= round.ConsensusTime;
 	
-					Allocate(round, a, r.Data.Value.Length);
+					Allocate(round, d, r.Data.Value.Length);
 				}
 				else if(Changes.HasFlag(ResourceChanges.NullData))
 				{
@@ -106,7 +107,7 @@ namespace Uccs.Rdn
 					}
 
 					r.Flags	&= ~ResourceFlags.Data;
-					Free(a, r.Data.Value.Length);
+					Free(d, r.Data.Value.Length);
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Seal))
@@ -120,7 +121,7 @@ namespace Uccs.Rdn
 					r.Flags	|= ResourceFlags.Sealed;
 
 					Signer.BYBalance -= SpacetimeFee(r.Length, Mcv.Forever);
-					Free(a, r.Length);
+					Free(d, r.Length);
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))
@@ -129,9 +130,9 @@ namespace Uccs.Rdn
 					{
 						foreach(var i in r.Inbounds)
 						{
-							if(i.Ci == a.Id.Ci && i.Di == a.Id.Ei)
+							if(i.DomainId == d.Id)
 							{
-								var l = mcv.Domains.FindResource(i, round.Id);
+								var l = mcv.Sites.FindResource(i, round.Id);
 
 								execute(l.Address);
 							}

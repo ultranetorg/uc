@@ -23,7 +23,7 @@ namespace Uccs.Rdn
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(RequireSignerResource(round, Id, out var a, out var r) == false)
+			if(RequireSignerResource(round, Id, out var d, out var r) == false)
 				return;
 
 			if(r.Flags.HasFlag(ResourceFlags.Sealed))
@@ -32,26 +32,26 @@ namespace Uccs.Rdn
 				return;
 			}
 
-			a = round.AffectDomain(Id.DomainId);
-			a.DeleteResource(r);
+			var s = round.AffectSite(Id.DomainId);
+			s.DeleteResource(r);
 
-			Free(a, r.Length);
+			Free(d, r.Length);
 
 			foreach(var i in r.Outbounds)
 			{
-				var dr = mcv.Domains.FindResource(i.Destination, round.Id);
+				var dr = mcv.Sites.FindResource(i.Destination, round.Id);
 
-				dr = round.AffectDomain(dr.Address.Domain).AffectResource(dr.Address.Resource);
+				dr = round.AffectSite(dr.Id.DomainId).AffectResource(d, dr.Address.Resource);
 				dr.RemoveInbound(r.Id);
 
-				Free(a, Mcv.EntityLength);
+				Free(d, Mcv.EntityLength);
 			}
 
 			foreach(var i in r.Inbounds ?? [])
 			{
-				var sr = mcv.Domains.FindResource(i, round.Id);
+				var sr = mcv.Sites.FindResource(i, round.Id);
 
-				sr = round.AffectDomain(sr.Address.Domain).AffectResource(sr.Address.Resource);
+				sr = round.AffectSite(sr.Id.DomainId).AffectResource(d, sr.Address.Resource);
 				sr.RemoveOutbound(r.Id);
 			}
 		}

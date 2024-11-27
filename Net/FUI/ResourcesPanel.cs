@@ -10,6 +10,8 @@ namespace Uccs.Net.FUI
 
 		public ResourcesPanel(RdnNode mcv)
 		{
+			Node = mcv;
+
 			InitializeComponent();
 
 			NetworkQuery.KeyDown += (s, e) =>
@@ -49,7 +51,7 @@ namespace Uccs.Net.FUI
 			{
 				NetworkReleases.Items.Clear();
 
-				foreach(var r in Node.Mcv.QueryResource(NetworkQuery.Text))
+				foreach(var r in Node.Mcv.SearchResources(NetworkQuery.Text))
 				{
 					var i = new ListViewItem(r.Id.ToString());
 

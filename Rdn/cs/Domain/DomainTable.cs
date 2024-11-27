@@ -59,38 +59,38 @@ namespace Uccs.Rdn
 			return FindEntry(id);
 		}
 		
- 		public Resource FindResource(Ura resource, int ridmax)
- 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
- 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
-				if(r.AffectedDomains.TryGetValue(resource.Domain, out DomainEntry a))
-				{	
-					var x = a.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
-					
-					if(x != null)
- 						return x;
-				}
- 		
- 			return FindEntry(resource.Domain)?.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
- 		}
-
-		
- 		public Resource FindResource(ResourceId id, int ridmax)
- 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
- 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
-			{
-				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci == id.Ci && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
-
-				if(x != null)
-					return x;
-			}
- 		
- 			return FindEntry(new EntityId(id.Ci, id.Di))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
- 		}
+//  		public Resource FindResource(Ura resource, int ridmax)
+//  		{
+// 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+// 			//	throw new IntegrityException("maxrid works inside pool only");
+// 
+//  			foreach(var r in Tail.Where(i => i.Id <= ridmax))
+// 				if(r.AffectedDomains.TryGetValue(resource.Domain, out DomainEntry a))
+// 				{	
+// 					var x = a.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
+// 					
+// 					if(x != null)
+//  						return x;
+// 				}
+//  		
+//  			return FindEntry(resource.Domain)?.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
+//  		}
+// 
+// 		
+//  		public Resource FindResource(ResourceId id, int ridmax)
+//  		{
+// 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+// 			//	throw new IntegrityException("maxrid works inside pool only");
+// 
+//  			foreach(var r in Tail.Where(i => i.Id <= ridmax))
+// 			{
+// 				var x = r.AffectedDomains.FirstOrDefault(i => i.Value.Id.Ci == id.Ci && i.Value.Id.Ei == id.Di).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+// 
+// 				if(x != null)
+// 					return x;
+// 			}
+//  		
+//  			return FindEntry(new EntityId(id.Ci, id.Di))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
+//  		}
 	}
 }

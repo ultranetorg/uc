@@ -41,10 +41,19 @@ namespace Uccs.Rdn
 
 		public override void Execute(RdnMcv mcv, RdnRound round)
 		{
-			if(RequireSignerDomain(round, Address.Domain, out var a) == false)
+			if(RequireSignerDomain(round, Address.Domain, out var d) == false)
 				return;
 
-			var r = a.Resources?.FirstOrDefault(i => i.Address == Address);
+// 			var s = round.Mcv.Sites.Find(d.Id, round.Id);
+// 
+// 			if(s == null)
+// 			{
+// 				Error = NotFound;
+// 				return;
+// 			}
+
+			var s = round.AffectSite(d.Id);
+			var r = s.Resources?.FirstOrDefault(i => i.Address == Address);
 					
 			if(r != null)
 			{
@@ -52,8 +61,7 @@ namespace Uccs.Rdn
 				return;
 			}
 
-			a = round.AffectDomain(Address.Domain);
-			r = a.AffectResource(Address.Resource);
+			r = s.AffectResource(d, Address.Resource);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
@@ -69,7 +77,10 @@ namespace Uccs.Rdn
 				PayForSpacetime(r.Length, Mcv.Forever);
 			}
 			else
-				Allocate(round, a, r.Length);
+			{	
+				d = round.AffectDomain(d.Id);
+				Allocate(round, d, r.Length);
+			}
 		}
 	}
 }

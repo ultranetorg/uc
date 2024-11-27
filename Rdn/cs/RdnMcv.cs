@@ -6,6 +6,7 @@ namespace Uccs.Rdn
 	public class RdnMcv : Mcv
 	{
 		public DomainTable				Domains;
+		public SiteTable				Sites;
 		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
 		IPAddress[]						BaseIPs;
@@ -56,6 +57,9 @@ namespace Uccs.Rdn
 																new (DomainTable.MetaColumnName,	new ()),
 																new (DomainTable.MainColumnName,	new ()),
 																new (DomainTable.MoreColumnName,	new ()),
+																new (SiteTable.MetaColumnName,		new ()),
+																new (SiteTable.MainColumnName,		new ()),
+																new (SiteTable.MoreColumnName,		new ()),
 																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
@@ -63,8 +67,9 @@ namespace Uccs.Rdn
 
 			Accounts = new (this);
 			Domains = new (this);
+			Sites = new (this);
 
-			Tables = [Accounts, Domains];
+			Tables = [Accounts, Domains, Sites];
 		}
 
 		public override Round CreateRound()
@@ -89,21 +94,18 @@ namespace Uccs.Rdn
 
 		}
 
-		public override void ClearTables()
-		{
-			Domains.Clear();
-		}
-
-		public IEnumerable<Resource> QueryResource(string query)
+		public IEnumerable<Resource> SearchResources(string query)
 		{
 			var r = Ura.Parse(query);
 		
-			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
+			var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
 
-			if(a == null)
+			if(d == null)
 				yield break;
 
-			foreach(var i in a.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
+			var s = Sites.Find(d.Id, LastConfirmedRound.Id);
+
+			foreach(var i in s.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
 				yield return i;
 		}
 

@@ -78,11 +78,6 @@ namespace Uccs.Fair
 			return new CandidacyDeclaration {BaseRdcIPs	= BaseIPs};
 		}
 
-		public override void ClearTables()
-		{
-			Publishers.Clear();
-		}
-
 		public override void FillVote(Vote vote)
 		{
 		}
