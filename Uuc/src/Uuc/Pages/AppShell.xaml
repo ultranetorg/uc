@@ -1,0 +1,44 @@
+<Shell Shell.FlyoutBehavior="Flyout"
+       Title="Uuc"
+       x:Class="Uuc.Pages.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:local="clr-namespace:Uuc.Pages"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate local:DashboardPage}"
+        Route="dashboard" />
+
+    <ShellContent
+        Title="Accounts"
+        ContentTemplate="{DataTemplate local:AccountsPage}"
+        Route="accounts" />
+
+    <ShellContent
+        Title="Authorizations"
+        ContentTemplate="{DataTemplate local:AuthorizationsPage}"
+        Route="authorizations" />
+
+    <ShellContent
+        Title="Convert"
+        ContentTemplate="{DataTemplate local:ConvertPage}"
+        Route="convert" />
+
+    <MenuItem Text="Send" Clicked="Send_OnClicked" />
+
+    <MenuItem Text="Receive" Clicked="Receive_OnClicked" />
+
+    <ShellContent
+        Title="Digital Identities"
+        ContentTemplate="{DataTemplate local:DigitalIdentitiesPage}"
+        Route="digital-identities" />
+
+    <MenuItem Text="Settings" Clicked="Settings_OnClicked" />
+
+</Shell>
+
+
+<!--
+    Icon="{StaticResource IconMeta}"
+-->

@@ -1,0 +1,15 @@
+﻿using CommunityToolkit.Maui;
+using Uuc.Popups;
+
+namespace Uuc.Common.Configurations;
+
+public static class PopupsConfiguration
+{
+	public static MauiAppBuilder ConfigurePopups(this MauiAppBuilder builder)
+	{
+		builder.Services.AddTransientPopup<SendPopup, SendPopupModel>();
+		builder.Services.AddTransientPopup<ReceivePopup, ReceivePopupModel>();
+
+		return builder;
+	}
+}
