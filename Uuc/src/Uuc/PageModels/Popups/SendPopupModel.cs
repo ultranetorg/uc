@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Uuc.Popups;
+namespace Uuc.PageModels.Popups;
 
 public class SendPopupModel : ObservableObject
 {

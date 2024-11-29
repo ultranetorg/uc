@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Uuc.Pages;
+namespace Uuc.PageModels;
 
 public class DashboardPageModel : ObservableObject
 {

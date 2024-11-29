@@ -1,4 +1,6 @@
-﻿namespace Uuc.Pages;
+﻿using Uuc.PageModels;
+
+namespace Uuc.Pages;
 
 public partial class DashboardPage : ContentPage
 {
