@@ -110,19 +110,21 @@
 			return true;
 		}
 
-		public bool RequireProduct(FairRound round, ProductId id, out PublisherEntry domain, out Product resource)
+		public bool RequireProduct(FairRound round, ProductId id, out PublisherEntry publisher, out Product product)
 		{
-			resource = null;
+			product = null;
 
-			if(RequirePublisher(round, id.PublisherId, out domain) == false)
+			if(RequirePublisher(round, id.PublisherId, out publisher) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			resource = domain.Products.FirstOrDefault(i => i.Id == id);
+			var a = round.Mcv.Assortments.Find(publisher.Id, round.Id);
+
+			product = a.Products.FirstOrDefault(i => i.Id == id);
 			
-			if(resource == null)
+			if(product == null)
 			{
 				Error = NotFound;
 				return false; 
@@ -131,19 +133,21 @@
 			return true; 
 		}
 
-		public bool RequireSignerProduct(FairRound round, ProductId id, out PublisherEntry domain, out Product resource)
+		public bool RequireSignerProduct(FairRound round, ProductId id, out PublisherEntry publisher, out Product product)
 		{
-			resource = null;
+			product = null;
 
-			if(RequireSignerPublisher(round, id.PublisherId, out domain) == false)
+			if(RequireSignerPublisher(round, id.PublisherId, out publisher) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			resource = domain.Products.FirstOrDefault(i => i.Id == id);
+			var a = round.Mcv.Assortments.Find(publisher.Id, round.Id);
+
+			product = a.Products.FirstOrDefault(i => i.Id == id);
 			
-			if(resource == null)
+			if(product == null)
 			{
 				Error = NotFound;
 				return false; 

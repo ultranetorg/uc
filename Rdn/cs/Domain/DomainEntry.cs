@@ -5,7 +5,7 @@ namespace Uccs.Rdn
 	public class DomainEntry : Domain, ITableEntry
 	{
 		public bool				New;
-		//public bool				Affected;
+		//public bool			Affected;
 		Mcv						Mcv;
 		//bool					ResourcesCloned;
 		

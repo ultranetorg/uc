@@ -37,11 +37,11 @@ namespace Uccs.Fair
 
 		public override void Execute(FairMcv mcv, FairRound round)
 		{
-			if(RequireSignerPublisher(round, Publisher, out var a) == false)
+			if(RequireSignerPublisher(round, Publisher, out var p) == false)
 				return;
 
-			a = round.AffectPublisher(Publisher);
-			var r = a.AffectProduct(null);
+			p = round.AffectPublisher(Publisher);
+			var r = round.AffectAssortment(Publisher).AffectProduct(null);
 
 			if(Changes.HasFlag(ProductChanges.SetData))
 			{
@@ -49,7 +49,7 @@ namespace Uccs.Fair
 				r.Updated	= round.ConsensusTime;
 			}
 
-			Allocate(round, a, r.Length);
+			Allocate(round, p, r.Length);
 		}
 	}
 }

@@ -52,15 +52,14 @@ namespace Uccs.Rdn
 
 			NextResourceId	= reader.Read7BitEncodedInt();
 
- 			Resources = reader.Read(() =>	{ 
- 												var a = new Resource();
- 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
- 												a.Address = new Ura(d.Address, reader.ReadUtf8());
- 												a.ReadMain(reader);
+ 			Resources = reader.ReadArray(() =>	{ 
+ 												    var a = new Resource();
+ 												    a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
+ 												    a.Address = new Ura(d.Address, reader.ReadUtf8());
+ 												    a.ReadMain(reader);
 
- 												return a;
- 											})
-                                            .ToArray();
+ 												    return a;
+ 											    });
 		}
 
 		public void WriteMore(BinaryWriter w)
@@ -77,8 +76,6 @@ namespace Uccs.Rdn
 
  		public Resource AffectResource(DomainEntry domain, string resource)
  		{
-            if(resource == "app/win32/0.0.4")
-                resource = resource;
  			//if(!Affected)
  			//	Debugger.Break();
  
@@ -110,7 +107,7 @@ namespace Uccs.Rdn
  										Address = new Ura(domain.Address, resource),
  										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
  
- 				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();
+ 				Resources = Resources == null ? [r] : [..Resources, r];
  				ResourcesCloned = true;
  
  				return r;

@@ -17,9 +17,8 @@
 		{
  			lock(Mcv.Lock)
 			{	
-				var	r = Mcv.Publishers.FindProduct(Id, Mcv.LastConfirmedRound.Id);
-
-				
+				var	r = Mcv.Assortments.FindProduct(Id, Mcv.LastConfirmedRound.Id);
+								
 				if(r == null)
 					throw new EntityException(EntityError.NotFound);
 				

@@ -23,13 +23,15 @@ namespace Uccs.Fair
 
 		public override void Execute(FairMcv mcv, FairRound round)
 		{
-			if(RequireSignerProduct(round, Id, out var a, out var r) == false)
+			if(RequireSignerProduct(round, Id, out var p, out var r) == false)
 				return;
 
-			a = round.AffectPublisher(Id.PublisherId);
+			p = round.AffectPublisher(Id.PublisherId);
+			var a = round.AffectAssortment(Id.PublisherId);
+			
 			a.DeleteProduct(r);
 
-			Free(a, r.Length);
+			Free(p, r.Length);
 		}
 	}
 }

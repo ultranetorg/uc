@@ -94,6 +94,14 @@ namespace Uccs.Rdn
 
 		}
 
+		public override void FillVote(Vote vote)
+		{
+			var v = vote as RdnVote;
+
+  			//v.Emissions		= ApprovedEmissions.ToArray();
+			v.Migrations	= ApprovedMigrations.ToArray();
+		}
+
 		public IEnumerable<Resource> SearchResources(string query)
 		{
 			var r = Ura.Parse(query);
@@ -108,14 +116,5 @@ namespace Uccs.Rdn
 			foreach(var i in s.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
 				yield return i;
 		}
-
-		public override void FillVote(Vote vote)
-		{
-			var v = vote as RdnVote;
-
-  			//v.Emissions		= ApprovedEmissions.ToArray();
-			v.Migrations	= ApprovedMigrations.ToArray();
-		}
-
 	}
 }

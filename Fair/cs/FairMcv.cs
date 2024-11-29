@@ -6,6 +6,7 @@ namespace Uccs.Fair
 	public class FairMcv : Mcv
 	{
 		public PublisherTable			Publishers;
+		public AssortmentTable			Assortments;
 		IPAddress[]						BaseIPs;
 
 		public FairMcv()
@@ -41,21 +42,25 @@ namespace Uccs.Fair
 
 			var cfs = new ColumnFamilies();
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (PublisherTable.MetaColumnName,	new ()),
-																new (PublisherTable.MainColumnName,	new ()),
-																new (PublisherTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,				new ())})
+			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,		new ()),
+																new (AccountTable.MainColumnName,		new ()),
+																new (AccountTable.MoreColumnName,		new ()),
+																new (PublisherTable.MetaColumnName,		new ()),
+																new (PublisherTable.MainColumnName,		new ()),
+																new (PublisherTable.MoreColumnName,		new ()),
+																new (AssortmentTable.MetaColumnName,	new ()),
+																new (AssortmentTable.MainColumnName,	new ()),
+																new (AssortmentTable.MoreColumnName,	new ()),
+																new (ChainFamilyName,					new ())})
 				cfs.Add(i);
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
 			Publishers = new (this);
+			Assortments = new (this);
 
-			Tables = [Accounts, Publishers];
+			Tables = [Accounts, Publishers, Assortments];
 		}
 
 		public override Round CreateRound()

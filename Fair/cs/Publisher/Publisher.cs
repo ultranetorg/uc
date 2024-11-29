@@ -15,7 +15,6 @@ namespace Uccs.Fair
 		public EntityId				Id { get; set; }
 		public EntityId				Owner { get; set; }
 		public Time					Expiration { get; set; }
-		public int					NextProductId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
 

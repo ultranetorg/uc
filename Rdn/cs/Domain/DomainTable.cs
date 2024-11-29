@@ -6,7 +6,7 @@ namespace Uccs.Rdn
 	{
 		public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-		public ushort					KeyToCluster(string domain) => Cluster.FromBytes(Encoding.UTF8.GetBytes(domain, 0, sizeof(ushort)));
+		public ushort					KeyToCluster(string domain) => Cluster.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(2, '\0'), 0, sizeof(ushort)));
 
 		public DomainTable(RdnMcv rds) : base(rds)
 		{

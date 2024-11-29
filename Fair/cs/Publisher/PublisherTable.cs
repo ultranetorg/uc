@@ -33,21 +33,5 @@ namespace Uccs.Fair
 
 			return FindEntry(id);
 		}
-		
- 		public Product FindProduct(ProductId id, int ridmax)
- 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
- 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
-			{
-				var x = r.AffectedPublishers.FirstOrDefault(i => i.Value.Id.Ci == id.C && i.Value.Id.Ei == id.D).Value?.Products?.FirstOrDefault(i => i.Id.P == id.P);
-
-				if(x != null)
-					return x;
-			}
- 		
- 			return FindEntry(new EntityId(id.C, id.D))?.Products?.FirstOrDefault(i => i.Id.P == id.P);
- 		}
 	}
 }

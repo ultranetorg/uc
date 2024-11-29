@@ -2,9 +2,11 @@
 {
 	public class FairRound : Round
 	{
-		public new FairMcv							Mcv => base.Mcv as FairMcv;
-		public Dictionary<EntityId, PublisherEntry>	AffectedPublishers = new();
-		public Dictionary<ushort, int>				NextPublisherIds = new ();
+		public new FairMcv								Mcv => base.Mcv as FairMcv;
+		public Dictionary<EntityId, PublisherEntry>		AffectedPublishers = new();
+		public Dictionary<ushort, int>					NextPublisherIds = new ();
+		public Dictionary<EntityId, AssortmentEntry>	AffectedAssortments = new();
+		public Dictionary<ushort, int>					NextAssortmentIds = new ();
 
 		public FairRound(FairMcv rds) : base(rds)
 		{
@@ -32,8 +34,6 @@
 
 			if(id == null)
 			{
-				int pid;
-				
 				if(Mcv.Publishers.Clusters.Count() == 0)
 				{	
 					ci = 0;
@@ -43,7 +43,7 @@
 				{	
 					if(Mcv.Publishers.Clusters.Count() < TableBase.ClustersCountMax)
 					{	
-						var i = Enumerable.Range(0, TableBase.ClustersCountMax).First(i => Mcv.Publishers.Clusters.All(c => c.Id != i));
+						var i = Mcv.Publishers.Clusters.Count();
 						ci = (ushort)i;
 						NextPublisherIds[ci] = 0;
 					}
@@ -55,7 +55,7 @@
 					}
 				}
 				
-				pid = NextPublisherIds[ci]++;
+				var pid = NextPublisherIds[ci]++;
 
 				return AffectedPublishers[new EntityId(ci, pid)] = new PublisherEntry(Mcv){	Affected = true,
 																							New = true,
@@ -78,6 +78,38 @@
 			}
 		}
 
+		public AssortmentEntry AffectAssortment(EntityId id)
+		{
+			if(AffectedAssortments.TryGetValue(id, out var a))
+				return a;
+			
+			var e = Mcv.Assortments.Find(id, Id - 1);
+
+			if(e != null)
+			{
+				AffectedAssortments[id] = e.Clone();
+				//AffectedAssortments[domain].Affected  = true;;
+				return AffectedAssortments[id];
+			}
+			else
+			{
+				var c = Mcv.Assortments.Clusters.FirstOrDefault(i => i.Id == id.Ci);
+
+				int i;
+				
+				if(c == null)
+					NextAssortmentIds[id.Ci] = 0;
+				else
+					NextAssortmentIds[id.Ci] = c.NextEntityId;
+				
+				i = NextAssortmentIds[id.Ci]++;
+
+				return AffectedAssortments[id] = new AssortmentEntry(Mcv){	//Affected = true,
+																			New = true,
+																			Id = new EntityId(id.Ci, i)};
+			}
+		}
+
 		public override void InitializeExecution()
 		{
 		}
@@ -86,14 +118,14 @@
 		{
 			AffectedPublishers.Clear();
 			NextPublisherIds.Clear();
+			AffectedAssortments.Clear();
+			NextAssortmentIds.Clear();
 		}
 
 		public override void FinishExecution()
 		{
-			foreach(var a in AffectedPublishers)
+			foreach(var a in AffectedAssortments)
 			{
-				a.Value.Affected = false;
-
 				if(a.Value.Products != null)
 					foreach(var r in a.Value.Products.Where(i => i.Affected))
 					{
