@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class DownloadRoundsRequest : McvCall<DownloadRoundsResponse>
+	public class DownloadRoundsRequest : McvPpc<DownloadRoundsResponse>
 	{
 		public int From { get; set; }
 		public int To { get; set; }

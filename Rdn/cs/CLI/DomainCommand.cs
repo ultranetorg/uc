@@ -86,7 +86,7 @@
 										new ("<first>", "Ultranet address of a root domain to migrate"),
 										new ("wtld", "Web top-level domain (com, org, net)"),
 										new ("checkrank", "Request position verification in Google search results"),
-										new ("signer", "Address of account for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
+										new ("signer", "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
 									],
 
 									Examples =

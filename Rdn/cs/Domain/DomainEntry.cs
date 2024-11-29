@@ -2,17 +2,14 @@
 
 namespace Uccs.Rdn
 {
-	public class DomainEntry : Domain, ITableEntry<string>
+	public class DomainEntry : Domain, ITableEntry
 	{
-		public string			Key => Address;
-		
-		//[JsonIgnore]
 		public bool				New;
-		public bool				Affected;
+		//public bool			Affected;
 		Mcv						Mcv;
-		bool					ResourcesCloned;
+		//bool					ResourcesCloned;
 		
-		public Resource[]		Resources { get; set; } = [];
+		//public Resource[]		Resources { get; set; } = [];
 
 		public DomainEntry()
 		{
@@ -30,21 +27,24 @@ namespace Uccs.Rdn
 
 		public DomainEntry Clone()
 		{
-			return new DomainEntry(Mcv) {	Id = Id,
-											Address = Address,
-											Owner = Owner,
-											Expiration = Expiration,
-											FirstBidTime = FirstBidTime,
-											LastWinner = LastWinner,
-											LastBid = LastBid,
-											LastBidTime = LastBidTime,
-											ComOwner = ComOwner,
-											OrgOwner = OrgOwner,
-											NetOwner = NetOwner,
-											Resources = Resources,
-											NextResourceId = NextResourceId,
-											SpaceReserved = SpaceReserved,
-											SpaceUsed = SpaceUsed };
+			return new DomainEntry(Mcv){Id = Id,
+										Address = Address,
+										Owner = Owner,
+										Expiration = Expiration,
+										FirstBidTime = FirstBidTime,
+										LastWinner = LastWinner,
+										LastBid = LastBid,
+										LastBidTime = LastBidTime,
+										ComOwner = ComOwner,
+										OrgOwner = OrgOwner,
+										NetOwner = NetOwner,
+										//Resources = Resources,
+										//NextResourceId = NextResourceId,
+										SpaceReserved = SpaceReserved,
+										SpaceUsed = SpaceUsed,
+										NtnChildNet = NtnChildNet,
+										NtnSelfHash = NtnSelfHash,
+										};
 		}
 
 		public void WriteMain(BinaryWriter writer)
@@ -56,10 +56,11 @@ namespace Uccs.Rdn
 			if(ComOwner != null)	f |= DomainFlag.ComOwned;
 			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
 			if(NetOwner != null)	f |= DomainFlag.NetOwned;
+			if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
 
 			writer.Write((byte)f);
 			writer.WriteUtf8(Address);
-			writer.Write7BitEncodedInt(NextResourceId);
+			//writer.Write7BitEncodedInt(NextResourceId);
 			writer.Write7BitEncodedInt(SpaceReserved);
 			writer.Write7BitEncodedInt(SpaceUsed);
 
@@ -89,11 +90,17 @@ namespace Uccs.Rdn
 				writer.Write((byte)ParentPolicy);
 			}
 
-			writer.Write(Resources, i =>{
-											writer.Write7BitEncodedInt(i.Id.Ri);
-											writer.WriteUtf8(i.Address.Resource);
-											i.WriteMain(writer);
-										});
+// 			writer.Write(Resources, i =>{
+// 											writer.Write7BitEncodedInt(i.Id.Ri);
+// 											writer.WriteUtf8(i.Address.Resource);
+// 											i.WriteMain(writer);
+// 										});
+
+			if(f.HasFlag(DomainFlag.ChildNet))
+			{
+				writer.Write(NtnChildNet);
+				writer.Write(NtnSelfHash);
+			}
 		}
 
 		public void Cleanup(Round lastInCommit)
@@ -104,7 +111,7 @@ namespace Uccs.Rdn
 		{
 			var f			= (DomainFlag)reader.ReadByte();
 			Address			= reader.ReadUtf8();
-			NextResourceId	= reader.Read7BitEncodedInt();
+			//NextResourceId	= reader.Read7BitEncodedInt();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
 			SpaceUsed		= (short)reader.Read7BitEncodedInt();
 
@@ -134,14 +141,20 @@ namespace Uccs.Rdn
 				ParentPolicy = (DomainChildPolicy)reader.ReadByte();
 			}
 
-			Resources = reader.Read(() =>	{ 
-												var a = new Resource();
-												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new Ura{Domain = Address, 
-																	Resource = reader.ReadUtf8()};
-												a.ReadMain(reader);
-												return a;
-											}).ToArray();
+// 			Resources = reader.Read(() =>	{ 
+// 												var a = new Resource();
+// 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
+// 												a.Address = new Ura{Domain = Address, 
+// 																	Resource = reader.ReadUtf8()};
+// 												a.ReadMain(reader);
+// 												return a;
+// 											}).ToArray();
+
+			if(f.HasFlag(DomainFlag.ChildNet))
+			{
+				NtnChildNet	= reader.Read<NtnState>();
+				NtnSelfHash = reader.ReadHash();
+			}
 		}
 
 		public void WriteMore(BinaryWriter w)
@@ -152,50 +165,50 @@ namespace Uccs.Rdn
 		{
 		}
 
-		public Resource AffectResource(string resource)
-		{
-			if(!Affected)
-				Debugger.Break();
-
-			var i = Resources == null ? -1 : Array.FindIndex(Resources, i => i.Address.Resource == resource);
-
-			if(i != -1)
-			{
-				if(!ResourcesCloned && Resources[i].Affected)
-					Debugger.Break();
-
-				if(!ResourcesCloned)
-				{
-					Resources = Resources.ToArray();
-					ResourcesCloned = true;
-				}
-
-				if(!Resources[i].Affected)
-				{
-					Resources[i] = Resources[i].Clone();
-					Resources[i].Affected = true;
-				}
-				
-				return Resources[i];
-			} 
-			else
-			{
-				var r = new Resource {	Affected = true,
-										New = true,
-										Address = new Ura(Address, resource),
-										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
-
-				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();
-				ResourcesCloned = true;
-
-				return r;
-			}
-		}
-
-		public void DeleteResource(Resource resource)
-		{
-			Resources = Resources.Where(i => i != resource).ToArray();
-			ResourcesCloned = true;
-		}
+// 		public Resource AffectResource(string resource)
+// 		{
+// 			if(!Affected)
+// 				Debugger.Break();
+// 
+// 			var i = Resources == null ? -1 : Array.FindIndex(Resources, i => i.Address.Resource == resource);
+// 
+// 			if(i != -1)
+// 			{
+// 				if(!ResourcesCloned && Resources[i].Affected)
+// 					Debugger.Break();
+// 
+// 				if(!ResourcesCloned)
+// 				{
+// 					Resources = Resources.ToArray();
+// 					ResourcesCloned = true;
+// 				}
+// 
+// 				if(!Resources[i].Affected)
+// 				{
+// 					Resources[i] = Resources[i].Clone();
+// 					Resources[i].Affected = true;
+// 				}
+// 				
+// 				return Resources[i];
+// 			} 
+// 			else
+// 			{
+// 				var r = new Resource {	Affected = true,
+// 										New = true,
+// 										Address = new Ura(Address, resource),
+// 										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
+// 
+// 				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();
+// 				ResourcesCloned = true;
+// 
+// 				return r;
+// 			}
+// 		}
+// 
+// 		public void DeleteResource(Resource resource)
+// 		{
+// 			Resources = Resources.Where(i => i != resource).ToArray();
+// 			ResourcesCloned = true;
+// 		}
 	}
 }

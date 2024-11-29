@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Rdn
 {
-	public class QueryResourceRequest : RdnCall<QueryResourceResponse>
+	public class QueryResourceRequest : RdnPpc<QueryResourceResponse>
 	{
 		public string		Query { get; set; }
 
 		public override PeerResponse Execute()
 		{
- 			lock(Rdn.Lock)
+ 			lock(Mcv.Lock)
 			{	
-				return new QueryResourceResponse {Resources = Rdn.QueryResource(Query).Select(i => i.Address).ToArray()};
+				return new QueryResourceResponse {Resources = Mcv.SearchResources(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}

@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Net
 {
-	public class TimeRequest : McvCall<TimeResponse>
+	public class TimeRequest : McvPpc<TimeResponse>
 	{
 		public override PeerResponse Execute()
 		{
-			lock(Mcv.Lock)
+			lock(Peering.Lock)
 			{
 				RequireBase();
 				

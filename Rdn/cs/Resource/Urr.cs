@@ -15,20 +15,21 @@ namespace Uccs.Rdn
  	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
  	{
  		public abstract byte[]			MemberOrderKey { get; }
-		public string					Zone { get; set; }
+		public string					Net { get; set; }
  		public byte[]					Raw {
 												get
 												{
 													var s = new MemoryStream();
 													var w = new BinaryWriter(s);
 													
- 													w.Write(ITypeCode.Codes[GetType()]);
+ 													w.Write((byte)Scheme);
 													Write(w);
 													
 													return s.ToArray();
 												}
 											}
 
+		public abstract UrrScheme		Scheme { get; }
 		public override abstract bool	Equals(object other);
   		public abstract bool			Equals(Urr other);
 		public override abstract int	GetHashCode();
@@ -53,13 +54,14 @@ namespace Uccs.Rdn
 		{
 			UAddress.Parse(t, out var s, out var z, out var o);
 
-			var a = s switch{
-								Urrh.Scheme =>	new Urrh() as Urr,
-								Urrsd.Scheme => new Urrsd(),
-								_ => throw new FormatException()
-							};
+			var a = Enum.Parse<UrrScheme>(s, true)	switch
+													{
+														UrrScheme.Urrh => new Urrh() as Urr,
+														UrrScheme.Urrsd => new Urrsd(),
+														_ => throw new FormatException()
+													};
 
-			a.Zone = z;
+			a.Net = z;
 			a.ParseSpecific(o);
 
 			return a;
@@ -85,9 +87,20 @@ namespace Uccs.Rdn
 			ReadMore(reader);
 		}
 
-		public static Urr FromRaw(BinaryReader reader)
+		public void WriteVirtual(BinaryWriter writer)
 		{
-			var a = ITypeCode.Contructors[typeof(Urr)][reader.ReadByte()].Invoke(null) as Urr;
+			writer.Write((byte)Scheme);
+			WriteMore(writer);
+		}
+
+		public static Urr ReadVirtual(BinaryReader reader)
+		{
+			var a = (UrrScheme)reader.ReadByte()switch
+												{
+													UrrScheme.Urrh => new Urrh() as Urr,
+													UrrScheme.Urrsd => new Urrsd(),
+													_ => throw new FormatException()
+												};
 			
 			a.ReadMore(reader);
 			
@@ -99,7 +112,7 @@ namespace Uccs.Rdn
  			var s = new MemoryStream(bytes);
  			var r = new BinaryReader(s);
  
- 			return FromRaw(r);
+ 			return ReadVirtual(r);
  		}
  
  		public static bool operator == (Urr a, Urr b)
@@ -115,7 +128,7 @@ namespace Uccs.Rdn
  
  	public class Urrh : Urr
  	{
-		public const string		Scheme = "urrh";
+		public override UrrScheme	Scheme => UrrScheme.Urrh;
 
 		public Urrh()
 		{
@@ -139,14 +152,14 @@ namespace Uccs.Rdn
 
 			var a = new Urrh();
 
-			a.Zone = z;
+			a.Net = z;
 			a.ParseSpecific(o);
 
 			return a;
 		}
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Zone, Hash.ToHex());
+			return UAddress.ToString(Scheme.ToString(), Net, Hash.ToHex());
 		}
 
 		public override void ParseSpecific(string t)
@@ -172,19 +185,19 @@ namespace Uccs.Rdn
 
 	public class Urrsd : Urr
 	{
-		public const string		Scheme = "urrsd";
+		public override UrrScheme	Scheme => UrrScheme.Urrsd;
 
-		public Ura				Resource { get; set; }
-		public byte[]			Signature { get; set; }
-		public override byte[]	MemberOrderKey => Signature;
+		public Ura					Resource { get; set; }
+		public byte[]				Signature { get; set; }
+		public override byte[]		MemberOrderKey => Signature;
 
- 		public override int		GetHashCode() => BitConverter.ToInt32(Signature);
- 		public override bool	Equals(object o) => Equals(o as Urrsd);
-		public override bool	Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
+ 		public override int			GetHashCode() => BitConverter.ToInt32(Signature);
+ 		public override bool		Equals(object o) => Equals(o as Urrsd);
+		public override bool		Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
  
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Zone, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
+			return UAddress.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
 		}
 		
 		public override void ParseSpecific(string t)
@@ -249,12 +262,12 @@ namespace Uccs.Rdn
 		public AccountAddress	Owner { get; set; }
 		public Ura				Resource { get; set; }
 
-		public Urr Create(RdnMcv sun, byte[] hash)
+		public Urr Create(Vault vault, byte[] hash)
 		{
 			return Type	switch
 						{
 							UrrScheme.Urrh => new Urrh {Hash = hash},
-							UrrScheme.Urrsd => Urrsd.Create(sun.Zone.Cryptography, sun.Node.Vault.GetKey(Owner), Resource, hash),
+							UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.GetKey(Owner), Resource, hash),
 							_ => throw new ResourceException(ResourceError.UnknownAddressType)
 						};
 

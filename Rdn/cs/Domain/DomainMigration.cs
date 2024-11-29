@@ -85,14 +85,14 @@
 
 			if(RankCheck)
 			{
-				if(Signer.GetECBalance(round.ConsensusTime) < (mcv.Zone as RdnZone).DomainRankCheckECFee)
+				if(Signer.GetECBalance(round.ConsensusTime) < (mcv.Net as Rdn).DomainRankCheckECFee)
 				{
 					Error = NotEnoughEC;
 					return;
 				}
 
-				Signer.ECBalanceSubtract(round.ConsensusTime, (mcv.Zone as RdnZone).DomainRankCheckECFee);
-				//Transaction.ECReward -= (mcv.Zone as RdnZone).DomainRankCheckECFee;
+				Signer.ECBalanceSubtract(round.ConsensusTime, (mcv.Net as Rdn).DomainRankCheckECFee);
+				//Transaction.ECReward -= (mcv.Net as RdnNet).DomainRankCheckECFee;
 			}
 		}
 

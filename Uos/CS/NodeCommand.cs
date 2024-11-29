@@ -44,17 +44,17 @@
 
 			run.Help = new Help(){	Title = "RUN",
 									Description = "Runs a new instance with command-line interface",
-									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [zone=ZONE]",
+									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [net=ZONE]",
 
 									Arguments =
 									[
 										new ("profile", "Path to local profile directory"),
-										new ("zone", "Network zone to connect")
+										new ("net", "Network net to connect")
 									],
 
 									Examples =
 									[
-										new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun interzone=Testzone")
+										new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun nexus=PublicTest")
 									]};
 			
 			Actions = [run];

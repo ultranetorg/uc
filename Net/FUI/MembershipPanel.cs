@@ -2,23 +2,23 @@
 {
 	public partial class MembershipPanel : MainPanel
 	{
-		public MembershipPanel(McvNode d, Vault vault) : base(d)
+		public MembershipPanel()
 		{
 			InitializeComponent();
 		}
 
 		public override void Open(bool first)
 		{
-			if(first)
-			{
-				BindAccounts(Candidates);
-				BindAccounts(NewCandidate);
-
-				UpdateCandidateAccounts();
-
-				//Bail.Coins = Mcv.Zone.PledgeMin;
-				IP.Text = Node.IP.ToString();
-			}
+///			if(first)
+///			{
+///				BindAccounts(Candidates);
+///				BindAccounts(NewCandidate);
+///
+///				UpdateCandidateAccounts();
+///
+///				//Bail.Coins = Mcv.Net.PledgeMin;
+///				IP.Text = Node.IP.ToString();
+///			}
 		}
 
 		public override void Close()

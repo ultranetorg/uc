@@ -5,7 +5,9 @@ namespace Uccs.Net.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
-		public TransactionsPanel(McvNode mcv) : base(mcv)
+		McvNode Node;
+		
+		public TransactionsPanel(McvNode mcv)
 		{
 			InitializeComponent();
 
@@ -20,7 +22,7 @@ namespace Uccs.Net.FUI
 		{
 			if(first)
 			{
-				BindAccounts(Account);
+				//BindAccounts(Account);
 
 				Search();
 			}
@@ -47,15 +49,14 @@ namespace Uccs.Net.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Node.Lock)
+				lock(Node.Mcv.Lock)
 				{
-					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
-					{
-						var li = new ListViewItem(i.ToString());
-						//li.Tag = i;
-						//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-						return li;
-					})
+					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
+																										var li = new ListViewItem(i.ToString());
+																										//li.Tag = i;
+																										//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+																										return li;
+																									})
 																									.ToArray());
 				}
 			}
@@ -68,11 +69,11 @@ namespace Uccs.Net.FUI
 				Transactions.Items.Clear();
 				Operations.Items.Clear();
 
-				lock(Node.Lock)
+				lock(Node.Mcv.Lock)
 				{
 					var a = AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Nid);
+					var txs = Node.Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Nid);
 
 					foreach(var i in txs)
 					{

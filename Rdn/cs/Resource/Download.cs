@@ -80,10 +80,10 @@ namespace Uccs.Rdn
 											{
 												while(Data.Position < Length)
 												{
-													var d = Download.Rdn.Call(Seed.Peer, new DownloadReleaseRequest{Address = Download.Release.Address, 
-																													File = Download.File.Path, 
-																													Offset = Offset + Data.Position,
-																													Length = Length - Data.Position}).Data;
+													var d = Download.Rdn.Peering.Call(Seed.Peer, new DownloadReleaseRequest{Address = Download.Release.Address, 
+																															File = Download.File.Path, 
+																															Offset = Offset + Data.Position,
+																															Length = Length - Data.Position}).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -171,7 +171,7 @@ namespace Uccs.Rdn
 
 														try
 														{
-															l = Rdn.Call(s.IP, () => new FileInfoRequest {Release = release.Address, File = path}, flow).Length;
+															l = Rdn.Peering.Call(s.IP, () => new FileInfoRequest {Release = release.Address, File = path}, flow).Length;
 														}
 														catch(NodeException)
 														{
@@ -206,7 +206,7 @@ namespace Uccs.Rdn
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
-														else if(integrity.Verify(Rdn.Zone.Cryptography.HashFile([]))) /// zero-length file
+														else if(integrity.Verify(Rdn.Net.Cryptography.HashFile([]))) /// zero-length file
 														{
 															File.Write(0, []);
 															Succeeded = true;

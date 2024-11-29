@@ -6,7 +6,7 @@
 
 		public Xon			Commnand;
 	 	public string		Profile;
-		public string		Zone;
+		public Zone			Zone;
 
 		public Boot()
 		{
@@ -17,15 +17,15 @@
 			var b = new Xon(File.ReadAllText(Path.Combine(exedir, FileName)));
 			Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
-			if(Commnand.Has("interzone"))
-				Zone = Commnand.Get<string>("interzone");
+			if(Commnand.Has("nexus"))
+				Zone = Enum.Parse<Zone>(Commnand.Get<string>("nexus"));
 			else
-				Zone = b.Get<string>("Interzone");
+				Zone = Enum.Parse<Zone>(b.Get<string>("Zone"));
 
 			if(Commnand.Has("profile"))
 				Profile = Commnand.Get<string>("profile");
 			else
-				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone);
+				Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone.ToString());
 		}
 	}
 }

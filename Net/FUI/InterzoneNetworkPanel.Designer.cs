@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Net.FUI
 {
-	partial class InterzoneNetworkPanel
+	partial class NtnNetworkPanel
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -71,7 +71,7 @@ namespace Uccs.Net.FUI
 			Controls.Add(Peers);
 			Controls.Add(label1);
 			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			Name = "InterzoneNetworkPanel";
+			Name = "NexusNetworkPanel";
 			Size = new System.Drawing.Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();

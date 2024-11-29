@@ -1,59 +1,50 @@
 ﻿using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using DnsClient;
-using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
-	public enum RdnPeerCallClass : byte
+	[Flags]
+	public enum RdnRole : uint
 	{
-		None = 0, 
-		Domain = McvPeerCallClass._Last + 1, 
-		RdnMembers,
-		QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease, Cost
+		None,
+		Seed = 0b00000100,
 	}
 
 	public class RdnNode : McvNode
 	{
-		public override long					Roles => Mcv == null ? 0 : Mcv.Settings.Roles;
-		public new RdnZone						Zone => base.Zone as RdnZone;
-		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
-		public new RdnSettings					Settings => base.Settings as RdnSettings;
+		new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;
+		new public RdnMcv				Mcv => base.Mcv as RdnMcv;
+		public RdnNodeSettings			Settings;
 
-		LookupClient							Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-		HttpClient								Http = new HttpClient();
+		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
+		HttpClient						Http = new HttpClient();
 
-		public ResourceHub						ResourceHub;
-		public PackageHub						PackageHub;
-		public SeedHub							SeedHub;
+		public ResourceHub				ResourceHub;
+		public PackageHub				PackageHub;
+		public SeedHub					SeedHub;
+		public JsonServer				ApiServer;
+		public RdnNtnTcpPeering			NtnPeering;
 
-		public RdnNode(string name, Guid zoneid, string profile, RdnSettings settings, string packagespath, Vault vault, IClock clock, Flow flow) : base(name, RdnZone.ById(zoneid), settings ?? new RdnSettings(Path.Join(profile, zoneid.ToString())), vault, flow)
+		public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
 		{
-			Flow.Log?.Report(this, $"Zone: {Zone.Name}");
-		
-			if(Settings.Api != null)
+			Settings = settings ?? new RdnNodeSettings(Path.Join(profile, net.Address));
+
+			if(Flow.Log != null)
 			{
-				ApiServer = new RdnApiServer(this, Flow);
+				new FileLog(Flow.Log, net.Address, Settings.Profile);
 			}
 
-			if(Settings.Seed != null)
-			{
-				ResourceHub = new ResourceHub(this, Zone, Settings.Seed);
-				PackageHub = new PackageHub(this, Settings.Seed){DeploymentPath = packagespath};
-			}
+			if(NodeGlobals.Any)
+				Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-			if(Settings.Base != null)
+			if(Settings.Mcv != null)
 			{
-				base.Mcv = new RdnMcv(	this, 
-										Settings,
-										Path.Join(Settings.Profile, "Mcv"),
-										flow,
-										clock ?? new RealClock());
+				base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
 				Mcv.Commited += r => {
-										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Address)))
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
 										{
 											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
 													
@@ -66,7 +57,7 @@ namespace Uccs.Rdn
 														Task.Run(() =>	{
 																			var approved = IsDnsValid(am);
 	
-																			lock(Lock)
+																			lock(Mcv.Lock)
 																				Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
 																		});
 		 											}
@@ -88,11 +79,12 @@ namespace Uccs.Rdn
 											}
 										}
 	
-										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationRoundDurationLimit);
-										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Zone.ExternalVerificationRoundDurationLimit);
+										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
 									};
 
-				if(Settings.Generators.Any())
+
+				if(Settings.Mcv.Generators.Any())
 				{
 					#if ETHEREUM
 		  			try
@@ -108,10 +100,27 @@ namespace Uccs.Rdn
 
 					SeedHub = new SeedHub(Mcv);
 				}
+
+				if(Settings.NtnPeering != null)
+				{
+					NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+				}
 			}
 
-			RunPeer();
+			base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
 
+			if(Settings.Seed != null)
+			{
+				ResourceHub = new ResourceHub(this, Net, Settings.Seed);
+				PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
+
+				ResourceHub.RunDeclaring();
+			}
+
+			if(Settings.Api != null)
+			{
+				ApiServer = new RdnApiServer(this, Settings.Api, Flow);
+			}
 		}
 
 		public override string ToString()
@@ -119,39 +128,36 @@ namespace Uccs.Rdn
 			return string.Join(", ", new string[]{	GetType().Name,
 													Name,
 													(Settings.Api != null ? "A" : null) +
-													(Settings.Base != null ? "B" : null) +
-													(Settings.Base?.Chain != null  ? "C" : null) +
-													(Settings is RdnSettings x && x.Seed != null  ? "S" : null),
-													Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-													Mcv != null ? $"{Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
+													(Settings.Mcv != null ? "B" : null) +
+													(Settings.Mcv?.Chain != null  ? "C" : null) +
+													(Settings.Seed != null  ? "S" : null),
+													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
+													$"T(i/o)={Peering.IncomingTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
-		protected override void CreateTables(ColumnFamilies columns)
+		public override void Stop()
 		{
-			columns.Add(new (ResourceHub.ReleaseFamilyName,	new ()));
-			columns.Add(new (ResourceHub.ResourceFamilyName,new ()));
+			Flow.Abort();
+
+			ApiServer?.Stop();
+			Peering.Stop();
+			NtnPeering?.Stop();
+			Mcv?.Stop();
+
+			base.Stop();
 		}
 
-		public override void RunPeer()
-		{
-			base.RunPeer();
-
-			if(Settings.Seed != null)
-			{
-				ResourceHub.RunDeclaring();
-			}
-		}
-
-		public override object Constract(Type t, byte b)
-		{
-			if(t == typeof(VersionManifest))		return new VersionManifest();
-
-			return base.Constract(t, b);
-		}
-
-		private bool IsDnsValid(DomainMigration am)
+//		protected override void CreateTables(ColumnFamilies columns)
+//		{
+//			base.CreateTables(columns);
+//
+//			columns.Add(new (ResourceHub.ReleaseFamilyName,	new ()));
+//			columns.Add(new (ResourceHub.ResourceFamilyName,new ()));
+//		}
+//
+		public bool IsDnsValid(DomainMigration am)
 		{
 			try
 			{
@@ -166,7 +172,7 @@ namespace Uccs.Rdn
 
 				if(am.RankCheck)
 				{
-					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Mcv.Settings.GoogleApiKey}&cx={Mcv.Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
+					using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
 					{
 						var cr = Http.Send(m, Flow.Cancellation);
 
@@ -186,26 +192,6 @@ namespace Uccs.Rdn
 			}
 
 			return false;
-		}
-
-		public override bool ProcessIncomingOperation(Operation o)
-		{
-			#if ETHEREUM
-			if(o is Immission e && !Ethereum.IsEmissionValid(e))
-				return false;
-			#endif
-
-			if(o is DomainMigration m && !IsDnsValid(m))
-				return false;
-
-			return true;
-		}
-
-		public override void OnRequestException(Peer peer, NodeException ex)
-		{
-			base.OnRequestException(peer, ex);
-
-			if(ex.Error == NodeError.NotSeed)	peer.Roles  &= ~(long)RdnRole.Seed;
 		}
 
 	}

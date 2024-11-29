@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class DomainRequest : RdnCall<DomainResponse>
+	public class DomainRequest : RdnPpc<DomainResponse>
 	{
 		public DomainIdentifier	Identifier { get; set; }
 
@@ -28,16 +28,16 @@
 			if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 				throw new RequestException(RequestError.IncorrectRequest);
 
- 			lock(Rdn.Lock)
+ 			lock(Mcv.Lock)
 			{	
 				RequireBase();
 
 				Domain e;
 
 				if(Identifier.Addres != null)
-					e = Rdn.Domains.Find(Identifier.Addres, Rdn.LastConfirmedRound.Id);
+					e = Mcv.Domains.Find(Identifier.Addres, Mcv.LastConfirmedRound.Id);
 				else if(Identifier.Id != null)
-					e = Rdn.Domains.Find(Identifier.Id, Rdn.LastConfirmedRound.Id);
+					e = Mcv.Domains.Find(Identifier.Id, Mcv.LastConfirmedRound.Id);
 				else
 					throw new RequestException(RequestError.IncorrectRequest);
 				

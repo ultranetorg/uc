@@ -3,10 +3,12 @@
 	public class RdnRound : Round
 	{
 		public List<DomainMigration>			Migrations;
-		public RdnMcv							Rdn => Mcv as RdnMcv;
+		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 		public Dictionary<string, DomainEntry>	AffectedDomains = new();
+		public Dictionary<EntityId, SiteEntry>	AffectedSites = new();
+		public Dictionary<ushort, int>			NextDomainIds = new();
+		public Dictionary<ushort, int>			NextSiteIds = new();
 		public ForeignResult[]					ConsensusMigrations = {};
-		//public ForeignResult[]					ConsensusEmissions = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
 		{
@@ -14,7 +16,7 @@
 
 		public override long AccountAllocationFee(Account account)
 		{
-			return RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever);
+			return RdnOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 		}
 
 		public override IEnumerable<object> AffectedByTable(TableBase table)
@@ -22,8 +24,11 @@
 			if(table == Mcv.Accounts)
 				return AffectedAccounts.Values;
 
-			if(table == Rdn.Domains)
+			if(table == Mcv.Domains)
 				return AffectedDomains.Values;
+
+			if(table == Mcv.Sites)
+				return AffectedSites.Values;
 
 			throw new IntegrityException();
 		}
@@ -33,18 +38,18 @@
 			if(AffectedDomains.TryGetValue(domain, out DomainEntry a))
 				return a;
 			
-			var e = Rdn.Domains.Find(domain, Id - 1);
+			var e = Mcv.Domains.Find(domain, Id - 1);
 
 			if(e != null)
 			{
 				AffectedDomains[domain] = e.Clone();
-				AffectedDomains[domain].Affected  = true;;
+				//AffectedDomains[domain].Affected  = true;;
 				return AffectedDomains[domain];
 			}
 			else
 			{
-				var ci = Rdn.Domains.KeyToCluster(domain).ToArray();
-				var c = Rdn.Domains.Clusters.FirstOrDefault(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Domains.KeyToCluster(domain);
+				var c = Mcv.Domains.Clusters.FirstOrDefault(i => i.Id == ci);
 
 				int ai;
 				
@@ -55,7 +60,7 @@
 				
 				ai = NextDomainIds[ci]++;
 
-				return AffectedDomains[domain] = new DomainEntry(Mcv){	Affected = true,
+				return AffectedDomains[domain] = new DomainEntry(Mcv){	//Affected = true,
 																		New = true,
 																		Id = new EntityId(ci, ai), 
 																		Address = domain};
@@ -69,15 +74,47 @@
 			if(a != null)
 				return a;
 			
-			a = Rdn.Domains.Find(id, Id - 1);
+			a = Mcv.Domains.Find(id, Id - 1);
 
 			if(a == null)
 				throw new IntegrityException();
 			
 			AffectedDomains[a.Address] = a.Clone();
-			AffectedDomains[a.Address].Affected  = true;;
+			//AffectedDomains[a.Address].Affected  = true;;
 
 			return AffectedDomains[a.Address];
+		}
+
+		public SiteEntry AffectSite(EntityId id)
+		{
+			if(AffectedSites.TryGetValue(id, out var a))
+				return a;
+			
+			var e = Mcv.Sites.Find(id, Id - 1);
+
+			if(e != null)
+			{
+				AffectedSites[id] = e.Clone();
+				//AffectedSites[domain].Affected  = true;;
+				return AffectedSites[id];
+			}
+			else
+			{
+				var c = Mcv.Sites.Clusters.FirstOrDefault(i => i.Id == id.Ci);
+
+				int i;
+				
+				if(c == null)
+					NextSiteIds[id.Ci] = 0;
+				else
+					NextSiteIds[id.Ci] = c.NextEntityId;
+				
+				i = NextSiteIds[id.Ci]++;
+
+				return AffectedSites[id] = new SiteEntry(Mcv){	//Affected = true,
+																New = true,
+																Id = new EntityId(id.Ci, i)};
+			}
 		}
 
 		public override void InitializeExecution()
@@ -88,13 +125,16 @@
 		public override void RestartExecution()
 		{
 			AffectedDomains.Clear();
+			AffectedSites.Clear();
+			NextDomainIds.Clear();
+			NextSiteIds.Clear();
 		}
 
 		public override void FinishExecution()
 		{
-			foreach(var a in AffectedDomains)
+			foreach(var a in AffectedSites)
 			{
-				a.Value.Affected = false;
+				//a.Value.Affected = false;
 
 				if(a.Value.Resources != null)
 					foreach(var r in a.Value.Resources.Where(i => i.Affected))
@@ -110,12 +150,11 @@
 
 		public override void Elect(Vote[] votes, int gq)
 		{
-			var rvs = votes.Cast<RdnVote>();
+			var vs = votes.Cast<RdnVote>();
 
-			ConsensusMigrations	= rvs.SelectMany(i => i.Migrations).Distinct()
-									 .Where(x => Migrations.Any(b => b.Id == x.OperationId) && rvs.Count(b => b.Migrations.Contains(x)) >= gq)
+			ConsensusMigrations	= vs.SelectMany(i => i.Migrations).Distinct()
+									 .Where(x => Migrations.Any(b => b.Id == x.OperationId) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
 									 .Order().ToArray();
-
 
 			#if IMMISSION
 			ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
@@ -133,13 +172,27 @@
 		{
 			if(o is DomainMigration m)
 			{
-				m.Generator = m.Transaction.Generator;
+				m.Generator = m.Transaction.Member;
 				Migrations.Add(m);
 			}
 		}
 
 		public override void ConfirmForeign()
 		{
+			foreach(var i in ConsensusNtnStates)
+			{
+				var b = Mcv.NtnBlocks.Find(j => j.State.Hash.SequenceEqual(i));
+
+				if(b == null)
+					throw new ConfirmationException(this, []);
+
+				var d = AffectDomain(b.Net);
+				d.NtnSelfHash	= b.State.Hash;
+				d.NtnChildNet	= b.State;
+
+				Mcv.NtnBlocks.Remove(b);
+			}
+
 			#if IMMISSION
 			foreach(var i in ConsensusEmissions)
 			{
@@ -154,7 +207,7 @@
 					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
 			}
 
-			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationDurationLimit);
 			#endif
 
 			foreach(var i in ConsensusMigrations)
@@ -170,7 +223,7 @@
 					AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AverageUptime -= 10;
 			}
 
-			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationRoundDurationLimit);
+			Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);
 		}
 
 		public override void WriteBaseState(BinaryWriter writer)

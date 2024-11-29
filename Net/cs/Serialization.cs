@@ -5,18 +5,19 @@ namespace Uccs.Net
 {
 	public class BinarySerializator
 	{
-		public static void Serialize(BinaryWriter writer, object o)
+		public static void Serialize(BinaryWriter writer, object o, Func<Type, byte> typetocode)
 		{
-			Serialize(writer, o, o.GetType());
+			Serialize(writer, o, o.GetType(), typetocode);
 		}
 
-		static void Serialize(BinaryWriter writer, object val, Type type)
+		static void Serialize(BinaryWriter writer, object val, Type type, Func<Type, byte> typetocode)
 		{
 			switch(val)
 			{
 				case bool v :	writer.Write(v); return;
 				case byte v :	writer.Write(v); return;
 				case short v :	writer.Write(v); return;
+				case ushort v :	writer.Write(v); return;
 				case int v :	writer.Write7BitEncodedInt(v); return;
 				case long v :	writer.Write7BitEncodedInt64(v); return;
 				case Unit v :	writer.Write(v); return;
@@ -73,7 +74,7 @@ namespace Uccs.Net
 							
 					foreach(var j in v)
 					{
-						Serialize(writer, j, type.GetElementType());
+						Serialize(writer, j, type.GetElementType(), typetocode);
 					}
 					return;
 				}
@@ -81,7 +82,7 @@ namespace Uccs.Net
 
 			if(val is ITypeCode t)
 			{
-				writer.Write(ITypeCode.Codes[val.GetType()]);
+				writer.Write(typetocode(val.GetType()));
 			}
 
 			if(val is IBinarySerializable bs)
@@ -92,7 +93,7 @@ namespace Uccs.Net
 			{
 				foreach(var i in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
-					Serialize(writer, i.GetValue(val), i.PropertyType);
+					Serialize(writer, i.GetValue(val), i.PropertyType, typetocode);
 				}
 			}
 		}
@@ -134,8 +135,8 @@ namespace Uccs.Net
 
 			if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 			{	
-				//o = construct(type, reader.ReadByte());
-				o = ITypeCode.Contructors[type][reader.ReadByte()].Invoke(null);
+				var c = reader.ReadByte();
+				o = construct(type, c);
 			}
 			else
 				o = construct(type, 0) ?? type.GetConstructor([]).Invoke(null);
@@ -185,6 +186,10 @@ namespace Uccs.Net
 			{	
 				return reader.ReadInt16(); 
 			}
+			else if(typeof(ushort) == type)
+			{	
+				return reader.ReadUInt16(); 
+			}
 			else if(typeof(int) == type)
 			{	
 				return reader.Read7BitEncodedInt(); 
@@ -228,11 +233,11 @@ namespace Uccs.Net
 	
 				var n = reader.Read7BitEncodedInt();
 	
-				var l = ltype.GetConstructor(new Type[] {typeof(int)}).Invoke(new object[]{n});
+				var l = ltype.GetConstructor([typeof(int)]).Invoke([n]);
 	
 				for(int i=0; i<n; i++)
 				{
-					l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetElementType(), construct)});
+					l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType(), construct)]);
 				}
 
 				return l;

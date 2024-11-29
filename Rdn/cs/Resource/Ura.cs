@@ -15,12 +15,12 @@ namespace Uccs.Rdn
 	public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparable<Ura>, ITextSerialisable
 	{
 	//	public ResourceType			Type { get; set; }
-		public string				Zone { get; set; }
+		public string				Net { get; set; }
 		public string				Domain { get; set; }
 		public string				Resource { get; set; }
 
 		public const string			Scheme = "ura";
-		//public string				Uri => $"{Scheme}:{Zone}{(Zone != null ? ":" : null)}{Domain}/{Resource}";
+		//public string				Uri => $"{Scheme}:{Net}{(Net != null ? ":" : null)}{Domain}/{Resource}";
 		//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
 
 		public bool					Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
@@ -35,23 +35,23 @@ namespace Uccs.Rdn
 			Resource = resource;
 		}
 
-		public Ura(string zone, string domain, string resource)
+		public Ura(string net, string domain, string resource)
 		{
-			Zone = zone;
+			Net = net;
 			Domain = domain;
 			Resource = resource;
 		}
 
 		public Ura(Ura a)
 		{
-			Zone		= a.Zone;
+			Net			= a.Net;
 			Domain		= a.Domain;
 			Resource	= a.Resource;
 		}
 
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Zone, $"{Domain}/{Resource}");
+			return UAddress.ToString(Scheme, Net, $"{Domain}/{Resource}");
 		}
 
 		public override bool Equals(object o)
@@ -61,7 +61,7 @@ namespace Uccs.Rdn
 
 		public bool Equals(Ura o)
 		{
-			return o is not null && Zone == o.Zone && Domain == o.Domain && Resource == o.Resource;
+			return o is not null && Net == o.Net && Domain == o.Domain && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()
@@ -76,7 +76,7 @@ namespace Uccs.Rdn
 
 		public int CompareTo(Ura o)
 		{
-			var c = Zone.CompareTo(o.Zone);
+			var c = Net.CompareTo(o.Net);
 
 			if(c != 0)
 				return c;
@@ -103,16 +103,16 @@ namespace Uccs.Rdn
 		public void Read(string text)
 		{
 			Parse(text, out string p, out string z, out string d, out string r);
-			Zone = z;
+			Net = z;
 			Domain = d;
 			Resource = r;
 		}
 
-		public static void Parse(string v, out string protocol, out string zone, out string domain, out string resource)
+		public static void Parse(string v, out string protocol, out string net, out string domain, out string resource)
 		{
 			int i;
 			
-			UAddress.Parse(v, out protocol, out zone, out string o);
+			UAddress.Parse(v, out protocol, out net, out string o);
 
 			var e = o.IndexOfAny([':', '/']);
 				

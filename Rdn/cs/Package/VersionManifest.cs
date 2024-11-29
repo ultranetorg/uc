@@ -166,7 +166,7 @@ namespace Uccs.Rdn
 			var m = new Execution ();
 			m.Path		= x.Get<string>("Path", null);
 			m.Arguments	= x.Get<string>("Arguments", null);
-			m.Condition	= PlatformExpression.FromXon(x.One("Condition").Nodes.First());
+			m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : new PlatformExpression();
 
 			return m;
 		}

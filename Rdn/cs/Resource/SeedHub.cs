@@ -35,11 +35,11 @@ namespace Uccs.Rdn
 		public const int					SeedsPerRequestMax = 50;
 		public Dictionary<Urr, List<Seed>>	Releases = [];
 		public object						Lock = new ();
-		RdnMcv								Node;
+		RdnMcv								Mcv;
 
 		public SeedHub(RdnMcv sun)
 		{
-			Node = sun;
+			Mcv = sun;
 		}
 
 		public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(IPAddress ip, ResourceDeclaration[] resources)
@@ -49,9 +49,9 @@ namespace Uccs.Rdn
 				var rzd = rsd.Release;
 				//foreach(var rzd in rsd.Releases)
 				{
-					lock(Node.Lock)
+					lock(Mcv.Lock)
 					{ 
-						if(!Node.NextVoteRound.VotersRound.Members.OrderByHash(i => i.Address.Bytes, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Node.Settings.Generators.Contains(i.Address)))
+						if(!Mcv.NextVoteRound.VotersRound.Members.OrderByHash(i => i.Address.Bytes, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Contains(i.Address)))
 						{
 							yield return new (rzd, DeclarationResult.NotNearest);
 							continue;
@@ -64,9 +64,9 @@ namespace Uccs.Rdn
 						{
 							if(rzd is Urrh urrh)
 							{
-								lock(Node.Lock)
+								lock(Mcv.Lock)
 								{
-									var r = Node.Domains.FindResource(rsd.Resource, Node.LastConfirmedRound.Id);
+									var r = Mcv.Sites.FindResource(rsd.Resource, Mcv.LastConfirmedRound.Id);
 		
 									if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
 									{
@@ -79,7 +79,7 @@ namespace Uccs.Rdn
 							///	var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
 							///	var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
 							///
-							///	if(!sdp.Prove(Node.Zone.Cryptography, o.Address, rsd.Hash))
+							///	if(!sdp.Prove(Node.Net.Cryptography, o.Address, rsd.Hash))
 							///	{
 							///		return false;
 							///	}

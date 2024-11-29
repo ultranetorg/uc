@@ -2,6 +2,10 @@
 {
 	public class SynchronizationException : Exception
 	{
+		public SynchronizationException()
+		{
+		}
+
 		public SynchronizationException(string m) : base(typeof(SynchronizationException).Name + " - " + m)
 		{
 		}

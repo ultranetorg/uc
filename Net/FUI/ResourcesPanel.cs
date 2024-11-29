@@ -6,9 +6,12 @@ namespace Uccs.Net.FUI
 	public partial class ResourcesPanel : MainPanel
 	{
 		Flow ManifestWorkflow;
+		RdnNode Node;
 
-		public ResourcesPanel(McvNode mcv) : base(mcv)
+		public ResourcesPanel(RdnNode mcv)
 		{
+			Node = mcv;
+
 			InitializeComponent();
 
 			NetworkQuery.KeyDown += (s, e) =>
@@ -17,7 +20,7 @@ namespace Uccs.Net.FUI
 											NetworkSearch_Click(s, e);
 									};
 
-			LocalQuery.KeyDown += (s, e) =>
+			LocalQuery.KeyDown +=	(s, e) =>
 									{
 										if(e.KeyCode == Keys.Enter)
 											LocalSearch_Click(s, e);
@@ -34,7 +37,7 @@ namespace Uccs.Net.FUI
 
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
-			if(Mcv.Settings.Base == null)
+			if(Node.Mcv == null)
 			{
 				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
 				NetworkReleases.Columns.Clear();
@@ -48,7 +51,7 @@ namespace Uccs.Net.FUI
 			{
 				NetworkReleases.Items.Clear();
 
-				foreach(var r in RdnNode.Mcv.QueryResource(NetworkQuery.Text))
+				foreach(var r in Node.Mcv.SearchResources(NetworkQuery.Text))
 				{
 					var i = new ListViewItem(r.Id.ToString());
 
@@ -78,7 +81,7 @@ namespace Uccs.Net.FUI
 		{
 			LocalReleases.Items.Clear();
 
-			foreach(var i in RdnNode.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
+			foreach(var i in Node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
 			{
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;

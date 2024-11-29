@@ -10,8 +10,21 @@
 		const int						PoWLength = 16;
 		const int						TagLengthMax = 1024;
 
-		public int						Nid;
-		public TransactionId			Id => Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default;
+		public int						Nid { get; set; }
+		TransactionId					_Id;
+		public TransactionId			Id
+										{ 
+											set => _Id = value; 
+											get
+											{
+												if(_Id != default)
+													return _Id;
+
+												_Id = Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default; 
+
+												return _Id;
+											}
+										 }
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 
@@ -19,11 +32,11 @@
 		public bool						EmissionOnly => Operations.All(i => i is Immission);
 #endif
 
-		public Mcv						Mcv;
+		public McvNet					Net;
 		public Vote						Vote;
 		public Round					Round;
-		public EntityId					Generator;
-		public int						Expiration;
+		public EntityId					Member;
+		public int						Expiration { get; set; }
 		public byte[]					PoW;
 		public byte[]					Tag;
 		//public Money					STFee;
@@ -32,11 +45,10 @@
 		public long						ECSpent;
 		public long						BYReward;
 		//public long					ECReward;
-		public byte[]					Signature;
+		public byte[]					Signature { get; set; }
 
 		private AccountAddress			_Signer;
-		public AccountAddress			Signer { get => _Signer ??= Zone.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-		public McvZone					Zone;
+		public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 		public TransactionStatus		Status;
 		public IPeer					Rdi;
 		public Flow						Flow;
@@ -45,8 +57,8 @@
 		public bool Valid(Mcv mcv)
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
-					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Zone.ExecutionCyclesPerTransactionLimit &&
-					(!mcv.Zone.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+					Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
+					(!mcv.Net.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction()
@@ -62,7 +74,7 @@
 		{
 			Signer = signer;
 
-			if(!Zone.PoW || powhash.SequenceEqual(Zone.Cryptography.ZeroHash))
+			if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
 			{
 				PoW = new byte[PoWLength];
 			}
@@ -87,7 +99,7 @@
 				PoW = x.Skip(32).ToArray();
             }
 
-			Signature = Zone.Cryptography.Sign(signer, Hashify());
+			Signature = Net.Cryptography.Sign(signer, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -106,8 +118,9 @@
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Zone.Id);
-			w.Write(Generator);
+			w.Write((byte)Net.Zone);
+			w.WriteUtf8(Net.Address);
+			w.Write(Member);
 			w.Write7BitEncodedInt(Nid);
 			w.Write7BitEncodedInt(Expiration);
 			//w.Write(STFee);
@@ -121,13 +134,13 @@
 
  		public void	WriteConfirmed(BinaryWriter writer)
  		{
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt64(ECFee);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>{
-											writer.Write(ITypeCode.Codes[i.GetType()]); 
+											writer.Write(Net.Codes[i.GetType()]); 
 											i.Write(writer); 
 										 });
  		}
@@ -136,13 +149,13 @@
  		{
 			Status		= TransactionStatus.Confirmed;
 
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			ECFee		= reader.Read7BitEncodedInt64();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
- 													var o = Mcv.CreateOperation(reader.ReadByte());
+ 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
  													o.Transaction = this;
  													o.Read(reader); 
  													return o; 
@@ -153,7 +166,7 @@
  		{
 			writer.Write((byte)__ExpectedStatus);
 
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -162,7 +175,7 @@
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i => {
-											writer.Write(ITypeCode.Codes[i.GetType()]); 
+											writer.Write(Net.Codes[i.GetType()]); 
 											i.Write(writer); 
 										  });
  		}
@@ -171,7 +184,7 @@
  		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
@@ -180,7 +193,7 @@
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
- 													var o = Mcv.CreateOperation(reader.ReadByte());
+ 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
  													//o.Placing		= PlacingStage.Confirmed;
  													o.Transaction	= this;
  													o.Read(reader); 
@@ -192,7 +205,7 @@
 		{
 			writer.Write((byte)__ExpectedStatus);
 		
-			writer.Write(Generator);
+			writer.Write(Member);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -201,7 +214,7 @@
 			writer.Write(PoW);
 			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>	{
-												writer.Write(ITypeCode.Codes[i.GetType()]); 
+												writer.Write(Net.Codes[i.GetType()]); 
 												i.Write(writer); 
 											});
 		}
@@ -210,7 +223,7 @@
 		{
 			__ExpectedStatus = (TransactionStatus)reader.ReadByte();
 		
-			Generator	= reader.Read<EntityId>();
+			Member	= reader.Read<EntityId>();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
@@ -219,7 +232,7 @@
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {
-													var o = Mcv.CreateOperation(reader.ReadByte());
+													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
 													o.Transaction = this;
 													o.Read(reader); 
 													return o; 

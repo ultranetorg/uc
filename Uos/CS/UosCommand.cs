@@ -41,7 +41,7 @@ namespace Uccs.Uos
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			return Uos.Rdn.Request<Rp>(call, Flow);
+			return Uos.RdnApi.Request<Rp>(call, Flow);
 		}
 
 		public void RdnSend(Apc call)
@@ -49,7 +49,7 @@ namespace Uccs.Uos
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			Uos.Rdn.Send(call, Flow);
+			Uos.RdnApi.Send(call, Flow);
 		}
 	}
 }

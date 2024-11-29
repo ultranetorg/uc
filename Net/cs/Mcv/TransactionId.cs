@@ -2,8 +2,8 @@
 {
 	public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IComparable<TransactionId>
 	{
-		public int	Ri { get; private set; }
-		public int	Ti { get; private set; }
+		public int	Ri { get; set; }
+		public int	Ti { get; set; }
 
 		public TransactionId()
 		{

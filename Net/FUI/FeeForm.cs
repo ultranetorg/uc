@@ -4,11 +4,11 @@ namespace Uccs.Net.FUI
 {
 	public partial class FeeForm : Form, IFeeAsker
 	{
-		McvZone Zone;
+		McvNet Net;
 
-		public FeeForm(McvZone zone)
+		public FeeForm(McvNet net)
 		{
-			Zone = zone;
+			Net = net;
 
 			InitializeComponent();
 		}
@@ -23,13 +23,13 @@ namespace Uccs.Net.FUI
 			Close();
 		}
 
-		public bool Ask(Net.Node sun, AccountAddress account, Operation operation)
+		public bool Ask(Uccs.Net.HomoTcpPeering sun, AccountAddress account, Operation operation)
 		{
 			from.Text = account.ToString();
 			
 			var t = new Transaction(){Expiration = 0};
 			t.AddOperation(operation);
-			//t.Sign(account, Zone.Cryptography.ZeroHash);
+			//t.Sign(account, Net.Cryptography.ZeroHash);
 
 			//var f = sun.EstimateFee(t.Operations);
 			//

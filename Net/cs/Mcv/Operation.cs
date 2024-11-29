@@ -11,8 +11,8 @@
 		None = 0, 
 		CandidacyDeclaration, 
 		//Immission,
-		UnitTransfer,
-		BandwidthAllocation
+		UtilityTransfer,
+		BandwidthAllocation,
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable
@@ -38,7 +38,6 @@
 		public const string		NotEnoughMR = "Not enough membership rights";
 		public const string		NoAnalyzers = "No analyzers";
 		public const string		NotOwner = "The signer does not own the entity";
-		public const string		CantChangeSealedResource = "Cant change sealed resource";
 		public const string		NotRelease = "Data valus is not a release";
 		public const string		LimitReached = "Limit Reached";
 
@@ -89,7 +88,7 @@
 		{
 			var e = round.AffectAccount(account);	
 
-			if(e.New && (Signer.Address != round.Mcv.Zone.God || round.Id > Mcv.LastGenesisRound)) /// new Account
+			if(e.New && (Signer.Address != round.Mcv.Net.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 			{
 				Signer.BYBalance -= round.AccountAllocationFee(e);
 			}

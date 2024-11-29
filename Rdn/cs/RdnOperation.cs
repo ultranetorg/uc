@@ -5,8 +5,10 @@
 		None = 0, 
 		RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
 		//Immission				= OperationClass.Immission, 
-		UnitTransfer			= OperationClass.UnitTransfer, 
+		UtilityTransfer			= OperationClass.UtilityTransfer, 
 		BandwidthAllocation		= OperationClass.BandwidthAllocation,
+
+		ChildNetInitialization,
 
 		DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
 		ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
@@ -15,6 +17,9 @@
 
 	public abstract class RdnOperation : Operation
 	{
+		public const string		CantChangeSealedResource = "Cant change sealed resource";
+		public const string		NotRoot = "Not root domain";
+
 		public abstract void Execute(RdnMcv mcv, RdnRound round);
 
 		public override void Execute(Mcv mcv, Round round)
@@ -80,7 +85,7 @@
 
 		public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(name, round.Id);
+			domain = round.Mcv.Domains.Find(name, round.Id);
 
 			if(domain == null)
 			{
@@ -105,7 +110,7 @@
 
 		public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(id, round.Id);
+			domain = round.Mcv.Domains.Find(id, round.Id);
 
 			if(domain == null)
 			{
@@ -130,7 +135,7 @@
 
 		public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
 		{
-			domain = round.Rdn.Domains.Find(id, round.Id);
+			domain = round.Mcv.Domains.Find(id, round.Id);
 
 			if(domain == null)
 			{
@@ -157,7 +162,9 @@
 				return false; 
 			}
 
-			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
+			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
+
+			resource = s.Resources.FirstOrDefault(i => i.Id == id);
 			
 			if(resource == null)
 			{
@@ -178,7 +185,9 @@
 				return false; 
 			}
 
-			resource = domain.Resources.FirstOrDefault(i => i.Id == id);
+			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
+
+			resource = s.Resources.FirstOrDefault(i => i.Id == id);
 			
 			if(resource == null)
 			{

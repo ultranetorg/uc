@@ -14,8 +14,7 @@
 		void		WriteMore(BinaryWriter r);
 	}
 
-	public interface ITableEntry<K> : ITableEntryBase
+	public interface ITableEntry : ITableEntryBase
 	{
-		K			Key { get; }
 	}
 }

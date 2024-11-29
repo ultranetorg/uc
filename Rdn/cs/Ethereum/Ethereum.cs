@@ -17,7 +17,7 @@ namespace Uccs.Rdn
 
 		ContractHandler							_Contract;
 		Nethereum.Web3.Accounts.Account			_Account;
-		static Dictionary<McvZone, IPAddress[]>	Zones = new ();
+		static Dictionary<McvNet, IPAddress[]>	Nets = new ();
 		static string							Creator;
 
 		public Nethereum.Web3.Accounts.Account Account
@@ -146,18 +146,18 @@ namespace Uccs.Rdn
 			return false;
 		}
 
-// 		public IPAddress[] GetInitials(Zone zone, Workflow workflow)
+// 		public IPAddress[] GetInitials(Net net, Workflow workflow)
 // 		{
-// 			lock(Zones)
+// 			lock(Nets)
 // 			{
 // 				var ips = new List<IPAddress>();
 // 
-// 				if(!Zones.ContainsKey(zone))
+// 				if(!Nets.ContainsKey(net))
 // 				{
 // 					try
 // 					{
-// 						var input = new GetZoneFunction{Name = zone.Name};
-// 						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
+// 						var input = new GetNetFunction{Name = net.Name};
+// 						var z = Contract.QueryAsync<GetNetFunction, string>(input).Result;
 // 	
 // 						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
 // 						{
@@ -178,7 +178,7 @@ namespace Uccs.Rdn
 // 							ips.Add(ip);
 // 						}
 // 
-// 						Zones[zone] = ips.ToArray();
+// 						Nets[net] = ips.ToArray();
 // 					}
 // 					catch(Exception ex) when (ex is not RequirementException)
 // 					{
@@ -196,25 +196,25 @@ namespace Uccs.Rdn
 // 					if(!ips.Any())
 // 					{
 // 						workflow?.Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
-// 						Zones[zone] = zone.Initials;
+// 						Nets[net] = net.Initials;
 // 					}
 // 				}
 // 
-// 				return Zones[zone];
+// 				return Nets[net];
 // 			}
 // 		}
 
-// 		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
+// 		public async Task SetNet(Net net, string nodes, IGasAsker asker)
 // 		{
-// 			var f = new SetZoneFunction
+// 			var f = new SetNetFunction
 // 			{
-// 				Name = zone.Name,
+// 				Name = net.Name,
 // 				Nodes = nodes
 // 			};
 // 
 // 			try
 // 			{
-// 				Log.Report(this, "Setting zone", "Initiated");
+// 				Log.Report(this, "Setting net", "Initiated");
 // 
 // 				if(asker.Ask(Web3, Contract, Account.Address, f, null))
 // 				{
@@ -223,7 +223,7 @@ namespace Uccs.Rdn
 // 
 // 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
 // 
-// 					Log.Report(this, "Setting zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
+// 					Log.Report(this, "Setting net", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
 // 				}
 // 			}
 // 			catch(Exception ex)
@@ -233,16 +233,16 @@ namespace Uccs.Rdn
 // 			}
 // 		}
 // 
-// 		public async Task RemoveZone(Zone zone, IGasAsker asker)
+// 		public async Task RemoveNet(Net net, IGasAsker asker)
 // 		{
-// 			var f = new RemoveZoneFunction
+// 			var f = new RemoveNetFunction
 // 			{
-// 				Name = zone.Name
+// 				Name = net.Name
 // 			};
 // 
 // 			if(asker.Ask(Web3, Contract, Account.Address, f, null))
 // 			{
-// 				Log.Report(this, "Removing zone", "Initiated");
+// 				Log.Report(this, "Removing net", "Initiated");
 // 
 // 				try
 // 				{
@@ -251,11 +251,11 @@ namespace Uccs.Rdn
 // 
 // 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
 // 
-// 					Log.Report(this, "Removing zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
+// 					Log.Report(this, "Removing net", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
 // 				}
 // 				catch(Exception ex)
 // 				{
-// 					Log.ReportError(this, "Removing zone: Failed; ", ex);
+// 					Log.ReportError(this, "Removing net: Failed; ", ex);
 // 					throw ex;
 // 				}
 // 			}

@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
     <Product>UOS</Product>
     <Authors>uo</Authors>
@@ -10,9 +10,9 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>uos</AssemblyName>
-    <AssemblyVersion>1.0.208.0</AssemblyVersion>
-    <FileVersion>1.0.208.0</FileVersion>
-    <Version>1.0.208.0</Version>
+    <AssemblyVersion>1.0.234.0</AssemblyVersion>
+    <FileVersion>1.0.234.0</FileVersion>
+    <Version>1.0.234.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject></StartupObject>
   </PropertyGroup>

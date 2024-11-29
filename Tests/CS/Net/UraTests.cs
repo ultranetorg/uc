@@ -40,11 +40,11 @@ namespace Uccs.Tests
  		{
  			var s = new List<Ura>(){	Ura.Parse($"{Ura.Scheme}:a/r"),
 										Ura.Parse($"{Ura.Scheme}:aa/rr"),
-										Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")};
+										Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")};
 
 			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:a/r")) == 1);
 			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:aa/rr")) == 1);
-			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:zone.aaa/rrr")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")) == 1);
 
 			Assert.DoesNotContain(Ura.Parse("ura:wrong.aaa/rrr"), s);
  		}
@@ -89,10 +89,10 @@ namespace Uccs.Tests
 
 
 
-			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
-			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions));
+			Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)));
+			Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)));
 			
-			Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.DefaultOptions), RdnApiClient.DefaultOptions).RR);
+			Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.CreateOptions(Rdn.Rdn.Local)), RdnApiClient.CreateOptions(Rdn.Rdn.Local)).RR);
 		}
 
 		class A

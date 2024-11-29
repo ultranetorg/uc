@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class FundsRequest : McvCall<FundsResponse>
+	public class FundsRequest : McvPpc<FundsResponse>
 	{
 		public override PeerResponse Execute()
 		{

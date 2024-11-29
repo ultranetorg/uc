@@ -11,10 +11,11 @@ namespace Uccs.Rdn
 		public object				Lock = new object();
 		public string				DeploymentPath;
 
-		public PackageHub(RdnNode sun, SeedSettings settings)
+		public PackageHub(RdnNode sun, SeedSettings settings, string deploymentpath)
 		{
 			Node = sun;
 			Settings = settings;
+			DeploymentPath = deploymentpath;
 		}
 
  		public static string AddressToDeployment(string packagespath, AprvAddress resource)
@@ -317,8 +318,8 @@ namespace Uccs.Rdn
 			
  			lock(Node.ResourceHub.Lock)
  			{
-				m.CompleteHash		= Node.ResourceHub.Zone.Cryptography.HashFile(cstream.ToArray());
-				m.IncrementalHash	= istream != null ? Node.ResourceHub.Zone.Cryptography.HashFile(istream.ToArray()) : null;
+				m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream.ToArray());
+				m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream.ToArray()) : null;
 
 				if(previous != null) /// a single parent supported only
 				{
@@ -332,9 +333,9 @@ namespace Uccs.Rdn
 					m.History = (Find(previous).Manifest.History ?? []).Append(previous).ToArray();
 				}
 
-				var h = Node.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
+				var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
 
-				var a = addresscreator.Create(Node.Mcv, h);
+				var a = addresscreator.Create(Node.Vault, h);
 				var r = Node.ResourceHub.Add(a);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);

@@ -34,7 +34,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			var r = sun.Call(() => new ResourceRequest(Identifier), workflow).Resource;
+			var r = sun.Peering.Call(() => new ResourceRequest(Identifier), workflow).Resource;
 
 			IIntegrity itg;
 
@@ -48,7 +48,7 @@ namespace Uccs.Rdn
 
 				case Urrsd a :
 					///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
-					///.itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+					///.itg = new SPDIntegrity(sun.Net.Cryptography, a, au.Owner);
 					throw new NotSupportedException();
 					
 				default:

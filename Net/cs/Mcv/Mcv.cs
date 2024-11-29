@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -10,8 +11,8 @@ namespace Uccs.Net
 
 	public abstract class Mcv /// Mutual chain voting
 	{
-		public const int							P = 8; /// pitch
-		public const int							VotesMaximum = 21; /// pitch
+		public const int							P = 6; /// pitch
+		//public int									VotesRequired => Net.MembersLimit; /// 1000/8
 		public const int							JoinToVote = P*2;
 		public const int							TransactionPlacingLifetime = P*2;
 		public const int							LastGenesisRound = P*3 - 1;
@@ -24,13 +25,11 @@ namespace Uccs.Net
 		//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
 		public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
+		public object								Lock = new();
 		public McvSettings							Settings;
-		public McvZone								Zone;
-		public McvNode								Node;
+		public McvNet								Net;
 		public IClock								Clock;
-		public object								Lock => Node.Lock;
 		public Log									Log;
-		public Flow									Flow;
 
 		public RocksDb								Database;
 		public byte[]								BaseState;
@@ -46,7 +45,19 @@ namespace Uccs.Net
 		public ConsensusDelegate					ConsensusConcluded;
 		public RoundDelegate						Commited;
 
-		public List<Round>							Tail = new();
+		bool										_init = true;
+		List<Round>									_Tail = [];
+		public List<Round>							Tail
+													{
+														set => _Tail = value;
+														get 
+														{
+															if(!_init && !Monitor.IsEntered(Lock))
+																Debugger.Break();
+
+															return _Tail;
+														}
+													}
 		public Dictionary<int, Round>				LoadedRounds = new();
 		public Round								LastConfirmedRound;
 		public Round								LastCommittedRound;
@@ -56,16 +67,16 @@ namespace Uccs.Net
 		//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
+		public List<NtnBlock>						NtnBlocks = [];
+
 		public const string							ChainFamilyName = "Chain";
 		public ColumnFamilyHandle					ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
 		public static int							GetValidityPeriod(int rid) => rid + P;
 
-		public abstract string						CreateGenesis(AccountKey god, AccountKey f0);
 		protected abstract void						CreateTables(string databasepath);
 		protected abstract void						GenesisCreate(Vote vote);
 		protected abstract void						GenesisInitilize(Round vote);
-		public abstract Operation					CreateOperation(int type);
 		public abstract Round						CreateRound();
 		public abstract Vote						CreateVote();
 		public abstract Generator					CreateGenerator();
@@ -76,15 +87,15 @@ namespace Uccs.Net
 		{
   		}
 
-		protected Mcv(McvZone zone, McvSettings settings, string databasepath, bool skipinitload = false)
+		protected Mcv(McvNet net, McvSettings settings, string databasepath, bool skipinitload = false)
 		{
 			///Settings = new RdnSettings {Roles = Role.Chain};
-			Zone = zone;
+			Net = net;
 			Settings = settings;
 
 			CreateTables(databasepath);
 
-			BaseHash = Zone.Cryptography.ZeroHash;
+			BaseHash = Net.Cryptography.ZeroHash;
 
 			if(!skipinitload)
 			{
@@ -96,7 +107,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					if(g.SequenceEqual(Zone.Genesis.FromHex()))
+					if(g.SequenceEqual(Net.Genesis.FromHex()))
 					{
 						Load();
 					}
@@ -107,22 +118,81 @@ namespace Uccs.Net
 					}
 				}
 			}
+
+			_init = false;
 		}
 
-		public Mcv(McvNode node, McvSettings settings, string databasepath, IClock clock, Flow flow) : this(node.Zone, settings, databasepath)
+		public Mcv(McvNet net, McvSettings settings, string databasepath, IClock clock) : this(net, settings, databasepath)
 		{
-			Node = node;
-			Flow = flow;
 			Clock = clock;
+		}
+
+		public virtual string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
+		{
+			/// 0	- declare F0
+			/// P	- confirmed F0 membership
+			/// P+P	- F0 start voting for P+P-P-1 = P-1
+
+			Clear();
+
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			void write(int rid)
+			{
+				var r = GetRound(rid);
+				r.ConsensusTransactions = r.OrderedTransactions.ToArray();
+				r.Hashify();
+				r.Write(w);
+			}
+	
+			var v0 = CreateVote(); 
+			{
+				v0.RoundId = 0;
+				v0.Time = Time.Zero;
+				v0.ParentHash = Net.Cryptography.ZeroHash;
+
+				var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+				t.Member = new(0, -1);
+				t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
+				t.Sign(god, Net.Cryptography.ZeroHash);
+				v0.AddTransaction(t);
+
+				t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+				t.Member = new(0, -1);
+				t.AddOperation(candidacydeclaration);
+				t.Sign(f0, Net.Cryptography.ZeroHash);
+				v0.AddTransaction(t);
+			
+				v0.Sign(god);
+				Add(v0);
+				///v0.FundJoiners = v0.FundJoiners.Append(Net.Father0).ToArray();
+				write(0);
+			}
+	
+			for(int i = 1; i <= LastGenesisRound; i++)
+			{
+				var v = CreateVote();
+				v.RoundId	 = i;
+				v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+				v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
+		
+				v.Sign(i < JoinToVote ? god : f0);
+				Add(v);
+
+				write(i);
+			}
+						
+			return s.ToArray().ToHex();
 		}
 
 		public void Initialize()
 		{
-			if(Settings.Base.Chain != null)
+			if(Settings.Chain != null)
 			{
 				Tail.Clear();
 	
- 				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.FromHex()));
+ 				var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
 						
 				for(int i = 0; i <= LastGenesisRound; i++)
 				{
@@ -137,7 +207,7 @@ namespace Uccs.Net
 							r.ConsensusExecutionFee = 1;
 
 						if(i == 0)
-							r.ConsensusFundJoiners = [Zone.Father0];
+							r.ConsensusFundJoiners = [Net.Father0];
 						
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
@@ -153,7 +223,7 @@ namespace Uccs.Net
 					throw new IntegrityException("Genesis construction failed");
 			}
 		
-			Database.Put(GenesisKey, Zone.Genesis.FromHex());
+			Database.Put(GenesisKey, Net.Genesis.FromHex());
 		}
 		
 		public void Load()
@@ -177,7 +247,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Settings.Base.Chain != null)
+			if(Settings.Chain != null)
 			{
 				var s = Database.Get(ChainStateKey);
 
@@ -185,14 +255,14 @@ namespace Uccs.Net
 
 				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-				if(lcr.Id < Zone.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
+				if(lcr.Id < Net.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
 				{
 					Clear();
 					Initialize();
 				} 
 				else
 				{
-					for(var i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
+					for(var i = lcr.Id - lcr.Id % Net.CommitLength; i <= lcr.Id; i++)
 					{
 						var r = FindRound(i);
 	
@@ -206,28 +276,21 @@ namespace Uccs.Net
 			}
 		}
 
-		public virtual void ClearTables()
-		{
-		}
-
 		public void Clear()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			Tail.Clear();
 
 			BaseState = null;
-			BaseHash = Zone.Cryptography.ZeroHash;
+			BaseHash = Net.Cryptography.ZeroHash;
 
 			LastCommittedRound = null;
 			LastConfirmedRound = null;
 
 			LoadedRounds.Clear();
-			Accounts.Clear();
+			//Accounts.Clear();
 
-			ClearTables();
+			foreach(var i in Tables)
+				i.Clear();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);
@@ -245,10 +308,6 @@ namespace Uccs.Net
 
 		public bool Add(Vote vote)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			var r = GetRound(vote.RoundId);
 
 			vote.Round = r;
@@ -277,7 +336,6 @@ namespace Uccs.Net
 			{
 				if(r.ConsensusReached)
 				{
-					ConsensusConcluded(r, true);
 
 					var mh = r.MajorityByParentHash.Key;
 	 		
@@ -285,7 +343,7 @@ namespace Uccs.Net
 					{
 						p.Summarize();
 						
-						if(!mh.SequenceEqual(p.Hash))
+						if(p.Hash == null || !mh.SequenceEqual(p.Hash))
 						{
 							#if DEBUG
 							///var x = r.Eligible.Select(i => i.ParentHash.ToHex());
@@ -299,6 +357,7 @@ namespace Uccs.Net
 					p.Confirm();
 					Commit(p);
 
+					ConsensusConcluded(r, true);
 					return true;
 	
 				}
@@ -317,17 +376,12 @@ namespace Uccs.Net
 
 		public Round GetRound(int rid)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			var r = FindRound(rid);
 
 			if(r == null)
 			{	
 				r = CreateRound();
 				r.Id = rid;
-				//r.LastAccessed = DateTime.UtcNow;
 				Tail.Add(r);
 				Tail = Tail.OrderByDescending(i => i.Id).ToList();
 			}
@@ -337,10 +391,6 @@ namespace Uccs.Net
 
 		public Round FindRound(int rid)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			foreach(var i in Tail)
 				if(i.Id == rid)
 					return i;
@@ -370,13 +420,9 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
-			if(LoadedRounds.Count > Zone.CommitLength)
+			if(LoadedRounds.Count > Net.CommitLength)
 			{
-				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.CommitLength))
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
 				{
 					LoadedRounds.Remove(i.Key);
 				}
@@ -385,9 +431,6 @@ namespace Uccs.Net
 
 		public bool ConsensusFailed(Round r)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			var s = r.Voters;
 			var e = r.VotesOfTry;
 			
@@ -428,10 +471,6 @@ namespace Uccs.Net
 
 		public void Hashify()
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			BaseHash = Cryptography.Hash(BaseState);
 	
 			foreach(var t in Tables)
@@ -442,9 +481,6 @@ namespace Uccs.Net
 
 		public Round TryExecute(Transaction transaction)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			var m = NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
 
 			if(!Settings.Generators.Contains(m))
@@ -468,10 +504,6 @@ namespace Uccs.Net
 		
 		public void Commit(Round round)
 		{
-			if(Node != null)
-				if(!Monitor.IsEntered(Lock))
-					Debugger.Break();
-
 			using(var b = new WriteBatch())
 			{
 				if(round.IsLastInCommit)
@@ -479,7 +511,7 @@ namespace Uccs.Net
 					//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
 					//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");
 
-					var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
+					var tail = Tail.AsEnumerable().Reverse().Take(Net.CommitLength);
 
 					foreach(var r in tail)
 						foreach(var t in Tables)
@@ -513,7 +545,7 @@ namespace Uccs.Net
 					Recycle();
 				}
 
-				if(Settings.Base?.Chain != null)
+				if(Settings.Chain != null)
 				{
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
@@ -538,9 +570,6 @@ namespace Uccs.Net
 
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in r.Transactions)
 					if(transaction_predicate == null || transaction_predicate(t))
@@ -551,9 +580,6 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			if(!Monitor.IsEntered(Lock))
-				Debugger.Break();
-
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
 				foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
 					yield return t;

@@ -374,7 +374,7 @@ namespace Uccs.Rdn
 
 		public byte[] Hashify(string path)
 		{
-			return Hub.Zone.Cryptography.HashFile(Find(path).Read());
+			return Hub.Net.Cryptography.HashFile(Find(path).Read());
 		}
 	}
 }

@@ -47,12 +47,13 @@
 			if(RequireResource(round, Destination, out var dd, out var dr) == false)
 				return;
 
-			sd = round.AffectDomain(sd.Id);
-			sr = sd.AffectResource(sr.Address.Resource);
+			var ss = round.AffectSite(sd.Id);
+			sr = ss.AffectResource(sd, sr.Address.Resource);
 			sr.AffectOutbound(dr.Id);
 
-			dd = round.AffectDomain(dd.Id);
-			dr = dd.AffectResource(dr.Address.Resource);
+			//dd = round.AffectDomain(dd.Id);
+			var ds = round.AffectSite(dd.Id);
+			dr = ds.AffectResource(dd, dr.Address.Resource);
 			dr.AffectInbound(sr.Id);
 
 			if(Changes.HasFlag(ResourceLinkChanges.Seal))
@@ -66,7 +67,10 @@
 				PayForSpacetime(Mcv.EntityLength, Mcv.Forever);
 			}
 			else
+			{	
+				sd = round.AffectDomain(sd.Id);
 				Allocate(round, sd, Mcv.EntityLength);
+			}
 		}
 	}
 }

@@ -1,16 +1,14 @@
 ﻿namespace Uccs.Rdn
 {
-	public class DeclareReleaseRequest : RdnCall<DeclareReleaseResponse>//, IBinarySerializable
+	public class DeclareReleaseRequest : RdnPpc<DeclareReleaseResponse>//, IBinarySerializable
 	{
 		public ResourceDeclaration[]	Resources { get; set; }
 		public override bool			WaitResponse => true;
 
 		public override PeerResponse Execute()
 		{
-			lock(Node.Lock)
-			{	
+			lock(Node.Mcv.Lock)
 				RequireMember();
-			}
 
 			lock(Node.SeedHub.Lock)
 				return new DeclareReleaseResponse {Results = Node.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};

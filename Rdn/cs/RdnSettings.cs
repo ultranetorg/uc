@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn
+﻿using System.Diagnostics;
+
+namespace Uccs.Rdn
 {
 	public class SeedSettings : Settings
 	{
@@ -26,8 +28,16 @@
 		}
 	}
 
-	public class RdnSettings : McvSettings
+	public class RdnNodeSettings : SavableSettings
 	{
+		public McvSettings				Mcv { get; set; }
+		public PeeringSettings			Peering { get; set; } = new();
+		public PeeringSettings			NtnPeering { get; set; }
+		public ApiSettings				Api { get; set; }
+		public bool						Log { get; set; }
+		public int						RdcQueryTimeout { get; set; } = 5000;
+		public int						RdcTransactingTimeout { get; set; } = 5*60*1000;
+
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
 
@@ -35,18 +45,22 @@
 		public string					GoogleApiKey { get; set; }
 
 		public SeedSettings				Seed { get; set; }
-		//public EthereumSettings			Ethereum { get; set; } = new ();
 		public SeedHubSettings			SeedHub { get; set; } = new ();
 
-		public override long			Roles => base.Roles | (Seed != null ? (long)RdnRole.Seed : 0);
+		public long						Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 
-		public RdnSettings()
+		public RdnNodeSettings() : base(NetXonTextValueSerializator.Default)
 		{
 		}
 
-		public RdnSettings(string profile) : base(profile)
+		public RdnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
 		{
+			if(Debugger.IsAttached)
+			{
+				RdcQueryTimeout = int.MaxValue;
+				RdcTransactingTimeout = int.MaxValue;
+			}
 		}
 	}
 }

@@ -8,10 +8,14 @@ namespace Uccs.Net.FUI
 	{
 		public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
 
-		public AccountsPanel(Uos.Uos d) : base(d)
+		Uos.Uos Uos;
+		McvNode Node;
+
+		public AccountsPanel(Uos.Uos d)
 		{
 			InitializeComponent();
 
+			Uos = d;
 		}
 
 		public override void Open(bool first)
@@ -40,19 +44,18 @@ namespace Uccs.Net.FUI
 	
 										try
 										{
-											e = McvNode.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account; 
+											e = Node.Peering.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account; 
 										}
 										catch(Exception)
 										{
 										}
 	
-										Invoke(	(MethodInvoker) delegate
-												{
-													i.SubItems[1].Text = e?.BYBalance.ToString() ?? "..."; 
-													i.SubItems[2].Text = e?.ECBalance.ToString() ?? "..."; 
-													i.SubItems[3].Text = null; 
-													i.SubItems[1].Tag = false;
-												});
+										Invoke(() => {
+														i.SubItems[1].Text = e?.BYBalance.ToString() ?? "..."; 
+														i.SubItems[2].Text = e?.ECBalance.ToString() ?? "..."; 
+														i.SubItems[3].Text = null; 
+														i.SubItems[1].Tag = false;
+													 });
 									});
 				}
 			}
@@ -95,7 +98,7 @@ namespace Uccs.Net.FUI
 		{
 			try
 			{
-				var a = GetPrivate(CurrentAccout);
+				var a = GetPrivate(Uos, CurrentAccout);
 
 				if(a != null)
 				{
@@ -113,7 +116,7 @@ namespace Uccs.Net.FUI
 			var f = new SaveFileDialog();
 
 			f.FileName = CurrentAccout.ToString();
-			f.DefaultExt = Vault.WalletExt(Mcv.Zone.Cryptography);
+			f.DefaultExt = Vault.WalletExt(Node.Net.Cryptography);
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{

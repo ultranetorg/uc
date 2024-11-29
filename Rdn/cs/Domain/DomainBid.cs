@@ -8,7 +8,7 @@
 		
 		public override bool IsValid(Mcv mcv)
 		{
-			if(!(mcv.Zone as RdnZone).Auctions)
+			if(!(mcv.Net as Rdn).Auctions)
 				return false;
 
 			if(!Domain.IsWeb(Name))

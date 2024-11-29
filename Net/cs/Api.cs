@@ -19,7 +19,7 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+				foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -34,7 +34,22 @@ namespace Uccs.Net
 												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 											};
 
-				foreach(var i in typeof(PeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				{
+					ti.PolymorphismOptions.DerivedTypes.Add(i);
+				}
+	        }
+
+	        if(ti.Type == typeof(NetException))
+	        {
+	            ti.PolymorphismOptions =	new JsonPolymorphismOptions
+											{
+												TypeDiscriminatorPropertyName = "$type",
+												IgnoreUnrecognizedTypeDiscriminators = true,
+												UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+											};
+
+				foreach(var i in typeof(ExceptionClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -46,38 +61,38 @@ namespace Uccs.Net
 
 	public class ApiClient : JsonClient
 	{
-		public static readonly JsonSerializerOptions DefaultOptions;
-
-		static ApiClient()
+		public static JsonSerializerOptions CreateOptions()
 		{
-			DefaultOptions = new JsonSerializerOptions{};
-
-			DefaultOptions.IgnoreReadOnlyProperties = true;
-
-			DefaultOptions.Converters.Add(new UnitJsonConverter());
-			DefaultOptions.Converters.Add(new AccountJsonConverter());
-			DefaultOptions.Converters.Add(new IPJsonConverter());
-			DefaultOptions.Converters.Add(new TimeJsonConverter());
-			DefaultOptions.Converters.Add(new VersionJsonConverter());
-			DefaultOptions.Converters.Add(new XonJsonConverter());
-			DefaultOptions.Converters.Add(new BigIntegerJsonConverter());
+			var o = new JsonSerializerOptions{};
+			
+			o.IgnoreReadOnlyProperties = true;
+			
+			o.Converters.Add(new UnitJsonConverter());
+			o.Converters.Add(new AccountJsonConverter());
+			o.Converters.Add(new IPJsonConverter());
+			o.Converters.Add(new TimeJsonConverter());
+			o.Converters.Add(new VersionJsonConverter());
+			o.Converters.Add(new XonJsonConverter());
+			o.Converters.Add(new BigIntegerJsonConverter());
 
 #if ETHEREUM
 			DefaultOptions.Converters.Add(new HexBigIntegerJsonConverter());
 #endif
 
-			DefaultOptions.TypeInfoResolver = new ApiTypeResolver();
+			o.TypeInfoResolver = new ApiTypeResolver();
+
+			return o;
 		}
 
 
 		public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions();
 		}
 
 		public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions();
 		}
 	}
 }

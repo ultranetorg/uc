@@ -39,7 +39,7 @@ namespace Uccs.Rdn
 									{
 										try
 										{
-											var lr = Collector.Node.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
+											var lr = Collector.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
 	
 											lock(Collector.Lock)
 											{
@@ -71,7 +71,7 @@ namespace Uccs.Rdn
 
 		Thread						Thread;
 		DateTime					MembersRefreshed = DateTime.MinValue;
-		RdnGenerator[]					Members;
+		RdnGenerator[]				Members;
 
 		public SeedFinder(RdnNode sun, Urr address, Flow flow)
 		{
@@ -84,7 +84,7 @@ namespace Uccs.Rdn
 													{
 														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 														{
-															var r = Node.Call(() => new RdnMembersRequest(), Flow);
+															var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
 
 															lock(Lock)
 																Members = r.Members.ToArray();
@@ -136,14 +136,14 @@ namespace Uccs.Rdn
 												{
 													if(s.Peer == null)
 													{
-														s.Peer = Node.GetPeer(s.IP);
+														s.Peer = Node.Peering.GetPeer(s.IP);
 													}
 			
 													try
 													{
 														Monitor.Exit(Lock);
 			
-														Node.Connect(s.Peer, Flow);
+														Node.Peering.Connect(s.Peer, Flow);
 															
 														s.Failed = DateTime.MinValue;
 													}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -170,12 +171,12 @@ namespace Uccs
 				return default;
 		}
 
-		public static T ReadVirtual<T>(this BinaryReader r) where T : IBinarySerializable, ITypeCode
-		{
-			var o = (T)ITypeCode.Contructors[typeof(T)][r.ReadByte()].Invoke(null);
-			o.Read(r);
-			return o;
-		}
+		//public static T ReadVirtual<T>(this BinaryReader r) where T : IBinarySerializable, ITypeCode
+		//{
+		//	var o = (T)ITypeCode.Contructors[typeof(T)][r.ReadByte()].Invoke(null);
+		//	o.Read(r);
+		//	return o;
+		//}
 
 		public static T Read<T>(this BinaryReader r, Func<byte, T> construct) where T : class, IBinarySerializable
 		{
@@ -187,7 +188,7 @@ namespace Uccs
 		public static void Write(this BinaryWriter w, IBinarySerializable o)
 		{
 			if(o is ITypeCode c)
-				w.Write(ITypeCode.Codes[o.GetType()]);
+				Debugger.Break();
 
 			o.Write(w);
 		}
@@ -199,8 +200,9 @@ namespace Uccs
 			if(o != null)
 			{
 				if(o is ITypeCode c)
-					w.Write(ITypeCode.Codes[o.GetType()]);
-	
+					//w.Write(ITypeCode.Codes[o.GetType()]);
+					Debugger.Break();
+						
 				o.Write(w);
 			}
 		}

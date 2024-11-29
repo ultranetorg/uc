@@ -74,7 +74,7 @@
 											{
 												try
 												{
-													last = node.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
+													last = node.Peering.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
 														
 													if(last.Data.Type != new DataType(DataType.File, ContentType.Rdn_PackageManifest))
 													{
@@ -105,9 +105,9 @@
 													break;
 
 												case Urrsd u:
-													var d = node.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
-													var aa = node.Call(() => new AccountRequest(d.Owner), workflow).Account;
-													itg = new SPDIntegrity(node.Zone.Cryptography, u, aa.Address);
+													var d = node.Peering.Call(() => new DomainRequest(package.Resource.Address.Domain), workflow).Domain;
+													var aa = node.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
+													itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Address);
 													break;
 											};
 	

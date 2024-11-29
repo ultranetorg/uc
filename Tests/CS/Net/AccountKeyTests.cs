@@ -9,7 +9,7 @@ namespace Uccs.Tests
 	 	[Fact]
  		public static void Main()
  		{
-// 			var e = new EthECKey(File.ReadAllBytes("m:\\UO\\Testdata\\Zone\\Fathers\\0x000038a7a3cb80ec769c632b7b3e43525547ecd1.sunwpk"), true);
+// 			var e = new EthECKey(File.ReadAllBytes("m:\\UO\\Testdata\\Net\\Fathers\\0x000038a7a3cb80ec769c632b7b3e43525547ecd1.sunwpk"), true);
 // 
 // 			var initaddr = Sha3Keccack.Current.CalculateHash(e.GetPubKeyNoPrefix());
 // 			var initaddr2 = Cryptography.Hash(e.GetPubKeyNoPrefix());

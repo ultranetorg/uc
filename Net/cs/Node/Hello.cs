@@ -5,9 +5,8 @@ namespace Uccs.Net
 	public class Hello
 	{
 		public int[]						Versions;
-		public Guid							PeerId;
 		public long							Roles;
-		public Guid							ZoneId;
+		public string						Net;
 		public IPAddress					IP;
 		public bool							Permanent;
 		public string						Name;
@@ -15,8 +14,7 @@ namespace Uccs.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Versions, i => w.Write7BitEncodedInt(i));
-			w.Write(ZoneId);
-			w.Write(PeerId);
+			w.WriteUtf8(Net);
 			w.WriteUtf8(Name);
 			w.Write7BitEncodedInt64(Roles);
 			w.Write(IP);
@@ -26,8 +24,7 @@ namespace Uccs.Net
 		public void Read(BinaryReader r)
 		{
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
-			ZoneId				= r.ReadGuid();
-			PeerId				= r.ReadGuid();
+			Net					= r.ReadUtf8();
 			Name				= r.ReadUtf8();
 			Roles				= r.Read7BitEncodedInt64();
 			IP					= r.ReadIPAddress();

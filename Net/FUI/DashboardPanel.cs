@@ -2,14 +2,18 @@
 {
 	public partial class DashboardPanel : MainPanel
 	{
+		Uos.Uos Uos;
+
 		public DashboardPanel()
 		{
 			InitializeComponent();
 		}
 
-		public DashboardPanel(Uos.Uos d) : base(d)
+		public DashboardPanel(Uos.Uos uos)
 		{
 			InitializeComponent();
+
+			Uos = uos;
 		}
 
 		public override void Open(bool first)
@@ -18,7 +22,7 @@
 			{
 				Logbox.Log = Uos.Flow.Log;
 
-				var m = Uos.Nodes.Select(i => i.Node).OfType<McvNode>().FirstOrDefault();
+				var m = Uos.Nodes.Select(i => i.Node).OfType<McvTcpPeering>().FirstOrDefault();
 				
 				if(m?.Mcv != null)
 				{
@@ -35,14 +39,13 @@
 
 		public override void PeriodicalRefresh()
 		{
-			var	s = (new SummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Uos.Izn, null, null, null) as SummaryApc.Return).Summary;
-
-			fields.Text = string.Join('\n', s.Select(j => j[0]));
-			values.Text = string.Join('\n', s.Select(j => j[1]));
+			fields.Text = "";
+			values.Text = "";
 		
 			foreach(var i in Uos.Nodes.Select(i => i.Node).OfType<McvNode>())
 			{
-				var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(i, null, null, null) as SummaryApc.Return).Summary;
+				//(new SummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Uos., null, null, null) as SummaryApc.Return).Summary
+				var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(i, null, null, null) as McvSummaryApc.Return).Summary;
 
 				fields.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[0]));
 				values.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[1]));

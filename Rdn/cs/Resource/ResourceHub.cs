@@ -15,21 +15,24 @@ namespace Uccs.Rdn
 		public List<LocalResource>		Resources = new();
 		public RdnNode					Node;
 		public object					Lock = new object();
-		public McvZone					Zone;
+		public McvNet					Net;
 		public ColumnFamilyHandle		ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
 		public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
 		public SeedSettings				Settings;
 		Thread							DeclaringThread;
 
-		public ResourceHub(RdnNode node, McvZone zone, SeedSettings settings)
+		public ResourceHub(RdnNode node, McvNet net, SeedSettings settings)
 		{
 			Node = node;
-			Zone = zone;
+			Net = net;
 			Settings = settings;
 
 			Settings.Releases ??= Path.Join(Node.Settings.Profile, nameof(Settings.Releases));
 
 			Directory.CreateDirectory(Settings.Releases);
+
+			if(!Node.Database.TryGetColumnFamily(ReleaseFamilyName, out var cf))	Node.Database.CreateColumnFamily(new (), ReleaseFamilyName);
+			if(!Node.Database.TryGetColumnFamily(ResourceFamilyName, out cf))		Node.Database.CreateColumnFamily(new (), ResourceFamilyName);
 
 			using(var i = Node.Database.NewIterator(ReleaseFamily))
 			{
@@ -43,7 +46,7 @@ namespace Uccs.Rdn
 
 		public void RunDeclaring()
 		{ 
-			if(Node.IsListener)
+			if(Node.Peering.IsListener)
 			{
 				DeclaringThread = Node.CreateThread(Declaring);
 				DeclaringThread.Name = $"{Node.Name} Declaring";
@@ -176,7 +179,7 @@ namespace Uccs.Rdn
 				foreach(var i in Directory.EnumerateFiles(dir))
 				{
 					files[i] = Path.Join(dest, i.Substring(basepath.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
-					parent.Add(Path.GetFileName(i)).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(i));
+					parent.Add(Path.GetFileName(i)).Value = Net.Cryptography.HashFile(File.ReadAllBytes(i));
 				}
 
 				foreach(var i in Directory.EnumerateDirectories(dir).Where(i => Directory.EnumerateFileSystemEntries(i).Any()))
@@ -202,7 +205,7 @@ namespace Uccs.Rdn
 					else
 					{
 						files[s] = Path.GetFileName(s);
-						index.Add(files[s]).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(s));
+						index.Add(files[s]).Value = Net.Cryptography.HashFile(File.ReadAllBytes(s));
 					}
 				}
 				else
@@ -214,7 +217,7 @@ namespace Uccs.Rdn
 					else
 					{
 						files[s] = d;
-						index.Add(files[s]).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(s));
+						index.Add(files[s]).Value = Net.Cryptography.HashFile(File.ReadAllBytes(s));
 					}
 				}
 			}
@@ -222,8 +225,8 @@ namespace Uccs.Rdn
 			var ms = new MemoryStream();
 			index.Save(new XonBinaryWriter(ms));
 
-			var h = Zone.Cryptography.HashFile(ms.ToArray());
-			var a = address.Create(Node.Mcv, h);
+			var h = Net.Cryptography.HashFile(ms.ToArray());
+			var a = address.Create(Node.Vault, h);
  				
 			var r = Add(a);
 
@@ -243,8 +246,8 @@ namespace Uccs.Rdn
 		{
 			var b = File.ReadAllBytes(path);
 
-			var h = Zone.Cryptography.HashFile(b);
-			var a = address.Create(Node.Mcv, h);
+			var h = Net.Cryptography.HashFile(b);
+			var a = address.Create(Node.Vault, h);
  			
 			var r = Add(a);
 
@@ -281,9 +284,9 @@ namespace Uccs.Rdn
 
 			while(Node.Flow.Active)
 			{
-				Node.Statistics.Declaring.Begin();
+				Node.Peering.Statistics.Declaring.Begin();
 
-				var cr = Node.Call(() => new RdnMembersRequest(), Node.Flow);
+				var cr = Node.Peering.Call(() => new RdnMembersRequest(), Node.Flow);
 	
 				if(!cr.Members.Any())
 					continue;
@@ -326,7 +329,7 @@ namespace Uccs.Rdn
 
 				if(ds.Count == 0 && us.Count == 0)
 				{
-					Node.Statistics.Declaring.End();
+					Node.Peering.Statistics.Declaring.End();
 					Thread.Sleep(1000);
 					continue;
 				}
@@ -343,7 +346,7 @@ namespace Uccs.Rdn
 						var t = Task.Run(() =>	{
 													try
 													{
-														var cr = Node.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
+														var cr = Node.Peering.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
 														
 														lock(Lock)
 														{
@@ -381,9 +384,9 @@ namespace Uccs.Rdn
 
 													try
 													{
-														drr = Node.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
-																																																Release = rs.Value.Address, 
-																																																Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
+														drr = Node.Peering.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
+																																																		Release = rs.Value.Address, 
+																																																		Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
 													}
 													catch(NodeException)/// when(!Debugger.IsAttached)
 													{
@@ -418,7 +421,7 @@ namespace Uccs.Rdn
 					}
 				}
 					
-				Node.Statistics.Declaring.End();
+				Node.Peering.Statistics.Declaring.End();
 			}
 		}
 

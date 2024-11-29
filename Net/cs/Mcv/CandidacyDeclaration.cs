@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public abstract class CandidacyDeclaration : Operation
+	public class CandidacyDeclaration : Operation
 	{
 		public IPAddress[]		BaseRdcIPs;
 
@@ -28,12 +28,6 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(round.Candidates.Count(i => i.Registered == round.ConsensusTime) >= mcv.Zone.CandidatesMaximum)
-			{
-				Error = "Limit reached";
-				return;
-			}
-
 			if(round.Members.Any(i => i.Id == Signer.Id))
 			{
 				Error = "Already member";
@@ -42,27 +36,31 @@ namespace Uccs.Net
 
 			var c = round.Candidates.Find(i => i.Id == Signer.Id);
 
-			if(c != null && c.Registered == round.ConsensusTime)
+			if(c != null)
 			{
 				Error = "Already registered";
 				return;
 			}
 
-			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Zone.DeclarationCost)
+			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Net.DeclarationCost)
 			{
 				Error = NotEnoughEC;
 				return;
 			}
 
-			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Zone.DeclarationCost);
+			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
 
 			Affected = round.AffectCandidate(Signer.Id);
 			
 			Affected.Id			= Signer.Id;
 			Affected.Address	= Signer.Address;
 			Affected.BaseRdcIPs	= BaseRdcIPs;
-			Affected.Registered	= round.ConsensusTime;
+			Affected.Registered	= round.Id;
 			
+			if(round.Candidates.Count >= mcv.Net.CandidatesMaximum)
+			{
+				round.Candidates.RemoveAt(0);
+			}
 		}
 	}
 }

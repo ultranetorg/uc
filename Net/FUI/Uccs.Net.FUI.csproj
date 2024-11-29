@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows7.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Rdn.FUI</AssemblyName>
     <RootNamespace>Uccs.Sun.FUI</RootNamespace>
@@ -35,7 +35,6 @@
     <Compile Update="MembersPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ResourcesPanel.cs" />
-    <Compile Update="ApplicationsPanel.cs" />
     <Compile Update="TextForm.cs">
       <SubType>Form</SubType>
     </Compile>

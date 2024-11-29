@@ -9,17 +9,17 @@
 		{
 		}
 
-		protected override void WriteVote(BinaryWriter writer)
+		protected override void WritePayload(BinaryWriter writer)
 		{
-			base.WriteVote(writer);
+			base.WritePayload(writer);
 
 			//writer.Write(Emissions);
 			writer.Write(Migrations);
 		}
 
-		protected override void ReadVote(BinaryReader reader)
+		protected override void ReadPayload(BinaryReader reader)
 		{
-			base.ReadVote(reader);
+			base.ReadPayload(reader);
 
 			//Emissions	= reader.ReadArray<ForeignResult>();
 			Migrations	= reader.ReadArray<ForeignResult>();

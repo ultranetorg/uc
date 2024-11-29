@@ -23,7 +23,7 @@ namespace Uccs.Rdn
 
 	        if(ti.Type == typeof(PeerRequest))
 	        {
-				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+				foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -31,7 +31,15 @@ namespace Uccs.Rdn
 
 	        if(ti.Type == typeof(PeerResponse))
 	        {
-				foreach(var i in typeof(RdnPeerCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+				{
+					ti.PolymorphismOptions.DerivedTypes.Add(i);
+				}
+	        }
+
+	        if(ti.Type == typeof(NetException))
+	        {
+				foreach(var i in typeof(ResourceException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				{
 					ti.PolymorphismOptions.DerivedTypes.Add(i);
 				}
@@ -45,7 +53,7 @@ namespace Uccs.Rdn
 	{
 		RdnNode Node;
 
-		public RdnApiServer(RdnNode node, Flow workflow) : base(node, workflow, RdnApiClient.DefaultOptions)
+		public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions(node.Net))
 		{
 			Node = node;
 		}
@@ -66,37 +74,35 @@ namespace Uccs.Rdn
 
 	public class RdnApiClient : McvApiClient
 	{
-		new public static readonly JsonSerializerOptions	DefaultOptions;
-
-		static RdnApiClient()
+		new public static JsonSerializerOptions CreateOptions(Net.Net net)
 		{
-			DefaultOptions = new JsonSerializerOptions{};
-			DefaultOptions.IgnoreReadOnlyProperties = true;
-			DefaultOptions.TypeInfoResolver = new RdnTypeResolver();
+			var o = McvApiClient.CreateOptions(net);
 
-			foreach(var i in McvApiClient.DefaultOptions.Converters)
-			{
-				DefaultOptions.Converters.Add(i);
-			}
+			o.TypeInfoResolver = new RdnTypeResolver();
+			
+			o.Converters.Add(new UraJsonConverter());
+			o.Converters.Add(new UrrJsonConverter());
+			o.Converters.Add(new ResourceDataJsonConverter());
 
-			DefaultOptions.Converters.Add(new UraJsonConverter());
-			DefaultOptions.Converters.Add(new UrrJsonConverter());
-			DefaultOptions.Converters.Add(new ResourceDataJsonConverter());
+			return o;
 		}
 
-		public RdnApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+		public RdnApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
+			
 		}
 
-		public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+		public RdnApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
 		{
-			Options = DefaultOptions;
+			Options = CreateOptions(net);
+			Net = net;
 		}
 		
-		public LocalResource			FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+		public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
 		public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-		public PackageInfo				FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+		public PackageInfo		FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 		
 		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
 		{
@@ -166,7 +172,7 @@ namespace Uccs.Rdn
 				var a = Ura.Parse(request.QueryString["address"]);
 				var path = request.QueryString["path"] ?? "";
 	
-				var r = rdn.Call(() => new ResourceRequest(a), workflow).Resource;
+				var r = rdn.Peering.Call(() => new ResourceRequest(a), workflow).Resource;
 				var ra = r.Data?.Parse<Urr>()
 						 ??	
 						 throw new ResourceException(ResourceError.NotFound);
@@ -200,9 +206,9 @@ namespace Uccs.Rdn
 						break;
 	
 					case Urrsd x :
-						var d = rdn.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-						var aa = rdn.Call(() => new AccountRequest(d.Owner), workflow).Account;
-						itg = new SPDIntegrity(rdn.Zone.Cryptography, x, aa.Address);
+						var d = rdn.Peering.Call(() => new DomainRequest(a.Domain), workflow).Domain;
+						var aa = rdn.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
+						itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
 						break;
 	
 					default:
@@ -269,7 +275,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), Wei, workflow);
+			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), Wei, workflow);
 		}
 	}
 
@@ -289,7 +295,7 @@ namespace Uccs.Rdn
 
 		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
-			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Zone as RdnZone).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
+			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
 			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 		}
 	}
@@ -338,7 +344,7 @@ namespace Uccs.Rdn
 				Rate = 1;
 			}
 
-			var r = rdn.Call(() => new CostRequest(), workflow);
+			var r = rdn.Peering.Call(() => new CostRequest(), workflow);
 
 			return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 								//Exeunit						= r.ConsensusExeunitFee * Rate,

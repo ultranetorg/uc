@@ -1,110 +1,34 @@
-﻿using System.Reflection;
+﻿using System.Net;
 using RocksDbSharp;
 
 namespace Uccs.Rdn
 {
-	public abstract class RdnCall<R> : McvCall<R> where R : PeerResponse
-	{
-		public new RdnNode	Node => base.Node as RdnNode;
-		public RdnMcv		Rdn => Node.Mcv;
-	}
-
-	[Flags]
-	public enum RdnRole : uint
-	{
-		None,
-		Seed = 0b00000100,
-	}
-
 	public class RdnMcv : Mcv
 	{
-		public new RdnSettings			Settings => base.Settings as RdnSettings;
 		public DomainTable				Domains;
+		public SiteTable				Sites;
 		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
-
-		static RdnMcv()
-		{
-			if(!ITypeCode.Contructors.ContainsKey(typeof(Operation)))
-				ITypeCode.Contructors[typeof(Operation)] = [];
-
-			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
-			{
-				ITypeCode.Codes[i] = (byte)Enum.Parse<RdnOperationClass>(i.Name);
-				ITypeCode.Contructors[typeof(Operation)][(byte)Enum.Parse<RdnOperationClass>(i.Name)]  = i.GetConstructor([]);
-			}
-
-		}
+		IPAddress[]						BaseIPs;
+		IPAddress[]						SeedHubIPs;
 
 		public RdnMcv()
 		{
   		}
 
-		public RdnMcv(McvZone zone, RdnSettings settings, string databasepath, bool skipinitload = false) : base(zone, settings, databasepath, skipinitload)
+		public RdnMcv(Rdn net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
 		{
 		}
 
-		public RdnMcv(RdnNode sun, RdnSettings settings, string databasepath, Flow flow, IClock clock) : base(sun, settings, databasepath, clock, flow)
+		public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, clock)
 		{
+			BaseIPs = baseips;
+			SeedHubIPs = seedhubips;
 		}
 
-		public override string CreateGenesis(AccountKey god, AccountKey f0)
+		public string CreateGenesis(AccountKey god, AccountKey f0)
 		{
-			/// 0	- declare F0
-			/// P	- confirmed F0 membership
-			/// P+P	- F0 start voting for P+P-P-1 = P-1
-
-			Clear();
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			void write(int rid)
-			{
-				var r = GetRound(rid);
-				r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-				r.Hashify();
-				r.Write(w);
-			}
-	
-			var v0 = CreateVote(); 
-			{
-				v0.RoundId = 0;
-				v0.Time = Time.Zero;
-				v0.ParentHash = Zone.Cryptography.ZeroHash;
-
-				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
-				t.Generator = new([0, 0], -1);
-				t.AddOperation(new UnitTransfer(f0, Zone.ECDayEmission, Zone.ECLifetime, Zone.BYDayEmission));
-				t.Sign(god, Zone.Cryptography.ZeroHash);
-				v0.AddTransaction(t);
-
-				t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
-				t.Generator = new([0, 0], -1);
-				t.AddOperation(new RdnCandidacyDeclaration {BaseRdcIPs = [Zone.Father0IP], SeedHubRdcIPs = [Zone.Father0IP] });
-				t.Sign(f0, Zone.Cryptography.ZeroHash);
-				v0.AddTransaction(t);
-			
-				v0.Sign(god);
-				Add(v0);
-				///v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
-				write(0);
-			}
-	
-			for(int i = 1; i <= LastGenesisRound; i++)
-			{
-				var v = CreateVote();
-				v.RoundId	 = i;
-				v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-				v.ParentHash = i < P ? Zone.Cryptography.ZeroHash : GetRound(i - P).Summarize();
-		
-				v.Sign(i < JoinToVote ? god : f0);
-				Add(v);
-
-				write(i);
-			}
-						
-			return s.ToArray().ToHex();
+			return CreateGenesis(god, f0, new RdnCandidacyDeclaration {BaseRdcIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
 		}
 
 		protected override void GenesisCreate(Vote vote)
@@ -133,6 +57,9 @@ namespace Uccs.Rdn
 																new (DomainTable.MetaColumnName,	new ()),
 																new (DomainTable.MainColumnName,	new ()),
 																new (DomainTable.MoreColumnName,	new ()),
+																new (SiteTable.MetaColumnName,		new ()),
+																new (SiteTable.MainColumnName,		new ()),
+																new (SiteTable.MoreColumnName,		new ()),
 																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
@@ -140,16 +67,9 @@ namespace Uccs.Rdn
 
 			Accounts = new (this);
 			Domains = new (this);
+			Sites = new (this);
 
-			Tables = [Accounts, Domains];
-		}
-
-		public override Operation CreateOperation(int type)
-		{
-			return	(typeof(Operation).Assembly.GetType(typeof(Operation).Namespace + "." + (RdnOperationClass)type)
-					??
-					typeof(RdnOperation).Assembly.GetType(typeof(RdnOperationClass).Namespace + "." + (RdnOperationClass)type))
-					.GetConstructor([]).Invoke(null) as Operation;
+			Tables = [Accounts, Domains, Sites];
 		}
 
 		public override Round CreateRound()
@@ -162,14 +82,6 @@ namespace Uccs.Rdn
 			return new RdnVote(this);
 		}
 
-		//public override Candidate CreateCandidate(Round round, CandidacyDeclaration declaration)
-		//{
-		//	return new RdnCandidate{Registered		= round.ConsensusTime,
-		//							Account			= declaration.Signer.Id,
-		//							BaseRdcIPs		= declaration.BaseRdcIPs, 
-		//							SeedHubRdcIPs	= (declaration as RdnCandidacyDeclaration).SeedHubRdcIPs};
-		//}
-
 		public override Generator CreateGenerator()
 		{
 			return new RdnGenerator();
@@ -177,28 +89,9 @@ namespace Uccs.Rdn
 
 		public override CandidacyDeclaration CreateCandidacyDeclaration()
 		{
-			return new RdnCandidacyDeclaration {//Pledge			= Settings.Pledge,
-												BaseRdcIPs		= [Settings.Peering.IP],
-												SeedHubRdcIPs	= [Settings.Peering.IP]};
+			return new RdnCandidacyDeclaration {BaseRdcIPs		= BaseIPs,
+												SeedHubRdcIPs	= SeedHubIPs};
 
-		}
-
-		public override void ClearTables()
-		{
-			Domains.Clear();
-		}
-
-		public IEnumerable<Resource> QueryResource(string query)
-		{
-			var r = Ura.Parse(query);
-		
-			var a = Domains.Find(r.Domain, LastConfirmedRound.Id);
-
-			if(a == null)
-				yield break;
-
-			foreach(var i in a.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
-				yield return i;
 		}
 
 		public override void FillVote(Vote vote)
@@ -209,5 +102,19 @@ namespace Uccs.Rdn
 			v.Migrations	= ApprovedMigrations.ToArray();
 		}
 
+		public IEnumerable<Resource> SearchResources(string query)
+		{
+			var r = Ura.Parse(query);
+		
+			var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
+
+			if(d == null)
+				yield break;
+
+			var s = Sites.Find(d.Id, LastConfirmedRound.Id);
+
+			foreach(var i in s.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
+				yield return i;
+		}
 	}
 }

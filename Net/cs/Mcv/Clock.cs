@@ -1,13 +1,13 @@
 ﻿namespace Uccs.Net
 {
-	public class IClock
+	public interface IClock
 	{
-		public virtual DateTime	Now {get;}
+		public DateTime	Now {get;}
 	}
 
 	public class RealClock : IClock
 	{
-		override public DateTime Now => DateTime.UtcNow;
+		public DateTime Now => DateTime.UtcNow;
 	}
 
 	public class SimulationClock : IClock
@@ -25,7 +25,7 @@
 			Speed = speed;
 		}
 
-		override public DateTime Now
+		public DateTime Now
 		{
 			get
 			{

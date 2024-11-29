@@ -6,11 +6,11 @@ namespace Uccs.Rdn.CLI
 	public class Program
 	{
 		public string			ExeDirectory;
-		public RdnZone			Zone;
-		internal RdnNode		Node;
+		public Rdn				Net;
+		internal RdnTcpPeering	Node;
 		public JsonClient		ApiClient;
 		public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
-		public NodeSettings		Settings;
+		public RdnNodeSettings	Settings;
 		public Flow				Flow = new Flow("CLI", new Log()); 
 		public ConsoleLogView	LogView = new ConsoleLogView(false, true);
 
@@ -19,16 +19,16 @@ namespace Uccs.Rdn.CLI
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new Boot(ExeDirectory);
-			Settings = new RdnSettings(b.Profile);
+			Settings = new RdnNodeSettings(b.Profile);
 
 			if(!b.Commnand.Nodes.Any())
 				return;
 
-			Zone = RdnZone.ByName(b.Zone);
+			Net = Rdn.ByZone(b.Zone);
 
 			try
 			{
-				//Sun = new Net.Sun(Zone, Settings, Flow);
+				//Sun = new Net.Sun(Net, Settings, Flow);
 
 				var l = new Log();
 				LogView.StartListening(l);
@@ -52,7 +52,7 @@ namespace Uccs.Rdn.CLI
 				}
 
 				Directory.CreateDirectory(b.Profile);
-				File.WriteAllText(Path.Join(b.Profile, "CLI." + Net.Node.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(b.Profile, "CLI." + Uccs.Net.Node.FailureExt), ex.ToString());
 			}
 
 			LogView.StopListening();
@@ -60,7 +60,7 @@ namespace Uccs.Rdn.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(RdnSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public Program(RdnNodeSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Settings = settings;
 			ApiClient = api;
@@ -91,12 +91,12 @@ namespace Uccs.Rdn.CLI
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, f); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args, f); break;
 				case EconomyCommand.Keyword:	c = new EconomyCommand(this, args, f); break;
-				case NexusCommand.Keyword:		c = new NexusCommand(this, args, f); break;
 				case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args, f); break;
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, f); break;
 				case LogCommand.Keyword:		c = new LogCommand(this, args, f); break;
 				case LinkCommand.Keyword:		c = new LinkCommand(this, args, f); break;
+				case BandwidthCommand.Keyword:	c = new BandwidthCommand(this, args, f); break;
 				default:
 					throw new SyntaxException("Unknown command");
 			}
@@ -181,13 +181,14 @@ namespace Uccs.Rdn.CLI
 					}
 					else
 					{
-						var x = c.Transact([o], c.GetAccountAddress("signer"), RdnCommand.GetAwaitStage(command));
+						var txs = c.Transact([o], c.GetAccountAddress("signer"), RdnCommand.GetAwaitStage(command));
 
-						if(x is string[][] logs)
-						{
-							foreach(var i in logs)
-								foreach(var j in i)
-									c.Flow.Log?.Report(j);
+						foreach(var i in txs)
+						{	
+							if(i.Status != TransactionStatus.FailedOrNotFound)
+								c.Dump(i);
+							else
+								c.Flow.Log?.Report($"   {nameof(ApcTransaction.Status)} : {i.Status}");
 						}
 
 						c.Transacted?.Invoke();

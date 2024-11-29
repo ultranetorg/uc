@@ -18,6 +18,8 @@ namespace Uccs.Net
 	{
 		public IPAddress								IP {get; set;} 
 		public string									Name;
+		public string									Net;
+		public ushort									Port;
 
 		public ConnectionStatus							Status = ConnectionStatus.Disconnected;
 
@@ -38,7 +40,7 @@ namespace Uccs.Net
 
 		public Dictionary<Role, DateTime>				LastFailure = new();
 
-		public Node										Node;
+		public TcpPeering								Peering;
 		TcpClient										Tcp;
 		NetworkStream									Stream;
 		BinaryWriter									Writer;
@@ -54,9 +56,10 @@ namespace Uccs.Net
 		{
 		}
 
-		public Peer(IPAddress ip)
+		public Peer(IPAddress ip, ushort port)
 		{
 			IP = ip;
+			Port = port;
 		}
 
 		public override string ToString()
@@ -64,30 +67,60 @@ namespace Uccs.Net
 			return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 		}
  		
+		public static bool operator == (Peer a, Peer b)
+		{
+			return a is null && b is null || a is not null && a.Equals(b);
+		}
+
+		public static bool operator != (Peer a, Peer b)
+		{
+			return !(a == b);
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Peer a && Equals(a);  
+		}
+
+		public bool Equals(Peer a)
+		{
+			return a is not null && IP.Equals(a.IP);
+		}
+
+		public override int GetHashCode()
+		{
+			return IP.GetHashCode();
+		}
 
   		public void SaveNode(BinaryWriter writer)
   		{
+			//writer.WriteUtf8(Net);
+			writer.Write(Port);
+			writer.Write7BitEncodedInt64(Roles);
   			writer.Write7BitEncodedInt64(LastSeen.ToBinary());
 			writer.Write(PeerRank);
-			writer.Write7BitEncodedInt64(Roles);
   		}
   
   		public void LoadNode(BinaryReader reader)
   		{
+			//Net = reader.ReadUtf8();
+			Port = reader.ReadUInt16();
+			Roles = reader.Read7BitEncodedInt64();
   			LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
 			PeerRank = reader.ReadInt32();
-			Roles = reader.Read7BitEncodedInt64();
   		}
  
  		public void Write(BinaryWriter writer)
  		{
  			writer.Write(IP);
+ 			writer.Write(Port);
 			writer.Write7BitEncodedInt64(Roles);
  		}
  
  		public void Read(BinaryReader reader)
  		{
  			IP = reader.ReadIPAddress();
+			Port = reader.ReadUInt16();
 			Roles = reader.Read7BitEncodedInt64();
  		}
 
@@ -169,13 +202,13 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Start(Node sun, TcpClient client, Hello h, string host, bool inbound)
+		public void Start(TcpPeering peering, TcpClient client, Hello h, bool inbound)
 		{
-			Node = sun;
+			Peering = peering;
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-			Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Node.Timeout;
+			Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : HomoTcpPeering.Timeout;
 
 			PeerRank++;
 			Name		= h.Name;
@@ -188,14 +221,12 @@ namespace Uccs.Net
 			LastSeen	= DateTime.UtcNow;
 			Roles		= h.Roles;
 
-			sun.UpdatePeers([this]);
-
-			ListenThread = Node.CreateThread(Listening);
-			ListenThread.Name = $"{host} <- {h.Name}";
+			ListenThread = Peering.Node.CreateThread(Listening);
+			ListenThread.Name = $"{Peering.Node.Name} <- {h.Name}";
 			ListenThread.Start();
 	
-			SendThread = Node.CreateThread(Sending);
-			SendThread.Name = $"{host} -> {h.Name}";
+			SendThread = Peering.Node.CreateThread(Sending);
+			SendThread.Name = $"{Peering.Node.Name} -> {h.Name}";
 			SendThread.Start();
 		}
 
@@ -203,9 +234,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(Node.Flow.Active && Status == ConnectionStatus.OK)
+				while(Peering.Flow.Active && Status == ConnectionStatus.OK)
 				{
-					Node.Statistics.Sending.Begin();
+					Peering.Statistics.Sending.Begin();
 	
 					PeerRequest[] inrq;
 	
@@ -250,20 +281,20 @@ namespace Uccs.Net
 							else
 								throw new IntegrityException("Wrong packet to write");
 	
-							BinarySerializator.Serialize(Writer, i);
+							BinarySerializator.Serialize(Writer, i, Peering.TypeToCode);
 						}
 						
 						Outs.Clear();
 					}
 	
-					Node.Statistics.Sending.End();
+					Peering.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny([SendSignal, Node.Flow.Cancellation.WaitHandle]);
+					WaitHandle.WaitAny([SendSignal, Peering.Flow.Cancellation.WaitHandle]);
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Node.Lock)
+				lock(Peering.Lock)
 					Disconnect();
 			}
 
@@ -282,22 +313,22 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(Node.Flow.Active && Status == ConnectionStatus.OK)
+				while(Peering.Flow.Active && Status == ConnectionStatus.OK)
 				{
 					var pk = (PacketType)Reader.ReadByte();
 
-					if(Node.Flow.Aborted || Status != ConnectionStatus.OK)
+					if(Peering.Flow.Aborted || Status != ConnectionStatus.OK)
 						return;
 					
-					Node.Statistics.Reading.Begin();
+					Peering.Statistics.Reading.Begin();
 
 					switch(pk)
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader,	Node.Constract);
+							var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constract);
 							rq.Peer = this;
-							rq.Node = Node;
+							rq.Peering = Peering;
 
 							lock(InRequests)
  								InRequests.Add(rq);
@@ -316,7 +347,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Node.Constract);
+							var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Peering.Constract);
 
 							lock(OutRequests)
 							{
@@ -336,12 +367,12 @@ namespace Uccs.Net
 						}
 					}
 
-					Node.Statistics.Reading.End();
+					Peering.Statistics.Reading.End();
 				}
 	 		}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				lock(Node.Lock)
+				lock(Peering.Lock)
 					Disconnect();
 			}
 
@@ -394,7 +425,7 @@ namespace Uccs.Net
 
 				try
 				{
-					i = WaitHandle.WaitAny([rq.Event, Node.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+					i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
 				catch(ObjectDisposedException)
 				{
@@ -418,7 +449,7 @@ namespace Uccs.Net
 					{
 						if(rq.Response.Error is NodeException e)
 						{
-							Node.OnRequestException(this, e);
+							Peering.OnRequestException(this, e);
 						}
 	
 						throw rq.Response.Error;

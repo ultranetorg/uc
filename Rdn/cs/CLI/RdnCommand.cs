@@ -9,10 +9,10 @@ namespace Uccs.Rdn.CLI
 		public const string			AwaitArg = "await";
 		public Action				Transacted;
 		protected Program			Program;
-		protected override Type[]	TypesForExpanding => [	typeof(IEnumerable<Dependency>), 
-															typeof(IEnumerable<AnalyzerResult>), 
-															typeof(Resource), 
-															typeof(VersionManifest)];
+		protected override Type[]	TypesForExpanding => [typeof(IEnumerable<Dependency>), 
+														  typeof(IEnumerable<AnalyzerResult>), 
+														  typeof(Resource), 
+														  typeof(VersionManifest)];
 		static RdnCommand()
 		{
 			try
@@ -42,7 +42,7 @@ namespace Uccs.Rdn.CLI
 
 		protected void ReportNetwork()
 		{
-			Flow.Log.Report($"Current Zone    : {Program.Zone}");
+			Flow.Log.Report($"Current Net    : {Program.Net}");
 		}
 
 		public void Api(Apc call)
@@ -50,20 +50,7 @@ namespace Uccs.Rdn.CLI
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			if(Program.ApiClient == null) 
-			{	
-				if(call is NodeApc s)
-				{
-					s.Execute(Program.Node, null, null, Flow);
-					return;
-				}
-
-				throw new Exception();
-			}
-			else
-			{	
-				Program.ApiClient.Send(call, Flow);
-			}
+			Program.ApiClient.Send(call, Flow);
 		}
 
 		public Rp Api<Rp>(Apc call)
@@ -71,46 +58,26 @@ namespace Uccs.Rdn.CLI
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			if(Program.ApiClient == null) 
-			{	
-				if(call is NodeApc n)	return (Rp)n.Execute(Program.Node, null, null, Flow);
-
-				throw new Exception();
-			}
-			else
-			{	
-				return Program.ApiClient.Request<Rp>(call, Flow);
-			}
+			return Program.ApiClient.Request<Rp>(call, Flow);
 		}
 
-		public Rp Rdc<Rp>(PeerCall<Rp> call) where Rp : PeerResponse
+		public Rp Rdc<Rp>(Ppc<Rp> call) where Rp : PeerResponse
 		{
-			if(Program.ApiClient == null) 
-			{
-				return Program.Node.Call(() => call, Flow);
-			}
-			else
-			{
-				var rp = Api<Rp>(new PeerRequestApc {Request = call});
+			var rp = Api<Rp>(new PeerRequestApc {Request = call});
  
- 				if(rp.Error != null)
- 					throw rp.Error;
+ 			if(rp.Error != null)
+ 				throw rp.Error;
  
-				return rp;
-			}
+			return rp;
 		}
 
-		public object Transact(IEnumerable<Operation> operations, AccountAddress by, TransactionStatus await)
+		public ApcTransaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 		{
-			if(Program.ApiClient == null)
-				 return Program.Node.Transact(operations, by, await, Flow);
-			else
-				return Program.ApiClient.Request<string[][]>(new TransactApc{Operations = operations,
-																			 Signer = by,
-																			 Await = await},
-															Flow);
+			return Program.ApiClient.Request<ApcTransaction[]>(new TransactApc {Operations = operations,
+																				Signer = signer,
+																				Await = await},
+																Flow);
 		}
-
 
 		//protected AccountKey GetPrivate(string walletarg)
 		//{

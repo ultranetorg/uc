@@ -3,12 +3,15 @@ using System.Reflection;
 
 namespace Uccs.Net.FUI
 {
+
 	public partial class NetworkPanel : MainPanel
 	{
-		Flow Flow;
+		HomoTcpPeering Peering;
 
-		public NetworkPanel(Node d) : base(d)
+		public NetworkPanel(HomoTcpPeering peering)
 		{
+			Peering = peering;
+
 			InitializeComponent();
 		}
 
@@ -16,16 +19,9 @@ namespace Uccs.Net.FUI
 		{
 			Peers.Items.Clear();
 
-			if(Flow != null && Flow.Active)
+			lock(Peering.Lock)
 			{
-				Flow.Abort();
-			}
-
-			Flow = Node.Flow.CreateNested(MethodBase.GetCurrentMethod().Name);
-
-			lock(Node.Lock)
-			{
-				foreach(var p in Node.Peers.OrderByDescending(i => i.Status))
+				foreach(var p in Peering.Peers.OrderByDescending(i => i.Status))
 				{
 					var r = Peers.Items.Add(p.IP.ToString());
 					r.SubItems.Add(p.StatusDescription);

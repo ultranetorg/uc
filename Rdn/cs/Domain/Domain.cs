@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace Uccs.Rdn
@@ -5,11 +6,12 @@ namespace Uccs.Rdn
 	public enum DomainFlag : byte
 	{
 		None, 
-		Owned		= 0b_____1, 
-		Auction		= 0b____10, 
-		ComOwned	= 0b___100, 
-		OrgOwned	= 0b__1000, 
-		NetOwned	= 0b_10000, 
+		Owned		= 0b_______1, 
+		Auction		= 0b______10, 
+		ComOwned	= 0b_____100, 
+		OrgOwned	= 0b____1000, 
+		NetOwned	= 0b___10000, 
+		ChildNet	= 0b__100000, 
 	}
 
 	public enum DomainChildPolicy : byte
@@ -18,6 +20,14 @@ namespace Uccs.Rdn
 		FullOwnership	= 1, 
 		FullFreedom		= 2, 
 		Programmatic	= 0b11111111, 
+	}
+
+	public enum NtnStatus
+	{
+		None,
+		Initialized,
+		BlockRecieved,
+		BlockSent
 	}
 
 	public class Domain// : IBinarySerializable
@@ -46,10 +56,12 @@ namespace Uccs.Rdn
 		public EntityId				LastWinner { get; set; }
 		public long					LastBid { get; set; }
 		public Time					LastBidTime { get; set; } = Time.Empty;
-		public int					NextResourceId { get; set; }
+		//public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
 		public DomainChildPolicy	ParentPolicy { get; set; }
+		public NtnState				NtnChildNet { get; set; }
+		public byte[]				NtnSelfHash { get; set; }
 
 		public static bool			IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
 		public static bool			IsRoot(string name) => name.IndexOf('.') == -1; 

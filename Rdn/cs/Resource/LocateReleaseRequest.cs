@@ -2,17 +2,15 @@
 
 namespace Uccs.Rdn
 {
-	public class LocateReleaseRequest : RdnCall<LocateReleaseResponse>
+	public class LocateReleaseRequest : RdnPpc<LocateReleaseResponse>
 	{
 		public Urr	Address { get; set; }
 		public int	Count { get; set; }
 
 		public override PeerResponse Execute()
 		{
-			lock(Rdn.Lock)
-			{	
+			lock(Mcv.Lock)
 				RequireMember();
-			}
 
 			lock(Node.SeedHub.Lock)
 				return new LocateReleaseResponse {Seeders = Node.SeedHub.Locate(this)}; 

@@ -10,6 +10,7 @@ namespace Uccs.Tests
 			UraTests.Release();
 			//MoneyTests.Main();
 			//AccountKeyTests.Main();
+			XonTest.Custom();
 
 
 
@@ -20,7 +21,7 @@ namespace Uccs.Tests
 
 
 
-//			var sun = new Sun(Zone.Localzone, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" }, null);
+//			var sun = new Sun(Net.Localzone, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" }, null);
 
 
 

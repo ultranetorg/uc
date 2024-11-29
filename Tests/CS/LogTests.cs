@@ -17,7 +17,7 @@ namespace Uccs.Tests
 
 			for(int i=0; i<1_000_000; i++)
 			{
-				l.Report($"{i} - {RdnZone.Local.Genesis}");
+				l.Report($"{i} - {Rdn.Rdn.Local.Genesis}");
 			}
 		}
 

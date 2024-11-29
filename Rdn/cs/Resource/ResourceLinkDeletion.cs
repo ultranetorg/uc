@@ -53,12 +53,13 @@
 			}
 
 			sd = round.AffectDomain(sd.Id);
-			sr = sd.AffectResource(sr.Address.Resource);
+			var ss = round.AffectSite(sd.Id);
+			sr = ss.AffectResource(sd, sr.Address.Resource);
 			sr.RemoveOutbound(dr.Id);
 			Free(sd, Mcv.EntityLength);
 
-			dd = round.AffectDomain(dd.Id);
-			dr = dd.AffectResource(dr.Address.Resource);
+			var ds = round.AffectSite(dd.Id);
+			dr = ds.AffectResource(dd, dr.Address.Resource);
 			dr.RemoveInbound(sr.Id);
 		}
 	}
