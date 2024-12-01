@@ -76,7 +76,7 @@
 												{
 													last = node.Peering.Call(() => new ResourceRequest(package.Resource.Address), workflow).Resource;
 														
-													if(last.Data.Type != new DataType(DataType.File, ContentType.Rdn_PackageManifest))
+													if(last.Data?.Type != new DataType(DataType.File, ContentType.Rdn_PackageManifest))
 													{
 														Package.Activity = null;
 														return;

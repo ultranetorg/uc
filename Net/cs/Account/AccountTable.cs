@@ -8,16 +8,16 @@
 		{
 		}
 
-		protected override AccountEntry Create()
+		protected override AccountEntry Create(ushort cid)
 		{
-			return new AccountEntry(Mcv);
+			return new AccountEntry(Mcv) {Id = new EntityId {C = cid}};
 		}
 
 		public AccountEntry FindEntry(AccountAddress key)
 		{
 			var cid = KeyToCluster(key);
 
-			var c = _Clusters.Find(i => i.Id == cid);
+			var c = Clusters.Find(i => i.Id == cid);
 
 			if(c == null)
 				return null;
@@ -143,20 +143,20 @@
 			return FindEntry(account);
 		}
 
-		public AccountEntry Find(EntityId account, int ridmax)
+		public AccountEntry Find(EntityId id, int ridmax)
 		{
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == account);
+				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == id);
 				
 				if(a != null)
 					return a;
 			}
 
-			return FindEntry(account);
+			return FindCluster(id.C)?.Entries.Find(i => i.Id.E == id.E);
 		}
 	}
 }

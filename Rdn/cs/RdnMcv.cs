@@ -6,7 +6,7 @@ namespace Uccs.Rdn
 	public class RdnMcv : Mcv
 	{
 		public DomainTable				Domains;
-		public SiteTable				Sites;
+		public ResourceTable			Resources;
 		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
 		IPAddress[]						BaseIPs;
@@ -57,9 +57,9 @@ namespace Uccs.Rdn
 																new (DomainTable.MetaColumnName,	new ()),
 																new (DomainTable.MainColumnName,	new ()),
 																new (DomainTable.MoreColumnName,	new ()),
-																new (SiteTable.MetaColumnName,		new ()),
-																new (SiteTable.MainColumnName,		new ()),
-																new (SiteTable.MoreColumnName,		new ()),
+																new (ResourceTable.MetaColumnName,	new ()),
+																new (ResourceTable.MainColumnName,	new ()),
+																new (ResourceTable.MoreColumnName,	new ()),
 																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
@@ -67,9 +67,9 @@ namespace Uccs.Rdn
 
 			Accounts = new (this);
 			Domains = new (this);
-			Sites = new (this);
+			Resources = new (this);
 
-			Tables = [Accounts, Domains, Sites];
+			Tables = [Accounts, Domains, Resources];
 		}
 
 		public override Round CreateRound()
@@ -98,7 +98,7 @@ namespace Uccs.Rdn
 		{
 			var v = vote as RdnVote;
 
-  			//v.Emissions		= ApprovedEmissions.ToArray();
+  			//v.Emissions	= ApprovedEmissions.ToArray();
 			v.Migrations	= ApprovedMigrations.ToArray();
 		}
 
@@ -107,13 +107,16 @@ namespace Uccs.Rdn
 			var r = Ura.Parse(query);
 		
 			var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
-
+			
 			if(d == null)
 				yield break;
+			
+			var c = Resources.FindCluster(d.Id.C);
+			
+			if(c == null)
+				yield break;
 
-			var s = Sites.Find(d.Id, LastConfirmedRound.Id);
-
-			foreach(var i in s.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
+			foreach(var i in c.Entries.Where(i => i.Id.E == d.Id.E && i.Address.Resource.StartsWith(r.Resource)))
 				yield return i;
 		}
 	}

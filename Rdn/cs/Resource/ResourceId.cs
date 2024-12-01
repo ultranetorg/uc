@@ -1,66 +1,42 @@
 ﻿namespace Uccs.Rdn
 {
-	public class ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
+	public class ResourceId : EntityId, IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
 	{
-		public ushort	Ci { get; set; }
-		public int		Di { get; set; }
-		public int		Ri { get; set; }
-		byte[]			_Serial;
-
-		public EntityId	DomainId => new EntityId(Ci, Di);
+		public int		R { get; set; }
 
 		public ResourceId()
 		{
 		}
 
-		public ResourceId(ushort ci, int ai, int ri)
+		public ResourceId(ushort c, int d, int r)
 		{
-			Ci = ci;
-			Di = ai;
-			Ri = ri;
-		}
-
-		public byte[] Serial
-		{
-			get
-			{
-				if(_Serial == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Serial = s.ToArray();
-				}
-
-				return _Serial;
-			}
+			C = c;
+			E = d;
+			R = r;
 		}
 
 		public override string ToString()
 		{
-			return $"{Ci}-{Di}-{Ri}";
+			return $"{C}-{E}-{R}";
 		}
 
-		public static ResourceId Parse(string t)
+		public new static ResourceId Parse(string t)
 		{
 			var a = t.Split('-');
 
 			return new ResourceId(ushort.Parse(a[0]), int.Parse(a[1]), int.Parse(a[2]));
 		}
 
-		public void Read(BinaryReader reader)
+		public override void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadUInt16();
-			Di	= reader.Read7BitEncodedInt();
-			Ri	= reader.Read7BitEncodedInt();
+			base.Read(reader);
+			R	= reader.Read7BitEncodedInt();
 		}
 
-		public void Write(BinaryWriter writer)
+		public override void Write(BinaryWriter writer)
 		{
-			writer.Write(Ci);
-			writer.Write7BitEncodedInt(Di);
-			writer.Write7BitEncodedInt(Ri);
+			base.Write(writer);
+			writer.Write7BitEncodedInt(R);
 		}
 
 		public override bool Equals(object obj)
@@ -70,26 +46,26 @@
 
 		public bool Equals(ResourceId a)
 		{
-			return a is not null && Ci == a.Ci && Di == a.Di && Ri == a.Ri;
+			return a is not null && C == a.C && E == a.E && R == a.R;
 		}
 
 		public int CompareTo(ResourceId a)
 		{
-			if(Ci != a.Ci)	
-				return Ci.CompareTo(a.Ci);
+			if(C != a.C)	
+				return C.CompareTo(a.C);
 			
-			if(Di != a.Di)
-				return Di.CompareTo(a.Di);
+			if(E != a.E)
+				return E.CompareTo(a.E);
 
-			if(Ri != a.Ri)
-				return Ri.CompareTo(a.Ri);
+			if(R != a.R)
+				return R.CompareTo(a.R);
 
 			return 0;
 		}
 
 		public override int GetHashCode()
 		{
-			return Ci.GetHashCode();
+			return C.GetHashCode();
 		}
 
 		public static bool operator == (ResourceId left, ResourceId right)

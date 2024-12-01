@@ -2,13 +2,13 @@
 {
 	public class RdnRound : Round
 	{
-		public List<DomainMigration>			Migrations;
-		public new RdnMcv						Mcv => base.Mcv as RdnMcv;
-		public Dictionary<string, DomainEntry>	AffectedDomains = new();
-		public Dictionary<EntityId, SiteEntry>	AffectedSites = new();
-		public Dictionary<ushort, int>			NextDomainIds = new();
-		public Dictionary<ushort, int>			NextSiteIds = new();
-		public ForeignResult[]					ConsensusMigrations = {};
+		public new RdnMcv								Mcv => base.Mcv as RdnMcv;
+		public List<DomainMigration>					Migrations;
+		public Dictionary<string, DomainEntry>			AffectedDomains = new();
+		public Dictionary<ResourceId, ResourceEntry>	AffectedResources = new();
+		public Dictionary<ushort, int>					NextDomainIds = new();
+		//public Dictionary<ushort, int>				NextSiteIds = new();
+		public ForeignResult[]							ConsensusMigrations = {};
 
 		public RdnRound(RdnMcv rds) : base(rds)
 		{
@@ -21,14 +21,9 @@
 
 		public override IEnumerable<object> AffectedByTable(TableBase table)
 		{
-			if(table == Mcv.Accounts)
-				return AffectedAccounts.Values;
-
-			if(table == Mcv.Domains)
-				return AffectedDomains.Values;
-
-			if(table == Mcv.Sites)
-				return AffectedSites.Values;
+			if(table == Mcv.Accounts)	return AffectedAccounts.Values;
+			if(table == Mcv.Domains)	return AffectedDomains.Values;
+			if(table == Mcv.Resources)	return AffectedResources.Values;
 
 			throw new IntegrityException();
 		}
@@ -56,12 +51,12 @@
 				if(c == null)
 					NextDomainIds[ci] = 0;
 				else
-					NextDomainIds[ci] = c.NextEntityId;
+					NextDomainIds[ci] = c.NextEntryId;
 				
 				ai = NextDomainIds[ci]++;
 
 				return AffectedDomains[domain] = new DomainEntry(Mcv){	//Affected = true,
-																		New = true,
+																		//New = true,
 																		Id = new EntityId(ci, ai), 
 																		Address = domain};
 			}
@@ -79,42 +74,47 @@
 			if(a == null)
 				throw new IntegrityException();
 			
-			AffectedDomains[a.Address] = a.Clone();
-			//AffectedDomains[a.Address].Affected  = true;;
-
-			return AffectedDomains[a.Address];
+			return AffectedDomains[a.Address] = a.Clone();
 		}
 
-		public SiteEntry AffectSite(EntityId id)
+		public ResourceEntry AffectResource(ResourceId id)
 		{
-			if(AffectedSites.TryGetValue(id, out var a))
+			if(AffectedResources.TryGetValue(id, out var a))
 				return a;
 			
-			var e = Mcv.Sites.Find(id, Id - 1);
+			a = Mcv.Resources.Find(id, Id - 1);
 
-			if(e != null)
-			{
-				AffectedSites[id] = e.Clone();
-				//AffectedSites[domain].Affected  = true;;
-				return AffectedSites[id];
-			}
-			else
-			{
-				var c = Mcv.Sites.Clusters.FirstOrDefault(i => i.Id == id.Ci);
+			if(a == null)
+				throw new IntegrityException();
 
-				int i;
-				
-				if(c == null)
-					NextSiteIds[id.Ci] = 0;
-				else
-					NextSiteIds[id.Ci] = c.NextEntityId;
-				
-				i = NextSiteIds[id.Ci]++;
+			return AffectedResources[id] = a.Clone();
+		}
 
-				return AffectedSites[id] = new SiteEntry(Mcv){	//Affected = true,
-																New = true,
-																Id = new EntityId(id.Ci, i)};
-			}
+  		public ResourceEntry AffectResource(DomainEntry domain, string resource)
+  		{
+			var d = AffectDomain(domain.Id);
+
+			var r =	AffectedResources.Values.FirstOrDefault(i => i.Id == domain.Id && i.Address.Resource == resource);
+			
+			if(r != null)
+				return r;
+
+			r = Mcv.Resources.Find(new Ura(d.Address, resource), Id - 1);
+
+  			if(r == null)
+  			{
+	  			r = new ResourceEntry  {Address = new Ura(d.Address, resource),
+	  									Id = new ResourceId(d.Id.C, d.Id.E, d.NextResourceId++)};
+  			} 
+  			else
+				r = r.Clone();
+    
+  			return AffectedResources[r.Id] = r;
+  		}
+
+		public void DeleteResource(ResourceEntry resource)
+		{
+			AffectResource(resource.Id).Deleted = true;
 		}
 
 		public override void InitializeExecution()
@@ -125,26 +125,18 @@
 		public override void RestartExecution()
 		{
 			AffectedDomains.Clear();
-			AffectedSites.Clear();
+			AffectedResources.Clear();
 			NextDomainIds.Clear();
-			NextSiteIds.Clear();
+			//NextSiteIds.Clear();
 		}
 
 		public override void FinishExecution()
 		{
-			foreach(var a in AffectedSites)
+			foreach(var r in AffectedResources.Values)
 			{
-				//a.Value.Affected = false;
-
-				if(a.Value.Resources != null)
-					foreach(var r in a.Value.Resources.Where(i => i.Affected))
-					{
-						r.Affected = false;
-
-						if(r.Outbounds != null)
-							foreach(var l in r.Outbounds.Where(i => i.Affected))
-								l.Affected = false;
-					}
+				if(r.Outbounds != null)
+					foreach(var l in r.Outbounds.Where(i => i.Affected))
+						l.Affected = false;
 			}
 		}
 

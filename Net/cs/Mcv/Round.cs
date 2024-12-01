@@ -136,7 +136,7 @@ namespace Uccs.Net
 				if(c == null)
 					NextAccountIds[ci] = 0;
 				else
-					NextAccountIds[ci] = c.NextEntityId;
+					NextAccountIds[ci] = c.NextEntryId;
 				
 				ai = NextAccountIds[ci]++;
 
@@ -404,7 +404,7 @@ namespace Uccs.Net
 					}
 				}
 
-				if(t.Member.Ei != -1)
+				if(t.Member.E != -1)
 				{
 					var g = Mcv.Accounts.Find(t.Member, Id);
 

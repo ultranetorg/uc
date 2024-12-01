@@ -1,9 +1,18 @@
 ﻿namespace Uccs.Net
 {
-	public class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
+	public abstract class BaseId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
 	{
-		public ushort	Ci { get; set; }
-		public int		Ei { get; set; }
+		public ushort			C { get; set; }
+
+		public abstract int		CompareTo(EntityId other);
+		public abstract bool	Equals(EntityId other);
+		public abstract void	Read(BinaryReader reader);
+		public abstract void	Write(BinaryWriter writer);
+	}
+
+	public class EntityId : BaseId
+	{
+		public int		E { get; set; }
 
 		public EntityId()
 		{
@@ -11,13 +20,13 @@
 
 		public EntityId(ushort ci, int ei)
 		{
-			Ci = ci;
-			Ei = ei;
+			C = ci;
+			E = ei;
 		}
 
 		public override string ToString()
 		{
-			return $"{Ci}-{Ei}";
+			return $"{C}-{E}";
 		}
 
 		public static EntityId Parse(string t)
@@ -27,16 +36,16 @@
 			return new EntityId(ushort.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
 		}
 
-		public void Read(BinaryReader reader)
+		public override void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadUInt16();
-			Ei	= reader.Read7BitEncodedInt();
+			C	= reader.ReadUInt16();
+			E	= reader.Read7BitEncodedInt();
 		}
 
-		public void Write(BinaryWriter writer)
+		public override void Write(BinaryWriter writer)
 		{
-			writer.Write(Ci);
-			writer.Write7BitEncodedInt(Ei);
+			writer.Write(C);
+			writer.Write7BitEncodedInt(E);
 		}
 
 		public override bool Equals(object obj)
@@ -44,25 +53,25 @@
 			return obj is EntityId id && Equals(id);
 		}
 
-		public bool Equals(EntityId a)
+		public override bool Equals(EntityId a)
 		{
-			return a is not null && Ci == a.Ci && Ei == a.Ei;
+			return a is not null && C == a.C && E == a.E;
 		}
 
-		public int CompareTo(EntityId a)
+		public override int CompareTo(EntityId a)
 		{
-			if(Ci != a.Ci)
-				return Ci.CompareTo(a.Ci);
+			if(C != a.C)
+				return C.CompareTo(a.C);
 			
-			if(Ei != a.Ei)
-				return Ei.CompareTo(a.Ei);
+			if(E != a.E)
+				return E.CompareTo(a.E);
 
 			return 0;
 		}
 
 		public override int GetHashCode()
 		{
-			return Ci.GetHashCode();
+			return C.GetHashCode();
 		}
 
 		public static bool operator == (EntityId left, EntityId right)

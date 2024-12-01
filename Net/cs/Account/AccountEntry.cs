@@ -2,12 +2,15 @@
 {
 	public class AccountEntry : Account, ITableEntry
 	{
-		public bool						New;
-		//public Unit					RoundBandwidthReserve = 0;
-		//public Time					RoundBandwidthReserveExpiration = Time.Empty;
+		public BaseId			BaseId => Id;
+		public bool				Deleted { get; set; }
+
+		public bool				New;
+		//public Unit			RoundBandwidthReserve = 0;
+		//public Time			RoundBandwidthReserveExpiration = Time.Empty;
 		
-		public List<int>				Transactions = new();
-		Mcv								Mcv;
+		public List<int>		Transactions = new();
+		Mcv						Mcv;
 
 		public AccountEntry()
 		{

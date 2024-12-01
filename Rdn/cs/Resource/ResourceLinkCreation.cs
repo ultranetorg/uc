@@ -47,13 +47,10 @@
 			if(RequireResource(round, Destination, out var dd, out var dr) == false)
 				return;
 
-			var ss = round.AffectSite(sd.Id);
-			sr = ss.AffectResource(sd, sr.Address.Resource);
+			sr = round.AffectResource(sd, sr.Address.Resource);
 			sr.AffectOutbound(dr.Id);
 
-			//dd = round.AffectDomain(dd.Id);
-			var ds = round.AffectSite(dd.Id);
-			dr = ds.AffectResource(dd, dr.Address.Resource);
+			dr = round.AffectResource(dd, dr.Address.Resource);
 			dr.AffectInbound(sr.Id);
 
 			if(Changes.HasFlag(ResourceLinkChanges.Seal))

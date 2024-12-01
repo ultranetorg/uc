@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-
-namespace Uccs.Rdn
+﻿namespace Uccs.Rdn
 {
 	public class DomainEntry : Domain, ITableEntry
 	{
-		public bool				New;
+		public BaseId			BaseId => Id;
+		public bool				Deleted { get; set; }
+		//public bool				New;
 		//public bool			Affected;
 		Mcv						Mcv;
 		//bool					ResourcesCloned;
@@ -22,7 +22,7 @@ namespace Uccs.Rdn
 
 		public override string ToString()
 		{
-			return $"{Address}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+			return $"{Address}, {Id}, Owner={Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 		}
 
 		public DomainEntry Clone()
@@ -39,7 +39,7 @@ namespace Uccs.Rdn
 										OrgOwner = OrgOwner,
 										NetOwner = NetOwner,
 										//Resources = Resources,
-										//NextResourceId = NextResourceId,
+										NextResourceId = NextResourceId,
 										SpaceReserved = SpaceReserved,
 										SpaceUsed = SpaceUsed,
 										NtnChildNet = NtnChildNet,
@@ -49,6 +49,8 @@ namespace Uccs.Rdn
 
 		public void WriteMain(BinaryWriter writer)
 		{
+			writer.Write7BitEncodedInt(Id.E);
+
 			var f = DomainFlag.None;
 			
 			if(LastWinner != null)	f |= DomainFlag.Auction;
@@ -60,7 +62,7 @@ namespace Uccs.Rdn
 
 			writer.Write((byte)f);
 			writer.WriteUtf8(Address);
-			//writer.Write7BitEncodedInt(NextResourceId);
+			writer.Write7BitEncodedInt(NextResourceId);
 			writer.Write7BitEncodedInt(SpaceReserved);
 			writer.Write7BitEncodedInt(SpaceUsed);
 
@@ -109,9 +111,11 @@ namespace Uccs.Rdn
 
 		public void ReadMain(BinaryReader reader)
 		{
+			Id.E = reader.Read7BitEncodedInt();
+
 			var f			= (DomainFlag)reader.ReadByte();
 			Address			= reader.ReadUtf8();
-			//NextResourceId	= reader.Read7BitEncodedInt();
+			NextResourceId	= reader.Read7BitEncodedInt();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
 			SpaceUsed		= (short)reader.Read7BitEncodedInt();
 

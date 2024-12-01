@@ -231,11 +231,11 @@ namespace Uccs.Net
 					 new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
 			}
 
-			lock(node.Mcv.Lock)
-			{ 
-				
-				if(node.Mcv != null)
-				{
+			if(node.Mcv != null)
+			{
+				lock(node.Mcv.Lock)
+				{ 
+					
 					f.Add(new ("Synchronization",		$"{node.Peering.Synchronization}"));
 					f.Add(new ("Size",					$"{node.Mcv.Size}"));
 					f.Add(new ("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}"));
@@ -247,7 +247,7 @@ namespace Uccs.Net
 					f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusExecutionFee.ToString()}"));
 					f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
-
+	
 					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
 						foreach(var i in node.Vault.Wallets)
@@ -258,21 +258,18 @@ namespace Uccs.Net
 							f.Add(new ("   EC", $"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.GetECBalance(node.Mcv.LastConfirmedRound.ConsensusTime).ToString()}"));
 						}
 					}
+			
 				}
-				else
-				{
-					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
-
-					foreach(var i in node.Vault.Wallets)
-					{
-						f.Add(new ($"Account", $"{i}"));
-					}
-				}
-
-				node.Peering.Statistics.Reset();
-		
-				return new Return {Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 			}
+
+			foreach(var i in node.Vault.Wallets)
+			{
+				f.Add(new ($"Account", $"{i}"));
+			}
+
+			node.Peering.Statistics.Reset();
+		
+			return new Return {Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 		}
 	}
 

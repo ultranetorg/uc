@@ -63,7 +63,6 @@ namespace Uccs.Rdn
 				return;
 
 			d = round.AffectDomain(d.Id);
-			var s = round.AffectSite(d.Id);
 			
 			Transaction.ECSpent -= round.ConsensusExecutionFee; /// the first is alredy paid
 
@@ -71,12 +70,12 @@ namespace Uccs.Rdn
 			{
 				Transaction.ECSpent += round.ConsensusExecutionFee;
 
-				var r = s.AffectResource(d, resource.Resource);
+				var r = round.AffectResource(d, resource.Resource);
 	
-				if(rs.Contains(r.Id.Ri))
+				if(rs.Contains(r.Id.R))
 					return;
 				else
-					rs.Add(r.Id.Ri);
+					rs.Add(r.Id.R);
 
 				if(Changes.HasFlag(ResourceChanges.SetData))
 				{
@@ -130,9 +129,9 @@ namespace Uccs.Rdn
 					{
 						foreach(var i in r.Inbounds)
 						{
-							if(i.DomainId == d.Id)
+							if(i == d.Id)
 							{
-								var l = mcv.Sites.FindResource(i, round.Id);
+								var l = mcv.Resources.Find(i, round.Id);
 
 								execute(l.Address);
 							}

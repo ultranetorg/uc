@@ -16,7 +16,7 @@ namespace Uccs.Rdn
 		{
 			var cid = KeyToCluster(key);
 
-			var c = _Clusters.Find(i => i.Id == cid);
+			var c = Clusters.Find(i => i.Id == cid);
 
 			if(c == null)
 				return null;
@@ -26,9 +26,9 @@ namespace Uccs.Rdn
 			return e;
 		}
 		
-		protected override DomainEntry Create()
+		protected override DomainEntry Create(ushort cid)
 		{
-			return new DomainEntry(Mcv);
+			return new DomainEntry(Mcv) {Id = new EntityId {C = cid}};
 		}
 		
  		public DomainEntry Find(string name, int ridmax)
@@ -56,7 +56,7 @@ namespace Uccs.Rdn
 					return a;
 			}
 
-			return FindEntry(id);
+			return FindCluster(id.C)?.Entries.Find(i => i.Id.E == id.E);
 		}
 		
 //  		public Resource FindResource(Ura resource, int ridmax)

@@ -1280,7 +1280,7 @@ namespace Uccs.Net
 					else if(!x.All(i => i))
 						Debugger.Break();
 	
-					var es = cs.Select(i => new {i.s, e = i.c.Current.BaseEntries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+					var es = cs.Select(i => new {i.s, e = i.c.Current.Entries.AsEnumerable().GetEnumerator()}).ToArray();
 	
 					while(true)
 					{
