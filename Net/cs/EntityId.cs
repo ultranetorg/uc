@@ -76,7 +76,7 @@
 
 		public static bool operator == (EntityId left, EntityId right)
 		{
-			return left is null && right is null || left is not null && left.Equals(right);
+			return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
 		}
 
 		public static bool operator != (EntityId left, EntityId right)

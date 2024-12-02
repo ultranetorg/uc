@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	public class ResourceId : EntityId, IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
+	public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<ResourceId>
 	{
 		public int		R { get; set; }
 
@@ -30,7 +30,7 @@
 		public override void Read(BinaryReader reader)
 		{
 			base.Read(reader);
-			R	= reader.Read7BitEncodedInt();
+			R = reader.Read7BitEncodedInt();
 		}
 
 		public override void Write(BinaryWriter writer)
