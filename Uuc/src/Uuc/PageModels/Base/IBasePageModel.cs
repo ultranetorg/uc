@@ -3,7 +3,7 @@ using Uuc.Services;
 
 namespace Uuc.PageModels.Base;
 
-public interface IPageModelBase : IQueryAttributable
+public interface IBasePageModel : IQueryAttributable
 {
 	public INavigationService NavigationService { get; }
 

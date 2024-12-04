@@ -25,16 +25,18 @@
         ContentTemplate="{DataTemplate local:ConvertPage}"
         Route="convert" />
 
-    <MenuItem Text="Send" Clicked="Send_OnClicked" />
+    <MenuItem Text="Send" Command="{Binding Send_OnClickedCommand}" />
 
-    <MenuItem Text="Receive" Clicked="Receive_OnClicked" />
+    <MenuItem Text="Receive" Command="{Binding Receive_OnClickedCommand}" />
 
     <ShellContent
         Title="Digital Identities"
         ContentTemplate="{DataTemplate local:DigitalIdentitiesPage}"
         Route="digital-identities" />
 
-    <MenuItem Text="Settings" Clicked="Settings_OnClicked" />
+    <MenuItem Text="Settings" Command="{Binding Settings_OnClickedCommand}" />
+
+    <MenuItem Text="Exit" Command="{Binding Exit_OnClickedCommand}" />
 
 </Shell>
 

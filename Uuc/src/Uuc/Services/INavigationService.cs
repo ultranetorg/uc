@@ -1,12 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Uuc.Services;
+﻿namespace Uuc.Services;
 
 public interface INavigationService
 {
-	// Task InitializeAsync();
+	void Push<T>(T page, IDictionary<string, object>? routeParameters = null) where T : Page;
 
-	Task NavigateToAsync([NotEmpty] string route, IDictionary<string, object>? routeParameters = null);
-
-	Task PopAsync();
+	void Pop();
 }

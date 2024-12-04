@@ -2,9 +2,9 @@
 
 namespace Uuc.Pages;
 
-public partial class EnterPasswordPage : ContentPage
+public partial class ImportWalletPage : ContentPage
 {
-	public EnterPasswordPage(EnterPasswordPageModel model)
+	public ImportWalletPage(ImportWalletPageModel model)
 	{
 		InitializeComponent();
 		BindingContext = model;

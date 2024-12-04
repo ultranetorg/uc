@@ -7,7 +7,7 @@ public static class PagesConfiguration
 {
 	public static MauiAppBuilder ConfigurePages(this MauiAppBuilder builder)
 	{
-		builder.Services.AddSingleton<AppShell>();
+		builder.Services.AddTransient<AppShell>();
 		
 		RegisterPages(builder);
 

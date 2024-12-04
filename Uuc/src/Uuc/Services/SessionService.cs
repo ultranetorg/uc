@@ -1,4 +1,5 @@
 ﻿using System.Timers;
+using CommunityToolkit.Diagnostics;
 
 using Timer = System.Timers.Timer;
 
@@ -7,7 +8,9 @@ namespace Uuc.Services;
 public class SessionService : ISessionService
 {
 	private readonly Timer _inactivityTimer;
-	private readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(5); // Тайм-аут бездействия
+	private readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(5);
+
+	public string? SessionId { get; private set; }
 
 	public event Action? SessionExpired;
 
@@ -15,23 +18,42 @@ public class SessionService : ISessionService
 	{
 		_inactivityTimer = new Timer(_sessionTimeout.TotalMilliseconds);
 		_inactivityTimer.Elapsed += OnSessionExpired;
-		_inactivityTimer.AutoReset = false; // Таймер срабатывает только один раз
+		_inactivityTimer.AutoReset = false;
+	}
+
+	public bool IsSessionValid(string sessionId)
+	{
+		Guard.IsNotEmpty(sessionId);
+
+		return SessionId == sessionId && _inactivityTimer.Enabled;
 	}
 
 	public void StartSession()
 	{
+		GenerateSessionId();
 		ResetSessionTimer();
 	}
 
-	public void ExtendSessionIfActive()
+	public void ExtendSessionIfActive(string sessionId)
 	{
-		ResetSessionTimer();
+		Guard.IsNotEmpty(sessionId);
+
+		if (IsSessionValid(sessionId))
+		{
+			ResetSessionTimer();
+		}
 	}
 
 	public void EndSession()
 	{
+		SessionId = null;
 		_inactivityTimer.Stop();
 		SessionExpired?.Invoke();
+	}
+
+	private void GenerateSessionId()
+	{
+		SessionId = Guid.NewGuid().ToString();
 	}
 
 	private void ResetSessionTimer()
@@ -42,6 +64,6 @@ public class SessionService : ISessionService
 
 	private void OnSessionExpired(object? sender, ElapsedEventArgs e)
 	{
-		SessionExpired?.Invoke();
+		EndSession();
 	}
 }

@@ -4,14 +4,14 @@ using Uuc.Services;
 
 namespace Uuc.PageModels.Base;
 
-public abstract partial class PageModelBase: ObservableObject, IPageModelBase
+public abstract partial class BasePageModel: ObservableObject, IBasePageModel
 {
 	private long _isBusy;
 
 	[ObservableProperty]
 	private bool _isInitialized;
 
-	protected PageModelBase(INavigationService navigationService)
+	protected BasePageModel(INavigationService navigationService)
 	{
 		NavigationService = navigationService;
 

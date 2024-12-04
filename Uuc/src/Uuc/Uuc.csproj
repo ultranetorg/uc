@@ -71,4 +71,8 @@
 		<Folder Include="Pages\Controls\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Net\cs\Uccs.Net.csproj" />
+	</ItemGroup>
+
 </Project>

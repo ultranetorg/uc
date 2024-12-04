@@ -8,6 +8,37 @@
                 Text="AccountsPage"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
+            <Button Text="Create Account" Command="{Binding Create_OnClickedCommand}" />
+            <ListView ItemsSource="{Binding Accounts}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0"
+                                       Text="{Binding Address}"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Row="1"
+                                       Grid.Column="1"
+                                       Text="{Binding Name}"
+                                       FontAttributes="Bold" />
+                                <!--<Label Grid.Row="1"
+                                       Grid.Column="1"
+                                       Text="{Binding Location}"
+                                       FontAttributes="Italic"
+                                       VerticalOptions="End" />-->
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </VerticalStackLayout>
     </ScrollView>
 
