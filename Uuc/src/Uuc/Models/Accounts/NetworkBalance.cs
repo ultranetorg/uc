@@ -1,4 +1,4 @@
-﻿namespace Uuc.Models;
+﻿namespace Uuc.Models.Accounts;
 
 public class NetworkBalance
 {

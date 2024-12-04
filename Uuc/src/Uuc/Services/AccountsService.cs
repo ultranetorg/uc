@@ -3,8 +3,8 @@ using CommunityToolkit.Diagnostics;
 using Uccs.Net;
 using Uuc.Common.Constants;
 using Uuc.Models;
-
-using Account = Uuc.Models.Account;
+using Uuc.Models.Accounts;
+using Account = Uuc.Models.Accounts.Account;
 
 namespace Uuc.Services;
 

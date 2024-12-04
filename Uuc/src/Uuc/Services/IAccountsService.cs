@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Uuc.Models;
+using Uuc.Models.Accounts;
 
 namespace Uuc.Services;
 
