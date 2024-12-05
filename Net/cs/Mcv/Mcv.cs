@@ -243,7 +243,7 @@ namespace Uccs.Net
 
 				if(!BaseHash.SequenceEqual(Database.Get(__BaseHashKey)))
 				{
-					throw new IntegrityException("");
+					throw new IntegrityException();
 				}
 			}
 
@@ -474,8 +474,8 @@ namespace Uccs.Net
 			BaseHash = Cryptography.Hash(BaseState);
 	
 			foreach(var t in Tables)
-				foreach(var i in t.SuperClusters.OrderBy(i => i.Key))
-					BaseHash = Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+				foreach(var i in t.Clusters.OrderBy(i => i.Id))
+					BaseHash = Cryptography.Hash(BaseHash, i.Hash);
 		}
 
 

@@ -4,40 +4,30 @@
 	{
 		public int		Table { get; set; }
 		public byte[]	Hash { get; set; }
-		public ushort	ClusterId { get; set; }
-		public long		Offset { get; set; }
-		public long		Length { get; set; }
+		public int		BucketId { get; set; }
 
 		public override PeerResponse Execute()
 		{
-			if(	Offset < 0 ||
-				Length < 0)
-				throw new RequestException(RequestError.IncorrectRequest);
-
 			lock(Mcv.Lock)
 			{
 				RequireBase();
 
-				var c = Mcv.Tables[Table].Clusters.FirstOrDefault(i => i.Id == ClusterId);
+				var b = Mcv.Tables[Table].FindBucket(BucketId);
 
-				if(c == null)
+				if(b == null)
 					throw new EntityException(EntityError.NotFound);
 	
-				if(!c.Hash.SequenceEqual(Hash))
+				if(!b.Hash.SequenceEqual(Hash))
 					throw new EntityException(EntityError.HashMismatach);
 
-				var s = new MemoryStream(c.Main);
-				var r = new BinaryReader(s);
 	
-				s.Position = Offset;
-	
-				return new DownloadTableResponse{Data = r.ReadBytes((int)Length)};
+				return new DownloadTableResponse {Main = b.Main};
 			}
 		}
 	}
 		
 	public class DownloadTableResponse : PeerResponse
 	{
-		public byte[] Data { get; set; }
+		public byte[] Main { get; set; }
 	}
 }

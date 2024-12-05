@@ -1,12 +1,16 @@
-﻿namespace Uccs.Tests
+﻿using Xunit;
+
+namespace Uccs.Tests
 {
-	internal static class XonTest
+	public static class XonTest
 	{
+		[Fact]
 		public static void Basic()
 		{
 			var x = new Xon(@"a b="""" c=""2 3 4""");
 		}
 
+		[Fact]
 		public static void Custom()
 		{
 			var x = new Xon($@"Title = ""Uos""

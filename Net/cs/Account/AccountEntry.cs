@@ -28,7 +28,7 @@
 											BYBalance				= BYBalance,
 											ECBalance				= ECBalance.ToList(),
 											LastTransactionNid		= LastTransactionNid,
-											LastEmissionId			= LastEmissionId,
+											//LastEmissionId			= LastEmissionId,
 											
 											BandwidthNext			= BandwidthNext,
 											BandwidthExpiration		= BandwidthExpiration,

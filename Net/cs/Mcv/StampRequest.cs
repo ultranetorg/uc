@@ -11,14 +11,14 @@
 				if(Mcv.BaseState == null)
 					throw new NodeException(NodeError.TooEearly);
 
-				var r = new StampResponse {	BaseState				= Mcv.BaseState,
+				var r = new StampResponse  {BaseState				= Mcv.BaseState,
 											BaseHash				= Mcv.BaseHash,
 											LastCommitedRoundHash	= Mcv.LastCommittedRound.Hash,
 											FirstTailRound			= Mcv.Tail.Last().Id,
 											LastTailRound			= Mcv.Tail.First().Id,
-											Tables					= Mcv.Tables.Select(i => new StampResponse.Table {	Id = i.Id, 
-																														SuperClusters =	i.SuperClusters.Select(i => new StampResponse.SuperCluster{	Id = i.Key, 
-																																																	Hash = i.Value}).ToArray()}).ToArray()};
+											Tables					= Mcv.Tables.Select(i => new StampResponse.Table {Id = i.Id, 
+																													  Clusters = i.Clusters.Select(i => new StampResponse.SuperCluster {Id = i.Id, 
+																																														Hash = i.Hash}).ToArray()}).ToArray()};
 
 				return r;
 			}
@@ -29,14 +29,14 @@
 	{
 		public class SuperCluster
 		{
-			public byte		Id { get; set; }
+			public short	Id { get; set; }
 			public byte[]	Hash { get; set; }
 		}
 
 		public class Table
 		{
 			public int				Id { get; set; }
-			public SuperCluster[]	SuperClusters { get; set; }
+			public SuperCluster[]	Clusters { get; set; }
 		}
 
 		public byte[]		BaseState { get; set; }

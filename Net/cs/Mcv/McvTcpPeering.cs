@@ -272,49 +272,43 @@ namespace Uccs.Net
 		
 						void download(TableBase t)
 						{
-							var ts = Call(peer, new TableStampRequest  {Table = t.Id, 
-																		SuperClusters = stamp.Tables[t.Id].SuperClusters.Where(i => !t.SuperClusters.TryGetValue(i.Id, out var c) || !c.SequenceEqual(i.Hash))
-																														.Select(i => i.Id).ToArray()});
-		
-							foreach(var i in ts.Clusters)
+							var ts = Call(peer, new TableStampRequest {Table = t.Id, 
+																	   Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
+																											 .Select(i => i.Id)
+																											 .ToArray()});
+							using(var w = new WriteBatch())
 							{
-								var c = t.Clusters.FirstOrDefault(j => j.Id == i.Id);
-		
-								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
+								foreach(var i in ts.Clusters)
 								{
-		
-									var d = Call(peer, new DownloadTableRequest{Table = t.Id,
-																				Hash = i.Hash,
-																				ClusterId = i.Id, 
-																				Offset = 0, 
-																				Length = i.Length});
-									lock(Mcv.Lock)
+									///lock(Mcv.Lock)
 									{
-										if(c == null)
-										{
-											c = t.AddCluster(i.Id);
-										}
-
-										c.Read(new BinaryReader(new MemoryStream(d.Data)));
+										var c = t.GetCluster(i.Id);
 	
-										using(var b = new WriteBatch())
+										foreach(var j in i.Buckets)
 										{
-											c.Save(b);
-			
-											if(!c.Hash.SequenceEqual(i.Hash))
+											var b = c.GetBucket(j.Id);
+				
+											if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
 											{
-												throw new SynchronizationException("Cluster hash mismatch");
+												var d = Call(peer, new DownloadTableRequest {Table		= t.Id,
+																							 BucketId	= j.Id, 
+																							 Hash		= j.Hash});
+
+												b.Save(w, d.Main);
+					
+												if(!b.Hash.SequenceEqual(j.Hash))
+													throw new SynchronizationException("Cluster hash mismatch");
+				
+												Flow.Log?.Report(this, $"Bucket downloaded {t.GetType().Name}, {b.Id}");
 											}
-										
-											Mcv.Database.Write(b);
 										}
+	
+										c.Save(w);
 									}
-		
-									Flow.Log?.Report(this, $"Cluster downloaded {t.GetType().Name}, {c.Id}");
 								}
+								
+								Mcv.Database.Write(w);
 							}
-		
-							t.CalculateSuperClusters();
 						}
 		
 						foreach(var i in Mcv.Tables)
@@ -1241,9 +1235,8 @@ namespace Uccs.Net
 		{
 			foreach(var i in All.OfType<McvTcpPeering>().DistinctBy(i => i.Net.Address))
 			{
-				var  d = Path.Join(destination, i.GetType().Name);
+				var d = Path.Join(destination, "CompareBases - " + i.GetType().Name);
 
-				Directory.CreateDirectory(d);
 
 				CompareBase(i.Mcv, d);
 			}
@@ -1252,20 +1245,44 @@ namespace Uccs.Net
 		public static void CompareBase(Mcv mcv, string destibation)
 		{
 			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
+			Directory.CreateDirectory(destibation);
 
 			var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
 			jo.WriteIndented = true;
 
-			var all = All.Where(i => i.Mcv != null);
+			var all = All.Where(i => i.Mcv != null).OfType<McvTcpPeering>().Where(i => i.Net.Address == mcv.Net.Address);
 			
 			foreach(var i in all)
 				Monitor.Enter(i.Mcv.Lock);
 
 			void compare(int table)
 			{
-				var cs = All.OfType<McvTcpPeering>()
-							.Where(i => i.Net.Address == mcv.Net.Address && i.Mcv != null)
-							.Select(i => new {s = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id).ToArray().AsEnumerable().GetEnumerator()})
+// 				foreach(var m in  All.OfType<McvTcpPeering>().Where(i => i.Net.Address == mcv.Net.Address && i.Mcv != null))
+// 				{
+// 					var w = new StringWriter();
+// 
+// 					foreach(var c in m.Mcv.Tables[table].Clusters)
+// 					{
+// 						w.WriteLine(c.ToString());
+// 
+// 						foreach(var b in c.Buckets)
+// 						{
+// 							w.WriteLine("	" + b.ToString());
+// 
+// 							foreach(var e in b.Entries)
+// 							{
+// 								w.WriteLine("		" + e.ToString());
+// 							}
+// 						}
+// 
+// 					}
+// 
+// 					File.WriteAllText(Path.Join(destibation, $"{mcv.Tables[table].GetType().Name}-{m.Node.Name}"), w.ToString());
+// 				}
+
+				
+
+				var cs = all.Select(i => new {m = i, c = i.Mcv.Tables[table].Clusters.OrderBy(i => i.Id).ToArray().AsEnumerable().GetEnumerator()})
 							.ToArray();
 	
 				while(true)
@@ -1280,7 +1297,7 @@ namespace Uccs.Net
 					else if(!x.All(i => i))
 						Debugger.Break();
 	
-					var es = cs.Select(i => new {i.s, e = i.c.Current.Entries.AsEnumerable().GetEnumerator()}).ToArray();
+					var es = cs.Select(i => new {i.m, e = i.c.Current.Buckets.OrderBy(i => i.Id).SelectMany(i => i.Entries.OrderBy(i => i.BaseId)).ToArray().GetEnumerator()}).ToArray();
 	
 					while(true)
 					{
@@ -1294,13 +1311,13 @@ namespace Uccs.Net
 						else if(!y.All(i => i))
 							Debugger.Break();
 	
-						var jes = es.Select(i => new {i.s, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
+						var jes = es.Select(i => new {i.m, j = JsonSerializer.Serialize(i.e.Current, jo)}).GroupBy(i => i.j);
 
 						if(jes.Count() > 1)
 						{
 							foreach(var i in jes)
 							{
-								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.s.Node.Name))), i.Key);
+								File.WriteAllText(Path.Join(destibation, string.Join(',', i.Select(i => i.m.Node.Name))), i.Key);
 							}
 							
 							Debugger.Break();

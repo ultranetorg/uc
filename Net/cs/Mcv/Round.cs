@@ -65,7 +65,7 @@ namespace Uccs.Net
 		public long[]										NextBandwidthAllocations = [];
 		//public long										PreviousDayBaseSize;
 
-		public Dictionary<ushort, int>						NextAccountIds;
+		public Dictionary<int, int>							NextAccountIds;
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 
@@ -128,20 +128,21 @@ namespace Uccs.Net
 				a = AffectedAccounts[account] = e.Clone();
 			else
 			{
-				var ci = Mcv.Accounts.KeyToCluster(account);
-				var c = Mcv.Accounts.Clusters.FirstOrDefault(i => i.Id == ci);
+				var h = Mcv.Accounts.KeyToH(account);
+				var b = Mcv.Accounts.FindBucket(h);
 
-				int ai;
+				int ei;
 				
-				if(c == null)
-					NextAccountIds[ci] = 0;
+				if(b == null)
+					NextAccountIds[h] = 0;
 				else
-					NextAccountIds[ci] = c.NextEntryId;
+					NextAccountIds[h] = b.NextEntryId;
 				
-				ai = NextAccountIds[ci]++;
+				ei = NextAccountIds[h]++;
 
-				a = AffectedAccounts[account] = new AccountEntry(Mcv) {	Id = new EntityId(ci, ai), 
+				a = AffectedAccounts[account] = new AccountEntry(Mcv)  {Id = new EntityId(h, ei), 
 																		Address = account,
+																		ECBalance = [],
 																		New = true};
 			}
 

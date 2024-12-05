@@ -47,21 +47,22 @@ namespace Uccs.Rdn
 		protected override void CreateTables(string databasepath)
 		{
 			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
+									.SetCreateMissingColumnFamilies(true);
 
 			var cfs = new ColumnFamilies();
+
+			//foreach(var i in new ColumnFamilies.Descriptor[]{new (ChainFamilyName, new ())})
+			//	cfs.Add(i);
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (DomainTable.MetaColumnName,	new ()),
-																new (DomainTable.MainColumnName,	new ()),
-																new (DomainTable.MoreColumnName,	new ()),
-																new (ResourceTable.MetaColumnName,	new ()),
-																new (ResourceTable.MainColumnName,	new ()),
-																new (ResourceTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,				new ())})
-				cfs.Add(i);
+			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
+			{	
+				foreach(var i in cfn)
+				{	
+					cfs.Add(i, new ());
+				}
+			}
+			else
+				cfs.Add(ChainFamilyName, new ());
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
@@ -111,7 +112,7 @@ namespace Uccs.Rdn
 			if(d == null)
 				yield break;
 			
-			var c = Resources.FindCluster(d.Id.C);
+			var c = Resources.FindBucket(d.Id.H);
 			
 			if(c == null)
 				yield break;

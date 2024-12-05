@@ -350,6 +350,20 @@ namespace Uccs
 			return o;
 		}
 
+		public static OrderedDictionary<K, V> ReadOrderedDictionary<K, V>(this BinaryReader r, Func<K> getk, Func<V> getv)
+		{
+			var n = r.Read7BitEncodedInt();
+			
+			var o = new OrderedDictionary<K, V>();
+
+			for(int i = 0; i < n; i++)
+			{
+				o.Add(getk(), getv());
+			}
+
+			return o;
+		}
+
 
 		//public static void Read(this BinaryReader r, Action a)
 		//{

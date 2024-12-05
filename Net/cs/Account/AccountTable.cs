@@ -2,29 +2,22 @@
 {
 	public class AccountTable : Table<AccountEntry>
 	{
-		public ushort	KeyToCluster(AccountAddress account) => (ushort)(account.Bytes[0] << 8  | account.Bytes[1]);
+		public int	KeyToH(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
 
 		public AccountTable(Mcv chain) : base(chain)
 		{
 		}
 
-		protected override AccountEntry Create(ushort cid)
+		protected override AccountEntry Create(int cid)
 		{
-			return new AccountEntry(Mcv) {Id = new EntityId {C = cid}};
+			return new AccountEntry(Mcv) {Id = new EntityId {H = cid}};
 		}
 
 		public AccountEntry FindEntry(AccountAddress key)
 		{
-			var cid = KeyToCluster(key);
+			var bid = KeyToH(key);
 
-			var c = Clusters.Find(i => i.Id == cid);
-
-			if(c == null)
-				return null;
-
-			var e = c.Entries.Find(i => i.Address == key);
-
-			return e;
+			return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 		}
 
 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
@@ -156,7 +149,7 @@
 					return a;
 			}
 
-			return FindCluster(id.C)?.Entries.Find(i => i.Id.E == id.E);
+			return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
 		}
 	}
 }

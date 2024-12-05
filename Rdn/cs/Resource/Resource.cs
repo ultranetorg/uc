@@ -59,7 +59,7 @@ namespace Uccs.Rdn
 	public class Resource// : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
-		public Ura					Address { get; set; }
+		[JsonIgnore]public Ura		Address { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }

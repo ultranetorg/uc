@@ -35,7 +35,7 @@
 		public List<ExecutionReservation>	ECBalance { get; set; }
 		public long							BYBalance { get; set; }
 		public int							LastTransactionNid { get; set; } = -1;
-		public int							LastEmissionId  { get; set; } = -1;
+		//public int							LastEmissionId  { get; set; } = -1;
 		public long							AverageUptime { get; set; }
 		
 		public long							BandwidthNext { get; set; }
@@ -45,6 +45,11 @@
 		public long							BandwidthTodayAvailable { get; set; }
 
 		public long							GetECBalance(Time time) => ECBalance?.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount) ?? 0;
+
+		public override string ToString()
+		{
+			return $"{Id}, {Address}, EC={{{string.Join(',', ECBalance?.Select(i => i.Amount) ?? [])}}}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
+		}
 
 		public void ECBalanceAdd(IEnumerable<ExecutionReservation> ec)
 		{
@@ -134,7 +139,7 @@
 			writer.Write(ECBalance);
 			writer.Write7BitEncodedInt64(BYBalance);
 			writer.Write7BitEncodedInt(LastTransactionNid);
-			writer.Write7BitEncodedInt(LastEmissionId);
+			//writer.Write7BitEncodedInt(LastEmissionId);
 			writer.Write7BitEncodedInt64(AverageUptime);
 			
 			writer.Write7BitEncodedInt64(BandwidthNext);
@@ -154,7 +159,7 @@
 			ECBalance 			= reader.ReadList<ExecutionReservation>();
 			BYBalance 			= reader.Read7BitEncodedInt64();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
-			LastEmissionId		= reader.Read7BitEncodedInt();
+			//LastEmissionId		= reader.Read7BitEncodedInt();
 			AverageUptime		= reader.Read7BitEncodedInt64();
 
 			BandwidthNext = reader.Read7BitEncodedInt64();
