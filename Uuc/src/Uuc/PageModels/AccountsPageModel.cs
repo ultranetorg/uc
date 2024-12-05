@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Input;
 using Uuc.Common.Collections;
-using Uuc.Models;
 using Uuc.Models.Accounts;
 using Uuc.PageModels.Base;
 using Uuc.PageModels.Popups;
@@ -25,15 +24,7 @@ public partial class AccountsPageModel
 	private async Task Create_OnClicked()
 	{
 		await popupService.ShowPopupAsync<CreateAccountPopupModel>();
-		await IsBusyFor(
-			async () =>
-			{
-				var accounts = await accountsService.ListAllAsync();
-				if (accounts != null)
-				{
-					_accounts.ReloadData(accounts);
-				}
-			});
+		await IsBusyFor(ReloadAccounts);
 	}
 
 	public override async Task InitializeAsync()
@@ -44,14 +35,15 @@ public partial class AccountsPageModel
 		}
 
 		_initialized = true;
-		await IsBusyFor(
-			async () =>
-			{
-				var accounts = await accountsService.ListAllAsync();
-				if (accounts != null)
-				{
-					_accounts.ReloadData(accounts);
-				}
-			});
+		await IsBusyFor(ReloadAccounts);
+	}
+
+	private async Task ReloadAccounts()
+	{
+		var accounts = await accountsService.ListAllAsync();
+		if (accounts != null)
+		{
+			_accounts.ReloadData(accounts);
+		}
 	}
 }

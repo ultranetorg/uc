@@ -8,7 +8,7 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 		BindingContext = model;
-		// InitializeRouting();
+		InitializeRouting();
 	}
 
 	//protected override async void OnHandlerChanged()
@@ -21,14 +21,15 @@ public partial class AppShell : Shell
 	//	}
 	//}
 
-	//private static void InitializeRouting()
-	//{
-	//	//Routing.RegisterRoute("Login", typeof(LoginView));
-	//	Routing.RegisterRoute("Filter", typeof(FiltersView));
-	//	Routing.RegisterRoute("ViewCatalogItem", typeof(CatalogItemView));
-	//	Routing.RegisterRoute("Basket", typeof(BasketView));
-	//	Routing.RegisterRoute("Settings", typeof(SettingsView));
-	//	Routing.RegisterRoute("OrderDetail", typeof(OrderDetailView));
-	//	Routing.RegisterRoute("Checkout", typeof(CheckoutView));
-	//}
+	private static void InitializeRouting()
+	{
+		Routing.RegisterRoute(typeof(AccountDetailsPage).ToString(), typeof(AccountDetailsPage));
+		//Routing.RegisterRoute("Login", typeof(LoginView));
+		//Routing.RegisterRoute("Filter", typeof(FiltersView));
+		//Routing.RegisterRoute("ViewCatalogItem", typeof(CatalogItemView));
+		//Routing.RegisterRoute("Basket", typeof(BasketView));
+		//Routing.RegisterRoute("Settings", typeof(SettingsView));
+		//Routing.RegisterRoute("OrderDetail", typeof(OrderDetailView));
+		//Routing.RegisterRoute("Checkout", typeof(CheckoutView));
+	}
 }

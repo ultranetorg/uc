@@ -2,7 +2,7 @@
 
 namespace Uuc.Pages;
 
-public partial class DashboardPage : ContentPage
+public partial class DashboardPage
 {
 	// int count = 0;
 
@@ -12,15 +12,15 @@ public partial class DashboardPage : ContentPage
 		BindingContext = model;
 	}
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		//count++;
+	//private void OnCounterClicked(object sender, EventArgs e)
+	//{
+	//	count++;
 
-		//if (count == 1)
-		//	CounterBtn.Text = $"Clicked {count} time";
-		//else
-		//	CounterBtn.Text = $"Clicked {count} times";
+	//	if (count == 1)
+	//		CounterBtn.Text = $"Clicked {count} time";
+	//	else
+	//		CounterBtn.Text = $"Clicked {count} times";
 
-		//SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+	//	SemanticScreenReader.Announce(CounterBtn.Text);
+	//}
 }

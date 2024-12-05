@@ -2,9 +2,9 @@
 
 namespace Uuc.Pages;
 
-public partial class AuthorizationsPage
+public partial class AccountDetailsPage
 {
-	public AuthorizationsPage(AuthorizationsPageModel model)
+	public AccountDetailsPage(AccountDetailsPageModel model)
 	{
 		InitializeComponent();
 		BindingContext = model;

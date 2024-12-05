@@ -9,7 +9,7 @@ namespace Uuc.PageModels;
 public partial class AppShellModel
 (
 	INavigationService navigationService,
-	ISessionService sessionService,
+	IApplicationService applicationService,
 	IPopupService popupService
 ) : BasePageModel(navigationService)
 {
@@ -28,11 +28,12 @@ public partial class AppShellModel
 	[RelayCommand]
 	private async Task Settings_OnClicked()
 	{
+		await applicationService.DisplayAlert("Settings", "Settings Displayed", "Close");
 	}
 
 	[RelayCommand]
 	private async Task Exit_OnClicked()
 	{
-		sessionService.EndSession();
+		Application.Current?.Quit();
 	}
 }

@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-
-namespace Uuc.Services;
+﻿namespace Uuc.Services;
 
 public class NavigationService : INavigationService
 {
