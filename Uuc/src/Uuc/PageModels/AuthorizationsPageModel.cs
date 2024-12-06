@@ -1,11 +1,12 @@
-﻿using Uuc.Common.Collections;
+﻿using CommunityToolkit.Mvvm.Input;
+using Uuc.Common.Collections;
 using Uuc.Models;
 using Uuc.PageModels.Base;
 using Uuc.Services;
 
 namespace Uuc.PageModels;
 
-public class AuthorizationsPageModel
+public partial class AuthorizationsPageModel
 (
 	INavigationService navigationService,
 	IAuthorizationsService authorizationsService
@@ -33,5 +34,14 @@ public class AuthorizationsPageModel
 					_authorizations.ReloadData(digitalIdentities);
 				}
 			});
+	}
+
+	[RelayCommand]
+	private async Task List_OnTapped(Authorization? authorization)
+	{
+		if (authorization != null)
+		{
+			Application.Current?.MainPage.DisplayAlert(authorization.Source, authorization.Source, authorization.Source);
+		}
 	}
 }

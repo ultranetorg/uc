@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Uuc.Models;
 using Uuc.Models.Accounts;
 
 namespace Uuc.Services;
@@ -11,4 +10,6 @@ public interface IAccountsService
 	Task CreateAsync([NotEmpty] string name);
 
 	Task<IList<Account>?> ListAllAsync(CancellationToken cancellationToken = default);
+
+	Task<Account?> FindAsync([NotEmpty] string address, CancellationToken cancellationToken = default);
 }

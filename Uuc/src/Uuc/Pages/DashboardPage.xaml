@@ -2,7 +2,8 @@
     x:Class="Uuc.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:pages="clr-namespace:Uuc.Pages"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pageModels="clr-namespace:Uuc.PageModels">
 
     <ScrollView>
         <VerticalStackLayout
@@ -25,6 +26,9 @@
                                 <Label Grid.Row="1"
                                        Text="{Binding Name}"
                                        FontAttributes="Bold" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AccountsList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
@@ -43,6 +47,9 @@
                                 <Label Grid.Column="0"
                                        Text="{Binding Name}"
                                        FontAttributes="Bold" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding DigitalIdentitiesList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
@@ -69,6 +76,9 @@
                                 <Label Grid.Row="2"
                                        Text="{Binding TransactionId}"
                                        FontAttributes="Bold" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OperationsList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>

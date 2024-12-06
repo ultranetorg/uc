@@ -1,9 +1,8 @@
 ﻿using System.Text.Json;
-using CommunityToolkit.Diagnostics;
 using Uccs.Net;
 using Uuc.Common.Constants;
-using Uuc.Models;
 using Uuc.Models.Accounts;
+
 using Account = Uuc.Models.Accounts.Account;
 
 namespace Uuc.Services;
@@ -40,6 +39,14 @@ internal class AccountsService(IPasswordService passwordService, Cryptography cr
 	{
 		IList<EncryptedAccount>? encryptedAccounts = await LoadAllAsync();
 		return encryptedAccounts != null ? ToDecryptAccounts(encryptedAccounts) : null;
+	}
+
+	public async Task<Account?> FindAsync(string address, CancellationToken cancellationToken)
+	{
+		Guard.IsNotEmpty(address);
+
+		var allAccounts = await ListAllAsync(cancellationToken);
+		return allAccounts?.FirstOrDefault(x => x.Address == address);
 	}
 
 	private byte[] EncryptAccountKey(AccountKey accountKey) => cryptography.Encrypt(accountKey, passwordService.Password);

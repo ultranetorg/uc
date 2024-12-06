@@ -4,6 +4,7 @@ using Uuc.Common.Collections;
 using Uuc.Models.Accounts;
 using Uuc.PageModels.Base;
 using Uuc.PageModels.Popups;
+using Uuc.Pages;
 using Uuc.Services;
 
 namespace Uuc.PageModels;
@@ -11,8 +12,8 @@ namespace Uuc.PageModels;
 public partial class AccountsPageModel
 (
 	INavigationService navigationService,
-	IAccountsService accountsService,
-	IPopupService popupService
+	IPopupService popupService,
+	IAccountsService accountsService
 ) : BasePageModel(navigationService)
 {
 	private readonly ObservableCollectionEx<Account> _accounts = new ();
@@ -25,6 +26,15 @@ public partial class AccountsPageModel
 	{
 		await popupService.ShowPopupAsync<CreateAccountPopupModel>();
 		await IsBusyFor(ReloadAccounts);
+	}
+
+	[RelayCommand]
+	private async Task List_OnTapped(Account? account)
+	{
+		if (account != null)
+		{
+			await Shell.Current.GoToAsync(typeof(AccountDetailsPage) + "?address=" + account.Address);
+		}
 	}
 
 	public override async Task InitializeAsync()

@@ -24,6 +24,7 @@ public partial class AppShell : Shell
 	private static void InitializeRouting()
 	{
 		Routing.RegisterRoute(typeof(AccountDetailsPage).ToString(), typeof(AccountDetailsPage));
+		Routing.RegisterRoute(typeof(DigitalIdentityDetailsPage).ToString(), typeof(DigitalIdentityDetailsPage));
 		//Routing.RegisterRoute("Login", typeof(LoginView));
 		//Routing.RegisterRoute("Filter", typeof(FiltersView));
 		//Routing.RegisterRoute("ViewCatalogItem", typeof(CatalogItemView));

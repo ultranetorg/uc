@@ -1,6 +1,7 @@
 ﻿<pages:BaseContentPage
     x:Class="Uuc.Pages.DigitalIdentitiesPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:pageModels="clr-namespace:Uuc.PageModels"
     xmlns:pages="clr-namespace:Uuc.Pages"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -10,6 +11,9 @@
                 Text="DigitalIdentitiesPage"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
+
+            <Button Command="{Binding Create_OnPressedCommand}" Text="Create Digital Identity" />
+
             <ListView ItemsSource="{Binding DigitalIdentities}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -26,6 +30,9 @@
                                 <Label Grid.Column="0"
                                        Text="{Binding Name}"
                                        FontAttributes="Bold" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding List_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DigitalIdentitiesPageModel}}, x:DataType=pageModels:DigitalIdentitiesPageModel}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
