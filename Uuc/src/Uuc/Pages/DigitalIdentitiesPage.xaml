@@ -28,8 +28,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0"
-                                       Text="{Binding Name}"
-                                       FontAttributes="Bold" />
+                                       Text="{Binding Name}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding List_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DigitalIdentitiesPageModel}}, x:DataType=pageModels:DigitalIdentitiesPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

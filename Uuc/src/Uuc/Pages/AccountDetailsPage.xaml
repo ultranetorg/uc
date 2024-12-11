@@ -53,13 +53,17 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Row="0" Text="Id:" FontAttributes="Bold" />
                                 <Label Grid.Row="1" Text="{Binding Id}" />
-                                <Label Grid.Row="2" Text="SignerAddress:" FontAttributes="Bold" />
-                                <Label Grid.Row="3" Text="{Binding SignerAddress}" />
-                                <Label Grid.Row="4" Text="TransactionId:" FontAttributes="Bold" />
-                                <Label Grid.Row="5" Text="{Binding TransactionId}" />
+                                <Label Grid.Row="2" Text="Network Id:" FontAttributes="Bold" />
+                                <Label Grid.Row="3" Text="{Binding NetworkId}" />
+                                <Label Grid.Row="4" Text="SignerAddress:" FontAttributes="Bold" />
+                                <Label Grid.Row="5" Text="{Binding SignerAddress}" />
+                                <Label Grid.Row="6" Text="TransactionId:" FontAttributes="Bold" />
+                                <Label Grid.Row="7" Text="{Binding TransactionId}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OperationsList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:AccountDetailsPageModel}}, x:DataType=pageModels:AccountDetailsPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

@@ -21,12 +21,17 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <Label Text="{Binding Address}"
-                                       FontAttributes="Bold" />
+                                <Label Text="Address:" FontAttributes="Bold" />
                                 <Label Grid.Row="1"
-                                       Text="{Binding Name}"
+                                       Text="{Binding Address}" />
+                                <Label Grid.Row="2"
+                                       Text="Name:"
                                        FontAttributes="Bold" />
+                                <Label Grid.Row="3"
+                                       Text="{Binding Name}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding List_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:AccountsPageModel}}, x:DataType=pageModels:AccountsPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

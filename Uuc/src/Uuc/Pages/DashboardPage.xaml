@@ -10,7 +10,7 @@
             Padding="30,0"
             Spacing="25">
 
-            <Label Text="Accounts:" />
+            <Label Text="Accounts:" FontAttributes="Bold" />
             <ListView ItemsSource="{Binding Accounts}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -21,11 +21,9 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Row="0"
-                                       Text="{Binding Address}"
-                                       FontAttributes="Bold" />
+                                       Text="{Binding Address}" />
                                 <Label Grid.Row="1"
-                                       Text="{Binding Name}"
-                                       FontAttributes="Bold" />
+                                       Text="{Binding Name}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding AccountsList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
@@ -35,7 +33,7 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Label Text="Digital Identities:" />
+            <Label Text="Digital Identities:" FontAttributes="Bold" />
             <ListView ItemsSource="{Binding DigitalIdentities}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -45,8 +43,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Column="0"
-                                       Text="{Binding Name}"
-                                       FontAttributes="Bold" />
+                                       Text="{Binding Name}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding DigitalIdentitiesList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
@@ -56,7 +53,7 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Label Text="Operations:" />
+            <Label Text="Operations:" FontAttributes="Bold" />
             <ListView ItemsSource="{Binding Operations}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -66,16 +63,20 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <Label Grid.Row="0"
-                                       Text="{Binding Id}"
-                                       FontAttributes="Bold" />
-                                <Label Grid.Row="1"
-                                       Text="{Binding SignerAddress}"
-                                       FontAttributes="Bold" />
-                                <Label Grid.Row="2"
-                                       Text="{Binding TransactionId}"
-                                       FontAttributes="Bold" />
+                                <Label Grid.Row="0" Text="Id:" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Text="{Binding Id}" />
+                                <Label Grid.Row="2" Text="Network Id:" FontAttributes="Bold" />
+                                <Label Grid.Row="3" Text="{Binding NetworkId}" />
+                                <Label Grid.Row="4" Text="SignerAddress:" FontAttributes="Bold" />
+                                <Label Grid.Row="5" Text="{Binding SignerAddress}" />
+                                <Label Grid.Row="6" Text="TransactionId:" FontAttributes="Bold" />
+                                <Label Grid.Row="7" Text="{Binding TransactionId}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OperationsList_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:DashboardPageModel}}, x:DataType=pageModels:DashboardPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

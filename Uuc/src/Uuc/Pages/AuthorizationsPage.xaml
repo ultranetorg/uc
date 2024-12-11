@@ -21,8 +21,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Column="0"
-                                       Text="{Binding Source}"
-                                       FontAttributes="Bold" />
+                                       Text="{Binding Source}" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding List_OnTappedCommand, Source={RelativeSource AncestorType={x:Type pageModels:AuthorizationsPageModel}}, x:DataType=pageModels:AuthorizationsPageModel}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
