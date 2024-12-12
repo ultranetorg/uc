@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Uuc.Services;
+﻿namespace Uuc.Services;
 
 public interface ISessionService
 {
@@ -8,11 +6,9 @@ public interface ISessionService
 
 	event Action? SessionExpired;
 
-	bool IsSessionValid([NotEmpty] string sessionId);
-
 	void StartSession();
 
-	void ExtendSessionIfActive([NotEmpty] string sessionId);
+	void ExtendSessionIfActive();
 
 	void EndSession();
 }

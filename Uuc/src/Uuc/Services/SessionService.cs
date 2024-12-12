@@ -1,5 +1,4 @@
 ﻿using System.Timers;
-using CommunityToolkit.Diagnostics;
 
 using Timer = System.Timers.Timer;
 
@@ -21,27 +20,15 @@ public class SessionService : ISessionService
 		_inactivityTimer.AutoReset = false;
 	}
 
-	public bool IsSessionValid(string sessionId)
-	{
-		Guard.IsNotEmpty(sessionId);
-
-		return SessionId == sessionId && _inactivityTimer.Enabled;
-	}
-
 	public void StartSession()
 	{
 		GenerateSessionId();
 		ResetSessionTimer();
 	}
 
-	public void ExtendSessionIfActive(string sessionId)
+	public void ExtendSessionIfActive()
 	{
-		Guard.IsNotEmpty(sessionId);
-
-		if (IsSessionValid(sessionId))
-		{
-			ResetSessionTimer();
-		}
+		ResetSessionTimer();
 	}
 
 	public void EndSession()
