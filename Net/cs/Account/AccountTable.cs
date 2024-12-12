@@ -2,29 +2,22 @@
 {
 	public class AccountTable : Table<AccountEntry>
 	{
-		public ushort	KeyToCluster(AccountAddress account) => (ushort)(account.Bytes[0] << 8  | account.Bytes[1]);
+		public int	KeyToH(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
 
 		public AccountTable(Mcv chain) : base(chain)
 		{
 		}
 
-		protected override AccountEntry Create()
+		protected override AccountEntry Create(int cid)
 		{
-			return new AccountEntry(Mcv);
+			return new AccountEntry(Mcv) {Id = new EntityId {H = cid}};
 		}
 
 		public AccountEntry FindEntry(AccountAddress key)
 		{
-			var cid = KeyToCluster(key);
+			var bid = KeyToH(key);
 
-			var c = _Clusters.Find(i => i.Id == cid);
-
-			if(c == null)
-				return null;
-
-			var e = c.Entries.Find(i => i.Address == key);
-
-			return e;
+			return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 		}
 
 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
@@ -143,20 +136,20 @@
 			return FindEntry(account);
 		}
 
-		public AccountEntry Find(EntityId account, int ridmax)
+		public AccountEntry Find(EntityId id, int ridmax)
 		{
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == account);
+				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == id);
 				
 				if(a != null)
 					return a;
 			}
 
-			return FindEntry(account);
+			return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
 		}
 	}
 }

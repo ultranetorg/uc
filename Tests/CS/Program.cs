@@ -7,10 +7,10 @@ namespace Uccs.Tests
 	{
 		public static void Main(string[] args)
 		{
-			UraTests.Release();
+			IdTests.Main();
 			//MoneyTests.Main();
 			//AccountKeyTests.Main();
-			XonTest.Custom();
+			//XonTest.Custom();
 
 
 

@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using System.Linq;
 
 namespace Uccs.Net.Tests
 {
@@ -13,7 +14,8 @@ namespace Uccs.Net.Tests
 		public static void Xor_InputDataSpecified_XoredValuesExpected(byte[] a, byte[] b, byte[] expected)
 		{
 			//byte[] result = Bytes.Xor(a, b);
-			//result.Should().BeEquivalentTo(expected);
+			//
+			//Assert.True(result.SequenceEqual(expected));
 		}
 	}
 }

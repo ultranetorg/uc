@@ -152,19 +152,17 @@
 			return true;
 		}
 
-		public bool RequireResource(RdnRound round, ResourceId id, out DomainEntry domain, out Resource resource)
+		public bool RequireResource(RdnRound round, ResourceId id, out DomainEntry domain, out ResourceEntry resource)
 		{
 			resource = null;
 
-			if(RequireDomain(round, id.DomainId, out domain) == false)
+			if(RequireDomain(round, id, out domain) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
-
-			resource = s.Resources.FirstOrDefault(i => i.Id == id);
+			resource = round.Mcv.Resources.Find(id, round.Id);
 			
 			if(resource == null)
 			{
@@ -175,19 +173,17 @@
 			return true; 
 		}
 
-		public bool RequireSignerResource(RdnRound round, ResourceId id, out DomainEntry domain, out Resource resource)
+		public bool RequireSignerResource(RdnRound round, ResourceId id, out DomainEntry domain, out ResourceEntry resource)
 		{
 			resource = null;
 
-			if(RequireSignerDomain(round, id.DomainId, out domain) == false)
+			if(RequireSignerDomain(round, id, out domain) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			var s = round.Mcv.Sites.Find(domain.Id, round.Id);
-
-			resource = s.Resources.FirstOrDefault(i => i.Id == id);
+			resource = round.Mcv.Resources.Find(id, round.Id);
 			
 			if(resource == null)
 			{

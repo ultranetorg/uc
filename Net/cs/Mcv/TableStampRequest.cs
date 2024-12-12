@@ -3,11 +3,11 @@
 	public class TableStampRequest : McvPpc<TableStampResponse>
 	{
 		public int		Table { get; set; }
-		public byte[]	SuperClusters { get; set; }
+		public short[]	Clusters { get; set; }
 
 		public override PeerResponse Execute()
 		{
-			if(SuperClusters.Length > TableBase.SuperClustersCountMax)
+			if(Clusters.Length > TableBase.SuperClustersCountMax)
 				throw new RequestException(RequestError.IncorrectRequest);
 
 			lock(Mcv.Lock)
@@ -20,9 +20,21 @@
 				if(Table < 0 || Mcv.Tables.Length <= Table)
 					throw new RequestException(RequestError.OutOfRange);
 
-				return new TableStampResponse{Clusters = SuperClusters	.SelectMany(s => Mcv.Tables[Table].Clusters
-																		.Where(c => c.SuperId == s)
-																		.Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+				return new TableStampResponse {Clusters = Clusters.Select(i =>	{			
+																					var c = Mcv.Tables[Table].FindCluster(i);
+
+																					var r = new TableStampResponse.Cluster
+																							{
+																								Id = c.Id,
+																								Buckets = c.Buckets.Select(i => new TableStampResponse.Bucket { Id = i.Id, 
+																																								Length = i.MainLength, 
+																																								Hash = i.Hash}).ToArray()
+																								
+																							};
+																					return r;
+																				})
+																				.ToArray()};
+				
 			}
 		}
 	}
@@ -31,7 +43,13 @@
 	{
 		public class Cluster
 		{
-			public ushort	Id { get; set; }
+			public short	Id { get; set; }
+			public Bucket[]	Buckets { get; set; }
+		}
+
+		public class Bucket
+		{
+			public int		Id { get; set; }
 			public byte[]	Hash { get; set; }
 			public int		Length { get; set; }
 		}

@@ -26,7 +26,7 @@ namespace Uccs.Rdn
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Address	= reader.Read<Ura>();
-			Changes		= (ResourceChanges)reader.ReadByte();
+			Changes	= (ResourceChanges)reader.ReadByte();
 
 			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 		}
@@ -52,8 +52,7 @@ namespace Uccs.Rdn
 // 				return;
 // 			}
 
-			var s = round.AffectSite(d.Id);
-			var r = s.Resources?.FirstOrDefault(i => i.Address == Address);
+			var r = round.Mcv.Resources.Find(Address, round.Id);
 					
 			if(r != null)
 			{
@@ -61,7 +60,7 @@ namespace Uccs.Rdn
 				return;
 			}
 
-			r = s.AffectResource(d, Address.Resource);
+			r = round.AffectResource(d, Address.Resource);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{

@@ -219,14 +219,10 @@ namespace Uccs.Net
 			if(!reader.ReadBoolean())
 				return null;
 			
-			if(typeof(byte[]) == type)		
-				return reader.ReadBytes(reader.Read7BitEncodedInt()); 
-			else if(typeof(string) == type)
-				return reader.ReadUtf8(); else 
-			if(typeof(IPAddress) == type)
-				return reader.ReadIPAddress();
-			else if(type == typeof(Xon))
-				return new Xon(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
+			if(typeof(byte[]) == type)		return reader.ReadBytes(reader.Read7BitEncodedInt()); else 
+			if(typeof(string) == type)		return reader.ReadUtf8(); else 
+			if(typeof(IPAddress) == type)	return reader.ReadIPAddress(); else 
+			if(type == typeof(Xon))			return new Xon(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
 			else if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
 			{
 				var ltype = type.GetElementType().MakeArrayType(1);

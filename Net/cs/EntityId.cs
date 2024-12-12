@@ -1,42 +1,69 @@
 ﻿namespace Uccs.Net
 {
-	public class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
+	public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, IComparable<BaseId>
 	{
-		public ushort	Ci { get; set; }
-		public int		Ei { get; set; }
+		public int				H { get; set; }
+
+		public abstract int		CompareTo(BaseId other);
+		public abstract bool	Equals(BaseId other);
+		public abstract void	Read(BinaryReader reader);
+		public abstract void	Write(BinaryWriter writer);
+
+
+ 		public static bool operator == (BaseId left, BaseId right)
+ 		{
+ 			return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
+ 		}
+ 
+ 		public static bool operator != (BaseId left, BaseId right)
+ 		{
+ 			return !(left == right);
+ 		}
+
+		public override int GetHashCode()
+		{
+			return H.GetHashCode();
+		}
+
+		public override abstract bool Equals(object obj);
+	}
+
+	public class EntityId : BaseId
+	{
+		public int		E { get; set; }
 
 		public EntityId()
 		{
 		}
 
-		public EntityId(ushort ci, int ei)
+		public EntityId(int ci, int ei)
 		{
-			Ci = ci;
-			Ei = ei;
+			H = ci;
+			E = ei;
 		}
 
 		public override string ToString()
 		{
-			return $"{Ci}-{Ei}";
+			return $"{H}-{E}";
 		}
 
 		public static EntityId Parse(string t)
 		{
 			var i = t.IndexOf('-');
 
-			return new EntityId(ushort.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
+			return new EntityId(int.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
 		}
 
-		public void Read(BinaryReader reader)
+		public override void Read(BinaryReader reader)
 		{
-			Ci	= reader.ReadUInt16();
-			Ei	= reader.Read7BitEncodedInt();
+			H	= reader.Read7BitEncodedInt();
+			E	= reader.Read7BitEncodedInt();
 		}
 
-		public void Write(BinaryWriter writer)
+		public override void Write(BinaryWriter writer)
 		{
-			writer.Write(Ci);
-			writer.Write7BitEncodedInt(Ei);
+			writer.Write7BitEncodedInt(H);
+			writer.Write7BitEncodedInt(E);
 		}
 
 		public override bool Equals(object obj)
@@ -44,30 +71,30 @@
 			return obj is EntityId id && Equals(id);
 		}
 
-		public bool Equals(EntityId a)
+		public override bool Equals(BaseId a)
 		{
-			return a is not null && Ci == a.Ci && Ei == a.Ei;
+			return a is EntityId e && H == a.H && E == e.E;
+		}
+
+		public override int CompareTo(BaseId a)
+		{
+			return CompareTo((EntityId)a);
 		}
 
 		public int CompareTo(EntityId a)
 		{
-			if(Ci != a.Ci)
-				return Ci.CompareTo(a.Ci);
+			if(H != a.H)
+				return H.CompareTo(a.H);
 			
-			if(Ei != a.Ei)
-				return Ei.CompareTo(a.Ei);
+			if(E != a.E)
+				return E.CompareTo(a.E);
 
 			return 0;
 		}
 
-		public override int GetHashCode()
-		{
-			return Ci.GetHashCode();
-		}
-
 		public static bool operator == (EntityId left, EntityId right)
 		{
-			return left is null && right is null || left is not null && left.Equals(right);
+			return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
 		}
 
 		public static bool operator != (EntityId left, EntityId right)

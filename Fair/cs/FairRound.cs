@@ -51,7 +51,7 @@
 					{	
 						var c = Mcv.Publishers.Clusters.MinBy(i => i.BaseEntries.Count());
 						ci = c.Id;
-						NextPublisherIds[ci] = c.NextEntityId;
+						NextPublisherIds[ci] = c.NextEntryId;
 					}
 				}
 				
@@ -100,7 +100,7 @@
 				if(c == null)
 					NextAssortmentIds[id.Ci] = 0;
 				else
-					NextAssortmentIds[id.Ci] = c.NextEntityId;
+					NextAssortmentIds[id.Ci] = c.NextEntryId;
 				
 				i = NextAssortmentIds[id.Ci]++;
 

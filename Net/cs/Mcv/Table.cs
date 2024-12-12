@@ -1,17 +1,15 @@
 ﻿using System.Collections;
-using System.Diagnostics;
 using RocksDbSharp;
 
 namespace Uccs.Net
 {
 	public abstract class TableBase
 	{
-		public const int							ClustersCountMax = 256 * 256;
-		public const int							SuperClustersCountMax = 256;
-		const int									ClustersCacheLimit = 1000;
+		public const int					ClustersCountMax = 256 * 256;
+		public const int					SuperClustersCountMax = 256;
+		const int							ClustersCacheLimit = 1000;
 
-		public Dictionary<byte, byte[]>				SuperClusters = new();
-		public abstract IEnumerable<ClusterBase>	Clusters { get; }
+		protected ColumnFamilyHandle				ClusterColumn;
 		protected ColumnFamilyHandle				MetaColumn;
 		protected ColumnFamilyHandle				MainColumn;
 		protected ColumnFamilyHandle				MoreColumn;
@@ -19,139 +17,168 @@ namespace Uccs.Net
 		protected Mcv								Mcv;
 		public abstract int							Size { get; }
 		public int									Id => Array.IndexOf(Mcv.Tables, this);
+		public abstract IEnumerable<ClusterBase>	Clusters { get; }
 
-		public abstract class ClusterBase
+		//public abstract BucketBase				AddCluster(short id);
+		public abstract ClusterBase					GetCluster(short id);
+		public abstract ClusterBase					FindCluster(short id);
+		public abstract BucketBase					FindBucket(int id);
+		public abstract void						Clear();
+		public abstract void						Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
+		public static short							ClusterFromBucket(int id) => (short)(id >> 12);
+
+		public abstract class BucketBase
 		{
-			//public const int		IdLength = 2;
+			public int									Id;
+			public short								SuperId => (short)(Id >> 12);
+			public int									MainLength;
+ 			public abstract int							NextEntryId { get; set; }
+			public byte[]								Hash { get; set; }
+			public abstract byte[]						Main { get; }
+			public abstract IEnumerable<ITableEntry>	Entries { get; }
 
-			public static byte[]	ToBytes(ushort id) => [(byte)(id >> 8), (byte)(id & 0xff)];
-			public static ushort	FromBytes(byte[] id) => (ushort)(id[0]<< 8 | id[1]);
-
-			public ushort			Id;
-			public byte				SuperId => (byte)(Id >> 8);
-			public int				MainLength;
- 			public int				NextEntityId;				
-			public byte[]			Hash { get; protected set; }
-			public abstract byte[]	Main { get; }
-
-			public abstract			IEnumerable<ITableEntryBase> BaseEntries { get; }
-
-			public abstract void	Read(BinaryReader reader);
-			public abstract void	Save(WriteBatch batch);
+			public static byte[]						ToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
+			public static int							FromBytes(byte[] id) => id[0] | id[1]<< 8 | id[2] << 16;
+			public abstract void						Save(WriteBatch batch);
+			public abstract void						Save(WriteBatch batch, byte[] main);
 
 			public void Cleanup(Round lastInCommit)
 			{
-				foreach(var i in BaseEntries)
+				foreach(var i in Entries)
 				{
 					i.Cleanup(lastInCommit);
 				}
 			}
 		}
 
-		public abstract ClusterBase		AddCluster(ushort id);
-		public abstract void			Clear();
-		//public abstract long			MeasureChanges(IEnumerable<Round> tail);
-		public abstract void			Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
-
-		public void CalculateSuperClusters()
+		public abstract class ClusterBase
 		{
-			if(!Clusters.Any())
-				return;
+			public short								Id;
+			public byte[]								Hash;
+			public int									MainLength;
+			public abstract IEnumerable<BucketBase>		Buckets { get; }
 
-			var ocs = Clusters.OrderBy(i => i.Id);
-
-			byte b = ocs.First().SuperId;
-			byte[] h = ocs.First().Hash;
-
-			foreach(var i in ocs.Skip(1))
-			{
-				if(b != i.SuperId)
-				{
-					SuperClusters[b] = h;
-					b = i.SuperId;
-					h = i.Hash;
-				}
-				else
-					h = Cryptography.Hash(Bytes.Xor(h, i.Hash));
-			}
-
-			SuperClusters[b] = h;
+			public abstract BucketBase					GetBucket(int id);
+			public abstract void						Save(WriteBatch batch);
 		}
+
+// 		public void CalculateSuperClusters()
+// 		{
+// 			if(!Clusters.Any())
+// 				return;
+// 
+// 			var ocs = Clusters.OrderBy(i => i.Id);
+// 
+// 			var b = ocs.First().SuperId;
+// 			byte[] h = ocs.First().Hash;
+// 
+// 			foreach(var i in ocs.Skip(1))
+// 			{
+// 				if(b != i.SuperId)
+// 				{
+// 					SuperClusters[b] = h;
+// 					b = i.SuperId;
+// 					h = i.Hash;
+// 				}
+// 				else
+// 					h = Cryptography.Hash(h, i.Hash);
+// 			}
+// 
+// 			SuperClusters[b] = h;
+// 		}
 	}
 
-	public abstract class Table<E> : TableBase, IEnumerable<E> where E : class, ITableEntry
+	public abstract class Table<E> : TableBase where E : class, ITableEntry
 	{
-		public class Cluster : ClusterBase
+		public class Bucket : BucketBase
 		{
-			List<E>			_Entries;
-			Table<E>		Table;
-			byte[]			_Main;
+			Table<E>				Table;
+			byte[]					_Main;
+			int						_NextEntryId;
+			List<E>					_Entries;
+			public override byte[]	Main  => _Main ??= Table.Engine.Get(ToBytes(Id), Table.MainColumn);
 
-			public override IEnumerable<ITableEntryBase> BaseEntries => Entries;
-
-			public override byte[] Main
-			{
-				get
-				{
-					if(_Main == null)
-					{
-						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
-					}
-
-					return _Main;
-				}
-			}
-
-			public List<E> Entries
+			public override List<E> Entries
 			{
 				get
 				{
 					if(_Entries == null)
-					{
-						if(Main != null)
-						{
-							var s = new MemoryStream(Main);
-							var r = new BinaryReader(s);
-	
-							var a = r.ReadList(() =>{ 
-														var e = Table.Create();
-														e.Id = new EntityId(Id, r.Read7BitEncodedInt());
-														e.ReadMain(r);
-														return e;
-													 });
-					
-							s = new MemoryStream(Table.Engine.Get(ToBytes(Id), Table.MoreColumn));
-							r = new BinaryReader(s);
-	
-							for(int i = 0; i < a.Count; i++)
-							{
-								a[i].ReadMore(r);
-							}
-	
-							_Entries = a;
-						}
-						else
-							_Entries = new ();
-					}
+						Load();
 
 					return _Entries;
 				}
 			}
 
-			public Cluster(Table<E> table, ushort id)
+			public override int NextEntryId 
+			{
+				get
+				{
+					if(_Entries == null)
+						Load();
+
+					return _NextEntryId;
+				}
+				set
+				{
+					_NextEntryId = value;
+				}
+			}
+
+			public Bucket(Table<E> table, int id)
 			{
 				Table = table;
 				Id = id;
 
-				var m = Table.Engine.Get(ToBytes(id), Table.MetaColumn);
+				var meta = Table.Engine.Get(ToBytes(Id), Table.MetaColumn);
 
-				if(m != null)
+				if(meta != null)
 				{
-					var r = new BinaryReader(new MemoryStream(m));
+					var r = new BinaryReader(new MemoryStream(meta));
+		
+					Hash		= r.ReadHash();
+					MainLength	= r.Read7BitEncodedInt();
+				}
+			}
+
+			public override string ToString()
+			{
+				return $"{Id}, Entries={{{Entries?.Count}}}, Hash={Hash?.ToHex()}, NextEntryId={NextEntryId}";
+			}
+
+			void Load()
+			{
+				if(Main != null)
+				{
+					var s = new MemoryStream(Main);
+					var r = new BinaryReader(s);
+		
+					_NextEntryId = r.Read7BitEncodedInt();
 	
-					Hash = r.ReadHash();
-					MainLength = r.Read7BitEncodedInt();
-					NextEntityId = r.Read7BitEncodedInt();
+					var a = r.ReadList(()=>	{ 
+												var e = Table.Create(Id);
+												e.ReadMain(r);
+												return e;
+											});
+						
+					var more = Table.Engine.Get(ToBytes(Id), Table.MoreColumn);
+								
+					if(more != null)
+					{
+						s = new MemoryStream();
+						r = new BinaryReader(s);
+			
+						for(int i = 0; i < a.Count; i++)
+						{
+							a[i].ReadMore(r);
+						}
+					}
+				
+					_Entries = a;
+				} 
+				else
+				{
+					_NextEntryId = 0;
+					_Entries = new List<E>();
 				}
 			}
 
@@ -160,23 +187,28 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				var entities = Entries;///.OrderBy(i => i.Id.Ei);
+				///if(_Main == null || base.Entries != null)
+				///{
+				///
+					var entities = Entries.OrderBy(i => i.BaseId);
+	
+					w.Write7BitEncodedInt(NextEntryId);
+					w.Write(Entries, i =>	{
+												i.WriteMain(w);
+											});
+	
+					_Main = s.ToArray();
+				///}
 
-				w.Write(entities, i =>	{
-											w.Write7BitEncodedInt(i.Id.Ei);
-											i.WriteMain(w);
-										});
-
-				_Main = s.ToArray();
 				batch.Put(ToBytes(Id), _Main, Table.MainColumn);
 
 				Hash = Cryptography.Hash(_Main);
 				MainLength = _Main.Length;
 				
 				s.SetLength(0);
+
 				w.Write(Hash);
 				w.Write7BitEncodedInt(_Main.Length);
-				w.Write7BitEncodedInt(NextEntityId);
 
 				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
 
@@ -188,46 +220,150 @@ namespace Uccs.Net
 				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
 			}
 
-			public void Write(BinaryWriter writer)
+			public override void Save(WriteBatch batch, byte[] main)
 			{
-				writer.Write(Main);
-			}
+				_Main = main;
 
-			public override void Read(BinaryReader reader)
-			{
-				_Entries = reader.ReadList(() => { 
-														var e = Table.Create();
-														e.Id = new EntityId(Id, reader.Read7BitEncodedInt());
-														e.ReadMain(reader);
-														return e;
-												});;
-			}
+				batch.Put(ToBytes(Id), _Main, Table.MainColumn);
 
-			public override string ToString()
-			{
-				return $"{Id}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={Hash?.ToHex()}";
+				Hash = Cryptography.Hash(_Main);
+				MainLength = _Main.Length;
+
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+				
+				w.Write(Hash);
+				w.Write7BitEncodedInt(MainLength);
+
+				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
 			}
 		}
 
-		public override IEnumerable<ClusterBase>	Clusters => _Clusters;
-		public List<Cluster>						_Clusters = new();
-		public static string						MetaColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
-		public static string						MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
-		public static string						MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 
-		protected abstract E						Create();
-		//public abstract Span<byte>					KeyToCluster(K k);
-		//public abstract bool						Equal(K a, K b);
+		public class Cluster : ClusterBase
+		{
+			Table<E>							Table;
+			List<Bucket>						_Buckets;
 
-		public override int							Size => Clusters.Sum(i => i.MainLength);
+			public static byte[]				ToBytes(short id) => [(byte)id, (byte)(id >> 8)];
+			public static short					FromBytes(byte[] id) => (short)(id[0] | id[1] << 8);
+
+			public override List<Bucket> Buckets
+			{ 
+				get
+				{
+					if(_Buckets == null)
+					{
+						var m = Table.Engine.Get(ToBytes(Id), Table.ClusterColumn);
+	
+						if(m != null)
+						{
+							var r = new BinaryReader(new MemoryStream(m));
+		
+							r.ReadHash();
+							r.Read7BitEncodedInt();
+							_Buckets = r.ReadList(() => new Bucket(Table, r.Read7BitEncodedInt()));
+						}
+						else
+							_Buckets = [];
+					}
+
+					return _Buckets;
+				}
+			}
+
+			public Cluster(Table<E> table, short id)
+			{
+				Table = table;
+				Id = id;
+
+				var m = Table.Engine.Get(ToBytes(Id), Table.ClusterColumn);
+
+				if(m != null)
+				{
+					var r = new BinaryReader(new MemoryStream(m));
+	
+					Hash		= r.ReadHash();
+					MainLength	= r.Read7BitEncodedInt();
+				}
+			}
+			
+			public override string ToString()
+			{
+				return $"{Id}, Buckets={{{Buckets?.Count}}}, Hash={Hash?.ToHex()}";
+			}
+
+// 			public Bucket AddBucket(int id)
+// 			{
+// 				var c = new Bucket(Table, id);
+// 				Buckets.Add(c);
+// 			
+// 				return c;
+// 			}
+
+			public override Bucket GetBucket(int id)
+			{
+				var c = FindBucket(id);
+
+				if(c != null)
+					return c;
+
+				c = new Bucket(Table, id);
+				Buckets.Add(c);
+
+				//Recycle();
+
+				return c;
+			}
+
+			public Bucket FindBucket(int id)
+			{
+				return Buckets.Find(i => i.Id == id);
+			}
+
+			public override void Save(WriteBatch batch)
+			{
+				var buckets = Buckets.OrderBy(i => i.Id);
+
+				Hash = buckets.First().Hash;
+				MainLength = buckets.First().MainLength;
+
+				foreach(var i in Buckets.Skip(1))
+				{
+					Hash = Cryptography.Hash(Hash, i.Hash);
+					MainLength += i.MainLength;
+				}
+
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+				
+				w.Write(Hash);
+				w.Write7BitEncodedInt(MainLength);
+				w.Write(Buckets, i => w.Write7BitEncodedInt(i.Id));
+
+				batch.Put(ToBytes(Id), s.ToArray(), Table.ClusterColumn);
+			}
+		}
+
+		public override List<Cluster>	Clusters { get; }
+		public override int				Size => Clusters.Sum(i => i.MainLength);
+		public static string			ClusterColumnName	=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(ClusterColumn);
+		public static string			MetaColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
+		public static string			MainColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
+		public static string			MoreColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
+
+		protected abstract E			Create(int bid);
 
 		public Table(Mcv chain)
 		{
 			Mcv = chain;
 			Engine = Mcv.Database;
-			MetaColumn = Engine.GetColumnFamily(MetaColumnName);
-			MainColumn = Engine.GetColumnFamily(MainColumnName);
-			MoreColumn = Engine.GetColumnFamily(MoreColumnName);
+			Clusters = new List<Cluster>();
+
+			if(!Engine.TryGetColumnFamily(ClusterColumnName, out ClusterColumn))	ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
+			if(!Engine.TryGetColumnFamily(MetaColumnName,	 out MetaColumn))		MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
+			if(!Engine.TryGetColumnFamily(MainColumnName,	 out MainColumn))		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
+			if(!Engine.TryGetColumnFamily(MoreColumnName,	 out MoreColumn))		MoreColumn		= Engine.CreateColumnFamily(new (), MoreColumnName);
 
 			using(var i = Engine.NewIterator(MetaColumn))
 			{
@@ -235,125 +371,119 @@ namespace Uccs.Net
 				{
 	 				var c = new Cluster(this, Cluster.FromBytes(i.Key()));
 					//c.Hash = i.Value();
-	 				_Clusters.Add(c);
+	 				Clusters.Add(c);
 				}
 			}
 
-			CalculateSuperClusters();
-		}
-
-		public override ClusterBase AddCluster(ushort id)
-		{
-			var c = new Cluster(this, id);
-			_Clusters.Add(c);
-			
-			return c;
+			//CalculateSuperClusters();
 		}
 
 		public override void Clear()
 		{
-			_Clusters.Clear();
-			SuperClusters.Clear();
+			//Clusters.Clear();
+			Clusters.Clear();
 
+			Engine.DropColumnFamily(ClusterColumnName);
 			Engine.DropColumnFamily(MetaColumnName);
 			Engine.DropColumnFamily(MainColumnName);
 			Engine.DropColumnFamily(MoreColumnName);
 
-			MetaColumn = Engine.CreateColumnFamily(new (), MetaColumnName);
-			MainColumn = Engine.CreateColumnFamily(new (), MainColumnName);
-			MoreColumn = Engine.CreateColumnFamily(new (), MoreColumnName);
+			ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
+			MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
+			MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
+			MoreColumn		= Engine.CreateColumnFamily(new (), MoreColumnName);
 		}
 
-		public class Enumerator : IEnumerator<E>
+		public override Cluster FindCluster(short id)
 		{
-			public E Current => Entity.Current;
-			object IEnumerator.Current => Entity.Current;
-
-			IEnumerator<Cluster>	Cluster;
-			IEnumerator<E>			Entity;
-			Table<E>				Table;
-
-			public Enumerator(Table<E> table)
-			{
-				Table = table;
-
-				Cluster = Table._Clusters.GetEnumerator();
-			}
-
-			public void Dispose()
-			{
-				Cluster?.Dispose();
-				Entity?.Dispose();
-			}
-
-			public bool MoveNext()
-			{
-				start: 
-					if(Entity == null)
-					{
-						if(Cluster.MoveNext())
-						{
-							Entity = Cluster.Current.Entries.GetEnumerator();
-						}
-						else
-							return false;
-					}
-
-					if(Entity.MoveNext())
-					{
-						return true;
-					}
-					else
-					{
-						Entity = null;
-						goto start;
-					}
-			}
-
-			public void Reset()
-			{
-				Entity = null;
-				Cluster = Table._Clusters.GetEnumerator();
-			}
+			return Clusters.Find(i => i.Id == id);
 		}
 
-		public IEnumerator<E> GetEnumerator()
+		public override Cluster GetCluster(short id)
 		{
-			return new Enumerator(this);
-		}
-
- 		IEnumerator IEnumerable.GetEnumerator()
- 		{
- 			return new Enumerator(this);
- 		}
-
-		public Cluster GetCluster(ushort id)
-		{
-			var c = _Clusters.Find(i => i.Id == id);
+			var c = FindCluster(id);
 
 			if(c != null)
 				return c;
 
 			c = new Cluster(this, id);
-			_Clusters.Add(c);
+			Clusters.Add(c);
 
 			//Recycle();
 
 			return c;
 		}
 
-		public E FindEntry(EntityId id)
+		public override Bucket FindBucket(int id)
 		{
-			var c = _Clusters.Find(i => i.Id == id.Ci);
+			var cid = ClusterFromBucket(id);
+			var c = Clusters.Find(i => i.Id == cid);
 
-			if(c == null)
-				return default(E);
-
-			var e = c.Entries.Find(i => i.Id.Ei == id.Ei);
-
-			return e;
+			return c?.FindBucket(id);
 		}
 
+///		public class Enumerator : IEnumerator<E>
+///		{
+///			public E Current => Entity.Current;
+///			object IEnumerator.Current => Entity.Current;
+///
+///			IEnumerator<Cluster>	Cluster;
+///			IEnumerator<E>			Entity;
+///			Table<E>				Table;
+///
+///			public Enumerator(Table<E> table)
+///			{
+///				Table = table;
+///
+///				Cluster = Table.Clusters.GetEnumerator();
+///			}
+///
+///			public void Dispose()
+///			{
+///				Cluster?.Dispose();
+///				Entity?.Dispose();
+///			}
+///
+///			public bool MoveNext()
+///			{
+///				start: 
+///					if(Entity == null)
+///					{
+///						if(Cluster.MoveNext())
+///						{
+///							Entity = Cluster.Current.Entries.GetEnumerator();
+///						}
+///						else
+///							return false;
+///					}
+///
+///					if(Entity.MoveNext())
+///					{
+///						return true;
+///					}
+///					else
+///					{
+///						Entity = null;
+///						goto start;
+///					}
+///			}
+///
+///			public void Reset()
+///			{
+///				Entity = null;
+///				Cluster = Table.Clusters.GetEnumerator();
+///			}
+///		}
+///
+///		public IEnumerator<E> GetEnumerator()
+///		{
+///			return new Enumerator(this);
+///		}
+///
+///		IEnumerator IEnumerable.GetEnumerator()
+///		{
+///			return new Enumerator(this);
+///		}
 
 		void Recycle()
 		{
@@ -371,29 +501,36 @@ namespace Uccs.Net
 			if(!entities.Any())
 				return;
 
+			var bs = new HashSet<Bucket>();
 			var cs = new HashSet<Cluster>();
 
 			foreach(var i in entities.Cast<E>())
 			{
-				var c = GetCluster(i.Id.Ci);
+				var c = GetCluster(ClusterFromBucket(i.BaseId.H));
+				var b = c.GetBucket(i.BaseId.H);
 
-				var e = c.Entries.Find(e => e.Id.Ei == i.Id.Ei);
+				var e = b.Entries.Find(e => e.BaseId == i.BaseId);
 				
 				if(e != null)
-					c.Entries.Remove(e);
+					b.Entries.Remove(e);
 
-				c.Entries.Add(i);
+				if(!i.Deleted)
+					b.Entries.Add(i);
 
+				bs.Add(b);
 				cs.Add(c);
 			}
 
-			foreach(var i in cs)
+			foreach(var i in bs)
 			{
 				i.Cleanup(lastInCommit);
 				i.Save(batch);
 			}
 
-			CalculateSuperClusters();
+			foreach(var i in cs)
+				i.Save(batch);
+
+			//CalculateSuperClusters();
 		}
 
 		///public override long MeasureChanges(IEnumerable<Round> tail)

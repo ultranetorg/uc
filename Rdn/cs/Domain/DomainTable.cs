@@ -1,64 +1,57 @@
 ﻿using System.Text;
 
-namespace Uccs.Rdn
+namespace Uccs.Rdn;
+
+public class DomainTable : Table<DomainEntry>
 {
-	public class DomainTable : Table<DomainEntry>
+	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
+
+	public int						KeyToH(string domain) => BucketBase.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
+
+	public DomainTable(RdnMcv rds) : base(rds)
 	{
-		public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
+	}
 
-		public ushort					KeyToCluster(string domain) => Cluster.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(2, '\0'), 0, sizeof(ushort)));
+	public DomainEntry FindEntry(string key)
+	{
+		var bid = KeyToH(key);
 
-		public DomainTable(RdnMcv rds) : base(rds)
-		{
-		}
+		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
+	}
+	
+	protected override DomainEntry Create(int cid)
+	{
+		return new DomainEntry(Mcv) {Id = new EntityId {H = cid}};
+	}
+	
+ 	public DomainEntry Find(string name, int ridmax)
+ 	{
+	//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+	//	throw new IntegrityException("maxrid works inside pool only");
 
-		public DomainEntry FindEntry(string key)
-		{
-			var cid = KeyToCluster(key);
-
-			var c = _Clusters.Find(i => i.Id == cid);
-
-			if(c == null)
-				return null;
-
-			var e = c.Entries.Find(i => i.Address == key);
-
-			return e;
-		}
-		
-		protected override DomainEntry Create()
-		{
-			return new DomainEntry(Mcv);
-		}
-		
- 		public DomainEntry Find(string name, int ridmax)
- 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
- 			foreach(var r in Tail.Where(i => i.Id <= ridmax))
- 				if(r.AffectedDomains.TryGetValue(name, out DomainEntry v))
- 					return v;
+ 		foreach(var r in Tail.Where(i => i.Id <= ridmax))
+ 			if(r.AffectedDomains.TryGetValue(name, out DomainEntry v))
+ 				return v;
  		
- 			return FindEntry(name);
- 		}
+ 		return FindEntry(name);
+ 	}
 
-		public DomainEntry Find(EntityId id, int ridmax)
+	public DomainEntry Find(EntityId id, int ridmax)
+	{
+		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+		//	throw new IntegrityException("maxrid works inside pool only");
+
+		foreach(var r in Tail.Where(i => i.Id <= ridmax))
 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
-			foreach(var r in Tail.Where(i => i.Id <= ridmax))
-			{
-				var a = r.AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
-				
-				if(a != null)
-					return a;
-			}
-
-			return FindEntry(id);
+			var a = r.AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
+			
+			if(a != null)
+				return a;
 		}
-		
+
+		return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
+	}
+	
 //  		public Resource FindResource(Ura resource, int ridmax)
 //  		{
 // 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
@@ -92,5 +85,4 @@ namespace Uccs.Rdn
 //  		
 //  			return FindEntry(new EntityId(id.Ci, id.Di))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 //  		}
-	}
 }

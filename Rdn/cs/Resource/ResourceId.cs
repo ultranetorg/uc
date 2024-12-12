@@ -1,105 +1,85 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<ResourceId>
 {
-	public class ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
+	public int		R { get; set; }
+
+	public ResourceId()
 	{
-		public ushort	Ci { get; set; }
-		public int		Di { get; set; }
-		public int		Ri { get; set; }
-		byte[]			_Serial;
+	}
 
-		public EntityId	DomainId => new EntityId(Ci, Di);
+	public ResourceId(int c, int d, int r)
+	{
+		H = c;
+		E = d;
+		R = r;
+	}
 
-		public ResourceId()
-		{
-		}
+	public override string ToString()
+	{
+		return $"{H}-{E}-{R}";
+	}
 
-		public ResourceId(ushort ci, int ai, int ri)
-		{
-			Ci = ci;
-			Di = ai;
-			Ri = ri;
-		}
+	public new static ResourceId Parse(string t)
+	{
+		var a = t.Split('-');
 
-		public byte[] Serial
-		{
-			get
-			{
-				if(_Serial == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Serial = s.ToArray();
-				}
+		return new ResourceId(int.Parse(a[0]), int.Parse(a[1]), int.Parse(a[2]));
+	}
 
-				return _Serial;
-			}
-		}
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		R = reader.Read7BitEncodedInt();
+	}
 
-		public override string ToString()
-		{
-			return $"{Ci}-{Di}-{Ri}";
-		}
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.Write7BitEncodedInt(R);
+	}
 
-		public static ResourceId Parse(string t)
-		{
-			var a = t.Split('-');
+	public override bool Equals(object obj)
+	{
+		return obj is ResourceId id && Equals(id);
+	}
 
-			return new ResourceId(ushort.Parse(a[0]), int.Parse(a[1]), int.Parse(a[2]));
-		}
+	public bool Equals(ResourceId a)
+	{
+		return a is not null && H == a.H && E == a.E && R == a.R;
+	}
 
-		public void Read(BinaryReader reader)
-		{
-			Ci	= reader.ReadUInt16();
-			Di	= reader.Read7BitEncodedInt();
-			Ri	= reader.Read7BitEncodedInt();
-		}
+	public override int CompareTo(BaseId a)
+	{
+		return CompareTo((ResourceId)a);
+	}
 
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write(Ci);
-			writer.Write7BitEncodedInt(Di);
-			writer.Write7BitEncodedInt(Ri);
-		}
+	public int CompareTo(ResourceId a)
+	{
+		if(H != a.H)	
+			return H.CompareTo(a.H);
+		
+		if(E != a.E)
+			return E.CompareTo(a.E);
 
-		public override bool Equals(object obj)
-		{
-			return obj is ResourceId id && Equals(id);
-		}
+		if(R != a.R)
+			return R.CompareTo(a.R);
 
-		public bool Equals(ResourceId a)
-		{
-			return a is not null && Ci == a.Ci && Di == a.Di && Ri == a.Ri;
-		}
+		return 0;
+	}
 
-		public int CompareTo(ResourceId a)
-		{
-			if(Ci != a.Ci)	
-				return Ci.CompareTo(a.Ci);
-			
-			if(Di != a.Di)
-				return Di.CompareTo(a.Di);
+	public override int GetHashCode()
+	{
+		return H.GetHashCode();
+	}
 
-			if(Ri != a.Ri)
-				return Ri.CompareTo(a.Ri);
+	public static bool operator == (ResourceId left, ResourceId right)
+	{
+		return left is null && right is null || left is not null && left.Equals(right);
+	}
 
-			return 0;
-		}
-
-		public override int GetHashCode()
-		{
-			return Ci.GetHashCode();
-		}
-
-		public static bool operator == (ResourceId left, ResourceId right)
-		{
-			return left is null && right is null || left is not null && left.Equals(right);
-		}
-
-		public static bool operator != (ResourceId left, ResourceId right)
-		{
-			return !(left == right);
-		}
+	public static bool operator != (ResourceId left, ResourceId right)
+	{
+		return !(left == right);
 	}
 }

@@ -6,7 +6,7 @@ namespace Uccs.Rdn
 	public class RdnMcv : Mcv
 	{
 		public DomainTable				Domains;
-		public SiteTable				Sites;
+		public ResourceTable			Resources;
 		//public List<ForeignResult>	ApprovedEmissions = new();
 		public List<ForeignResult>		ApprovedMigrations = new();
 		IPAddress[]						BaseIPs;
@@ -47,29 +47,30 @@ namespace Uccs.Rdn
 		protected override void CreateTables(string databasepath)
 		{
 			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
+									.SetCreateMissingColumnFamilies(true);
 
 			var cfs = new ColumnFamilies();
+
+			//foreach(var i in new ColumnFamilies.Descriptor[]{new (ChainFamilyName, new ())})
+			//	cfs.Add(i);
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (DomainTable.MetaColumnName,	new ()),
-																new (DomainTable.MainColumnName,	new ()),
-																new (DomainTable.MoreColumnName,	new ()),
-																new (SiteTable.MetaColumnName,		new ()),
-																new (SiteTable.MainColumnName,		new ()),
-																new (SiteTable.MoreColumnName,		new ()),
-																new (ChainFamilyName,				new ())})
-				cfs.Add(i);
+			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
+			{	
+				foreach(var i in cfn)
+				{	
+					cfs.Add(i, new ());
+				}
+			}
+			else
+				cfs.Add(ChainFamilyName, new ());
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
 			Domains = new (this);
-			Sites = new (this);
+			Resources = new (this);
 
-			Tables = [Accounts, Domains, Sites];
+			Tables = [Accounts, Domains, Resources];
 		}
 
 		public override Round CreateRound()
@@ -98,7 +99,7 @@ namespace Uccs.Rdn
 		{
 			var v = vote as RdnVote;
 
-  			//v.Emissions		= ApprovedEmissions.ToArray();
+  			//v.Emissions	= ApprovedEmissions.ToArray();
 			v.Migrations	= ApprovedMigrations.ToArray();
 		}
 
@@ -107,13 +108,16 @@ namespace Uccs.Rdn
 			var r = Ura.Parse(query);
 		
 			var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
-
+			
 			if(d == null)
 				yield break;
+			
+			var c = Resources.FindBucket(d.Id.H);
+			
+			if(c == null)
+				yield break;
 
-			var s = Sites.Find(d.Id, LastConfirmedRound.Id);
-
-			foreach(var i in s.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
+			foreach(var i in c.Entries.Where(i => i.Id.E == d.Id.E && i.Address.Resource.StartsWith(r.Resource)))
 				yield return i;
 		}
 	}

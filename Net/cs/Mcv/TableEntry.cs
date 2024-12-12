@@ -1,9 +1,10 @@
 ﻿namespace Uccs.Net
 {
-	public interface ITableEntryBase
+	public interface ITableEntry
 	{
-		EntityId	Id { get; set; }
+		BaseId		BaseId { get; }
 		//bool		New { get; set; }
+		bool		Deleted { get; }
 
 		void		Cleanup(Round lastInCommit);
 
@@ -12,9 +13,5 @@
 
 		void		ReadMore(BinaryReader r);
 		void		WriteMore(BinaryWriter r);
-	}
-
-	public interface ITableEntry : ITableEntryBase
-	{
 	}
 }

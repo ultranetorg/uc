@@ -11,14 +11,14 @@ namespace Uccs.Rdn
 		public string Control { get; set; }
 		public string Content { get; set; }
 
-		public static readonly string	Self							= null;
+		public static readonly string	Data							= null;
 		public static readonly string	File							= From([1]);
 		public static readonly string	Directory						= From([2]);
 		public static readonly string	Redirect						= From([100]);
 		public static readonly string		Redirect_Uri				= From([100, 0]);
-		public static readonly string		Redirect_IPAddress			= From([100, 1]);
-		public static readonly string			Redirect_IP4			= From([100, 1, 0]);
-		public static readonly string			Redirect_IP6			= From([100, 1, 1]);
+// 		public static readonly string		Redirect_IPAddress			= From([100, 1]);
+// 		public static readonly string			Redirect_IP4			= From([100, 1, 0]);
+// 		public static readonly string			Redirect_IP6			= From([100, 1, 1]);
 		public static readonly string		Redirect_ProductRealization	= From([100, 100]);
 
 		public DataType()

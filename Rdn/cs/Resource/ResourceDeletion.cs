@@ -32,16 +32,15 @@ namespace Uccs.Rdn
 				return;
 			}
 
-			var s = round.AffectSite(Id.DomainId);
-			s.DeleteResource(r);
+			round.DeleteResource(r);
 
 			Free(d, r.Length);
 
 			foreach(var i in r.Outbounds)
 			{
-				var dr = mcv.Sites.FindResource(i.Destination, round.Id);
+				var dr = mcv.Resources.Find(i.Destination, round.Id);
 
-				dr = round.AffectSite(dr.Id.DomainId).AffectResource(d, dr.Address.Resource);
+				dr = round.AffectResource(d, dr.Address.Resource);
 				dr.RemoveInbound(r.Id);
 
 				Free(d, Mcv.EntityLength);
@@ -49,9 +48,9 @@ namespace Uccs.Rdn
 
 			foreach(var i in r.Inbounds ?? [])
 			{
-				var sr = mcv.Sites.FindResource(i, round.Id);
+				var sr = mcv.Resources.Find(i, round.Id);
 
-				sr = round.AffectSite(sr.Id.DomainId).AffectResource(d, sr.Address.Resource);
+				sr = round.AffectResource(d, sr.Address.Resource);
 				sr.RemoveOutbound(r.Id);
 			}
 		}

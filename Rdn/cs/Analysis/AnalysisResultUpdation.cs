@@ -35,7 +35,7 @@
 			if(RequireResource(round, Analysis, out var ad, out var ar) == false)
 				return;
 
-			var c = mcv.Sites.FindResource(ar.Data.Read<Analysis>().Consil, round.Id)?.Data?.Read<Consil>();
+			var c = mcv.Resources.Find(ar.Data.Read<Analysis>().Consil, round.Id)?.Data?.Read<Consil>();
 
 			if(c == null)
 			{
@@ -54,8 +54,7 @@
 			//d = round.AffectDomain(d.Id);
 			//r = d.AffectResource(r.Address.Resource);
 
-			var s = round.AffectSite(ad.Id);
-			ar = s.AffectResource(ad, ar.Address.Resource);
+			ar = round.AffectResource(ad, ar.Address.Resource);
 
 			var an = ar.Data.Read<Analysis>();
 			 

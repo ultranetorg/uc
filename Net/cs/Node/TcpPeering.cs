@@ -359,7 +359,7 @@ namespace Uccs.Net
 						goto failed;
 
 					if(peer == null)
-						peer = new Peer(ip, 0);
+						peer = new Peer(ip, Settings.Port);
 
 					if(Consider(true, h, peer) == false)
 						goto failed;

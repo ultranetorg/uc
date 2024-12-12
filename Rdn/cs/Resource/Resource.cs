@@ -59,16 +59,15 @@ namespace Uccs.Rdn
 	public class Resource// : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
-		public Ura					Address { get; set; }
+		[JsonIgnore]public Ura		Address { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
 		public ResourceLink[]		Outbounds { get; set; } = [];
 		public ResourceId[]			Inbounds { get; set; } = [];
 
-		[JsonIgnore]
-		public bool					New;
-		public bool					Affected;
+		//public bool					New;
+		//public bool					Affected;
 		bool						OutboundsCloned;
 		bool						InboundsCloned;
 
@@ -79,19 +78,10 @@ namespace Uccs.Rdn
 			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 		}
 
-		public Resource Clone()
-		{
-			return new() {	Id = Id,
-							Address	= Address, 
-							Flags = Flags,
-							Data = Data?.Clone(),
-							Updated = Updated,
-							Outbounds = Outbounds,
-							Inbounds = Inbounds };
-		}
-
 		public void WriteMain(BinaryWriter writer)
 		{
+			writer.Write(Id);
+			writer.WriteUtf8(Address.Resource);
 			writer.Write((byte)Flags);
 			writer.Write(Updated);
 			
@@ -104,6 +94,8 @@ namespace Uccs.Rdn
 
 		public void ReadMain(BinaryReader reader)
 		{
+			Id = reader.Read<ResourceId>();
+			Address = new Ura(null, reader.ReadUtf8());
 			Flags = (ResourceFlags)reader.ReadByte();
 			Updated	= reader.Read<Time>();
 

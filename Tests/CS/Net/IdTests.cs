@@ -1,24 +1,41 @@
 ﻿using System;
+using System.Linq;
 using Uccs.Net;
 using Uccs.Rdn;
-using Uocs;
 using Xunit;
 
 namespace Uccs.Tests
 {
-	public static class LogTests
+	public static class IdTests
 	{
 		[Fact]
 		public static void Main()
 		{
-			var l = new Log();
+			EntityId e0 = new(1, 2);
+			EntityId e1 = new(1, 2);
+			EntityId e2 = new(2, 3);
 
-			new FileLog(l, "test", G.Dev.Tmp);
+			BaseId r0 = new ResourceId(1, 2, 4);
+			BaseId r1 = new ResourceId(1, 2, 4);
+			BaseId r2 = new ResourceId(1, 2, 5);
+			BaseId r3 = new ResourceId(1, 3, 6);
 
-			for(int i=0; i<10_000; i++)
-			{
-				l.Report($"{i} - {Rdn.Rdn.Local.Genesis}");
-			}
+			Assert.True(e0 == e1);
+			Assert.True(e0 != e2);
+
+			Assert.True(r0 == r1);
+			Assert.True(r0 != r2);
+			Assert.True(r1 != r2);
+
+			Assert.True(e0 == r0);
+			Assert.True(e2 != r0);
+			Assert.True(e0 != r3);
+
+			BaseId[] a = [r3, r2, r1, r0];
+			
+			a = a.Order().ToArray();
+
+			Assert.True(a.SequenceEqual([r0, r1, r2, r3]));
 		}
 
 		//[Theory]

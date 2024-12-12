@@ -157,7 +157,7 @@ namespace Uccs.Rdn.CLI
 					var cnt = GetString("data/type", false) is string a ? ContentType.Parse(a) : null;
 					var t = new DataType(ctl, cnt);
 
-					if(ctl == DataType.Self)
+					if(ctl == DataType.Data)
 					{	
 						if(cnt == ContentType.Unknown)
 							return new ResourceData(t, d.Get<string>("hex").FromHex());

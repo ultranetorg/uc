@@ -56,7 +56,7 @@ namespace Uccs.Rdn
 		public EntityId				LastWinner { get; set; }
 		public long					LastBid { get; set; }
 		public Time					LastBidTime { get; set; } = Time.Empty;
-		//public int					NextResourceId { get; set; }
+		public int					NextResourceId { get; set; }
 		public short				SpaceReserved { get; set; }
 		public short				SpaceUsed { get; set; }
 		public DomainChildPolicy	ParentPolicy { get; set; }
