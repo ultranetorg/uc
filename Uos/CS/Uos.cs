@@ -38,7 +38,7 @@ namespace Uccs.Uos
 		public static HttpClient	ApiHttpClient;
 
 		public McvNode				Find(string net) => Nodes.Find(i => i.Net == net)?.Node;
-		public T					Find<T>() where T : class => Nodes.Find(i => i.Node.GetType() == typeof(T))?.Node as T;
+		public T					Find<T>() where T : class => Nodes.Find(i => i.Node is T)?.Node as T;
 
 		RdnApiClient				_Rdn;
 		public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.RootRdn, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.AccessKey);
