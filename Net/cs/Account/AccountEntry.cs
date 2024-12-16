@@ -64,7 +64,7 @@
 		{
 			if(Mcv.Settings.Chain != null)
 			{
-				w.Write(Transactions);
+				w.Write(Transactions, w.Write7BitEncodedInt);
 			}
 		}
 
@@ -72,7 +72,7 @@
 		{
 			if(Mcv.Settings.Chain != null)
 			{
-				Transactions = r.ReadList(() => r.Read7BitEncodedInt());
+				Transactions = r.ReadList(r.Read7BitEncodedInt);
 			}
 		}
 

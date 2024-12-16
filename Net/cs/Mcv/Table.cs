@@ -365,7 +365,7 @@ namespace Uccs.Net
 			if(!Engine.TryGetColumnFamily(MainColumnName,	 out MainColumn))		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
 			if(!Engine.TryGetColumnFamily(MoreColumnName,	 out MoreColumn))		MoreColumn		= Engine.CreateColumnFamily(new (), MoreColumnName);
 
-			using(var i = Engine.NewIterator(MetaColumn))
+			using(var i = Engine.NewIterator(ClusterColumn))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
