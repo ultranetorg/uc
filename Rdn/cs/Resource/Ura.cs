@@ -51,7 +51,7 @@ namespace Uccs.Rdn
 
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme, Net, $"{Domain}/{Resource}");
+			return Unea.ToString(Scheme, Net, $"{Domain}/{Resource}");
 		}
 
 		public override bool Equals(object o)
@@ -112,7 +112,7 @@ namespace Uccs.Rdn
 		{
 			int i;
 			
-			UAddress.Parse(v, out protocol, out net, out string o);
+			Unea.Parse(v, out protocol, out net, out string o);
 
 			var e = o.IndexOfAny([':', '/']);
 				

@@ -18,46 +18,48 @@ namespace Uccs.Tests
 		}
 
  		[Fact]
- 		public static void Ueas()
+ 		public static void UAddresses()
  		{
 			void check(string a)
 			{
-				Assert.True(UAddress.Parse(a).ToString() == a);
+				Assert.True(Unea.Parse(a).ToString() == a);
 			}
 
-			check($"d");
-			check($"d/r");
-			check($"s:d");
-			check($"s:d/r");
-			check($"s:s.d/r");
-			check($"s:z:d");
-			check($"s:z:d/r");
-			check($"s:z:s.d/r");
+			check($"n");
+			check($"n/e");
+			check($"/e");
+			check($"/e/x");
+			check($"s:n");
+			check($"s:n/e");
+			check($"s:nb.nb/e");
+// 			check($"s:z:d");
+// 			check($"s:z:d/r");
+// 			check($"s:z:s.d/r");
  		}
 
  		[Fact]
  		public static void Resource()
  		{
- 			var s = new List<Ura>(){	Ura.Parse($"{Ura.Scheme}:a/r"),
-										Ura.Parse($"{Ura.Scheme}:aa/rr"),
-										Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")};
+ 			var s = new List<Ura>(){Ura.Parse($"{Ura.Scheme}:/a/r"),
+									Ura.Parse($"{Ura.Scheme}:/aa/rr"),
+									Ura.Parse($"{Ura.Scheme}:net/aaa/rrr")};
 
-			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:a/r")) == 1);
-			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:aa/rr")) == 1);
-			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:net.aaa/rrr")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:/a/r")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:/aa/rr")) == 1);
+			Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:net/aaa/rrr")) == 1);
 
-			Assert.DoesNotContain(Ura.Parse("ura:wrong.aaa/rrr"), s);
+			Assert.DoesNotContain(Ura.Parse("ura:absent/aaa/rrr"), s);
  		}
 
  		[Fact]
  		public static void Package()
  		{
- 			var p = new HashSet<AprvAddress>(){AprvAddress.Parse("ura:a/p/r/v")};
-			Assert.Contains(AprvAddress.Parse($"{Ura.Scheme}:a/p/r/v"), p);
-			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p/r/v-"), p);
-			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p/r-/v"), p);
-			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a/p-/r/v"), p);
-			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:a-/p/r/v"), p);
+ 			var p = new HashSet<AprvAddress>(){AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v")};
+			Assert.Contains(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v-"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r-/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p-/r/v"), p);
+			Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a-/p/r/v"), p);
  		}
 
 		[Fact]
@@ -67,9 +69,9 @@ namespace Uccs.Tests
 			var ac = new Urrh{ Hash = a.Hash.ToArray() };
 			var b = new Urrh { Hash = RandomBytes(32) };
 			 
-			var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = RandomBytes(65) };
-			var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = x.Signature.ToArray() };
-			var y = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:a/p"), Signature = RandomBytes(65) };
+			var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
+			var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = x.Signature.ToArray() };
+			var y = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&

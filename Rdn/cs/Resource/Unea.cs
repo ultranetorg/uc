@@ -9,7 +9,7 @@
 	/// 
 	/// </summary>
 
-	public class UAddress : IBinarySerializable, IEquatable<UAddress> 
+	public class Unea : IBinarySerializable, IEquatable<Unea> 
 	{
 		public string			Scheme { get; set; }
 		public string			Net { get; set; }
@@ -17,11 +17,11 @@
 
 		public bool				Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 
-		public UAddress()
+		public Unea()
 		{
 		}
 
-		public UAddress(string scheme, string net, string entity)
+		public Unea(string scheme, string net, string entity)
 		{
 			Scheme = scheme;
 			Net = net;
@@ -35,53 +35,57 @@
 
 		public static string ToString(string scheme, string net, string entity)
 		{
-			return (scheme == null ? null : (scheme + ':')) + (net == null ? $"{entity}" : $"{net}:{entity}");
+			return (scheme == null ? null : (scheme + ':')) + net + (entity == null ? null : ('/' + entity));
 		}
 
-		public static UAddress Parse(string v)
+		public static Unea Parse(string v)
 		{
 			Parse(v, out var s, out var z, out var e);
 
-			return new UAddress(s, z, e);
+			return new Unea(s, z, e);
 		}
 
-		public static void Parse(string v, out string protocol, out string net, out string other)
+		public static void Parse(string v, out string scheme, out string net, out string entity)
 		{
-			int i;
+			int s = 0;
+			var i = v.IndexOfAny([':', '/']);
+
+			if(i != -1 && v[i] == ':')
+			{
+				scheme = v.Substring(0, i);
+				s = i + 1;
+			}
+			else
+				scheme = null;
+							
+			i = v.IndexOf('/', s);
 			
-			var a = v.IndexOfAny([':', '/'], 0);
-			var b = v.IndexOfAny([':', '/'], a + 1);
-
-			if(a != -1 && v[a] == ':')
-				protocol = v.Substring(0, a);
-			else
+			if(i != -1)
 			{
-				net = null;
-				protocol = null;
-				other = v;
-				return;
-			}
+				if(i != s)
+				{	
+					net = v.Substring(s, i - s);
+				}
+				else
+					net = null;
 				
-			if(a != -1 && b != -1 && v[a] == ':' && v[b] == ':')
-			{
-				net = v.Substring(a + 1, b - a - 1);
-				i = b + 1; 
+				s = i + 1;
 			}
 			else
-			{
-				net = null;
-				i = a + 1;
-			}
+				net = v.Substring(s);
 
-			other = v.Substring(i);
+			if(i != -1)
+				entity = v.Substring(s);
+			else
+				entity = null;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is UAddress a && Equals(a);
+			return o is Unea a && Equals(a);
 		}
 
-		public bool Equals(UAddress o)
+		public bool Equals(Unea o)
 		{
 			return Scheme == o.Scheme && Net == o.Net && Entity == o.Entity;
 		}
@@ -93,10 +97,10 @@
 
 		public int CompareTo(object obj)
 		{
-			return CompareTo(obj as UAddress);
+			return CompareTo(obj as Unea);
 		}
 
-		public int CompareTo(UAddress other)
+		public int CompareTo(Unea other)
 		{
 			if(Scheme.CompareTo(other.Scheme) != 0)
 				return Scheme.CompareTo(other.Scheme);
@@ -110,12 +114,12 @@
 			return 0;
 		}
 
-		public static bool operator == (UAddress a, UAddress b)
+		public static bool operator == (Unea a, Unea b)
 		{
 			return a is null && b is null || a is not null && a.Equals(b);
 		}
 
-		public static bool operator != (UAddress left, UAddress right)
+		public static bool operator != (Unea left, Unea right)
 		{
 			return !(left == right);
 		}

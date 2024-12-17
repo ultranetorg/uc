@@ -41,8 +41,8 @@
 																													Sources = GetString("sources", null)?.Split(','),
 																													AddressCreator = new()	{	
 																																				Type = GetEnum("addresstype", UrrScheme.Urrh),
-																																				Owner = GetAccountAddress("owner", false),
-																																				Resource = Ura.Parse(Args[0].Name)
+																																				//Owner = GetAccountAddress("owner", false),
+																																				//Resource = Ura.Parse(Args[0].Name)
 																																			} });
 
 													Report($"Address   : {a}");

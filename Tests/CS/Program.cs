@@ -7,12 +7,15 @@ namespace Uccs.Tests
 	{
 		public static void Main(string[] args)
 		{
-			IdTests.Main();
+			//IdTests.Main();
 			//MoneyTests.Main();
 			//AccountKeyTests.Main();
 			//XonTest.Custom();
 
-
+			UraTests.UAddresses();
+			UraTests.Resource();
+			UraTests.Package();
+			UraTests.Release();
 
 			//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 

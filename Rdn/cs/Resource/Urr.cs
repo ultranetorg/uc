@@ -52,7 +52,7 @@ namespace Uccs.Rdn
 
 		public static Urr Parse(string t)
 		{
-			UAddress.Parse(t, out var s, out var z, out var o);
+			Unea.Parse(t, out var s, out var z, out var o);
 
 			var a = Enum.Parse<UrrScheme>(s, true)	switch
 													{
@@ -148,7 +148,7 @@ namespace Uccs.Rdn
 
 		public new static Urrh Parse(string t)
 		{
-			UAddress.Parse(t, out var s, out var z, out var o);
+			Unea.Parse(t, out var s, out var z, out var o);
 
 			var a = new Urrh();
 
@@ -159,7 +159,7 @@ namespace Uccs.Rdn
 		}
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme.ToString(), Net, Hash.ToHex());
+			return Unea.ToString(Scheme.ToString(), Net, Hash.ToHex());
 		}
 
 		public override void ParseSpecific(string t)
@@ -197,7 +197,7 @@ namespace Uccs.Rdn
  
 		public override string ToString()
 		{
-			return UAddress.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
+			return Unea.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
 		}
 		
 		public override void ParseSpecific(string t)
