@@ -1,15 +1,6 @@
 ﻿namespace Uccs.Rdn
 {
-	/// <summary>
-	/// 
-	/// ultranet:/domain
-	/// ultranet:/domain/reso/ur/ce (/domain/ - корневой)
-	/// ultranet:#0123456789ABCDEF
-	/// ultranet:$domain/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
-	/// 
-	/// </summary>
-
-	public class Unea : IBinarySerializable, IEquatable<Unea> 
+	public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network Entity Address
 	{
 		public string			Scheme { get; set; }
 		public string			Net { get; set; }

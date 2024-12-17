@@ -424,10 +424,10 @@ namespace Uccs.Net
 				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
 				s.LastTransactionNid++;
 						
-				if(Mcv.Settings.Chain != null)
-				{
-					s.Transactions.Add(Id);
-				}
+				//if(Mcv.Settings.Chain != null)
+				//{
+				//	s.Transactions.Add(Id);
+				//}
 			}
 
 			FinishExecution();

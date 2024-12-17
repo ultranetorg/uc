@@ -9,7 +9,7 @@
 		//public Unit			RoundBandwidthReserve = 0;
 		//public Time			RoundBandwidthReserveExpiration = Time.Empty;
 		
-		public List<int>		Transactions = new();
+		//public List<int>		Transactions = new();
 		Mcv						Mcv;
 
 		public AccountEntry()
@@ -36,7 +36,8 @@
 											BandwidthTodayTime		= BandwidthTodayTime,
 											BandwidthTodayAvailable	= BandwidthTodayAvailable,
 
-											Transactions			= Mcv.Settings.Chain != null ? new List<int>(Transactions) : null};
+											//Transactions			= Mcv.Settings.Chain != null ? new List<int>(Transactions) : null
+											};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -62,18 +63,18 @@
 
 		public void WriteMore(BinaryWriter w)
 		{
-			if(Mcv.Settings.Chain != null)
-			{
-				w.Write(Transactions, w.Write7BitEncodedInt);
-			}
+			//if(Mcv.Settings.Chain != null)
+			//{
+			//	w.Write(Transactions, w.Write7BitEncodedInt);
+			//}
 		}
 
 		public void ReadMore(BinaryReader r)
 		{
-			if(Mcv.Settings.Chain != null)
-			{
-				Transactions = r.ReadList(r.Read7BitEncodedInt);
-			}
+			//if(Mcv.Settings.Chain != null)
+			//{
+			//	Transactions = r.ReadList(r.Read7BitEncodedInt);
+			//}
 		}
 
 		public void Cleanup(Round lastInCommit)
