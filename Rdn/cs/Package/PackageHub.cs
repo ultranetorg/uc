@@ -20,7 +20,7 @@ namespace Uccs.Rdn
 
  		public static string AddressToDeployment(string packagespath, AprvAddress resource)
  		{
- 			return Path.Join(packagespath, ResourceHub.Escape(resource.APR), ResourceHub.Escape(resource.Version));
+ 			return Path.Join(packagespath, ResourceHub.Escape(resource.DPR), ResourceHub.Escape(resource.Version));
  		}
 
  		public string AddressToReleases(Urr release)

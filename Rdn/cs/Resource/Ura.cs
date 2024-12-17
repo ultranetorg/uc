@@ -108,13 +108,13 @@ namespace Uccs.Rdn
 			Resource = r;
 		}
 
-		public static void Parse(string v, out string protocol, out string net, out string domain, out string resource)
+		public static void Parse(string v, out string scheme, out string net, out string domain, out string resource)
 		{
 			int i;
 			
-			Unea.Parse(v, out protocol, out net, out string o);
+			Unea.Parse(v, out scheme, out net, out string o);
 
-			var e = o.IndexOfAny([':', '/']);
+			var e = o.IndexOf('/');
 				
 			if(e != -1)
 			{

@@ -11,9 +11,10 @@
 		public string			Realization { get ; set; }
 		public string			Version		{ get ; set; }
 
-		public string			APR => $"{Domain}/{Product}/{Realization}";
+		public string			DPR => $"{Domain}/{Product}/{Realization}";
+		public string			PRV => $"{Product}/{Realization}/{Version}";
 
-		public static implicit operator Ura(AprvAddress value) => new Ura(value.Domain, $"{value.Product}/{value.Realization}/{value.Version}");
+		public static implicit operator Ura(AprvAddress value) => new Ura(value.Domain, value.PRV);
 
 		public AprvAddress(string domain, string product, string realization, string veriosn)
 		{
@@ -25,7 +26,7 @@
 
 		public AprvAddress(Ura resource, string version)
 		{
-			Domain		= resource.Domain;
+			Domain = resource.Domain;
 
 			var j = resource.Resource.LastIndexOf('/');
 			
@@ -36,7 +37,7 @@
 
 		public AprvAddress(Ura resource)
 		{
-			Domain		= resource.Domain;
+			Domain = resource.Domain;
 
 			var j = resource.Resource.Split('/');
 			
@@ -51,7 +52,7 @@
 
 		public override string ToString()
 		{
-			return $"{Ura.Scheme}:{Domain}/{Product}/{Realization}/{Version}";
+			return new Ura(Domain, PRV).ToString();
 		}
 
 		public static AprvAddress Parse(string v)
