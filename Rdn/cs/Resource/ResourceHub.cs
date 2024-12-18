@@ -257,7 +257,7 @@ namespace Uccs.Rdn
 			return r;
 		}
 
-		public LocalFile GetFile(LocalRelease release, bool single, string file, string localpath, IIntegrity integrity, SeedFinder harvester, Flow workflow)
+		public LocalFile GetFile(LocalRelease release, bool single, string file, string localpath, IIntegrity integrity, SeedSeeker harvester, Flow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -425,7 +425,7 @@ namespace Uccs.Rdn
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedFinder collector, Flow workflow)
+		public FileDownload DownloadFile(LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow workflow)
 		{
 			var f = release.Files.Find(i => i.Path == path);
 			
@@ -437,7 +437,7 @@ namespace Uccs.Rdn
 					throw new ResourceException(ResourceError.Busy);
 			}
 
-			var d = new FileDownload(Node, release, single, path, localpath, integrity, collector, workflow);
+			var d = new FileDownload(Node, release, single, path, localpath, integrity, seeker, workflow);
 		
 			return d;
 		}

@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn
 {
-	public class SeedFinder
+	public class SeedSeeker
 	{
 		public class Seed
 		{
@@ -24,28 +24,28 @@ namespace Uccs.Rdn
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			SeedFinder					Collector;
+			SeedSeeker					Seeker;
 			Urr							Address;
 
-			public Hub(SeedFinder collector, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(SeedSeeker seeker, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
-				Collector = collector;
+				Seeker = seeker;
 				Address = hash;
 				Member = member;
 				IPs = ips.ToArray();
 
 				Task.Run(() =>	{
-									while(Collector.Flow.Active)
+									while(Seeker.Flow.Active)
 									{
 										try
 										{
-											var lr = Collector.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Collector.Flow);
+											var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Seeker.Flow);
 	
-											lock(Collector.Lock)
+											lock(Seeker.Lock)
 											{
-												var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
+												var seeds = lr.Seeders.Where(i => !Seeker.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 	
-												Collector.Seeds.AddRange(seeds);
+												Seeker.Seeds.AddRange(seeds);
 											}
 										}
 										catch(Exception ex) when (ex is NodeException || ex is EntityException)
@@ -55,10 +55,10 @@ namespace Uccs.Rdn
 										{
 										}
 
-										WaitHandle.WaitAny([Collector.Flow.Cancellation.WaitHandle], collector.Node.Settings.Seed.CollectRefreshInterval);
+										WaitHandle.WaitAny([Seeker.Flow.Cancellation.WaitHandle], seeker.Node.Settings.Seed.CollectRefreshInterval);
 									}
 								}, 
-								Collector.Flow.Cancellation);
+								Seeker.Flow.Cancellation);
 			}
 		}
 
@@ -69,51 +69,51 @@ namespace Uccs.Rdn
 		public object				Lock = new object();
 		//public AutoResetEvent		SeedsFound = new(true);
 
-		Thread						Thread;
+		Thread						HubingThread;
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		RdnGenerator[]				Members;
 
-		public SeedFinder(RdnNode sun, Urr address, Flow flow)
+		public SeedSeeker(RdnNode sun, Urr address, Flow flow)
 		{
 			Node = sun;
-			Flow = flow.CreateNested($"SeedCollector {address}");
+			Flow = flow.CreateNested($"SeedSeeker {address}");
 			Hub hlast = null;
 
- 			Thread = Node.CreateThread(() =>	{ 
-													while(Flow.Active)
-													{
-														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
+ 			HubingThread = Node.CreateThread(() =>	{ 
+														while(Flow.Active)
 														{
-															var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
-
-															lock(Lock)
-																Members = r.Members.ToArray();
-													
-															MembersRefreshed = DateTime.UtcNow;
-														}
-		
-														lock(Lock)
-														{
-															var nearest = Members.OrderByHash(i => i.Address.Bytes, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
-			
-															for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
+															if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 															{
-																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
-														
-												 				if(h != null)
-																{
-																	hlast = new Hub(this, address, h.Address, h.SeedHubRdcIPs);
-																	Hubs.Add(hlast);
-																}
-																else
-																	break;
+																var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
+
+																lock(Lock)
+																	Members = r.Members.ToArray();
+													
+																MembersRefreshed = DateTime.UtcNow;
 															}
-														}
+		
+															lock(Lock)
+															{
+																var nearest = Members.OrderByHash(i => i.Address.Bytes, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
+			
+																for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
+																{
+																	var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
+														
+												 					if(h != null)
+																	{
+																		hlast = new Hub(this, address, h.Address, h.SeedHubRdcIPs);
+																		Hubs.Add(hlast);
+																	}
+																	else
+																		break;
+																}
+															}
 	
-														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
-													}
- 												});
-			Thread.Start();
+															WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
+														}
+ 													});
+			HubingThread.Start();
 
 			for(int i=0; i<8; i++)
 			{
@@ -172,7 +172,7 @@ namespace Uccs.Rdn
 		public void Stop()
 		{
 			Flow.Abort();
-			Thread.Join();
+			HubingThread.Join();
 		}
 	}
 }

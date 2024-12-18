@@ -171,7 +171,7 @@ namespace Uccs.Rdn
 
 				if(r.Activity is FileDownload f)
 				{
-					var s = new ReleaseDownloadProgress(f.Harvester);
+					var s = new ReleaseDownloadProgress(f.Seeker);
 	
 					s.Succeeded	= f.Succeeded;
 					s.CurrentFiles = [new FileDownloadProgress(f)];
@@ -180,7 +180,7 @@ namespace Uccs.Rdn
 				}
 				else if(r.Activity is DirectoryDownload d)
 				{
-					var s = new ReleaseDownloadProgress(d.Harvester);
+					var s = new ReleaseDownloadProgress(d.SeedSeeker);
 	
 					s.Succeeded	= d.Succeeded;
 					s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();

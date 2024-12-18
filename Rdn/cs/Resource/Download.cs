@@ -55,7 +55,7 @@ namespace Uccs.Rdn
 
 		public class Piece
 		{
-			public SeedFinder.Seed		Seed;
+			public SeedSeeker.Seed		Seed;
 			public Task					Task;
 			public int					I = -1;
 			public long					Length => I * Download.File.PieceLength + Download.File.PieceLength > Download.Length ? Download.Length % Download.File.PieceLength : Download.File.PieceLength;
@@ -69,7 +69,7 @@ namespace Uccs.Rdn
 				I = piece;
 			}
 
-			public Piece(FileDownload download, SeedFinder.Seed peer, int piece)
+			public Piece(FileDownload download, SeedSeeker.Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
@@ -105,20 +105,20 @@ namespace Uccs.Rdn
 		public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 
 		public Task									Task;
-		public SeedFinder							Harvester;
+		public SeedSeeker							Seeker;
 		public List<Piece>							CurrentPieces = new();
-		public Dictionary<SeedFinder.Seed, int>		Seeds = new();
+		public Dictionary<SeedSeeker.Seed, int>		Seeds = new();
 		public RdnNode								Rdn;
 		public PieceDelegate						PieceSucceeded;
 		Flow										Flow;
 
-		public FileDownload(RdnNode sun, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedFinder seedcollector, Flow flow)
+		public FileDownload(RdnNode sun, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow flow)
 		{
-			Rdn				= sun;
-			Release			= release;
-			File			= release.Find(path) ?? release.AddEmpty(path, localpath);
-			Flow			= flow;
-			Harvester		= seedcollector ?? new SeedFinder(sun, release.Address, flow);
+			Rdn			= sun;
+			Release		= release;
+			File		= release.Find(path) ?? release.AddEmpty(path, localpath);
+			Flow		= flow;
+			Seeker		= seeker ?? new SeedSeeker(sun, release.Address, flow);
 
 			if(File.Status == LocalFileStatus.Completed)
 			{
@@ -151,10 +151,10 @@ namespace Uccs.Rdn
 
 											if(File.Status != LocalFileStatus.Inited || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
-												SeedFinder.Seed[] seeds;
+												SeedSeeker.Seed[] seeds;
 	
-												lock(Harvester.Lock)
-													seeds = Harvester.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
+												lock(Seeker.Lock)
+													seeds = Seeker.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
 																			.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
 																			.ToArray(); /// skip currrently used
 												
@@ -277,9 +277,9 @@ namespace Uccs.Rdn
 									//foreach(var h in hubs)
 									//	h.HubRank++;
 	
-									if(seedcollector == null)
+									if(seeker == null)
 									{
-										Harvester.Stop();
+										Seeker.Stop();
 									}
 	
 									if(Succeeded)
@@ -331,20 +331,20 @@ namespace Uccs.Rdn
 		public int					TotalCount;
 		public List<FileDownload>	CurrentDownloads = new();
 		public Task					Task;
-		public SeedFinder			Harvester;
+		public SeedSeeker			SeedSeeker;
 
 		public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 		{
 			Release = release;
 			LocalPath = localpath;
 			Release.Activity = this;
-			Harvester = new SeedFinder(sun, release.Address, workflow);
+			SeedSeeker = new SeedSeeker(sun, release.Address, workflow);
 
 			void run()
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, Harvester, workflow);
+					sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, SeedSeeker, workflow);
 
 					var index = new Xon(release.Find(LocalRelease.Index).Read());
 	
@@ -376,7 +376,7 @@ namespace Uccs.Rdn
 	
 							lock(sun.ResourceHub.Lock)
 							{
-								var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), Harvester, workflow);
+								var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), SeedSeeker, workflow);
 	
 								if(dd != null)
 								{
@@ -395,7 +395,7 @@ namespace Uccs.Rdn
 					}
 					while(Files.Any() && workflow.Active);
 	
-					Harvester.Stop();
+					SeedSeeker.Stop();
 	
 					lock(sun.ResourceHub.Lock)
 					{
@@ -464,10 +464,10 @@ namespace Uccs.Rdn
 		{
 		}
 
-		public ReleaseDownloadProgress(SeedFinder seedCollector)
+		public ReleaseDownloadProgress(SeedSeeker seeker)
 		{
-			Hubs	= seedCollector.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
-			Seeds	= seedCollector.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();
+			Hubs	= seeker.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
+			Seeds	= seeker.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();
 		}
 
 		public override string ToString()

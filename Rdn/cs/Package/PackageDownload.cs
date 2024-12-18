@@ -43,7 +43,7 @@
 		public bool								IsDownloaded;
 		public List<PackageDownload>			Dependencies = new();
 		public Task								Task;
-		public SeedFinder						SeedCollector;
+		public SeedSeeker						Seeker;
 
 		public bool								Succeeded => IsDownloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
@@ -111,9 +111,9 @@
 													break;
 											};
 	
-											SeedCollector = new SeedFinder(node, package.Release.Address, workflow);
+											Seeker = new SeedSeeker(node, package.Release.Address, workflow);
 	
-											node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, SeedCollector, workflow);
+											node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, workflow);
 	
 											bool incrementable;
 	
@@ -137,13 +137,13 @@
 																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
 																							Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																							new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
-																							SeedCollector,
+																							Seeker,
 																							workflow);
 	
 	
 											Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
 	
-											SeedCollector.Stop();
+											Seeker.Stop();
 	
 											var a = Availability.None;
 
