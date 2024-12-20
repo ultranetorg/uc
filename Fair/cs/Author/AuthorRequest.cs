@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Fair
 {
-	public class PublisherRequest : FairPpc<PublisherResponse>
+	public class AuthorRequest : FairPpc<PublisherResponse>
 	{
 		public new EntityId	Id { get; set; }
 
-		public PublisherRequest()
+		public AuthorRequest()
 		{
 		}
 
-		public PublisherRequest(EntityId id)
+		public AuthorRequest(EntityId id)
 		{
 			Id = id;
 		}
@@ -22,18 +22,18 @@
 			{	
 				RequireBase();
 
-				var	e = Mcv.Publishers.Find(Id, Mcv.LastConfirmedRound.Id);
+				var	e = Mcv.Authors.Find(Id, Mcv.LastConfirmedRound.Id);
 				
 				if(e == null)
 					throw new EntityException(EntityError.NotFound);
 				
-				return new PublisherResponse {Publisher = e};
+				return new PublisherResponse {Author = e};
 			}
 		}
 	}
 	
 	public class PublisherResponse : PeerResponse
 	{
-		public Publisher	Publisher {get; set;}
+		public Author	Author {get; set;}
 	}
 }

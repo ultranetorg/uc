@@ -26,6 +26,11 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Zone\**" />
+    <EmbeddedResource Remove="Zone\**" />
+    <None Remove="Zone\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.8.0" />
     <PackageReference Include="NBitcoin.Secp256k1" Version="3.1.6" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
@@ -45,8 +50,5 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Net" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Zone\" />
   </ItemGroup>
 </Project>

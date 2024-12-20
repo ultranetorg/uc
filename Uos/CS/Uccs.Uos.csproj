@@ -25,6 +25,7 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Fair\cs\Uccs.Fair.csproj" />
     <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
   </ItemGroup>
   <ItemGroup>

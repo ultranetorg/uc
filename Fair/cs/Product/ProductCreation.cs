@@ -2,54 +2,55 @@ namespace Uccs.Fair
 {
 	public class ProductCreation : FairOperation
 	{
-		public EntityId				Publisher { get; set; }
+		public EntityId				Author { get; set; }
 		public ProductChanges		Changes { get; set; }
 		public byte[]				Data { get; set; }
 
 		public override bool		IsValid(Mcv mcv) => !Changes.HasFlag(ProductChanges.SetData) || (Data.Length <= Product.DataLengthMax);
-		public override string		Description => $"{Publisher}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+		public override string		Description => $"{Author}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
 		public ProductCreation()
 		{
 		}
 
-		public ProductCreation(EntityId publisher, byte[] data)
+		public ProductCreation(EntityId author, byte[] data)
 		{
-			Publisher = publisher;
-			Data = data;
+			Author	= author;
+			Data	= data;
 
 			if(Data != null)	Changes |= ProductChanges.SetData;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Publisher	= reader.Read<EntityId>();
+			Author	= reader.Read<EntityId>();
 			Changes	= (ProductChanges)reader.ReadByte();
-			Data = reader.ReadBytes();
+			Data	= reader.ReadBytes();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Publisher);
+			writer.Write(Author);
 			writer.Write((byte)Changes);
 			writer.WriteBytes(Data);
 		}
 
 		public override void Execute(FairMcv mcv, FairRound round)
 		{
-			if(RequireSignerPublisher(round, Publisher, out var p) == false)
+			if(RequireSignerAuthor(round, Author, out var d) == false)
 				return;
 
-			p = round.AffectPublisher(Publisher);
-			var r = round.AffectAssortment(Publisher).AffectProduct(null);
+			var r = round.AffectProduct(d);
 
 			if(Changes.HasFlag(ProductChanges.SetData))
 			{
 				r.Data		= Data;
+				//r.Flags		|= ProductFlags.Data;
 				r.Updated	= round.ConsensusTime;
 			}
 
-			Allocate(round, p, r.Length);
+			d = round.AffectAuthor(d.Id);
+			Allocate(round, d, r.Length);
 		}
 	}
 }

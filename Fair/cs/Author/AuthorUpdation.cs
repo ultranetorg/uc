@@ -5,17 +5,17 @@
 		None, Renew, Transfer
 	}
 
-	public class PublisherUpdation : FairOperation
+	public class AuthorUpdation : FairOperation
 	{
 		public new EntityId			Id {get; set;}
 		public PublisherAction		Action  {get; set;}
 		public byte					Years {get; set;}
 		public AccountAddress		Owner  {get; set;}
 
-		//public bool					Exclusive => Publisher.IsWeb(Address); 
+		//public bool				Exclusive => Publisher.IsWeb(Address); 
 		public override string		Description => $"{Id} for {Years} years";
 		
-		public PublisherUpdation()
+		public AuthorUpdation()
 		{
 		}
 		
@@ -57,7 +57,7 @@
 
 		public override void Execute(FairMcv mcv, FairRound round)
 		{
-			var e = mcv.Publishers.Find(Id, round.Id);
+			var e = mcv.Authors.Find(Id, round.Id);
 			
 			if(e == null)
 			{
@@ -67,13 +67,13 @@
 
 			if(Action == PublisherAction.Renew)
 			{	
-				if(!Publisher.CanRenew(e, Signer, round.ConsensusTime))
+				if(!Author.CanRenew(e, Signer, round.ConsensusTime))
 				{
 					Error = NotAvailable;
 					return;
 				}
 
-				e = round.AffectPublisher(Id);
+				e = round.AffectAuthor(Id);
 				e.SpaceReserved	= e.SpaceUsed;
 				e.Expiration = e.Expiration + Time.FromYears(Years);
 					
@@ -82,13 +82,13 @@
 
 			if(Action == PublisherAction.Transfer)
 			{
-				if(!Publisher.IsOwner(e, Signer, round.ConsensusTime))
+				if(!Author.IsOwner(e, Signer, round.ConsensusTime))
 				{
 					Error = NotOwner;
 					return;
 				}
 
-				e = round.AffectPublisher(Id);
+				e = round.AffectAuthor(Id);
 				e.Owner	= round.AffectAccount(Owner).Id;
 			}
 		}

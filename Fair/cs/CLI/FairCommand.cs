@@ -2,14 +2,14 @@
 using System.Globalization;
 using System.Reflection;
 
-namespace Uccs.Fair.CLI
+namespace Uccs.Fair
 {
 	public abstract class FairCommand : NetCommand
 	{
-		public const string			AwaitArg = "await";
-		public Action				Transacted;
-		protected Program			Program;
-		protected override Type[]	TypesForExpanding => [];
+		public const string				AwaitArg = "await";
+		public Action					Transacted;
+		protected CommandLineInterface	CLI;
+		protected override Type[]		TypesForExpanding => [];
 		static FairCommand()
 		{
 			try
@@ -23,9 +23,9 @@ namespace Uccs.Fair.CLI
 			}
 		}
 
-		protected FairCommand(Program program, List<Xon> args, Flow flow) : base(args, flow)
+		protected FairCommand(CommandLineInterface cli, List<Xon> args, Flow flow) : base(args, flow)
 		{
-			Program = program;
+			CLI = cli;
 		}
 
 		protected void ReportPreambule()
@@ -39,7 +39,7 @@ namespace Uccs.Fair.CLI
 
 		protected void ReportNetwork()
 		{
-			Flow.Log.Report($"Current Net    : {Program.Net}");
+			Flow.Log.Report($"Current Net    : {CLI.Net}");
 		}
 
 		public void Api(Apc call)
@@ -47,7 +47,7 @@ namespace Uccs.Fair.CLI
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			Program.ApiClient.Send(call, Flow);
+			CLI.ApiClient.Send(call, Flow);
 		}
 
 		public Rp Api<Rp>(Apc call)
@@ -55,7 +55,7 @@ namespace Uccs.Fair.CLI
 			if(Has("apitimeout"))
 				call.Timeout = GetInt("apitimeout") * 1000;
 
-			return Program.ApiClient.Request<Rp>(call, Flow);
+			return CLI.ApiClient.Request<Rp>(call, Flow);
 		}
 
 		public Rp Rdc<Rp>(Ppc<Rp> call) where Rp : PeerResponse
@@ -70,7 +70,7 @@ namespace Uccs.Fair.CLI
 
 		public ApcTransaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 		{
-			return Program.ApiClient.Request<ApcTransaction[]>(new TransactApc {Operations = operations,
+			return CLI.ApiClient.Request<ApcTransaction[]>(new TransactApc {Operations = operations,
 																				Signer = signer,
 																				Await = await},
 																Flow);
@@ -99,5 +99,26 @@ namespace Uccs.Fair.CLI
 			else
 				return TransactionStatus.Placed;
 		}
+
+		protected long GetMoney(string paramenter)
+		{
+			var p = One(paramenter);
+
+			if(p != null)
+				return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
+		protected long GetMoney(string paramenter, long def)
+		{
+			var p = One(paramenter);
+
+			if(p != null)
+				return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
+			else
+				return def;
+		}
+
 	}
 }

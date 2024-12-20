@@ -28,16 +28,8 @@ namespace Uccs.Rdn
 		}
 	}
 
-	public class RdnNodeSettings : SavableSettings
+	public class RdnNodeSettings : McvNodeSettings
 	{
-		public McvSettings				Mcv { get; set; }
-		public PeeringSettings			Peering { get; set; } = new();
-		public PeeringSettings			NtnPeering { get; set; }
-		public ApiSettings				Api { get; set; }
-		public bool						Log { get; set; }
-		public int						RdcQueryTimeout { get; set; } = 5000;
-		public int						RdcTransactingTimeout { get; set; } = 5*60*1000;
-
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
 
@@ -50,11 +42,11 @@ namespace Uccs.Rdn
 		public long						Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 
-		public RdnNodeSettings() : base(NetXonTextValueSerializator.Default)
+		public RdnNodeSettings()
 		{
 		}
 
-		public RdnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
+		public RdnNodeSettings(string profile) : base(profile)
 		{
 			if(Debugger.IsAttached)
 			{

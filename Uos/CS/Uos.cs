@@ -145,7 +145,7 @@ namespace Uccs.Uos
 			//ApiStarted?.Invoke(this);
 		}
 
-		public McvNode RunNode(string net, Settings settings = null, IClock clock = null, bool peering = false)
+		public McvNode RunNode(string net, Settings settings = null, IClock clock = null)
 		{
 			if(net == Net.Net.Root)
 			{

@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair
 {
-	public class PublisherCreation : FairOperation
+	public class AuthorCreation : FairOperation
 	{
 		public byte					Years {get; set;}
 
 		public override string		Description => $"{Years} years";
 		
-		public PublisherCreation ()
+		public AuthorCreation ()
 		{
 		}
 		
@@ -30,7 +30,7 @@
 
 		public override void Execute(FairMcv mcv, FairRound round)
 		{
-			var e = round.AffectPublisher(null);
+			var e = round.AffectAuthor(null);
 								
 			e.Owner			= Signer.Id;
 			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);

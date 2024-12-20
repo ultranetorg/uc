@@ -5,9 +5,10 @@ namespace Uccs.Fair
 	public enum FairPpcClass : byte
 	{
 		None = 0, 
-		Publisher = McvPpcClass._Last + 1, 
+		Author = McvPpcClass._Last + 1, 
 		FairMembers,
-		QueryProduct, Product, DeclareRelease, LocateRelease, FileInfo, DownloadRelease, Cost
+		Product,
+		Cost
 	}
 
 	public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse
@@ -56,9 +57,6 @@ namespace Uccs.Fair
 		public override void OnRequestException(Peer peer, NodeException ex)
 		{
 			base.OnRequestException(peer, ex);
-
-			if(ex.Error == NodeError.NotSeed)	peer.Roles  &= ~(long)FairRole.Seed;
 		}
-
 	}
 }

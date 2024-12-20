@@ -34,14 +34,6 @@ namespace Uccs.Fair
 			return $"{Id}, [{Flags}], Data={{{Data}}}";
 		}
 
-		public Product Clone()
-		{
-			return new()   {Id = Id,
-							Flags = Flags,
-							Data = Data.ToArray(),
-							Updated = Updated};
-		}
-
 		public void WriteMain(BinaryWriter writer)
 		{
 			writer.Write((byte)Flags);

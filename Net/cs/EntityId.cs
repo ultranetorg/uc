@@ -47,6 +47,11 @@
 			return $"{H}-{E}";
 		}
 
+		public override int GetHashCode()
+		{
+			return H.GetHashCode();
+		}
+
 		public static EntityId Parse(string t)
 		{
 			var i = t.IndexOf('-');

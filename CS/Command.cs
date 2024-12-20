@@ -58,7 +58,7 @@ namespace Uccs
 		public static bool			ConsoleAvailable { get; protected set; }
 		public Flow					Flow;
 
-		protected abstract Type[]	TypesForExpanding { get; }
+		protected virtual Type[]	TypesForExpanding { get; } = [];
 
 		public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
 

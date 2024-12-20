@@ -5,9 +5,9 @@ namespace Uccs.Fair
 {
 	public class FairMcv : Mcv
 	{
-		public PublisherTable			Publishers;
-		public AssortmentTable			Assortments;
-		IPAddress[]						BaseIPs;
+		public AuthorTable		Authors;
+		public ProductTable		Products;
+		IPAddress[]				BaseIPs;
 
 		public FairMcv()
 		{
@@ -22,9 +22,14 @@ namespace Uccs.Fair
 			BaseIPs = baseips;
 		}
 
-		protected override void GenesisCreate(Vote vote)
+		public string CreateGenesis(AccountKey god, AccountKey f0)
 		{
-			//(vote as FairVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+			return CreateGenesis(god, f0, new CandidacyDeclaration {BaseRdcIPs = [Net.Father0IP]});
+		}
+
+		public override string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
+		{
+			return base.CreateGenesis(god, f0, candidacydeclaration);
 		}
 
 		protected override void GenesisInitilize(Round round)
@@ -38,29 +43,27 @@ namespace Uccs.Fair
 		protected override void CreateTables(string databasepath)
 		{
 			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									 .SetCreateMissingColumnFamilies(true);
+									.SetCreateMissingColumnFamilies(true);
 
 			var cfs = new ColumnFamilies();
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,		new ()),
-																new (AccountTable.MainColumnName,		new ()),
-																new (AccountTable.MoreColumnName,		new ()),
-																new (PublisherTable.MetaColumnName,		new ()),
-																new (PublisherTable.MainColumnName,		new ()),
-																new (PublisherTable.MoreColumnName,		new ()),
-																new (AssortmentTable.MetaColumnName,	new ()),
-																new (AssortmentTable.MainColumnName,	new ()),
-																new (AssortmentTable.MoreColumnName,	new ()),
-																new (ChainFamilyName,					new ())})
-				cfs.Add(i);
+			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
+			{	
+				foreach(var i in cfn)
+				{	
+					cfs.Add(i, new ());
+				}
+			}
+			else
+				cfs.Add(ChainFamilyName, new ());
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
-			Publishers = new (this);
-			Assortments = new (this);
+			Authors = new (this);
+			Products = new (this);
 
-			Tables = [Accounts, Publishers, Assortments];
+			Tables = [Accounts, Authors, Products];
 		}
 
 		public override Round CreateRound()

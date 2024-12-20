@@ -6,7 +6,7 @@ namespace Uccs.Fair
 		public ProductChanges		Changes	{ get; set; }
 		public byte[]				Data { get; set; }
 
-		public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ProductChanges.SetData) || Data.Length <= Uccs.Fair.Product.DataLengthMax);
+		public override bool		IsValid(Mcv mcv) => !Changes.HasFlag(ProductChanges.SetData) || Data.Length <= Product.DataLengthMax;
 		public override string		Description => $"{Id}, [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ProductUpdation()
@@ -45,8 +45,7 @@ namespace Uccs.Fair
 			if(RequireSignerProduct(round, Id, out var p, out var _) == false)
 				return;
 
-			p = round.AffectPublisher(p.Id);
-			var r = round.AffectAssortment(p.Id).AffectProduct(Id);
+			var r = round.AffectProduct(Id);
 
 			if(Changes.HasFlag(ProductChanges.SetData))
 			{

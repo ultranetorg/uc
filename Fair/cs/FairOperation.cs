@@ -3,16 +3,15 @@
 	public enum FairOperationClass
 	{
 		None = 0, 
-		FairCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
+		FairCandidacyDeclaration= OperationClass.CandidacyDeclaration, 
 		//Immission				= OperationClass.Immission, 
 		UtilityTransfer			= OperationClass.UtilityTransfer, 
 		BandwidthAllocation		= OperationClass.BandwidthAllocation,
 
 		ChildNetInitialization,
 
-		PublisherRegistration, PublisherMigration, PublisherBid, PublisherUpdation,
-		ProductCreation, ProductUpdation, ProductDeletion, ProductLinkCreation, ProductLinkDeletion,
-		AnalysisResultUpdation
+		AuthorRegistration, AuthorUpdation,
+		ProductCreation, ProductUpdation, ProductDeletion
 	}
 
 	public abstract class FairOperation : Operation
@@ -40,7 +39,7 @@
 			return Mcv.ApplyTimeFactor(time, length);
 		}
 
-		public void Allocate(Round round, Publisher domain, int toallocate)
+		public void Allocate(Round round, Author domain, int toallocate)
 		{
 			if(domain.SpaceReserved < domain.SpaceUsed + toallocate)
 			{
@@ -56,7 +55,7 @@
 				domain.SpaceUsed += (short)toallocate;
 		}
 
-		public void Free(Publisher domain, int tofree) /// WE DONT REFUND
+		public void Free(Author domain, int tofree) /// WE DONT REFUND
 		{
 			//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
 
@@ -66,9 +65,9 @@
 			//STReward -= f;
 		}
 
-		public bool RequireSignerPublisher(FairRound round, EntityId id, out PublisherEntry domain)
+		public bool RequireSignerAuthor(FairRound round, EntityId id, out AuthorEntry domain)
 		{
-			domain = round.Mcv.Publishers.Find(id, round.Id);
+			domain = round.Mcv.Authors.Find(id, round.Id);
 
 			if(domain == null)
 			{
@@ -76,7 +75,7 @@
 				return false;
 			}
 
-			if(Publisher.IsExpired(domain, round.ConsensusTime))
+			if(Author.IsExpired(domain, round.ConsensusTime))
 			{
 				Error = Expired;
 				return false;
@@ -91,9 +90,9 @@
 			return true;
 		}
 
-		public bool RequirePublisher(FairRound round, EntityId id, out PublisherEntry domain)
+		public bool RequireAuthor(FairRound round, EntityId id, out AuthorEntry domain)
 		{
-			domain = round.Mcv.Publishers.Find(id, round.Id);
+			domain = round.Mcv.Authors.Find(id, round.Id);
 
 			if(domain == null)
 			{
@@ -101,7 +100,7 @@
 				return false;
 			}
 
-			if(Publisher.IsExpired(domain, round.ConsensusTime))
+			if(Author.IsExpired(domain, round.ConsensusTime))
 			{
 				Error = Expired;
 				return false;
@@ -110,19 +109,17 @@
 			return true;
 		}
 
-		public bool RequireProduct(FairRound round, ProductId id, out PublisherEntry publisher, out Product product)
+		public bool RequireProduct(FairRound round, ProductId id, out AuthorEntry author, out ProductEntry product)
 		{
 			product = null;
 
-			if(RequirePublisher(round, id.PublisherId, out publisher) == false)
+			if(RequireAuthor(round, id.AuthorId, out author) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			var a = round.Mcv.Assortments.Find(publisher.Id, round.Id);
-
-			product = a.Products.FirstOrDefault(i => i.Id == id);
+			product = round.Mcv.Products.Find(id, round.Id);
 			
 			if(product == null)
 			{
@@ -133,19 +130,17 @@
 			return true; 
 		}
 
-		public bool RequireSignerProduct(FairRound round, ProductId id, out PublisherEntry publisher, out Product product)
+		public bool RequireSignerProduct(FairRound round, ProductId id, out AuthorEntry author, out ProductEntry product)
 		{
 			product = null;
 
-			if(RequireSignerPublisher(round, id.PublisherId, out publisher) == false)
+			if(RequireSignerAuthor(round, id.AuthorId, out author) == false)
 			{
 				Error = NotFound;
 				return false; 
 			}
 
-			var a = round.Mcv.Assortments.Find(publisher.Id, round.Id);
-
-			product = a.Products.FirstOrDefault(i => i.Id == id);
+			product = round.Mcv.Products.Find(id, round.Id);
 			
 			if(product == null)
 			{

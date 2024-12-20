@@ -97,55 +97,6 @@ namespace Uccs.Fair
 		}
 	}
 
-
-#if ETHEREUM
-	public class EstimateEmitApc : FairApc
-	{
-		public byte[]			FromPrivateKey { get; set; } 
-		public BigInteger		Wei { get; set; } 
-
-		public override object Execute(FairNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as FairNet).EthereumNetwork)), Wei, workflow);
-		}
-	}
-
-	public class EmitApc : FairApc
-	{
-		public byte[]				FromPrivateKey { get; set; } 
-		public AccountAddress		To { get; set; } 
-		public int					Eid { get; set; } 
-		public BigInteger			Wei { get; set; } 
-		public BigInteger			Gas { get; set; } 
-		public BigInteger			GasPrice { get; set; } 
-
-		public class Response
-		{
-			
-		}
-
-		public override object Execute(FairNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as FairNet).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
-			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
-		}
-	}
-
-	public class EmissionApc : FairApc
-	{
-		public AccountAddress		By { get; set; } 
-		public int					Eid { get; set; } 
-		public TransactionStatus	Await { get; set; }
-
-		public override object Execute(FairNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			var o = sun.Ethereum.FindEmission(By, Eid, workflow);
-
-			return o;
-		}
-	}
-#endif
-
 	public class CostApc : FairApc
 	{
 		public class Return
@@ -154,18 +105,14 @@ namespace Uccs.Fair
 			//public Money		Exeunit { get; set; }
 
 			public Unit		RentAccount { get; set; }
-
-			public Unit[][]	RentPublisher { get; set; }
-			
+			public Unit[][]	RentAuthor { get; set; }
 			public Unit[]	RentProduct { get; set; }
-
 			public Unit[]	RentProductData { get; set; }
 			public Unit		RentProductDataForever { get; set; }
 		}
 
 		public Unit		Rate { get; set; } = 1;
 		public byte[]	Years { get; set; }
-		public byte[]	PublisherLengths { get; set; }
 
 		public override object Execute(FairNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 		{
@@ -181,7 +128,7 @@ namespace Uccs.Fair
 				
 								RentAccount					= FairOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-								//RentPublisher				= Years.Select(y => PublisherLengths.Select(l => FairOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
+								//RentAuthor					= Years.Select(y => PublisherLengths.Select(l => FairOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 					
 								RentProduct					= Years.Select(y => FairOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
 				

@@ -75,7 +75,6 @@ namespace Uccs.Net
 		public static int							GetValidityPeriod(int rid) => rid + P;
 
 		protected abstract void						CreateTables(string databasepath);
-		protected abstract void						GenesisCreate(Vote vote);
 		protected abstract void						GenesisInitilize(Round vote);
 		public abstract Round						CreateRound();
 		public abstract Vote						CreateVote();

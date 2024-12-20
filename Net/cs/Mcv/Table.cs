@@ -5,9 +5,9 @@ namespace Uccs.Net
 {
 	public abstract class TableBase
 	{
-		public const int					ClustersCountMax = 256 * 256;
-		public const int					SuperClustersCountMax = 256;
-		const int							ClustersCacheLimit = 1000;
+		public const int							BucketsCountMax = 4096 * 4096;
+		public const int							ClustersCountMax = 4096;
+		const int									ClustersCacheLimit = 1000;
 
 		protected ColumnFamilyHandle				ClusterColumn;
 		protected ColumnFamilyHandle				MetaColumn;

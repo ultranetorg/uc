@@ -31,11 +31,6 @@ namespace Uccs.Rdn
 			return CreateGenesis(god, f0, new RdnCandidacyDeclaration {BaseRdcIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
 		}
 
-		protected override void GenesisCreate(Vote vote)
-		{
-			//(vote as RdnVote).Emissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
-		}
-
 		protected override void GenesisInitilize(Round round)
 		{
 			#if IMMISSION
@@ -50,9 +45,6 @@ namespace Uccs.Rdn
 									.SetCreateMissingColumnFamilies(true);
 
 			var cfs = new ColumnFamilies();
-
-			//foreach(var i in new ColumnFamilies.Descriptor[]{new (ChainFamilyName, new ())})
-			//	cfs.Add(i);
 			
 			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
 			{	

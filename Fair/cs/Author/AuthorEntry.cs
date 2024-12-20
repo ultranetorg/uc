@@ -2,17 +2,19 @@
 
 namespace Uccs.Fair
 {
-	public class PublisherEntry : Publisher, ITableEntry
+	public class AuthorEntry : Author, ITableEntry
 	{
-		public bool				New;
-		public bool				Affected;
+		//public bool				New;
+		//public bool				Affected;
 		Mcv						Mcv;
+		public BaseId			BaseId => Id;
+		public bool				Deleted { get; set; }
 
-		public PublisherEntry()
+		public AuthorEntry()
 		{
 		}
 
-		public PublisherEntry(Mcv chain)
+		public AuthorEntry(Mcv chain)
 		{
 			Mcv = chain;
 		}
@@ -22,14 +24,14 @@ namespace Uccs.Fair
 			return $"{Id}, {Owner}, {Expiration}";
 		}
 
-		public PublisherEntry Clone()
+		public AuthorEntry Clone()
 		{
-			return new PublisherEntry(Mcv) {Id = Id,
+			return new AuthorEntry(Mcv) {Id = Id,
 											Owner = Owner,
 											Expiration = Expiration,
 											SpaceReserved = SpaceReserved,
 											SpaceUsed = SpaceUsed,
-											};
+											NextProductId = NextProductId};
 		}
 
 		public void WriteMain(BinaryWriter writer)
@@ -39,10 +41,9 @@ namespace Uccs.Fair
 			writer.Write((byte)f);
 			writer.Write7BitEncodedInt(SpaceReserved);
 			writer.Write7BitEncodedInt(SpaceUsed);
-
 			writer.Write(Owner);
 			writer.Write(Expiration);
-
+			writer.Write7BitEncodedInt(NextProductId);
 		}
 
 		public void Cleanup(Round lastInCommit)
@@ -54,9 +55,10 @@ namespace Uccs.Fair
 			var f			= (PublisherFlag)reader.ReadByte();
 			SpaceReserved	= (short)reader.Read7BitEncodedInt();
 			SpaceUsed		= (short)reader.Read7BitEncodedInt();
+			Owner			= reader.Read<EntityId>();
+			Expiration		= reader.Read<Time>();
+			NextProductId	= reader.Read7BitEncodedInt();
 
-			Owner		= reader.Read<EntityId>();
-			Expiration	= reader.Read<Time>();
 		}
 
 		public void WriteMore(BinaryWriter w)

@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-namespace Uccs.Fair.CLI
+namespace Uccs.Fair
 {
-	public class Program
+	public class CommandLineInterface
 	{
 		public string				ExeDirectory;
 		public Fair					Net;
@@ -14,7 +14,7 @@ namespace Uccs.Fair.CLI
 		public Flow					Flow = new Flow("CLI", new Log()); 
 		public ConsoleLogView		LogView = new ConsoleLogView(false, true);
 
-		public Program()
+		public CommandLineInterface()
 		{
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
@@ -60,7 +60,7 @@ namespace Uccs.Fair.CLI
 			//Sun?.Stop("The End");
 		}
 
-		public Program(FairNodeSettings settings, FairApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+		public CommandLineInterface(FairNodeSettings settings, FairApiClient api, Flow workflow, IPasswordAsker passwordAsker)
 		{
 			Settings = settings;
 			ApiClient = api;
@@ -73,7 +73,7 @@ namespace Uccs.Fair.CLI
 			Thread.CurrentThread.CurrentCulture = 
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
-			new Program();
+			new CommandLineInterface();
 		}
 
 		public FairCommand Create(IEnumerable<Xon> commnad, Flow f)
@@ -91,8 +91,8 @@ namespace Uccs.Fair.CLI
 				//case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, f); break;
 				//case DevCommand.Keyword:		c = new DevCommand(this, args, f); break;
 				//case EconomyCommand.Keyword:	c = new EconomyCommand(this, args, f); break;
-				//case DomainCommand.Keyword:		c = new DomainCommand(this, args, f); break;
-				//case ResourceCommand.Keyword:	c = new ResourceCommand(this, args, f); break;
+				//case AuthorCommand.Keyword:		c = new PublisherCommand(this, args, f); break;
+				//case ProductCommand.Keyword:	c = new ProductCommand(this, args, f); break;
 				//case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, f); break;
 				//case LogCommand.Keyword:		c = new LogCommand(this, args, f); break;
 				//case LinkCommand.Keyword:		c = new LinkCommand(this, args, f); break;

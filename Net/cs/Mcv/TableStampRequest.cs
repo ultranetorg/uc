@@ -7,7 +7,7 @@
 
 		public override PeerResponse Execute()
 		{
-			if(Clusters.Length > TableBase.SuperClustersCountMax)
+			if(Clusters.Length > TableBase.ClustersCountMax)
 				throw new RequestException(RequestError.IncorrectRequest);
 
 			lock(Mcv.Lock)

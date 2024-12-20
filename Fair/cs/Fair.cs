@@ -9,9 +9,6 @@ namespace Uccs.Fair
 		public override	string			Name => Root;
 		public override ushort			BasePort => (ushort)KnownSystem.Fair;
  		
-		public bool						Auctions				= false;
-		public long						PublisherRankCheckECFee	= 5;
-
  		public static readonly Fair		Local = new FairLocal();
  		public static readonly Fair		Test = new FairPublicTest();
  		public static readonly Fair		Developer0 = new FairDeveloper0();
@@ -40,7 +37,6 @@ namespace Uccs.Fair
 			Father0IP		= new IPAddress([127, 0, 0, 100]);
 			Cryptography	= Cryptography.No;
 			PoW				= false;
-			Auctions		= true;
 			CommitLength	= 100;
 			ECLifetime		= Time.FromYears(100);
 

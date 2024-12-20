@@ -1,169 +1,155 @@
-﻿namespace Uccs.Fair
+﻿namespace Uccs.Fair;
+
+public class FairRound : Round
 {
-	public class FairRound : Round
+	public new FairMcv								Mcv => base.Mcv as FairMcv;
+	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
+	public Dictionary<ProductId, ProductEntry>		AffectedProducts = new();
+	public Dictionary<int, int>						NextAuthorIds = new ();
+	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
+
+	public FairRound(FairMcv rds) : base(rds)
 	{
-		public new FairMcv								Mcv => base.Mcv as FairMcv;
-		public Dictionary<EntityId, PublisherEntry>		AffectedPublishers = new();
-		public Dictionary<ushort, int>					NextPublisherIds = new ();
-		public Dictionary<EntityId, AssortmentEntry>	AffectedAssortments = new();
-		public Dictionary<ushort, int>					NextAssortmentIds = new ();
+	}
 
-		public FairRound(FairMcv rds) : base(rds)
+	public override long AccountAllocationFee(Account account)
+	{
+		return FairOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
+	}
+
+	public override IEnumerable<object> AffectedByTable(TableBase table)
+	{
+		if(table == Mcv.Accounts)
+			return AffectedAccounts.Values;
+
+		if(table == Mcv.Authors)
+			return AffectedAuthors.Values;
+
+		throw new IntegrityException();
+	}
+
+	public AuthorEntry AffectAuthor(EntityId id)
+	{
+		int ci;
+
+		if(id == null)
 		{
-		}
-
-		public override long AccountAllocationFee(Account account)
-		{
-			return FairOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
-		}
-
-		public override IEnumerable<object> AffectedByTable(TableBase table)
-		{
-			if(table == Mcv.Accounts)
-				return AffectedAccounts.Values;
-
-			if(table == Mcv.Publishers)
-				return AffectedPublishers.Values;
-
-			throw new IntegrityException();
-		}
-
-		public PublisherEntry AffectPublisher(EntityId id)
-		{
-			ushort ci;
-
-			if(id == null)
-			{
-				if(Mcv.Publishers.Clusters.Count() == 0)
-				{	
-					ci = 0;
-					NextPublisherIds[ci] = 0;
-				}
-				else
-				{	
-					if(Mcv.Publishers.Clusters.Count() < TableBase.ClustersCountMax)
-					{	
-						var i = Mcv.Publishers.Clusters.Count();
-						ci = (ushort)i;
-						NextPublisherIds[ci] = 0;
-					}
-					else	
-					{	
-						var c = Mcv.Publishers.Clusters.MinBy(i => i.BaseEntries.Count());
-						ci = c.Id;
-						NextPublisherIds[ci] = c.NextEntryId;
-					}
-				}
-				
-				var pid = NextPublisherIds[ci]++;
-
-				return AffectedPublishers[new EntityId(ci, pid)] = new PublisherEntry(Mcv){	Affected = true,
-																							New = true,
-																							Id = new EntityId(ci, pid)};
+			if(Mcv.Authors.Clusters.Count() == 0)
+			{	
+				ci = 0;
+				NextAuthorIds[ci] = 0;
 			}
 			else
-			{
-				if(AffectedPublishers.TryGetValue(id, out PublisherEntry a))
-					return a;
-			
-				var e = Mcv.Publishers.Find(id, Id - 1);
-
-				if(e == null)
-					throw new IntegrityException();
-
-				AffectedPublishers[id] = e.Clone();
-				AffectedPublishers[id].Affected  = true;
-
-				return AffectedPublishers[id];
+			{	
+				if(Mcv.Authors.Clusters.Count() < TableBase.ClustersCountMax)
+				{	
+					var i = Mcv.Authors.Clusters.Count();
+					ci = (ushort)i;
+					NextAuthorIds[ci] = 0;
+				}
+				else	
+				{	
+					var c = Mcv.Authors.Clusters.MinBy(i => i.Buckets.Count).Buckets.MinBy(i => i.Entries.Count());
+					ci = c.Id;
+					NextAuthorIds[ci] = c.NextEntryId;
+				}
 			}
-		}
+				
+			var pid = NextAuthorIds[ci]++;
 
-		public AssortmentEntry AffectAssortment(EntityId id)
+			return AffectedAuthors[new EntityId(ci, pid)] = new AuthorEntry(Mcv){	//Affected = true,
+																						//New = true,
+																						Id = new EntityId(ci, pid)};
+		}
+		else
 		{
-			if(AffectedAssortments.TryGetValue(id, out var a))
+			if(AffectedAuthors.TryGetValue(id, out AuthorEntry a))
 				return a;
 			
-			var e = Mcv.Assortments.Find(id, Id - 1);
+			var e = Mcv.Authors.Find(id, Id - 1);
 
-			if(e != null)
-			{
-				AffectedAssortments[id] = e.Clone();
-				//AffectedAssortments[domain].Affected  = true;;
-				return AffectedAssortments[id];
-			}
-			else
-			{
-				var c = Mcv.Assortments.Clusters.FirstOrDefault(i => i.Id == id.Ci);
+			if(e == null)
+				throw new IntegrityException();
 
-				int i;
-				
-				if(c == null)
-					NextAssortmentIds[id.Ci] = 0;
-				else
-					NextAssortmentIds[id.Ci] = c.NextEntryId;
-				
-				i = NextAssortmentIds[id.Ci]++;
+			AffectedAuthors[id] = e.Clone();
+			//AffectedAuthors[id].Affected  = true;
 
-				return AffectedAssortments[id] = new AssortmentEntry(Mcv){	//Affected = true,
-																			New = true,
-																			Id = new EntityId(id.Ci, i)};
-			}
-		}
-
-		public override void InitializeExecution()
-		{
-		}
-
-		public override void RestartExecution()
-		{
-			AffectedPublishers.Clear();
-			NextPublisherIds.Clear();
-			AffectedAssortments.Clear();
-			NextAssortmentIds.Clear();
-		}
-
-		public override void FinishExecution()
-		{
-			foreach(var a in AffectedAssortments)
-			{
-				if(a.Value.Products != null)
-					foreach(var r in a.Value.Products.Where(i => i.Affected))
-					{
-						r.Affected = false;
-					}
-			}
-		}
-
-		public override void Elect(Vote[] votes, int gq)
-		{
-		}
-
-		public override void CopyConfirmed()
-		{
-		}
-
-		public override void RegisterForeign(Operation o)
-		{
-		}
-
-		public override void ConfirmForeign()
-		{
-		}
-
-		public override void WriteBaseState(BinaryWriter writer)
-		{
-			base.WriteBaseState(writer);
-
-			writer.Write(Candidates, i => i.WriteCandidate(writer));  
-			writer.Write(Members, i => i.WriteMember(writer));  
-		}
-
-		public override void ReadBaseState(BinaryReader reader)
-		{
-			base.ReadBaseState(reader);
-
-			Candidates	= reader.Read<Generator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
-			Members		= reader.Read<Generator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
+			return AffectedAuthors[id];
 		}
 	}
+
+	public ProductEntry AffectProduct(ProductId id)
+	{
+		if(AffectedProducts.TryGetValue(id, out var a))
+			return a;
+		
+		a = Mcv.Products.Find(id, Id - 1);
+
+		if(a == null)
+			throw new IntegrityException();
+
+		return AffectedProducts[id] = a.Clone();
+	}
+
+	public ProductEntry AffectProduct(AuthorEntry domain)
+	{
+		var d = AffectAuthor(domain.Id);
+
+  		var	r = new ProductEntry  {Id = new ProductId(d.Id.H, d.Id.E, d.NextProductId++)};
+    
+  		return AffectedProducts[r.Id] = r;
+	}
+
+	public void DeleteProduct(ProductEntry resource)
+	{
+		AffectProduct(resource.Id).Deleted = true;
+	}
+
+	public override void InitializeExecution()
+	{
+	}
+
+	public override void RestartExecution()
+	{
+		AffectedAuthors.Clear();
+		AffectedProducts.Clear();
+		NextAuthorIds.Clear();
+	}
+
+	public override void FinishExecution()
+	{
+	}
+
+	public override void Elect(Vote[] votes, int gq)
+	{
+	}
+
+	public override void CopyConfirmed()
+	{
+	}
+
+	public override void RegisterForeign(Operation o)
+	{
+	}
+
+	public override void ConfirmForeign()
+	{
+	}
+
+	public override void WriteBaseState(BinaryWriter writer)
+	{
+		base.WriteBaseState(writer);
+
+		writer.Write(Candidates, i => i.WriteCandidate(writer));  
+		writer.Write(Members, i => i.WriteMember(writer));  
+	}
+
+	public override void ReadBaseState(BinaryReader reader)
+	{
+		base.ReadBaseState(reader);
+
+		Candidates	= reader.Read<Generator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
+		Members		= reader.Read<Generator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
+	}
 }
+

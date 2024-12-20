@@ -9,7 +9,6 @@ namespace Uccs.Fair
 	public enum FairRole : uint
 	{
 		None,
-		Seed = 0b00000100,
 	}
 
 	public class FairNode : McvNode
@@ -20,7 +19,7 @@ namespace Uccs.Fair
 
 		public JsonServer				ApiServer;
 
-		public FairNode(string name, Fair net, string profile, FairNodeSettings settings, string deploymentpath, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
+		public FairNode(string name, Fair net, string profile, FairNodeSettings settings, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
 		{
 			Settings = settings ?? new FairNodeSettings(Path.Join(profile, net.Address));
 
