@@ -6,7 +6,7 @@ namespace Uccs.Rdn.CLI;
 
 public abstract class RdnCommand : McvCommand
 {
-	protected Program			Program;
+	protected RdnCli			Program;
 	protected override Type[]	TypesForExpanding => [typeof(IEnumerable<Dependency>), 
 													  typeof(IEnumerable<AnalyzerResult>), 
 													  typeof(Resource), 
@@ -24,7 +24,7 @@ public abstract class RdnCommand : McvCommand
 		}
 	}
 
-	protected RdnCommand(Program program, List<Xon> args, Flow flow) : base(program, args, flow)
+	protected RdnCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Program = program;
 	}

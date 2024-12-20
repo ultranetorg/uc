@@ -1,96 +1,96 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+public class DomainEntry : Domain, ITableEntry
 {
-	public class DomainEntry : Domain, ITableEntry
+	public BaseId			BaseId => Id;
+	public bool				Deleted { get; set; }
+	//public bool				New;
+	//public bool			Affected;
+	Mcv						Mcv;
+	//bool					ResourcesCloned;
+	
+	//public Resource[]		Resources { get; set; } = [];
+
+	public DomainEntry()
 	{
-		public BaseId			BaseId => Id;
-		public bool				Deleted { get; set; }
-		//public bool				New;
-		//public bool			Affected;
-		Mcv						Mcv;
-		//bool					ResourcesCloned;
+	}
+
+	public DomainEntry(Mcv chain)
+	{
+		Mcv = chain;
+	}
+
+	public override string ToString()
+	{
+		return $"{Address}, {Id}, Owner={Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+	}
+
+	public DomainEntry Clone()
+	{
+		return new DomainEntry(Mcv){Id = Id,
+									Address = Address,
+									Owner = Owner,
+									Expiration = Expiration,
+									FirstBidTime = FirstBidTime,
+									LastWinner = LastWinner,
+									LastBid = LastBid,
+									LastBidTime = LastBidTime,
+									ComOwner = ComOwner,
+									OrgOwner = OrgOwner,
+									NetOwner = NetOwner,
+									//Resources = Resources,
+									NextResourceId = NextResourceId,
+									SpaceReserved = SpaceReserved,
+									SpaceUsed = SpaceUsed,
+									NtnChildNet = NtnChildNet,
+									NtnSelfHash = NtnSelfHash,
+									};
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(Id.E);
+
+		var f = DomainFlag.None;
 		
-		//public Resource[]		Resources { get; set; } = [];
+		if(LastWinner != null)	f |= DomainFlag.Auction;
+		if(Owner != null)		f |= DomainFlag.Owned;
+		if(ComOwner != null)	f |= DomainFlag.ComOwned;
+		if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
+		if(NetOwner != null)	f |= DomainFlag.NetOwned;
+		if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
 
-		public DomainEntry()
+		writer.Write((byte)f);
+		writer.WriteUtf8(Address);
+		writer.Write7BitEncodedInt(NextResourceId);
+		writer.Write7BitEncodedInt(SpaceReserved);
+		writer.Write7BitEncodedInt(SpaceUsed);
+
+		if(IsWeb(Address))
 		{
-		}
-
-		public DomainEntry(Mcv chain)
-		{
-			Mcv = chain;
-		}
-
-		public override string ToString()
-		{
-			return $"{Address}, {Id}, Owner={Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
-		}
-
-		public DomainEntry Clone()
-		{
-			return new DomainEntry(Mcv){Id = Id,
-										Address = Address,
-										Owner = Owner,
-										Expiration = Expiration,
-										FirstBidTime = FirstBidTime,
-										LastWinner = LastWinner,
-										LastBid = LastBid,
-										LastBidTime = LastBidTime,
-										ComOwner = ComOwner,
-										OrgOwner = OrgOwner,
-										NetOwner = NetOwner,
-										//Resources = Resources,
-										NextResourceId = NextResourceId,
-										SpaceReserved = SpaceReserved,
-										SpaceUsed = SpaceUsed,
-										NtnChildNet = NtnChildNet,
-										NtnSelfHash = NtnSelfHash,
-										};
-		}
-
-		public void WriteMain(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(Id.E);
-
-			var f = DomainFlag.None;
-			
-			if(LastWinner != null)	f |= DomainFlag.Auction;
-			if(Owner != null)		f |= DomainFlag.Owned;
-			if(ComOwner != null)	f |= DomainFlag.ComOwned;
-			if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
-			if(NetOwner != null)	f |= DomainFlag.NetOwned;
-			if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
-
-			writer.Write((byte)f);
-			writer.WriteUtf8(Address);
-			writer.Write7BitEncodedInt(NextResourceId);
-			writer.Write7BitEncodedInt(SpaceReserved);
-			writer.Write7BitEncodedInt(SpaceUsed);
-
-			if(IsWeb(Address))
+			if(f.HasFlag(DomainFlag.Auction))
 			{
-				if(f.HasFlag(DomainFlag.Auction))
-				{
-					writer.Write(FirstBidTime);
-					writer.Write(LastWinner);
-					writer.Write(LastBidTime);
-					writer.Write7BitEncodedInt64(LastBid);
-				}
-
-				if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
-				if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
-				if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
+				writer.Write(FirstBidTime);
+				writer.Write(LastWinner);
+				writer.Write(LastBidTime);
+				writer.Write7BitEncodedInt64(LastBid);
 			}
 
-			if(f.HasFlag(DomainFlag.Owned))
-			{
-				writer.Write(Owner);
-				writer.Write(Expiration);
-			}
+			if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
+			if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
+			if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
+		}
 
-			if(IsChild(Address))
-			{
-				writer.Write((byte)ParentPolicy);
-			}
+		if(f.HasFlag(DomainFlag.Owned))
+		{
+			writer.Write(Owner);
+			writer.Write(Expiration);
+		}
+
+		if(IsChild(Address))
+		{
+			writer.Write((byte)ParentPolicy);
+		}
 
 // 			writer.Write(Resources, i =>{
 // 											writer.Write7BitEncodedInt(i.Id.Ri);
@@ -98,52 +98,52 @@
 // 											i.WriteMain(writer);
 // 										});
 
-			if(f.HasFlag(DomainFlag.ChildNet))
+		if(f.HasFlag(DomainFlag.ChildNet))
+		{
+			writer.Write(NtnChildNet);
+			writer.Write(NtnSelfHash);
+		}
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Id.E = reader.Read7BitEncodedInt();
+
+		var f			= (DomainFlag)reader.ReadByte();
+		Address			= reader.ReadUtf8();
+		NextResourceId	= reader.Read7BitEncodedInt();
+		SpaceReserved	= (short)reader.Read7BitEncodedInt();
+		SpaceUsed		= (short)reader.Read7BitEncodedInt();
+
+		if(IsWeb(Address))
+		{
+			if(f.HasFlag(DomainFlag.Auction))
 			{
-				writer.Write(NtnChildNet);
-				writer.Write(NtnSelfHash);
+				FirstBidTime	= reader.Read<Time>();
+				LastWinner		= reader.Read<EntityId>();
+				LastBidTime		= reader.Read<Time>();
+				LastBid			= reader.Read7BitEncodedInt64();
 			}
+
+			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();
+			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<EntityId>();
+			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<EntityId>();
 		}
 
-		public void Cleanup(Round lastInCommit)
+		if(f.HasFlag(DomainFlag.Owned))
 		{
+			Owner		= reader.Read<EntityId>();
+			Expiration	= reader.Read<Time>();
 		}
 
-		public void ReadMain(BinaryReader reader)
+		if(IsChild(Address))
 		{
-			Id.E = reader.Read7BitEncodedInt();
-
-			var f			= (DomainFlag)reader.ReadByte();
-			Address			= reader.ReadUtf8();
-			NextResourceId	= reader.Read7BitEncodedInt();
-			SpaceReserved	= (short)reader.Read7BitEncodedInt();
-			SpaceUsed		= (short)reader.Read7BitEncodedInt();
-
-			if(IsWeb(Address))
-			{
-				if(f.HasFlag(DomainFlag.Auction))
-				{
-					FirstBidTime	= reader.Read<Time>();
-					LastWinner		= reader.Read<EntityId>();
-					LastBidTime		= reader.Read<Time>();
-					LastBid			= reader.Read7BitEncodedInt64();
-				}
-
-				if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();
-				if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<EntityId>();
-				if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<EntityId>();
-			}
-
-			if(f.HasFlag(DomainFlag.Owned))
-			{
-				Owner		= reader.Read<EntityId>();
-				Expiration	= reader.Read<Time>();
-			}
-
-			if(IsChild(Address))
-			{
-				ParentPolicy = (DomainChildPolicy)reader.ReadByte();
-			}
+			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
+		}
 
 // 			Resources = reader.Read(() =>	{ 
 // 												var a = new Resource();
@@ -154,20 +154,20 @@
 // 												return a;
 // 											}).ToArray();
 
-			if(f.HasFlag(DomainFlag.ChildNet))
-			{
-				NtnChildNet	= reader.Read<NtnState>();
-				NtnSelfHash = reader.ReadHash();
-			}
-		}
-
-		public void WriteMore(BinaryWriter w)
+		if(f.HasFlag(DomainFlag.ChildNet))
 		{
+			NtnChildNet	= reader.Read<NtnState>();
+			NtnSelfHash = reader.ReadHash();
 		}
+	}
 
-		public void ReadMore(BinaryReader r)
-		{
-		}
+	public void WriteMore(BinaryWriter w)
+	{
+	}
+
+	public void ReadMore(BinaryReader r)
+	{
+	}
 
 // 		public Resource AffectResource(string resource)
 // 		{
@@ -214,5 +214,4 @@
 // 			Resources = Resources.Where(i => i != resource).ToArray();
 // 			ResourcesCloned = true;
 // 		}
-	}
 }

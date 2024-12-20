@@ -1,111 +1,110 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+public class DomainRegistration : RdnOperation
 {
-	public class DomainRegistration : RdnOperation
+	public string				Address {get; set;}
+	public byte					Years {get; set;}
+	public AccountAddress		Owner  {get; set;}
+	public DomainChildPolicy	Policy {get; set;}
+
+	public override string		Description => $"{Address} for {Years} years";
+	
+	public DomainRegistration ()
 	{
-		public string				Address {get; set;}
-		public byte					Years {get; set;}
-		public AccountAddress		Owner  {get; set;}
-		public DomainChildPolicy	Policy {get; set;}
-
-		public override string		Description => $"{Address} for {Years} years";
+	}
+	
+	public override bool IsValid(Mcv mcv)
+	{ 
+		if(!Domain.Valid(Address))
+			return false;
 		
-		public DomainRegistration ()
+		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
+			return false;
+
+		return true;
+	}
+
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		Address	= reader.ReadUtf8();
+		Years = reader.ReadByte();
+
+		if(Domain.IsChild(Address))
 		{
+			Owner = reader.Read<AccountAddress>();
+			Policy	= (DomainChildPolicy)reader.ReadByte();
 		}
-		
-		public override bool IsValid(Mcv mcv)
-		{ 
-			if(!Domain.Valid(Address))
-				return false;
-			
-			if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
-				return false;
+	}
 
-			return true;
-		}
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.WriteUtf8(Address);
+		writer.Write(Years);
 
-		public override void ReadConfirmed(BinaryReader reader)
+		if(Domain.IsChild(Address))
 		{
-			Address	= reader.ReadUtf8();
-			Years = reader.ReadByte();
+			writer.Write(Owner);
+			writer.Write((byte)Policy);
+		}
+	}
 
-			if(Domain.IsChild(Address))
+	public override void Execute(RdnMcv mcv, RdnRound round)
+	{
+		var e = mcv.Domains.Find(Address, round.Id);
+
+		if(Domain.IsRoot(Address))
+		{
+			if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
 			{
-				Owner = reader.Read<AccountAddress>();
-				Policy	= (DomainChildPolicy)reader.ReadByte();
+				Error = NotAvailable;
+				return;
 			}
-		}
 
-		public override void WriteConfirmed(BinaryWriter writer)
-		{
-			writer.WriteUtf8(Address);
-			writer.Write(Years);
-
-			if(Domain.IsChild(Address))
-			{
-				writer.Write(Owner);
-				writer.Write((byte)Policy);
-			}
-		}
-
-		public override void Execute(RdnMcv mcv, RdnRound round)
-		{
-			var e = mcv.Domains.Find(Address, round.Id);
-
-			if(Domain.IsRoot(Address))
-			{
-				if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectDomain(Address);
-						
-				if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-					Transaction.BYReward += e.LastBid;
-								
-				e.SpaceReserved	= e.SpaceUsed;
-				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-				e.Owner			= Signer.Id;
-				e.LastWinner	= null;
-				e.LastBid		= 0;
-				e.LastBidTime	= Time.Empty;
-				e.FirstBidTime	= Time.Empty;
+			e = round.AffectDomain(Address);
+					
+			if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
+				Transaction.BYReward += e.LastBid;
 							
-				PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
-				PayForName(Address, Years);
-			}
-			else
+			e.SpaceReserved	= e.SpaceUsed;
+			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+			e.Owner			= Signer.Id;
+			e.LastWinner	= null;
+			e.LastBid		= 0;
+			e.LastBidTime	= Time.Empty;
+			e.FirstBidTime	= Time.Empty;
+						
+			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
+			PayForName(Address, Years);
+		}
+		else
+		{
+			var p = mcv.Domains.Find(Domain.GetParent(Address), round.Id);
+
+			if(e != null)
 			{
-				var p = mcv.Domains.Find(Domain.GetParent(Address), round.Id);
-
-				if(e != null)
-				{
-					Error = AlreadyExists;
-					return;
-				}
-
-				if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
-				{
-					Error = NotOwner;
-					return;
-				}
-
-				if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectDomain(Address);
-
-				e.Owner			= round.AffectAccount(Owner).Id;
-				e.ParentPolicy	= Policy;
-				e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
-
-				PayForName(new string(' ', Domain.NameLengthMax), Years);
+				Error = AlreadyExists;
+				return;
 			}
+
+			if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
+			{
+				Error = NotOwner;
+				return;
+			}
+
+			if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
+			{
+				Error = NotAvailable;
+				return;
+			}
+
+			e = round.AffectDomain(Address);
+
+			e.Owner			= round.AffectAccount(Owner).Id;
+			e.ParentPolicy	= Policy;
+			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+
+			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 	}
 }

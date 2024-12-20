@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-internal class LogCommand : McvCommand
+public class LogCommand : McvCommand
 {
 	public const string Keyword = "log";
 

@@ -1,96 +1,95 @@
-﻿namespace Uccs.Fair
+﻿namespace Uccs.Fair;
+
+public enum PublisherAction
 {
-	public enum PublisherAction
+	None, Renew, Transfer
+}
+
+public class AuthorUpdation : FairOperation
+{
+	public new EntityId			Id {get; set;}
+	public PublisherAction		Action  {get; set;}
+	public byte					Years {get; set;}
+	public AccountAddress		Owner  {get; set;}
+
+	//public bool				Exclusive => Publisher.IsWeb(Address); 
+	public override string		Description => $"{Id} for {Years} years";
+	
+	public AuthorUpdation()
 	{
-		None, Renew, Transfer
+	}
+	
+	public override bool IsValid(Mcv mcv)
+	{ 
+		if(!Enum.IsDefined(Action) || Action == PublisherAction.None) 
+			return false;
+		
+		if(	(Action == PublisherAction.Renew) && 
+			(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
+			return false;
+
+		return true;
 	}
 
-	public class AuthorUpdation : FairOperation
+	public override void ReadConfirmed(BinaryReader reader)
 	{
-		public new EntityId			Id {get; set;}
-		public PublisherAction		Action  {get; set;}
-		public byte					Years {get; set;}
-		public AccountAddress		Owner  {get; set;}
+		Id		= reader.Read<EntityId>();
+		Action	= (PublisherAction)reader.ReadByte();
 
-		//public bool				Exclusive => Publisher.IsWeb(Address); 
-		public override string		Description => $"{Id} for {Years} years";
+		if(Action == PublisherAction.Renew)
+			Years = reader.ReadByte();
+
+		if(Action == PublisherAction.Transfer)
+			Owner = reader.Read<AccountAddress>();
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write((byte)Action);
+
+		if(Action == PublisherAction.Renew)
+			writer.Write(Years);
+
+		if(Action == PublisherAction.Transfer)
+			writer.Write(Owner);
+	}
+
+	public override void Execute(FairMcv mcv, FairRound round)
+	{
+		var e = mcv.Authors.Find(Id, round.Id);
 		
-		public AuthorUpdation()
+		if(e == null)
 		{
-		}
-		
-		public override bool IsValid(Mcv mcv)
-		{ 
-			if(!Enum.IsDefined(Action) || Action == PublisherAction.None) 
-				return false;
-			
-			if(	(Action == PublisherAction.Renew) && 
-				(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
-				return false;
+			Error = NotFound;
+			return;
+		}			
 
-			return true;
-		}
-
-		public override void ReadConfirmed(BinaryReader reader)
-		{
-			Id		= reader.Read<EntityId>();
-			Action	= (PublisherAction)reader.ReadByte();
-
-			if(Action == PublisherAction.Renew)
-				Years = reader.ReadByte();
-
-			if(Action == PublisherAction.Transfer)
-				Owner = reader.Read<AccountAddress>();
-		}
-
-		public override void WriteConfirmed(BinaryWriter writer)
-		{
-			writer.Write(Id);
-			writer.Write((byte)Action);
-
-			if(Action == PublisherAction.Renew)
-				writer.Write(Years);
-
-			if(Action == PublisherAction.Transfer)
-				writer.Write(Owner);
-		}
-
-		public override void Execute(FairMcv mcv, FairRound round)
-		{
-			var e = mcv.Authors.Find(Id, round.Id);
-			
-			if(e == null)
+		if(Action == PublisherAction.Renew)
+		{	
+			if(!Author.CanRenew(e, Signer, round.ConsensusTime))
 			{
-				Error = NotFound;
+				Error = NotAvailable;
 				return;
-			}			
-
-			if(Action == PublisherAction.Renew)
-			{	
-				if(!Author.CanRenew(e, Signer, round.ConsensusTime))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectAuthor(Id);
-				e.SpaceReserved	= e.SpaceUsed;
-				e.Expiration = e.Expiration + Time.FromYears(Years);
-					
-				PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 			}
 
-			if(Action == PublisherAction.Transfer)
+			e = round.AffectAuthor(Id);
+			e.SpaceReserved	= e.SpaceUsed;
+			e.Expiration = e.Expiration + Time.FromYears(Years);
+				
+			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
+		}
+
+		if(Action == PublisherAction.Transfer)
+		{
+			if(!Author.IsOwner(e, Signer, round.ConsensusTime))
 			{
-				if(!Author.IsOwner(e, Signer, round.ConsensusTime))
-				{
-					Error = NotOwner;
-					return;
-				}
-
-				e = round.AffectAuthor(Id);
-				e.Owner	= round.AffectAccount(Owner).Id;
+				Error = NotOwner;
+				return;
 			}
+
+			e = round.AffectAuthor(Id);
+			e.Owner	= round.AffectAccount(Owner).Id;
 		}
 	}
 }

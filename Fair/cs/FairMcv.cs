@@ -1,93 +1,92 @@
 ﻿using System.Net;
 using RocksDbSharp;
 
-namespace Uccs.Fair
-{
-	public class FairMcv : Mcv
-	{
-		public AuthorTable		Authors;
-		public ProductTable		Products;
-		IPAddress[]				BaseIPs;
+namespace Uccs.Fair;
 
-		public FairMcv()
-		{
+public class FairMcv : Mcv
+{
+	public AuthorTable		Authors;
+	public ProductTable		Products;
+	IPAddress[]				BaseIPs;
+
+	public FairMcv()
+	{
   		}
 
-		public FairMcv(Fair net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
-		{
-		}
+	public FairMcv(Fair net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
+	{
+	}
 
-		public FairMcv(Fair sun, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(sun, settings, databasepath, clock)
-		{
-			BaseIPs = baseips;
-		}
+	public FairMcv(Fair sun, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(sun, settings, databasepath, clock)
+	{
+		BaseIPs = baseips;
+	}
 
-		public string CreateGenesis(AccountKey god, AccountKey f0)
-		{
-			return CreateGenesis(god, f0, new CandidacyDeclaration {BaseRdcIPs = [Net.Father0IP]});
-		}
+	public string CreateGenesis(AccountKey god, AccountKey f0)
+	{
+		return CreateGenesis(god, f0, new CandidacyDeclaration {BaseRdcIPs = [Net.Father0IP]});
+	}
 
-		public override string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
-		{
-			return base.CreateGenesis(god, f0, candidacydeclaration);
-		}
+	public override string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
+	{
+		return base.CreateGenesis(god, f0, candidacydeclaration);
+	}
 
-		protected override void GenesisInitilize(Round round)
-		{
-			#if IMMISSION
-			if(round.Id == 1)
-				(round as FairRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
-			#endif
-		}
+	protected override void GenesisInitilize(Round round)
+	{
+		#if IMMISSION
+		if(round.Id == 1)
+			(round as FairRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
+		#endif
+	}
 
-		protected override void CreateTables(string databasepath)
-		{
-			var dbo	= new DbOptions().SetCreateIfMissing(true)
-									.SetCreateMissingColumnFamilies(true);
+	protected override void CreateTables(string databasepath)
+	{
+		var dbo	= new DbOptions().SetCreateIfMissing(true)
+								.SetCreateMissingColumnFamilies(true);
 
-			var cfs = new ColumnFamilies();
-			
-			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
+		var cfs = new ColumnFamilies();
+		
+		if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
+		{	
+			foreach(var i in cfn)
 			{	
-				foreach(var i in cfn)
-				{	
-					cfs.Add(i, new ());
-				}
+				cfs.Add(i, new ());
 			}
-			else
-				cfs.Add(ChainFamilyName, new ());
-
-			Database = RocksDb.Open(dbo, databasepath, cfs);
-
-			Accounts = new (this);
-			Authors = new (this);
-			Products = new (this);
-
-			Tables = [Accounts, Authors, Products];
 		}
+		else
+			cfs.Add(ChainFamilyName, new ());
 
-		public override Round CreateRound()
-		{
-			return new FairRound(this);
-		}
+		Database = RocksDb.Open(dbo, databasepath, cfs);
 
-		public override Vote CreateVote()
-		{
-			return new Vote(this);
-		}
+		Accounts = new (this);
+		Authors = new (this);
+		Products = new (this);
 
-		public override Generator CreateGenerator()
-		{
-			return new Generator();
-		}
+		Tables = [Accounts, Authors, Products];
+	}
 
-		public override CandidacyDeclaration CreateCandidacyDeclaration()
-		{
-			return new CandidacyDeclaration {BaseRdcIPs	= BaseIPs};
-		}
+	public override Round CreateRound()
+	{
+		return new FairRound(this);
+	}
 
-		public override void FillVote(Vote vote)
-		{
-		}
+	public override Vote CreateVote()
+	{
+		return new Vote(this);
+	}
+
+	public override Generator CreateGenerator()
+	{
+		return new Generator();
+	}
+
+	public override CandidacyDeclaration CreateCandidacyDeclaration()
+	{
+		return new CandidacyDeclaration {BaseRdcIPs	= BaseIPs};
+	}
+
+	public override void FillVote(Vote vote)
+	{
 	}
 }

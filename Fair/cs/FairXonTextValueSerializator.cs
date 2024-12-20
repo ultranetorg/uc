@@ -1,24 +1,23 @@
-﻿namespace Uccs.Fair
+﻿namespace Uccs.Fair;
+
+public class FairXonTextValueSerializator : NetXonTextValueSerializator
 {
-	public class FairXonTextValueSerializator : NetXonTextValueSerializator
+	public new static readonly XonTextValueSerializator Default = new FairXonTextValueSerializator();
+
+	public override object Set(Xon node, object val)
 	{
-		public new static readonly XonTextValueSerializator Default = new FairXonTextValueSerializator();
-
-		public override object Set(Xon node, object val)
+		if(val == null)
 		{
-			if(val == null)
-			{
-				return null;
-			}
-
-			return base.Set(node, val);
+			return null;
 		}
 
-		public override object Get(Xon node, object value, Type type)
-		{
-			var v = value as string;
+		return base.Set(node, val);
+	}
 
-			return base.Get(node, value, type);
-		}
+	public override object Get(Xon node, object value, Type type)
+	{
+		var v = value as string;
+
+		return base.Get(node, value, type);
 	}
 }
