@@ -22,29 +22,29 @@ public class FairTcpPeering : McvTcpPeering
 {
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, Vault vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
- 			{	
- 				if(Enum.TryParse<FairPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
- 				{
- 					Codes[i] = (byte)c;
+ 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
+ 		{	
+ 			if(Enum.TryParse<FairPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+ 			{
+ 				Codes[i] = (byte)c;
 				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
+ 				Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
 																		var r = x.Invoke(null) as PeerRequest;
 																		r.Node = node;
 																		return r;
 																	};
- 				}
  			}
+ 		}
  	 
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
- 			{	
- 				if(Enum.TryParse<FairPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
- 				{
- 					Codes[i] = (byte)c;
+ 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+ 		{	
+ 			if(Enum.TryParse<FairPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+ 			{
+ 				Codes[i] = (byte)c;
 				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
- 				}
+ 				Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
  			}
+ 		}
 
 		Run();
 	}

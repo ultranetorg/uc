@@ -17,8 +17,8 @@
 		public Time					Time;
 		public byte[]				ParentHash;
 		public EntityId[]			MemberLeavers = [];
-		///public AccountAddress[]		FundJoiners = {};
-		///public AccountAddress[]		FundLeavers = {};
+		///public AccountAddress[]	FundJoiners = {};
+		///public AccountAddress[]	FundLeavers = {};
 		public EntityId[]			Violators = [];
 		public byte[][]				NntBlocks = [];
 		public Transaction[]		Transactions = [];

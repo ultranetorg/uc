@@ -98,6 +98,7 @@ namespace Uccs.Net
 			//if(t == typeof(PeerResponse) && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
 			//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
 			if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
+ 			if(t == typeof(Vote))			return new Vote(Mcv);
 
 // 			if(t == typeof(PeerRequest))		
 // 			{

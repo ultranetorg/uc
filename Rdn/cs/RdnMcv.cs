@@ -49,7 +49,7 @@ namespace Uccs.Rdn
 			if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
 			{	
 				foreach(var i in cfn)
-				{	
+				{
 					cfs.Add(i, new ());
 				}
 			}

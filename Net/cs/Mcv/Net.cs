@@ -24,7 +24,7 @@ namespace Uccs.Net
 	public enum KnownSystem
 	{
 		//Ntn = 010,
-		Rdn = 020,
+		Rdn	= 020,
 		Fair = 030,
 		Uos = 900,
 	}
@@ -42,9 +42,9 @@ namespace Uccs.Net
 		public ushort				NtnPort => (ushort)(Port + 1);
 
 		public IPAddress[]			Initials;
-		public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
+		public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();
 		public IPAddress[]			UOInitials = @"78.47.204.100 78.47.198.218 78.47.205.229 78.47.214.161 78.47.214.166 78.47.214.170 78.47.214.171 185.208.159.160 185.208.159.161 185.208.159.162 185.208.159.163 185.208.159.164 5.42.221.109 5.42.221.11 5.42.221.110 5.42.221.111 5.42.221.113 5.42.221.114 15.235.153.179 15.235.153.180 15.235.153.188 15.235.153.189 15.235.153.190 15.235.153.191 195.20.17.70 195.20.17.238 195.20.17.133 195.20.17.177 195.20.17.169 195.20.17.164 195.20.17.118 195.20.17.114 216.73.158.45 216.73.158.46 216.73.158.47 37.235.49.245 151.236.24.51 192.71.218.23 151.236.24.177 89.31.120.33 91.132.93.211 89.31.120.113 89.31.120.224 88.119.169.77 88.119.170.163 88.119.169.94 88.119.169.97 41.77.143.118 41.77.143.119 41.77.143.120 41.77.143.121 74.119.194.104 80.92.205.10 94.131.101.7 94.131.101.147 138.124.180.13 138.124.180.164 138.124.180.239"
-												.Split(new char[] {'\r', '\n', '\t', ' '}, StringSplitOptions.RemoveEmptyEntries)
+												.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
 												.Select(i => IPAddress.Parse(i))
 												.ToArray();
 

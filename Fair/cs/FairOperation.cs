@@ -10,7 +10,7 @@ public enum FairOperationClass
 
 	ChildNetInitialization,
 
-	AuthorRegistration, AuthorUpdation,
+	AuthorCreation, AuthorUpdation,
 	ProductCreation, ProductUpdation, ProductDeletion
 }
 

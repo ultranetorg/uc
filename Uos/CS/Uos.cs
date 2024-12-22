@@ -2,6 +2,7 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Uccs.Fair;
 using Uccs.Net;
 
 namespace Uccs.Uos
@@ -147,11 +148,26 @@ namespace Uccs.Uos
 
 		public McvNode RunNode(string net, Settings settings = null, IClock clock = null)
 		{
-			if(net == Net.Net.Root)
+			if(Rdn.Rdn.Official.FirstOrDefault(i => i.Address == net) is Rdn.Rdn rdn)
 			{
-				var f = Flow.CreateNested(nameof(Rdn), new Log());
+				var f = Flow.CreateNested(net, new Log());
 
-				var n = new RdnNode(Settings.Name, Settings.RootRdn, Settings.Profile, settings as RdnNodeSettings, Settings.Packages, Vault, clock, f);
+				var n = new RdnNode(Settings.Name, rdn, Settings.Profile, settings as RdnNodeSettings, Settings.Packages, Vault, clock, f);
+
+				Nodes.Add(new NodeInstance {Net = net,
+											Api = n.Settings.Api,
+											Node = n});
+
+				NodeStarted?.Invoke(n);
+
+				return n;
+			}
+
+			if(Fair.Fair.Official.FirstOrDefault(i => i.Address == net) is Fair.Fair fair)
+			{
+				var f = Flow.CreateNested(net, new Log());
+
+				var n = new FairNode(Settings.Name, fair, Settings.Profile, settings as FairNodeSettings, Vault, clock, f);
 
 				Nodes.Add(new NodeInstance {Net = net,
 											Api = n.Settings.Api,
