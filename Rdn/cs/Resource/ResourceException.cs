@@ -1,4 +1,1 @@
-﻿namespace Uccs.Rdn
-{
-
-}
+﻿namespace Uccs.Rdn;

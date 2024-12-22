@@ -1,9 +1,5 @@
-﻿using System.Net;
-using System.Reflection;
-using Uccs.Net;
+﻿namespace Uccs.Uos;
 
-namespace Uccs.Uos
-{
 // 	public class RunIcnApc
 // 	{
 // 	}
@@ -33,4 +29,3 @@ namespace Uccs.Uos
 // 	{
 // 		public AprvAddress	Package { get; set; }
 // 	}
-}

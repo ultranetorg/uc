@@ -2,218 +2,218 @@ using System.Net;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Uccs.Rdn
+namespace Uccs.Rdn;
+
+[JsonDerivedType(typeof(FileDownloadProgress),		typeDiscriminator: "FileDownloadProgress")]
+[JsonDerivedType(typeof(ReleaseDownloadProgress),	typeDiscriminator: "ReleaseDownloadProgress")]
+[JsonDerivedType(typeof(PackageDownloadProgress),	typeDiscriminator: "PackageDownloadProgress")]
+[JsonDerivedType(typeof(DeploymentProgress),		typeDiscriminator: "DeploymentProgress")]
+public class ResourceActivityProgress
 {
-	[JsonDerivedType(typeof(FileDownloadProgress),		typeDiscriminator: "FileDownloadProgress")]
-	[JsonDerivedType(typeof(ReleaseDownloadProgress),	typeDiscriminator: "ReleaseDownloadProgress")]
-	[JsonDerivedType(typeof(PackageDownloadProgress),	typeDiscriminator: "PackageDownloadProgress")]
-	[JsonDerivedType(typeof(DeploymentProgress),		typeDiscriminator: "DeploymentProgress")]
-	public class ResourceActivityProgress
-	{
-	}
-	
-	public class LocalResourceAddApc : RdnApc
-	{
-		public Ura		Address { get; set; }
+}
 
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+public class LocalResourceAddApc : RdnApc
+{
+	public Ura		Address { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
 		{
-			lock(sun.ResourceHub.Lock)
-			{
-				sun.ResourceHub.Add(Address);
-			}
-
-			return null;
+			sun.ResourceHub.Add(Address);
 		}
+
+		return null;
 	}
+}
 
-	public class ResourceDownloadApc : RdnApc
+public class ResourceDownloadApc : RdnApc
+{
+	public ResourceIdentifier	Identifier { get; set; }
+	public string				LocalPath { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public ResourceIdentifier	Identifier { get; set; }
-		public string				LocalPath { get; set; }
+		var r = sun.Peering.Call(() => new ResourceRequest(Identifier), workflow).Resource;
 
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			var r = sun.Peering.Call(() => new ResourceRequest(Identifier), workflow).Resource;
+		IIntegrity itg;
 
-			IIntegrity itg;
+		var urr = r.Data.Parse<Urr>();
 
-			var urr = r.Data.Parse<Urr>();
+		switch(urr)
+		{ 
+			case Urrh a :
+				itg = new DHIntegrity(a.Hash); 
+				break;
 
-			switch(urr)
-			{ 
-				case Urrh a :
-					itg = new DHIntegrity(a.Hash); 
-					break;
-
-				case Urrsd a :
-					///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
-					///.itg = new SPDIntegrity(sun.Net.Cryptography, a, au.Owner);
-					throw new NotSupportedException();
-					
-				default:
-					throw new ResourceException(ResourceError.NotSupportedDataType);
-			};
-
-			lock(sun.ResourceHub.Lock)
-			{
-				var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
-				lrs.AddData(r.Data);
-
-				var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr);
-
-				if(r.Data.Type.Control == DataType.File)
-				{
-					sun.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
-					return r;
-				}
-				else if(r.Data.Type.Control == DataType.Directory)
-				{
-					sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
-					return r;
-				}
-				else
-					throw new ResourceException(ResourceError.NotSupportedDataType);
-			}
-		}
-	}
-
-	public class LocalReleaseBuildApc : RdnApc
-	{
-		public IEnumerable<string>		Sources { get; set; }
-		public string					Source { get; set; }
-		public ReleaseAddressCreator	AddressCreator { get; set; }
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{
-				if(Source != null)
-					return new LocalReleaseApe(sun.ResourceHub.Add(Source, AddressCreator, workflow));
-				else if(Sources != null && Sources.Any())
-					return new LocalReleaseApe(sun.ResourceHub.Add(Sources, AddressCreator, workflow));
-			}
-
-			return null;
-		}
-	}
-	
-	public class LocalReleaseAddApc : RdnApc
-	{
-		public Ura			Resource { get; set; }
-		public ResourceData	Data  { get; set; }
-		public Urr			Release { get; set; }
-		public byte[]		Content { get; set; }
-		public string		Path  { get; set; }
-		public string		LocalPath  { get; set; }
-		public Availability	Availability { get; set; } = Availability.Full;
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{
-				var rc = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
-				rc.AddData(Data);
-
-				if(Release != null)
-				{
-					var rl = sun.ResourceHub.Find(Release);
-					
-					if(rl == null)
-					{
-						rl = sun.ResourceHub.Add(Release);
-						rl.AddCompleted(Path, LocalPath, Content);
-						rl.Complete(Availability);
-					}
-				}
-			}
-
-			return null;
-		}
-	}
-
-	public class LocalResourceUpdateApc : RdnApc
-	{
-		public Ura				Address { get; set; }
-		public ResourceId		Id { get; set; }
-		public ResourceData		Data { get; set; }
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{
-				var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+			case Urrsd a :
+				///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
+				///.itg = new SPDIntegrity(sun.Net.Cryptography, a, au.Owner);
+				throw new NotSupportedException();
 				
-				if(Id != null)
-				{
-					r.Id = Id;
-				}
+			default:
+				throw new ResourceException(ResourceError.NotSupportedDataType);
+		};
+
+		lock(sun.ResourceHub.Lock)
+		{
+			var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
+			lrs.AddData(r.Data);
+
+			var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr);
+
+			if(r.Data.Type.Control == DataType.File)
+			{
+				sun.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
+				return r;
+			}
+			else if(r.Data.Type.Control == DataType.Directory)
+			{
+				sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
+				return r;
+			}
+			else
+				throw new ResourceException(ResourceError.NotSupportedDataType);
+		}
+	}
+}
+
+public class LocalReleaseBuildApc : RdnApc
+{
+	public IEnumerable<string>		Sources { get; set; }
+	public string					Source { get; set; }
+	public ReleaseAddressCreator	AddressCreator { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{
+			if(Source != null)
+				return new LocalReleaseApe(sun.ResourceHub.Add(Source, AddressCreator, workflow));
+			else if(Sources != null && Sources.Any())
+				return new LocalReleaseApe(sun.ResourceHub.Add(Sources, AddressCreator, workflow));
+		}
+
+		return null;
+	}
+}
+
+public class LocalReleaseAddApc : RdnApc
+{
+	public Ura			Resource { get; set; }
+	public ResourceData	Data  { get; set; }
+	public Urr			Release { get; set; }
+	public byte[]		Content { get; set; }
+	public string		Path  { get; set; }
+	public string		LocalPath  { get; set; }
+	public Availability	Availability { get; set; } = Availability.Full;
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{
+			var rc = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
+			rc.AddData(Data);
+
+			if(Release != null)
+			{
+				var rl = sun.ResourceHub.Find(Release);
 				
-				if(Data != null)
+				if(rl == null)
 				{
-					r.AddData(Data);
+					rl = sun.ResourceHub.Add(Release);
+					rl.AddCompleted(Path, LocalPath, Content);
+					rl.Complete(Availability);
 				}
 			}
-
-			return null;
 		}
+
+		return null;
 	}
-	
-	public class LocalReleaseActivityProgressApc : RdnApc
+}
+
+public class LocalResourceUpdateApc : RdnApc
+{
+	public Ura				Address { get; set; }
+	public ResourceId		Id { get; set; }
+	public ResourceData		Data { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public Urr Release { get; set; }
-		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		lock(sun.ResourceHub.Lock)
 		{
-			lock(sun.ResourceHub.Lock)
+			var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+			
+			if(Id != null)
 			{
-				var r = sun.ResourceHub.Find(Release);
-
-				if(r.Activity is FileDownload f)
-				{
-					var s = new ReleaseDownloadProgress(f.Seeker);
-	
-					s.Succeeded	= f.Succeeded;
-					s.CurrentFiles = [new FileDownloadProgress(f)];
-	
-					return s;
-				}
-				else if(r.Activity is DirectoryDownload d)
-				{
-					var s = new ReleaseDownloadProgress(d.SeedSeeker);
-	
-					s.Succeeded	= d.Succeeded;
-					s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();
-	
-					return s;
-				}
-				else
-					return null;
+				r.Id = Id;
+			}
+			
+			if(Data != null)
+			{
+				r.AddData(Data);
 			}
 		}
+
+		return null;
 	}
+}
+
+public class LocalReleaseActivityProgressApc : RdnApc
+{
+	public Urr Release { get; set; }
 	
-	public class LocalReleaseReadApc : RdnApc
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public Urr			Address { get; set; }
-		public string		Path  { get; set; }
-		public long			Offset  { get; set; } = 0;
-		public long			Length  { get; set; } = -1;
-
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		lock(sun.ResourceHub.Lock)
 		{
-			lock(sun.ResourceHub.Lock)
+			var r = sun.ResourceHub.Find(Release);
+
+			if(r.Activity is FileDownload f)
 			{
-				var rc = sun.ResourceHub.Find(Address);
+				var s = new ReleaseDownloadProgress(f.Seeker);
 
-				if(rc == null)
-					throw new ResourceException(ResourceError.NotFound);
+				s.Succeeded	= f.Succeeded;
+				s.CurrentFiles = [new FileDownloadProgress(f)];
 
-				return rc.Find(Path).Read();
+				return s;
 			}
+			else if(r.Activity is DirectoryDownload d)
+			{
+				var s = new ReleaseDownloadProgress(d.SeedSeeker);
+
+				s.Succeeded	= d.Succeeded;
+				s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();
+
+				return s;
+			}
+			else
+				return null;
 		}
 	}
-	
+}
+
+public class LocalReleaseReadApc : RdnApc
+{
+	public Urr			Address { get; set; }
+	public string		Path  { get; set; }
+	public long			Offset  { get; set; } = 0;
+	public long			Length  { get; set; } = -1;
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{
+			var rc = sun.ResourceHub.Find(Address);
+
+			if(rc == null)
+				throw new ResourceException(ResourceError.NotFound);
+
+			return rc.Find(Path).Read();
+		}
+	}
+}
+
 // 	public class ResourceEntityCall : SunApiCall
 // 	{
 // 		public ResourceAddress	Resource { get; set; }
@@ -231,58 +231,58 @@ namespace Uccs.Rdn
 // 			}
 // 		}
 // 	}
-		
-	public class LocalResourcesSearchApc : RdnApc
-	{
-		public string	Query { get; set; }
-		public int		Skip { get; set; } = 0;
-		public int		Take { get; set; } = int.MaxValue;
-		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{	
-				return (Query == null ? sun.ResourceHub.Resources : sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
-			}
-		}
-	}
 	
-	public class LocalResourceApc : RdnApc
-	{
-		public Ura		Address { get; set; }
-		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{	
-				return sun.ResourceHub.Resources.Find(i => i.Address == Address);
-			}
-		}
-	}
-
-	public class LocalReleaseApe
-	{
-		public Urr				Address { get; set; }
-		public Generator[]			DeclaredOn { get; set; }
-		public Availability		Availability { get; set; }
-		//public File[]			Files { get; set; }
-
-		public LocalReleaseApe()
-		{
-		}
-
-		public LocalReleaseApe(LocalRelease release)
-		{
-			Address		= release.Address;
-			DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
-			Availability= release.Availability;
-			//Files		= release.Files.Select(i => new File(i)).ToArray();
-		}
-	}
+public class LocalResourcesSearchApc : RdnApc
+{
+	public string	Query { get; set; }
+	public int		Skip { get; set; } = 0;
+	public int		Take { get; set; } = int.MaxValue;
 	
-	public class LocalReleaseApc : RdnApc
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public Urr		Address { get; set; }
+		lock(sun.ResourceHub.Lock)
+		{	
+			return (Query == null ? sun.ResourceHub.Resources : sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
+		}
+	}
+}
+
+public class LocalResourceApc : RdnApc
+{
+	public Ura		Address { get; set; }
+	
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{	
+			return sun.ResourceHub.Resources.Find(i => i.Address == Address);
+		}
+	}
+}
+
+public class LocalReleaseApe
+{
+	public Urr				Address { get; set; }
+	public Generator[]			DeclaredOn { get; set; }
+	public Availability		Availability { get; set; }
+	//public File[]			Files { get; set; }
+
+	public LocalReleaseApe()
+	{
+	}
+
+	public LocalReleaseApe(LocalRelease release)
+	{
+		Address		= release.Address;
+		DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
+		Availability= release.Availability;
+		//Files		= release.Files.Select(i => new File(i)).ToArray();
+	}
+}
+
+public class LocalReleaseApc : RdnApc
+{
+	public Urr		Address { get; set; }
 
 // 		public class File
 // 		{
@@ -315,15 +315,14 @@ namespace Uccs.Rdn
 // 			}
 // 		}
 
-		
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{	
-				var r = sun.ResourceHub.Find(Address);
+	
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{	
+			var r = sun.ResourceHub.Find(Address);
 
-				return r != null ? new LocalReleaseApe(r) : null;
-			}
+			return r != null ? new LocalReleaseApe(r) : null;
 		}
 	}
 }

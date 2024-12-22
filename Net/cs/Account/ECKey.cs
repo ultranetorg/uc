@@ -10,12 +10,12 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
 
 
-namespace Uccs.Net
-{
-	/// <summary>
-	///     ECKey based on the implementation of bitcoinj, NBitcoin
-	/// </summary>
-	public class ECKey
+namespace Uccs.Net;
+
+/// <summary>
+///     ECKey based on the implementation of bitcoinj, NBitcoin
+/// </summary>
+public class ECKey
     {
         public static readonly BigInteger HALF_CURVE_ORDER;
         public static readonly BigInteger CURVE_ORDER;
@@ -523,5 +523,3 @@ public static unsafe bool Compare128(byte* b0, byte* b1, int length)
             _buffer = _buffer.Concat(buf).ToArray();
         }
     }
-
-}

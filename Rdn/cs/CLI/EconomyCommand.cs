@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Uccs.Rdn.CLI;
+﻿namespace Uccs.Rdn.CLI;
 
 public class EconomyCommand : RdnCommand
 {

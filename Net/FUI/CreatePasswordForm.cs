@@ -1,45 +1,44 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Uccs.Net.FUI
+namespace Uccs.Net.FUI;
+
+public partial class CreatePasswordForm : Form
 {
-	public partial class CreatePasswordForm : Form
+	public string Password => password.Text;
+	
+	public CreatePasswordForm()
 	{
-		public string Password => password.Text;
-		
-		public CreatePasswordForm()
-		{
-			InitializeComponent();
+		InitializeComponent();
 
-			suggestions.Text = string.Join(Environment.NewLine + Environment.NewLine, Vault.PasswordWarning.Select(i => "      " + i));
+		suggestions.Text = string.Join(Environment.NewLine + Environment.NewLine, Vault.PasswordWarning.Select(i => "      " + i));
+	}
+
+	private void cancel_Click(object sender, EventArgs e)
+	{
+		DialogResult = DialogResult.Cancel;
+		Close();
+	}
+
+	private void ok_Click(object sender, EventArgs e)
+	{
+		if(string.IsNullOrWhiteSpace(password.Text) || string.IsNullOrWhiteSpace(passwordConfirm.Text))
+		{
+			MessageBox.Show(this, "Please fill out both fields", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
-
-		private void cancel_Click(object sender, EventArgs e)
+		else if(password.Text != passwordConfirm.Text)
 		{
-			DialogResult = DialogResult.Cancel;
+			MessageBox.Show(this, "Password mismatch", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		} 
+		else
+		{
+			DialogResult = DialogResult.OK;
 			Close();
 		}
+	}
 
-		private void ok_Click(object sender, EventArgs e)
-		{
-			if(string.IsNullOrWhiteSpace(password.Text) || string.IsNullOrWhiteSpace(passwordConfirm.Text))
-			{
-				MessageBox.Show(this, "Please fill out both fields", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-			else if(password.Text != passwordConfirm.Text)
-			{
-				MessageBox.Show(this, "Password mismatch", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			} 
-			else
-			{
-				DialogResult = DialogResult.OK;
-				Close();
-			}
-		}
-
-		protected override void OnClosing(CancelEventArgs e)
-		{
-			base.OnClosing(e);
-		}
+	protected override void OnClosing(CancelEventArgs e)
+	{
+		base.OnClosing(e);
 	}
 }

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public class BandwidthCommand : McvCommand
 {

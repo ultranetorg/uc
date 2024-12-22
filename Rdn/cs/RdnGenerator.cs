@@ -1,54 +1,52 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 
-namespace Uccs.Rdn
+namespace Uccs.Rdn;
+
+public class RdnGenerator : Generator
 {
-	public class RdnGenerator : Generator
-	{
-		public IPAddress[]		SeedHubRdcIPs { get; set; } = [];
+	public IPAddress[]		SeedHubRdcIPs { get; set; } = [];
 
-		public override string ToString()
-		{
-			return $"{base.ToString()}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
-		}
-	
+	public override string ToString()
+	{
+		return $"{base.ToString()}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
+	}
+
   		public override void WriteMember(BinaryWriter writer)
  		{
-			base.WriteMember(writer);
-			
-			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+		base.WriteMember(writer);
+		
+		writer.Write(SeedHubRdcIPs, i => writer.Write(i));
  		}
  
  		public override void ReadMember(BinaryReader reader)
  		{
-			base.ReadMember(reader);
+		base.ReadMember(reader);
 
-			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
-		}
-	
+		SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+	}
+
   		public override void WriteCandidate(BinaryWriter writer)
  		{
-			base.WriteCandidate(writer);
-			
-			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+		base.WriteCandidate(writer);
+		
+		writer.Write(SeedHubRdcIPs, i => writer.Write(i));
  		}
  
  		public override void ReadCandidate(BinaryReader reader)
  		{
-			base.ReadCandidate(reader);
+		base.ReadCandidate(reader);
 
-			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
-		}
+		SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+	}
 
-		public override Generator Clone()
-		{
-			var g = new RdnGenerator();
+	public override Generator Clone()
+	{
+		var g = new RdnGenerator();
 
-			g.SeedHubRdcIPs = SeedHubRdcIPs;
+		g.SeedHubRdcIPs = SeedHubRdcIPs;
 
-			Clone(g);
+		Clone(g);
 
-			return g;
-		}
+		return g;
 	}
 }

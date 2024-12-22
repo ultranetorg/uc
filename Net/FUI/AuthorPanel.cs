@@ -1,35 +1,35 @@
 ﻿using System.Windows.Forms;
 using Uccs.Rdn;
 
-namespace Uccs.Net.FUI
+namespace Uccs.Net.FUI;
+
+public partial class DomainPanel : MainPanel
 {
-	public partial class DomainPanel : MainPanel
+	public DomainPanel(RdnNode mcv)
 	{
-		public DomainPanel(RdnNode mcv)
-		{
-			InitializeComponent();
+		InitializeComponent();
 
-			Years.Maximum = 10;
-			AuctionStatus.Text = null;
-			RegistrationStatus.Text = null;
+		Years.Maximum = 10;
+		AuctionStatus.Text = null;
+		RegistrationStatus.Text = null;
+	}
+
+	public override void Open(bool first)
+	{
+		if(first)
+		{
+		//	BindAccounts(RegisrationSigner);
+		//	BindAccounts(AuctionSigner);
+		//
+		//	DomainTitle_TextChanged(null, null);
+		//
+		//	Fields.Text = null;
+		//	Values.Text = null;
 		}
+	}
 
-		public override void Open(bool first)
-		{
-			if(first)
-			{
-			//	BindAccounts(RegisrationSigner);
-			//	BindAccounts(AuctionSigner);
-			//
-			//	DomainTitle_TextChanged(null, null);
-			//
-			//	Fields.Text = null;
-			//	Values.Text = null;
-			}
-		}
-
-		private void Search_Click(object sender, EventArgs e)
-		{
+	private void Search_Click(object sender, EventArgs e)
+	{
 // 			Fields.Text = null;
 // 			Values.Text = null;
 // 
@@ -69,106 +69,106 @@ namespace Uccs.Net.FUI
 // 			{
 // 				Fields.Text = "Error : " + ex.Message;
 // 			}
-		}
+	}
 
-		void Switch(GroupBox group)
+	void Switch(GroupBox group)
+	{
+		group.Location = Registration.Location;
+		
+		if(group == Auction)
 		{
-			group.Location = Registration.Location;
-			
-			if(group == Auction)
-			{
-				group.Visible = true;
-			}
-			else if(group == Registration)
-			{
-				DomainTitle.Text = DomainSearch.Text;
-				DomainName_TextChanged(null, EventArgs.Empty);
-				group.Visible = true;
-			}
-			else if(group == Transfering)
-			{ 
-				group.Visible = true;
-			}
+			group.Visible = true;
 		}
+		else if(group == Registration)
+		{
+			DomainTitle.Text = DomainSearch.Text;
+			DomainName_TextChanged(null, EventArgs.Empty);
+			group.Visible = true;
+		}
+		else if(group == Transfering)
+		{ 
+			group.Visible = true;
+		}
+	}
 
-		private void DomainSearch_KeyDown(object sender, KeyEventArgs e)
-		{
-			if(e.KeyCode == Keys.Enter)
-				Search_Click(sender, e);
-		}
+	private void DomainSearch_KeyDown(object sender, KeyEventArgs e)
+	{
+		if(e.KeyCode == Keys.Enter)
+			Search_Click(sender, e);
+	}
 
 /*
-		private void search_Click(object sender, EventArgs e)
+	private void search_Click(object sender, EventArgs e)
+	{
+		Account a = null;
+
+		try
 		{
-			Account a = null;
+			a = Account.Parse(DomainSearch.Text.ToString());
+		}
+		catch(Exception ex)
+		{
+			ShowError(ex.Message);
+			return;
+		}
 
-			try
+		Domains.Items.Clear();
+		
+		lock(Core.Lock)
+		{
+			foreach(var i in FindDomains(a))
 			{
-				a = Account.Parse(DomainSearch.Text.ToString());
-			}
-			catch(Exception ex)
-			{
-				ShowError(ex.Message);
-				return;
-			}
+				var ar = i.LastRegistrationOperation;
 
-			Domains.Items.Clear();
+				var li = new ListViewItem(ar.Domain);
+				li.Tag = ar;
+				li.SubItems.Add(ar.Title);
+				li.SubItems.Add(ar != null ? new AdmsTime(ar.Transaction.Payload.Round.Time.Ticks + ar.Years * AdmsTime.TicksPerYear).ToString(Core.DateFormat) : null);
 			
-			lock(Core.Lock)
-			{
-				foreach(var i in FindDomains(a))
-				{
-					var ar = i.LastRegistrationOperation;
-
-					var li = new ListViewItem(ar.Domain);
-					li.Tag = ar;
-					li.SubItems.Add(ar.Title);
-					li.SubItems.Add(ar != null ? new AdmsTime(ar.Transaction.Payload.Round.Time.Ticks + ar.Years * AdmsTime.TicksPerYear).ToString(Core.DateFormat) : null);
-				
-					Domains.Items.Add(li);
-				}
-			}
-		}*/
-
-		private void DomainTitle_TextChanged(object sender, EventArgs e)
-		{
-			if(DomainTitle.Text.Length > 0)
-			{
-				///DomainSearch.Text = Operation.TitleToName(DomainTitle.Text);
+				Domains.Items.Add(li);
 			}
 		}
+	}*/
 
-		private void DomainName_TextChanged(object sender, EventArgs e)
+	private void DomainTitle_TextChanged(object sender, EventArgs e)
+	{
+		if(DomainTitle.Text.Length > 0)
 		{
-			RegistrationStatus.Text = null;
-
-			//lock(Node.Lock)
-			{
-				//Cost.Coins = DomainRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
-			}
+			///DomainSearch.Text = Operation.TitleToName(DomainTitle.Text);
 		}
+	}
 
-		private void Register_Click(object sender, EventArgs e)
+	private void DomainName_TextChanged(object sender, EventArgs e)
+	{
+		RegistrationStatus.Text = null;
+
+		//lock(Node.Lock)
 		{
-			//try
-			//{
-			//	if(!Domain.Valid(DomainSearch.Text))
-			//		throw new ArgumentException("Invalid domain name");
-			//
-			//	var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
-			//
-			//	Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
-			//}
-			//catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
-			//{
-			//	ShowError(ex.Message);
-			//}
-
-			throw new NotImplementedException();
+			//Cost.Coins = DomainRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 		}
+	}
 
-		private void AuctionDomain_TextChanged(object sender, EventArgs e)
-		{
+	private void Register_Click(object sender, EventArgs e)
+	{
+		//try
+		//{
+		//	if(!Domain.Valid(DomainSearch.Text))
+		//		throw new ArgumentException("Invalid domain name");
+		//
+		//	var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
+		//
+		//	Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
+		//}
+		//catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
+		//{
+		//	ShowError(ex.Message);
+		//}
+
+		throw new NotImplementedException();
+	}
+
+	private void AuctionDomain_TextChanged(object sender, EventArgs e)
+	{
 // 			AuctionStatus.Text = null;
 // 
 // 			if(Domain.IsWeb(DomainSearch.Text))
@@ -189,11 +189,11 @@ namespace Uccs.Net.FUI
 // 			//else
 // 			//	AuctionStatus.Text = $"Domain name must be less than {DomainEntry.ExclusiveLengthMax} characters"; 
 
-			throw new NotImplementedException();
-		}
+		throw new NotImplementedException();
+	}
 
-		private void Transfer_Click(object sender, EventArgs e)
-		{
+	private void Transfer_Click(object sender, EventArgs e)
+	{
 // 			try
 // 			{
 // 				if(string.IsNullOrWhiteSpace(DomainSearch.Text))
@@ -207,11 +207,11 @@ namespace Uccs.Net.FUI
 // 			{
 // 				ShowError(ex.Message);
 // 			}
-			throw new NotImplementedException();
-		}
+		throw new NotImplementedException();
+	}
 
-		private void MakeBid_Click(object sender, EventArgs e)
-		{
+	private void MakeBid_Click(object sender, EventArgs e)
+	{
 // 			try
 // 			{
 // 				var s = GetPrivate(AuctionSigner.SelectedItem as AccountAddress);
@@ -225,6 +225,5 @@ namespace Uccs.Net.FUI
 // 			{
 // 				ShowError(ex.Message);
 // 			}
-		}
 	}
 }

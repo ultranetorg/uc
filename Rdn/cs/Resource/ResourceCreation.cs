@@ -1,48 +1,48 @@
-namespace Uccs.Rdn
+namespace Uccs.Rdn;
+
+public class ResourceCreation : RdnOperation
 {
-	public class ResourceCreation : RdnOperation
+	public Ura					Address { get; set; }
+	public ResourceChanges		Changes { get; set; }
+	public ResourceData			Data { get; set; }
+
+	public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
+													(!Changes.HasFlag(ResourceChanges.NullData));
+	public override string		Description => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+
+	public ResourceCreation()
 	{
-		public Ura					Address { get; set; }
-		public ResourceChanges		Changes { get; set; }
-		public ResourceData			Data { get; set; }
+	}
 
-		public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
-														(!Changes.HasFlag(ResourceChanges.NullData));
-		public override string		Description => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+	public ResourceCreation(Ura resource, ResourceData data, bool seal)
+	{
+		Address = resource;
+		Data = data;
 
-		public ResourceCreation()
-		{
-		}
+		if(Data != null)	Changes |= ResourceChanges.SetData;
+		if(seal)			Changes |= ResourceChanges.Seal;
+	}
 
-		public ResourceCreation(Ura resource, ResourceData data, bool seal)
-		{
-			Address = resource;
-			Data = data;
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		Address	= reader.Read<Ura>();
+		Changes	= (ResourceChanges)reader.ReadByte();
 
-			if(Data != null)	Changes |= ResourceChanges.SetData;
-			if(seal)			Changes |= ResourceChanges.Seal;
-		}
+		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
+	}
 
-		public override void ReadConfirmed(BinaryReader reader)
-		{
-			Address	= reader.Read<Ura>();
-			Changes	= (ResourceChanges)reader.ReadByte();
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Address);
+		writer.Write((byte)Changes);
 
-			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
-		}
+		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
+	}
 
-		public override void WriteConfirmed(BinaryWriter writer)
-		{
-			writer.Write(Address);
-			writer.Write((byte)Changes);
-
-			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
-		}
-
-		public override void Execute(RdnMcv mcv, RdnRound round)
-		{
-			if(RequireSignerDomain(round, Address.Domain, out var d) == false)
-				return;
+	public override void Execute(RdnMcv mcv, RdnRound round)
+	{
+		if(RequireSignerDomain(round, Address.Domain, out var d) == false)
+			return;
 
 // 			var s = round.Mcv.Sites.Find(d.Id, round.Id);
 // 
@@ -52,34 +52,33 @@ namespace Uccs.Rdn
 // 				return;
 // 			}
 
-			var r = round.Mcv.Resources.Find(Address, round.Id);
-					
-			if(r != null)
-			{
-				Error = AlreadyExists;
-				return;
-			}
+		var r = round.Mcv.Resources.Find(Address, round.Id);
+				
+		if(r != null)
+		{
+			Error = AlreadyExists;
+			return;
+		}
 
-			r = round.AffectResource(d, Address.Resource);
+		r = round.AffectResource(d, Address.Resource);
 
-			if(Changes.HasFlag(ResourceChanges.SetData))
-			{
-				r.Data		= Data;
-				r.Flags		|= ResourceFlags.Data;
-				r.Updated	= round.ConsensusTime;
-			}
+		if(Changes.HasFlag(ResourceChanges.SetData))
+		{
+			r.Data		= Data;
+			r.Flags		|= ResourceFlags.Data;
+			r.Updated	= round.ConsensusTime;
+		}
 
-			if(Changes.HasFlag(ResourceChanges.Seal))
-			{
-				r.Flags	|= ResourceFlags.Sealed;
+		if(Changes.HasFlag(ResourceChanges.Seal))
+		{
+			r.Flags	|= ResourceFlags.Sealed;
 
-				PayForSpacetime(r.Length, Mcv.Forever);
-			}
-			else
-			{	
-				d = round.AffectDomain(d.Id);
-				Allocate(round, d, r.Length);
-			}
+			PayForSpacetime(r.Length, Mcv.Forever);
+		}
+		else
+		{	
+			d = round.AffectDomain(d.Id);
+			Allocate(round, d, r.Length);
 		}
 	}
 }

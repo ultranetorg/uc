@@ -1,66 +1,65 @@
 ﻿using System.Net;
 
-namespace Uccs.Net
+namespace Uccs.Net;
+
+public class CandidacyDeclaration : Operation
 {
-	public class CandidacyDeclaration : Operation
+	public IPAddress[]		BaseRdcIPs;
+
+	public override string	Description => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
+			
+	protected Generator		Affected;
+
+	public CandidacyDeclaration()
 	{
-		public IPAddress[]		BaseRdcIPs;
+	}
 
-		public override string	Description => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
-				
-		protected Generator		Affected;
+	public override bool IsValid(Mcv mcv) => true;
 
-		public CandidacyDeclaration()
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		BaseRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(BaseRdcIPs, i => writer.Write(i));
+	}
+
+	public override void Execute(Mcv mcv, Round round)
+	{
+		if(round.Members.Any(i => i.Id == Signer.Id))
 		{
+			Error = "Already member";
+			return;
 		}
 
-		public override bool IsValid(Mcv mcv) => true;
+		var c = round.Candidates.Find(i => i.Id == Signer.Id);
 
-		public override void ReadConfirmed(BinaryReader reader)
+		if(c != null)
 		{
-			BaseRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
+			Error = "Already registered";
+			return;
 		}
 
-		public override void WriteConfirmed(BinaryWriter writer)
+		if(Signer.GetECBalance(round.ConsensusTime) < mcv.Net.DeclarationCost)
 		{
-			writer.Write(BaseRdcIPs, i => writer.Write(i));
+			Error = NotEnoughEC;
+			return;
 		}
 
-		public override void Execute(Mcv mcv, Round round)
+		Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
+
+		Affected = round.AffectCandidate(Signer.Id);
+		
+		Affected.Id			= Signer.Id;
+		Affected.Address	= Signer.Address;
+		Affected.BaseRdcIPs	= BaseRdcIPs;
+		Affected.Registered	= round.Id;
+		
+		if(round.Candidates.Count >= mcv.Net.CandidatesMaximum)
 		{
-			if(round.Members.Any(i => i.Id == Signer.Id))
-			{
-				Error = "Already member";
-				return;
-			}
-
-			var c = round.Candidates.Find(i => i.Id == Signer.Id);
-
-			if(c != null)
-			{
-				Error = "Already registered";
-				return;
-			}
-
-			if(Signer.GetECBalance(round.ConsensusTime) < mcv.Net.DeclarationCost)
-			{
-				Error = NotEnoughEC;
-				return;
-			}
-
-			Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
-
-			Affected = round.AffectCandidate(Signer.Id);
-			
-			Affected.Id			= Signer.Id;
-			Affected.Address	= Signer.Address;
-			Affected.BaseRdcIPs	= BaseRdcIPs;
-			Affected.Registered	= round.Id;
-			
-			if(round.Candidates.Count >= mcv.Net.CandidatesMaximum)
-			{
-				round.Candidates.RemoveAt(0);
-			}
+			round.Candidates.RemoveAt(0);
 		}
 	}
 }

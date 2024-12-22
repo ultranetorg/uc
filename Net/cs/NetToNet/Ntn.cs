@@ -1,47 +1,47 @@
 ﻿using System.Net;
 
-namespace Uccs.Net
+namespace Uccs.Net;
+
+public class NtnNodeSettings : SavableSettings
 {
-	public class NtnNodeSettings : SavableSettings
+	public bool IsHub { get; set; }
+
+	public NtnNodeSettings() : base(NetXonTextValueSerializator.Default)
 	{
-		public bool IsHub { get; set; }
-
-		public NtnNodeSettings() : base(NetXonTextValueSerializator.Default)
-		{
-		}
-
-		public NtnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
-		{
-		}
 	}
 
-	public class Endpoint : IBinarySerializable
+	public NtnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
 	{
-		public IPAddress	IP {get; set;}
-		public long			Roles {get; set;}
-
-		public Endpoint()
-		{
-		}
-
-		public Endpoint(IPAddress ip, long roles)
-		{
-			IP = ip;
-			Roles = roles;
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			IP = reader.ReadIPAddress();
-			Roles = reader.Read7BitEncodedInt64();
-		}
-
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write(IP);
-			writer.Write7BitEncodedInt64(Roles);
-		}
 	}
+}
+
+public class Endpoint : IBinarySerializable
+{
+	public IPAddress	IP {get; set;}
+	public long			Roles {get; set;}
+
+	public Endpoint()
+	{
+	}
+
+	public Endpoint(IPAddress ip, long roles)
+	{
+		IP = ip;
+		Roles = roles;
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		IP = reader.ReadIPAddress();
+		Roles = reader.Read7BitEncodedInt64();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(IP);
+		writer.Write7BitEncodedInt64(Roles);
+	}
+}
 
 //	public class Cluster
 //	{
@@ -115,4 +115,3 @@ namespace Uccs.Net
 // 			}
 // 		}
 // 	}
-}

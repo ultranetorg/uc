@@ -1,14 +1,13 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+
+public class UosException : Exception
 {
-
-	public class UosException : Exception
+	public UosException()
 	{
-		public UosException()
-		{
-		}
+	}
 
-		public UosException(string message) : base(message)
-		{
-		}
-	}	
-}
+	public UosException(string message) : base(message)
+	{
+	}
+}	

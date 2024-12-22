@@ -1,6 +1,3 @@
-using System.Reflection;
-using System;
-
 namespace Uccs.Demo.Application
 {
 	public partial class Form1 : Form

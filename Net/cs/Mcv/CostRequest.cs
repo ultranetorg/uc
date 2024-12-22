@@ -1,23 +1,22 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class CostRequest : McvPpc<CostResponse>
 {
-	public class CostRequest : McvPpc<CostResponse>
+	public override PeerResponse Execute()
 	{
-		public override PeerResponse Execute()
+		lock(Peering.Lock)
 		{
-			lock(Peering.Lock)
-			{
-				RequireBase();
-	
-				return new CostResponse{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-										ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusExecutionFee};
-			}
+			RequireBase();
+
+			return new CostResponse{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
+									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusExecutionFee};
 		}
 	}
-	
-	public class CostResponse : PeerResponse
-	{
-		//public Money RentPerBytePerDay { get; set; }
-		public long ConsensusExecutionFee { get; set; }
-	}
+}
+
+public class CostResponse : PeerResponse
+{
+	//public Money RentPerBytePerDay { get; set; }
+	public long ConsensusExecutionFee { get; set; }
 }
 

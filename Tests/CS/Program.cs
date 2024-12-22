@@ -1,26 +1,24 @@
-﻿using Uccs.Net;
+﻿namespace Uccs.Tests;
 
-namespace Uccs.Tests
+
+class Program
 {
-
-	class Program
+	public static void Main(string[] args)
 	{
-		public static void Main(string[] args)
-		{
-			//IdTests.Main();
-			//MoneyTests.Main();
-			//AccountKeyTests.Main();
-			//XonTest.Custom();
+		//IdTests.Main();
+		//MoneyTests.Main();
+		//AccountKeyTests.Main();
+		//XonTest.Custom();
 
-			UraTests.UAddresses();
-			UraTests.Resource();
-			UraTests.Package();
-			UraTests.Release();
+		UraTests.UAddresses();
+		UraTests.Resource();
+		UraTests.Package();
+		UraTests.Release();
 
-			//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
+		//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 
-			//var ja = JsonSerializer.Serialize(new A{Progress = new FileDownloadProgress()}, JsonApiClient.Options);
-			//var jb = JsonSerializer.Serialize(new A{Progress = new ReleaseDownloadProgress()}, JsonApiClient.Options);
+		//var ja = JsonSerializer.Serialize(new A{Progress = new FileDownloadProgress()}, JsonApiClient.Options);
+		//var jb = JsonSerializer.Serialize(new A{Progress = new ReleaseDownloadProgress()}, JsonApiClient.Options);
 
 
 
@@ -52,6 +50,5 @@ namespace Uccs.Tests
 //			s.Position = 0;
 //
 //			rq = BinarySerializator.Deserialize<AuthorResponse>(r, sun.Constract);
-		}
 	}
 }

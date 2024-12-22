@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public enum ProductError : byte
 {

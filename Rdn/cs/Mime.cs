@@ -1,9 +1,9 @@
-﻿namespace MimeTypes
-{
-	/// <summary>
-	/// Class MimeTypeMap.
-	/// </summary>
-	public static class MimeTypeMap
+﻿namespace MimeTypes;
+
+/// <summary>
+/// Class MimeTypeMap.
+/// </summary>
+public static class MimeTypeMap
     {
         private const string Dot = ".";
         private const string QuestionMark = "?";
@@ -828,4 +828,3 @@
             return string.Empty;
         }
     }
-}

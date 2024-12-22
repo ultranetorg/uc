@@ -1,33 +1,33 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Uos
+namespace Uccs.Uos;
+
+public class Application
 {
-	public class Application
+	public const string			ApiAddressEnvKey	= "UosApiAddress";
+	public const string			ApiKeyEnvKey	 	= "UosApiKey";
+	public const string			PackageAddressKey	= "PackageKey";
+	public const string			PackagesPathKey		= "PackagesPathKey";
+
+	public NexusClient			Nexus;
+	public AprvAddress			Address => AprvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
+	public string				PackagesPath => Environment.GetEnvironmentVariable(PackagesPathKey);
+
+	public Application()
 	{
-		public const string			ApiAddressEnvKey	= "UosApiAddress";
-		public const string			ApiKeyEnvKey	 	= "UosApiKey";
-		public const string			PackageAddressKey	= "PackageKey";
-		public const string			PackagesPathKey		= "PackagesPathKey";
+		Nexus = new NexusClient();
 
-		public NexusClient			Nexus;
-		public AprvAddress			Address => AprvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
-		public string				PackagesPath => Environment.GetEnvironmentVariable(PackagesPathKey);
+		AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+	}
 
-		public Application()
+	Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+	{
+		if(new AssemblyName(args.Name).Name.EndsWith(".resources"))
 		{
-			Nexus = new NexusClient();
-
-			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+			return null;
 		}
 
-		Assembly AssemblyResolve(object sender, ResolveEventArgs args)
-		{
-			if(new AssemblyName(args.Name).Name.EndsWith(".resources"))
-			{
-				return null;
-			}
-
-			return Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(PackagesPath, Address), new AssemblyName(args.Name).Name + ".dll"));
+		return Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(PackagesPath, Address), new AssemblyName(args.Name).Name + ".dll"));
 
 //  			var rp = Nexus.PackageHub.DeploymentToAddress(args.RequestingAssembly.Location);
 //  
@@ -43,7 +43,6 @@ namespace Uccs.Uos
 //  				}
 //  			}
 
-			return null;
-		}
+		return null;
 	}
 }

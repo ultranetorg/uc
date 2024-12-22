@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Uccs.Rdn;
 
-namespace Uccs.Rdn
+public class PackageException : Exception
 {
-	public class PackageException : Exception
+	public PackageException()
 	{
-		public PackageException()
-		{
-		}
+	}
 
-		public PackageException(string message) : base(message)
-		{
-		}
+	public PackageException(string message) : base(message)
+	{
 	}
 }

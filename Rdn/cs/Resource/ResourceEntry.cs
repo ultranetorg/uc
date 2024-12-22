@@ -1,40 +1,38 @@
-﻿using System.Diagnostics;
+﻿namespace Uccs.Rdn;
 
-namespace Uccs.Rdn
+public class ResourceEntry : Resource, ITableEntry
 {
-	public class ResourceEntry : Resource, ITableEntry
+	public BaseId			BaseId => Id;
+	public bool				Deleted { get; set; }
+	
+	//public new EntityId		Id { get => base.Id; set => base.Id = value as ResourceId; }
+	//public Resource[]		Resources { get; set; } = [];
+
+	//public bool				New;
+	//public bool			Affected;
+	RdnMcv					Mcv;
+	//bool					ResourcesCloned;
+
+	public ResourceEntry()
 	{
-		public BaseId			BaseId => Id;
-		public bool				Deleted { get; set; }
-		
-		//public new EntityId		Id { get => base.Id; set => base.Id = value as ResourceId; }
-		//public Resource[]		Resources { get; set; } = [];
+	}
 
-		//public bool				New;
-		//public bool			Affected;
-		RdnMcv					Mcv;
-		//bool					ResourcesCloned;
+	public ResourceEntry(RdnMcv rdn)
+	{
+		Mcv = rdn;
+	}
 
-		public ResourceEntry()
-		{
-		}
-
-		public ResourceEntry(RdnMcv rdn)
-		{
-			Mcv = rdn;
-		}
-
-		public ResourceEntry Clone()
-		{
-			return new ResourceEntry(Mcv)  {Id = Id,
-							                Address	= Address, 
-							                Flags = Flags,
-							                Data = Data?.Clone(),
-							                Updated = Updated,
-							                Outbounds = Outbounds,
-							                Inbounds = Inbounds};
-		}
-		
+	public ResourceEntry Clone()
+	{
+		return new ResourceEntry(Mcv)  {Id = Id,
+						                Address	= Address, 
+						                Flags = Flags,
+						                Data = Data?.Clone(),
+						                Updated = Updated,
+						                Outbounds = Outbounds,
+						                Inbounds = Inbounds};
+	}
+	
 // 		public void WriteMain(BinaryWriter writer)
 // 		{
 // 			writer.Write7BitEncodedInt(NextResourceId);
@@ -60,17 +58,17 @@ namespace Uccs.Rdn
 //  											    });
 // 		}
 
-		public void WriteMore(BinaryWriter w)
-		{
-		}
+	public void WriteMore(BinaryWriter w)
+	{
+	}
 
-		public void ReadMore(BinaryReader r)
-		{
-		}
+	public void ReadMore(BinaryReader r)
+	{
+	}
 
-		public void Cleanup(Round lastInCommit)
-		{
-		}
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 //  		public Resource AffectResource(DomainEntry domain, string resource)
 //  		{
@@ -117,5 +115,4 @@ namespace Uccs.Rdn
 // 			Resources = Resources.Where(i => i != resource).ToArray();
 // 			ResourcesCloned = true;
 // 		}
-	}
 }

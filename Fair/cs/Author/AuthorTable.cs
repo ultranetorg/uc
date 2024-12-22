@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public class AuthorTable : Table<AuthorEntry>
 {

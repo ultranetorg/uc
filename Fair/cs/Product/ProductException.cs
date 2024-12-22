@@ -1,4 +1,1 @@
-﻿namespace Uccs.Fair
-{
-
-}
+﻿namespace Uccs.Fair;

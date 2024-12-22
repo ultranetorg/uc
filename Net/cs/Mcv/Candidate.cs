@@ -1,7 +1,5 @@
-﻿using System.Net;
+﻿namespace Uccs.Net;
 
-namespace Uccs.Net
-{
 // 	public class Candidate
 // 	{
 // 		public EntityId			Account { get; set; }
@@ -30,4 +28,3 @@ namespace Uccs.Net
 // 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 // 		}
 // 	}
-}

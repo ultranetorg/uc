@@ -5,36 +5,36 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 
-namespace Uccs.Net
+namespace Uccs.Net;
+
+public class AccountKey : AccountAddress
 {
-	public class AccountKey : AccountAddress
-	{
         public override byte[]	Bytes { get => GetPublicAddressAsBytes(); protected set => throw new NotSupportedException(); }
 
-		public new static AccountKey Parse(string privatekay)
-		{
-			return new AccountKey(privatekay);
-		}
+	public new static AccountKey Parse(string privatekay)
+	{
+		return new AccountKey(privatekay);
+	}
 
-		public static AccountKey Load(Cryptography cryptography, string path, string password)
-		{
-			return cryptography.Decrypt(File.ReadAllBytes(path), password);
-		}
+	public static AccountKey Load(Cryptography cryptography, string path, string password)
+	{
+		return cryptography.Decrypt(File.ReadAllBytes(path), password);
+	}
 
-		public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
-		{
-			return cryptography.Decrypt(wallet, password);
-		}
+	public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
+	{
+		return cryptography.Decrypt(wallet, password);
+	}
 
-		public void Save(Cryptography cryptography, string path, string password)
-		{
-			File.WriteAllBytes(path, cryptography.Encrypt(this, password));
-		}
+	public void Save(Cryptography cryptography, string path, string password)
+	{
+		File.WriteAllBytes(path, cryptography.Encrypt(this, password));
+	}
 
-		public byte[] Save(Cryptography cryptography, string password)
-		{
-			return cryptography.Encrypt(this, password);
-		}
+	public byte[] Save(Cryptography cryptography, string password)
+	{
+		return cryptography.Encrypt(this, password);
+	}
 
         private static readonly SecureRandom SecureRandom = new SecureRandom();
         public static byte DEFAULT_PREFIX = 0x04;
@@ -202,4 +202,3 @@ namespace Uccs.Net
             return new ECDSASignature(new BigInteger(1, r.ToBytes()), new BigInteger(1, s.ToBytes())){ V = [(byte)recId]};
         }
     }
-}

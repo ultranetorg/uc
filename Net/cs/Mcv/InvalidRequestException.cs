@@ -1,9 +1,8 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+class InvalidRequestException : Exception
 {
-	class InvalidRequestException : Exception
+	public InvalidRequestException(string message) : base(message)
 	{
-		public InvalidRequestException(string message) : base(message)
-		{
-		}
 	}
 }

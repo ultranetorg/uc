@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Reflection;
-
-namespace Uccs.Rdn.CLI;
+﻿namespace Uccs.Rdn.CLI;
 
 public abstract class RdnCommand : McvCommand
 {

@@ -1,20 +1,19 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class FundsRequest : McvPpc<FundsResponse>
 {
-	public class FundsRequest : McvPpc<FundsResponse>
+	public override PeerResponse Execute()
 	{
-		public override PeerResponse Execute()
+		lock(Mcv.Lock)
 		{
-			lock(Mcv.Lock)
-			{
-				RequireBase();
-			
-				return new FundsResponse {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
-			}
+			RequireBase();
+		
+			return new FundsResponse {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
 		}
 	}
+}
 
-	public class FundsResponse : PeerResponse
-	{
-		public AccountAddress[] Funds { get; set; }
-	}
+public class FundsResponse : PeerResponse
+{
+	public AccountAddress[] Funds { get; set; }
 }

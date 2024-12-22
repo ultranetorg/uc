@@ -1,64 +1,64 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace Uccs.Net.FUI
+namespace Uccs.Net.FUI;
+
+public partial class Logbox : TextBox, ILogView
 {
-	public partial class Logbox : TextBox, ILogView
+	Log log;
+
+	public bool ShowSender { get;set; } = false;
+	public bool ShowSubject { get;set; } = true;
+	public int BufferWidth => MaxLength;
+
+	public Log Log 
 	{
-		Log log;
-
-		public bool ShowSender { get;set; } = false;
-		public bool ShowSubject { get;set; } = true;
-		public int BufferWidth => MaxLength;
-
-		public Log Log 
+		get => log;
+		set
 		{
-			get => log;
-			set
-			{
-				if(Log != null)
-				{
-					log.Reported -= OnReported;
-				}
-
-				log = value;
-
-				if(log != null)
-				{
-					lock(Log.Messages)
-					{
-						foreach(var i in Log.Messages)
-						{
-							OnReported(i);
-						}
-					}
-	
-					log.Reported += OnReported;
-				}
-
-			}
-		}
-
-		public Logbox()
-		{
-			InitializeComponent();
-
-			WordWrap = false;
-			Font = new Font("Lucida Console", 8);
-		}
-
-		protected override void OnHandleDestroyed(EventArgs e)
-		{
-			if(log != null)
+			if(Log != null)
 			{
 				log.Reported -= OnReported;
 			}
 
-			base.OnHandleDestroyed(e);
+			log = value;
+
+			if(log != null)
+			{
+				lock(Log.Messages)
+				{
+					foreach(var i in Log.Messages)
+					{
+						OnReported(i);
+					}
+				}
+
+				log.Reported += OnReported;
+			}
+
+		}
+	}
+
+	public Logbox()
+	{
+		InitializeComponent();
+
+		WordWrap = false;
+		Font = new Font("Lucida Console", 8);
+	}
+
+	protected override void OnHandleDestroyed(EventArgs e)
+	{
+		if(log != null)
+		{
+			log.Reported -= OnReported;
 		}
 
-		public void OnReported(LogMessage m)
-		{
+		base.OnHandleDestroyed(e);
+	}
+
+	public void OnReported(LogMessage m)
+	{
   			var a =	new Action( () =>
   								{
  									var t = new string(' ', 4 * m.Log.Depth);
@@ -90,11 +90,11 @@ namespace Uccs.Net.FUI
   										}
  									}
 
-									AppendText(t);
+								AppendText(t);
 
   									if(Lines.Length > 100 && Lines.Length > 1100)
   									{
-										Lines = Lines.Skip(1000).ToArray();
+									Lines = Lines.Skip(1000).ToArray();
   									}
   								});
   
@@ -102,6 +102,5 @@ namespace Uccs.Net.FUI
   				BeginInvoke(a);
   			else
   				a();
-		}
 	}
 }

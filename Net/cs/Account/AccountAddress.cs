@@ -2,123 +2,122 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Uccs.Net
+namespace Uccs.Net;
+
+public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 {
-	public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
-	{
-		public const string		Prefix = "0x";
-		public const int		Length = 20;
-		public virtual byte[]	Bytes { get; protected set; }
-		public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
-		//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
+	public const string		Prefix = "0x";
+	public const int		Length = 20;
+	public virtual byte[]	Bytes { get; protected set; }
+	public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
+	//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
-		//public static implicit operator byte[] (AccountAddress d) => d.Bytes;
-		
-		public byte	this[int k] => Bytes[k];
+	//public static implicit operator byte[] (AccountAddress d) => d.Bytes;
+	
+	public byte	this[int k] => Bytes[k];
  
-		public AccountAddress()
-		{
-		}
+	public AccountAddress()
+	{
+	}
 
-		public AccountAddress(AccountKey k)
-		{
-			Bytes = k.GetPublicAddressAsBytes();
+	public AccountAddress(AccountKey k)
+	{
+		Bytes = k.GetPublicAddressAsBytes();
 
-			if(Bytes.Length != Length)
-				throw new IntegrityException("Bytes.Length != Length");
-		}
+		if(Bytes.Length != Length)
+			throw new IntegrityException("Bytes.Length != Length");
+	}
 
  		public AccountAddress(byte[] b)
  		{
-			if(b.Length == Length)
-				Bytes = b;
-			else
-				throw new IntegrityException("Wrong length");
+		if(b.Length == Length)
+			Bytes = b;
+		else
+			throw new IntegrityException("Wrong length");
  		}
 
-		public void Write(BinaryWriter w)
-		{
-			w.Write(Bytes);
-		}
-
-		public void Read(BinaryReader r)
-		{
-			Bytes = r.ReadBytes(Length);
-		}
-
-		public static AccountAddress Parse(string pubaddr)
-		{
-			if(pubaddr[0] == '0' && pubaddr[1] == 'x')
-				return new AccountAddress(pubaddr.Substring(2).FromHex());
-			else
-				throw new FormatException();
-		}
-
-		public override string ToString()
-		{
-			return Bytes != null ? Prefix + Bytes.ToHex() : "";
-		}
-
-		public static bool operator == (AccountAddress a, AccountAddress b)
-		{
-			return a is null && b is null || a is not null && a.Equals(b);
-		}
-
-		public static bool operator != (AccountAddress a, AccountAddress b)
-		{
-			return !(a == b);
-		}
-
-		public override bool Equals(object o)
-		{
-			return o is AccountAddress a && Equals(a);  
-		}
-
-		public bool Equals(AccountAddress a)
-		{
-			return a is not null && a.Bytes.SequenceEqual(Bytes);
-		}
-
-		public override int GetHashCode()
-		{
-			return Bytes[0] << 8 & Bytes[1];
-		}
-
-		public int CompareTo(object obj)
-		{
-			var x = Bytes;
-			var y = ((AccountAddress)obj).Bytes;
-
-			var len = Math.Min(x.Length, y.Length);
-
-			for (var i = 0; i < len; i++)
-			{
-			    var c = x[i].CompareTo(y[i]);
-			    if (c != 0)
-			    {
-			        return c;
-			    }
-			}
-
-			return x.Length.CompareTo(y.Length);
-		}
-
-		public int CompareTo([AllowNull] AccountAddress other)
-		{
-			return CompareTo(other as object);
-		}
+	public void Write(BinaryWriter w)
+	{
+		w.Write(Bytes);
 	}
 
-	public class AccountJsonConverter : JsonConverter<AccountAddress>
+	public void Read(BinaryReader r)
 	{
-		public override AccountAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		Bytes = r.ReadBytes(Length);
+	}
+
+	public static AccountAddress Parse(string pubaddr)
+	{
+		if(pubaddr[0] == '0' && pubaddr[1] == 'x')
+			return new AccountAddress(pubaddr.Substring(2).FromHex());
+		else
+			throw new FormatException();
+	}
+
+	public override string ToString()
+	{
+		return Bytes != null ? Prefix + Bytes.ToHex() : "";
+	}
+
+	public static bool operator == (AccountAddress a, AccountAddress b)
+	{
+		return a is null && b is null || a is not null && a.Equals(b);
+	}
+
+	public static bool operator != (AccountAddress a, AccountAddress b)
+	{
+		return !(a == b);
+	}
+
+	public override bool Equals(object o)
+	{
+		return o is AccountAddress a && Equals(a);  
+	}
+
+	public bool Equals(AccountAddress a)
+	{
+		return a is not null && a.Bytes.SequenceEqual(Bytes);
+	}
+
+	public override int GetHashCode()
+	{
+		return Bytes[0] << 8 & Bytes[1];
+	}
+
+	public int CompareTo(object obj)
+	{
+		var x = Bytes;
+		var y = ((AccountAddress)obj).Bytes;
+
+		var len = Math.Min(x.Length, y.Length);
+
+		for (var i = 0; i < len; i++)
 		{
-			return AccountAddress.Parse(reader.GetString());
+		    var c = x[i].CompareTo(y[i]);
+		    if (c != 0)
+		    {
+		        return c;
+		    }
 		}
 
-		public override void Write(Utf8JsonWriter writer, AccountAddress value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.ToString());
-		}
+		return x.Length.CompareTo(y.Length);
+	}
+
+	public int CompareTo([AllowNull] AccountAddress other)
+	{
+		return CompareTo(other as object);
+	}
+}
+
+public class AccountJsonConverter : JsonConverter<AccountAddress>
+{
+	public override AccountAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return AccountAddress.Parse(reader.GetString());
+	}
+
+	public override void Write(Utf8JsonWriter writer, AccountAddress value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.ToString());
 	}
 }

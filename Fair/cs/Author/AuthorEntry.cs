@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public class AuthorEntry : Author, ITableEntry
 {

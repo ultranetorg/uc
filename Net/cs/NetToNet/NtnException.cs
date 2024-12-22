@@ -1,25 +1,22 @@
-﻿using System.Reflection;
+﻿namespace Uccs.Net;
 
-namespace Uccs.Net
+public enum NtnError : byte
 {
-	public enum NtnError : byte
+	None,
+}
+
+public class NtnException : NetException
+{
+	public override int		ErrorCode { get => (int)Error; set => Error = (NtnError)value; }
+	public NtnError			Error { get; protected set; }
+	public override string	Message => Error.ToString();
+
+	public NtnException()
 	{
-		None,
 	}
 
-	public class NtnException : NetException
+	public NtnException(NtnError erorr) : base(erorr.ToString())
 	{
-		public override int		ErrorCode { get => (int)Error; set => Error = (NtnError)value; }
-		public NtnError			Error { get; protected set; }
-		public override string	Message => Error.ToString();
-
-		public NtnException()
-		{
-		}
-
-		public NtnException(NtnError erorr) : base(erorr.ToString())
-		{
-			Error = erorr;
-		}
+		Error = erorr;
 	}
 }

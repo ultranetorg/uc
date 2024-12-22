@@ -1,21 +1,19 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class TimeRequest : McvPpc<TimeResponse>
 {
-	public class TimeRequest : McvPpc<TimeResponse>
+	public override PeerResponse Execute()
 	{
-		public override PeerResponse Execute()
+		lock(Peering.Lock)
 		{
-			lock(Peering.Lock)
-			{
-				RequireBase();
-				
-				return new TimeResponse {Time = Mcv.LastConfirmedRound.ConsensusTime};
-			}
+			RequireBase();
+			
+			return new TimeResponse {Time = Mcv.LastConfirmedRound.ConsensusTime};
 		}
 	}
+}
 
-	public class TimeResponse : PeerResponse
-	{
-		public Time Time { get; set; }
-	}
-
+public class TimeResponse : PeerResponse
+{
+	public Time Time { get; set; }
 }

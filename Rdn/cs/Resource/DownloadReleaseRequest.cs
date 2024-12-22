@@ -1,34 +1,33 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+public class DownloadReleaseRequest : RdnPpc<DownloadReleaseResponse>
 {
-	public class DownloadReleaseRequest : RdnPpc<DownloadReleaseResponse>
+	public Urr				Address { get; set; }
+	public string			File { get; set; }
+	public long				Offset { get; set; }
+	public long				Length { get; set; }
+
+	public override PeerResponse Execute()
 	{
-		public Urr				Address { get; set; }
-		public string			File { get; set; }
-		public long				Offset { get; set; }
-		public long				Length { get; set; }
+		if(Length > ResourceHub.PieceMaxLength)
+			throw new RequestException(RequestError.IncorrectRequest);
 
-		public override PeerResponse Execute()
+		lock(Node.ResourceHub.Lock)
 		{
-			if(Length > ResourceHub.PieceMaxLength)
-				throw new RequestException(RequestError.IncorrectRequest);
+			if(Node.ResourceHub == null) 
+				throw new NodeException(NodeError.NotSeed);
 
-			lock(Node.ResourceHub.Lock)
-			{
-				if(Node.ResourceHub == null) 
-					throw new NodeException(NodeError.NotSeed);
+			var r = Node.ResourceHub.Find(Address);
+			
+			if(r == null || !r.IsReady(File)) 
+				throw new EntityException(EntityError.NotFound);
 
-				var r = Node.ResourceHub.Find(Address);
-				
-				if(r == null || !r.IsReady(File)) 
-					throw new EntityException(EntityError.NotFound);
-	
-				return new DownloadReleaseResponse {Data = r.Find(File).Read(Offset, Length)};
-			}
+			return new DownloadReleaseResponse {Data = r.Find(File).Read(Offset, Length)};
 		}
 	}
+}
 
-	public class DownloadReleaseResponse : PeerResponse
-	{
-		public byte[] Data { get; set; }
-	}
+public class DownloadReleaseResponse : PeerResponse
+{
+	public byte[] Data { get; set; }
 }

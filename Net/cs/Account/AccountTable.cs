@@ -1,24 +1,24 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class AccountTable : Table<AccountEntry>
 {
-	public class AccountTable : Table<AccountEntry>
+	public int	KeyToH(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
+
+	public AccountTable(Mcv chain) : base(chain)
 	{
-		public int	KeyToH(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
+	}
 
-		public AccountTable(Mcv chain) : base(chain)
-		{
-		}
+	protected override AccountEntry Create(int cid)
+	{
+		return new AccountEntry(Mcv) {Id = new EntityId {H = cid}};
+	}
 
-		protected override AccountEntry Create(int cid)
-		{
-			return new AccountEntry(Mcv) {Id = new EntityId {H = cid}};
-		}
+	public AccountEntry FindEntry(AccountAddress key)
+	{
+		var bid = KeyToH(key);
 
-		public AccountEntry FindEntry(AccountAddress key)
-		{
-			var bid = KeyToH(key);
-
-			return FindBucket(bid)?.Entries.Find(i => i.Address == key);
-		}
+		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
+	}
 
 // 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 // 		{
@@ -124,32 +124,31 @@
 // 						yield return o;
 // 		}
 
-		public AccountEntry Find(AccountAddress account, int ridmax)
+	public AccountEntry Find(AccountAddress account, int ridmax)
+	{
+		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+		//	throw new IntegrityException("maxrid works inside pool only");
+
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			if(r.AffectedAccounts.TryGetValue(account, out var e))
+				return e;
+
+		return FindEntry(account);
+	}
+
+	public AccountEntry Find(EntityId id, int ridmax)
+	{
+		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+		//	throw new IntegrityException("maxrid works inside pool only");
+
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-				if(r.AffectedAccounts.TryGetValue(account, out var e))
-					return e;
-
-			return FindEntry(account);
+			var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == id);
+			
+			if(a != null)
+				return a;
 		}
 
-		public AccountEntry Find(EntityId id, int ridmax)
-		{
-			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-			//	throw new IntegrityException("maxrid works inside pool only");
-
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			{
-				var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == id);
-				
-				if(a != null)
-					return a;
-			}
-
-			return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
-		}
+		return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
 	}
 }

@@ -1,63 +1,62 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+public class ResourceLinkDeletion : RdnOperation
 {
-	public class ResourceLinkDeletion : RdnOperation
+	public ResourceId	Source { get; set; }
+	public ResourceId	Destination { get; set; }
+	
+	public override string	Description => $"Source={Source}, Destination={Destination}";
+	public override bool	IsValid(Mcv mcv) => true;
+
+	public ResourceLinkDeletion()
 	{
-		public ResourceId	Source { get; set; }
-		public ResourceId	Destination { get; set; }
-		
-		public override string	Description => $"Source={Source}, Destination={Destination}";
-		public override bool	IsValid(Mcv mcv) => true;
+	}
 
-		public ResourceLinkDeletion()
+	public ResourceLinkDeletion(ResourceId source, ResourceId destination)
+	{
+		Source = source;
+		Destination = destination;
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Source);
+		writer.Write(Destination);
+	}
+	
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		Source	= reader.Read<ResourceId>();
+		Destination	= reader.Read<ResourceId>();
+	}
+
+	public override void Execute(RdnMcv mcv, RdnRound round)
+	{
+		if(RequireSignerResource(round, Source, out var sd, out var sr) == false)
+			return;
+
+		if(RequireResource(round, Destination, out var dd, out var dr) == false)
+			return;
+
+		var l = sr.Outbounds.First(i => i.Destination == dr.Id);
+
+		if(l == null)
 		{
+			Error = NotFound;
+			return;
 		}
 
-		public ResourceLinkDeletion(ResourceId source, ResourceId destination)
+		if(l.Flags.HasFlag(ResourceLinkFlag.Sealed))
 		{
-			Source = source;
-			Destination = destination;
+			Error = Sealed;
+			return;
 		}
 
-		public override void WriteConfirmed(BinaryWriter writer)
-		{
-			writer.Write(Source);
-			writer.Write(Destination);
-		}
-		
-		public override void ReadConfirmed(BinaryReader reader)
-		{
-			Source	= reader.Read<ResourceId>();
-			Destination	= reader.Read<ResourceId>();
-		}
+		sr = round.AffectResource(sd, sr.Address.Resource);
+		sr.RemoveOutbound(dr.Id);
+		Free(sd, Mcv.EntityLength);
 
-		public override void Execute(RdnMcv mcv, RdnRound round)
-		{
-			if(RequireSignerResource(round, Source, out var sd, out var sr) == false)
-				return;
-
-			if(RequireResource(round, Destination, out var dd, out var dr) == false)
-				return;
-
-			var l = sr.Outbounds.First(i => i.Destination == dr.Id);
-
-			if(l == null)
-			{
-				Error = NotFound;
-				return;
-			}
-
-			if(l.Flags.HasFlag(ResourceLinkFlag.Sealed))
-			{
-				Error = Sealed;
-				return;
-			}
-
-			sr = round.AffectResource(sd, sr.Address.Resource);
-			sr.RemoveOutbound(dr.Id);
-			Free(sd, Mcv.EntityLength);
-
-			dr = round.AffectResource(dd, dr.Address.Resource);
-			dr.RemoveInbound(sr.Id);
-		}
+		dr = round.AffectResource(dd, dr.Address.Resource);
+		dr.RemoveInbound(sr.Id);
 	}
 }

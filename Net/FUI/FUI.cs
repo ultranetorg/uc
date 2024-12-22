@@ -2,20 +2,20 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace Uccs.Net.FUI
+namespace Uccs.Net.FUI;
+
+static class Program
 {
-	static class Program
+	[STAThread]
+	static void Main()
 	{
-		[STAThread]
-		static void Main()
-		{
-			Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
+		Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
+		Application.EnableVisualStyles();
+		Application.SetCompatibleTextRenderingDefault(false);
 
-			Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+		Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+		ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 // 			try
 // 			{
@@ -38,6 +38,5 @@ namespace Uccs.Net.FUI
 // 			{
 // 				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 // 			}
-		}
 	}
 }

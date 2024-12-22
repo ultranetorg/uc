@@ -1,182 +1,181 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class Vote : IBinarySerializable
 {
-	public class Vote : IBinarySerializable
+	public int					ParentId => RoundId - Mcv.P;
+
+	//public List<Peer>			Peers;
+	public bool					BroadcastConfirmed;
+	public Round				Round;
+	public DateTime				Created;
+	AccountAddress				_Generator;
+	byte[]						_RawPayload;
+	Mcv							Mcv;
+
+	public int					RoundId;
+	public int					Try; /// TODO: revote if consensus not reached
+	public Time					Time;
+	public byte[]				ParentHash;
+	public EntityId[]			MemberLeavers = [];
+	///public AccountAddress[]	FundJoiners = {};
+	///public AccountAddress[]	FundLeavers = {};
+	public EntityId[]			Violators = [];
+	public byte[][]				NntBlocks = [];
+	public Transaction[]		Transactions = [];
+	public byte[]				Signature { get; set; }
+
+	public int					TransactionCountExcess;
+
+	public bool Valid
 	{
-		public int					ParentId => RoundId - Mcv.P;
-
-		//public List<Peer>			Peers;
-		public bool					BroadcastConfirmed;
-		public Round				Round;
-		public DateTime				Created;
-		AccountAddress				_Generator;
-		byte[]						_RawPayload;
-		Mcv							Mcv;
-
-		public int					RoundId;
-		public int					Try; /// TODO: revote if consensus not reached
-		public Time					Time;
-		public byte[]				ParentHash;
-		public EntityId[]			MemberLeavers = [];
-		///public AccountAddress[]	FundJoiners = {};
-		///public AccountAddress[]	FundLeavers = {};
-		public EntityId[]			Violators = [];
-		public byte[][]				NntBlocks = [];
-		public Transaction[]		Transactions = [];
-		public byte[]				Signature { get; set; }
-
-		public int					TransactionCountExcess;
-
-		public bool Valid
+		get
 		{
-			get
+			foreach(var i in Transactions)
 			{
-				foreach(var i in Transactions)
-				{
-					if(i.Expiration < RoundId)
-						return false;
-	
-					if(!i.Valid(Mcv))
-						return false;
-				}
-	
-				return true;
-			}
-		}
+				if(i.Expiration < RoundId)
+					return false;
 
-		public AccountAddress Generator
+				if(!i.Valid(Mcv))
+					return false;
+			}
+
+			return true;
+		}
+	}
+
+	public AccountAddress Generator
+	{ 
+		get
+		{
+			if(_Generator == null)
+			{
+				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, Hashify());
+			}
+
+			return _Generator;
+		}
+	}
+
+	public byte[] RawPayload
+	{
+		get
 		{ 
-			get
+			if(_RawPayload == null)
 			{
-				if(_Generator == null)
-				{
-					_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, Hashify());
-				}
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
 
-				return _Generator;
+				WritePayload(w);
+
+				_RawPayload = s.ToArray();
 			}
-		}
-
-		public byte[] RawPayload
-		{
-			get
-			{ 
-				if(_RawPayload == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-
-					WritePayload(w);
-
-					_RawPayload = s.ToArray();
-				}
-			
-				return _RawPayload; 
-			}
-
-			set { _RawPayload = value; }
-		}
-
-		public Vote(Mcv c)
-		{
-			Mcv = c;
-		}
-
-		public override string ToString()
-		{
-			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
-		}
 		
-		public void AddTransaction(Transaction t)
-		{
-			t.Vote = this;
-			Transactions = Transactions.Prepend(t).ToArray();
-		}
-		
-		public void Sign(AccountKey generator)
-		{
-			_Generator = generator;
-			Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
+			return _RawPayload; 
 		}
 
-		protected byte[] Hashify()
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+		set { _RawPayload = value; }
+	}
 
-			w.Write((byte)Mcv.Net.Zone);
-			w.WriteUtf8(Mcv.Net.Address);
-			//w.Write(_Generator);
-			w.Write7BitEncodedInt(RoundId);
-			w.WriteBytes(RawPayload);
+	public Vote(Mcv c)
+	{
+		Mcv = c;
+	}
 
-			return Cryptography.Hash(s.ToArray());
-		}
+	public override string ToString()
+	{
+		return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
+	}
+	
+	public void AddTransaction(Transaction t)
+	{
+		t.Vote = this;
+		Transactions = Transactions.Prepend(t).ToArray();
+	}
+	
+	public void Sign(AccountKey generator)
+	{
+		_Generator = generator;
+		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
+	}
 
-		protected virtual void WritePayload(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(Try);
-			writer.Write(Time);
-			writer.Write(ParentHash);
+	protected byte[] Hashify()
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
 
-			writer.Write(MemberLeavers);
-			///writer.Write(FundJoiners);
-			///writer.Write(FundLeavers);
-			writer.Write(Violators);
-			writer.Write(NntBlocks, writer.WriteBytes);
+		w.Write((byte)Mcv.Net.Zone);
+		w.WriteUtf8(Mcv.Net.Address);
+		//w.Write(_Generator);
+		w.Write7BitEncodedInt(RoundId);
+		w.WriteBytes(RawPayload);
 
-			writer.Write(Transactions, t => t.WriteForVote(writer));
-		}
+		return Cryptography.Hash(s.ToArray());
+	}
 
-		protected virtual void ReadPayload(BinaryReader reader)
-		{
-			Try					= reader.Read7BitEncodedInt();
-			Time				= reader.Read<Time>();
-			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
+	protected virtual void WritePayload(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(Try);
+		writer.Write(Time);
+		writer.Write(ParentHash);
 
-			MemberLeavers		= reader.ReadArray<EntityId>();
-			///FundJoiners		= reader.ReadArray<AccountAddress>();
-			///FundLeavers		= reader.ReadArray<AccountAddress>();
-			Violators			= reader.ReadArray<EntityId>();
-			NntBlocks			= reader.ReadArray(reader.ReadBytes);
+		writer.Write(MemberLeavers);
+		///writer.Write(FundJoiners);
+		///writer.Write(FundLeavers);
+		writer.Write(Violators);
+		writer.Write(NntBlocks, writer.WriteBytes);
 
-			Transactions = reader.ReadArray(() =>	{
-														var t = new Transaction {Net = Mcv.Net, Vote = this};
-														t.ReadForVote(reader);
-														return t;
-													});
-		}
+		writer.Write(Transactions, t => t.WriteForVote(writer));
+	}
 
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(Signature);
-			writer.WriteBytes(RawPayload);
-		}
+	protected virtual void ReadPayload(BinaryReader reader)
+	{
+		Try					= reader.Read7BitEncodedInt();
+		Time				= reader.Read<Time>();
+		ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
-		public void Read(BinaryReader reader)
-		{
-			RoundId		= reader.Read7BitEncodedInt();
-			Signature	= reader.ReadSignature();
-			_RawPayload	= reader.ReadBytes();
-		}
+		MemberLeavers		= reader.ReadArray<EntityId>();
+		///FundJoiners		= reader.ReadArray<AccountAddress>();
+		///FundLeavers		= reader.ReadArray<AccountAddress>();
+		Violators			= reader.ReadArray<EntityId>();
+		NntBlocks			= reader.ReadArray(reader.ReadBytes);
 
-		public void WriteForRoundUnconfirmed(BinaryWriter writer)
-		{
-			writer.Write(Signature);
-			writer.Write(Generator);
-			WritePayload(writer);
-		}
+		Transactions = reader.ReadArray(() =>	{
+													var t = new Transaction {Net = Mcv.Net, Vote = this};
+													t.ReadForVote(reader);
+													return t;
+												});
+	}
 
-		public void ReadForRoundUnconfirmed(BinaryReader reader)
-		{
-			Signature	= reader.ReadSignature();
-			_Generator	= reader.ReadAccount();
-			ReadPayload(reader);
-		}
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(RoundId);
+		writer.Write(Signature);
+		writer.WriteBytes(RawPayload);
+	}
 
-		public void Restore()
-		{
-			ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
-		}
+	public void Read(BinaryReader reader)
+	{
+		RoundId		= reader.Read7BitEncodedInt();
+		Signature	= reader.ReadSignature();
+		_RawPayload	= reader.ReadBytes();
+	}
+
+	public void WriteForRoundUnconfirmed(BinaryWriter writer)
+	{
+		writer.Write(Signature);
+		writer.Write(Generator);
+		WritePayload(writer);
+	}
+
+	public void ReadForRoundUnconfirmed(BinaryReader reader)
+	{
+		Signature	= reader.ReadSignature();
+		_Generator	= reader.ReadAccount();
+		ReadPayload(reader);
+	}
+
+	public void Restore()
+	{
+		ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
 	}
 }

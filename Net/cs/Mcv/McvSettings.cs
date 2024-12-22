@@ -1,26 +1,25 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class ChainSettings : Settings
 {
-	public class ChainSettings : Settings
+	public ChainSettings() : base(NetXonTextValueSerializator.Default)
 	{
-		public ChainSettings() : base(NetXonTextValueSerializator.Default)
-		{
-		}
 	}
+}
 
-	public class McvSettings : Settings
+public class McvSettings : Settings
+{
+	public AccountAddress[]			Generators { get; set; } = [];
+	public ChainSettings			Chain { get; set; }
+	public virtual long				Roles => ((long)Role.Base) |
+											 (Chain != null ? (long)Role.Chain : 0);
+
+	//public long					Pledge { get; set; }
+	//public List<AccountAddress>	ProposedFundJoiners = new();
+	//public List<AccountAddress>	ProposedFundLeavers = new();
+
+
+	public McvSettings() : base(NetXonTextValueSerializator.Default)
 	{
-		public AccountAddress[]			Generators { get; set; } = [];
-		public ChainSettings			Chain { get; set; }
-		public virtual long				Roles => ((long)Role.Base) |
-												 (Chain != null ? (long)Role.Chain : 0);
-
-		//public long					Pledge { get; set; }
-		//public List<AccountAddress>	ProposedFundJoiners = new();
-		//public List<AccountAddress>	ProposedFundLeavers = new();
-
-
-		public McvSettings() : base(NetXonTextValueSerializator.Default)
-		{
-		}
 	}
 }

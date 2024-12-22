@@ -1,6 +1,5 @@
-﻿namespace Uccs
+﻿namespace Uccs;
+
+public class FileSystem
 {
-	public class FileSystem
-	{
-	}
 }

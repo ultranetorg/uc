@@ -1,363 +1,361 @@
 ﻿using System.Net;
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Uccs.Rdn
+namespace Uccs.Rdn;
+
+public abstract class RdnApc : McvApc
 {
-	public abstract class RdnApc : McvApc
-	{
-		public abstract object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	public abstract object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 
-		public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return Execute(mcv as RdnNode, request, response, workflow);
-		}
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return Execute(mcv as RdnNode, request, response, workflow);
 	}
+}
 
-	public class RdnTypeResolver : ApiTypeResolver
-	{
-	    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
-	    {
-	        var ti = base.GetTypeInfo(type, options);
+public class RdnTypeResolver : ApiTypeResolver
+{
+    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
+    {
+        var ti = base.GetTypeInfo(type, options);
 
-	        if(ti.Type == typeof(PeerRequest))
-	        {
-				foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
-				{
-					ti.PolymorphismOptions.DerivedTypes.Add(i);
-				}
-	        }
-
-	        if(ti.Type == typeof(PeerResponse))
-	        {
-				foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
-				{
-					ti.PolymorphismOptions.DerivedTypes.Add(i);
-				}
-	        }
-
-	        if(ti.Type == typeof(NetException))
-	        {
-				foreach(var i in typeof(ResourceException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
-				{
-					ti.PolymorphismOptions.DerivedTypes.Add(i);
-				}
-	        }
-	
-	        return ti;
-	    }
-	}
-
-	public class RdnApiServer : McvApiServer
-	{
-		RdnNode Node;
-
-		public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions(node.Net))
-		{
-			Node = node;
-		}
-
-		protected override Type Create(string call)
-		{
-			return Type.GetType(typeof(RdnApc).Namespace + '.' + call) ?? base.Create(call);
-		}
-
-		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-		{
-			if(call is RdnApc a)
-				return a.Execute(Node, request, response, flow);
-			else
-				return base.Execute(call, request, response, flow);
-		}
-	}
-
-	public class RdnApiClient : McvApiClient
-	{
-		new public static JsonSerializerOptions CreateOptions(Net.Net net)
-		{
-			var o = McvApiClient.CreateOptions(net);
-
-			o.TypeInfoResolver = new RdnTypeResolver();
-			
-			o.Converters.Add(new UraJsonConverter());
-			o.Converters.Add(new UrrJsonConverter());
-			o.Converters.Add(new ResourceDataJsonConverter());
-
-			return o;
-		}
-
-		public RdnApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
-		{
-			Options = CreateOptions(net);
-			Net = net;
-			
-		}
-
-		public RdnApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
-		{
-			Options = CreateOptions(net);
-			Net = net;
-		}
-		
-		public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-		public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-		public PackageInfo		FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
-		
-		public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
-		{
-			Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
-
-			do
+        if(ti.Type == typeof(PeerRequest))
+        {
+			foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 			{
-				var d = Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
-			
-				if(d is null)
-				{
-					return Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
-						
-					//if(lrr.Availability == Availability.Full)
-					//{
-					//	return lrr;
-					//}
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+			}
+        }
+
+        if(ti.Type == typeof(PeerResponse))
+        {
+			foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			{
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+			}
+        }
+
+        if(ti.Type == typeof(NetException))
+        {
+			foreach(var i in typeof(ResourceException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			{
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+			}
+        }
+
+        return ti;
+    }
+}
+
+public class RdnApiServer : McvApiServer
+{
+	RdnNode Node;
+
+	public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions(node.Net))
+	{
+		Node = node;
+	}
+
+	protected override Type Create(string call)
+	{
+		return Type.GetType(typeof(RdnApc).Namespace + '.' + call) ?? base.Create(call);
+	}
+
+	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		if(call is RdnApc a)
+			return a.Execute(Node, request, response, flow);
+		else
+			return base.Execute(call, request, response, flow);
+	}
+}
+
+public class RdnApiClient : McvApiClient
+{
+	new public static JsonSerializerOptions CreateOptions(Net.Net net)
+	{
+		var o = McvApiClient.CreateOptions(net);
+
+		o.TypeInfoResolver = new RdnTypeResolver();
+		
+		o.Converters.Add(new UraJsonConverter());
+		o.Converters.Add(new UrrJsonConverter());
+		o.Converters.Add(new ResourceDataJsonConverter());
+
+		return o;
+	}
+
+	public RdnApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
+	{
+		Options = CreateOptions(net);
+		Net = net;
+		
+	}
+
+	public RdnApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
+	{
+		Options = CreateOptions(net);
+		Net = net;
+	}
+	
+	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
+	public PackageInfo		FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+	
+	public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
+	{
+		Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
+
+		do
+		{
+			var d = Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
+		
+			if(d is null)
+			{
+				return Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+					
+				//if(lrr.Availability == Availability.Full)
+				//{
+				//	return lrr;
+				//}
  					//else
  					//{
  					//	throw new ResourceException(ResourceError.);
  					//}
-				}
-	
-				Thread.Sleep(100);
 			}
-			while(flow.Active);
 
-			throw new OperationCanceledException();
+			Thread.Sleep(100);
 		}
+		while(flow.Active);
 
-		public LocalReleaseApe Download(Ura address, Flow flow)
-		{
+		throw new OperationCanceledException();
+	}
+
+	public LocalReleaseApe Download(Ura address, Flow flow)
+	{
   			var r = Request<Resource>(new ResourceDownloadApc {Identifier = new (address)}, flow);
 
-			do
+		do
+		{
+			var d = Request<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+		
+			if(d is null)
 			{
-				var d = Request<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
-			
-				if(d is null)
-				{
-					return Request<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
-						
-					//if(lrr.Availability == Availability.Full)
-					//{
-					//	return lrr;
-					//}
+				return Request<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+					
+				//if(lrr.Availability == Availability.Full)
+				//{
+				//	return lrr;
+				//}
  					//else
  					//{
  					//	throw new ResourceException(ResourceError.);
  					//}
-				}
-	
-				Thread.Sleep(100);
 			}
-			while(flow.Active);
 
-			throw new OperationCanceledException();
+			Thread.Sleep(100);
 		}
-	}
+		while(flow.Active);
 
-	public class HttpGetApc : RdnApc
+		throw new OperationCanceledException();
+	}
+}
+
+public class HttpGetApc : RdnApc
+{
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+		try
 		{
-			try
+			var a = Ura.Parse(request.QueryString["address"]);
+			var path = request.QueryString["path"] ?? "";
+
+			var r = rdn.Peering.Call(() => new ResourceRequest(a), workflow).Resource;
+			var ra = r.Data?.Parse<Urr>()
+					 ??	
+					 throw new ResourceException(ResourceError.NotFound);
+
+			LocalResource s;
+			LocalRelease z;
+
+			lock(rdn.ResourceHub.Lock)
 			{
-				var a = Ura.Parse(request.QueryString["address"]);
-				var path = request.QueryString["path"] ?? "";
+				s = rdn.ResourceHub.Find(a) ?? rdn.ResourceHub.Add(a);
+				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra);
+			}
+
+			IIntegrity itg = null;
+
+			switch(ra)
+			{ 
+				case Urrh x :
+					if(r.Data.Type.Control == DataType.File)
+					{
+						itg = new DHIntegrity(x.Hash); 
+					}
+					else if(r.Data.Type.Control == DataType.Directory)
+					{
+						var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
+
+						var index = new Xon(f.Read());
+
+						itg = new DHIntegrity(index.Get<byte[]>(path)); 
+					}
+					break;
+
+				case Urrsd x :
+					var d = rdn.Peering.Call(() => new DomainRequest(a.Domain), workflow).Domain;
+					var aa = rdn.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
+					itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
+					break;
+
+				default:
+					throw new ResourceException(ResourceError.NotSupportedDataType);
+			}
+
+			response.ContentType = MimeTypes.MimeTypeMap.GetMimeType(path);
+
+			if(!z.IsReady(path))
+			{
+				FileDownload d;
+
+				lock(rdn.ResourceHub.Lock)
+					d = rdn.ResourceHub.DownloadFile(z, true, path, null, itg, null, workflow);
 	
-				var r = rdn.Peering.Call(() => new ResourceRequest(a), workflow).Resource;
-				var ra = r.Data?.Parse<Urr>()
-						 ??	
-						 throw new ResourceException(ResourceError.NotFound);
+				var ps = new List<FileDownload.Piece>();
+				int last = -1;
 	
-				LocalResource s;
-				LocalRelease z;
+				d.PieceSucceeded += p => {
+											if(!ps.Any())
+												response.ContentLength64 = d.Length;
+													
+											ps.Add(p);
 	
+											while(workflow.Active)
+											{
+												var i = ps.FirstOrDefault(i => i.I - 1 == last);
+	
+												if(i != null)
+												{	
+													response.OutputStream.Write(i.Data.ToArray(), 0, (int)i.Data.Length);
+													last = i.I;
+												}
+												else
+													break;;
+											}
+										};
+
+				d.Task.Wait(workflow.Cancellation);
+			}
+			else
+			{
 				lock(rdn.ResourceHub.Lock)
 				{
-					s = rdn.ResourceHub.Find(a) ?? rdn.ResourceHub.Add(a);
-					z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra);
-				}
-	
-				IIntegrity itg = null;
-	
-				switch(ra)
-				{ 
-					case Urrh x :
-						if(r.Data.Type.Control == DataType.File)
-						{
-							itg = new DHIntegrity(x.Hash); 
-						}
-						else if(r.Data.Type.Control == DataType.Directory)
-						{
-							var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
-	
-							var index = new Xon(f.Read());
-	
-							itg = new DHIntegrity(index.Get<byte[]>(path)); 
-						}
-						break;
-	
-					case Urrsd x :
-						var d = rdn.Peering.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-						var aa = rdn.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
-						itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
-						break;
-	
-					default:
-						throw new ResourceException(ResourceError.NotSupportedDataType);
-				}
-	
-				response.ContentType = MimeTypes.MimeTypeMap.GetMimeType(path);
-
-				if(!z.IsReady(path))
-				{
-					FileDownload d;
-	
-					lock(rdn.ResourceHub.Lock)
-						d = rdn.ResourceHub.DownloadFile(z, true, path, null, itg, null, workflow);
-		
-					var ps = new List<FileDownload.Piece>();
-					int last = -1;
-		
-					d.PieceSucceeded += p => {
-												if(!ps.Any())
-													response.ContentLength64 = d.Length;
-														
-												ps.Add(p);
-		
-												while(workflow.Active)
-												{
-													var i = ps.FirstOrDefault(i => i.I - 1 == last);
-		
-													if(i != null)
-													{	
-														response.OutputStream.Write(i.Data.ToArray(), 0, (int)i.Data.Length);
-														last = i.I;
-													}
-													else
-														break;;
-												}
-											};
-	
-					d.Task.Wait(workflow.Cancellation);
-				}
-				else
-				{
-					lock(rdn.ResourceHub.Lock)
-					{
-						response.ContentLength64 = z.Find(path).Length;
-						response.OutputStream.Write(z.Find(path).Read());
-					}
+					response.ContentLength64 = z.Find(path).Length;
+					response.OutputStream.Write(z.Find(path).Read());
 				}
 			}
-			catch(EntityException ex) when(ex.Error == EntityError.NotFound)
-			{
-				response.StatusCode = (int)HttpStatusCode.NotFound;
-			}
-	
-			return null;
 		}
+		catch(EntityException ex) when(ex.Error == EntityError.NotFound)
+		{
+			response.StatusCode = (int)HttpStatusCode.NotFound;
+		}
+
+		return null;
 	}
+}
 
 #if ETHEREUM
-	public class EstimateEmitApc : RdnApc
-	{
-		public byte[]			FromPrivateKey { get; set; } 
-		public BigInteger		Wei { get; set; } 
+public class EstimateEmitApc : RdnApc
+{
+	public byte[]			FromPrivateKey { get; set; } 
+	public BigInteger		Wei { get; set; } 
 
-		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), Wei, workflow);
-		}
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), Wei, workflow);
+	}
+}
+
+public class EmitApc : RdnApc
+{
+	public byte[]				FromPrivateKey { get; set; } 
+	public AccountAddress		To { get; set; } 
+	public int					Eid { get; set; } 
+	public BigInteger			Wei { get; set; } 
+	public BigInteger			Gas { get; set; } 
+	public BigInteger			GasPrice { get; set; } 
+
+	public class Response
+	{
+		
 	}
 
-	public class EmitApc : RdnApc
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public byte[]				FromPrivateKey { get; set; } 
-		public AccountAddress		To { get; set; } 
-		public int					Eid { get; set; } 
-		public BigInteger			Wei { get; set; } 
-		public BigInteger			Gas { get; set; } 
-		public BigInteger			GasPrice { get; set; } 
-
-		public class Response
-		{
-			
-		}
-
-		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
-			//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
-		}
+		return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
+		//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 	}
+}
 
-	public class EmissionApc : RdnApc
+public class EmissionApc : RdnApc
+{
+	public AccountAddress		By { get; set; } 
+	public int					Eid { get; set; } 
+	public TransactionStatus	Await { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		public AccountAddress		By { get; set; } 
-		public int					Eid { get; set; } 
-		public TransactionStatus	Await { get; set; }
+		var o = sun.Ethereum.FindEmission(By, Eid, workflow);
 
-		public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			var o = sun.Ethereum.FindEmission(By, Eid, workflow);
-
-			return o;
-		}
+		return o;
 	}
+}
 #endif
 
-	public class CostApc : RdnApc
+public class CostApc : RdnApc
+{
+	public class Return
 	{
-		public class Return
+		//public Money		RentBytePerDay { get; set; }
+		//public Money		Exeunit { get; set; }
+
+		public Unit		RentAccount { get; set; }
+
+		public Unit[][]	RentDomain { get; set; }
+		
+		public Unit[]	RentResource { get; set; }
+		public Unit		RentResourceForever { get; set; }
+
+		public Unit[]	RentResourceData { get; set; }
+		public Unit		RentResourceDataForever { get; set; }
+	}
+
+	public Unit		Rate { get; set; } = 1;
+	public byte[]	Years { get; set; }
+	public byte[]	DomainLengths { get; set; }
+
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(Rate == 0)
 		{
-			//public Money		RentBytePerDay { get; set; }
-			//public Money		Exeunit { get; set; }
+			Rate = 1;
+		}
 
-			public Unit		RentAccount { get; set; }
+		var r = rdn.Peering.Call(() => new CostRequest(), workflow);
 
-			public Unit[][]	RentDomain { get; set; }
+		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
+							//Exeunit						= r.ConsensusExeunitFee * Rate,
 			
-			public Unit[]	RentResource { get; set; }
-			public Unit		RentResourceForever { get; set; }
-
-			public Unit[]	RentResourceData { get; set; }
-			public Unit		RentResourceDataForever { get; set; }
-		}
-
-		public Unit		Rate { get; set; } = 1;
-		public byte[]	Years { get; set; }
-		public byte[]	DomainLengths { get; set; }
-
-		public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-		{
-			if(Rate == 0)
-			{
-				Rate = 1;
-			}
-
-			var r = rdn.Peering.Call(() => new CostRequest(), workflow);
-
-			return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
-								//Exeunit						= r.ConsensusExeunitFee * Rate,
+							RentAccount					= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
 				
-								RentAccount					= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
-					
-								RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
-					
-								RentResource				= Years.Select(y => RdnOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceForever			= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
+							RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 				
-								RentResourceData			= Years.Select(y => RdnOperation.SpacetimeFee(1, Time.FromYears(y)) * Rate).ToArray(),
-								RentResourceDataForever		= RdnOperation.SpacetimeFee(1, Mcv.Forever) * Rate};
-		}
+							RentResource				= Years.Select(y => RdnOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceForever			= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
+			
+							RentResourceData			= Years.Select(y => RdnOperation.SpacetimeFee(1, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceDataForever		= RdnOperation.SpacetimeFee(1, Mcv.Forever) * Rate};
 	}
 }

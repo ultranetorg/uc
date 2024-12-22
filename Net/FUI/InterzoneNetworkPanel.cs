@@ -1,20 +1,16 @@
-﻿using System.Data;
-using System.Reflection;
-using System.Windows.Forms;
+﻿namespace Uccs.Net.FUI;
 
-namespace Uccs.Net.FUI
+public partial class NtnNetworkPanel : MainPanel
 {
-	public partial class NtnNetworkPanel : MainPanel
+	Flow Flow;
+
+	public NtnNetworkPanel(HomoTcpPeering node)
 	{
-		Flow Flow;
+		InitializeComponent();
+	}
 
-		public NtnNetworkPanel(HomoTcpPeering node)
-		{
-			InitializeComponent();
-		}
-
-		public override void Open(bool first)
-		{
+	public override void Open(bool first)
+	{
 /// 			Peers.Items.Clear();
 /// 
 /// 			if(Flow != null && Flow.Active)
@@ -53,53 +49,52 @@ namespace Uccs.Net.FUI
 /// 				}
 /// 			}
 
-			//Task.Run(() =>	{
-			//					FundsResponse rp = null;
-			//
-			//					try
-			//					{
-			//						rp = Sun.Call(p => p.GetFunds(), Workflow);
-			//					}
-			//					catch(OperationCanceledException)
-			//					{
-			//						return;
-			//					}
-			//					catch(Exception)
-			//					{
-			//					}
-			//
-			//					Invoke(new Action(() =>
-			//					{
-			//						foreach(var i in rp.Funds.Order())
-			//						{
-			//							var li = new ListViewItem(i.ToString());
-			//							Funds.Items.Add(li);
-			//						}
-			//					}));
-			//				});
-		}
+		//Task.Run(() =>	{
+		//					FundsResponse rp = null;
+		//
+		//					try
+		//					{
+		//						rp = Sun.Call(p => p.GetFunds(), Workflow);
+		//					}
+		//					catch(OperationCanceledException)
+		//					{
+		//						return;
+		//					}
+		//					catch(Exception)
+		//					{
+		//					}
+		//
+		//					Invoke(new Action(() =>
+		//					{
+		//						foreach(var i in rp.Funds.Order())
+		//						{
+		//							var li = new ListViewItem(i.ToString());
+		//							Funds.Items.Add(li);
+		//						}
+		//					}));
+		//				});
+	}
 
-		public override void PeriodicalRefresh()
-		{
-			//if(peers.Rows.Count >= 0)
-			//{
-			//	var rows = peers.Rows.Cast<DataGridViewRow>();
-			//
-			//	lock(Core.Lock)
-			//	{
-			//		foreach(var i in Core.Peers)
-			//		{
-			//			var r = rows.FirstOrDefault(j => j.Tag as Peer == i);
-			//		
-			//			if(r != null)
-			//			{
-			//				r.Cells[1].Value = i.StatusDescription;
-			//				r.Cells[2].Value = i.Retries;
-			//				r.Cells[3].Value = i.LastSeen.ToString(ChainTime.DateFormat);
-			//			}
-			//		}
-			//	}
-			//}
-		}
+	public override void PeriodicalRefresh()
+	{
+		//if(peers.Rows.Count >= 0)
+		//{
+		//	var rows = peers.Rows.Cast<DataGridViewRow>();
+		//
+		//	lock(Core.Lock)
+		//	{
+		//		foreach(var i in Core.Peers)
+		//		{
+		//			var r = rows.FirstOrDefault(j => j.Tag as Peer == i);
+		//		
+		//			if(r != null)
+		//			{
+		//				r.Cells[1].Value = i.StatusDescription;
+		//				r.Cells[2].Value = i.Retries;
+		//				r.Cells[3].Value = i.LastSeen.ToString(ChainTime.DateFormat);
+		//			}
+		//		}
+		//	}
+		//}
 	}
 }

@@ -1,28 +1,27 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public class PlaceTransactionsRequest : McvPpc<PlaceTransactionsResponse>
 {
-	public class PlaceTransactionsRequest : McvPpc<PlaceTransactionsResponse>
+	public Transaction[]	Transactions {get; set;}
+
+	public override PeerResponse Execute()
 	{
-		public Transaction[]	Transactions {get; set;}
-
-		public override PeerResponse Execute()
+		lock(Peering.Lock)
 		{
-			lock(Peering.Lock)
-			{
-				lock(Mcv.Lock)
-				{	
-					RequireMember();
-	
-					var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
+			lock(Mcv.Lock)
+			{	
+				RequireMember();
 
-					return new PlaceTransactionsResponse {Accepted = acc};
-				}
+				var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
+
+				return new PlaceTransactionsResponse {Accepted = acc};
 			}
 		}
 	}
-	
-	public class PlaceTransactionsResponse : PeerResponse
-	{
-		public byte[][] Accepted { get; set; }
-	}
+}
+
+public class PlaceTransactionsResponse : PeerResponse
+{
+	public byte[][] Accepted { get; set; }
 }
 

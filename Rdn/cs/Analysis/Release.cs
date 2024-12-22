@@ -1,20 +1,20 @@
-﻿namespace Uccs.Rdn
+﻿namespace Uccs.Rdn;
+
+[Flags]
+public enum ReleaseFlag : byte
 {
-	[Flags]
-	public enum ReleaseFlag : byte
-	{
-		None,
-		Analysis = 0b_______1
-	}
+	None,
+	Analysis = 0b_______1
+}
 
 
-	//public enum AnalysisStage : byte
-	//{
-	//	NotRequested = 0,  
-	//	Pending,
-	//	HalfVotingReached,
-	//	Finished,
-	//}
+//public enum AnalysisStage : byte
+//{
+//	NotRequested = 0,  
+//	Pending,
+//	HalfVotingReached,
+//	Finished,
+//}
 
 // 	public class Release : IBinarySerializable
 // 	{
@@ -53,4 +53,3 @@
 // 			}
 // 		}
 //	}
-}

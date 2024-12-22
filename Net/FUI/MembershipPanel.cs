@@ -1,14 +1,14 @@
-﻿namespace Uccs.Net.FUI
-{
-	public partial class MembershipPanel : MainPanel
-	{
-		public MembershipPanel()
-		{
-			InitializeComponent();
-		}
+﻿namespace Uccs.Net.FUI;
 
-		public override void Open(bool first)
-		{
+public partial class MembershipPanel : MainPanel
+{
+	public MembershipPanel()
+	{
+		InitializeComponent();
+	}
+
+	public override void Open(bool first)
+	{
 ///			if(first)
 ///			{
 ///				BindAccounts(Candidates);
@@ -19,14 +19,14 @@
 ///				//Bail.Coins = Mcv.Net.PledgeMin;
 ///				IP.Text = Node.IP.ToString();
 ///			}
-		}
+	}
 
-		public override void Close()
-		{
-		}
+	public override void Close()
+	{
+	}
 
-		void UpdateCandidateAccounts()
-		{
+	void UpdateCandidateAccounts()
+	{
 ///			FillAccounts(NewCandidate);
 ///
 ///			if(Core.Settings.Generator != null)
@@ -42,10 +42,10 @@
 ///			}
 ///			else
 ///				CurrentCandidate.Text = null;
-		}
+	}
 
-		public override void PeriodicalRefresh()
-		{
+	public override void PeriodicalRefresh()
+	{
 /// 			Declarations.Items.Clear();
 /// 			Blocks.Items.Clear();
 /// 
@@ -76,10 +76,10 @@
 /// 
 /// 			Activate.Enabled = NewCandidate.Items.Count > 0/* && NewCandidate.SelectedItem as PrivateAccount != Core.Member*/; 
 /// 			Deactivate.Enabled = Core.Generator != null;
-		}
+	}
 
-		private void Declare_Click(object sender, EventArgs e)
-		{
+	private void Declare_Click(object sender, EventArgs e)
+	{
 /// 		try
 /// 		{
 /// 			Core.Enqueue(new CandidacyDeclaration(	GetPrivate(Candidates.SelectedItem as Account), 
@@ -92,10 +92,10 @@
 /// 		{
 /// 			ShowError(ex.Message);
 /// 		}
-		}
+	}
 
-		private void Activate_Click(object sender, EventArgs e)
-		{
+	private void Activate_Click(object sender, EventArgs e)
+	{
 /// 			try
 /// 			{
 /// 				//var pf = new PasswordForm(Core.Settings.Secret?.Password);
@@ -117,10 +117,10 @@
 /// 			{
 /// 				ShowError(ex.Message);
 /// 			}
-		}
+	}
 
-		private void Deactivate_Click(object sender, EventArgs e)
-		{
+	private void Deactivate_Click(object sender, EventArgs e)
+	{
 /// 			try
 /// 			{
 /// 				lock(Core.Lock)
@@ -136,6 +136,5 @@
 /// 			{
 /// 				ShowError(ex.Message);
 /// 			}
-		}
 	}
 }
