@@ -9,9 +9,9 @@ public class ProductTable : Table<ProductEntry>
 	{
 	}
 	
-	protected override ProductEntry Create(int cid)
+	public override ProductEntry Create()
 	{
-		return new ProductEntry(Mcv) {Id = new ProductId {H = cid}};
+		return new ProductEntry(Mcv);
 	}
 
 	public ProductEntry Find(ProductId id, int ridmax)

@@ -11,9 +11,9 @@ public class AuthorTable : Table<AuthorEntry>
 	{
 	}
 		
-	protected override AuthorEntry Create(int cid)
+	public override AuthorEntry Create()
 	{
-		return new AuthorEntry(Mcv) {Id = new EntityId {H = cid}};
+		return new AuthorEntry(Mcv);
 	}
 
 

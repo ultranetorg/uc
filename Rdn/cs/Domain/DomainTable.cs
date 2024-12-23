@@ -19,9 +19,9 @@ public class DomainTable : Table<DomainEntry>
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 	}
 	
-	protected override DomainEntry Create(int cid)
+	public override DomainEntry Create()
 	{
-		return new DomainEntry(Mcv) {Id = new EntityId {H = cid}};
+		return new DomainEntry(Mcv);
 	}
 	
  	public DomainEntry Find(string name, int ridmax)

@@ -59,7 +59,7 @@ public class FairMcv : Mcv
 
 		Database = RocksDb.Open(dbo, databasepath, cfs);
 
-		Accounts = new (this);
+		Accounts = new FairAccountTable(this);
 		Authors = new (this);
 		Products = new (this);
 

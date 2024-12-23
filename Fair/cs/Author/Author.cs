@@ -1,6 +1,6 @@
 namespace Uccs.Fair;
 
-public enum PublisherFlag : byte
+public enum AuthorFlag : byte
 {
 	None, 
 }

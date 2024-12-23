@@ -138,10 +138,13 @@ public abstract class Round : IBinarySerializable
 			
 			ei = NextAccountIds[h]++;
 
-			a = AffectedAccounts[account] = new AccountEntry(Mcv)  {Id = new EntityId(h, ei), 
-																	Address = account,
-																	ECBalance = [],
-																	New = true};
+			a = Mcv.Accounts.Create();
+			a.Id		= new EntityId(h, ei);
+			a.Address	= account;
+			a.ECBalance = [];
+			a.New		= true;
+			
+			AffectedAccounts[account] = a;
 		}
 
 		return a;

@@ -16,28 +16,29 @@ public class AccountEntry : Account, ITableEntry
 	{
 	}
 
-	public AccountEntry(Mcv chain)
+	public AccountEntry(Mcv mcv)
 	{
-		Mcv = chain;
+		Mcv = mcv;
 	}
 
-	public AccountEntry Clone()
+	public virtual AccountEntry Clone()
 	{
-		return new AccountEntry(Mcv){	Id						= Id,
-										Address					= Address,
-										BYBalance				= BYBalance,
-										ECBalance				= ECBalance.ToList(),
-										LastTransactionNid		= LastTransactionNid,
-										//LastEmissionId			= LastEmissionId,
-										
-										BandwidthNext			= BandwidthNext,
-										BandwidthExpiration		= BandwidthExpiration,
-										BandwidthToday			= BandwidthToday,
-										BandwidthTodayTime		= BandwidthTodayTime,
-										BandwidthTodayAvailable	= BandwidthTodayAvailable,
+		var a = Mcv.Accounts.Create();
 
-										//Transactions			= Mcv.Settings.Chain != null ? new List<int>(Transactions) : null
-										};
+		a.Id						= Id;
+		a.Address					= Address;
+		a.BYBalance					= BYBalance;
+		a.ECBalance					= ECBalance.ToList();
+		a.LastTransactionNid		= LastTransactionNid;
+		
+		
+		a.BandwidthNext				= BandwidthNext;
+		a.BandwidthExpiration		= BandwidthExpiration;
+		a.BandwidthToday			= BandwidthToday;
+		a.BandwidthTodayTime		= BandwidthTodayTime;
+		a.BandwidthTodayAvailable	= BandwidthTodayAvailable;
+
+		return a;
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -51,12 +52,12 @@ public class AccountEntry : Account, ITableEntry
 		base.Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter w)
+	public virtual void WriteMain(BinaryWriter w)
 	{
 		Write(w);
 	}
 
-	public void ReadMain(BinaryReader r)
+	public virtual void ReadMain(BinaryReader r)
 	{
 		Read(r);
 	}

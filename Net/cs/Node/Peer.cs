@@ -92,37 +92,37 @@ public class Peer : IPeer, IBinarySerializable
 		return IP.GetHashCode();
 	}
 
-  		public void SaveNode(BinaryWriter writer)
-  		{
+	public void SaveNode(BinaryWriter writer)
+	{
 		//writer.WriteUtf8(Net);
 		writer.Write(Port);
 		writer.Write7BitEncodedInt64(Roles);
-  			writer.Write7BitEncodedInt64(LastSeen.ToBinary());
+		writer.Write7BitEncodedInt64(LastSeen.ToBinary());
 		writer.Write(PeerRank);
-  		}
-  
-  		public void LoadNode(BinaryReader reader)
-  		{
+	}
+
+	public void LoadNode(BinaryReader reader)
+	{
 		//Net = reader.ReadUtf8();
 		Port = reader.ReadUInt16();
 		Roles = reader.Read7BitEncodedInt64();
-  			LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
+		LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
 		PeerRank = reader.ReadInt32();
-  		}
- 
- 		public void Write(BinaryWriter writer)
- 		{
- 			writer.Write(IP);
- 			writer.Write(Port);
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(IP);
+		writer.Write(Port);
 		writer.Write7BitEncodedInt64(Roles);
- 		}
- 
- 		public void Read(BinaryReader reader)
- 		{
- 			IP = reader.ReadIPAddress();
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		IP = reader.ReadIPAddress();
 		Port = reader.ReadUInt16();
 		Roles = reader.Read7BitEncodedInt64();
- 		}
+	}
 
 	public static void SendHello(TcpClient client, Hello h)
 	{
@@ -324,8 +324,8 @@ public class Peer : IPeer, IBinarySerializable
 
 				switch(pk)
 				{
- 						case PacketType.Request:
- 						{
+ 					case PacketType.Request:
+ 					{
 						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constract);
 						rq.Peer = this;
 						rq.Peering = Peering;
@@ -342,8 +342,8 @@ public class Peer : IPeer, IBinarySerializable
  	
 						SendSignal.Set();
 
- 							break;
- 						}
+ 						break;
+ 					}
 
 					case PacketType.Response:
  						{
@@ -387,8 +387,8 @@ public class Peer : IPeer, IBinarySerializable
 		}
 	}
 
- 		public override void Post(PeerRequest rq)
- 		{
+	public override void Post(PeerRequest rq)
+	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
@@ -398,10 +398,10 @@ public class Peer : IPeer, IBinarySerializable
 			Outs.Enqueue(rq);
 
 		SendSignal.Set();
- 		}
+	}
 
- 		public override PeerResponse Send(PeerRequest rq)
- 		{
+	public override PeerResponse Send(PeerRequest rq)
+	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
@@ -419,13 +419,13 @@ public class Peer : IPeer, IBinarySerializable
 
 		SendSignal.Set();
 
- 			if(rq.WaitResponse)
- 			{
+		if(rq.WaitResponse)
+		{
 			int i = -1;
 
 			try
 			{
-				i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+				i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60 * 1000);
 			}
 			catch(ObjectDisposedException)
 			{
@@ -436,16 +436,16 @@ public class Peer : IPeer, IBinarySerializable
 				rq.Event.Close();
 			}
 
-	 		if(i == 0)
-	 		{
+			if(i == 0)
+			{
 				if(rq.Response == null)
 					throw new NodeException(NodeError.Connectivity);
-	
-	 			if(rq.Response.Error == null)
+
+				if(rq.Response.Error == null)
 				{
 					return rq.Response;
 				}
-	 			else 
+				else
 				{
 					if(rq.Response.Error is NodeException e)
 					{
@@ -454,13 +454,13 @@ public class Peer : IPeer, IBinarySerializable
 
 					throw rq.Response.Error;
 				}
- 			}
-	 		else if(i == 1)
+			}
+			else if(i == 1)
 				throw new OperationCanceledException();
 			else
-	 			throw new NodeException(NodeError.Timeout);
- 			}
+				throw new NodeException(NodeError.Timeout);
+		}
 		else
 			return null;
- 		}
+	}
 }

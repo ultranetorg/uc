@@ -135,6 +135,7 @@ public class Account : IBinarySerializable
 
 	public virtual void Write(BinaryWriter writer)
 	{
+		writer.Write(Id);
 		writer.Write(Address);
 		writer.Write(ECBalance);
 		writer.Write7BitEncodedInt64(BYBalance);
@@ -155,6 +156,7 @@ public class Account : IBinarySerializable
 
 	public virtual void Read(BinaryReader reader)
 	{
+		Id					= reader.Read<EntityId>();
 		Address				= reader.ReadAccount();
 		ECBalance 			= reader.ReadList<ExecutionReservation>();
 		BYBalance 			= reader.Read7BitEncodedInt64();

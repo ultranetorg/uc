@@ -1,4 +1,4 @@
-﻿namespace Uccs.Fair.CLI;
+﻿namespace Uccs.Fair;
 
 public abstract class FairCommand : McvCommand
 {

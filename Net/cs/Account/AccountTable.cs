@@ -8,9 +8,9 @@ public class AccountTable : Table<AccountEntry>
 	{
 	}
 
-	protected override AccountEntry Create(int cid)
+	public override AccountEntry Create()
 	{
-		return new AccountEntry(Mcv) {Id = new EntityId {H = cid}};
+		return new AccountEntry(Mcv);
 	}
 
 	public AccountEntry FindEntry(AccountAddress key)

@@ -9,9 +9,9 @@ public class ResourceTable : Table<ResourceEntry>
 	{
 	}
 	
-	protected override ResourceEntry Create(int cid)
+	public override ResourceEntry Create()
 	{
-		return new ResourceEntry(Mcv) {Id = new ResourceId {H = cid}};
+		return new ResourceEntry(Mcv);
 	}
 
 	public ResourceEntry Find(ResourceId id, int ridmax)

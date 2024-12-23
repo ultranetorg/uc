@@ -36,6 +36,7 @@ public class Product// : IBinarySerializable
 
 	public void WriteMain(BinaryWriter writer)
 	{
+		writer.Write(Id);
 		writer.Write((byte)Flags);
 		writer.Write(Updated);
 		
@@ -44,7 +45,8 @@ public class Product// : IBinarySerializable
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Flags = (ProductFlags)reader.ReadByte();
+		Id		= reader.Read<ProductId>();
+		Flags	= (ProductFlags)reader.ReadByte();
 		Updated	= reader.Read<Time>();
 
 		Data = reader.ReadBytes();

@@ -12,9 +12,9 @@ public abstract class Rdn : McvNet
 	public bool						Auctions				= false;
 	public long						DomainRankCheckECFee	= 5;
 
- 		public static readonly Rdn		Local = new RdnLocal();
- 		public static readonly Rdn		Test = new RdnPublicTest();
- 		public static readonly Rdn		Developer0 = new RdnDeveloper0();
+ 	public static readonly Rdn		Local = new RdnLocal();
+ 	public static readonly Rdn		Test = new RdnPublicTest();
+ 	public static readonly Rdn		Developer0 = new RdnDeveloper0();
 	public static readonly Rdn		Main = null;
 	public static readonly Rdn[]	Official = [Local, Developer0, Test];
 

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class AuthorRequest : FairPpc<PublisherResponse>
+public class AuthorRequest : FairPpc<AuthorResponse>
 {
 	public new EntityId	Id { get; set; }
 
@@ -27,12 +27,12 @@ public class AuthorRequest : FairPpc<PublisherResponse>
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new PublisherResponse {Author = e};
+			return new AuthorResponse {Author = e};
 		}
 	}
 }
 
-public class PublisherResponse : PeerResponse
+public class AuthorResponse : PeerResponse
 {
 	public Author	Author {get; set;}
 }

@@ -49,7 +49,7 @@ public class DomainEntry : Domain, ITableEntry
 
 	public void WriteMain(BinaryWriter writer)
 	{
-		writer.Write7BitEncodedInt(Id.E);
+		writer.Write(Id);
 
 		var f = DomainFlag.None;
 		
@@ -111,8 +111,7 @@ public class DomainEntry : Domain, ITableEntry
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Id.E = reader.Read7BitEncodedInt();
-
+		Id				= reader.Read<EntityId>();
 		var f			= (DomainFlag)reader.ReadByte();
 		Address			= reader.ReadUtf8();
 		NextResourceId	= reader.Read7BitEncodedInt();

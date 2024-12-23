@@ -31,7 +31,7 @@ public abstract class TableBase
 		public int									Id;
 		public short								SuperId => (short)(Id >> 12);
 		public int									MainLength;
- 			public abstract int							NextEntryId { get; set; }
+ 		public abstract int							NextEntryId { get; set; }
 		public byte[]								Hash { get; set; }
 		public abstract byte[]						Main { get; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
@@ -154,7 +154,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 				_NextEntryId = r.Read7BitEncodedInt();
 
 				var a = r.ReadList(()=>	{ 
-											var e = Table.Create(Id);
+											var e = Table.Create();
 											e.ReadMain(r);
 											return e;
 										});
@@ -351,7 +351,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public static string			MainColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 	public static string			MoreColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 
-	protected abstract E			Create(int bid);
+	public abstract E				Create();
 
 	public Table(Mcv chain)
 	{

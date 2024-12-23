@@ -20,17 +20,15 @@ public class FairCli : McvCli
 
 	public override McvCommand Create(IEnumerable<Xon> commnad, Flow flow)
 	{
-		var c = base.Create(commnad, flow);
-
-		if(c != null)
-			return c;
-
+		McvCommand c = null;
 		var t = commnad.First().Name;
 
 		var args = commnad.Skip(1).ToList();
 
 		switch(t)
 		{
+			case AuthorCommand.Keyword:	c = new AuthorCommand(this, args, flow); break;
+			
 			//case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, flow); break;
 			//case DevCommand.Keyword:		c = new DevCommand(this, args, flow); break;
 			//case EconomyCommand.Keyword:	c = new EconomyCommand(this, args, flow); break;
@@ -38,11 +36,9 @@ public class FairCli : McvCli
 			//case ResourceCommand.Keyword:	c = new ResourceCommand(this, args, flow); break;
 			//case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args, flow); break;
 			//case LinkCommand.Keyword:		c = new LinkCommand(this, args, flow); break;
-			default:
-				throw new SyntaxException("Unknown command");
 		}
 
-		return c;
+		return c ?? base.Create(commnad, flow);;
 	}
 
 	public override object Execute(Boot boot, Flow flow)

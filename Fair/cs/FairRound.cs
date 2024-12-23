@@ -25,6 +25,9 @@ public class FairRound : Round
 		if(table == Mcv.Authors)
 			return AffectedAuthors.Values;
 
+		if(table == Mcv.Products)
+			return AffectedProducts.Values;
+
 		throw new IntegrityException();
 	}
 
@@ -57,9 +60,9 @@ public class FairRound : Round
 				
 			var pid = NextAuthorIds[ci]++;
 
-			return AffectedAuthors[new EntityId(ci, pid)] = new AuthorEntry(Mcv){	//Affected = true,
-																						//New = true,
-																						Id = new EntityId(ci, pid)};
+			var a = new AuthorEntry(Mcv) {Id = new EntityId(ci, pid)};
+
+			return AffectedAuthors[a.Id] = a;
 		}
 		else
 		{

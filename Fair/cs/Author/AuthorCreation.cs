@@ -31,6 +31,10 @@ public class AuthorCreation : FairOperation
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
 		var e = round.AffectAuthor(null);
+		
+		var a = Signer as FairAccountEntry;
+
+		a.Authors = a.Authors == null ? [e.Id] : [..a.Authors, e.Id];
 							
 		e.Owner			= Signer.Id;
 		e.Expiration	= round.ConsensusTime + Time.FromYears(Years);

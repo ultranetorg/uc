@@ -85,8 +85,8 @@ public abstract class NetException : Exception, ITypeCode, IBinarySerializable
 	}
 }
 
- 	public class NodeException : NetException
- 	{
+public class NodeException : NetException
+{
 	public override int				ErrorCode { get => (int)Error; set => Error = (NodeError)value; }
 	public NodeError				Error { get; protected set; }
 	public override string			Message => Error.ToString();
@@ -118,8 +118,8 @@ public class RequestException : NetException
 	}
 }
 
- 	public class EntityException : NetException
- 	{
+public class EntityException : NetException
+{
 	public override int				ErrorCode { get => (int)Error; set => Error = (EntityError)value; }
 	public EntityError				Error { get; protected set; }
 	public override string			Message => Error.ToString();
@@ -132,4 +132,4 @@ public class RequestException : NetException
 	{
 		Error = erorr;
 	}
- 	}
+}

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public enum PublisherAction
+public enum AuthorAction
 {
 	None, Renew, Transfer
 }
@@ -8,7 +8,7 @@ public enum PublisherAction
 public class AuthorUpdation : FairOperation
 {
 	public new EntityId			Id {get; set;}
-	public PublisherAction		Action  {get; set;}
+	public AuthorAction			Action  {get; set;}
 	public byte					Years {get; set;}
 	public AccountAddress		Owner  {get; set;}
 
@@ -21,10 +21,10 @@ public class AuthorUpdation : FairOperation
 	
 	public override bool IsValid(Mcv mcv)
 	{ 
-		if(!Enum.IsDefined(Action) || Action == PublisherAction.None) 
+		if(!Enum.IsDefined(Action) || Action == AuthorAction.None) 
 			return false;
 		
-		if(	(Action == PublisherAction.Renew) && 
+		if(	(Action == AuthorAction.Renew) && 
 			(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
 			return false;
 
@@ -34,12 +34,12 @@ public class AuthorUpdation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
-		Action	= (PublisherAction)reader.ReadByte();
+		Action	= (AuthorAction)reader.ReadByte();
 
-		if(Action == PublisherAction.Renew)
+		if(Action == AuthorAction.Renew)
 			Years = reader.ReadByte();
 
-		if(Action == PublisherAction.Transfer)
+		if(Action == AuthorAction.Transfer)
 			Owner = reader.Read<AccountAddress>();
 	}
 
@@ -48,10 +48,10 @@ public class AuthorUpdation : FairOperation
 		writer.Write(Id);
 		writer.Write((byte)Action);
 
-		if(Action == PublisherAction.Renew)
+		if(Action == AuthorAction.Renew)
 			writer.Write(Years);
 
-		if(Action == PublisherAction.Transfer)
+		if(Action == AuthorAction.Transfer)
 			writer.Write(Owner);
 	}
 
@@ -65,7 +65,7 @@ public class AuthorUpdation : FairOperation
 			return;
 		}			
 
-		if(Action == PublisherAction.Renew)
+		if(Action == AuthorAction.Renew)
 		{	
 			if(!Author.CanRenew(e, Signer, round.ConsensusTime))
 			{
@@ -80,7 +80,7 @@ public class AuthorUpdation : FairOperation
 			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 		}
 
-		if(Action == PublisherAction.Transfer)
+		if(Action == AuthorAction.Transfer)
 		{
 			if(!Author.IsOwner(e, Signer, round.ConsensusTime))
 			{

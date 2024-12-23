@@ -24,17 +24,19 @@ public class AuthorEntry : Author, ITableEntry
 
 	public AuthorEntry Clone()
 	{
-		return new AuthorEntry(Mcv) {Id = Id,
-										Owner = Owner,
-										Expiration = Expiration,
-										SpaceReserved = SpaceReserved,
-										SpaceUsed = SpaceUsed,
-										NextProductId = NextProductId};
+		return new AuthorEntry(Mcv){Id = Id,
+									Owner = Owner,
+									Expiration = Expiration,
+									SpaceReserved = SpaceReserved,
+									SpaceUsed = SpaceUsed,
+									NextProductId = NextProductId};
 	}
 
 	public void WriteMain(BinaryWriter writer)
 	{
-		var f = PublisherFlag.None;
+		writer.Write(Id);
+	
+		var f = AuthorFlag.None;
 
 		writer.Write((byte)f);
 		writer.Write7BitEncodedInt(SpaceReserved);
@@ -50,7 +52,9 @@ public class AuthorEntry : Author, ITableEntry
 
 	public void ReadMain(BinaryReader reader)
 	{
-		var f			= (PublisherFlag)reader.ReadByte();
+		Id				= reader.Read<EntityId>();
+
+		var f			= (AuthorFlag)reader.ReadByte();
 		SpaceReserved	= (short)reader.Read7BitEncodedInt();
 		SpaceUsed		= (short)reader.Read7BitEncodedInt();
 		Owner			= reader.Read<EntityId>();
