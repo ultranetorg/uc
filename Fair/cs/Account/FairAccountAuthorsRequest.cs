@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class FairAccountAuthorsRequest : McvPpc<AccountResponse>
+public class FairAccountAuthorsRequest : McvPpc<FairAccountAuthorsResponse>
 {
 	public AccountIdentifier		Identifier {get; set;}
 

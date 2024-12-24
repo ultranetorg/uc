@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Net;
+using System.Runtime.Serialization;
 
 namespace Uccs.Net;
 
@@ -70,13 +71,28 @@ public class BinarySerializator
 			}
 			case ICollection v:
 			{
-				writer.Write7BitEncodedInt(v.Count);
-						
-				foreach(var j in v)
+				if(type.IsArray)
 				{
-					Serialize(writer, j, type.GetElementType(), typetocode);
-				}
-				return;
+					writer.Write7BitEncodedInt(v.Count);
+							
+					foreach(var j in v)
+					{
+						Serialize(writer, j, type.GetElementType(), typetocode);
+					}
+					return;
+				} 
+				///else if(val is IDictionary d)
+				///{
+				///	writer.Write7BitEncodedInt(d.Count);
+				///
+				///	foreach(var j in d)
+				///	{
+				///		Serialize(writer, j, type.GenericTypeArguments[0], typetocode);
+				///		Serialize(writer, j, type.GenericTypeArguments[1], typetocode);
+				///	}
+				///}
+				else
+					throw new NotSupportedException(type.Name);
 			}
 		}
 
@@ -225,18 +241,34 @@ public class BinarySerializator
 		if(type == typeof(Xon))			return new Xon(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
 		else if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
 		{
-			var ltype = type.GetElementType().MakeArrayType(1);
-
-			var n = reader.Read7BitEncodedInt();
-
-			var l = ltype.GetConstructor([typeof(int)]).Invoke([n]);
-
-			for(int i=0; i<n; i++)
+			if(type.IsArray)
 			{
-				l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType(), construct)]);
-			}
-
-			return l;
+				var ltype = type.GetElementType().MakeArrayType(1);
+	
+				var n = reader.Read7BitEncodedInt();
+	
+				var l = ltype.GetConstructor([typeof(int)]).Invoke([n]);
+	
+				for(int i=0; i<n; i++)
+				{
+					l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType(), construct)]);
+				}
+	
+				return l;
+			} 
+			//else if(type is IDictionary)
+			//{
+			//	var d = type.GetConstructor([]).Invoke(null);
+			//
+			//	var n = reader.Read7BitEncodedInt();
+			//
+			//	for(int i=0; i<n; i++)
+			//	{
+			//		type.InvokeMember("Add",  System.Reflection.BindingFlags.Default, null, d, [Deserialize(reader, type.GenericTypeArguments[0], construct), Deserialize(reader, type.GenericTypeArguments[1], construct)]);
+			//	}
+			//}
+			else
+				throw new NotSupportedException(type.Name);
 		}
 
 		var o = Construct(reader, type, construct);

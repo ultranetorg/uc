@@ -35,7 +35,7 @@ namespace Uccs.Net.FUI
 			this.Backup = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.CopyAddress = new System.Windows.Forms.Button();
-			this.accounts = new System.Windows.Forms.ListView();
+			this.Accounts = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			this.groupBox2.SuspendLayout();
@@ -119,21 +119,21 @@ namespace Uccs.Net.FUI
 			// 
 			// accounts
 			// 
-			this.accounts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.Accounts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.accounts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.Accounts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
-			this.accounts.FullRowSelect = true;
-			this.accounts.Location = new System.Drawing.Point(0, 0);
-			this.accounts.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.accounts.Name = "accounts";
-			this.accounts.Size = new System.Drawing.Size(1896, 1147);
-			this.accounts.TabIndex = 5;
-			this.accounts.UseCompatibleStateImageBehavior = false;
-			this.accounts.View = System.Windows.Forms.View.Details;
-			this.accounts.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.accounts_ItemSelectionChanged);
+			this.Accounts.FullRowSelect = true;
+			this.Accounts.Location = new System.Drawing.Point(0, 0);
+			this.Accounts.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Accounts.Name = "accounts";
+			this.Accounts.Size = new System.Drawing.Size(1896, 1147);
+			this.Accounts.TabIndex = 5;
+			this.Accounts.UseCompatibleStateImageBehavior = false;
+			this.Accounts.View = System.Windows.Forms.View.Details;
+			this.Accounts.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.accounts_ItemSelectionChanged);
 			// 
 			// columnHeader1
 			// 
@@ -150,7 +150,7 @@ namespace Uccs.Net.FUI
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.accounts);
+			this.Controls.Add(this.Accounts);
 			this.Controls.Add(this.groupBox2);
 			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Name = "AccountsPanel";
@@ -166,7 +166,7 @@ namespace Uccs.Net.FUI
 		private System.Windows.Forms.Button Showprivate;
 		private System.Windows.Forms.Button Backup;
 		private System.Windows.Forms.GroupBox groupBox2;
-		private System.Windows.Forms.ListView accounts;
+		private System.Windows.Forms.ListView Accounts;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.Button CopyAddress;

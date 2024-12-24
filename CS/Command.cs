@@ -153,6 +153,16 @@ namespace Uccs
 					return null;
 		}
 
+		protected string GetString(string paramenter, string def)
+		{
+			var p = One(paramenter);
+
+			if(p != null)
+				return p.Get<string>();
+			else
+				return def;
+		}
+
 		protected long GetLong(string paramenter)
 		{
 			var p = One(paramenter);
@@ -207,16 +217,6 @@ namespace Uccs
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
 				else
 					return null;
-		}
-
-		protected string GetString(string paramenter, string def)
-		{
-			var p = One(paramenter);
-
-			if(p != null)
-				return p.Get<string>();
-			else
-				return def;
 		}
 
 		public void Dump(object o, Type type = null)

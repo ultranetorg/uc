@@ -19,7 +19,7 @@ public class ProductEntry : Product, ITableEntry
 	{
 		return new(Mcv){Id = Id,
 						Flags = Flags,
-						Data = Data.ToArray(),
+						Fields = Fields?.ToArray(),
 						Updated = Updated};
 	}
 

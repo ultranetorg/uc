@@ -2,6 +2,10 @@
 
 public class RequirementException : Exception
 {
+	public RequirementException()
+	{
+	}
+
 	public RequirementException(string m) : base(m)
 	{
 	}

@@ -39,27 +39,27 @@ public abstract class FairOperation : Operation
 		return Mcv.ApplyTimeFactor(time, length);
 	}
 
-	public void Allocate(Round round, Author domain, int toallocate)
+	public void Allocate(Round round, Author author, int toallocate)
 	{
-		if(domain.SpaceReserved < domain.SpaceUsed + toallocate)
+		if(author.SpaceReserved < author.SpaceUsed + toallocate)
 		{
-			var f = SpacetimeFee(domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
+			var f = SpacetimeFee(author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
 
 			Signer.BYBalance	 -= f;
 			Transaction.BYReward += f;
 
-			domain.SpaceReserved = 
-			domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);
+			author.SpaceReserved = 
+			author.SpaceUsed = (short)(author.SpaceUsed + toallocate);
 		}
 		else
-			domain.SpaceUsed += (short)toallocate;
+			author.SpaceUsed += (short)toallocate;
 	}
 
-	public void Free(Author domain, int tofree) /// WE DONT REFUND
+	public void Free(Author domain, int amount) /// WE DONT REFUND
 	{
 		//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
 
-		domain.SpaceUsed -= (short)tofree;
+		domain.SpaceUsed -= (short)amount;
 	
 		//Signer.STBalance += f;
 		//STReward -= f;

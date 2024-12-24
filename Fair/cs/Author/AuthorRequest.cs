@@ -18,7 +18,7 @@ public class AuthorRequest : FairPpc<AuthorResponse>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 			lock(Mcv.Lock)
+ 		lock(Mcv.Lock)
 		{	
 			RequireBase();
 

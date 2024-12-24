@@ -4,7 +4,7 @@ public class AuthorCreation : FairOperation
 {
 	public byte					Years {get; set;}
 
-	public override string		Description => $"{Years} years";
+	public override string		Description => $"For {Years} years";
 	
 	public AuthorCreation ()
 	{
@@ -35,8 +35,10 @@ public class AuthorCreation : FairOperation
 		var a = Signer as FairAccountEntry;
 
 		a.Authors = a.Authors == null ? [e.Id] : [..a.Authors, e.Id];
-							
+		
 		e.Owner			= Signer.Id;
 		e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+
+		PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 	}
 }

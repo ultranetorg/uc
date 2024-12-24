@@ -6,7 +6,7 @@ namespace Uccs.Net.FUI;
 
 public partial class AccountsPanel : MainPanel
 {
-	public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
+	public AccountAddress CurrentAccout => Accounts.SelectedItems[0]?.Tag as AccountAddress;
 
 	Uos.Uos Uos;
 	McvNode Node;
@@ -22,7 +22,7 @@ public partial class AccountsPanel : MainPanel
 	{
 		if(first)
 		{
-			accounts.Items.Clear();
+			Accounts.Items.Clear();
 
 			foreach(var i in Uos.Vault.Wallets.Keys)
 			{
@@ -33,7 +33,7 @@ public partial class AccountsPanel : MainPanel
 	
 	public override void PeriodicalRefresh()
 	{
-		foreach(ListViewItem i in accounts.Items)
+		foreach(ListViewItem i in Accounts.Items)
 		{
 			if(!(bool)i.SubItems[1].Tag)
 			{
@@ -68,7 +68,7 @@ public partial class AccountsPanel : MainPanel
 
 		r.SubItems.Add("...").Tag = false;
 
-		accounts.Items.Add(r);
+		Accounts.Items.Add(r);
 	}
 
 	private void add_Click(object sender, EventArgs args)
@@ -90,7 +90,7 @@ public partial class AccountsPanel : MainPanel
 		if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 		{
 			Uos.Vault.DeleteWallet(CurrentAccout);
-			accounts.Items.Remove(accounts.SelectedItems[0]);
+			Accounts.Items.Remove(Accounts.SelectedItems[0]);
 		}
 	}
 

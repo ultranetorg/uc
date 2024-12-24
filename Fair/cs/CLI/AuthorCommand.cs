@@ -46,7 +46,7 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Entity",
 								Description = "Get author entity information from MCV database",
-								Syntax = $"{Keyword} e|entity AUTD",
+								Syntax = $"{Keyword} e|entity AUID",
 
 								Arguments =
 								[
@@ -101,6 +101,38 @@ public class AuthorCommand : FairCommand
 												return new AuthorUpdation  {Action	= AuthorAction.Renew,
 																			Id		= d.Id,
 																			Years	= byte.Parse(GetString("years"))};
+											}
+						},
+
+						new ()
+						{
+							Names = ["l", "list"],
+
+							Help = new Help()
+							{
+								Title = "List",
+								Description = "Get authors of a specified account",
+								Syntax = $"{Keyword} l|list AID",
+
+								Arguments =
+								[
+									new ("<first>", "Id of an account to get authors from")
+								],
+
+								Examples =
+								[
+									new (null, $"{Keyword} l 12345-678")
+								]
+							},
+
+							Execute = () =>	{
+												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+				
+												var rp = Rdc(new FairAccountAuthorsRequest(FirstAuthorId));
+
+												Dump(rp.Authors, ["Id"], [i => i]);
+					
+												return rp.Authors;
 											}
 						},
 

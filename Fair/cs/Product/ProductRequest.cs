@@ -15,7 +15,7 @@ public class ProductRequest : FairPpc<ProductResponse>
 
 	public override PeerResponse Execute()
 	{
- 			lock(Mcv.Lock)
+ 		lock(Mcv.Lock)
 		{	
 			var	r = Mcv.Products.Find(Id, Mcv.LastConfirmedRound.Id);
 							

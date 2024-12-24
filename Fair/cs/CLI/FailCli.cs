@@ -27,7 +27,8 @@ public class FairCli : McvCli
 
 		switch(t)
 		{
-			case AuthorCommand.Keyword:	c = new AuthorCommand(this, args, flow); break;
+			case AuthorCommand.Keyword:		c = new AuthorCommand(this, args, flow); break;
+			case ProductCommand.Keyword:	c = new ProductCommand(this, args, flow); break;
 			
 			//case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args, flow); break;
 			//case DevCommand.Keyword:		c = new DevCommand(this, args, flow); break;

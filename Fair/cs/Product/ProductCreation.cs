@@ -3,53 +3,39 @@ namespace Uccs.Fair;
 public class ProductCreation : FairOperation
 {
 	public EntityId				Author { get; set; }
-	public ProductChanges		Changes { get; set; }
-	public byte[]				Data { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => !Changes.HasFlag(ProductChanges.SetData) || (Data.Length <= Product.DataLengthMax);
-	public override string		Description => $"{Author}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
+	public override string		Description => $"{Author}";
 
 	public ProductCreation()
 	{
 	}
 
-	public ProductCreation(EntityId author, byte[] data)
+	public ProductCreation(EntityId author)
 	{
 		Author	= author;
-		Data	= data;
-
-		if(Data != null)	Changes |= ProductChanges.SetData;
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Author	= reader.Read<EntityId>();
-		Changes	= (ProductChanges)reader.ReadByte();
-		Data	= reader.ReadBytes();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Author);
-		writer.Write((byte)Changes);
-		writer.WriteBytes(Data);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(RequireSignerAuthor(round, Author, out var d) == false)
+		if(RequireSignerAuthor(round, Author, out var a) == false)
 			return;
 
-		var r = round.AffectProduct(d);
+		a = round.AffectAuthor(Author);
+		var p = round.AffectProduct(a);
 
-		if(Changes.HasFlag(ProductChanges.SetData))
-		{
-			r.Data		= Data;
-			//r.Flags		|= ProductFlags.Data;
-			r.Updated	= round.ConsensusTime;
-		}
+		a.Products = a.Products == null ? [p.Id] : [..a.Products, p.Id];
 
-		d = round.AffectAuthor(d.Id);
-		Allocate(round, d, r.Length);
+		///Allocate(round, a, r.Length);
 	}
 }
