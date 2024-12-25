@@ -1,0 +1,31 @@
+h2 {
+  font-family: "GothamProMedium";
+  font-size: 24px !important;
+  line-height: 24px;
+  margin-bottom: 16px !important;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-family: "GothamProBold";
+  font-size: 16px !important;
+  line-height: 20px;
+  margin-bottom: 8px !important;
+}
+
+p {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+section {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.callout-danger {
+  background-color: #2c1111;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
