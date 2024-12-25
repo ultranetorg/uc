@@ -7,8 +7,8 @@ namespace Uccs.Tests;
 public class AccountKeyTests
 {
  	[Fact]
- 		public static void Main()
- 		{
+ 	public static void Main()
+ 	{
 // 			var e = new EthECKey(File.ReadAllBytes("m:\\UO\\Testdata\\Net\\Fathers\\0x000038a7a3cb80ec769c632b7b3e43525547ecd1.sunwpk"), true);
 // 
 // 			var initaddr = Sha3Keccack.Current.CalculateHash(e.GetPubKeyNoPrefix());
@@ -36,5 +36,5 @@ public class AccountKeyTests
 		Assert.False(Cryptography.Normal.Valid(s, h, kk));
 					
 		Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
- 		}
+ 	}
 }

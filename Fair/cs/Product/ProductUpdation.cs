@@ -5,12 +5,12 @@ namespace Uccs.Fair;
 public class ProductUpdation : FairOperation
 {
 	public ProductId			ProductId { get; set; }
-	public CustomField[]		Changes	{ get; set; }
+	public ProductField[]		Changes	{ get; set; }
 	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Type))}";
 
 	public override bool IsValid(Mcv mcv) => Changes.All(i => i.Type switch
 																	 {
-																	 	ProductField.Description => (i.Value as string).Length <= Product.DescriptionLengthMaximum,
+																	 	ProductProperty.Description => (i.Value as string).Length <= Product.DescriptionLengthMaximum,
 																	 	_ => throw new RequirementException()
 																	 });
 
@@ -23,7 +23,7 @@ public class ProductUpdation : FairOperation
 		ProductId = id;
 	}
 
-	public void Change(ProductField change, string data)
+	public void Change(ProductProperty change, string data)
 	{
 		Changes ??= [];
 
@@ -40,7 +40,7 @@ public class ProductUpdation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		ProductId	= reader.Read<ProductId>();
-		Changes		= reader.ReadArray<CustomField>();
+		Changes		= reader.ReadArray<ProductField>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -70,11 +70,11 @@ public class ProductUpdation : FairOperation
 			}
 			else
 			{
-				Free(a, Product.GetSize(i.Type, f.Value));
+				Free(a, ProductField.GetSize(i.Type, f.Value));
 				f.Value = i.Value;
 			}
 
-			Allocate(round, a, Product.GetSize(f.Type, f.Value));
+			Allocate(round, a, ProductField.GetSize(f.Type, f.Value));
 		}
 
 		p.Updated = round.ConsensusTime;

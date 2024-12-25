@@ -81,16 +81,17 @@ public class BinarySerializator
 					}
 					return;
 				} 
-				///else if(val is IDictionary d)
-				///{
-				///	writer.Write7BitEncodedInt(d.Count);
-				///
-				///	foreach(var j in d)
-				///	{
-				///		Serialize(writer, j, type.GenericTypeArguments[0], typetocode);
-				///		Serialize(writer, j, type.GenericTypeArguments[1], typetocode);
-				///	}
-				///}
+				else if(val is IDictionary d)
+				{
+					writer.Write7BitEncodedInt(d.Count);
+				
+					foreach(var j in d)
+					{
+						Serialize(writer, ((DictionaryEntry)j).Key, type.GenericTypeArguments[0], typetocode);
+						Serialize(writer, ((DictionaryEntry)j).Value, type.GenericTypeArguments[1], typetocode);
+					}
+					return;
+				}
 				else
 					throw new NotSupportedException(type.Name);
 			}
@@ -256,17 +257,19 @@ public class BinarySerializator
 	
 				return l;
 			} 
-			//else if(type is IDictionary)
-			//{
-			//	var d = type.GetConstructor([]).Invoke(null);
-			//
-			//	var n = reader.Read7BitEncodedInt();
-			//
-			//	for(int i=0; i<n; i++)
-			//	{
-			//		type.InvokeMember("Add",  System.Reflection.BindingFlags.Default, null, d, [Deserialize(reader, type.GenericTypeArguments[0], construct), Deserialize(reader, type.GenericTypeArguments[1], construct)]);
-			//	}
-			//}
+			else if(type.GetInterfaces().Any(i => i == typeof(IDictionary)))
+			{
+				var d = type.GetConstructor([]).Invoke(null);
+			
+				var n = reader.Read7BitEncodedInt();
+			
+				for(int i=0; i<n; i++)
+				{
+					type.GetMethod("Add").Invoke(d, [Deserialize(reader, type.GenericTypeArguments[0], construct), Deserialize(reader, type.GenericTypeArguments[1], construct)]);
+				}
+
+				return d;
+			}
 			else
 				throw new NotSupportedException(type.Name);
 		}
