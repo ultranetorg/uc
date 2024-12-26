@@ -20,27 +20,26 @@ public class FairRound : Round
 
 	public override IEnumerable<object> AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)	return AffectedAccounts.Values;
 		if(table == Mcv.Authors)	return AffectedAuthors.Values;
 		if(table == Mcv.Products)	return AffectedProducts.Values;
 
-		throw new IntegrityException();
+		return base.AffectedByTable(table);
+	}
+
+	public override Dictionary<int, int> NextEidsByTable(TableBase table)
+	{
+		if(table == Mcv.Authors)	return NextAuthorEids;
+		if(table == Mcv.Products)	return NextProductEids;
+		//if(table == Mcv.Resources)	return AffectedResources.Values;
+
+		return base.NextEidsByTable(table);
 	}
 
 	public AuthorEntry AffectAuthor(AccountAddress signer)
 	{
-		int e = -1;
-			
 		var b = Mcv.Accounts.KeyToBid(signer);
-
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1).Cast<FairRound>())
-			if(r.NextAuthorEids != null && r.NextAuthorEids.TryGetValue(b, out e))
-				break;
-			
-		if(e == -1)
-			e = Mcv.Authors.FindBucket(b)?.NextEid ?? 0;
-
-		NextAuthorEids[b] = e + 1;
+		
+		int e = GetNextEid(Mcv.Authors, b);
 
 		var a = Mcv.Authors.Create();
 		a.Id = new EntityId(b, e);
@@ -60,16 +59,7 @@ public class FairRound : Round
 
 	public ProductEntry AffectProduct(AuthorEntry author)
 	{
-		int e = -1;
-			
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1).Cast<FairRound>())
-			if(r.NextProductEids != null && r.NextProductEids.TryGetValue(author.Id.B, out e))
-				break;
-			
-		if(e == -1)
-			e = Mcv.Products.FindBucket(author.Id.B)?.NextEid ?? 0;
-
-		NextProductEids[author.Id.B] = e + 1;
+		int e = GetNextEid(Mcv.Products, author.Id.B);
 
   		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e)};
     

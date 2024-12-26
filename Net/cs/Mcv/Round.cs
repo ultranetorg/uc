@@ -112,7 +112,36 @@ public abstract class Round : IBinarySerializable
 
 	public virtual IEnumerable<object> AffectedByTable(TableBase table)
 	{
+		if(table == Mcv.Accounts)	return AffectedAccounts.Values;
+
 		throw new IntegrityException();
+	}
+
+	public virtual Dictionary<int, int> NextEidsByTable(TableBase table)
+	{
+		if(table == Mcv.Accounts)	return NextAccountEids;
+
+		throw new IntegrityException();
+	}
+
+	public int GetNextEid(TableBase table,  int b)
+	{
+		int e = -1;
+
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
+		{	
+			var eids = r.NextEidsByTable(table);
+
+			if(eids != null && eids.TryGetValue(b, out e))
+				break;
+		}
+			
+		if(e == -1)
+			e = table.FindBucket(b)?.NextEid ?? 0;
+
+		NextEidsByTable(table)[b] = e + 1;
+
+		return e;
 	}
 
 	public AccountEntry AffectAccount(AccountAddress address)
@@ -126,18 +155,9 @@ public abstract class Round : IBinarySerializable
 			return AffectedAccounts[address] = a.Clone();
 		else
 		{
-			int e = -1;
-			
 			var b = Mcv.Accounts.KeyToBid(address);
-
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
-				if(r.NextAccountEids != null && r.NextAccountEids.TryGetValue(b, out e))
-					break;
 			
-			if(e == -1)
-				e = Mcv.Accounts.FindBucket(b)?.NextEid ?? 0;
-
-			NextAccountEids[b] = e + 1;
+			int e = GetNextEid(Mcv.Accounts, b);
 
 			a = Mcv.Accounts.Create();
 

@@ -6,7 +6,7 @@ public class RdnRound : Round
 	public List<DomainMigration>					Migrations;
 	public Dictionary<string, DomainEntry>			AffectedDomains = new();
 	public Dictionary<ResourceId, ResourceEntry>	AffectedResources = new();
-	public Dictionary<int, int>						NextDomainIds = new();
+	public Dictionary<int, int>						NextDomainEids = new();
 	public ForeignResult[]							ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)
@@ -20,11 +20,18 @@ public class RdnRound : Round
 
 	public override IEnumerable<object> AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)	return AffectedAccounts.Values;
 		if(table == Mcv.Domains)	return AffectedDomains.Values;
 		if(table == Mcv.Resources)	return AffectedResources.Values;
 
-		throw new IntegrityException();
+		return base.AffectedByTable(table);
+	}
+
+	public override Dictionary<int, int> NextEidsByTable(TableBase table)
+	{
+		if(table == Mcv.Domains)	return NextDomainEids;
+		//if(table == Mcv.Resources)	return AffectedResources.Values;
+
+		return base.NextEidsByTable(table);
 	}
 
 	public DomainEntry AffectDomain(string address)
@@ -38,22 +45,11 @@ public class RdnRound : Round
 			return AffectedDomains[address] = d.Clone();
 		else
 		{
-			int e = -1;
-			
 			var b = Mcv.Domains.KeyToBid(address);
-
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
-				if(r.NextAccountEids != null && r.NextAccountEids.TryGetValue(b, out e))
-					break;
 			
-			if(e == -1)
-				e = Mcv.Accounts.FindBucket(b)?.NextEid ?? 0;
+			int e = GetNextEid(Mcv.Domains, b);
 
-			NextAccountEids[b] = e + 1;
-
-			return AffectedDomains[address] = new DomainEntry(Mcv){	//Affected = true,
-																	//New = true,
-																	Id = new EntityId(b, e), 
+			return AffectedDomains[address] = new DomainEntry(Mcv) {Id = new EntityId(b, e), 
 																	Address = address};
 		}
 	}
@@ -119,7 +115,7 @@ public class RdnRound : Round
 
 		AffectedDomains.Clear();
 		AffectedResources.Clear();
-		NextDomainIds.Clear();
+		NextDomainEids.Clear();
 	}
 
 	public override void FinishExecution()
