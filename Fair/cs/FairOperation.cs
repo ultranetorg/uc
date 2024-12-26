@@ -109,19 +109,18 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool RequireProduct(FairRound round, ProductId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireProduct(FairRound round, EntityId id, out AuthorEntry author, out ProductEntry product)
 	{
-		product = null;
-
-		if(RequireAuthor(round, id.AuthorId, out author) == false)
+		author = null;
+		product = round.Mcv.Products.Find(id, round.Id);
+		
+		if(product == null)
 		{
 			Error = NotFound;
 			return false; 
 		}
 
-		product = round.Mcv.Products.Find(id, round.Id);
-		
-		if(product == null)
+		if(RequireAuthor(round, product.AuthorId, out author) == false)
 		{
 			Error = NotFound;
 			return false; 
@@ -130,16 +129,9 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireSignerProduct(FairRound round, ProductId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireSignerProduct(FairRound round, EntityId id, out AuthorEntry author, out ProductEntry product)
 	{
-		product = null;
-
-		if(RequireSignerAuthor(round, id.AuthorId, out author) == false)
-		{
-			Error = NotFound;
-			return false; 
-		}
-
+		author = null;
 		product = round.Mcv.Products.Find(id, round.Id);
 		
 		if(product == null)
@@ -147,6 +139,13 @@ public abstract class FairOperation : Operation
 			Error = NotFound;
 			return false; 
 		}
+
+		if(RequireSignerAuthor(round, product.AuthorId, out author) == false)
+		{
+			Error = NotFound;
+			return false; 
+		}
+
 
 		return true; 
 	}

@@ -14,7 +14,7 @@ public class ProductTable : Table<ProductEntry>
 		return new ProductEntry(Mcv);
 	}
 
-	public ProductEntry Find(ProductId id, int ridmax)
+	public ProductEntry Find(EntityId id, int ridmax)
 	{
 		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 		//	throw new IntegrityException("maxrid works inside pool only");
@@ -23,7 +23,7 @@ public class ProductTable : Table<ProductEntry>
 			if(i.AffectedProducts.TryGetValue(id, out var r))
     			return r;
 
-		var e = FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E && i.Id.P == id.P);
+		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 
 		//if(e == null)
 		//	return null;

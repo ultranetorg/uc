@@ -94,16 +94,16 @@ public class Resource// : IBinarySerializable
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Id = reader.Read<ResourceId>();
+		Id		= reader.Read<ResourceId>();
 		Address = new Ura(null, reader.ReadUtf8());
-		Flags = (ResourceFlags)reader.ReadByte();
+		Flags	= (ResourceFlags)reader.ReadByte();
 		Updated	= reader.Read<Time>();
 
 		if(Flags.HasFlag(ResourceFlags.Data))
 			Data = reader.Read<ResourceData>();
 
-		Outbounds = reader.ReadArray<ResourceLink>();
-		Inbounds = reader.ReadArray<ResourceId>();
+		Outbounds	= reader.ReadArray<ResourceLink>();
+		Inbounds	= reader.ReadArray<ResourceId>();
 	}
 
 	public ResourceLink AffectOutbound(ResourceId destination)

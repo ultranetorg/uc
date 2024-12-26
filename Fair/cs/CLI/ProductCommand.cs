@@ -8,7 +8,7 @@ public class ProductCommand : FairCommand
 {
 	public const string Keyword = "product";
 
-	ProductId First => ProductId.Parse(Args[0].Name);
+	EntityId First => EntityId.Parse(Args[0].Name);
 
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{

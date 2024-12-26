@@ -14,7 +14,7 @@ public class Author// : IBinarySerializable
 	public Time					Expiration { get; set; }
 	public short				SpaceReserved { get; set; }
 	public short				SpaceUsed { get; set; }
-	public int					NextProductId { get; set; }
+	//public int					NextProductId { get; set; }
 
 	public static bool Valid(string name)
 	{

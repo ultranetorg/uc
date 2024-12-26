@@ -2,13 +2,13 @@
 
 public class ProductRequest : FairPpc<ProductResponse>
 {
-	public new ProductId	Id { get; set; }
+	public new EntityId	Id { get; set; }
 
 	public ProductRequest()
 	{
 	}
 
-	public ProductRequest(ProductId identifier)
+	public ProductRequest(EntityId identifier)
 	{
 		Id = identifier;
 	}

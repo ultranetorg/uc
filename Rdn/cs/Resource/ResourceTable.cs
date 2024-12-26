@@ -23,7 +23,7 @@ public class ResourceTable : Table<ResourceEntry>
 			if(i.AffectedResources.TryGetValue(id, out var r))
     				return r;
 
-		var e = FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E && i.Id.R == id.R);
+		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E && i.Id.R == id.R);
 
 		if(e == null)
 			return null;
@@ -51,7 +51,7 @@ public class ResourceTable : Table<ResourceEntry>
         if(d == null)
             return null;
 
-  		var e = FindBucket(d.Id.H)?.Entries.Find(i => i.Id.E == d.Id.E && i.Address.Resource == address.Resource);
+  		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Id.E == d.Id.E && i.Address.Resource == address.Resource);
 
 		if(e == null)
 			return null;

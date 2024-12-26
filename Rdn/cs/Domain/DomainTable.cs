@@ -6,7 +6,7 @@ public class DomainTable : Table<DomainEntry>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-	public int						KeyToH(string domain) => BucketBase.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
+	public int						KeyToBid(string domain) => BucketBase.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
 	public DomainTable(RdnMcv rds) : base(rds)
 	{
@@ -14,7 +14,7 @@ public class DomainTable : Table<DomainEntry>
 
 	public DomainEntry FindEntry(string key)
 	{
-		var bid = KeyToH(key);
+		var bid = KeyToBid(key);
 
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 	}
@@ -49,7 +49,7 @@ public class DomainTable : Table<DomainEntry>
 				return a;
 		}
 
-		return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
+		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 	}
 	
 //  		public Resource FindResource(Ura resource, int ridmax)

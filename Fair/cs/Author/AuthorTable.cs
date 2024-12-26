@@ -30,7 +30,7 @@ public class AuthorTable : Table<AuthorEntry>
 				return a;
 		}
 
-		return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
+		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 	}
 }
 

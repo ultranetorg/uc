@@ -10,14 +10,14 @@ public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<Resource
 
 	public ResourceId(int c, int d, int r)
 	{
-		H = c;
+		B = c;
 		E = d;
 		R = r;
 	}
 
 	public override string ToString()
 	{
-		return $"{H}-{E}-{R}";
+		return $"{B}-{E}-{R}";
 	}
 
 	public new static ResourceId Parse(string t)
@@ -46,7 +46,7 @@ public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<Resource
 
 	public bool Equals(ResourceId a)
 	{
-		return a is not null && H == a.H && E == a.E && R == a.R;
+		return a is not null && B == a.B && E == a.E && R == a.R;
 	}
 
 	public override int CompareTo(BaseId a)
@@ -56,8 +56,8 @@ public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<Resource
 
 	public int CompareTo(ResourceId a)
 	{
-		if(H != a.H)	
-			return H.CompareTo(a.H);
+		if(B != a.B)	
+			return B.CompareTo(a.B);
 		
 		if(E != a.E)
 			return E.CompareTo(a.E);
@@ -70,7 +70,7 @@ public class ResourceId : EntityId, IEquatable<ResourceId>, IComparable<Resource
 
 	public override int GetHashCode()
 	{
-		return H.GetHashCode();
+		return B.GetHashCode();
 	}
 
 	public static bool operator == (ResourceId left, ResourceId right)

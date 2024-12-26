@@ -7,7 +7,7 @@ public class AuthorEntry : Author, ITableEntry
 	Mcv						Mcv;
 	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
-	public ProductId[]		Products { get; set; }
+	public EntityId[]		Products { get; set; }
 
 	public AuthorEntry()
 	{
@@ -30,7 +30,7 @@ public class AuthorEntry : Author, ITableEntry
 									Expiration = Expiration,
 									SpaceReserved = SpaceReserved,
 									SpaceUsed = SpaceUsed,
-									NextProductId = NextProductId,
+									//NextProductId = NextProductId,
 									Products = Products?.ToArray()};
 	}
 
@@ -45,7 +45,7 @@ public class AuthorEntry : Author, ITableEntry
 		writer.Write7BitEncodedInt(SpaceUsed);
 		writer.Write(Owner);
 		writer.Write(Expiration);
-		writer.Write7BitEncodedInt(NextProductId);
+		//writer.Write7BitEncodedInt(NextProductId);
 		writer.Write(Products);
 	}
 
@@ -62,8 +62,8 @@ public class AuthorEntry : Author, ITableEntry
 		SpaceUsed		= (short)reader.Read7BitEncodedInt();
 		Owner			= reader.Read<EntityId>();
 		Expiration		= reader.Read<Time>();
-		NextProductId	= reader.Read7BitEncodedInt();
-		Products		= reader.ReadArray<ProductId>();
+		//NextProductId	= reader.Read7BitEncodedInt();
+		Products		= reader.ReadArray<EntityId>();
 
 	}
 

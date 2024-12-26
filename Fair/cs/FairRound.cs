@@ -4,8 +4,9 @@ public class FairRound : Round
 {
 	public new FairMcv								Mcv => base.Mcv as FairMcv;
 	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
-	public Dictionary<ProductId, ProductEntry>		AffectedProducts = new();
-	public Dictionary<int, int>						NextAuthorIds = new ();
+	public Dictionary<EntityId, ProductEntry>		AffectedProducts = new();
+	public Dictionary<int, int>						NextAuthorEids = new ();
+	public Dictionary<int, int>						NextProductEids = new ();
 	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
 
 	public FairRound(FairMcv rds) : base(rds)
@@ -19,88 +20,70 @@ public class FairRound : Round
 
 	public override IEnumerable<object> AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)
-			return AffectedAccounts.Values;
-
-		if(table == Mcv.Authors)
-			return AffectedAuthors.Values;
-
-		if(table == Mcv.Products)
-			return AffectedProducts.Values;
+		if(table == Mcv.Accounts)	return AffectedAccounts.Values;
+		if(table == Mcv.Authors)	return AffectedAuthors.Values;
+		if(table == Mcv.Products)	return AffectedProducts.Values;
 
 		throw new IntegrityException();
 	}
 
-	public AuthorEntry AffectAuthor(EntityId id)
+	public AuthorEntry AffectAuthor(AccountAddress signer)
 	{
-		int ci;
-
-		if(id == null)
-		{
-			if(Mcv.Authors.Clusters.Count() == 0)
-			{	
-				ci = 0;
-				NextAuthorIds[ci] = 0;
-			}
-			else
-			{	
-				if(Mcv.Authors.Clusters.Count() < TableBase.ClustersCountMax)
-				{	
-					var i = Mcv.Authors.Clusters.Count();
-					ci = (ushort)i;
-					NextAuthorIds[ci] = 0;
-				}
-				else	
-				{	
-					var c = Mcv.Authors.Clusters.MinBy(i => i.Buckets.Count).Buckets.MinBy(i => i.Entries.Count());
-					ci = c.Id;
-					NextAuthorIds[ci] = c.NextEntryId;
-				}
-			}
-				
-			var pid = NextAuthorIds[ci]++;
-
-			var a = new AuthorEntry(Mcv) {Id = new EntityId(ci, pid)};
-
-			return AffectedAuthors[a.Id] = a;
-		}
-		else
-		{
-			if(AffectedAuthors.TryGetValue(id, out AuthorEntry a))
-				return a;
+		int e = -1;
 			
-			var e = Mcv.Authors.Find(id, Id - 1);
+		var b = Mcv.Accounts.KeyToBid(signer);
 
-			if(e == null)
-				throw new IntegrityException();
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1).Cast<FairRound>())
+			if(r.NextAuthorEids != null && r.NextAuthorEids.TryGetValue(b, out e))
+				break;
+			
+		if(e == -1)
+			e = Mcv.Authors.FindBucket(b)?.NextEid ?? 0;
 
-			AffectedAuthors[id] = e.Clone();
-			//AffectedAuthors[id].Affected  = true;
+		NextAuthorEids[b] = e + 1;
 
-			return AffectedAuthors[id];
-		}
+		var a = Mcv.Authors.Create();
+		a.Id = new EntityId(b, e);
+			
+		return AffectedAuthors[a.Id] = a;
 	}
 
-	public ProductEntry AffectProduct(ProductId id)
+	public AuthorEntry AffectAuthor(EntityId id)
+	{
+		if(AffectedAuthors.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Mcv.Authors.Find(id, Id - 1);
+
+		return AffectedAuthors[id] = e.Clone();
+	}
+
+	public ProductEntry AffectProduct(AuthorEntry author)
+	{
+		int e = -1;
+			
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1).Cast<FairRound>())
+			if(r.NextProductEids != null && r.NextProductEids.TryGetValue(author.Id.B, out e))
+				break;
+			
+		if(e == -1)
+			e = Mcv.Products.FindBucket(author.Id.B)?.NextEid ?? 0;
+
+		NextProductEids[author.Id.B] = e + 1;
+
+  		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e)};
+    
+  		return AffectedProducts[p.Id] = p;
+	}
+
+	public ProductEntry AffectProduct(EntityId id)
 	{
 		if(AffectedProducts.TryGetValue(id, out var a))
 			return a;
 		
 		a = Mcv.Products.Find(id, Id - 1);
 
-		if(a == null)
-			throw new IntegrityException();
-
 		return AffectedProducts[id] = a.Clone();
-	}
-
-	public ProductEntry AffectProduct(AuthorEntry domain)
-	{
-		var d = AffectAuthor(domain.Id);
-
-  		var	r = new ProductEntry  {Id = new ProductId(d.Id.H, d.Id.E, d.NextProductId++)};
-    
-  		return AffectedProducts[r.Id] = r;
 	}
 
 	public void DeleteProduct(ProductEntry resource)
@@ -108,15 +91,12 @@ public class FairRound : Round
 		AffectProduct(resource.Id).Deleted = true;
 	}
 
-	public override void InitializeExecution()
-	{
-	}
-
 	public override void RestartExecution()
 	{
 		AffectedAuthors.Clear();
 		AffectedProducts.Clear();
-		NextAuthorIds.Clear();
+		NextAuthorEids.Clear();
+		NextProductEids.Clear();
 	}
 
 	public override void FinishExecution()

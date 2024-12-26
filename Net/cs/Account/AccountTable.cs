@@ -2,7 +2,7 @@
 
 public class AccountTable : Table<AccountEntry>
 {
-	public int	KeyToH(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
+	public int	KeyToBid(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
 
 	public AccountTable(Mcv chain) : base(chain)
 	{
@@ -15,7 +15,7 @@ public class AccountTable : Table<AccountEntry>
 
 	public AccountEntry FindEntry(AccountAddress key)
 	{
-		var bid = KeyToH(key);
+		var bid = KeyToBid(key);
 
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 	}
@@ -149,6 +149,6 @@ public class AccountTable : Table<AccountEntry>
 				return a;
 		}
 
-		return FindBucket(id.H)?.Entries.Find(i => i.Id.E == id.E);
+		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 	}
 }

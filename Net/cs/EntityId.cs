@@ -2,7 +2,7 @@
 
 public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, IComparable<BaseId>
 {
-	public int				H { get; set; }
+	public int				B { get; set; }
 
 	public abstract int		CompareTo(BaseId other);
 	public abstract bool	Equals(BaseId other);
@@ -22,7 +22,7 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 
 	public override int GetHashCode()
 	{
-		return H.GetHashCode();
+		return B.GetHashCode();
 	}
 
 	public override abstract bool Equals(object obj);
@@ -38,18 +38,18 @@ public class EntityId : BaseId
 
 	public EntityId(int ci, int ei)
 	{
-		H = ci;
+		B = ci;
 		E = ei;
 	}
 
 	public override string ToString()
 	{
-		return $"{H}-{E}";
+		return $"{B}-{E}";
 	}
 
 	public override int GetHashCode()
 	{
-		return H.GetHashCode();
+		return B.GetHashCode();
 	}
 
 	public static EntityId Parse(string t)
@@ -61,13 +61,13 @@ public class EntityId : BaseId
 
 	public override void Read(BinaryReader reader)
 	{
-		H	= reader.Read7BitEncodedInt();
+		B	= reader.Read7BitEncodedInt();
 		E	= reader.Read7BitEncodedInt();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write7BitEncodedInt(H);
+		writer.Write7BitEncodedInt(B);
 		writer.Write7BitEncodedInt(E);
 	}
 
@@ -78,7 +78,7 @@ public class EntityId : BaseId
 
 	public override bool Equals(BaseId a)
 	{
-		return a is EntityId e && H == a.H && E == e.E;
+		return a is EntityId e && B == a.B && E == e.E;
 	}
 
 	public override int CompareTo(BaseId a)
@@ -88,8 +88,8 @@ public class EntityId : BaseId
 
 	public int CompareTo(EntityId a)
 	{
-		if(H != a.H)
-			return H.CompareTo(a.H);
+		if(B != a.B)
+			return B.CompareTo(a.B);
 		
 		if(E != a.E)
 			return E.CompareTo(a.E);

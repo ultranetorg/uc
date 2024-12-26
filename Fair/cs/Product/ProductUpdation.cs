@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class ProductUpdation : FairOperation
 {
-	public ProductId			ProductId { get; set; }
+	public EntityId				ProductId { get; set; }
 	public ProductField[]		Changes	{ get; set; }
 	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Type))}";
 
@@ -18,7 +18,7 @@ public class ProductUpdation : FairOperation
 	{
 	}
 
-	public ProductUpdation(ProductId id)
+	public ProductUpdation(EntityId id)
 	{
 		ProductId = id;
 	}
@@ -39,7 +39,7 @@ public class ProductUpdation : FairOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		ProductId	= reader.Read<ProductId>();
+		ProductId	= reader.Read<EntityId>();
 		Changes		= reader.ReadArray<ProductField>();
 	}
 

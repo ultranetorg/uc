@@ -27,37 +27,34 @@ public class RdnRound : Round
 		throw new IntegrityException();
 	}
 
-	public DomainEntry AffectDomain(string domain)
+	public DomainEntry AffectDomain(string address)
 	{
-		if(AffectedDomains.TryGetValue(domain, out DomainEntry a))
-			return a;
+		if(AffectedDomains.TryGetValue(address, out var d))
+			return d;
 		
-		var e = Mcv.Domains.Find(domain, Id - 1);
+		d = Mcv.Domains.Find(address, Id - 1);
 
-		if(e != null)
-		{
-			AffectedDomains[domain] = e.Clone();
-			//AffectedDomains[domain].Affected  = true;;
-			return AffectedDomains[domain];
-		}
+		if(d != null)
+			return AffectedDomains[address] = d.Clone();
 		else
 		{
-			var h = Mcv.Domains.KeyToH(domain);
-			var b = Mcv.Domains.FindBucket(h);
-
-			int di;
+			int e = -1;
 			
-			if(b == null)
-				NextDomainIds[h] = 0;
-			else
-				NextDomainIds[h] = b.NextEntryId;
-			
-			di = NextDomainIds[h]++;
+			var b = Mcv.Domains.KeyToBid(address);
 
-			return AffectedDomains[domain] = new DomainEntry(Mcv){	//Affected = true,
+			foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
+				if(r.NextAccountEids != null && r.NextAccountEids.TryGetValue(b, out e))
+					break;
+			
+			if(e == -1)
+				e = Mcv.Accounts.FindBucket(b)?.NextEid ?? 0;
+
+			NextAccountEids[b] = e + 1;
+
+			return AffectedDomains[address] = new DomainEntry(Mcv){	//Affected = true,
 																	//New = true,
-																	Id = new EntityId(h, di), 
-																	Address = domain};
+																	Id = new EntityId(b, e), 
+																	Address = address};
 		}
 	}
 
@@ -103,7 +100,7 @@ public class RdnRound : Round
   		if(r == null)
   		{
   			r = new ResourceEntry  {Address = new Ura(d.Address, resource),
-  									Id = new ResourceId(d.Id.H, d.Id.E, d.NextResourceId++)};
+  									Id = new ResourceId(d.Id.B, d.Id.E, d.NextResourceId++)};
   		} 
   		else
 			r = r.Clone();
@@ -116,17 +113,13 @@ public class RdnRound : Round
 		AffectResource(resource.Id).Deleted = true;
 	}
 
-	public override void InitializeExecution()
-	{
-		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
-	}
-
 	public override void RestartExecution()
 	{
+		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
+
 		AffectedDomains.Clear();
 		AffectedResources.Clear();
 		NextDomainIds.Clear();
-		//NextSiteIds.Clear();
 	}
 
 	public override void FinishExecution()

@@ -63,7 +63,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										NextBandwidthAllocations = [];
 	//public long										PreviousDayBaseSize;
 
-	public Dictionary<int, int>							NextAccountIds;
+	public Dictionary<int, int>							NextAccountEids;
 	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 
@@ -115,39 +115,39 @@ public abstract class Round : IBinarySerializable
 		throw new IntegrityException();
 	}
 
-	public AccountEntry AffectAccount(AccountAddress account)
+	public AccountEntry AffectAccount(AccountAddress address)
 	{
-		if(AffectedAccounts.TryGetValue(account, out AccountEntry a))
+		if(AffectedAccounts.TryGetValue(address, out var a))
 			return a;
 		
-		var e = Mcv.Accounts.Find(account, Id - 1);	
+		a = Mcv.Accounts.Find(address, Id - 1);	
 
-		if(e != null)
-			a = AffectedAccounts[account] = e.Clone();
+		if(a != null)
+			return AffectedAccounts[address] = a.Clone();
 		else
 		{
-			var h = Mcv.Accounts.KeyToH(account);
-			var b = Mcv.Accounts.FindBucket(h);
+			int e = -1;
+			
+			var b = Mcv.Accounts.KeyToBid(address);
 
-			int ei;
+			foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
+				if(r.NextAccountEids != null && r.NextAccountEids.TryGetValue(b, out e))
+					break;
 			
-			if(b == null)
-				NextAccountIds[h] = 0;
-			else
-				NextAccountIds[h] = b.NextEntryId;
-			
-			ei = NextAccountIds[h]++;
+			if(e == -1)
+				e = Mcv.Accounts.FindBucket(b)?.NextEid ?? 0;
+
+			NextAccountEids[b] = e + 1;
 
 			a = Mcv.Accounts.Create();
-			a.Id		= new EntityId(h, ei);
-			a.Address	= account;
+
+			a.Id		= new EntityId(b, e);
+			a.Address	= address;
 			a.ECBalance = [];
 			a.New		= true;
 			
-			AffectedAccounts[account] = a;
+			return  AffectedAccounts[address] = a;
 		}
-
-		return a;
 	}
 
 	public Generator AffectCandidate(EntityId id)
@@ -295,10 +295,6 @@ public abstract class Round : IBinarySerializable
 		return l;
 	}
 
-	public virtual void InitializeExecution()
-	{
-	}
-
 	public virtual void RestartExecution()
 	{
 	}
@@ -319,23 +315,19 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 				o.Error = null;
 
-		Candidates					= Id == 0 ? new()																					: Previous.Candidates;
-		Members						= Id == 0 ? new()																					: Previous.Members;
-		Funds						= Id == 0 ? new()																					: Previous.Funds;
-		NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Net.BandwidthAllocationDaysMaximum + 1).Select(i => 0L).ToArray()	: Previous.NextBandwidthAllocations.ToArray();
-
-		#if IMMISSION
-		Emissions			= Id == 0 ? new()								: Previous.Emissions;
-		#endif
-		///RentPerBytePerDay	= Id == 0 ? Mcv.Net.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
-
-		InitializeExecution();
 
 	start: 
 		#if IMMISSION
+		Emissions			= Id == 0 ? new()								: Previous.Emissions;
 		//Emission		= Id == 0 ? 0 : Previous.Emission;
 		#endif
-		NextAccountIds	= new ();
+
+		Candidates					= Id == 0 ? new()																					: Previous.Candidates;
+		Members						= Id == 0 ? new()																					: Previous.Members;
+		Funds						= Id == 0 ? new()																					: Previous.Funds;
+		NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Net.BandwidthAllocationDaysMaximum + 1).Select(i => 0L).ToArray()	: Previous.NextBandwidthAllocations.Clone() as long[];
+
+		NextAccountEids	= new ();
 
 		BYRewards.Clear();
 		ECRewards.Clear();

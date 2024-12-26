@@ -31,7 +31,7 @@ public abstract class TableBase
 		public int									Id;
 		public short								SuperId => (short)(Id >> 12);
 		public int									MainLength;
- 		public abstract int							NextEntryId { get; set; }
+ 		public abstract int							NextEid { get; set; }
 		public byte[]								Hash { get; set; }
 		public abstract byte[]						Main { get; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
@@ -108,7 +108,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			}
 		}
 
-		public override int NextEntryId 
+		public override int NextEid 
 		{
 			get
 			{
@@ -141,7 +141,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		public override string ToString()
 		{
-			return $"{Id}, Entries={{{Entries?.Count}}}, Hash={Hash?.ToHex()}, NextEntryId={NextEntryId}";
+			return $"{Id}, Entries={{{Entries?.Count}}}, Hash={Hash?.ToHex()}, NextEntryId={NextEid}";
 		}
 
 		void Load()
@@ -191,7 +191,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			///
 				var entities = Entries.OrderBy(i => i.BaseId);
 
-				w.Write7BitEncodedInt(NextEntryId);
+				w.Write7BitEncodedInt(NextEid);
 				w.Write(Entries, i =>	{
 											i.WriteMain(w);
 										});
@@ -505,8 +505,8 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		foreach(var i in entities.Cast<E>())
 		{
-			var c = GetCluster(ClusterFromBucket(i.BaseId.H));
-			var b = c.GetBucket(i.BaseId.H);
+			var c = GetCluster(ClusterFromBucket(i.BaseId.B));
+			var b = c.GetBucket(i.BaseId.B);
 
 			var e = b.Entries.Find(e => e.BaseId == i.BaseId);
 			
