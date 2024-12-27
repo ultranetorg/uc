@@ -37,7 +37,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string		NotEnoughEC = "Not enough execution units";
 	public const string		NotEnoughMR = "Not enough membership rights";
 	public const string		NoAnalyzers = "No analyzers";
-	public const string		NotOwner = "The signer does not own the entity";
+	public const string		Denied = "The signer does not own the entity";
 	public const string		NotRelease = "Data valus is not a release";
 	public const string		LimitReached = "Limit Reached";
 

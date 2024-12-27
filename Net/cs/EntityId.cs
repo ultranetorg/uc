@@ -9,16 +9,15 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 	public abstract void	Read(BinaryReader reader);
 	public abstract void	Write(BinaryWriter writer);
 
-
- 		public static bool operator == (BaseId left, BaseId right)
- 		{
- 			return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
- 		}
+ 	public static bool operator == (BaseId left, BaseId right)
+ 	{
+ 		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
+ 	}
  
- 		public static bool operator != (BaseId left, BaseId right)
- 		{
- 			return !(left == right);
- 		}
+ 	public static bool operator != (BaseId left, BaseId right)
+ 	{
+ 		return !(left == right);
+ 	}
 
 	public override int GetHashCode()
 	{

@@ -7,6 +7,7 @@ namespace Uccs.Net;
 public abstract class McvCommand : NetCommand
 {
 	public const string		AwaitArg = "await";
+	public const string		SignerArg = "signer";
 	public Action			Transacted;
 	protected McvCli		Cli;
 

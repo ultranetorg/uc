@@ -26,14 +26,6 @@ public abstract class Round : IBinarySerializable
 	public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 	public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
 	public IEnumerable<Vote>							Selected => VotesOfTry;
-														//{
-														//	get
-														//	{
-														//		var vr = Mcv.FindRound(VotersId);
-														//
-														//		return VotesOfTry.OrderByHash(i => i.Generator.Bytes, vr.Hash).Take(Mcv.VotesRequired);
-														//	}
-														//}
 	public IGrouping<byte[], Vote>						MajorityByParentHash => Selected.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
@@ -60,12 +52,10 @@ public abstract class Round : IBinarySerializable
 #if ETHEREUM
 	public List<Immission>								Emissions;
 #endif
-	public long[]										NextBandwidthAllocations = [];
-	//public long										PreviousDayBaseSize;
-
-	public Dictionary<int, int>							NextAccountEids;
 	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
+	public Dictionary<int, int>							NextAccountEids;
+	public long[]										NextBandwidthAllocations = [];
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
@@ -110,9 +100,9 @@ public abstract class Round : IBinarySerializable
 		return n * 2/3;
 	}
 
-	public virtual IEnumerable<object> AffectedByTable(TableBase table)
+	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)	return AffectedAccounts.Values;
+		if(table == Mcv.Accounts)	return AffectedAccounts;
 
 		throw new IntegrityException();
 	}
@@ -121,7 +111,7 @@ public abstract class Round : IBinarySerializable
 	{
 		if(table == Mcv.Accounts)	return NextAccountEids;
 
-		throw new IntegrityException();
+		return null;
 	}
 
 	public int GetNextEid(TableBase table,  int b)
@@ -168,6 +158,16 @@ public abstract class Round : IBinarySerializable
 			
 			return  AffectedAccounts[address] = a;
 		}
+	}
+
+	public AccountEntry AffectAccount(EntityId id)
+	{
+		if(AffectedAccounts.FirstOrDefault(i => i.Value.Id == id).Value is var a)
+			return a;
+		
+		a = Mcv.Accounts.Find(id, Id - 1);	
+
+		return AffectedAccounts[a.Address] = a.Clone();
 	}
 
 	public Generator AffectCandidate(EntityId id)
@@ -353,6 +353,12 @@ public abstract class Round : IBinarySerializable
 		ECRewards.Clear();
 		AffectedCandidates.Clear();
 		AffectedAccounts.Clear();
+
+		foreach(var i in Mcv.Tables)
+		{
+			AffectedByTable(i).Clear();
+			NextEidsByTable(i)?.Clear();
+		}
 
 		RestartExecution();
 

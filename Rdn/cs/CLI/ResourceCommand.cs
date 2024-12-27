@@ -21,7 +21,7 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "CREATE",
 								Description = "Creates a resource entity in the distributed database",
-								Syntax = "resource c|create URA [flags] [data]",
+								Syntax = $"resource c|create {RA} [flags] [data]",
 
 								Arguments =
 								[
@@ -58,7 +58,7 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "DESTROY",
 								Description = "Destroys existing resource and all its associated links",
-								Syntax = "resource x|destroy URA",
+								Syntax = $"resource x|destroy {RA}",
 
 								Arguments =
 								[
@@ -88,7 +88,7 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "UPDATE",
 								Description = "Updates a resource entity properties in the distributed database",
-								Syntax = "resource u|update URA [flags] [data] [recursive]",
+								Syntax = $"resource u|update {RA} [flags] [data] [recursive]",
 
 								Arguments =
 								[
@@ -132,7 +132,7 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "Entity",
 								Description = "Gets resource entity information from the MCV database",
-								Syntax = "resource e|entity URA",
+								Syntax = $"resource e|entity {RA}",
 
 								Arguments =
 								[
@@ -164,7 +164,7 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "LOCAL",
 								Description = "Gets information about locally available releases of a specified resource",
-								Syntax = "resource l|local URA",
+								Syntax = $"resource l|local {RA}",
 
 								Arguments =
 								[
@@ -201,11 +201,11 @@ public class ResourceCommand : RdnCommand
 							{ 
 								Title = "LOCAL SEARCH",
 								Description = "Search local resources using a specified query",
-								Syntax = "resource ls|localsearch query",
+								Syntax = $"resource ls|localsearch <query>",
 
 								Arguments =
 								[
-									new ("query", "A text to look for in resource addresses (includes domain name)")
+									new ("<query>", $"A {TEXT} to look for in resource addresses (includes domain name)")
 								],
 
 								Examples =
@@ -238,7 +238,7 @@ public class ResourceCommand : RdnCommand
 							{
 								Title = "DOWNLOAD",
 								Description = "Downloads the latest release of a specified resource",
-								Syntax = "resource d|download URA [localpath=PATH]",
+								Syntax = $"resource d|download {RA} [localpath=PATH]",
 
 								Arguments =
 								[

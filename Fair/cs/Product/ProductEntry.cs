@@ -24,6 +24,24 @@ public class ProductEntry : Product, ITableEntry
 						Updated = Updated};
 	}
 
+	public void WriteMain(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(AuthorId);
+		writer.Write((byte)Flags);
+		writer.Write(Updated);
+		writer.Write(Fields);
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Id			= reader.Read<EntityId>();
+		AuthorId	= reader.Read<EntityId>();
+		Flags		= (ProductFlags)reader.ReadByte();
+		Updated		= reader.Read<Time>();
+		Fields		= reader.ReadArray<ProductField>();
+	}
+
 	public void WriteMore(BinaryWriter w)
 	{
 	}

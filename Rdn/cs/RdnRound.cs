@@ -18,10 +18,10 @@ public class RdnRound : Round
 		return RdnOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
-	public override IEnumerable<object> AffectedByTable(TableBase table)
+	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Domains)	return AffectedDomains.Values;
-		if(table == Mcv.Resources)	return AffectedResources.Values;
+		if(table == Mcv.Domains)	return AffectedDomains;
+		if(table == Mcv.Resources)	return AffectedResources;
 
 		return base.AffectedByTable(table);
 	}
@@ -113,9 +113,9 @@ public class RdnRound : Round
 	{
 		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
 
-		AffectedDomains.Clear();
-		AffectedResources.Clear();
-		NextDomainEids.Clear();
+// 		AffectedDomains.Clear();
+// 		AffectedResources.Clear();
+// 		NextDomainEids.Clear();
 	}
 
 	public override void FinishExecution()

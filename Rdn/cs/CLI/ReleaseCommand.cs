@@ -19,7 +19,7 @@ public class ReleaseCommand : RdnCommand
 							{ 
 								Title = "CREATE",
 								Description = "Deploy a file or files to node filebase for P2P distribution via RDN",
-								Syntax = "release c|create [source=PATH | sources=PATH,PATH,...,PATH]",
+								Syntax = $"release c|create [source={PATH} | sources={PATH},{PATH},...,{PATH}]",
 
 								Arguments =
 								[
@@ -59,7 +59,7 @@ public class ReleaseCommand : RdnCommand
 							{ 
 								Title = "LOCAL",
 								Description = "Get information about local copy of a specified release",
-								Syntax = "release l|local RELEASE_ADDRESS",
+								Syntax = $"release l|local {RLA}",
 
 								Arguments =
 								[

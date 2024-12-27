@@ -5,8 +5,12 @@ public class FairRound : Round
 	public new FairMcv								Mcv => base.Mcv as FairMcv;
 	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
 	public Dictionary<EntityId, ProductEntry>		AffectedProducts = new();
+	public Dictionary<EntityId, CatalogueEntry>		AffectedCatalogues = new();
+	public Dictionary<EntityId, TopicEntry>		AffectedTopics = new();
 	public Dictionary<int, int>						NextAuthorEids = new ();
 	public Dictionary<int, int>						NextProductEids = new ();
+	public Dictionary<int, int>						NextCatalogueEids = new ();
+	public Dictionary<int, int>						NextTopicEids = new ();
 	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
 
 	public FairRound(FairMcv rds) : base(rds)
@@ -18,10 +22,12 @@ public class FairRound : Round
 		return FairOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
-	public override IEnumerable<object> AffectedByTable(TableBase table)
+	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Authors)	return AffectedAuthors.Values;
-		if(table == Mcv.Products)	return AffectedProducts.Values;
+		if(table == Mcv.Authors)	return AffectedAuthors;
+		if(table == Mcv.Products)	return AffectedProducts;
+		if(table == Mcv.Catalogues)	return AffectedCatalogues;
+		if(table == Mcv.Topics)		return AffectedTopics;
 
 		return base.AffectedByTable(table);
 	}
@@ -30,9 +36,21 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)	return NextAuthorEids;
 		if(table == Mcv.Products)	return NextProductEids;
+		if(table == Mcv.Catalogues)	return NextCatalogueEids;
+		if(table == Mcv.Topics)		return NextTopicEids;
 		//if(table == Mcv.Resources)	return AffectedResources.Values;
 
 		return base.NextEidsByTable(table);
+	}
+
+	public new FairAccountEntry AffectAccount(AccountAddress address)
+	{
+		return base.AffectAccount(address) as FairAccountEntry;
+	}
+
+	public new FairAccountEntry AffectAccount(EntityId id)
+	{
+		return base.AffectAccount(id) as FairAccountEntry;
 	}
 
 	public AuthorEntry AffectAuthor(AccountAddress signer)
@@ -76,17 +94,59 @@ public class FairRound : Round
 		return AffectedProducts[id] = a.Clone();
 	}
 
-	public void DeleteProduct(ProductEntry resource)
+	public CatalogueEntry AffectCatalogue(AccountEntry signer)
 	{
-		AffectProduct(resource.Id).Deleted = true;
+		var b = Mcv.Accounts.KeyToBid(signer.Address);
+		
+		int e = GetNextEid(Mcv.Catalogues, b);
+
+		var a = Mcv.Catalogues.Create();
+		a.Id = new EntityId(b, e);
+			
+		return AffectedCatalogues[a.Id] = a;
+	}
+
+	public CatalogueEntry AffectCatalogue(EntityId id)
+	{
+		if(AffectedCatalogues.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Mcv.Catalogues.Find(id, Id - 1);
+
+		return AffectedCatalogues[id] = e.Clone();
+	}
+
+	public TopicEntry AffectTopic(CatalogueEntry catalogue)
+	{
+		int e = GetNextEid(Mcv.Topics, catalogue.Id.B);
+
+		var a = Mcv.Topics.Create();
+		a.Id = new EntityId(catalogue.Id.B, e);
+			
+		return AffectedTopics[a.Id] = a;
+	}
+
+	public TopicEntry AffectTopic(EntityId id)
+	{
+		if(AffectedTopics.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Mcv.Topics.Find(id, Id - 1);
+
+		return AffectedTopics[id] = e.Clone();
 	}
 
 	public override void RestartExecution()
 	{
-		AffectedAuthors.Clear();
-		AffectedProducts.Clear();
-		NextAuthorEids.Clear();
-		NextProductEids.Clear();
+// 		AffectedAuthors.Clear();
+// 		AffectedProducts.Clear();
+// 		AffectedCatalogues.Clear();
+// 		AffectedCards.Clear();
+// 
+// 		NextAuthorEids.Clear();
+// 		NextProductEids.Clear();
+// 		NextCatalogueEids.Clear();
+// 		NextCardEids.Clear();
 	}
 
 	public override void FinishExecution()

@@ -14,7 +14,7 @@ public class LogCommand : McvCommand
 							{ 
 								Title = "LOG",
 								Description = "Applicable in \"node run\" mode only. Start monitoring the log.",
-								Syntax = "log",
+								Syntax = $"log",
 							},
 
 							Execute = () =>	{

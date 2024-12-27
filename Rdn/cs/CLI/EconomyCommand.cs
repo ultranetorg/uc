@@ -35,7 +35,7 @@ public class EconomyCommand : RdnCommand
 							{ 
 								Title = "ESTIMATE ETHEREUM EMISSION",
 								Description = "Used to estimate gas and gas price of emission transaction on the Ethereum side",
-								Syntax = "money eee|estimate-ethereum-emission from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]}",
+								Syntax = $"money eee|estimate-ethereum-emission from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]}",
 
 								Arguments =
 								[
@@ -88,7 +88,7 @@ public class EconomyCommand : RdnCommand
 							// 
 							// 					try
 							// 					{
-							// 						eid = Rdc(new AccountRequest {Account = GetAccountAddress("signer")}).Account.LastEmissionId + 1;
+							// 						eid = Rdc(new AccountRequest {Account = GetAccountAddress(SignerArg)}).Account.LastEmissionId + 1;
 							// 					}
 							// 					catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 							// 					{
@@ -108,7 +108,7 @@ public class EconomyCommand : RdnCommand
 							{ 
 								Title = "EMIT IN ETHEREUM",
 								Description = "Places a special transaction on Ethereum side which tells that specified amount of ETH is burned in exchange of crediting corresponding amount of UNT to a specified account on ULTRANET side",
-								Syntax = "money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=INT gas=INT gasprice=INT amount=UNT to=UAA",
+								Syntax = $"money eie|emit-in-ethereum from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=INT gas=INT gasprice=INT amount=UNT to={{UAA}}",
 
 								Arguments =
 								[
@@ -176,7 +176,7 @@ public class EconomyCommand : RdnCommand
 							{ 
 								Title = "EMIT IN ULTRANET",
 								Description = "Places a special transaction on ULTRANET side which tells the network to retrieve emission info from the Ethereum side, check it and if everything is correct, credit a specified account with a corresponding amount of UNT",
-								Syntax = "money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=EID amount=UNT signer=UAA",
+								Syntax = $"money eiu|emit-in-ultranet from{key=PRIVATEKEY | wallet=PATH [password=PASSWORD]} eid=EID amount=UNT signer={{UAA}}",
 
 								Arguments =
 								[
@@ -184,7 +184,7 @@ public class EconomyCommand : RdnCommand
 									fromB,
 									new ("eid", "Emission sequence identifier, zero-based"),
 									new ("amount", "Amount of ETH to be verified and converted into UNT"),
-									new ("signer", "Ultranet account address where UNTs are credited to")
+									new (SignerArg, "Ultranet account address where UNTs are credited to")
 								],
 
 								Examples =
@@ -208,12 +208,12 @@ public class EconomyCommand : RdnCommand
 							{ 
 								Title = "FIND EMISSION",
 								Description = "Requires Ethereum provider is configured. Retrieves an amount of ETH of existing emission transaction on the Ethereum side.",
-								Syntax = "money fe|findemission eid=INT signer=UAA",
+								Syntax = $"money fe|findemission eid=INT signer={{UAA}}",
 
 								Arguments =
 								[
 									new ("eid", "Emission sequence Id. First emission has eid=0, next emission has eid=1, and so on."),
-									new ("signer", "Address of destination Ultranet account")
+									new (SignerArg, "Address of destination Ultranet account")
 								],
 
 								Examples =
@@ -227,7 +227,7 @@ public class EconomyCommand : RdnCommand
 											
 											
 												var e = Api<BigInteger>(new EmissionApc{Eid = (int)GetLong("eid"),
-																						By = GetAccountAddress("signer"), 
+																						By = GetAccountAddress(SignerArg), 
 																						Await = GetAwaitStage(Args) });
 											
 												if(e > 0)

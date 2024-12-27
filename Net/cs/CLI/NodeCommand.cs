@@ -75,7 +75,7 @@ public class NodeCommand : McvCommand
 
 		attach.Help = new Help{ Title = "Attach",
 								Description = "Connects to existing node instance via JSON RPC protocol",
-								Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey=PASSWORD",
+								Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey={PASSWORD}",
 
 								Arguments =
 								[
@@ -221,13 +221,13 @@ public class NodeCommand : McvCommand
 
 		property.Help = new Help {	Title = "Property",
 									Description = "Displays a value of node internal state",
-									Syntax = $"{Keyword} {property.NamesSyntax} TEXT",
+									Syntax = $"{Keyword} {property.NamesSyntax} {TEXT}",
 
 									Arguments = [],
 
 									Examples =
 									[
-										new (null, "node property Mcv.Size")
+										new ("first", "node property Mcv.Size")
 									]};
 			
 		var mebbership = new CommandAction(){
@@ -237,7 +237,7 @@ public class NodeCommand : McvCommand
 												{ 
 													Title = "Membership",
 													Description = "Get information about membership status of specified account",
-													Syntax = "nexus m|membership UAA",
+													Syntax = $"nexus m|membership {AA}",
 
 													Arguments =
 													[

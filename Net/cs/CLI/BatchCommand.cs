@@ -14,11 +14,11 @@ public class BatchCommand : McvCommand
 				Help = new Help	{ 
 									Title = "BATCH",
 									Description = "Sends multiple operations as one transaction or as few as possible",
-									Syntax = "batch name0={operation} name1={operation} ... nameN={operation} signer=UAA",
+									Syntax = $"batch name0={{operation}} name1={{operation}} ... nameN={{operation}} signer=UAA",
 
 									Arguments = [new ("name(n)", "Arbitrary name of operation, not used during processing"),
 												 new ("operation", "Operation arguments"),
-												 new ("signer", "Public address of account a transaction is sent on behalf of")],
+												 new (SignerArg, "Public address of account a transaction is sent on behalf of")],
 
 									Examples = [new (null,	"batch a={account ut to=0x1111111111111111111111111111111111111111 ec=5000}" +
 															" b={account ut to=0x1111111111111111111111111111111111111111 ec=5000}" +
@@ -27,18 +27,18 @@ public class BatchCommand : McvCommand
 								},
 
 				Execute = () =>	{
-									var results = Args.Where(i =>	i.Name != "await" && 
-																	i.Name != "signer" && 
-																	i.Name != "mcvid").Select(x => {
-																										var c = Cli.Create(x.Nodes, Flow);
+									var results = Args	.Where(i =>	i.Name != AwaitArg && 
+																	i.Name != SignerArg)
+														.Select(x => {
+																		var c = Cli.Create(x.Nodes, Flow);
 
-																										var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(x.Nodes.Skip(1).First().Name));
+																		var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(x.Nodes.Skip(1).First().Name));
 
-																										return a.Execute();
-																									}
+																		return a.Execute();
+																	}
 									);
 
-									Transact(results.OfType<Operation>(), GetAccountAddress("signer"), GetAwaitStage(Args));
+									Transact(results.OfType<Operation>(), GetAccountAddress(SignerArg), GetAwaitStage(Args));
 
 									return results;
 								}

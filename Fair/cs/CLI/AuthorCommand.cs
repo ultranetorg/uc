@@ -22,7 +22,7 @@ public class AuthorCommand : FairCommand
 								Arguments =
 								[
 									new ("years", "Integer number of years in [1..10] range"),
-									new ("signer", "Address of account that owns or is going to register the author")
+									new (SignerArg, "Address of account that owns or is going to register the author")
 								],
 
 								Examples =
@@ -84,7 +84,7 @@ public class AuthorCommand : FairCommand
 								[
 									new ("<first>", "Id of an author to be renewed"),
 									new ("years", "Integer number of years in [1..10] range"),
-									new ("signer", "Address of account that owns the author")
+									new (SignerArg, "Address of account that owns the author")
 								],
 
 								Examples =
@@ -128,7 +128,7 @@ public class AuthorCommand : FairCommand
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new FairAccountAuthorsRequest(FirstAuthorId));
+												var rp = Rdc(new AccountAuthorsRequest(FirstAuthorId));
 
 												Dump(rp.Authors, ["Id"], [i => i]);
 					

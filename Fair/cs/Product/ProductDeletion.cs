@@ -26,7 +26,7 @@ public class ProductDeletion : FairOperation
 		if(RequireSignerProduct(round, Product, out var d, out var r) == false)
 			return;
 
-		round.DeleteProduct(r);
+		round.AffectProduct(Product).Deleted = true;
 
 		Free(d, r.Length);
 	}

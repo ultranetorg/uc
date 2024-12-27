@@ -19,7 +19,7 @@ public class LinkCommand : RdnCommand
 							{
 								Title = "CREATE",
 								Description = "Creates a link from one resource to another",
-								Syntax = "link c|create from=URA to=URA",
+								Syntax = $"link c|create from={RA} to={RA}",
 
 								Arguments =
 								[
@@ -51,7 +51,7 @@ public class LinkCommand : RdnCommand
 							{ 
 								Title = "DESTROY",
 								Description = "Destroys existing link",
-								Syntax = "link x|destroy from=URA to=URA",
+								Syntax = $"link x|destroy from={RA} to={RA}",
 
 								Arguments =
 								[
@@ -83,7 +83,7 @@ public class LinkCommand : RdnCommand
 							{ 
 								Title = "LIST OUTBOUNDS",
 								Description = "Lists outbound links of a specified resource",
-								Syntax = "link lo|listoutbounds URA",
+								Syntax = $"link lo|listoutbounds {RA}",
 
 								Arguments =
 								[
@@ -117,7 +117,7 @@ public class LinkCommand : RdnCommand
 							{ 
 								Title = "LIST INBOUNDS",
 								Description = "Lists inbound links of a specified resource",
-								Syntax = "link li|listinbounds URA",
+								Syntax = $"link li|listinbounds {RA}",
 
 								Arguments =
 								[

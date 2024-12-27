@@ -98,7 +98,7 @@ public class DomainUpdation : RdnOperation
 			{
 				if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
 				{
-					Error = NotOwner;
+					Error = Denied;
 					return;
 				}
 
@@ -143,7 +143,7 @@ public class DomainUpdation : RdnOperation
 
 				if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
 				{
-					Error = NotOwner;
+					Error = Denied;
 					return;
 				}
 

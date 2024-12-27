@@ -6,10 +6,12 @@ public enum FairPpcClass : byte
 {
 	None = 0, 
 	Author = McvPpcClass._Last + 1, 
-	FairMembers,
 	Product,
+	Catalogue,
 	Cost,
-	FairAccountAuthors
+	FairMembers,
+	AccountAuthors,
+	AccountCatalogues
 }
 
 public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse

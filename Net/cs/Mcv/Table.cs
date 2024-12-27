@@ -23,7 +23,7 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Save(WriteBatch batch, IEnumerable<object> entities, Round lastconfirmedround);
+	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Round lastconfirmedround);
 	public static short							ClusterFromBucket(int id) => (short)(id >> 12);
 
 	public abstract class BucketBase
@@ -495,9 +495,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//}
 	}
 
-	public override void Save(WriteBatch batch, IEnumerable<object> entities, Round lastInCommit)
+	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Round lastInCommit)
 	{
-		if(!entities.Any())
+		if(entities.Count == 0)
 			return;
 
 		var bs = new HashSet<Bucket>();

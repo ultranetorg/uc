@@ -161,12 +161,12 @@ public class McvCli
 			{
 				if(c.Has("estimate"))
 				{
-					var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress("signer")});
+					var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
 					c.Dump(rp);
 				}
 				else
 				{
-					var txs = c.Transact([o], c.GetAccountAddress("signer"), McvCommand.GetAwaitStage(command));
+					var txs = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(command));
 
 					foreach(var i in txs)
 					{	

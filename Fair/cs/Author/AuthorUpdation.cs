@@ -84,7 +84,7 @@ public class AuthorUpdation : FairOperation
 		{
 			if(!Author.IsOwner(e, Signer, round.ConsensusTime))
 			{
-				Error = NotOwner;
+				Error = Denied;
 				return;
 			}
 

@@ -9,35 +9,35 @@ public class DomainCommand : RdnCommand
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Actions =	[
-						new ()
-						{
-							Names = ["b", "bid"],
-
-							Help = new Help
-							{ 
-								Title = "BID",
-								Description = "Domain names that starts from alphanumeric symbol are distributed via auction. Once the first bid is confirmed, an auction is considered to have started and every next bid extends it by 1 month and lasts for 1 year at least.",
-								Syntax = "domain b|bid URDA amount=UNT signer=UAA",
-
-								Arguments = 
-								[
-									new ("<first>", "Address of a root domain to bid on"), // "<first>" placeholder replaced by actual usage context
-									new ("amount", "Amount of bid in UNT"),
-									new ("signer", "Address of account that makes a bid and will own the domain if wins")
-								],
-
-								Examples =
-								[
-									new (null, "domain b companyinc amount=1.000 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
-
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
-
-												return new DomainBid(First, long.Parse(GetString("amount")));
-											}
-						},
+// 						new ()
+// 						{
+// 							Names = ["b", "bid"],
+// 
+// 							Help = new Help
+// 							{ 
+// 								Title = "BID",
+// 								Description = "Domain names that starts from alphanumeric symbol are distributed via auction. Once the first bid is confirmed, an auction is considered to have started and every next bid extends it by 1 month and lasts for 1 year at least.",
+// 								Syntax = $"domain b|bid {RDA} amount=UNT signer={UAA}",
+// 
+// 								Arguments = 
+// 								[
+// 									new ("<first>", "Address of a root domain to bid on"), // "<first>" placeholder replaced by actual usage context
+// 									new ("amount", "Amount of bid in UNT"),
+// 									new (SignerArg, "Address of account that makes a bid and will own the domain if wins")
+// 								],
+// 
+// 								Examples =
+// 								[
+// 									new (null, "domain b companyinc amount=1.000 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+// 								]
+// 							},
+// 
+// 							Execute = () =>	{
+// 												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+// 
+// 												return new DomainBid(First, long.Parse(GetString("amount")));
+// 											}
+// 						},
 
 
 						new ()
@@ -48,13 +48,13 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "ACQUIRE",
 								Description = "Obtain ownership of a domain name for a specified period",
-								Syntax = "domain a|acquire URDA years=YEARS signer=UAA",
+								Syntax = $"domain a|acquire {RDA} years={YEARS} signer={AA}",
 
 								Arguments =
 								[
 									new ("<first>", "Address of a root domain to be acquired"),
 									new ("years", "Integer number of years in [1..10] range"),
-									new ("signer", "Address of account that owns or is going to register the domain")
+									new (SignerArg, "Address of account that owns or is going to register the domain")
 								],
 
 								Examples =
@@ -79,14 +79,14 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "MIGRATE",
 								Description = "Request web domain migration",
-								Syntax = "domain m|migrate URDA wtld=WTLD [rank] signer=UAA",
+								Syntax = $"domain m|migrate {RDA} wtld={WTLD} [rank] signer={AA}",
 
 								Arguments =
 								[
 									new ("<first>", "Ultranet address of a root domain to migrate"),
 									new ("wtld", "Web top-level domain (com, org, net)"),
 									new ("checkrank", "Request position verification in Google search results"),
-									new ("signer", "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
+									new (SignerArg, "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
 								],
 
 								Examples =
@@ -110,13 +110,13 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "RENEW",
 								Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.",
-								Syntax = "domain r|renew UDA years=YEARS signer=UAA",
+								Syntax = $"domain r|renew {DA} years={YEARS} signer={AA}",
 
 								Arguments =
 								[
 									new ("<first>", "Address of a domain to be renewed"),
 									new ("years", "Integer number of years in [1..10] range"),
-									new ("signer", "Address of account that owns the domain")
+									new (SignerArg, "Address of account that owns the domain")
 								],
 
 								Examples =
@@ -144,7 +144,7 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "CREATE SUBDOMAIN",
 								Description = "Create a subdomain",
-								Syntax = "domain cs|createsubdomain USDA policy=POLICY years=YEARS for=UAA signer=UAA",
+								Syntax = $"domain cs|createsubdomain {SDA} policy=POLICY years={YEARS} for={AA} signer={AA}",
 
 								Arguments =
 								[
@@ -152,7 +152,7 @@ public class DomainCommand : RdnCommand
 									new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
 									new ("years", "Number of years in [1..10] range"),
 									new ("for", "Address of account that will own the subdomain"),
-									new ("signer", "Address of account that owns the parent domain")
+									new (SignerArg, "Address of account that owns the parent domain")
 								],
 
 								Examples =
@@ -179,13 +179,13 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "UPDATE POLICY",
 								Description = "Changes current policy of subdomain",
-								Syntax = "domain up|updatepolicy USDA policy=POLICY signer=UAA",
+								Syntax = $"domain up|updatepolicy {SDA} policy=POLICY signer={AA}",
 
 								Arguments =
 								[
 									new ("<first>", "Address of a domain to change policy for"),
 									new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
-									new ("signer", "Address of account that owns a subdomain")
+									new (SignerArg, "Address of account that owns a subdomain")
 								],
 
 								Examples =
@@ -213,13 +213,13 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "TRANSFER",
 								Description = "Changes an owner of domain",
-								Syntax = "domain t|transfer UDA to=UAA signer=UAA",
+								Syntax = $"domain t|transfer {DA} to={AA} signer={AA}",
 
 								Arguments =
 								[
 									new ("<first>", "Address of a domain to transfer"),
 									new ("to", "Address of account of a new owner"),
-									new ("signer", "Address of account of the current owner")
+									new (SignerArg, "Address of account of the current owner")
 								],
 
 								Examples =
@@ -247,7 +247,7 @@ public class DomainCommand : RdnCommand
 							{
 								Title = "Entity",
 								Description = "Get domain entity information from MCV database",
-								Syntax = "domain e|entity UDA",
+								Syntax = $"domain e|entity {DA}",
 
 								Arguments =
 								[

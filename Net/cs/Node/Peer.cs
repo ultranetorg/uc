@@ -346,7 +346,7 @@ public class Peer : IPeer, IBinarySerializable
  					}
 
 					case PacketType.Response:
- 						{
+ 					{
 						var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Peering.Constract);
 
 						lock(OutRequests)

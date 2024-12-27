@@ -21,4 +21,11 @@ public class AccountIdentifier
 	{
 		Id = id;
 	}
+
+	public static AccountIdentifier Parse(string text)
+	{
+		return text.StartsWith("0x") ? new AccountIdentifier(AccountAddress.Parse(text)) : new AccountIdentifier(EntityId.Parse(text));
+	}
+
 }
+ 

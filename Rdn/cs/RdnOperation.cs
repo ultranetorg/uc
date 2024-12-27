@@ -101,7 +101,7 @@ public abstract class RdnOperation : Operation
 
 		if(domain.Owner != Signer.Id)
 		{
-			Error = NotOwner;
+			Error = Denied;
 			return false;
 		}
 
@@ -126,7 +126,7 @@ public abstract class RdnOperation : Operation
 
 		if(domain.Owner != Signer.Id)
 		{
-			Error = NotOwner;
+			Error = Denied;
 			return false;
 		}
 

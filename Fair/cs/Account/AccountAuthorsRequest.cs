@@ -1,24 +1,24 @@
 ﻿namespace Uccs.Fair;
 
-public class FairAccountAuthorsRequest : McvPpc<FairAccountAuthorsResponse>
+public class AccountAuthorsRequest : McvPpc<AccountAuthorsResponse>
 {
 	public AccountIdentifier		Identifier {get; set;}
 
-	public FairAccountAuthorsRequest()
+	public AccountAuthorsRequest()
 	{
 	}
 
-	public FairAccountAuthorsRequest(AccountIdentifier identifier)
+	public AccountAuthorsRequest(AccountIdentifier identifier)
 	{
 		Identifier = identifier;
 	}
 
-	public FairAccountAuthorsRequest(AccountAddress addres)
+	public AccountAuthorsRequest(AccountAddress addres)
 	{
 		Identifier = new(addres);
 	}
 
-	public FairAccountAuthorsRequest(EntityId id)
+	public AccountAuthorsRequest(EntityId id)
 	{
 		Identifier = new(id);
 	}
@@ -41,12 +41,12 @@ public class FairAccountAuthorsRequest : McvPpc<FairAccountAuthorsResponse>
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new FairAccountAuthorsResponse {Authors = e.Authors};
+			return new AccountAuthorsResponse {Authors = e.Authors};
 		}
 	}
 }
 
-public class FairAccountAuthorsResponse : PeerResponse
+public class AccountAuthorsResponse : PeerResponse
 {
 	public EntityId[] Authors {get; set;}
 }

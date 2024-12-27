@@ -19,7 +19,7 @@ public class AnalysisCommand : RdnCommand
 				Help = new Help	{ 
 									Title = "ANALYSIS UPDATE",
 									Description = "Register an analysis result in Ultranet distributed database",
-									Syntax = "analysis u|update URA result=RESULT",
+									Syntax = $"analysis u|update {RA} result=RESULT",
 
 									Arguments = 
 									[

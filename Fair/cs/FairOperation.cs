@@ -11,7 +11,11 @@ public enum FairOperationClass
 	ChildNetInitialization,
 
 	AuthorCreation, AuthorUpdation,
-	ProductCreation, ProductUpdation, ProductDeletion
+	ProductCreation, ProductUpdation, ProductDeletion,
+	CatalogueCreation, CatalogueDeletion,
+	TopicCreation, TopicDeletion,
+
+
 }
 
 public abstract class FairOperation : Operation
@@ -83,7 +87,7 @@ public abstract class FairOperation : Operation
 
 		if(domain.Owner != Signer.Id)
 		{
-			Error = NotOwner;
+			Error = Denied;
 			return false;
 		}
 
@@ -148,5 +152,38 @@ public abstract class FairOperation : Operation
 
 
 		return true; 
+	}
+
+	public bool RequireCatalogueAccess(FairRound round, EntityId id, out CatalogueEntry catalogue)
+	{
+		catalogue = round.Mcv.Catalogues.Find(id, round.Id);
+		
+		if(catalogue == null)
+		{
+			Error = NotFound;
+			return false; 
+		}
+
+		if(!catalogue.Owners.Contains(Signer.Id))
+		{
+			Error = Denied;
+			return false; 
+		}
+
+		return true; 
+	}
+
+	public bool RequireTopicAccess(FairRound round, EntityId id, out CatalogueEntry catalogue, out TopicEntry card)
+	{
+		catalogue = null;
+		card = round.Mcv.Topics.Find(id, round.Id);
+		
+		if(card == null)
+		{
+			Error = NotFound;
+			return false; 
+		}
+
+		return RequireCatalogueAccess(round, card.Catalogue, out catalogue); 
 	}
 }

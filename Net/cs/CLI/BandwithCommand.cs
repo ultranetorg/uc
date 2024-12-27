@@ -15,7 +15,7 @@ public class BandwidthCommand : McvCommand
 							Help = new Help	{ 
 												Title = "Allocate",
 												Description = "Allocate execution bandwidth",
-												Syntax = $"{Keyword} ab|allocatebandwidth bandwidth=EC days=NUMBER signer=UAA",
+												Syntax = $"{Keyword} ab|allocatebandwidth bandwidth={EC} days={INT} signer={AA}",
 
 												Arguments =	[
 																new ("bandwidth", "Amount of EC allocated per day"),
