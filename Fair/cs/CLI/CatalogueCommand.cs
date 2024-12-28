@@ -17,7 +17,7 @@ public class CatalogueCommand : FairCommand
 							{
 								Title = "Create",
 								Description = "Creates a new catalogue",
-								Syntax = $"{Keyword} c|create title=TEXT signer=UAA",
+								Syntax = $"{Keyword} c|create title={TITLE} signer={AA}",
 								Arguments =	[new ("years", "Integer number of years in [1..10] range"),
 											 new (SignerArg, "Address of account that owns or is going to register the catalogue")],
 								Examples =	[new (null, $"{Keyword} c title=\"The Store\" signer=0x0000fffb3f90771533b1739480987cee9f08d754")]
@@ -38,7 +38,7 @@ public class CatalogueCommand : FairCommand
 							{
 								Title = "Entity",
 								Description = "Get catalogue entity information from MCV database",
-								Syntax = $"{Keyword} e|entity AUID",
+								Syntax = $"{Keyword} e|entity {AUID}",
 								Arguments =	[new ("<first>", "Id of an catalogue to get information about")],
 								Examples =[new (null, $"{Keyword} e 12345-678")]
 							},
@@ -60,7 +60,7 @@ public class CatalogueCommand : FairCommand
 
 							Help = new Help {Title = "List",
 											 Description = "Get catalogues of a specified account",
-											 Syntax = $"{Keyword} l|list AID",
+											 Syntax = $"{Keyword} l|list {AAID}",
 											 Arguments = [new ("<first>", "Id of an account to get catalogues from")],
 											 Examples = [new (null, $"{Keyword} l 12345-678")]},
 

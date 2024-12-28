@@ -17,7 +17,7 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Create",
 								Description = "Creates a new author for a specified period",
-								Syntax = $"{Keyword} c|acquire years=YEARS signer=UAA",
+								Syntax = $"{Keyword} c|acquire years={INT} signer={AA}",
 
 								Arguments =
 								[
@@ -46,7 +46,7 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Entity",
 								Description = "Get author entity information from MCV database",
-								Syntax = $"{Keyword} e|entity AUID",
+								Syntax = $"{Keyword} e|entity {AUID}",
 
 								Arguments =
 								[
@@ -78,7 +78,7 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Renew",
 								Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-								Syntax = $"{Keyword} r|renew AUID years=YEARS signer=UAA",
+								Syntax = $"{Keyword} r|renew {AUID} years={INT} signer={AA}",
 
 								Arguments =
 								[
@@ -111,8 +111,8 @@ public class AuthorCommand : FairCommand
 							Help = new Help()
 							{
 								Title = "List",
-								Description = "Get authors of a specified account",
-								Syntax = $"{Keyword} l|list AID",
+								Description = "Get authors that specified account owns",
+								Syntax = $"{Keyword} l|list {AAID}",
 
 								Arguments =
 								[
