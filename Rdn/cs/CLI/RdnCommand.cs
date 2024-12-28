@@ -65,7 +65,7 @@ public abstract class RdnCommand : McvCommand
 			if(d.Nodes.Any())
 			{
 				var ctl = DataType.Parse(GetString("data"));
-				var cnt = GetString("data/type", false) is string a ? ContentType.Parse(a) : null;
+				var cnt = GetString("data/type", false) is string a ? Enum.Parse<ContentType>(a) : ContentType.Unknown;
 				var t = new DataType(ctl, cnt);
 
 				if(ctl == DataType.Data)

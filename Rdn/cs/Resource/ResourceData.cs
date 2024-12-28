@@ -4,36 +4,26 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn;
 
-
 public class DataType : IEquatable<DataType>, IBinarySerializable
 {
-	public string Control { get; set; }
-	public string Content { get; set; }
+	public ushort		Control { get; set; }
+	public ContentType	Content { get; set; }
 
-	public static readonly string	Data							= null;
-	public static readonly string	File							= From([1]);
-	public static readonly string	Directory						= From([2]);
-	public static readonly string	Redirect						= From([100]);
-	public static readonly string		Redirect_Uri				= From([100, 0]);
-// 		public static readonly string		Redirect_IPAddress			= From([100, 1]);
-// 		public static readonly string			Redirect_IP4			= From([100, 1, 0]);
-// 		public static readonly string			Redirect_IP6			= From([100, 1, 1]);
-	public static readonly string		Redirect_ProductRealization	= From([100, 100]);
+	public const ushort	Data							= 000;
+	public const ushort	File							= 001;
+	public const ushort	Directory						= 002;
+	public const ushort	Redirect						= 010;
+	public const ushort		Redirect_Uri				= 010_00;
+	public const ushort		Redirect_ProductRealization	= 010_10;
 
 	public DataType()
 	{
 	}
 
-	public DataType(string control, string content)
+	public DataType(ushort control, ContentType content)
 	{
 		Control = control;
 		Content = content;
-	}
-
-	public DataType(byte[] control, byte[] content)
-	{
-		Control = From(control);
-		Content = From(content);
 	}
 
 	public static string From(byte[] x)
@@ -41,9 +31,9 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 		return x.ToHex();
 	}
 
-	public static string Parse(string t)
+	public static ushort Parse(string t)
 	{
-		return typeof(DataType).GetField(t).GetValue(null) as string;
+		return (ushort)typeof(DataType).GetField(t).GetValue(null);
 	}
 
 	public override string ToString()
@@ -90,37 +80,32 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.WriteBytes(Control?.FromHex());
-		writer.WriteBytes(Content?.FromHex());
+		writer.Write(Control);
+		writer.Write7BitEncodedInt((int)Content);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Control	= reader.ReadBytes()?.ToHex();
-		Content = reader.ReadBytes()?.ToHex();
+		Control	= reader.ReadUInt16();
+		Content = (ContentType)reader.Read7BitEncodedInt();
 	}
 }
 
-public class ContentType
+public enum ContentType
 {
-	public static readonly string	Unknown 					= null;
-	public static readonly string	Raw 						= null;
-	public static readonly string	Text						= DataType.From([10]);
-	public static readonly string	Image						= DataType.From([20]);
-	public static readonly string	Audio						= DataType.From([30]);
-	public static readonly string	Video						= DataType.From([40]);
-	public static readonly string	Font						= DataType.From([50]);
-	public static readonly string	Applied						= DataType.From([100]);
-	public static readonly string		Rdn						= DataType.From([100, 0]);
-	public static readonly string			Rdn_ProductManifest	= DataType.From([100, 0, 0]);
-	public static readonly string			Rdn_PackageManifest	= DataType.From([100, 0, 1]);
- 		public static readonly string			Rdn_Consil			= DataType.From([100, 0, 2]);
- 		public static readonly string			Rdn_Analysis		= DataType.From([100, 0, 3]);
-
-	public static string Parse(string t)
-	{
-		return typeof(ContentType).GetField(t).GetValue(null) as string;
-	}
+	Unknown 					= 0,
+	Raw 						= 0 ,
+	Text						= 010,
+	Image						= 020,
+	Audio						= 030,
+	Video						= 040,
+	Font						= 050,
+	Applied						= 100,
+		Rdn						= 100_000,
+			Rdn_ProductManifest	= 100_000_000,
+			Rdn_PackageManifest	= 100_000_001,
+			Rdn_Consil			= 100_000_002,
+			Rdn_Analysis		= 100_000_003,
 }
 // 
 // 	public interface IResourceValue
@@ -142,7 +127,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
  				var s = new MemoryStream();
  				var w = new BinaryWriter(s);
  			
-			Write(w);
+				Write(w);
  		
  				return s.ToArray().ToHex();
  			}

@@ -40,7 +40,7 @@ public class RdnLocal : Rdn
 		Father0IP		= new IPAddress([127, 0, 0, 100]);
 		Cryptography	= Cryptography.No;
 		PoW				= false;
-		Auctions		= true;
+		Auctions		= false;
 		CommitLength	= 100;
 		ECLifetime		= Time.FromYears(100);
 
