@@ -33,6 +33,25 @@ public class TopicCommand : FairCommand
 
 						new ()
 						{
+							Names = ["x", "destroy"],
+
+							Help = new Help
+							{ 
+								Title = "Destroy",
+								Description = "Destroys existing topic and all its associated data",
+								Syntax = $"{Keyword} x|destroy {EID}",
+								Arguments = [new ("<first>", "Id of a topic to delete")],
+								Examples = [new (null, $"{Keyword} x {EID.Examples[0]}")]
+							},
+
+							Execute = () =>	{
+												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+
+												return new TopicDeletion {Topic = FirstTopicId};
+											}
+						},
+						new ()
+						{
 							Names = ["e", "entity"],
 
 							Help = new Help()

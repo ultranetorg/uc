@@ -30,14 +30,13 @@ public class CatalogueDeletion : FairOperation
 		
 		foreach(var i in c.Topics)
 		{
-			var car = round.AffectTopic(i);
-			car.Deleted = true;
+			round.AffectTopic(i).Deleted = true;
 		}
 
 		foreach(var i in c.Owners)
 		{
 			var a = round.AffectAccount(i);
-			a.Catalogues = a.Catalogues.Where(i => i == Catalogue).ToArray();
+			a.Catalogues = a.Catalogues.Where(i => i != Catalogue).ToArray();
 		}
 		//Free(d, r.Length);
 	}

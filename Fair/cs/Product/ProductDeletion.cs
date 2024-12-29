@@ -23,11 +23,14 @@ public class ProductDeletion : FairOperation
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(RequireSignerProduct(round, Product, out var d, out var r) == false)
+		if(RequireSignerProduct(round, Product, out var a, out var p) == false)
 			return;
+
+		a = round.AffectAuthor(p.AuthorId);
+		a.Products = a.Products.Where(i => i != Product).ToArray();
 
 		round.AffectProduct(Product).Deleted = true;
 
-		Free(d, r.Length);
+		Free(a, p.Length);
 	}
 }

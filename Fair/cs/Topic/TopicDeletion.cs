@@ -29,7 +29,7 @@ public class TopicDeletion : FairOperation
 		round.AffectTopic(Topic).Deleted = true;
 		
 		cat = round.AffectCatalogue(cat.Id);
-		cat.Topics = cat.Topics.Where(i => i == Topic).ToArray();
+		cat.Topics = cat.Topics.Where(i => i != Topic).ToArray();
 
 		//Free(d, r.Length);
 	}

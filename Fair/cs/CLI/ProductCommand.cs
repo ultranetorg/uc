@@ -53,9 +53,7 @@ public class ProductCommand : FairCommand
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-												var r = Rdc(new ProductRequest(First)).Product;
-
-												return new ProductDeletion {Product = r.Id};
+												return new ProductDeletion {Product = First};
 											}
 						},
 

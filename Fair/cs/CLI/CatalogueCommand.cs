@@ -67,7 +67,7 @@ public class CatalogueCommand : FairCommand
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new AccountCataloguesRequest(FirstCatalogueId));
+												var rp = Rdc(new AccountCataloguesRequest(AccountIdentifier.Parse(Args[0].Name)));
 
 												Dump(rp.Catalogues.Select(i => Rdc(new CatalogueRequest(i)).Catalogue), ["Id", "Title", "Team", "Cards"], [i => i.Id, i => i.Title, i => i.Owners.Length, i => i.Topics?.Length]);
 					
