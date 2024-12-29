@@ -11,6 +11,8 @@ public abstract class McvCommand : NetCommand
 	public Action			Transacted;
 	protected McvCli		Cli;
 
+	public readonly ArgumentType EID	= new ArgumentType("EID",	@"Entity Id",	[@"1111-22", @"123456-789"]);
+
 	static McvCommand()
 	{
 		try
@@ -99,6 +101,16 @@ public abstract class McvCommand : NetCommand
 		}
 		else
 			return TransactionStatus.Placed;
+	}
+
+	protected EntityId GetEntityId(string paramenter)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return EntityId.Parse(p.Get<string>());
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
 	protected long GetMoney(string paramenter)

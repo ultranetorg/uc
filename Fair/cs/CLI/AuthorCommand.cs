@@ -17,18 +17,10 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Create",
 								Description = "Creates a new author for a specified period",
-								Syntax = $"{Keyword} c|acquire years={INT} signer={AA}",
-
-								Arguments =
-								[
-									new ("years", "Integer number of years in [1..10] range"),
-									new (SignerArg, "Address of account that owns or is going to register the author")
-								],
-
-								Examples =
-								[
-									new (null, $"{Keyword} c years=5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
+								Syntax = $"{Keyword} c|create years={INT} {SignerArg}={AA}",
+								Arguments =	[new ("years", "Number of years in [1..10] range"),
+											 new (SignerArg, "Address of account that owns or is going to register the author")],
+								Examples =	[new (null, $"{Keyword} c years=5 {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")]
 							},
 
 							Execute = () =>	{
@@ -46,17 +38,9 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Entity",
 								Description = "Get author entity information from MCV database",
-								Syntax = $"{Keyword} e|entity {AUID}",
-
-								Arguments =
-								[
-									new ("<first>", "Id of an author to get information about")
-								],
-
-								Examples =
-								[
-									new (null, $"{Keyword} e 12345-678")
-								]
+								Syntax = $"{Keyword} e|entity {EID}",
+								Arguments =	[new ("<first>", "Id of an author to get information about")],
+								Examples =	[new (null, $"{Keyword} e {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{
@@ -78,7 +62,7 @@ public class AuthorCommand : FairCommand
 							{
 								Title = "Renew",
 								Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-								Syntax = $"{Keyword} r|renew {AUID} years={INT} signer={AA}",
+								Syntax = $"{Keyword} r|renew {EID} years={INT} {SignerArg}={AA}",
 
 								Arguments =
 								[
@@ -89,7 +73,7 @@ public class AuthorCommand : FairCommand
 
 								Examples =
 								[
-									new (null, $"{Keyword} r 12345-678 years=5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
+									new (null, $"{Keyword} r {EID.Examples[0]} years=5 {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")
 								]
 							},
 
@@ -113,16 +97,9 @@ public class AuthorCommand : FairCommand
 								Title = "List",
 								Description = "Get authors that specified account owns",
 								Syntax = $"{Keyword} l|list {AAID}",
-
-								Arguments =
-								[
-									new ("<first>", "Id of an account to get authors from")
-								],
-
-								Examples =
-								[
-									new (null, $"{Keyword} l 12345-678")
-								]
+								Arguments = [new ("<first>", "Id of an account to get authors from")],
+								Examples =	[new (null, $"{Keyword} l {EID.Examples[0]}"),
+											 new (null, $"{Keyword} l {AA.Examples[0]}"),]
 							},
 
 							Execute = () =>	{

@@ -102,7 +102,7 @@ public abstract class McvNet : Net
 	public Time				ECLifetime { get; protected set; }		= Time.FromYears(1);
 
 	public string			Genesis;	
- 		public Cryptography		Cryptography							= Cryptography.Normal;
+ 	public Cryptography		Cryptography							= Cryptography.Normal;
 	public int				CommitLength							= 1000;
 	public int				ExternalVerificationRoundDurationLimit	= 1000;
 	public bool				PoW										= false;

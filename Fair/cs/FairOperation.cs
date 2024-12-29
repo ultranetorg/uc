@@ -20,10 +20,13 @@ public enum FairOperationClass
 
 public abstract class FairOperation : Operation
 {
-	public const string		CantChangeSealedProduct = "Cant change sealed resource";
-	public const string		NotRoot = "Not root domain";
+	public const string				CantChangeSealedProduct = "Cant change sealed resource";
+	public const string				NotRoot = "Not root domain";
+
+	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
 
 	public abstract void Execute(FairMcv mcv, FairRound round);
+
 
 	public override void Execute(Mcv mcv, Round round)
 	{

@@ -31,4 +31,3 @@ public class ProductResponse : PeerResponse
 {
 	public Product Product { get; set; }
 }
-	

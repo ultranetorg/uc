@@ -2,8 +2,6 @@
 
 public abstract class FairCommand : McvCommand
 {
-	public readonly ArgumentType AUID		= new ArgumentType("AUID",		@"Author id",																[@"123456-789"]);
-
 	protected FairCli	Program;
 
 	static FairCommand()

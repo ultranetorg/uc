@@ -21,11 +21,11 @@ public class ProductCommand : FairCommand
 							{ 
 								Title = "Crete",
 								Description = "Creates a product entity in the MCV database",
-								Syntax = $"{Keyword} c|create AUID",
+								Syntax = $"{Keyword} c|create {EID}",
 
 								Arguments = [new ("data", "A data associated with the product")],
 
-								Examples =	[new (null, $"{Keyword} c 123456-78")]
+								Examples =	[new (null, $"{Keyword} c {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{
@@ -43,11 +43,11 @@ public class ProductCommand : FairCommand
 							{ 
 								Title = "DESTROY",
 								Description = "Destroys existing product and all its associated data",
-								Syntax = $"{Keyword} x|destroy PID",
+								Syntax = $"{Keyword} x|destroy {EID}",
 
 								Arguments = [new ("<first>", "Id of a product to delete")],
 
-								Examples = [new (null, $"{Keyword} x 12345-67-8")]
+								Examples = [new (null, $"{Keyword} x {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{
@@ -67,12 +67,12 @@ public class ProductCommand : FairCommand
 							{ 
 								Title = "Update",
 								Description = "Updates a product entity properties in the MCV database",
-								Syntax = $"{Keyword} u|update PID [data=PRODUCTDATA] description=[TEXT]",
+								Syntax = $"{Keyword} u|update {EID} [description={TEXT}]",
 
 								Arguments = [new ("<first>", "Address of a product to update"),
 											 new ("description", "A description text of a product")],
 
-								Examples = [new (null, $"{Keyword} u 123456-67-8")]
+								Examples = [new (null, $"{Keyword} u {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{
@@ -97,11 +97,11 @@ public class ProductCommand : FairCommand
 							{ 
 								Title = "Entity",
 								Description = "Gets product entity information from the MCV database",
-								Syntax = $"{Keyword} e|entity PID",
+								Syntax = $"{Keyword} e|entity {EID}",
 
 								Arguments = [new ("<first>", "Id of a product to get information about")],
 
-								Examples = [new (null, $"{Keyword} e 123456-67-8")]
+								Examples = [new (null, $"{Keyword} e {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{

@@ -32,9 +32,7 @@ public class AuthorCreation : FairOperation
 	{
 		var e = round.AffectAuthor(Signer.Address);
 		
-		var a = Signer as FairAccountEntry;
-
-		a.Authors = a.Authors == null ? [e.Id] : [..a.Authors, e.Id];
+		Signer.Authors = Signer.Authors == null ? [e.Id] : [..Signer.Authors, e.Id];
 		
 		e.Owner			= Signer.Id;
 		e.Expiration	= round.ConsensusTime + Time.FromYears(Years);

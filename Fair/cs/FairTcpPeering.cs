@@ -11,7 +11,9 @@ public enum FairPpcClass : byte
 	Cost,
 	FairMembers,
 	AccountAuthors,
-	AccountCatalogues
+	AccountCatalogues,
+	Topic,
+	CatalogueTopics
 }
 
 public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse
