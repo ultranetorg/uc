@@ -5,12 +5,12 @@ public class FairRound : Round
 	public new FairMcv								Mcv => base.Mcv as FairMcv;
 	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
 	public Dictionary<EntityId, ProductEntry>		AffectedProducts = new();
-	public Dictionary<EntityId, CatalogueEntry>		AffectedCatalogues = new();
-	public Dictionary<EntityId, TopicEntry>		AffectedTopics = new();
+	public Dictionary<EntityId, SiteEntry>		AffectedSites = new();
+	public Dictionary<EntityId, PageEntry>		AffectedPages = new();
 	public Dictionary<int, int>						NextAuthorEids = new ();
 	public Dictionary<int, int>						NextProductEids = new ();
-	public Dictionary<int, int>						NextCatalogueEids = new ();
-	public Dictionary<int, int>						NextTopicEids = new ();
+	public Dictionary<int, int>						NextSiteEids = new ();
+	public Dictionary<int, int>						NextPageEids = new ();
 	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
 
 	public FairRound(FairMcv rds) : base(rds)
@@ -26,8 +26,8 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)	return AffectedAuthors;
 		if(table == Mcv.Products)	return AffectedProducts;
-		if(table == Mcv.Catalogues)	return AffectedCatalogues;
-		if(table == Mcv.Topics)		return AffectedTopics;
+		if(table == Mcv.Sites)	return AffectedSites;
+		if(table == Mcv.Pages)		return AffectedPages;
 
 		return base.AffectedByTable(table);
 	}
@@ -36,8 +36,8 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)	return NextAuthorEids;
 		if(table == Mcv.Products)	return NextProductEids;
-		if(table == Mcv.Catalogues)	return NextCatalogueEids;
-		if(table == Mcv.Topics)		return NextTopicEids;
+		if(table == Mcv.Sites)	return NextSiteEids;
+		if(table == Mcv.Pages)		return NextPageEids;
 		//if(table == Mcv.Resources)	return AffectedResources.Values;
 
 		return base.NextEidsByTable(table);
@@ -94,58 +94,58 @@ public class FairRound : Round
 		return AffectedProducts[id] = a.Clone();
 	}
 
-	public CatalogueEntry AffectCatalogue(AccountEntry signer)
+	public SiteEntry AffectSite(AccountEntry signer)
 	{
 		var b = Mcv.Accounts.KeyToBid(signer.Address);
 		
-		int e = GetNextEid(Mcv.Catalogues, b);
+		int e = GetNextEid(Mcv.Sites, b);
 
-		var a = Mcv.Catalogues.Create();
+		var a = Mcv.Sites.Create();
 		a.Id = new EntityId(b, e);
 			
-		return AffectedCatalogues[a.Id] = a;
+		return AffectedSites[a.Id] = a;
 	}
 
-	public CatalogueEntry AffectCatalogue(EntityId id)
+	public SiteEntry AffectSite(EntityId id)
 	{
-		if(AffectedCatalogues.TryGetValue(id, out var a))
+		if(AffectedSites.TryGetValue(id, out var a))
 			return a;
 			
-		var e = Mcv.Catalogues.Find(id, Id - 1);
+		var e = Mcv.Sites.Find(id, Id - 1);
 
-		return AffectedCatalogues[id] = e.Clone();
+		return AffectedSites[id] = e.Clone();
 	}
 
-	public TopicEntry AffectTopic(CatalogueEntry catalogue)
+	public PageEntry AffectPage(SiteEntry site)
 	{
-		int e = GetNextEid(Mcv.Topics, catalogue.Id.B);
+		int e = GetNextEid(Mcv.Pages, site.Id.B);
 
-		var a = Mcv.Topics.Create();
-		a.Id = new EntityId(catalogue.Id.B, e);
+		var a = Mcv.Pages.Create();
+		a.Id = new EntityId(site.Id.B, e);
 			
-		return AffectedTopics[a.Id] = a;
+		return AffectedPages[a.Id] = a;
 	}
 
-	public TopicEntry AffectTopic(EntityId id)
+	public PageEntry AffectPage(EntityId id)
 	{
-		if(AffectedTopics.TryGetValue(id, out var a))
+		if(AffectedPages.TryGetValue(id, out var a))
 			return a;
 			
-		var e = Mcv.Topics.Find(id, Id - 1);
+		var e = Mcv.Pages.Find(id, Id - 1);
 
-		return AffectedTopics[id] = e.Clone();
+		return AffectedPages[id] = e.Clone();
 	}
 
 	public override void RestartExecution()
 	{
 // 		AffectedAuthors.Clear();
 // 		AffectedProducts.Clear();
-// 		AffectedCatalogues.Clear();
+// 		AffectedSites.Clear();
 // 		AffectedCards.Clear();
 // 
 // 		NextAuthorEids.Clear();
 // 		NextProductEids.Clear();
-// 		NextCatalogueEids.Clear();
+// 		NextSiteEids.Clear();
 // 		NextCardEids.Clear();
 	}
 

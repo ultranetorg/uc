@@ -12,8 +12,8 @@ public enum FairOperationClass
 
 	AuthorCreation, AuthorUpdation,
 	ProductCreation, ProductUpdation, ProductDeletion,
-	CatalogueCreation, CatalogueDeletion,
-	TopicCreation, TopicDeletion,
+	SiteCreation, SiteDeletion,
+	PageCreation, PageDeletion,
 
 
 }
@@ -157,17 +157,17 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireCatalogueAccess(FairRound round, EntityId id, out CatalogueEntry catalogue)
+	public bool RequireSiteAccess(FairRound round, EntityId id, out SiteEntry site)
 	{
-		catalogue = round.Mcv.Catalogues.Find(id, round.Id);
+		site = round.Mcv.Sites.Find(id, round.Id);
 		
-		if(catalogue == null)
+		if(site == null)
 		{
 			Error = NotFound;
 			return false; 
 		}
 
-		if(!catalogue.Owners.Contains(Signer.Id))
+		if(!site.Owners.Contains(Signer.Id))
 		{
 			Error = Denied;
 			return false; 
@@ -176,10 +176,10 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireTopicAccess(FairRound round, EntityId id, out CatalogueEntry catalogue, out TopicEntry card)
+	public bool RequirePageAccess(FairRound round, EntityId id, out SiteEntry site, out PageEntry card)
 	{
-		catalogue = null;
-		card = round.Mcv.Topics.Find(id, round.Id);
+		site = null;
+		card = round.Mcv.Pages.Find(id, round.Id);
 		
 		if(card == null)
 		{
@@ -187,6 +187,6 @@ public abstract class FairOperation : Operation
 			return false; 
 		}
 
-		return RequireCatalogueAccess(round, card.Catalogue, out catalogue); 
+		return RequireSiteAccess(round, card.Site, out site); 
 	}
 }

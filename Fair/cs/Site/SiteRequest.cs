@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class CatalogueRequest : FairPpc<CatalogueResponse>
+public class SiteRequest : FairPpc<SiteResponse>
 {
 	public new EntityId	Id { get; set; }
 
-	public CatalogueRequest()
+	public SiteRequest()
 	{
 	}
 
-	public CatalogueRequest(EntityId id)
+	public SiteRequest(EntityId id)
 	{
 		Id = id;
 	}
@@ -22,17 +22,17 @@ public class CatalogueRequest : FairPpc<CatalogueResponse>
 		{	
 			RequireBase();
 
-			var	e = Mcv.Catalogues.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.Sites.Find(Id, Mcv.LastConfirmedRound.Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new CatalogueResponse {Catalogue = e};
+			return new SiteResponse {Site = e};
 		}
 	}
 }
 
-public class CatalogueResponse : PeerResponse
+public class SiteResponse : PeerResponse
 {
-	public Catalogue	Catalogue {get; set;}
+	public Site	Site {get; set;}
 }

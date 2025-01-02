@@ -215,6 +215,13 @@ namespace Uccs
 				return otherwise;
 		} 
 
+		public E GetEnum<E>(string name)
+		{
+			var n = One(name);
+
+			return (E)Serializator.Get(n, n.Value, typeof(E));
+		} 
+
 		internal void Load(Xon t, IXonReader r)
 		{
 			r.Read(Serializator);

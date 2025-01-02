@@ -1,26 +1,26 @@
 ﻿namespace Uccs.Fair;
 
-public class TopicTable : Table<TopicEntry>
+public class PageTable : Table<PageEntry>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public TopicTable(FairMcv rds) : base(rds)
+	public PageTable(FairMcv rds) : base(rds)
 	{
 	}
 	
-	public override TopicEntry Create()
+	public override PageEntry Create()
 	{
-		return new TopicEntry(Mcv);
+		return new PageEntry(Mcv);
 	}
 
-	public TopicEntry Find(EntityId id, int ridmax)
+	public PageEntry Find(EntityId id, int ridmax)
 	{
 		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 		//	throw new IntegrityException("maxrid works inside pool only");
 
   		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedTopics.TryGetValue(id, out var r))
+			if(i.AffectedPages.TryGetValue(id, out var r))
     			return r;
 
 		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);

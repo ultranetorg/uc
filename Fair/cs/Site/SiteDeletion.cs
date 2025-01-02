@@ -1,42 +1,42 @@
 namespace Uccs.Fair;
 
-public class CatalogueDeletion : FairOperation
+public class SiteDeletion : FairOperation
 {
-	public EntityId				Catalogue { get; set; }
+	public EntityId				Site { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
 
-	public CatalogueDeletion()
+	public SiteDeletion()
 	{
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Catalogue = reader.Read<EntityId>();
+		Site = reader.Read<EntityId>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
-		writer.Write(Catalogue);
+		writer.Write(Site);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(RequireCatalogueAccess(round, Catalogue, out var c) == false)
+		if(RequireSiteAccess(round, Site, out var c) == false)
 			return;
 
-		round.AffectCatalogue(Catalogue).Deleted = true;
+		round.AffectSite(Site).Deleted = true;
 		
-		foreach(var i in c.Topics)
+		foreach(var i in c.Roots)
 		{
-			round.AffectTopic(i).Deleted = true;
+			round.AffectPage(i).Deleted = true;
 		}
 
 		foreach(var i in c.Owners)
 		{
 			var a = round.AffectAccount(i);
-			a.Catalogues = a.Catalogues.Where(i => i != Catalogue).ToArray();
+			a.Sites = a.Sites.Where(i => i != Site).ToArray();
 		}
 		//Free(d, r.Length);
 	}

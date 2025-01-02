@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class TopicRequest : FairPpc<TopicResponse>
+public class PageRequest : FairPpc<PageResponse>
 {
 	public new EntityId	Id { get; set; }
 
-	public TopicRequest()
+	public PageRequest()
 	{
 	}
 
-	public TopicRequest(EntityId id)
+	public PageRequest(EntityId id)
 	{
 		Id = id;
 	}
@@ -22,17 +22,17 @@ public class TopicRequest : FairPpc<TopicResponse>
 		{	
 			RequireBase();
 
-			var	e = Mcv.Topics.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.Pages.Find(Id, Mcv.LastConfirmedRound.Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new TopicResponse {Topic = e};
+			return new PageResponse {Page = e};
 		}
 	}
 }
 
-public class TopicResponse : PeerResponse
+public class PageResponse : PeerResponse
 {
-	public Topic	Topic {get; set;}
+	public Page	Page {get; set;}
 }

@@ -1,26 +1,26 @@
 ﻿namespace Uccs.Fair;
 
-public class CatalogueTable : Table<CatalogueEntry>
+public class SiteTable : Table<SiteEntry>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public CatalogueTable(FairMcv rds) : base(rds)
+	public SiteTable(FairMcv rds) : base(rds)
 	{
 	}
 	
-	public override CatalogueEntry Create()
+	public override SiteEntry Create()
 	{
-		return new CatalogueEntry(Mcv);
+		return new SiteEntry(Mcv);
 	}
 
-	public CatalogueEntry Find(EntityId id, int ridmax)
+	public SiteEntry Find(EntityId id, int ridmax)
 	{
 		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 		//	throw new IntegrityException("maxrid works inside pool only");
 
   		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedCatalogues.TryGetValue(id, out var r))
+			if(i.AffectedSites.TryGetValue(id, out var r))
     			return r;
 
 		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
@@ -33,14 +33,14 @@ public class CatalogueTable : Table<CatalogueEntry>
 		return e;
 	}
 	
-// 	public CatalogueEntry Find(Ura address, int ridmax)
+// 	public SiteEntry Find(Ura address, int ridmax)
 // 	{
 //  		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 //  		//	throw new IntegrityException("maxrid works inside pool only");
 // 
 //   		foreach(var r in Tail.Where(i => i.Id <= ridmax))
 //  		{	
-//  			var x = r.AffectedCatalogues.Values.FirstOrDefault(i => i.Address == address);
+//  			var x = r.AffectedSites.Values.FirstOrDefault(i => i.Address == address);
 //  					
 //  			if(x != null)
 //   				return x;
@@ -51,7 +51,7 @@ public class CatalogueTable : Table<CatalogueEntry>
 //         if(d == null)
 //             return null;
 // 
-//   		var e = FindBucket(d.Id.H)?.Entries.Find(i => i.Id.E == d.Id.E && i.Address.Catalogue == address.Catalogue);
+//   		var e = FindBucket(d.Id.H)?.Entries.Find(i => i.Id.E == d.Id.E && i.Address.Site == address.Site);
 // 
 // 		if(e == null)
 // 			return null;

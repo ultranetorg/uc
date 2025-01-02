@@ -7,13 +7,13 @@ public enum FairPpcClass : byte
 	None = 0, 
 	Author = McvPpcClass._Last + 1, 
 	Product,
-	Catalogue,
+	Site,
 	Cost,
 	FairMembers,
 	AccountAuthors,
-	AccountCatalogues,
-	Topic,
-	CatalogueTopics
+	AccountSites,
+	Page,
+	SitePages
 }
 
 public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse

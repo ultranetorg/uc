@@ -1,26 +1,26 @@
 ﻿namespace Uccs.Fair;
 
-public class CatalogueEntry : Catalogue, ITableEntry
+public class SiteEntry : Site, ITableEntry
 {
 	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
-	public CatalogueEntry()
+	public SiteEntry()
 	{
 	}
 
-	public CatalogueEntry(FairMcv mcv)
+	public SiteEntry(FairMcv mcv)
 	{
 		Mcv = mcv;
 	}
 
-	public CatalogueEntry Clone()
+	public SiteEntry Clone()
 	{
 		return new(Mcv){Id = Id,
 						Title = Title,
 						Owners = [..Owners],
-						Topics = [..Topics]};
+						Roots = [..Roots]};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -28,7 +28,7 @@ public class CatalogueEntry : Catalogue, ITableEntry
 		Id		= reader.Read<EntityId>();
 		Title	= reader.ReadUtf8();
 		Owners	= reader.ReadArray<EntityId>();
-		Topics	= reader.ReadArray<EntityId>();
+		Roots	= reader.ReadArray<EntityId>();
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -36,7 +36,7 @@ public class CatalogueEntry : Catalogue, ITableEntry
 		writer.Write(Id);
 		writer.Write(Title);
 		writer.Write(Owners);
-		writer.Write(Topics);
+		writer.Write(Roots);
 	}
 
 	public void WriteMore(BinaryWriter w)

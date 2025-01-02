@@ -1,13 +1,13 @@
 namespace Uccs.Fair;
 
-public class CatalogueCreation : FairOperation
+public class SiteCreation : FairOperation
 {
 	public string				Title { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(CatalogueChanges.Description) || (Data.Length <= Catalogue.DescriptionLengthMax);
+	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
 
-	public CatalogueCreation()
+	public SiteCreation()
 	{
 	}
 
@@ -23,13 +23,13 @@ public class CatalogueCreation : FairOperation
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		var c = round.AffectCatalogue(Signer);
+		var c = round.AffectSite(Signer);
 
 		c.Title = Title;
 		c.Owners = [Signer.Id];
 
 		var a = Signer as FairAccountEntry;
 
-		a.Catalogues = a.Catalogues == null ? [c.Id] : [..a.Catalogues, c.Id];
+		a.Sites = a.Sites == null ? [c.Id] : [..a.Sites, c.Id];
 	}
 }

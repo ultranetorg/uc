@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair;
 
-public class CatalogueCommand : FairCommand
+public class SiteCommand : FairCommand
 {
-	public const string Keyword = "catalogue";
+	public const string Keyword = "site";
 
-	EntityId FirstCatalogueId => EntityId.Parse(Args[0].Name);
+	EntityId FirstSiteId => EntityId.Parse(Args[0].Name);
 
-	public CatalogueCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Actions =	[
 						new ()
@@ -16,17 +16,17 @@ public class CatalogueCommand : FairCommand
 							Help = new Help()
 							{
 								Title = "Create",
-								Description = "Creates a new catalogue",
+								Description = "Creates a new site",
 								Syntax = $"{Keyword} c|create title={TITLE} {SignerArg}={AA}",
 								Arguments =	[new ("years", "Integer number of years in [1..10] range"),
-											 new (SignerArg, "Address of account that owns or is going to register the catalogue")],
+											 new (SignerArg, "Address of account that owns or is going to register the site")],
 								Examples =	[new (null, $"{Keyword} c title=\"The Store\" {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")]
 							},
 
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
 
-												return new CatalogueCreation {Title = GetString("title")};
+												return new SiteCreation {Title = GetString("title")};
 											}
 						},
 
@@ -37,20 +37,20 @@ public class CatalogueCommand : FairCommand
 							Help = new Help()
 							{
 								Title = "Entity",
-								Description = "Get catalogue entity information from MCV database",
+								Description = "Get site entity information from MCV database",
 								Syntax = $"{Keyword} e|entity {EID}",
-								Arguments =	[new ("<first>", "Id of an catalogue to get information about")],
+								Arguments =	[new ("<first>", "Id of an site to get information about")],
 								Examples =[new (null, $"{Keyword} e {EID.Examples[0]}")]
 							},
 
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new CatalogueRequest(FirstCatalogueId));
+												var rp = Rdc(new SiteRequest(FirstSiteId));
 
-												Dump(rp.Catalogue);
+												Dump(rp.Site);
 					
-												return rp.Catalogue;
+												return rp.Site;
 											}
 						},
 
@@ -59,19 +59,19 @@ public class CatalogueCommand : FairCommand
 							Names = ["l", "list"],
 
 							Help = new Help {Title = "List",
-											 Description = "Get catalogues of a specified account",
+											 Description = "Get sites of a specified account",
 											 Syntax = $"{Keyword} l|list {AAID}",
-											 Arguments = [new ("<first>", "Id of an account to get catalogues from")],
+											 Arguments = [new ("<first>", "Id of an account to get sites from")],
 											 Examples = [new (null, $"{Keyword} l {EID.Examples[0]}")]},
 
 							Execute = () =>	{
 												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new AccountCataloguesRequest(AccountIdentifier.Parse(Args[0].Name)));
+												var rp = Rdc(new AccountSitesRequest(AccountIdentifier.Parse(Args[0].Name)));
 
-												Dump(rp.Catalogues.Select(i => Rdc(new CatalogueRequest(i)).Catalogue), ["Id", "Title", "Team", "Cards"], [i => i.Id, i => i.Title, i => i.Owners.Length, i => i.Topics?.Length]);
+												Dump(rp.Sites.Select(i => Rdc(new SiteRequest(i)).Site), ["Id", "Title", "Team", "Cards"], [i => i.Id, i => i.Title, i => i.Owners.Length, i => i.Roots?.Length]);
 					
-												return rp.Catalogues;
+												return rp.Sites;
 											}
 						},
 

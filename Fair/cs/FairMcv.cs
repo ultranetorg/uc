@@ -7,8 +7,8 @@ public class FairMcv : Mcv
 {
 	public AuthorTable		Authors;
 	public ProductTable		Products;
-	public CatalogueTable	Catalogues;
-	public TopicTable		Topics;
+	public SiteTable	Sites;
+	public PageTable		Pages;
 	IPAddress[]				BaseIPs;
 
 	public FairMcv()
@@ -64,10 +64,10 @@ public class FairMcv : Mcv
 		Accounts = new FairAccountTable(this);
 		Authors = new (this);
 		Products = new (this);
-		Catalogues = new (this);
-		Topics = new (this);
+		Sites = new (this);
+		Pages = new (this);
 
-		Tables = [Accounts, Authors, Products, Catalogues, Topics];
+		Tables = [Accounts, Authors, Products, Sites, Pages];
 	}
 
 	public override Round CreateRound()
