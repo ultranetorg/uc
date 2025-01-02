@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn.CLI;
+﻿using System.Reflection;
+
+namespace Uccs.Rdn.CLI;
 
 /// <summary>
 /// Usage: 
@@ -6,142 +8,127 @@
 /// </summary>
 public class LinkCommand : RdnCommand
 {
-	public const string Keyword = "link";
-
 	public LinkCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["c", "create"],
+	}
 
-							Help = new Help
-							{
-								Title = "CREATE",
-								Description = "Creates a link from one resource to another",
-								Syntax = $"link c|create from={RA} to={RA}",
+	public CommandAction Create()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
-									new ("to", "Address of a destination resource")
-								],
+		a.Name = "c";
+		a.Help = new() {Description = "Creates a link from one resource to another",
+						Syntax = $"{Keyword} {a.NamesSyntax} from={RA} to={RA}",
 
-								Examples =
-								[
-									new (null, "link c from=company/application/win32/1.3.4 to=company/application")
-								]
-							},
+						Arguments =	[
+										new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
+										new ("to", "Address of a destination resource")
+									],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} from={RA.Example[0]} to={RA.Example[1]}")
+									]};
 
-												var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
-												var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-												return new ResourceLinkCreation(s.Id, d.Id);
-											}
-						},
+								var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+								var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
-						new ()
-						{
-							Names = ["d", "destroy"],
+								return new ResourceLinkCreation(s.Id, d.Id);
+							};
+		return a;
+	}
 
-							Help = new Help
-							{ 
-								Title = "DESTROY",
-								Description = "Destroys existing link",
-								Syntax = $"link x|destroy from={RA} to={RA}",
+	public CommandAction Destroy()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
-									new ("to", "Address of a destination resource")
-								],
+		a.Name = "x";
+		a.Help = new() {Description = "Destroys existing link",
+						Syntax = $"{Keyword} {a.NamesSyntax} from={RA} to={RA}",
 
-								Examples =
-								[
-									new (null, "link x from=company/application/win32/1.2.3 to=company/application")
-								]
-							},
+						Arguments =	[
+										new ("from", "Address of a source resource. Transaction signer must be owner of this resource."),
+										new ("to", "Address of a destination resource")
+									],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Examples =
+									[
+										new (null, $"{Keyword} {a.Name} from={RA.Example[0]} to={RA.Example[1]}")
+									]};
 
-												var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
-												var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-												return new ResourceLinkDeletion(s.Id, d.Id);
-											}
-						},
+								var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+								var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
-						new ()
-						{
-							Names = ["lo", "listoutbounds"],
+								return new ResourceLinkDeletion(s.Id, d.Id);
+							};
+		return a;
+	}
 
-							Help = new Help
-							{ 
-								Title = "LIST OUTBOUNDS",
-								Description = "Lists outbound links of a specified resource",
-								Syntax = $"link lo|listoutbounds {RA}",
+	public CommandAction List_Outbounds()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("<first>", "Address of a resource which outbound links are be listed of")
-								],
+		a.Name = "lo";
 
-								Examples =
-								[
-									new (null, "link lo company/application")
-								]							
-							},
+		a.Help = new() {Description = "Lists outbound links of a specified resource",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+						Arguments =	[
+										new ("<first>", "Address of a resource which outbound links are be listed of")
+									],
 
-												var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RA.Example}")
+									]};
+
+		a.Execute = () =>	{
+							Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+							var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 				
-												Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
-													 ["#", "Flags", "Destination", "Destination Data"],
-													 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
+							Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
+									["#", "Flags", "Destination", "Destination Data"],
+									[i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
 
-												return r;
-											}
-						},
+							return r;
+						};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["li", "listinbounds"],
+	public CommandAction List_Inbounds()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help
-							{ 
-								Title = "LIST INBOUNDS",
-								Description = "Lists inbound links of a specified resource",
-								Syntax = $"link li|listinbounds {RA}",
+		a.Name = "li";
 
-								Arguments =
-								[
-									new ("<first>", "Address of a resource which inbound links are be listed of")
-								],
+		a.Help = new() {Description = "Lists inbound links of a specified resource",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
-								Examples =
-								[
-									new (null, "link li company/application")
-								]								
-							},
+						Arguments =	[
+										new ("<first>", "Address of a resource which inbound links are be listed of")
+									],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RA.Example}")
+									]
+						};
 
-												var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 																	
-												Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
-													 ["#", "Source", "Source Data"],
-													 [i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
+								Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
+										["#", "Source", "Source Data"],
+										[i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
 
-												return r;
-											}
-						},
-					];
+								return r;
+							};
+		return a;
 	}
 }

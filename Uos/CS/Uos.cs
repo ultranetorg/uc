@@ -19,10 +19,10 @@ public class NodeInstance
 	}
 }
 
-public class Uos
+public class Uos : Cli
 {
 	public delegate void		Delegate(Uos d);
- 		public delegate void		McvDelegate(Mcv d);
+ 	public delegate void		McvDelegate(Mcv d);
  	
 	public static bool			ConsoleAvailable { get; protected set; }
 	public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
@@ -60,7 +60,7 @@ public class Uos
 			ConsoleAvailable = false;
 		}
 
-  	  		var h = new HttpClientHandler();
+  	  	var h = new HttpClientHandler();
 		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
@@ -181,98 +181,17 @@ public class Uos
 		throw new NodeException(NodeError.NoNodeForNet);
 	}
 
-	public UosCommand Create(IEnumerable<Xon> commnad, Flow flow)
+	public override UosCommand Create(IEnumerable<Xon> commnad, Flow flow)
 	{
-		UosCommand c;
 		var t = commnad.First().Name;
 
 		var args = commnad.Skip(1).ToList();
 
-		switch(t)
-		{
-			case WalletCommand.Keyword:		c = new WalletCommand(this, args, flow); break;
-			case NodeCommand.Keyword:		c = new NodeCommand(this, args, flow); break;
-			case StartCommand.Keyword:		c = new StartCommand(this, args, flow); break;
-			case PackageCommand.Keyword:	c = new PackageCommand(this, args, flow); break;
+		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
-			default:
-				throw new SyntaxException($"Unknown command '{t}'");
-		}
-
-		return c;
+		return ct.GetConstructor([typeof(Uos), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as UosCommand;
 	}
 
-	public object Execute(IEnumerable<Xon> command, Flow flow)
-	{
-		if(Flow.Aborted)
-			throw new OperationCanceledException();
-
-		if(command.Skip(1).FirstOrDefault()?.Name == "?")
-		{
-			var l = new Log();
-			var v = new ConsoleLogView(false, false);
-			v.StartListening(l);
-
-			var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Command)) && i.Name.ToLower() == command.First().Name + "command");
-
-			var c = Activator.CreateInstance(t, [this, null, flow]) as UosCommand;
-
-			foreach(var j in c.Actions)
-			{
-				c.Report(string.Join(", ", j.Names));
-				c.Report("");
-				c.Report("   Syntax      : "+ j.Help?.Syntax);
-				c.Report("   Description : "+ j.Help?.Description);
-				c.Report("");
-			}
-
-			return c;
-		}
-		else if(command.Skip(2).FirstOrDefault()?.Name == "?")
-		{
-			var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Command)) && i.Name.ToLower() == command.First().Name + "command");
-
-			var c = Activator.CreateInstance(t, [this, null, flow]) as UosCommand;
-
-			var a = c.Actions.FirstOrDefault(i => i.Names.Contains(command.Skip(1).First().Name));
-
-			c.Report("Syntax :");
-			c.Report("");
-			c.Report("   " + a.Help.Syntax);
-
-			c.Report("");
-
-			c.Report("Description :");
-			c.Report("");
-			c.Report("   " + a.Help.Description);
-
-			if(a.Help.Arguments.Any())
-			{ 
-				c.Report("");
-
-				c.Report("Arguments :");
-				c.Report("");
-				c.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
-			}
-								
-			return c;
-		}
-		else
-		{
-			var c = Create(command, flow);
-
-			var a = c.Actions.FirstOrDefault(i => i.Names.Length == 0 || i.Names.Contains(command.Skip(1).FirstOrDefault()?.Name));
-
-			if(a.Names.Any())
-			{
-				c.Args.RemoveAt(0);
-			}
-
-			var r = a.Execute();
-			
-			return r;
-		}
-	}
   
   		//public Ura DeploymentToAddress(string path)
   		//{
@@ -325,20 +244,20 @@ public class Uos
 
 		RdnApi.DeployPackage(aprv, Settings.Packages, flow);
 
- 			var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
+ 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
  
- 			var vm = VersionManifest.Load(vmpath);
+ 		var vm = VersionManifest.Load(vmpath);
  
 		var exe = vm.MatchExecution(Platform.Current);
 
 		SetupApplicationEnvironemnt(aprv);
 
- 			var ps = new Process();
- 			ps.StartInfo.UseShellExecute = true;
- 			ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
- 			ps.StartInfo.Arguments = exe.Arguments;
+ 		var ps = new Process();
+ 		ps.StartInfo.UseShellExecute = true;
+ 		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
+ 		ps.StartInfo.Arguments = exe.Arguments;
 
- 			ps.Start();
+ 		ps.Start();
 	}
 
 	public void SetupApplicationEnvironemnt(AprvAddress address)

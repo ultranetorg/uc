@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn.CLI;
+﻿using System.Reflection;
+
+namespace Uccs.Rdn.CLI;
 
 /// <summary>
 /// Usage: 
@@ -6,84 +8,75 @@
 /// </summary>
 public class ReleaseCommand : RdnCommand
 {
-	public const string Keyword = "release";
+	//public const string Keyword = "release";
 
 	public ReleaseCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["c", "create"],
+	}
 
-							Help = new Help
-							{ 
-								Title = "CREATE",
-								Description = "Deploy a file or files to node filebase for P2P distribution via RDN",
-								Syntax = $"release c|create [source={PATH} | sources={PATH},{PATH},...,{PATH}]",
+	public CommandAction CREATE()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("source", "A path to a file to build"),
-									new ("sources", "A list of paths to files separated by comma")
-								],
+		a.Name = "c";
+		a.Help = new() {Description = "Deploys a file or files for P2P distribution",
+						Syntax = $"{Keyword} {a.NamesSyntax} [source={PATH} | sources={PATH},{PATH},...,{PATH}]",
 
-								Examples =
-								[
-									new (null, "release c company/product sources=C:\\application.exe,C:\\changelog.txt,C:\\logo.jpg")
-								]
-							},
+						Arguments =	[
+										new ("source", "A path to a file to build"),
+										new ("sources", "A list of paths to files separated by comma")
+									],
 
-							Execute = () =>	{
-												if(!Has("source") && !Has("sources"))
-													throw new SyntaxException("Unknown arguments");
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} sources={PATH.Examples[0]},{PATH.Examples[1]},{PATH.Examples[2]}")
+									]};
 
-												var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc {	Source = GetString("source", null),
-																												Sources = GetString("sources", null)?.Split(','),
-																												AddressCreator = new()	{	
-																																			Type = GetEnum("addresstype", UrrScheme.Urrh),
-																																			//Owner = GetAccountAddress("owner", false),
-																																			//Resource = Ura.Parse(Args[0].Name)
-																																		} });
+		a.Execute = () =>	{
+								if(!Has("source") && !Has("sources"))
+									throw new SyntaxException("Unknown arguments");
 
-												Report($"Address   : {a}");
+								var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc {	Source = GetString("source", null),
+																						Sources = GetString("sources", null)?.Split(','),
+																						AddressCreator = new()	{	
+																													Type = GetEnum("addresstype", UrrScheme.Urrh),
+																													//Owner = GetAccountAddress("owner", false),
+																													//Resource = Ura.Parse(Args[0].Name)
+																												} });
 
-												return a;
-											}
-						},
+								Report($"Address   : {a}");
 
-						new ()
-						{
-							Names = ["l", "local"],
+								return a;
+							};
+		return a;
+	}
 
-							Help = new Help
-							{ 
-								Title = "LOCAL",
-								Description = "Get information about local copy of a specified release",
-								Syntax = $"release l|local {RLA}",
+	public CommandAction LOCAL()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("<first>", "Address of a release to get information about")
-								],
+		a.Name = "l";
+		a.Help = new() {Description = "Get information about local copy of a specified release",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RZA}",
 
-								Examples =
-								[
-									new (null, "release l updh:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E")
-								]
-							},
+						Arguments =	[
+										new ("<first>", "Address of a release to get information about")
+									],
 
-							Execute = () =>	{
-												var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RZA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
 				
-												if(r != null)
-												{
-													Dump(r);
-													return r;
-												}
-												else
-													throw new Exception("Resource not found");
-											}
-						},
-					];
+								if(r != null)
+								{
+									Dump(r);
+									return r;
+								}
+								else
+									throw new Exception("Resource not found");
+							};
+		return a;
 	}
 }

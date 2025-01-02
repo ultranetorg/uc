@@ -1,48 +1,49 @@
-﻿namespace Uccs.Net;
+﻿using System.Reflection;
+
+namespace Uccs.Net;
 
 public class BatchCommand : McvCommand
 {
-	public const string Keyword = "batch";
-
 	public BatchCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =
-		[
-			new ()
-			{
-				Names = [],
-				Help = new Help	{ 
-									Title = "BATCH",
-									Description = "Sends multiple operations as one transaction or as few as possible",
-									Syntax = $"batch name0={{operation}} name1={{operation}} ... nameN={{operation}} signer=UAA",
+	}
 
-									Arguments = [new ("name(n)", "Arbitrary name of operation, not used during processing"),
-												 new ("operation", "Operation arguments"),
-												 new (SignerArg, "Public address of account a transaction is sent on behalf of")],
+	public CommandAction Batch()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-									Examples = [new (null,	"batch a={account ut to=0x1111111111111111111111111111111111111111 ec=5000}" +
-															" b={account ut to=0x1111111111111111111111111111111111111111 ec=5000}" +
-															" c={account ut to=0x1111111111111111111111111111111111111111 ec=5000}" +
-															" signer=0x0000fffb3f90771533b1739480987cee9f08d754")]
-								},
+		a.Help = new () { 
+							Description = "Sends multiple operations as one transaction or as few as possible",
+							Syntax = $"{Keyword} name0={{operation}} name1={{operation}} ... nameN={{operation}} {SignerArg}={AA}",
 
-				Execute = () =>	{
-									var results = Args	.Where(i =>	i.Name != AwaitArg && 
-																	i.Name != SignerArg)
-														.Select(x => {
-																		var c = Cli.Create(x.Nodes, Flow);
+							Arguments = [new ("name(n)", "Arbitrary name of operation, not used during processing"),
+										 new ("operation", "Operation arguments"),
+										 new (SignerArg, "Public address of account a transaction is sent on behalf of")],
 
-																		var a = c.Actions.FirstOrDefault(i => !i.Names.Any() || i.Names.Contains(x.Nodes.Skip(1).First().Name));
+							Examples = [new (null,  $"{Keyword} a={{account ut to={AA.Examples[1]} ec=5000}}" +
+													$"			b={{account ut to={AA.Examples[2]} ec=5000}}" +
+													$"			c={{account ut to={AA.Examples[3]} ec=5000}}" +
+													$"			{SignerArg}={AA.Examples[0]}")]
+						};
 
-																		return a.Execute();
-																	}
-									);
+		a.Execute = () =>	{
+								var results = Args	.Where(i =>	i.Name != AwaitArg && 
+																i.Name != SignerArg)
+													.Select(x => {
+																	var c = Cli.Create(x.Nodes, Flow);
 
-									Transact(results.OfType<Operation>(), GetAccountAddress(SignerArg), GetAwaitStage(Args));
+																	var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(x.Nodes.Skip(1).First().Name));
 
-									return results;
-								}
-			}
-		];	
+																	return a.Execute();
+																}
+								);
+
+								Transact(results.OfType<Operation>(), GetAccountAddress(SignerArg), GetAwaitStage(Args));
+
+								return results;
+							};
+
+		return a;
+
 	}
 }

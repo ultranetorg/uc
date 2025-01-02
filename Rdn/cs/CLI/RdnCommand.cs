@@ -2,14 +2,14 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public readonly ArgumentType DA			= new ArgumentType("DA",		@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
-	public readonly ArgumentType RDA		= new ArgumentType("RDA",		@"Root domain address",														[@"ultranet123"]);
-	public readonly ArgumentType SDA		= new ArgumentType("SDA",		@"Subdoman only domain address",											[@"demo.application.company"]);
-	public readonly ArgumentType RA			= new ArgumentType("RA",		@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"/company/application (short form)"]);
-	public readonly ArgumentType RLA		= new ArgumentType("RLA",		@"Resource release address",												[@""]);
-	public readonly ArgumentType YEARS		= new ArgumentType("YEARS",		@"Number of years",															[@"5"]);
-	public readonly ArgumentType URL		= new ArgumentType("URL",		@"A text string that meets URL specifications",								[@"htttp://domain.com"]);
-	public readonly ArgumentType WTLD		= new ArgumentType("WTLD",		@"Web top-level domain",													[@"domain.com"]);
+	public static readonly ArgumentType DA		= new ArgumentType("DA",		@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
+	public static readonly ArgumentType RDA		= new ArgumentType("RDA",		@"Root domain address",														[@"ultranet123"]);
+	public static readonly ArgumentType SDA		= new ArgumentType("SDA",		@"Subdoman address",														[@"application.company"]);
+	public static readonly ArgumentType RA		= new ArgumentType("RA",		@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"/company/application (short form)"]);
+	public static readonly ArgumentType YEARS	= new ArgumentType("YEARS",		@"Number of years",															[@"5"]);
+	public static readonly ArgumentType URL		= new ArgumentType("URL",		@"A text string that meets URL specifications",								[@"htttp://domain.com"]);
+	public static readonly ArgumentType TLD		= new ArgumentType("TLD",		@"Web top-level domain",													[@"com"]);
+	public static readonly ArgumentType RZA		= new ArgumentType("RZA",		@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 
 	protected RdnCli			Program;
 	protected override Type[]	TypesForExpanding => [typeof(IEnumerable<Dependency>), 

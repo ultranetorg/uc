@@ -1,14 +1,31 @@
-﻿namespace Uccs.Uos;
+﻿using System.Reflection;
+
+namespace Uccs.Uos;
 
 internal class NodeCommand : UosCommand
 {
-	public const string Keyword = "node";
-
 	public NodeCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{
-		var run = new CommandAction {Names = ["r", "run"]};
+	}
 
-		run.Execute = () =>	{
+	public CommandAction Run()
+	{
+ 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "r";
+		a.Help = new() {Description = "Runs a new instance with command-line interface",
+						Syntax = $"{Keyword} {a.NamesSyntax} flags [profile={DIRPATH}]",
+
+						Arguments =	[
+										new ("profile", "Path to local profile directory"),
+										new ("net", "Network net to connect")
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} profile=C:\\NodeProfile")
+									]};
+
+		a.Execute = () =>	{
 								if(ConsoleAvailable)
 								{
 									Uos.LogView.StartListening(Flow.Log);
@@ -22,11 +39,11 @@ internal class NodeCommand : UosCommand
 											var x = new Xon(Console.ReadLine());
 
 											if(x.Nodes[0].Name == Keyword && (
-																				run.Names.Contains(x.Nodes[1].Name) 
+																				a.Names.Contains(x.Nodes[1].Name) 
 																			 ))
 												throw new Exception("Not available");
 
-											Uos.Execute(x.Nodes, flow);
+											Uos.Execute(x.Nodes, Flow);
 										}
 										catch(Exception ex)
 										{
@@ -41,23 +58,7 @@ internal class NodeCommand : UosCommand
 
 								return null;
 							};
-
-		run.Help = new Help(){	Title = "RUN",
-								Description = "Runs a new instance with command-line interface",
-								Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [net=ZONE]",
-
-								Arguments =
-								[
-									new ("profile", "Path to local profile directory"),
-									new ("net", "Network net to connect")
-								],
-
-								Examples =
-								[
-									new (null, $"{Keyword} {run.Names[1]} profile=C:\\User\\sun nexus=PublicTest")
-								]};
 		
-		Actions = [run];
-	
+		return a;
 	}
 }

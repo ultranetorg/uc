@@ -1,14 +1,15 @@
-﻿namespace Uccs.Net;
+﻿using System.Reflection;
+
+namespace Uccs.Net;
 
 public class NodeCommand : McvCommand
 {
-	public const string Keyword = "node";
+	CommandAction attach;
+	CommandAction send;
 
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 		//var run		= new CommandAction {Names = ["r", "run"]};
-		var attach	= new CommandAction {Names = ["a", "attach"] };
-		var send	= new CommandAction {Names = ["s", "send"]};
 
 // 			run.Execute = () =>	{
 // 								};
@@ -29,6 +30,13 @@ public class NodeCommand : McvCommand
 // 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun net=Testzone")
 // 									]};
 			
+	}
+
+	public CommandAction Attach()
+	{
+		attach = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		attach.Name = "a";
 		attach.Execute = () =>	{
 									ReportPreambule();
 									ReportNetwork();
@@ -56,12 +64,12 @@ public class NodeCommand : McvCommand
 											if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
 																				//run.Names.Contains(x.Nodes[1].Name)  || 
 																				send.Names.Contains(x.Nodes[1].Name)))
-												||  x.Nodes[0].Name == LogCommand.Keyword)
+												||  x.Nodes[0].Name == new LogCommand(null, null, null).Keyword)
 											{ 
 												throw new Exception("Not available");
 											}
 	
-											Cli.Execute(x.Nodes, flow);
+											Cli.Execute(x.Nodes, Flow);
 										}
 										catch(Exception ex)
 										{
@@ -70,11 +78,9 @@ public class NodeCommand : McvCommand
 									}
 
 									return null;
-
 								};
 
-		attach.Help = new Help{ Title = "Attach",
-								Description = "Connects to existing node instance via JSON RPC protocol",
+		attach.Help = new()	{	Description = "Connects to existing node instance via JSON RPC protocol",
 								Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey={PASSWORD}",
 
 								Arguments =
@@ -88,7 +94,15 @@ public class NodeCommand : McvCommand
 									new (null, $"{Keyword} {attach.Names[0]} 127.0.0.1:3901 asscesskey=ApiServerSecret")
 								]};
 
+		return attach;
+	}
 
+
+	public CommandAction Send()
+	{
+		send = new CommandAction(MethodBase.GetCurrentMethod());
+
+		send.Name = "s";
 		send.Execute = () => {
 								ReportPreambule();
 								ReportNetwork();
@@ -107,7 +121,7 @@ public class NodeCommand : McvCommand
 									Console.ReadKey();
 								}
 
-								Cli.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), flow);
+								Cli.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), Flow);
 
 								if(Has("_confirmation"))
 								{
@@ -118,158 +132,162 @@ public class NodeCommand : McvCommand
 								return null;
 							};
 
-		send.Help = new Help {	Title = "Send",
-								Description = "Send spicified command to existing running node",
-								Syntax = $"{Keyword} {send.NamesSyntax} HOST accesskey=PASSWORD command",
+		send.Help = new()  {Description = "Send spicified command to existing running node",
+							Syntax = $"{Keyword} {send.NamesSyntax} HOST accesskey={PASSWORD} command",
 
-								Arguments =
-								[
-									new ("HOST", "URL address of node to send a command to"),
-									new ("accesskey", "API access key"),
-									new ("command", "A command to send for execution")
-								],
+							Arguments =	[
+											new ("HOST", "URL address of node to send a command to"),
+											new ("accesskey", "API access key"),
+											new ("command", "A command to send for execution")
+										],
 
-								Examples =
-								[
-									new (null,$"{Keyword} {send.Names[0]} 127.0.0.1:3901 asscesskey=MyApiServerSecret node peers")
-								]
-							};
+							Examples =	[
+											new (null,$"{Keyword} {send.Names[0]} {IP.Example}:3901 asscesskey=MyApiServerSecret node peers")
+										]};
 
-		var peers = new CommandAction{	Names = ["peers"],
-										Execute = () =>	{
-															var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
-																
-															Dump(	r.Peers, 
-																	["IP", "Status", "PeerRank", "Roles"], 
-																	[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
-													
-															return r;
-														}};
-
-		peers.Help = new () {	Title = "Peers",
-								Description = "Gets a list of existing connections",
-								Syntax = $"{Keyword} {peers.NamesSyntax}",
-
-								Arguments = [],
-
-								Examples =
-								[
-									new (null, "node peers")
-								]};
-
-		var it = new CommandAction{	Names = ["it", "incomingtransactions"],
-									Execute = () =>	{
-														var r = Api<ApcTransaction[]>(new IncomingTransactionsApc{});
-			
-														foreach(var t in r)
-														{
-															Dump(t);
-
-															foreach(var o in t.Operations)
-																Report("   " + o.Description);
-														}
-													
-														return r;
-													}};
-
-		it.Help = new Help{	Title = "Incoming Transactions",
-							Description = "Gets current list of incomming transactions",
-							Syntax = $"{Keyword} {it.NamesSyntax}",
-
-							Arguments = [],
-
-							Examples =
-							[
-								new (null, $"{Keyword} {it.Names[0]}")
-							]};
-
-		var ot = new CommandAction{	Names = ["ot", "outgoingtransactions"],
-									Execute = () =>	{
-														var r = Api<ApcTransaction[]>(new OutgoingTransactionsApc{});
-			
-														foreach(var t in r)
-														{
-															Dump(t);
-
-															foreach(var o in t.Operations)
-																Report("   " + o.Description);
-														}
-													
-														return r;
-													}};
-
-		ot.Help = new Help{ Title = "Outgoing Transactions",
-							Description = "Gets current list of outgoing transactions",
-							Syntax = $"{Keyword} {ot.NamesSyntax}",
-
-							Arguments = [],
-
-							Examples =
-							[
-								new (null, $"{Keyword} {ot.Names[0]}")
-							]};
-
-		var property = new CommandAction{	Names = ["property"],
-											Execute = () =>	{
-																var r = Api<string>(new PropertyApc {Path = Args[0].Name});
-			
-																Report(r);
-					
-																return r;
-															}};
-
-
-		property.Help = new Help {	Title = "Property",
-									Description = "Displays a value of node internal state",
-									Syntax = $"{Keyword} {property.NamesSyntax} {TEXT}",
-
-									Arguments = [],
-
-									Examples =
-									[
-										new ("first", "node property Mcv.Size")
-									]};
-			
-		var mebbership = new CommandAction(){
-												Names = ["m", "membership"],
-
-												Help = new Help
-												{ 
-													Title = "Membership",
-													Description = "Get information about membership status of specified account",
-													Syntax = $"nexus m|membership {AA}",
-
-													Arguments =
-													[
-														new ("<first>>", "Ultranet account public address to check the membership status")
-													],
-
-													Examples =
-													[
-														new (null, $"{Keyword} m 0x0000fffb3f90771533b1739480987cee9f08d754")
-													]
-												},
-
-												Execute = () =>	{
-																	Flow.CancelAfter(cli.Settings.RdcQueryTimeout);
-
-																	var rp = Rdc(new MembersRequest());
-	
-																	var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
-
-																	if(m == null)
-																		throw new EntityException(EntityError.NotFound);
-
-																	Dump(m);
-
-																	return m;
-																}
-											};
-
-
-		Actions = [attach, send, mebbership, peers, it, ot, property];
-		
+		return send;
 	}
 
+	public CommandAction Peers()
+	{ 
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		a.Name = "peers";
+		a.Execute = () =>	{
+								var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
+																
+								Dump(	r.Peers, 
+										["IP", "Status", "PeerRank", "Roles"], 
+										[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
+													
+								return r;
+							};
+
+		a.Help = new () {Description = "Gets a list of existing connections",
+						 Syntax = $"{Keyword} {a.NamesSyntax}",
+
+						 Arguments = [],
+
+						 Examples = [new (null, $"{a.Names[0]} peers")]};
+
+		return a;
+	}
+
+	public CommandAction Incoming_Transactions()
+	{ 
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		a.Name = "it";
+		a.Execute = () =>	{
+								var r = Api<ApcTransaction[]>(new IncomingTransactionsApc{});
+			
+								foreach(var t in r)
+								{
+									Dump(t);
+
+									foreach(var o in t.Operations)
+										Report("   " + o.Description);
+								}
+													
+								return r;
+							};
+
+		a.Help = new Help  {Description = "Gets current list of incomming transactions",
+							Syntax = $"{Keyword} {a.NamesSyntax}",
+
+							Arguments = [],
+
+							Examples = [new (null, $"{Keyword} {a.Names[0]}")]};
+
+		return a;
+	}
+
+	public CommandAction Outgoing_Transactions()
+	{ 
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		a.Name = "ot";
+		a.Execute = () =>	{
+								var r = Api<ApcTransaction[]>(new OutgoingTransactionsApc{});
+			
+								foreach(var t in r)
+								{
+									Dump(t);
+
+									foreach(var o in t.Operations)
+										Report("   " + o.Description);
+								}
+													
+								return r;
+							};
+
+		a.Help = new Help  {Description = "Gets current list of outgoing transactions",
+							Syntax = $"{Keyword} {a.NamesSyntax}",
+
+							Arguments = [],
+
+							Examples =	[
+											new (null, $"{Keyword} {a.Names[0]}")
+										]};
+
+		return a;
+	}
+
+	public CommandAction Property()
+	{ 
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		a.Name = "property";
+		a.Execute = () =>	{
+								var r = Api<string>(new PropertyApc {Path = Args[0].Name});
+			
+								Report(r);
+					
+								return r;
+							};
+
+
+		a.Help = new() {Description = "Displays a value of node internal state",
+						Syntax = $"{Keyword} {a.NamesSyntax} {TEXT}",
+
+						Arguments = [],
+
+						Examples = [new ("<first>", "node property Mcv.Size")]};
+		return a;
+	}
+	
+	public CommandAction Membership()
+	{ 
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		a.Name = "m";
+		a.Help = new() {Description = "Get information about membership status of specified account",
+						Syntax = $"nexus m|membership {AA}",
+
+						Arguments =	[
+										new ("<first>>", "Ultranet account public address to check the membership status")
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} m {AA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								var rp = Rdc(new MembersRequest());
+	
+								var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
+
+								if(m == null)
+									throw new EntityException(EntityError.NotFound);
+
+								Dump(m);
+
+								return m;
+							};
+
+		return a;
+	}
 }
 

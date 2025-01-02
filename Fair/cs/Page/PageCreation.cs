@@ -3,9 +3,6 @@ namespace Uccs.Fair;
 public class PageCreation : FairOperation
 {
 	public EntityId				Site { get; set; }
-	public PageFlags			Flags { get; set; }
-	public PageContent			Content { get; set; }
-	public PagePermissions		Permissions { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
@@ -16,42 +13,25 @@ public class PageCreation : FairOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Site	= reader.Read<EntityId>();
-		Flags	= (PageFlags)reader.ReadByte();
-		
-		if(Flags.HasFlag(PageFlags.Content))		Content	= reader.Read<PageContent>();
-		if(Flags.HasFlag(PageFlags.Permissions))	Permissions	= reader.Read<PagePermissions>();
+		Site = reader.Read<EntityId>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Site);
-		writer.Write((byte)Flags);
-
-		if(Flags.HasFlag(PageFlags.Content))		writer.Write(Content);
-		if(Flags.HasFlag(PageFlags.Permissions))	writer.Write(Permissions);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(RequireSiteAccess(round, Site, out var cat) == false)
+		if(RequireSiteAccess(round, Site, out var s) == false)
 			return;
 
-		if(Content.Type == PageType.Product)
-		{
-			if(RequireProduct(round, Content.Product.Product, out var a, out var p) == false)
-				return;
-		}
+		var p = round.AffectPage(s);
 
-		var c = round.AffectPage(cat);
+		p.Site = Site;
 
-		c.Site			= Site;
-		c.Flags			= Flags;
-		c.Content		= Content;
-		c.Permissions	= Permissions;
+		s = round.AffectSite(s.Id);
 
-		cat = round.AffectSite(cat.Id);
-
-		cat.Roots = cat.Roots == null ? [c.Id] : [..cat.Roots, c.Id];
+		s.Roots = s.Roots == null ? [p.Id] : [..s.Roots, p.Id];
 	}
 }

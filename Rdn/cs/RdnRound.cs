@@ -104,11 +104,6 @@ public class RdnRound : Round
   		return AffectedResources[r.Id] = r;
   	}
 
-	public void DeleteResource(ResourceEntry resource)
-	{
-		AffectResource(resource.Id).Deleted = true;
-	}
-
 	public override void RestartExecution()
 	{
 		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;

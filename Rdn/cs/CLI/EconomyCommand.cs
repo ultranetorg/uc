@@ -1,32 +1,30 @@
-﻿namespace Uccs.Rdn.CLI;
+﻿using System.Reflection;
+
+namespace Uccs.Rdn.CLI;
 
 public class EconomyCommand : RdnCommand
 {
-	public const string Keyword = "economy";
-
 	public EconomyCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
 		var fromA =	new Help.Argument("from (A)", "Using wallet file")
 					{
-						Arguments =
-						[
-							new ("wallet", "Keystore file of Ethereum account where funds are debited from"),
-							new ("password", "A password to access wallet file"),
-						]
+						Arguments =	[
+										new ("wallet", "Keystore file of Ethereum account where funds are debited from"),
+										new ("password", "A password to access wallet file"),
+									]
 					};
 
 		var fromB =	new Help.Argument("from (B)", "Using private key")
 					{
-						Arguments =
-						[
-							new ("key", "Private key of Ethereum account where funds are debited from"),
-						]
+						Arguments =	[
+										new ("key", "Private key of Ethereum account where funds are debited from"),
+									]
 					};
 
 
-		Actions =	[
 #if ETHEREUM
+		Actions =	[
 						new ()
 						{
 							Names = ["eee", "estimateethereumemission"],
@@ -240,56 +238,55 @@ public class EconomyCommand : RdnCommand
 						},
 #endif
 
-						new ()
-						{
-							Names = ["c", "cost"],
+	}
 
-							Help = new Help { 
-												Title = "COST",
-												Description = "Gets information about current cost of various ULTRANET resources.",
-												Syntax = $"{Keyword} c|cost",
+	public CommandAction Cost()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												Arguments = [],
+		a.Name = "c";
+		a.Help = new() {Description = "Gets information about current cost of various ULTRANET resources.",
+						Syntax = $"{Keyword} c|cost",
 
-												Examples =	[
-																new (null, $"{Keyword} cost")
-															]
-											},
+						Arguments = [],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Examples =	[
+										new (null, $"{Keyword} cost")
+									]};
 
-												var c = new CostApc{Years = [1, 5, 10], 
-																	DomainLengths = [1, 5, 10, 15], 
-																	Rate = GetMoney("rate", 1)};
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-												var r = Api<CostApc.Return>(c);
+								var c = new CostApc{Years = [1, 5, 10], 
+													DomainLengths = [1, 5, 10, 15], 
+													Rate = GetMoney("rate", 1)};
 
-												//Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
-												Report($"Account One-time Bye-Year Fee : {r.RentAccount.ToString()}");
-												//Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
+								var r = Api<CostApc.Return>(c);
 
-												Report($"");
+								//Report($"Byte Per Day Rent    : {r.RentBytePerDay.ToDecimalString()}");
+								Report($"Account One-time Bye-Year Fee : {r.RentAccount.ToString()}");
+								//Report($"Execution Unit       : {r.Exeunit.ToDecimalString()}");
 
-												Dump(	r.RentDomain,
-														["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
-														[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Unit[], int, object>((j, i) => j[li].ToString()))]);
+								Report($"");
 
-												Report($"");
+								Dump(	r.RentDomain,
+										["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
+										[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Unit[], int, object>((j, i) => j[li].ToString()))]);
 
-												Dump(	r.RentResource.Append(r.RentResourceForever),
-														["Resource Rent>", "Cost>"],
-														[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
+								Report($"");
 
-												Report($"");
+								Dump(	r.RentResource.Append(r.RentResourceForever),
+										["Resource Rent>", "Cost>"],
+										[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
 
-												Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
-														["Resource Data Per Byte Rent>", "Cost>"],
-														[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
+								Report($"");
 
-												return r;
-											}
-						},
-					];
+								Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
+										["Resource Data Per Byte Rent>", "Cost>"],
+										[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
+
+								return r;
+							};
+		return a;
 	}
 }

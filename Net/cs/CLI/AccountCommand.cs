@@ -1,63 +1,61 @@
-﻿namespace Uccs.Net;
+﻿using System.Reflection;
+
+namespace Uccs.Net;
 
 public class AccountCommand : McvCommand
 {
-	public const string		Keyword = "account";
-
 	AccountIdentifier		First => AccountIdentifier.Parse(Args[0].Name);
 
 	public AccountCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["e", "entity"],
+	}
 
-							Help = new Help	{ 
-												Title = "Entity",
-												Description = "Get account entity information from Ultranet distributed database",
-												Syntax = $"account e|entity {AA}",
+	public CommandAction Entity()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												Arguments = [new ("<first>", "Address of an account to get information about")],
+		a.Name = "e";
+		a.Help = new() {Description = "Get account entity information from Ultranet distributed database",
+						Syntax = $"{Keyword} {a.NamesSyntax} {AA}",
 
-												Examples = [new (null, "account e 0x0000fffb3f90771533b1739480987cee9f08d754")]
-											},
+						Arguments = [new ("<first>", "Address of an account to get information about")],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+						Examples = [new (null, $"{Keyword} {a.Name} {AA.Example}")]};
 
-												var i = Rdc(new AccountRequest(First));
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								var i = Rdc(new AccountRequest(First));
 												
-												Dump(i.Account);
+								Dump(i.Account);
 
-												return i.Account;
-											}
-						},
+								return i.Account;
+							};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["ut", "utilitytransfer"],
+	public CommandAction Utility_Transfer()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help { 
-												Title = "Utility Transfer",
-												Description = "Send utility from one account to another.",
-												Syntax = $"{Keyword} ut|utilitytransfer to={AA} by={BY}|ec={EC} signer={AA}",
+		a.Name = "ut";
 
-												Arguments =	[new ("to", "Account public address that funds are credited to"),
-															 new ("by", "Amount of Byte-Years to be transferred"),
-															 new ("ec", "Amount of Execution Cycles to be transferred"),
-															 new (SignerArg, "Account public address where funds are debited from")],
+		a.Help = new() {Description = "Send utility from one account to another.",
+						Syntax = $"{Keyword} {a.NamesSyntax} to={AA} by={BY}|ec={EC} {SignerArg}={AA}",
 
-												Examples =	[new (null, $"{Keyword} ut to=0x1111dae119f210c94b4cf99385841fea988fcfca ec=1.5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")]
-											},
+						Arguments =	[new ("to", "Account public address that funds are credited to"),
+									 new ("by", "Amount of Byte-Years to be transferred"),
+									 new ("ec", "Amount of Execution Cycles to be transferred"),
+									 new (SignerArg, "Account public address where funds are debited from")],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Examples =	[new (null, $"{Keyword} {a.Name} to={AA.Examples[1]} ec=1.5 {SignerArg}={AA.Examples[0]}")]};
 
-												return new UtilityTransfer(GetAccountAddress("to"), GetMoney("ec", 0), new Time(GetInt("ecexpiration", -1)), GetMoney("by", 0));
-											}
-						},
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-					];		
+								return new UtilityTransfer(GetAccountAddress("to"), GetMoney("ec", 0), new Time(GetInt("ecexpiration", -1)), GetMoney("by", 0));
+							};
+
+		return a;
 	}
 }

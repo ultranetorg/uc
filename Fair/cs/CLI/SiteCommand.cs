@@ -1,80 +1,78 @@
-﻿namespace Uccs.Fair;
+﻿using System.Reflection;
+
+namespace Uccs.Fair;
 
 public class SiteCommand : FairCommand
 {
-	public const string Keyword = "site";
-
 	EntityId FirstSiteId => EntityId.Parse(Args[0].Name);
 
 	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["c", "create"],
 
-							Help = new Help()
-							{
-								Title = "Create",
-								Description = "Creates a new site",
-								Syntax = $"{Keyword} c|create title={TITLE} {SignerArg}={AA}",
-								Arguments =	[new ("years", "Integer number of years in [1..10] range"),
-											 new (SignerArg, "Address of account that owns or is going to register the site")],
-								Examples =	[new (null, $"{Keyword} c title=\"The Store\" {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")]
-							},
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+	public CommandAction Create()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												return new SiteCreation {Title = GetString("title")};
-											}
-						},
+		a.Name = "c";
+		a.Help = new() {Description = "Creates a new site",
+						Syntax = $"{Keyword} {a.NamesSyntax} years={INT} {SignerArg}={AA}",
+						
+						Arguments =	[new ("years", "Integer number of years in [1..10] range"),
+									 new (SignerArg, "Address of account that owns or is going to register the site")],
+						
+						Examples =	[new (null, $"{Keyword} {a.Name} {SignerArg}={AA.Example}")]};
 
-						new ()
-						{
-							Names = ["e", "entity"],
+		a.Execute = () =>	{
+							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							Help = new Help()
-							{
-								Title = "Entity",
-								Description = "Get site entity information from MCV database",
-								Syntax = $"{Keyword} e|entity {EID}",
-								Arguments =	[new ("<first>", "Id of an site to get information about")],
-								Examples =[new (null, $"{Keyword} e {EID.Examples[0]}")]
-							},
+							return new SiteCreation {Title = GetString("title")};
+						};
+		return a;
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+	public CommandAction Entity()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "e";
+		a.Help = new() {Description = "Get site entity information from MCV database",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
+						Arguments =	[new ("<first>", "Id of an site to get information about")],
+						Examples =[new (null, $"{Keyword} e {EID.Example}")]};
+
+		a.Execute = () =>	{
+							Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new SiteRequest(FirstSiteId));
+							var rp = Rdc(new SiteRequest(FirstSiteId));
 
-												Dump(rp.Site);
+							Dump(rp.Site);
 					
-												return rp.Site;
-											}
-						},
+							return rp.Site;
+						};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["l", "list"],
+	public CommandAction List()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help {Title = "List",
-											 Description = "Get sites of a specified account",
-											 Syntax = $"{Keyword} l|list {AAID}",
-											 Arguments = [new ("<first>", "Id of an account to get sites from")],
-											 Examples = [new (null, $"{Keyword} l {EID.Examples[0]}")]},
+		a.Name = "l";
+		a.Help = new() {Description = "Get sites of a specified account",
+						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
+						Arguments = [new ("<first>", "Id of an account to get sites from")],
+						Examples = [new (null, $"{Keyword} l {EID.Example}")]};
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new AccountSitesRequest(AccountIdentifier.Parse(Args[0].Name)));
+								var rp = Rdc(new AccountSitesRequest(AccountIdentifier.Parse(Args[0].Name)));
 
-												Dump(rp.Sites.Select(i => Rdc(new SiteRequest(i)).Site), ["Id", "Title", "Team", "Cards"], [i => i.Id, i => i.Title, i => i.Owners.Length, i => i.Roots?.Length]);
+								Dump(rp.Sites.Select(i => Rdc(new SiteRequest(i)).Site), ["Id", "Title", "Team", "Cards"], [i => i.Id, i => i.Title, i => i.Owners.Length, i => i.Roots?.Length]);
 					
-												return rp.Sites;
-											}
-						},
-
-					];	
+								return rp.Sites;
+							};
+		return a;
 	}
 }

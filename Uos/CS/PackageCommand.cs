@@ -1,191 +1,184 @@
-﻿namespace Uccs.Uos;
+﻿using System.Reflection;
 
-/// <summary>
-/// Usage: 
-///		
-/// </summary>
+namespace Uccs.Uos;
 
 public class PackageCommand : UosCommand
 {
-	public const string Keyword = "package";
-	Ura					Package => Ura.Parse(Args[0].Name);
+	Ura	Package => Ura.Parse(Args[0].Name);
+
+	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
+	public readonly ArgumentType REALA 	= new ArgumentType("RLSTA", "Realizattion address", [@"company/application/windows"]);
 
 	public PackageCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["c", "create"],
+	}
 
-							Help = new Help
-							{ 
-								Title = "CREATE",
-								Description = "Builds and deploys a package to a node filebase for distribution via RDN",
-								Syntax = "package c|create PACKAGE_ADDRESS [sources=PATH,PATH,...,PATH] dependencies=PATH previous=PACKAGE_ADDRESS",
+	public CommandAction Create()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =	[
-												new ("<first>", "Resource address of package to create"),
-												new ("sources", "A list of paths to files separated by comma"),
-												new ("dependencies", "A path to manifest file where complete dependencies are defined"),
-												new ("previous", "Address of previous release")
-											],
+		a.Name = "c";
+		a.Help = new (){Description = "Builds and deploys a package to a node filebase for distribution via RDN",
+						Syntax = $"{Keyword} {a.NamesSyntax} {PA} [sources={PATH},{PATH}...{PATH}] dependencies={FILEPATH} previous={PA}",
 
-								Examples =
-								[
-									new (null, "package c company/windows/application/0.0.2 previous=company/windows/application/0.0.1 sources=C:\\application.exe,C:\\changelog.txt,C:\\logo.jpg dependencies=C:\\product\\1.2.3.manifest")
-								]
-							},
+						Arguments =	[
+										new ("<first>", "Resource address of package to create"),
+										new ("sources", "A list of paths to files separated by comma"),
+										new ("dependencies", "A path to version manifest file where complete dependencies are defined"),
+										new ("previous", "Address of previous release")
+									],
 
-							Execute = () =>	{
-												Ura p = null;
-												VersionManifest m = null;
+						Examples =	[
+										new (null, @$"{Keyword} {a.Name} {REALA}/0.0.2 previous={REALA}/0.0.1 sources={FILEPATH.Example[0]},{FILEPATH.Example[1]},{FILEPATH.Example[2]} dependencies={DIRPATH}\1.2.3.{VersionManifest.Extension}")
+									]};
 
-												var r = RdnRequest<LocalReleaseApe>(new PackageBuildApc{	Resource		 = Ura.Parse(Args[0].Name), 
-																										Sources			 = GetString("sources").Split(','), 
-																										DependenciesPath = GetString("dependencies", false),
-																										Previous		 = GetResourceAddress("previous", false),
-																										AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
-																																	Owner = GetAccountAddress("owner", false),
-																																	Resource = Ura.Parse(Args[0].Name)} });
-												Dump($"Address : {r}");
+		a.Execute = () =>	{
+								Ura p = null;
+								VersionManifest m = null;
 
-												return r;
-											}
-						},
+								var r = RdnRequest<LocalReleaseApe>(new PackageBuildApc{Resource		 = Ura.Parse(Args[0].Name), 
+																						Sources			 = GetString("sources").Split(','), 
+																						DependenciesPath = GetString("dependencies", false),
+																						Previous		 = GetResourceAddress("previous", false),
+																						AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
+																													Owner = GetAccountAddress("owner", false),
+																													Resource = Ura.Parse(Args[0].Name)} });
+								Dump($"Address : {r}");
 
-						new ()
-						{
-							Names = ["l", "local"],
+								return r;
+							};
+		return a;
+	}
 
-							Help = new Help
-							{ 
-								Title = "LOCAL",
-								Description = "Gets information about local copy of a specified package",
-								Syntax = "package l|local PACKAGE_ADDRESS",
+	public CommandAction Local()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =	[
-												new ("<first>", "Address of local package to get information about")
-											],
+		a.Name = "l";
+		a.Help = new() {Description = "Gets information about local copy of a specified package",
+						Syntax = $"{Keyword} {a.NamesSyntax} {PA}",
 
-								Examples =	[
-												new (null, "package l company/application/windows/1.2.3")
-											]
-							},
+						Arguments =	[
+										new ("<first>", "Address of local package to get information about")
+									],
 
-							Execute = () =>	{
-												var r = RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package});
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {PA.Example}")
+									]};
+
+		a.Execute = () =>	{
+							var r = RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package});
 				
-												Dump(r);
+							Dump(r);
 
-												return null;
-											}
-						},
+							return null;
+						};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["d", "download"],
+	public CommandAction Download()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help
-							{ 
-								Title = "DOWNLOAD",
-								Description = "Downloads a specified package by its address",
-								Syntax = "package d|download PACKAGE_ADDRESS",
+		a.Name = "d";
+		a.Help = new() {Description = "Downloads a specified package by its address",
+						Syntax = $"{Keyword} {a.NamesSyntax} {PA}",
 
-								Arguments =	[
-												new ("<first>", "Address of a package to download")
-											],
+						Arguments =	[
+										new ("<first>", "Address of a package to download")
+									],
 
-								Examples =	[
-												new (null, "package d company/application/windows/1.2.3")
-											]
-							},
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {PA.Example}")
+									]};
 
-							Execute = () =>	{
-												RdnSend(new PackageDownloadApc {Package = Package});
+		a.Execute = () =>	{
+								RdnSend(new PackageDownloadApc {Package = Package});
 
-												try
-												{
-													do
-													{
-														var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+								try
+								{
+									do
+									{
+										var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
-														if(d is null)
-														{	
-															if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
-															{
-																Flow.Log?.ReportError(this, "Failed");
-															}
-
-															break;
-														}
-
-														Report(d.ToString());
-
-														Thread.Sleep(500);
-													}
-													while(Flow.Active);
-												}
-												catch(OperationCanceledException)
-												{
-												}
-
-												return null;
+										if(d is null)
+										{	
+											if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+											{
+												Flow.Log?.ReportError(this, "Failed");
 											}
-						},
 
-						new ()
-						{
-							Names = ["dp", "deploy"],
+											break;
+										}
 
-							Help = new Help
-							{ 
-								Title = "DEPLOY",
-								Description = "If needed, downloads specified package and its dependencies recursively and deploys its content to the 'Packages' directory",
-								Syntax = $"{Keyword} i|install PACKAGE_ADDRESS destination=PATH",
+										Report(d.ToString());
 
-								Arguments =	[
-												new ("<first>", "Address of a package to install"),
-												new ("destination", "Packages destination path")
-											],
+										Thread.Sleep(500);
+									}
+									while(Flow.Active);
+								}
+								catch(OperationCanceledException)
+								{
+								}
 
-								Examples =	[
-												new (null, $"{Keyword} deploy company/application/windows/1.2.3")
-											]
-							},
+								return null;
+							};
+		return a;
+	}
 
-							Execute = () =>	{
-												RdnSend(new PackageDeployApc{	Address = AprvAddress.Parse(Args[0].Name),
-																				DeploymentPath = GetString("destination", null)});
+	public CommandAction Deploy()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												try
-												{
-													do
-													{
-														var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+		a.Name = "dp";
+
+		a.Help = new ()
+		{ 
+			Description = "If needed, downloads specified package and its dependencies recursively and deploys its content to the 'Packages' directory",
+			Syntax = $"{Keyword} {a.NamesSyntax} {PA} destination={DIRPATH}",
+
+			Arguments =	[
+							new ("<first>", "Address of a package to install"),
+							new ("destination", "Packages destination path")
+						],
+
+			Examples =	[
+							new (null, $"{Keyword} {a.Name} {PA.Example}")
+						]
+		};
+
+		a.Execute = () =>	{
+							RdnSend(new PackageDeployApc {Address = AprvAddress.Parse(Args[0].Name),
+														  DeploymentPath = GetString("destination", null)});
+
+							try
+							{
+								do
+								{
+									var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
-														if(d is null)
-														{	
-															if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
-															{
-																Flow.Log?.ReportError(this, "Failed");
-															}
+									if(d is null)
+									{	
+										if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+										{
+											Flow.Log?.ReportError(this, "Failed");
+										}
 
-															break;
-														}
+										break;
+									}
 
-														Report(d.ToString());
+									Report(d.ToString());
 
-														Thread.Sleep(500);
-													}
-													while(Flow.Active);
-												}
-												catch(OperationCanceledException)
-												{
-												}
-												return null;
-											}
-						}
-					];
+									Thread.Sleep(500);
+								}
+								while(Flow.Active);
+							}
+							catch(OperationCanceledException)
+							{
+							}
+							return null;
+						};
+		return a;
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)

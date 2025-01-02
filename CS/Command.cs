@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 namespace Uccs
 {
 	public abstract class Command
 	{
+		public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
+		public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(Command.CommandAction)).Select(i => i.Invoke(this, null)).Cast<Command.CommandAction>().ToArray();
+
 		public class Help
 		{
 			public class Argument
@@ -37,7 +41,7 @@ namespace Uccs
 				}
 			}
 
-			public string		Title {get; set; }
+			//public string		Title {get; set; }
 			public string		Description {get; set; }
 			public string		Syntax {get; set; }
 			public Argument[]	Arguments {get; set; }
@@ -46,14 +50,23 @@ namespace Uccs
 
 		public class CommandAction
 		{
-			public string[]			Names;
+			public string			Name;
+			public string			LongName => Method.Name.Replace("_", null).ToLower();
+			public string			Title => Method.Name.Replace("_", " ");
+			public string[]			Names => [Name, LongName];
 			public Help				Help;
 			public Func<object>		Execute;
 
 			public string			NamesSyntax => string.Join('|', Names);
+
+			MethodBase				Method;
+
+			public CommandAction(MethodBase method)
+			{
+				Method = method;
+			}
 		}
 
-		public CommandAction[]		Actions;
 		public List<Xon>			Args;
 		public static bool			ConsoleAvailable { get; protected set; }
 		public Flow					Flow;

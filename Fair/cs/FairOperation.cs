@@ -13,9 +13,7 @@ public enum FairOperationClass
 	AuthorCreation, AuthorUpdation,
 	ProductCreation, ProductUpdation, ProductDeletion,
 	SiteCreation, SiteDeletion,
-	PageCreation, PageDeletion,
-
-
+	PageCreation, PageUpdation, PageDeletion,
 }
 
 public abstract class FairOperation : Operation

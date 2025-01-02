@@ -1,118 +1,113 @@
-﻿namespace Uccs.Fair;
+﻿using System.Reflection;
+
+namespace Uccs.Fair;
 
 public class AuthorCommand : FairCommand
 {
-	public const string Keyword = "author";
-
 	EntityId FirstAuthorId => EntityId.Parse(Args[0].Name);
 
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
-						new ()
-						{
-							Names = ["c", "create"],
 
-							Help = new Help()
-							{
-								Title = "Create",
-								Description = "Creates a new author for a specified period",
-								Syntax = $"{Keyword} c|create years={INT} {SignerArg}={AA}",
-								Arguments =	[new ("years", "Number of years in [1..10] range"),
-											 new (SignerArg, "Address of account that owns or is going to register the author")],
-								Examples =	[new (null, $"{Keyword} c years=5 {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")]
-							},
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+	public CommandAction Create()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												return new AuthorCreation {Years = byte.Parse(GetString("years"))};
-											}
-						},
+		a.Name = "c";
+		a.Help = new() {Description = "Creates a new author for a specified period",
+						Syntax = $"{Keyword} {a.NamesSyntax} years={INT} {SignerArg}={AA}",
+						
+						Arguments =	[new ("years", "Number of years in [1..10] range"),
+									 new (SignerArg, "Address of account that owns or is going to register the author")],
+						
+						Examples =	[new (null, $"{Keyword} {a.Name} years=5 {SignerArg}={AA.Example}")]};
 
-						new ()
-						{
-							Names = ["e", "entity"],
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							Help = new Help()
-							{
-								Title = "Entity",
-								Description = "Get author entity information from MCV database",
-								Syntax = $"{Keyword} e|entity {EID}",
-								Arguments =	[new ("<first>", "Id of an author to get information about")],
-								Examples =	[new (null, $"{Keyword} e {EID.Examples[0]}")]
-							},
+								return new AuthorCreation {Years = byte.Parse(GetString("years"))};
+							};
+		return a;
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+	public CommandAction Entity()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "e";
+		a.Help = new() {Description = "Get author entity information from MCV database",
+						Syntax = $"{Keyword} {a.NamesSyntax}{EID}",
+						
+						Arguments =	[new ("<first>", "Id of an author to get information about")],
+						
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new AuthorRequest(FirstAuthorId));
+								var rp = Rdc(new AuthorRequest(FirstAuthorId));
 
-												Dump(rp.Author);
+								Dump(rp.Author);
 					
-												return rp.Author;
-											}
-						},
+								return rp.Author;
+							};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["r", "renew"],
+	public CommandAction Renew()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help()
-							{
-								Title = "Renew",
-								Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-								Syntax = $"{Keyword} r|renew {EID} years={INT} {SignerArg}={AA}",
+		a.Name = "r";
+		a.Help = new() {Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} years={INT} {SignerArg}={AA}",
 
-								Arguments =
-								[
-									new ("<first>", "Id of an author to be renewed"),
-									new ("years", "Integer number of years in [1..10] range"),
-									new (SignerArg, "Address of account that owns the author")
-								],
+						Arguments =	[
+										new ("<first>", "Id of an author to be renewed"),
+										new ("years", "Integer number of years in [1..10] range"),
+										new (SignerArg, "Address of account that owns the author")
+									],
 
-								Examples =
-								[
-									new (null, $"{Keyword} r {EID.Examples[0]} years=5 {SignerArg}=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {EID.Example} years=5 {SignerArg}={AA.Example}")
+									]};
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-												var d = Rdc(new AuthorRequest(FirstAuthorId)).Author;
+								var d = Rdc(new AuthorRequest(FirstAuthorId)).Author;
 
-												return new AuthorUpdation  {Action	= AuthorAction.Renew,
-																			Id		= d.Id,
-																			Years	= byte.Parse(GetString("years"))};
-											}
-						},
+								return new AuthorUpdation  {Action	= AuthorAction.Renew,
+															Id		= d.Id,
+															Years	= byte.Parse(GetString("years"))};
+							};
+		return a;
+	}
 
-						new ()
-						{
-							Names = ["l", "list"],
+	public CommandAction List()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-							Help = new Help()
-							{
-								Title = "List",
-								Description = "Get authors that specified account owns",
-								Syntax = $"{Keyword} l|list {AAID}",
-								Arguments = [new ("<first>", "Id of an account to get authors from")],
-								Examples =	[new (null, $"{Keyword} l {EID.Examples[0]}"),
-											 new (null, $"{Keyword} l {AA.Examples[0]}"),]
-							},
+		a.Name = "l";
+		a.Help = new() {Description = "Get authors that specified account owns",
+						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
+						
+						Arguments = [new ("<first>", "Id of an account to get authors from")],
+						
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}"),
+									 new (null, $"{Keyword} {a.Name} {AA.Example}")]};
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new AccountAuthorsRequest(FirstAuthorId));
+								var rp = Rdc(new AccountAuthorsRequest(FirstAuthorId));
 
-												Dump(rp.Authors, ["Id"], [i => i]);
+								Dump(rp.Authors, ["Id"], [i => i]);
 					
-												return rp.Authors;
-											}
-						},
-
-					];	
+								return rp.Authors;
+							};
+		return a;
 	}
 }

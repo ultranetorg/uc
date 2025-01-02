@@ -12,26 +12,26 @@ public enum UrrScheme
 	None, Urrh, Urrsd
 }
 
- 	public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
- 	{
- 		public abstract byte[]			MemberOrderKey { get; }
+public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
+{
+ 	public abstract byte[]			MemberOrderKey { get; }
 	public string					Net { get; set; }
- 		public byte[]					Raw {
-											get
-											{
-												var s = new MemoryStream();
-												var w = new BinaryWriter(s);
+ 	public byte[]					Raw {
+										get
+										{
+											var s = new MemoryStream();
+											var w = new BinaryWriter(s);
 												
- 													w.Write((byte)Scheme);
-												Write(w);
+ 												w.Write((byte)Scheme);
+											Write(w);
 												
-												return s.ToArray();
-											}
+											return s.ToArray();
 										}
+									}
 
 	public abstract UrrScheme		Scheme { get; }
 	public override abstract bool	Equals(object other);
-  		public abstract bool			Equals(Urr other);
+  	public abstract bool			Equals(Urr other);
 	public override abstract int	GetHashCode();
 
 	//	public const char				S = ':';
@@ -107,27 +107,27 @@ public enum UrrScheme
 		return a;
 	}
 
- 		public static Urr FromRaw(byte[] bytes)
- 		{
- 			var s = new MemoryStream(bytes);
- 			var r = new BinaryReader(s);
+ 	public static Urr FromRaw(byte[] bytes)
+ 	{
+ 		var s = new MemoryStream(bytes);
+ 		var r = new BinaryReader(s);
  
- 			return ReadVirtual(r);
- 		}
+ 		return ReadVirtual(r);
+ 	}
  
- 		public static bool operator == (Urr a, Urr b)
- 		{
- 			return a is null && b is null || a is not null && a.Equals(b);
- 		}
+ 	public static bool operator == (Urr a, Urr b)
+ 	{
+ 		return a is null && b is null || a is not null && a.Equals(b);
+ 	}
  
- 		public static bool operator != (Urr a, Urr b)
- 		{
- 			return !(a == b);
- 		}
+ 	public static bool operator != (Urr a, Urr b)
+ 	{
+ 		return !(a == b);
+ 	}
 }
  
- 	public class Urrh : Urr
- 	{
+public class Urrh : Urr
+{
 	public override UrrScheme	Scheme => UrrScheme.Urrh;
 
 	public Urrh()
@@ -140,10 +140,10 @@ public enum UrrScheme
 	}
 
 	public byte[]			Hash { get; set; }
- 		public override byte[]	MemberOrderKey => Hash;
+ 	public override byte[]	MemberOrderKey => Hash;
  		
 	public override int		GetHashCode() => BitConverter.ToInt32(Hash);
- 		public override bool	Equals(object obj) => Equals(obj as Urrh);
+ 	public override bool	Equals(object obj) => Equals(obj as Urrh);
 	public override bool	Equals(Urr o) => o is Urrh a && Hash.SequenceEqual(a.Hash);
 
 	public new static Urrh Parse(string t)
@@ -174,14 +174,14 @@ public enum UrrScheme
 
 	protected override void WriteMore(BinaryWriter writer)
 	{
- 			writer.Write(Hash);
+ 		writer.Write(Hash);
 	}
 
 	protected override void ReadMore(BinaryReader reader)
 	{
- 			Hash = reader.ReadBytes(Cryptography.HashSize);
+ 		Hash = reader.ReadBytes(Cryptography.HashSize);
 	}
-  	}
+  }
 
 public class Urrsd : Urr
 {
@@ -191,8 +191,8 @@ public class Urrsd : Urr
 	public byte[]				Signature { get; set; }
 	public override byte[]		MemberOrderKey => Signature;
 
- 		public override int			GetHashCode() => BitConverter.ToInt32(Signature);
- 		public override bool		Equals(object o) => Equals(o as Urrsd);
+ 	public override int			GetHashCode() => BitConverter.ToInt32(Signature);
+ 	public override bool		Equals(object o) => Equals(o as Urrsd);
 	public override bool		Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
  
 	public override string ToString()

@@ -105,8 +105,10 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
-				r.Flags	&= ~ResourceFlags.Data;
 				Free(d, r.Data.Value.Length);
+
+				r.Flags	&= ~ResourceFlags.Data;
+				r.Data = null;
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Seal))

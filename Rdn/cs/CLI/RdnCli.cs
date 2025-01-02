@@ -1,14 +1,14 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Fair;
+namespace Uccs.Rdn.CLI;
 
-public class FairCli : McvCli
+public class RdnCli : McvCli
 {
-	public FairCli()
+	public RdnCli()
 	{
 	}
 
-	public FairCli(FairNodeSettings settings, FairApiClient api, Flow workflow, IPasswordAsker passwordAsker) : base(settings, api, workflow, passwordAsker)
+	public RdnCli(RdnNodeSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker) : base(settings, api, workflow, passwordAsker)
 	{
 	}
 
@@ -28,15 +28,15 @@ public class FairCli : McvCli
 
 		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
-		return	ct?.GetConstructor([typeof(FairCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command 
+		return	ct?.GetConstructor([typeof(RdnCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command 
 				??
 				base.Create(commnad, flow);
 	}
 
 	public override object Execute(Boot boot, Flow flow)
 	{
-		Settings = new FairNodeSettings(boot.Profile);
-		Net = Fair.ByZone(boot.Zone);
+		Settings = new RdnNodeSettings(boot.Profile);
+		Net = Rdn.ByZone(boot.Zone);
 
 		return base.Execute(boot, flow);
 	}

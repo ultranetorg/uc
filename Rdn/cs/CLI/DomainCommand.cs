@@ -1,14 +1,14 @@
-﻿namespace Uccs.Rdn.CLI;
+﻿using System.Reflection;
+
+namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
-	public const string Keyword = "domain";
-
 	string First => Args[0].Name;
 
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		Actions =	[
+		
 // 						new ()
 // 						{
 // 							Names = ["b", "bid"],
@@ -40,237 +40,213 @@ public class DomainCommand : RdnCommand
 // 						},
 
 
-						new ()
-						{
-							Names = ["a", "acquire"],
+	}
 
-							Help = new Help()
-							{
-								Title = "ACQUIRE",
-								Description = "Obtain ownership of a domain name for a specified period",
-								Syntax = $"domain a|acquire {RDA} years={YEARS} signer={AA}",
+	public CommandAction Acquire()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Arguments =
-								[
-									new ("<first>", "Address of a root domain to be acquired"),
-									new ("years", "Integer number of years in [1..10] range"),
-									new (SignerArg, "Address of account that owns or is going to register the domain")
-								],
+		a.Name = "a";
+		a.Help = new() {Description = "Obtain ownership of a domain name for a specified period",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RDA} years={YEARS} signer={AA}",
 
-								Examples =
-								[
-									new (null, "domain a companyinc years=5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+						Arguments =	[
+										new ("<first>", "Address of a root domain to be acquired"),
+										new ("years", "Integer number of years in [1..10] range"),
+										new (SignerArg, "Address of account that owns or is going to register the domain")
+									],
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RDA.Example} years=5 {SignerArg}={AA.Example}")
+									]};
 
-												return new DomainRegistration{	Address	= First,
-																				Years	= byte.Parse(GetString("years"))};
-											}
-						},
+		a.Execute = () =>	{
+							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-						new ()
-						{
-							Names = ["m", "migrate"],
+							return new DomainRegistration{	Address	= First,
+															Years	= byte.Parse(GetString("years"))};
+						};
 
-							Help = new Help()
-							{
-								Title = "MIGRATE",
-								Description = "Request web domain migration",
-								Syntax = $"domain m|migrate {RDA} wtld={WTLD} [rank] signer={AA}",
+		return a;
+	}
 
-								Arguments =
-								[
-									new ("<first>", "Ultranet address of a root domain to migrate"),
-									new ("wtld", "Web top-level domain (com, org, net)"),
-									new ("checkrank", "Request position verification in Google search results"),
-									new (SignerArg, "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
-								],
+	public CommandAction Migrate()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Examples =
-								[
-									new (null, "domain m apple wtld=com checkrank signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+		a.Name = "m";
+		a.Help = new() {Description = "Request web domain migration",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RDA} wtld={TLD} [rank] {SignerArg}={AA}",
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+						Arguments =	[
+										new ("<first>", "Ultranet address of a root domain to migrate"),
+										new ("wtld", "Web top-level domain (com, org, net)"),
+										new ("checkrank", "Request position verification in Google search results"),
+										new (SignerArg, "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
+									],
 
-												return new DomainMigration(First, GetString("wtld"), Has("checkrank"));
-											}
-						},
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RDA.Example} wtld={TLD} checkrank {SignerArg}={AA.Example}")
+									]};
 
-						new ()
-						{
-							Names = ["r", "renew"],
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							Help = new Help()
-							{
-								Title = "RENEW",
-								Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.",
-								Syntax = $"domain r|renew {DA} years={YEARS} signer={AA}",
+								return new DomainMigration(First, GetString("wtld"), Has("checkrank"));
+							};
+		return a;
+	}
 
-								Arguments =
-								[
-									new ("<first>", "Address of a domain to be renewed"),
-									new ("years", "Integer number of years in [1..10] range"),
-									new (SignerArg, "Address of account that owns the domain")
-								],
+	public CommandAction Renew()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-								Examples =
-								[
-									new (null, "domain r companyinc years=5 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+		a.Name = "r";
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+		a.Help = new() {Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.",
+						Syntax = $"{Keyword} {a.NamesSyntax} {DA} years={YEARS} {SignerArg}={AA}",
 
-												var d = Rdc(new DomainRequest(First)).Domain;
+						Arguments =	[
+										new ("<first>", "Address of a domain to be renewed"),
+										new ("years", "Integer number of years in [1..10] range"),
+										new (SignerArg, "Address of account that owns the domain")
+									],
 
-												return new DomainUpdation  {Action	= DomainAction.Renew,
-																			Id		= d.Id,
-																			Years	= byte.Parse(GetString("years"))};
-											}
-						},
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {DA.Example} years=5 {SignerArg}={AA.Example}")
+									]};
 
-						new ()
-						{
-							Names = ["cs", "createsubdomain"],
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							Help = new Help()
-							{
-								Title = "CREATE SUBDOMAIN",
-								Description = "Create a subdomain",
-								Syntax = $"domain cs|createsubdomain {SDA} policy=POLICY years={YEARS} for={AA} signer={AA}",
+								var d = Rdc(new DomainRequest(First)).Domain;
 
-								Arguments =
-								[
-									new ("<first>", "Subdomain address to create"),
-									new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
-									new ("years", "Number of years in [1..10] range"),
-									new ("for", "Address of account that will own the subdomain"),
-									new (SignerArg, "Address of account that owns the parent domain")
-								],
+								return new DomainUpdation  {Action	= DomainAction.Renew,
+															Id		= d.Id,
+															Years	= byte.Parse(GetString("years"))};
+							};
 
-								Examples =
-								[
-									new (null, "domain cs division.companyinc years=5 policy=FullOwnership for=0x2222222222222222222222222222222222222222 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+		return a;
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+	public CommandAction Create_Subdomain()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												return new DomainRegistration{	Address	= First,
-																				Years	= byte.Parse(GetString("years")),
-																				Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
-																				Owner	= GetAccountAddress("for")};
-											}
-						},
+		a.Name = "cs";
+		a.Help = new() {Description = "Create a subdomain",
+						Syntax = $"{Keyword} {a.NamesSyntax} {SDA} policy=POLICY years={YEARS} for={AA} {SignerArg}={AA}",
 
-						new ()
-						{
-							Names = ["up", "updatepolicy"],
+						Arguments =	[
+										new ("<first>", "Subdomain address to create"),
+										new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
+										new ("years", "Number of years in [1..10] range"),
+										new ("for", "Address of account that will own the subdomain"),
+										new (SignerArg, "Address of account that owns the parent domain")
+									],
 
-							Help = new Help()
-							{
-								Title = "UPDATE POLICY",
-								Description = "Changes current policy of subdomain",
-								Syntax = $"domain up|updatepolicy {SDA} policy=POLICY signer={AA}",
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {SDA.Example} years=5 policy=FullOwnership for={AA.Examples[1]} {SignerArg}={AA.Example}")
+									]};
 
-								Arguments =
-								[
-									new ("<first>", "Address of a domain to change policy for"),
-									new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
-									new (SignerArg, "Address of account that owns a subdomain")
-								],
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								Examples =
-								[
-									new (null, "domain up division.companyinc policy=FullOwnership signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+								return new DomainRegistration{	Address	= First,
+																Years	= byte.Parse(GetString("years")),
+																Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
+																Owner	= GetAccountAddress("for")};
+							};
+		return a;
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+	public CommandAction Update_Policy()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												var d = Rdc(new DomainRequest(First)).Domain;
+		a.Name = "up";
+		a.Help = new(){	Description = "Changes current policy of subdomain",
+						Syntax = $"{Keyword} {a.NamesSyntax} {SDA} policy=POLICY signer={AA}",
 
-												return new DomainUpdation  {Action	= DomainAction.ChangePolicy,
-																			Id		= d.Id,
-																			Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
-											}
-						},
+						Arguments =	[
+										new ("<first>", "Address of a domain to change policy for"),
+										new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
+										new (SignerArg, "Address of account that owns a subdomain")
+									],
 
-						new ()
-						{
-							Names = ["t", "transfer"],
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {SDA.Example} policy=FullOwnership {SignerArg}={AA.Example}")
+									]};
 
-							Help = new Help()
-							{
-								Title = "TRANSFER",
-								Description = "Changes an owner of domain",
-								Syntax = $"domain t|transfer {DA} to={AA} signer={AA}",
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								Arguments =
-								[
-									new ("<first>", "Address of a domain to transfer"),
-									new ("to", "Address of account of a new owner"),
-									new (SignerArg, "Address of account of the current owner")
-								],
+								var d = Rdc(new DomainRequest(First)).Domain;
 
-								Examples =
-								[
-									new (null, "domain transfer companyinc to=0x2222222222222222222222222222222222222222 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-								]
-							},
+								return new DomainUpdation  {Action	= DomainAction.ChangePolicy,
+															Id		= d.Id,
+															Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
+							};
+		return a;
+	}
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
+	public CommandAction Transfer()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-												var d = Rdc(new DomainRequest(First)).Domain;
+		a.Name = "t";
+		a.Help = new() {Description = "Changes an owner of domain",
+						Syntax = $"domain t|transfer {DA} to={AA} signer={AA}",
 
-												return new DomainUpdation  {Action	= DomainAction.Transfer,
-																			Id		= d.Id,
-																			Owner	= GetAccountAddress("to", false)};
-											}
-						},
+						Arguments =	[
+										new ("<first>", "Address of a domain to transfer"),
+										new ("to", "Address of account of a new owner"),
+										new (SignerArg, "Address of account of the current owner")
+									],
 
-						new ()
-						{
-							Names = ["e", "entity"],
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {DA.Example} to={AA.Example[1]} {SignerArg}={AA.Example}")
+									]};
 
-							Help = new Help()
-							{
-								Title = "Entity",
-								Description = "Get domain entity information from MCV database",
-								Syntax = $"domain e|entity {DA}",
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								Arguments =
-								[
-									new ("<first>", "Address of a domain to get information about")
-								],
+								var d = Rdc(new DomainRequest(First)).Domain;
 
-								Examples =
-								[
-									new (null, "domain e companyinc")
-								]
-							},
+								return new DomainUpdation  {Action	= DomainAction.Transfer,
+															Id		= d.Id,
+															Owner	= GetAccountAddress("to", false)};
+							};
 
-							Execute = () =>	{
-												Flow.CancelAfter(program.Settings.RdcQueryTimeout);
+		return a;
+	}
+
+	public CommandAction Entity()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "e";
+		a.Help = new() {Description = "Get domain entity information from MCV database",
+						Syntax = $"{Keyword} {a.NamesSyntax} {DA}",
+
+						Arguments =	[
+										new ("<first>", "Address of a domain to get information about")
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {DA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-												var rp = Rdc(new DomainRequest(First));
+								var rp = Rdc(new DomainRequest(First));
 
-												Dump(rp.Domain);
+								Dump(rp.Domain);
 					
-												return rp.Domain;
-											}
-						},
+								return rp.Domain;
+							};
 
-					];	
+		return a;
 	}
 }

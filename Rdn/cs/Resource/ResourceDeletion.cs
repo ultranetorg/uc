@@ -2,7 +2,7 @@ namespace Uccs.Rdn;
 
 public class ResourceDeletion : RdnOperation
 {
-	public new ResourceId		Id { get; set; }
+	public ResourceId			Resource { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
@@ -13,17 +13,17 @@ public class ResourceDeletion : RdnOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Id = reader.Read<ResourceId>();
+		Resource = reader.Read<ResourceId>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
-		writer.Write(Id);
+		writer.Write(Resource);
 	}
 
 	public override void Execute(RdnMcv mcv, RdnRound round)
 	{
-		if(RequireSignerResource(round, Id, out var d, out var r) == false)
+		if(RequireSignerResource(round, Resource, out var d, out var r) == false)
 			return;
 
 		if(r.Flags.HasFlag(ResourceFlags.Sealed))
@@ -32,7 +32,7 @@ public class ResourceDeletion : RdnOperation
 			return;
 		}
 
-		round.DeleteResource(r);
+		round.AffectResource(Resource).Deleted = true;
 
 		Free(d, r.Length);
 

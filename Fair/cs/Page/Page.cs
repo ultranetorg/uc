@@ -7,7 +7,7 @@ public enum PageType
 	Product
 }
 
-public enum PageFlags
+public enum PageField
 {
 	None,
 	Content		= 0b0000_0001,
@@ -20,17 +20,15 @@ public class PagePermissions : IBinarySerializable
 {
 	public static PagePermissions Parse(string v)
 	{
-		throw new NotImplementedException();
+		return new PagePermissions();
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		throw new NotImplementedException();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		throw new NotImplementedException();
 	}
 }
 
@@ -106,9 +104,9 @@ public class ProductData : IBinarySerializable
 
 public class Page
 {
-	public PageFlags		Flags { get; set; }
 	public EntityId			Id { get; set; }
 	public EntityId			Site { get; set; }
+	public PageField		Fields { get; set; }
 	public PagePermissions	Permissions { get; set; }
 	public PageContent		Content { get; set; }
 	public EntityId[]		Pages { get; set; }
