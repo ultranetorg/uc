@@ -1,4 +1,4 @@
-﻿namespace Uccs.WebUI.Configurations;
+﻿namespace Uccs.Web.Configurations;
 
 public class AllowedOriginsConfiguration
 {

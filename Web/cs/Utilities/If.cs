@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Uccs.WebUI.Utilities;
+namespace Uccs.Web.Utilities;
 
 public class Result<T>([NotNull] T? value)
 {

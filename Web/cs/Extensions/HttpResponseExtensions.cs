@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
-namespace Uccs.WebUI.Extensions;
+namespace Uccs.Web.Extensions;
 
 public static class HttpResponseExtensions
 {

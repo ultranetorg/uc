@@ -5,10 +5,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
-using Uccs.WebUI.Exceptions;
-using Uccs.WebUI.Extensions;
+using Uccs.Web.Exceptions;
+using Uccs.Web.Extensions;
 
-namespace Uccs.WebUI.Middlewares;
+namespace Uccs.Web.Middlewares;
 
 public sealed class ExceptionTransformMiddleware(RequestDelegate next, ILogger<ExceptionTransformMiddleware> logger,
 	IWebHostEnvironment env, IOptions<JsonOptions> jsonOptions) : IMiddleware

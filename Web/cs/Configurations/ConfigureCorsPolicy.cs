@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Uccs.WebUI.Configurations;
+namespace Uccs.Web.Configurations;
 
 public static class ConfigureCorsPolicy
 {

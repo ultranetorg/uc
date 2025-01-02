@@ -1,4 +1,4 @@
-﻿namespace Uccs.WebUI.Pagination;
+﻿namespace Uccs.Web.Pagination;
 
 public class TotalItemsResult<T> where T : class
 {

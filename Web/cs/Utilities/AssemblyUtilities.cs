@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Uccs.WebUI.Utilities;
+namespace Uccs.Web.Utilities;
 
 public static class AssemblyUtilities
 {

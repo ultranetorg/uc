@@ -1,4 +1,4 @@
-﻿namespace Uccs.WebUI.Exceptions;
+﻿namespace Uccs.Web.Exceptions;
 
 public abstract class BaseException : Exception
 {

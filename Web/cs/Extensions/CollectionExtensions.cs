@@ -1,6 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 
-namespace Uccs.WebUI.Extensions;
+namespace Uccs.Web.Extensions;
 
 public static class CollectionExtensions
 {

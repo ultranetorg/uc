@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Uccs.WebUI.Utilities;
+namespace Uccs.Web.Utilities;
 
 public static class BoolExtensions
 {

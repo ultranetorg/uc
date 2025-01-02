@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Uccs.WebUI.Middlewares;
+namespace Uccs.Web.Middlewares;
 
 internal interface IMiddleware
 {

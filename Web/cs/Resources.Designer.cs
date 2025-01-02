@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uccs.WebUI {
+namespace Uccs.Web {
     using System;
     
     

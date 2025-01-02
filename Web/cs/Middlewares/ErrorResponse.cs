@@ -1,4 +1,4 @@
-﻿namespace Uccs.WebUI.Middlewares;
+﻿namespace Uccs.Web.Middlewares;
 
 public sealed class ErrorResponse(int errorCode, string message)
 {
