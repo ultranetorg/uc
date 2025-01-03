@@ -3,7 +3,6 @@
 public class NtnStateHashRequest : NtnPpc<NtnStateHashResponse>
 {
 	public string			Net { get; set; }
-	public override bool	WaitResponse => true;
 
 	public NtnStateHashRequest()
 	{

@@ -31,7 +31,7 @@ public class Statistics
 	}
 }
 
-public enum PtpCallClass : byte
+public enum PpcClass : byte
 {
 	None = 0, 
 	_Last = 99
@@ -92,6 +92,8 @@ public abstract class TcpPeering : IPeer
 		Flow.Log?.Report(this, $"Name: {Node.Name}");
 
 		Contructors[typeof(PeerRequest)] = [];
+		Contructors[typeof(ProcPeerRequest)] = [];
+		Contructors[typeof(FuncPeerRequest)] = [];
 		Contructors[typeof(PeerResponse)] = [];
 		Contructors[typeof(NetException)] = [];
  
@@ -101,6 +103,53 @@ public abstract class TcpPeering : IPeer
 			Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
 			var x = i.GetConstructor([]);
 			Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
+		}
+	}
+
+	protected void Register(Type ppclass, Node node)
+	{
+		var assembly = ppclass.Assembly;
+
+		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(ProcPeerRequest)) && !i.IsGenericType))
+		{	
+			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+			{
+				Codes[i] = (byte)c;
+				var x = i.GetConstructor([]);
+
+				Contructors[typeof(PeerRequest)][(byte)c] =
+ 				Contructors[typeof(ProcPeerRequest)][(byte)c] = () =>	{
+																			var r = x.Invoke(null) as PeerRequest;
+																			r.Node = node;
+																			return r;
+																		};
+			}
+		}
+
+		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsGenericType))
+		{	
+			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+			{
+				Codes[i] = (byte)c;
+				var x = i.GetConstructor([]);
+
+				Contructors[typeof(PeerRequest)][(byte)c] =
+ 				Contructors[typeof(FuncPeerRequest)][(byte)c] = () =>	{
+																			var r = x.Invoke(null) as PeerRequest;
+																			r.Node = node;
+																			return r;
+																		};
+			}
+		}
+
+		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+		{	
+			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+			{
+				Codes[i] = (byte)c;
+				var x = i.GetConstructor([]);
+				Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
+			}
 		}
 	}
 
@@ -157,9 +206,9 @@ public abstract class TcpPeering : IPeer
 		return Contructors.TryGetValue(type, out var t) && t.TryGetValue(code, out var c) ? c() : null;
 	}
 
-	public virtual byte TypeToCode(Type code)
+	public virtual byte TypeToCode(Type type)
 	{
-		return Codes[code];
+		return Codes[type];
 	}
 
 	protected void Listening()
@@ -481,88 +530,88 @@ public abstract class TcpPeering : IPeer
 	//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
 	//}
 
-// 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, Workflow workflow)
-// 		{
-// 						
-// 			var o = new Emission(wei, eid);
-// 
-// 
-// 			//flow?.SetOperation(o);
-// 						
-// 			if(FeeAsker.Ask(this, signer, o))
-// 			{
-// 				return o;
-// 			}
-// 
-// 			return null;
-// 		}
-// 
-// 		public Emission FinishEmission(AccountKey signer, Flow workflow)
-// 		{
-// 			lock(Lock)
-// 			{
-// 				var	l = Call(p =>{
-// 									try
-// 									{
-// 										return p.Request(new AccountRequest(signer));
-// 									}
-// 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
-// 									{
-// 										return new AccountResponse();
-// 									}
-// 								}, 
-// 								workflow);
-// 			
-// 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
-// 
-// 				var wei = Nas.FindEmission(signer, eid, workflow);
-// 
-// 				if(wei == 0)
-// 					throw new RequirementException("No corresponding Ethrereum transaction found");
-// 
-// 				var o = new Emission(wei, eid);
-// 
-// 				if(FeeAsker.Ask(this, signer, o))
-// 				{
-// 					Transact(o, signer, TransactionStatus.Confirmed, workflow);
-// 					return o;
-// 				}
-// 			}
-// 
-// 			return null;
-// 		}
+	// 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, Workflow workflow)
+	// 		{
+	// 						
+	// 			var o = new Emission(wei, eid);
+	// 
+	// 
+	// 			//flow?.SetOperation(o);
+	// 						
+	// 			if(FeeAsker.Ask(this, signer, o))
+	// 			{
+	// 				return o;
+	// 			}
+	// 
+	// 			return null;
+	// 		}
+	// 
+	// 		public Emission FinishEmission(AccountKey signer, Flow workflow)
+	// 		{
+	// 			lock(Lock)
+	// 			{
+	// 				var	l = Call(p =>{
+	// 									try
+	// 									{
+	// 										return p.Request(new AccountRequest(signer));
+	// 									}
+	// 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
+	// 									{
+	// 										return new AccountResponse();
+	// 									}
+	// 								}, 
+	// 								workflow);
+	// 			
+	// 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
+	// 
+	// 				var wei = Nas.FindEmission(signer, eid, workflow);
+	// 
+	// 				if(wei == 0)
+	// 					throw new RequirementException("No corresponding Ethrereum transaction found");
+	// 
+	// 				var o = new Emission(wei, eid);
+	// 
+	// 				if(FeeAsker.Ask(this, signer, o))
+	// 				{
+	// 					Transact(o, signer, TransactionStatus.Confirmed, workflow);
+	// 					return o;
+	// 				}
+	// 			}
+	// 
+	// 			return null;
+	// 		}
 
-	public override PeerResponse Send(PeerRequest request)
-  		{
+	public override PeerResponse Send(FuncPeerRequest request)
+	{
 		var rq = request;
 
 		if(request.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), request, TypeToCode); 
+			BinarySerializator.Serialize(new(s), request, TypeToCode);
 			s.Position = 0;
-			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
+
+			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constract);
 			rq.Peering = this;
 		}
 
 		return rq.Execute();
- 		}
+	}
 
-	public override void Post(PeerRequest request)
-  		{
+	public override void Post(ProcPeerRequest request)
+	{
 		var rq = request;
 
 		if(rq.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), rq, TypeToCode); 
+			BinarySerializator.Serialize(new(s), rq, TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constract);
+			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constract);
 			rq.Peering = this;
 		}
 
- 			rq.Execute();
- 		}
+		rq.Execute();
+	}
 }

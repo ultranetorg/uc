@@ -1,22 +1,23 @@
 ﻿namespace Uccs.Net;
 
-public class VoteRequest : McvPpc<PeerResponse>
+public class VoteRequest : ProcPeerRequest
 {
 	public Vote				Vote { get; set; }
-	public override bool	WaitResponse => false;
 
 	public VoteRequest()
 	{
 	}
 	
-	public override PeerResponse Execute()
+	public override void Execute()
 	{
-		if(Node.Mcv == null)
+		var p = Peering as McvTcpPeering;
+
+		if(p.Node.Mcv == null)
 			throw new NodeException(NodeError.NotBase);
 
-		lock(Peering.Lock)
+		lock(p.Lock)
 		{
-			lock(Mcv.Lock)
+			lock(p.Mcv.Lock)
 			{
 				Peering.Statistics.Consensing.Begin();
 				
@@ -24,11 +25,11 @@ public class VoteRequest : McvPpc<PeerResponse>
 
 				try
 				{
-					accepted = Peering.ProcessIncoming(Vote, false);
+					accepted = p.ProcessIncoming(Vote, false);
 				}
 				catch(ConfirmationException ex)
 				{
-					Peering.ProcessConfirmationException(ex);
+					p.ProcessConfirmationException(ex);
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 								
@@ -59,15 +60,13 @@ public class VoteRequest : McvPpc<PeerResponse>
 
 				if(accepted)
 				{
-					Peering.Broadcast(Vote, Peer);
-					Peering.Statistics.AcceptedVotes++;
+					p.Broadcast(Vote, Peer);
+					p.Statistics.AcceptedVotes++;
 				}
 				else
-					Peering.Statistics.RejectedVotes++;
+					p.Statistics.RejectedVotes++;
 
 			}
 		}
-
-		return null; 
 	}
 }

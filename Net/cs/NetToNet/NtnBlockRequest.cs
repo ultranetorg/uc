@@ -1,19 +1,20 @@
 ﻿namespace Uccs.Net;
 
-public class NtnBlockRequest : NtnPpc<PeerResponse>
+public class NtnBlockRequest : ProcPeerRequest
 {
 	public byte[]			Raw { get; set; }
-	public override bool	WaitResponse => false;
 
 	public NtnBlockRequest()
 	{
 	}
 	
-	public override PeerResponse Execute()
+	public override void Execute()
 	{
+		var p = Peering as NtnTcpPeering;
+
 		lock(Peering.Lock)
 		{
-			var b = Peering.ProcessIncoming(Raw, Peer);
+			var b = p.ProcessIncoming(Raw, Peer);
 
 			//if(Peering.Synchronization == Synchronization.Synchronized)
 			//{
@@ -40,13 +41,12 @@ public class NtnBlockRequest : NtnPpc<PeerResponse>
 
 			if(b != null)
 			{
-				Peering.Broadcast(b, Peer);
+				p.Broadcast(b, Peer);
 				//Peering.Statistics.AcceptedVotes++;
 			}
 			//else
 				//Peering.Statistics.RejectedVotes++;
 
-			return null; 
 		}
 	}
 }

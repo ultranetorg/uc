@@ -161,7 +161,7 @@ public class Peer : IPeer, IBinarySerializable
 
 		lock(OutRequests)
 		{
-			foreach(var i in OutRequests)
+			foreach(var i in OutRequests.OfType<FuncPeerRequest>())
 			{
 				if(!i.Event.SafeWaitHandle.IsClosed)
 				{
@@ -175,7 +175,7 @@ public class Peer : IPeer, IBinarySerializable
 
 		lock(Outs)
 		{
-			foreach(var i in Outs.OfType<PeerRequest>())
+			foreach(var i in Outs.OfType<FuncPeerRequest>())
 			{
 				if(i.Event != null && !i.Event.SafeWaitHandle.IsClosed)
 				{
@@ -242,7 +242,7 @@ public class Peer : IPeer, IBinarySerializable
 
 				lock(InRequests)
 				{
-					inrq = InRequests.ToArray();
+					inrq = [..InRequests];
 					InRequests.Clear();
 				}
 						
@@ -262,11 +262,16 @@ public class Peer : IPeer, IBinarySerializable
 // 						}
 // 						else
 					{
-						var rp = i.SafeExecute();
 
-						if(i.WaitResponse)
+						if(i is FuncPeerRequest f)
+						{
+							var rp = f.SafeExecute();
+							
 							lock(Outs)
 								Outs.Enqueue(rp);
+						}
+						else
+							(i as ProcPeerRequest).SafeExecute();
 					}
 				}
 
@@ -353,11 +358,11 @@ public class Peer : IPeer, IBinarySerializable
 						{
 							var rq = OutRequests.Find(i => i.Id == rp.Id);
 
-							if(rq != null)
+							if(rq is FuncPeerRequest f)
 							{
 								rp.Peer = this;
-								rq.Response = rp;
-								rq.Event.Set();
+								f.Response = rp;
+								f.Event.Set();
  									
 								OutRequests.Remove(rq);
 							}
@@ -387,7 +392,7 @@ public class Peer : IPeer, IBinarySerializable
 		}
 	}
 
-	public override void Post(PeerRequest rq)
+	public override void Post(ProcPeerRequest rq)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -400,67 +405,61 @@ public class Peer : IPeer, IBinarySerializable
 		SendSignal.Set();
 	}
 
-	public override PeerResponse Send(PeerRequest rq)
+	public override PeerResponse Send(FuncPeerRequest rq)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
 		rq.Id = IdCounter++;
 
-		if(rq.WaitResponse)
-			lock(OutRequests)
-			{
-				rq.Event = new ManualResetEvent(false);
-				OutRequests.Add(rq);
-			}
+		lock(OutRequests)
+		{
+			rq.Event = new ManualResetEvent(false);
+			OutRequests.Add(rq);
+		}
 
 		lock(Outs)
 			Outs.Enqueue(rq);
 
 		SendSignal.Set();
 
-		if(rq.WaitResponse)
+		int i = -1;
+
+		try
 		{
-			int i = -1;
-
-			try
-			{
-				i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60 * 1000);
-			}
-			catch(ObjectDisposedException)
-			{
-				throw new OperationCanceledException();
-			}
-			finally
-			{
-				rq.Event.Close();
-			}
-
-			if(i == 0)
-			{
-				if(rq.Response == null)
-					throw new NodeException(NodeError.Connectivity);
-
-				if(rq.Response.Error == null)
-				{
-					return rq.Response;
-				}
-				else
-				{
-					if(rq.Response.Error is NodeException e)
-					{
-						Peering.OnRequestException(this, e);
-					}
-
-					throw rq.Response.Error;
-				}
-			}
-			else if(i == 1)
-				throw new OperationCanceledException();
-			else
-				throw new NodeException(NodeError.Timeout);
+			i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60 * 1000);
 		}
+		catch(ObjectDisposedException)
+		{
+			throw new OperationCanceledException();
+		}
+		finally
+		{
+			rq.Event.Close();
+		}
+
+		if(i == 0)
+		{
+			if(rq.Response == null)
+				throw new NodeException(NodeError.Connectivity);
+
+			if(rq.Response.Error == null)
+			{
+				return rq.Response;
+			}
+			else
+			{
+				if(rq.Response.Error is NodeException e)
+				{
+					Peering.OnRequestException(this, e);
+				}
+
+				throw rq.Response.Error;
+			}
+		}
+		else if(i == 1)
+			throw new OperationCanceledException();
 		else
-			return null;
+			throw new NodeException(NodeError.Timeout);
 	}
 }

@@ -52,7 +52,7 @@ public class Transaction : IBinarySerializable
 	public TransactionStatus		Status;
 	public IPeer					Rdi;
 	public Flow						Flow;
-	public TransactionStatus		__ExpectedStatus = TransactionStatus.None;
+	public TransactionStatus		__ExpectedResult = TransactionStatus.None;
 
 	public bool Valid(Mcv mcv)
 	{
@@ -164,7 +164,7 @@ public class Transaction : IBinarySerializable
 
  		public void	WriteForVote(BinaryWriter writer)
  		{
-		writer.Write((byte)__ExpectedStatus);
+		writer.Write((byte)__ExpectedResult);
 
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -182,7 +182,7 @@ public class Transaction : IBinarySerializable
  		
  		public void	ReadForVote(BinaryReader reader)
  		{
-		__ExpectedStatus = (TransactionStatus)reader.ReadByte();
+		__ExpectedResult = (TransactionStatus)reader.ReadByte();
 
 		Member	= reader.Read<EntityId>();
 		Signature	= reader.ReadSignature();
@@ -203,7 +203,7 @@ public class Transaction : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write((byte)__ExpectedStatus);
+		writer.Write((byte)__ExpectedResult);
 	
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -221,7 +221,7 @@ public class Transaction : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		__ExpectedStatus = (TransactionStatus)reader.ReadByte();
+		__ExpectedResult = (TransactionStatus)reader.ReadByte();
 	
 		Member	= reader.Read<EntityId>();
 		Signature	= reader.ReadSignature();

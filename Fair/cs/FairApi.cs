@@ -20,9 +20,9 @@ public class FairTypeResolver : ApiTypeResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
-        if(ti.Type == typeof(PeerRequest))
+        if(ti.Type == typeof(FuncPeerRequest))
         {
-			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}

@@ -28,29 +28,7 @@ public abstract class NtnTcpPeering : TcpPeering
 
 	public NtnTcpPeering(Node node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
 	{
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
-		{	
-			if(Enum.TryParse<NtnPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
-																		var r = x.Invoke(null) as PeerRequest;
-																		r.Node = node;
-																		return r;
-																	};
-			}
-		}
-
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-		{	
-			if(Enum.TryParse<NtnPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
-				Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
-			}
-		}
+		Register(typeof(NtnPpcClass), node);
 	}
 
 	public override string ToString()
@@ -225,15 +203,15 @@ public abstract class NtnTcpPeering : TcpPeering
 
 	public R Call<R>(string net, Func<NtnPpc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
 	{
-		return Call(net, (Func<PeerRequest>)call, workflow, exclusions) as R;
+		return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	}
 
-	public PeerResponse Call(string net, Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
 		var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
 		Peer p;
-			
+
 		while(workflow.Active)
 		{
 			Thread.Sleep(1);
@@ -260,10 +238,10 @@ public abstract class NtnTcpPeering : TcpPeering
 
 				return p.Send(c);
 			}
- 				catch(NodeException)
- 				{
+			catch(NodeException)
+			{
 				p.LastFailure[Role.Base] = DateTime.UtcNow;
- 				}
+			}
 			catch(ContinueException)
 			{
 			}
@@ -278,7 +256,7 @@ public abstract class NtnTcpPeering : TcpPeering
 		{
 			try
 			{
-				var v = new NtnBlockRequest {Raw = block.RawPayload} as PeerRequest;
+				var v = new NtnBlockRequest { Raw = block.RawPayload };
 				v.Peering = this;
 				i.Post(v);
 			}
