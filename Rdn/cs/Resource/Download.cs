@@ -319,6 +319,11 @@ public class FileDownload
 						},
 						flow.Cancellation);
 	}
+
+	public void Stop()
+	{
+		Flow.Abort();
+	}
 }
 
 public class DirectoryDownload
@@ -332,19 +337,21 @@ public class DirectoryDownload
 	public List<FileDownload>	CurrentDownloads = new();
 	public Task					Task;
 	public SeedSeeker			SeedSeeker;
+	Flow						Flow;
 
-	public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
+	public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow flow)
 	{
 		Release = release;
 		LocalPath = localpath;
 		Release.Activity = this;
-		SeedSeeker = new SeedSeeker(sun, release.Address, workflow);
+		Flow = flow;
+		SeedSeeker = new SeedSeeker(sun, release.Address, Flow);
 
 		void run()
 		{
 			try
 			{
-				sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, SeedSeeker, workflow);
+				sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, SeedSeeker, Flow);
 
 				var index = new Xon(release.Find(LocalRelease.Index).Read());
 
@@ -376,7 +383,7 @@ public class DirectoryDownload
 
 						lock(sun.ResourceHub.Lock)
 						{
-							var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), SeedSeeker, workflow);
+							var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), SeedSeeker, Flow);
 
 							if(dd != null)
 							{
@@ -385,7 +392,7 @@ public class DirectoryDownload
 						}
 					}
 
-					var i = Task.WaitAny(CurrentDownloads.Select(i => i.Task).ToArray(), workflow.Cancellation);
+					var i = Task.WaitAny(CurrentDownloads.Select(i => i.Task).ToArray(), Flow.Cancellation);
 
 					if(CurrentDownloads[i].Succeeded)
 					{
@@ -393,7 +400,7 @@ public class DirectoryDownload
 						CurrentDownloads.Remove(CurrentDownloads[i]);
 					}
 				}
-				while(Files.Any() && workflow.Active);
+				while(Files.Any() && Flow.Active);
 
 				SeedSeeker.Stop();
 
@@ -403,7 +410,7 @@ public class DirectoryDownload
 					release.Complete(Availability.Full);
 				}
 			}
-			catch(Exception) when(workflow.Aborted)
+			catch(Exception) when(Flow.Aborted)
 			{
 			}
 			finally
@@ -413,7 +420,12 @@ public class DirectoryDownload
 			}
 		}
 
-		Task = Task.Run(run, workflow.Cancellation);
+		Task = Task.Run(run, Flow.Cancellation);
+	}
+
+	public void Stop()
+	{
+		Flow.Abort();
 	}
 
 	public override string ToString()

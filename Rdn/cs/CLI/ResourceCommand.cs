@@ -223,28 +223,61 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"r{Keyword} {a.NamesSyntax} {RA} [localpath={DIRPATH}]",
 
 						Arguments =	[
-										new ("<first>",	  "Address of a resource the latest release to download of"),
-										new ("localpath", "Destination path on the local system to download the release to")
+										new ("<first>",		"Address of a resource the latest release to download of"),
+										new ("localpath",	"Destination path on the local system to download the release to"),
+										new ("nowait",		"Wait downlonad to finish")
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} company/application")
+										new (null, $"{Keyword} {a.Name} {RA.Example}")
 									]};
 
 		a.Execute = () =>	{
 								var r = Api<Resource>(new ResourceDownloadApc{Identifier = new(First), LocalPath = GetString("localpath", null)});
 
-								while(Flow.Active)
+								if(!Has("nowait"))
 								{
-									var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
-
-									if(p is null)
-										break;
-
-									Report(p.ToString());
-
-									Thread.Sleep(500);
+									while(Flow.Active)
+									{
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
+	
+										if(p is null)
+											break;
+	
+										Report(p.ToString());
+	
+										Thread.Sleep(500);
+									}
+	
+									return null;
+								} 
+								else
+								{
+									return r;
 								}
+							};
+		return a;
+	}
+
+	public CommandAction Download_Cancelation()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "dx";
+
+		a.Help = new() {Description = "Cancels current downloading of specified release",
+						Syntax = $"{Keyword} {a.NamesSyntax} {RZA}",
+
+						Arguments =	[
+										new ("<first>",	  "Address of a release to cancel downloading of"),
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {RA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								Api(new CancelResourceDownloadApc {Release = Urr.Parse(Args[0].Name)});
 
 								return null;
 							};

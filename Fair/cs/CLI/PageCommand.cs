@@ -56,9 +56,9 @@ public class PageCommand : FairCommand
 									 new ("content/sections", ""),
 									 new (SignerArg, "Address of account that owns the site")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Content plain={TEXT.Example}}} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Content file={FILEPATH.Example}}} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Product product={EID.Examples[1]}}} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type=Content plain=\"{TEXT.Example}\"}} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type=Content file={FILEPATH.Example}}} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type=Product product={EID.Examples[1]}}} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -144,7 +144,7 @@ public class PageCommand : FairCommand
 				
 								var rp = Rdc(new SitePagesRequest(FirstPageId));
 
-								Dump(rp.Pages.Select(i => Rdc(new PageRequest(i)).Page), ["Id", "Site", "Content", "Pages", "Comments"], [i => i.Id, i => i.Site, i => i.Content.Type, i => i.Pages?.Length, i => i.Comments?.Length]);
+								Dump(rp.Pages.Select(i => Rdc(new PageRequest(i)).Page), ["Id", "Site", "Content", "Pages", "Comments"], [i => i.Id, i => i.Site, i => i.Content?.Type, i => i.Pages?.Length, i => i.Comments?.Length]);
 					
 								return rp.Pages;
 							};
