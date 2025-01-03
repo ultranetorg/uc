@@ -25,7 +25,7 @@ public class ResourceRequest : RdnPpc<ResourceResponse>
 
 	public override PeerResponse Execute()
 	{
- 			lock(Mcv.Lock)
+ 		lock(Mcv.Lock)
 		{	
 			Resource r;
 

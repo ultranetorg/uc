@@ -42,6 +42,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	Thread									TransactingThread;
 	public List<Transaction>				IncomingTransactions = new();
 	public List<Transaction>				OutgoingTransactions = new();
+	public List<Transaction>				ConfirmedTransactions = new();
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
@@ -924,7 +925,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						#if IMMISSION
 							t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 						#endif
-						//t.STFee		 = at.STCost;
 						t.ECFee		 = at.ECCost;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
@@ -946,9 +946,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								t.Status = TransactionStatus.FailedOrNotFound;
 								OutgoingTransactions.Remove(t);
 							}
-
-							//t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
-
 						} 
 						//else
 						//	Thread.Sleep(1000);
@@ -1010,7 +1007,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
+						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Signer = i.Signer, Nid = i.Nid}).ToArray()});
 					}
 					catch(NodeException)
 					{
@@ -1034,7 +1031,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 									if(t.__ExpectedResult == TransactionStatus.Confirmed)
 										t.Status = TransactionStatus.None;
 									else
+									{	
 										OutgoingTransactions.Remove(t);
+									}
 								}
 								else if(t.Status == TransactionStatus.Confirmed)
 								{
