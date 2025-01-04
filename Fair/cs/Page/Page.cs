@@ -3,7 +3,7 @@ namespace Uccs.Fair;
 public enum PageType
 {
 	None,
-	Content,
+	Static,
 	Product
 }
 
@@ -55,7 +55,7 @@ public class PageContent : IBinarySerializable
 		Type		= (PageType)reader.ReadByte();
 		Data		= Type	switch
 							{
-								PageType.Content =>	reader.ReadUtf8(),
+								PageType.Static =>	reader.ReadUtf8(),
 								PageType.Product => reader.Read<ProductData>(),
 								_ => throw new IntegrityException()
 							};
@@ -67,7 +67,7 @@ public class PageContent : IBinarySerializable
 		
 		switch(Type)
 		{
-			case PageType.Content	: writer.WriteUtf8(Plain); break;
+			case PageType.Static	: writer.WriteUtf8(Plain); break;
 			case PageType.Product	: writer.Write(Product); break;
 			default					: throw new IntegrityException();
 		};

@@ -4,7 +4,7 @@ public class PageDeletion : FairOperation
 {
 	public EntityId				Page { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(Mcv mcv) => Page != null;
 	public override string		Description => $"{Id}";
 
 	public PageDeletion()

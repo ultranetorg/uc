@@ -8,7 +8,7 @@ public class PageUpdation : FairOperation
 	public PagePermissions		Permissions { get; set; }
 	public EntityId[]			Pages { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
+	public override bool		IsValid(Mcv mcv) => Page != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
 
 	public PageUpdation()
