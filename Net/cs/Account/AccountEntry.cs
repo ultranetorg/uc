@@ -44,7 +44,6 @@ public class AccountEntry : Account, ITableEntry
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-
 	}
 
 	public override void Read(BinaryReader reader)

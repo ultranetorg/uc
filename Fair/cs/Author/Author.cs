@@ -5,7 +5,7 @@ public enum AuthorFlag : byte
 	None, 
 }
 
-public class Author// : IBinarySerializable
+public class Author : IBinarySerializable
 {
 	public static readonly Time	RenewaPeriod = Time.FromDays(365);
 
@@ -14,7 +14,6 @@ public class Author// : IBinarySerializable
 	public Time					Expiration { get; set; }
 	public short				SpaceReserved { get; set; }
 	public short				SpaceUsed { get; set; }
-	//public int					NextProductId { get; set; }
 
 	public static bool Valid(string name)
 	{
@@ -39,5 +38,27 @@ public class Author// : IBinarySerializable
 		return  publisher == null || 
 				publisher != null && publisher.Owner == by.Id && time > publisher.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
 																 time <= publisher.Expiration;
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+	
+		//writer.Write((byte)f);
+		writer.Write7BitEncodedInt(SpaceReserved);
+		writer.Write7BitEncodedInt(SpaceUsed);
+		writer.Write(Owner);
+		writer.Write(Expiration);
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Id				= reader.Read<EntityId>();
+
+		//var f			= (AuthorFlag)reader.ReadByte();
+		SpaceReserved	= (short)reader.Read7BitEncodedInt();
+		SpaceUsed		= (short)reader.Read7BitEncodedInt();
+		Owner			= reader.Read<EntityId>();
+		Expiration		= reader.Read<Time>();
 	}
 }

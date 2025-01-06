@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics;
+using System.Text.Json;
 using RocksDbSharp;
 
 namespace Uccs.Net;
@@ -29,6 +30,7 @@ public abstract class Mcv /// Mutual chain voting
 	public McvNet								Net;
 	public IClock								Clock;
 	public Log									Log;
+	public string								Databasepath;
 
 	public RocksDb								Database;
 	public byte[]								BaseState;
@@ -83,13 +85,14 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Mcv()
 	{
-  		}
+	}
 
 	protected Mcv(McvNet net, McvSettings settings, string databasepath, bool skipinitload = false)
 	{
 		///Settings = new RdnSettings {Roles = Role.Chain};
 		Net = net;
 		Settings = settings;
+		Databasepath = databasepath;
 
 		CreateTables(databasepath);
 
@@ -190,7 +193,7 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			Tail.Clear();
 
- 				var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
+ 			var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
 					
 			for(int i = 0; i <= LastGenesisRound; i++)
 			{
@@ -466,6 +469,28 @@ public abstract class Mcv /// Mutual chain voting
 	///	}
 	///}
 
+	public void Dump()
+	{
+		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
+		jo.WriteIndented = true;
+
+		foreach(var t in Tables)
+		{
+			var f = Path.Join(Databasepath, t.GetType().Name);
+			File.Delete(f);
+
+			foreach(var i in t.Clusters.OrderBy(i => i.Id))
+			{	
+				foreach(var b in i.Buckets.OrderBy(i => i.Id))
+				{
+					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Main.ToHex() + Environment.NewLine);
+					
+					foreach(var e in b.Entries.OrderBy(i => i.BaseId))
+						File.AppendAllText(f, JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);
+				}
+			}
+		}
+	}
 
 	public void Hashify()
 	{
@@ -516,8 +541,7 @@ public abstract class Mcv /// Mutual chain voting
 						t.Save(b, r.AffectedByTable(t).Values, round);
 
 				LastCommittedRound = tail.Last();
-
-	
+					
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 	

@@ -40,7 +40,7 @@ public class PageUpdation : FairOperation
 		if(RequirePageAccess(round, Page, out var s, out var p) == false)
 			return;
 
-		var c = round.AffectPage(Page);
+		p = round.AffectPage(Page);
 
 		if(Flags.HasFlag(PageField.Content))
 		{

@@ -25,18 +25,12 @@ public class SiteEntry : Site, ITableEntry
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Id		= reader.Read<EntityId>();
-		Title	= reader.ReadUtf8();
-		Owners	= reader.ReadArray<EntityId>();
-		Roots	= reader.ReadArray<EntityId>();
+		Read(reader);
 	}
 
 	public void WriteMain(BinaryWriter writer)
 	{
-		writer.Write(Id);
-		writer.Write(Title);
-		writer.Write(Owners);
-		writer.Write(Roots);
+		Write(writer);
 	}
 
 	public void WriteMore(BinaryWriter w)

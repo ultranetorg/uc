@@ -35,7 +35,7 @@ public class ProductCreation : FairOperation
 		var p = round.AffectProduct(a);
 
 		p.AuthorId = a.Id;
-		a.Products = a.Products == null ? [p.Id] : [..a.Products, p.Id];
+		a.Products = [..a.Products, p.Id];
 
 		///Allocate(round, a, r.Length);
 	}

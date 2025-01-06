@@ -378,7 +378,7 @@ namespace Uccs
 		public static T[] ReadArray<T>(this BinaryReader r) where T : IBinarySerializable, new()
 		{
 			var n = r.Read7BitEncodedInt();
-			
+
 			var o = new T[n];
 
 			for(int i = 0; i < n; i++)

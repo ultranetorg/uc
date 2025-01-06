@@ -5,8 +5,8 @@ public class FairRound : Round
 	public new FairMcv								Mcv => base.Mcv as FairMcv;
 	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
 	public Dictionary<EntityId, ProductEntry>		AffectedProducts = new();
-	public Dictionary<EntityId, SiteEntry>		AffectedSites = new();
-	public Dictionary<EntityId, PageEntry>		AffectedPages = new();
+	public Dictionary<EntityId, SiteEntry>			AffectedSites = new();
+	public Dictionary<EntityId, PageEntry>			AffectedPages = new();
 	public Dictionary<int, int>						NextAuthorEids = new ();
 	public Dictionary<int, int>						NextProductEids = new ();
 	public Dictionary<int, int>						NextSiteEids = new ();
@@ -26,7 +26,7 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)	return AffectedAuthors;
 		if(table == Mcv.Products)	return AffectedProducts;
-		if(table == Mcv.Sites)	return AffectedSites;
+		if(table == Mcv.Sites)		return AffectedSites;
 		if(table == Mcv.Pages)		return AffectedPages;
 
 		return base.AffectedByTable(table);
@@ -36,7 +36,7 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)	return NextAuthorEids;
 		if(table == Mcv.Products)	return NextProductEids;
-		if(table == Mcv.Sites)	return NextSiteEids;
+		if(table == Mcv.Sites)		return NextSiteEids;
 		if(table == Mcv.Pages)		return NextPageEids;
 		//if(table == Mcv.Resources)	return AffectedResources.Values;
 
@@ -61,6 +61,7 @@ public class FairRound : Round
 
 		var a = Mcv.Authors.Create();
 		a.Id = new EntityId(b, e);
+		a.Products = [];
 			
 		return AffectedAuthors[a.Id] = a;
 	}
@@ -79,7 +80,7 @@ public class FairRound : Round
 	{
 		int e = GetNextEid(Mcv.Products, author.Id.B);
 
-  		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e)};
+  		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e), Fields = []};
     
   		return AffectedProducts[p.Id] = p;
 	}
@@ -102,6 +103,7 @@ public class FairRound : Round
 
 		var a = Mcv.Sites.Create();
 		a.Id = new EntityId(b, e);
+		a.Roots = [];
 			
 		return AffectedSites[a.Id] = a;
 	}

@@ -339,22 +339,22 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						var rounds = rp.Read(Mcv);
 													
-						for(int rid = from; rounds.Any() && rid <= rounds.Max(i => i.Id); rid++)
+						foreach(var r in rounds)
 						{
-							var r = rounds.FirstOrDefault(i => i.Id == rid);
-
-							if(r == null)
-								break;
+							//var r = rounds.FirstOrDefault(i => i.Id == rid);
+							//
+							//if(r == null)
+							//	break;
 							
 							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
 								
-							if(Mcv.LastConfirmedRound.Id + 1 != rid)
+							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
 							 	throw new SynchronizationException();
 
-							if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
+							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 							{
-								var p =	SyncTail[rid];
-								var c =	SyncTail[rid + Mcv.P];
+								var p =	SyncTail[r.Id];
+								var c =	SyncTail[r.Id + Mcv.P];
 
 								try
 								{
@@ -368,11 +368,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								{
 								}
 
-								if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
+								if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
 								{
 									//Commit(LastConfirmedRound);
 									
-									foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
+									foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
 									{
 										foreach(var v in i.Value)
 											ProcessIncoming(v, true);
@@ -389,7 +389,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								}
 							}
 
-							Mcv.Tail.RemoveAll(i => i.Id >= rid);
+							Mcv.Tail.RemoveAll(i => i.Id >= r.Id);
 							Mcv.Tail.Insert(0, r);
 
 // 								if(r.Id == 299)
@@ -402,9 +402,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(!r.Hash.SequenceEqual(h))
 							{
 								#if DEBUG
-								//	CompareBase(Mcv, "a:\\UOTMP\\Simulation-Sun.Fast\\");
+								///	//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+								///	lock(Mcv.Lock)
+								///		Mcv.Dump();
+								///	
+								///	lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+								///		All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+								///
 								#endif
-								
+																
 								throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
 							}
 
@@ -417,7 +423,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							Mcv.Commit(r);
 							
 							foreach(var i in SyncTail.Keys)
-								if(i <= rid)
+								if(i <= r.Id)
 									SyncTail.Remove(i);
 						}
 
@@ -1210,16 +1216,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public static void CompareBases(string destination)
 	{
-		foreach(var i in All.OfType<McvTcpPeering>().DistinctBy(i => i.Net.Address))
+		var mcvs = All.OfType<McvTcpPeering>().GroupBy(i => i.Net.Address);
+
+		foreach(var i in mcvs)
 		{
-			var d = Path.Join(destination, "CompareBases - " + i.GetType().Name);
+			var d = Path.Join(destination, "CompareBases - " + i.Key);
 
-
-			CompareBase(i.Mcv, d);
+			CompareBase(i.Where(i => i.Mcv != null).ToArray(), d);
 		}
 	}
 
-	public static void CompareBase(Mcv mcv, string destibation)
+	public static void CompareBase(McvTcpPeering[] all, string destibation)
 	{
 		//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 		Directory.CreateDirectory(destibation);
@@ -1227,8 +1234,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
 		jo.WriteIndented = true;
 
-		var all = All.Where(i => i.Mcv != null).OfType<McvTcpPeering>().Where(i => i.Net.Address == mcv.Net.Address);
-		
 		foreach(var i in all)
 			Monitor.Enter(i.Mcv.Lock);
 
@@ -1303,7 +1308,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			}
 		}
 
-		foreach(var t in mcv.Tables)
+		foreach(var t in all[0].Mcv.Tables)
 			compare(t.Id);
 
 		foreach(var i in all)
