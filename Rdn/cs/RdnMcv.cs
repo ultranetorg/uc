@@ -42,7 +42,7 @@ public class RdnMcv : Mcv
 	protected override void CreateTables(string databasepath)
 	{
 		var dbo	= new DbOptions().SetCreateIfMissing(true)
-								.SetCreateMissingColumnFamilies(true);
+								 .SetCreateMissingColumnFamilies(true);
 
 		var cfs = new ColumnFamilies();
 		

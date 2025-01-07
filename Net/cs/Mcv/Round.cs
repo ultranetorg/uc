@@ -444,8 +444,9 @@ public abstract class Round : IBinarySerializable
 				//	ECRewards[g] = t.ECFee + t.ECReward;
 			}
 
-			//s.STBalance -= t.STReward;
-			s.ECBalanceSubtract(ConsensusTime, t.ECFee);
+			if(!trying)
+				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
+			
 			s.LastTransactionNid++;
 					
 			//if(Mcv.Settings.Chain != null)

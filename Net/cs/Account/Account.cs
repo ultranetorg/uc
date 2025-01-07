@@ -107,14 +107,14 @@ public class Account : IBinarySerializable
 
 	public List<ExecutionReservation> ECBalanceDelta(Time expiration, long x)
 	{
-		int c = 0;
+		int fulls = 0;
 		long a = 0;
 
 		foreach(var i in ECBalance?.Where(i => i.Expiration >= expiration) ?? [])
 		{
 			if(a + i.Amount <= x)
 			{
-				c++;
+				fulls++;
 				a += i.Amount;
 			}
 			else
@@ -123,11 +123,11 @@ public class Account : IBinarySerializable
 			}
 		}
 
-		var d = ECBalance.GetRange(0, c).ToList();
+		var d = ECBalance.GetRange(0, fulls).ToList();
 
 		if(x - a > 0)
 		{	
-			d.Add(new (ECBalance[c].Expiration, x - a));
+			d.Add(new (ECBalance[fulls].Expiration, x - a));
 		}
 
 		return d;

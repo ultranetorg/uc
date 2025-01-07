@@ -34,7 +34,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 														NextNid				= Transaction.Nid,
 														BYCost				= a.BYBalance - b.BYBalance,
 														ECCost				= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.ECSpent};
-			}				
+			}
 			else
 				throw new EntityException(EntityError.ExcutionFailed);
 		}
