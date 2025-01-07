@@ -2,11 +2,34 @@
 
 Common component library for Ultranet web projects.
 
+## Ho to develop
+
+Run the next command:
+
+```bash
+yarn dev
+```
+
 ## How to use
 
-yarn link
+Go to Web.UI folder and run:
 
+```bash
+yarn link
+yarn build-watch
+```
+
+Then go to your application folder and run:
+
+```bash
 yarn link 'web.ui'
+```
+
+After that you will be able to import Web.UI components:
+
+```ts
+import { CircleButton } from "web.ui"
+```
 
 ## Links
 
