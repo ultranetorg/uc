@@ -78,6 +78,26 @@ public class ResourceDownloadApc : RdnApc
 	}
 }
 
+public class CancelResourceDownloadApc : RdnApc
+{
+	public Urr	Release { get; set; }
+
+	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(sun.ResourceHub.Lock)
+		{
+			var lrs = sun.ResourceHub.Find(Release);
+
+			if(lrs.Activity is FileDownload f)
+				f.Stop();
+			else if(lrs.Activity is DirectoryDownload d)
+				d.Stop();
+		}
+
+		return null;
+	}
+}
+
 public class LocalReleaseBuildApc : RdnApc
 {
 	public IEnumerable<string>		Sources { get; set; }

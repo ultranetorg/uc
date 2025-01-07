@@ -3,7 +3,7 @@ namespace Uccs.Fair;
 public enum PageType
 {
 	None,
-	Content,
+	Static,
 	Product
 }
 
@@ -55,7 +55,7 @@ public class PageContent : IBinarySerializable
 		Type		= (PageType)reader.ReadByte();
 		Data		= Type	switch
 							{
-								PageType.Content =>	reader.ReadUtf8(),
+								PageType.Static =>	reader.ReadUtf8(),
 								PageType.Product => reader.Read<ProductData>(),
 								_ => throw new IntegrityException()
 							};
@@ -67,7 +67,7 @@ public class PageContent : IBinarySerializable
 		
 		switch(Type)
 		{
-			case PageType.Content	: writer.WriteUtf8(Plain); break;
+			case PageType.Static	: writer.WriteUtf8(Plain); break;
 			case PageType.Product	: writer.Write(Product); break;
 			default					: throw new IntegrityException();
 		};
@@ -102,7 +102,7 @@ public class ProductData : IBinarySerializable
 	}
 }
 
-public class Page
+public class Page : IBinarySerializable
 {
 	public EntityId			Id { get; set; }
 	public EntityId			Site { get; set; }
@@ -112,4 +112,27 @@ public class Page
 	public EntityId[]		Pages { get; set; }
 	public EntityId[]		Comments { get; set; }
 
+	public void Read(BinaryReader reader)
+	{
+		Id			= reader.Read<EntityId>();
+		Site		= reader.Read<EntityId>();
+		Fields		= (PageField)reader.ReadByte();
+		
+		if(Fields.HasFlag(PageField.Permissions))	Permissions	= reader.Read<PagePermissions>();
+		if(Fields.HasFlag(PageField.Content))		Content		= reader.Read<PageContent>();
+		if(Fields.HasFlag(PageField.Pages))			Pages		= reader.ReadArray<EntityId>();
+		if(Fields.HasFlag(PageField.Comments))		Comments	= reader.ReadArray<EntityId>();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(Site);
+		writer.Write((byte)Fields);
+
+		if(Fields.HasFlag(PageField.Permissions))	writer.Write(Permissions);
+		if(Fields.HasFlag(PageField.Content))		writer.Write(Content);
+		if(Fields.HasFlag(PageField.Pages))			writer.Write(Pages);
+		if(Fields.HasFlag(PageField.Comments))		writer.Write(Comments);
+	}
 }

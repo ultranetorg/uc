@@ -189,10 +189,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			///if(_Main == null || base.Entries != null)
 			///{
 			///
-				var entities = Entries.OrderBy(i => i.BaseId);
+				var entities = Entries.OrderBy(i => i.BaseId).ToArray();
 
 				w.Write7BitEncodedInt(NextEid);
-				w.Write(Entries, i =>	{
+				w.Write(entities, i =>	{
 											i.WriteMain(w);
 										});
 
@@ -322,12 +322,12 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		public override void Save(WriteBatch batch)
 		{
-			var buckets = Buckets.OrderBy(i => i.Id);
+			var buckets = Buckets.OrderBy(i => i.Id).ToArray();
 
 			Hash = buckets.First().Hash;
 			MainLength = buckets.First().MainLength;
 
-			foreach(var i in Buckets.Skip(1))
+			foreach(var i in buckets.Skip(1))
 			{
 				Hash = Cryptography.Hash(Hash, i.Hash);
 				MainLength += i.MainLength;
@@ -338,7 +338,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			
 			w.Write(Hash);
 			w.Write7BitEncodedInt(MainLength);
-			w.Write(Buckets, i => w.Write7BitEncodedInt(i.Id));
+			w.Write(buckets, i => w.Write7BitEncodedInt(i.Id));
 
 			batch.Put(ToBytes(Id), s.ToArray(), Table.ClusterColumn);
 		}

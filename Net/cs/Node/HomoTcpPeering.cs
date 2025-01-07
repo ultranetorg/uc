@@ -291,7 +291,7 @@ public abstract class HomoTcpPeering : TcpPeering
 	{
 		rq.Peering	= this;
 
-		return peer.Send((PeerRequest)rq) as Rp;
+		return peer.Send((FuncPeerRequest)rq) as Rp;
 	}
 
 	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : PeerResponse
@@ -306,7 +306,7 @@ public abstract class HomoTcpPeering : TcpPeering
 		return p.Send(c);
 	}
 
-	public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
+	public void Tell(IPAddress ip, ProcPeerRequest requet, Flow workflow)
 	{
 		var p = GetPeer(ip);
 

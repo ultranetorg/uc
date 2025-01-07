@@ -36,35 +36,14 @@ public class AuthorEntry : Author, ITableEntry
 
 	public void WriteMain(BinaryWriter writer)
 	{
-		writer.Write(Id);
-	
-		var f = AuthorFlag.None;
-
-		writer.Write((byte)f);
-		writer.Write7BitEncodedInt(SpaceReserved);
-		writer.Write7BitEncodedInt(SpaceUsed);
-		writer.Write(Owner);
-		writer.Write(Expiration);
-		//writer.Write7BitEncodedInt(NextProductId);
+		Write(writer);
 		writer.Write(Products);
-	}
-
-	public void Cleanup(Round lastInCommit)
-	{
 	}
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-
-		var f			= (AuthorFlag)reader.ReadByte();
-		SpaceReserved	= (short)reader.Read7BitEncodedInt();
-		SpaceUsed		= (short)reader.Read7BitEncodedInt();
-		Owner			= reader.Read<EntityId>();
-		Expiration		= reader.Read<Time>();
-		//NextProductId	= reader.Read7BitEncodedInt();
-		Products		= reader.ReadArray<EntityId>();
-
+		Read(reader);
+		Products = reader.ReadArray<EntityId>();
 	}
 
 	public void WriteMore(BinaryWriter w)
@@ -75,4 +54,7 @@ public class AuthorEntry : Author, ITableEntry
 	{
 	}
 
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 }

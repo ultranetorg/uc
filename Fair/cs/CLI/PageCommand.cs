@@ -50,46 +50,53 @@ public class PageCommand : FairCommand
 									 new ("pages", ""),
 									 new ("content", ""),
 									 new ("content/type", ""),
-									 new ("content/plain", ""),
+									 new ("content/text", ""),
 									 new ("content/path", ""),
 									 new ("content/product", ""),
 									 new ("content/sections", ""),
 									 new (SignerArg, "Address of account that owns the site")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Content plain={TEXT.Example}}} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Content file={FILEPATH.Example}}} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} site={EID.Example[1]} content={{type=Product product={EID.Examples[1]}}} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type={PageType.Static} plain=\"{TEXT.Example}\"}} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type={PageType.Static} file={FILEPATH.Example}}} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} site={EID.Example} content={{type={PageType.Product} product={EID.Examples[1]}}} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new PageCreation();
+								var o = new PageUpdation();
 
-								o.Site = GetEntityId("site"); 
+								o.Page = FirstPageId;
 
-	// 												if(Has("permissions"))
-	// 												{	
-	// 													o.Fields |= PageField.Permissions;
-	// 													o.Permissions = PagePermissions.Parse(GetString("permissions")); 
-	// 												}
-	// 												
-	// 												if(One("content") is var c)
-	// 												{
-	// 													o.Field |= PageField.Content;
-	// 													o.Content = new (c.GetEnum<PageType>("type"),
-	// 																	 c.GetEnum<PageType>("type") switch
-	// 																								 {
-	// 																								 	PageType.Content => c.Has("plain") ? c.Get<string>("plain") : File.ReadAllText(c.Get<string>("file")),
-	// 																								 	PageType.Product => new ProductData(EntityId.Parse(c.Get<string>("product")), c.Get<string>("sections").Split(',')),
-	// 																								 	_ => throw new SyntaxException("Unknown content type")
-	// 																								 });
-	// 												}
+								if(Has("permissions"))
+								{	
+									o.Flags |= PageField.Permissions;
+									o.Permissions = PagePermissions.Parse(GetString("permissions")); 
+								}
+								
+								if(One("content") is var c)
+								{
+									o.Flags |= PageField.Content;
+									o.Content = new (c.GetEnum<PageType>("type"),
+													 c.GetEnum<PageType>("type") switch
+																				 {
+																					PageType.Static => c.Get<string>("text", null) ?? File.ReadAllText(c.Get<string>("path")),
+																					PageType.Product => new ProductData(EntityId.Parse(c.Get<string>("product")), c.Get<string>("sections").Split(',')),
+																				 	_ => throw new SyntaxException("Unknown content type")
+																				 });
+								}
+
+								if(Has("pages"))
+								{	
+									o.Flags |= PageField.Pages;
+									o.Pages = GetString("pages").Split(',').Select(i => EntityId.Parse(i)).ToArray(); 
+								}
+
 								return o;
 							};
 		return a;
 	}
 
-	public CommandAction Destroy()
+	public CommandAction Delete()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
@@ -144,7 +151,7 @@ public class PageCommand : FairCommand
 				
 								var rp = Rdc(new SitePagesRequest(FirstPageId));
 
-								Dump(rp.Pages.Select(i => Rdc(new PageRequest(i)).Page), ["Id", "Site", "Content", "Pages", "Comments"], [i => i.Id, i => i.Site, i => i.Content.Type, i => i.Pages?.Length, i => i.Comments?.Length]);
+								Dump(rp.Pages.Select(i => Rdc(new PageRequest(i)).Page), ["Id", "Site", "Content", "Pages", "Comments"], [i => i.Id, i => i.Site, i => i.Content?.Type, i => i.Pages?.Length, i => i.Comments?.Length]);
 					
 								return rp.Pages;
 							};

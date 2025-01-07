@@ -26,6 +26,7 @@ public class SeedSeeker
 		public HubStatus			Status = HubStatus.Estimating;
 		SeedSeeker					Seeker;
 		Urr							Address;
+		Flow						Flow;
 
 		public Hub(SeedSeeker seeker, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
 		{
@@ -33,32 +34,45 @@ public class SeedSeeker
 			Address = hash;
 			Member = member;
 			IPs = ips.ToArray();
+			Flow = Seeker.Flow.CreateNested(ToString());
 
-			Task.Run(() =>	{
-								while(Seeker.Flow.Active)
-								{
-									try
-									{
-										var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Seeker.Flow);
+			var t = Seeker.Node.CreateThread(() =>	{
+														while(Flow.Active)
+														{
+															try
+															{
+																var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Flow);
 
-										lock(Seeker.Lock)
-										{
-											var seeds = lr.Seeders.Where(i => !Seeker.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
+																lock(Seeker.Lock)
+																{
+																	var seeds = lr.Seeders.Where(i => !Seeker.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 
-											Seeker.Seeds.AddRange(seeds);
-										}
-									}
-									catch(Exception ex) when (ex is NodeException || ex is EntityException)
-									{
-									}
-									catch(OperationCanceledException)
-									{
-									}
+																	Seeker.Seeds.AddRange(seeds);
+																}
+															}
+															catch(Exception ex) when (ex is NodeException || ex is EntityException)
+															{
+															}
+															catch(OperationCanceledException)
+															{
+															}
 
-									WaitHandle.WaitAny([Seeker.Flow.Cancellation.WaitHandle], seeker.Node.Settings.Seed.CollectRefreshInterval);
-								}
-							}, 
-							Seeker.Flow.Cancellation);
+															WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], seeker.Node.Settings.Seed.CollectRefreshInterval);
+														}
+													});
+
+			t.Name = ToString();
+			t.Start();
+		}
+
+		public void Stop()
+		{
+			Flow.Abort();
+		}
+
+		public override string ToString()
+		{
+			return $"{GetType().Name}, Address={Address}, Member={Member}, {IPs[0]}";
 		}
 	}
 
@@ -76,43 +90,52 @@ public class SeedSeeker
 	public SeedSeeker(RdnNode sun, Urr address, Flow flow)
 	{
 		Node = sun;
-		Flow = flow.CreateNested($"SeedSeeker {address}");
+		Flow = flow.CreateNested($"{GetType().Name}, {address}");
 		Hub hlast = null;
 
- 			HubingThread = Node.CreateThread(() =>	{ 
+ 		HubingThread = Node.CreateThread(() =>	{ 
 													while(Flow.Active)
 													{
-														if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
-														{
-															var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
-
-															lock(Lock)
-																Members = r.Members.ToArray();
-												
-															MembersRefreshed = DateTime.UtcNow;
-														}
+														var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
 	
 														lock(Lock)
 														{
+															Members = r.Members.ToArray();
+
 															var nearest = Members.OrderByHash(i => i.Address.Bytes, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
 		
-															for(int i = 0; i < ResourceHub.MembersPerDeclaration - Hubs.Count(i => i.Status == HubStatus.Estimating); i++) /// NOT REALLY NESSESSARY
+															do 
 															{
-																var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
-													
-											 					if(h != null)
+																var m = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
+														
+												 				if(m != null)
 																{
-																	hlast = new Hub(this, address, h.Address, h.SeedHubRdcIPs);
+																	hlast = new Hub(this, address, m.Address, m.SeedHubRdcIPs);
 																	Hubs.Add(hlast);
 																}
 																else
 																	break;
 															}
+															while(Flow.Active);
+
+															do 
+															{
+																var h = Hubs.FirstOrDefault(x => !nearest.Any(y => y.Address == x.Member));
+	
+																if(h != null)
+																{
+																	h.Stop();
+																	Hubs.Remove(h);
+																}
+																else
+																	break;
+															}
+															while(Flow.Active);
 														}
 
-														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
+														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 60 * 1000);
 													}
- 													});
+ 												});
 		HubingThread.Start();
 
 		for(int i=0; i<8; i++)
@@ -135,9 +158,7 @@ public class SeedSeeker
 											if(s != null)
 											{
 												if(s.Peer == null)
-												{
 													s.Peer = Node.Peering.GetPeer(s.IP);
-												}
 		
 												try
 												{
@@ -171,6 +192,11 @@ public class SeedSeeker
 
 	public void Stop()
 	{
+// 		foreach(var i in Hubs)
+// 		{
+// 			i.Stop();
+// 		}
+
 		Flow.Abort();
 		HubingThread.Join();
 	}

@@ -2,18 +2,18 @@
 
 public class TransactionsAddress : IBinarySerializable
 {
-	public AccountAddress	Account { get; set; }
+	public AccountAddress	Signer { get; set; }
 	public int				Nid { get; set; }
 
 	public void Read(BinaryReader r)
 	{
-		Account = r.ReadAccount();
+		Signer = r.ReadAccount();
 		Nid = r.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter w)
 	{
-		w.Write(Account); 
+		w.Write(Signer); 
 		w.Write7BitEncodedInt(Nid);
 	}
 }
@@ -30,19 +30,17 @@ public class TransactionStatusRequest : McvPpc<TransactionStatusResponse>
 			{
 				RequireBase();
 	
-				return new TransactionStatusResponse
-						{
-							LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
-							Transactions = Transactions.Select(t => new{Q = t,
-																		T = Peering.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
-																			?? 
-																			Mcv.FindLastTailTransaction(i => i.Signer == t.Account && i.Nid == t.Nid)})
-														.Select(i => new TransactionStatusResponse.Item{Account	= i.Q.Account,
-																										Id		= i.T == null ? default : i.T.Id,
-																										Nid		= i.Q.Nid,
-																										Status	= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})
-														.ToArray()
-						};
+				return new TransactionStatusResponse {	LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
+														Transactions = Transactions.Select(t => new{Q = t,
+																									T = Peering.IncomingTransactions.Find(i => i.Signer == t.Signer && i.Nid == t.Nid)
+																										?? 
+																										Mcv.FindRecentTransaction(i => i.Signer == t.Signer && i.Nid == t.Nid)})
+																					.Select(i => new TransactionStatusResponse.Item{Account	= i.Q.Signer,
+																																	Id		= i.T?.Id ?? default,
+																																	Nid		= i.Q.Nid,
+																																	Status	= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})
+																					.ToArray()
+													};
 			}
 		}
 	}

@@ -14,7 +14,7 @@ public abstract class Round : IBinarySerializable
 	public long											PerVoteOperationsLimit			=> Mcv.Net.ExecutionCyclesPerRoundMaximum / Members.Count;
 	public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
-	public bool											IsLastInCommit => (Id + 1) % Net.CommitLength == 0; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
+	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
 
 	public int											Try = 0;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
@@ -66,6 +66,10 @@ public abstract class Round : IBinarySerializable
 	public virtual void									ConfirmForeign(){}
 
 	public int											MinimumForConsensus => VotesMinimumOf(Voters.Count());
+
+	public byte[]												__SummaryBaseHash;
+	public byte[]												__SummaryBaseState;
+	public Vote[]												__SummaruVotesOfTry;
 
 	public bool ConsensusReached
 	{
@@ -205,6 +209,7 @@ public abstract class Round : IBinarySerializable
 		var voters = Id < Mcv.JoinToVote ? [] : Voters;
 		var min = VotesMinimumOf(voters.Count());
 		var all = VotesOfTry.ToArray();
+		__SummaruVotesOfTry = all.ToArray();
 		var s = Id < Mcv.JoinToVote ? [] : Selected.ToArray();
 					
 		ConsensusExecutionFee	= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
@@ -564,40 +569,33 @@ public abstract class Round : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Hash);
+		writer.Write(NextBandwidthAllocations, writer.Write7BitEncodedInt64);
+		writer.Write(Funds);
+		
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusExecutionFee);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
-		
-		///writer.Write(RentPerBytePerDay);
-		///writer.Write7BitEncodedInt64(PreviousDayBaseSize);
-		///writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
-		writer.Write(NextBandwidthAllocations, writer.Write7BitEncodedInt64);
-		
-		//writer.Write(Emission);
-		writer.Write(Funds);
+				
 		#if ETHEREUM
+		writer.Write(Emission);
 		writer.Write(Emissions, i => i.WriteBaseState(writer));
 		#endif
 	}
 
 	public virtual void ReadBaseState(BinaryReader reader)
 	{
-		Id									= reader.Read7BitEncodedInt();
-		Hash								= reader.ReadHash();
-		ConsensusTime						= reader.Read<Time>();
-		ConsensusExecutionFee				= reader.Read7BitEncodedInt64();
-		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
-		
-		//RentPerBytePerDay		= reader.Read<Money>();
-		//PreviousDayBaseSize	= reader.Read7BitEncodedInt64();
-		//Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
-		NextBandwidthAllocations			= reader.ReadArray(reader.Read7BitEncodedInt64);
-		
-		//Emission							= reader.Read<Money>();
-		Funds								= reader.ReadList<AccountAddress>();
+		Id							= reader.Read7BitEncodedInt();
+		Hash						= reader.ReadHash();
+		NextBandwidthAllocations	= reader.ReadArray(reader.Read7BitEncodedInt64);
+		Funds						= reader.ReadList<AccountAddress>();
+
+		ConsensusTime				= reader.Read<Time>();
+		ConsensusExecutionFee		= reader.Read7BitEncodedInt64();
+		ConsensusOverloadRound		= reader.Read7BitEncodedInt();
 
 		#if ETHEREUM
-		Emissions							= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
+		//Emission					= reader.Read<Money>();
+		Emissions					= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
 		#endif
 	}
 

@@ -3,7 +3,6 @@
 public class DeclareReleaseRequest : RdnPpc<DeclareReleaseResponse>//, IBinarySerializable
 {
 	public ResourceDeclaration[]	Resources { get; set; }
-	public override bool			WaitResponse => true;
 
 	public override PeerResponse Execute()
 	{

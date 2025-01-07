@@ -29,7 +29,7 @@ public enum NtnStatus
 	BlockSent
 }
 
-public class Domain// : IBinarySerializable
+public class Domain : IBinarySerializable
 {
 	//public const int			ExclusiveLengthMax = 12;
 	public const int			NameLengthMin = 1;
@@ -137,5 +137,114 @@ public class Domain// : IBinarySerializable
 		}
 
 		return false;
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+
+		var f = DomainFlag.None;
+		
+		if(LastWinner != null)	f |= DomainFlag.Auction;
+		if(Owner != null)		f |= DomainFlag.Owned;
+		if(ComOwner != null)	f |= DomainFlag.ComOwned;
+		if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
+		if(NetOwner != null)	f |= DomainFlag.NetOwned;
+		if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
+
+		writer.Write((byte)f);
+		writer.WriteUtf8(Address);
+		writer.Write7BitEncodedInt(NextResourceId);
+		writer.Write7BitEncodedInt(SpaceReserved);
+		writer.Write7BitEncodedInt(SpaceUsed);
+
+		if(IsWeb(Address))
+		{
+			if(f.HasFlag(DomainFlag.Auction))
+			{
+				writer.Write(FirstBidTime);
+				writer.Write(LastWinner);
+				writer.Write(LastBidTime);
+				writer.Write7BitEncodedInt64(LastBid);
+			}
+
+			if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
+			if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
+			if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
+		}
+
+		if(f.HasFlag(DomainFlag.Owned))
+		{
+			writer.Write(Owner);
+			writer.Write(Expiration);
+		}
+
+		if(IsChild(Address))
+		{
+			writer.Write((byte)ParentPolicy);
+		}
+
+// 			writer.Write(Resources, i =>{
+// 											writer.Write7BitEncodedInt(i.Id.Ri);
+// 											writer.WriteUtf8(i.Address.Resource);
+// 											i.WriteMain(writer);
+// 										});
+
+		if(f.HasFlag(DomainFlag.ChildNet))
+		{
+			writer.Write(NtnChildNet);
+			writer.Write(NtnSelfHash);
+		}
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Id				= reader.Read<EntityId>();
+		var f			= (DomainFlag)reader.ReadByte();
+		Address			= reader.ReadUtf8();
+		NextResourceId	= reader.Read7BitEncodedInt();
+		SpaceReserved	= (short)reader.Read7BitEncodedInt();
+		SpaceUsed		= (short)reader.Read7BitEncodedInt();
+
+		if(IsWeb(Address))
+		{
+			if(f.HasFlag(DomainFlag.Auction))
+			{
+				FirstBidTime	= reader.Read<Time>();
+				LastWinner		= reader.Read<EntityId>();
+				LastBidTime		= reader.Read<Time>();
+				LastBid			= reader.Read7BitEncodedInt64();
+			}
+
+			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();
+			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<EntityId>();
+			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<EntityId>();
+		}
+
+		if(f.HasFlag(DomainFlag.Owned))
+		{
+			Owner		= reader.Read<EntityId>();
+			Expiration	= reader.Read<Time>();
+		}
+
+		if(IsChild(Address))
+		{
+			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
+		}
+
+// 			Resources = reader.Read(() =>	{ 
+// 												var a = new Resource();
+// 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
+// 												a.Address = new Ura{Domain = Address, 
+// 																	Resource = reader.ReadUtf8()};
+// 												a.ReadMain(reader);
+// 												return a;
+// 											}).ToArray();
+
+		if(f.HasFlag(DomainFlag.ChildNet))
+		{
+			NtnChildNet	= reader.Read<NtnState>();
+			NtnSelfHash = reader.ReadHash();
+		}
 	}
 }

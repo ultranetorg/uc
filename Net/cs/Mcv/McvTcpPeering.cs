@@ -8,7 +8,7 @@ namespace Uccs.Net;
 public enum McvPpcClass : byte
 {
 	None = 0, 
-	SharePeers = PtpCallClass._Last + 1, 
+	SharePeers = PpcClass._Last + 1, 
 	Vote, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 	Stamp, TableStamp, DownloadTable, DownloadRounds,
 	Cost,
@@ -42,6 +42,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	Thread									TransactingThread;
 	public List<Transaction>				IncomingTransactions = new();
 	public List<Transaction>				OutgoingTransactions = new();
+	public List<Transaction>				ConfirmedTransactions = new();
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
@@ -55,29 +56,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	{
 		Vault = vault;
 
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
-		{	
-			if(Enum.TryParse<McvPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
-																		var r = x.Invoke(null) as PeerRequest;
-																		r.Node = node;
-																		return r;
-																	};
-			}
-		}
-
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-		{	
-			if(Enum.TryParse<McvPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
-				Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
-			}
-		}
+		Register(typeof(McvPpcClass), node);
 	}
 
 	//public override string ToString()
@@ -97,7 +76,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		//if(t == typeof(PeerResponse) && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
 		//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
 		if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
- 			if(t == typeof(Vote))			return new Vote(Mcv);
+ 		if(t == typeof(Vote))			return new Vote(Mcv);
 
 // 			if(t == typeof(PeerRequest))		
 // 			{
@@ -360,22 +339,22 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						var rounds = rp.Read(Mcv);
 													
-						for(int rid = from; rounds.Any() && rid <= rounds.Max(i => i.Id); rid++)
+						foreach(var r in rounds)
 						{
-							var r = rounds.FirstOrDefault(i => i.Id == rid);
-
-							if(r == null)
-								break;
+							//var r = rounds.FirstOrDefault(i => i.Id == rid);
+							//
+							//if(r == null)
+							//	break;
 							
 							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
 								
-							if(Mcv.LastConfirmedRound.Id + 1 != rid)
+							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
 							 	throw new SynchronizationException();
 
-							if(Enumerable.Range(rid, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
+							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 							{
-								var p =	SyncTail[rid];
-								var c =	SyncTail[rid + Mcv.P];
+								var p =	SyncTail[r.Id];
+								var c =	SyncTail[r.Id + Mcv.P];
 
 								try
 								{
@@ -389,11 +368,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								{
 								}
 
-								if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
+								if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
 								{
 									//Commit(LastConfirmedRound);
 									
-									foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
+									foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
 									{
 										foreach(var v in i.Value)
 											ProcessIncoming(v, true);
@@ -410,7 +389,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								}
 							}
 
-							Mcv.Tail.RemoveAll(i => i.Id >= rid);
+							Mcv.Tail.RemoveAll(i => i.Id >= r.Id);
 							Mcv.Tail.Insert(0, r);
 
 // 								if(r.Id == 299)
@@ -423,9 +402,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(!r.Hash.SequenceEqual(h))
 							{
 								#if DEBUG
-								//	CompareBase(Mcv, "a:\\UOTMP\\Simulation-Sun.Fast\\");
+								///	//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+								///	lock(Mcv.Lock)
+								///		Mcv.Dump();
+								///	
+								///	lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+								///		All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+								///
 								#endif
-								
+																
 								throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
 							}
 
@@ -438,7 +423,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							Mcv.Commit(r);
 							
 							foreach(var i in SyncTail.Keys)
-								if(i <= rid)
+								if(i <= r.Id)
 									SyncTail.Remove(i);
 						}
 
@@ -632,7 +617,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					t.Flow	 = Flow;
 					t.Net	 = Net;
 					t.Signer = g;
- 					t.__ExpectedStatus = TransactionStatus.Confirmed;
+ 					t.__ExpectedResult = TransactionStatus.Confirmed;
 			
 					t.AddOperation(Mcv.CreateCandidacyDeclaration());
 
@@ -946,7 +931,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						#if IMMISSION
 							t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 						#endif
-						//t.STFee		 = at.STCost;
 						t.ECFee		 = at.ECCost;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
@@ -961,17 +945,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					}
 					catch(EntityException ex)
 					{
-						//if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
-						//{
+						if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
+						{
 							lock(Lock)
 							{
 								t.Status = TransactionStatus.FailedOrNotFound;
 								OutgoingTransactions.Remove(t);
 							}
-
-							//t.Flow.Log?.Report(this, "Allocation failed", $"{t} -> {m}, {t.Rdi}");
-
-						//} 
+						} 
 						//else
 						//	Thread.Sleep(1000);
 
@@ -1005,7 +986,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							{
 								//t.Flow.Log?.Report(this, $"{t.Status} by Member={m}");
 
-								if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+								if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
 								{
 									t.Status = TransactionStatus.FailedOrNotFound;
 									OutgoingTransactions.Remove(t);
@@ -1032,7 +1013,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
+						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Signer = i.Signer, Nid = i.Nid}).ToArray()});
 					}
 					catch(NodeException)
 					{
@@ -1053,14 +1034,16 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 								if(t.Status == TransactionStatus.FailedOrNotFound)
 								{
-									if(t.__ExpectedStatus == TransactionStatus.Confirmed)
+									if(t.__ExpectedResult == TransactionStatus.Confirmed)
 										t.Status = TransactionStatus.None;
 									else
+									{	
 										OutgoingTransactions.Remove(t);
+									}
 								}
 								else if(t.Status == TransactionStatus.Confirmed)
 								{
-									if(t.__ExpectedStatus == TransactionStatus.FailedOrNotFound)
+									if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
 										Debugger.Break();
 									else
 									{
@@ -1117,7 +1100,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			t.Net = Net;
 			t.Signer = signer;
 			t.Flow = workflow;
- 				t.__ExpectedStatus = await;
+ 				t.__ExpectedResult = await;
 		
 			foreach(var i in operations.Take(Net.ExecutionCyclesPerTransactionLimit))
 			{
@@ -1160,15 +1143,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
 	{
-		return Call((Func<PeerRequest>)call, workflow, exclusions) as R;
+		return Call((Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	}
 
-	public PeerResponse Call(Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public PeerResponse Call(Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
 		var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
 		Peer p;
-			
+
 		while(workflow.Active)
 		{
 			Thread.Sleep(1);
@@ -1203,10 +1186,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 				return p.Send(c);
 			}
- 				catch(NodeException)
- 				{
+			catch(NodeException)
+			{
 				p.LastFailure[Role.Base] = DateTime.UtcNow;
- 				}
+			}
 			catch(ContinueException)
 			{
 			}
@@ -1221,7 +1204,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		{
 			try
 			{
-				var v = new VoteRequest {Vote = vote} as PeerRequest;
+				var v = new VoteRequest {Vote = vote};
 				v.Peering = this;
 				i.Post(v);
 			}
@@ -1233,16 +1216,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public static void CompareBases(string destination)
 	{
-		foreach(var i in All.OfType<McvTcpPeering>().DistinctBy(i => i.Net.Address))
+		var mcvs = All.OfType<McvTcpPeering>().GroupBy(i => i.Net.Address);
+
+		foreach(var i in mcvs)
 		{
-			var d = Path.Join(destination, "CompareBases - " + i.GetType().Name);
+			var d = Path.Join(destination, "CompareBases - " + i.Key);
 
-
-			CompareBase(i.Mcv, d);
+			CompareBase(i.Where(i => i.Mcv != null).ToArray(), d);
 		}
 	}
 
-	public static void CompareBase(Mcv mcv, string destibation)
+	public static void CompareBase(McvTcpPeering[] all, string destibation)
 	{
 		//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 		Directory.CreateDirectory(destibation);
@@ -1250,8 +1234,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
 		jo.WriteIndented = true;
 
-		var all = All.Where(i => i.Mcv != null).OfType<McvTcpPeering>().Where(i => i.Net.Address == mcv.Net.Address);
-		
 		foreach(var i in all)
 			Monitor.Enter(i.Mcv.Lock);
 
@@ -1326,7 +1308,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			}
 		}
 
-		foreach(var t in mcv.Tables)
+		foreach(var t in all[0].Mcv.Tables)
 			compare(t.Id);
 
 		foreach(var i in all)

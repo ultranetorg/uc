@@ -20,9 +20,9 @@ public class RdnTypeResolver : ApiTypeResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
-        if(ti.Type == typeof(PeerRequest))
+        if(ti.Type == typeof(FuncPeerRequest))
         {
-			foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -30,7 +30,7 @@ public class RdnTypeResolver : ApiTypeResolver
 
         if(ti.Type == typeof(PeerResponse))
         {
-			foreach(var i in typeof(RdnPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -38,7 +38,7 @@ public class RdnTypeResolver : ApiTypeResolver
 
         if(ti.Type == typeof(NetException))
         {
-			foreach(var i in typeof(ResourceException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}

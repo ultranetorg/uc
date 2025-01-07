@@ -21,41 +21,19 @@ public class RdnTcpPeering : McvTcpPeering
 {
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Vault vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsGenericType))
- 			{	
- 				if(Enum.TryParse<RdnPpcClass>(i.Name.Remove(i.Name.IndexOf("Request")), out var c))
- 				{
- 					Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerRequest)][(byte)c] = () =>	{
-																		var r = x.Invoke(null) as PeerRequest;
-																		r.Node = node;
-																		return r;
-																	};
- 				}
- 			}
- 	 
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
- 			{	
- 				if(Enum.TryParse<RdnPpcClass>(i.Name.Remove(i.Name.IndexOf("Response")), out var c))
- 				{
- 					Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 					Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
- 				}
- 			}
+		Register(typeof(RdnPpcClass), node);
  	 
 		Contructors[typeof(Urr)] = [];
 
- 			foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr))))
- 			{	
- 				if(Enum.TryParse<UrrScheme>(i.Name, out var c))
- 				{
- 					Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 					Contructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
- 				}
+ 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr))))
+ 		{	
+ 			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
+ 			{
+ 				Codes[i] = (byte)c;
+			var x = i.GetConstructor([]);
+ 				Contructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
  			}
+ 		}
 
 		Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
 		Contructors[typeof(NetException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);

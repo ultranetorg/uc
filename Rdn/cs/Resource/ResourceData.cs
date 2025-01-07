@@ -120,18 +120,18 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	public DataType		Type;
 	public byte[]		Value;
 	
- 		public string Hex
+ 	public string Hex
+ 	{
+ 		get
  		{
- 			get
- 			{
- 				var s = new MemoryStream();
- 				var w = new BinaryWriter(s);
+ 			var s = new MemoryStream();
+ 			var w = new BinaryWriter(s);
  			
-				Write(w);
+			Write(w);
  		
- 				return s.ToArray().ToHex();
- 			}
+ 			return s.ToArray().ToHex();
  		}
+ 	}
 // 
 // 		public object Interpretation
 // 		{

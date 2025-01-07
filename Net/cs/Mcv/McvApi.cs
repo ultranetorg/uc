@@ -424,7 +424,7 @@ public class ApcTransaction
 		MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
 		Signer				= transaction.Signer;
 		Status				= transaction.Status;
-		__ExpectedStatus	= transaction.__ExpectedStatus;
+		__ExpectedStatus	= transaction.__ExpectedResult;
 	}
 }
 
@@ -448,7 +448,7 @@ public class OutgoingTransactionsApc : McvApc
 
 public class PeerRequestApc : McvApc
 {
-	public PeerRequest Request { get; set; }
+	public FuncPeerRequest Request { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{

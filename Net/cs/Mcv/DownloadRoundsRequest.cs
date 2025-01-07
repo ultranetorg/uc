@@ -20,7 +20,7 @@ public class DownloadRoundsRequest : McvPpc<DownloadRoundsResponse>
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 		
-			w.Write(Enumerable.Range(From, To - From + 1).Select(i => Mcv.FindRound(i)).Where(i => i != null && i.Confirmed), i => i.Write(w));
+			w.Write(Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed), i => i.Write(w));
 		
 			return new DownloadRoundsResponse {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
 												LastConfirmedRound	= Mcv.LastConfirmedRound.Id,

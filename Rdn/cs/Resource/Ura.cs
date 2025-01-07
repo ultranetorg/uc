@@ -154,14 +154,24 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public void Write(BinaryWriter w)
 	{
+		w.Write((byte)(Net != null ? 0b1 : 0));
+		
+		if(Net != null)
+			w.WriteUtf8(Net);
+		
 		w.WriteUtf8(Domain);
 		w.WriteUtf8(Resource);
 	}
 
 	public void Read(BinaryReader r)
 	{
-		Domain	 = r.ReadUtf8();
-		Resource = r.ReadUtf8();
+		var b = r.ReadByte();
+		
+		if((b & 0b1) != 0) 
+			Net = r.ReadUtf8();
+		
+		Domain		= r.ReadUtf8();
+		Resource	= r.ReadUtf8();
 	}
 }
 

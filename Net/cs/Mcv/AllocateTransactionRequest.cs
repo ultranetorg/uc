@@ -19,8 +19,8 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 			if(!Transaction.EmissionOnly && a == null)
 				throw new EntityException(EntityError.NotFound);
 #endif
-			Transaction.Nid		= a?.LastTransactionNid + 1 ?? 0;
-			Transaction.ECFee	= a?.GetECBalance(Mcv.LastConfirmedRound.ConsensusTime) ?? 0;
+			Transaction.Nid		= a.LastTransactionNid + 1;
+			Transaction.ECFee	= a.GetECBalance(Mcv.LastConfirmedRound.ConsensusTime);
 
 			var r = Mcv.TryExecute(Transaction);
 			

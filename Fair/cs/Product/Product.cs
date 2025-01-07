@@ -64,7 +64,7 @@ public class ProductField : IBinarySerializable
 	}
 }
 
-public class Product// : IBinarySerializable
+public class Product : IBinarySerializable
 {
 	public EntityId				Id { get; set; }
 	public EntityId				AuthorId { get; set; }
@@ -78,5 +78,23 @@ public class Product// : IBinarySerializable
 	public override string ToString()
 	{
 		return $"{Id}, [{Flags}], Fields={Fields}";
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(AuthorId);
+		writer.Write((byte)Flags);
+		writer.Write(Updated);
+		writer.Write(Fields);
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Id			= reader.Read<EntityId>();
+		AuthorId	= reader.Read<EntityId>();
+		Flags		= (ProductFlags)reader.ReadByte();
+		Updated		= reader.Read<Time>();
+		Fields		= reader.ReadArray<ProductField>();
 	}
 }

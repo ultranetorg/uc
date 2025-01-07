@@ -78,34 +78,6 @@ public class Resource// : IBinarySerializable
 		return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 	}
 
-	public void WriteMain(BinaryWriter writer)
-	{
-		writer.Write(Id);
-		writer.WriteUtf8(Address.Resource);
-		writer.Write((byte)Flags);
-		writer.Write(Updated);
-		
-		if(Flags.HasFlag(ResourceFlags.Data))
-			writer.Write(Data);
-	
-		writer.Write(Outbounds);
-		writer.Write(Inbounds);
-	}
-
-	public void ReadMain(BinaryReader reader)
-	{
-		Id		= reader.Read<ResourceId>();
-		Address = new Ura(null, reader.ReadUtf8());
-		Flags	= (ResourceFlags)reader.ReadByte();
-		Updated	= reader.Read<Time>();
-
-		if(Flags.HasFlag(ResourceFlags.Data))
-			Data = reader.Read<ResourceData>();
-
-		Outbounds	= reader.ReadArray<ResourceLink>();
-		Inbounds	= reader.ReadArray<ResourceId>();
-	}
-
 	public ResourceLink AffectOutbound(ResourceId destination)
 	{
 		var i = Outbounds == null ? -1 : Array.FindIndex(Outbounds, i => i.Destination == destination);

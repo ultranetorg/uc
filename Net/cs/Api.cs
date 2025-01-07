@@ -10,7 +10,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
-        if(ti.Type == typeof(PeerRequest))
+        if(ti.Type == typeof(FuncPeerRequest))
         {
             ti.PolymorphismOptions =	new JsonPolymorphismOptions
 										{
@@ -19,7 +19,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 											UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 										};
 
-			foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -34,7 +34,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 											UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 										};
 
-			foreach(var i in typeof(PtpCallClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -49,7 +49,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 											UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 										};
 
-			foreach(var i in typeof(ExceptionClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
