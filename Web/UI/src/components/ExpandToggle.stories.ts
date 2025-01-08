@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { fn } from "@storybook/test"
 
-import { Button } from "./Button"
+import { ExpandToggle } from "./ExpandToggle"
 
 const meta = {
-  title: "Button",
-  component: Button,
+  title: "ExpandToggle",
+  component: ExpandToggle,
   parameters: {
     layout: "centered",
   },
@@ -13,14 +13,12 @@ const meta = {
   argTypes: {
     // backgroundColor: { control: 'color' },
   },
-  args: { onClick: fn() },
-} satisfies Meta<typeof Button>
+  args: { onToggle: fn() },
+} satisfies Meta<typeof ExpandToggle>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {
-    label: "Button",
-  },
+  args: { expandLabel: "Expand", collapseLabel: "Collapse" },
 }
