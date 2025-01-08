@@ -31,6 +31,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "tailwind-merge",
         "tailwindcss",
+        "usehooks-ts",
       ],
     },
   },
