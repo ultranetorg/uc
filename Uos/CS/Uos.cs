@@ -148,7 +148,7 @@ public class Uos : Cli
 
 	public McvNode RunNode(string net, Settings settings = null, IClock clock = null)
 	{
-		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Address == net) is Rdn.Rdn rdn)
+		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
 		{
 			var f = Flow.CreateNested(net, new Log());
 
@@ -163,7 +163,7 @@ public class Uos : Cli
 			return n;
 		}
 
-		if(Fair.Fair.Official.FirstOrDefault(i => i.Address == net) is Fair.Fair fair)
+		if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
 		{
 			var f = Flow.CreateNested(net, new Log());
 
@@ -269,4 +269,4 @@ public class Uos : Cli
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, new AprvAddress(address));
 	}
-    }
+}	

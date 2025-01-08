@@ -59,7 +59,7 @@ public abstract class TcpPeering : IPeer
 
 	public List<TcpClient>						IncomingConnections = new();
 
-	protected TcpListener						Listener;
+	public TcpListener							Listener;
 	protected Thread							MainThread;
 	protected Thread							ListeningThread;
 	public AutoResetEvent						MainWakeup = new AutoResetEvent(true);

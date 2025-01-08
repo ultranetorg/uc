@@ -30,8 +30,7 @@ public class AccountEntry : Account, ITableEntry
 		a.BYBalance					= BYBalance;
 		a.ECBalance					= ECBalance.ToList();
 		a.LastTransactionNid		= LastTransactionNid;
-		
-		
+				
 		a.BandwidthNext				= BandwidthNext;
 		a.BandwidthExpiration		= BandwidthExpiration;
 		a.BandwidthToday			= BandwidthToday;

@@ -165,8 +165,8 @@ public abstract class HomoTcpPeering : TcpPeering
 		}
 		else
 		{
-			Peers = Node.Net.Initials.Select(i => new Peer(i, Node.Net.Port){Recent = false, 
-																			 LastSeen = DateTime.MinValue}).ToList() ?? [];
+			Peers = Node.Net.Initials.Select(i => new Peer(i, Node.Net.Port) {Recent = false, 
+																			  LastSeen = DateTime.MinValue}).ToList() ?? [];
 
 			SavePeers(Peers);
 		}

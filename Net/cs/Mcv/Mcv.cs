@@ -514,7 +514,7 @@ public abstract class Mcv /// Mutual chain voting
 		var r = GetRound(p.Id + 1);
 		
 		r.ConsensusTime			= Time.Now(Clock);
-		r.ConsensusExecutionFee	= p.ConsensusExecutionFee;
+		r.ConsensusExecutionFee	= LastConfirmedRound.ConsensusExecutionFee;
 		///r.RentPerBytePerDay		= p.RentPerBytePerDay;
 		//r.Candidates			= p.Candidates;
 		//r.Members				= p.Members;

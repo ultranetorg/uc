@@ -212,10 +212,10 @@ public class McvSummaryApc : McvApc
 {
 	public int		Limit  { get; set; }
 
- 		public class Return
- 		{
- 			public IEnumerable<string[]> Summary {get; set;}
- 		}
+ 	public class Return
+ 	{
+ 		public IEnumerable<string[]> Summary {get; set;}
+ 	}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -223,19 +223,24 @@ public class McvSummaryApc : McvApc
 
 		lock(node.Peering.Lock)
 		{
-			f = [new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
-				 new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
-				 new ("    Pending Delegation",	$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
-				 new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
-				 new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-				 new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")];
+			f = [	new ("Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"),
+					new ("IP(Reported):Port",		$"{node.Peering.Settings.IP} ({node.Peering.IP}) : {node.Peering.Settings.Port}"),
+					new ("Votes Acceped/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"),
+
+					new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
+					new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
+					new ("    Pending",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
+					new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
+					new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+					//new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")
+					];
 		}
 
 		if(node.Mcv != null)
 		{
 			lock(node.Mcv.Lock)
 			{ 
-				
+				f.Add(new ("Generators",			$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}"));
 				f.Add(new ("Synchronization",		$"{node.Peering.Synchronization}"));
 				f.Add(new ("Size",					$"{node.Mcv.Size}"));
 				f.Add(new ("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}"));
@@ -248,23 +253,19 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
-				if(node.Peering.Synchronization == Synchronization.Synchronized)
+				foreach(var i in node.Vault.Wallets)
 				{
-					foreach(var i in node.Vault.Wallets)
+					var a = i.Key.ToString();
+					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
+
+					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
-						var a = i.Key.ToString();
-						f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
-						f.Add(new ("   BY", $"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance.ToString()}"));
-						f.Add(new ("   EC", $"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.GetECBalance(node.Mcv.LastConfirmedRound.ConsensusTime).ToString()}"));
+						f.Add(new ("   BY",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance}"));
+						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.GetECBalance(node.Mcv.LastConfirmedRound.ConsensusTime)}"));
+						f.Add(new ("   EC (now)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.GetECBalance(Time.Now(node.Mcv.Clock))}"));
 					}
 				}
-		
 			}
-		}
-
-		foreach(var i in node.Vault.Wallets)
-		{
-			f.Add(new ($"Account", $"{i}"));
 		}
 
 		node.Peering.Statistics.Reset();

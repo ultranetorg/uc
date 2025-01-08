@@ -37,7 +37,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public IEnumerable<Peer>				Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
 
-	bool									MinimalPeersReached;
+	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
 	public List<Transaction>				IncomingTransactions = new();
@@ -259,7 +259,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							foreach(var i in ts.Clusters)
 							{
-								///lock(Mcv.Lock)
+								///lock(Mcv.Lock)	
 								{
 									var c = t.GetCluster(i.Id);
 
@@ -865,6 +865,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any()))
 				continue;
 
+			Flow.Log?.Report(this, $"Members: {cr.Members.Length}" );
+
 			var members = cr.Members;
 
 			IPeer getrdi(AccountAddress account)
@@ -887,6 +889,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			lock(Lock)
 				nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
+			Flow.Log?.Report(this, $"Nones : {nones.Count()}" );
+
 			foreach(var g in nones)
 			{
 				var m = members.NearestBy(i => i.Address, g.Key);
@@ -903,6 +907,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					Thread.Sleep(1000);
 					continue;
 				}
+
+				Flow.Log?.Report(this, $"Nearest: {rdi}" );
 
 				int nid = -1;
 				var txs = new List<Transaction>();
@@ -938,13 +944,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Sign(Vault.GetKey(t.Signer), at.PowHash);
 						txs.Add(t);
 					}
-					catch(NodeException)
+					catch(NodeException ex)
 					{
+						Flow.Log?.ReportError(this, "AllocateTransactionRequest", ex);
+						
 						Thread.Sleep(1000);
 						continue;
 					}
 					catch(EntityException ex)
 					{
+						Flow.Log?.ReportError(this, "AllocateTransactionRequest", ex);
+
 						if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
 						{
 							lock(Lock)
@@ -968,8 +978,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = txs.ToArray()}).Accepted;
 					}
-					catch(NodeException)
+					catch(NodeException ex)
 					{
+						Flow.Log?.ReportError(this, "PlaceTransactionsRequest", ex);
 						Thread.Sleep(1000);
 						continue;
 					}
@@ -1005,6 +1016,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			lock(Lock)
 				accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
 
+			Flow.Log?.Report(this, $"accepted : {accepted.Count()}" );
+
 			if(accepted.Any())
 			{
 				foreach(var g in accepted.GroupBy(i => i.Rdi))
@@ -1015,8 +1028,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Signer = i.Signer, Nid = i.Nid}).ToArray()});
 					}
-					catch(NodeException)
+					catch(NodeException ex)
 					{
+						Flow.Log?.ReportError(this, "TransactionStatusRequest", ex);
 						Thread.Sleep(1000);
 						continue;
 					}
@@ -1085,8 +1099,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		return Transact([operation], signer, await, workflow)[0];
 	}
 
- 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
- 		{
+ 	public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
+ 	{
 		if(!Vault.IsUnlocked(signer))
 		{
 			throw new NodeException(NodeError.NotUnlocked);
@@ -1107,7 +1121,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				t.AddOperation(i);
 			}
 
- 				lock(Lock)
+ 			lock(Lock)
 			{	
 		 		Transact(t);
 			}
@@ -1120,7 +1134,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 
 		return p.ToArray();
- 		}
+ 	}
 
 	void Await(Transaction t, TransactionStatus s, Flow workflow)
 	{
