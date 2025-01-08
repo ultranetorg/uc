@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/web.ui.js",
   "types": "dist/index.d.ts",
+  "style": "dist/web.ui.css",
   "scripts": {
     "build": "tsc -b && vite build",
     "build-watch": "tsc -b && vite build --watch",
