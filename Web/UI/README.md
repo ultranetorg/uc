@@ -47,3 +47,7 @@ Prettier configuration:
 - [https://prettier.io/docs/en/editors](https://prettier.io/docs/en/editors)
 - [https://github.com/prettier/prettier-vscode](https://github.com/prettier/prettier-vscode)
 - [https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+
+Minify package:
+
+- [https://github.com/vitejs/vite/issues/6555](https://github.com/vitejs/vite/issues/6555)

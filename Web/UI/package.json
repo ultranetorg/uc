@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/web.ui.js",
   "types": "dist/index.d.ts",
+  "style": "dist/web.ui.css",
   "scripts": {
     "build": "tsc -b && vite build",
     "build-watch": "tsc -b && vite build --watch",
@@ -13,14 +14,24 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "react": "^18.3.1",
+    "lodash": "^4.17.21",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.6.0"
+    "react-paginate": "^8.2.0",
+    "react-router-dom": "^7.1.1",
+    "react-select": "^5.9.0",
+    "react-tooltip": "^5.28.0",
+    "react": "^18.3.1",
+    "tailwind-merge": "^2.6.0",
+    "usehooks-ts": "^3.1.0"
   },
   "peerDependencies": {
+    "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.6.0"
+    "react-router-dom": "^7.1.1",
+    "tailwind-merge": "^2.6.0",
+    "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.3",
@@ -31,6 +42,7 @@
     "@storybook/react": "^8.4.7",
     "@storybook/react-vite": "^8.4.7",
     "@storybook/test": "^8.4.7",
+    "@types/lodash": "^4.17.14",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
