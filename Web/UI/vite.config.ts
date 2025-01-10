@@ -9,7 +9,11 @@ export default defineConfig({
   plugins: [
     react(),
     tsconfigPaths(),
-    dts({ tsconfigPath: "./tsconfig.app.json", exclude: ["**/*.stories.ts", "**/assets"], rollupTypes: true }),
+    dts({
+      tsconfigPath: "./tsconfig.app.json",
+      exclude: ["**/*.stories.ts", "**/assets", "**/constants", "**/hooks"],
+      rollupTypes: true,
+    }),
   ],
   build: {
     copyPublicDir: false,

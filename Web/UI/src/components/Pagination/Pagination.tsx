@@ -39,11 +39,11 @@ export const Pagination = memo((props: PaginationProps) => {
       previousLinkClassName="stroke-gray-200"
       disabledClassName="hover:bg-transparent"
       disabledLinkClassName="cursor-default opacity-40"
-      pageClassName="rounded-lg hover:bg-dark-alpha-100 text-gray-200"
+      pageClassName="rounded-lg hover:bg-dark-alpha-100"
       pageLinkClassName="block h-9 w-9 text-center leading-9"
       activeClassName="blocked relative hover:bg-transparent"
       activeLinkClassName="block h-9 w-9 text-cyan-500"
-      breakClassName="blocked relative h-9 w-9 text-center text-gray-200"
+      breakClassName="blocked relative h-9 w-9 text-center"
       breakLinkClassName="cursor-default leading-9"
     />
   )
