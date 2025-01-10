@@ -14,7 +14,7 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	public const ushort	Directory						= 002;
 	public const ushort	Redirect						= 010;
 	public const ushort		Redirect_Uri				= 010_00;
-	public const ushort		Redirect_ProductRealization	= 010_10;
+	public const ushort		Redirect_ProductRealization	= 010_10; /// Redirect specific realization to latest version
 
 	public DataType()
 	{

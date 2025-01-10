@@ -14,7 +14,7 @@ public class ReleaseCommand : RdnCommand
 	{
 	}
 
-	public CommandAction CREATE()
+	public CommandAction Create()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
@@ -43,14 +43,14 @@ public class ReleaseCommand : RdnCommand
 																													//Resource = Ura.Parse(Args[0].Name)
 																												} });
 
-								Report($"Address   : {a}");
+								Report($"Address   : {a.Address}");
 
 								return a;
 							};
 		return a;
 	}
 
-	public CommandAction LOCAL()
+	public CommandAction Local()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
