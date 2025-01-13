@@ -36,6 +36,15 @@ public class ResourceDownloadApc : RdnApc
 	{
 		var r = sun.Peering.Call(() => new ResourceRequest(Identifier), workflow).Resource;
 
+		if(r == null)
+			throw new ResourceException(ResourceError.NotFound);
+
+		if(r.Data == null)
+			throw new ResourceException(ResourceError.NoData);
+
+		if(r.Data.Type.Control != DataType.File && r.Data.Type.Control != DataType.Directory)
+			throw new ResourceException(ResourceError.NotSupportedDataControl);
+
 		IIntegrity itg;
 
 		var urr = r.Data.Parse<Urr>();

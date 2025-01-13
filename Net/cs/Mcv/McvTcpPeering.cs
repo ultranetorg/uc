@@ -851,8 +851,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	void Transacting()
 	{
-		//IEnumerable<Transaction>	accepted;
-
 		Flow.Log?.Report(this, "Transacting started");
 
 		while(Flow.Active)
@@ -864,8 +862,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 			if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any()))
 				continue;
-
-			Flow.Log?.Report(this, $"Members: {cr.Members.Length}" );
 
 			var members = cr.Members;
 
@@ -889,8 +885,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			lock(Lock)
 				nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
-			Flow.Log?.Report(this, $"Nones : {nones.Count()}" );
-
 			foreach(var g in nones)
 			{
 				var m = members.NearestBy(i => i.Address, g.Key);
@@ -907,8 +901,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					Thread.Sleep(1000);
 					continue;
 				}
-
-				Flow.Log?.Report(this, $"Nearest: {rdi}" );
 
 				int nid = -1;
 				var txs = new List<Transaction>();
@@ -1114,7 +1106,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			t.Net = Net;
 			t.Signer = signer;
 			t.Flow = workflow;
- 				t.__ExpectedResult = await;
+ 			t.__ExpectedResult = await;
 		
 			foreach(var i in operations.Take(Net.ExecutionCyclesPerTransactionLimit))
 			{
