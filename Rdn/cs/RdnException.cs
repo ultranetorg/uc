@@ -8,9 +8,11 @@ public enum ResourceError : byte
 	BothResourceAndReleaseNotFound,
 	RequiredPackagesNotFound,
 	AlreadyExists,
+	NotSupportedDataControl,
 	NotSupportedDataType,
 	Busy,
 	NotFound,
+	NoData,
 	HashMismatch,
 	//DownloadFailed
 }

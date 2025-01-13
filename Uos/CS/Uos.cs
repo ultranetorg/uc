@@ -73,7 +73,7 @@ public class Uos : Cli
 		Boot = new Boot(ExeDirectory);
 		var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
 		
-		var u = new Uos(s, new Flow("Uos", new Log()), new RealClock());
+		var u = new Uos(s, new Flow(nameof(Uos), new Log()), new RealClock());
 		u.Execute(Boot.Commnand.Nodes, u.Flow);
 		u.Stop();
 	}
@@ -96,11 +96,10 @@ public class Uos : Cli
 
 		//ReportPreambule();
 		//ReportNetwork();
-		if(File.Exists(Settings.Profile))
+		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Node.FailureExt))
 				File.Delete(i);
-	
-		
+			
 		if(Settings.Api != null)
 		{
 			RunApi();
