@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "wayou.vscode-todo-highlight",
+    "wix.vscode-import-cost"
+  ]
+}
