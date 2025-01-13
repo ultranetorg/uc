@@ -1,57 +1,32 @@
-using Explorer.Api.Configurations;
-using Explorer.WebApi.Configurations;
+using Uccs.Web.Configurations;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers().
-	AddJsonOptions(x =>
-	{
-		x.JsonSerializerOptions.Converters.Add(new BigIntegerJsonConverter());
-		x.JsonSerializerOptions.Converters.Add(new BytesToHexJsonConverter());
-		x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-	});
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient();
-
-builder.Services.AddCorsPolicy(builder.Configuration);
-
-// Configure services.
-builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
-// Register app services.
-builder.Services.AddMemoryCache();
-builder.Services.RegisterServices(builder.Configuration);
-builder.Services.RegisterValidators();
-builder.Services.AddAutoMapper();
-builder.Services.AddBlockchainDatabaseStore(builder.Configuration);
-
-var app = builder.Build();
-
-#if DEBUG
-app.Services.AssertAutoMapperConfiguration();
-#endif
-
-// Configure the HTTP request pipeline.
-// Learn more at https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/
-app.UseExceptionTransform();
-
-if(app.Environment.IsDevelopment())
+namespace Uccs.Fair.WebApi
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	public class Program
+	{
+		// SEE: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0#middleware-order
+		public static void Main(string[] args)
+		{
+			var builder = WebApplication.CreateBuilder(args);
+
+			// Add services to the container.
+			builder.Services.AddCorsPolicy(builder.Configuration);
+
+			builder.Services.AddControllers();
+
+			var app = builder.Build();
+
+			// Configure the HTTP request pipeline.
+
+			app.UseHttpsRedirection();
+
+			app.UseCors();
+
+			app.UseAuthorization();
+
+			app.MapControllers();
+
+			app.Run();
+		}
+	}
 }
-
-app.UseHttpsRedirection();
-
-app.UseCors();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();

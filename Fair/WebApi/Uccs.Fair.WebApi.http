@@ -1,0 +1,6 @@
+@Uccs.Fair.WebApi_HostAddress = http://localhost:5089
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
