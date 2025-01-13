@@ -1,17 +1,35 @@
-import "i18n"
-import { QueryProvider, Router, SettingsProvider } from "app/"
+import { useState } from 'react'
 
-import "./index.css"
-import "react-tooltip/dist/react-tooltip.css"
+import { useGetWeather } from './entities'
+import './App.css'
 
-const App = () => {
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  const { data, isPending } = useGetWeather();
+
+  if (isPending) {
+    return <h1>Loading...</h1>
+  }
+
   return (
     <>
-      <QueryProvider>
-        <SettingsProvider>
-          <Router />
-        </SettingsProvider>
-      </QueryProvider>
+      <div>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+      {JSON.stringify(data)}
     </>
   )
 }

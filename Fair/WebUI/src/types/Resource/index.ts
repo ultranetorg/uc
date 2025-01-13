@@ -1,5 +1,0 @@
-export * from "./Resource"
-export * from "./ResourceAddress"
-export * from "./ResourceData"
-export * from "./ResourceInfo"
-export * from "./ResourceLink"

@@ -1,60 +1,32 @@
 {
-  "name": "explorer-webui",
+  "name": "fair.webui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.0.0-beta.28",
-    "axios": "^1.5.1",
-    "chart.js": "^4.3.3",
-    "i18next": "^22.4.10",
-    "i18next-browser-languagedetector": "^7.0.1",
-    "lodash": "^4.17.21",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-i18next": "^12.2.0",
-    "react-paginate": "^8.2.0",
-    "react-router-dom": "^6.14.2",
-    "react-select": "^5.7.3",
-    "react-tooltip": "^5.20.0",
-    "tailwind-merge": "^1.14.0",
-    "usehooks-ts": "^2.9.1"
+    "@tanstack/react-query": "^5.64.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.200",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^8.54.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-prettier": "^5.0.1",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
-    "postcss": "^8.4.31",
-    "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.6",
-    "tailwindcss": "^3.3.3",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-rewrite-all": "^1.0.1",
-    "vite-plugin-svgr": "^4.1.0",
-    "vite-tsconfig-paths": "^4.2.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "@eslint/js": "^9.17.0",
+    "@tanstack/eslint-plugin-query": "^5.62.16",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
