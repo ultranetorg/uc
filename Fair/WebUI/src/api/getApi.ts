@@ -7,7 +7,7 @@ const getWeathers = (): Promise<WeatherForecast> => {
 }
 
 const api: Api = {
-  getWeathers
+  getWeathers,
 }
 
 export const getApi = () => api
