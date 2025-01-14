@@ -12,7 +12,16 @@ public class WebServer
 		Node = node;
 
 		var t = node.CreateThread(() =>	{
-											var builder = WebApplication.CreateBuilder(args);
+											var o = new WebApplicationOptions
+													{
+														ApplicationName = GetType().Assembly.GetName().Name,
+														ContentRootPath = Path.GetDirectoryName(GetType().Assembly.Location),
+														//WebRootPath = $"{Path.GetDirectoryName(GetType().Assembly.Location)}/WebUI",
+														EnvironmentName = Node.Net.Zone >= Zone._FirstPublic ? Environments.Production : Environments.Development
+													};
+
+
+											var builder = WebApplication.CreateBuilder(o);
 
 											// Add services to the container.
 											builder.Services.AddCorsPolicy(builder.Configuration);
@@ -23,7 +32,7 @@ public class WebServer
 
 											// Configure the HTTP request pipeline.
 
-											app.UseHttpsRedirection();
+											//app.UseHttpsRedirection();
 
 											app.UseCors();
 

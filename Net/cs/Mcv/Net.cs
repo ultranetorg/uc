@@ -17,6 +17,7 @@ public enum Zone
 	Developer7	= 17,
 	Developer8	= 18,
 	Developer9	= 19,
+	_FirstPublic= 20,
 	PublicTest	= 20,
 	Main		= 30
 }
