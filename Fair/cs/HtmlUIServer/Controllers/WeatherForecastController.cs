@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Uccs.Fair.WebApi.Controllers
+namespace Uccs.Fair
 {
     [ApiController]
     [Route("[controller]")]

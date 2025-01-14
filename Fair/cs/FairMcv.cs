@@ -7,7 +7,7 @@ public class FairMcv : Mcv
 {
 	public AuthorTable		Authors;
 	public ProductTable		Products;
-	public SiteTable	Sites;
+	public SiteTable		Sites;
 	public PageTable		Pages;
 	IPAddress[]				BaseIPs;
 

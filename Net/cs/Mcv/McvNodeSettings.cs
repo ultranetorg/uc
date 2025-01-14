@@ -14,7 +14,6 @@ public class McvNodeSettings : SavableSettings
 
 	public virtual long				Roles => (Mcv?.Roles ?? 0);
 
-
 	public McvNodeSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}

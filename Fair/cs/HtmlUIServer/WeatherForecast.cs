@@ -1,4 +1,4 @@
-namespace Uccs.Fair.WebApi
+namespace Uccs.Fair
 {
     public class WeatherForecast
     {
