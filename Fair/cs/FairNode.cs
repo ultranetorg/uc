@@ -13,7 +13,7 @@ public class FairNode : McvNode
 	public FairNodeSettings			Settings;
 
 	public JsonServer				ApiServer;
-	public WebServer				UIServer;
+	public WebServer				WebServer;
 
 	public FairNode(string name, Fair net, string profile, FairNodeSettings settings, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
 	{
@@ -37,7 +37,10 @@ public class FairNode : McvNode
 		{
 			base.Mcv = new FairMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
 
-			UIServer = new WebServer(this, null, $"http://{Settings.Peering.IP}:80");
+			if(Settings.Mcv.Generators.Any())
+			{
+				WebServer = new WebServer(this, null);
+			}
 		}
 
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
@@ -60,6 +63,7 @@ public class FairNode : McvNode
 	{
 		Flow.Abort();
 
+		WebServer?.Stop();
 		ApiServer?.Stop();
 		Peering.Stop();
 		Mcv?.Stop();
