@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\CS\Uocs.csproj" />
-    <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
-    <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="MembershipPanel.cs" />
