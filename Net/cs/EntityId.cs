@@ -51,6 +51,33 @@ public class EntityId : BaseId
 		return B.GetHashCode();
 	}
 
+	public static bool TryParse(string t, out EntityId entity)
+	{
+		var i = t.IndexOf('-');
+
+		entity = null;
+
+		if(i == -1)
+			return false;
+
+		int e = 0;
+		
+		var r = int.TryParse(t.Substring(0, i), out var b) && int.TryParse(t.Substring(i + 1), out e);
+
+		if(r)
+		{
+			if(b < 0 || b >= TableBase.BucketsCountMax)
+				return false;
+
+			if(e < 0)
+				return false;
+
+			entity = new EntityId(b, e);
+		}
+
+		return r;
+	}
+
 	public static EntityId Parse(string t)
 	{
 		var i = t.IndexOf('-');
