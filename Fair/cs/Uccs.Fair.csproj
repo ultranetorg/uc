@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.137.0</Version>
-    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
-    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <EnableNETAnalyzers>False</EnableNETAnalyzers>
-	  <AssemblyName>fair</AssemblyName>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Version>1.0.137.0</Version>
+		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+		<EnableNETAnalyzers>False</EnableNETAnalyzers>
+		<AssemblyName>fair</AssemblyName>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Net\cs\Uccs.Net.csproj" />
-    <ProjectReference Include="..\..\Web\cs\Uccs.Web.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Net\cs\Uccs.Net.csproj" />
+		<ProjectReference Include="..\..\Web\cs\Uccs.Web.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Uccs.Net" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Include="Uccs.Net" />
+	</ItemGroup>
 
 </Project>
