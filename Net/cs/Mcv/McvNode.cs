@@ -38,7 +38,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 
 public class McvNode : Node
 {
-	public McvNet			Net;
+	public new McvNet		Net => base.Net as McvNet;
 	public Vault			Vault; 
 	public Mcv				Mcv;
 	public McvTcpPeering	Peering;
@@ -46,7 +46,6 @@ public class McvNode : Node
 
 	public McvNode(string name, McvNet net, string profile, Flow flow, Vault vault) : base(name, net, profile, flow)
 	{
-		Net = net;
 		Vault = vault;
 	}
 

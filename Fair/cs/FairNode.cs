@@ -15,13 +15,13 @@ public class FairNode : McvNode
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
 
-	public FairNode(string name, Fair net, string profile, FairNodeSettings settings, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
+	public FairNode(string name, Zone zone, string profile, Settings settings, Vault vault, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow, vault)
 	{
-		Settings = settings ?? new FairNodeSettings(Path.Join(profile, net.Address));
+		Settings = settings as FairNodeSettings ?? new FairNodeSettings(Path.Join(profile, Net.Address));
 
 		if(Flow.Log != null)
 		{
-			new FileLog(Flow.Log, net.Address, Settings.Profile);
+			new FileLog(Flow.Log, Net.Address, Settings.Profile);
 		}
 
 		if(NodeGlobals.Any)
@@ -35,7 +35,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
 
 			if(Settings.Mcv.Generators.Any())
 			{

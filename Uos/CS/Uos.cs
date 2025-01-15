@@ -2,7 +2,6 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
-using Uccs.Fair;
 using Uccs.Net;
 
 namespace Uccs.Uos;
@@ -42,7 +41,7 @@ public class Uos : Cli
 	public T					Find<T>() where T : class => Nodes.Find(i => i.Node is T)?.Node as T;
 
 	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.RootRdn, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.RootRdn.Address).Api.AccessKey);
+	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Rdn, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.AccessKey);
 
 	public NodeDelegate			NodeStarted;
 
@@ -145,13 +144,13 @@ public class Uos : Cli
 		//ApiStarted?.Invoke(this);
 	}
 
-	public McvNode RunNode(string net, Settings settings = null, IClock clock = null)
+	public McvNode RunNode(string net, IClock clock = null)
 	{
-		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
+		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.Rdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
 		{
 			var f = Flow.CreateNested(net, new Log());
 
-			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, settings as RdnNodeSettings, Settings.Packages, Vault, clock, f);
+			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, Vault, clock, f);
 
 			Nodes.Add(new NodeInstance {Net = net,
 										Api = n.Settings.Api,
@@ -162,19 +161,31 @@ public class Uos : Cli
 			return n;
 		}
 
-		if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
+		var p = Path.Join(Path.GetDirectoryName(GetType().Assembly.Location), net + ".dll");
+		
+		if(p != null)
 		{
-			var f = Flow.CreateNested(net, new Log());
+			var a = Assembly.LoadFrom(p);
 
-			var n = new FairNode(Settings.Name, fair, Settings.Profile, settings as FairNodeSettings, Vault, clock, f);
+			var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
+					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(Vault), typeof(IClock), typeof(Flow)]);
 
-			Nodes.Add(new NodeInstance {Net = net,
-										Api = n.Settings.Api,
-										Node = n});
-
-			NodeStarted?.Invoke(n);
-
-			return n;
+			if(c != null)
+			//if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
+			{
+				var f = Flow.CreateNested(net, new Log());
+	
+				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, Vault, clock, f]) as McvNode;
+				//var n = new FairNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
+	
+				Nodes.Add(new NodeInstance {Net = net,
+											Api = null,
+											Node = n});
+	
+				NodeStarted?.Invoke(n);
+	
+				return n;
+			}
 		}
 
 		throw new NodeException(NodeError.NoNodeForNet);
