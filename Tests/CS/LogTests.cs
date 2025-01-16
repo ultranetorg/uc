@@ -1,5 +1,4 @@
-﻿using Uocs;
-using Xunit;
+﻿using Xunit;
 
 namespace Uccs.Tests;
 
@@ -8,14 +7,14 @@ public static class LogTests
 	[Fact]
 	public static void Main()
 	{
-		var l = new Log();
-
-		new FileLog(l, "test", G.Dev.Tmp);
-
-		for(int i=0; i<10_000; i++)
-		{
-			l.Report($"{i} - {Rdn.Rdn.Local.Genesis}");
-		}
+// 		var l = new Log();
+// 
+// 		new FileLog(l, "test", G.Dev.Tmp);
+// 
+// 		for(int i=0; i<10_000; i++)
+// 		{
+// 			l.Report($"{i} - {Rdn.Rdn.Local.Genesis}");
+// 		}
 	}
 
 	//[Theory]

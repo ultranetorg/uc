@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Uccs.Net;
+﻿using Uccs.Net;
 using Uccs.Rdn;
 using Xunit;
 
@@ -11,9 +9,9 @@ public static class IdTests
 	[Fact]
 	public static void Main()
 	{
-		EntityId e0 = new(1, 2);
-		EntityId e1 = new(1, 2);
-		EntityId e2 = new(2, 3);
+		var e0 = new EntityId(1, 2);
+		var e1 = new EntityId(1, 2);
+		var e2 = new EntityId(2, 3);
 
 		BaseId r0 = new ResourceId(1, 2, 4);
 		BaseId r1 = new ResourceId(1, 2, 4);
@@ -36,6 +34,14 @@ public static class IdTests
 		a = a.Order().ToArray();
 
 		Assert.True(a.SequenceEqual([r0, r1, r2, r3]));
+
+		Assert.True(EntityId.TryParse(e0.ToString(), out var e) && e0 == e);
+		Assert.False(EntityId.TryParse($"{TableBase.BucketsCountMax}-0", out e0));
+		Assert.False(EntityId.TryParse("", out e0));
+		Assert.False(EntityId.TryParse("-34", out e0));
+		Assert.False(EntityId.TryParse("-sdfdsf", out e0));
+		Assert.False(EntityId.TryParse("234324-", out e0));
+		Assert.False(EntityId.TryParse("sdfgds-", out e0));
 	}
 
 	//[Theory]

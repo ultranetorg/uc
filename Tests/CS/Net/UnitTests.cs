@@ -1,5 +1,4 @@
-﻿using System;
-using Uccs.Net;
+﻿using Uccs.Net;
 using Xunit;
 
 namespace Uccs.Tests;
