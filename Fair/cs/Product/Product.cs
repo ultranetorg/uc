@@ -17,8 +17,8 @@ public enum ProductProperty : byte
 
 public class ProductField : IBinarySerializable
 {
-	public ProductProperty	Type;
-	public object			Value;
+	public ProductProperty	Type { get; set; }
+	public object			Value  { get; set; }
 
 	public ProductField()
 	{
