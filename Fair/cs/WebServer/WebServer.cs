@@ -1,4 +1,7 @@
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Uccs.Web.Configurations;
+using Uccs.Web.Filters;
 
 namespace Uccs.Fair;
 
@@ -19,15 +22,36 @@ public class WebServer
 														ContentRootPath = Path.GetDirectoryName(GetType().Assembly.Location),
 														//WebRootPath = $"{Path.GetDirectoryName(GetType().Assembly.Location)}/WebUI",
 														EnvironmentName = Node.Net.Zone >= Zone._FirstPublic ? Environments.Production : Environments.Development
-													};
-
+											};
 
 											var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(o);
 
 											// Add services to the container.
+											builder.Services.RegisterServices(node);
+
 											builder.Services.AddCorsPolicy(builder.Configuration);
 
-											builder.Services.AddControllers();
+											builder.Services
+												.AddControllers(options =>
+												{
+													options.Filters.Add<HttpResponseExceptionFilter>();
+												})
+												.AddJsonOptions(options =>
+												{
+													options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+													{
+														Modifiers =
+														{
+															IgnorePropertiesModifier.IgnoreProperties,
+															SerializePropertiesModifier.SerializeProperties
+														}
+													};
+													options.JsonSerializerOptions.TypeInfoResolver.WithAddedModifier(IgnorePropertiesModifier.IgnoreProperties);
+
+													options.JsonSerializerOptions.Converters.Add(new EntityIdJsonConverter());
+													options.JsonSerializerOptions.Converters.Add(new TimeJsonConverter());
+													options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+												});
 
 											WebApplication = builder.Build();
 

@@ -1,16 +1,22 @@
 import { useQuery } from "@tanstack/react-query"
+
 import { getApi } from "api"
 
-export const useGetWeather = () => {
-  const api = getApi()
+const api = getApi()
 
+export const useGetProduct = (id?: string) => {
   const queryFn = () => {
-    return api.getWeathers()
+    if (!id) {
+      return
+    }
+
+    return api.getProduct(id)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["weathers"],
+    queryKey: ["products", id],
     queryFn: queryFn,
+    enabled: !!id,
   })
 
   return { isPending, error, data }

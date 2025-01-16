@@ -1,6 +1,6 @@
-@Uccs.Fair.WebApi_HostAddress = http://127.0.0.100:80
+@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/weatherforecast/
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/products/11676594-0
 Accept: application/json
 
 ###

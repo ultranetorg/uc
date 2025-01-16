@@ -1,1 +1,1 @@
-export * from "./useGetWeather"
+export * from "./useGetProduct"

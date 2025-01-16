@@ -1,13 +1,13 @@
-import { WeatherForecast } from "types"
+import { Api, Product } from "types"
 
-import { Api } from "./Api"
+const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
-const getWeathers = (): Promise<WeatherForecast> => {
-  return fetch("https://localhost:7060/weatherforecast").then(res => res.json())
+const getProduct = (id: string): Promise<Product> => {
+  return fetch(`${BASE_URL}/products/${id}`).then(res => res.json())
 }
 
 const api: Api = {
-  getWeathers,
+  getProduct,
 }
 
 export const getApi = () => api

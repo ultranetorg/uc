@@ -22,4 +22,20 @@
     <Using Include="Uccs.Net" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="WebServer\Exceptions\ErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ErrorMessages.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="WebServer\Exceptions\ErrorMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorMessages.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Uccs.Fair</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
