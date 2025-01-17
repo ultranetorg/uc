@@ -42,8 +42,7 @@ public class WebServer
 													{
 														Modifiers =
 														{
-															IgnorePropertiesModifier.IgnoreProperties,
-															SerializePropertiesModifier.SerializeProperties
+															IgnorePropertiesModifier.IgnoreProperties
 														}
 													};
 													options.JsonSerializerOptions.TypeInfoResolver.WithAddedModifier(IgnorePropertiesModifier.IgnoreProperties);

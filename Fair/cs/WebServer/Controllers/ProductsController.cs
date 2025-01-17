@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Uccs.Web.Pagination;
 using Uccs.Web.Utilities;
 
 namespace Uccs.Fair;
@@ -7,11 +8,12 @@ public class ProductsController
 (
 	ILogger<ProductsController> logger,
 	IProductsService productsService,
+	IPaginationValidation paginationValidation,
 	IEntityIdValidator entityIdValidator
 ) : BaseController
 {
 	[HttpGet("{id}")]
-	public ActionResult<ProductEntry> Get(string id, CancellationToken cancellationToken)
+	public ProductEntry Get(string id, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Get)} method called with {{Id}}", id);
 
@@ -24,10 +26,16 @@ public class ProductsController
 	}
 
 	[HttpGet]
-	public ActionResult<IEnumerable<ProductEntry>> Index([FromQuery] string name, [FromQuery] PaginationRequest pagination)
+	public IEnumerable<ProductEntry> Index([FromQuery] string name, [FromQuery] PaginationRequest pagination)
 	{
 		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Index)} method called with {{Name}}, {{Pagination}}", name, pagination);
 
-		return null;
+		paginationValidation.Validate(pagination);
+
+		int page = pagination?.Page ?? 0;
+		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
+		TotalItemsResult<ProductEntry> products = productsService.GetProducts(name, page, pageSize);
+
+		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
 	}
 }
