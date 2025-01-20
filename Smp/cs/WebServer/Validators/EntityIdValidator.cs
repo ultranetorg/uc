@@ -1,12 +1,14 @@
-﻿using Uccs.Web.Utilities;
+﻿using System.Runtime.CompilerServices;
+using Uccs.Web.Utilities;
 
 namespace Uccs.Smp;
 
 public class EntityIdValidator : IEntityIdValidator
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(string entityId)
 	{
-		bool isMatch = Regexes.EntityId.IsMatch(entityId);
-		If.Value(isMatch).False().Throw(() => new InvalidProductIdException(entityId));
+		bool isParsed = EntityId.TryParse(entityId, out _);
+		If.Value(isParsed).False().Throw(() => new InvalidProductIdException(entityId));
 	}
 }

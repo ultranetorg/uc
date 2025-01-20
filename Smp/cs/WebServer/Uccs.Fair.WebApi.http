@@ -4,3 +4,6 @@ GET {{Uccs.Fair.WebApi_HostAddress}}/api/products/11676594-0
 Accept: application/json
 
 ###
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/products?name=desc&page=1&pageSize=10
+Accept: application/json

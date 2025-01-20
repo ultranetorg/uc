@@ -61,6 +61,15 @@ namespace Uccs.Smp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid pagination parameters..
+        /// </summary>
+        internal static string InvalidPaginationParameters {
+            get {
+                return ResourceManager.GetString("InvalidPaginationParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An incorrect product identifier has been provided..
         /// </summary>
         internal static string InvalidProductId {

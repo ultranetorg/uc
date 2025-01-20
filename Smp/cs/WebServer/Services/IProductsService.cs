@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Smp;
 
 public interface IProductsService
 {
 	ProductEntry GetProduct([NotEmpty] string productId);
+
+	TotalItemsResult<ProductEntry> GetProducts(string name, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize);
 }
