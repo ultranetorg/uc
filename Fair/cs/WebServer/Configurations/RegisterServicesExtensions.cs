@@ -24,6 +24,6 @@ public static class RegisterServicesExtensions
 	private static void RegisterValidators(IServiceCollection services)
 	{
 		services.AddSingleton<IEntityIdValidator, EntityIdValidator>();
-		services.AddSingleton<IPaginationValidation, PaginationValidation>();
+		services.AddSingleton<IPaginationValidator, PaginationValidator>();
 	}
 }

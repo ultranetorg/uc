@@ -8,7 +8,7 @@ public class ProductsController
 (
 	ILogger<ProductsController> logger,
 	IProductsService productsService,
-	IPaginationValidation paginationValidation,
+	IPaginationValidator paginationValidator,
 	IEntityIdValidator entityIdValidator
 ) : BaseController
 {
@@ -30,7 +30,7 @@ public class ProductsController
 	{
 		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Index)} method called with {{Name}}, {{Pagination}}", name, pagination);
 
-		paginationValidation.Validate(pagination);
+		paginationValidator.Validate(pagination);
 
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;

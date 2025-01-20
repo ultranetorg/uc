@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public interface IPaginationValidation
+public interface IPaginationValidator
 {
 	void Validate(PaginationRequest pagination);
 }

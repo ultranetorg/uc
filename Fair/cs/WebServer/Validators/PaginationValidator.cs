@@ -3,7 +3,7 @@ using Uccs.Web.Utilities;
 
 namespace Uccs.Fair;
 
-public class PaginationValidation : IPaginationValidation
+public class PaginationValidator : IPaginationValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(PaginationRequest pagination)
