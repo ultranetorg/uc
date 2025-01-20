@@ -40,9 +40,9 @@ public class ProductsService : IProductsService
 
 	public ProductEntry GetProduct(string productId)
 	{
-		Guard.Against.NullOrEmpty(productId);
+		_logger.LogDebug($"GET {nameof(ProductsService)}.{nameof(GetProduct)} method called with {{ProductId}}", productId);
 
-		_logger.LogInformation($"GET {nameof(ProductsService)}.{nameof(GetProduct)} method called with {{ProductId}}", productId);
+		Guard.Against.NullOrEmpty(productId);
 
 		EntityId entityId = EntityId.Parse(productId);
 
@@ -54,6 +54,8 @@ public class ProductsService : IProductsService
 
 	public TotalItemsResult<ProductEntry> GetProducts(string name, int page, int pageSize)
 	{
+		_logger.LogDebug($"GET {nameof(ProductsService)}.{nameof(GetProducts)} method called with {{Name}}, {{Page}}, {{PageSize}}", name, page, pageSize);
+
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
