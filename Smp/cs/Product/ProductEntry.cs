@@ -1,0 +1,50 @@
+﻿namespace Uccs.Smp;
+
+public class ProductEntry : Product, ITableEntry
+{
+	public BaseId			BaseId => Id;
+	public bool				Deleted { get; set; }
+	SmpMcv					Mcv;
+
+	public ProductEntry()
+	{
+	}
+
+	public ProductEntry(SmpMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public ProductEntry Clone()
+	{
+		return new(Mcv){Id = Id,
+						AuthorId = AuthorId,
+						Flags = Flags,
+						Fields = Fields?.ToArray(),
+						Updated = Updated};
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void WriteMore(BinaryWriter w)
+	{
+	}
+
+	public void ReadMore(BinaryReader r)
+	{
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
+}
+

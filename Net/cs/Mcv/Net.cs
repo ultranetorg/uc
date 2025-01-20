@@ -26,7 +26,7 @@ public enum KnownSystem
 {
 	//Ntn = 010,
 	Rdn	= 020,
-	Fair = 030,
+	Smp = 030,
 	Uos = 900,
 }
 
@@ -49,10 +49,10 @@ public abstract class Net
 											.Select(i => IPAddress.Parse(i))
 											.ToArray();
 
-	public Dictionary<Type, byte>								Codes = [];
-	public Dictionary<Type, Dictionary<byte, ConstructorInfo>>	Contructors = [];
+	public Dictionary<Type, uint>								Codes = [];
+	public Dictionary<Type, Dictionary<uint, ConstructorInfo>>	Contructors = [];
 
-	public T				Contruct<T>(byte code) => (T)Contructors[typeof(T)][code].Invoke(null);
+	public T				Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
 
 	public override string ToString()
 	{
@@ -133,8 +133,8 @@ public abstract class McvNet : Net
 
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
-			Codes[i] = (byte)Enum.Parse<OperationClass>(i.Name);
-			Contructors[typeof(Operation)][(byte)Enum.Parse<OperationClass>(i.Name)] = i.GetConstructor([]);
+			Codes[i] = (uint)Enum.Parse<OperationClass>(i.Name);
+			Contructors[typeof(Operation)][(uint)Enum.Parse<OperationClass>(i.Name)] = i.GetConstructor([]);
 		}
 	}
 }

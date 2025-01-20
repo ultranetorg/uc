@@ -26,7 +26,7 @@ public class OperationJsonConverter : JsonConverter<Operation>
 	public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var s = reader.GetString().Split(':');
-		var o = Net.Contruct<Operation>(byte.Parse(s[0]));
+		var o = Net.Contruct<Operation>(uint.Parse(s[0]));
  			
 		o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
 

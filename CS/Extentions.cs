@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Uccs
@@ -99,6 +100,28 @@ namespace Uccs
 			w.Write(a.ToByteArray());
 		}
 
+		public static void WriteEnum<E>(this BinaryWriter writer, E a) where E : struct, System.Enum
+		{
+			var t = Enum.GetUnderlyingType(typeof(E));
+
+			if(t == typeof(byte))	writer.Write((byte)(object)a); else
+			if(t == typeof(ushort))	writer.Write((ushort)(object)a); else
+			if(t == typeof(uint))	writer.Write((uint)(object)a); else
+			
+			writer.Write((ulong)(object)a);
+		}
+
+		public static E ReadEnum<E>(this BinaryReader reader) where E : struct, System.Enum
+		{
+			var t = Enum.GetUnderlyingType(typeof(E));
+
+			if(t == typeof(byte))	return (E)Enum.ToObject(typeof(E), reader.ReadByte());
+			if(t == typeof(ushort))	return (E)Enum.ToObject(typeof(E), reader.ReadUInt16());
+			if(t == typeof(uint))	return (E)Enum.ToObject(typeof(E), reader.ReadUInt32());
+			
+			return (E)Enum.ToObject(typeof(E), reader.ReadUInt64());
+		}
+
 		public static void WriteUtf8(this BinaryWriter w, string s)
 		{
 			var a = Encoding.UTF8.GetBytes(s);
@@ -145,11 +168,6 @@ namespace Uccs
 		public static IPAddress ReadIPAddress(this BinaryReader r)
 		{
 			return new IPAddress(r.ReadBytes(4));
-		}
-
-		public static void Union<T>(this List<T> items, IEnumerable<T> news, Func<T, T, bool> equal)
-		{
-			items.AddRange(news.Where(i => items.All(j => !equal(i, j))));
 		}
 
 		public static T Read<T>(this BinaryReader r) where T : IBinarySerializable, new()
@@ -433,6 +451,5 @@ namespace Uccs
 
 			return o;
 		}
-
 	}
 }

@@ -75,4 +75,16 @@ public abstract class NetCommand : Command
 		else
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
+
+	protected E GetEnum<E>(int index) where E : struct
+	{
+		try
+		{
+			return Enum.Parse<E>(Args[index].Name);
+		}
+		catch(Exception)
+		{
+			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
+		}
+	}
 }
