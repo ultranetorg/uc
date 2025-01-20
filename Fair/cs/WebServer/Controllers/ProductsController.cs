@@ -13,7 +13,7 @@ public class ProductsController
 ) : BaseController
 {
 	[HttpGet("{id}")]
-	public ProductEntry Get(string id, CancellationToken cancellationToken)
+	public ProductEntry Get(string id)
 	{
 		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Get)} method called with {{Id}}", id);
 
