@@ -113,6 +113,16 @@ public abstract class McvCommand : NetCommand
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
+	protected EntityId GetEntityId(string paramenter, EntityId @default)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return EntityId.Parse(p.Get<string>());
+		else
+			return @default;
+	}
+
 	protected long GetMoney(string paramenter)
 	{
 		var p = One(paramenter);

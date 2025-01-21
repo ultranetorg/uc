@@ -41,7 +41,7 @@ public class Domain : IBinarySerializable
 	public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
 	public static readonly Time	Prolongation = Time.FromDays(30);
 	public static readonly Time	WinnerRegistrationPeriod = Time.FromDays(30);
-	public static readonly Time	RenewaPeriod = Time.FromDays(365);
+	public static readonly Time	RenewalPeriod = Time.FromDays(365);
 	public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 	public EntityId				Id { get; set; }
@@ -102,7 +102,7 @@ public class Domain : IBinarySerializable
 
 	public static bool CanRenew(Domain domain, Account by, Time time)
 	{
-		return  domain != null && domain.Owner == by.Id &&	time > domain.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
+		return  domain != null && domain.Owner == by.Id &&	time > domain.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
 															time <= domain.Expiration;
 	}
 

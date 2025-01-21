@@ -61,9 +61,9 @@ public class Transaction : IBinarySerializable
 				(!mcv.Net.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 	}
 
- 		public Transaction()
- 		{
- 		}
+ 	public Transaction()
+ 	{
+ 	}
 
 	public override string ToString()
 	{
@@ -79,7 +79,7 @@ public class Transaction : IBinarySerializable
 			PoW = new byte[PoWLength];
 		}
 		else
-            {
+        {
             var r = new Random();
 			var h = new byte[32];
 
@@ -97,7 +97,7 @@ public class Transaction : IBinarySerializable
 			while(h[0] != 0 || h[1] != 0);
 			
 			PoW = x.Skip(32).ToArray();
-            }
+        }
 
 		Signature = Net.Cryptography.Sign(signer, Hashify());
 	}
@@ -132,8 +132,8 @@ public class Transaction : IBinarySerializable
 		return Cryptography.Hash(s.ToArray());
 	}
 
- 		public void	WriteConfirmed(BinaryWriter writer)
- 		{
+ 	public void	WriteConfirmed(BinaryWriter writer)
+ 	{
 		writer.Write(Member);
 		writer.Write(Signer);
 		writer.Write7BitEncodedInt(Nid);
@@ -143,10 +143,10 @@ public class Transaction : IBinarySerializable
 										writer.Write(Net.Codes[i.GetType()]); 
 										i.Write(writer); 
 									 });
- 		}
+ 	}
  		
- 		public void	ReadConfirmed(BinaryReader reader)
- 		{
+ 	public void	ReadConfirmed(BinaryReader reader)
+ 	{
 		Status		= TransactionStatus.Confirmed;
 
 		Member	= reader.Read<EntityId>();
@@ -154,16 +154,16 @@ public class Transaction : IBinarySerializable
 		Nid			= reader.Read7BitEncodedInt();
 		ECFee		= reader.Read7BitEncodedInt64();
 		Tag			= reader.ReadBytes();
- 			Operations	= reader.ReadArray(() => {
- 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
- 													o.Transaction = this;
- 													o.Read(reader); 
- 													return o; 
- 												});
- 		}
+ 		Operations	= reader.ReadArray(() => {
+ 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
+ 												o.Transaction = this;
+ 												o.Read(reader); 
+ 												return o; 
+ 											});
+ 	}
 
- 		public void	WriteForVote(BinaryWriter writer)
- 		{
+	public void	WriteForVote(BinaryWriter writer)
+	{
 		writer.Write((byte)__ExpectedResult);
 
 		writer.Write(Member);
@@ -178,10 +178,10 @@ public class Transaction : IBinarySerializable
 										writer.Write(Net.Codes[i.GetType()]); 
 										i.Write(writer); 
 									  });
- 		}
+	}
  		
- 		public void	ReadForVote(BinaryReader reader)
- 		{
+	public void	ReadForVote(BinaryReader reader)
+	{
 		__ExpectedResult = (TransactionStatus)reader.ReadByte();
 
 		Member	= reader.Read<EntityId>();
@@ -192,14 +192,14 @@ public class Transaction : IBinarySerializable
 		ECFee		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PoWLength);
 		Tag			= reader.ReadBytes();
- 			Operations	= reader.ReadArray(() => {
- 													var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
- 													//o.Placing		= PlacingStage.Confirmed;
- 													o.Transaction	= this;
- 													o.Read(reader); 
- 													return o; 
- 												});
- 		}
+ 		Operations	= reader.ReadArray(() => {
+ 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
+ 												//o.Placing		= PlacingStage.Confirmed;
+ 												o.Transaction	= this;
+ 												o.Read(reader); 
+ 												return o; 
+ 											});
+	}
 
 	public void Write(BinaryWriter writer)
 	{
@@ -232,7 +232,7 @@ public class Transaction : IBinarySerializable
 		PoW			= reader.ReadBytes(PoWLength);
 		Tag			= reader.ReadBytes();
 		Operations	= reader.ReadArray(() => {
-												var o = Net.Contructors[typeof(Operation)][reader.ReadByte()].Invoke(null) as Operation;
+												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
 												o.Transaction = this;
 												o.Read(reader); 
 												return o; 
