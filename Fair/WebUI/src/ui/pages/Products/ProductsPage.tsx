@@ -1,7 +1,8 @@
 import { ChangeEvent, useCallback } from "react"
+import { Link } from "react-router-dom"
 
 import { useGetProducts } from "entities"
-import { SearchInput } from "ui/components"
+import { ProductCard, SearchInput } from "ui/components"
 
 import { useQueryParams } from "./hooks"
 
@@ -23,16 +24,27 @@ export const ProductsPage = () => {
   )
 
   return (
-    <div>
-      <h1>ProductsPage</h1>
-      <SearchInput value={name ?? ""} onChange={handleChange} />
+    <>
+      <SearchInput
+        value={name ?? ""}
+        onChange={handleChange}
+        className="mb-4 h-10 w-full"
+        placeholder="Enter Product Name"
+      />
+      <div className="mb-4 text-center text-purple-500">(Advertisements)</div>
       {isPending ? (
         <h2>Loading</h2>
       ) : products?.items !== undefined ? (
-        products.items.map(p => <div key={p.id}>{JSON.stringify(p)}</div>)
+        <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
+          {products.items.map(p => (
+            <Link to={`/products/${p.id}`} key={p.id}>
+              <ProductCard productName={p.name} authorName={p.authorName} />
+            </Link>
+          ))}
+        </div>
       ) : (
         <h2>Not found</h2>
       )}
-    </div>
+    </>
   )
 }

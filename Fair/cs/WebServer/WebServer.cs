@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using Uccs.Web.Configurations;
 using Uccs.Web.Filters;
 
@@ -38,17 +37,15 @@ public class WebServer
 												})
 												.AddJsonOptions(options =>
 												{
-													options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
-													{
-														Modifiers =
-														{
-															IgnorePropertiesModifier.IgnoreProperties
-														}
-													};
-													options.JsonSerializerOptions.TypeInfoResolver.WithAddedModifier(IgnorePropertiesModifier.IgnoreProperties);
+													//options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+													//{
+													//	Modifiers =
+													//	{
+													//		IgnorePropertiesModifier.IgnoreProperties
+													//	}
+													//};
+													//options.JsonSerializerOptions.TypeInfoResolver.WithAddedModifier(IgnorePropertiesModifier.IgnoreProperties);
 
-													options.JsonSerializerOptions.Converters.Add(new EntityIdJsonConverter());
-													options.JsonSerializerOptions.Converters.Add(new TimeJsonConverter());
 													options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 												});
 

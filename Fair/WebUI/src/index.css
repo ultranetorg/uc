@@ -17,13 +17,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
+/* a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
 a:hover {
   color: #535bf2;
+} */
+
+/* New */
+a {
+  color: #1a1a1a;
 }
 
 body {
@@ -32,6 +37,15 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+
+  /* New */
+  background-color: lightgray;
+}
+
+/* New */
+html {
+  height: 100%;
+  width: 100%;
 }
 
 h1 {
@@ -58,7 +72,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -69,4 +83,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */

@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 
 public interface IProductsService
 {
-	ProductEntry GetProduct([NotEmpty] string productId);
+	ProductModel GetProduct([NotEmpty] string productId);
 
-	TotalItemsResult<ProductEntry> GetProducts(string name, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize);
+	TotalItemsResult<ProductModel> GetProducts(string name, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize);
 }
