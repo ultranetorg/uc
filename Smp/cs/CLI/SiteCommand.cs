@@ -56,25 +56,26 @@ public class SiteCommand : SmpCommand
 		return a;
 	}
 
-	public CommandAction List()
+	public CommandAction ListCategories()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-		a.Name = "l";
-		a.Help = new() {Description = "Get sites of a specified account",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-						Arguments = [new ("<first>", "Id of an account to get sites from")],
-						Examples = [new (null, $"{Keyword} l {EID.Example}")]};
+		a.Name = "lc";
+		a.Help = new() {Description = "Get categories of a specified site",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
+						Arguments = [new ("<first>", "Id of a site to get categories from")],
+						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new AccountSitesRequest(AccountIdentifier.Parse(Args[0].Name)));
+								var rp = Rdc(new SiteCategoriesRequest(FirstSiteId));
 
-								Dump(rp.Sites.Select(i => Rdc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Owners[0] + (i.Owners.Length > 1 ? $",  {{{i.Owners.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Dump(rp.Categories.Select(i => Rdc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
-								return rp.Sites;
+								return rp.Categories;
 							};
 		return a;
 	}
+
 }

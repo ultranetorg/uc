@@ -7,7 +7,7 @@ public enum AuthorFlag : byte
 
 public class Author : IBinarySerializable
 {
-	public static readonly Time	RenewaPeriod = Time.FromDays(365);
+	public static readonly Time	RenewalPeriod = Time.FromDays(365);
 
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
@@ -37,7 +37,7 @@ public class Author : IBinarySerializable
 	public static bool CanRenew(Author publisher, Account by, Time time)
 	{
 		return  publisher == null || 
-				publisher != null && publisher.Owner == by.Id && time > publisher.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
+				publisher != null && publisher.Owner == by.Id && time > publisher.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
 																 time <= publisher.Expiration;
 	}
 

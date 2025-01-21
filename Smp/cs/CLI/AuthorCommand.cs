@@ -86,29 +86,4 @@ public class AuthorCommand : SmpCommand
 							};
 		return a;
 	}
-
-	public CommandAction List()
-	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-
-		a.Name = "l";
-		a.Help = new() {Description = "Get authors that specified account owns",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-						
-						Arguments = [new ("<first>", "Id of an account to get authors from")],
-						
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}"),
-									 new (null, $"{Keyword} {a.Name} {AA.Example}")]};
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-				
-								var rp = Rdc(new AccountAuthorsRequest(FirstAuthorId));
-
-								Dump(rp.Authors, ["Id"], [i => i]);
-					
-								return rp.Authors;
-							};
-		return a;
-	}
 }

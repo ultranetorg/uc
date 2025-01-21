@@ -27,12 +27,12 @@ public class PublicationRequest : SmpPpc<PublicationResponse>
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new PublicationResponse {Page = e};
+			return new PublicationResponse {Publication = e};
 		}
 	}
 }
 
 public class PublicationResponse : PeerResponse
 {
-	public Publication	Page {get; set;}
+	public Publication	Publication {get; set;}
 }

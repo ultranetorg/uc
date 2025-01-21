@@ -15,6 +15,7 @@ public enum SmpPpcClass : byte
 	Site,
 	SiteCategories,
 	Category,
+	CategoryPublications,
 	Publication,
 }
 

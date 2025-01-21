@@ -115,32 +115,11 @@ public class PublicationCommand : SmpCommand
 				
 								var rp = Rdc(new PublicationRequest(FirstEntityId));
 
-								Dump(rp.Page);
+								Dump(rp.Publication);
 					
-								return rp.Page;
+								return rp.Publication;
 							};
 		return a;
 	}
 
-	public CommandAction ListCategories()
-	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-
-		a.Name = "l";
-		a.Help = new() {Description = "Get categories of a specified site",
-						Syntax = $"{Keyword}  {a.NamesSyntax} {EID}",
-						Arguments = [new ("<first>", "Id of a site to get categories from")],
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-				
-								var rp = Rdc(new SiteCategoriesRequest(FirstEntityId));
-
-								Dump(rp.Categories.Select(i => Rdc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
-					
-								return rp.Categories;
-							};
-		return a;
-	}
 }

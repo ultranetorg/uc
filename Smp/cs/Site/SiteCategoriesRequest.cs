@@ -8,9 +8,9 @@ public class SiteCategoriesRequest : SmpPpc<SiteCategoriesResponse>
 	{
 	}
 
-	public SiteCategoriesRequest(EntityId id)
+	public SiteCategoriesRequest(EntityId siteid)
 	{
-		Site = id;
+		Site = siteid;
 	}
 
 	public override PeerResponse Execute()

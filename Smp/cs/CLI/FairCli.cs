@@ -28,9 +28,17 @@ public class FairCli : McvCli
 
 		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
-		return	ct?.GetConstructor([typeof(FairCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command 
-				??
-				base.Create(commnad, flow);
+		var c = ct?.GetConstructor([typeof(FairCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
+				
+		if(c != null)
+		{
+			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.FirstOrDefault()?.Name));
+			
+			if(a != null)
+				return c;
+		}
+		
+		return base.Create(commnad, flow);
 	}
 
 	public override object Execute(Boot boot, Flow flow)

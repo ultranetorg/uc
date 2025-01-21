@@ -4,7 +4,7 @@ namespace Uccs.Smp;
 
 public class CategoryCommand : SmpCommand
 {
-	EntityId FirstPageId => EntityId.Parse(Args[0].Name);
+	EntityId FirstEntityId => EntityId.Parse(Args[0].Name);
 
 	public CategoryCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -59,7 +59,7 @@ public class CategoryCommand : SmpCommand
 
 								var o = new CategoryUpdation();
 
-								o.Category = FirstPageId;
+								o.Category = FirstEntityId;
 
 								if(One("parent")?.Value is string id)
 								{	
@@ -68,6 +68,28 @@ public class CategoryCommand : SmpCommand
 								}
 
 								return o;
+							};
+		return a;
+	}
+
+	public CommandAction ListPublications()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "lp";
+		a.Help = new() {Description = "Get publications of a specified category",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
+						Arguments = [new ("<first>", "Id of a category to get publications of")],
+						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+				
+								var rp = Rdc(new CategoryPublicationsRequest(FirstEntityId));
+
+								Dump(rp.Publications.Select(i => Rdc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+					
+								return rp.Publications;
 							};
 		return a;
 	}
