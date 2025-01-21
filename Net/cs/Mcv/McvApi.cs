@@ -368,7 +368,24 @@ public class TransactApc : McvApc
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		return mcv.Peering.Transact(Operations, Signer, Await, workflow).Select(i => new ApcTransaction(i));
+		var t = mcv.Peering.Transact(Operations, Signer, null, Await, workflow);
+	
+		return new OutgoingTransaction(t);
+	}
+}
+
+public class OutgoingTransactionApc : McvApc
+{
+	public byte[]	Tag { get; set; }
+
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(mcv.Peering.Lock)
+		{
+			var t = mcv.Peering.OutgoingTransactions.Find(i => i.Tag != null && i.Tag.SequenceEqual(Tag));
+
+			return t != null ? new OutgoingTransaction(t) : null;
+		}
 	}
 }
 
@@ -386,7 +403,7 @@ public class EstimateOperationApc : McvApc
 	}
 }
 
-public class ApcTransaction
+public class OutgoingTransaction
 {
 	public TransactionId			Id { get; set; }
 	public int						Nid { get; set; }
@@ -404,12 +421,13 @@ public class ApcTransaction
 	public TransactionStatus		__ExpectedStatus { get; set; }
 
 	public IEnumerable<Operation>	Operations  { get; set; }
+	public LogMessage[]				Log { get; set; }
 
-	public ApcTransaction()
+	public OutgoingTransaction()
 	{
 	}
 
-	public ApcTransaction(Transaction transaction)
+	public OutgoingTransaction(Transaction transaction)
 	{
 		Nid					= transaction.Nid;
 		Id					= transaction.Id;
@@ -425,7 +443,9 @@ public class ApcTransaction
 		MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
 		Signer				= transaction.Signer;
 		Status				= transaction.Status;
-		__ExpectedStatus	= transaction.__ExpectedResult;
+		__ExpectedStatus	= transaction.__ExpectedOutcome;
+
+		Log					= transaction.Flow.Log.Messages.ToArray();
 	}
 }
 
@@ -434,7 +454,7 @@ public class IncomingTransactionsApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return node.Peering.IncomingTransactions.Select(i => new ApcTransaction(i)).ToArray();
+			return node.Peering.IncomingTransactions.Select(i => new OutgoingTransaction(i)).ToArray();
 	}
 }
 
@@ -443,7 +463,7 @@ public class OutgoingTransactionsApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return node.Peering.OutgoingTransactions.Select(i => new ApcTransaction(i)).ToArray();
+			return node.Peering.OutgoingTransactions.Select(i => new OutgoingTransaction(i)).ToArray();
 	}
 }
 

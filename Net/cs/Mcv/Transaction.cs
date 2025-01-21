@@ -7,8 +7,8 @@ public enum TransactionStatus
 
 public class Transaction : IBinarySerializable
 {
-	const int						PoWLength = 16;
-	const int						TagLengthMax = 1024;
+	public const int				PoWLength = 16;
+	public const int				TagLengthMax = 1024;
 
 	public int						Nid { get; set; }
 	TransactionId					_Id;
@@ -52,7 +52,7 @@ public class Transaction : IBinarySerializable
 	public TransactionStatus		Status;
 	public IPeer					Rdi;
 	public Flow						Flow;
-	public TransactionStatus		__ExpectedResult = TransactionStatus.None;
+	public TransactionStatus		__ExpectedOutcome = TransactionStatus.None;
 
 	public bool Valid(Mcv mcv)
 	{
@@ -164,7 +164,7 @@ public class Transaction : IBinarySerializable
 
 	public void	WriteForVote(BinaryWriter writer)
 	{
-		writer.Write((byte)__ExpectedResult);
+		writer.Write((byte)__ExpectedOutcome);
 
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -182,7 +182,7 @@ public class Transaction : IBinarySerializable
  		
 	public void	ReadForVote(BinaryReader reader)
 	{
-		__ExpectedResult = (TransactionStatus)reader.ReadByte();
+		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 
 		Member	= reader.Read<EntityId>();
 		Signature	= reader.ReadSignature();
@@ -203,7 +203,7 @@ public class Transaction : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write((byte)__ExpectedResult);
+		writer.Write((byte)__ExpectedOutcome);
 	
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -221,7 +221,7 @@ public class Transaction : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		__ExpectedResult = (TransactionStatus)reader.ReadByte();
+		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 	
 		Member	= reader.Read<EntityId>();
 		Signature	= reader.ReadSignature();

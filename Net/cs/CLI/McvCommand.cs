@@ -71,12 +71,34 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public ApcTransaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
+	public OutgoingTransaction Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 	{
-		return Cli.ApiClient.Request<ApcTransaction[]>(new TransactApc {Operations = operations,
-																			Signer = signer,
-																			Await = await},
-															Flow);
+		var t =  Cli.ApiClient.Request<OutgoingTransaction>(new TransactApc {Operations = operations,
+																			 Signer = signer,
+																			 Await = await}, Flow);
+		
+		int n = 0;
+
+		do 
+		{
+			t = Cli.ApiClient.Request<OutgoingTransaction>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+
+			foreach(var i in t.Log.Skip(n))
+			{
+				foreach(var j in i.Text)
+					Report(j);
+			}
+
+			n += t.Log.Length;
+
+			Thread.Sleep(10);
+		}
+		while(t.Status != await);
+
+		if(t.Status == TransactionStatus.Confirmed)
+			Dump(t);
+
+		return t;
 	}
 
 	//protected AccountKey GetPrivate(string walletarg)
