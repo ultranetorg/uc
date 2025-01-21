@@ -1,4 +1,4 @@
-﻿namespace Uccs.Fair;
+﻿namespace Uccs.Smp;
 
 public class ProductModel
 {

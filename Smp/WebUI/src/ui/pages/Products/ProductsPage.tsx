@@ -8,6 +8,7 @@ import { useQueryParams } from "./hooks"
 
 export const ProductsPage = () => {
   const { setSearchParams, name, page, pageSize } = useQueryParams()
+  console.log(name)
 
   const { isPending, data: products } = useGetProducts(name ?? undefined, page, pageSize)
 
@@ -28,7 +29,7 @@ export const ProductsPage = () => {
       <SearchInput
         value={name ?? ""}
         onChange={handleChange}
-        className="mb-4 h-10 w-full"
+        className="mb-4 h-10 w-full text-black"
         placeholder="Enter Product Name"
       />
       <div className="mb-4 text-center text-purple-500">(Advertisements)</div>
