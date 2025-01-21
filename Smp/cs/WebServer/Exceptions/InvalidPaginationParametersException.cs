@@ -1,6 +1,6 @@
 ﻿using Uccs.Web.Exceptions;
 
-namespace Uccs.Fair;
+namespace Uccs.Smp;
 
 public class InvalidPaginationParametersException : BaseException
 {

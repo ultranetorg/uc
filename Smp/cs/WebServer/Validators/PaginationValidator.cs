@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Uccs.Web.Utilities;
 
-namespace Uccs.Fair;
+namespace Uccs.Smp;
 
 public class PaginationValidator : IPaginationValidator
 {

@@ -1,4 +1,4 @@
-﻿namespace Uccs.Fair;
+﻿namespace Uccs.Smp;
 
 public static class Pagination
 {

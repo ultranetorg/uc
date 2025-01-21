@@ -1,16 +1,16 @@
 ﻿using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
-namespace Uccs.Fair;
+namespace Uccs.Smp;
 
 public class ProductsService : IProductsService
 {
 	private readonly ILogger<ProductsService> _logger;
-	private readonly FairMcv _mcv;
+	private readonly SmpMcv _mcv;
 
 	private readonly IList<ProductEntry> _mockedProducts = new List<ProductEntry>();
 
-	public ProductsService(ILogger<ProductsService> logger, FairMcv mcv)
+	public ProductsService(ILogger<ProductsService> logger, SmpMcv mcv)
 	{
 		_logger = logger;
 		_mcv = mcv;

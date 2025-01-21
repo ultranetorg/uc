@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Uccs.Fair;
+namespace Uccs.Smp;
 
 public interface IEntityIdValidator
 {

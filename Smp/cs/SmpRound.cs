@@ -150,6 +150,8 @@ public class SmpRound : Round
 
 		var a = Mcv.Publications.Create();
 		a.Id = new EntityId(site.Id.B, e);
+		a.Sections = [];
+		a.Comments = [];
 			
 		return AffectedPublications[a.Id] = a;
 	}
