@@ -36,7 +36,7 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType PRIVATEKEY	= new ArgumentType("PRIVATEKEY",@"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
 	public readonly ArgumentType NAME		= new ArgumentType("NAME",		@"An arbitrary single-line string",										["One"]);
 	public readonly ArgumentType BY			= new ArgumentType("BY",		@"Byte-Years in form of integer number",								["300"]);
-	public readonly ArgumentType EC			= new ArgumentType("EC",		@"Execution Cycles in form of integer number",							["123"]);
+	public readonly ArgumentType EC			= new ArgumentType("EC",		@"Execution Cycles in form of integer number",							["1000"]);
 	//public readonly ArgumentType NET		= new ArgumentType("NET",		@"Net name",															[@"PublicTest"]);
 	public readonly ArgumentType TEXT		= new ArgumentType("TEXT",		@"Arbitary text, can be multi-line",									["Hello world!"]);
 

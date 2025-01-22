@@ -1,7 +1,6 @@
-﻿namespace Uccs
+﻿namespace Uccs;
+
+public interface ITextSerialisable
 {
-	public interface ITextSerialisable
-	{
-		void Read(string text);
-	}
+	void Read(string text);
 }

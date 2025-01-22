@@ -1,115 +1,111 @@
-﻿using System.IO;
-using System.Linq;
+﻿namespace Uccs;
 
-namespace Uccs
+enum EBonHeader : byte
 {
-	enum EBonHeader : byte
+	Null		= 0b00000000,
+	Parent		= 0b10000000,
+	Last		= 0b01000000,
+	HasMeta		= 0b00100000,
+	HasValue	= 0b00010000,
+	BigValue	= 0b00001000
+};
+
+public class XonBinaryWriter : IXonWriter 
+{
+	Stream Stream; 
+	BinaryWriter Writer;
+
+	public XonBinaryWriter(Stream s)
 	{
-		Null		= 0b00000000,
-		Parent		= 0b10000000,
-		Last		= 0b01000000,
-		HasMeta		= 0b00100000,
-		HasValue	= 0b00010000,
-		BigValue	= 0b00001000
-	};
+		Stream = s;
+	}
 
-	public class XonBinaryWriter : IXonWriter 
+	public void Start()
 	{
-		Stream Stream; 
-		BinaryWriter Writer;
+		Writer = new BinaryWriter(Stream);
+		Writer.WriteUtf8(IXonWriter.BonHeader);
+	}
 
-		public XonBinaryWriter(Stream s)
+	public void Finish()
+	{
+		Stream.Flush();
+	}
+
+	public void Write(Xon root)
+	{
+		if(root.Serializator is IXonBinaryMetaSerializator s)
 		{
-			Stream = s;
+			var h = s.SerializeHeader();
+			Writer.Write7BitEncodedInt(h.Length);
+			Writer.Write(h);
+		}
+		else
+			Writer.Write7BitEncodedInt(0);
+
+		foreach(var i in root.Nodes)
+		{
+			Write(i, root.Nodes.Last());
+		}
+	}
+
+	void Write(Xon node, Xon last)
+	{
+		var f = EBonHeader.Null;
+			
+		if(node.Nodes.Any())
+		{
+			f |= EBonHeader.Parent;
+		}
+	
+		if(node == last)
+		{
+			f |= EBonHeader.Last;
 		}
 
-		public void Start()
-		{
-			Writer = new BinaryWriter(Stream);
-			Writer.WriteUtf8(IXonWriter.BonHeader);
-		}
+		var v = node.Value as byte[];
 
-		public void Finish()
+		if(v != null)
 		{
-			Stream.Flush();
-		}
+			f |= EBonHeader.HasValue;
 
-		public void Write(Xon root)
-		{
-			if(root.Serializator is IXonBinaryMetaSerializator s)
+			if(v.Length <= 8)
 			{
-				var h = s.SerializeHeader();
-				Writer.Write7BitEncodedInt(h.Length);
-				Writer.Write(h);
-			}
+				f |= (EBonHeader)(v.Length - 1);
+			} 
 			else
-				Writer.Write7BitEncodedInt(0);
-
-			foreach(var i in root.Nodes)
 			{
-				Write(i, root.Nodes.Last());
+				f |= EBonHeader.BigValue;
 			}
 		}
 
-		void Write(Xon node, Xon last)
+		if(node.Meta != null)
 		{
-			var f = EBonHeader.Null;
-				
-			if(node.Nodes.Any())
-			{
-				f |= EBonHeader.Parent;
-			}
-		
-			if(node == last)
-			{
-				f |= EBonHeader.Last;
-			}
+			f |= EBonHeader.HasMeta;
+		}
+			
+		Writer.Write((byte)f);
+		Writer.WriteUtf8(node.Name);
 
-			var v = node.Value as byte[];
+		if(node.Meta != null && node.Serializator is IXonBinaryMetaSerializator s)
+		{
+			var m = s.SerializeMeta(node.Meta);
+			Writer.Write7BitEncodedInt(m.Length);
+			Writer.Write(m);
+		}
 
-			if(v != null)
+		if(v != null)
+		{
+			if(f.HasFlag(EBonHeader.BigValue))
 			{
-				f |= EBonHeader.HasValue;
-
-				if(v.Length <= 8)
-				{
-					f |= (EBonHeader)(v.Length - 1);
-				} 
-				else
-				{
-					f |= EBonHeader.BigValue;
-				}
+				Writer.Write7BitEncodedInt(v.Length);
 			}
 
-			if(node.Meta != null)
-			{
-				f |= EBonHeader.HasMeta;
-			}
-				
-			Writer.Write((byte)f);
-			Writer.WriteUtf8(node.Name);
+			Writer.Write(v);
+		}
 
-			if(node.Meta != null && node.Serializator is IXonBinaryMetaSerializator s)
-			{
-				var m = s.SerializeMeta(node.Meta);
-				Writer.Write7BitEncodedInt(m.Length);
-				Writer.Write(m);
-			}
-
-			if(v != null)
-			{
-				if(f.HasFlag(EBonHeader.BigValue))
-				{
-					Writer.Write7BitEncodedInt(v.Length);
-				}
-
-				Writer.Write(v);
-			}
-
-			foreach(var i in node.Nodes)
-			{
-				Write(i, node.Nodes.Last());
-			}
+		foreach(var i in node.Nodes)
+		{
+			Write(i, node.Nodes.Last());
 		}
 	}
 }

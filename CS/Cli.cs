@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public abstract class Cli
 {

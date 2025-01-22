@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Uccs;
+﻿namespace Uccs;
 
 public interface IBinarySerializable
 {
