@@ -8,7 +8,6 @@ import { useQueryParams } from "./hooks"
 
 export const ProductsPage = () => {
   const { setSearchParams, name, page, pageSize } = useQueryParams()
-  console.log(name)
 
   const { isPending, data: products } = useGetProducts(name ?? undefined, page, pageSize)
 
