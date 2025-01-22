@@ -13,6 +13,7 @@ namespace Uccs
 {
 	public abstract class Apc
 	{
+		public const string		AccessKey = "accesskey";
 		public const string		Postfix = "Apc";
 		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
 
@@ -187,7 +188,7 @@ namespace Uccs
 			
 			try
 			{
-				if(!string.IsNullOrWhiteSpace(Settings.AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get("accesskey") != Settings.AccessKey)
+				if(!string.IsNullOrWhiteSpace(Settings.AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.AccessKey)
 				{
 					RespondError(rp, HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
 					rp.Close();

@@ -47,7 +47,7 @@ public class SiteCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new SiteRequest(FirstSiteId));
+								var rp = Ppc(new SiteRequest(FirstSiteId));
 
 								Dump(rp.Site);
 					
@@ -69,9 +69,9 @@ public class SiteCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new SiteCategoriesRequest(FirstSiteId));
+								var rp = Ppc(new SiteCategoriesRequest(FirstSiteId));
 
-								Dump(rp.Categories.Select(i => Rdc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								Dump(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};

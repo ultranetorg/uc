@@ -77,7 +77,7 @@ namespace Uccs
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?accesskey={Key}"))
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?{Apc.AccessKey}={Key}"))
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
@@ -101,7 +101,7 @@ namespace Uccs
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?accesskey={Key}"))
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?{Apc.AccessKey}={Key}"))
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	

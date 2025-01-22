@@ -85,9 +85,9 @@ public class CategoryCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new CategoryPublicationsRequest(FirstEntityId));
+								var rp = Ppc(new CategoryPublicationsRequest(FirstEntityId));
 
-								Dump(rp.Publications.Select(i => Rdc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								Dump(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication).ToArray(), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};

@@ -122,7 +122,7 @@ public abstract class Round : IBinarySerializable
 	{
 		int e = -1;
 
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id - 1))
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id))
 		{	
 			var eids = r.NextEidsByTable(table);
 

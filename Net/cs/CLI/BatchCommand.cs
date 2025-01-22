@@ -32,6 +32,8 @@ public class BatchCommand : McvCommand
 													.Select(x => {
 																	var c = Cli.Create(x.Nodes, Flow);
 
+																	c.Args.RemoveAt(0);
+
 																	var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(x.Nodes.Skip(1).First().Name));
 
 																	return a.Execute();

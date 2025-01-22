@@ -467,7 +467,7 @@ public class OutgoingTransactionsApc : McvApc
 	}
 }
 
-public class PeerRequestApc : McvApc
+public class PpcApc : McvApc
 {
 	public FuncPeerRequest Request { get; set; }
 

@@ -32,8 +32,8 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
-								var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
+								var s = Ppc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+								var d = Ppc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
 								return new ResourceLinkCreation(s.Id, d.Id);
 							};
@@ -61,8 +61,8 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var s = Rdc(new ResourceRequest(GetResourceAddress("from"))).Resource;
-								var d = Rdc(new ResourceRequest(GetResourceAddress("to"))).Resource;
+								var s = Ppc(new ResourceRequest(GetResourceAddress("from"))).Resource;
+								var d = Ppc(new ResourceRequest(GetResourceAddress("to"))).Resource;
 
 								return new ResourceLinkDeletion(s.Id, d.Id);
 							};
@@ -89,9 +89,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 							Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-							var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+							var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 				
-							Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i.Destination)).Resource}),
+							Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Ppc(new ResourceRequest(i.Destination)).Resource}),
 									["#", "Flags", "Destination", "Destination Data"],
 									[i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
 
@@ -121,9 +121,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name)));
 																	
-								Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Rdc(new ResourceRequest(i)).Resource}),
+								Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourceRequest(i)).Resource}),
 										["#", "Source", "Source Data"],
 										[i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
 

@@ -293,6 +293,8 @@ namespace Uccs
 
 		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, int, object>> gets, int tab = 0)
 		{
+			items = [..items];
+
 			if(!items.Any())
 			{	
 				Report("No results");

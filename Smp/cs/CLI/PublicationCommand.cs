@@ -113,7 +113,7 @@ public class PublicationCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new PublicationRequest(FirstEntityId));
+								var rp = Ppc(new PublicationRequest(FirstEntityId));
 
 								Dump(rp.Publication);
 					

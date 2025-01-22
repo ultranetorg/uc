@@ -25,7 +25,7 @@ public class AccountCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var i = Rdc(new AccountRequest(First));
+								var i = Ppc(new AccountRequest(First));
 												
 								Dump(i.Account);
 
