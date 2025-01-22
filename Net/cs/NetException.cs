@@ -31,6 +31,7 @@ public enum NodeError : byte
 	AllNodesFailed,
 	NotOnlineYet,
 	CircularRoute,
+	LimitExceeded
 }
 
 public enum EntityError : byte

@@ -617,7 +617,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					t.Flow	 = Flow;
 					t.Net	 = Net;
 					t.Signer = g;
- 					t.__ExpectedResult = TransactionStatus.Confirmed;
+ 					t.__ExpectedOutcome = TransactionStatus.Confirmed;
 			
 					t.AddOperation(Mcv.CreateCandidacyDeclaration());
 
@@ -883,7 +883,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			IEnumerable<IGrouping<AccountAddress, Transaction>> nones;
 
 			lock(Lock)
-				nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status >= TransactionStatus.Accepted) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
+				nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
 			foreach(var g in nones)
 			{
@@ -935,6 +935,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 						t.Sign(Vault.GetKey(t.Signer), at.PowHash);
 						txs.Add(t);
+
+						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Signature={t.Signature.ToHex()}");
 					}
 					catch(NodeException ex)
 					{
@@ -947,12 +949,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						Flow.Log?.ReportError(this, "AllocateTransactionRequest", ex);
 
-						if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
+						if(t.__ExpectedOutcome == TransactionStatus.FailedOrNotFound)
 						{
 							lock(Lock)
 							{
 								t.Status = TransactionStatus.FailedOrNotFound;
-								OutgoingTransactions.Remove(t);
+								///OutgoingTransactions.Remove(t);
 							}
 						} 
 						//else
@@ -983,16 +985,16 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
 							{
 								t.Status = TransactionStatus.Accepted;
-								//t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted} by Member={m}");
+								t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted}: Member={{{m}}}");
 							}
 							else
 							{
-								//t.Flow.Log?.Report(this, $"{t.Status} by Member={m}");
+								t.Flow.Log?.Report(this, $"Rejected: Member={{{m}}}");
 
-								if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
+								if(t.__ExpectedOutcome == TransactionStatus.FailedOrNotFound)
 								{
 									t.Status = TransactionStatus.FailedOrNotFound;
-									OutgoingTransactions.Remove(t);
+									///OutgoingTransactions.Remove(t);
 								} 
 								else
 								{
@@ -1034,31 +1036,31 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																	
 							if(t.Status != i.Status)
 							{
-								//t.Flow.Log?.Report(this, $"{i.Status}, Id={i.Id}, Nid={i.Nid} -> Placed by MemberId={t.Generator}");
+								t.Flow.Log?.Report(this, $"{i.Status}");
 
 								t.Status = i.Status;
 
 								if(t.Status == TransactionStatus.FailedOrNotFound)
 								{
-									if(t.__ExpectedResult == TransactionStatus.Confirmed)
+									if(t.__ExpectedOutcome == TransactionStatus.Confirmed)
 										t.Status = TransactionStatus.None;
 									else
 									{	
-										OutgoingTransactions.Remove(t);
+										///OutgoingTransactions.Remove(t);
 									}
 								}
 								else if(t.Status == TransactionStatus.Confirmed)
 								{
-									if(t.__ExpectedResult == TransactionStatus.FailedOrNotFound)
+									if(t.__ExpectedOutcome == TransactionStatus.FailedOrNotFound)
 										Debugger.Break();
 									else
 									{
 										t.Id = i.Id; 
-										OutgoingTransactions.Remove(t);
+										///OutgoingTransactions.Remove(t);
 									}
 								}
 							}
-					}
+						}
 				}
 			}
 			
@@ -1085,47 +1087,39 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			Flow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
 		}
 	}
-	
-	public Transaction Transact(Operation operation, AccountAddress signer, TransactionStatus await, Flow workflow)
-	{
-		return Transact([operation], signer, await, workflow)[0];
-	}
 
- 	public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await, Flow workflow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, AccountAddress signer, byte[] tag, TransactionStatus await, Flow flow)
  	{
 		if(!Vault.IsUnlocked(signer))
-		{
 			throw new NodeException(NodeError.NotUnlocked);
-		}
+
+		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
+			throw new NodeException(NodeError.LimitExceeded);
 
 		var p = new List<Transaction>();
 
-		while(operations.Any())
-		{
-			var t = new Transaction();
-			t.Net = Net;
-			t.Signer = signer;
-			t.Flow = workflow;
- 			t.__ExpectedResult = await;
+		var t = new Transaction();
+		t.Tag		= tag ?? Guid.NewGuid().ToByteArray();
+		t.Net		= Net;
+		t.Signer	= signer;
+		t.Flow		= flow;
+ 		t.__ExpectedOutcome	= await;
 		
-			foreach(var i in operations.Take(Net.ExecutionCyclesPerTransactionLimit))
-			{
-				t.AddOperation(i);
-			}
-
- 			lock(Lock)
-			{	
-		 		Transact(t);
-			}
- 
-			Await(t, await, workflow);
-
-			p.Add(t);
-
-			operations = operations.Skip(Net.ExecutionCyclesPerTransactionLimit);
+		foreach(var i in operations)
+		{
+			t.AddOperation(i);
 		}
 
-		return p.ToArray();
+ 		lock(Lock)
+		{	
+		 	Transact(t);
+		}
+ 
+		///Await(t, await, flow);
+
+		p.Add(t);
+
+		return t;
  	}
 
 	void Await(Transaction t, TransactionStatus s, Flow workflow)

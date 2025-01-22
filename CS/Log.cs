@@ -9,9 +9,9 @@ namespace Uccs
 	public class LogMessage
 	{
 		public object		Sender;
-		public string		Subject;
-		public Log.Severity Severity;
-		public string[]		Text;
+		public string		Subject { get; set; }
+		public Log.Severity Severity { get; set; }
+		public string[]		Text { get; set; }
 		public Log			Log;
 
 		public override string ToString()

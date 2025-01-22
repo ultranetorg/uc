@@ -105,15 +105,7 @@ public class McvCli : Cli
 			}
 			else
 			{
-				var txs = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(args));
-
-				foreach(var i in txs)
-				{	
-					if(i.Status != TransactionStatus.FailedOrNotFound)
-						c.Dump(i);
-					else
-						c.Flow.Log?.Report($"   {nameof(ApcTransaction.Status)} : {i.Status}");
-				}
+				var t = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(args));
 
 				c.Transacted?.Invoke();
 			}
