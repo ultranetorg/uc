@@ -23,18 +23,20 @@ public class BatchCommand : McvCommand
 							Examples = [new (null,  $"{Keyword} a={{account ut to={AA.Examples[1]} ec=5000}}" +
 													$"			b={{account ut to={AA.Examples[2]} ec=5000}}" +
 													$"			c={{account ut to={AA.Examples[3]} ec=5000}}" +
-													$"			{SignerArg}={AA.Examples[0]}")]
+													$"			{SignerArg}={AA.Example}")]
 						};
 
 		a.Execute = () =>	{
 								var results = Args	.Where(i =>	i.Name != AwaitArg && 
 																i.Name != SignerArg)
 													.Select(x => {
-																	var c = Cli.Create(x.Nodes, Flow);
+																	var op = (x.Value as Xon).Nodes;
+
+																	var c = Cli.Create(op, Flow);
 
 																	c.Args.RemoveAt(0);
 
-																	var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(x.Nodes.Skip(1).First().Name));
+																	var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(op.Skip(1).First().Name));
 
 																	return a.Execute();
 																}
