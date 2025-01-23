@@ -146,6 +146,16 @@ public class UnlockWalletApc : UosApc
 	}
 }
 
+public class AuthorizeApc : UosApc
+{
+	public string Data { get; set; }
+
+	public override object Execute(Uos sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return null;
+	}
+}
+
 //public class PackageGetApc : UosApc
 //{
 //	public AprvAddress	Address { get; set; }
