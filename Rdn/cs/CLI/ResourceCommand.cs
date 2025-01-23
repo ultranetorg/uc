@@ -68,7 +68,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var r = Rdc(new ResourceRequest(First)).Resource;
+								var r = Ppc(new ResourceRequest(First)).Resource;
 
 								return new ResourceDeletion {Resource = r.Id};
 							};
@@ -99,7 +99,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var	r = Rdc(new ResourceRequest(First)).Resource;
+								var	r = Ppc(new ResourceRequest(First)).Resource;
 
 								Transacted = () =>	{
 														Api(new LocalResourceUpdateApc {Address = First,
@@ -136,7 +136,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var	r = Rdc(new ResourceRequest(First)).Resource;
+								var	r = Ppc(new ResourceRequest(First)).Resource;
 				
 								Dump(r);
 

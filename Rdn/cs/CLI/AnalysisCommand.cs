@@ -33,7 +33,7 @@ public class AnalysisCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var r = Rdc(new ResourceRequest(Ura.Parse(Args[0].Name))).Resource;
+								var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name))).Resource;
 
 
 								return new AnalysisResultUpdation {	Analysis = r.Id, 

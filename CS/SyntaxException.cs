@@ -1,11 +1,8 @@
-﻿using System;
+﻿namespace Uccs;
 
-namespace Uccs
+public class SyntaxException : Exception
 {
-	public class SyntaxException : Exception
+	public SyntaxException(string msg) : base(msg)
 	{
-		public SyntaxException(string msg) : base(msg)
-		{
-		}
 	}
 }

@@ -47,7 +47,7 @@ public class NodeCommand : McvCommand
 									h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 									var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-									Cli.ApiClient = new ApiClient(http, Args[0].Name, GetString("accesskey", null));
+									Cli.ApiClient = new ApiClient(http, Args[0].Name, GetString(Apc.AccessKey, null));
 
 									while(true)
 									{
@@ -81,12 +81,12 @@ public class NodeCommand : McvCommand
 								};
 
 		attach.Help = new()	{	Description = "Connects to existing node instance via JSON RPC protocol",
-								Syntax = $"{Keyword} {attach.NamesSyntax} HOST accesskey={PASSWORD}",
+								Syntax = $"{Keyword} {attach.NamesSyntax} HOST {Apc.AccessKey}={PASSWORD}",
 
 								Arguments =
 								[
 									new ("<first>", "URL address of node to connect to"),
-									new ("accesskey", "API access key")
+									new (Apc.AccessKey, "API access key")
 								],
 
 								Examples =
@@ -113,7 +113,7 @@ public class NodeCommand : McvCommand
 								h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 								var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-								Cli.ApiClient = new ApiClient(http, Args[0].Name, GetString("accesskey", null));
+								Cli.ApiClient = new ApiClient(http, Args[0].Name, GetString(Apc.AccessKey, null));
 
 								if(Has("_confirmation"))
 								{
@@ -121,7 +121,7 @@ public class NodeCommand : McvCommand
 									Console.ReadKey();
 								}
 
-								Cli.Execute(Args.Skip(1).Where(i => i.Name != "accesskey" && i.Name != "_confirmation"), Flow);
+								Cli.Execute(Args.Skip(1).Where(i => i.Name != Apc.AccessKey && i.Name != "_confirmation"), Flow);
 
 								if(Has("_confirmation"))
 								{
@@ -133,11 +133,11 @@ public class NodeCommand : McvCommand
 							};
 
 		send.Help = new()  {Description = "Send spicified command to existing running node",
-							Syntax = $"{Keyword} {send.NamesSyntax} HOST accesskey={PASSWORD} command",
+							Syntax = $"{Keyword} {send.NamesSyntax} HOST {Apc.AccessKey}={PASSWORD} command",
 
 							Arguments =	[
 											new ("HOST", "URL address of node to send a command to"),
-											new ("accesskey", "API access key"),
+											new (Apc.AccessKey, "API access key"),
 											new ("command", "A command to send for execution")
 										],
 
@@ -275,7 +275,7 @@ public class NodeCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var rp = Rdc(new MembersRequest());
+								var rp = Ppc(new MembersRequest());
 	
 								var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
 

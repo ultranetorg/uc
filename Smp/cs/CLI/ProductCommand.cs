@@ -70,7 +70,7 @@ public class ProductCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var	r = Rdc(new ProductRequest(First)).Product;
+								var	r = Ppc(new ProductRequest(First)).Product;
 
 								var o =	new ProductUpdation(r.Id);
 
@@ -98,7 +98,7 @@ public class ProductCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var	r = Rdc(new ProductRequest(First)).Product;
+								var	r = Ppc(new ProductRequest(First)).Product;
 				
 								Dump(r);
 

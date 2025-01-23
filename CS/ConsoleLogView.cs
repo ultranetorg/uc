@@ -1,107 +1,103 @@
-﻿using System;
-using System.Linq;
+﻿namespace Uccs;
 
-namespace Uccs
+public interface ILogView
 {
-	public interface ILogView
+	public abstract bool ShowSender { get;set; }
+	public abstract bool ShowSubject { get;set; }
+	public abstract int BufferWidth { get; }
+}
+
+public class ConsoleLogView : ILogView
+{
+	public Log		Log { get; protected set; }
+	object			Lock = new();
+	public bool		ShowSender { get;set; } = false;
+	public bool		ShowSubject { get;set; } = false;
+	public int		BufferWidth => Console.BufferWidth;
+	public string[]	Tags;
+
+	public ConsoleLogView(bool showsender, bool showsubject)
 	{
-		public abstract bool ShowSender { get;set; }
-		public abstract bool ShowSubject { get;set; }
-		public abstract int BufferWidth { get; }
+		ShowSender = showsender;
+		ShowSubject = showsubject;
+
 	}
 
-	public class ConsoleLogView : ILogView
+	public void StartListening(Log log)
 	{
-		public Log		Log { get; protected set; }
-		object			Lock = new();
-		public bool		ShowSender { get;set; } = false;
-		public bool		ShowSubject { get;set; } = false;
-		public int		BufferWidth => Console.BufferWidth;
-		public string[]	Tags;
+		Log = log;
 
-		public ConsoleLogView(bool showsender, bool showsubject)
+		lock(Log.Messages)
 		{
-			ShowSender = showsender;
-			ShowSubject = showsubject;
-
-		}
-
-		public void StartListening(Log log)
-		{
-			Log = log;
-
-			lock(Log.Messages)
+			foreach(var i in Log.Messages)
 			{
-				foreach(var i in Log.Messages)
-				{
-					OnReported(i);
-				}
+				OnReported(i);
 			}
-	
-			log.Reported += OnReported;
 		}
 
-		public void StopListening()
-		{
-			Log.Reported -= OnReported;
-		}
+		log.Reported += OnReported;
+	}
 
-		public void OnReported(LogMessage m)
+	public void StopListening()
+	{
+		Log.Reported -= OnReported;
+	}
+
+	public void OnReported(LogMessage m)
+	{
+		lock(Lock)
 		{
-			lock(Lock)
+			if(Tags != null && m.Subject != null && m.Subject.Split(' ').Any(i => !Tags.Contains(i)))
+				return;
+
+			var prev = Console.ForegroundColor;
+
+			Console.ForegroundColor = m.Severity switch
+												 { 
+													Log.Severity.SubLog => ConsoleColor.Green,
+													Log.Severity.Error => ConsoleColor.Red,
+													Log.Severity.Warning => ConsoleColor.Yellow,
+													_ => prev
+												 };
+
+			Console.Write(new string(' ', m.Log.Depth * 4)); 
+
+ 			if(ShowSender && m.Sender != null)
+				Console.Write(m.Sender.GetType().Name + " : ");
+
+			if(ShowSubject && m.Subject != null)
 			{
-				if(Tags != null && m.Subject != null && m.Subject.Split(' ').Any(i => !Tags.Contains(i)))
-					return;
+				Console.Write(m.Subject); 
 
-				var prev = Console.ForegroundColor;
-	
-				Console.ForegroundColor = m.Severity switch
-													 { 
-														Log.Severity.SubLog => ConsoleColor.Green,
-														Log.Severity.Error => ConsoleColor.Red,
-														Log.Severity.Warning => ConsoleColor.Yellow,
-														_ => prev
-													 };
-	
-				Console.Write(new string(' ', m.Log.Depth * 4)); 
-	
-	 			if(ShowSender && m.Sender != null)
-					Console.Write(m.Sender.GetType().Name + " : ");
-	
-				if(ShowSubject && m.Subject != null)
-				{
-					Console.Write(m.Subject); 
-	
-					if(m.Text != null)
-						Console.Write(" : "); 
-				}
-	
 				if(m.Text != null)
+					Console.Write(" : "); 
+			}
+
+			if(m.Text != null)
+			{
+				Console.Write(m.Text[0]);
+			}
+
+			Console.WriteLine();
+
+			if(m.Text != null)
+			{
+				foreach(var t in m.Text.Skip(1))
 				{
-					Console.Write(m.Text[0]);
-				}
-	
-				Console.WriteLine();
-	
-				if(m.Text != null)
-				{
-					foreach(var t in m.Text.Skip(1))
+					var i = 0;
+																	
+					while(i < t.Length)
 					{
-						var i = 0;
-																		
-						while(i < t.Length)
-						{
-							var w = Console.WindowWidth > 4 ? Math.Min(t.Length - i, Console.WindowWidth - 4) : t.Length;
-							Console.Write(new string(' ', m.Log.Depth * 4 + 4) + t.Substring(i, w));
-							i += w;
-						}
-					
-						Console.WriteLine();
+						var w = Console.WindowWidth > 4 ? Math.Min(t.Length - i, Console.WindowWidth - 4) : t.Length;
+						Console.Write(new string(' ', m.Log.Depth * 4 + 4) + t.Substring(i, w));
+						i += w;
 					}
+				
+					Console.WriteLine();
 				}
-					
-				Console.ForegroundColor = prev;
 			}
+				
+			Console.ForegroundColor = prev;
 		}
 	}
 }

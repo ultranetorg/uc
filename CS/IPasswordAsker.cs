@@ -1,33 +1,32 @@
-﻿namespace Uccs.Net
+﻿namespace Uccs.Net;
+
+public interface IPasswordAsker
 {
-	public interface IPasswordAsker
+	string			Password { get; }
+	bool			Ask(string info);
+	void			Create(string[] warning);
+	void			ShowError(string message);						
+}
+
+public class SilentPasswordAsker : IPasswordAsker
+{
+	public string		Password { get; set; }
+
+	public SilentPasswordAsker(string password)
 	{
-		string			Password { get; }
-		bool			Ask(string info);
-		void			Create(string[] warning);
-		void			ShowError(string message);						
+		Password = password;
 	}
 
-	public class SilentPasswordAsker : IPasswordAsker
+	public bool Ask(string info)
 	{
-		public string		Password { get; set; }
+		return true;
+	}
 
-		public SilentPasswordAsker(string password)
-		{
-			Password = password;
-		}
+	public void Create(string[] warning)
+	{
+	}
 
-		public bool Ask(string info)
-		{
-			return true;
-		}
-
-		public void Create(string[] warning)
-		{
-		}
-
-		public void ShowError(string message)
-		{
-		}
+	public void ShowError(string message)
+	{
 	}
 }

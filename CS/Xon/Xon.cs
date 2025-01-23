@@ -1,438 +1,433 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Uccs
+namespace Uccs;
+
+public enum XonToken
 {
-	public enum XonToken
+	None, ChildrenBegin, ChildrenEnd,  NodeBegin, NodeEnd, NameBegin, NameEnd, MetaBegin, MetaEnd, ValueBegin, ValueEnd, SimpleValueBegin, SimpleValueEnd, AttrValueBegin, AttrValueEnd, End
+};
+
+public class Xon// : INestedSerializable
+{
+	public string					Name;
+	public object					Meta;
+	public List<Xon>				Nodes = new List<Xon>();
+	public Xon 						Parent;
+	
+	public IXonValueSerializator	Serializator = AsIsXonValueSerializator.Default;
+	public object					_Value;
+	public object					Value { set => _Value = value is null ? null : (value is Xon ? value : Serializator.Set(this, value)); get => _Value; }
+
+	public string					String => Serializator.Get<string>(this, _Value);
+	public int						Int => Serializator.Get<int>(this, _Value);
+	public long						Long => Serializator.Get<long>(this, _Value);
+
+	public List<Xon>				Templates = new List<Xon>();
+	public bool						IsTemplate = false;
+	public List<Xon>				Removed;
+	public bool						IsRemoved = false;
+
+	public bool						IsDifferenceDeleted { get => false; }
+
+	public Xon()
 	{
-		None, ChildrenBegin, ChildrenEnd,  NodeBegin, NodeEnd, NameBegin, NameEnd, MetaBegin, MetaEnd, ValueBegin, ValueEnd, SimpleValueBegin, SimpleValueEnd, AttrValueBegin, AttrValueEnd, End
-	};
+	}
 
-	public class Xon// : INestedSerializable
+	public Xon(IXonValueSerializator serializator)
 	{
-		public string					Name;
-		public object					Meta;
-		public List<Xon>				Nodes = new List<Xon>();
-		public Xon 						Parent;
-		
-		public IXonValueSerializator	Serializator = AsIsXonValueSerializator.Default;
-		public object					_Value;
-		public object					Value { set => _Value = value is null ? null : (value is Xon ? value : Serializator.Set(this, value)); get => _Value; }
+		Serializator = serializator;
+	}
 
-		public string					String => Serializator.Get<string>(this, _Value);
-		public int						Int => Serializator.Get<int>(this, _Value);
-		public long						Long => Serializator.Get<long>(this, _Value);
+	public Xon(IXonValueSerializator serializator, string name) : this(serializator)
+	{
+		Parent		= null;
+		Name		= name;
+		IsTemplate	= false;
+	}
 
-		public List<Xon>				Templates = new List<Xon>();
-		public bool						IsTemplate = false;
-		public List<Xon>				Removed;
-		public bool						IsRemoved = false;
+	public Xon(string text) : this(XonTextValueSerializator.Default)
+	{
+		Load(null, new XonTextReader(text));
+	}
 
-		public bool						IsDifferenceDeleted { get => false; }
+	public Xon(string text, IXonValueSerializator serializator) : this(serializator)
+	{
+		Load(null, new XonTextReader(text));
+	}
 
-		public Xon()
+	public Xon(byte[] data) : this(XonBinaryValueSerializator.Default)
+	{
+		Load(null, new XonBinaryReader(new MemoryStream(data)));
+	}
+	
+	public Xon(IXonReader r, IXonValueSerializator serializator) : this(serializator)
+	{
+		Load(null, r);
+	}
+
+	public Xon Add(string name)
+	{
+		var n = new Xon(Serializator, name);
+		Nodes.Add(n);
+		return n;
+	}
+
+	public override string ToString()
+	{
+		return $"{Name}{(_Value != null ? " = " + _Value : null)}{(Nodes.Any() ? (Name != null ? ", " : null) + "Nodes=" + Nodes.Count : null)}";
+	}
+
+	public object this[string name]
+	{
+		get
 		{
+			return One(name).Value;
 		}
 
-		public Xon(IXonValueSerializator serializator)
+		set
 		{
-			Serializator = serializator;
-		}
-
-		public Xon(IXonValueSerializator serializator, string name) : this(serializator)
-		{
-			Parent		= null;
-			Name		= name;
-			IsTemplate	= false;
-		}
-
-		public Xon(string text) : this(XonTextValueSerializator.Default)
-		{
-			Load(null, new XonTextReader(text));
-		}
-
-		public Xon(string text, IXonValueSerializator serializator) : this(serializator)
-		{
-			Load(null, new XonTextReader(text));
-		}
-
-		public Xon(byte[] data) : this(XonBinaryValueSerializator.Default)
-		{
-			Load(null, new XonBinaryReader(new MemoryStream(data)));
-		}
-		
-		public Xon(IXonReader r, IXonValueSerializator serializator) : this(serializator)
-		{
-			Load(null, r);
-		}
-
-		public Xon Add(string name)
-		{
-			var n = new Xon(Serializator, name);
-			Nodes.Add(n);
-			return n;
-		}
-
-		public override string ToString()
-		{
-			return $"{Name}{(_Value != null ? " = " + _Value : null)}{(Nodes.Any() ? (Name != null ? ", " : null) + "Nodes=" + Nodes.Count : null)}";
-		}
-
-		public object this[string name]
-		{
-			get
-			{
-				return One(name).Value;
-			}
-
-			set
-			{
-				var n = One(name);
-				
-				if(n == null)
-					n = Add(name);
-
-				n.Value = value;
-			}
-		}
-
-		public bool Has(string name)
-		{
-			return One(name) != null;
-		}
-
-		public Xon One(string path)
-		{
-			var names = path.Split('/');
-
-			var i = names.GetEnumerator();
+			var n = One(name);
 			
-			i.MoveNext();
+			if(n == null)
+				n = Add(name);
 
-			var p = Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
-
-			if(p != null)
-			{
-				while(i.MoveNext())
-				{
-					p = p.Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
-
-					if(p == null)
-					{
-						return null;
-					}
-				}
-			}
-			return p;	 
+			n.Value = value;
 		}
+	}
+
+	public bool Has(string name)
+	{
+		return One(name) != null;
+	}
+
+	public Xon One(string path)
+	{
+		var names = path.Split('/');
+
+		var i = names.GetEnumerator();
 		
-		public List<Xon> Many(string name)
+		i.MoveNext();
+
+		var p = Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
+
+		if(p != null)
 		{
-			var o = new List<Xon>();
-
-			var p = this;
-			var i = name.LastIndexOf('/');
-			var last = name;
-
-			if(i != -1)
+			while(i.MoveNext())
 			{
-				var path = name.Substring(0, i);
-				last = name.Substring(i+1);
-				p = One(path);
-			}
+				p = p.Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
 
-			foreach(var j in p.Nodes)
-			{
-				if(j.Name == last)
+				if(p == null)
 				{
-					o.Add(j);
+					return null;
 				}
 			}
+		}
+		return p;	 
+	}
+	
+	public List<Xon> Many(string name)
+	{
+		var o = new List<Xon>();
 
-			return o;
+		var p = this;
+		var i = name.LastIndexOf('/');
+		var last = name;
+
+		if(i != -1)
+		{
+			var path = name.Substring(0, i);
+			last = name.Substring(i+1);
+			p = One(path);
 		}
 
-		public Xon CloneInternal(Xon parent)
+		foreach(var j in p.Nodes)
 		{
-			var p = new Xon(Serializator, Name);
-			p.Parent = parent;
-
-			foreach(var i in Nodes)
+			if(j.Name == last)
 			{
-				p.Nodes.Add(i.CloneInternal(p));
+				o.Add(j);
 			}
-
-			p.Templates = Templates;
-
-			if(Value != null)
-			{
-				p.Value = Value;
-			}
-			return p;
 		}
 
-		public O Get<O>()
-		{
-			return Serializator.Get<O>(this, Value);
-		} 
+		return o;
+	}
 
-		public object Get(Type type)
-		{
-			return Serializator.Get(this, Value, type);
-		} 
+	public Xon CloneInternal(Xon parent)
+	{
+		var p = new Xon(Serializator, Name);
+		p.Parent = parent;
 
-		public O GetOr<O>(O otherwise)
+		foreach(var i in Nodes)
 		{
-			return _Value != null ? Serializator.Get<O>(this, Value) : otherwise;
-		} 
+			p.Nodes.Add(i.CloneInternal(p));
+		}
 
-		public O Get<O>(string name)
+		p.Templates = Templates;
+
+		if(Value != null)
 		{
-			var n = One(name);
+			p.Value = Value;
+		}
+		return p;
+	}
 
+	public O Get<O>()
+	{
+		return Serializator.Get<O>(this, Value);
+	} 
+
+	public object Get(Type type)
+	{
+		return Serializator.Get(this, Value, type);
+	} 
+
+	public O GetOr<O>(O otherwise)
+	{
+		return _Value != null ? Serializator.Get<O>(this, Value) : otherwise;
+	} 
+
+	public O Get<O>(string name)
+	{
+		var n = One(name);
+
+		return Serializator.Get<O>(n, n.Value);
+	} 
+
+	public object Get(Type type, string name)
+	{
+		var n = One(name);
+
+		return Serializator.Get(n, n.Value, type);
+	} 
+
+	public O Get<O>(string name, O otherwise)
+	{
+		var n = One(name);
+
+		if(n != null)
 			return Serializator.Get<O>(n, n.Value);
-		} 
+		else
+			return otherwise;
+	} 
 
-		public object Get(Type type, string name)
+	public E GetEnum<E>(string name)
+	{
+		var n = One(name);
+
+		return (E)Serializator.Get(n, n.Value, typeof(E));
+	} 
+
+	internal void Load(Xon t, IXonReader r)
+	{
+		r.Read(Serializator);
+
+		Xon n;
+
+		while(r.Current != XonToken.End)
 		{
-			var n = One(name);
+			n = Load(r, this, t);
+			r.ReadNext();
 
-			return Serializator.Get(n, n.Value, type);
-		} 
-
-		public O Get<O>(string name, O otherwise)
-		{
-			var n = One(name);
-	
-			if(n != null)
-				return Serializator.Get<O>(n, n.Value);
-			else
-				return otherwise;
-		} 
-
-		public E GetEnum<E>(string name)
-		{
-			var n = One(name);
-
-			return (E)Serializator.Get(n, n.Value, typeof(E));
-		} 
-
-		internal void Load(Xon t, IXonReader r)
-		{
-			r.Read(Serializator);
-	
-			Xon n;
-
-			while(r.Current != XonToken.End)
+			if(n == null)
 			{
-				n = Load(r, this, t);
-				r.ReadNext();
-
-				if(n == null)
-				{
-					break;
-				}
+				break;
 			}
-
-			//if(n == null || r.Current != EXonElement::End)
-			//{
-			//	Clear();
-			//}
 		}
 
-		protected Xon Load(IXonReader r, Xon parent, Xon tparent)
+		//if(n == null || r.Current != EXonElement::End)
+		//{
+		//	Clear();
+		//}
+	}
+
+	protected Xon Load(IXonReader r, Xon parent, Xon tparent)
+	{
+		//CString name;
+		//CString type;
+		Xon n = null;
+		Xon t = null;
+
+		while(r.Current != XonToken.End)
 		{
-			//CString name;
-			//CString type;
-			Xon n = null;
-			Xon t = null;
-
-			while(r.Current != XonToken.End)
+			switch(r.Current)
 			{
-				switch(r.Current)
-				{
-					case XonToken.NodeBegin:
-						n = new Xon(Serializator);
-						n.Parent = parent;
-						break;
+				case XonToken.NodeBegin:
+					n = new Xon(Serializator);
+					n.Parent = parent;
+					break;
 
-					case XonToken.NodeEnd:
-						if(t != null)
+				case XonToken.NodeEnd:
+					if(t != null)
+					{
+						if(tparent != null)
 						{
-							if(tparent != null)
+							var d = tparent.Nodes.FirstOrDefault(j => j.Name == n.Name && j.Value != null && n.Value != null && n.Value.Equals(j.Value) ); // from default list?
+							if(d != null)
+								t = d;
+						}
+					
+						foreach(var i in t.Nodes)
+						{
+							if(!i.IsTemplate)
 							{
-								var d = tparent.Nodes.FirstOrDefault(j => j.Name == n.Name && j.Value != null && n.Value != null && n.Value.Equals(j.Value) ); // from default list?
-								if(d != null)
-									t = d;
-							}
-						
-							foreach(var i in t.Nodes)
-							{
-								if(!i.IsTemplate)
+								var c = n.Nodes.FirstOrDefault(j => j.Name == i.Name);
+								if(c == null)
 								{
-									var c = n.Nodes.FirstOrDefault(j => j.Name == i.Name);
-									if(c == null)
-									{
-										n.Nodes.Add(i.CloneInternal(this));
-									}
+									n.Nodes.Add(i.CloneInternal(this));
 								}
 							}
 						}
-						return n;
+					}
+					return n;
 
-					case XonToken.NameBegin:
+				case XonToken.NameBegin:
+				{
+					n.Name = r.ParseName();
+
+					var pre = n.Name[0];
+
+					if(pre == '-')
 					{
-						n.Name = r.ParseName();
-
-						var pre = n.Name[0];
-
-						if(pre == '-')
-						{
-							n.Name = n.Name.Substring(1);
-							n.IsRemoved = true;
-						}
-						if(pre == '*')
-						{
-							n.Name = n.Name.Substring(1);
-						}
-
-						if(tparent != null)
-						{
-							t = tparent.Templates.FirstOrDefault(i => i.Name == n.Name); // multi merge
-							if(t == null)
-								t = (Xon)tparent.Nodes.FirstOrDefault(i => i.Name == n.Name); // single merge
-						}
-						else if(parent != null) // self merge
-						{
-							t = parent.Templates.FirstOrDefault(i => i.Name == n.Name);
-						}
-					
-						if(t != null)
-						{
-							parent.Nodes.Add(n);
-						}
-						else
-						{
-							if(pre == '*') // this is template
-							{
-								parent.IsTemplate = true;
-								parent.Templates.Add(n);
-							}
-							else
-								parent.Nodes.Add(n); // to children
-						}
-
-						if(t != null && t.Value != null)
-							n.Value = t.Value;
-						//else
-						//	if(StandardTypes.ContainsKey(n.Type))
-						//		n.Value = StandardTypes[n.Type].Clone();
-						//	else if(Types.ContainsKey(n.Type))
-						//	{
-						//		n.Value = Types[n.Type].Clone();
-						//		n.Type = Types[n.Type].GetTypeName();
-						//	}
-						break;
-					}	
-
-					case XonToken.MetaBegin:
-						n.Meta = r.ParseMeta();
-						break;
-
-					case XonToken.SimpleValueBegin:
-						n._Value = r.ParseValue();
-						break;
-
-					case XonToken.AttrValueBegin:
+						n.Name = n.Name.Substring(1);
+						n.IsRemoved = true;
+					}
+					if(pre == '*')
 					{
-						var a = new Xon(Serializator);
-						//a.Name = "";
-						n.Value = a;
-		
-						while(r.ReadNext() == XonToken.NodeBegin)
-						{
-							Load(r, a, null);
-
-							//if(r.Current == XonToken.AttrValueEnd)
-							//{
-							//	break;;
-							//}
-						}
-						break;
+						n.Name = n.Name.Substring(1);
 					}
 
-					case XonToken.ChildrenBegin:
-						while(r.ReadNext() == XonToken.NodeBegin)
+					if(tparent != null)
+					{
+						t = tparent.Templates.FirstOrDefault(i => i.Name == n.Name); // multi merge
+						if(t == null)
+							t = (Xon)tparent.Nodes.FirstOrDefault(i => i.Name == n.Name); // single merge
+					}
+					else if(parent != null) // self merge
+					{
+						t = parent.Templates.FirstOrDefault(i => i.Name == n.Name);
+					}
+				
+					if(t != null)
+					{
+						parent.Nodes.Add(n);
+					}
+					else
+					{
+						if(pre == '*') // this is template
 						{
-							if(Load(r, n, t) == null)
-							{
-								return n;
-							}
+							parent.IsTemplate = true;
+							parent.Templates.Add(n);
 						}
-						//while(var i = p.Children.Find([](var j){ return j.IsRemoved; }))
-						//{
-						//	p.Children.remove(i);
-						//	p.Removed.Add(i);
-						//}
-						break;
-				}
-			
-				r.ReadNext();
-			}
-			return n;
-		}
+						else
+							parent.Nodes.Add(n); // to children
+					}
 
-		public void Save(IXonWriter w)
-		{
-			w.Start();
-			w.Write(this);
-			w.Finish();
-		}
+					if(t != null && t.Value != null)
+						n.Value = t.Value;
+					//else
+					//	if(StandardTypes.ContainsKey(n.Type))
+					//		n.Value = StandardTypes[n.Type].Clone();
+					//	else if(Types.ContainsKey(n.Type))
+					//	{
+					//		n.Value = Types[n.Type].Clone();
+					//		n.Type = Types[n.Type].GetTypeName();
+					//	}
+					break;
+				}	
 
-		public void Save(string path)
-		{
-			using(var s = File.Create(path))
-			{
-				Save(new XonTextWriter(s, Encoding.UTF8));
-			}
-		}
-		
-		public void Dump(Action<Xon, int> write)
-		{
-			void dump(Xon n, int l)
-			{
-				write(n, l);
+				case XonToken.MetaBegin:
+					n.Meta = r.ParseMeta();
+					break;
 
-				foreach(var i in n.Nodes)
+				case XonToken.SimpleValueBegin:
+					n._Value = r.ParseValue();
+					break;
+
+				case XonToken.AttrValueBegin:
 				{
-					dump(i, l + 1);
+					var a = new Xon(Serializator);
+					//a.Name = "";
+					n.Value = a;
+	
+					while(r.ReadNext() == XonToken.NodeBegin)
+					{
+						Load(r, a, null);
+
+						//if(r.Current == XonToken.AttrValueEnd)
+						//{
+						//	break;;
+						//}
+					}
+					break;
 				}
+
+				case XonToken.ChildrenBegin:
+					while(r.ReadNext() == XonToken.NodeBegin)
+					{
+						if(Load(r, n, t) == null)
+						{
+							return n;
+						}
+					}
+					//while(var i = p.Children.Find([](var j){ return j.IsRemoved; }))
+					//{
+					//	p.Children.remove(i);
+					//	p.Removed.Add(i);
+					//}
+					break;
 			}
-
-			foreach(var n in Nodes)
-				dump(n, 0);
+		
+			r.ReadNext();
 		}
+		return n;
 	}
 
-	public class XonJsonConverter : JsonConverter<Xon>
+	public void Save(IXonWriter w)
 	{
-		public override Xon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return new Xon(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, Xon value, JsonSerializerOptions options)
-		{
-			var s = new MemoryStream();
-			value.Save(new XonTextWriter(s, Encoding.Default));
-			
-			writer.WriteStringValue(Encoding.Default.GetString(s.ToArray()));
-		}
-
+		w.Start();
+		w.Write(this);
+		w.Finish();
 	}
+
+	public void Save(string path)
+	{
+		using(var s = File.Create(path))
+		{
+			Save(new XonTextWriter(s, Encoding.UTF8));
+		}
+	}
+	
+	public void Dump(Action<Xon, int> write)
+	{
+		void dump(Xon n, int l)
+		{
+			write(n, l);
+
+			foreach(var i in n.Nodes)
+			{
+				dump(i, l + 1);
+			}
+		}
+
+		foreach(var n in Nodes)
+			dump(n, 0);
+	}
+}
+
+public class XonJsonConverter : JsonConverter<Xon>
+{
+	public override Xon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return new Xon(reader.GetString());
+	}
+
+	public override void Write(Utf8JsonWriter writer, Xon value, JsonSerializerOptions options)
+	{
+		var s = new MemoryStream();
+		value.Save(new XonTextWriter(s, Encoding.Default));
+		
+		writer.WriteStringValue(Encoding.Default.GetString(s.ToArray()));
+	}
+
 }

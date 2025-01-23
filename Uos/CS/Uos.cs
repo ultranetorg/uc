@@ -219,7 +219,7 @@ public class Uos : Cli
 	{
 		var d = RdnApi.FindLocalResource(address, flow)?.Last
 				?? 
-				RdnApi.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
+				RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 
 		if(d == null)
 			throw new UosException("Incorrent resource type");
@@ -248,7 +248,7 @@ public class Uos : Cli
 
 		if(aprv == null)
 		{
-			d = RdnApi.Request<ResourceResponse>(new PeerRequestApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
+			d = RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
 			aprv = d.Parse<AprvAddress>();
 		}
 

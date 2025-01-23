@@ -26,7 +26,7 @@ public class AccountCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new AccountAuthorsRequest(First));
+								var rp = Ppc(new AccountAuthorsRequest(First));
 
 								Dump(rp.Authors, ["Id"], [i => i]);
 					
@@ -48,9 +48,9 @@ public class AccountCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new AccountSitesRequest(First));
+								var rp = Ppc(new AccountSitesRequest(First));
 
-								Dump(rp.Sites.Select(i => Rdc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Owners[0] + (i.Owners.Length > 1 ? $",  {{{i.Owners.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Owners[0] + (i.Owners.Length > 1 ? $",  {{{i.Owners.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
 								return rp.Sites;
 							};

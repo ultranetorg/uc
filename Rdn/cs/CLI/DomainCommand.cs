@@ -119,7 +119,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var d = Rdc(new DomainRequest(First)).Domain;
+								var d = Ppc(new DomainRequest(First)).Domain;
 
 								return new DomainUpdation  {Action	= DomainAction.Renew,
 															Id		= d.Id,
@@ -181,7 +181,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var d = Rdc(new DomainRequest(First)).Domain;
+								var d = Ppc(new DomainRequest(First)).Domain;
 
 								return new DomainUpdation  {Action	= DomainAction.ChangePolicy,
 															Id		= d.Id,
@@ -211,7 +211,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var d = Rdc(new DomainRequest(First)).Domain;
+								var d = Ppc(new DomainRequest(First)).Domain;
 
 								return new DomainUpdation  {Action	= DomainAction.Transfer,
 															Id		= d.Id,
@@ -240,7 +240,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new DomainRequest(First));
+								var rp = Ppc(new DomainRequest(First));
 
 								Dump(rp.Domain);
 					

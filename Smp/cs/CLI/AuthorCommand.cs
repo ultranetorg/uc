@@ -48,7 +48,7 @@ public class AuthorCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Rdc(new AuthorRequest(FirstAuthorId));
+								var rp = Ppc(new AuthorRequest(FirstAuthorId));
 
 								Dump(rp.Author);
 					
@@ -78,7 +78,7 @@ public class AuthorCommand : SmpCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var d = Rdc(new AuthorRequest(FirstAuthorId)).Author;
+								var d = Ppc(new AuthorRequest(FirstAuthorId)).Author;
 
 								return new AuthorUpdation  {Action	= AuthorAction.Renew,
 															Id		= d.Id,
