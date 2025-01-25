@@ -253,9 +253,10 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
-				foreach(var i in node.Vault.Wallets)
+				foreach(var i in node.Vault.UnlockedAccounts)
 				{
-					var a = i.Key.ToString();
+					var a = i.Address.ToString();
+
 					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
 
 					if(node.Peering.Synchronization == Synchronization.Synchronized)

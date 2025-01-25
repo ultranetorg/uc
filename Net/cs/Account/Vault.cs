@@ -42,56 +42,23 @@ public class Authentication : IBinarySerializable
 	}
 }
 
-public class Wallet
+public class WalletAccount : IBinarySerializable
 {
 	public AccountAddress		Address; 
 	public AccountKey			Key;
 	public List<Authentication>	Authentications = [];
-	public byte[]				Encrypted;
 	Vault						Vault;
 
-	public Wallet(Vault vault)
+	public WalletAccount(Vault vault)
 	{
 		Vault = vault;
 	}
 
-	public Wallet(Vault vault, AccountKey key)
+	public WalletAccount(Vault vault, AccountKey key)
 	{
 		Vault = vault;
 		Address = key;
 		Key = key;
-	}
-
-	public Wallet(Vault vault, byte[] raw)
-	{
-		Vault = vault;
-
-		var r = new BinaryReader(new MemoryStream(raw));
-
-		Address		= r.ReadAccount();
-		Encrypted	= r.ReadBytes();
-	}
-
-	public byte[] ToRaw()
-	{
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-
-		w.Write(Address);
-		w.WriteBytes(Encrypted);
-
-		return s.ToArray();
-	}
-
-	public void Encrypt(string password)
-	{
-		var es = new MemoryStream();
-		var ew = new BinaryWriter(es);
-
-		ew.Write(Key.GetPrivateKeyAsBytes());
-		ew.Write(Authentications);
-
-		Encrypted = Vault.Cryptography.Encrypt(es.ToArray(), password);
 	}
 
 	public byte[] GetSession(string net, Trust trust)
@@ -119,19 +86,106 @@ public class Wallet
 		return Authentications.Find(i => i.Net == net);
 	}
 
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Key.GetPrivateKeyAsBytes());
+		writer.Write(Authentications);
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
+		Authentications	= reader.ReadList<Authentication>();
+
+		Address	= Key;
+	}
+}
+
+public class Wallet
+{
+	public string				Name;
+	public List<WalletAccount>	Accounts = new();
+	public byte[]				RawLoaded;
+	public string				Password;
+	Vault						Vault;
+
+	public byte[] Raw
+	{
+		get
+		{
+			if(RawLoaded != null)
+				throw new VaultException("Unlock wallet before changing");
+
+			var es = new MemoryStream();
+			var ew = new BinaryWriter(es);
+
+			ew.Write(Accounts);
+
+			return Vault.Cryptography.Encrypt(es.ToArray(), Password);
+		}
+	}
+
+	public Wallet(Vault vault, string name, byte[] raw)
+	{
+		Name = name;
+		Vault = vault;
+		RawLoaded = raw;
+	}
+
+	public Wallet(Vault vault, string name, AccountKey[] keys, string password)
+	{
+		Name = name;
+		Vault = vault;
+		Password = password;
+		Accounts = keys.Select(i => new WalletAccount(Vault, i)).ToList();
+	}
+
+	public WalletAccount AddAccount(byte[] key)
+	{
+		if(RawLoaded != null)
+			throw new VaultException("Unlock wallet before changing");
+
+		var a = new WalletAccount(Vault, key == null ? AccountKey.Create() : new AccountKey(key));
+		
+		Accounts.Add(a);
+
+		Save();
+
+		return a;
+	}
+
+	public void Lock()
+	{
+		if(RawLoaded != null)
+			throw new VaultException("Already locked");
+
+		RawLoaded = Raw;
+
+		Accounts.Clear();
+		Password = null;
+	}
+
 	public void Unlock(string password)
 	{
-		var de = Vault.Cryptography.Decrypt(Encrypted, password);
+		if(RawLoaded == null)
+			throw new VaultException("Already unlocked");
+
+		Password = password;
+
+		var de = Vault.Cryptography.Decrypt(RawLoaded, password);
 
 		var r = new BinaryReader(new MemoryStream(de));
 
-		Key				= new AccountKey(r.ReadBytes(Cryptography.PrivateKeyLength));
-		Authentications	= r.ReadList<Authentication>();
+		Accounts = r.ReadList(() => { var a = new WalletAccount(Vault); a.Read(r); return a; });
+
+		RawLoaded = null;
 	}
 
-	public void Save(string path)
+	public void Save()
 	{
-		File.WriteAllBytes(path, ToRaw());
+		var path = Path.Combine(Vault.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+
+		File.WriteAllBytes(path, RawLoaded ?? Raw);
 	}
 }
 
@@ -141,9 +195,11 @@ public class Vault
 	public const string					PrivakeKeyWalletExtention = "uwpk";
 	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : PrivakeKeyWalletExtention;
 
-	string								Profile;
+	public string						Profile;
 	public List<Wallet>					Wallets = new();
 	public Cryptography					Cryptography;
+
+	public IEnumerable<WalletAccount>	UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
 
 	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
 															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
@@ -162,74 +218,56 @@ public class Vault
 		{
 			foreach(var i in Directory.EnumerateFiles(profile, "*." + WalletExt(Cryptography)))
 			{
-				Wallets.Add(new Wallet(this, File.ReadAllBytes(i)));
+				Wallets.Add(new Wallet(this, Path.GetFileName(i), File.ReadAllBytes(i)));
 			}
 		}
 	}
 
-	public Wallet Find(AccountAddress address)
+	public WalletAccount Find(AccountAddress address)
 	{
-		return Wallets.Find(i => i.Address == address);
+		foreach(var i in Wallets)
+			foreach(var j in i.Accounts)
+				if(j.Address == address)
+					return j;
+
+		return null;
 	}
 
-	public Wallet CreateWallet()
+	public Wallet CreateWallet(string password)
 	{
-		return new Wallet(this, AccountKey.Create());
+		return new Wallet(this, Wallets.Count.ToString(), [AccountKey.Create()], password);
 	}
 
-	public Wallet CreateWallet(AccountKey key)
+	public Wallet CreateWallet(AccountKey[] key, string password)
 	{
-		return new Wallet(this, key);
+		return new Wallet(this, Wallets.Count.ToString(), key, password);
 	}
 
 	public Wallet CreateWallet(byte[] raw)
 	{
-		return new Wallet(this, raw);
-	}
-
-	public void AddWallet(AccountKey key)
-	{
-		Wallets.Add(CreateWallet(key));
+		return new Wallet(this, Wallets.Count.ToString(), raw);
 	}
 
 	public void AddWallet(byte[] raw)
 	{
-		var w = new Wallet(this, raw);
+		var w = new Wallet(this, Wallets.Count.ToString(), raw);
 
-		if(Wallets.Any(i => i.Address == w.Address))
-			throw new VaultException("Account with such key already exists");
-		
 		Wallets.Add(w);
 		
-		SaveWallet(w.Address);
+		w.Save();
 	}
 
-	public void AddWallet(AccountKey key, string password)
+	public Wallet AddWallet(AccountKey[] key, string password)
 	{
-		if(Wallets.Any(i => i.Key == key))
-			throw new VaultException("Account with such key already exists");
-
-		var w = new Wallet(this) {Address = key, Key = key};
+		var w = CreateWallet(key, password);
 		
+		w.Password = password;
+
 		Wallets.Add(w);
 
-		w.Encrypt(password);
+		w.Save();
 
-		SaveWallet(w.Address);
-	}
-
-	public AccountKey Unlock(AccountAddress address, string password)
-	{
-		var w = Find(address) 
-				??
-				throw new VaultException("Account not found");
-
-		if(w.Key != null)
-			return w.Key;
-
-		w.Unlock(password);
-
-		return w.Key;
+		return w;
 	}
 
 	public bool IsUnlocked(AccountAddress address)
@@ -237,23 +275,10 @@ public class Vault
 		return Find(address)?.Key != null;
 	}
 
-	public string SaveWallet(AccountAddress address)
+	public void DeleteWallet(string name)
 	{
-		var w = Find(address) 
-				??
-				throw new VaultException("Account not found");
+		File.Delete(Path.Combine(Profile, name + "." + WalletExt(Cryptography)));
 
-		var path = Path.Combine(Profile, w.Address.ToString() + "." + WalletExt(Cryptography));
-
-		w.Save(path);
-
-		return path;
-	}
-
-	public void DeleteWallet(AccountAddress account)
-	{
-		File.Delete(Path.Combine(Profile, account.ToString() + "." + WalletExt(Cryptography)));
-
-		Wallets.RemoveAll(i => i.Address == account);
+		Wallets.RemoveAll(i => i.Name == name);
 	}
 }

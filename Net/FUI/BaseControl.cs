@@ -160,22 +160,22 @@ public class BaseControl : UserControl
 
  	public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
  	{
- 		if(!uos.Vault.IsUnlocked(account))
- 		{
- 			var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
- 	
- 			if(pa.Ask($"A password required to access {account} account"))
- 			{
- 				try
- 				{
- 					return uos.Vault.Unlock(account, pa.Password);
- 				}
- 				catch(Exception ex)
- 				{
- 					throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
- 				}
- 			}
- 		}
+//  		if(!uos.Vault.IsUnlocked(account))
+//  		{
+//  			var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
+//  	
+//  			if(pa.Ask($"A password required to access {account} account"))
+//  			{
+//  				try
+//  				{
+//  					return uos.Vault.Unlock(account, pa.Password);
+//  				}
+//  				catch(Exception ex)
+//  				{
+//  					throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
+//  				}
+//  			}
+//  		}
  
  		return uos.Vault.Find(account).Key;
  	}

@@ -26,7 +26,7 @@ public partial class AccountsPanel : MainPanel
 
 			foreach(var i in Uos.Vault.Wallets)
 			{
-				AddRow(i.Address);
+				//AddRow(i.Address);
 			}
 		}
 	}
@@ -73,25 +73,25 @@ public partial class AccountsPanel : MainPanel
 
 	private void add_Click(object sender, EventArgs args)
 	{
-		var f = new CreatePasswordForm();
-		
-		if(f.ShowDialog() == DialogResult.OK)
-		{
-			var acc = AccountKey.Create();
-			Uos.Vault.AddWallet(acc, f.Password);
-			Uos.Vault.SaveWallet(acc);
-			
-			AddRow(acc);
-		}
+		//var f = new CreatePasswordForm();
+		//
+		//if(f.ShowDialog() == DialogResult.OK)
+		//{
+		//	var acc = AccountKey.Create();
+		//	Uos.Vault.AddWallet(acc, f.Password);
+		//	Uos.Vault.SaveWallet(acc);
+		//	
+		//	AddRow(acc);
+		//}
 	}
 
 	private void remove_Click(object sender, EventArgs e)
 	{
-		if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-		{
-			Uos.Vault.DeleteWallet(CurrentAccout);
-			Accounts.Items.Remove(Accounts.SelectedItems[0]);
-		}
+		//if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+		//{
+		//	Uos.Vault.DeleteWallet(CurrentAccout);
+		//	Accounts.Items.Remove(Accounts.SelectedItems[0]);
+		//}
 	}
 
 	private void showprivate_Click(object sender, EventArgs e)

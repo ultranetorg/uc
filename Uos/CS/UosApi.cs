@@ -115,21 +115,48 @@ public class AddWalletApc : UosApc
 
 public class UnlockWalletApc : UosApc
 {
-	public AccountAddress	Account { get; set; }
-	public string			Password { get; set; }
+	public string	Name { get; set; } ///  Null means first
+	public string	Password { get; set; }
 
 	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
-			if(Account != null)
-				uos.Vault.Unlock(Account, Password);
-			else
-				foreach(var i in uos.Vault.Wallets)
-					uos.Vault.Unlock(i.Address, Password);
+			(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).Unlock(Password);
 		}
 
 		return null;
+	}
+}
+
+public class LockWalletApc : UosApc
+{
+	public string	Name { get; set; } ///  Null means first
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+		{
+			(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).Lock();
+		}
+
+		return null;
+	}
+}
+
+public class AddAccountToWalletApc : UosApc
+{
+	public string	Name { get; set; } ///  Null means first
+	public byte[]	Key { get; set; } ///  Null means create new
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+		{	
+			var a =(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
+		
+			return a.Key.GetPrivateKeyAsBytes();
+		}
 	}
 }
 
@@ -142,7 +169,7 @@ public class FindAuthenticationApc : UosApc
 	{
 		if(Account == null)
 		{
-			return uos.Vault.Wallets.Find(i => i.Authentications.Any(j => j.Net == Net))?.FindAuthentication(Net);
+			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.FindAuthentication(Net) != null)?.FindAuthentication(Net);
 		}
 		else
 		{
