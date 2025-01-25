@@ -192,8 +192,9 @@ public class Wallet
 public class Vault
 {
 	public const string					EncryptedWalletExtention = "uwa";
-	public const string					PrivakeKeyWalletExtention = "uwpk";
-	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : PrivakeKeyWalletExtention;
+	public const string					NoEncryptionWalletExtention = "uwne";
+	public const string					PrivateKeyExtention = "pk";
+	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : NoEncryptionWalletExtention;
 
 	public string						Profile;
 	public List<Wallet>					Wallets = new();
