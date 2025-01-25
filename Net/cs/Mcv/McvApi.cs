@@ -256,7 +256,7 @@ public class McvSummaryApc : McvApc
 				foreach(var i in node.Vault.Wallets)
 				{
 					var a = i.Key.ToString();
-					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", null));
+					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
 
 					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
@@ -397,7 +397,7 @@ public class EstimateOperationApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
-		t.Sign(node.Vault.GetKey(By), []);
+		t.Sign(node.Vault.Find(By).Key, []);
 
 		return node.Peering.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 	}

@@ -24,9 +24,9 @@ public partial class AccountsPanel : MainPanel
 		{
 			Accounts.Items.Clear();
 
-			foreach(var i in Uos.Vault.Wallets.Keys)
+			foreach(var i in Uos.Vault.Wallets)
 			{
-				AddRow(i);
+				AddRow(i.Address);
 			}
 		}
 	}
@@ -120,7 +120,7 @@ public partial class AccountsPanel : MainPanel
 
 		if(f.ShowDialog(this) == DialogResult.OK)
 		{
-			File.WriteAllBytes(f.FileName, Uos.Vault.Wallets[CurrentAccout]);
+			//File.WriteAllBytes(f.FileName, Uos.Vault.Wallets.Find(i => i.Address == CurrentAccout).Raw);
 		}
 	}
 

@@ -18,10 +18,9 @@ public abstract class Cryptography
 	public virtual byte[]							ZeroHash  => new byte[HashSize];
 
 	public abstract byte[]							Sign(AccountKey pk, byte[] hash);
-	public abstract AccountAddress					AccountFromWallet(byte[] wallet);
 	public abstract AccountAddress					AccountFrom(byte[] signature, byte[] hash);
-	public abstract byte[]							Encrypt(AccountKey key, string password);
-	public abstract AccountKey						Decrypt(byte[] input, string password);
+	public abstract byte[]							Encrypt(byte[] input, string password);
+	public abstract byte[]							Decrypt(byte[] input, string password);
 
 	public static readonly SecureRandom				Random = new SecureRandom();
 
@@ -81,7 +80,6 @@ public abstract class Cryptography
 
 public class NoCryptography : Cryptography
 {
-
 	public override byte[] Sign(AccountKey k, byte[] h)
 	{
 		var s = new byte[SignatureSize];
@@ -97,20 +95,16 @@ public class NoCryptography : Cryptography
 		return new AccountAddress(signature.Take(AccountAddress.Length).ToArray());
 	}
 
-	public override byte[] Encrypt(AccountKey key, string password)
+	public override byte[] Encrypt(byte[] key, string password)
 	{
-		return key.GetPrivateKeyAsBytes();
+		return key;
 	}
 
-	public override AccountKey Decrypt(byte[] input, string password)
+	public override byte[] Decrypt(byte[] input, string password)
 	{
-		return new AccountKey(input);
+		return input;
 	}
 
-	public override AccountAddress AccountFromWallet(byte[] wallet)
-	{
-		return new AccountKey(wallet);
-	}
 }
 
 public class NormalCryptography : Cryptography
@@ -133,10 +127,10 @@ public class NormalCryptography : Cryptography
 
 	public override AccountAddress AccountFrom(byte[] signature, byte[] hash)
 	{
- 			var r = new byte[32];
- 			var s = new byte[32];
- 			Array.Copy(signature, 0,	r, 0, r.Length);
- 			Array.Copy(signature, 32,	s, 0, s.Length);
+ 		var r = new byte[32];
+ 		var s = new byte[32];
+ 		Array.Copy(signature, 0,	r, 0, r.Length);
+ 		Array.Copy(signature, 32,	s, 0, s.Length);
  	
 		var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
 									 new Org.BouncyCastle.Math.BigInteger(1, s))
@@ -145,52 +139,46 @@ public class NormalCryptography : Cryptography
 		return new AccountAddress(AccountKey.RecoverFromSignature(sig, hash));
 	}
 
-	public override AccountAddress AccountFromWallet(byte[] wallet)
+	public override byte[] Encrypt(byte[] data, string password)
 	{
-		JsonElement j = JsonSerializer.Deserialize<dynamic>(Encoding.UTF8.GetString(wallet));
-
-		return AccountAddress.Parse(j.GetProperty("address").GetString());
-	}
-
-	public override byte[] Encrypt(AccountKey key, string password)
-	{
-            byte[] iv = RandomNumberGenerator.GetBytes(16);
+        byte[] iv = RandomNumberGenerator.GetBytes(16);
 
 		using(Aes aesAlg = Aes.Create())
 		{
 			aesAlg.Key = Hash(Encoding.UTF8.GetBytes(password));
 			aesAlg.IV = iv;
 			ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-			byte[] encryptedBytes;
+			
+			byte[] en;
 			
 			using(var msEncrypt = new MemoryStream())
 			{
 				using(var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
 				{
-					csEncrypt.Write(key.GetPrivateKeyAsBytes(), 0, key.GetPrivateKeyAsBytes().Length);
+					csEncrypt.Write(data, 0, data.Length);
 				}
-				encryptedBytes = msEncrypt.ToArray();
+				en = msEncrypt.ToArray();
 			}
 
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 			
-			w.WriteBytes(key.GetPublicAddressAsBytes());
+			//w.WriteBytes(key.GetPublicAddressAsBytes());
 			w.WriteBytes(iv);
-			w.WriteBytes(encryptedBytes);
+			w.WriteBytes(en);
 
 			return s.ToArray();
 		}
 	}
 
-	public override AccountKey Decrypt(byte[] wallet, string password)
+	public override byte[] Decrypt(byte[] data, string password)
 	{
-		var s = new MemoryStream(wallet);
+		var s = new MemoryStream(data);
 		var r = new BinaryReader(s);
 			
-		var pub = r.ReadBytes();
+		//var pub = r.ReadBytes();
 		var iv = r.ReadBytes();
-		var data = r.ReadBytes();
+		var en = r.ReadBytes();
 
 		using(Aes aesAlg = Aes.Create())
 		{
@@ -198,21 +186,21 @@ public class NormalCryptography : Cryptography
 			aesAlg.IV = iv;
 
 			ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-			byte[] decryptedBytes;
+			byte[] de;
 
-			using(var msDecrypt = new MemoryStream(data))
+			using(var msDecrypt = new MemoryStream(en))
 			{
 				using(var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 				{
 					using(var msPlain = new MemoryStream())
 					{
 						csDecrypt.CopyTo(msPlain);
-						decryptedBytes = msPlain.ToArray();
+						de = msPlain.ToArray();
 					}
 				}
 			}
 
-			return new AccountKey(decryptedBytes);
+			return de;
 		}
 	}
 }

@@ -158,35 +158,34 @@ public class BaseControl : UserControl
 		MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
- 		public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
+ 	public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
+ 	{
+ 		if(!uos.Vault.IsUnlocked(account))
  		{
- 			if(!uos.Vault.IsUnlocked(account))
- 			{
- 				var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
+ 			var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
  	
- 				if(pa.Ask($"A password required to access {account} account"))
+ 			if(pa.Ask($"A password required to access {account} account"))
+ 			{
+ 				try
  				{
- 					try
- 					{
- 						return uos.Vault.Unlock(account, pa.Password);
- 					}
- 					catch(Exception ex)
- 					{
- 						throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
- 					}
+ 					return uos.Vault.Unlock(account, pa.Password);
+ 				}
+ 				catch(Exception ex)
+ 				{
+ 					throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
  				}
  			}
- 
- 			return uos.Vault.GetKey(account);
  		}
+ 
+ 		return uos.Vault.Find(account).Key;
+ 	}
 
 	public static string Dump(Xon doc)
 	{
 		string t = "";
-		doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+		doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value))) + Environment.NewLine);
 		return t;
 	}
-
 
 	public void Dump(object o, Control fields, Control values)
 	{

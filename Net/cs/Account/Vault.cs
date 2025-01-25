@@ -1,23 +1,155 @@
 ﻿namespace Uccs.Net;
 
+public enum Trust
+{
+	None,
+	NonSpending,
+	Spending
+}
+
+public class AuthenticationChioce
+{
+	public AccountAddress	Account { get; set; }
+	public Trust			Trust { get; set; }
+}
+
+public class Authentication : IBinarySerializable
+{
+	public string	Net { get; set; }
+	public byte[]	Session { get; set; }
+	public Trust	Trust { get; set; }
+
+	public void Read(BinaryReader reader)
+	{
+		Net = reader.ReadString();
+		Trust = reader.ReadEnum<Trust>();
+		
+		if(Trust != Trust.None)
+		{
+			Session = reader.ReadBytes();
+		}
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Net);
+		writer.WriteEnum(Trust);
+		
+		if(Trust != Trust.None)
+		{
+			writer.WriteBytes(Session);
+		}
+	}
+}
+
+public class Wallet
+{
+	public AccountAddress		Address; 
+	public AccountKey			Key;
+	public List<Authentication>	Authentications = [];
+	public byte[]				Encrypted;
+	Vault						Vault;
+
+	public Wallet(Vault vault)
+	{
+		Vault = vault;
+	}
+
+	public Wallet(Vault vault, AccountKey key)
+	{
+		Vault = vault;
+		Address = key;
+		Key = key;
+	}
+
+	public Wallet(Vault vault, byte[] raw)
+	{
+		Vault = vault;
+
+		var r = new BinaryReader(new MemoryStream(raw));
+
+		Address		= r.ReadAccount();
+		Encrypted	= r.ReadBytes();
+	}
+
+	public byte[] ToRaw()
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		w.Write(Address);
+		w.WriteBytes(Encrypted);
+
+		return s.ToArray();
+	}
+
+	public void Encrypt(string password)
+	{
+		var es = new MemoryStream();
+		var ew = new BinaryWriter(es);
+
+		ew.Write(Key.GetPrivateKeyAsBytes());
+		ew.Write(Authentications);
+
+		Encrypted = Vault.Cryptography.Encrypt(es.ToArray(), password);
+	}
+
+	public byte[] GetSession(string net, Trust trust)
+	{
+		var a = Authentications.Find(i => i.Net == net);
+			
+		if(a == null)
+		{
+			var s = new byte[32];
+	
+			Cryptography.Random.NextBytes(s);
+	
+			Authentications.Add(new Authentication {Net = net, Session = s, Trust = trust});
+	
+			return s;
+		} 
+		else
+		{
+			return a.Session;
+		}
+	}
+
+	public Authentication FindAuthentication(string net)
+	{
+		return Authentications.Find(i => i.Net == net);
+	}
+
+	public void Unlock(string password)
+	{
+		var de = Vault.Cryptography.Decrypt(Encrypted, password);
+
+		var r = new BinaryReader(new MemoryStream(de));
+
+		Key				= new AccountKey(r.ReadBytes(Cryptography.PrivateKeyLength));
+		Authentications	= r.ReadList<Authentication>();
+	}
+
+	public void Save(string path)
+	{
+		File.WriteAllBytes(path, ToRaw());
+	}
+}
+
 public class Vault
 {
-	public const string							EncryptedWalletExtention = "uwa";
-	public const string							PrivakeKeyWalletExtention = "uwpk";
-	public static string						WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : PrivakeKeyWalletExtention;
+	public const string					EncryptedWalletExtention = "uwa";
+	public const string					PrivakeKeyWalletExtention = "uwpk";
+	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : PrivakeKeyWalletExtention;
 
-	string										Profile;
-	public Dictionary<AccountAddress, byte[]>	Wallets = new();
-	public List<AccountKey>						Keys = new();
-	public Cryptography							Cryptography;
+	string								Profile;
+	public List<Wallet>					Wallets = new();
+	public Cryptography					Cryptography;
 
-	public event Action							AccountsChanged;						
-
-	public readonly static string[]				PasswordWarning = {	"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
-																	"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
-																	"Use a mix of characters. The more you mix up letters (upper-case and lower-case), numbers, and symbols, the more potent your password is, and the harder it is for a brute force attack to crack it.",
-																	"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
-																	"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
+	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
+															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
+															"Use a mix of characters. The more you mix up letters (upper-case and lower-case), numbers, and symbols, the more potent your password is, and the harder it is for a brute force attack to crack it.",
+															"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
+															"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
 	public Vault(string profile, bool encrypt)
 	{
@@ -30,78 +162,90 @@ public class Vault
 		{
 			foreach(var i in Directory.EnumerateFiles(profile, "*." + WalletExt(Cryptography)))
 			{
-				Wallets[AccountAddress.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
+				Wallets.Add(new Wallet(this, File.ReadAllBytes(i)));
 			}
 		}
 	}
 
-	public void AddKey(AccountKey key)
+	public Wallet Find(AccountAddress address)
 	{
-		Keys.Add(key);
+		return Wallets.Find(i => i.Address == address);
 	}
 
-	public void AddWallet(byte[] wallet)
+	public Wallet CreateWallet()
 	{
-		var a  = Cryptography.AccountFromWallet(wallet);
+		return new Wallet(this, AccountKey.Create());
+	}
 
-		Wallets[a] = wallet;
+	public Wallet CreateWallet(AccountKey key)
+	{
+		return new Wallet(this, key);
+	}
+
+	public Wallet CreateWallet(byte[] raw)
+	{
+		return new Wallet(this, raw);
+	}
+
+	public void AddWallet(AccountKey key)
+	{
+		Wallets.Add(CreateWallet(key));
+	}
+
+	public void AddWallet(byte[] raw)
+	{
+		var w = new Wallet(this, raw);
+
+		if(Wallets.Any(i => i.Address == w.Address))
+			throw new VaultException("Account with such key already exists");
+		
+		Wallets.Add(w);
+		
+		SaveWallet(w.Address);
 	}
 
 	public void AddWallet(AccountKey key, string password)
 	{
-		Wallets[key] = key.Save(Cryptography, password);
+		if(Wallets.Any(i => i.Key == key))
+			throw new VaultException("Account with such key already exists");
+
+		var w = new Wallet(this) {Address = key, Key = key};
+		
+		Wallets.Add(w);
+
+		w.Encrypt(password);
+
+		SaveWallet(w.Address);
 	}
 
-	public AccountKey AddWallet(byte[] privatekey, string password)
+	public AccountKey Unlock(AccountAddress address, string password)
 	{
-		if(privatekey.Length != Cryptography.PrivateKeyLength)
-			throw new ArgumentException();
+		var w = Find(address) 
+				??
+				throw new VaultException("Account not found");
 
-		var k = new AccountKey(privatekey);
+		if(w.Key != null)
+			return w.Key;
 
-		if(Wallets.ContainsKey(k))
-			throw new ArgumentException();
+		w.Unlock(password);
 
-		Wallets[k] = k.Save(Cryptography, password);
-
-		return k;
+		return w.Key;
 	}
 
-	public AccountKey Unlock(AccountAddress a, string password)
+	public bool IsUnlocked(AccountAddress address)
 	{
-		if(Keys.Contains(a))
-			return Keys.Find(i => i == a);
-
-		var p = AccountKey.Load(Cryptography, Wallets[a], password);
-
-		Keys.Add(p);
-
-		//var i = Accounts.IndexOf(a);
-		//Accounts.Remove(a);
-		//Accounts.Insert(i, p);
-
-		//Log?.Report(this, "Wallet unlocked", a.ToString());
-
-		return p;
+		return Find(address)?.Key != null;
 	}
 
-	public bool IsUnlocked(AccountAddress account)
+	public string SaveWallet(AccountAddress address)
 	{
-		return Keys.Any(i => i == account);
-	}
+		var w = Find(address) 
+				??
+				throw new VaultException("Account not found");
 
-	public AccountKey GetKey(AccountAddress account)
-	{
-		return Keys.First(i => i == account);
-	}
+		var path = Path.Combine(Profile, w.Address.ToString() + "." + WalletExt(Cryptography));
 
-	public string SaveWallet(AccountAddress account)
-	{
-		var path = Path.Combine(Profile, account.ToString() + "." + WalletExt(Cryptography));
-
-		File.WriteAllBytes(path, Wallets[account]);
-
-		AccountsChanged?.Invoke();
+		w.Save(path);
 
 		return path;
 	}
@@ -110,8 +254,6 @@ public class Vault
 	{
 		File.Delete(Path.Combine(Profile, account.ToString() + "." + WalletExt(Cryptography)));
 
-		Keys.RemoveAll(i => i == account);
-
-		AccountsChanged?.Invoke();
+		Wallets.RemoveAll(i => i.Address == account);
 	}
 }

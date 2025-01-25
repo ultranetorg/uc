@@ -746,7 +746,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					if(v.Transactions.Any() || must)
 					{
-						v.Sign(Vault.GetKey(g));
+						v.Sign(Vault.Find(g).Key);
 						votes.Add(v);
 					}
 				}
@@ -757,7 +757,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
  
  						var b = createvote(r);
  						
- 						b.Sign(Vault.GetKey(g));
+ 						b.Sign(Vault.Find(g).Key);
  						votes.Add(b);
  					}
 
@@ -916,7 +916,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Expiration = 0;
 						t.Member = new(0, -1);
 
-						t.Sign(Vault.GetKey(t.Signer), Net.Cryptography.ZeroHash);
+						t.Sign(Vault.Find(t.Signer).Key, Net.Cryptography.ZeroHash);
 
 						var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 							
@@ -933,7 +933,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 
-						t.Sign(Vault.GetKey(t.Signer), at.PowHash);
+						t.Sign(Vault.Find(t.Signer).Key, at.PowHash);
 						txs.Add(t);
 
 						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Signature={t.Signature.ToHex()}");

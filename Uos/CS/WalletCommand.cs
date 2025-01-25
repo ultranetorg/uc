@@ -34,15 +34,16 @@ public class WalletCommand : UosCommand
 									p = Uos.PasswordAsker.Password;
 								}
 
-								var k = AccountKey.Create();
+								var w = Uos.Vault.CreateWallet();
 
-								Report("Public Address - " + k.ToString()); 
-								Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
+								w.Encrypt(p);
 
-								Api(new AddWalletUosApc {Wallet = Uos.Vault.Cryptography.Encrypt(k, p)});
-								Api(new SaveWalletUosApc {Account = k});
+								Report("Public Address - " + w.Address); 
+								Report("Private Key    - " + w.Key.GetPrivateKeyAsBytes().ToHex());
 
-								return k;
+								Api(new AddWalletApc {Raw = w.ToRaw()});
+
+								return w.Key;
 							};
 		return a;
 	}
@@ -94,7 +95,7 @@ public class WalletCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-								byte[] w;
+								byte[] b;
 		
 								if(Has("privatekey"))
 								{
@@ -106,22 +107,20 @@ public class WalletCommand : UosCommand
 										p = Uos.PasswordAsker.Password;
 									}
 
-									var k = new AccountKey(GetBytes("privatekey"));
-									w = Uos.Vault.Cryptography.Encrypt(k, p);
+									var w = Uos.Vault.CreateWallet(new AccountKey(GetBytes("privatekey")));
+									w.Encrypt(p);
+									b = w.ToRaw();
 								}
 								else if(Has("wallet"))
 								{
-									w = File.ReadAllBytes(GetString("wallet"));
+									b = File.ReadAllBytes(GetString("wallet"));
 								}
 								else
 									throw new SyntaxException("'privatekey' or 'wallet' must be provided");
 
-								var a = Uos.Vault.Cryptography.AccountFromWallet(w);
+								Api(new AddWalletApc {Raw = b});
 
-								Api(new AddWalletUosApc {Wallet = w});
-								Api(new SaveWalletUosApc {Account = a});
-
-								Report("Account Address - " + a.ToString());
+								Report("Account Address - " + Uos.Vault.CreateWallet(b).Address);
 		
 								return a;
 							};

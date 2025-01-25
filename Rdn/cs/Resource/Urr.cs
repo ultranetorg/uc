@@ -267,7 +267,7 @@ public class ReleaseAddressCreator
 		return Type	switch
 					{
 						UrrScheme.Urrh => new Urrh {Hash = hash},
-						UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.GetKey(Owner), Resource, hash),
+						UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};
 
