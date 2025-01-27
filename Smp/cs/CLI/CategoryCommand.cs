@@ -94,6 +94,28 @@ public class CategoryCommand : SmpCommand
 		return a;
 	}
 
+	public CommandAction ListCategories()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "lc";
+		a.Help = new() {Description = "Get subcategories of a specified category",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
+						Arguments = [new ("<first>", "Id of a site to get subcategories from")],
+						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+				
+								var rp = Ppc(new CategoryCategoriesRequest(FirstEntityId));
+
+								Dump(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+					
+								return rp.Categories;
+							};
+		return a;
+	}
+
 // 	public CommandAction Delete()
 // 	{
 // 		var a = new CommandAction(MethodBase.GetCurrentMethod());

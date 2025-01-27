@@ -53,8 +53,8 @@ public abstract class Mcv /// Mutual chain voting
 													set => _Tail = value;
 													get 
 													{
-														if(!_init && !Monitor.IsEntered(Lock))
-															Debugger.Break();
+														///if(!_init && !Monitor.IsEntered(Lock))
+														///	Debugger.Break();
 
 														return _Tail;
 													}
