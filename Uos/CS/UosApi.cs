@@ -153,7 +153,7 @@ public class AddAccountToWalletApc : UosApc
 	{
 		lock(uos)
 		{	
-			var a =(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
+			var a = (Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
 		
 			return a.Key.GetPrivateKeyAsBytes();
 		}
@@ -162,7 +162,7 @@ public class AddAccountToWalletApc : UosApc
 
 public class FindAuthenticationApc : UosApc
 {
-	public string			Net { get; set; }
+	public string			Net { get; set; } /// Null means to serach among all unlocked accounts
 	public AccountAddress	Account { get; set; }
 
 	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
