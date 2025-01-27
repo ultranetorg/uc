@@ -8,7 +8,7 @@ public class UosApiServer : JsonServer
 {
 	Uos Uos;
 
-	public UosApiServer(Uos uos, Flow workflow) : base(uos.Settings.Api, ApiClient.CreateOptions(), workflow)
+	public UosApiServer(Uos uos, Flow flow) : base(uos.Settings.Api, ApiClient.CreateOptions(), flow)
 	{
 		Uos = uos;
 	}
@@ -46,14 +46,14 @@ public class UosApiClient : ApiClient
 
 public abstract class UosApc : Apc
 {
-	public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
 public class PropertyApc : UosApc
 {
 	public string Path { get; set; }
 
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		object o = uos;
 
@@ -80,7 +80,7 @@ public class RunNodeApc : UosApc
 {
 	public string	Net { get; set; }
 
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			uos.RunNode(Net);
@@ -93,34 +93,21 @@ public class NodeInfoApc : UosApc
 {
 	public string	Net { get; set; }
 
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			return uos.Nodes.Find(i => i.Node.Net.Address == Net);
 	}
 }
 
-public class AddWalletUosApc : UosApc
+public class AddWalletApc : UosApc
 {
-	public byte[]	Wallet { get; set; }
+	public byte[]	Raw { get; set; }
 
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			uos.Vault.AddWallet(Wallet);
-		
-		return null;
-	}
-}
-
-public class SaveWalletUosApc : UosApc
-{
-	public AccountAddress	Account { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(uos)
-			uos.Vault.SaveWallet(Account);
+			uos.Vault.AddWallet(Raw);
 		
 		return null;
 	}
@@ -128,21 +115,119 @@ public class SaveWalletUosApc : UosApc
 
 public class UnlockWalletApc : UosApc
 {
-	public AccountAddress	Account { get; set; }
-	public string			Password { get; set; }
+	public string	Name { get; set; } ///  Null means first
+	public string	Password { get; set; }
 
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
-			if(Account != null)
-				uos.Vault.Unlock(Account, Password);
-			else
-				foreach(var i in uos.Vault.Wallets)
-					uos.Vault.Unlock(i.Key, Password);
+			(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).Unlock(Password);
 		}
 
 		return null;
+	}
+}
+
+public class LockWalletApc : UosApc
+{
+	public string	Name { get; set; } ///  Null means first
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+		{
+			(Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).Lock();
+		}
+
+		return null;
+	}
+}
+
+public class AddAccountToWalletApc : UosApc
+{
+	public string	Name { get; set; } ///  Null means first
+	public byte[]	Key { get; set; } ///  Null means create new
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+		{	
+			var a = (Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
+		
+			return a.Key.GetPrivateKeyAsBytes();
+		}
+	}
+}
+
+public class FindAuthenticationApc : UosApc
+{
+	public string			Net { get; set; } /// Null means to serach among all unlocked accounts
+	public AccountAddress	Account { get; set; }
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		if(Account == null)
+		{
+			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.FindAuthentication(Net) != null)?.FindAuthentication(Net);
+		}
+		else
+		{
+			return uos.Vault.Find(Account)?.FindAuthentication(Net);
+		}
+	}
+}
+
+
+public class AuthenticateApc : UosApc
+{
+	public string			Net { get; set; }
+	public AccountAddress	Account { get; set; }
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		var a = uos.AuthenticationRequested(Net, Account);
+
+		if(a != null)
+		{
+			return uos.Vault.Find(a.Account).GetSession(Net, a.Trust);
+		} 
+		else
+			return null;
+	}
+}
+
+public class AuthorizeApc : UosApc
+{
+	public string			Net { get; set; }
+	public AccountAddress	Account { get; set; }
+	public byte[]			Session { get; set; }
+	public byte[]			Data { get; set; }
+	public Trust			Trust { get; set; }
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		var acc = uos.Vault.Find(Account);
+		
+		var au = acc?.Authentications.Find(i => i.Net == Net);
+
+		if(au?.Session == null || !au.Session.SequenceEqual(Session))
+			return null;
+
+		if(acc.Key == null)
+		{
+			uos.UnlockRequested(Account);
+		}
+
+		if(acc.Key == null)
+			return null;
+
+		if(Trust > au.Trust)
+		{
+			uos.AuthorizationRequested(Net, Account);
+		}
+
+		return uos.Settings.Rdn.Cryptography.Sign(acc.Key, Cryptography.Hash(Data)); ///TODO: CALL THE NET CLINENT ITSELF
 	}
 }
 

@@ -22,7 +22,11 @@ public class Uos : Cli
 {
 	public delegate void		Delegate(Uos d);
  	public delegate void		McvDelegate(Mcv d);
- 	
+
+	public Func<string, AccountAddress, AuthenticationChioce>	AuthenticationRequested;
+	public Action<AccountAddress>								UnlockRequested;
+	public Func<string, AccountAddress, bool>					AuthorizationRequested;
+
 	public static bool			ConsoleAvailable { get; protected set; }
 	public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
 	public Flow					Flow = new Flow("uos", new Log()); 
@@ -38,7 +42,7 @@ public class Uos : Cli
 	public static HttpClient	ApiHttpClient;
 
 	public McvNode				Find(string net) => Nodes.Find(i => i.Net == net)?.Node;
-	public T					Find<T>() where T : class => Nodes.Find(i => i.Node is T)?.Node as T;
+	public N					Find<N>() where N : class => Nodes.Find(i => i.Node is N)?.Node as N;
 
 	RdnApiClient				_Rdn;
 	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Rdn, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.AccessKey);

@@ -34,15 +34,14 @@ public class WalletCommand : UosCommand
 									p = Uos.PasswordAsker.Password;
 								}
 
-								var k = AccountKey.Create();
+								var w = Uos.Vault.CreateWallet(p);
 
-								Report("Public Address - " + k.ToString()); 
-								Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
+								Report("Public Address - " + w.Accounts.First().Address); 
+								Report("Private Key    - " + w.Accounts.First().Key.GetPrivateKeyAsBytes().ToHex());
 
-								Api(new AddWalletUosApc {Wallet = Uos.Vault.Cryptography.Encrypt(k, p)});
-								Api(new SaveWalletUosApc {Account = k});
+								Api(new AddWalletApc {Raw = w.Raw});
 
-								return k;
+								return w;
 							};
 		return a;
 	}
@@ -54,74 +53,93 @@ public class WalletCommand : UosCommand
 		a.Name = "u";
 
 		a.Help = new() {Description = "Unlocks an existing wallet making it available for signing transactions",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AA} password={PASSWORD}",
+						Syntax = $"{Keyword} {a.NamesSyntax} password={PASSWORD} [name={NAME}]",
 
 						Arguments =	[
-										new ("<first>", "Account address of wallet to unlock"),
-										new ("password", "A password of a wallet to be unlocked")
+										new ("password", "A password of a wallet to be unlocked"),
+										new ("name", "Name of wallet")
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} {AA.Example} password={PASSWORD.Example}")
+										new (null, $"{Keyword} {a.Name} name={NAME.Example} password={PASSWORD.Example}")
 									]};
 
 		a.Execute = () =>	{
-								Api(new UnlockWalletApc{Account = AccountAddress.Parse(Args[0].Name), 
+								Api(new UnlockWalletApc{Name = GetString("name", null), 
 														Password = GetString("password")});
 								return null;
 							};
 		return a;
 	}
 
+	public CommandAction Lock()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "l";
+
+		a.Help = new() {Description = "Locks an existing wallet",
+						Syntax = $"{Keyword} {a.NamesSyntax} {AA} [name={NAME}]",
+
+						Arguments =	[new ("name", "Name of wallet")],
+						Examples =	[new (null, $"{Keyword} {a.Name} {AA.Example} password={PASSWORD.Example}")]};
+
+		a.Execute = () =>	{
+								Api(new LockWalletApc {Name = GetString("name", null)});
+								return null;
+							};
+		return a;
+	}
+
+	public CommandAction AddAccount()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "aa";
+		a.Help = new() {Description = "Cerates a new or import existing account to a wallet",
+						Syntax = $"{Keyword} {a.NamesSyntax} [name={NAME}] [key={PRIVATEKEY}]",
+
+						Arguments =	[new ("name", "Name of wallet"),
+									 new ("key", "Private key of account to import")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} name={NAME.Example} key={PRIVATEKEY.Example}")]};
+
+		a.Execute = () =>	{
+								var pk = Api<byte[]>(new AddAccountToWalletApc {Name = GetString("name", null), Key = GetBytes("key", false) });
+								
+								var k = new AccountKey(pk);
+
+								Report("Public Address - " + k); 
+								Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
+
+								return k;
+							};
+		return a;
+	}
+
 	public CommandAction Import()
 	{
+		var p = "path";
+
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Name = "i";
 
-		a.Help = new() {Description = "Imports a new account using the provided private key of an account or a wallet file.",
-						Syntax = $"{Keyword} {a.NamesSyntax} (privatekey={PRIVATEKEY} password={PASSWORD}) | wallet={FILEPATH}",
+		a.Help = new() {Description = "Imports existing wallet",
+						Syntax = $"{Keyword} {a.NamesSyntax} {p}={FILEPATH}",
 
 						Arguments =	[
-										new ("privatekey", "A private key of an account for which a wallet is created"),
-										new ("wallet", "A path to a source wallet file"),
-										new ("password", "When privatekey is specified, a password that will be used to encrypt the newly created wallet")
+										new (p, "A path to a source wallet file"),
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} privatekey={PRIVATEKEY.Examples} password={PASSWORD.Example}"),
-										new (null, $"{Keyword} {a.Name} wallet={DIRPATH}\\wallet.sunwe")
+										new (null, $"{Keyword} {a.Name} {p}={DIRPATH}\\wallet.{Vault.EncryptedWalletExtention}")
 									]};
 
 		a.Execute = () =>	{
-								byte[] w;
-		
-								if(Has("privatekey"))
-								{
-									string p = GetString("password", null);
+								var	b = File.ReadAllBytes(GetString(p));
 
-									if(p == null)
-									{
-										Uos.PasswordAsker.Create(Vault.PasswordWarning);
-										p = Uos.PasswordAsker.Password;
-									}
-
-									var k = new AccountKey(GetBytes("privatekey"));
-									w = Uos.Vault.Cryptography.Encrypt(k, p);
-								}
-								else if(Has("wallet"))
-								{
-									w = File.ReadAllBytes(GetString("wallet"));
-								}
-								else
-									throw new SyntaxException("'privatekey' or 'wallet' must be provided");
-
-								var a = Uos.Vault.Cryptography.AccountFromWallet(w);
-
-								Api(new AddWalletUosApc {Wallet = w});
-								Api(new SaveWalletUosApc {Account = a});
-
-								Report("Account Address - " + a.ToString());
+								Api(new AddWalletApc {Raw = b});
 		
 								return a;
 							};
