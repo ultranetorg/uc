@@ -1,8 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Uccs.Smp;
 
 public interface IEntityIdValidator
 {
-	void Validate(string entityId);
+	void Validate(string entityId, [NotEmpty] string entityName);
 }

@@ -4,14 +4,19 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetProducts = (name?: string, page?: number, pageSize?: number) => {
+export const useGetPublication = (publicationId?: string) => {
   const queryFn = () => {
-    return api.getProducts(name, page, pageSize)
+    if (!publicationId) {
+      return
+    }
+
+    return api.getPublication(publicationId)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["products", { name, page, pageSize }],
+    queryKey: ["publications", publicationId],
     queryFn: queryFn,
+    enabled: !!publicationId,
   })
 
   return { isPending, error, data }

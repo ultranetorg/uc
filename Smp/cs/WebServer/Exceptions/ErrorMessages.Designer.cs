@@ -72,36 +72,36 @@ namespace Uccs.Smp {
         /// <summary>
         ///   Looks up a localized string similar to An incorrect product identifier has been provided..
         /// </summary>
-        internal static string InvalidProductId {
+        internal static string InvalidEntityIdFormat1 {
             get {
-                return ResourceManager.GetString("InvalidProductId", resourceCulture);
+                return ResourceManager.GetString("InvalidEntityIdFormat1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to An incorrect product identifier has been provided {0}..
         /// </summary>
-        internal static string InvalidProductIdFormat1 {
+        internal static string InvalidEntityIdFormat2 {
             get {
-                return ResourceManager.GetString("InvalidProductIdFormat1", resourceCulture);
+                return ResourceManager.GetString("InvalidEntityIdFormat2", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Product not found..
         /// </summary>
-        internal static string ProductNotFound {
+        internal static string ProductNotFoundFormat1 {
             get {
-                return ResourceManager.GetString("ProductNotFound", resourceCulture);
+                return ResourceManager.GetString("ProductNotFoundFormat1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The product with the specified identifier {0} was not found..
         /// </summary>
-        internal static string ProductNotFoundFormat1 {
+        internal static string ProductNotFoundFormat2 {
             get {
-                return ResourceManager.GetString("ProductNotFoundFormat1", resourceCulture);
+                return ResourceManager.GetString("ProductNotFoundFormat2", resourceCulture);
             }
         }
     }

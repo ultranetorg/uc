@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
 import { BaseLayout } from "ui/layouts"
-import { ErrorPage, IndexPage, ProductPage, ProductsPage } from "ui/pages"
+import { AuthorPage, CategoryPage, ErrorPage, IndexPage, PublicationPage, PublicationsPage } from "ui/pages"
 
 export const Router = () => (
   <BrowserRouter>
@@ -17,9 +17,13 @@ export const Router = () => (
       >
         <Route index element={<IndexPage />} />
 
-        <Route path="/products">
-          <Route index element={<ProductsPage />} />
-          <Route path=":productId" element={<ProductPage />} />
+        <Route path="/a/:authorId" element={<AuthorPage />} />
+
+        <Route path="/c/:categoryId" element={<CategoryPage />} />
+
+        <Route path="/p">
+          <Route index element={<PublicationsPage />} />
+          <Route path=":publicationId" element={<PublicationPage />} />
         </Route>
       </Route>
     </Routes>

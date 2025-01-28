@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
+﻿using System.Net.Mime;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Smp;
 
