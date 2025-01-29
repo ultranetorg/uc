@@ -4,19 +4,19 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetProduct = (id?: string) => {
+export const useGetCategory = (categoryId?: string) => {
   const queryFn = () => {
-    if (!id) {
+    if (!categoryId) {
       return
     }
 
-    return api.getProduct(id)
+    return api.getCategory(categoryId)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["products", id],
+    queryKey: ["categories", categoryId],
     queryFn: queryFn,
-    enabled: !!id,
+    enabled: !!categoryId,
   })
 
   return { isPending, error, data }

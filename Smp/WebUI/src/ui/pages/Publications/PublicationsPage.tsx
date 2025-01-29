@@ -1,16 +1,15 @@
 import { ChangeEvent, useCallback } from "react"
 import { Link } from "react-router-dom"
 
-import { useGetProducts } from "entities"
-import { ProductCard, SearchInput } from "ui/components"
+import { useSearchPublications } from "entities"
+import { PublicationCard, SearchInput } from "ui/components"
 
 import { useQueryParams } from "./hooks"
 
-export const ProductsPage = () => {
+export const PublicationsPage = () => {
   const { setSearchParams, name, page, pageSize } = useQueryParams()
-  console.log(name)
 
-  const { isPending, data: products } = useGetProducts(name ?? undefined, page, pageSize)
+  const { isPending, data: publications } = useSearchPublications(name ?? undefined, page, pageSize)
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -35,11 +34,11 @@ export const ProductsPage = () => {
       <div className="mb-4 text-center text-purple-500">(Advertisements)</div>
       {isPending ? (
         <h2>Loading</h2>
-      ) : products?.items !== undefined ? (
+      ) : publications?.items !== undefined ? (
         <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
-          {products.items.map(p => (
-            <Link to={`/products/${p.id}`} key={p.id}>
-              <ProductCard productName={p.name} authorName={p.authorName} />
+          {publications.items.map(p => (
+            <Link to={`/p/${p.id}`} key={p.id}>
+              <PublicationCard publicationName={p.productName} authorTitle={p.authorTitle} />
             </Link>
           ))}
         </div>

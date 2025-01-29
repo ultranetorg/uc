@@ -2,10 +2,10 @@
 
 public enum ErrorCodes
 {
-	// Pagination
-	InvalidPaginationParameters = 1010,
+	// General
+	InvalidEntityId = 1010,
+	EntityNotFound = 1020,
 
-	// Products
-	InvalidProductId = 1121,
-	ProductNotFound = 1122,
+	// Pagination
+	InvalidPaginationParameters = 1030,
 }
