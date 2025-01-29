@@ -84,7 +84,7 @@ public class SmpRound : Round
 	{
 		int e = GetNextEid(Mcv.Products, author.Id.B);
 
-  		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e), Fields = []};
+  		var	p = new ProductEntry {Id = new EntityId(author.Id.B, e), Fields = [], Publications = []};
     
   		return AffectedProducts[p.Id] = p;
 	}

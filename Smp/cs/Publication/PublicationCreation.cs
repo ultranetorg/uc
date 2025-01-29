@@ -33,10 +33,13 @@ public class PublicationCreation : SmpOperation
 		p.Product	= Product;
 		p.Category	= Category;
 		p.Creator	= Signer.Id;
+
+		var r = round.AffectProduct(Product);
+
+		r.Publications = [..r.Publications, p.Id];
 		
 		c = round.AffectCategory(c.Id);
 		
-		c.Publications ??= [];
 		c.Publications = [..c.Publications, p.Id];
 	}
 }

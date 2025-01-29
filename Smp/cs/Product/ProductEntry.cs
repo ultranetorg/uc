@@ -21,7 +21,8 @@ public class ProductEntry : Product, ITableEntry
 						AuthorId = AuthorId,
 						Flags = Flags,
 						Fields = Fields?.ToArray(),
-						Updated = Updated};
+						Updated = Updated,
+						Publications = Publications};
 	}
 
 	public void ReadMain(BinaryReader reader)

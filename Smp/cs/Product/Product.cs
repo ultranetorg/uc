@@ -71,6 +71,7 @@ public class Product : IBinarySerializable
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
+	public EntityId[]			Publications { get; set; }
 
 	public short				Length => (short)(Mcv.EntityLength + Fields.Sum(i => ProductField.GetSize(i.Type, i.Value))); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 	public const int			DescriptionLengthMaximum = 1024*1024;
@@ -87,14 +88,16 @@ public class Product : IBinarySerializable
 		writer.Write((byte)Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
+		writer.Write(Publications);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
-		AuthorId	= reader.Read<EntityId>();
-		Flags		= (ProductFlags)reader.ReadByte();
-		Updated		= reader.Read<Time>();
-		Fields		= reader.ReadArray<ProductField>();
+		Id				= reader.Read<EntityId>();
+		AuthorId		= reader.Read<EntityId>();
+		Flags			= (ProductFlags)reader.ReadByte();
+		Updated			= reader.Read<Time>();
+		Fields			= reader.ReadArray<ProductField>();
+		Publications	= reader.ReadArray<EntityId>();
 	}
 }
