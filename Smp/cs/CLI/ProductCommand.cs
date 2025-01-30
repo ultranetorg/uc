@@ -75,7 +75,7 @@ public class ProductCommand : SmpCommand
 								var o =	new ProductUpdation(r.Id);
 
 								if(Has("description"))
-									o.Change(ProductProperty.Description, GetString("description"));
+									o.Change(ProductField.Description, GetString("description"));
 
 								return o;
 							};

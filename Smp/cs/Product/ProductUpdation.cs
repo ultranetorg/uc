@@ -6,13 +6,9 @@ public class ProductUpdation : SmpOperation
 {
 	public EntityId				ProductId { get; set; }
 	public ProductField[]		Changes	{ get; set; }
-	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Type))}";
+	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Name))}";
 
-	public override bool IsValid(Mcv mcv) => Changes.All(i => i.Type switch
-																	 {
-																	 	ProductProperty.Description => (i.Value as string).Length <= Product.DescriptionLengthMaximum,
-																	 	_ => throw new RequirementException()
-																	 });
+	public override bool		IsValid(Mcv mcv) => Changes.All(i => i.Size <= Product.DescriptionLengthMaximum);
 
 	public ProductUpdation()
 	{
@@ -23,11 +19,11 @@ public class ProductUpdation : SmpOperation
 		ProductId = id;
 	}
 
-	public void Change(ProductProperty change, string data)
+	public void Change(string change, string data)
 	{
 		Changes ??= [];
 
-		var f = Changes.FirstOrDefault(i => i.Type == change);
+		var f = Changes.FirstOrDefault(i => i.Name == change);
 
 		if(f == null)
 		{
@@ -61,7 +57,7 @@ public class ProductUpdation : SmpOperation
 
 		foreach(var i in Changes)
 		{	
-			var f = p.Fields.FirstOrDefault(j => j.Type == i.Type);
+			var f = p.Fields.FirstOrDefault(j => j.Name == i.Name);
 
 			if(f == null)
 			{	
@@ -70,11 +66,11 @@ public class ProductUpdation : SmpOperation
 			}
 			else
 			{
-				Free(a, ProductField.GetSize(i.Type, f.Value));
+				Free(a, f.Size);
 				f.Value = i.Value;
 			}
 
-			Allocate(round, a, ProductField.GetSize(f.Type, f.Value));
+			Allocate(round, a, f.Size);
 		}
 
 		p.Updated = round.ConsensusTime;

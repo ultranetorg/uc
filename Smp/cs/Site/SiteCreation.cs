@@ -30,7 +30,7 @@ public class SiteCreation : SmpOperation
 
 		s.Type = Type;
 		s.Title = Title;
-		s.Owners = [Signer.Id];
+		s.Moderators = [Signer.Id];
 
 		Signer.Sites = Signer.Sites == null ? [s.Id] : [..Signer.Sites, s.Id];
 	}

@@ -49,8 +49,7 @@ public class Site : IBinarySerializable
 	public EntityId		Id { get; set; }
 	public SiteType		Type { get; set; }
 	public string		Title { get; set; }
-	public EntityId[]	Owners { get; set; }
-	//public EntityId		Root { get; set; }
+	public EntityId[]	Moderators { get; set; }
 	public EntityId[]	Categories { get; set; }
 
 	enum Field
@@ -60,25 +59,19 @@ public class Site : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		//var f = (Field)reader.ReadByte();
-
-		Id		= reader.Read<EntityId>();
-		Type	= reader.ReadEnum<SiteType>();
-		Title	= reader.ReadUtf8();
-		Owners	= reader.ReadArray<EntityId>();
-		//if(f.HasFlag(Field.Root)) Root = reader.Read<EntityId>();
+		Id			= reader.Read<EntityId>();
+		Type		= reader.ReadEnum<SiteType>();
+		Title		= reader.ReadUtf8();
+		Moderators	= reader.ReadArray<EntityId>();
 		Categories	= reader.ReadArray<EntityId>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		//writer.Write((byte)(Root != null ? Field.Root : 0));
-
 		writer.Write(Id);
 		writer.WriteEnum(Type);
 		writer.Write(Title);
-		writer.Write(Owners);
-		//if(Root != null) writer.Write(Root);
+		writer.Write(Moderators);
 		writer.Write(Categories);
 	}
 }

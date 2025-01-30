@@ -55,7 +55,7 @@ public class PublicationCommand : SmpCommand
 									 new (SignerArg, "Address of account that assumed to have permissions to make changes specified")],
 
 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {p}={EID.Examples[1]} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} {EID.Example} {s}={ProductProperty.Description} {SignerArg}={AA.Example}")]};
+									 new (null, $"{Keyword} {a.Name} {EID.Example} {s}={ProductField.Title},{ProductField.Description} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

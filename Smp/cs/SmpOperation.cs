@@ -19,16 +19,19 @@ public enum SmpOperationClass
 		SiteCreation				= 103_000_001, 
 		SiteDeletion				= 103_000_002,
 	
-	Store							= 105, 
-		Category					= 105_000,
-			CategoryCreation		= 105_000_001,
-			CategoryUpdation		= 105_000_002,
-			CategoryDeletion		= 105_000_003,
+	Store							= 105,
+		ModeratorAddition			= 105_000,
 
-		Publication					= 105_001,
-			PublicationCreation		= 105_001_001,
-			PublicationUpdation		= 105_001_002,
-			PublicationDeletion		= 105_001_003,
+		Category					= 105_001,
+			CategoryCreation		= 105_001_001,
+			CategoryUpdation		= 105_001_002,
+			CategoryDeletion		= 105_001_003,
+
+		Publication					= 105_002,
+			PublicationCreation		= 105_002_001,
+			PublicationUpdation		= 105_002_002,
+			PublicationDeletion		= 105_002_003,
+		
 } 
 
 public abstract class SmpOperation : Operation
@@ -167,7 +170,7 @@ public abstract class SmpOperation : Operation
 			return false; 
 		}
 
-		if(!site.Owners.Contains(Signer.Id))
+		if(!site.Moderators.Contains(Signer.Id))
 		{
 			Error = Denied;
 			return false; 

@@ -3,6 +3,7 @@ namespace Uccs.Smp;
 public enum PublicationChange : byte
 {
 	None,
+	Status,
 	Delete,
 	Sections,
 	Product,
@@ -31,6 +32,7 @@ public class PublicationUpdation : SmpOperation
 		
 		Value = Change switch
 					   {
+							PublicationChange.Status	=> reader.ReadEnum<PublicationStatus>(),
 							PublicationChange.Sections	=> reader.ReadArray(reader.ReadUtf8),
 							PublicationChange.Product	=> reader.Read<EntityId>(),
 							_ => throw new IntegrityException()
@@ -44,6 +46,7 @@ public class PublicationUpdation : SmpOperation
 
 		switch(Change)
 		{
+			case PublicationChange.Status	:	writer.WriteEnum((PublicationStatus)Value); break;
 			case PublicationChange.Sections :	writer.Write(Strings, writer.WriteUtf8); break;
 			case PublicationChange.Product	:	writer.Write(EntityId); break;
 			default:
@@ -60,6 +63,10 @@ public class PublicationUpdation : SmpOperation
 
 		switch(Change)
 		{
+			case PublicationChange.Status:
+				p.Status = (PublicationStatus)Value;
+				break;
+
 			case PublicationChange.Product:
 				p.Product = EntityId;
 				break;

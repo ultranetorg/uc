@@ -21,6 +21,7 @@ public class PublicationEntry : Publication, ITableEntry
 						Category	= Category,
 						Creator		= Creator,
 						Product		= Product,
+						Status		= Status,
 						Sections	= Sections,
 						Comments	= Comments};
 	}

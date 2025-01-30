@@ -20,7 +20,7 @@ public class SiteEntry : Site, ITableEntry
 		return new(Mcv){Id = Id,
 						Type = Type,
 						Title = Title,
-						Owners = Owners,
+						Moderators = Moderators,
 						Categories = Categories};
 	}
 

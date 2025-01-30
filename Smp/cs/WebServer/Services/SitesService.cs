@@ -120,7 +120,7 @@ public class SitesService
 			}
 
 			// TODO: fix product name.
-			string productName = product.Fields.FirstOrDefault(x => x.Type == ProductProperty.Description)?.Value.ToString() ?? "TEST NAME + " + publication.Id.ToString();
+			string productName = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description)?.Value.ToString() ?? "TEST NAME + " + publication.Id.ToString();
 			if (!string.IsNullOrEmpty(context.SarchName) && (productName == null || productName.IndexOf(context.SarchName, StringComparison.OrdinalIgnoreCase) == -1))
 			{
 				continue;
@@ -142,7 +142,7 @@ public class SitesService
 			CategoryId = category.Id.ToString(),
 			CategoryName = category.Title,
 			ProductId = product.Id.ToString(),
-			ProductName = product.Fields.FirstOrDefault(x => x.Type == ProductProperty.Description)?.Value.ToString() ?? "TEST NAME + " + publication.Id.ToString(),
+			ProductName = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description)?.Value.ToString() ?? "TEST NAME + " + publication.Id.ToString(),
 			AuthorId = publication.Creator.ToString(),
 			AuthorTitle = author.Title,
 		};

@@ -50,7 +50,7 @@ public class AccountCommand : McvCommand
 				
 								var rp = Ppc(new AccountSitesRequest(First));
 
-								Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Owners[0] + (i.Owners.Length > 1 ? $",  {{{i.Owners.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
 								return rp.Sites;
 							};

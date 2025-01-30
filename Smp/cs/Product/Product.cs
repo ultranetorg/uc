@@ -5,62 +5,46 @@ namespace Uccs.Smp;
 [Flags]
 public enum ProductFlags : byte
 {
-	None		= 0, 
+	None, 
 }
 
 [Flags]
 public enum ProductProperty : byte
 {
-	None			= 0,
-	Description		= 1,
+	None,
 }
 
 public class ProductField : IBinarySerializable
 {
-	public ProductProperty	Type { get; set; }
-	public object			Value  { get; set; }
+	public string		Name { get; set; }
+	public string		Value  { get; set; }
 
+	public int			Size =>  Encoding.UTF8.GetByteCount(Value);
+
+	public const string	Title = "Title";
+	public const string	Description = "Description";
+	
 	public ProductField()
 	{
 	}
 
-	public ProductField(ProductProperty type, object value)
+	public ProductField(string name, string value)
 	{
-		Type = type;
+		Name = name;
 		Value = value;
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Type = (ProductProperty)reader.ReadByte();
-
-		Value = Type switch
-					 {
-						ProductProperty.Description => reader.ReadUtf8(),
-						_ => throw new RequirementException()
-					 };
+		Name = reader.ReadString();
+		Value = reader.ReadString();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write((byte)Type);
-
-		switch(Type)
-		{
-			case ProductProperty.Description : writer.WriteUtf8(Value as string); break;
-			default :
-				throw new RequirementException();
-		};
-	}
-
-	public static int GetSize(ProductProperty field, object value)
-	{
-		switch(field)
-		{
-			case ProductProperty.Description : return Encoding.UTF8.GetByteCount(value as string);
-			default :
-				throw new RequirementException();
-		};
+		writer.Write(Name);
+		writer.Write(Value);
+			
 	}
 }
 
@@ -73,7 +57,7 @@ public class Product : IBinarySerializable
 	public Time					Updated { get; set; }
 	public EntityId[]			Publications { get; set; }
 
-	public short				Length => (short)(Mcv.EntityLength + Fields.Sum(i => ProductField.GetSize(i.Type, i.Value))); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
+	public int					Length => Mcv.EntityLength + Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 	public const int			DescriptionLengthMaximum = 1024*1024;
 
 	public override string ToString()

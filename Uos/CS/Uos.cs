@@ -77,7 +77,16 @@ public class Uos : Cli
 		var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
 		
 		var u = new Uos(s, new Flow(nameof(Uos), new Log()), new RealClock());
-		u.Execute(Boot.Commnand.Nodes, u.Flow);
+
+		try
+		{
+			u.Execute(Boot.Commnand.Nodes, u.Flow);
+		}
+		catch(NetException ex) when (!Debugger.IsAttached)
+		{
+			u.Flow?.Log.ReportError(ex.Message);
+		}
+
 		u.Stop();
 	}
 

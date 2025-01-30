@@ -30,6 +30,16 @@ public class PublicationCreation : SmpOperation
 					
 		var p = round.CreatePublication(mcv.Sites.Find(c.Site, round.Id));
 
+		if(Signer.Id == a.Id)
+			p.Status = PublicationStatus.RequestedByAuthor;
+		else if(Signer.Id == mcv.Sites.Find(c.Site, mcv.LastConfirmedRound.Id)?.Id)
+			p.Status = PublicationStatus.ProposedByStore;
+		else
+		{
+			Error = Denied;
+			return;
+		}
+
 		p.Product	= Product;
 		p.Category	= Category;
 		p.Creator	= Signer.Id;

@@ -40,7 +40,7 @@ public class SiteDeletion : SmpOperation
 			}
 		}
 
-		foreach(var i in s.Owners)
+		foreach(var i in s.Moderators)
 		{
 			var a = round.AffectAccount(i);
 			a.Sites = a.Sites.Where(i => i != Site).ToArray();
