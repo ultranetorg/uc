@@ -29,6 +29,7 @@ public class ReviewCreation : SmpOperation
 
 		r.Publication	= p.Id;
 		r.User			= Signer.Id;
+		r.Status		= ReviewStatus.Active;
 		r.Text			= Text;
 		r.Created		= round.ConsensusTime;
 
