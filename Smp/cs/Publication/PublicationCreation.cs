@@ -32,7 +32,7 @@ public class PublicationCreation : SmpOperation
 
 		if(Signer.Id == a.Id)
 			p.Status = PublicationStatus.RequestedByAuthor;
-		else if(Signer.Id == mcv.Sites.Find(c.Site, mcv.LastConfirmedRound.Id)?.Id)
+		else if(mcv.Sites.Find(c.Site, mcv.LastConfirmedRound.Id)?.Moderators.Contains(Signer.Id) ?? false)
 			p.Status = PublicationStatus.ProposedByStore;
 		else
 		{

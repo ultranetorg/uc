@@ -1,30 +1,31 @@
 ﻿namespace Uccs.Smp;
 
-public class PublicationEntry : Publication, ITableEntry
+public class ReviewEntry : Review, ITableEntry
 {
 	public BaseId		BaseId => Id;
 	public bool			Deleted { get; set; }
 	SmpMcv				Mcv;
 
-	public PublicationEntry()
+	public ReviewEntry()
 	{
 	}
 
-	public PublicationEntry(SmpMcv mcv)
+	public ReviewEntry(SmpMcv mcv)
 	{
 		Mcv = mcv;
 	}
 
-	public PublicationEntry Clone()
+	public ReviewEntry Clone()
 	{
 		return new(Mcv){Id			= Id,
-						Category	= Category,
-						Creator		= Creator,
-						Product		= Product,
+						Publication = Publication,
+						User		= User,
 						Status		= Status,
-						Sections	= Sections,
-						Reviews	= Reviews};
+						Text		= Text,
+						Rating		= Rating,
+						Created		= Created};
 	}
+		
 
 	public void ReadMain(BinaryReader reader)
 	{

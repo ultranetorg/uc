@@ -10,6 +10,7 @@ public class SmpMcv : Mcv
 	public SiteTable		Sites;
 	public CategoryTable	Categories;
 	public PublicationTable	Publications;
+	public ReviewTable		Reviews;
 	IPAddress[]				BaseIPs;
 
 	public SmpMcv()
@@ -68,8 +69,9 @@ public class SmpMcv : Mcv
 		Sites = new (this);
 		Categories = new (this);
 		Publications = new (this);
+		Reviews = new (this);
 
-		Tables = [Accounts, Authors, Products, Sites, Categories, Publications];
+		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews];
 	}
 
 	public override Round CreateRound()

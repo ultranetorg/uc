@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Uccs.Smp;
 
 public enum PublicationStatus : byte
@@ -19,7 +17,7 @@ public class Publication : IBinarySerializable
 	public EntityId				Product { get; set; }
 	public PublicationStatus	Status { get; set; }
 	public string[]				Sections { get; set; }
-	public EntityId[]			Comments { get; set; }
+	public EntityId[]			Reviews { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
@@ -29,7 +27,7 @@ public class Publication : IBinarySerializable
 		Product		= reader.Read<EntityId>();
 		Status		= reader.ReadEnum<PublicationStatus>();
 		Sections	= reader.ReadArray(reader.ReadUtf8);
-		Comments	= reader.ReadArray<EntityId>();
+		Reviews		= reader.ReadArray<EntityId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -40,6 +38,6 @@ public class Publication : IBinarySerializable
 		writer.Write(Product);
 		writer.WriteEnum(Status);
 		writer.Write(Sections, writer.WriteUtf8);
-		writer.Write(Comments);
+		writer.Write(Reviews);
 	}
 }

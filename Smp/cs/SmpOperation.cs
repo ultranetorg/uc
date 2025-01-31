@@ -31,6 +31,11 @@ public enum SmpOperationClass
 			PublicationCreation		= 105_002_001,
 			PublicationUpdation		= 105_002_002,
 			PublicationDeletion		= 105_002_003,
+
+		Review						= 105_003,
+			ReviewCreation			= 105_003_001,
+			ReviewUpdation			= 105_003_002,
+			ReviewDeletion			= 105_003_003,
 		
 } 
 
@@ -223,6 +228,33 @@ public abstract class SmpOperation : Operation
  
  		if(!RequireSiteAccess(round, round.Mcv.Categories.Find(publication.Category, round.Id).Site, out var s))
  			return false;
+ 
+ 		return true;
+ 	}
+
+	public bool RequireReview(SmpRound round, EntityId id, out ReviewEntry review)
+	{
+		review = round.Mcv.Reviews.Find(id, round.Id);
+		
+		if(review == null || review.Deleted)
+		{
+			Error = NotFound;
+			return false; 
+		}
+
+		return true;
+	}
+
+ 	public bool RequireReviewAccess(SmpRound round, EntityId id, AccountEntry signer, out ReviewEntry review)
+ 	{
+ 		if(!RequireReview(round, id, out review))
+ 			return false; 
+
+		if(review.User == Signer.Id)
+			return true;
+
+ 		if(!RequirePublication(round, review.Publication, out var p))
+ 			return false; 
  
  		return true;
  	}

@@ -132,7 +132,6 @@ public class McvPropertyApc : McvApc
 	}
 }
 
-
 public class PeersReportApc : McvApc
 {
 	public int		Limit { get; set; }

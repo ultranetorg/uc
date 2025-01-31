@@ -8,11 +8,13 @@ public class SmpRound : Round
 	public Dictionary<EntityId, SiteEntry>			AffectedSites = new();
 	public Dictionary<EntityId, CategoryEntry>		AffectedCategories = new();
 	public Dictionary<EntityId, PublicationEntry>	AffectedPublications = new();
+	public Dictionary<EntityId, ReviewEntry>		AffectedReviews = new();
 	public Dictionary<int, int>						NextAuthorEids = new ();
 	public Dictionary<int, int>						NextProductEids = new ();
 	public Dictionary<int, int>						NextSiteEids = new ();
 	public Dictionary<int, int>						NextCategoryEids = new ();
 	public Dictionary<int, int>						NextPageEids = new ();
+	public Dictionary<int, int>						NextReviewEids = new ();
 	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
 
 	public SmpRound(SmpMcv rds) : base(rds)
@@ -31,6 +33,7 @@ public class SmpRound : Round
 		if(table == Mcv.Sites)			return AffectedSites;
 		if(table == Mcv.Categories)		return AffectedCategories;
 		if(table == Mcv.Publications)	return AffectedPublications;
+		if(table == Mcv.Reviews)		return AffectedReviews;
 
 		return base.AffectedByTable(table);
 	}
@@ -42,7 +45,7 @@ public class SmpRound : Round
 		if(table == Mcv.Sites)			return NextSiteEids;
 		if(table == Mcv.Categories)		return NextCategoryEids;
 		if(table == Mcv.Publications)	return NextPageEids;
-		//if(table == Mcv.Resources)	return AffectedResources.Values;
+		if(table == Mcv.Reviews)		return NextReviewEids;
 
 		return base.NextEidsByTable(table);
 	}
@@ -151,7 +154,7 @@ public class SmpRound : Round
 		var a = Mcv.Publications.Create();
 		a.Id = new EntityId(site.Id.B, e);
 		a.Sections = [];
-		a.Comments = [];
+		a.Reviews = [];
 			
 		return AffectedPublications[a.Id] = a;
 	}
@@ -164,6 +167,26 @@ public class SmpRound : Round
 		var e = Mcv.Publications.Find(id, Id - 1);
 
 		return AffectedPublications[id] = e.Clone();
+	}
+
+	public ReviewEntry CreateReview(PublicationEntry publication)
+	{
+		int e = GetNextEid(Mcv.Reviews, publication.Id.B);
+
+		var a = Mcv.Reviews.Create();
+		a.Id = new EntityId(publication.Id.B, e);
+
+		return AffectedReviews[a.Id] = a;
+	}
+
+	public ReviewEntry AffectReview(EntityId id)
+	{
+		if(AffectedReviews.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Mcv.Reviews.Find(id, Id - 1);
+
+		return AffectedReviews[id] = e.Clone();
 	}
 
 // 	public bool IsAllowed(Publication page, TopicChange change, AccountEntry signer)

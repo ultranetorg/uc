@@ -6,7 +6,7 @@ namespace Uccs.Smp;
 
 public abstract class SmpApc : McvApc
 {
-	public abstract object Execute(FairNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	public abstract object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
