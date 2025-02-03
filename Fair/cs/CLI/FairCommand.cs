@@ -7,7 +7,7 @@ public abstract class FairCommand : McvCommand
 	//															@"Page security definition in form of {Change0=Actor,Actor,Actor... Change1=Actor,Actor,Actor...}",
 	//															[$"{{{TopicChange.AddPages}={Actor.Owner},{Actor.SiteUser} {TopicChange.Security}={Actor.Owner}}}"]);
 	//
-	public readonly ArgumentType	SITETYPE = new ArgumentType("SITETYPE",	@"Site type", [$"{SiteType.Store}"]);
+	//public readonly ArgumentType	SITETYPE = new ArgumentType("SITETYPE",	@"Site type", [$"{SiteType.Store}"]);
 
 	static FairCommand()
 	{

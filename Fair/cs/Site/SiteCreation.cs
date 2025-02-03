@@ -2,7 +2,6 @@ namespace Uccs.Fair;
 
 public class SiteCreation : FairOperation
 {
-	public SiteType				Type { get; set; }
 	public string				Title { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
@@ -14,13 +13,11 @@ public class SiteCreation : FairOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Type	= reader.ReadEnum<SiteType>();
 		Title	= reader.ReadUtf8();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
-		writer.WriteEnum(Type);
 		writer.Write(Title);
 	}
 
@@ -28,7 +25,6 @@ public class SiteCreation : FairOperation
 	{
 		var s = round.CreateSite(Signer);
 
-		s.Type = Type;
 		s.Title = Title;
 		s.Moderators = [Signer.Id];
 

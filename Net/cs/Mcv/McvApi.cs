@@ -370,7 +370,7 @@ public class TransactApc : McvApc
 	{
 		var t = mcv.Peering.Transact(Operations, Signer, null, Await, workflow);
 	
-		return new OutgoingTransaction(t);
+		return new TransactionApe(t);
 	}
 }
 
@@ -384,7 +384,7 @@ public class OutgoingTransactionApc : McvApc
 		{
 			var t = mcv.Peering.OutgoingTransactions.Find(i => i.Tag != null && i.Tag.SequenceEqual(Tag));
 
-			return t != null ? new OutgoingTransaction(t) : null;
+			return t != null ? new TransactionApe(t) : null;
 		}
 	}
 }
@@ -403,7 +403,7 @@ public class EstimateOperationApc : McvApc
 	}
 }
 
-public class OutgoingTransaction
+public class TransactionApe
 {
 	public TransactionId			Id { get; set; }
 	public int						Nid { get; set; }
@@ -423,11 +423,11 @@ public class OutgoingTransaction
 	public IEnumerable<Operation>	Operations  { get; set; }
 	public LogMessage[]				Log { get; set; }
 
-	public OutgoingTransaction()
+	public TransactionApe()
 	{
 	}
 
-	public OutgoingTransaction(Transaction transaction)
+	public TransactionApe(Transaction transaction)
 	{
 		Nid					= transaction.Nid;
 		Id					= transaction.Id;
@@ -454,7 +454,7 @@ public class IncomingTransactionsApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return node.Peering.IncomingTransactions.Select(i => new OutgoingTransaction(i)).ToArray();
+			return node.Peering.IncomingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
 
@@ -463,7 +463,7 @@ public class OutgoingTransactionsApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return node.Peering.OutgoingTransactions.Select(i => new OutgoingTransaction(i)).ToArray();
+			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
 

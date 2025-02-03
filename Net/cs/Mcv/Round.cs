@@ -386,7 +386,6 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 			{
 				o.Signer = s;
-				t.ECSpent += ConsensusExecutionFee;
 
 				o.Execute(Mcv, this);
 
@@ -400,6 +399,8 @@ public abstract class Round : IBinarySerializable
 				}
 				#endif
 				
+				t.ECSpent += ConsensusExecutionFee;
+				
 				if(t.ECFee == 0 && s.BandwidthExpiration >= ConsensusTime)
 				{
 					if(s.BandwidthTodayTime < ConsensusTime) /// switch to this day
@@ -408,7 +409,7 @@ public abstract class Round : IBinarySerializable
 						s.BandwidthTodayAvailable	= s.BandwidthNext;
 					}
 
-					s.BandwidthTodayAvailable -= t.ECSpent;
+					s.BandwidthTodayAvailable -= ConsensusExecutionFee;
 
 					if(s.BandwidthTodayAvailable < 0)
 					{
@@ -437,22 +438,12 @@ public abstract class Round : IBinarySerializable
 					BYRewards[g] = x + t.BYReward;
 				else
 					BYRewards[g] = t.BYReward;
-
-				//if(ECRewards.TryGetValue(g, out x))
-				//	ECRewards[g] = x + t.ECFee + t.ECReward;
-				//else
-				//	ECRewards[g] = t.ECFee + t.ECReward;
 			}
 
 			if(!trying)
 				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
 			
 			s.LastTransactionNid++;
-					
-			//if(Mcv.Settings.Chain != null)
-			//{
-			//	s.Transactions.Add(Id);
-			//}
 		}
 
 		FinishExecution();

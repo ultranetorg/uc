@@ -17,19 +17,18 @@ public class SiteCommand : FairCommand
 
 		a.Name = "c";
 		a.Help = new() {Description = "Creates a new site",
-						Syntax = $"{Keyword} {a.NamesSyntax} {SITETYPE} years={INT} title={NAME} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} years={INT} title={NAME} {SignerArg}={AA}",
 						
-						Arguments =	[new ("<first>", "A type of sire to create"),
-									 new ("years", "Integer number of years in [1..10] range"),
+						Arguments =	[new ("years", "Integer number of years in [1..10] range"),
 									 new ("title", "A ttile of a site being created"),
 									 new (SignerArg, "Address of account that owns or is going to register the site")],
 						
-						Examples =	[new (null, $"{Keyword} {a.Name} {SiteType.Store} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new SiteCreation {Type = GetEnum<SiteType>(0), Title = GetString("title")};
+								return new SiteCreation {Title = GetString("title")};
 							};
 		return a;
 	}

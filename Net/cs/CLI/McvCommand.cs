@@ -71,9 +71,9 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public OutgoingTransaction Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
+	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 	{
-		var t =  Cli.ApiClient.Request<OutgoingTransaction>(new TransactApc {Operations = operations,
+		var t =  Cli.ApiClient.Request<TransactionApe>(new TransactApc {Operations = operations,
 																			 Signer = signer,
 																			 Await = await}, Flow);
 		
@@ -81,7 +81,7 @@ public abstract class McvCommand : NetCommand
 
 		do 
 		{
-			t = Cli.ApiClient.Request<OutgoingTransaction>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+			t = Cli.ApiClient.Request<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
 
 			foreach(var i in t.Log.Skip(n))
 			{

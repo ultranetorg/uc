@@ -7,7 +7,7 @@ public enum TransactionStatus
 
 public class Transaction : IBinarySerializable
 {
-	public const int				PoWLength = 16;
+	public const int				PowLength = 16;
 	public const int				TagLengthMax = 1024;
 
 	public int						Nid { get; set; }
@@ -58,7 +58,7 @@ public class Transaction : IBinarySerializable
 	{
 		return	(Tag == null || Tag.Length <= TagLengthMax) &&
 				Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
-				(!mcv.Net.PoW || PoW.Length == PoWLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+				(!mcv.Net.PoW || PoW.Length == PowLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(3).All(i => i == 0));
 	}
 
  	public Transaction()
@@ -76,25 +76,25 @@ public class Transaction : IBinarySerializable
 
 		if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
 		{
-			PoW = new byte[PoWLength];
+			PoW = new byte[PowLength];
 		}
 		else
         {
             var r = new Random();
 			var h = new byte[32];
 
-			var x = new byte[32 + PoWLength];
+			var x = new byte[32 + PowLength];
 
 			Array.Copy(powhash, x, 32);
 
 			do
 			{
-				r.NextBytes(new Span<byte>(x, 32, PoWLength));
+				r.NextBytes(new Span<byte>(x, 32, PowLength));
 				
 				h = Cryptography.Hash(x);
 			
 			}
-			while(h[0] != 0 || h[1] != 0);
+			while(h[0] != 0 || h[1] != 0 || h[2] != 0);
 			
 			PoW = x.Skip(32).ToArray();
         }
@@ -190,7 +190,7 @@ public class Transaction : IBinarySerializable
 		Expiration	= reader.Read7BitEncodedInt();
 		//STFee		= reader.Read<Money>();
 		ECFee		= reader.Read7BitEncodedInt64();
-		PoW			= reader.ReadBytes(PoWLength);
+		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
@@ -229,7 +229,7 @@ public class Transaction : IBinarySerializable
 		Expiration	= reader.Read7BitEncodedInt();
 		//STFee		= reader.Read<Money>();
 		ECFee		= reader.Read7BitEncodedInt64();
-		PoW			= reader.ReadBytes(PoWLength);
+		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
 		Operations	= reader.ReadArray(() => {
 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
