@@ -18,7 +18,10 @@ public class PublicationsController
 		entityIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		PublicationModel product = productsService.Find(publicationId);
-		If.Value(product).IsNull().Throw(() => new EntityNotFoundException(nameof(Publication).ToLower(), publicationId));
+		if (product == null)
+		{
+			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
+		}
 
 		return product;
 	}

@@ -22,6 +22,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<ICategoriesService, CategoriesService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<ISitesService, SitesService>();
+		services.AddSingleton<IUsersService, UsersService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)

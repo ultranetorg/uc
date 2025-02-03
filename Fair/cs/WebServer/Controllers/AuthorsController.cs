@@ -19,7 +19,10 @@ public class AuthorsController
 		entityIdValidator.Validate(authorId, nameof(Author).ToLower());
 
 		AuthorModel author = authorsService.Find(authorId);
-		If.Value(author).IsNull().Throw(() => new EntityNotFoundException(nameof(Author).ToLower(), authorId));
+		if (author == null)
+		{
+			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
+		}
 
 		return author;
 	}

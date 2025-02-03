@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 

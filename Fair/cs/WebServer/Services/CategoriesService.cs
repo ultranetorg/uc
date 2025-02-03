@@ -45,7 +45,7 @@ public class CategoriesService
 		return categoriesIds.Select(id =>
 		{
 			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
-			return CategorySubModelMappings.MapTo(category);
+			return new CategorySubModel(category);
 		}).ToArray();
 	}
 
