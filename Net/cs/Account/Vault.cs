@@ -114,7 +114,7 @@ public class Wallet
 		get
 		{
 			if(RawLoaded != null)
-				throw new VaultException("Unlock wallet before changing");
+				throw new VaultException(VaultError.Locked);
 
 			var es = new MemoryStream();
 			var ew = new BinaryWriter(es);
@@ -143,7 +143,7 @@ public class Wallet
 	public WalletAccount AddAccount(byte[] key)
 	{
 		if(RawLoaded != null)
-			throw new VaultException("Unlock wallet before changing");
+			throw new VaultException(VaultError.Locked);
 
 		var a = new WalletAccount(Vault, key == null ? AccountKey.Create() : new AccountKey(key));
 		
@@ -157,7 +157,7 @@ public class Wallet
 	public void Lock()
 	{
 		if(RawLoaded != null)
-			throw new VaultException("Already locked");
+			throw new VaultException(VaultError.AlreadyLocked);
 
 		RawLoaded = Raw;
 
@@ -168,7 +168,7 @@ public class Wallet
 	public void Unlock(string password)
 	{
 		if(RawLoaded == null)
-			throw new VaultException("Already unlocked");
+			throw new VaultException(VaultError.AlreadyUnlocked);
 
 		Password = password;
 

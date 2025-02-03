@@ -26,7 +26,7 @@ public enum KnownSystem
 {
 	//Ntn = 010,
 	Rdn	= 020,
-	Smp = 030,
+	Fair = 030,
 	Uos = 900,
 }
 

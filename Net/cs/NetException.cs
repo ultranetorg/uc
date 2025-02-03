@@ -2,9 +2,10 @@
 
 public enum ExceptionClass : byte
 {
-	None, Node, Request, Entity, 
+	None, Node, Request, Entity,
 	_Next,
-	Ntn = _Next
+	Ntn = _Next,
+	Vault,
 }
 
 public enum NodeError : byte
@@ -49,6 +50,14 @@ public enum RequestError : byte
 	None,
 	IncorrectRequest,
 	OutOfRange,
+}
+
+public enum VaultError : byte
+{
+	None,
+	Locked,
+	AlreadyLocked,
+	AlreadyUnlocked,
 }
 
 public abstract class NetException : Exception, ITypeCode, IBinarySerializable 
@@ -130,6 +139,22 @@ public class EntityException : NetException
 	}
 
 	public EntityException(EntityError erorr) : base(erorr.ToString())
+	{
+		Error = erorr;
+	}
+}
+
+public class VaultException : NetException
+{
+	public override int				ErrorCode { get => (int)Error; set => Error = (VaultError)value; }
+	public VaultError				Error { get; protected set; }
+	public override string			Message => Error.ToString();
+
+	public VaultException()
+	{
+	}
+
+	public VaultException(VaultError erorr) : base(erorr.ToString())
 	{
 		Error = erorr;
 	}

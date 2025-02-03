@@ -77,7 +77,16 @@ public class Uos : Cli
 		var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
 		
 		var u = new Uos(s, new Flow(nameof(Uos), new Log()), new RealClock());
-		u.Execute(Boot.Commnand.Nodes, u.Flow);
+
+		try
+		{
+			u.Execute(Boot.Commnand.Nodes, u.Flow);
+		}
+		catch(NetException ex) when (!Debugger.IsAttached)
+		{
+			u.Flow?.Log.ReportError(ex.Message);
+		}
+
 		u.Stop();
 	}
 
@@ -175,12 +184,12 @@ public class Uos : Cli
 					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(Vault), typeof(IClock), typeof(Flow)]);
 
 			if(c != null)
-			//if(Smp.Smp.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Smp.Smp fair && fair.Name == net)
+			//if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
 			{
 				var f = Flow.CreateNested(net, new Log());
 	
 				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, Vault, clock, f]) as McvNode;
-				//var n = new SmpNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
+				//var n = new FairNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
 	
 				Nodes.Add(new NodeInstance {Net = net,
 											Api = null,
