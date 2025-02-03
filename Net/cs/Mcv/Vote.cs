@@ -9,6 +9,7 @@ public class Vote : IBinarySerializable
 	public Round				Round;
 	public DateTime				Created;
 	AccountAddress				_Generator;
+	byte[]						_Hash;
 	byte[]						_RawPayload;
 	Mcv							Mcv;
 
@@ -49,10 +50,25 @@ public class Vote : IBinarySerializable
 		{
 			if(_Generator == null)
 			{
-				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, Hashify());
+				_Hash = Hashify();
+				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
 			}
 
 			return _Generator;
+		}
+	}
+
+	public byte[] Hash
+	{ 
+		get
+		{
+			if(_Generator == null)
+			{
+				_Hash = Hashify();
+				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
+			}
+
+			return _Hash;
 		}
 	}
 

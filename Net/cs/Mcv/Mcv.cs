@@ -12,6 +12,7 @@ public delegate void RoundDelegate(Round b);
 public abstract class Mcv /// Mutual chain voting
 {
 	public const int							P = 6; /// pitch
+	public const int							RequiredVotersMaximum = 21; 
 	//public int									VotesRequired => Net.MembersLimit; /// 1000/8
 	public const int							JoinToVote = P*2;
 	public const int							TransactionPlacingLifetime = P*2;
@@ -338,7 +339,7 @@ public abstract class Mcv /// Mutual chain voting
 			if(r.ConsensusReached)
 			{
 
-				var mh = r.MajorityByParentHash.Key;
+				var mh = r.MajorityOfRequiredByParentHash.Key;
  		
 				if(p.Hash == null || !mh.SequenceEqual(p.Hash))
 				{
@@ -362,7 +363,7 @@ public abstract class Mcv /// Mutual chain voting
 				return true;
 
 			}
-			else if(ConsensusFailed(r))
+			else if(r.ConsensusFailed)
 			{
 				r.Parent.Hash = null;
 				r.FirstArrivalTime = DateTime.MaxValue;
@@ -428,18 +429,6 @@ public abstract class Mcv /// Mutual chain voting
 				LoadedRounds.Remove(i.Key);
 			}
 		}
-	}
-
-	public bool ConsensusFailed(Round r)
-	{
-		var s = r.Voters;
-		var e = r.VotesOfTry;
-		
-		var d = s.Count() - e.Count();
-
-		var q = r.MinimumForConsensus;
-
-		return e.Any() && e.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).All(i => i.Count() + d < q);
 	}
 
 	///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
