@@ -20,7 +20,7 @@ public abstract class Round : IBinarySerializable
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [] : Voters.OrderByHash(i => i.Address.Bytes, VotersRound.Hash).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = new();
 	public List<AccountAddress>							Forkers = new();
@@ -541,7 +541,7 @@ public abstract class Round : IBinarySerializable
 			Members.Add(c);
 		}
 
-		Members = Members.OrderByHash(i => i.Address.Bytes, Hash).ToList();
+		Members = Members.OrderBy(i => i.Address).ToList();
 
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
