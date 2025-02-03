@@ -42,7 +42,7 @@ public class PublicationsService
 			CategoryId = publication.Category.ToString(),
 			CreatorId = publication.Creator.ToString(),
 			ProductId = product.Id.ToString(),
-			ProductName = "TEST PRODUCT NAME !!! " + product.Id.ToString(), // TODO: fix.
+			ProductName = ProductUtils.GetTitle(product),
 			ProductFields = product.Fields,
 			ProductUpdated = product.Updated.Days,
 			ProductAuthorId = author.Id.ToString(),

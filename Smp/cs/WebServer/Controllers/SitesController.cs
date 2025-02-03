@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
-using Uccs.Web.Utilities;
 
 namespace Uccs.Smp;
 
@@ -20,7 +19,10 @@ public class SitesController
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 
 		SiteModel site = sitesService.Find(siteId);
-		If.Value(site).IsNull().Throw(() => new EntityNotFoundException(nameof(Site).ToLower(), siteId));
+		if (site == null)
+		{
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+		}
 
 		return site;
 	}

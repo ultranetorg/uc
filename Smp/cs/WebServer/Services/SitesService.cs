@@ -40,7 +40,7 @@ public class SitesService
 		return categoriesIds.Select(id =>
 		{
 			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
-			return CategorySubModelMappings.MapTo(category);
+			return new CategorySubModel(category);
 		}).ToArray();
 	}
 
@@ -119,9 +119,9 @@ public class SitesService
 				author = mcv.Authors.Find(publication.Creator, mcv.LastConfirmedRound.Id);
 			}
 
-			// TODO: fix product name.
-			string productName = product.Fields.FirstOrDefault(x => x.Type == ProductProperty.Description)?.Value.ToString() ?? "TEST NAME + " + publication.Id.ToString();
-			if (!string.IsNullOrEmpty(context.SarchName) && (productName == null || productName.IndexOf(context.SarchName, StringComparison.OrdinalIgnoreCase) == -1))
+			string productTitle = ProductUtils.GetTitle(product);
+			// TODO: is SearchName can be empty?
+			if (!string.IsNullOrEmpty(context.SarchName) && (productTitle == null || productTitle.IndexOf(context.SarchName, StringComparison.OrdinalIgnoreCase) == -1))
 			{
 				continue;
 			}

@@ -31,14 +31,9 @@ public class AuthorsService
 
 	private static AuthorModel ToAuthorModel(Author author)
 	{
-		return new AuthorModel
+		return new AuthorModel(author)
 		{
-			Id = author.Id.ToString(),
-			Title = author.Title,
 			OwnerId = author.Owner.ToString(),
-			Expiration = author.Expiration.Days,
-			SpaceReserved = author.SpaceReserved,
-			SpaceUsed = author.SpaceUsed,
 		};
 	}
 }

@@ -1,4 +1,4 @@
-import { Author, Category, PaginationResponse, Publication, Site, SitePublication } from "types"
+import { Author, Category, PaginationResponse, Publication, Site, SitePublication, User } from "types"
 
 import { Api } from "./Api"
 import { toPaginationResponse } from "./utils"
@@ -32,6 +32,8 @@ const getUrlParams = (name?: string, page?: number, pageSize?: number): URLSearc
   return params
 }
 
+const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
+
 const searchPublications = async (
   name?: string,
   page?: number,
@@ -49,6 +51,7 @@ const api: Api = {
   getCategory,
   getPublication,
   getSite,
+  getUser,
   searchPublications,
 }
 

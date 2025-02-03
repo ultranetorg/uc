@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Uccs.Web.Utilities;
 
 namespace Uccs.Smp;
 
@@ -9,6 +8,9 @@ public class EntityIdValidator : IEntityIdValidator
 	public void Validate(string entityId, string entityName)
 	{
 		bool isParsed = EntityId.TryParse(entityId, out _);
-		If.Value(isParsed).False().Throw(() => new InvalidEntityIdException(entityName, entityId));
+		if (!isParsed)
+		{
+			throw new InvalidEntityIdException(entityName, entityId);
+		}
 	}
 }
