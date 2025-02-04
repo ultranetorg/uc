@@ -9,7 +9,6 @@ public class UserSiteModel : SiteBaseModel
 	public UserSiteModel(Site site)
 	{
 		Id = site.Id.ToString();
-		Type = site.Type;
 		Title = site.Title;
 	}
 }
