@@ -1,11 +1,5 @@
 namespace Uccs.Fair;
 
-public enum SiteType : uint
-{
-	None,
-	Store
-}
-
 public enum Actor
 {
 	None,
@@ -47,7 +41,6 @@ public enum Actor
 public class Site : IBinarySerializable
 {
 	public EntityId		Id { get; set; }
-	public SiteType		Type { get; set; }
 	public string		Title { get; set; }
 	public EntityId[]	Moderators { get; set; }
 	public EntityId[]	Categories { get; set; }
@@ -60,7 +53,6 @@ public class Site : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<EntityId>();
-		Type		= reader.ReadEnum<SiteType>();
 		Title		= reader.ReadUtf8();
 		Moderators	= reader.ReadArray<EntityId>();
 		Categories	= reader.ReadArray<EntityId>();
@@ -69,7 +61,6 @@ public class Site : IBinarySerializable
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteEnum(Type);
 		writer.Write(Title);
 		writer.Write(Moderators);
 		writer.Write(Categories);

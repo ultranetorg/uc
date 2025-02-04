@@ -50,7 +50,6 @@ public class SitesService
 		return new SiteModel
 		{
 			Id = site.Id.ToString(),
-			Type = site.Type,
 			Title = site.Title,
 			Categories = categories
 		};

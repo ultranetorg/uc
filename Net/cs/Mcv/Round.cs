@@ -19,14 +19,15 @@ public abstract class Round : IBinarySerializable
 	public int											Try = 0;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-	public IEnumerable<Generator>						Voters => Mcv.FindRound(VotersId).Members;
+	public IEnumerable<Generator>						Voters => VotersRound.Members;
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = new();
 	public List<AccountAddress>							Forkers = new();
 	public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 	public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-	public IEnumerable<Vote>							Selected => VotesOfTry;
-	public IGrouping<byte[], Vote>						MajorityByParentHash => Selected.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+	public IEnumerable<Vote>							Required => VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator));
+	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash => Required.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
@@ -65,11 +66,26 @@ public abstract class Round : IBinarySerializable
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(){}
 
-	public int											MinimumForConsensus => VotesMinimumOf(Voters.Count());
 
 	public byte[]												__SummaryBaseHash;
 	public byte[]												__SummaryBaseState;
 	public Vote[]												__SummaruVotesOfTry;
+
+	public int MinimumForConsensus
+	{
+		get
+		{
+			var n = SelectedVoters.Count();
+
+			if(n == 1)	return 1;
+			if(n == 2)	return 2;
+			if(n == 4)	return 3;
+	
+			///return Math.Min(n, Mcv.VotesRequired) * 2/3;
+			return n * 2/3;
+
+		}
+	}
 
 	public bool ConsensusReached
 	{
@@ -78,9 +94,20 @@ public abstract class Round : IBinarySerializable
 			if(VotesOfTry.Count() < MinimumForConsensus)
 				return false;
 
-			var voters = Voters.ToArray();
+			return MajorityOfRequiredByParentHash.Count() >= MinimumForConsensus;
+		}
+	}
+
+	public bool ConsensusFailed
+	{
+		get
+		{ 
+			var s = SelectedVoters;
+			var r = Required;
 		
-			return MajorityByParentHash.Count(i => voters.Any(v => v.Address == i.Generator)) >= MinimumForConsensus;
+			var missing = s.Count() - r.Count();
+
+			return r.Any() && r.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).All(i => i.Count() + missing < MinimumForConsensus);
 		}
 	}
 
@@ -92,16 +119,6 @@ public abstract class Round : IBinarySerializable
 	public override string ToString()
 	{
 		return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConsensusTime}, {(Confirmed ? "Confirmed, " : "")}Hash={Hash?.ToHex()}";
-	}
-
-	public static int VotesMinimumOf(int n)
-	{
-		if(n == 1)	return 1;
-		if(n == 2)	return 2;
-		if(n == 4)	return 3;
-	
-		///return Math.Min(n, Mcv.VotesRequired) * 2/3;
-		return n * 2/3;
 	}
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -206,11 +223,10 @@ public abstract class Round : IBinarySerializable
 		if(!VotesOfTry.Any())
 			return null;
 
-		var voters = Id < Mcv.JoinToVote ? [] : Voters;
-		var min = VotesMinimumOf(voters.Count());
+		var min = MinimumForConsensus;
 		var all = VotesOfTry.ToArray();
 		__SummaruVotesOfTry = all.ToArray();
-		var s = Id < Mcv.JoinToVote ? [] : Selected.ToArray();
+		var svotes = Id < Mcv.JoinToVote ? [] : Required.ToArray();
 					
 		ConsensusExecutionFee	= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
 		ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
@@ -270,17 +286,17 @@ public abstract class Round : IBinarySerializable
 
 		if(Id >= Mcv.P)
 		{
-			ConsensusMemberLeavers = s.SelectMany(i => i.MemberLeavers).Distinct()
-									  .Where(x => Members.Any(j => j.Id == x) && s.Count(b => b.MemberLeavers.Contains(x)) >= min)
-									  .Order().ToArray();
+			ConsensusMemberLeavers = svotes.SelectMany(i => i.MemberLeavers).Distinct()
+											.Where(x => Members.Any(j => j.Id == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
+											.Order().ToArray();
 
-			ConsensusViolators = s.SelectMany(i => i.Violators).Distinct()
-								  .Where(x => s.Count(b => b.Violators.Contains(x)) >= min)
-								  .Order().ToArray();
+			ConsensusViolators = svotes.SelectMany(i => i.Violators).Distinct()
+										.Where(x => svotes.Count(b => b.Violators.Contains(x)) >= min)
+										.Order().ToArray();
 
-			ConsensusNtnStates	= s.SelectMany(i => i.NntBlocks).Distinct(Bytes.EqualityComparer)
-									.Where(v => s.Count(i => i.NntBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
-									.Order(Bytes.Comparer).ToArray();
+			ConsensusNtnStates	= svotes.SelectMany(i => i.NntBlocks).Distinct(Bytes.EqualityComparer)
+										.Where(v => svotes.Count(i => i.NntBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
+										.Order(Bytes.Comparer).ToArray();
 
 			//ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
 			//							.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Net.MembersLimit * 2/3)
@@ -290,7 +306,7 @@ public abstract class Round : IBinarySerializable
 			//							.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Net.MembersLimit * 2/3)
 			//							.Order().ToArray();
 			//
-			Elect(s, min);
+			Elect(svotes, min);
 		}
 
 		Hashify(); /// depends on Mcv.BaseHash 
@@ -386,7 +402,6 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 			{
 				o.Signer = s;
-				t.ECSpent += ConsensusExecutionFee;
 
 				o.Execute(Mcv, this);
 
@@ -400,6 +415,8 @@ public abstract class Round : IBinarySerializable
 				}
 				#endif
 				
+				t.ECSpent += ConsensusExecutionFee;
+				
 				if(t.ECFee == 0 && s.BandwidthExpiration >= ConsensusTime)
 				{
 					if(s.BandwidthTodayTime < ConsensusTime) /// switch to this day
@@ -408,7 +425,7 @@ public abstract class Round : IBinarySerializable
 						s.BandwidthTodayAvailable	= s.BandwidthNext;
 					}
 
-					s.BandwidthTodayAvailable -= t.ECSpent;
+					s.BandwidthTodayAvailable -= ConsensusExecutionFee;
 
 					if(s.BandwidthTodayAvailable < 0)
 					{
@@ -437,22 +454,12 @@ public abstract class Round : IBinarySerializable
 					BYRewards[g] = x + t.BYReward;
 				else
 					BYRewards[g] = t.BYReward;
-
-				//if(ECRewards.TryGetValue(g, out x))
-				//	ECRewards[g] = x + t.ECFee + t.ECReward;
-				//else
-				//	ECRewards[g] = t.ECFee + t.ECReward;
 			}
 
 			if(!trying)
 				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
 			
 			s.LastTransactionNid++;
-					
-			//if(Mcv.Settings.Chain != null)
-			//{
-			//	s.Transactions.Add(Id);
-			//}
 		}
 
 		FinishExecution();
@@ -534,7 +541,7 @@ public abstract class Round : IBinarySerializable
 			Members.Add(c);
 		}
 
-		Members = Members.OrderByHash(i => i.Address.Bytes, Hash).ToList();
+		Members = Members.OrderBy(i => i.Address).ToList();
 
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);

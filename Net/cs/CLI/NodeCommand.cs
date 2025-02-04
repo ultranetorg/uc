@@ -179,7 +179,7 @@ public class NodeCommand : McvCommand
 		
 		a.Name = "it";
 		a.Execute = () =>	{
-								var r = Api<OutgoingTransaction[]>(new IncomingTransactionsApc{});
+								var r = Api<TransactionApe[]>(new IncomingTransactionsApc{});
 			
 								foreach(var t in r)
 								{
@@ -208,7 +208,7 @@ public class NodeCommand : McvCommand
 		
 		a.Name = "ot";
 		a.Execute = () =>	{
-								var r = Api<OutgoingTransaction[]>(new OutgoingTransactionsApc{});
+								var r = Api<TransactionApe[]>(new OutgoingTransactionsApc{});
 			
 								foreach(var t in r)
 								{

@@ -18,7 +18,6 @@ public class SiteEntry : Site, ITableEntry
 	public SiteEntry Clone()
 	{
 		return new(Mcv){Id = Id,
-						Type = Type,
 						Title = Title,
 						Moderators = Moderators,
 						Categories = Categories};
