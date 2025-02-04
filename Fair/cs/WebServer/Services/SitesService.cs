@@ -77,7 +77,7 @@ public class SitesService
 		{
 			Page = page,
 			PageSize = pageSize,
-			SarchName = name,
+			SearchName = name,
 			Result = new List<SitePublicationModel>()
 		};
 		SearchInCategories(context, site.Categories);
@@ -122,7 +122,7 @@ public class SitesService
 
 			string productTitle = ProductUtils.GetTitle(product);
 			// TODO: is SearchName can be empty?
-			if (!string.IsNullOrEmpty(context.SarchName) && (productTitle == null || productTitle.IndexOf(context.SarchName, StringComparison.OrdinalIgnoreCase) == -1))
+			if (!string.IsNullOrEmpty(context.SearchName) && (productTitle == null || productTitle.IndexOf(context.SearchName, StringComparison.OrdinalIgnoreCase) == -1))
 			{
 				continue;
 			}
@@ -153,7 +153,7 @@ public class SitesService
 	{
 		public int Page { get; set; }
 		public int PageSize { get; set; }
-		public string SarchName { get; set; }
+		public string SearchName { get; set; }
 
 		public int TotalItems { get; set; }
 		public List<SitePublicationModel> Result { get; set; }

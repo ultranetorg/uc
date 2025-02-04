@@ -16,10 +16,10 @@ Accept: application/json
 
 ### Publication
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-1
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-2
 Accept: application/json
 
 ### Publications Search
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?name=test&page=0&pageSize=10
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?name=2&page=0&pageSize=10
 Accept: application/json

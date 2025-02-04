@@ -27,13 +27,37 @@ public class UsersService
 			}
 		}
 
-		AuthorBaseModel[] authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
-		// UserPublicationModel[] publications = account.Pu
+		IEnumerable<UserSiteModel> sites = account.Sites.Length > 0 ? LoadSites(account.Sites) : null;
+		IEnumerable<AuthorBaseModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
+		UserPublicationModel[] publications = null; // authors
+		UserProductModel[] product = null;
 
-		return ToUserModel(account, authors);
+		return new UserModel(account.Id.ToString())
+		{
+			Sites = sites,
+			Authors = authors,
+			Publications = publications,
+			Products = product
+		};
 	}
 
-	private AuthorBaseModel[] LoadAuthors(EntityId[] authorsIds)
+	private IEnumerable<UserSiteModel> LoadSites(EntityId[] sitesIds)
+	{
+		lock (mcv.Lock)
+		{
+			return sitesIds.Select(id =>
+			{
+				Site site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+				return new UserSiteModel(site)
+				{
+					ProductsCount = 0, // TODO: calculate products count.
+					Url = "TEMPORARY URL"
+				};
+			});
+		}
+	}
+
+	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -41,7 +65,7 @@ public class UsersService
 			{
 				Author author = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
 				return new AuthorBaseModel(author);
-			}).ToArray();
+			});
 		}
 	}
 
@@ -59,15 +83,5 @@ public class UsersService
 				return new UserPublicationModel(publication, publicationTitle, site, category.Title);
 			}).ToArray();
 		}
-	}
-
-	private static UserModel ToUserModel(FairAccountEntry account, AuthorBaseModel[] authors)
-	{
-		return new UserModel
-		{
-			Id = account.Id.ToString(),
-
-			Authors = authors
-		};
 	}
 }
