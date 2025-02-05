@@ -80,7 +80,7 @@ public class AuthorCommand : FairCommand
 
 								var d = Ppc(new AuthorRequest(FirstAuthorId)).Author;
 
-								return new AuthorUpdation  {Action	= AuthorAction.Renew,
+								return new AuthorUpdation  {Action	= AuthorChange.Renew,
 															Id		= d.Id,
 															Years	= byte.Parse(GetString("years"))};
 							};

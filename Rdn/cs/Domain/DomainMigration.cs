@@ -91,7 +91,7 @@ public class DomainMigration : RdnOperation
 				return;
 			}
 
-			Signer.ECBalanceSubtract(round.ConsensusTime, (mcv.Net as Rdn).DomainRankCheckECFee);
+			Signer.ECBalance = EC.Subtract(Signer.ECBalance, (mcv.Net as Rdn).DomainRankCheckECFee, round.ConsensusTime);
 			//Transaction.ECReward -= (mcv.Net as RdnNet).DomainRankCheckECFee;
 		}
 	}

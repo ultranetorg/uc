@@ -8,8 +8,8 @@ public class AuthorBaseModel
 
 	public int Expiration { get; set; }
 
-	public short SpaceReserved { get; set; }
-	public short SpaceUsed { get; set; }
+	public int SpaceReserved { get; set; }
+	public int SpaceUsed { get; set; }
 
 	public AuthorBaseModel(Author author)
 	{

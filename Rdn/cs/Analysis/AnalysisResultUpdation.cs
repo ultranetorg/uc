@@ -65,8 +65,8 @@ public class AnalysisResultUpdation : RdnOperation
 		{
 			an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
 
-			Signer.ECBalanceAdd(an.ECPayment.Select(i => new EC{	Amount		= i.Amount/c.Analyzers.Length, 
-																					Expiration	= i.Expiration}));
+			Signer.ECBalance = EC.Add(Signer.ECBalance, an.ECPayment.Select(i => new EC{Amount		= i.Amount/c.Analyzers.Length, 
+																						Expiration	= i.Expiration}).ToArray());
 			Signer.BYBalance += an.BYPayment/c.Analyzers.Length;
 		}
  			else

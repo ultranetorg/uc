@@ -58,7 +58,7 @@ public class Product : IBinarySerializable
 	public EntityId[]			Publications { get; set; }
 
 	public int					Length => Mcv.EntityLength + Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
-	public const int			DescriptionLengthMaximum = 1024*1024;
+	public const int			FieldLengthMaximum = 1024*1024;
 
 	public override string ToString()
 	{

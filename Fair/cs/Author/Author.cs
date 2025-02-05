@@ -7,14 +7,16 @@ public enum AuthorFlag : byte
 
 public class Author : IBinarySerializable
 {
-	public static readonly Time	RenewalPeriod = Time.FromDays(365);
+	public static readonly Time	RenewalPeriod = Time.FromYears(1);
 
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
 	public EntityId				Owner { get; set; }
 	public Time					Expiration { get; set; }
-	public short				SpaceReserved { get; set; }
-	public short				SpaceUsed { get; set; }
+	public int					SpaceReserved { get; set; }
+	public int					SpaceUsed { get; set; }
+	public int					ModerationReward  { get; set; }
+	public EC[]					ECDeposit { get; set; }
 
 	public static bool Valid(string name)
 	{
@@ -36,32 +38,33 @@ public class Author : IBinarySerializable
 
 	public static bool CanRenew(Author publisher, Account by, Time time)
 	{
-		return  publisher == null || 
-				publisher != null && publisher.Owner == by.Id && time > publisher.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-																 time <= publisher.Expiration;
+		return  publisher.Owner == by.Id && time > publisher.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
+											time <= publisher.Expiration;
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 	
-		//writer.Write((byte)f);
 		writer.Write(Title);
-		writer.Write7BitEncodedInt(SpaceReserved);
-		writer.Write7BitEncodedInt(SpaceUsed);
 		writer.Write(Owner);
 		writer.Write(Expiration);
+		writer.Write7BitEncodedInt(SpaceReserved);
+		writer.Write7BitEncodedInt(SpaceUsed);
+		writer.Write7BitEncodedInt(ModerationReward);
+		writer.Write(ECDeposit);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
+		Id					= reader.Read<EntityId>();
 
-		//var f			= (AuthorFlag)reader.ReadByte();
-		Title			= reader.ReadString();
-		SpaceReserved	= (short)reader.Read7BitEncodedInt();
-		SpaceUsed		= (short)reader.Read7BitEncodedInt();
-		Owner			= reader.Read<EntityId>();
-		Expiration		= reader.Read<Time>();
+		Title				= reader.ReadString();
+		Owner				= reader.Read<EntityId>();
+		Expiration			= reader.Read<Time>();
+		SpaceReserved		= reader.Read7BitEncodedInt();
+		SpaceUsed			= reader.Read7BitEncodedInt();
+		ModerationReward	= reader.Read7BitEncodedInt();
+		ECDeposit			= reader.ReadArray<EC>();
 	}
 }

@@ -48,7 +48,7 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
+		Signer.ECBalance = EC.Subtract(Signer.ECBalance, mcv.Net.DeclarationCost, round.ConsensusTime);
 
 		Affected = round.AffectCandidate(Signer.Id);
 		

@@ -28,7 +28,7 @@ public class AccountEntry : Account, ITableEntry
 		a.Id						= Id;
 		a.Address					= Address;
 		a.BYBalance					= BYBalance;
-		a.ECBalance					= ECBalance.ToList();
+		a.ECBalance					= ECBalance;
 		a.LastTransactionNid		= LastTransactionNid;
 				
 		a.BandwidthNext				= BandwidthNext;
@@ -78,6 +78,7 @@ public class AccountEntry : Account, ITableEntry
 
 	public void Cleanup(Round lastInCommit)
 	{
-		ECBalance?.RemoveAll(i => i.Expiration < lastInCommit.ConsensusTime);
+		if(ECBalance.Any(i => i.Expiration < lastInCommit.ConsensusTime))
+			ECBalance = ECBalance.Where(i => i.Expiration < lastInCommit.ConsensusTime).ToArray();
 	}
 }

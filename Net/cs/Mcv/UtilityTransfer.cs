@@ -50,7 +50,7 @@ public class UtilityTransfer : Operation
 		{
 			if(ECExpiration != Time.Empty)
 			{
-				var i = Signer.ECBalance.FindIndex(i => i.Expiration == ECExpiration);
+				var i = Array.FindIndex(Signer.ECBalance, i => i.Expiration == ECExpiration);
 				
 				if(i == -1 || Signer.ECBalance[i].Amount < ECAmount)
 				{
@@ -68,8 +68,8 @@ public class UtilityTransfer : Operation
 					return;
 				}
 				
-				d = Signer.ECBalanceDifference(round.ConsensusTime, ECAmount);
-				Signer.ECBalanceSubtract(round.ConsensusTime, ECAmount);
+				d = EC.Difference(Signer.ECBalance, ECAmount, round.ConsensusTime);
+				Signer.ECBalance = EC.Subtract(Signer.ECBalance, ECAmount, round.ConsensusTime);
 			}
 
 			Signer.BYBalance -= BYAmount;
@@ -78,9 +78,9 @@ public class UtilityTransfer : Operation
 		var to = Affect(round, To);
 
 		if(ECExpiration != Time.Empty)
-			to.ECBalanceAdd(new EC(ECExpiration, ECAmount));
+			to.ECBalance = EC.Add(to.ECBalance, new EC(ECExpiration, ECAmount));
 		else
-			to.ECBalanceAdd(d);
+			to.ECBalance = EC.Add(to.ECBalance, d);
 
 		to.BYBalance += BYAmount;
 	}

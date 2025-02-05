@@ -73,8 +73,8 @@ public class DomainRegistration : RdnOperation
 			e.LastBidTime	= Time.Empty;
 			e.FirstBidTime	= Time.Empty;
 						
-			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 			PayForName(Address, Years);
+			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
 		}
 		else
 		{

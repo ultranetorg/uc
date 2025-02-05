@@ -1,38 +1,10 @@
 ﻿namespace Uccs.Net;
 
-public struct EC : IBinarySerializable
-{
-	public Time Expiration;
-	public long	Amount;
-
-	public EC()
-	{
-	}
-
-	public EC(Time expiration, long amount)
-	{
-		Expiration = expiration;
-		Amount = amount;
-	}
-
-	public void Read(BinaryReader reader)
-	{
-		Expiration	= reader.Read<Time>();
-		Amount		= reader.Read7BitEncodedInt64();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write(Expiration); 
-		writer.Write7BitEncodedInt64(Amount);
-	}
-}
-
 public class Account : IBinarySerializable
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public List<EC>						ECBalance { get; set; }
+	public EC[]							ECBalance { get; set; }
 	public long							BYBalance { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	//public int							LastEmissionId  { get; set; } = -1;
@@ -50,88 +22,6 @@ public class Account : IBinarySerializable
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, EC={{{string.Join(',', ECBalance?.Select(i => i.Amount) ?? [])}}}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
-	}
-
-	public void ECBalanceAdd(IEnumerable<EC> ec)
-	{
-		foreach(var i in ec)
-		{
-			ECBalanceAdd(i);
-		}
-	}
-
-	public void ECBalanceAdd(EC reserve)
-	{
-		ECBalance = ECBalance ?? [];
-
-		var e = ECBalance.FindIndex(j => j.Expiration == reserve.Expiration);
-
-		if(e == -1)
-		{
-			var p = ECBalance.FindIndex(j => j.Expiration > reserve.Expiration);
-
-			if(p == -1)
-				ECBalance.Add(reserve);
-			else
-				ECBalance.Insert(p, reserve);
-		} 
-		else
-		{
-			ECBalance[e] = new (ECBalance[e].Expiration, ECBalance[e].Amount + reserve.Amount);
-		}
-	}
-
-	public void ECBalanceSubtract(Time expiration, long x)
-	{
-		int c = 0;
-
-		foreach(var i in ECBalance?.Where(i => i.Expiration >= expiration) ?? [])
-		{
-			x -= i.Amount;
-
-			if(x >= 0)
-			{
-				c++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		if(c > 0)
-			ECBalance.RemoveRange(0, c);
-
-		if(x < 0)
-			ECBalance[0] = new (ECBalance[0].Expiration, -x);
-	}
-
-	public EC[] ECBalanceDifference(Time expiration, long x)
-	{
-		int fulls = 0;
-		long a = 0;
-
-		foreach(var i in ECBalance?.Where(i => i.Expiration >= expiration) ?? [])
-		{
-			if(a + i.Amount <= x)
-			{
-				fulls++;
-				a += i.Amount;
-			}
-			else
-			{	
-				break;
-			}
-		}
-
-		var d = ECBalance.GetRange(0, fulls).ToArray();
-
-		if(x - a > 0)
-		{	
-			d = [..d, new (ECBalance[fulls].Expiration, x - a)];
-		}
-
-		return d;
 	}
 
 	public virtual void Write(BinaryWriter writer)
@@ -159,7 +49,7 @@ public class Account : IBinarySerializable
 	{
 		Id					= reader.Read<EntityId>();
 		Address				= reader.ReadAccount();
-		ECBalance 			= reader.ReadList<EC>();
+		ECBalance 			= reader.ReadArray<EC>();
 		BYBalance 			= reader.Read7BitEncodedInt64();
 		LastTransactionNid	= reader.Read7BitEncodedInt();
 		//LastEmissionId		= reader.Read7BitEncodedInt();

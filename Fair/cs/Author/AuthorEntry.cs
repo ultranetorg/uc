@@ -31,7 +31,8 @@ public class AuthorEntry : Author, ITableEntry
 									Expiration = Expiration,
 									SpaceReserved = SpaceReserved,
 									SpaceUsed = SpaceUsed,
-									//NextProductId = NextProductId,
+									ECDeposit = ECDeposit,
+									ModerationReward = ModerationReward,
 									Products = Products};
 	}
 
