@@ -44,7 +44,7 @@ public class UtilityTransfer : Operation
 
 	public override void Execute(Mcv chain, Round round)
 	{
-		List<ExecutionReservation> d = null;
+		EC[] d = null;
 
 		if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
 		{
@@ -62,13 +62,13 @@ public class UtilityTransfer : Operation
 			}
 			else
 			{
-				if(Signer.GetECBalance(round.ConsensusTime) < ECAmount)
+				if(Signer.Integrate(round.ConsensusTime) < ECAmount)
 				{
 					Error = NotEnoughEC;
 					return;
 				}
 				
-				d = Signer.ECBalanceDelta(round.ConsensusTime, ECAmount);
+				d = Signer.ECBalanceDifference(round.ConsensusTime, ECAmount);
 				Signer.ECBalanceSubtract(round.ConsensusTime, ECAmount);
 			}
 
@@ -78,7 +78,7 @@ public class UtilityTransfer : Operation
 		var to = Affect(round, To);
 
 		if(ECExpiration != Time.Empty)
-			to.ECBalanceAdd(new ExecutionReservation(ECExpiration, ECAmount));
+			to.ECBalanceAdd(new EC(ECExpiration, ECAmount));
 		else
 			to.ECBalanceAdd(d);
 

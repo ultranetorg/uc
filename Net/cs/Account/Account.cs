@@ -1,15 +1,15 @@
 ﻿namespace Uccs.Net;
 
-public struct ExecutionReservation : IBinarySerializable
+public struct EC : IBinarySerializable
 {
 	public Time Expiration;
 	public long	Amount;
 
-	public ExecutionReservation()
+	public EC()
 	{
 	}
 
-	public ExecutionReservation(Time expiration, long amount)
+	public EC(Time expiration, long amount)
 	{
 		Expiration = expiration;
 		Amount = amount;
@@ -32,7 +32,7 @@ public class Account : IBinarySerializable
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public List<ExecutionReservation>	ECBalance { get; set; }
+	public List<EC>						ECBalance { get; set; }
 	public long							BYBalance { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	//public int							LastEmissionId  { get; set; } = -1;
@@ -44,14 +44,15 @@ public class Account : IBinarySerializable
 	public Time							BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
-	public long							GetECBalance(Time time) => ECBalance?.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount) ?? 0;
+	public long							Integrate(Time time) => ECBalance?.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount) ?? 0;
+	public static long					Integrate(List<EC> ecs, Time time) => ecs.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount);
 
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, EC={{{string.Join(',', ECBalance?.Select(i => i.Amount) ?? [])}}}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
 
-	public void ECBalanceAdd(IEnumerable<ExecutionReservation> ec)
+	public void ECBalanceAdd(IEnumerable<EC> ec)
 	{
 		foreach(var i in ec)
 		{
@@ -59,7 +60,7 @@ public class Account : IBinarySerializable
 		}
 	}
 
-	public void ECBalanceAdd(ExecutionReservation reserve)
+	public void ECBalanceAdd(EC reserve)
 	{
 		ECBalance = ECBalance ?? [];
 
@@ -105,7 +106,7 @@ public class Account : IBinarySerializable
 			ECBalance[0] = new (ECBalance[0].Expiration, -x);
 	}
 
-	public List<ExecutionReservation> ECBalanceDelta(Time expiration, long x)
+	public EC[] ECBalanceDifference(Time expiration, long x)
 	{
 		int fulls = 0;
 		long a = 0;
@@ -123,11 +124,11 @@ public class Account : IBinarySerializable
 			}
 		}
 
-		var d = ECBalance.GetRange(0, fulls).ToList();
+		var d = ECBalance.GetRange(0, fulls).ToArray();
 
 		if(x - a > 0)
 		{	
-			d.Add(new (ECBalance[fulls].Expiration, x - a));
+			d = [..d, new (ECBalance[fulls].Expiration, x - a)];
 		}
 
 		return d;
@@ -158,7 +159,7 @@ public class Account : IBinarySerializable
 	{
 		Id					= reader.Read<EntityId>();
 		Address				= reader.ReadAccount();
-		ECBalance 			= reader.ReadList<ExecutionReservation>();
+		ECBalance 			= reader.ReadList<EC>();
 		BYBalance 			= reader.Read7BitEncodedInt64();
 		LastTransactionNid	= reader.Read7BitEncodedInt();
 		//LastEmissionId		= reader.Read7BitEncodedInt();

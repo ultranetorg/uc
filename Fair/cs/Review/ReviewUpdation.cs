@@ -61,9 +61,18 @@ public class ReviewUpdation : FairOperation
 		switch(Change)
 		{
 			case ReviewChange.Status:
-				r.Status = (ReviewStatus)Value;
-				break;
+			{
+				var s = (ReviewStatus)Value;
+				
+				//if(r.Reward.Length > 0 && r.Status == ReviewStatus.Pending && s != ReviewStatus.Pending)
+				//{
+				//	Signer.ECBalanceAdd(r.Reward);
+				//	r.Reward = [];
+				//}
 
+				r.Status = s;
+				break;
+			}
 			case ReviewChange.Text:
 				r.Text = Value as string;
 				break;

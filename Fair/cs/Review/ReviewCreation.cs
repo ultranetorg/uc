@@ -11,7 +11,7 @@ public class ReviewCreation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Publication = reader.Read<EntityId>();
-		Text = reader.ReadString();
+		Text		= reader.ReadString();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -24,14 +24,29 @@ public class ReviewCreation : FairOperation
 	{
 		if(!RequirePublication(round, Publication, out var p))
 			return;
-					
+		
+		//if(Signer.Integrate(round.ConsensusTime) < Reward)
+		//{
+		//	Error = NotEnoughEC;
+		//	return;
+		//}
+
 		var r = round.CreateReview(p);
 
 		r.Publication	= p.Id;
 		r.User			= Signer.Id;
-		r.Status		= ReviewStatus.Active;
+		r.Status		= ReviewStatus.Pending;
 		r.Text			= Text;
 		r.Created		= round.ConsensusTime;
+
+// 		if(Reward > 0)
+// 		{
+// 			var d = Signer.ECBalanceDifference(round.ConsensusTime, Reward);
+// 			
+// 			Signer.ECBalanceSubtract(round.ConsensusTime, Reward);
+// 	
+// 			r.Reward = d;
+// 		}
 
 		p = round.AffectPublication(p.Id);
 
