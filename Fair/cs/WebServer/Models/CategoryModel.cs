@@ -1,18 +1,19 @@
-﻿using Uccs.Web.Pagination;
+﻿namespace Uccs.Fair;
 
-namespace Uccs.Fair;
-
-public class CategoryModel
+public class CategoryModel : CategoryBaseModel
 {
-	public string Id { get; set; }
-
-	public string Title { get; set; }
-
 	public string SiteId { get; set; }
 
 	public string ParentId { get; set; }
 	public string ParentTitle { get; set; }
 
-	public CategorySubModel[] Categories { get; set; }
-	public CategoryPublicationModel[] Publications { get; set; }
+	public IEnumerable<CategoryBaseModel> Categories { get; init; }
+	public IEnumerable<PublicationBaseModel> Publications { get; init; }
+
+	public CategoryModel(Category category, string parentTitlte) : base(category)
+	{
+		SiteId = category.Site.ToString();
+		ParentId = category.Parent?.ToString();
+		ParentTitle = parentTitlte;
+	}
 }

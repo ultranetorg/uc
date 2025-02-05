@@ -8,8 +8,8 @@ public class UserModel
 
 	public IEnumerable<AuthorBaseModel> Authors { get; set; }
 
-	public UserPublicationModel[] Publications { get; set; }
-	public UserProductModel[] Products { get; set; }
+	public IEnumerable<UserPublicationModel> Publications { get; set; }
+	public IEnumerable<UserProductModel> Products { get; set; }
 
 	public UserModel(string id)
 	{

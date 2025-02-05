@@ -27,6 +27,23 @@ public class SitesController
 		return site;
 	}
 
+	[HttpGet("{siteId}/authors/{authorId}")]
+	public SiteAuthorModel GetAuthor(string siteId, string authorId)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetAuthor)} method called with {{SiteId}}. {{AuthorId}}", siteId, authorId);
+
+		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		entityIdValidator.Validate(authorId, nameof(Author).ToLower());
+
+		SiteAuthorModel siteAuthor = sitesService.FindAuthorNonOptimized(siteId, authorId);
+		if (siteAuthor == null)
+		{
+			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
+		}
+
+		return siteAuthor;
+	}
+
 	[HttpGet("{siteId}/publications")]
 	public IEnumerable<SitePublicationModel> Search(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string name)
 	{
@@ -38,7 +55,7 @@ public class SitesController
 
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<SitePublicationModel> products = sitesService.SearchPublications(siteId, page, pageSize, name);
+		TotalItemsResult<SitePublicationModel> products = sitesService.SearchPublicationsNonOptimized(siteId, page, pageSize, name);
 
 		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
 	}
