@@ -42,7 +42,7 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		if(Signer.Integrate(round.ConsensusTime) < mcv.Net.DeclarationCost)
+		if(EC.Integrate(Signer.ECBalance, round.ConsensusTime) < mcv.Net.DeclarationCost)
 		{
 			Error = NotEnoughEC;
 			return;

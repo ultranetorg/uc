@@ -1,9 +1,12 @@
-﻿namespace Uccs.Net;
+﻿
+namespace Uccs.Net;
 
-public struct EC : IBinarySerializable
+public struct EC : IBinarySerializable, IEquatable<EC>
 {
 	public Time Expiration;
 	public long	Amount;
+
+	public static long	Integrate(EC[] x, Time expiration) => x?.SkipWhile(i => i.Expiration < expiration).Sum(i => i.Amount) ?? 0;
 
 	public EC()
 	{
@@ -13,6 +16,11 @@ public struct EC : IBinarySerializable
 	{
 		Expiration = expiration;
 		Amount = amount;
+	}
+
+	public override string ToString()
+	{
+		return $"{Amount}, {Expiration}";
 	}
 
 	public void Read(BinaryReader reader)
@@ -26,6 +34,7 @@ public struct EC : IBinarySerializable
 		writer.Write(Expiration); 
 		writer.Write7BitEncodedInt64(Amount);
 	}
+
 
 	public static EC[] Add(EC[] x, EC[] y)
 	{
@@ -84,9 +93,7 @@ public struct EC : IBinarySerializable
 				n++;
 			}
 			else
-			{
 				break;
-			}
 		}
 
 		var r = x[n..];
@@ -97,19 +104,26 @@ public struct EC : IBinarySerializable
 		return r;
 	}
 
-	public static EC[] Difference(EC[] x, long y, Time expiration)
+	public static EC[] TakeOldest(EC[] x, long y, Time expiration)
 	{
 		if(y == 0)	return [..x];
 		if(y < 0)	throw new ArgumentOutOfRangeException();
 
-		int fulls = 0;
+		int old = 0;
+		int full = 0;
 		long a = 0;
 
-		foreach(var i in x.Where(i => i.Expiration >= expiration))
+		foreach(var i in x)
 		{
+			if(i.Expiration < expiration)
+			{	
+				old++;
+				continue;
+			}
+
 			if(a + i.Amount <= y)
 			{
-				fulls++;
+				full++;
 				a += i.Amount;
 			}
 			else
@@ -119,10 +133,28 @@ public struct EC : IBinarySerializable
 		}
 
 		if(y - a > 0)
-		{	
-			return [..x[..fulls], new (x[fulls].Expiration, y - a)];
-		}
+			return [..x[old..(old + full)], new (x[old + full].Expiration, y - a)];
 		else
-			return x[..fulls];
+			return x[old..(old + full)];
+	}
+
+	public override bool Equals(object obj)
+	{
+		return obj is EC eC && Equals(eC);
+	}
+
+	public bool Equals(EC a)
+	{
+		return Expiration == a.Expiration && Amount == a.Amount;
+	}
+
+	public static bool operator ==(EC left, EC right)
+	{
+		return left.Equals(right);
+	}
+
+	public static bool operator !=(EC left, EC right)
+	{
+		return !(left == right);
 	}
 }

@@ -2,18 +2,23 @@
 
 public enum AuthorChange : byte
 {
-	None, Renew, Transfer
+	None, Renew, Owner, Deposit, ModerationReward
 }
 
 public class AuthorUpdation : FairOperation
 {
 	public new EntityId			Id { get; set; }
-	public AuthorChange			Action  { get; set; }
-	public byte					Years { get; set; }
-	public AccountAddress		Owner  { get; set; }
+	public AuthorChange			Change { get; set; }
+	public object				Value { get; set; }
 
-	//public bool				Exclusive => Publisher.IsWeb(Address); 
-	public override string		Description => $"{Id} for {Years} years";
+	protected string[]			Strings  => Value as string[];
+	protected EntityId			EntityId  => Value as EntityId;
+	protected AccountAddress	AccountAddress  => Value as AccountAddress;
+	protected byte				Byte => (byte)Value;
+	protected long				Long => (long)Value;
+	protected int				Int	=> (int)Value;
+
+	public override string		Description => $"{Id}, {Change}, {Value}";
 	
 	public AuthorUpdation()
 	{
@@ -21,11 +26,10 @@ public class AuthorUpdation : FairOperation
 	
 	public override bool IsValid(Mcv mcv)
 	{ 
-		if(!Enum.IsDefined(Action) || Action == AuthorChange.None) 
+		if(!Enum.IsDefined(Change) || Change == AuthorChange.None) 
 			return false;
 		
-		if(	(Action == AuthorChange.Renew) && 
-			(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
+		if(Change == AuthorChange.Renew && (Byte < Mcv.EntityRentYearsMin || Byte > Mcv.EntityRentYearsMax))
 			return false;
 
 		return true;
@@ -34,33 +38,41 @@ public class AuthorUpdation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
-		Action	= reader.ReadEnum<AuthorChange>();
+		Change	= reader.ReadEnum<AuthorChange>();
 
-		if(Action == AuthorChange.Renew)
-			Years = reader.ReadByte();
-
-		if(Action == AuthorChange.Transfer)
-			Owner = reader.Read<AccountAddress>();
+		Value = Change switch
+					   {
+							AuthorChange.Renew				=> reader.ReadByte(),
+							AuthorChange.Owner				=> reader.Read<AccountAddress>(),
+							AuthorChange.Deposit			=> reader.Read7BitEncodedInt64(),
+							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt(),
+							_								=> throw new IntegrityException()
+					   };
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteEnum(Action);
+		writer.WriteEnum(Change);
 
-		if(Action == AuthorChange.Renew)
-			writer.Write(Years);
-
-		if(Action == AuthorChange.Transfer)
-			writer.Write(Owner);
+		switch(Change)
+		{
+			case AuthorChange.Renew				: writer.Write(Byte); break;
+			case AuthorChange.Owner				: writer.Write(AccountAddress); break;
+			case AuthorChange.Deposit			: writer.Write7BitEncodedInt64(Long); break;
+			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt(Int); break;
+			default								: throw new IntegrityException();
+		}
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
 		if(!RequireAuthorAccess(round, Id, out var a))
 			return;
+		
+		a = round.AffectAuthor(Id);
 
-		if(Action == AuthorChange.Renew)
+		if(Change == AuthorChange.Renew)
 		{	
 			if(!Author.CanRenew(a, Signer, round.ConsensusTime))
 			{
@@ -68,14 +80,28 @@ public class AuthorUpdation : FairOperation
 				return;
 			}
 
-			a = round.AffectAuthor(Id);
 			a.SpaceReserved	= a.SpaceUsed;
-			a.Expiration = a.Expiration + Time.FromYears(Years);
+			a.Expiration = a.Expiration + Time.FromYears(Byte);
 				
-			PayForSpacetime(a.SpaceUsed, Time.FromYears(Years));
+			PayForSpacetime(a.SpaceUsed, Time.FromYears(Byte));
 		}
+		else if(Change == AuthorChange.Deposit)
+		{	
+			if(EC.Integrate(Signer.ECBalance, round.ConsensusTime) - Long < 0)
+			{
+				Error = NotEnoughEC;
+				return;
+			}
 
-		if(Action == AuthorChange.Transfer)
+			var d			 = EC.TakeOldest(Signer.ECBalance, Long, round.ConsensusTime);
+			Signer.ECBalance = EC.Subtract(Signer.ECBalance, Long, round.ConsensusTime);
+			a.ECDeposit		 = EC.Add(a.ECDeposit, d);
+		}
+		else if(Change == AuthorChange.ModerationReward)
+		{	
+			a.ModerationReward = Int;
+		}
+		else if(Change == AuthorChange.Owner)
 		{
 			if(!Author.IsOwner(a, Signer, round.ConsensusTime))
 			{
@@ -83,8 +109,7 @@ public class AuthorUpdation : FairOperation
 				return;
 			}
 
-			a = round.AffectAuthor(Id);
-			a.Owner	= round.AffectAccount(Owner).Id;
+			a.Owner	= round.AffectAccount(AccountAddress).Id;
 		}
 	}
 }

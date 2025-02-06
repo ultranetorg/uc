@@ -72,7 +72,7 @@ public class DevCommand : RdnCommand
 								var k = AccountKey.Create();
 
 								Report("Public Address - " + k.ToString()); 
-								Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
+								Report("Private Key    - " + k.PrivateKey.ToHex());
 								return null;
 							};
 		return a;

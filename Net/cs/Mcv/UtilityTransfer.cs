@@ -62,13 +62,13 @@ public class UtilityTransfer : Operation
 			}
 			else
 			{
-				if(Signer.Integrate(round.ConsensusTime) < ECAmount)
+				if(EC.Integrate(Signer.ECBalance, round.ConsensusTime) < ECAmount)
 				{
 					Error = NotEnoughEC;
 					return;
 				}
 				
-				d = EC.Difference(Signer.ECBalance, ECAmount, round.ConsensusTime);
+				d = EC.TakeOldest(Signer.ECBalance, ECAmount, round.ConsensusTime);
 				Signer.ECBalance = EC.Subtract(Signer.ECBalance, ECAmount, round.ConsensusTime);
 			}
 

@@ -37,7 +37,7 @@ public class WalletCommand : UosCommand
 								var w = Uos.Vault.CreateWallet(p);
 
 								Report("Public Address - " + w.Accounts.First().Address); 
-								Report("Private Key    - " + w.Accounts.First().Key.GetPrivateKeyAsBytes().ToHex());
+								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());
 
 								Api(new AddWalletApc {Raw = w.Raw});
 
@@ -110,7 +110,7 @@ public class WalletCommand : UosCommand
 								var k = new AccountKey(pk);
 
 								Report("Public Address - " + k); 
-								Report("Private Key    - " + k.GetPrivateKeyAsBytes().ToHex());
+								Report("Private Key    - " + k.PrivateKey.ToHex());
 
 								return k;
 							};

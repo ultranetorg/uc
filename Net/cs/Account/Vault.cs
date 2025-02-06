@@ -88,7 +88,7 @@ public class WalletAccount : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Key.GetPrivateKeyAsBytes());
+		writer.Write(Key.PrivateKey);
 		writer.Write(Authentications);
 	}
 

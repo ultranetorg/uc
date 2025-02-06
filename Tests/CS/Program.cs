@@ -7,15 +7,15 @@ class Program
 	{
 		//IdTests.Main();
 		//MoneyTests.Main();
-		//AccountKeyTests.Main();
+		AccountKeyTests.Main();
 		//XonTest.Custom();
+		//ECTests.Main();
 
 		//UraTests.UAddresses();
 		//UraTests.Resource();
 		//UraTests.Package();
 		//UraTests.Release();
 
-		Serialization.Main();
 
 		//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 

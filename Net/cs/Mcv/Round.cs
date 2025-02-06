@@ -433,7 +433,7 @@ public abstract class Round : IBinarySerializable
 						goto start;
 					}
 				}
-				else if(s.Integrate(ConsensusTime) < t.ECSpent || (!trying && (s.Integrate(ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
+				else if(EC.Integrate(s.ECBalance, ConsensusTime) < t.ECSpent || (!trying && (EC.Integrate(s.ECBalance, ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
 				{
 					o.Error = Operation.NotEnoughEC;
 					goto start;

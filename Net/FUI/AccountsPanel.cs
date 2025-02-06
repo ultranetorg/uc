@@ -102,7 +102,7 @@ public partial class AccountsPanel : MainPanel
 
 			if(a != null)
 			{
-				TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.GetPrivateKey());
+				TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.PrivateKey.ToHex());
 			}
 		}
 		catch(Exception ex)

@@ -16,9 +16,6 @@ public class Account : IBinarySerializable
 	public Time							BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
-	public long							Integrate(Time time) => ECBalance?.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount) ?? 0;
-	public static long					Integrate(List<EC> ecs, Time time) => ecs.SkipWhile(i => i.Expiration < time).Sum(i => i.Amount);
-
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, EC={{{string.Join(',', ECBalance?.Select(i => i.Amount) ?? [])}}}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";

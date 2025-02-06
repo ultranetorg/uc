@@ -9,195 +9,129 @@ namespace Uccs.Net;
 
 public class AccountKey : AccountAddress
 {
-    public override byte[]	Bytes { get => GetPublicAddressAsBytes(); protected set => throw new NotSupportedException(); }
+	private readonly ECKey	ECKey;
+	private byte[]			_PublicKeyNoPrefix;
+	private byte[]			_PublicKeyNoPrefixCompressed;
+	private byte[]			_PrivateKey;
+	private byte[]			_PublicAddress;
 
-	public new static AccountKey Parse(string privatekay)
+	static ECKeyPairGenerator	Generator;
+
+	static AccountKey()
 	{
-		return new AccountKey(privatekay);
+		Generator = new ECKeyPairGenerator("EC");
+		Generator.Init(new KeyGenerationParameters(Cryptography.Random, 256));
 	}
 
-	public static AccountKey Load(Cryptography cryptography, string path, string password)
+	public override byte[] Bytes 
 	{
-		return new AccountKey(cryptography.Decrypt(File.ReadAllBytes(path), password));
+		get
+		{
+			if(_PublicAddress == null)
+			{
+				var initaddr = Cryptography.Hash(GetPubKeyNoPrefix());
+				_PublicAddress = new byte[initaddr.Length - 12];
+				Array.Copy(initaddr, 12, _PublicAddress, 0, initaddr.Length - 12);
+			}
+
+			return _PublicAddress;
+		}
+		protected set => throw new NotSupportedException(); 
 	}
 
-	public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
+	public byte[] PrivateKey
 	{
-		return new AccountKey(cryptography.Decrypt(wallet, password));
+		get
+		{
+			if(_PrivateKey == null)
+			{
+				_PrivateKey = ECKey.PrivateKey.D.ToByteArrayUnsigned();
+			}
+			return _PrivateKey;
+		}
 	}
 
-	public void Save(Cryptography cryptography, string path, string password)
+	public AccountKey(byte[] vch)
 	{
-		File.WriteAllBytes(path, cryptography.Encrypt(Bytes, password));
+		ECKey = new ECKey(vch, true);
 	}
 
-	public byte[] Save(Cryptography cryptography, string password)
+	internal AccountKey(ECKey ecKey)
 	{
-		return cryptography.Encrypt(Bytes, password);
+		ECKey = ecKey;
 	}
 
-    private static readonly SecureRandom SecureRandom = new SecureRandom();
-    public static byte DEFAULT_PREFIX = 0x04;
-    private readonly ECKey _ecKey;
-    private byte[] _publicKey;
-    private byte[] _publicKeyCompressed;
-    private byte[] _publicKeyNoPrefix;
-    private byte[] _publicKeyNoPrefixCompressed;
-    private string _Address;
-    private byte[] _privateKey;
-    private string _privateKeyHex;
+	public static AccountKey Create(byte[] seed = null)
+	{
+		var secureRandom = Cryptography.Random;
 
+		if(seed != null)
+		{
+			secureRandom = new SecureRandom();
+			secureRandom.SetSeed(seed);
+		}
 
-    public AccountKey(string privateKey)
-    {
-        _ecKey = new ECKey(privateKey.Substring(Prefix.Length).FromHex(), true);
-    }
+		var keyPair = Generator.GenerateKeyPair();
+		var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
 
+		if (privateBytes.Length != 32)
+			return Create();
 
-    public AccountKey(byte[] vch)
-    {
-        _ecKey = new ECKey(vch, true);
-    }
+		return new AccountKey(privateBytes);
+	}
 
-    internal AccountKey(ECKey ecKey)
-    {
-        _ecKey = ecKey;
-    }
+	public static AccountKey Create()
+	{
+		var keyPair = Generator.GenerateKeyPair();
+		var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
 
-    public static AccountKey Create(byte[] seed = null)
-    {
-        var secureRandom = SecureRandom;
-        if (seed != null)
-        {
-            secureRandom = new SecureRandom();
-            secureRandom.SetSeed(seed);
-        }
+Console.WriteLine(privateBytes.ToHex());
 
-        var gen = new ECKeyPairGenerator("EC");
-        var keyGenParam = new KeyGenerationParameters(secureRandom, 256);
-        gen.Init(keyGenParam);
-        var keyPair = gen.GenerateKeyPair();
-        var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
-        if (privateBytes.Length != 32)
-            return Create();
-        return new AccountKey(privateBytes);
-    }
+		if (privateBytes.Length != 32)
+			return Create();
 
-    public static AccountKey Create()
-    {
-        var gen = new ECKeyPairGenerator("EC");
-        var keyGenParam = new KeyGenerationParameters(SecureRandom, 256);
-        gen.Init(keyGenParam);
-        var keyPair = gen.GenerateKeyPair();
-        var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
-        if (privateBytes.Length != 32)
-            return Create();
-        return new AccountKey(privateBytes);
-    }
+		return new AccountKey(privateBytes);
+	}
 
-    public byte[] GetPrivateKeyAsBytes()
-    {
-        if (_privateKey == null)
-        {
-            _privateKey = _ecKey.PrivateKey.D.ToByteArrayUnsigned();
-        }
-        return _privateKey;
-    }
+	public byte[] GetPubKeyNoPrefix(bool compressed = false)
+	{
+		if(!compressed)
+		{
+			if(_PublicKeyNoPrefix == null)
+			{
+				var pubKey = ECKey.GetPubKey(false);
+				var arr = new byte[pubKey.Length - 1];
+				//remove the prefix
+				Array.Copy(pubKey, 1, arr, 0, arr.Length);
+				_PublicKeyNoPrefix = arr;
+			}
+			return _PublicKeyNoPrefix;
+		}
+		else
+		{
+			if (_PublicKeyNoPrefixCompressed == null)
+			{
+				var pubKey = ECKey.GetPubKey(true);
+				var arr = new byte[pubKey.Length - 1];
+				//remove the prefix
+				Array.Copy(pubKey, 1, arr, 0, arr.Length);
+				_PublicKeyNoPrefixCompressed = arr;
+			}
+			return _PublicKeyNoPrefixCompressed;
+		}
+	}
 
-    public string GetPrivateKey()
-    {
-        if (_privateKeyHex == null)
-        {
-            _privateKeyHex = Prefix + GetPrivateKeyAsBytes().ToHex();
-        }
-        return _privateKeyHex;
-    }
+	public static AccountKey RecoverFromSignature(ECDSASignature signature, byte[] hash)
+	{
+		return new AccountKey(ECKey.RecoverFromSignature(signature.V[0], signature, hash, false));
+	}
 
-    public byte[] GetPubKey(bool compresseed = false)
-    {
-        if (!compresseed)
-        {
-            if (_publicKey == null)
-            {
-                _publicKey = _ecKey.GetPubKey(false);
-            }
-            return _publicKey;
-        }
-        else
-        {
-            if (_publicKeyCompressed == null)
-            {
-                _publicKeyCompressed = _ecKey.GetPubKey(true);
-            }
-            return _publicKeyCompressed;
+	public ECDSASignature SignAndCalculateV(byte[] hash)
+	{
+		var privKey = Context.Instance.CreateECPrivKey(PrivateKey);
+		privKey.TrySignRecoverable(hash, out var recSignature);
+		recSignature.Deconstruct(out var r, out var s, out var recId);
 
-        }
-    }
-
-    public byte[] GetPubKeyNoPrefix(bool compressed = false)
-    {
-        if (!compressed)
-        {
-            if (_publicKeyNoPrefix == null)
-            {
-                var pubKey = _ecKey.GetPubKey(false);
-                var arr = new byte[pubKey.Length - 1];
-                //remove the prefix
-                Array.Copy(pubKey, 1, arr, 0, arr.Length);
-                _publicKeyNoPrefix = arr;
-            }
-            return _publicKeyNoPrefix;
-        }
-        else
-        {
-            if (_publicKeyNoPrefixCompressed == null)
-            {
-                var pubKey = _ecKey.GetPubKey(true);
-                var arr = new byte[pubKey.Length - 1];
-                //remove the prefix
-                Array.Copy(pubKey, 1, arr, 0, arr.Length);
-                _publicKeyNoPrefixCompressed = arr;
-            }
-            return _publicKeyNoPrefixCompressed;
-
-        }
-    }
-
-    public string GetPublicAddress()
-    {
-        if (_Address == null)
-        {
-            //var initaddr = new Sha3Keccack().CalculateHash(GetPubKeyNoPrefix());
-            var initaddr = Cryptography.Hash(GetPubKeyNoPrefix());
-            var addr = new byte[initaddr.Length - 12];
-            Array.Copy(initaddr, 12, addr, 0, initaddr.Length - 12);
-            _Address = Prefix + addr.ToHex();
-        }
-        return _Address;
-    }
-
-    public byte[] GetPublicAddressAsBytes()
-    {
-        if (_Address == null)
-        {
-            var initaddr = Cryptography.Hash(GetPubKeyNoPrefix());
-            var addr = new byte[initaddr.Length - 12];
-            Array.Copy(initaddr, 12, addr, 0, initaddr.Length - 12);
-            return addr;
-        }
-        return _Address.FromHex();
-    }
-
-    public static AccountKey RecoverFromSignature(ECDSASignature signature, byte[] hash)
-    {
-        return new AccountKey(ECKey.RecoverFromSignature(signature.V[0], signature, hash, false));
-    }
-
-    public ECDSASignature SignAndCalculateV(byte[] hash)
-    {
-        var privKey = Context.Instance.CreateECPrivKey(GetPrivateKeyAsBytes());
-        privKey.TrySignRecoverable(hash, out var recSignature);
-        recSignature.Deconstruct(out var r, out var s, out var recId);
-        return new ECDSASignature(new BigInteger(1, r.ToBytes()), new BigInteger(1, s.ToBytes())){ V = [(byte)recId]};
-    }
+		return new ECDSASignature(new BigInteger(1, r.ToBytes()), new BigInteger(1, s.ToBytes())){ V = [(byte)recId]};
+	}
 }

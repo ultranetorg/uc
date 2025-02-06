@@ -22,7 +22,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public AccountAddress(AccountKey k)
 	{
-		Bytes = k.GetPublicAddressAsBytes();
+		Bytes = k.Bytes;
 
 		if(Bytes.Length != Length)
 			throw new IntegrityException("Bytes.Length != Length");

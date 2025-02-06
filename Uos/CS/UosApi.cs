@@ -155,7 +155,7 @@ public class AddAccountToWalletApc : UosApc
 		{	
 			var a = (Name == null ? uos.Vault.Wallets.First() : uos.Vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
 		
-			return a.Key.GetPrivateKeyAsBytes();
+			return a.Key.PrivateKey;
 		}
 	}
 }
