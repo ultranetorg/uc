@@ -1,12 +1,9 @@
-import { Author, Category, PaginationResponse, Publication, Site, SitePublication, User } from "types"
+import { Category, PaginationResponse, Publication, Site, SiteAuthor, SitePublication, User } from "types"
 
 import { Api } from "./Api"
 import { toPaginationResponse } from "./utils"
 
-const { VITE_APP_API_BASE_URL: BASE_URL, VITE_APP_SITE_ID: SITE_ID } = import.meta.env
-
-const getAuthor = (authorId: string): Promise<Author> =>
-  fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
+const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 const getCategory = (categoryId: string): Promise<Category> =>
   fetch(`${BASE_URL}/categories/${categoryId}`).then(res => res.json())
@@ -14,7 +11,10 @@ const getCategory = (categoryId: string): Promise<Category> =>
 const getPublication = (publicationId: string): Promise<Publication> =>
   fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
 
-const getSite = (): Promise<Site> => fetch(`${BASE_URL}/sites/${SITE_ID}`).then(res => res.json())
+const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
+
+const getSiteAuthor = (siteId: string, authorId: string): Promise<SiteAuthor> =>
+  fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}`).then(res => res.json())
 
 const getUrlParams = (name?: string, page?: number, pageSize?: number): URLSearchParams => {
   const params = new URLSearchParams()
@@ -35,22 +35,21 @@ const getUrlParams = (name?: string, page?: number, pageSize?: number): URLSearc
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
 
 const searchPublications = async (
+  siteId: string,
   name?: string,
   page?: number,
   pageSize?: number,
 ): Promise<PaginationResponse<SitePublication>> => {
   const params = getUrlParams(name, page, pageSize)
-  const res = await fetch(
-    `${BASE_URL}/sites/${SITE_ID}/publications` + (params.size > 0 ? `?${params.toString()}` : ""),
-  )
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""))
   return await toPaginationResponse(res)
 }
 
 const api: Api = {
-  getAuthor,
   getCategory,
   getPublication,
   getSite,
+  getSiteAuthor,
   getUser,
   searchPublications,
 }

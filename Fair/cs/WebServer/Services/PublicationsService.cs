@@ -48,7 +48,7 @@ public class PublicationsService
 				Review review = mcv.Reviews.Find(id, mcv.LastConfirmedRound.Id);
 				Account account = mcv.Accounts.Find(review.User, mcv.LastConfirmedRound.Id);
 				return new ReviewModel(review, account);
-			});
+			}).ToArray(); ;
 		}
 	}
 }

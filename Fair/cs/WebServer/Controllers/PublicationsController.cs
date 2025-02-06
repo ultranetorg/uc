@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Uccs.Web.Utilities;
 
 namespace Uccs.Fair;
 
 public class PublicationsController
 (
 	ILogger<PublicationsController> logger,
-	IPublicationsService productsService,
+	IPublicationsService publicationsService,
 	IEntityIdValidator entityIdValidator
 ) : BaseController
 {
@@ -17,12 +16,12 @@ public class PublicationsController
 
 		entityIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		PublicationModel product = productsService.Find(publicationId);
-		if (product == null)
+		PublicationModel publication = publicationsService.Find(publicationId);
+		if (publication == null)
 		{
 			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 		}
 
-		return product;
+		return publication;
 	}
 }

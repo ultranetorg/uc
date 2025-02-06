@@ -5,8 +5,8 @@ import { UserSite } from "./UserSite"
 
 export type User = {
   id: string
-  sites: UserSite[]
-  authors: AuthorBase[]
-  publications: UserPublication[]
-  products: UserProduct[]
+  sites?: UserSite[]
+  authors?: AuthorBase[]
+  publications?: UserPublication[]
+  products?: UserProduct[]
 }

@@ -1,6 +1,6 @@
-export * from "./useGetAuthor"
 export * from "./useGetCategory"
 export * from "./useGetPublication"
 export * from "./useGetSite"
+export * from "./useGetSiteAuthor"
 export * from "./useGetUser"
 export * from "./useSearchPublications"

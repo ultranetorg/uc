@@ -1,10 +1,15 @@
-import { Author, Category, PaginationResponse, Publication, Site, SitePublication, User } from "types"
+import { Category, PaginationResponse, Publication, Site, SiteAuthor, SitePublication, User } from "types"
 
 export type Api = {
-  getAuthor(authorId: string): Promise<Author>
   getCategory(categoryId: string): Promise<Category>
   getPublication(publicationId: string): Promise<Publication>
-  getSite(): Promise<Site>
+  getSite(siteId: string): Promise<Site>
+  getSiteAuthor(siteId: string, authorId: string): Promise<SiteAuthor>
   getUser(userId: string): Promise<User>
-  searchPublications(name?: string, page?: number, pageSize?: number): Promise<PaginationResponse<SitePublication>>
+  searchPublications(
+    siteId: string,
+    name?: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<PaginationResponse<SitePublication>>
 }

@@ -1,8 +1,8 @@
-import { CategorySubModel } from "./CategorySubModel"
+import { Account } from "./Account"
+import { CategoryBase } from "./CategoryBase"
+import { SiteBase } from "./SiteBase"
 
 export type Site = {
-  id: string
-  type: string
-  title: string
-  categories: CategorySubModel[]
-}
+  moderators?: Account[]
+  categories?: CategoryBase[]
+} & SiteBase

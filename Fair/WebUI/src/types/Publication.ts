@@ -1,15 +1,15 @@
 import { ProductField } from "./ProductField"
+import { PublicationBase } from "./PublicationBase"
+import { Review } from "./Review"
 
 export type Publication = {
-  id: string
+  sections: string[]
+  status: string[]
   categoryId: string
   creatorId: string
-  productId: string
-  productName: string
   productFields: ProductField[]
   productUpdated: number
-  productAuthorId: string
-  productAuthorTitle: string
-  sections: string[]
-  comments: Comment[]
-}
+  authorId: string
+  authorTitle: string
+  reviews?: Review[]
+} & PublicationBase

@@ -59,7 +59,7 @@ public class UsersService
 					ProductsCount = 0, // TODO: calculate products count.
 					Url = SiteUtils.Url(site),
 				};
-			});
+			}).ToArray();
 		}
 	}
 
@@ -71,7 +71,7 @@ public class UsersService
 			{
 				Author author = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
 				return new AuthorBaseModel(author);
-			});
+			}).ToArray();
 		}
 	}
 
@@ -88,7 +88,7 @@ public class UsersService
 					Site site = mcv.Sites.Find(category.Site, mcv.LastConfirmedRound.Id);
 
 					return new UserPublicationModel(publication, site, category, product);
-				});
+				}).ToArray();
 			});
 		}
 	}
@@ -97,10 +97,11 @@ public class UsersService
 	{
 		var result = new LoadProductsResult();
 		var productsList = new LinkedList<Product>();
+		UserProductModel[] productModels = null;
 
 		lock (mcv.Lock)
 		{
-			IEnumerable<UserProductModel> productsModels = authorsIds.SelectMany(authorId =>
+			productModels = authorsIds.SelectMany(authorId =>
 			{
 				AuthorEntry author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
 
@@ -109,14 +110,12 @@ public class UsersService
 					Product product = mcv.Products.Find(productId, mcv.LastConfirmedRound.Id);
 					productsList.AddLast(product);
 					return new UserProductModel(product);
-				});
-			});
-
-			// NOTE: method ToList should be called to avoid deffered execution.
-			result.ProductsModels = productsModels.ToList();
+				}).ToArray();
+			}).ToArray();
 		}
 
 		result.Products = productsList.Count > 0 ? productsList.ToArray() : null;
+		result.ProductsModels = productModels.Length > 0 ? productModels : null;
 
 		return result;
 	}

@@ -50,7 +50,7 @@ public class CategoriesService
 			{
 				Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
 				return new CategoryBaseModel(category);
-			});
+			}).ToArray();
 		}
 	}
 
@@ -62,8 +62,8 @@ public class CategoriesService
 			{
 				Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
 				Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-				return new PublicationBaseModel(publication.Product, product);
-			});
+				return new PublicationBaseModel(publication.Id, product);
+			}).ToArray();
 		}
 	}
 }

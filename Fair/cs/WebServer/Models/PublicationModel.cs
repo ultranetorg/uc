@@ -13,7 +13,6 @@ public class PublicationModel : PublicationBaseModel
 	// Account
 	public string CreatorId { get; set; }
 
-	public string ProductId { get; set; }
 	public ProductField[] ProductFields { get; set; }
 	public int ProductUpdated { get; set; }
 

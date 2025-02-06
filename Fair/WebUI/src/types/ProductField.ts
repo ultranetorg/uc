@@ -1,4 +1,4 @@
 export type ProductField = {
-  type: string
+  name: string
   value: object
 }

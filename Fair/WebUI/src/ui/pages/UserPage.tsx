@@ -1,4 +1,5 @@
 import { useDocumentTitle } from "usehooks-ts"
+import { Link } from "react-router-dom"
 
 import { useGetUser } from "entities"
 
@@ -18,12 +19,12 @@ export const UserPage = () => {
     <div className="flex flex-col gap-4 text-black">
       <span className="text-white">USER: {user.id}</span>
       <>
-        {user.sites?.length > 0 ? (
+        {user.sites ? (
           <div className="flex flex-col">
             <span>Sites</span>
             {user.sites.map(x => (
               <div key={x.id}>
-                ID: {x.id} TYPE: {x.type} TITLE: {x.title} PRODUCTS COUNT: {x.productsCount} URL: {x.url}
+                ID: {x.id} TITLE: {x.title} PRODUCTS COUNT: {x.productsCount} URL: {x.url}
               </div>
             ))}
           </div>
@@ -32,13 +33,18 @@ export const UserPage = () => {
         )}
       </>
       <>
-        {user.authors?.length > 0 ? (
+        {user.authors ? (
           <div className="flex flex-col">
             <span>Authors</span>
             {user.authors.map(x => (
               <div key={x.id}>
                 ID: {x.id} TITLE: {x.title} EXPIRATION: {x.expiration} SPACE RESERVED: {x.spaceReserved} SPACE USED:{" "}
-                {x.spaceUsed}
+                {x.spaceUsed} LINK:{" "}
+                {
+                  <>
+                    <Link to={`/a/${x.id}`}>LINK</Link>
+                  </>
+                }
               </div>
             ))}
           </div>
@@ -47,11 +53,14 @@ export const UserPage = () => {
         )}
       </>
       <>
-        {user.publications?.length > 0 ? (
+        {user.publications ? (
           <div className="flex flex-col">
             <span>Publications</span>
             {user.publications.map(x => (
-              <div key={x.id}>ID: {x.id}</div>
+              <div key={x.id}>
+                ID: {x.id} SITE ID: {x.siteId} SITE TITLE : {x.siteTitle} CATEGORY ID: {x.categoryId} CATEGORY TITLE :{" "}
+                {x.categoryTitle} URL: {x.url}
+              </div>
             ))}
           </div>
         ) : (
@@ -59,11 +68,13 @@ export const UserPage = () => {
         )}
       </>
       <>
-        {user.products?.length > 0 ? (
+        {user.products ? (
           <div className="flex flex-col">
             <span>Products</span>
             {user.products.map(x => (
-              <div key={x.id}>ID: {x.id}</div>
+              <div key={x.id}>
+                ID: {x.id} TITLE: {x.title} UPDATED: {x.updated}
+              </div>
             ))}
           </div>
         ) : (

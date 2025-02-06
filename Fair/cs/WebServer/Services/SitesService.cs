@@ -46,7 +46,7 @@ public class SitesService
 			{
 				Account account = mcv.Accounts.Find(id, mcv.LastConfirmedRound.Id);
 				return new AccountModel(account);
-			});
+			}).ToArray();
 		}
 	}
 
@@ -58,7 +58,7 @@ public class SitesService
 			{
 				Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
 				return new CategoryBaseModel(category);
-			});
+			}).ToArray();
 		}
 	}
 
@@ -119,7 +119,6 @@ public class SitesService
 			}
 
 			SearchInPublications(category.Publications, authorId, ref result);
-
 			SearchInCategories(category.Categories, authorId, ref result);
 		}
 	}
@@ -216,32 +215,20 @@ public class SitesService
 			}
 
 			string productTitle = ProductUtils.GetTitle(product);
-			// TODO: is SearchName can be empty?
-			if (!string.IsNullOrEmpty(context.SearchName) && (productTitle == null || productTitle.IndexOf(context.SearchName, StringComparison.OrdinalIgnoreCase) == -1))
+			if (string.IsNullOrEmpty(productTitle))
+			{
+				continue;
+			}
+			if (!string.IsNullOrEmpty(context.SearchName) && productTitle.IndexOf(context.SearchName, StringComparison.OrdinalIgnoreCase) == -1)
 			{
 				continue;
 			}
 
-
-			SitePublicationModel newItem = ToPublicationSearchModel(publication, category, product, author);
-			context.Result.Add(newItem);
+			SitePublicationModel resultItem = new SitePublicationModel(publication.Id, category, author, product);
+			context.Result.Add(resultItem);
 
 			++context.TotalItems;
 		}
-	}
-
-	private static SitePublicationModel ToPublicationSearchModel(Publication publication, Category category, Product product, Author author)
-	{
-		return new SitePublicationModel
-		{
-			Id = publication.Id.ToString(),
-			CategoryId = category.Id.ToString(),
-			CategoryName = category.Title,
-			ProductId = product.Id.ToString(),
-			ProductName = ProductUtils.GetTitle(product) ?? "TEST NAME + " + publication.Id.ToString(),
-			AuthorId = publication.Creator.ToString(),
-			AuthorTitle = author.Title,
-		};
 	}
 
 	class SearchContext

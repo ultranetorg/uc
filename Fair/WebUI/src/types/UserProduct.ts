@@ -1,1 +1,5 @@
-export type UserProduct = { id: string }
+export type UserProduct = {
+  id: string
+  title: string
+  updated: number
+}

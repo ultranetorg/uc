@@ -1,9 +1,9 @@
 export type SitePublication = {
   id: string
   categoryId: string
-  categoryName: string
+  categoryTitle: string
   productId: string
-  productName: string
+  productTitle: string
   authorId: string
   authorTitle: string
 }
