@@ -17,33 +17,39 @@ export const CategoryPage = () => {
       <span>ID: {category.id}</span>
       <span>TITLE: {category.title}</span>
       <span>SITE ID: {category.siteId}</span>
-      <span>PARENT ID: {category.parentId}</span>
+      <span>
+        PARENT ID: {category.parentId ? <Link to={`/c/${category.parentId}`}>{category.parentTitle}</Link> : ""}
+      </span>
       <span>PARENT TITLE: {category.parentTitle}</span>
 
-      {category.categories && (
+      {category.categories ? (
         <>
           <span className="text-black">CATEGORIES:</span>
           <ul>
-            {category.categories?.map(c => (
+            {category.categories.map(c => (
               <ol key={c.id}>
                 <Link to={`/c/${c.id}`}>{c.title}</Link>
               </ol>
             ))}
           </ul>
         </>
+      ) : (
+        <>🚫 NO CATEGORIES</>
       )}
 
-      {category.publications && (
+      {category.publications ? (
         <>
           <span className="text-black">PUBLICATIONS:</span>
           <ul>
-            {category.publications?.map(p => (
-              <ol key={p.id}>
-                <Link to={`/p/${p.id}`}>{p.title}</Link>
-              </ol>
+            {category.publications.map(p => (
+              <li key={p.id}>
+                <Link to={`/p/${p.id}`}>{p.productTitle || p.id}</Link>
+              </li>
             ))}
           </ul>
         </>
+      ) : (
+        <>🚫 NO PUBLICATIONS</>
       )}
     </div>
   )

@@ -31,24 +31,24 @@ public class PublicationsService
 			author = mcv.Authors.Find(product.AuthorId, mcv.LastConfirmedRound.Id);
 		}
 
-		return ToPublicationModel(publication, product, author);
+		var reviews = publication.Reviews.Length > 0 ? LoadReviews(publication.Reviews) : null;
+
+		return new PublicationModel(publication, product, author)
+		{
+			Reviews = reviews
+		};
 	}
 
-	private static PublicationModel ToPublicationModel(Publication publication, Product product, Author author)
+	private IEnumerable<ReviewModel> LoadReviews(EntityId[] reviewsIds)
 	{
-		return new PublicationModel
+		lock (mcv.Lock)
 		{
-			Id = publication.Id.ToString(),
-			CategoryId = publication.Category.ToString(),
-			CreatorId = publication.Creator.ToString(),
-			ProductId = product.Id.ToString(),
-			ProductName = ProductUtils.GetTitle(product),
-			ProductFields = product.Fields,
-			ProductUpdated = product.Updated.Days,
-			ProductAuthorId = author.Id.ToString(),
-			ProductAuthorTitle = author.Title,
-			Sections = publication.Sections,
-			// TODO: map comments Comments
-		};
+			return reviewsIds.Select(id =>
+			{
+				Review review = mcv.Reviews.Find(id, mcv.LastConfirmedRound.Id);
+				Account account = mcv.Accounts.Find(review.User, mcv.LastConfirmedRound.Id);
+				return new ReviewModel(review, account);
+			}).ToArray(); ;
+		}
 	}
 }

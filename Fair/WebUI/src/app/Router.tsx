@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
 import { BaseLayout } from "ui/layouts"
-import { AuthorPage, CategoryPage, ErrorPage, IndexPage, PublicationPage, PublicationsPage } from "ui/pages"
+import { AuthorPage, CategoryPage, ErrorPage, IndexPage, PublicationPage, PublicationsPage, UserPage } from "ui/pages"
 
 export const Router = () => (
   <BrowserRouter>
@@ -25,6 +25,8 @@ export const Router = () => (
           <Route index element={<PublicationsPage />} />
           <Route path=":publicationId" element={<PublicationPage />} />
         </Route>
+
+        <Route path="/u" element={<UserPage />} />
       </Route>
     </Routes>
   </BrowserRouter>

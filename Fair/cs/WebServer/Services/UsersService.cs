@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Uccs.Fair;
 
 namespace Uccs.Fair;
 
@@ -27,13 +26,44 @@ public class UsersService
 			}
 		}
 
-		AuthorBaseModel[] authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
-		// UserPublicationModel[] publications = account.Pu
+		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : null;
+		IEnumerable<AuthorBaseModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
 
-		return ToUserModel(account, authors);
+		IEnumerable<UserProductModel> products = null;
+		IEnumerable<UserPublicationModel> publications = null;
+		if (account.Authors.Length > 0)
+		{
+			LoadProductsResult loadProductsResult = LoadProducts(account.Authors);
+			products = loadProductsResult.ProductsModels;
+			publications = loadProductsResult.Products?.Length > 0 ? LoadPublications(loadProductsResult.Products) : null;
+		}
+
+		return new UserModel(account.Id.ToString())
+		{
+			Sites = sites,
+			Authors = authors,
+			Publications = publications,
+			Products = products,
+		};
 	}
 
-	private AuthorBaseModel[] LoadAuthors(EntityId[] authorsIds)
+	private IEnumerable<UserSiteModel> LoadSites(EntityId[] sitesIds)
+	{
+		lock (mcv.Lock)
+		{
+			return sitesIds.Select(id =>
+			{
+				Site site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+				return new UserSiteModel(site)
+				{
+					ProductsCount = 0, // TODO: calculate products count.
+					Url = SiteUtils.Url(site),
+				};
+			}).ToArray();
+		}
+	}
+
+	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -45,29 +75,55 @@ public class UsersService
 		}
 	}
 
-	private UserPublicationModel[] LoadPublications(EntityId[] publicationsIds)
+	private IEnumerable<UserPublicationModel> LoadPublications(Product[] products)
 	{
 		lock (mcv.Lock)
 		{
-			return publicationsIds.Select(id =>
+			return products.SelectMany(product =>
 			{
-				Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
-				Category category = mcv.Categories.Find(publication.Category, mcv.LastConfirmedRound.Id);
-				Site site = mcv.Sites.Find(category.Site, mcv.LastConfirmedRound.Id);
-				Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-				string publicationTitle = ProductUtils.GetTitle(product);
-				return new UserPublicationModel(publication, publicationTitle, site, category.Title);
-			}).ToArray();
+				return product.Publications.Select(id =>
+				{
+					Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
+					Category category = mcv.Categories.Find(publication.Category, mcv.LastConfirmedRound.Id);
+					Site site = mcv.Sites.Find(category.Site, mcv.LastConfirmedRound.Id);
+
+					return new UserPublicationModel(publication, site, category, product);
+				}).ToArray();
+			});
 		}
 	}
 
-	private static UserModel ToUserModel(FairAccountEntry account, AuthorBaseModel[] authors)
+	private LoadProductsResult LoadProducts(EntityId[] authorsIds)
 	{
-		return new UserModel
-		{
-			Id = account.Id.ToString(),
+		var result = new LoadProductsResult();
+		var productsList = new LinkedList<Product>();
+		UserProductModel[] productModels = null;
 
-			Authors = authors
-		};
+		lock (mcv.Lock)
+		{
+			productModels = authorsIds.SelectMany(authorId =>
+			{
+				AuthorEntry author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
+
+				return author.Products.Select(productId =>
+				{
+					Product product = mcv.Products.Find(productId, mcv.LastConfirmedRound.Id);
+					productsList.AddLast(product);
+					return new UserProductModel(product);
+				}).ToArray();
+			}).ToArray();
+		}
+
+		result.Products = productsList.Count > 0 ? productsList.ToArray() : null;
+		result.ProductsModels = productModels.Length > 0 ? productModels : null;
+
+		return result;
+	}
+
+	private class LoadProductsResult
+	{
+		public IEnumerable<UserProductModel> ProductsModels { get; set; }
+
+		public Product[] Products { get; set; }
 	}
 }

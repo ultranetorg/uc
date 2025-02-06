@@ -1,10 +1,14 @@
-﻿using Uccs.Web.Pagination;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public class SiteModel : SiteBaseModel
 {
-	// public EntityId[] Owners { get; set; }
+	public IEnumerable<AccountModel> Moderators { get; set; }
 
-	public CategorySubModel[] Categories { get; set; }
+	public IEnumerable<CategoryBaseModel> Categories { get; set; }
+
+	public SiteModel(Site site)
+	{
+		Id = site.Id.ToString();
+		Title = site.Title;
+	}
 }

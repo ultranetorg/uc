@@ -5,7 +5,9 @@ namespace Uccs.Fair;
 
 public interface ISitesService
 {
-	public SiteModel Find([NotEmpty] string siteId);
+	SiteModel Find([NotEmpty] string siteId);
 
-	TotalItemsResult<SitePublicationModel> SearchPublications([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name);
+	SiteAuthorModel FindAuthorNonOptimized([NotEmpty] string siteId, [NotEmpty] string authorId);
+
+	TotalItemsResult<SitePublicationModel> SearchPublicationsNonOptimized([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name);
 }

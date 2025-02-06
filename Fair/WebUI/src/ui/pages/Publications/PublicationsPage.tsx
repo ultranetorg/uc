@@ -38,7 +38,7 @@ export const PublicationsPage = () => {
         <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
           {publications.items.map(p => (
             <Link to={`/p/${p.id}`} key={p.id}>
-              <PublicationCard publicationName={p.productName} authorTitle={p.authorTitle} />
+              <PublicationCard publicationName={p.productTitle} authorTitle={p.authorTitle} />
             </Link>
           ))}
         </div>

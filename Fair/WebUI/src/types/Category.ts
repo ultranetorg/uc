@@ -1,12 +1,10 @@
-import { CategoryPublicationModel } from "./CategoryPublicationModel"
-import { CategorySubModel } from "./CategorySubModel"
+import { CategoryBase } from "./CategoryBase"
+import { PublicationBase } from "./PublicationBase"
 
 export type Category = {
-  id: string
-  title: string
   siteId: string
   parentId: string
   parentTitle: string
-  categories: CategorySubModel[]
-  publications: CategoryPublicationModel[]
-}
+  categories?: CategoryBase[]
+  publications?: PublicationBase[]
+} & CategoryBase

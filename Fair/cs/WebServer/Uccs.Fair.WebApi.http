@@ -1,25 +1,29 @@
 @Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
 
-### User
+### GET User
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65793-0
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65537-0
 
-### Site
+### GET Site
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0
 Accept: application/json
 
-### Categories
+### GET Site Author
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-3
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0
+
+### GET Category
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-2
 Accept: application/json
 
-### Publication
+### GET Publication
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-1
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-2
 Accept: application/json
 
 ### Publications Search
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?name=test&page=0&pageSize=10
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?name=2&page=0&pageSize=10
 Accept: application/json

@@ -1,7 +1,6 @@
-export type Author = {
+export type AuthorBase = {
   id: string
   title: string
-  ownerId: string
   expiration: number
   spaceReserved: number
   spaceUsed: number

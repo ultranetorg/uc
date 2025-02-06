@@ -7,9 +7,14 @@ export const BaseLayout = ({ children }: PropsWithChildren) => (
       <h1>
         <Link to="/">🏡 MY STORE</Link>
       </h1>
-      <h1>
-        <Link to="/p">🔍 Search</Link>
-      </h1>
+      <div className="flex gap-5">
+        <h1>
+          <Link to="/p">🔍 Search</Link>
+        </h1>
+        <h1>
+          <Link to="/u">👤</Link>
+        </h1>
+      </div>
     </div>
     <div className="flex-1">{children ?? <Outlet />}</div>
   </div>
