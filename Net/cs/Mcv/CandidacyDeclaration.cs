@@ -42,13 +42,13 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		if(Signer.GetECBalance(round.ConsensusTime) < mcv.Net.DeclarationCost)
+		if(Signer.Integrate(round.ConsensusTime) < mcv.Net.DeclarationCost)
 		{
 			Error = NotEnoughEC;
 			return;
 		}
 
-		Signer.ECBalanceSubtract(round.ConsensusTime, mcv.Net.DeclarationCost);
+		Signer.ECBalance = EC.Subtract(Signer.ECBalance, mcv.Net.DeclarationCost, round.ConsensusTime);
 
 		Affected = round.AffectCandidate(Signer.Id);
 		

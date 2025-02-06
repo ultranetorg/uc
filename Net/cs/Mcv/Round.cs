@@ -433,7 +433,7 @@ public abstract class Round : IBinarySerializable
 						goto start;
 					}
 				}
-				else if(s.GetECBalance(ConsensusTime) < t.ECSpent || (!trying && (s.GetECBalance(ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
+				else if(s.Integrate(ConsensusTime) < t.ECSpent || (!trying && (s.Integrate(ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
 				{
 					o.Error = Operation.NotEnoughEC;
 					goto start;
@@ -457,7 +457,7 @@ public abstract class Round : IBinarySerializable
 			}
 
 			if(!trying)
-				s.ECBalanceSubtract(ConsensusTime, t.ECFee);
+				s.ECBalance = EC.Subtract(s.ECBalance, t.ECFee, ConsensusTime);
 			
 			s.LastTransactionNid++;
 		}
@@ -552,7 +552,7 @@ public abstract class Round : IBinarySerializable
 
 			foreach(var i in Members./*Where(i => i.CastingSince <= tail.First().Id).*/Select(i => AffectAccount(i.Address)))
 			{
-				i.ECBalanceAdd(new ExecutionReservation (ConsensusTime + Net.ECLifetime, Net.ECDayEmission / Members.Count));
+				i.ECBalance = EC.Add(i.ECBalance, new EC (ConsensusTime + Net.ECLifetime, Net.ECDayEmission / Members.Count));
 				i.BYBalance += Net.BYDayEmission / Members.Count;
 			}
 		}

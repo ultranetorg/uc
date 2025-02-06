@@ -64,8 +64,22 @@ public class PublicationUpdation : FairOperation
 		switch(Change)
 		{
 			case PublicationChange.Status:
+			{ 
+// 				var s = (ReviewStatus)Value;
+// 
+// 				if(p.Status == PublicationStatus.Pending && s != ReviewStatus.Pending)
+// 				{
+// 					var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
+// 
+// 					a.ECDeposit
+// 
+// 					Signer.ECBalanceAdd( r.Reward);
+// 					r.Reward = [];
+// 				}
+// 
 				p.Status = (PublicationStatus)Value;
 				break;
+			}
 
 			case PublicationChange.Product:
 				p.Product = EntityId;

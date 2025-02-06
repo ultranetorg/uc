@@ -36,7 +36,5 @@ public class ProductCreation : FairOperation
 
 		p.AuthorId = a.Id;
 		a.Products = [..a.Products, p.Id];
-
-		///Allocate(round, a, r.Length);
 	}
 }

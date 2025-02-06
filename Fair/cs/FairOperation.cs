@@ -77,17 +77,17 @@ public abstract class FairOperation : Operation
 			Transaction.BYReward += f;
 
 			author.SpaceReserved = 
-			author.SpaceUsed = (short)(author.SpaceUsed + toallocate);
+			author.SpaceUsed = author.SpaceUsed + toallocate;
 		}
 		else
-			author.SpaceUsed += (short)toallocate;
+			author.SpaceUsed += toallocate;
 	}
 
 	public void Free(Author domain, int amount) /// WE DONT REFUND
 	{
 		//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
 
-		domain.SpaceUsed -= (short)amount;
+		domain.SpaceUsed -= amount;
 	
 		//Signer.STBalance += f;
 		//STReward -= f;

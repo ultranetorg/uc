@@ -47,7 +47,7 @@ public struct AnalyzerResult
 public class Analysis : IBinarySerializable
 {
 	public Urr						Release { get; set; }
-	public ExecutionReservation[]	ECPayment { get; set; }
+	public EC[]	ECPayment { get; set; }
 	public long						BYPayment { get; set; }
 	public Ura						Consil	{ get; set; }
 	public AnalyzerResult[]			Results { get; set; }
@@ -62,7 +62,7 @@ public class Analysis : IBinarySerializable
 		Release		= Urr.ReadVirtual(reader);
 		Consil		= reader.Read<Ura>();
 		BYPayment	= reader.Read7BitEncodedInt64();
-		ECPayment	= reader.ReadArray<ExecutionReservation>();
+		ECPayment	= reader.ReadArray<EC>();
 		Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
 																  Result = (AnalysisResult)reader.ReadByte() });
 	}

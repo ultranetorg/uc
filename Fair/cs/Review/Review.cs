@@ -3,19 +3,21 @@
 public enum ReviewStatus : byte
 {
 	None,
-	Active,
+	Pending,
+	Accepted,
+	Rejected,
 	Disputed
 }
 
 public class Review : IBinarySerializable
 {
-	public EntityId		Id { get; set; }
-	public EntityId		Publication { get; set; }
-    public EntityId		User { get; set; }
-	public ReviewStatus	Status { get; set; }
-    public string		Text { get; set; }
-    public byte			Rating { get; set; }
-    public Time	    	Created { get; set; }
+	public EntityId						Id { get; set; }
+	public EntityId						Publication { get; set; }
+    public EntityId						User { get; set; }
+	public ReviewStatus					Status { get; set; }
+    public string						Text { get; set; }
+    public byte							Rating { get; set; }
+    public Time	    					Created { get; set; }
 
 	public void Read(BinaryReader reader)
 	{

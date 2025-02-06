@@ -8,7 +8,7 @@ public class ProductUpdation : FairOperation
 	public ProductField[]		Changes	{ get; set; }
 	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Name))}";
 
-	public override bool		IsValid(Mcv mcv) => Changes.All(i => i.Size <= Product.DescriptionLengthMaximum);
+	public override bool		IsValid(Mcv mcv) => Changes.All(i => i.Size <= Product.FieldLengthMaximum);
 
 	public ProductUpdation()
 	{
@@ -52,8 +52,6 @@ public class ProductUpdation : FairOperation
 
 		a = round.AffectAuthor(a.Id);
 		p = round.AffectProduct(ProductId);
-
-		p.Fields ??= [];
 
 		foreach(var i in Changes)
 		{	

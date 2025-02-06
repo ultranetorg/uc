@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Uccs.Fair; 
+namespace Uccs.Fair;
 
 public class AuthorBaseModel
 {
@@ -14,9 +14,9 @@ public class AuthorBaseModel
 	public int Expiration { get; set; }
 
 	[JsonPropertyOrder(-2)]
-	public short SpaceReserved { get; set; }
+	public int SpaceReserved { get; set; }
 	[JsonPropertyOrder(-1)]
-	public short SpaceUsed { get; set; }
+	public int SpaceUsed { get; set; }
 
 	public AuthorBaseModel(Author author)
 	{
