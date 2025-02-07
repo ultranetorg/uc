@@ -32,6 +32,7 @@ public class AuthorEntry : Author, ITableEntry
 									SpaceReserved = SpaceReserved,
 									SpaceUsed = SpaceUsed,
 									ECDeposit = ECDeposit,
+									BYDeposit = BYDeposit,
 									ModerationReward = ModerationReward,
 									Products = Products};
 	}

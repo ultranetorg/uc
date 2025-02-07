@@ -157,6 +157,7 @@ public class FairRound : Round
 		a.Fields = [];
 		a.Changes = [];
 		a.Reviews = [];
+		a.ReviewChanges = [];
 			
 		return AffectedPublications[a.Id] = a;
 	}

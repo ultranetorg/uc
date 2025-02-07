@@ -10,18 +10,13 @@ public enum PublicationChange : byte
 	Product,
 }
 
-public class PublicationUpdation : FairOperation
+public class PublicationUpdation : UpdateOperation
 {
 	public EntityId				Publication { get; set; }
 	public PublicationChange	Change { get; set; }
-	public object				Value { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => Publication != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}, [{Change}]";
-
-	string[]					Strings  => Value as string[];
-	string						String	 => Value as string;
-	EntityId					EntityId => Value as EntityId;
 
 	public PublicationUpdation()
 	{

@@ -6,26 +6,45 @@ public enum ReviewStatus : byte
 	Pending,
 	Accepted,
 	Rejected,
-	Disputed
 }
+
+//public class ReviewVersion  : IBinarySerializable
+//{
+//	public EntityId		Review { get; set; }
+//	public byte			Version { get; set; }
+//
+//	public void Read(BinaryReader reader)
+//	{
+//		Review = reader.Read<EntityId>();
+//		Version = reader.ReadByte();
+//	}
+//
+//	public void Write(BinaryWriter writer)
+//	{
+//		writer.Write(Review);
+//		writer.Write(Version);
+//	}
+//}
 
 public class Review : IBinarySerializable
 {
-	public EntityId						Id { get; set; }
-	public EntityId						Publication { get; set; }
-    public EntityId						User { get; set; }
-	public ReviewStatus					Status { get; set; }
-    public string						Text { get; set; }
-    public byte							Rating { get; set; }
-    public Time	    					Created { get; set; }
+	public EntityId			Id { get; set; }
+	public EntityId			Publication { get; set; }
+    public EntityId			Creator { get; set; }
+	public ReviewStatus		Status { get; set; }
+    public string			Text { get; set; }
+    public string			TextNew { get; set; }
+    public byte				Rating { get; set; }
+    public Time	    		Created { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<EntityId>();
 		Publication	= reader.Read<EntityId>();
-		User		= reader.Read<EntityId>();
+		Creator		= reader.Read<EntityId>();
 		Status		= reader.ReadEnum<ReviewStatus>();
-		Text		= reader.ReadUtf8();
+		Text		= reader.ReadString();
+		TextNew		= reader.ReadString();
 		Rating		= reader.ReadByte();
 		Created		= reader.Read<Time>();
 	}
@@ -34,9 +53,10 @@ public class Review : IBinarySerializable
 	{
 		writer.Write(Id);
 		writer.Write(Publication);
-		writer.Write(User);
+		writer.Write(Creator);
 		writer.WriteEnum(Status);
 		writer.Write(Text);
+		writer.Write(TextNew);
 		writer.Write(Rating);
 		writer.Write(Created);
 	}

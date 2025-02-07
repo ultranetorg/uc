@@ -17,6 +17,7 @@ public class Author : IBinarySerializable
 	public int					SpaceUsed { get; set; }
 	public int					ModerationReward  { get; set; }
 	public EC[]					ECDeposit;
+	public long					BYDeposit;
 
 	public static bool Valid(string name)
 	{
@@ -53,6 +54,7 @@ public class Author : IBinarySerializable
 		writer.Write7BitEncodedInt(SpaceUsed);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write(ECDeposit);
+		writer.Write7BitEncodedInt64(BYDeposit);
 	}
 
 	public void Read(BinaryReader reader)
@@ -66,5 +68,6 @@ public class Author : IBinarySerializable
 		SpaceUsed			= reader.Read7BitEncodedInt();
 		ModerationReward	= reader.Read7BitEncodedInt();
 		ECDeposit			= reader.ReadArray<EC>();
+		BYDeposit			= reader.Read7BitEncodedInt64();
 	}
 }

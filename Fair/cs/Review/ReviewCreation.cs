@@ -34,9 +34,10 @@ public class ReviewCreation : FairOperation
 		var r = round.CreateReview(p);
 
 		r.Publication	= p.Id;
-		r.User			= Signer.Id;
+		r.Creator		= Signer.Id;
 		r.Status		= ReviewStatus.Pending;
-		r.Text			= Text;
+		r.Text			= "";
+		r.TextNew		= Text;
 		r.Created		= round.ConsensusTime;
 
 // 		if(Reward > 0)
@@ -51,5 +52,10 @@ public class ReviewCreation : FairOperation
 		p = round.AffectPublication(p.Id);
 
 		p.Reviews = [..p.Reviews, r.Id];
+		p.ReviewChanges = [..p.ReviewChanges, r.Id];
+
+		/// ??? Allocate(round, a, f.Size);
+
+				
 	}
 }

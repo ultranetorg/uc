@@ -46,6 +46,11 @@ public abstract class Cryptography
 		return Blake2b.ComputeHash(32, data);
 	}
 
+	public static byte[] Hash(int length, byte[] data)
+	{
+		return Blake2b.ComputeHash(length, data);
+	}
+
 	public static byte[] Hash(byte[] iv, byte[] data)
 	{
 		//if(SHA == null)

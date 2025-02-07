@@ -65,15 +65,17 @@ public class ProductUpdation : FairOperation
 		}
 		else
 		{
-			///Free(a, f.Size);
-
 			if(f.Versions.Last().Refs == 0)
+			{
+				Free(a, f.Versions.Last().Value.Length);
+
 				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Id = f.Versions.Last().Id}];
+			}
 			else
 				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Id = f.Versions.Length}];
 		}
 
-		Allocate(round, a, f.Size);
+		Allocate(round, a, Value.Length);
 
 		foreach(var j in r.Publications)
 		{

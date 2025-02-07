@@ -28,6 +28,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string		Rejected = "Rejected";
 	public const string		NotFound = "Not found";
 	public const string		NotAvailable = "Not Available";
+	public const string		Mismatch = "Mismatch";
 	public const string		ExistingAccountRequired = "ExistingAccountRequired";
 	public const string		Expired = "Expired";
 	public const string		Sealed = "Sealed";

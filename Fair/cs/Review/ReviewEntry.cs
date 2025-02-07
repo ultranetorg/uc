@@ -19,9 +19,10 @@ public class ReviewEntry : Review, ITableEntry
 	{
 		return new(Mcv){Id			= Id,
 						Publication = Publication,
-						User		= User,
+						Creator		= Creator,
 						Status		= Status,
 						Text		= Text,
+						TextNew		= TextNew,
 						Rating		= Rating,
 						Created		= Created};
 	}

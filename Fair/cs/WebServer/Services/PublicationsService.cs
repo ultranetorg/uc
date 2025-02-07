@@ -46,7 +46,7 @@ public class PublicationsService
 			return reviewsIds.Select(id =>
 			{
 				Review review = mcv.Reviews.Find(id, mcv.LastConfirmedRound.Id);
-				Account account = mcv.Accounts.Find(review.User, mcv.LastConfirmedRound.Id);
+				Account account = mcv.Accounts.Find(review.Creator, mcv.LastConfirmedRound.Id);
 				return new ReviewModel(review, account);
 			}).ToArray(); ;
 		}

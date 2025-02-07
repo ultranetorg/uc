@@ -6,17 +6,13 @@ public enum CategoryChange : byte
 	Move,
 }
 
-public class CategoryUpdation : FairOperation
+public class CategoryUpdation : UpdateOperation
 {
 	public EntityId				Category { get; set; }
 	public CategoryChange		Change { get; set; }
-	public object				Value { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}, [{Change}]";
-
-	EntityId					EntityId  => Value as EntityId;
-	//CategorySecurity			Security  => Value as CategorySecurity;
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{

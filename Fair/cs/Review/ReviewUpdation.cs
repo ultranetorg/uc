@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Uccs.Fair;
 
 public enum ReviewChange : byte
@@ -6,19 +8,19 @@ public enum ReviewChange : byte
 	Status,
 	Delete,
 	Text,
+	Approve,
+	Reject
 }
 
-public class ReviewUpdation : FairOperation
+public class ReviewUpdation : UpdateOperation
 {
 	public EntityId				Review { get; set; }
 	public ReviewChange			Change { get; set; }
-	public object				Value { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}, [{Change}]";
 
-	string[]					Strings  => Value as string[];
-	EntityId					EntityId  => Value as EntityId;
+	const int					TextHsshLength = 16;
 
 	public ReviewUpdation()
 	{
@@ -31,8 +33,10 @@ public class ReviewUpdation : FairOperation
 		
 		Value = Change switch
 					   {
-							ReviewChange.Status	=> reader.ReadEnum<ReviewStatus>(),
-							ReviewChange.Text	=> reader.ReadUtf8(),
+							ReviewChange.Status		=> reader.ReadEnum<ReviewStatus>(),
+							ReviewChange.Text		=> reader.ReadString(),
+							ReviewChange.Approve	=> reader.ReadBytes(TextHsshLength),
+							ReviewChange.Reject		=> reader.ReadBytes(TextHsshLength),
 							_ => throw new IntegrityException()
 					   };
 	}
@@ -44,10 +48,11 @@ public class ReviewUpdation : FairOperation
 
 		switch(Change)
 		{
-			case ReviewChange.Status	:	writer.WriteEnum((ReviewStatus)Value); break;
-			case ReviewChange.Text		:	writer.Write(EntityId); break;
-			default:
-				throw new IntegrityException();
+			case ReviewChange.Status	: writer.WriteEnum((ReviewStatus)Value); break;
+			case ReviewChange.Text		: writer.Write(String); break;
+			case ReviewChange.Approve	: writer.Write(Bytes); break;
+			case ReviewChange.Reject	: writer.Write(Bytes); break;
+			default						: throw new IntegrityException();
 		}
 	}
 
@@ -73,63 +78,63 @@ public class ReviewUpdation : FairOperation
 				r.Status = s;
 				break;
 			}
+
 			case ReviewChange.Text:
-				r.Text = Value as string;
+			{
+				r.TextNew = Value as string;
+
+				var p = round.AffectPublication(r.Publication);
+
+				if(!p.ReviewChanges.Contains(r.Id))
+					p.ReviewChanges = [..p.ReviewChanges, Review];
+
 				break;
+			}
 
-			//case ReviewChange.Sections :
-			//	p.Sections = Strings;
-			//	break;
+			case ReviewChange.Approve:
+			{
+				var p = round.AffectPublication(r.Publication);
 
-			///case TopicChange.AddPages:
-			///{	
-			///	if(!RequirePage(round, EntityId, out var c))
-			///		return;
-			///
-			///	if(c.Parent != null)
-			///	{
-			///		Error = AlreadyChild;
-			///		return;
-			///	}
-			///
-			///	c = round.AffectPage(EntityId);
-			///
-			///	c.Parent = Page;
-			///	p.Fields |= PageField.Parent;
-			///	p.Pages = [..p.Pages, EntityId];
-			///
-			///	break;
-			///}
-			///
-			///case TopicChange.RemovePages:
-			///{	
-			///	if(RequirePage(round, EntityId, out var c) == false)
-			///		return;
-			///
-			///	c = round.AffectPage(EntityId);
-			///
-			///	c.Parent = null;
-			///	p.Pages = p.Pages.Where(i => i != EntityId).ToArray();
-			///	
-			///	if(p.Pages.Length == 0)
-			///		p.Fields &= ~PageField.Parent;
-			///
-			///	break;
-			///}
-			///
-			///case TopicChange.Security:
-			///{
-			///	p.AffectSecurity();
-			///
-			///	foreach(var i in Security.Permissions)
-			///	{
-			///		if(i.Value[0] == Actor.None)
-			///			p.Security.Permissions.Remove(i.Key);
-			///		else
-			///			p.Security.Permissions[i.Key] = i.Value;
-			///	}
-			///	break;
-			///}
+				if(p.ReviewChanges.Contains(r.Id))
+				{
+					Error = NotFound;
+					return;
+				}
+
+				if(!Cryptography.Hash(TextHsshLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
+				{
+					Error = Mismatch;
+					return;
+				}
+
+				r.Text = r.TextNew;
+				r.TextNew = "";
+				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
+
+				break;
+			}
+
+			case ReviewChange.Reject:
+			{
+				var p = round.AffectPublication(r.Publication);
+
+				if(p.ReviewChanges.Contains(r.Id))
+				{
+					Error = NotFound;
+					return;
+				}
+
+				if(!Cryptography.Hash(TextHsshLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
+				{
+					Error = Mismatch;
+					return;
+				}
+
+				r.TextNew = "";
+				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
+
+				break;
+			}
 		}
 	}
 }

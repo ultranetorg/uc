@@ -250,7 +250,7 @@ public abstract class FairOperation : Operation
  		if(!RequireReview(round, id, out review))
  			return false; 
 
-		if(review.User == Signer.Id)
+		if(review.Creator == Signer.Id)
 			return true;
 
  		if(!RequirePublication(round, review.Publication, out var p))

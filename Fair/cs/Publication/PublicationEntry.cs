@@ -17,14 +17,16 @@ public class PublicationEntry : Publication, ITableEntry
 
 	public PublicationEntry Clone()
 	{
-		return new(Mcv){Id			= Id,
-						Category	= Category,
-						Creator		= Creator,
-						Product		= Product,
-						Status		= Status,
-						Fields	= Fields,
-						Changes		= Changes,
-						Reviews	= Reviews};
+		return new(Mcv){Id				= Id,
+						Category		= Category,
+						Creator			= Creator,
+						Product			= Product,
+						Status			= Status,
+						Fields			= Fields,
+						Changes			= Changes,
+						Reviews			= Reviews,
+						ReviewChanges	= ReviewChanges
+						};
 	}
 
 	public void ReadMain(BinaryReader reader)

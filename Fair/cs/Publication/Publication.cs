@@ -17,19 +17,21 @@ public class Publication : IBinarySerializable
 	public EntityId					Product { get; set; }
 	public PublicationStatus		Status { get; set; }
 	public ProductFieldVersionId[]	Fields { get; set; }
-	public EntityId[]				Reviews { get; set; }
 	public ProductFieldVersionId[]	Changes { get; set; }
+	public EntityId[]				Reviews { get; set; }
+	public EntityId[]				ReviewChanges { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
-		Category	= reader.Read<EntityId>();
-		Creator		= reader.Read<EntityId>();
-		Product		= reader.Read<EntityId>();
-		Status		= reader.ReadEnum<PublicationStatus>();
-		Fields		= reader.ReadArray<ProductFieldVersionId>();
-		Changes		= reader.ReadArray<ProductFieldVersionId>();
-		Reviews		= reader.ReadArray<EntityId>();
+		Id				= reader.Read<EntityId>();
+		Category		= reader.Read<EntityId>();
+		Creator			= reader.Read<EntityId>();
+		Product			= reader.Read<EntityId>();
+		Status			= reader.ReadEnum<PublicationStatus>();
+		Fields			= reader.ReadArray<ProductFieldVersionId>();
+		Changes			= reader.ReadArray<ProductFieldVersionId>();
+		Reviews			= reader.ReadArray<EntityId>();
+		ReviewChanges	= reader.ReadArray<EntityId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -42,5 +44,6 @@ public class Publication : IBinarySerializable
 		writer.Write(Fields);
 		writer.Write(Changes);
 		writer.Write(Reviews);
+		writer.Write(ReviewChanges);
 	}
 }

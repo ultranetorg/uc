@@ -85,7 +85,7 @@ public class AuthorCommand : FairCommand
 
 								var d = Ppc(new AuthorRequest(FirstAuthorId)).Author;
 
-								var o = new AuthorUpdation {Id = d.Id};
+								var o = new AuthorUpdation {AuthorId = d.Id};
 
 								if(Has(y))
 								{
@@ -94,12 +94,12 @@ public class AuthorCommand : FairCommand
 								}
 								else if(Has(dp))
 								{
-									o.Change = AuthorChange.Deposit;
+									o.Change = AuthorChange.DepositEC;
 									o.Value	 = GetLong(dp);
 								}
 								else if(Has(mr))
 								{
-									o.Change = AuthorChange.Deposit;
+									o.Change = AuthorChange.DepositEC;
 									o.Value	 = GetInt(mr);
 								}
 								else if(Has(ow))
