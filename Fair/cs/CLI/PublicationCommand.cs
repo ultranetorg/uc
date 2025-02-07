@@ -42,20 +42,24 @@ public class PublicationCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
-		const string p = "product";
-		const string s = "sections";
+		const string product = "product";
+		const string approve = "approve";
+		const string reject = "reject";
 
 		a.Name = "u";
 		a.Help = new() {Description = "Updates data of speciofied publication",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{p}={EID}] [{s}={NAME},{NAME}...{NAME}] {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{product}={EID}] [{approve}={NAME} id={INT}] [{reject}={NAME} id={INT}] {SignerArg}={AA}",
 
 						Arguments =	[new ("<first>", "Id of publication to update"),
-									 new (p, "An id of product id"),
-									 new (s, "List of comma-separated sections names"),
-									 new (SignerArg, "Address of account that assumed to have permissions to make changes specified")],
+									 new (product, "A new  product id"),
+									 new (approve, "Approve a field change"),
+									 new (reject, "Reject a field change"),
+									 new (SignerArg, "An address of account that assumed to have permissions to make specified changes")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {p}={EID.Examples[1]} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} {EID.Example} {s}={ProductField.Title},{ProductField.Description} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {product}={EID.Examples[1]} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} {EID.Example} {approve}={ProductField.Title} {SignerArg}={AA.Example}"),
+									 new (null, $"{Keyword} {a.Name} {EID.Example} {reject}={ProductField.Title} {SignerArg}={AA.Example}")
+									 ]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -64,15 +68,20 @@ public class PublicationCommand : FairCommand
 
 								o.Publication = FirstEntityId;
 
-								if(One(p)?.Value is EntityId e)
+								if(One(product)?.Value is EntityId e)
 								{
 									o.Change = PublicationChange.Product;
 									o.Value	=  e;
 								}
-								else if(One(s)?.Value is string v)
+								else if(One(approve)?.Value is string av)
 								{
-									o.Change = PublicationChange.Sections;
-									o.Value =  v.Split(',');
+									o.Change = PublicationChange.ApproveChange;
+									o.Value = new ProductFieldVersionId {Name = av, Id = GetInt("id")};
+								}
+								else if(One(reject)?.Value is string rv)
+								{
+									o.Change = PublicationChange.RejectChange;
+									o.Value = new ProductFieldVersionId {Name = rv, Id = GetInt("id")};
 								}
 								else
 									throw new SyntaxException("Unknown arguments");

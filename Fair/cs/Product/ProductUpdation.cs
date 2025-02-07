@@ -5,10 +5,11 @@ namespace Uccs.Fair;
 public class ProductUpdation : FairOperation
 {
 	public EntityId				ProductId { get; set; }
-	public ProductField[]		Changes	{ get; set; }
-	public override string		Description => $"{ProductId}, {string.Join(',', Changes.Select(i => i.Name))}";
+	public string				Name	{ get; set; }
+	public byte[]				Value	{ get; set; }
+	public override string		Description => $"{ProductId}, {Name}, {Value}";
 
-	public override bool		IsValid(Mcv mcv) => Changes.All(i => i.Size <= Product.FieldLengthMaximum);
+	public override bool		IsValid(Mcv mcv) => Value.Length <= ProductField.ValueLengthMaximum;
 
 	public ProductUpdation()
 	{
@@ -19,58 +20,77 @@ public class ProductUpdation : FairOperation
 		ProductId = id;
 	}
 
-	public void Change(string change, string data)
-	{
-		Changes ??= [];
-
-		var f = Changes.FirstOrDefault(i => i.Name == change);
-
-		if(f == null)
-		{
-			Changes = [..Changes, new (change, data)];
-		}
-		else
-			f.Value  = data;
-	}
+	//public void Change(string change, string data)
+	//{
+	//	Changes ??= [];
+	//
+	//	var f = Changes.FirstOrDefault(i => i.Name == change);
+	//
+	//	if(f == null)
+	//	{
+	//		Changes = [..Changes, new (change, data)];
+	//	}
+	//	else
+	//		f.Value  = data;
+	//}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		ProductId	= reader.Read<EntityId>();
-		Changes		= reader.ReadArray<ProductField>();
+		Name		= reader.ReadString();
+		Value		= reader.ReadBytes();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(ProductId);
-		writer.Write(Changes);
+		writer.Write(Name);
+		writer.WriteBytes(Value);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(RequireProductAccess(round, ProductId, out var a, out var p) == false)
+		if(RequireProductAccess(round, ProductId, out var a, out var r) == false)
 			return;
 
 		a = round.AffectAuthor(a.Id);
-		p = round.AffectProduct(ProductId);
+		r = round.AffectProduct(ProductId);
 
-		foreach(var i in Changes)
+		var f = r.Fields.FirstOrDefault(j => j.Name == Name);
+
+		if(f == null)
 		{	
-			var f = p.Fields.FirstOrDefault(j => j.Name == i.Name);
+			f = new ProductField {Name = Name, Versions = [new ProductFieldVersion {Value = Value}]};
+			r.Fields = [..r.Fields, f];
+		}
+		else
+		{
+			///Free(a, f.Size);
 
-			if(f == null)
-			{	
-				f = i;
-				p.Fields = [..p.Fields, i];
-			}
+			if(f.Versions.Last().Refs == 0)
+				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Id = f.Versions.Last().Id}];
 			else
-			{
-				Free(a, f.Size);
-				f.Value = i.Value;
-			}
-
-			Allocate(round, a, f.Size);
+				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Id = f.Versions.Length}];
 		}
 
-		p.Updated = round.ConsensusTime;
+		Allocate(round, a, f.Size);
+
+		foreach(var j in r.Publications)
+		{
+			var p = round.AffectPublication(j);
+				
+			var c = p.Changes.FirstOrDefault(c => c.Name == Name);
+
+			if(c == null)
+			{
+				p.Changes = [..p.Changes, new ProductFieldVersionId {Name = Name, Id = f.Versions.Last().Id}];
+			} 
+			else
+			{
+				p.Changes = [..p.Changes.Where(i => i != c), new ProductFieldVersionId {Name = Name, Id = f.Versions.Last().Id}];
+			}
+		}
+
+		r.Updated = round.ConsensusTime;
 	}
 }

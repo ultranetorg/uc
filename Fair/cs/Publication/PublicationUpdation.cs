@@ -4,8 +4,9 @@ public enum PublicationChange : byte
 {
 	None,
 	Status,
+	ApproveChange,
+	RejectChange,
 	Delete,
-	Sections,
 	Product,
 }
 
@@ -19,7 +20,8 @@ public class PublicationUpdation : FairOperation
 	public override string		Description => $"{GetType().Name}, [{Change}]";
 
 	string[]					Strings  => Value as string[];
-	EntityId					EntityId  => Value as EntityId;
+	string						String	 => Value as string;
+	EntityId					EntityId => Value as EntityId;
 
 	public PublicationUpdation()
 	{
@@ -32,9 +34,10 @@ public class PublicationUpdation : FairOperation
 		
 		Value = Change switch
 					   {
-							PublicationChange.Status	=> reader.ReadEnum<PublicationStatus>(),
-							PublicationChange.Sections	=> reader.ReadArray(reader.ReadUtf8),
-							PublicationChange.Product	=> reader.Read<EntityId>(),
+							PublicationChange.Status		=> reader.ReadEnum<PublicationStatus>(),
+							PublicationChange.Product		=> reader.Read<EntityId>(),
+							PublicationChange.ApproveChange	=> reader.Read<ProductFieldVersionId>(),
+							PublicationChange.RejectChange	=> reader.Read<ProductFieldVersionId>(),
 							_ => throw new IntegrityException()
 					   };
 	}
@@ -46,11 +49,11 @@ public class PublicationUpdation : FairOperation
 
 		switch(Change)
 		{
-			case PublicationChange.Status	:	writer.WriteEnum((PublicationStatus)Value); break;
-			case PublicationChange.Sections :	writer.Write(Strings, writer.WriteUtf8); break;
-			case PublicationChange.Product	:	writer.Write(EntityId); break;
-			default:
-				throw new IntegrityException();
+			case PublicationChange.Status		 : writer.WriteEnum((PublicationStatus)Value); break;
+			case PublicationChange.Product		 : writer.Write(EntityId); break;
+			case PublicationChange.ApproveChange : writer.Write(Value as ProductFieldVersionId); break;
+			case PublicationChange.RejectChange	 : writer.Write(Value as ProductFieldVersionId); break;
+			default : throw new IntegrityException();
 		}
 	}
 
@@ -81,13 +84,83 @@ public class PublicationUpdation : FairOperation
 				break;
 			}
 
+			case PublicationChange.ApproveChange:
+			{
+				var v = Value as ProductFieldVersionId;
+				var r = round.AffectProduct(p.Product);
+
+				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Id == v.Id);
+
+				if(c == null)
+				{
+					Error = NotFound;
+					return;
+				}
+				
+				p.Changes = [..p.Changes.Where(i => i != c)];
+
+				var rf = r.Fields.First(i => i.Name == v.Name);
+				
+				if(rf != null)
+				{
+					var pf = p.Fields.FirstOrDefault(i => i.Name == v.Name);
+	
+					if(pf == null)
+						p.Fields = [..p.Fields, v];
+					else
+						p.Fields = [..p.Fields.Where(i => i.Name != v.Name), v];
+		
+					if(pf != null)
+					{
+						var x = rf.Versions.First(i => i.Id == pf.Id);
+	
+						rf = new ProductField {Name = rf.Name, 
+											   Versions = [..rf.Versions.Where(i => i.Id != x.Id), new ProductFieldVersion {Id = x.Id, Value = x.Value, Refs = x.Refs - 1}]};
+		
+						r.Fields = [..r.Fields.Where(i => i.Name != rf.Name), rf];
+					}
+	
+					var y = rf.Versions.First(i => i.Id == v.Id);
+	
+					rf = new ProductField {Name = rf.Name, 
+										  Versions = [..rf.Versions.Where(i => i.Id != y.Id), new ProductFieldVersion {Id = y.Id, Value = y.Value, Refs = y.Refs + 1}]};
+	
+					r.Fields = [..r.Fields.Where(i => i.Name != v.Name), rf];
+				} 
+				else
+				{
+					p.Fields = [..p.Fields.Where(i => i.Name != v.Name)];
+				}
+
+				var a = round.AffectAuthor(r.AuthorId);
+
+				var d			 = EC.Take(a.ECDeposit, a.ModerationReward, round.ConsensusTime);
+				a.ECDeposit		 = EC.Subtract(a.ECDeposit, a.ModerationReward, round.ConsensusTime);
+				Signer.ECBalance = EC.Add(Signer.ECBalance, d);
+
+				break;
+			}
+
+			case PublicationChange.RejectChange:
+			{	
+				var v = Value as ProductFieldVersionId;
+
+				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Id == v.Id);
+
+				if(c == null)
+				{
+					Error = NotFound;
+					return;
+				}
+				
+				p.Changes = [..p.Changes.Where(i => i != c)];
+				break;
+			}
+
 			case PublicationChange.Product:
 				p.Product = EntityId;
 				break;
 
-			case PublicationChange.Sections :
-				p.Sections = Strings;
-				break;
 
 			///case TopicChange.AddPages:
 			///{	

@@ -20,8 +20,14 @@ public static class ECTests
 		SequenceEqual(EC.Add([b, c], a),	[a, b, c]);
 		SequenceEqual(EC.Add([b, c], [a]),	[a, b, c]);
 
+		SequenceEqual(EC.Add([a, c], b),	[a, b, c]);
+		SequenceEqual(EC.Add([a, c], [b]),	[a, b, c]);
+
 		SequenceEqual(EC.Add([b, c], d),	[b, c, d]);
 		SequenceEqual(EC.Add([b, c], [d]),	[b, c, d]);
+
+		SequenceEqual(EC.Add([a, c], [b, d]), [a, b, c, d]);
+		SequenceEqual(EC.Add([b, d], [a, c]), [a, b, c, d]);
 
 		SequenceEqual(EC.Add([b, c], cc),	[b, new (c.Expiration, c.Amount + cc.Amount)]);
 		SequenceEqual(EC.Add([b, c], [cc]),	[b, new (c.Expiration, c.Amount + cc.Amount)]);
@@ -40,9 +46,9 @@ public static class ECTests
 		SequenceEqual(EC.Subtract([a, b, c], 1, e.Expiration),					 []);
 
 
-		SequenceEqual(EC.TakeOldest([a, b, c], a.Amount + b.Amount + c.Amount, a.Expiration),	[a, b, c]);
-		SequenceEqual(EC.TakeOldest([a, b, c], a.Amount + b.Amount, a.Expiration),				[a, b]);
-		SequenceEqual(EC.TakeOldest([a, b, c], b.Amount, b.Expiration),							[b]);
-		SequenceEqual(EC.TakeOldest([a, b, c], b.Amount + c.Amount/2, b.Expiration),			[b, new (c.Expiration, c.Amount/2)]);
+		SequenceEqual(EC.Take([a, b, c], a.Amount + b.Amount + c.Amount, a.Expiration),	[a, b, c]);
+		SequenceEqual(EC.Take([a, b, c], a.Amount + b.Amount, a.Expiration),				[a, b]);
+		SequenceEqual(EC.Take([a, b, c], b.Amount, b.Expiration),							[b]);
+		SequenceEqual(EC.Take([a, b, c], b.Amount + c.Amount/2, b.Expiration),			[b, new (c.Expiration, c.Amount/2)]);
 	}
 }

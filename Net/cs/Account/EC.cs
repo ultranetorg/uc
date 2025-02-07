@@ -104,7 +104,7 @@ public struct EC : IBinarySerializable, IEquatable<EC>
 		return r;
 	}
 
-	public static EC[] TakeOldest(EC[] x, long y, Time expiration)
+	public static EC[] Take(EC[] x, long y, Time expiration)
 	{
 		if(y == 0)	return [..x];
 		if(y < 0)	throw new ArgumentOutOfRangeException();

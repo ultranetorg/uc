@@ -68,7 +68,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 				
-				d = EC.TakeOldest(Signer.ECBalance, ECAmount, round.ConsensusTime);
+				d = EC.Take(Signer.ECBalance, ECAmount, round.ConsensusTime);
 				Signer.ECBalance = EC.Subtract(Signer.ECBalance, ECAmount, round.ConsensusTime);
 			}
 

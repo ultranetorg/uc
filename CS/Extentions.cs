@@ -433,15 +433,15 @@ public static class Extentions
 			w.Write7BitEncodedInt(0);
 	}
 
-	public static List<string> ReadStings(this BinaryReader r)
+	public static string[] ReadStings(this BinaryReader r)
 	{
 		var n = r.Read7BitEncodedInt();
 		
-		var o = new List<string>();
+		var o = new string[n];
 
 		for(int i = 0; i < n; i++)
 		{
-			o.Add(r.ReadUtf8());
+			o[i] = r.ReadUtf8();
 		}
 
 		return o;

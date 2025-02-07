@@ -22,7 +22,8 @@ public class PublicationEntry : Publication, ITableEntry
 						Creator		= Creator,
 						Product		= Product,
 						Status		= Status,
-						Sections	= Sections,
+						Fields	= Fields,
+						Changes		= Changes,
 						Reviews	= Reviews};
 	}
 

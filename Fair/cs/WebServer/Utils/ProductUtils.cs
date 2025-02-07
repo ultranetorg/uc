@@ -10,8 +10,9 @@ public static class ProductUtils
 		// TODO: should be changed in release version.
 
 		ProductField titleField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Title);
-		var title = titleField != null ? titleField.Value.ToString() : null;
-		return !string.IsNullOrEmpty(title) ? title : product.Id.ToString();
+// TODO by Maximion		var title = titleField != null ? titleField.Value.ToString() : null;
+// TODO by Maximion		return !string.IsNullOrEmpty(title) ? title : product.Id.ToString();
+		return null;	
 	}
 
 	public static string GetDescription(Product product)
@@ -22,7 +23,8 @@ public static class ProductUtils
 		// TODO: should be changed in release version.
 
 		ProductField descriptionField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description);
-		var description = descriptionField != null ? descriptionField.Value.ToString() : null;
-		return !string.IsNullOrEmpty(description) ? description : $"({product.Id} {product.Flags} {product.AuthorId})";
+// TODO	by Maximion		var description = descriptionField != null ? descriptionField.Value.ToString() : null;
+// TODO	by Maximion		return !string.IsNullOrEmpty(description) ? description : $"({product.Id} {product.Flags} {product.AuthorId})";
+		return null;	
 	}
 }

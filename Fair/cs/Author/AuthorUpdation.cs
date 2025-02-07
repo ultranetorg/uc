@@ -93,7 +93,7 @@ public class AuthorUpdation : FairOperation
 				return;
 			}
 
-			var d			 = EC.TakeOldest(Signer.ECBalance, Long, round.ConsensusTime);
+			var d			 = EC.Take(Signer.ECBalance, Long, round.ConsensusTime);
 			Signer.ECBalance = EC.Subtract(Signer.ECBalance, Long, round.ConsensusTime);
 			a.ECDeposit		 = EC.Add(a.ECDeposit, d);
 		}

@@ -14,37 +14,72 @@ public enum ProductProperty : byte
 	None,
 }
 
-public class ProductField : IBinarySerializable
+public class ProductFieldVersionId  : IBinarySerializable
 {
 	public string		Name { get; set; }
-	public string		Value  { get; set; }
-
-	public int			Size =>  Encoding.UTF8.GetByteCount(Value);
-
-	public const string	Title = "Title";
-	public const string	Description = "Description";
-	
-	public ProductField()
-	{
-	}
-
-	public ProductField(string name, string value)
-	{
-		Name = name;
-		Value = value;
-	}
+	public int			Id { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
 		Name = reader.ReadString();
-		Value = reader.ReadString();
+		Id = reader.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Name);
-		writer.Write(Value);
-			
+		writer.Write7BitEncodedInt(Id);
+	}
+}
+
+public class ProductFieldVersion : IBinarySerializable
+{
+	public int			Id { get; set; }
+	public byte[]		Value { get; set; }
+	public int			Refs { get; set; }
+
+	public void Read(BinaryReader reader)
+	{
+		Id = reader.Read7BitEncodedInt();
+		Value = reader.ReadBytes();
+		Refs = reader.Read7BitEncodedInt();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(Id);
+		writer.WriteBytes(Value);
+		writer.Write7BitEncodedInt(Refs);
+	}
+}
+
+public class ProductField : IBinarySerializable
+{
+	public string					Name { get; set; }
+	public ProductFieldVersion[]	Versions  { get; set; }
+
+	public int						Size =>  Versions.Sum(i => i.Value.Length);
+
+	public const string				Title = "Title";
+	public const string				Description = "Description";
+
+	public const int				ValueLengthMaximum = 1024*1024;
+	public const int				ValueNameMaximum = 256;
+	
+	public ProductField()
+	{
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Name		= reader.ReadString();
+		Versions	= reader.ReadArray<ProductFieldVersion>();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Name);
+		writer.Write(Versions);
 	}
 }
 
@@ -58,7 +93,6 @@ public class Product : IBinarySerializable
 	public EntityId[]			Publications { get; set; }
 
 	public int					Length => Mcv.EntityLength + Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
-	public const int			FieldLengthMaximum = 1024*1024;
 
 	public override string ToString()
 	{
@@ -69,7 +103,7 @@ public class Product : IBinarySerializable
 	{
 		writer.Write(Id);
 		writer.Write(AuthorId);
-		writer.Write((byte)Flags);
+		writer.WriteEnum(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
 		writer.Write(Publications);
@@ -79,7 +113,7 @@ public class Product : IBinarySerializable
 	{
 		Id				= reader.Read<EntityId>();
 		AuthorId		= reader.Read<EntityId>();
-		Flags			= (ProductFlags)reader.ReadByte();
+		Flags			= reader.ReadEnum<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
 		Publications	= reader.ReadArray<EntityId>();

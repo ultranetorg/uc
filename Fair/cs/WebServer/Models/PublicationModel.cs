@@ -23,7 +23,7 @@ public class PublicationModel : PublicationBaseModel
 
 	public PublicationModel(Publication publication, Product product, Author author) : base(publication.Id, product)
 	{
-		Sections = publication.Sections;
+// TODO by Maximion		Sections = publication.Fields;
 		Status = publication.Status;
 
 		CategoryId = publication.Category.ToString();

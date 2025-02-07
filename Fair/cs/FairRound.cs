@@ -154,7 +154,8 @@ public class FairRound : Round
 
 		var a = Mcv.Publications.Create();
 		a.Id = new EntityId(site.Id.B, e);
-		a.Sections = [];
+		a.Fields = [];
+		a.Changes = [];
 		a.Reviews = [];
 			
 		return AffectedPublications[a.Id] = a;

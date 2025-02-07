@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 
 namespace Uccs.Fair;
 
@@ -60,22 +61,23 @@ public class ProductCommand : FairCommand
 
 		a.Name = "u";
 		a.Help = new() {Description = "Updates a product entity properties in the MCV database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [description={TEXT}] {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [field={NAME}] [text={TEXT}] {SignerArg}={AA}",
 
-						Arguments = [new ("<first>", "Address of a product to update"),
-									 new ("description", "A description text of a product")],
+						Arguments = [new ("<first>", "Id of a product to update"),
+									 new ("field", "A name of field of a product to update"),
+									 new ("text", "A new text value of a prodcut field")],
 
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {SignerArg}={AA.Example}")]};
+						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} field={NAME.Example} text={TEXT.Example} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var	r = Ppc(new ProductRequest(First)).Product;
+								var o =	new ProductUpdation(First);
 
-								var o =	new ProductUpdation(r.Id);
+								o.Name = GetString("field");
 
-								if(Has("description"))
-									o.Change(ProductField.Description, GetString("description"));
+								if(Has("text"))
+									o.Value = Encoding.UTF8.GetBytes(GetString("text"));
 
 								return o;
 							};
