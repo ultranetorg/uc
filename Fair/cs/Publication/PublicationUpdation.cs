@@ -68,18 +68,21 @@ public class PublicationUpdation : FairOperation
 		{
 			case PublicationChange.Status:
 			{ 
-// 				var s = (ReviewStatus)Value;
-// 
-// 				if(p.Status == PublicationStatus.Pending && s != ReviewStatus.Pending)
-// 				{
-// 					var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
-// 
-// 					a.ECDeposit
-// 
-// 					Signer.ECBalanceAdd( r.Reward);
-// 					r.Reward = [];
-// 				}
-// 
+ 				var s = (PublicationStatus)Value;
+ 			
+				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
+ 
+ 				if(p.Status == PublicationStatus.RequestedByAuthor && s == PublicationStatus.Active)
+ 				{
+					if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+						return;
+ 				}
+				else
+				{
+					Error = NotAvailable;
+					return;
+				}
+ 
 				p.Status = (PublicationStatus)Value;
 				break;
 			}
@@ -134,9 +137,8 @@ public class PublicationUpdation : FairOperation
 
 				var a = round.AffectAuthor(r.AuthorId);
 
-				var d			 = EC.Take(a.ECDeposit, a.ModerationReward, round.ConsensusTime);
-				a.ECDeposit		 = EC.Subtract(a.ECDeposit, a.ModerationReward, round.ConsensusTime);
-				Signer.ECBalance = EC.Add(Signer.ECBalance, d);
+				if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+					return;
 
 				break;
 			}
@@ -154,6 +156,12 @@ public class PublicationUpdation : FairOperation
 				}
 				
 				p.Changes = [..p.Changes.Where(i => i != c)];
+
+				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
+
+				if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+					return;
+
 				break;
 			}
 
@@ -161,56 +169,9 @@ public class PublicationUpdation : FairOperation
 				p.Product = EntityId;
 				break;
 
-
-			///case TopicChange.AddPages:
-			///{	
-			///	if(!RequirePage(round, EntityId, out var c))
-			///		return;
-			///
-			///	if(c.Parent != null)
-			///	{
-			///		Error = AlreadyChild;
-			///		return;
-			///	}
-			///
-			///	c = round.AffectPage(EntityId);
-			///
-			///	c.Parent = Page;
-			///	p.Fields |= PageField.Parent;
-			///	p.Pages = [..p.Pages, EntityId];
-			///
-			///	break;
-			///}
-			///
-			///case TopicChange.RemovePages:
-			///{	
-			///	if(RequirePage(round, EntityId, out var c) == false)
-			///		return;
-			///
-			///	c = round.AffectPage(EntityId);
-			///
-			///	c.Parent = null;
-			///	p.Pages = p.Pages.Where(i => i != EntityId).ToArray();
-			///	
-			///	if(p.Pages.Length == 0)
-			///		p.Fields &= ~PageField.Parent;
-			///
-			///	break;
-			///}
-			///
-			///case TopicChange.Security:
-			///{
-			///	p.AffectSecurity();
-			///
-			///	foreach(var i in Security.Permissions)
-			///	{
-			///		if(i.Value[0] == Actor.None)
-			///			p.Security.Permissions.Remove(i.Key);
-			///		else
-			///			p.Security.Permissions[i.Key] = i.Value;
-			///	}
-			///	break;
-			///}
+			case PublicationChange.Delete:
+				p.Deleted = true;
+				break;
 		}
 	}
 }

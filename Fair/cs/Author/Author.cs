@@ -16,7 +16,7 @@ public class Author : IBinarySerializable
 	public int					SpaceReserved { get; set; }
 	public int					SpaceUsed { get; set; }
 	public int					ModerationReward  { get; set; }
-	public EC[]					ECDeposit { get; set; }
+	public EC[]					ECDeposit;
 
 	public static bool Valid(string name)
 	{

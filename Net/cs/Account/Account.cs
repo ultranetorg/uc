@@ -4,7 +4,7 @@ public class Account : IBinarySerializable
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public EC[]							ECBalance { get; set; }
+	public EC[]							ECBalance;
 	public long							BYBalance { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	//public int							LastEmissionId  { get; set; } = -1;

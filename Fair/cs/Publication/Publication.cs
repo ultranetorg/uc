@@ -6,7 +6,7 @@ public enum PublicationStatus : byte
 	RequestedByAuthor,
 	ProposedBySite,
 	Active,
-	Disputed
+	//Disputed
 }
 
 public class Publication : IBinarySerializable

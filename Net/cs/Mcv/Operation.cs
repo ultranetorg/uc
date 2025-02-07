@@ -110,4 +110,17 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 		return a;
 	}
+
+	public bool Pay(ref EC[] from, ref EC[] to, long y, Time time)
+	{
+		if(EC.Integrate(from, time) < y)
+		{
+			Error = NotEnoughEC;
+			return false;
+		}
+
+		EC.Move(ref from, ref to, y, time);
+
+		return true;
+	}
 }
