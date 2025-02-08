@@ -69,8 +69,11 @@ public class PublicationUpdation : UpdateOperation
  
  				if(p.Status == PublicationStatus.RequestedByAuthor && s == PublicationStatus.Active)
  				{
-					if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-						return;
+					///a.ECDeposit -= a.ModerationReward;
+					///Signer.ECBalance += a.ModerationReward;
+
+					///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+					///	return;
  				}
 				else
 				{
@@ -132,8 +135,8 @@ public class PublicationUpdation : UpdateOperation
 
 				var a = round.AffectAuthor(r.AuthorId);
 
-				if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-					return;
+				///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+				///	return;
 
 				break;
 			}
@@ -154,8 +157,8 @@ public class PublicationUpdation : UpdateOperation
 
 				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
 
-				if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-					return;
+				///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
+				///	return;
 
 				break;
 			}

@@ -69,7 +69,6 @@ public class FairRound : Round
 		var a = Mcv.Authors.Create();
 		a.Id = new EntityId(b, e);
 		a.Products = [];
-		a.ECDeposit = [];
 			
 		return AffectedAuthors[a.Id] = a;
 	}

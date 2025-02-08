@@ -58,8 +58,7 @@ public abstract class FairOperation : Operation
 	{
 		var fee = SpacetimeFee(length, time);
 		
-		Signer.BYBalance	 -= fee;
-		Transaction.BYReward += fee;
+		Signer.BYBalance -= fee;
 	}
 
 	public static long SpacetimeFee(int length, Time time)
@@ -73,8 +72,7 @@ public abstract class FairOperation : Operation
 		{
 			var f = SpacetimeFee(author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
 
-			Signer.BYBalance	 -= f;
-			Transaction.BYReward += f;
+			Signer.BYBalance -= f;
 
 			author.SpaceReserved = 
 			author.SpaceUsed = author.SpaceUsed + toallocate;

@@ -56,8 +56,8 @@ public class Domain : IBinarySerializable
 	public long					LastBid { get; set; }
 	public Time					LastBidTime { get; set; } = Time.Empty;
 	public int					NextResourceId { get; set; }
-	public short				SpaceReserved { get; set; }
-	public short				SpaceUsed { get; set; }
+	public int					SpaceReserved { get; set; }
+	public int					SpaceUsed { get; set; }
 	public DomainChildPolicy	ParentPolicy { get; set; }
 	public NtnState				NtnChildNet { get; set; }
 	public byte[]				NtnSelfHash { get; set; }
@@ -203,8 +203,8 @@ public class Domain : IBinarySerializable
 		var f			= (DomainFlag)reader.ReadByte();
 		Address			= reader.ReadUtf8();
 		NextResourceId	= reader.Read7BitEncodedInt();
-		SpaceReserved	= (short)reader.Read7BitEncodedInt();
-		SpaceUsed		= (short)reader.Read7BitEncodedInt();
+		SpaceReserved	= reader.Read7BitEncodedInt();
+		SpaceUsed		= reader.Read7BitEncodedInt();
 
 		if(IsWeb(Address))
 		{

@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Rdn;
 
 public class Consil : IBinarySerializable
- 	{
- 		public long				PerByteBYFee;
+{
+	public long				PerByteBYFee;
 	public AccountAddress[]	Analyzers;
 
 
@@ -47,7 +47,7 @@ public struct AnalyzerResult
 public class Analysis : IBinarySerializable
 {
 	public Urr						Release { get; set; }
-	public EC[]	ECPayment { get; set; }
+	public long						ECPayment { get; set; }
 	public long						BYPayment { get; set; }
 	public Ura						Consil	{ get; set; }
 	public AnalyzerResult[]			Results { get; set; }
@@ -62,9 +62,9 @@ public class Analysis : IBinarySerializable
 		Release		= Urr.ReadVirtual(reader);
 		Consil		= reader.Read<Ura>();
 		BYPayment	= reader.Read7BitEncodedInt64();
-		ECPayment	= reader.ReadArray<EC>();
+		ECPayment	= reader.Read7BitEncodedInt64();
 		Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
-																  Result = (AnalysisResult)reader.ReadByte() });
+																  Result = reader.ReadEnum<AnalysisResult>() });
 	}
 
 	public void Write(BinaryWriter writer)
@@ -72,17 +72,17 @@ public class Analysis : IBinarySerializable
 		Release.WriteVirtual(writer);
 		writer.Write(Consil);
 		writer.Write7BitEncodedInt64(BYPayment);
-		writer.Write(ECPayment);
+		writer.Write7BitEncodedInt64(ECPayment);
 		writer.Write(Results, i => { writer.Write(i.Analyzer);
-									 writer.Write((byte)i.Result); });
+									 writer.WriteEnum(i.Result); });
 	}
 
-	public Analysis Clone()
-	{
-		return new Analysis {Release	= Release, 
-							 Consil		= Consil,	
-							 ECPayment	= ECPayment.ToArray(),
-							 BYPayment	= BYPayment, 
-							 Results	= Results.Clone() as AnalyzerResult[]};
-	}
+//	public Analysis Clone()
+//	{
+//		return new Analysis {Release	= Release, 
+//							 Consil		= Consil,	
+//							 ECPayment	= ECPayment.ToArray(),
+//							 BYPayment	= BYPayment, 
+//							 Results	= Results.Clone() as AnalyzerResult[]};
+//	}
 }

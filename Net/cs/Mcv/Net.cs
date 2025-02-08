@@ -102,7 +102,6 @@ public abstract class McvNet : Net
 	public const long		IdealRoundsPerDay						= 60*60*24;
 	public Time				ECLifetime								= Time.FromYears(1);
 
-	public string			Genesis;	
  	public Cryptography		Cryptography							= Cryptography.Normal;
 	public int				CommitLength							= 1000;
 	public int				ExternalVerificationRoundDurationLimit	= 1000;
@@ -126,6 +125,7 @@ public abstract class McvNet : Net
 	public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 	public IPAddress		Father0IP;
+	public string			Genesis;	
 
 	public McvNet()
 	{

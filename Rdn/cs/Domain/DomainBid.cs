@@ -65,8 +65,8 @@ public class DomainBid : RdnOperation
 	{
 		var a = round.AffectDomain(Name);
 
- 			if(!Domain.IsExpired(a, round.ConsensusTime))
- 			{
+ 		if(!Domain.IsExpired(a, round.ConsensusTime))
+ 		{
 			if(a.LastWinner == null) /// first bid
 			{
 				Signer.BYBalance -= Bid;
@@ -95,11 +95,11 @@ public class DomainBid : RdnOperation
 					return;
 				}
 			}
- 			}
- 			else
- 			{
+ 		}
+ 		else
+ 		{
 			/// dont refund previous winner if any
-			Transaction.BYReward += a.LastBid;
+			Transaction.BYReturned += a.LastBid;
 
 			Signer.BYBalance -= Bid;
 			

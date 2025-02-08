@@ -4,41 +4,41 @@ public class UtilityTransfer : Operation
 {
 	public AccountAddress	To;
 	public long				BYAmount;
-	public long				ECAmount;
-	public Time				ECExpiration;
-	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(ECAmount > 0 ? ECAmount + " EC" : null), 
-																						  (BYAmount > 0 ? BYAmount + " BY" : null),
-																						  }.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECAmount > 0;
+	public long				ECThis;
+	public long				ECNext;
+	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(ECThis > 0 ? ECThis + " EC" : null), 
+																						  (ECNext > 0 ? ECNext + " EC" : null), 
+																						  (BYAmount > 0 ? BYAmount + " BY" : null)}.Where(i => i != null))} -> {To}";
+	public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECThis > 0 || ECNext > 0;
 
 	public UtilityTransfer()
 	{
 	}
 
-	public UtilityTransfer(AccountAddress to, long ec, Time expiration, long by)
+	public UtilityTransfer(AccountAddress to, long ecthis, long ecnext, long by)
 	{
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
 
 		To			= to;
-		ECAmount	= ec;
-		ECExpiration= expiration;
+		ECThis		= ecthis;
+		ECNext		= ecnext;
 		BYAmount	= by;
 	}
 
 	public override void ReadConfirmed(BinaryReader r)
 	{
-		To				= r.ReadAccount();
-		ECAmount		= r.Read7BitEncodedInt64();
-		ECExpiration	= r.Read<Time>();
-		BYAmount		= r.Read7BitEncodedInt64();
+		To			= r.ReadAccount();
+		ECThis		= r.Read7BitEncodedInt64();
+		ECNext		= r.Read7BitEncodedInt64();
+		BYAmount	= r.Read7BitEncodedInt64();
 	}
 
 	public override void WriteConfirmed(BinaryWriter w)
 	{
 		w.Write(To);
-		w.Write7BitEncodedInt64(ECAmount);
-		w.Write(ECExpiration);
+		w.Write7BitEncodedInt64(ECThis);
+		w.Write7BitEncodedInt64(ECNext);
 		w.Write7BitEncodedInt64(BYAmount);
 	}
 
@@ -48,40 +48,15 @@ public class UtilityTransfer : Operation
 
 		if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
 		{
-			if(ECExpiration != Time.Empty)
-			{
-				var i = Array.FindIndex(Signer.ECBalance, i => i.Expiration == ECExpiration);
-				
-				if(i == -1 || Signer.ECBalance[i].Amount < ECAmount)
-				{
-					Error = NotEnoughEC;
-					return;
-				}
-
-				Signer.ECBalance[i] = new (ECExpiration, Signer.ECBalance[i].Amount - ECAmount);
-			}
-			else
-			{
-				if(EC.Integrate(Signer.ECBalance, round.ConsensusTime) < ECAmount)
-				{
-					Error = NotEnoughEC;
-					return;
-				}
-				
-				d = EC.Take(Signer.ECBalance, ECAmount, round.ConsensusTime);
-				Signer.ECBalance = EC.Subtract(Signer.ECBalance, ECAmount, round.ConsensusTime);
-			}
-
+			Signer.ECThis -= ECThis;
+			Signer.ECNext -= ECNext;
 			Signer.BYBalance -= BYAmount;
 		}
 
 		var to = Affect(round, To);
 
-		if(ECExpiration != Time.Empty)
-			to.ECBalance = EC.Add(to.ECBalance, new EC(ECExpiration, ECAmount));
-		else
-			to.ECBalance = EC.Add(to.ECBalance, d);
-
+		to.ECThis += ECThis;
+		to.ECNext += ECNext;
 		to.BYBalance += BYAmount;
 	}
 }

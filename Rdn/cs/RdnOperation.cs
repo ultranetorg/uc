@@ -32,15 +32,13 @@ public abstract class RdnOperation : Operation
 		var fee = SpacetimeFee(length, time);
 		
 		Signer.BYBalance	 -= fee;
-		Transaction.BYReward += fee;
 	}
 
 	public void PayForName(string address, int years)
 	{
 		var fee = NameFee(years, address);
 		
-		Signer.BYBalance	 -= fee;
-		Transaction.BYReward += fee;
+		Signer.BYBalance -= fee;
 	}
 
 	public static long SpacetimeFee(int length, Time time)
@@ -63,24 +61,19 @@ public abstract class RdnOperation : Operation
 		{
 			var f = SpacetimeFee(domain.SpaceUsed + toallocate - domain.SpaceReserved, domain.Expiration - round.ConsensusTime);
 
-			Signer.BYBalance	 -= f;
-			Transaction.BYReward += f;
+			Signer.BYBalance -= f;
 
 			domain.SpaceReserved = 
-			domain.SpaceUsed = (short)(domain.SpaceUsed + toallocate);
+			domain.SpaceUsed = domain.SpaceUsed + toallocate;
 		}
 		else
-			domain.SpaceUsed += (short)toallocate;
+			domain.SpaceUsed += toallocate;
 	}
 
 	public void Free(Domain domain, int tofree) /// WE DONT REFUND
 	{
-		//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
-
-		domain.SpaceUsed -= (short)tofree;
-	
-		//Signer.STBalance += f;
-		//STReward -= f;
+		domain.SpaceUsed -= tofree;
+		Transaction.BYReturned = tofree;
 	}
 
 	public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)

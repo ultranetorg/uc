@@ -402,13 +402,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(!r.Hash.SequenceEqual(h))
 							{
 								#if DEBUG
-								///	//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
-								///	lock(Mcv.Lock)
-								///		Mcv.Dump();
-								///	
-								///	lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
-								///		All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
-								///
+									//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+									lock(Mcv.Lock)
+										Mcv.Dump();
+									
+									lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+										All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+								
 								#endif
 																
 								throw new SynchronizationException("!r.Hash.SequenceEqual(h)");

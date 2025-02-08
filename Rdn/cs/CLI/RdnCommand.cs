@@ -74,13 +74,13 @@ public abstract class RdnCommand : McvCommand
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
 			
 					if(cnt == ContentType.Rdn_Consil)
-						return new ResourceData(t, new Consil{	Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+						return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
 																PerByteBYFee = d.Get<long>("pbstf") });
 					
 					if(cnt == ContentType.Rdn_Analysis)
 						return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
-																ECPayment	= [new (Time.Zero, d.Get<long>("expayment"))],
-																BYPayment	= d.Get<long>("stpayment"),
+																ECPayment	= d.Get<long>("ecpayment"),
+																BYPayment	= d.Get<long>("bypayment"),
 																Consil		= d.Get<Ura>("consil")});
 				}
 				else

@@ -32,7 +32,7 @@ public class DomainRegistration : RdnOperation
 		if(Domain.IsChild(Address))
 		{
 			Owner = reader.Read<AccountAddress>();
-			Policy	= (DomainChildPolicy)reader.ReadByte();
+			Policy	= reader.ReadEnum<DomainChildPolicy>();
 		}
 	}
 
@@ -44,7 +44,7 @@ public class DomainRegistration : RdnOperation
 		if(Domain.IsChild(Address))
 		{
 			writer.Write(Owner);
-			writer.Write((byte)Policy);
+			writer.WriteEnum(Policy);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class DomainRegistration : RdnOperation
 			e = round.AffectDomain(Address);
 					
 			if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-				Transaction.BYReward += e.LastBid;
+				Transaction.BYReturned += e.LastBid;
 							
 			e.SpaceReserved	= e.SpaceUsed;
 			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);

@@ -85,14 +85,7 @@ public class DomainMigration : RdnOperation
 
 		if(RankCheck)
 		{
-			if(EC.Integrate(Signer.ECBalance, round.ConsensusTime) < (mcv.Net as Rdn).DomainRankCheckECFee)
-			{
-				Error = NotEnoughEC;
-				return;
-			}
-
-			Signer.ECBalance = EC.Subtract(Signer.ECBalance, (mcv.Net as Rdn).DomainRankCheckECFee, round.ConsensusTime);
-			//Transaction.ECReward -= (mcv.Net as RdnNet).DomainRankCheckECFee;
+			Signer.ECThis -= (mcv.Net as Rdn).DomainRankCheckECFee;
 		}
 	}
 

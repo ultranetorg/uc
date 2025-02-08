@@ -45,8 +45,8 @@ public abstract class Round : IBinarySerializable
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public Dictionary<AccountEntry, long>				BYRewards = [];
-	public Dictionary<AccountEntry, long>				ECRewards = [];
+	public long											BYReturned;
+	//public Dictionary<AccountEntry, long>				ECRewards = [];
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
@@ -155,6 +155,18 @@ public abstract class Round : IBinarySerializable
 		return e;
 	}
 
+	public void TransferEC(AccountEntry a)
+	{
+		if(a.ECThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
+		{
+			if(a.ECThisPeriod + 1 == ConsensusTime.Days/Net.ECLifetime.Days)
+				a.ECThis = a.ECNext;
+	
+			a.ECNext = 0;
+			a.ECThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
+		}
+	}
+
 	public AccountEntry AffectAccount(AccountAddress address)
 	{
 		if(AffectedAccounts.TryGetValue(address, out var a))
@@ -163,7 +175,11 @@ public abstract class Round : IBinarySerializable
 		a = Mcv.Accounts.Find(address, Id - 1);	
 
 		if(a != null)
-			return AffectedAccounts[address] = a.Clone();
+		{	
+			a = AffectedAccounts[address] = a.Clone();
+
+			TransferEC(a);
+		}
 		else
 		{
 			var b = Mcv.Accounts.KeyToBid(address);
@@ -174,11 +190,12 @@ public abstract class Round : IBinarySerializable
 
 			a.Id		= new EntityId(b, e);
 			a.Address	= address;
-			a.ECBalance = [];
 			a.New		= true;
 			
-			return  AffectedAccounts[address] = a;
+			AffectedAccounts[address] = a;
 		}
+
+		return a;
 	}
 
 	public AccountEntry AffectAccount(EntityId id)
@@ -186,9 +203,13 @@ public abstract class Round : IBinarySerializable
 		if(AffectedAccounts.FirstOrDefault(i => i.Value.Id == id).Value is var a)
 			return a;
 		
-		a = Mcv.Accounts.Find(id, Id - 1);	
+		a = Mcv.Accounts.Find(id, Id - 1).Clone();	
 
-		return AffectedAccounts[a.Address] = a.Clone();
+		AffectedAccounts[a.Address] = a;
+
+		TransferEC(a);
+
+		return a;
 	}
 
 	public Generator AffectCandidate(EntityId id)
@@ -370,8 +391,8 @@ public abstract class Round : IBinarySerializable
 
 		NextAccountEids	= new ();
 
-		BYRewards.Clear();
-		ECRewards.Clear();
+		BYReturned = 0;
+		//ECRewards.Clear();
 		AffectedCandidates.Clear();
 		AffectedAccounts.Clear();
 
@@ -396,8 +417,7 @@ public abstract class Round : IBinarySerializable
 			}
 
 			t.ECSpent = 0;
-			//t.ECReward = 0;
-			t.BYReward = 0;
+			t.BYReturned = 0;
 
 			foreach(var o in t.Operations)
 			{
@@ -433,7 +453,7 @@ public abstract class Round : IBinarySerializable
 						goto start;
 					}
 				}
-				else if(EC.Integrate(s.ECBalance, ConsensusTime) < t.ECSpent || (!trying && (EC.Integrate(s.ECBalance, ConsensusTime) < t.ECFee || t.ECSpent > t.ECFee)))
+				else if(s.ECThis < t.ECSpent || (!trying && (s.ECThis < t.ECFee || t.ECSpent > t.ECFee)))
 				{
 					o.Error = Operation.NotEnoughEC;
 					goto start;
@@ -448,16 +468,11 @@ public abstract class Round : IBinarySerializable
 
 			if(t.Member.E != -1)
 			{
-				var g = Mcv.Accounts.Find(t.Member, Id);
-
-				if(BYRewards.TryGetValue(g, out var x))
-					BYRewards[g] = x + t.BYReward;
-				else
-					BYRewards[g] = t.BYReward;
+				BYReturned += t.BYReturned;
 			}
 
 			if(!trying)
-				s.ECBalance = EC.Subtract(s.ECBalance, t.ECFee, ConsensusTime);
+				s.ECThis -= t.ECFee;
 			
 			s.LastTransactionNid++;
 		}
@@ -498,7 +513,6 @@ public abstract class Round : IBinarySerializable
 					Emissions.Add(e);
 				}
 #endif
-
 				RegisterForeign(o);
 			}
 		}
@@ -550,10 +564,10 @@ public abstract class Round : IBinarySerializable
 		{
 			NextBandwidthAllocations = NextBandwidthAllocations.Skip(1).Append(0).ToArray();
 
-			foreach(var i in Members./*Where(i => i.CastingSince <= tail.First().Id).*/Select(i => AffectAccount(i.Address)))
+			foreach(var i in Members.Select(i => AffectAccount(i.Address)))
 			{
-				i.ECBalance = EC.Add(i.ECBalance, new EC (ConsensusTime + Net.ECLifetime, Net.ECDayEmission / Members.Count));
-				i.BYBalance += Net.BYDayEmission / Members.Count;
+				i.ECNext	+= Net.ECDayEmission / Members.Count;
+				i.BYBalance += (Net.BYDayEmission + BYReturned) / Members.Count;
 			}
 		}
 		

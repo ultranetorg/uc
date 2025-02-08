@@ -13,8 +13,8 @@ public class FairAccountEntry : AccountEntry
 	{
 		var a = base.Clone() as FairAccountEntry;
 
-		a.Authors = Authors?.ToArray();
-		a.Sites = Sites?.ToArray();
+		a.Authors = Authors;
+		a.Sites = Sites;
 
 		return a;
 	}

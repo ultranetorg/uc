@@ -43,7 +43,7 @@ public class Transaction : IBinarySerializable
 	public long						ECFee;
 	
 	public long						ECSpent;
-	public long						BYReward;
+	public long						BYReturned;
 	//public long					ECReward;
 	public byte[]					Signature { get; set; }
 

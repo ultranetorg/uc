@@ -27,9 +27,14 @@ public class AccountEntry : Account, ITableEntry
 
 		a.Id						= Id;
 		a.Address					= Address;
+
 		a.BYBalance					= BYBalance;
-		a.ECBalance					= ECBalance;
+		a.ECThis					= ECThis;
+		a.ECThisPeriod				= ECThisPeriod;
+		a.ECNext					= ECNext;
+
 		a.LastTransactionNid		= LastTransactionNid;
+		a.AverageUptime				= AverageUptime;
 				
 		a.BandwidthNext				= BandwidthNext;
 		a.BandwidthExpiration		= BandwidthExpiration;
@@ -78,7 +83,11 @@ public class AccountEntry : Account, ITableEntry
 
 	public void Cleanup(Round lastInCommit)
 	{
-		if(ECBalance.Any(i => i.Expiration < lastInCommit.ConsensusTime))
-			ECBalance = ECBalance.Where(i => i.Expiration < lastInCommit.ConsensusTime).ToArray();
+		//if(ECBalance.Any(i => i.Expiration < lastInCommit.ConsensusTime))
+		//	ECBalance = ECBalance.Where(i => i.Expiration < lastInCommit.ConsensusTime).ToArray();
+
+		//if(lastInCommit.ConsensusTime.Days/Time.FromYears(1))
+		//{
+		//}
 	}
 }

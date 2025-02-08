@@ -2,8 +2,6 @@
 
 public class AuthorEntry : Author, ITableEntry
 {
-	//public bool				New;
-	//public bool				Affected;
 	Mcv						Mcv;
 	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
@@ -25,16 +23,20 @@ public class AuthorEntry : Author, ITableEntry
 
 	public AuthorEntry Clone()
 	{
-		return new AuthorEntry(Mcv){Id = Id,
-									Title = Title,
-									Owner = Owner,
-									Expiration = Expiration,
-									SpaceReserved = SpaceReserved,
-									SpaceUsed = SpaceUsed,
-									ECDeposit = ECDeposit,
-									//BYDeposit = BYDeposit,
-									ModerationReward = ModerationReward,
-									Products = Products};
+		return new AuthorEntry(Mcv){Id					= Id,
+									Title				= Title,
+									Owner				= Owner,
+									Expiration			= Expiration,
+									SpaceReserved		= SpaceReserved,
+									SpaceUsed			= SpaceUsed,
+
+									BYBalance			= BYBalance,
+									ECThis				= ECThis,
+									ECThisYear			= ECThisYear,
+									ECNext				= ECNext,
+									ModerationReward	= ModerationReward,
+
+									Products			= Products};
 	}
 
 	public void WriteMain(BinaryWriter writer)

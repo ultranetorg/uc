@@ -101,8 +101,8 @@ public class AuthorUpdation : UpdateOperation
 
 			case AuthorChange.DepositEC:
 			{	
-				if(!Pay(ref Signer.ECBalance, ref a.ECDeposit, Int, round.ConsensusTime))
-					return;
+				//if(!Pay(ref Signer.ECBalance, ref a.ECDeposit, Int, round.ConsensusTime))
+				//	return;
 
 				break;
 			}

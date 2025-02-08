@@ -260,9 +260,9 @@ public class McvSummaryApc : McvApc
 
 					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
-						f.Add(new ("   BY",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance}"));
-						f.Add(new ("   EC",			$"{EC.Integrate(node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECBalance, node.Mcv.LastConfirmedRound.ConsensusTime)}"));
-						f.Add(new ("   EC (now)",	$"{EC.Integrate(node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECBalance, Time.Now(node.Mcv.Clock))}"));
+						f.Add(new ("   BY",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance:N}"));
+						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECThis:N}"));
+						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECNext:N}"));
 					}
 				}
 			}

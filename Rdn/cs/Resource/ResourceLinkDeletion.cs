@@ -54,6 +54,8 @@ public class ResourceLinkDeletion : RdnOperation
 
 		sr = round.AffectResource(sd, sr.Address.Resource);
 		sr.RemoveOutbound(dr.Id);
+
+		sd = round.AffectDomain(sd.Id);
 		Free(sd, Mcv.EntityLength);
 
 		dr = round.AffectResource(dd, dr.Address.Resource);

@@ -32,6 +32,7 @@ public class ResourceDeletion : RdnOperation
 			return;
 		}
 
+		d = round.AffectDomain(d.Id);
 		round.AffectResource(Resource).Deleted = true;
 
 		Free(d, r.Length);

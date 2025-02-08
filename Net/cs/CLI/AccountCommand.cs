@@ -45,7 +45,8 @@ public class AccountCommand : McvCommand
 
 						Arguments =	[new ("to", "Account public address that funds are credited to"),
 									 new ("by", "Amount of Byte-Years to be transferred"),
-									 new ("ec", "Amount of Execution Cycles to be transferred"),
+									 new ("ecthis", "Amount of Execution Cycles of this year to be transferred"),
+									 new ("ecnext", "Amount of Execution Cycles of next year to be transferred"),
 									 new (SignerArg, "Account public address where funds are debited from")],
 
 						Examples =	[new (null, $"{Keyword} {a.Name} to={AA.Examples[1]} ec=1.5 {SignerArg}={AA.Examples[0]}")]};
@@ -53,7 +54,7 @@ public class AccountCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new UtilityTransfer(GetAccountAddress("to"), GetMoney("ec", 0), new Time(GetInt("ecexpiration", -1)), GetMoney("by", 0));
+								return new UtilityTransfer(GetAccountAddress("to"), GetMoney("ecthis", 0), GetMoney("ecnext", 0), GetMoney("by", 0));
 							};
 
 		return a;

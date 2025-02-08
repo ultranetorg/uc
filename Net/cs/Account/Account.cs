@@ -4,7 +4,9 @@ public class Account : IBinarySerializable
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public EC[]							ECBalance;
+	public long							ECThis;
+	public byte							ECThisPeriod;
+	public long							ECNext;
 	public long							BYBalance { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	//public int							LastEmissionId  { get; set; } = -1;
@@ -18,19 +20,22 @@ public class Account : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, EC={{{string.Join(',', ECBalance?.Select(i => i.Amount) ?? [])}}}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
+		return $"{Id}, {Address}, ECThis={ECThis}, ECNext={ECNext}, BY={BYBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
 
 	public virtual void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Address);
-		writer.Write(ECBalance);
+
+		writer.Write7BitEncodedInt64(ECThis);
+		writer.Write(ECThisPeriod);
+		writer.Write7BitEncodedInt64(ECNext);
 		writer.Write7BitEncodedInt64(BYBalance);
+
 		writer.Write7BitEncodedInt(LastTransactionNid);
-		//writer.Write7BitEncodedInt(LastEmissionId);
 		writer.Write7BitEncodedInt64(AverageUptime);
-		
+
 		writer.Write7BitEncodedInt64(BandwidthNext);
 		
 		if(BandwidthNext > 0)
@@ -46,13 +51,15 @@ public class Account : IBinarySerializable
 	{
 		Id					= reader.Read<EntityId>();
 		Address				= reader.ReadAccount();
-		ECBalance 			= reader.ReadArray<EC>();
-		BYBalance 			= reader.Read7BitEncodedInt64();
-		LastTransactionNid	= reader.Read7BitEncodedInt();
-		//LastEmissionId		= reader.Read7BitEncodedInt();
-		AverageUptime		= reader.Read7BitEncodedInt64();
 
-		BandwidthNext = reader.Read7BitEncodedInt64();
+		ECThis	 			= reader.Read7BitEncodedInt64();
+		ECThisPeriod 		= reader.ReadByte();
+		ECNext	 			= reader.Read7BitEncodedInt64();
+		BYBalance 			= reader.Read7BitEncodedInt64();
+
+		LastTransactionNid	= reader.Read7BitEncodedInt();
+		AverageUptime		= reader.Read7BitEncodedInt64();
+		BandwidthNext		= reader.Read7BitEncodedInt64();
 
 		if(BandwidthNext > 0)
 		{

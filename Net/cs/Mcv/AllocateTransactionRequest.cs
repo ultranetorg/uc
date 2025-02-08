@@ -20,7 +20,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 				throw new EntityException(EntityError.NotFound);
 #endif
 			Transaction.Nid		= a.LastTransactionNid + 1;
-			Transaction.ECFee	= EC.Integrate(a.ECBalance, Mcv.LastConfirmedRound.ConsensusTime);
+			Transaction.ECFee	= a.ECThis;
 
 			var r = Mcv.TryExecute(Transaction);
 			

@@ -71,7 +71,7 @@ public class Resource// : IBinarySerializable
 	bool						OutboundsCloned;
 	bool						InboundsCloned;
 
-	public short				Length => (short)(Mcv.EntityLength + (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0)); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
+	public int					Length => Mcv.EntityLength + (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{

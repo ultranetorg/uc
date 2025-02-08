@@ -61,15 +61,14 @@ public class AnalysisResultUpdation : RdnOperation
 		var j = Array.FindIndex(an.Results, i => i.Analyzer == aix);
 		an.Results ??= [];
 		
- 			if(j == -1)
+ 		if(j == -1)
 		{
 			an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
 
-			Signer.ECBalance = EC.Add(Signer.ECBalance, an.ECPayment.Select(i => new EC{Amount		= i.Amount/c.Analyzers.Length, 
-																						Expiration	= i.Expiration}).ToArray());
+			Signer.ECThis += an.ECPayment/c.Analyzers.Length;
 			Signer.BYBalance += an.BYPayment/c.Analyzers.Length;
 		}
- 			else
+ 		else
 			an.Results[j].Result = Result;
 	}
 }

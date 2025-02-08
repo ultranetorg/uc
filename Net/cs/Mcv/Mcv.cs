@@ -153,7 +153,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
 			t.Member = new(0, -1);
-			t.AddOperation(new UtilityTransfer(f0, Net.ECDayEmission, Net.ECLifetime, Net.BYDayEmission));
+			t.AddOperation(new UtilityTransfer(f0, Net.ECEmission, 0, Net.BYDayEmission));
 			t.Sign(god, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 
