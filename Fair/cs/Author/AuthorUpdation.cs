@@ -9,6 +9,7 @@ public class AuthorUpdation : UpdateOperation
 {
 	public EntityId				AuthorId { get; set; }
 	public AuthorChange			Change { get; set; }
+	public object				Second { get; set; }
 
 	public override string		Description => $"{AuthorId}, {Change}, {Value}";
 	
@@ -37,10 +38,15 @@ public class AuthorUpdation : UpdateOperation
 							AuthorChange.Renew				=> reader.ReadByte(),
 							AuthorChange.Owner				=> reader.Read<AccountAddress>(),
 							AuthorChange.DepositEC			=> reader.Read7BitEncodedInt(),
-							AuthorChange.DepositBY			=> reader.Read7BitEncodedInt(),
 							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt(),
 							_								=> throw new IntegrityException()
 					   };
+
+		Second = Change switch
+						{
+							AuthorChange.Renew				=> reader.Read7BitEncodedInt(),
+							_								=> throw new IntegrityException()
+						};
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -53,8 +59,13 @@ public class AuthorUpdation : UpdateOperation
 			case AuthorChange.Renew				: writer.Write(Byte); break;
 			case AuthorChange.Owner				: writer.Write(AccountAddress); break;
 			case AuthorChange.DepositEC			: writer.Write7BitEncodedInt(Int); break;
-			case AuthorChange.DepositBY			: writer.Write7BitEncodedInt(Int); break;
 			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt(Int); break;
+			default								: throw new IntegrityException();
+		}
+
+		switch(Change)
+		{
+			case AuthorChange.Renew				: writer.Write7BitEncodedInt((int)Second); break;
 			default								: throw new IntegrityException();
 		}
 	}
@@ -76,6 +87,10 @@ public class AuthorUpdation : UpdateOperation
 					return;
 				}
 
+				//if()
+				//{
+				//}
+
 				a.SpaceReserved	= a.SpaceUsed;
 				a.Expiration	= a.Expiration + Time.FromYears(Byte);
 				
@@ -92,19 +107,19 @@ public class AuthorUpdation : UpdateOperation
 				break;
 			}
 
-			case AuthorChange.DepositBY:
-			{	
-				if(Signer.BYBalance < Int)
-				{
-					Error = NotEnoughBY;
-					return;
-				}
-
-				Signer.BYBalance -= Int;
-				a.BYDeposit		 += Int;
-
-				break;
-			}
+// 			case AuthorChange.DepositBY:
+// 			{	
+// 				if(Signer.BYBalance < Int)
+// 				{
+// 					Error = NotEnoughBY;
+// 					return;
+// 				}
+// 
+// 				Signer.BYBalance -= Int;
+// 				a.BYDeposit		 += Int;
+// 
+// 				break;
+// 			}
 
 			case AuthorChange.ModerationReward:
 				a.ModerationReward = Int;

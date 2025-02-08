@@ -17,7 +17,7 @@ public class Author : IBinarySerializable
 	public int					SpaceUsed { get; set; }
 	public int					ModerationReward  { get; set; }
 	public EC[]					ECDeposit;
-	public long					BYDeposit;
+	//public long					BYDeposit;
 
 	public static bool Valid(string name)
 	{
@@ -37,10 +37,10 @@ public class Author : IBinarySerializable
 		return	a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Author publisher, Account by, Time time)
+	public static bool CanRenew(Author author, Account by, Time time)
 	{
-		return  publisher.Owner == by.Id && time > publisher.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-											time <= publisher.Expiration;
+		return  author.Owner == by.Id && time > author.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
+										 time <= author.Expiration;
 	}
 
 	public void Write(BinaryWriter writer)
@@ -54,7 +54,7 @@ public class Author : IBinarySerializable
 		writer.Write7BitEncodedInt(SpaceUsed);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write(ECDeposit);
-		writer.Write7BitEncodedInt64(BYDeposit);
+		//writer.Write7BitEncodedInt64(BYDeposit);
 	}
 
 	public void Read(BinaryReader reader)
@@ -68,6 +68,6 @@ public class Author : IBinarySerializable
 		SpaceUsed			= reader.Read7BitEncodedInt();
 		ModerationReward	= reader.Read7BitEncodedInt();
 		ECDeposit			= reader.ReadArray<EC>();
-		BYDeposit			= reader.Read7BitEncodedInt64();
+		//BYDeposit			= reader.Read7BitEncodedInt64();
 	}
 }
