@@ -99,7 +99,7 @@ public class DomainBid : RdnOperation
  		else
  		{
 			/// dont refund previous winner if any
-			Transaction.BYReturned += a.LastBid;
+			///Transaction.BYReturned += a.LastBid;
 
 			Signer.BYBalance -= Bid;
 			

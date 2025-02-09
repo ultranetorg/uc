@@ -48,14 +48,14 @@ public class UtilityTransfer : Operation
 
 		if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
 		{
-			Signer.ECThis -= ECThis;
+			Signer.EC -= ECThis;
 			Signer.ECNext -= ECNext;
 			Signer.BYBalance -= BYAmount;
 		}
 
 		var to = Affect(round, To);
 
-		to.ECThis += ECThis;
+		to.EC += ECThis;
 		to.ECNext += ECNext;
 		to.BYBalance += BYAmount;
 	}

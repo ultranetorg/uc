@@ -203,7 +203,7 @@ public abstract class Mcv /// Mutual chain voting
 				if(i < P*2)
 				{
 					if(i > 0)
-						r.ConsensusExecutionFee = 1;
+						r.ConsensusECFee = 1;
 
 					if(i == 0)
 						r.ConsensusFundJoiners = [Net.Father0];
@@ -500,7 +500,7 @@ public abstract class Mcv /// Mutual chain voting
 		var r = GetRound(p.Id + 1);
 		
 		r.ConsensusTime			= Time.Now(Clock);
-		r.ConsensusExecutionFee	= LastConfirmedRound.ConsensusExecutionFee;
+		r.ConsensusECFee	= LastConfirmedRound.ConsensusECFee;
 		///r.RentPerBytePerDay		= p.RentPerBytePerDay;
 		//r.Candidates			= p.Candidates;
 		//r.Members				= p.Members;

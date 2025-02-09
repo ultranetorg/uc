@@ -42,8 +42,8 @@ public class Transaction : IBinarySerializable
 	//public Money					STFee;
 	public long						ECFee;
 	
-	public long						ECSpent;
-	public long						BYReturned;
+	public long						ECExecuted => Operations.Sum(i => i.ECExecuted);
+	//public long					BYReturned;
 	//public long					ECReward;
 	public byte[]					Signature { get; set; }
 

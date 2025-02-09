@@ -25,21 +25,21 @@ public class BandwidthAllocation : Operation
 
 	public override void Execute(Mcv mcv, Round round)
 	{
-		if(Signer.BandwidthExpiration > round.ConsensusTime) /// reclaim
-		{
-			var d = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
-			 
-			/// Signer.ECBalance += Signer.BandwidthNext * d / 2;  /// refund 50% for what is left
+		var r = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
 
-			for(int i=1; i<=d; i++)
-				round.NextBandwidthAllocations[i] -= Signer.BandwidthNext;
+		if(r > 0) /// reclaim the remaining
+		{
+			Signer.EC += Signer.Bandwidth * r;
+
+			for(int i = 0; i < r; i++)
+				round.BandwidthAllocations[i] -= Signer.Bandwidth;
 		}
 
-		for(int i=1; i<=Days; i++)
+		for(int i = 0; i < Days; i++)
 		{
-			if(round.NextBandwidthAllocations[i] + Bandwidth < mcv.Net.BandwidthAllocationPerDayMaximum)
+			if(round.BandwidthAllocations[i] + Bandwidth <= mcv.Net.BandwidthAllocationPerDayMaximum)
 			{
-				round.NextBandwidthAllocations[i] += Bandwidth;
+				round.BandwidthAllocations[i] += Bandwidth;
 			}
 			else
 			{
@@ -48,10 +48,8 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		Signer.BandwidthNext		= Bandwidth;
-		Signer.BandwidthExpiration	= round.ConsensusTime + Time.FromDays(Days);
-		
-		Transaction.ECSpent		+= Bandwidth * Days;
-		//Transaction.ECReward	+= Bandwidth * Days;
+		Signer.EC					-= Bandwidth * Days;
+		Signer.Bandwidth			= Bandwidth;
+		Signer.BandwidthExpiration	= Time.FromDays(round.ConsensusTime.Days + Days);
 	}
 }

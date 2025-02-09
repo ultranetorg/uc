@@ -735,12 +735,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration >= pp.ConsensusTime && (i.a.BandwidthTodayTime < pp.ConsensusTime && i.a.BandwidthNext >= i.t.ECSpent ||
-																									 i.a.BandwidthTodayAvailable >= i.t.ECSpent)))
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration.Days >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime.Days == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.ECExecuted || /// Allocated bandwidth first
+																												i.a.Bandwidth >= i.t.ECExecuted)))
 						if(false == tryplace(t.t, true, false))
 							break;
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.ECFee))
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.ECFee))		/// ... then fee-transactions
 						if(false == tryplace(t.t, false, false))
 							break;
 
@@ -787,7 +787,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					if(r.Hash == null)
 					{
 						r.ConsensusTime			= r.Previous.ConsensusTime;
-						r.ConsensusExecutionFee	= r.Previous.ConsensusExecutionFee;
+						r.ConsensusECFee	= r.Previous.ConsensusECFee;
 						///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
 						r.Members				= r.Previous.Members;
 						r.Funds					= r.Previous.Funds;

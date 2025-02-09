@@ -38,14 +38,15 @@ public abstract class Round : IBinarySerializable
 	public EntityId[]									ConsensusViolators = {};
 	public AccountAddress[]								ConsensusFundJoiners = {};
 	public AccountAddress[]								ConsensusFundLeavers = {};
-	public long											ConsensusExecutionFee;
+	public long											ConsensusECFee;
 	public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusNtnStates = [];
 
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public long											BYReturned;
+	public long											Space;
+	//public long											BYReturned;
 	//public Dictionary<AccountEntry, long>				ECRewards = [];
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
@@ -56,7 +57,7 @@ public abstract class Round : IBinarySerializable
 	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 	public Dictionary<int, int>							NextAccountEids;
-	public long[]										NextBandwidthAllocations = [];
+	public long[]										BandwidthAllocations = [];
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
@@ -160,7 +161,7 @@ public abstract class Round : IBinarySerializable
 		if(a.ECThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
 		{
 			if(a.ECThisPeriod + 1 == ConsensusTime.Days/Net.ECLifetime.Days)
-				a.ECThis = a.ECNext;
+				a.EC = a.ECNext;
 	
 			a.ECNext = 0;
 			a.ECThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
@@ -249,14 +250,14 @@ public abstract class Round : IBinarySerializable
 		__SummaruVotesOfTry = all.ToArray();
 		var svotes = Id < Mcv.JoinToVote ? [] : Required.ToArray();
 					
-		ConsensusExecutionFee	= Id == 0 ? 0 : Previous.ConsensusExecutionFee;
+		ConsensusECFee	= Id == 0 ? 0 : Previous.ConsensusECFee;
 		ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
 
 		var tn = all.Sum(i => i.Transactions.Length);
 
 		if(tn > Mcv.Net.TransactionsPerRoundExecutionLimit)
 		{
-			ConsensusExecutionFee *= Mcv.Net.OverloadFeeFactor;
+			ConsensusECFee *= Mcv.Net.OverloadFeeFactor;
 			ConsensusOverloadRound = Id;
 
 			var e = tn - Mcv.Net.TransactionsPerRoundExecutionLimit;
@@ -285,8 +286,8 @@ public abstract class Round : IBinarySerializable
 		}
 		else 
 		{
-			if(ConsensusExecutionFee > 1 && Id - ConsensusOverloadRound > Mcv.P)
-				ConsensusExecutionFee /= Net.OverloadFeeFactor;
+			if(ConsensusECFee > 1 && Id - ConsensusOverloadRound > Mcv.P)
+				ConsensusECFee /= Net.OverloadFeeFactor;
 		}
 		
 		if(Id > 0)
@@ -384,14 +385,15 @@ public abstract class Round : IBinarySerializable
 		//Emission		= Id == 0 ? 0 : Previous.Emission;
 		#endif
 
-		Candidates					= Id == 0 ? new()																					: Previous.Candidates;
-		Members						= Id == 0 ? new()																					: Previous.Members;
-		Funds						= Id == 0 ? new()																					: Previous.Funds;
-		NextBandwidthAllocations	= Id == 0 ? Enumerable.Range(0, Net.BandwidthAllocationDaysMaximum + 1).Select(i => 0L).ToArray()	: Previous.NextBandwidthAllocations.Clone() as long[];
-
+		Candidates				= Id == 0 ? new()											: Previous.Candidates;
+		Members					= Id == 0 ? new()											: Previous.Members;
+		Funds					= Id == 0 ? new()											: Previous.Funds;
+		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum]	: Previous.BandwidthAllocations.Clone() as long[];
+		Space					= Id == 0 ? 0 : Previous.Space;
+		
 		NextAccountEids	= new ();
 
-		BYReturned = 0;
+		//BYReturned = 0;
 		//ECRewards.Clear();
 		AffectedCandidates.Clear();
 		AffectedAccounts.Clear();
@@ -416,44 +418,33 @@ public abstract class Round : IBinarySerializable
 				goto start;
 			}
 
-			t.ECSpent = 0;
-			t.BYReturned = 0;
-
 			foreach(var o in t.Operations)
 			{
 				o.Signer = s;
+				o.ECExecuted = ConsensusECFee;
 
 				o.Execute(Mcv, this);
 
 				if(o.Error != null)
 					goto start;
-
-				#if IMMISION
-				if(o is not Immission)
+			
+				if(t.ECFee == 0 && s.BandwidthExpiration.Days >= ConsensusTime.Days)
 				{
-					f += o.ExeUnits * ConsensusExeunitFee;
-				}
-				#endif
-				
-				t.ECSpent += ConsensusExecutionFee;
-				
-				if(t.ECFee == 0 && s.BandwidthExpiration >= ConsensusTime)
-				{
-					if(s.BandwidthTodayTime < ConsensusTime) /// switch to this day
+					if(s.BandwidthTodayTime.Days < ConsensusTime.Days) /// switch to this day
 					{	
 						s.BandwidthTodayTime		= ConsensusTime;
-						s.BandwidthTodayAvailable	= s.BandwidthNext;
+						s.BandwidthTodayAvailable	= s.Bandwidth;
 					}
 
-					s.BandwidthTodayAvailable -= ConsensusExecutionFee;
+					s.BandwidthTodayAvailable -= o.ECExecuted;
 
 					if(s.BandwidthTodayAvailable < 0)
 					{
-						o.Error = Operation.NotEnoughEC;
+						o.Error = Operation.NotEnoughBandwidth;
 						goto start;
 					}
 				}
-				else if(s.ECThis < t.ECSpent || (!trying && (s.ECThis < t.ECFee || t.ECSpent > t.ECFee)))
+				else if(s.EC < t.ECExecuted || (!trying && (s.EC < t.ECFee || t.ECExecuted > t.ECFee)))
 				{
 					o.Error = Operation.NotEnoughEC;
 					goto start;
@@ -466,13 +457,8 @@ public abstract class Round : IBinarySerializable
 				}
 			}
 
-			if(t.Member.E != -1)
-			{
-				BYReturned += t.BYReturned;
-			}
-
 			if(!trying)
-				s.ECThis -= t.ECFee;
+				s.EC -= t.ECFee;
 			
 			s.LastTransactionNid++;
 		}
@@ -560,14 +546,18 @@ public abstract class Round : IBinarySerializable
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
 
-		if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
+		if(Id > 0 && ConsensusTime.Days != Previous.ConsensusTime.Days) /// day switched
 		{
-			NextBandwidthAllocations = NextBandwidthAllocations.Skip(1).Append(0).ToArray();
+			BandwidthAllocations = [..BandwidthAllocations[1..], 0];
+
+			var d = ConsensusTime.Days - Previous.ConsensusTime.Days;
+
+			//d = d % Time.FromYears(1).Days;
 
 			foreach(var i in Members.Select(i => AffectAccount(i.Address)))
 			{
-				i.ECNext	+= Net.ECDayEmission / Members.Count;
-				i.BYBalance += (Net.BYDayEmission + BYReturned) / Members.Count;
+				i.ECNext	+= d * Net.ECDayEmission / Members.Count;
+				i.BYBalance += d * (Net.BYDayEmission + Space / Time.FromYears(1).Days) / Members.Count;
 			}
 		}
 		
@@ -591,11 +581,12 @@ public abstract class Round : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Hash);
-		writer.Write(NextBandwidthAllocations, writer.Write7BitEncodedInt64);
+		writer.Write(BandwidthAllocations, writer.Write7BitEncodedInt64);
 		writer.Write(Funds);
-		
+		writer.Write7BitEncodedInt64(Space);
+
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusExecutionFee);
+		writer.Write7BitEncodedInt64(ConsensusECFee);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
 				
 		#if ETHEREUM
@@ -606,14 +597,15 @@ public abstract class Round : IBinarySerializable
 
 	public virtual void ReadBaseState(BinaryReader reader)
 	{
-		Id							= reader.Read7BitEncodedInt();
-		Hash						= reader.ReadHash();
-		NextBandwidthAllocations	= reader.ReadArray(reader.Read7BitEncodedInt64);
-		Funds						= reader.ReadList<AccountAddress>();
+		Id						= reader.Read7BitEncodedInt();
+		Hash					= reader.ReadHash();
+		BandwidthAllocations	= reader.ReadArray(reader.Read7BitEncodedInt64);
+		Funds					= reader.ReadList<AccountAddress>();
+		Space					= reader.Read7BitEncodedInt64();
 
-		ConsensusTime				= reader.Read<Time>();
-		ConsensusExecutionFee		= reader.Read7BitEncodedInt64();
-		ConsensusOverloadRound		= reader.Read7BitEncodedInt();
+		ConsensusTime			= reader.Read<Time>();
+		ConsensusECFee			= reader.Read7BitEncodedInt64();
+		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 
 		#if ETHEREUM
 		//Emission					= reader.Read<Money>();
@@ -624,7 +616,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusExecutionFee);
+		writer.Write7BitEncodedInt64(ConsensusECFee);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
 		writer.Write(ConsensusMemberLeavers);
 		writer.Write(ConsensusViolators);
@@ -636,7 +628,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void ReadConfirmed(BinaryReader reader)
 	{
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusExecutionFee	= reader.Read7BitEncodedInt64();
+		ConsensusECFee	= reader.Read7BitEncodedInt64();
 		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 		ConsensusMemberLeavers	= reader.ReadArray<EntityId>();
 		ConsensusViolators		= reader.ReadArray<EntityId>();
@@ -663,7 +655,7 @@ public abstract class Round : IBinarySerializable
 		{
 			w.Write(Votes, i => {
 									i.WriteForRoundUnconfirmed(w); 
-								 });
+								});
 		}
 	}
 

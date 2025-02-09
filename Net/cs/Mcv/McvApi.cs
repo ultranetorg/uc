@@ -248,7 +248,7 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}"));
 				f.Add(new ("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}"));
 				f.Add(new ("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}"));
-				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusExecutionFee.ToString()}"));
+				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusECFee.ToString()}"));
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
@@ -261,7 +261,7 @@ public class McvSummaryApc : McvApc
 					if(node.Peering.Synchronization == Synchronization.Synchronized)
 					{
 						f.Add(new ("   BY",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.BYBalance:N}"));
-						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECThis:N}"));
+						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EC:N}"));
 						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.ECNext:N}"));
 					}
 				}

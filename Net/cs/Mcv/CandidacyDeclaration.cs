@@ -42,7 +42,7 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		Signer.ECThis -= mcv.Net.DeclarationCost;
+		Signer.EC -= mcv.Net.DeclarationCost;
 
 		Affected = round.AffectCandidate(Signer.Id);
 		

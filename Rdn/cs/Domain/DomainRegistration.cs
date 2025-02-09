@@ -62,10 +62,10 @@ public class DomainRegistration : RdnOperation
 
 			e = round.AffectDomain(Address);
 					
-			if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-				Transaction.BYReturned += e.LastBid;
+			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
+			///	Transaction.BYReturned += e.LastBid;
 							
-			e.SpaceReserved	= e.SpaceUsed;
+			//e.SpaceReserved	= e.SpaceUsed;
 			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 			e.Owner			= Signer.Id;
 			e.LastWinner	= null;
@@ -74,7 +74,7 @@ public class DomainRegistration : RdnOperation
 			e.FirstBidTime	= Time.Empty;
 						
 			PayForName(Address, Years);
-			PayForSpacetime(e.SpaceUsed, Time.FromYears(Years));
+			PayForSpacetime(e.Space, Time.FromYears(Years));
 		}
 		else
 		{

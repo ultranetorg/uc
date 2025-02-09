@@ -40,8 +40,8 @@ public class DomainEntry : Domain, ITableEntry
 									NetOwner = NetOwner,
 									//Resources = Resources,
 									NextResourceId = NextResourceId,
-									SpaceReserved = SpaceReserved,
-									SpaceUsed = SpaceUsed,
+									//SpaceReserved = SpaceReserved,
+									Space = Space,
 									NtnChildNet = NtnChildNet,
 									NtnSelfHash = NtnSelfHash,
 									};

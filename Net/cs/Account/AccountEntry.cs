@@ -29,14 +29,14 @@ public class AccountEntry : Account, ITableEntry
 		a.Address					= Address;
 
 		a.BYBalance					= BYBalance;
-		a.ECThis					= ECThis;
+		a.EC						= EC;
 		a.ECThisPeriod				= ECThisPeriod;
 		a.ECNext					= ECNext;
 
 		a.LastTransactionNid		= LastTransactionNid;
 		a.AverageUptime				= AverageUptime;
 				
-		a.BandwidthNext				= BandwidthNext;
+		a.Bandwidth					= Bandwidth;
 		a.BandwidthExpiration		= BandwidthExpiration;
 		a.BandwidthToday			= BandwidthToday;
 		a.BandwidthTodayTime		= BandwidthTodayTime;

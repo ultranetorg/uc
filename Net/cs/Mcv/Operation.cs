@@ -24,6 +24,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public Transaction		Transaction;
 	public AccountEntry		Signer;
 	public abstract string	Description { get; }
+	public long				ECExecuted;
 
 	public const string		Rejected = "Rejected";
 	public const string		NotFound = "Not found";
@@ -39,6 +40,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string		NotEnoughBY = "Not enough spacetime";
 	public const string		NotEnoughEC = "Not enough execution units";
 	public const string		NotEnoughMR = "Not enough membership rights";
+	public const string		NotEnoughBandwidth = "Not enough bandwidth";
 	public const string		NoAnalyzers = "No analyzers";
 	public const string		Denied = "Access denied";
 	public const string		NotRelease = "Data valus is not a release";
