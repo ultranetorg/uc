@@ -378,23 +378,15 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 				o.Error = null;
 
-
 	start: 
-		#if IMMISSION
-		Emissions			= Id == 0 ? new()								: Previous.Emissions;
-		//Emission		= Id == 0 ? 0 : Previous.Emission;
-		#endif
-
-		Candidates				= Id == 0 ? new()											: Previous.Candidates;
-		Members					= Id == 0 ? new()											: Previous.Members;
-		Funds					= Id == 0 ? new()											: Previous.Funds;
-		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum]	: Previous.BandwidthAllocations.Clone() as long[];
-		Space					= Id == 0 ? 0 : Previous.Space;
+		Candidates				= Id == 0 ? new()										 : Previous.Candidates;
+		Members					= Id == 0 ? new()										 : Previous.Members;
+		Funds					= Id == 0 ? new()										 : Previous.Funds;
+		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum] : Previous.BandwidthAllocations.Clone() as long[];
+		Space					= Id == 0 ? 0											 : Previous.Space;
 		
 		NextAccountEids	= new ();
 
-		//BYReturned = 0;
-		//ECRewards.Clear();
 		AffectedCandidates.Clear();
 		AffectedAccounts.Clear();
 
@@ -482,9 +474,6 @@ public abstract class Round : IBinarySerializable
 
 		Members		= Members.ToList();
 		Funds		= Funds.ToList();
-		#if IMMISION
-		Emissions	= Emissions.ToList();
-		#endif
 
 		CopyConfirmed();
 		
@@ -492,13 +481,6 @@ public abstract class Round : IBinarySerializable
 		{
 			foreach(var o in t.Operations)
 			{
-#if ETHEREUM
-				if(o is Immission e)
-				{
-					e.Generator = e.Transaction.Generator;
-					Emissions.Add(e);
-				}
-#endif
 				RegisterForeign(o);
 			}
 		}
@@ -548,11 +530,11 @@ public abstract class Round : IBinarySerializable
 
 		if(Id > 0 && ConsensusTime.Days != Previous.ConsensusTime.Days) /// day switched
 		{
-			BandwidthAllocations = [..BandwidthAllocations[1..], 0];
-
 			var d = ConsensusTime.Days - Previous.ConsensusTime.Days;
 
-			//d = d % Time.FromYears(1).Days;
+			d %= Time.FromYears(1).Days;
+
+			BandwidthAllocations = [..BandwidthAllocations[d..], ..new long[d]];
 
 			foreach(var i in Members.Select(i => AffectAccount(i.Address)))
 			{
