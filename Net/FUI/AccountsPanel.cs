@@ -51,7 +51,7 @@ public partial class AccountsPanel : MainPanel
 									}
 
 									Invoke(() => {
-													i.SubItems[1].Text = e?.BYBalance.ToString() ?? "..."; 
+													i.SubItems[1].Text = e?.BDBalance.ToString() ?? "..."; 
 													i.SubItems[2].Text = (e?.EC.ToString() ?? "...") + " / " + (e?.ECNext.ToString() ?? "..."); 
 													i.SubItems[3].Text = null; 
 													i.SubItems[1].Tag = false;

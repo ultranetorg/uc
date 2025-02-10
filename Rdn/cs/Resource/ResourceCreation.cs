@@ -73,7 +73,7 @@ public class ResourceCreation : RdnOperation
 		{
 			r.Flags	|= ResourceFlags.Sealed;
 
-			PayForSpacetime(r.Length, Mcv.Forever);
+			PayForForever(r.Length);
 		}
 		else
 		{	

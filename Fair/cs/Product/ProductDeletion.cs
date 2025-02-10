@@ -31,6 +31,6 @@ public class ProductDeletion : FairOperation
 
 		round.AffectProduct(Product).Deleted = true;
 
-		Free(a, p.Length);
+		Free(round, a, p.Length);
 	}
 }

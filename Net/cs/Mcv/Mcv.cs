@@ -24,7 +24,7 @@ public abstract class Mcv /// Mutual chain voting
 	public const int							OperationsQueueLimit = 1000;
 	public static readonly Time					Forever = Time.FromYears(30);
 	//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
-	public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
+	//public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
 	public object								Lock = new();
 	public McvSettings							Settings;
@@ -153,7 +153,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
 			t.Member = new(0, -1);
-			t.AddOperation(new UtilityTransfer(f0, Net.ECEmission, 0, Net.BYDayEmission));
+			t.AddOperation(new UtilityTransfer(f0, Net.ECEmission, 0, Net.BDDayEmission));
 			t.Sign(god, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 

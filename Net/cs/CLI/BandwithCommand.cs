@@ -30,7 +30,7 @@ public class BandwidthCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new BandwidthAllocation {Bandwidth = GetMoney("bandwidth"), Days = (short)GetInt("days")};
+								return new BandwidthAllocation {Bandwidth = GetEC("bandwidth"), Days = (short)GetInt("days")};
 							};
 
 		return a;

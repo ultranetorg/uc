@@ -61,20 +61,21 @@ public class DomainRegistration : RdnOperation
 			}
 
 			e = round.AffectDomain(Address);
-					
+			
+			var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
+
+			PayForName(Address, Years);
+			PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
+
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
 							
-			//e.SpaceReserved	= e.SpaceUsed;
-			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+			e.Expiration	= start + Time.FromYears(Years);
 			e.Owner			= Signer.Id;
 			e.LastWinner	= null;
 			e.LastBid		= 0;
 			e.LastBidTime	= Time.Empty;
 			e.FirstBidTime	= Time.Empty;
-						
-			PayForName(Address, Years);
-			PayForSpacetime(e.Space, Time.FromYears(Years));
 		}
 		else
 		{
@@ -99,10 +100,10 @@ public class DomainRegistration : RdnOperation
 			}
 
 			e = round.AffectDomain(Address);
-
+			
 			e.Owner			= round.AffectAccount(Owner).Id;
 			e.ParentPolicy	= Policy;
-			e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+			e.Expiration	= e.Expiration + Time.FromYears(Years);
 
 			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}

@@ -45,32 +45,28 @@ public abstract class Round : IBinarySerializable
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public long											Space;
-	//public long											BYReturned;
-	//public Dictionary<AccountEntry, long>				ECRewards = [];
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
-#if ETHEREUM
-	public List<Immission>								Emissions;
-#endif
+
 	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 	public Dictionary<int, int>							NextAccountEids;
+	public long[]										Spacetimes = [];
 	public long[]										BandwidthAllocations = [];
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
 
 	public abstract long								AccountAllocationFee(Account account);
+	//public abstract int									GetSpaceUsers();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(){}
 
-
-	public byte[]												__SummaryBaseHash;
-	public byte[]												__SummaryBaseState;
-	public Vote[]												__SummaruVotesOfTry;
+	public byte[]										__SummaryBaseHash;
+	public byte[]										__SummaryBaseState;
+	public Vote[]										__SummaruVotesOfTry;
 
 	public int MinimumForConsensus
 	{
@@ -383,7 +379,7 @@ public abstract class Round : IBinarySerializable
 		Members					= Id == 0 ? new()										 : Previous.Members;
 		Funds					= Id == 0 ? new()										 : Previous.Funds;
 		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum] : Previous.BandwidthAllocations.Clone() as long[];
-		Space					= Id == 0 ? 0											 : Previous.Space;
+		Spacetimes				= Id == 0 ? new long[1]									 : Previous.Spacetimes.Clone() as long[];
 		
 		NextAccountEids	= new ();
 
@@ -442,9 +438,9 @@ public abstract class Round : IBinarySerializable
 					goto start;
 				}
 				
-				if(s.BYBalance < 0)
+				if(s.BDBalance < 0)
 				{
-					o.Error = Operation.NotEnoughBY;
+					o.Error = Operation.NotEnoughBD;
 					goto start;
 				}
 			}
@@ -532,14 +528,14 @@ public abstract class Round : IBinarySerializable
 		{
 			var d = ConsensusTime.Days - Previous.ConsensusTime.Days;
 
-			d %= Time.FromYears(1).Days;
+			//d %= Time.FromYears(1).Days;
 
-			BandwidthAllocations = [..BandwidthAllocations[d..], ..new long[d]];
+			BandwidthAllocations = d < BandwidthAllocations.Length ? [..BandwidthAllocations[d..], ..new long[d]] : new long[d];
 
 			foreach(var i in Members.Select(i => AffectAccount(i.Address)))
 			{
 				i.ECNext	+= d * Net.ECDayEmission / Members.Count;
-				i.BYBalance += d * (Net.BYDayEmission + Space / Time.FromYears(1).Days) / Members.Count;
+				i.BDBalance += d * (Net.BDDayEmission + Spacetimes[0]) / Members.Count;
 			}
 		}
 		
@@ -565,7 +561,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(Hash);
 		writer.Write(BandwidthAllocations, writer.Write7BitEncodedInt64);
 		writer.Write(Funds);
-		writer.Write7BitEncodedInt64(Space);
+		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusECFee);
@@ -583,7 +579,7 @@ public abstract class Round : IBinarySerializable
 		Hash					= reader.ReadHash();
 		BandwidthAllocations	= reader.ReadArray(reader.Read7BitEncodedInt64);
 		Funds					= reader.ReadList<AccountAddress>();
-		Space					= reader.Read7BitEncodedInt64();
+		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusECFee			= reader.Read7BitEncodedInt64();

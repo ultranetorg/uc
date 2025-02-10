@@ -145,7 +145,27 @@ public abstract class McvCommand : NetCommand
 			return @default;
 	}
 
-	protected long GetMoney(string paramenter)
+	protected long GetBD(string paramenter)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Account.ParseSpacetime(p.Get<string>());
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
+	}
+
+	protected long GetBD(string paramenter, long def)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Account.ParseSpacetime(p.Get<string>());
+		else
+			return def;
+	}
+
+	protected long GetEC(string paramenter)
 	{
 		var p = One(paramenter);
 
@@ -155,7 +175,7 @@ public abstract class McvCommand : NetCommand
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected long GetMoney(string paramenter, long def)
+	protected long GetEC(string paramenter, long def)
 	{
 		var p = One(paramenter);
 
@@ -164,4 +184,5 @@ public abstract class McvCommand : NetCommand
 		else
 			return def;
 	}
+
 }

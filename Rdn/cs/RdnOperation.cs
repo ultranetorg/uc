@@ -27,50 +27,75 @@ public abstract class RdnOperation : Operation
 		Execute(mcv as RdnMcv, round as RdnRound);
 	}
 
-	public void PayForSpacetime(int length, Time time)
+	public void PayForForever(int size)
 	{
-		var fee = SpacetimeFee(length, time);
-		
-		Signer.BYBalance -= fee;
+		Signer.BDBalance -= ToBD(size, Mcv.Forever);
+	}
+
+	public void PayForSpacetime(Round round, int size, Time start, Time duration)
+	{
+		Signer.BDBalance -= ToBD(size, duration);
+
+		var n = start.Days + duration.Days - round.ConsensusTime.Days;
+
+		if(n > round.Spacetimes.Length)
+			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
+
+		for(int i = 0; i < duration.Days; i++)
+			round.Spacetimes[start.Days - round.ConsensusTime.Days + i] += size;
 	}
 
 	public void PayForName(string address, int years)
 	{
 		var fee = NameFee(years, address);
 		
-		Signer.BYBalance -= fee;
+		Signer.BDBalance -= fee;
 	}
 
-	public static long SpacetimeFee(int length, Time time)
+	public static long ToBD(int length, Time time)
 	{
-		return Mcv.ApplyTimeFactor(time, length);
+		return time.Days * length;
 	}
 
-	public static long NameFee(int years, string address)
+	public static int NameFee(int years, string address)
 	{
 		var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
 
 		l = Math.Min(l, 10);
 
-		return Mcv.ApplyTimeFactor(Time.FromYears(years), 10_000) / (l * l * l * l);
+		return 10_000 * Time.FromYears(years).Days / (l * l * l * l);
 	}
 
 	public void Allocate(Round round, Domain domain, int size)
 	{
-		var f = SpacetimeFee(size, domain.Expiration - round.ConsensusTime);
-	
-		Signer.BYBalance -= f;
 		domain.Space += size;
-		round.Space += size;
+
+		var t = Time.FromDays(domain.Expiration.Days - round.ConsensusTime.Days + 1); /// Pay for one more day
+	
+		Signer.BDBalance -= ToBD(size, t);
+
+		if(t.Days > round.Spacetimes.Length)
+			round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
+
+		for(int i = 0; i < t.Days; i++)
+			round.Spacetimes[i] += size;
 	}
 
 	public void Free(Round round, Domain domain, int size)
 	{
-		var f = SpacetimeFee(size, domain.Expiration - round.ConsensusTime);
-
-		Signer.BYBalance += f;
 		domain.Space -= size;
-		round.Space -= size;
+
+		var d = domain.Expiration.Days - round.ConsensusTime.Days;
+		
+		if(d > 0)
+		{
+			var t = Time.FromDays(d);
+	
+			Signer.BDBalance += ToBD(size, t);
+	
+			for(int i = 1; i < t.Days; i++)
+				round.Spacetimes[i] -= size;
+		}
 	}
 
 	public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)

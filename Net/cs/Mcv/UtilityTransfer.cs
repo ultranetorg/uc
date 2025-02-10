@@ -3,19 +3,19 @@
 public class UtilityTransfer : Operation
 {
 	public AccountAddress	To;
-	public long				BYAmount;
+	public long				BDAmount;
 	public long				ECThis;
 	public long				ECNext;
 	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(ECThis > 0 ? ECThis + " EC" : null), 
 																						  (ECNext > 0 ? ECNext + " EC" : null), 
-																						  (BYAmount > 0 ? BYAmount + " BY" : null)}.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => BYAmount > 0 || ECThis > 0 || ECNext > 0;
+																						  (BDAmount > 0 ? BDAmount + " BD" : null)}.Where(i => i != null))} -> {To}";
+	public override bool	IsValid(Mcv mcv) => BDAmount > 0 || ECThis > 0 || ECNext > 0;
 
 	public UtilityTransfer()
 	{
 	}
 
-	public UtilityTransfer(AccountAddress to, long ecthis, long ecnext, long by)
+	public UtilityTransfer(AccountAddress to, long ecthis, long ecnext, long bd)
 	{
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
@@ -23,7 +23,7 @@ public class UtilityTransfer : Operation
 		To			= to;
 		ECThis		= ecthis;
 		ECNext		= ecnext;
-		BYAmount	= by;
+		BDAmount	= bd;
 	}
 
 	public override void ReadConfirmed(BinaryReader r)
@@ -31,7 +31,7 @@ public class UtilityTransfer : Operation
 		To			= r.ReadAccount();
 		ECThis		= r.Read7BitEncodedInt64();
 		ECNext		= r.Read7BitEncodedInt64();
-		BYAmount	= r.Read7BitEncodedInt64();
+		BDAmount	= r.Read7BitEncodedInt64();
 	}
 
 	public override void WriteConfirmed(BinaryWriter w)
@@ -39,7 +39,7 @@ public class UtilityTransfer : Operation
 		w.Write(To);
 		w.Write7BitEncodedInt64(ECThis);
 		w.Write7BitEncodedInt64(ECNext);
-		w.Write7BitEncodedInt64(BYAmount);
+		w.Write7BitEncodedInt64(BDAmount);
 	}
 
 	public override void Execute(Mcv chain, Round round)
@@ -50,13 +50,13 @@ public class UtilityTransfer : Operation
 		{
 			Signer.EC -= ECThis;
 			Signer.ECNext -= ECNext;
-			Signer.BYBalance -= BYAmount;
+			Signer.BDBalance -= BDAmount;
 		}
 
 		var to = Affect(round, To);
 
 		to.EC += ECThis;
 		to.ECNext += ECNext;
-		to.BYBalance += BYAmount;
+		to.BDBalance += BDAmount;
 	}
 }

@@ -348,14 +348,14 @@ public class CostApc : RdnApc
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,
 			
-							RentAccount					= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
+							RentAccount					= RdnOperation.ToBD(Mcv.EntityLength, Mcv.Forever) * Rate,
 				
 							RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 				
-							RentResource				= Years.Select(y => RdnOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceForever			= RdnOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
+							RentResource				= Years.Select(y => RdnOperation.ToBD(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceForever			= RdnOperation.ToBD(Mcv.EntityLength, Mcv.Forever) * Rate,
 			
-							RentResourceData			= Years.Select(y => RdnOperation.SpacetimeFee(1, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceDataForever		= RdnOperation.SpacetimeFee(1, Mcv.Forever) * Rate};
+							RentResourceData			= Years.Select(y => RdnOperation.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceDataForever		= RdnOperation.ToBD(1, Mcv.Forever) * Rate};
 	}
 }

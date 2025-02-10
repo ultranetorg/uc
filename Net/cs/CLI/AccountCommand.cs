@@ -41,11 +41,11 @@ public class AccountCommand : McvCommand
 		a.Name = "ut";
 
 		a.Help = new() {Description = "Send utility from one account to another.",
-						Syntax = $"{Keyword} {a.NamesSyntax} to={AA} by={BY}|ec={EC} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} to={AA} st={ST}|ec={EC}|ecnext={EC} {SignerArg}={AA}",
 
 						Arguments =	[new ("to", "Account public address that funds are credited to"),
-									 new ("by", "Amount of Byte-Years to be transferred"),
-									 new ("ecthis", "Amount of Execution Cycles of this year to be transferred"),
+									 new ("st", "Amount of space-time to be transferred"),
+									 new ("ec", "Amount of Execution Cycles of the currect year to be transferred"),
 									 new ("ecnext", "Amount of Execution Cycles of next year to be transferred"),
 									 new (SignerArg, "Account public address where funds are debited from")],
 
@@ -54,7 +54,7 @@ public class AccountCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new UtilityTransfer(GetAccountAddress("to"), GetMoney("ecthis", 0), GetMoney("ecnext", 0), GetMoney("by", 0));
+								return new UtilityTransfer(GetAccountAddress("to"), GetEC("ec", 0), GetEC("ecnext", 0), GetBD("st", 0));
 							};
 
 		return a;

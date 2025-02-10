@@ -37,7 +37,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string		NoData = "NoData";
 	public const string		AlreadyExists = "Already exists";
 	public const string		NotSequential = "Not sequential";
-	public const string		NotEnoughBY = "Not enough spacetime";
+	public const string		NotEnoughBD = "Not enough spacetime";
 	public const string		NotEnoughEC = "Not enough execution units";
 	public const string		NotEnoughMR = "Not enough membership rights";
 	public const string		NotEnoughBandwidth = "Not enough bandwidth";
@@ -95,7 +95,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 		if(e.New && (Signer.Address != round.Mcv.Net.God || round.Id > Mcv.LastGenesisRound)) /// new Account
 		{
-			Signer.BYBalance -= round.AccountAllocationFee(e);
+			Signer.BDBalance -= round.AccountAllocationFee(e);
 		}
 
 		return e;

@@ -259,7 +259,7 @@ public class EconomyCommand : RdnCommand
 
 								var c = new CostApc{Years = [1, 5, 10], 
 													DomainLengths = [1, 5, 10, 15], 
-													Rate = GetMoney("rate", 1)};
+													Rate = Has("rate") ? Unit.Parse(GetString("rate")) : 1};
 
 								var r = Api<CostApc.Return>(c);
 

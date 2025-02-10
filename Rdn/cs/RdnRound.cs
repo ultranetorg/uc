@@ -13,9 +13,24 @@ public class RdnRound : Round
 	{
 	}
 
+//	public override int GetSpaceUsers()
+//	{
+//		int s = 0;
+//
+//		foreach(var c in Mcv.Domains.Clusters)
+//		{
+//			foreach(var b in c.Buckets)
+//			{
+//				s += b.Entries.Count(i => i.Expiration >= ConsensusTime);
+//			}
+//		}
+//
+//		return s;
+//	}
+
 	public override long AccountAllocationFee(Account account)
 	{
-		return RdnOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
+		return RdnOperation.ToBD(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)

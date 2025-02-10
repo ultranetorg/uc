@@ -67,7 +67,7 @@ public class ProductUpdation : FairOperation
 		{
 			if(f.Versions.Last().Refs == 0)
 			{
-				Free(a, f.Versions.Last().Value.Length);
+				Free(round, a, f.Versions.Last().Value.Length);
 
 				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Id = f.Versions.Last().Id}];
 			}

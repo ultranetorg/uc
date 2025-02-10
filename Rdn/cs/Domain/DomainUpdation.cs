@@ -87,11 +87,13 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				//e.SpaceReserved	= e.SpaceUsed;
-				e.Expiration = e.Expiration + Time.FromYears(Years);
 				
+				var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
+
 				PayForName(e.Address, Years);
-				PayForSpacetime(e.Space, Time.FromYears(Years));
+				PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
+
+				e.Expiration = start + Time.FromYears(Years);
 			}
 
 			if(Action == DomainAction.Transfer)
@@ -126,11 +128,12 @@ public class DomainUpdation : RdnOperation
 
 				e = round.AffectDomain(e.Address);
 
-				e.Expiration	= e.Expiration + Time.FromYears(Years);
-				//e.SpaceReserved	= e.SpaceUsed;
+				var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
 
 				PayForName(new string(' ', Domain.NameLengthMax), Years);
-				PayForSpacetime(e.Space, Time.FromYears(Years));
+				PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
+
+				e.Expiration = start + Time.FromYears(Years);
 			}
 
 			if(Action == DomainAction.ChangePolicy)

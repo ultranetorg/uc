@@ -61,7 +61,7 @@ public class ResourceLinkCreation : RdnOperation
 				return;
 			}
 
-			PayForSpacetime(Mcv.EntityLength, Mcv.Forever);
+			PayForForever(Mcv.EntityLength);
 		}
 		else
 		{	

@@ -23,7 +23,7 @@ public class FairRound : Round
 
 	public override long AccountAllocationFee(Account account)
 	{
-		return FairOperation.SpacetimeFee(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
+		return FairOperation.ToBD(Uccs.Net.Mcv.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)

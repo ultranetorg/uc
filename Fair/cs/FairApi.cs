@@ -125,13 +125,14 @@ public class CostApc : FairApc
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,
 			
-							RentAccount					= FairOperation.SpacetimeFee(Mcv.EntityLength, Mcv.Forever) * Rate,
+							//RentAccount					= FairOperation.ToBD(Mcv.EntityLength, Mcv.Forever) * Rate,
 				
 							//RentAuthor					= Years.Select(y => PublisherLengths.Select(l => FairOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 				
-							RentProduct					= Years.Select(y => FairOperation.SpacetimeFee(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+							//RentProduct					= Years.Select(y => FairOperation.ToBD(Mcv.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
 			
-							RentProductData				= Years.Select(y => FairOperation.SpacetimeFee(1, Time.FromYears(y)) * Rate).ToArray(),
-							RentProductDataForever		= FairOperation.SpacetimeFee(1, Mcv.Forever) * Rate};
+							//RentProductData				= Years.Select(y => FairOperation.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
+							//RentProductDataForever		= FairOperation.SpacetimeFee(1, Mcv.Forever) * Rate
+							};
 	}
 }

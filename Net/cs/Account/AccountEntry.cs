@@ -28,7 +28,7 @@ public class AccountEntry : Account, ITableEntry
 		a.Id						= Id;
 		a.Address					= Address;
 
-		a.BYBalance					= BYBalance;
+		a.BDBalance					= BDBalance;
 		a.EC						= EC;
 		a.ECThisPeriod				= ECThisPeriod;
 		a.ECNext					= ECNext;

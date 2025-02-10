@@ -121,7 +121,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				Signer.BYBalance -= SpacetimeFee(r.Length, Mcv.Forever);
+				Signer.BDBalance -= ToBD(r.Length, Mcv.Forever);
 				Free(round, d, r.Length);
 			}
 

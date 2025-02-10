@@ -162,17 +162,17 @@ public abstract class TcpPeering : IPeer
 			ListeningThread.Start();
 		}
 
-		MainThread = Node.CreateThread(() =>	{
-													while(Flow.Active)
-													{
-														var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
-
-														lock(Lock)
-														{
-															ProcessConnectivity();
-														}
-													}
-												});
+		MainThread = Node.CreateThread(() => {
+											 	while(Flow.Active)
+											 	{
+											 		var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
+											 
+											 		lock(Lock)
+											 		{
+											 			ProcessConnectivity();
+											 		}
+											 	}
+											 });
 
 		MainThread.Name = $"{Node.Name} Main";
 		MainThread.Start();

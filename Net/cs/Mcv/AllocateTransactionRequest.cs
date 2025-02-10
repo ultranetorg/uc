@@ -32,7 +32,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 														LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 														PowHash				= Mcv.LastConfirmedRound.Hash,
 														NextNid				= Transaction.Nid,
-														BYCost				= a.BYBalance - b.BYBalance,
+														BYCost				= a.BDBalance - b.BDBalance,
 														ECCost				= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.ECExecuted};
 			}
 			else

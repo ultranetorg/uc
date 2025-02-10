@@ -56,39 +56,46 @@ public abstract class FairOperation : Operation
 
 	public void PayForSpacetime(int length, Time time)
 	{
-		var fee = SpacetimeFee(length, time);
+		var fee = ToBD(length, time);
 		
-		Signer.BYBalance -= fee;
+		Signer.BDBalance -= fee;
 	}
 
-	public static long SpacetimeFee(int length, Time time)
+	public static long ToBD(int length, Time time)
 	{
-		return Mcv.ApplyTimeFactor(time, length);
+		return time.Days * length;
 	}
 
-	public void Allocate(Round round, Author author, int toallocate)
+	public void Allocate(Round round, Author domain, int size)
 	{
-		if(author.SpaceReserved < author.SpaceUsed + toallocate)
-		{
-			var f = SpacetimeFee(author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
-
-			Signer.BYBalance -= f;
-
-			author.SpaceReserved = 
-			author.SpaceUsed = author.SpaceUsed + toallocate;
-		}
-		else
-			author.SpaceUsed += toallocate;
+		///domain.Space += size;
+		///
+		///var t = Time.FromDays(domain.Expiration.Days - round.ConsensusTime.Days + 1); /// Pay for one more day
+		///
+		///Signer.BDBalance -= ToBD(size, t);
+		///
+		///if(t.Days > round.Spacetimes.Length)
+		///	round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
+		///
+		///for(int i = 0; i < t.Days; i++)
+		///	round.Spacetimes[i] += size;
 	}
 
-	public void Free(Author domain, int amount) /// WE DONT REFUND
+	public void Free(Round round, Author domain, int size)
 	{
-		//var f = SpacetimeFee(tofree, domain.Expiration - round.ConsensusTime);
-
-		domain.SpaceUsed -= amount;
-	
-		//Signer.STBalance += f;
-		//STReward -= f;
+		///domain.Space -= size;
+		///
+		///var d = domain.Expiration.Days - round.ConsensusTime.Days;
+		///
+		///if(d > 0)
+		///{
+		///	var t = Time.FromDays(d);
+		///
+		///	Signer.BDBalance += ToBD(size, t);
+		///
+		///	for(int i = 1; i < t.Days; i++)
+		///		round.Spacetimes[i] -= size;
+		///}
 	}
 
 	public bool RequireAuthor(FairRound round, EntityId id, out AuthorEntry author)
