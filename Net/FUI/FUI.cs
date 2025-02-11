@@ -15,7 +15,7 @@ static class Program
 
 		Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
-		ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+	//	ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 // 			try
 // 			{

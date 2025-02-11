@@ -48,56 +48,49 @@ public class SeedHub
 		{
 			var rzd = rsd.Release;
 
-			if(rzd.ToString() == "Urrh:/B67D2363FEA9C8FE2A2A5A2144E87AED1E645ACA52E60429B70758A68371DC6A")
-			{
-				rzd = rzd;
+			lock(Mcv.Lock)
+			{ 
+				if(!Mcv.NextVoteRound.VotersRound.Members.OrderByHash(i => i.Address.Bytes, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Contains(i.Address)))
+				{
+					yield return new (rzd, DeclarationResult.NotNearest);
+					continue;
+				}
 			}
 
-			//foreach(var rzd in rsd.Releases)
+			lock(Lock)
 			{
-				lock(Mcv.Lock)
-				{ 
-					if(!Mcv.NextVoteRound.VotersRound.Members.OrderByHash(i => i.Address.Bytes, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Contains(i.Address)))
+				bool valid()
+				{
+					if(rzd is Urrh urrh)
 					{
-						yield return new (rzd, DeclarationResult.NotNearest);
-						continue;
+						lock(Mcv.Lock)
+						{
+							var r = Mcv.Resources.Find(rsd.Resource, Mcv.LastConfirmedRound.Id);
+	
+							if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
+							{
+								return true;
+							}
+							else
+								return false;
+						}
 					}
+					///else if(rzd is Urrsd sdp)
+					///{
+					///	var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
+					///	var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
+					///
+					///	if(!sdp.Prove(Node.Net.Cryptography, o.Address, rsd.Hash))
+					///	{
+					///		return false;
+					///	}
+					///
+					///}
+
+					return false;
 				}
 
-				lock(Lock)
-				{
-					bool valid()
-					{
-						if(rzd is Urrh urrh)
-						{
-							lock(Mcv.Lock)
-							{
-								var r = Mcv.Resources.Find(rsd.Resource, Mcv.LastConfirmedRound.Id);
-	
-								if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
-								{
-									return true;
-								}
-								else
-									return false;
-							}
-						}
-						///else if(rzd is Urrsd sdp)
-						///{
-						///	var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
-						///	var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
-						///
-						///	if(!sdp.Prove(Node.Net.Cryptography, o.Address, rsd.Hash))
-						///	{
-						///		return false;
-						///	}
-						///
-						///}
-
-						return false;
-					}
-
-					List<Seed> seeds;
+				List<Seed> seeds;
 
 // 					if(!Resources.TryGetValue(rsd.Resource, out var releases))
 // 						if(valid())
@@ -108,75 +101,47 @@ public class SeedHub
 // 							continue;
 // 	  					}
 
-					if(!Releases.TryGetValue(rsd.Release, out seeds))
-						if(valid())
-							Releases[rsd.Release] = seeds = new();
-						else
-						{
-	  						yield return new (rzd, DeclarationResult.Rejected);
-							continue;
-	  					}
-
-					var s = seeds.Find(i => i.IP.Equals(ip));
-	
-					if(s == null)
-					{
-						s = new Seed(ip, DateTime.UtcNow, rsd.Availability);
-						seeds.Add(s);
-					} 
+				if(!Releases.TryGetValue(rsd.Release, out seeds))
+					if(valid())
+						Releases[rsd.Release] = seeds = new();
 					else
-						s.Arrived = DateTime.UtcNow;
-
-					s.Availability = rsd.Availability;
-
-					yield return new (rzd, DeclarationResult.Accepted);
-				
-					///if(releases.Count > 50)
-					///{
-					///	releases.RemoveAt(0);
-					///}
-
-					if(seeds.Count > SeedsPerReleaseMax)
 					{
-						seeds.RemoveRange(0, seeds.Count - SeedsPerReleaseMax);
-					}
+	  					yield return new (rzd, DeclarationResult.Rejected);
+						continue;
+	  				}
+
+				var s = seeds.Find(i => i.IP.Equals(ip));
+	
+				if(s == null)
+				{
+					s = new Seed(ip, DateTime.UtcNow, rsd.Availability);
+					seeds.Add(s);
+				} 
+				else
+					s.Arrived = DateTime.UtcNow;
+
+				s.Availability = rsd.Availability;
+
+				yield return new (rzd, DeclarationResult.Accepted);
+				
+				///if(releases.Count > 50)
+				///{
+				///	releases.RemoveAt(0);
+				///}
+
+				if(seeds.Count > SeedsPerReleaseMax)
+				{
+					seeds.RemoveRange(0, seeds.Count - SeedsPerReleaseMax);
 				}
 			}
 		}
 	}
 
- 		public IPAddress[] Locate(LocateReleaseRequest request)
- 		{
- 			if(Releases.TryGetValue(request.Address, out var v))
- 				return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
- 			else
- 				return new IPAddress[0]; /// TODO: ask other hubs
- 		}
-
-	void Searching()
-	{
-
-	}
-
-// 		public IPAddress[] AddSeeders(PackageAddress package, IEnumerable<IPAddress> ips)
-// 		{
-// 			Package pp = null;
-// 
-// 			if(!Packages.ContainsKey(package))
-// 				Packages[package] = pp = new();
-// 			else
-// 				pp = Packages[package];
-// 
-// 			var peers = ips.Where(ip => !pp.Seeders.Any(j => j.IP.Equals(ip))).Select(i => new Seeder(i, DateTime.UtcNow));
-// 
-// 			pp.Seeders.AddRange(peers);
-// 
-// 			if(pp.Seeders.Count > PeersPerPackageMax)
-// 			{
-// 				var last = pp.Seeders.OrderByDescending(i => i.Arrived).Skip(PeersPerPackageMax).First().Arrived;
-// 				pp.Seeders.RemoveAll(i => i.Arrived <= last);
-// 			}
-// 
-// 			return peers.Select(i => i.IP).ToArray();
-// 		}
+ 	public IPAddress[] Locate(LocateReleaseRequest request)
+ 	{
+ 		if(Releases.TryGetValue(request.Address, out var v))
+ 			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
+ 		else
+ 			return new IPAddress[0]; /// TODO: ask other hubs
+ 	}
 }

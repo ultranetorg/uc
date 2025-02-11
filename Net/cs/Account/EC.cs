@@ -1,5 +1,4 @@
-﻿
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public struct EC : IBinarySerializable, IEquatable<EC>
 {
@@ -180,6 +179,11 @@ public struct EC : IBinarySerializable, IEquatable<EC>
  		//var d = Take(from, x, expiration);
 		//from = Subtract(from, x, expiration);
 		//to = Add(to, d);
+	}
+
+	public override int GetHashCode()
+	{
+		return Expiration.Days.GetHashCode();
 	}
 
 	public override bool Equals(object obj)

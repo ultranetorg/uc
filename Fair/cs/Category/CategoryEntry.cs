@@ -4,7 +4,6 @@ public class CategoryEntry : Category, ITableEntry
 {
 	public bool			Deleted { get; set; }
 	FairMcv				Mcv;
-	bool				PublicationAffected;
 
 	public CategoryEntry()
 	{

@@ -84,7 +84,7 @@ public class PackageDownload
 
 												break;
 											}
-											catch(EntityException ex)
+											catch(EntityException)
 											{
 												Thread.Sleep(100);
 											}

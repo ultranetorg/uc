@@ -39,7 +39,7 @@ public class RdnNodeSettings : McvNodeSettings
 	public SeedSettings				Seed { get; set; }
 	public SeedHubSettings			SeedHub { get; set; } = new ();
 
-	public long						Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
+	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 
 	public RdnNodeSettings()

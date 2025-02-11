@@ -9,7 +9,6 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
 
-
 namespace Uccs.Net;
 
 /// <summary>
@@ -38,9 +37,7 @@ public class ECKey
 		CURVE = new ECDomainParameters(_secp256k1.Curve, _secp256k1.G, _secp256k1.N, _secp256k1.H);
 		HALF_CURVE_ORDER = _secp256k1.N.ShiftRight(1);
 		CURVE_ORDER = _secp256k1.N;
-		PRIME = new BigInteger(1,
-		   Org.BouncyCastle.Utilities.Encoders.Hex.Decode(
-			   "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"));
+		PRIME = new BigInteger(1,Org.BouncyCastle.Utilities.Encoders.Hex.Decode("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"));
 	}
 
 	public ECKey(byte[] vch, bool isPrivate)
@@ -71,7 +68,6 @@ public class ECKey
 		}
 	}
 
-
 	public byte[] GetPubKey(bool isCompressed)
 	{
 		if(_publicKey != null && !isCompressed) return _publicKey;
@@ -83,15 +79,13 @@ public class ECKey
 
 		if(isCompressed)
 		{
-			_publicKeyCompressed =
-			Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
+			_publicKeyCompressed = Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
 			return _publicKeyCompressed;
 
 		}
 		else
 		{
-			var _publicKey =
-			Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(false);
+			_publicKey = Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(false);
 			return _publicKey;
 		}
 	}
@@ -112,12 +106,8 @@ public class ECKey
 		return _ecPublicKeyParameters;
 	}
 
-
-
-
 	public static ECKey RecoverFromSignature(int recId, ECDSASignature sig, byte[] message, bool compressed)
 	{
-
 		if(recId < 0)
 			throw new ArgumentException("recId should be positive");
 		if(sig.R.SignValue < 0)
@@ -127,14 +117,12 @@ public class ECKey
 		if(message == null)
 			throw new ArgumentNullException("message");
 
-
 		SecpECDSASignature.TryCreateFromDer(sig.ToDER(), out var signature);
 		var recoverable = new SecpRecoverableECDSASignature(signature, recId);
 		ECPubKey.TryRecover(Context.Instance, recoverable, message, out var pubKey);
+
 		return new ECKey(pubKey.ToBytes(compressed), false);
-
 	}
-
 
 	public virtual ECDSASignature Sign(byte[] hash)
 	{
@@ -158,7 +146,6 @@ public class ECKey
 		if(PrivateKey == null)
 			throw new InvalidOperationException("This key should be a private key for such operation");
 	}
-
 }
 
 public class ECDSASignature
@@ -252,10 +239,9 @@ public class ECDSASignature
 internal class DeterministicECDSA : ECDsaSigner
 {
 	private readonly IDigest _digest;
-	private byte[] _buffer = new byte[0];
+	private byte[] _buffer = [];
 
-	public DeterministicECDSA()
-		: base(new HMacDsaKCalculator(new Sha256Digest()))
+	public DeterministicECDSA()	: base(new HMacDsaKCalculator(new Sha256Digest()))
 
 	{
 		_digest = new Sha256Digest();

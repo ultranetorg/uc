@@ -1,5 +1,4 @@
-﻿#if ETHEREUM
-namespace Uccs.Net.FUI
+﻿namespace Uccs.Net.FUI
 {
 	partial class EthereumFeeForm
 	{
@@ -223,7 +222,6 @@ namespace Uccs.Net.FUI
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Confirm Ethereum Transaction";
-			this.Load += new System.EventHandler(this.FeeForm_Load);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -248,4 +246,3 @@ namespace Uccs.Net.FUI
 		private System.Windows.Forms.PictureBox pictureBox1;
 	}
 }
-#endif
