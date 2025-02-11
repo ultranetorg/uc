@@ -6,12 +6,11 @@ public class Account : IBinarySerializable
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public long							EC;
-	public byte							ECThisPeriod;
-	public long							ECNext;
+	public long							EC { get; set; }
+	public byte							ECThisPeriod { get; set; }
+	public long							ECNext { get; set; }
 	public long							BDBalance { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
-	//public int							LastEmissionId  { get; set; } = -1;
 	public long							AverageUptime { get; set; }
 	
 	public long							Bandwidth { get; set; }
@@ -29,12 +28,12 @@ public class Account : IBinarySerializable
 	{
 		t = t.Replace(" ", null).Replace("\t", null).ToUpper();
 
-		if(t.EndsWith("BD"))	return long.Parse(t.Substring(0, t.Length-2), NumberStyles.AllowThousands);
-		if(t.EndsWith("BW"))	return long.Parse(t.Substring(0, t.Length-2), NumberStyles.AllowThousands) * 7;
-		if(t.EndsWith("BM"))	return long.Parse(t.Substring(0, t.Length-2), NumberStyles.AllowThousands) * 30;
-		if(t.EndsWith("BY"))	return long.Parse(t.Substring(0, t.Length-2), NumberStyles.AllowThousands) * 365;
+		if(t.EndsWith("BD")) return long.Parse(t.Substring(0, t.Length - 2), NumberStyles.AllowThousands);
+		if(t.EndsWith("BW")) return long.Parse(t.Substring(0, t.Length - 2), NumberStyles.AllowThousands) * 7;
+		if(t.EndsWith("BM")) return long.Parse(t.Substring(0, t.Length - 2), NumberStyles.AllowThousands) * 30;
+		if(t.EndsWith("BY")) return long.Parse(t.Substring(0, t.Length - 2), NumberStyles.AllowThousands) * 365;
 
-		throw new FormatException(t);
+		return long.Parse(t, NumberStyles.AllowThousands);
 	}
 
 	public virtual void Write(BinaryWriter writer)
@@ -49,7 +48,6 @@ public class Account : IBinarySerializable
 
 		writer.Write7BitEncodedInt(LastTransactionNid);
 		writer.Write7BitEncodedInt64(AverageUptime);
-
 		writer.Write7BitEncodedInt64(Bandwidth);
 		
 		if(Bandwidth > 0)

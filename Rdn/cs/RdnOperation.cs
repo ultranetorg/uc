@@ -34,6 +34,9 @@ public abstract class RdnOperation : Operation
 
 	public void PayForSpacetime(Round round, int size, Time start, Time duration)
 	{
+		if(size == 0)
+			return;
+
 		Signer.BDBalance -= ToBD(size, duration);
 
 		var n = start.Days + duration.Days - round.ConsensusTime.Days;

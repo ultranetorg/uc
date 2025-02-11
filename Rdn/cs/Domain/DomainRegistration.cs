@@ -101,9 +101,11 @@ public class DomainRegistration : RdnOperation
 
 			e = round.AffectDomain(Address);
 			
+			var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
+
 			e.Owner			= round.AffectAccount(Owner).Id;
 			e.ParentPolicy	= Policy;
-			e.Expiration	= e.Expiration + Time.FromYears(Years);
+			e.Expiration	= start + Time.FromYears(Years);
 
 			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
