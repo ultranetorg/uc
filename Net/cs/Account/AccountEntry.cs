@@ -2,7 +2,6 @@
 
 public class AccountEntry : Account, ITableEntry
 {
-	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
 
 	public bool				New;

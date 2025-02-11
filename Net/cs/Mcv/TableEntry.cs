@@ -2,7 +2,7 @@
 
 public interface ITableEntry
 {
-	BaseId		BaseId { get; }
+	EntityId	Id { get; }
 	//bool		New { get; set; }
 	bool		Deleted { get; }
 

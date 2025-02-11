@@ -1279,7 +1279,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				else if(!x.All(i => i))
 					Debugger.Break();
 
-				var es = cs.Select(i => new {i.m, e = i.c.Current.Buckets.OrderBy(i => i.Id).SelectMany(i => i.Entries.OrderBy(i => i.BaseId)).ToArray().GetEnumerator()}).ToArray();
+				var es = cs.Select(i => new {i.m, e = i.c.Current.Buckets.OrderBy(i => i.Id).SelectMany(i => i.Entries.OrderBy(i => i.Id)).ToArray().GetEnumerator()}).ToArray();
 
 				while(true)
 				{

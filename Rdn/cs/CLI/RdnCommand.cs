@@ -45,6 +45,13 @@ public abstract class RdnCommand : McvCommand
 				return null;
 	}
 
+	protected EntityId GetResourceId(string text)
+	{
+		return text.Contains('/') ? Ppc(new ResourceRequest(Ura.Parse(text))).Resource.Id
+									:
+									EntityId.Parse(text);
+	}
+
 	protected Urr GetReleaseAddress(string paramenter, bool mandatory = true)
 	{
 		if(Has(paramenter))
@@ -81,7 +88,7 @@ public abstract class RdnCommand : McvCommand
 						return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
 																ECPayment	= d.Get<long>("ecpayment"),
 																BYPayment	= d.Get<long>("bypayment"),
-																Consil		= d.Get<Ura>("consil")});
+																Consil		= GetResourceId(d.Get<string>("consil"))});
 				}
 				else
 				{

@@ -29,7 +29,7 @@ public partial class ResourcesPanel : MainPanel
 
 	public override void Open(bool first)
 	{
-		if(first)
+		if(first && Node.ResourceHub != null)
 		{
 			LocalSearch_Click(this, EventArgs.Empty);
 		}

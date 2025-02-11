@@ -2,7 +2,6 @@
 
 public class ProductEntry : Product, ITableEntry
 {
-	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 

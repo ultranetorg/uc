@@ -2,16 +2,8 @@
 
 public class ResourceEntry : Resource, ITableEntry
 {
-	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
-	
-	//public new EntityId		Id { get => base.Id; set => base.Id = value as ResourceId; }
-	//public Resource[]		Resources { get; set; } = [];
-
-	//public bool				New;
-	//public bool			Affected;
 	RdnMcv					Mcv;
-	//bool					ResourcesCloned;
 
 	public ResourceEntry()
 	{

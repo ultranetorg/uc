@@ -7,10 +7,11 @@ public partial class HubPanel : MainPanel
 {
 	RdnNode Node;
 
-	public HubPanel(RdnNode mcv)
+	public HubPanel(RdnNode node)
 	{
 		InitializeComponent();
 
+		Node = node;
 		// 			foreach(DataGridViewColumn i in peers.Columns)
 		// 			{
 		// 				i.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;

@@ -64,10 +64,6 @@ public abstract class Round : IBinarySerializable
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(){}
 
-	public byte[]										__SummaryBaseHash;
-	public byte[]										__SummaryBaseState;
-	public Vote[]										__SummaruVotesOfTry;
-
 	public int MinimumForConsensus
 	{
 		get
@@ -134,7 +130,7 @@ public abstract class Round : IBinarySerializable
 
 	public int GetNextEid(TableBase table,  int b)
 	{
-		int e = -1;
+		int e = 0;
 
 		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id))
 		{	
@@ -144,7 +140,7 @@ public abstract class Round : IBinarySerializable
 				break;
 		}
 			
-		if(e == -1)
+		if(e == 0)
 			e = table.FindBucket(b)?.NextEid ?? 0;
 
 		NextEidsByTable(table)[b] = e + 1;
@@ -243,7 +239,6 @@ public abstract class Round : IBinarySerializable
 
 		var min = MinimumForConsensus;
 		var all = VotesOfTry.ToArray();
-		__SummaruVotesOfTry = all.ToArray();
 		var svotes = Id < Mcv.JoinToVote ? [] : Required.ToArray();
 					
 		ConsensusECFee	= Id == 0 ? 0 : Previous.ConsensusECFee;
@@ -389,7 +384,7 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 		{
 			AffectedByTable(i).Clear();
-			NextEidsByTable(i)?.Clear();
+			NextEidsByTable(i).Clear();
 		}
 
 		RestartExecution();

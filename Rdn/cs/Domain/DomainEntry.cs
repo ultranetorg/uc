@@ -2,10 +2,7 @@
 
 public class DomainEntry : Domain, ITableEntry
 {
-	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
-	//public bool				New;
-	//public bool			Affected;
 	Mcv						Mcv;
 	//bool					ResourcesCloned;
 	

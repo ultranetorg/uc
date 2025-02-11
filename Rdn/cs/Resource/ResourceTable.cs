@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using System.Diagnostics;
+
+namespace Uccs.Rdn;
 
 public class ResourceTable : Table<ResourceEntry>
 {
@@ -16,6 +18,9 @@ public class ResourceTable : Table<ResourceEntry>
 
 	public ResourceEntry Find(EntityId id, int ridmax)
 	{
+if(!Monitor.IsEntered(Mcv.Lock))
+	Debugger.Break();
+
   		foreach(var i in Tail.Where(i => i.Id <= ridmax))
 			if(i.AffectedResources.TryGetValue(id, out var r))
    				return r;
@@ -32,8 +37,8 @@ public class ResourceTable : Table<ResourceEntry>
 	
 	public ResourceEntry Find(Ura address, int ridmax)
 	{
- 		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
- 		//	throw new IntegrityException("maxrid works inside pool only");
+if(!Monitor.IsEntered(Mcv.Lock))
+	Debugger.Break();
  
         var d = Mcv.Domains.Find(address.Domain, ridmax);
 

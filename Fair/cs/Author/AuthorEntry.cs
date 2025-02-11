@@ -3,7 +3,6 @@
 public class AuthorEntry : Author, ITableEntry
 {
 	Mcv						Mcv;
-	public BaseId			BaseId => Id;
 	public bool				Deleted { get; set; }
 	public EntityId[]		Products { get; set; }
 

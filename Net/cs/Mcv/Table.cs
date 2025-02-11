@@ -23,7 +23,7 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Round lastconfirmedround);
+	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Dictionary<int, int> eids, Round lastconfirmedround);
 	public static short							ClusterFromBucket(int id) => (short)(id >> 12);
 
 	public abstract class BucketBase
@@ -189,7 +189,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			///if(_Main == null || base.Entries != null)
 			///{
 			///
-				var entities = Entries.OrderBy(i => i.BaseId).ToArray();
+				var entities = Entries.OrderBy(i => i.Id).ToArray();
 
 				w.Write7BitEncodedInt(NextEid);
 				w.Write(entities, i =>	{
@@ -495,7 +495,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//}
 	}
 
-	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Round lastInCommit)
+	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Dictionary<int, int> eids, Round lastInCommit)
 	{
 		if(entities.Count == 0)
 			return;
@@ -505,16 +505,19 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		foreach(var i in entities.Cast<E>())
 		{
-			var c = GetCluster(ClusterFromBucket(i.BaseId.B));
-			var b = c.GetBucket(i.BaseId.B);
+			var c = GetCluster(ClusterFromBucket(i.Id.B));
+			var b = c.GetBucket(i.Id.B);
 
-			var e = b.Entries.Find(e => e.BaseId == i.BaseId);
+			var e = b.Entries.Find(e => e.Id == i.Id);
 			
 			if(e != null)
 				b.Entries.Remove(e);
 
 			if(!i.Deleted)
 				b.Entries.Add(i);
+
+			if(b.NextEid < i.Id.E + 1)
+				b.NextEid = Math.Max(b.NextEid, i.Id.E + 1);
 
 			bs.Add(b);
 			cs.Add(c);

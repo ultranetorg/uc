@@ -35,6 +35,12 @@ public class AnalysisResultUpdation : RdnOperation
 		if(RequireResource(round, Analysis, out var ad, out var ar) == false)
 			return;
 
+		if(ar.Data == null)
+		{
+			Error = NoData;
+			return;
+		}
+
 		var c = mcv.Resources.Find(ar.Data.Read<Analysis>().Consil, round.Id)?.Data?.Read<Consil>();
 
 		if(c == null)

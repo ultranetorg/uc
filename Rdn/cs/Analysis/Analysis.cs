@@ -49,7 +49,7 @@ public class Analysis : IBinarySerializable
 	public Urr						Release { get; set; }
 	public long						ECPayment { get; set; }
 	public long						BYPayment { get; set; }
-	public Ura						Consil	{ get; set; }
+	public EntityId					Consil	{ get; set; }
 	public AnalyzerResult[]			Results { get; set; }
 
 	public override string ToString()
@@ -60,7 +60,7 @@ public class Analysis : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Release		= Urr.ReadVirtual(reader);
-		Consil		= reader.Read<Ura>();
+		Consil		= reader.Read<EntityId>();
 		BYPayment	= reader.Read7BitEncodedInt64();
 		ECPayment	= reader.Read7BitEncodedInt64();
 		Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 

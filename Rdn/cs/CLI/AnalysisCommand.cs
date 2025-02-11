@@ -35,7 +35,6 @@ public class AnalysisCommand : RdnCommand
 
 								var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name))).Resource;
 
-
 								return new AnalysisResultUpdation {	Analysis = r.Id, 
 																	Result = Enum.Parse<AnalysisResult>(GetString("result"))};;
 							};

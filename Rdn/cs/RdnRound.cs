@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using System.Diagnostics;
+
+namespace Uccs.Rdn;
 
 public class RdnRound : Round
 {
@@ -122,10 +124,6 @@ public class RdnRound : Round
 	public override void RestartExecution()
 	{
 		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
-
-// 		AffectedDomains.Clear();
-// 		AffectedResources.Clear();
-// 		NextDomainEids.Clear();
 	}
 
 	public override void FinishExecution()

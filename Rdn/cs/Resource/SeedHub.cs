@@ -47,6 +47,12 @@ public class SeedHub
 		foreach(var rsd in resources)
 		{
 			var rzd = rsd.Release;
+
+			if(rzd.ToString() == "Urrh:/B67D2363FEA9C8FE2A2A5A2144E87AED1E645ACA52E60429B70758A68371DC6A")
+			{
+				rzd = rzd;
+			}
+
 			//foreach(var rzd in rsd.Releases)
 			{
 				lock(Mcv.Lock)
@@ -72,6 +78,8 @@ public class SeedHub
 								{
 									return true;
 								}
+								else
+									return false;
 							}
 						}
 						///else if(rzd is Urrsd sdp)
@@ -140,7 +148,7 @@ public class SeedHub
  		public IPAddress[] Locate(LocateReleaseRequest request)
  		{
  			if(Releases.TryGetValue(request.Address, out var v))
- 			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
+ 				return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
  			else
  				return new IPAddress[0]; /// TODO: ask other hubs
  		}

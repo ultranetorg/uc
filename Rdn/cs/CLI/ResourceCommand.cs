@@ -203,11 +203,11 @@ public class ResourceCommand : RdnCommand
 				
 								Dump(	r, 
 										["Address", "Releases", "Type", "Data", "Length"], 
-										[i => i.Address.Domain + '/' + i.Address.Resource,
-											i => i.Datas.Count,
-											i => i.Last.Type,
-											i => i.Last.Value.ToHex(32),
-											i => i.Last.Value.Length]);
+										[i =>	i.Address.Domain + '/' + i.Address.Resource,
+												i => i.Datas.Count,
+												i => i.Last.Type,
+												i => i.Last.Value.ToHex(32),
+												i => i.Last.Value.Length]);
 								return r;
 							};
 		return a;
