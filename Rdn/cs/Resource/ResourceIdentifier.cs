@@ -2,11 +2,11 @@
 
 public class ResourceIdentifier
 {
-	public Ura			Addres { get; set; }
-	public ResourceId	Id { get; set; }
+	public Ura		Addres { get; set; }
+	public EntityId	Id { get; set; }
 
 	public static implicit operator Ura(ResourceIdentifier d) => d.Addres;
-	public static implicit operator ResourceId(ResourceIdentifier d) => d.Id;
+	public static implicit operator EntityId(ResourceIdentifier d) => d.Id;
 
 	public ResourceIdentifier()
 	{
@@ -17,7 +17,7 @@ public class ResourceIdentifier
 		Addres = addres;
 	}
 
-	public ResourceIdentifier(ResourceId id)
+	public ResourceIdentifier(EntityId id)
 	{
 		Id = id;
 	}

@@ -3,7 +3,7 @@
 public class AnalysisResultUpdation : RdnOperation
 {
 	//public ResourceId		Resource { get; set; }
-	public ResourceId		Analysis { get; set; }
+	public EntityId			Analysis { get; set; }
 	public AnalysisResult	Result { get; set; }
 	
 	public override string	Description => $"Analysis={Analysis}, Result={Result}";
@@ -17,14 +17,14 @@ public class AnalysisResultUpdation : RdnOperation
 	{
 		//writer.Write(Resource);
 		writer.Write(Analysis);
-		writer.Write((byte)Result);
+		writer.WriteEnum(Result);
 	}
 	
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		//Resource = reader.Read<ResourceId>();
-		Analysis = reader.Read<ResourceId>();
-		Result	 = (AnalysisResult)reader.ReadByte();
+		Analysis = reader.Read<EntityId>();
+		Result	 = reader.ReadEnum<AnalysisResult>();
 	}
 
 	public override void Execute(RdnMcv mcv, RdnRound round)

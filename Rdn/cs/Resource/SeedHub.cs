@@ -4,7 +4,7 @@ namespace Uccs.Rdn;
 
 public class ResourceDeclaration
 {
-	public ResourceId		Resource { get; set; }	
+	public EntityId			Resource { get; set; }	
 	public Urr				Release { get; set; }	
 	public byte[]			Hash { get; set; }
 	public Availability		Availability { get; set; }	

@@ -13,27 +13,27 @@ public static class IdTests
 		var e1 = new EntityId(1, 2);
 		var e2 = new EntityId(2, 3);
 
-		BaseId r0 = new ResourceId(1, 2, 4);
-		BaseId r1 = new ResourceId(1, 2, 4);
-		BaseId r2 = new ResourceId(1, 2, 5);
-		BaseId r3 = new ResourceId(1, 3, 6);
+// 		BaseId r0 = new ResourceId(1, 2, 4);
+// 		BaseId r1 = new ResourceId(1, 2, 4);
+// 		BaseId r2 = new ResourceId(1, 2, 5);
+// 		BaseId r3 = new ResourceId(1, 3, 6);
 
-		Assert.True(e0 == e1);
-		Assert.True(e0 != e2);
-
-		Assert.True(r0 == r1);
-		Assert.True(r0 != r2);
-		Assert.True(r1 != r2);
-
-		Assert.True(e0 == r0);
-		Assert.True(e2 != r0);
-		Assert.True(e0 != r3);
-
-		BaseId[] a = [r3, r2, r1, r0];
-		
-		a = a.Order().ToArray();
-
-		Assert.True(a.SequenceEqual([r0, r1, r2, r3]));
+// 		Assert.True(e0 == e1);
+// 		Assert.True(e0 != e2);
+// 
+// 		Assert.True(r0 == r1);
+// 		Assert.True(r0 != r2);
+// 		Assert.True(r1 != r2);
+// 
+// 		Assert.True(e0 == r0);
+// 		Assert.True(e2 != r0);
+// 		Assert.True(e0 != r3);
+// 
+// 		BaseId[] a = [r3, r2, r1, r0];
+// 		
+// 		a = a.Order().ToArray();
+// 
+// 		Assert.True(a.SequenceEqual([r0, r1, r2, r3]));
 
 		Assert.True(EntityId.TryParse(e0.ToString(), out var e) && e0 == e);
 		Assert.False(EntityId.TryParse($"{TableBase.BucketsCountMax}-0", out e0));

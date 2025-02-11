@@ -2,7 +2,7 @@ namespace Uccs.Rdn;
 
 public class ResourceUpdation : RdnOperation
 {
-	public ResourceId			Resource { get; set; }
+	public EntityId				Resource { get; set; }
 	public ResourceChanges		Changes	{ get; set; }
 	public ResourceData			Data { get; set; }
 
@@ -14,7 +14,7 @@ public class ResourceUpdation : RdnOperation
 	{
 	}
 
-	public ResourceUpdation(ResourceId resource)
+	public ResourceUpdation(EntityId resource)
 	{
 		Resource = resource;
 	}
@@ -41,7 +41,7 @@ public class ResourceUpdation : RdnOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Resource	= reader.Read<ResourceId>();
+		Resource	= reader.Read<EntityId>();
 		Changes		= (ResourceChanges)reader.ReadByte();
 		
 		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
@@ -72,10 +72,10 @@ public class ResourceUpdation : RdnOperation
 
 			var r = round.AffectResource(d, resource.Resource);
 
-			if(rs.Contains(r.Id.R))
+			if(rs.Contains(r.Id.E))
 				return;
 			else
-				rs.Add(r.Id.R);
+				rs.Add(r.Id.E);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{

@@ -4,9 +4,10 @@ public class RdnRound : Round
 {
 	public new RdnMcv								Mcv => base.Mcv as RdnMcv;
 	public List<DomainMigration>					Migrations;
-	public Dictionary<string, DomainEntry>			AffectedDomains = new();
-	public Dictionary<ResourceId, ResourceEntry>	AffectedResources = new();
-	public Dictionary<int, int>						NextDomainEids = new();
+	public Dictionary<string, DomainEntry>			AffectedDomains = [];
+	public Dictionary<EntityId, ResourceEntry>		AffectedResources = [];
+	public Dictionary<int, int>						NextDomainEids = [];
+	public Dictionary<int, int>						NextResourceEids = [];
 	public ForeignResult[]							ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)
@@ -44,7 +45,7 @@ public class RdnRound : Round
 	public override Dictionary<int, int> NextEidsByTable(TableBase table)
 	{
 		if(table == Mcv.Domains)	return NextDomainEids;
-		//if(table == Mcv.Resources)	return AffectedResources.Values;
+		if(table == Mcv.Resources)	return NextResourceEids;
 
 		return base.NextEidsByTable(table);
 	}
@@ -84,7 +85,7 @@ public class RdnRound : Round
 		return AffectedDomains[a.Address] = a.Clone();
 	}
 
-	public ResourceEntry AffectResource(ResourceId id)
+	public ResourceEntry AffectResource(EntityId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))
 			return a;
@@ -99,19 +100,18 @@ public class RdnRound : Round
 
   	public ResourceEntry AffectResource(DomainEntry domain, string resource)
   	{
-		var d = AffectDomain(domain.Id);
-
-		var r =	AffectedResources.Values.FirstOrDefault(i => i.Id == domain.Id && i.Address.Resource == resource);
+		var r =	AffectedResources.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
 		
 		if(r != null)
 			return r;
 
-		r = Mcv.Resources.Find(new Ura(d.Address, resource), Id - 1);
+		r = Mcv.Resources.Find(new Ura(domain.Address, resource), Id - 1);
 
   		if(r == null)
   		{
-  			r = new ResourceEntry  {Address = new Ura(d.Address, resource),
-  									Id = new ResourceId(d.Id.B, d.Id.E, d.NextResourceId++)};
+  			r = new ResourceEntry  {Id = new EntityId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
+									Domain = domain.Id,
+  									Address = new Ura(domain.Address, resource)};
   		} 
   		else
 			r = r.Clone();

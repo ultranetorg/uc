@@ -14,21 +14,18 @@ public class ResourceTable : Table<ResourceEntry>
 		return new ResourceEntry(Mcv);
 	}
 
-	public ResourceEntry Find(ResourceId id, int ridmax)
+	public ResourceEntry Find(EntityId id, int ridmax)
 	{
-		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-		//	throw new IntegrityException("maxrid works inside pool only");
-
-  			foreach(var i in Tail.Where(i => i.Id <= ridmax))
+  		foreach(var i in Tail.Where(i => i.Id <= ridmax))
 			if(i.AffectedResources.TryGetValue(id, out var r))
-    				return r;
+   				return r;
 
-		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E && i.Id.R == id.R);
+		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 
 		if(e == null)
 			return null;
 
-		e.Address.Domain = Mcv.Domains.Find(id, ridmax).Address;
+		e.Address.Domain = Mcv.Domains.Find(e.Domain, ridmax).Address;
 
 		return e;
 	}
@@ -37,6 +34,11 @@ public class ResourceTable : Table<ResourceEntry>
 	{
  		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
  		//	throw new IntegrityException("maxrid works inside pool only");
+ 
+        var d = Mcv.Domains.Find(address.Domain, ridmax);
+
+        if(d == null)
+            return null;
 
   		foreach(var r in Tail.Where(i => i.Id <= ridmax))
  		{	
@@ -45,13 +47,8 @@ public class ResourceTable : Table<ResourceEntry>
  			if(x != null)
   				return x;
  		}
- 
-        var d = Mcv.Domains.Find(address.Domain, ridmax);
 
-        if(d == null)
-            return null;
-
-  		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Id.E == d.Id.E && i.Address.Resource == address.Resource);
+  		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Address == address);
 
 		if(e == null)
 			return null;

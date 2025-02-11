@@ -2,8 +2,8 @@
 
 public class ResourceLinkCreation : RdnOperation
 {
-	public ResourceId			Source { get; set; }
-	public ResourceId			Destination { get; set; }
+	public EntityId				Source { get; set; }
+	public EntityId				Destination { get; set; }
 	public ResourceLinkChanges	Changes  { get; set; }
 	
 	public override string	Description => $"Source={Source}, Destination={Destination}";
@@ -19,7 +19,7 @@ public class ResourceLinkCreation : RdnOperation
 			Changes |= ResourceLinkChanges.Seal;
 	}
 
-	public ResourceLinkCreation(ResourceId source, ResourceId destination)
+	public ResourceLinkCreation(EntityId source, EntityId destination)
 	{
 		Source = source;
 		Destination = destination;
@@ -34,8 +34,8 @@ public class ResourceLinkCreation : RdnOperation
 	
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Source		= reader.Read<ResourceId>();
-		Destination	= reader.Read<ResourceId>();
+		Source		= reader.Read<EntityId>();
+		Destination	= reader.Read<EntityId>();
 		Changes		= (ResourceLinkChanges)reader.ReadByte();
 	}
 

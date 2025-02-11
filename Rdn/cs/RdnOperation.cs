@@ -101,11 +101,11 @@ public abstract class RdnOperation : Operation
 		}
 	}
 
-	public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
 	{
-		domain = round.Mcv.Domains.Find(name, round.Id);
+		domain = round.Mcv.Domains.Find(id, round.Id);
 
-		if(domain == null)
+		if(domain == null || domain.Deleted)
 		{
 			Error = NotFound;
 			return false;
@@ -116,6 +116,33 @@ public abstract class RdnOperation : Operation
 			Error = Expired;
 			return false;
 		}
+
+		return true;
+	}
+
+	public bool RequireDomain(RdnRound round, string name, out DomainEntry domain)
+	{
+		domain = round.Mcv.Domains.Find(name, round.Id);
+
+		if(domain == null || domain.Deleted)
+		{
+			Error = NotFound;
+			return false;
+		}
+
+		if(Domain.IsExpired(domain, round.ConsensusTime))
+		{
+			Error = Expired;
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
+	{
+		if(!RequireDomain(round, name, out domain))
+			return false;
 
 		if(domain.Owner != Signer.Id)
 		{
@@ -128,19 +155,8 @@ public abstract class RdnOperation : Operation
 
 	public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
 	{
-		domain = round.Mcv.Domains.Find(id, round.Id);
-
-		if(domain == null)
-		{
-			Error = NotFound;
+		if(!RequireDomain(round, id, out domain))
 			return false;
-		}
-
-		if(Domain.IsExpired(domain, round.ConsensusTime))
-		{
-			Error = Expired;
-			return false;
-		}
 
 		if(domain.Owner != Signer.Id)
 		{
@@ -151,63 +167,30 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
+	public bool RequireResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
 	{
-		domain = round.Mcv.Domains.Find(id, round.Id);
+		resource = round.Mcv.Resources.Find(id, round.Id);
 
-		if(domain == null)
+		if(resource == null || resource.Deleted)
 		{
+			domain = null;
 			Error = NotFound;
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.ConsensusTime))
-		{
-			Error = Expired;
-			return false;
-		}
+		if(!RequireDomain(round, resource.Domain, out domain))
+			return false; 
 
 		return true;
 	}
 
-	public bool RequireResource(RdnRound round, ResourceId id, out DomainEntry domain, out ResourceEntry resource)
+	public bool RequireSignerResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
 	{
-		resource = null;
-
-		if(RequireDomain(round, id, out domain) == false)
-		{
-			Error = NotFound;
+		if(!RequireResource(round, id, out domain, out resource))
 			return false; 
-		}
 
-		resource = round.Mcv.Resources.Find(id, round.Id);
-		
-		if(resource == null)
-		{
-			Error = NotFound;
+		if(!RequireSignerDomain(round, resource.Domain, out _))
 			return false; 
-		}
-
-		return true; 
-	}
-
-	public bool RequireSignerResource(RdnRound round, ResourceId id, out DomainEntry domain, out ResourceEntry resource)
-	{
-		resource = null;
-
-		if(RequireSignerDomain(round, id, out domain) == false)
-		{
-			Error = NotFound;
-			return false; 
-		}
-
-		resource = round.Mcv.Resources.Find(id, round.Id);
-		
-		if(resource == null)
-		{
-			Error = NotFound;
-			return false; 
-		}
 
 		return true; 
 	}

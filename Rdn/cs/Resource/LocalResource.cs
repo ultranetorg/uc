@@ -5,7 +5,7 @@ namespace Uccs.Rdn;
 
 public class LocalResource
 {
-	public ResourceId			Id  { get; set; }
+	public EntityId				Id  { get; set; }
 	public Ura					Address { get; set; }
 	public List<ResourceData>	Datas { get; set; }
 

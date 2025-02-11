@@ -33,7 +33,7 @@ public enum ResourceLinkChanges : byte
 
 public class ResourceLink : IBinarySerializable
 {
-	public ResourceId		Destination { get; set; }
+	public EntityId			Destination { get; set; }
 	public ResourceLinkFlag	Flags { get; set; }
 
 	public bool				Affected;
@@ -45,7 +45,7 @@ public class ResourceLink : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Destination	= reader.Read<ResourceId>();
+		Destination	= reader.Read<EntityId>();
 		Flags		= (ResourceLinkFlag)reader.ReadByte();
 	}
 
@@ -58,13 +58,14 @@ public class ResourceLink : IBinarySerializable
 
 public class Resource// : IBinarySerializable
 {
-	public ResourceId			Id { get; set; }
+	public EntityId				Id { get; set; }
+	public EntityId				Domain { get; set; }
 	[JsonIgnore]public Ura		Address { get; set; }
 	public ResourceFlags		Flags { get; set; }
 	public ResourceData			Data { get; set; }
 	public Time					Updated { get; set; }
 	public ResourceLink[]		Outbounds { get; set; } = [];
-	public ResourceId[]			Inbounds { get; set; } = [];
+	public EntityId[]			Inbounds { get; set; } = [];
 
 	//public bool					New;
 	//public bool					Affected;
@@ -78,7 +79,7 @@ public class Resource// : IBinarySerializable
 		return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 	}
 
-	public ResourceLink AffectOutbound(ResourceId destination)
+	public ResourceLink AffectOutbound(EntityId destination)
 	{
 		var i = Outbounds == null ? -1 : Array.FindIndex(Outbounds, i => i.Destination == destination);
 
@@ -109,7 +110,7 @@ public class Resource// : IBinarySerializable
 		}
 	}
 
-	public void AffectInbound(ResourceId source)
+	public void AffectInbound(EntityId source)
 	{
 		var i = Inbounds == null ? -1 : Array.IndexOf(Inbounds, source);
 		
@@ -126,13 +127,13 @@ public class Resource// : IBinarySerializable
 		InboundsCloned = true;
 	}
 
-	public void RemoveOutbound(ResourceId destination)
+	public void RemoveOutbound(EntityId destination)
 	{
 		Outbounds = Outbounds.Where(i => i.Destination != destination).ToArray();
 		OutboundsCloned = true;
 	}
 
-	public void RemoveInbound(ResourceId destination)
+	public void RemoveInbound(EntityId destination)
 	{
 		Inbounds = Inbounds.Where(i => i != destination).ToArray();
 		InboundsCloned = true;

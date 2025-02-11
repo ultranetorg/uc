@@ -164,7 +164,7 @@ public class LocalReleaseAddApc : RdnApc
 public class LocalResourceUpdateApc : RdnApc
 {
 	public Ura				Address { get; set; }
-	public ResourceId		Id { get; set; }
+	public EntityId			Id { get; set; }
 	public ResourceData		Data { get; set; }
 
 	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
