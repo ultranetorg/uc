@@ -86,7 +86,7 @@ public class ProductField : IBinarySerializable
 public class Product : IBinarySerializable
 {
 	public EntityId				Id { get; set; }
-	public EntityId				AuthorId { get; set; }
+	public EntityId				Author { get; set; }
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
@@ -102,7 +102,7 @@ public class Product : IBinarySerializable
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(AuthorId);
+		writer.Write(Author);
 		writer.WriteEnum(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
@@ -112,7 +112,7 @@ public class Product : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Id				= reader.Read<EntityId>();
-		AuthorId		= reader.Read<EntityId>();
+		Author		= reader.Read<EntityId>();
 		Flags			= reader.ReadEnum<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();

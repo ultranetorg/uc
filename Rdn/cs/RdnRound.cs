@@ -209,7 +209,7 @@ public class RdnRound : Round
 				Migrations.Remove(e);
 			} 
 			else
-				AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AverageUptime -= 10;
+				AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address, null).AverageUptime -= 10;
 		}
 
 		Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);

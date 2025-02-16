@@ -148,19 +148,19 @@ public abstract class Round : IBinarySerializable
 		return e;
 	}
 
-	public void TransferEC(AccountEntry a)
+	public void TransferECIfNeeded(IEnergyHolder a)
 	{
-		if(a.ECThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
+		if(a.EnergyThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
 		{
-			if(a.ECThisPeriod + 1 == ConsensusTime.Days/Net.ECLifetime.Days)
-				a.EC = a.ECNext;
+			if(a.EnergyThisPeriod + 1 == ConsensusTime.Days/Net.ECLifetime.Days)
+				a.Energy = a.EnergyNext;
 	
-			a.ECNext = 0;
-			a.ECThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
+			a.EnergyNext = 0;
+			a.EnergyThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
 		}
 	}
 
-	public AccountEntry AffectAccount(AccountAddress address)
+	public AccountEntry AffectAccount(AccountAddress address, Account creator)
 	{
 		if(AffectedAccounts.TryGetValue(address, out var a))
 			return a;
@@ -171,7 +171,7 @@ public abstract class Round : IBinarySerializable
 		{	
 			a = AffectedAccounts[address] = a.Clone();
 
-			TransferEC(a);
+			TransferECIfNeeded(a);
 		}
 		else
 		{
@@ -185,6 +185,11 @@ public abstract class Round : IBinarySerializable
 			a.Address	= address;
 			a.New		= true;
 			
+			if(creator != null && creator.Address != Mcv.Net.God) /// new Account
+			{
+				creator.Spacetime -= AccountAllocationFee(a);
+			}
+
 			AffectedAccounts[address] = a;
 		}
 
@@ -200,7 +205,7 @@ public abstract class Round : IBinarySerializable
 
 		AffectedAccounts[a.Address] = a;
 
-		TransferEC(a);
+		TransferECIfNeeded(a);
 
 		return a;
 	}
@@ -391,7 +396,7 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
-			var s = AffectAccount(t.Signer);
+			var s = AffectAccount(t.Signer, null);
 
 			if(t.Nid != s.LastTransactionNid + 1)
 			{
@@ -427,21 +432,27 @@ public abstract class Round : IBinarySerializable
 						goto start;
 					}
 				}
-				else if(s.EC < t.ECExecuted || (!trying && (s.EC < t.ECFee || t.ECExecuted > t.ECFee)))
+				else if(s.Energy < t.ECExecuted || (!trying && (s.Energy < t.ECFee || t.ECExecuted > t.ECFee)))
 				{
-					o.Error = Operation.NotEnoughEC;
+					o.Error = Operation.NotEnoughEnergy;
 					goto start;
 				}
 				
-				if(s.BDBalance < 0)
+				if(s.Spacetime < 0)
 				{
-					o.Error = Operation.NotEnoughBD;
+					o.Error = Operation.NotEnoughSpacetime;
+					goto start;
+				}
+				
+				if(s.EnergyNext < 0)
+				{
+					o.Error = Operation.NotEnoughEnergyNext;
 					goto start;
 				}
 			}
 
 			if(!trying)
-				s.EC -= t.ECFee;
+				s.Energy -= t.ECFee;
 			
 			s.LastTransactionNid++;
 		}
@@ -492,13 +503,13 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
-			AffectAccount(i.Address).AverageUptime = 0;
+			AffectAccount(i.Address, null).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
 		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
 		{
-			var a = AffectAccount(i.Address);
+			var a = AffectAccount(i.Address, null);
 			//a.MRBalance += i.Pledge;
 			a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
@@ -527,10 +538,10 @@ public abstract class Round : IBinarySerializable
 
 			BandwidthAllocations = d < BandwidthAllocations.Length ? [..BandwidthAllocations[d..], ..new long[d]] : new long[d];
 
-			foreach(var i in Members.Select(i => AffectAccount(i.Address)))
+			foreach(var i in Members.Select(i => AffectAccount(i.Address, null)))
 			{
-				i.ECNext	+= d * Net.ECDayEmission / Members.Count;
-				i.BDBalance += d * (Net.BDDayEmission + Spacetimes[0]) / Members.Count;
+				i.EnergyNext	+= d * Net.ECDayEmission / Members.Count;
+				i.Spacetime += d * (Net.BDDayEmission + Spacetimes[0]) / Members.Count;
 			}
 		}
 		

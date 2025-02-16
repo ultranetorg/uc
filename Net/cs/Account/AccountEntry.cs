@@ -27,10 +27,10 @@ public class AccountEntry : Account, ITableEntry
 		a.Id						= Id;
 		a.Address					= Address;
 
-		a.BDBalance					= BDBalance;
-		a.EC						= EC;
-		a.ECThisPeriod				= ECThisPeriod;
-		a.ECNext					= ECNext;
+		a.Spacetime					= Spacetime;
+		a.Energy						= Energy;
+		a.EnergyThisPeriod				= EnergyThisPeriod;
+		a.EnergyNext					= EnergyNext;
 
 		a.LastTransactionNid		= LastTransactionNid;
 		a.AverageUptime				= AverageUptime;

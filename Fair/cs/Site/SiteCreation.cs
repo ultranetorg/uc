@@ -28,6 +28,9 @@ public class SiteCreation : FairOperation
 		s.Title = Title;
 		s.Moderators = [Signer.Id];
 
-		Signer.Sites = Signer.Sites == null ? [s.Id] : [..Signer.Sites, s.Id];
+		Signer.Sites ??= [];
+		Signer.Sites = [..Signer.Sites, s.Id];
+
+		AllocateEntity(Signer);
 	}
 }

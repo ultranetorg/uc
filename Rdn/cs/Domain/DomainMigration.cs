@@ -85,7 +85,7 @@ public class DomainMigration : RdnOperation
 
 		if(RankCheck)
 		{
-			Signer.EC -= (mcv.Net as Rdn).DomainRankCheckECFee;
+			Signer.Energy -= (mcv.Net as Rdn).DomainRankCheckECFee;
 		}
 	}
 

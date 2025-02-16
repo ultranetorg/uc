@@ -24,8 +24,11 @@ public abstract class Rdn : McvNet
 	{
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
-			Codes[i] = (uint)Enum.Parse<RdnOperationClass>(i.Name);
-			Contructors[typeof(Operation)][(uint)Enum.Parse<RdnOperationClass>(i.Name)]  = i.GetConstructor([]);
+			if(Enum.TryParse<RdnOperationClass>(i.Name, out var v))
+			{
+				Codes[i] = (uint)v;
+				Contructors[typeof(Operation)][(uint)v]  = i.GetConstructor([]);
+			}
 		}
 	}
 }

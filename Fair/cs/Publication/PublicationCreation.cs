@@ -33,10 +33,24 @@ public class PublicationCreation : FairOperation
 					
 		var p = round.CreatePublication(mcv.Sites.Find(c.Site, round.Id));
 
-		if(Signer.Id == a.Id)
-			p.Status = PublicationStatus.RequestedByAuthor;
+		if(Signer.Id == a.Owner)
+		{ 
+			p.Status = PublicationStatus.Pending;
+			p.Flags = PublicationFlags.CreatedByAuthor;
+			
+			a = round.AffectAuthor(a.Id);
+			
+			Allocate(round, a, a, Mcv.EntityLength);
+		}
 		else if(mcv.Sites.Find(c.Site, mcv.LastConfirmedRound.Id)?.Moderators.Contains(Signer.Id) ?? false)
-			p.Status = PublicationStatus.ProposedBySite;
+		{	
+			p.Status = PublicationStatus.Pending;
+			p.Flags = PublicationFlags.CreatedBySite;
+
+			var s = round.AffectSite(c.Site);
+
+			Allocate(round, s, s, Mcv.EntityLength);
+		}
 		else
 		{
 			Error = Denied;
@@ -52,36 +66,5 @@ public class PublicationCreation : FairOperation
 
 		c = round.AffectCategory(c.Id);
 		c.Publications = [..c.Publications, p.Id];
-
-// 		foreach(var i in Fields)
-// 		{
-// 			var f = r.Fields.FirstOrDefault(j => j.Name == i.Name);
-// 
-// 			if(f == null)
-// 			{
-// 				Error = NotFound;
-// 				return;
-// 			}
-// 
-// 			var v = f.Versions.FirstOrDefault(j => j.Id == i.Id);
-// 
-// 			if(v == null)
-// 			{
-// 				Error = NotFound;
-// 				return;
-// 			}
-// 
-// 			///p.Fields = [..p.Fields, i];
-// 
-// 
-// 
-// 			var y = rf.Versions.First(i => i.Id == v.Id);
-// 	
-// 			rf = new ProductField {Name = rf.Name, 
-// 									Versions = [..rf.Versions.Where(i => i.Id != y.Id), new ProductFieldVersion {Id = y.Id, Value = y.Value, Refs = y.Refs + 1}]};
-// 	
-// 			r.Fields = [..r.Fields.Where(i => i.Name != v.Name), rf];
-// 
-// 		}
 	}
 }

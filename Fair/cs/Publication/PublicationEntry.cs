@@ -24,7 +24,8 @@ public class PublicationEntry : Publication, ITableEntry
 						Fields			= Fields,
 						Changes			= Changes,
 						Reviews			= Reviews,
-						ReviewChanges	= ReviewChanges
+						ReviewChanges	= ReviewChanges,
+						Flags			= Flags,
 						};
 	}
 

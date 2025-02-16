@@ -78,7 +78,7 @@ public class ResourceCreation : RdnOperation
 		else
 		{	
 			d = round.AffectDomain(d.Id);
-			Allocate(round, d, r.Length);
+			Allocate(round, Signer, d, r.Length);
 		}
 	}
 }

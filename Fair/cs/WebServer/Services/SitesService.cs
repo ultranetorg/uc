@@ -136,7 +136,7 @@ public class SitesService
 				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 			}
 
-			if (product.AuthorId != authorId)
+			if (product.Author != authorId)
 			{
 				continue;
 			}

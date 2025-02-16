@@ -36,23 +36,27 @@ public class CategoryCreation : FairOperation
 			c.Title = Title;
 			
 			s = round.AffectSite(s.Id);
-		
 			s.Categories = [..s.Categories, c.Id];
+
+			Allocate(round, Signer, s, Mcv.EntityLength);
 		} 
 		else
 		{
 			if(!RequireCategory(round, Parent, out var p))
 				return;
 
-			var c = round.CreateCategory(mcv.Sites.Find(p.Site, round.Id));
+			var s = round.AffectSite(p.Site);
+			var c = round.CreateCategory(s);
 			
 			c.Site = p.Site;
 			c.Parent = Parent;
 			c.Title = Title;
 
 			p = round.AffectCategory(Parent);
-
 			p.Categories = [..p.Categories, c.Id];
+		
+			Allocate(round, Signer, s, Mcv.EntityLength);
 		}
+
 	}
 }

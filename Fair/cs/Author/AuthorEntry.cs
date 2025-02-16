@@ -26,13 +26,11 @@ public class AuthorEntry : Author, ITableEntry
 									Title				= Title,
 									Owner				= Owner,
 									Expiration			= Expiration,
-									SpaceReserved		= SpaceReserved,
-									SpaceUsed			= SpaceUsed,
-
-									BYBalance			= BYBalance,
-									ECThis				= ECThis,
-									ECThisYear			= ECThisYear,
-									ECNext				= ECNext,
+									Space				= Space,
+									Spacetime					= Spacetime,
+									Energy					= Energy,
+									EnergyThisPeriod		= EnergyThisPeriod,
+									EnergyNext				= EnergyNext,
 									ModerationReward	= ModerationReward,
 
 									Products			= Products};

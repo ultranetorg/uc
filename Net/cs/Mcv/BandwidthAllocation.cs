@@ -29,7 +29,7 @@ public class BandwidthAllocation : Operation
 
 		if(r > 0) /// reclaim the remaining
 		{
-			Signer.EC += Signer.Bandwidth * r;
+			Signer.Energy += Signer.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
 				round.BandwidthAllocations[i] -= Signer.Bandwidth;
@@ -48,7 +48,7 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		Signer.EC					-= Bandwidth * Days;
+		Signer.Energy					-= Bandwidth * Days;
 		Signer.Bandwidth			= Bandwidth;
 		Signer.BandwidthExpiration	= Time.FromDays(round.ConsensusTime.Days + Days);
 	}

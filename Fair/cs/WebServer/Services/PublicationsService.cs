@@ -28,7 +28,7 @@ public class PublicationsService
 			}
 
 			product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-			author = mcv.Authors.Find(product.AuthorId, mcv.LastConfirmedRound.Id);
+			author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
 		}
 
 		var reviews = publication.Reviews.Length > 0 ? LoadReviews(publication.Reviews) : null;

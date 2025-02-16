@@ -16,10 +16,17 @@ public class SiteEntry : Site, ITableEntry
 
 	public SiteEntry Clone()
 	{
-		return new(Mcv){Id = Id,
-						Title = Title,
-						Moderators = Moderators,
-						Categories = Categories};
+		return new(Mcv){Id				= Id,
+						Title			= Title,
+						Moderators		= Moderators,
+						Categories		= Categories,
+						
+						Space			= Space,
+						Spacetime				= Spacetime,
+						Energy				= Energy,
+						EnergyThisPeriod	= EnergyThisPeriod,
+						EnergyNext			= EnergyNext,
+						};
 	}
 
 	public void ReadMain(BinaryReader reader)

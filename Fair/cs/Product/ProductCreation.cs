@@ -34,7 +34,9 @@ public class ProductCreation : FairOperation
 		a = round.AffectAuthor(Author);
 		var p = round.CreateProduct(a);
 
-		p.AuthorId = a.Id;
+		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];
+
+		Allocate(round, Signer, a, Mcv.EntityLength);
 	}
 }

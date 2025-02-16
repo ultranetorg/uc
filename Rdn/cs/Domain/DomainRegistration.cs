@@ -62,15 +62,12 @@ public class DomainRegistration : RdnOperation
 
 			e = round.AffectDomain(Address);
 			
-			var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
-
 			PayForName(Address, Years);
-			PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
+			Prolong(round, Signer, e, Time.FromYears(Years));
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
 							
-			e.Expiration	= start + Time.FromYears(Years);
 			e.Owner			= Signer.Id;
 			e.LastWinner	= null;
 			e.LastBid		= 0;
@@ -103,7 +100,7 @@ public class DomainRegistration : RdnOperation
 			
 			var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
 
-			e.Owner			= round.AffectAccount(Owner).Id;
+			e.Owner			= mcv.Accounts.Find(Owner, round.Id).Id;
 			e.ParentPolicy	= Policy;
 			e.Expiration	= start + Time.FromYears(Years);
 

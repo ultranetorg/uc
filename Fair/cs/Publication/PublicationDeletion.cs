@@ -32,6 +32,24 @@ public class PublicationDeletion : FairOperation
  		var c = round.AffectCategory(p.Category);
  		c.Publications = c.Publications.Where(i => i != Publication).ToArray();
 
-		///Free(d, r.Length);
+		var a = round.FindAuthor(round.FindProduct(p.Product).Author);
+
+		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && Signer.Id == a.Owner)
+		{ 
+			a = round.AffectAuthor(a.Id);
+
+			Free(round, a, a, Mcv.EntityLength);
+		}
+		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (round.FindSite(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
+		{	
+			var s = round.AffectSite(c.Site);
+
+			Free(round, s, s, Mcv.EntityLength);
+		}
+		else
+		{
+			Error = Denied;
+			return;
+		}
 	}
 }

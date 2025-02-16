@@ -2,46 +2,44 @@
 
 public enum FairOperationClass
 {
-	FairCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
-	UtilityTransfer				= OperationClass.UtilityTransfer, 
-	BandwidthAllocation			= OperationClass.BandwidthAllocation,
+	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
-	Author							= 101, 
-		AuthorCreation				= 101_000_001, 
-		AuthorUpdation				= 101_000_002,
+	Author							= 100, 
+		AuthorCreation				= 100_000_001, 
+		AuthorUpdation				= 100_000_002,
 	
-	Product							= 102, 
-		ProductCreation				= 102_000_001, 
-		ProductUpdation				= 102_000_002, 
-		ProductDeletion				= 102_000_003,
+	Product							= 101, 
+		ProductCreation				= 101_000_001, 
+		ProductUpdation				= 101_000_002, 
+		ProductDeletion				= 101_000_003,
 	
-	Site							= 103,
-		SiteCreation				= 103_000_001, 
-		SiteDeletion				= 103_000_002,
+	Site							= 102,
+		SiteCreation				= 102_000_001, 
+		SiteDeletion				= 102_000_002,
 	
-	Store							= 105,
-		ModeratorAddition			= 105_000,
+	Store							= 103,
+		ModeratorAddition			= 103_000_001,
 
-		Category					= 105_001,
-			CategoryCreation		= 105_001_001,
-			CategoryUpdation		= 105_001_002,
-			CategoryDeletion		= 105_001_003,
+		Category					= 104_001,
+			CategoryCreation		= 104_001_001,
+			CategoryUpdation		= 104_001_002,
+			CategoryDeletion		= 104_001_003,
 
 		Publication					= 105_002,
 			PublicationCreation		= 105_002_001,
 			PublicationUpdation		= 105_002_002,
 			PublicationDeletion		= 105_002_003,
 
-		Review						= 105_003,
-			ReviewCreation			= 105_003_001,
-			ReviewUpdation			= 105_003_002,
-			ReviewDeletion			= 105_003_003,
+		Review						= 106_003,
+			ReviewCreation			= 106_003_001,
+			ReviewUpdation			= 106_003_002,
+			ReviewDeletion			= 106_003_003,
 		
 } 
 
 public abstract class FairOperation : Operation
 {
-	public const string				CantChangeSealedProduct = "Cant change sealed resource";
+	public const string				CantChangeSealed = "Cant change sealed resource";
 	public const string				NotRoot = "Not root domain";
 	public const string				AlreadyChild = "Already a child";
 
@@ -52,50 +50,6 @@ public abstract class FairOperation : Operation
 	public override void Execute(Mcv mcv, Round round)
 	{
 		Execute(mcv as FairMcv, round as FairRound);
-	}
-
-	public void PayForSpacetime(int length, Time time)
-	{
-		var fee = ToBD(length, time);
-		
-		Signer.BDBalance -= fee;
-	}
-
-	public static long ToBD(int length, Time time)
-	{
-		return time.Days * length;
-	}
-
-	public void Allocate(Round round, Author domain, int size)
-	{
-		///domain.Space += size;
-		///
-		///var t = Time.FromDays(domain.Expiration.Days - round.ConsensusTime.Days + 1); /// Pay for one more day
-		///
-		///Signer.BDBalance -= ToBD(size, t);
-		///
-		///if(t.Days > round.Spacetimes.Length)
-		///	round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
-		///
-		///for(int i = 0; i < t.Days; i++)
-		///	round.Spacetimes[i] += size;
-	}
-
-	public void Free(Round round, Author domain, int size)
-	{
-		///domain.Space -= size;
-		///
-		///var d = domain.Expiration.Days - round.ConsensusTime.Days;
-		///
-		///if(d > 0)
-		///{
-		///	var t = Time.FromDays(d);
-		///
-		///	Signer.BDBalance += ToBD(size, t);
-		///
-		///	for(int i = 1; i < t.Days; i++)
-		///		round.Spacetimes[i] -= size;
-		///}
 	}
 
 	public bool RequireAuthor(FairRound round, EntityId id, out AuthorEntry author)
@@ -128,7 +82,7 @@ public abstract class FairOperation : Operation
 			return false; 
 		}
 
-		if(RequireAuthor(round, product.AuthorId, out author) == false)
+		if(RequireAuthor(round, product.Author, out author) == false)
 			return false; 
 
 		return true; 
@@ -164,7 +118,7 @@ public abstract class FairOperation : Operation
 		if(!RequireProduct(round, id, out  author, out product))
 			return false; 
 
-		if(!RequireAuthorAccess(round, product.AuthorId, out author))
+		if(!RequireAuthorAccess(round, product.Author, out author))
 			return false; 
 
 		return true; 

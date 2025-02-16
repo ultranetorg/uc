@@ -87,13 +87,9 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				
-				var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
 
 				PayForName(e.Address, Years);
-				PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
-
-				e.Expiration = start + Time.FromYears(Years);
+				Prolong(round, Signer, e, Time.FromYears(Years));
 			}
 
 			if(Action == DomainAction.Transfer)
@@ -105,7 +101,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner).Id;
+				e.Owner	= mcv.Accounts.Find(Owner, round.Id).Id;
 			}
 		} 
 		else
@@ -128,12 +124,8 @@ public class DomainUpdation : RdnOperation
 
 				e = round.AffectDomain(e.Address);
 
-				var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
-
 				PayForName(new string(' ', Domain.NameLengthMax), Years);
-				PayForSpacetime(round, e.Space, start, Time.FromYears(Years));
-
-				e.Expiration = start + Time.FromYears(Years);
+				Prolong(round, Signer, e, Time.FromYears(Years));
 			}
 
 			if(Action == DomainAction.ChangePolicy)
@@ -182,7 +174,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner).Id;
+				e.Owner	= mcv.Accounts.Find(Owner, round.Id).Id;
 			}
 		}
 	}

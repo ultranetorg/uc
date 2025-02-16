@@ -26,11 +26,12 @@ public class ProductDeletion : FairOperation
 		if(RequireProductAccess(round, Product, out var a, out var p) == false)
 			return;
 
-		a = round.AffectAuthor(p.AuthorId);
+		a = round.AffectAuthor(p.Author);
 		a.Products = a.Products.Where(i => i != Product).ToArray();
 
 		round.AffectProduct(Product).Deleted = true;
 
-		Free(round, a, p.Length);
+		Free(round, Signer, a, Mcv.EntityLength);
+		Free(round, Signer, a, p.Length);
 	}
 }

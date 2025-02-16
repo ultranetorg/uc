@@ -1,3 +1,5 @@
+using NBitcoin.Secp256k1;
+
 namespace Uccs.Fair;
 
 public enum AuthorFlag : byte
@@ -5,22 +7,21 @@ public enum AuthorFlag : byte
 	None, 
 }
 
-public class Author : IBinarySerializable
+public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
 {
 	public static readonly Time	RenewalPeriod = Time.FromYears(1);
 
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
 	public EntityId				Owner { get; set; }
+
 	public Time					Expiration { get; set; }
-	public int					SpaceReserved { get; set; }
-	public int					SpaceUsed { get; set; }
-	
-	public long					BYBalance { get; set; }
-	public long					ECThis { get; set; }
-	public byte					ECThisYear { get; set; }
-	public long					ECNext { get; set; }
-	public int					ModerationReward  { get; set; }
+	public long					Space { get; set; }
+	public long					Spacetime { get; set; }
+	public long					Energy { get; set; }
+	public long					EnergyNext { get; set; }
+	public byte					EnergyThisPeriod { get; set; }
+	public long					ModerationReward  { get; set; }
 
 	public static bool Valid(string name)
 	{
@@ -51,15 +52,14 @@ public class Author : IBinarySerializable
 		writer.Write(Id);
 		writer.Write(Title);
 		writer.Write(Owner);
-		writer.Write(Expiration);
-		writer.Write7BitEncodedInt(SpaceReserved);
-		writer.Write7BitEncodedInt(SpaceUsed);
-		writer.Write7BitEncodedInt(ModerationReward);
+		writer.Write7BitEncodedInt64(ModerationReward);
 
-		writer.Write7BitEncodedInt64(ECThis);
-		writer.Write(ECThisYear);
-		writer.Write7BitEncodedInt64(ECNext);
-		writer.Write7BitEncodedInt64(BYBalance);
+		writer.Write(Expiration);
+		writer.Write7BitEncodedInt64(Space);
+		writer.Write7BitEncodedInt64(Energy);
+		writer.Write(EnergyThisPeriod);
+		writer.Write7BitEncodedInt64(EnergyNext);
+		writer.Write7BitEncodedInt64(Spacetime);
 	}
 
 	public void Read(BinaryReader reader)
@@ -67,14 +67,13 @@ public class Author : IBinarySerializable
 		Id					= reader.Read<EntityId>();
 		Title				= reader.ReadString();
 		Owner				= reader.Read<EntityId>();
-		Expiration			= reader.Read<Time>();
-		SpaceReserved		= reader.Read7BitEncodedInt();
-		SpaceUsed			= reader.Read7BitEncodedInt();
-		ModerationReward	= reader.Read7BitEncodedInt();
+		ModerationReward	= reader.Read7BitEncodedInt64();
 
-		ECThis	 			= reader.Read7BitEncodedInt64();
-		ECThisYear 			= reader.ReadByte();
-		ECNext	 			= reader.Read7BitEncodedInt64();
-		BYBalance 			= reader.Read7BitEncodedInt64();
+		Expiration			= reader.Read<Time>();
+		Space				= reader.Read7BitEncodedInt64();
+		Energy		 		= reader.Read7BitEncodedInt64();
+		EnergyThisPeriod 	= reader.ReadByte();
+		EnergyNext	 		= reader.Read7BitEncodedInt64();
+		Spacetime		 	= reader.Read7BitEncodedInt64();
 	}
 }

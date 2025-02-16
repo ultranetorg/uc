@@ -67,7 +67,7 @@ public class ProductUpdation : FairOperation
 		{
 			if(f.Versions.Last().Refs == 0)
 			{
-				Free(round, a, f.Versions.Last().Value.Length);
+				Free(round, Signer, a, f.Versions.Last().Value.Length);
 
 				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Id = f.Versions.Last().Id}];
 			}
@@ -75,7 +75,7 @@ public class ProductUpdation : FairOperation
 				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Id = f.Versions.Length}];
 		}
 
-		Allocate(round, a, Value.Length);
+		Allocate(round, Signer, a, Value.Length);
 
 		foreach(var j in r.Publications)
 		{

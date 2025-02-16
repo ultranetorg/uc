@@ -94,12 +94,12 @@ public class AuthorCommand : FairCommand
 								}
 								else if(Has(dp))
 								{
-									o.Change = AuthorChange.DepositEC;
+									o.Change = AuthorChange.DepositEnergy;
 									o.Value	 = GetLong(dp);
 								}
 								else if(Has(mr))
 								{
-									o.Change = AuthorChange.DepositEC;
+									o.Change = AuthorChange.DepositEnergy;
 									o.Value	 = GetInt(mr);
 								}
 								else if(Has(ow))

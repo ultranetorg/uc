@@ -37,9 +37,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string		NoData = "NoData";
 	public const string		AlreadyExists = "Already exists";
 	public const string		NotSequential = "Not sequential";
-	public const string		NotEnoughBD = "Not enough spacetime";
-	public const string		NotEnoughEC = "Not enough execution units";
-	public const string		NotEnoughMR = "Not enough membership rights";
+	public const string		NotEnoughSpacetime = "Not enough spacetime";
+	public const string		NotEnoughEnergy = "Not enough execution units";
+	public const string		NotEnoughEnergyNext = "Not enough energy for next period";
 	public const string		NotEnoughBandwidth = "Not enough bandwidth";
 	public const string		NoAnalyzers = "No analyzers";
 	public const string		Denied = "Access denied";
@@ -89,18 +89,6 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		WriteConfirmed(writer);
 	}
 
-	public AccountEntry Affect(Round round, AccountAddress account)
-	{
-		var e = round.AffectAccount(account);	
-
-		if(e.New && (Signer.Address != round.Mcv.Net.God || round.Id > Mcv.LastGenesisRound)) /// new Account
-		{
-			Signer.BDBalance -= round.AccountAllocationFee(e);
-		}
-
-		return e;
-	}
-
 	public AccountEntry RequireAccount(Round round, AccountAddress account)
 	{
 		var a = round.Mcv.Accounts.Find(account, round.Id);
@@ -114,16 +102,71 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return a;
 	}
 
-	public bool Pay(ref EC[] from, ref EC[] to, long y, Time time)
+	public static long ToBD(long length, Time time)
 	{
-		if(EC.Integrate(from, time) < y)
+		return time.Days * length;
+	}
+
+	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, Time duration)
+	{
+		var start = consumer.Expiration < round.ConsensusTime ? round.ConsensusTime : consumer.Expiration;
+
+		consumer.Expiration = start + duration;
+
+		if(consumer.Space == 0)
+			return;
+
+		payer.Spacetime -= ToBD(consumer.Space, duration);
+
+		var n = start.Days + duration.Days - round.ConsensusTime.Days;
+
+		if(n > round.Spacetimes.Length)
+			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
+
+		for(int i = 0; i < duration.Days; i++)
+			round.Spacetimes[start.Days - round.ConsensusTime.Days + i] += consumer.Space;
+	}
+
+	public void AllocateEntity(ISpaceHolder payer)
+	{
+		payer.Spacetime -= ToBD(Mcv.EntityLength, Mcv.Forever);
+	}
+
+	public void FreeEntity(Round round)
+	{
+		round.Spacetimes[0] += ToBD(Mcv.EntityLength, Mcv.Forever);
+	}
+
+	public void Allocate(Round round, ISpaceHolder payer, ISpaceConsumer consumer, int space)
+	{
+		consumer.Space += space;
+
+		var t = Time.FromDays(consumer.Expiration.Days - round.ConsensusTime.Days);
+	
+		payer.Spacetime -= ToBD(space, t);
+
+		if(t.Days > round.Spacetimes.Length)
+			round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
+
+		for(int i = 0; i < t.Days; i++)
+			round.Spacetimes[i] += space;
+	}
+
+	public void Free(Round round, ISpaceHolder beneficiary, ISpaceConsumer consumer, int space)
+	{
+		if(space == 0)
+			return;
+
+		consumer.Space -= space;
+
+		var d = consumer.Expiration.Days - round.ConsensusTime.Days;
+		
+		if(d > 0)
 		{
-			Error = NotEnoughEC;
-			return false;
+			beneficiary.Spacetime += ToBD(space, Time.FromDays(d - 1));
+	
+			for(int i = 1; i < d; i++)
+				round.Spacetimes[i] -= space;
 		}
-
-		EC.Move(ref from, ref to, y, time);
-
-		return true;
 	}
 }

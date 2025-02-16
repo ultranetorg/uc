@@ -66,7 +66,7 @@ public class ResourceLinkCreation : RdnOperation
 		else
 		{	
 			sd = round.AffectDomain(sd.Id);
-			Allocate(round, sd, Mcv.EntityLength);
+			Allocate(round, Signer, sd, Mcv.EntityLength);
 		}
 	}
 }

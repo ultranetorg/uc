@@ -2,14 +2,32 @@
 
 namespace Uccs.Net;
 
-public class Account : IBinarySerializable
+public interface ISpaceHolder
+{
+	long		Spacetime { get; set; }
+}
+
+public interface ISpaceConsumer
+{
+	long		Space { get; set; }
+	Time		Expiration { get; set; }
+}
+
+public interface IEnergyHolder
+{
+	long		Energy { get; set; }
+	byte		EnergyThisPeriod { get; set; }
+	long		EnergyNext { get; set; }
+}
+
+public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public long							EC { get; set; }
-	public byte							ECThisPeriod { get; set; }
-	public long							ECNext { get; set; }
-	public long							BDBalance { get; set; }
+	public long							Spacetime { get; set; }
+	public long							Energy { get; set; }
+	public byte							EnergyThisPeriod { get; set; }
+	public long							EnergyNext { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	public long							AverageUptime { get; set; }
 	
@@ -21,7 +39,7 @@ public class Account : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, ECThis={EC}, ECNext={ECNext}, BD={BDBalance}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
+		return $"{Id}, {Address}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
 
 	public static long ParseSpacetime(string t)
@@ -41,10 +59,10 @@ public class Account : IBinarySerializable
 		writer.Write(Id);
 		writer.Write(Address);
 
-		writer.Write7BitEncodedInt64(EC);
-		writer.Write(ECThisPeriod);
-		writer.Write7BitEncodedInt64(ECNext);
-		writer.Write7BitEncodedInt64(BDBalance);
+		writer.Write7BitEncodedInt64(Spacetime);
+		writer.Write7BitEncodedInt64(Energy);
+		writer.Write(EnergyThisPeriod);
+		writer.Write7BitEncodedInt64(EnergyNext);
 
 		writer.Write7BitEncodedInt(LastTransactionNid);
 		writer.Write7BitEncodedInt64(AverageUptime);
@@ -64,10 +82,10 @@ public class Account : IBinarySerializable
 		Id					= reader.Read<EntityId>();
 		Address				= reader.ReadAccount();
 
-		EC	 				= reader.Read7BitEncodedInt64();
-		ECThisPeriod 		= reader.ReadByte();
-		ECNext	 			= reader.Read7BitEncodedInt64();
-		BDBalance 			= reader.Read7BitEncodedInt64();
+		Spacetime 			= reader.Read7BitEncodedInt64();
+		Energy	 			= reader.Read7BitEncodedInt64();
+		EnergyThisPeriod 	= reader.ReadByte();
+		EnergyNext	 		= reader.Read7BitEncodedInt64();
 
 		LastTransactionNid	= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();

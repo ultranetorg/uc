@@ -81,6 +81,11 @@ public class ReviewUpdation : UpdateOperation
 
 			case ReviewChange.Text:
 			{
+				var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+
+				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
+				Allocate(round, a, a, Encoding.UTF8.GetByteCount(Value as string));
+
 				r.TextNew = Value as string;
 
 				var p = round.AffectPublication(r.Publication);
@@ -107,6 +112,10 @@ public class ReviewUpdation : UpdateOperation
 					return;
 				}
 
+				var a = round.AffectAuthor(mcv.Products.Find(mcv.Publications.Find(r.Publication, round.Id).Product, round.Id).Author);
+
+				Free(round, a, a, Encoding.UTF8.GetByteCount(r.Text));
+
 				r.Text = r.TextNew;
 				r.TextNew = "";
 				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
@@ -129,6 +138,10 @@ public class ReviewUpdation : UpdateOperation
 					Error = Mismatch;
 					return;
 				}
+
+				var a = round.AffectAuthor(mcv.Products.Find(mcv.Publications.Find(r.Publication, round.Id).Product, round.Id).Author);
+
+				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
 
 				r.TextNew = "";
 				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];

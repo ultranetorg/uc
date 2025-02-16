@@ -38,24 +38,34 @@ public enum Actor
 // 	}
 // }
 
-public class Site : IBinarySerializable
+public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
 {
-	public EntityId		Id { get; set; }
-	public string		Title { get; set; }
-	public EntityId[]	Moderators { get; set; }
-	public EntityId[]	Categories { get; set; }
+	public EntityId				Id { get; set; }
+	public string				Title { get; set; }
+	public EntityId[]			Moderators { get; set; }
+	public EntityId[]			Categories { get; set; }
 
-	enum Field
-	{
-		Root = 0b1
-	}
+	public Time					Expiration { get; set; }
+	public long					Space { get; set; }
+	public long					Spacetime { get; set; }
+	public long					Energy { get; set; }
+	public byte					EnergyThisPeriod { get; set; }
+	public long					EnergyNext { get; set; }
+	public int					ModerationReward  { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
-		Title		= reader.ReadUtf8();
-		Moderators	= reader.ReadArray<EntityId>();
-		Categories	= reader.ReadArray<EntityId>();
+		Id				= reader.Read<EntityId>();
+		Title			= reader.ReadUtf8();
+		Moderators		= reader.ReadArray<EntityId>();
+		Categories		= reader.ReadArray<EntityId>();
+
+		Expiration			= reader.Read<Time>();
+		Space				= reader.Read7BitEncodedInt64();
+		Spacetime		 	= reader.Read7BitEncodedInt64();
+		Energy		 		= reader.Read7BitEncodedInt64();
+		EnergyThisPeriod 	= reader.ReadByte();
+		EnergyNext	 		= reader.Read7BitEncodedInt64();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -64,5 +74,12 @@ public class Site : IBinarySerializable
 		writer.Write(Title);
 		writer.Write(Moderators);
 		writer.Write(Categories);
+
+		writer.Write(Expiration);
+		writer.Write7BitEncodedInt64(Space);
+		writer.Write7BitEncodedInt64(Spacetime);
+		writer.Write7BitEncodedInt64(Energy);
+		writer.Write(EnergyThisPeriod);
+		writer.Write7BitEncodedInt64(EnergyNext);
 	}
 }

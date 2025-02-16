@@ -2,7 +2,7 @@
 
 public enum AuthorChange : byte
 {
-	None, Renew, Owner, DepositEC, DepositBY, ModerationReward
+	None, Renew, Owner, DepositEnergy, DepositEnergyNext, DepositSpacetime, ModerationReward
 }
 
 public class AuthorUpdation : UpdateOperation
@@ -36,17 +36,19 @@ public class AuthorUpdation : UpdateOperation
 		Value = Change switch
 					   {
 							AuthorChange.Renew				=> reader.ReadByte(),
-							AuthorChange.Owner				=> reader.Read<AccountAddress>(),
-							AuthorChange.DepositEC			=> reader.Read7BitEncodedInt(),
-							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt(),
+							AuthorChange.DepositSpacetime	=> reader.Read7BitEncodedInt64(),
+							AuthorChange.DepositEnergy		=> reader.Read7BitEncodedInt64(),
+							AuthorChange.DepositEnergyNext	=> reader.Read7BitEncodedInt64(),
+							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt64(),
+							AuthorChange.Owner				=> reader.Read<EntityId>(),
 							_								=> throw new IntegrityException()
 					   };
 
-		Second = Change switch
-						{
-							AuthorChange.Renew				=> reader.Read7BitEncodedInt(),
-							_								=> throw new IntegrityException()
-						};
+// 		Second = Change switch
+// 						{
+// 							AuthorChange.Renew				=> reader.Read7BitEncodedInt(),
+// 							_								=> throw new IntegrityException()
+// 						};
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -57,17 +59,19 @@ public class AuthorUpdation : UpdateOperation
 		switch(Change)
 		{
 			case AuthorChange.Renew				: writer.Write(Byte); break;
-			case AuthorChange.Owner				: writer.Write(AccountAddress); break;
-			case AuthorChange.DepositEC			: writer.Write7BitEncodedInt(Int); break;
-			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt(Int); break;
+			case AuthorChange.DepositSpacetime	: writer.Write7BitEncodedInt64(Long); break;
+			case AuthorChange.DepositEnergy		: writer.Write7BitEncodedInt64(Long); break;
+			case AuthorChange.DepositEnergyNext	: writer.Write7BitEncodedInt64(Long); break;
+			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt64(Long); break;
+			case AuthorChange.Owner				: writer.Write(EntityId); break;
 			default								: throw new IntegrityException();
 		}
 
-		switch(Change)
-		{
-			case AuthorChange.Renew				: writer.Write7BitEncodedInt((int)Second); break;
-			default								: throw new IntegrityException();
-		}
+// 		switch(Change)
+// 		{
+// 			case AuthorChange.Renew				: writer.Write7BitEncodedInt((int)Second); break;
+// 			default								: throw new IntegrityException();
+// 		}
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
@@ -87,47 +91,39 @@ public class AuthorUpdation : UpdateOperation
 					return;
 				}
 
-				//if()
-				//{
-				//}
-
-				a.SpaceReserved	= a.SpaceUsed;
-				a.Expiration	= a.Expiration + Time.FromYears(Byte);
-				
-				PayForSpacetime(a.SpaceUsed, Time.FromYears(Byte));
+				Prolong(round, Signer, a, Time.FromYears(Byte));
 
 				break;
 			}
 
-			case AuthorChange.DepositEC:
+			case AuthorChange.DepositSpacetime:
 			{	
-				//if(!Pay(ref Signer.ECBalance, ref a.ECDeposit, Int, round.ConsensusTime))
-				//	return;
-
+				a.Spacetime		 += Long;
+				Signer.Spacetime -= Long;
 				break;
 			}
 
-// 			case AuthorChange.DepositBY:
-// 			{	
-// 				if(Signer.BYBalance < Int)
-// 				{
-// 					Error = NotEnoughBY;
-// 					return;
-// 				}
-// 
-// 				Signer.BYBalance -= Int;
-// 				a.BYDeposit		 += Int;
-// 
-// 				break;
-// 			}
+			case AuthorChange.DepositEnergy:
+			{	
+				a.Energy		+= Long;
+				Signer.Energy	-= Long;
+				break;
+			}
+
+			case AuthorChange.DepositEnergyNext:
+			{	
+				a.EnergyNext		+= Long;
+				Signer.EnergyNext	-= Long;
+				break;
+			}
 
 			case AuthorChange.ModerationReward:
-				a.ModerationReward = Int;
+				a.ModerationReward = Long;
 				break;
 
 			case AuthorChange.Owner:
 			{
-				var x = mcv.Accounts.Find(AccountAddress, round.Id);
+				var x = mcv.Accounts.Find(EntityId, round.Id);
 
 				if(x == null)
 				{

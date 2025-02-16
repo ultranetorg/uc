@@ -20,7 +20,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 				throw new EntityException(EntityError.NotFound);
 #endif
 			Transaction.Nid		= a.LastTransactionNid + 1;
-			Transaction.ECFee	= a.EC;
+			Transaction.ECFee	= a.Energy;
 
 			var r = Mcv.TryExecute(Transaction);
 			
@@ -32,7 +32,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 														LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 														PowHash				= Mcv.LastConfirmedRound.Hash,
 														NextNid				= Transaction.Nid,
-														BYCost				= a.BDBalance - b.BDBalance,
+														BYCost				= a.Spacetime - b.Spacetime,
 														ECCost				= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.ECExecuted};
 			}
 			else

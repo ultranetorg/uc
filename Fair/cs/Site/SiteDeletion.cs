@@ -45,6 +45,7 @@ public class SiteDeletion : FairOperation
 			var a = round.AffectAccount(i);
 			a.Sites = a.Sites.Where(i => i != Site).ToArray();
 		}
-		//Free(d, r.Length);
+		
+		FreeEntity(round);
 	}
 }

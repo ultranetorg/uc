@@ -2,17 +2,23 @@
 
 public enum RdnOperationClass
 {
-	None = 0, 
-	RdnCandidacyDeclaration	= OperationClass.CandidacyDeclaration, 
-	//Immission				= OperationClass.Immission, 
-	UtilityTransfer			= OperationClass.UtilityTransfer, 
-	BandwidthAllocation		= OperationClass.BandwidthAllocation,
+	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
-	ChildNetInitialization,
+	Domain						= 100,
+		DomainRegistration		= 100_000_001, 
+		DomainMigration			= 100_000_002, 
+		DomainBid				= 100_000_003, 
+		DomainUpdation			= 100_000_004,
 
-	DomainRegistration, DomainMigration, DomainBid, DomainUpdation,
-	ResourceCreation, ResourceUpdation, ResourceDeletion, ResourceLinkCreation, ResourceLinkDeletion,
-	AnalysisResultUpdation
+	Resource					= 101,
+		ResourceCreation		= 101_000_001, 
+		ResourceUpdation		= 101_000_002, 
+		ResourceDeletion		= 101_000_003, 
+		ResourceLinkCreation	= 101_000_004, 
+		ResourceLinkDeletion	= 101_000_005,
+
+	Analysis					= 102,
+		AnalysisResultUpdation	= 102_000_001
 }
 
 public abstract class RdnOperation : Operation
@@ -27,37 +33,11 @@ public abstract class RdnOperation : Operation
 		Execute(mcv as RdnMcv, round as RdnRound);
 	}
 
-	public void PayForForever(int size)
-	{
-		Signer.BDBalance -= ToBD(size, Mcv.Forever);
-	}
-
-	public void PayForSpacetime(Round round, int size, Time start, Time duration)
-	{
-		if(size == 0)
-			return;
-
-		Signer.BDBalance -= ToBD(size, duration);
-
-		var n = start.Days + duration.Days - round.ConsensusTime.Days;
-
-		if(n > round.Spacetimes.Length)
-			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
-
-		for(int i = 0; i < duration.Days; i++)
-			round.Spacetimes[start.Days - round.ConsensusTime.Days + i] += size;
-	}
-
 	public void PayForName(string address, int years)
 	{
 		var fee = NameFee(years, address);
 		
-		Signer.BDBalance -= fee;
-	}
-
-	public static long ToBD(int length, Time time)
-	{
-		return time.Days * length;
+		Signer.Spacetime -= fee;
 	}
 
 	public static int NameFee(int years, string address)
@@ -69,36 +49,9 @@ public abstract class RdnOperation : Operation
 		return 10_000 * Time.FromYears(years).Days / (l * l * l * l);
 	}
 
-	public void Allocate(Round round, Domain domain, int size)
+	public void PayForForever(int size)
 	{
-		domain.Space += size;
-
-		var t = Time.FromDays(domain.Expiration.Days - round.ConsensusTime.Days + 1); /// Pay for one more day
-	
-		Signer.BDBalance -= ToBD(size, t);
-
-		if(t.Days > round.Spacetimes.Length)
-			round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
-
-		for(int i = 0; i < t.Days; i++)
-			round.Spacetimes[i] += size;
-	}
-
-	public void Free(Round round, Domain domain, int size)
-	{
-		domain.Space -= size;
-
-		var d = domain.Expiration.Days - round.ConsensusTime.Days;
-		
-		if(d > 0)
-		{
-			var t = Time.FromDays(d);
-	
-			Signer.BDBalance += ToBD(size, t);
-	
-			for(int i = 1; i < t.Days; i++)
-				round.Spacetimes[i] -= size;
-		}
+		Signer.Spacetime -= ToBD(size, Mcv.Forever);
 	}
 
 	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)

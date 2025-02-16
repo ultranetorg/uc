@@ -29,7 +29,7 @@ public enum NtnStatus
 	BlockSent
 }
 
-public class Domain : IBinarySerializable
+public class Domain : IBinarySerializable, ISpaceConsumer
 {
 	//public const int			ExclusiveLengthMax = 12;
 	public const int			NameLengthMin = 1;
@@ -47,7 +47,6 @@ public class Domain : IBinarySerializable
 	public EntityId				Id { get; set; }
 	public string				Address { get; set; }
 	public EntityId				Owner { get; set; }
-	public Time					Expiration { get; set; }
 	public EntityId				ComOwner { get; set; }
 	public EntityId				OrgOwner { get; set; }
 	public EntityId				NetOwner { get; set; }
@@ -55,16 +54,15 @@ public class Domain : IBinarySerializable
 	public EntityId				LastWinner { get; set; }
 	public long					LastBid { get; set; }
 	public Time					LastBidTime { get; set; } = Time.Empty;
-	//public int					NextResourceId { get; set; }
-	//public int					SpaceReserved { get; set; }
-	public int					Space { get; set; }
+	public Time					Expiration { get; set; }
+	public long					Space { get; set; }
 	public DomainChildPolicy	ParentPolicy { get; set; }
 	public NtnState				NtnChildNet { get; set; }
 	public byte[]				NtnSelfHash { get; set; }
 
 	public static bool			IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
-	public static bool			IsRoot(string name) => name.IndexOf('.') == -1; 
-	public static bool			IsChild(string name) => name.IndexOf('.') != -1; 
+	public static bool			IsRoot(string name) => !name.Contains('.'); 
+	public static bool			IsChild(string name) => name.Contains('.'); 
 	public static string		GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
 	public static string		GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
@@ -119,8 +117,8 @@ public class Domain : IBinarySerializable
 
 	public static bool CanBid(Domain domain, Time time)
 	{
- 			if(!IsExpired(domain, time))
- 			{
+ 		if(!IsExpired(domain, time))
+ 		{
 			if(domain.LastWinner == null) /// first bid
 			{
 				return true;
@@ -130,9 +128,9 @@ public class Domain : IBinarySerializable
 			{
 				return true;
 			}
- 			} 
- 			else
- 			{
+ 		} 
+ 		else
+ 		{
 			return true;
 		}
 
@@ -154,9 +152,7 @@ public class Domain : IBinarySerializable
 
 		writer.Write((byte)f);
 		writer.WriteUtf8(Address);
-		//writer.Write7BitEncodedInt(NextResourceId);
-		//writer.Write7BitEncodedInt(SpaceReserved);
-		writer.Write7BitEncodedInt(Space);
+		writer.Write7BitEncodedInt64(Space);
 
 		if(IsWeb(Address))
 		{
@@ -184,12 +180,6 @@ public class Domain : IBinarySerializable
 			writer.Write((byte)ParentPolicy);
 		}
 
-// 			writer.Write(Resources, i =>{
-// 											writer.Write7BitEncodedInt(i.Id.Ri);
-// 											writer.WriteUtf8(i.Address.Resource);
-// 											i.WriteMain(writer);
-// 										});
-
 		if(f.HasFlag(DomainFlag.ChildNet))
 		{
 			writer.Write(NtnChildNet);
@@ -199,12 +189,10 @@ public class Domain : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-		var f			= (DomainFlag)reader.ReadByte();
-		Address			= reader.ReadUtf8();
-		//NextResourceId	= reader.Read7BitEncodedInt();
-		//SpaceReserved	= reader.Read7BitEncodedInt();
-		Space		= reader.Read7BitEncodedInt();
+		Id			= reader.Read<EntityId>();
+		var f		= (DomainFlag)reader.ReadByte();
+		Address		= reader.ReadUtf8();
+		Space		= reader.Read7BitEncodedInt64();
 
 		if(IsWeb(Address))
 		{
@@ -231,15 +219,6 @@ public class Domain : IBinarySerializable
 		{
 			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
 		}
-
-// 			Resources = reader.Read(() =>	{ 
-// 												var a = new Resource();
-// 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-// 												a.Address = new Ura{Domain = Address, 
-// 																	Resource = reader.ReadUtf8()};
-// 												a.ReadMain(reader);
-// 												return a;
-// 											}).ToArray();
 
 		if(f.HasFlag(DomainFlag.ChildNet))
 		{

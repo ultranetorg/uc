@@ -89,7 +89,7 @@ public class ResourceUpdation : RdnOperation
 				r.Data		= Data;
 				r.Updated	= round.ConsensusTime;
 
-				Allocate(round, d, r.Data.Value.Length);
+				Allocate(round, Signer, d, r.Data.Value.Length);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
@@ -105,7 +105,7 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
-				Free(round, d, r.Data.Value.Length);
+				Free(round, Signer, d, r.Data.Value.Length);
 
 				r.Flags	&= ~ResourceFlags.Data;
 				r.Data = null;
@@ -121,8 +121,8 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				Signer.BDBalance -= ToBD(r.Length, Mcv.Forever);
-				Free(round, d, r.Length);
+				Signer.Spacetime -= ToBD(r.Length, Mcv.Forever);
+				Free(round, Signer, d, r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))

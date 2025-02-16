@@ -2,20 +2,27 @@
 
 public class FairRound : Round
 {
-	public new FairMcv								Mcv => base.Mcv as FairMcv;
-	public Dictionary<EntityId, AuthorEntry>		AffectedAuthors = new();
-	public Dictionary<EntityId, ProductEntry>		AffectedProducts = new();
-	public Dictionary<EntityId, SiteEntry>			AffectedSites = new();
-	public Dictionary<EntityId, CategoryEntry>		AffectedCategories = new();
-	public Dictionary<EntityId, PublicationEntry>	AffectedPublications = new();
-	public Dictionary<EntityId, ReviewEntry>		AffectedReviews = new();
-	public Dictionary<int, int>						NextAuthorEids = new ();
-	public Dictionary<int, int>						NextProductEids = new ();
-	public Dictionary<int, int>						NextSiteEids = new ();
-	public Dictionary<int, int>						NextCategoryEids = new ();
-	public Dictionary<int, int>						NextPageEids = new ();
-	public Dictionary<int, int>						NextReviewEids = new ();
+	public new FairMcv									Mcv => base.Mcv as FairMcv;
+	public Dictionary<EntityId, AuthorEntry>			AffectedAuthors = new();
+	public Dictionary<EntityId, ProductEntry>			AffectedProducts = new();
+	public Dictionary<EntityId, SiteEntry>				AffectedSites = new();
+	public Dictionary<EntityId, CategoryEntry>			AffectedCategories = new();
+	public Dictionary<EntityId, PublicationEntry>		AffectedPublications = new();
+	public Dictionary<EntityId, ReviewEntry>			AffectedReviews = new();
+	public Dictionary<int, int>							NextAuthorEids = new ();
+	public Dictionary<int, int>							NextProductEids = new ();
+	public Dictionary<int, int>							NextSiteEids = new ();
+	public Dictionary<int, int>							NextCategoryEids = new ();
+	public Dictionary<int, int>							NextPageEids = new ();
+	public Dictionary<int, int>							NextReviewEids = new ();
 	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
+
+	public AuthorEntry									FindAuthor(EntityId id) => Mcv.Authors.Find(id, Id);
+	public ProductEntry									FindProduct(EntityId id) => Mcv.Products.Find(id, Id);
+	public SiteEntry									FindSite(EntityId id) => Mcv.Sites.Find(id, Id);
+	public CategoryEntry								FindCategory(EntityId id) => Mcv.Categories.Find(id, Id);
+	public PublicationEntry								FindPublication(EntityId id) => Mcv.Publications.Find(id, Id);
+	public ReviewEntry									FindReview(EntityId id) => Mcv.Reviews.Find(id, Id);
 
 	public FairRound(FairMcv rds) : base(rds)
 	{
@@ -50,9 +57,9 @@ public class FairRound : Round
 		return base.NextEidsByTable(table);
 	}
 
-	public new FairAccountEntry AffectAccount(AccountAddress address)
+	public new FairAccountEntry AffectAccount(AccountAddress address, Account creator)
 	{
-		return base.AffectAccount(address) as FairAccountEntry;
+		return base.AffectAccount(address, creator) as FairAccountEntry;
 	}
 
 	public new FairAccountEntry AffectAccount(EntityId id)
@@ -80,7 +87,11 @@ public class FairRound : Round
 			
 		var e = Mcv.Authors.Find(id, Id - 1);
 
-		return AffectedAuthors[id] = e.Clone();
+		e = AffectedAuthors[id] = e.Clone();
+
+		TransferECIfNeeded(e);
+
+		return e;
 	}
 
 	public ProductEntry CreateProduct(AuthorEntry author)
@@ -109,8 +120,10 @@ public class FairRound : Round
 		int e = GetNextEid(Mcv.Sites, b);
 
 		var a = Mcv.Sites.Create();
+		
 		a.Id = new EntityId(b, e);
 		a.Categories = [];
+		a.Moderators = [];
 			
 		return AffectedSites[a.Id] = a;
 	}
@@ -289,5 +302,6 @@ public class FairRound : Round
 		Candidates	= reader.Read<Generator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
 		Members		= reader.Read<Generator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
 	}
+
 }
 

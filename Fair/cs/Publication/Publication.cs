@@ -3,10 +3,16 @@ namespace Uccs.Fair;
 public enum PublicationStatus : byte
 {
 	None,
-	RequestedByAuthor,
-	ProposedBySite,
-	Active,
+	Pending,
+	Approved,
 	//Disputed
+}
+
+public enum PublicationFlags : byte
+{
+	None,
+	CreatedByAuthor	= 0b0000_0000,
+	CreatedBySite	= 0b0000_0001,
 }
 
 public class Publication : IBinarySerializable
@@ -20,6 +26,7 @@ public class Publication : IBinarySerializable
 	public ProductFieldVersionId[]	Changes { get; set; }
 	public EntityId[]				Reviews { get; set; }
 	public EntityId[]				ReviewChanges { get; set; }
+	public PublicationFlags			Flags { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
@@ -32,6 +39,7 @@ public class Publication : IBinarySerializable
 		Changes			= reader.ReadArray<ProductFieldVersionId>();
 		Reviews			= reader.ReadArray<EntityId>();
 		ReviewChanges	= reader.ReadArray<EntityId>();
+		Flags			= reader.ReadEnum<PublicationFlags>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -45,5 +53,6 @@ public class Publication : IBinarySerializable
 		writer.Write(Changes);
 		writer.Write(Reviews);
 		writer.Write(ReviewChanges);
+		writer.WriteEnum(Flags);
 	}
 }

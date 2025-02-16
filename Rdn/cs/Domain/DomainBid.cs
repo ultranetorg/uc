@@ -69,7 +69,7 @@ public class DomainBid : RdnOperation
  		{
 			if(a.LastWinner == null) /// first bid
 			{
-				Signer.BDBalance -= Bid;
+				Signer.Spacetime -= Bid;
 				
 				a.Owner				= null;
 				a.FirstBidTime		= round.ConsensusTime;
@@ -85,8 +85,8 @@ public class DomainBid : RdnOperation
 				{
 					var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
 					
-					Affect(round, lw.Address).BDBalance += a.LastBid;
-					Signer.BDBalance -= Bid;
+					round.AffectAccount(lw.Address, null).Spacetime += a.LastBid;
+					Signer.Spacetime -= Bid;
 					
 					a.LastBid		= Bid;
 					a.LastBidTime	= round.ConsensusTime;
@@ -101,7 +101,7 @@ public class DomainBid : RdnOperation
 			/// dont refund previous winner if any
 			///Transaction.BYReturned += a.LastBid;
 
-			Signer.BDBalance -= Bid;
+			Signer.Spacetime -= Bid;
 			
 			a.Owner				= null;
 			a.FirstBidTime		= round.ConsensusTime;

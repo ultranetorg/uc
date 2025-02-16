@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Uccs.Fair;
 
 public class ReviewCreation : FairOperation
@@ -54,8 +56,9 @@ public class ReviewCreation : FairOperation
 		p.Reviews = [..p.Reviews, r.Id];
 		p.ReviewChanges = [..p.ReviewChanges, r.Id];
 
-		/// ??? Allocate(round, a, f.Size);
+		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
 
-				
+		Allocate(round, a, a, Mcv.EntityLength);
+		Allocate(round, a, a, Encoding.UTF8.GetByteCount(Text));
 	}
 }

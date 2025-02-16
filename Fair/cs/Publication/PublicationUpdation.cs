@@ -6,7 +6,6 @@ public enum PublicationChange : byte
 	Status,
 	ApproveChange,
 	RejectChange,
-	Delete,
 	Product,
 }
 
@@ -65,15 +64,14 @@ public class PublicationUpdation : UpdateOperation
 			{ 
  				var s = (PublicationStatus)Value;
  			
-				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
+				var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
  
- 				if(p.Status == PublicationStatus.RequestedByAuthor && s == PublicationStatus.Active)
+ 				if(p.Status == PublicationStatus.Pending && s == PublicationStatus.Approved)
  				{
-					///a.ECDeposit -= a.ModerationReward;
-					///Signer.ECBalance += a.ModerationReward;
+					a.Energy -= a.ModerationReward;
+					Signer.Energy += a.ModerationReward;
 
-					///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-					///	return;
+					p.Status = PublicationStatus.Approved;
  				}
 				else
 				{
@@ -133,10 +131,10 @@ public class PublicationUpdation : UpdateOperation
 					p.Fields = [..p.Fields.Where(i => i.Name != v.Name)];
 				}
 
-				var a = round.AffectAuthor(r.AuthorId);
+				var a = round.AffectAuthor(r.Author);
 
-				///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-				///	return;
+				a.Energy -= a.ModerationReward;
+				Signer.Energy += a.ModerationReward;
 
 				break;
 			}
@@ -155,20 +153,16 @@ public class PublicationUpdation : UpdateOperation
 				
 				p.Changes = [..p.Changes.Where(i => i != c)];
 
-				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).AuthorId);
+				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).Author);
 
-				///if(!Pay(ref a.ECDeposit, ref Signer.ECBalance, a.ModerationReward, round.ConsensusTime))
-				///	return;
+				a.Energy -= a.ModerationReward;
+				Signer.Energy += a.ModerationReward;
 
 				break;
 			}
 
 			case PublicationChange.Product:
 				p.Product = EntityId;
-				break;
-
-			case PublicationChange.Delete:
-				p.Deleted = true;
 				break;
 		}
 	}

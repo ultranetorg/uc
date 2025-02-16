@@ -17,7 +17,7 @@ public class ProductEntry : Product, ITableEntry
 	public ProductEntry Clone()
 	{
 		return new(Mcv){Id = Id,
-						AuthorId = AuthorId,
+						Author = Author,
 						Flags = Flags,
 						Fields = Fields,
 						Updated = Updated,

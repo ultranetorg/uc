@@ -25,7 +25,6 @@ public class ECKey
 	private byte[] _publicKey;
 	private byte[] _publicKeyCompressed;
 
-
 	private ECDomainParameters _DomainParameter;
 
 	private static readonly BigInteger PRIME;
