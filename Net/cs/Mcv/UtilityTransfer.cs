@@ -50,13 +50,13 @@ public class UtilityTransfer : Operation
 		{
 			Signer.Energy		-= EC;
 			Signer.EnergyNext	-= ECNext;
-			Signer.Spacetime		-= ST;
+			Signer.Spacetime	-= ST;
 		}
 
 		var to = round.AffectAccount(To, Signer);
 
 		to.Energy		+= EC;
 		to.EnergyNext	+= ECNext;
-		to.Spacetime		+= ST;
+		to.Spacetime	+= ST;
 	}
 }

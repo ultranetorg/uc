@@ -27,29 +27,25 @@ public class BatchCommand : McvCommand
 						};
 
 		a.Execute = () =>	{
-								var ops = Args	.Where(i =>	i.Name != AwaitArg && i.Name != SignerArg)
-												.Select(x => {
-																var op = (x.Value as Xon).Nodes;
+								return Args	.Where(i =>	i.Name != AwaitArg && i.Name != SignerArg)
+											.Select(x => {
+															var op = (x.Value as Xon).Nodes;
 
-																var c = Cli.Create(op, Flow);
+															var c = Cli.Create(op, Flow);
 
 
-																c.Args.RemoveAt(0);
+															c.Args.RemoveAt(0);
 
-																var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(op.Skip(1).First().Name));
+															var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(op.Skip(1).First().Name));
 
-																var o = a.Execute() as Operation;
+															var o = a.Execute() as Operation;
 
-																if(o is null)
-																	throw new SyntaxException($"{c.Keyword} is not operation");
+															if(o is null)
+																throw new SyntaxException($"{c.Keyword} is not operation");
 
-																return o;
-															}
-								);
+															return o;
+														});
 
-								Transact(ops, GetAccountAddress(SignerArg), GetAwaitStage(Args));
-
-								return ops;
 							};
 
 		return a;

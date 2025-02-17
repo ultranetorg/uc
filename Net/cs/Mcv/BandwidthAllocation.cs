@@ -48,7 +48,7 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		Signer.Energy					-= Bandwidth * Days;
+		Signer.Energy				-= Bandwidth * Days;
 		Signer.Bandwidth			= Bandwidth;
 		Signer.BandwidthExpiration	= Time.FromDays(round.ConsensusTime.Days + Days);
 	}

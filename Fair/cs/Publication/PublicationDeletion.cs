@@ -44,6 +44,9 @@ public class PublicationDeletion : FairOperation
 		{	
 			var s = round.AffectSite(c.Site);
 
+			EnergySource	= s;
+			SpacetimeSource	= s;
+
 			Free(round, s, s, Mcv.EntityLength);
 		}
 		else

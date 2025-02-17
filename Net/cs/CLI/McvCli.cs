@@ -110,5 +110,19 @@ public class McvCli : Cli
 				c.Transacted?.Invoke();
 			}
 		}
+		else if(result is IEnumerable<Operation> ooo)
+		{
+			if(c.Has("estimate"))
+			{
+				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
+				c.Dump(rp);
+			}
+			else
+			{
+				var t = c.Transact(ooo, c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(args));
+
+				c.Transacted?.Invoke();
+			}
+		}
 	}
 }

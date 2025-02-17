@@ -26,20 +26,11 @@ public class AccountEntry : Account, ITableEntry
 
 		a.Id						= Id;
 		a.Address					= Address;
-
 		a.Spacetime					= Spacetime;
-		a.Energy						= Energy;
-		a.EnergyThisPeriod				= EnergyThisPeriod;
-		a.EnergyNext					= EnergyNext;
-
 		a.LastTransactionNid		= LastTransactionNid;
 		a.AverageUptime				= AverageUptime;
-				
-		a.Bandwidth					= Bandwidth;
-		a.BandwidthExpiration		= BandwidthExpiration;
-		a.BandwidthToday			= BandwidthToday;
-		a.BandwidthTodayTime		= BandwidthTodayTime;
-		a.BandwidthTodayAvailable	= BandwidthTodayAvailable;
+
+		((IEnergyHolder)this).Clone(a);
 
 		return a;
 	}

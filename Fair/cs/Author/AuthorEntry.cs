@@ -22,18 +22,20 @@ public class AuthorEntry : Author, ITableEntry
 
 	public AuthorEntry Clone()
 	{
-		return new AuthorEntry(Mcv){Id					= Id,
-									Title				= Title,
-									Owner				= Owner,
-									Expiration			= Expiration,
-									Space				= Space,
-									Spacetime					= Spacetime,
-									Energy					= Energy,
-									EnergyThisPeriod		= EnergyThisPeriod,
-									EnergyNext				= EnergyNext,
-									ModerationReward	= ModerationReward,
+		var a = new AuthorEntry(Mcv)   {Id					= Id,
+										Title				= Title,
+										Owner				= Owner,
 
-									Products			= Products};
+										Expiration			= Expiration,
+										Space				= Space,
+										Spacetime			= Spacetime,
+										ModerationReward	= ModerationReward,
+
+										Products			= Products};
+
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
 	}
 
 	public void WriteMain(BinaryWriter writer)

@@ -64,11 +64,11 @@ public class ResourceUpdation : RdnOperation
 
 		d = round.AffectDomain(d.Id);
 		
-		ECExecuted -= round.ConsensusECFee; /// the first is alredy paid
+		EnergyConsumed -= round.ConsensusECEnergyCost; /// the first is alredy paid
 
 		void execute(Ura resource)
 		{
-			ECExecuted += round.ConsensusECFee;
+			EnergyConsumed += round.ConsensusECEnergyCost;
 
 			var r = round.AffectResource(d, resource.Resource);
 
@@ -121,8 +121,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				Signer.Spacetime -= ToBD(r.Length, Mcv.Forever);
-				Free(round, Signer, d, r.Length);
+				PayForForever(r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))

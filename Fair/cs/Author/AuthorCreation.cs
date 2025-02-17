@@ -37,10 +37,9 @@ public class AuthorCreation : FairOperation
 		
 		Signer.Authors = Signer.Authors == null ? [e.Id] : [..Signer.Authors, e.Id];
 		
-		e.Owner			= Signer.Id;
-		e.Title			= Title;
-		e.Expiration	= round.ConsensusTime + Time.FromYears(Years);
+		e.Owner	= Signer.Id;
+		e.Title	= Title;
 
-		AllocateEntity(Signer);
+		Prolong(round, Signer, e, Time.FromYears(Years));
 	}
 }

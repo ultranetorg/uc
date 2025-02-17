@@ -15,7 +15,8 @@ public enum FairOperationClass
 	
 	Site							= 102,
 		SiteCreation				= 102_000_001, 
-		SiteDeletion				= 102_000_002,
+		SiteUpdation				= 102_000_002,
+		SiteDeletion				= 102_000_999,
 	
 	Store							= 103,
 		ModeratorAddition			= 103_000_001,
@@ -88,6 +89,13 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
+	public bool CanAccessAuthor(FairRound round, EntityId id)
+	{
+		var r = RequireAuthorAccess(round, id, out var _);
+		Error = null;
+		return r;
+	}
+
 	public bool RequireAuthorAccess(FairRound round, EntityId id, out AuthorEntry author)
 	{
 		author = round.Mcv.Authors.Find(id, round.Id);
@@ -122,6 +130,13 @@ public abstract class FairOperation : Operation
 			return false; 
 
 		return true; 
+	}
+
+	public bool CanAccessSite(FairRound round, EntityId id)
+	{
+		var r = RequireSiteAccess(round, id, out var _);
+		Error = null;
+		return r;
 	}
 
 	public bool RequireSiteAccess(FairRound round, EntityId id, out SiteEntry site)

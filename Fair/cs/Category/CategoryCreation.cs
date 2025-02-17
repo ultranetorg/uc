@@ -57,6 +57,5 @@ public class CategoryCreation : FairOperation
 		
 			Allocate(round, Signer, s, Mcv.EntityLength);
 		}
-
 	}
 }

@@ -38,7 +38,7 @@ public abstract class Round : IBinarySerializable
 	public EntityId[]									ConsensusViolators = {};
 	public AccountAddress[]								ConsensusFundJoiners = {};
 	public AccountAddress[]								ConsensusFundLeavers = {};
-	public long											ConsensusECFee;
+	public long											ConsensusECEnergyCost;
 	public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusNtnStates = [];
 
@@ -246,14 +246,14 @@ public abstract class Round : IBinarySerializable
 		var all = VotesOfTry.ToArray();
 		var svotes = Id < Mcv.JoinToVote ? [] : Required.ToArray();
 					
-		ConsensusECFee	= Id == 0 ? 0 : Previous.ConsensusECFee;
+		ConsensusECEnergyCost	= Id == 0 ? 0 : Previous.ConsensusECEnergyCost;
 		ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
 
 		var tn = all.Sum(i => i.Transactions.Length);
 
 		if(tn > Mcv.Net.TransactionsPerRoundExecutionLimit)
 		{
-			ConsensusECFee *= Mcv.Net.OverloadFeeFactor;
+			ConsensusECEnergyCost *= Mcv.Net.OverloadFeeFactor;
 			ConsensusOverloadRound = Id;
 
 			var e = tn - Mcv.Net.TransactionsPerRoundExecutionLimit;
@@ -282,8 +282,8 @@ public abstract class Round : IBinarySerializable
 		}
 		else 
 		{
-			if(ConsensusECFee > 1 && Id - ConsensusOverloadRound > Mcv.P)
-				ConsensusECFee /= Net.OverloadFeeFactor;
+			if(ConsensusECEnergyCost > 1 && Id - ConsensusOverloadRound > Mcv.P)
+				ConsensusECEnergyCost /= Net.OverloadFeeFactor;
 		}
 		
 		if(Id > 0)
@@ -408,52 +408,69 @@ public abstract class Round : IBinarySerializable
 
 			foreach(var o in t.Operations)
 			{
-				o.Signer = s;
-				o.ECExecuted = ConsensusECFee;
+				o.Signer			= s;
+				o.EnergySource		= s;
+				o.SpacetimeSource	= s;
+				o.EnergyConsumed	= ConsensusECEnergyCost;
 
 				o.Execute(Mcv, this);
 
 				if(o.Error != null)
 					goto start;
 			
-				if(t.ECFee == 0 && s.BandwidthExpiration.Days >= ConsensusTime.Days)
+				if(o.EnergySource.BandwidthExpiration.Days >= ConsensusTime.Days)
 				{
-					if(s.BandwidthTodayTime.Days < ConsensusTime.Days) /// switch to this day
+					if(o.EnergySource.BandwidthTodayTime.Days < ConsensusTime.Days) /// switch to this day
 					{	
-						s.BandwidthTodayTime		= ConsensusTime;
-						s.BandwidthTodayAvailable	= s.Bandwidth;
+						o.EnergySource.BandwidthTodayTime		= ConsensusTime;
+						o.EnergySource.BandwidthTodayAvailable	= o.EnergySource.Bandwidth;
 					}
 
-					s.BandwidthTodayAvailable -= o.ECExecuted;
+					o.EnergySource.BandwidthTodayAvailable -= o.EnergyConsumed;
 
-					if(s.BandwidthTodayAvailable < 0)
+					if(o.EnergySource.BandwidthTodayAvailable < 0)
 					{
 						o.Error = Operation.NotEnoughBandwidth;
 						goto start;
 					}
 				}
-				else if(s.Energy < t.ECExecuted || (!trying && (s.Energy < t.ECFee || t.ECExecuted > t.ECFee)))
+				else
 				{
-					o.Error = Operation.NotEnoughEnergy;
-					goto start;
+					o.EnergySource.Energy -= o.EnergyConsumed;
+
+					if(o.EnergySource.Energy < 0)
+					{
+						o.Error = Operation.NotEnoughEnergy;
+						goto start;
+					}
 				}
 				
-				if(s.Spacetime < 0)
+				if(o.SpacetimeSource.Spacetime < 0)
 				{
 					o.Error = Operation.NotEnoughSpacetime;
 					goto start;
 				}
 				
-				if(s.EnergyNext < 0)
+				if(o.EnergySource.EnergyNext < 0)
 				{
 					o.Error = Operation.NotEnoughEnergyNext;
 					goto start;
 				}
 			}
 
-			if(!trying)
-				s.Energy -= t.ECFee;
-			
+			//if(!trying)
+			{	
+				s.Energy -= t.Bonus;
+
+				if(s.Energy < 0)
+				{
+					foreach(var o in t.Operations)
+						o.Error = Operation.NotEnoughEnergy;
+
+					goto start;
+				}
+			}
+						
 			s.LastTransactionNid++;
 		}
 
@@ -570,7 +587,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusECFee);
+		writer.Write7BitEncodedInt64(ConsensusECEnergyCost);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
 				
 		#if ETHEREUM
@@ -588,7 +605,7 @@ public abstract class Round : IBinarySerializable
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusECFee			= reader.Read7BitEncodedInt64();
+		ConsensusECEnergyCost			= reader.Read7BitEncodedInt64();
 		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 
 		#if ETHEREUM
@@ -600,7 +617,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusECFee);
+		writer.Write7BitEncodedInt64(ConsensusECEnergyCost);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
 		writer.Write(ConsensusMemberLeavers);
 		writer.Write(ConsensusViolators);
@@ -612,7 +629,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void ReadConfirmed(BinaryReader reader)
 	{
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusECFee	= reader.Read7BitEncodedInt64();
+		ConsensusECEnergyCost	= reader.Read7BitEncodedInt64();
 		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
 		ConsensusMemberLeavers	= reader.ReadArray<EntityId>();
 		ConsensusViolators		= reader.ReadArray<EntityId>();

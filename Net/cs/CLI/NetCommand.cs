@@ -9,6 +9,8 @@ public abstract class NetCommand : Command
 		public string[] Examples;
 
 		public string Example => Examples[0];
+		public string Example1 => Examples[1];
+		public string Example2 => Examples[2];
 
 		public ArgumentType(string name, string description, string[] example)
 		{

@@ -38,7 +38,7 @@ public class ResourceLinkDeletion : RdnOperation
 		if(RequireResource(round, Destination, out var dd, out var dr) == false)
 			return;
 
-		var l = sr.Outbounds.First(i => i.Destination == dr.Id);
+		var l = sr.Outbounds.FirstOrDefault(i => i.Destination == dr.Id);
 
 		if(l == null)
 		{

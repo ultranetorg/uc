@@ -58,6 +58,16 @@ public class PublicationUpdation : UpdateOperation
 
 		p = round.AffectPublication(Publication);
 
+		void pay(AuthorEntry a)
+		{
+			var site = round.AffectSite(round.FindCategory(p.Category).Site);
+			EnergySource	= site;
+			SpacetimeSource	= site;
+
+			a.Energy -= a.ModerationReward;
+			Signer.Energy += a.ModerationReward;
+		}
+
 		switch(Change)
 		{
 			case PublicationChange.Status:
@@ -68,8 +78,7 @@ public class PublicationUpdation : UpdateOperation
  
  				if(p.Status == PublicationStatus.Pending && s == PublicationStatus.Approved)
  				{
-					a.Energy -= a.ModerationReward;
-					Signer.Energy += a.ModerationReward;
+					pay(a);
 
 					p.Status = PublicationStatus.Approved;
  				}
@@ -132,10 +141,9 @@ public class PublicationUpdation : UpdateOperation
 				}
 
 				var a = round.AffectAuthor(r.Author);
-
-				a.Energy -= a.ModerationReward;
-				Signer.Energy += a.ModerationReward;
-
+				
+				pay(a);
+				
 				break;
 			}
 
@@ -153,11 +161,10 @@ public class PublicationUpdation : UpdateOperation
 				
 				p.Changes = [..p.Changes.Where(i => i != c)];
 
-				var a = round.AffectAuthor(mcv.Products.Find(p.Product, round.Id).Author);
-
-				a.Energy -= a.ModerationReward;
-				Signer.Energy += a.ModerationReward;
-
+				var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
+				
+				pay(a);
+				
 				break;
 			}
 

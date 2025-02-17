@@ -39,12 +39,9 @@ public class Transaction : IBinarySerializable
 	public int						Expiration { get; set; }
 	public byte[]					PoW;
 	public byte[]					Tag;
-	//public Money					STFee;
-	public long						ECFee;
+	public long						Bonus;
 	
-	public long						ECExecuted => Operations.Sum(i => i.ECExecuted);
-	//public long					BYReturned;
-	//public long					ECReward;
+	public long						EnergyConsumed => Operations.Sum(i => i.EnergyConsumed);
 	public byte[]					Signature { get; set; }
 
 	private AccountAddress			_Signer;
@@ -124,7 +121,7 @@ public class Transaction : IBinarySerializable
 		w.Write7BitEncodedInt(Nid);
 		w.Write7BitEncodedInt(Expiration);
 		//w.Write(STFee);
-		w.Write(ECFee);
+		w.Write(Bonus);
 		w.WriteBytes(PoW);
 		w.WriteBytes(Tag);
 		w.Write(Operations, i => i.Write(w));
@@ -137,7 +134,7 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write(Signer);
 		writer.Write7BitEncodedInt(Nid);
-		writer.Write7BitEncodedInt64(ECFee);
+		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Codes[i.GetType()]); 
@@ -152,7 +149,7 @@ public class Transaction : IBinarySerializable
 		Member	= reader.Read<EntityId>();
 		Signer		= reader.ReadAccount();
 		Nid			= reader.Read7BitEncodedInt();
-		ECFee		= reader.Read7BitEncodedInt64();
+		Bonus		= reader.Read7BitEncodedInt64();
 		Tag			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
@@ -171,7 +168,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt(Expiration);
 		//writer.Write(STFee);
-		writer.Write7BitEncodedInt64(ECFee);
+		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(PoW);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i => {
@@ -189,7 +186,7 @@ public class Transaction : IBinarySerializable
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
 		//STFee		= reader.Read<Money>();
-		ECFee		= reader.Read7BitEncodedInt64();
+		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
@@ -210,7 +207,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt(Expiration);
 		//writer.Write(STFee);
-		writer.Write7BitEncodedInt64(ECFee);
+		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(PoW);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>	{
@@ -228,7 +225,7 @@ public class Transaction : IBinarySerializable
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
 		//STFee		= reader.Read<Money>();
-		ECFee		= reader.Read7BitEncodedInt64();
+		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
 		Operations	= reader.ReadArray(() => {

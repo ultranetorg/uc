@@ -23,8 +23,10 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public string			Error;
 	public Transaction		Transaction;
 	public AccountEntry		Signer;
+	public IEnergyHolder	EnergySource;
+	public ISpaceHolder		SpacetimeSource;
 	public abstract string	Description { get; }
-	public long				ECExecuted;
+	public long				EnergyConsumed;
 
 	public const string		Rejected = "Rejected";
 	public const string		NotFound = "Not found";
@@ -152,7 +154,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 			round.Spacetimes[i] += space;
 	}
 
-	public void Free(Round round, ISpaceHolder beneficiary, ISpaceConsumer consumer, int space)
+	public void Free(Round round, ISpaceHolder beneficiary, ISpaceConsumer consumer, long space)
 	{
 		if(space == 0)
 			return;

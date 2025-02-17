@@ -9,7 +9,7 @@ public class CostRequest : McvPpc<CostResponse>
 			RequireBase();
 
 			return new CostResponse{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusECFee};
+									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusECEnergyCost};
 		}
 	}
 }

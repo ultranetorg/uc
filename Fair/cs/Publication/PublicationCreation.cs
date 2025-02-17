@@ -33,21 +33,27 @@ public class PublicationCreation : FairOperation
 					
 		var p = round.CreatePublication(mcv.Sites.Find(c.Site, round.Id));
 
-		if(Signer.Id == a.Owner)
+		if(CanAccessAuthor(round, a.Id))
 		{ 
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedByAuthor;
 			
 			a = round.AffectAuthor(a.Id);
+
+			EnergySource	= a;
+			SpacetimeSource	= a;
 			
 			Allocate(round, a, a, Mcv.EntityLength);
 		}
-		else if(mcv.Sites.Find(c.Site, mcv.LastConfirmedRound.Id)?.Moderators.Contains(Signer.Id) ?? false)
+		else if(CanAccessSite(round, c.Site))
 		{	
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedBySite;
 
 			var s = round.AffectSite(c.Site);
+
+			EnergySource	= s;
+			SpacetimeSource	= s;
 
 			Allocate(round, s, s, Mcv.EntityLength);
 		}

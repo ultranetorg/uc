@@ -735,12 +735,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration.Days >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime.Days == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.ECExecuted || /// Allocated bandwidth first
-																												i.a.Bandwidth >= i.t.ECExecuted)))
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration.Days >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime.Days == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
+																												i.a.Bandwidth >= i.t.EnergyConsumed)))
 						if(false == tryplace(t.t, true, false))
 							break;
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.ECFee))		/// ... then fee-transactions
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
 						if(false == tryplace(t.t, false, false))
 							break;
 
@@ -751,15 +751,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					}
 				}
 
- 					while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
- 					{
- 						r = r.Previous;
+ 				while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+ 				{
+ 					r = r.Previous;
  
- 						var b = createvote(r);
+ 					var b = createvote(r);
  						
- 						b.Sign(Vault.Find(g).Key);
- 						votes.Add(b);
- 					}
+ 					b.Sign(Vault.Find(g).Key);
+ 					votes.Add(b);
+ 				}
 
 				if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					MainWakeup.Set();
@@ -787,7 +787,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					if(r.Hash == null)
 					{
 						r.ConsensusTime			= r.Previous.ConsensusTime;
-						r.ConsensusECFee	= r.Previous.ConsensusECFee;
+						r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
 						///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
 						r.Members				= r.Previous.Members;
 						r.Funds					= r.Previous.Funds;
@@ -911,7 +911,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						t.Rdi = rdi;
 						//t.STFee = 0;
-						t.ECFee = 0;
+						t.Bonus = 0;
 						t.Nid = 0;
 						t.Expiration = 0;
 						t.Member = new(0, -1);
@@ -929,7 +929,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						#if IMMISSION
 							t.Fee	 = t.EmissionOnly ? 0 : at.MinFee;
 						#endif
-						t.ECFee		 = at.ECCost;
+						t.Bonus	 = 0;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 

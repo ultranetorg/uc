@@ -61,52 +61,127 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
-		var y = "years";
-		var dp = "deposit";
-		var mr = "mr";
-		var ow = "owner";
+		var owner = "owner";
 
 		a.Name = "u";
 		a.Help = new() {Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {y}={INT} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {owner}={AA} {SignerArg}={AA}",
 
 						Arguments =	[
 										new ("<first>", "Id of an author to be renewed"),
-										new (y, "A number of years to renew author for"),
+										new (owner, "Account address of a new owner"),
 										new (SignerArg, "Address of account that owns the author")
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} {EID.Example} {y}=5 {SignerArg}={AA.Example}")
+										new (null, $"{Keyword} {a.Name} {EID.Example} {owner}={AA.Example1} {SignerArg}={AA.Example}")
 									]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var d = Ppc(new AuthorRequest(FirstAuthorId)).Author;
-
-								var o = new AuthorUpdation {AuthorId = d.Id};
-
-								if(Has(y))
-								{
-									o.Change = AuthorChange.Renew;
-									o.Value	 = byte.Parse(GetString(y));
-								}
-								else if(Has(dp))
-								{
-									o.Change = AuthorChange.DepositEnergy;
-									o.Value	 = GetLong(dp);
-								}
-								else if(Has(mr))
-								{
-									o.Change = AuthorChange.DepositEnergy;
-									o.Value	 = GetInt(mr);
-								}
-								else if(Has(ow))
+								var o = new AuthorUpdation {AuthorId = FirstEntityId};
+								
+								if(Has(owner))
 								{
 									o.Change = AuthorChange.Owner;
-									o.Value	 = GetAccountAddress(ow);
+									o.Value	 = GetAccountAddress(owner);
 								}
+								else
+									throw new SyntaxException("Unknown parameters");
+
+								return o;
+							};
+		return a;
+	}
+
+	public CommandAction Deposit()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var energy = "e";
+		var energynext = "en";
+		var spacetime = "st";
+
+		a.Name = "d";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{energy}={EC}] [{energynext}={EC}] [{spacetime}={ST}] {SignerArg}={AA}",
+
+						Arguments =	[
+										new ("<first>", "Id of a author to update"),
+										new (energy, "An amount of energy to deposit"),
+										new (energynext, "An amount of energy of next period to deposit"),
+										new (spacetime, "An amount of spacetime to deposit"),
+										new (SignerArg, "Address of account that owns the author")
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {EID.Example} {energy}={EC.Example} {SignerArg}={AA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								
+								var ops = new List<Operation>();
+
+								if(Has(energy))
+								{
+									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+									o.Change = AuthorChange.DepositEnergy;
+									o.Value	 = GetLong(energy);
+
+									ops.Add(o);
+								}
+
+								if(Has(energynext))
+								{
+									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+									o.Change = AuthorChange.DepositEnergyNext;
+									o.Value	 = GetLong(energynext);
+
+									ops.Add(o);
+								}
+								
+								if(Has(spacetime))
+								{
+									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+									o.Change = AuthorChange.DepositSpacetime;
+									o.Value	 = Account.ParseSpacetime(GetString(spacetime));
+
+									ops.Add(o);
+								}
+								
+								if(ops.Count == 0)
+									throw new SyntaxException("Unknown parameters");
+
+								return ops;
+							};
+		return a;
+	}
+
+	public CommandAction Renew()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var years = "years";
+
+		a.Name = "r";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {years}={INT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (years, "A number of years to renew author for. Allowed during the last year of current period only."),
+									 new (SignerArg, "Address of account that owns the author")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {years}=5 {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new AuthorUpdation {AuthorId = FirstEntityId};
+
+								o.Change = AuthorChange.Renew;
+								o.Value	 = byte.Parse(GetString(years));
 
 								return o;
 							};

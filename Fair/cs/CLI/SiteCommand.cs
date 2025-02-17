@@ -4,8 +4,6 @@ namespace Uccs.Fair;
 
 public class SiteCommand : FairCommand
 {
-	EntityId FirstSiteId => EntityId.Parse(Args[0].Name);
-
 	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
@@ -23,12 +21,12 @@ public class SiteCommand : FairCommand
 									 new ("title", "A ttile of a site being created"),
 									 new (SignerArg, "Address of account that owns or is going to register the site")],
 						
-						Examples =	[new (null, $"{Keyword} {a.Name} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} years=5 {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new SiteCreation {Title = GetString("title")};
+								return new SiteCreation {Title = GetString("title"), Years = byte.Parse(GetString("years"))};
 							};
 		return a;
 	}
@@ -46,7 +44,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new SiteRequest(FirstSiteId));
+								var rp = Ppc(new SiteRequest(FirstEntityId));
 
 								Dump(rp.Site);
 					
@@ -54,6 +52,127 @@ public class SiteCommand : FairCommand
 							};
 		return a;
 	}
+
+	public CommandAction Deposit()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var energy = "e";
+		var energynext = "en";
+		var spacetime = "st";
+
+		a.Name = "d";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{energy}={EC}] [{energynext}={EC}] [{spacetime}={ST}] {SignerArg}={AA}",
+
+						Arguments =	[
+										new ("<first>", "Id of a site to update"),
+										new (energy, "An amount of energy to deposit"),
+										new (energynext, "An amount of energy of next period to deposit"),
+										new (spacetime, "An amount of spacetime to deposit"),
+										new (SignerArg, "Address of account that owns the site")
+									],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name} {EID.Example} {energy}={EC.Example} {SignerArg}={AA.Example}")
+									]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								
+								var ops = new List<Operation>();
+
+								if(Has(energy))
+								{
+									var o = new SiteUpdation {SiteId = FirstEntityId};
+									o.Change = SiteChange.DepositEnergy;
+									o.Value	 = GetLong(energy);
+
+									ops.Add(o);
+								}
+								if(Has(energynext))
+								{
+									var o = new SiteUpdation {SiteId = FirstEntityId};
+									o.Change = SiteChange.DepositEnergyNext;
+									o.Value	 = GetLong(energynext);
+
+									ops.Add(o);
+								}
+								
+								if(Has(spacetime))
+								{
+									var o = new SiteUpdation {SiteId = FirstEntityId};
+									o.Change = SiteChange.DepositSpacetime;
+									o.Value	 = Account.ParseSpacetime(GetString(spacetime));
+
+									ops.Add(o);
+								}
+								
+								if(ops.Count == 0)
+									throw new SyntaxException("Unknown parameters");
+
+								return ops;
+							};
+		return a;
+	}
+
+	public CommandAction Renew()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var years = "years";
+
+		a.Name = "r";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {years}={INT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a site to update"),
+									 new (years, "A number of years to renew site for. Allowed during the last year of current period only."),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {years}=5 {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new SiteUpdation {SiteId = FirstEntityId};
+
+								o.Change = SiteChange.Renew;
+								o.Value	 = byte.Parse(GetString(years));
+
+								return o;
+							};
+		return a;
+	}
+// 
+// 	public CommandAction Transfer()
+// 	{
+// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		
+// 		var owner = "owner";
+// 
+// 		a.Name = "t";
+// 		a.Help = new() {Description = "",
+// 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {owner}={AA} {SignerArg}={AA}",
+// 
+// 						Arguments =	[new ("<first>", "Id of a site to update"),
+// 									 new (owner, "An amount of spacetime to deposit"),
+// 									 new (SignerArg, "Address of account that owns the site")],
+// 
+// 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {owner}={AA.Example[1]} {SignerArg}={AA.Example}")]};
+// 
+// 		a.Execute = () =>	{
+// 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+// 
+// 								var o = new SiteUpdation {SiteId = FirstEntityId};
+// 
+// 									o.Change = SiteChange.Owner;
+// 									o.Value	 = GetAccountAddress(owner);
+// 
+// 								return o;
+// 							};
+// 		return a;
+// 	}
 
 	public CommandAction ListCategories()
 	{
@@ -68,7 +187,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new SiteCategoriesRequest(FirstSiteId));
+								var rp = Ppc(new SiteCategoriesRequest(FirstEntityId));
 
 								Dump(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					

@@ -248,7 +248,7 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}"));
 				f.Add(new ("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}"));
 				f.Add(new ("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}"));
-				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusECFee.ToString()}"));
+				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusECEnergyCost.ToString()}"));
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
@@ -412,7 +412,7 @@ public class TransactionApe
 	public int						Expiration { get; set; }
 	public byte[]					PoW { get; set; }
 	public byte[]					Tag { get; set; }
-	public long						EUFee { get; set; }
+	public long						Bonus { get; set; }
 	public byte[]					Signature { get; set; }
 		 
 	public AccountAddress			Signer { get; set; }
@@ -437,7 +437,7 @@ public class TransactionApe
 		Expiration			= transaction.Expiration;
 		PoW					= transaction.PoW;
 		Tag					= transaction.Tag;
-		EUFee				= transaction.ECFee;
+		Bonus				= transaction.Bonus;
 		Signature			= transaction.Signature;
 		   
 		MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;

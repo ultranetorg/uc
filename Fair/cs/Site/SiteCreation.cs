@@ -3,6 +3,7 @@ namespace Uccs.Fair;
 public class SiteCreation : FairOperation
 {
 	public string				Title { get; set; }
+	public byte					Years {get; set;}
 
 	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
@@ -13,12 +14,14 @@ public class SiteCreation : FairOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Title	= reader.ReadUtf8();
+		Title = reader.ReadString();
+		Years = reader.ReadByte();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Title);
+		writer.Write(Years);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
@@ -31,6 +34,6 @@ public class SiteCreation : FairOperation
 		Signer.Sites ??= [];
 		Signer.Sites = [..Signer.Sites, s.Id];
 
-		AllocateEntity(Signer);
+		Prolong(round, Signer, s, Time.FromYears(Years));
 	}
 }

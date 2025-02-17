@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Reflection;
+
+namespace Uccs.Fair;
 
 public abstract class FairCommand : McvCommand
 {
@@ -8,6 +10,7 @@ public abstract class FairCommand : McvCommand
 	//															[$"{{{TopicChange.AddPages}={Actor.Owner},{Actor.SiteUser} {TopicChange.Security}={Actor.Owner}}}"]);
 	//
 	//public readonly ArgumentType	SITETYPE = new ArgumentType("SITETYPE",	@"Site type", [$"{SiteType.Store}"]);
+	protected EntityId				FirstEntityId => EntityId.Parse(Args[0].Name);
 
 	static FairCommand()
 	{

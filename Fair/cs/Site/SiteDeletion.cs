@@ -26,7 +26,8 @@ public class SiteDeletion : FairOperation
 		if(RequireSiteAccess(round, Site, out var s) == false)
 			return;
 
-		round.AffectSite(Site).Deleted = true;
+		s = round.AffectSite(Site);
+		s.Deleted = true;
 		
 		foreach(var i in s.Categories)
 		{
@@ -46,6 +47,6 @@ public class SiteDeletion : FairOperation
 			a.Sites = a.Sites.Where(i => i != Site).ToArray();
 		}
 		
-		FreeEntity(round);
+		///TODO: Free(round, Signer, s, s.Space);
 	}
 }

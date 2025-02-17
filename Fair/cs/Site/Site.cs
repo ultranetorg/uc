@@ -40,18 +40,39 @@ public enum Actor
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
 {
+	public static readonly Time	RenewalPeriod = Time.FromYears(1);
+
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
-	public EntityId[]			Moderators { get; set; }
-	public EntityId[]			Categories { get; set; }
 
 	public Time					Expiration { get; set; }
 	public long					Space { get; set; }
 	public long					Spacetime { get; set; }
+	public int					ModerationReward  { get; set; }
+
+	public EntityId[]			Moderators { get; set; }
+	public EntityId[]			Categories { get; set; }
+
 	public long					Energy { get; set; }
 	public byte					EnergyThisPeriod { get; set; }
 	public long					EnergyNext { get; set; }
-	public int					ModerationReward  { get; set; }
+	public long					Bandwidth { get; set; }
+	public Time					BandwidthExpiration { get; set; } = Time.Empty;
+	public long					BandwidthToday { get; set; }
+	public Time					BandwidthTodayTime { get; set; }
+	public long					BandwidthTodayAvailable { get; set; }
+
+
+	public static bool IsExpired(Site a, Time time) 
+	{
+		return time > a.Expiration;
+	}
+
+	public static bool CanRenew(Site author, Time time)
+	{
+		return !IsExpired(author, time) && time > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
+										 
+	}
 
 	public void Read(BinaryReader reader)
 	{
@@ -60,12 +81,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCons
 		Moderators		= reader.ReadArray<EntityId>();
 		Categories		= reader.ReadArray<EntityId>();
 
-		Expiration			= reader.Read<Time>();
-		Space				= reader.Read7BitEncodedInt64();
-		Spacetime		 	= reader.Read7BitEncodedInt64();
-		Energy		 		= reader.Read7BitEncodedInt64();
-		EnergyThisPeriod 	= reader.ReadByte();
-		EnergyNext	 		= reader.Read7BitEncodedInt64();
+		Expiration		= reader.Read<Time>();
+		Space			= reader.Read7BitEncodedInt64();
+		Spacetime		= reader.Read7BitEncodedInt64();
+
+		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
 
 	public void Write(BinaryWriter writer)
@@ -78,8 +98,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCons
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write7BitEncodedInt64(Spacetime);
-		writer.Write7BitEncodedInt64(Energy);
-		writer.Write(EnergyThisPeriod);
-		writer.Write7BitEncodedInt64(EnergyNext);
+
+		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}
 }

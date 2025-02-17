@@ -16,17 +16,21 @@ public class SiteEntry : Site, ITableEntry
 
 	public SiteEntry Clone()
 	{
-		return new(Mcv){Id				= Id,
-						Title			= Title,
-						Moderators		= Moderators,
-						Categories		= Categories,
-						
-						Space			= Space,
-						Spacetime				= Spacetime,
-						Energy				= Energy,
-						EnergyThisPeriod	= EnergyThisPeriod,
-						EnergyNext			= EnergyNext,
-						};
+		var a = new SiteEntry(Mcv){	Id					= Id,
+									Title				= Title,
+
+									Expiration			= Expiration,
+									Space				= Space,
+									Spacetime			= Spacetime,
+									ModerationReward	= ModerationReward,
+
+									Moderators			= Moderators,
+									Categories			= Categories,
+									};
+		
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
 	}
 
 	public void ReadMain(BinaryReader reader)
