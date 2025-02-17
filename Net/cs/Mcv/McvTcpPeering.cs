@@ -735,12 +735,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration.Days >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime.Days == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
-																												i.a.Bandwidth >= i.t.EnergyConsumed)))
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
+																											i.a.Bandwidth >= i.t.EnergyConsumed)))
 						if(false == tryplace(t.t, true, false))
 							break;
 
-					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
+					foreach(var t in stxs.Where(i => i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
 						if(false == tryplace(t.t, false, false))
 							break;
 

@@ -63,7 +63,7 @@ public class DomainRegistration : RdnOperation
 			e = round.AffectDomain(Address);
 			
 			PayForName(Address, Years);
-			Prolong(round, Signer, e, Time.FromYears(Years));
+			Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
@@ -98,11 +98,11 @@ public class DomainRegistration : RdnOperation
 
 			e = round.AffectDomain(Address);
 			
-			var start = e.Expiration < round.ConsensusTime ? round.ConsensusTime : e.Expiration;
+			var start = e.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : e.Expiration;
 
 			e.Owner			= mcv.Accounts.Find(Owner, round.Id).Id;
 			e.ParentPolicy	= Policy;
-			e.Expiration	= start + Time.FromYears(Years);
+			e.Expiration	= (short)(start + Time.FromYears(Years).Days);
 
 			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}

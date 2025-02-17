@@ -418,11 +418,11 @@ public abstract class Round : IBinarySerializable
 				if(o.Error != null)
 					goto start;
 			
-				if(o.EnergySource.BandwidthExpiration.Days >= ConsensusTime.Days)
+				if(o.EnergySource.BandwidthExpiration >= ConsensusTime.Days)
 				{
-					if(o.EnergySource.BandwidthTodayTime.Days < ConsensusTime.Days) /// switch to this day
+					if(o.EnergySource.BandwidthTodayTime < ConsensusTime.Days) /// switch to this day
 					{	
-						o.EnergySource.BandwidthTodayTime		= ConsensusTime;
+						o.EnergySource.BandwidthTodayTime		= (short)ConsensusTime.Days;
 						o.EnergySource.BandwidthTodayAvailable	= o.EnergySource.Bandwidth;
 					}
 

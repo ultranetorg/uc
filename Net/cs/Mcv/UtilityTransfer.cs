@@ -3,60 +3,58 @@
 public class UtilityTransfer : Operation
 {
 	public AccountAddress	To;
-	public long				ST;
-	public long				EC;
-	public long				ECNext;
-	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(EC > 0 ? EC + " EC" : null), 
-																						  (ECNext > 0 ? ECNext + " EC" : null), 
-																						  (ST > 0 ? ST + " BD" : null)}.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => ST > 0 || EC > 0 || ECNext > 0;
+	public long				Spacetime;
+	public long				Energy;
+	public long				EnergyNext;
+	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
+																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
+																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
+	public override bool	IsValid(Mcv mcv) => Spacetime > 0 || Energy > 0 || EnergyNext > 0;
 
 	public UtilityTransfer()
 	{
 	}
 
-	public UtilityTransfer(AccountAddress to, long ec, long ecnext, long bd)
+	public UtilityTransfer(AccountAddress to, long energy, long energynext, long spacetime)
 	{
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
 
-		To		= to;
-		EC		= ec;
-		ECNext	= ecnext;
-		ST		= bd;
+		To			= to;
+		Energy		= energy;
+		EnergyNext	= energynext;
+		Spacetime	= spacetime;
 	}
 
 	public override void ReadConfirmed(BinaryReader r)
 	{
-		To		= r.ReadAccount();
-		EC		= r.Read7BitEncodedInt64();
-		ECNext	= r.Read7BitEncodedInt64();
-		ST		= r.Read7BitEncodedInt64();
+		To			= r.ReadAccount();
+		Energy		= r.Read7BitEncodedInt64();
+		EnergyNext	= r.Read7BitEncodedInt64();
+		Spacetime	= r.Read7BitEncodedInt64();
 	}
 
 	public override void WriteConfirmed(BinaryWriter w)
 	{
 		w.Write(To);
-		w.Write7BitEncodedInt64(EC);
-		w.Write7BitEncodedInt64(ECNext);
-		w.Write7BitEncodedInt64(ST);
+		w.Write7BitEncodedInt64(Energy);
+		w.Write7BitEncodedInt64(EnergyNext);
+		w.Write7BitEncodedInt64(Spacetime);
 	}
 
 	public override void Execute(Mcv chain, Round round)
 	{
-		EC[] d = null;
-
 		if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
 		{
-			Signer.Energy		-= EC;
-			Signer.EnergyNext	-= ECNext;
-			Signer.Spacetime	-= ST;
+			Signer.Energy		-= Energy;
+			Signer.EnergyNext	-= EnergyNext;
+			Signer.Spacetime	-= Spacetime;
 		}
 
 		var to = round.AffectAccount(To, Signer);
 
-		to.Energy		+= EC;
-		to.EnergyNext	+= ECNext;
-		to.Spacetime	+= ST;
+		to.Energy		+= Energy;
+		to.EnergyNext	+= EnergyNext;
+		to.Spacetime	+= Spacetime;
 	}
 }

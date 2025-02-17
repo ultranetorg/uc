@@ -85,13 +85,13 @@ public class AuthorUpdation : UpdateOperation
 		{
 			case AuthorChange.Renew:
 			{	
-				if(!Author.CanRenew(a, Signer, round.ConsensusTime))
+				if(!Author.CanRenew(a, Signer, (short)round.ConsensusTime.Days))
 				{
 					Error = NotAvailable;
 					return;
 				}
 
-				Prolong(round, Signer, a, Time.FromYears(Byte));
+				Prolong(round, Signer, a, (short)Time.FromYears(Byte).Days);
 
 				break;
 			}

@@ -9,13 +9,13 @@ public enum AuthorFlag : byte
 
 public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
 {
-	public static readonly Time	RenewalPeriod = Time.FromYears(1);
+	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
 	public EntityId				Owner { get; set; }
 
-	public Time					Expiration { get; set; }
+	public short				Expiration { get; set; }
 	public long					Space { get; set; }
 	public long					Spacetime { get; set; }
 	public long					ModerationReward  { get; set; }
@@ -24,9 +24,9 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCo
 	public byte					EnergyThisPeriod { get; set; }
 	public long					EnergyNext { get; set; }
 	public long					Bandwidth { get; set; }
-	public Time					BandwidthExpiration { get; set; } = Time.Empty;
+	public short				BandwidthExpiration { get; set; } = -1;
 	public long					BandwidthToday { get; set; }
-	public Time					BandwidthTodayTime { get; set; }
+	public short				BandwidthTodayTime { get; set; }
 	public long					BandwidthTodayAvailable { get; set; }
 
 	public static bool Valid(string name)
@@ -44,10 +44,10 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCo
 
 	public static bool IsExpired(Author a, Time time) 
 	{
-		return	a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
+		return	a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Author author, Account by, Time time)
+	public static bool CanRenew(Author author, Account by, short time)
 	{
 		return  author.Owner == by.Id && time > author.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
 										 time <= author.Expiration;
@@ -74,7 +74,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCo
 		Owner				= reader.Read<EntityId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 
-		Expiration			= reader.Read<Time>();
+		Expiration			= reader.ReadInt16();
 		Space				= reader.Read7BitEncodedInt64();
 		Spacetime		 	= reader.Read7BitEncodedInt64();
 

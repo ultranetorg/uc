@@ -77,7 +77,7 @@ public class SiteUpdation : UpdateOperation
 					return;
 				}
 
-				Prolong(round, Signer, a, Time.FromYears(Byte));
+				Prolong(round, Signer, a, (short)Time.FromYears(Byte).Days);
 
 				break;
 			}

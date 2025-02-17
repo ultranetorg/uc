@@ -40,37 +40,37 @@ public enum Actor
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
 {
-	public static readonly Time	RenewalPeriod = Time.FromYears(1);
+	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
-	public EntityId				Id { get; set; }
-	public string				Title { get; set; }
+	public EntityId					Id { get; set; }
+	public string					Title { get; set; }
 
-	public Time					Expiration { get; set; }
-	public long					Space { get; set; }
-	public long					Spacetime { get; set; }
-	public int					ModerationReward  { get; set; }
+	public short					Expiration { get; set; }
+	public long						Space { get; set; }
+	public long						Spacetime { get; set; }
+	public int						ModerationReward  { get; set; }
 
-	public EntityId[]			Moderators { get; set; }
-	public EntityId[]			Categories { get; set; }
+	public EntityId[]				Moderators { get; set; }
+	public EntityId[]				Categories { get; set; }
 
-	public long					Energy { get; set; }
-	public byte					EnergyThisPeriod { get; set; }
-	public long					EnergyNext { get; set; }
-	public long					Bandwidth { get; set; }
-	public Time					BandwidthExpiration { get; set; } = Time.Empty;
-	public long					BandwidthToday { get; set; }
-	public Time					BandwidthTodayTime { get; set; }
-	public long					BandwidthTodayAvailable { get; set; }
+	public long						Energy { get; set; }
+	public byte						EnergyThisPeriod { get; set; }
+	public long						EnergyNext { get; set; }
+	public long						Bandwidth { get; set; }
+	public short					BandwidthExpiration { get; set; } = -1;
+	public long						BandwidthToday { get; set; }
+	public short					BandwidthTodayTime { get; set; }
+	public long						BandwidthTodayAvailable { get; set; }
 
 
 	public static bool IsExpired(Site a, Time time) 
 	{
-		return time > a.Expiration;
+		return time.Days > a.Expiration;
 	}
 
 	public static bool CanRenew(Site author, Time time)
 	{
-		return !IsExpired(author, time) && time > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
+		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
 										 
 	}
 
@@ -81,7 +81,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCons
 		Moderators		= reader.ReadArray<EntityId>();
 		Categories		= reader.ReadArray<EntityId>();
 
-		Expiration		= reader.Read<Time>();
+		Expiration		= reader.ReadInt16();
 		Space			= reader.Read7BitEncodedInt64();
 		Spacetime		= reader.Read7BitEncodedInt64();
 

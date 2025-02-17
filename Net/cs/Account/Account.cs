@@ -10,7 +10,7 @@ public interface ISpaceHolder
 public interface ISpaceConsumer
 {
 	long		Space { get; set; }
-	Time		Expiration { get; set; }
+	short		Expiration { get; set; }
 }
 
 public interface IEnergyHolder
@@ -20,9 +20,9 @@ public interface IEnergyHolder
 	long		EnergyNext { get; set; }
 	
 	long		Bandwidth { get; set; }
-	Time		BandwidthExpiration { get; set; }
+	short		BandwidthExpiration { get; set; }
 	long		BandwidthToday { get; set; }
-	Time		BandwidthTodayTime { get; set; }
+	short		BandwidthTodayTime { get; set; }
 	long		BandwidthTodayAvailable { get; set; }
 
 	public void Clone(IEnergyHolder a)
@@ -62,9 +62,9 @@ public interface IEnergyHolder
 
 		if(Bandwidth > 0)
 		{
-			BandwidthExpiration		= reader.Read<Time>();
+			BandwidthExpiration		= reader.ReadInt16();
 			BandwidthToday			= reader.Read7BitEncodedInt64();
-			BandwidthTodayTime		= reader.Read<Time>();
+			BandwidthTodayTime		= reader.ReadInt16();
 			BandwidthTodayAvailable	= reader.Read7BitEncodedInt64();
 		}
 	}
@@ -82,9 +82,9 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
 	public byte							EnergyThisPeriod { get; set; }
 	public long							EnergyNext { get; set; }
 	public long							Bandwidth { get; set; }
-	public Time							BandwidthExpiration { get; set; } = Time.Empty;
+	public short						BandwidthExpiration { get; set; } = -1;
 	public long							BandwidthToday { get; set; }
-	public Time							BandwidthTodayTime { get; set; }
+	public short						BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
 	public override string ToString()

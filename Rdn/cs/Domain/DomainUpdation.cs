@@ -89,7 +89,7 @@ public class DomainUpdation : RdnOperation
 				e = round.AffectDomain(e.Address);
 
 				PayForName(e.Address, Years);
-				Prolong(round, Signer, e, Time.FromYears(Years));
+				Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
 			}
 
 			if(Action == DomainAction.Transfer)
@@ -125,7 +125,7 @@ public class DomainUpdation : RdnOperation
 				e = round.AffectDomain(e.Address);
 
 				PayForName(new string(' ', Domain.NameLengthMax), Years);
-				Prolong(round, Signer, e, Time.FromYears(Years));
+				Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
 			}
 
 			if(Action == DomainAction.ChangePolicy)

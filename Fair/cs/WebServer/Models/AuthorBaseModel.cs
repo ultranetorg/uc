@@ -11,7 +11,7 @@ public class AuthorBaseModel
 	public string Title { get; set; }
 
 	[JsonPropertyOrder(-2)]
-	public int Expiration { get; set; }
+	public short Expiration { get; set; }
 
 	[JsonPropertyOrder(-1)]
 	public long Space { get; set; }
@@ -20,7 +20,7 @@ public class AuthorBaseModel
 	{
 		Id = author.Id.ToString();
 		Title = author.Title;
-		Expiration = author.Expiration.Days;
+		Expiration = author.Expiration;
 		Space = author.Space;
 	}
 }

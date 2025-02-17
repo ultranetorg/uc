@@ -104,29 +104,34 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return a;
 	}
 
+	public static long ToBD(long length, short time)
+	{
+		return time * length;
+	}
+
 	public static long ToBD(long length, Time time)
 	{
 		return time.Days * length;
 	}
 
-	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, Time duration)
+	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, short duration)
 	{
-		var start = consumer.Expiration < round.ConsensusTime ? round.ConsensusTime : consumer.Expiration;
+		var start = (short)(consumer.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : consumer.Expiration);
 
-		consumer.Expiration = start + duration;
+		consumer.Expiration = (short)(start + duration);
 
 		if(consumer.Space == 0)
 			return;
 
 		payer.Spacetime -= ToBD(consumer.Space, duration);
 
-		var n = start.Days + duration.Days - round.ConsensusTime.Days;
+		var n = start + duration - round.ConsensusTime.Days;
 
 		if(n > round.Spacetimes.Length)
 			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
 
-		for(int i = 0; i < duration.Days; i++)
-			round.Spacetimes[start.Days - round.ConsensusTime.Days + i] += consumer.Space;
+		for(int i = 0; i < duration; i++)
+			round.Spacetimes[start - round.ConsensusTime.Days + i] += consumer.Space;
 	}
 
 	public void AllocateEntity(ISpaceHolder payer)
@@ -143,14 +148,14 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		consumer.Space += space;
 
-		var t = Time.FromDays(consumer.Expiration.Days - round.ConsensusTime.Days);
+		var n = consumer.Expiration - round.ConsensusTime.Days;
 	
-		payer.Spacetime -= ToBD(space, t);
+		payer.Spacetime -= ToBD(space, (short)n);
 
-		if(t.Days > round.Spacetimes.Length)
-			round.Spacetimes = [..round.Spacetimes, ..new long[t.Days - round.Spacetimes.Length]];
+		if(n > round.Spacetimes.Length)
+			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
 
-		for(int i = 0; i < t.Days; i++)
+		for(int i = 0; i < n; i++)
 			round.Spacetimes[i] += space;
 	}
 
@@ -161,11 +166,11 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 		consumer.Space -= space;
 
-		var d = consumer.Expiration.Days - round.ConsensusTime.Days;
+		var d = consumer.Expiration - round.ConsensusTime.Days;
 		
 		if(d > 0)
 		{
-			beneficiary.Spacetime += ToBD(space, Time.FromDays(d - 1));
+			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
 			for(int i = 1; i < d; i++)
 				round.Spacetimes[i] -= space;

@@ -25,7 +25,7 @@ public class BandwidthAllocation : Operation
 
 	public override void Execute(Mcv mcv, Round round)
 	{
-		var r = (Signer.BandwidthExpiration - round.ConsensusTime).Days;
+		var r = Signer.BandwidthExpiration - round.ConsensusTime.Days;
 
 		if(r > 0) /// reclaim the remaining
 		{
@@ -50,6 +50,6 @@ public class BandwidthAllocation : Operation
 
 		Signer.Energy				-= Bandwidth * Days;
 		Signer.Bandwidth			= Bandwidth;
-		Signer.BandwidthExpiration	= Time.FromDays(round.ConsensusTime.Days + Days);
+		Signer.BandwidthExpiration	= (short)(round.ConsensusTime.Days + Days);
 	}
 }

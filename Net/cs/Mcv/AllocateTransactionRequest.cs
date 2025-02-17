@@ -33,7 +33,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 														PowHash				= Mcv.LastConfirmedRound.Hash,
 														NextNid				= Transaction.Nid,
 														SpacetimeConsumed	= a.Spacetime - b.Spacetime,
-														EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime ? 0 : Transaction.EnergyConsumed};
+														EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed};
 			}
 			else
 				throw new EntityException(EntityError.ExcutionFailed);

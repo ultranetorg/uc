@@ -31,40 +31,42 @@ public enum NtnStatus
 
 public class Domain : IBinarySerializable, ISpaceConsumer
 {
-	//public const int			ExclusiveLengthMax = 12;
-	public const int			NameLengthMin = 1;
-	public const int			NameLengthMax = 256;
-	public const char			NormalPrefix = '_';
-	public const char			National = '~';
-	public const char			Subdomain = '~';
+	//public const int				ExclusiveLengthMax = 12;
+	public const int				NameLengthMin = 1;
+	public const int				NameLengthMax = 256;
+	public const char				NormalPrefix = '_';
+	public const char				National = '~';
+	public const char				Subdomain = '~';
 
-	public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
-	public static readonly Time	Prolongation = Time.FromDays(30);
-	public static readonly Time	WinnerRegistrationPeriod = Time.FromDays(30);
-	public static readonly Time	RenewalPeriod = Time.FromDays(365);
-	public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
+	public static readonly Time		AuctionMinimalDuration = Time.FromDays(365);
+	public static readonly Time		Prolongation = Time.FromDays(30);
+	public static readonly Time		WinnerRegistrationPeriod = Time.FromDays(30);
+	public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
+	public Time						AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
-	public EntityId				Id { get; set; }
-	public string				Address { get; set; }
-	public EntityId				Owner { get; set; }
-	public EntityId				ComOwner { get; set; }
-	public EntityId				OrgOwner { get; set; }
-	public EntityId				NetOwner { get; set; }
-	public Time					FirstBidTime { get; set; } = Time.Empty;
-	public EntityId				LastWinner { get; set; }
-	public long					LastBid { get; set; }
-	public Time					LastBidTime { get; set; } = Time.Empty;
-	public Time					Expiration { get; set; }
-	public long					Space { get; set; }
-	public DomainChildPolicy	ParentPolicy { get; set; }
-	public NtnState				NtnChildNet { get; set; }
-	public byte[]				NtnSelfHash { get; set; }
+	public EntityId					Id { get; set; }
+	public string					Address { get; set; }
+	public EntityId					Owner { get; set; }
+	public EntityId					ComOwner { get; set; }
+	public EntityId					OrgOwner { get; set; }
+	public EntityId					NetOwner { get; set; }
+	public Time						FirstBidTime { get; set; } = Time.Empty;
+	public EntityId					LastWinner { get; set; }
+	public long						LastBid { get; set; }
+	public Time						LastBidTime { get; set; } = Time.Empty;
+	
+	public short					Expiration { get; set; }
+	public long						Space { get; set; }
+	
+	public DomainChildPolicy		ParentPolicy { get; set; }
+	public NtnState					NtnChildNet { get; set; }
+	public byte[]					NtnSelfHash { get; set; }
 
-	public static bool			IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
-	public static bool			IsRoot(string name) => !name.Contains('.'); 
-	public static bool			IsChild(string name) => name.Contains('.'); 
-	public static string		GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
-	public static string		GetName(string name) => name.Substring(0, name.IndexOf('.'));
+	public static bool				IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
+	public static bool				IsRoot(string name) => !name.Contains('.'); 
+	public static bool				IsChild(string name) => name.Contains('.'); 
+	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
+	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
 	public static bool Valid(string name)
 	{
@@ -95,19 +97,19 @@ public class Domain : IBinarySerializable, ISpaceConsumer
 	public static bool IsExpired(Domain a, Time time) 
 	{
 		return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
-				a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
+				a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
 	public static bool CanRenew(Domain domain, Account by, Time time)
 	{
-		return  domain != null && domain.Owner == by.Id &&	time > domain.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-															time <= domain.Expiration;
+		return  domain != null && domain.Owner == by.Id &&	time.Days > domain.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
+															time.Days <= domain.Expiration;
 	}
 
 	public static bool CanRegister(string name, Domain domain, Time time, Account by)
 	{
 		return	domain == null && !IsWeb(name) || /// available
-				domain != null && !IsWeb(name) && domain.Owner != null && time > domain.Expiration || /// not renewed by current owner
+				domain != null && !IsWeb(name) && domain.Owner != null && time.Days > domain.Expiration || /// not renewed by current owner
 				domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by.Id &&	
 					time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 					time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
@@ -212,7 +214,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer
 		if(f.HasFlag(DomainFlag.Owned))
 		{
 			Owner		= reader.Read<EntityId>();
-			Expiration	= reader.Read<Time>();
+			Expiration	= reader.ReadInt16();
 		}
 
 		if(IsChild(Address))

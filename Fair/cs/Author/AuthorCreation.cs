@@ -40,6 +40,6 @@ public class AuthorCreation : FairOperation
 		e.Owner	= Signer.Id;
 		e.Title	= Title;
 
-		Prolong(round, Signer, e, Time.FromYears(Years));
+		Prolong(round, Signer, e, (short)(Time.FromYears(Years).Days));
 	}
 }
