@@ -60,12 +60,14 @@ public class PublicationUpdation : UpdateOperation
 
 		void pay(AuthorEntry a)
 		{
-			var site = round.AffectSite(round.FindCategory(p.Category).Site);
-			EnergySource	= site;
-			SpacetimeSource	= site;
+			var s = round.AffectSite(round.FindCategory(p.Category).Site);
 
-			a.Energy -= a.ModerationReward;
+			a.Energy	  -= a.ModerationReward;
 			Signer.Energy += a.ModerationReward;
+			
+			EnergyFeePayer = s;
+			EnergySpenders.Add(s);
+			EnergySpenders.Add(a);
 		}
 
 		switch(Change)

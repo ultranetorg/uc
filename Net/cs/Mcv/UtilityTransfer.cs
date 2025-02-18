@@ -51,10 +51,13 @@ public class UtilityTransfer : Operation
 			Signer.Spacetime	-= Spacetime;
 		}
 
-		var to = round.AffectAccount(To, Signer);
+		var to = round.AffectAccount(To, this);
 
 		to.Energy		+= Energy;
 		to.EnergyNext	+= EnergyNext;
 		to.Spacetime	+= Spacetime;
+		
+		if(Spacetime > 0)
+			SpacetimeSpenders.Add(Signer);
 	}
 }

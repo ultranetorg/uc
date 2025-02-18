@@ -92,7 +92,7 @@ public class Product : IBinarySerializable
 	public Time					Updated { get; set; }
 	public EntityId[]			Publications { get; set; }
 
-	public int					Length => Mcv.EntityLength + Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
+	public int					Length => Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
@@ -112,7 +112,7 @@ public class Product : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Id				= reader.Read<EntityId>();
-		Author		= reader.Read<EntityId>();
+		Author			= reader.Read<EntityId>();
 		Flags			= reader.ReadEnum<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();

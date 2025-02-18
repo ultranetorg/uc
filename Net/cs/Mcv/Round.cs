@@ -160,7 +160,7 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public AccountEntry AffectAccount(AccountAddress address, Account creator)
+	public AccountEntry AffectAccount(AccountAddress address, Operation operation)
 	{
 		if(AffectedAccounts.TryGetValue(address, out var a))
 			return a;
@@ -185,9 +185,11 @@ public abstract class Round : IBinarySerializable
 			a.Address	= address;
 			a.New		= true;
 			
-			if(creator != null && creator.Address != Mcv.Net.God) /// new Account
+			if(operation != null && operation.Signer.Address != Mcv.Net.God) /// new Account
 			{
-				creator.Spacetime -= AccountAllocationFee(a);
+				operation.Signer.Spacetime -= AccountAllocationFee(a);
+
+				operation.SpacetimeSpenders.Add(a);
 			}
 
 			AffectedAccounts[address] = a;
@@ -409,8 +411,9 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 			{
 				o.Signer			= s;
-				o.EnergySource		= s;
-				o.SpacetimeSource	= s;
+				o.EnergyFeePayer	= null;
+				o.EnergySpenders	= [];
+				o.SpacetimeSpenders	= [];
 				o.EnergyConsumed	= ConsensusECEnergyCost;
 
 				o.Execute(Mcv, this);
@@ -418,17 +421,32 @@ public abstract class Round : IBinarySerializable
 				if(o.Error != null)
 					goto start;
 			
-				if(o.EnergySource.BandwidthExpiration >= ConsensusTime.Days)
+				if(o.EnergyFeePayer == null)
 				{
-					if(o.EnergySource.BandwidthTodayTime < ConsensusTime.Days) /// switch to this day
+					if(o.EnergySpenders.Count == 0)
 					{	
-						o.EnergySource.BandwidthTodayTime		= (short)ConsensusTime.Days;
-						o.EnergySource.BandwidthTodayAvailable	= o.EnergySource.Bandwidth;
+						o.EnergyFeePayer = s;
+						o.EnergySpenders.Add(s);
+					}
+					else if(o.EnergySpenders.Count == 1)
+					{
+						o.EnergyFeePayer = o.EnergySpenders.First();
+					}
+					else
+						throw new IntegrityException();
+				}
+
+				if(o.EnergyFeePayer.BandwidthExpiration >= ConsensusTime.Days)
+				{
+					if(o.EnergyFeePayer.BandwidthTodayTime < ConsensusTime.Days) /// switch to this day
+					{	
+						o.EnergyFeePayer.BandwidthTodayTime		 = (short)ConsensusTime.Days;
+						o.EnergyFeePayer.BandwidthTodayAvailable = o.EnergyFeePayer.Bandwidth;
 					}
 
-					o.EnergySource.BandwidthTodayAvailable -= o.EnergyConsumed;
+					o.EnergyFeePayer.BandwidthTodayAvailable -= o.EnergyConsumed;
 
-					if(o.EnergySource.BandwidthTodayAvailable < 0)
+					if(o.EnergyFeePayer.BandwidthTodayAvailable < 0)
 					{
 						o.Error = Operation.NotEnoughBandwidth;
 						goto start;
@@ -436,38 +454,33 @@ public abstract class Round : IBinarySerializable
 				}
 				else
 				{
-					o.EnergySource.Energy -= o.EnergyConsumed;
-
-					if(o.EnergySource.Energy < 0)
+					o.EnergyFeePayer.Energy -= o.EnergyConsumed;
+				}
+				
+				o.EnergyFeePayer.Energy -= t.Bonus;
+				
+				foreach(var i in o.EnergySpenders)
+				{
+					if(i.Energy < 0)
 					{
 						o.Error = Operation.NotEnoughEnergy;
 						goto start;
 					}
-				}
 				
-				if(o.SpacetimeSource.Spacetime < 0)
-				{
-					o.Error = Operation.NotEnoughSpacetime;
-					goto start;
+					if(i.EnergyNext < 0)
+					{
+						o.Error = Operation.NotEnoughEnergyNext;
+						goto start;
+					}
 				}
-				
-				if(o.EnergySource.EnergyNext < 0)
+
+				foreach(var i in o.SpacetimeSpenders)
 				{
-					o.Error = Operation.NotEnoughEnergyNext;
-					goto start;
-				}
-			}
-
-			//if(!trying)
-			{	
-				s.Energy -= t.Bonus;
-
-				if(s.Energy < 0)
-				{
-					foreach(var o in t.Operations)
-						o.Error = Operation.NotEnoughEnergy;
-
-					goto start;
+					if(i.Spacetime < 0)
+					{
+						o.Error = Operation.NotEnoughSpacetime;
+						goto start;
+					}
 				}
 			}
 						

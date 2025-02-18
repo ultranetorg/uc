@@ -32,5 +32,7 @@ public class ModeratorAddition : FairOperation
 		s = round.AffectSite(Site);
 
 		s.Moderators = [..s.Moderators, Candidate];
+
+		EnergySpenders = [Signer];
 	}
 }

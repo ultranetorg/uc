@@ -78,31 +78,39 @@ public class DomainUpdation : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			if(Action == DomainAction.Renew)
-			{	
-				if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectDomain(e.Address);
-
-				PayForName(e.Address, Years);
-				Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
-			}
-
-			if(Action == DomainAction.Transfer)
+			switch(Action)
 			{
-				if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
-				{
-					Error = Denied;
-					return;
+				case DomainAction.Renew :
+				{	
+					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
+					{
+						Error = NotAvailable;
+						return;
+					}
+
+					e = round.AffectDomain(e.Address);
+
+					PayForName(e.Address, Years);
+					Prolong(round, Signer, e, Time.FromYears(Years));
+
+					break;
 				}
 
-				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner, Signer).Id;
+				case DomainAction.Transfer:
+				{
+					if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
+					{
+						Error = Denied;
+						return;
+					}
+
+					e = round.AffectDomain(e.Address);
+					e.Owner	= round.AffectAccount(Owner, this).Id;
+
+					break;
+				}
 			}
+
 		} 
 		else
 		{
@@ -125,7 +133,7 @@ public class DomainUpdation : RdnOperation
 				e = round.AffectDomain(e.Address);
 
 				PayForName(new string(' ', Domain.NameLengthMax), Years);
-				Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
+				Prolong(round, Signer, e, Time.FromYears(Years));
 			}
 
 			if(Action == DomainAction.ChangePolicy)
@@ -168,7 +176,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner, Signer).Id;
+				e.Owner	= round.AffectAccount(Owner, this).Id;
 			}
 		}
 	}

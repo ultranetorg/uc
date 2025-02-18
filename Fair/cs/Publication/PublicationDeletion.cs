@@ -38,16 +38,17 @@ public class PublicationDeletion : FairOperation
 		{ 
 			a = round.AffectAuthor(a.Id);
 
-			Free(round, a, a, Mcv.EntityLength);
+			Free(round, a, a, mcv.Net.EntityLength);
+
+			EnergySpenders.Add(a);
 		}
 		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (round.FindSite(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
 		{	
 			var s = round.AffectSite(c.Site);
 
-			EnergySource	= s;
-			SpacetimeSource	= s;
+			Free(round, s, s, mcv.Net.EntityLength);
 
-			Free(round, s, s, Mcv.EntityLength);
+			EnergySpenders.Add(s);
 		}
 		else
 		{

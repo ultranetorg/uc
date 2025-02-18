@@ -63,7 +63,6 @@ public class CategoryUpdation : UpdateOperation
 				{
 					var s = round.AffectSite(c.Site);
 		
-					s.Categories ??= [];
 					s.Categories = [..s.Categories, c.Id];
 				} 
 				else
@@ -81,7 +80,6 @@ public class CategoryUpdation : UpdateOperation
 
 					p = round.AffectCategory(p.Id);
 
-					p.Categories ??= [];
 					p.Categories = [..p.Categories, c.Id];
 				}
 

@@ -62,27 +62,23 @@ public class ReviewUpdation : UpdateOperation
 			return;
 
 		r = round.AffectReview(Review);
+		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+
+		EnergySpenders = [a];
 
 		switch(Change)
 		{
 			case ReviewChange.Status:
 			{
 				var s = (ReviewStatus)Value;
-				
-				//if(r.Reward.Length > 0 && r.Status == ReviewStatus.Pending && s != ReviewStatus.Pending)
-				//{
-				//	Signer.ECBalanceAdd(r.Reward);
-				//	r.Reward = [];
-				//}
 
 				r.Status = s;
+
 				break;
 			}
 
 			case ReviewChange.Text:
 			{
-				var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
-
 				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
 				Allocate(round, a, a, Encoding.UTF8.GetByteCount(Value as string));
 
@@ -112,8 +108,6 @@ public class ReviewUpdation : UpdateOperation
 					return;
 				}
 
-				var a = round.AffectAuthor(mcv.Products.Find(mcv.Publications.Find(r.Publication, round.Id).Product, round.Id).Author);
-
 				Free(round, a, a, Encoding.UTF8.GetByteCount(r.Text));
 
 				r.Text = r.TextNew;
@@ -138,8 +132,6 @@ public class ReviewUpdation : UpdateOperation
 					Error = Mismatch;
 					return;
 				}
-
-				var a = round.AffectAuthor(mcv.Products.Find(mcv.Publications.Find(r.Publication, round.Id).Product, round.Id).Author);
 
 				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
 

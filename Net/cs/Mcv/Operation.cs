@@ -20,35 +20,36 @@ public enum OperationClass
 
 public abstract class Operation : ITypeCode, IBinarySerializable
 {
-	public string			Error;
-	public Transaction		Transaction;
-	public AccountEntry		Signer;
-	public IEnergyHolder	EnergySource;
-	public ISpaceHolder		SpacetimeSource;
-	public abstract string	Description { get; }
-	public long				EnergyConsumed;
+	public string					Error;
+	public Transaction				Transaction;
+	public AccountEntry				Signer;
+	public IEnergyHolder			EnergyFeePayer;
+	public HashSet<IEnergyHolder>	EnergySpenders;
+	public HashSet<ISpaceHolder>	SpacetimeSpenders;
+	public abstract string			Description { get; }
+	public long						EnergyConsumed;
 
-	public const string		Rejected = "Rejected";
-	public const string		NotFound = "Not found";
-	public const string		NotAvailable = "Not Available";
-	public const string		Mismatch = "Mismatch";
-	public const string		ExistingAccountRequired = "ExistingAccountRequired";
-	public const string		Expired = "Expired";
-	public const string		Sealed = "Sealed";
-	public const string		NotSealed = "NotSealed";
-	public const string		NoData = "NoData";
-	public const string		AlreadyExists = "Already exists";
-	public const string		NotSequential = "Not sequential";
-	public const string		NotEnoughSpacetime = "Not enough spacetime";
-	public const string		NotEnoughEnergy = "Not enough execution units";
-	public const string		NotEnoughEnergyNext = "Not enough energy for next period";
-	public const string		NotEnoughBandwidth = "Not enough bandwidth";
-	public const string		NoAnalyzers = "No analyzers";
-	public const string		Denied = "Access denied";
-	public const string		NotRelease = "Data valus is not a release";
-	public const string		LimitReached = "Limit Reached";
+	public const string				Rejected = "Rejected";
+	public const string				NotFound = "Not found";
+	public const string				NotAvailable = "Not Available";
+	public const string				Mismatch = "Mismatch";
+	public const string				ExistingAccountRequired = "ExistingAccountRequired";
+	public const string				Expired = "Expired";
+	public const string				Sealed = "Sealed";
+	public const string				NotSealed = "NotSealed";
+	public const string				NoData = "NoData";
+	public const string				AlreadyExists = "Already exists";
+	public const string				NotSequential = "Not sequential";
+	public const string				NotEnoughSpacetime = "Not enough spacetime";
+	public const string				NotEnoughEnergy = "Not enough execution units";
+	public const string				NotEnoughEnergyNext = "Not enough energy for next period";
+	public const string				NotEnoughBandwidth = "Not enough bandwidth";
+	public const string				NoAnalyzers = "No analyzers";
+	public const string				Denied = "Access denied";
+	public const string				NotRelease = "Data valus is not a release";
+	public const string				LimitReached = "Limit Reached";
 
-	protected OperationId	_Id;
+	protected OperationId			_Id;
 	
 	public OperationId Id
 	{
@@ -114,34 +115,37 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return time.Days * length;
 	}
 
-	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, short duration)
+	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, Time duration)
 	{
 		var start = (short)(consumer.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : consumer.Expiration);
 
-		consumer.Expiration = (short)(start + duration);
+		consumer.Expiration = (short)(start + duration.Days);
 
 		if(consumer.Space == 0)
 			return;
 
 		payer.Spacetime -= ToBD(consumer.Space, duration);
+		SpacetimeSpenders.Add(payer);
 
-		var n = start + duration - round.ConsensusTime.Days;
+		var n = start + duration.Days - round.ConsensusTime.Days;
 
 		if(n > round.Spacetimes.Length)
 			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
 
-		for(int i = 0; i < duration; i++)
+		for(int i = 0; i < duration.Days; i++)
 			round.Spacetimes[start - round.ConsensusTime.Days + i] += consumer.Space;
+
 	}
 
 	public void AllocateEntity(ISpaceHolder payer)
 	{
-		payer.Spacetime -= ToBD(Mcv.EntityLength, Mcv.Forever);
+		payer.Spacetime -= ToBD(Transaction.Net.EntityLength, Mcv.Forever);
+		SpacetimeSpenders.Add(payer);
 	}
 
 	public void FreeEntity(Round round)
 	{
-		round.Spacetimes[0] += ToBD(Mcv.EntityLength, Mcv.Forever);
+		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever);
 	}
 
 	public void Allocate(Round round, ISpaceHolder payer, ISpaceConsumer consumer, int space)
@@ -151,12 +155,14 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		var n = consumer.Expiration - round.ConsensusTime.Days;
 	
 		payer.Spacetime -= ToBD(space, (short)n);
+		SpacetimeSpenders.Add(payer);
 
 		if(n > round.Spacetimes.Length)
 			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
 
 		for(int i = 0; i < n; i++)
 			round.Spacetimes[i] += space;
+	
 	}
 
 	public void Free(Round round, ISpaceHolder beneficiary, ISpaceConsumer consumer, long space)

@@ -18,7 +18,7 @@ public abstract class Mcv /// Mutual chain voting
 	public const int							TransactionPlacingLifetime = P*2;
 	public const int							LastGenesisRound = P*3 - 1;
 	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
-	public const int							EntityLength = 100;
+	//public const int							EntityLength = 100;
 	public const int							EntityRentYearsMin = 1;
 	public const int							EntityRentYearsMax = 10;
 	public const int							OperationsQueueLimit = 1000;

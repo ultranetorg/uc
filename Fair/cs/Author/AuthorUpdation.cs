@@ -91,7 +91,7 @@ public class AuthorUpdation : UpdateOperation
 					return;
 				}
 
-				Prolong(round, Signer, a, (short)Time.FromYears(Byte).Days);
+				Prolong(round, Signer, a, Time.FromYears(Byte));
 
 				break;
 			}
@@ -100,6 +100,9 @@ public class AuthorUpdation : UpdateOperation
 			{	
 				a.Spacetime		 += Long;
 				Signer.Spacetime -= Long;
+
+				SpacetimeSpenders.Add(Signer);
+
 				break;
 			}
 
@@ -107,6 +110,7 @@ public class AuthorUpdation : UpdateOperation
 			{	
 				a.Energy		+= Long;
 				Signer.Energy	-= Long;
+
 				break;
 			}
 
@@ -114,11 +118,14 @@ public class AuthorUpdation : UpdateOperation
 			{	
 				a.EnergyNext		+= Long;
 				Signer.EnergyNext	-= Long;
+
 				break;
 			}
 
 			case AuthorChange.ModerationReward:
+
 				a.ModerationReward = Long;
+
 				break;
 
 			case AuthorChange.Owner:

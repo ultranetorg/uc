@@ -38,7 +38,7 @@ public class CategoryCreation : FairOperation
 			s = round.AffectSite(s.Id);
 			s.Categories = [..s.Categories, c.Id];
 
-			Allocate(round, Signer, s, Mcv.EntityLength);
+			Allocate(round, Signer, s, mcv.Net.EntityLength);
 		} 
 		else
 		{
@@ -55,7 +55,7 @@ public class CategoryCreation : FairOperation
 			p = round.AffectCategory(Parent);
 			p.Categories = [..p.Categories, c.Id];
 		
-			Allocate(round, Signer, s, Mcv.EntityLength);
+			Allocate(round, Signer, s, mcv.Net.EntityLength);
 		}
 	}
 }

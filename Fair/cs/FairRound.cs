@@ -30,7 +30,7 @@ public class FairRound : Round
 
 	public override long AccountAllocationFee(Account account)
 	{
-		return FairOperation.ToBD(Uccs.Net.Mcv.EntityLength, (short)Uccs.Net.Mcv.Forever.Days);
+		return FairOperation.ToBD(Net.EntityLength, (short)Uccs.Net.Mcv.Forever.Days);
 	}
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -57,9 +57,9 @@ public class FairRound : Round
 		return base.NextEidsByTable(table);
 	}
 
-	public new FairAccountEntry AffectAccount(AccountAddress address, Account creator)
+	public new FairAccountEntry AffectAccount(AccountAddress address, Operation operation)
 	{
-		return base.AffectAccount(address, creator) as FairAccountEntry;
+		return base.AffectAccount(address, operation) as FairAccountEntry;
 	}
 
 	public new FairAccountEntry AffectAccount(EntityId id)

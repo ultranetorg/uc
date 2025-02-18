@@ -39,11 +39,11 @@ public class PublicationCreation : FairOperation
 			p.Flags = PublicationFlags.CreatedByAuthor;
 			
 			a = round.AffectAuthor(a.Id);
-
-			EnergySource	= a;
-			SpacetimeSource	= a;
 			
-			Allocate(round, a, a, Mcv.EntityLength);
+			Allocate(round, a, a, mcv.Net.EntityLength);
+
+			EnergySpenders.Add(a);
+			SpacetimeSpenders.Add(a);
 		}
 		else if(CanAccessSite(round, c.Site))
 		{	
@@ -52,10 +52,10 @@ public class PublicationCreation : FairOperation
 
 			var s = round.AffectSite(c.Site);
 
-			EnergySource	= s;
-			SpacetimeSource	= s;
+			Allocate(round, s, s, mcv.Net.EntityLength);
 
-			Allocate(round, s, s, Mcv.EntityLength);
+			EnergySpenders.Add(s);
+			SpacetimeSpenders.Add(s);
 		}
 		else
 		{

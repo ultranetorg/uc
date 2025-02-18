@@ -85,6 +85,11 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
+				if(r.Flags.HasFlag(ResourceFlags.Data))
+				{
+					Free(round, Signer, d, r.Data.Value.Length);
+				}
+
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
 				r.Updated	= round.ConsensusTime;
@@ -121,7 +126,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForForever(r.Length);
+				PayForForever(mcv.Net.EntityLength + r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))

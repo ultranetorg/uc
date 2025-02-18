@@ -31,7 +31,6 @@ public class ProductDeletion : FairOperation
 
 		round.AffectProduct(Product).Deleted = true;
 
-		Free(round, Signer, a, Mcv.EntityLength);
-		Free(round, Signer, a, p.Length);
+		Free(round, Signer, a, mcv.Net.EntityLength + p.Length);
 	}
 }

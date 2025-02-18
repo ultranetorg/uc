@@ -63,6 +63,8 @@ public class DomainBid : RdnOperation
 
 	public override void Execute(RdnMcv mcv, RdnRound round)
 	{
+		throw new NotImplementedException();
+
 		var a = round.AffectDomain(Name);
 
  		if(!Domain.IsExpired(a, round.ConsensusTime))
@@ -77,6 +79,8 @@ public class DomainBid : RdnOperation
 				a.LastBidTime		= round.ConsensusTime;
 				a.LastWinner		= Signer.Id;
 					
+				EnergySpenders.Add(Signer);
+				
 				return;
 			}
 			else if(round.ConsensusTime < a.AuctionEnd)
@@ -91,7 +95,10 @@ public class DomainBid : RdnOperation
 					a.LastBid		= Bid;
 					a.LastBidTime	= round.ConsensusTime;
 					a.LastWinner	= Signer.Id;
-			
+
+					EnergySpenders.Add(Signer);
+					SpacetimeSpenders.Add(Signer);
+					
 					return;
 				}
 			}
@@ -109,6 +116,8 @@ public class DomainBid : RdnOperation
 			a.LastBidTime		= round.ConsensusTime;
 			a.LastWinner		= Signer.Id;
 		
+			EnergySpenders.Add(Signer);
+
 			return;
 		}
 

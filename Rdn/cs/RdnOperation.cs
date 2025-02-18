@@ -40,6 +40,7 @@ public abstract class RdnOperation : Operation
 		var fee = NameFee(years, address);
 		
 		Signer.Spacetime -= fee;
+		SpacetimeSpenders.Add(Signer);
 	}
 
 	public static int NameFee(int years, string address)
@@ -54,6 +55,7 @@ public abstract class RdnOperation : Operation
 	public void PayForForever(int size)
 	{
 		Signer.Spacetime -= ToBD(size, Mcv.Forever);
+		SpacetimeSpenders.Add(Signer);
 	}
 
 	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)

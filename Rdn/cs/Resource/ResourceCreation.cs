@@ -73,12 +73,12 @@ public class ResourceCreation : RdnOperation
 		{
 			r.Flags	|= ResourceFlags.Sealed;
 
-			PayForForever(r.Length);
+			PayForForever(mcv.Net.EntityLength + r.Length);
 		}
 		else
 		{	
 			d = round.AffectDomain(d.Id);
-			Allocate(round, Signer, d, r.Length);
+			Allocate(round, Signer, d, mcv.Net.EntityLength + r.Length);
 		}
 	}
 }

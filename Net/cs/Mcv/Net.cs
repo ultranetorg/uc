@@ -118,6 +118,8 @@ public abstract class McvNet : Net
 	public long				BDDayEmission							= 1024L*1024L * IdealRoundsPerDay;
 	public long				DeclarationCost							=> 1000_000;
 	
+	public int				EntityLength							= 100;
+
 	public int				BandwidthAllocationDaysMaximum			=> 365;
 	public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
 	public long				BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%

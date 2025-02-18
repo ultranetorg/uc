@@ -35,7 +35,7 @@ public class ResourceDeletion : RdnOperation
 		d = round.AffectDomain(d.Id);
 		round.AffectResource(Resource).Deleted = true;
 
-		Free(round, Signer, d, r.Length);
+		Free(round, Signer, d, mcv.Net.EntityLength + r.Length);
 
 		foreach(var i in r.Outbounds)
 		{
@@ -44,7 +44,7 @@ public class ResourceDeletion : RdnOperation
 			dr = round.AffectResource(d, dr.Address.Resource);
 			dr.RemoveInbound(r.Id);
 
-			Free(round, Signer, d, Mcv.EntityLength);
+			Free(round, Signer, d, mcv.Net.EntityLength);
 		}
 
 		foreach(var i in r.Inbounds ?? [])

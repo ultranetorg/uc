@@ -16,8 +16,9 @@ public class AccountCommand : McvCommand
 
 		a.Name = "la";
 		a.Help = new() {Description = "Get authors that specified account owns",
+
 						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-						
+					
 						Arguments = [new ("<first>", "Id of an account to get authors from")],
 						
 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}"),
@@ -41,8 +42,11 @@ public class AccountCommand : McvCommand
 
 		a.Name = "ls";
 		a.Help = new() {Description = "Get sites of a specified account",
+
 						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
+
 						Arguments = [new ("<first>", "Id of an account to get sites from")],
+
 						Examples = [new (null, $"{Keyword} l {EID.Example}")]};
 
 		a.Execute = () =>	{

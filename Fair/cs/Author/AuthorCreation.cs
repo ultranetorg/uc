@@ -34,12 +34,14 @@ public class AuthorCreation : FairOperation
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
 		var e = round.CreateAuthor(Signer.Address);
-		
-		Signer.Authors = Signer.Authors == null ? [e.Id] : [..Signer.Authors, e.Id];
+
+		Signer.Authors ??= [];
+		Signer.Authors = [..Signer.Authors, e.Id];
 		
 		e.Owner	= Signer.Id;
 		e.Title	= Title;
+		e.Space = mcv.Net.EntityLength;
 
-		Prolong(round, Signer, e, (short)(Time.FromYears(Years).Days));
+		Prolong(round, Signer, e, Time.FromYears(Years));
 	}
 }

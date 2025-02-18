@@ -58,7 +58,9 @@ public class ReviewCreation : FairOperation
 
 		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
 
-		Allocate(round, a, a, Mcv.EntityLength);
-		Allocate(round, a, a, Encoding.UTF8.GetByteCount(Text));
+		Allocate(round, a, a, mcv.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+
+		EnergyFeePayer = a;
+		EnergySpenders.Add(a);
 	}
 }

@@ -63,7 +63,7 @@ public class DomainRegistration : RdnOperation
 			e = round.AffectDomain(Address);
 			
 			PayForName(Address, Years);
-			Prolong(round, Signer, e, (short)Time.FromYears(Years).Days);
+			Prolong(round, Signer, e, Time.FromYears(Years));
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;

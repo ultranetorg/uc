@@ -77,7 +77,23 @@ public class SiteUpdation : UpdateOperation
 					return;
 				}
 
-				Prolong(round, Signer, a, (short)Time.FromYears(Byte).Days);
+				Prolong(round, Signer, a, Time.FromYears(Byte));
+
+				break;
+			}
+
+			case SiteChange.DepositEnergy:
+			{	
+				a.Energy		+= Long;
+				Signer.Energy	-= Long;
+
+				break;
+			}
+
+			case SiteChange.DepositEnergyNext:
+			{	
+				a.EnergyNext		+= Long;
+				Signer.EnergyNext	-= Long;
 
 				break;
 			}
@@ -86,20 +102,9 @@ public class SiteUpdation : UpdateOperation
 			{	
 				a.Spacetime		 += Long;
 				Signer.Spacetime -= Long;
-				break;
-			}
 
-			case SiteChange.DepositEnergy:
-			{	
-				a.Energy		+= Long;
-				Signer.Energy	-= Long;
-				break;
-			}
+				SpacetimeSpenders.Add(Signer);
 
-			case SiteChange.DepositEnergyNext:
-			{	
-				a.EnergyNext		+= Long;
-				Signer.EnergyNext	-= Long;
 				break;
 			}
 		}

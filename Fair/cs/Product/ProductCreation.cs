@@ -37,6 +37,6 @@ public class ProductCreation : FairOperation
 		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];
 
-		Allocate(round, Signer, a, Mcv.EntityLength);
+		Allocate(round, Signer, a, mcv.Net.EntityLength);
 	}
 }

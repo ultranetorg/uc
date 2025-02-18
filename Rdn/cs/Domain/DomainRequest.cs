@@ -28,7 +28,7 @@ public class DomainRequest : RdnPpc<DomainResponse>
 		if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 			lock(Mcv.Lock)
+ 		lock(Mcv.Lock)
 		{	
 			RequireBase();
 
