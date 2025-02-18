@@ -101,7 +101,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= mcv.Accounts.Find(Owner, round.Id).Id;
+				e.Owner	= round.AffectAccount(Owner, Signer).Id;
 			}
 		} 
 		else
@@ -154,12 +154,6 @@ public class DomainUpdation : RdnOperation
 
 			if(Action == DomainAction.Transfer)
 			{
-				if(e == null)
-				{
-					Error = NotFound;
-					return;
-				}
-
 				if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
 				{
 					Error = NotAvailable;
@@ -174,7 +168,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= mcv.Accounts.Find(Owner, round.Id).Id;
+				e.Owner	= round.AffectAccount(Owner, Signer).Id;
 			}
 		}
 	}
