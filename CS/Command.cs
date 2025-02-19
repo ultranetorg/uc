@@ -290,9 +290,6 @@ public abstract class Command
 
 	public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, int, object>> gets, int tab = 0)
 	{
-		items = [..items];
-		gets = [..gets];
-
 		if(!items.Any())
 		{	
 			Report("No results");
@@ -333,6 +330,27 @@ public abstract class Command
 		for(int i=0; i < items.Count(); i++)
 		{
 			Report(new string(' ', tab * 3) + string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
+		}
+	}
+
+	public void DumpFixed<T>(IEnumerable<T> items, string[] columns, Func<T, object>[] gets, int tab = 0)
+	{
+		if(!items.Any())
+		{	
+			Report("No results");
+			return;
+		}
+
+		var f = string.Join("  ", columns.Select((c, i) => $"{{{i},{(columns[i].EndsWith('>') ? "" : "-")}15}}"));
+
+		Report(new string(' ', tab * 3) + string.Format(f, columns.Select(i => i.TrimEnd('>')).ToArray()));
+		Report(new string(' ', tab * 3) + string.Format(f, columns.Select(i => new string('─', 15)).ToArray()));
+					
+		//f = string.Join("  ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
+
+		foreach(var i in items)
+		{
+			Report(new string(' ', tab * 3) + string.Format(f, Enumerable.Range(0, columns.Length).Select(j => gets[j](i)).ToArray()));
 		}
 	}
 

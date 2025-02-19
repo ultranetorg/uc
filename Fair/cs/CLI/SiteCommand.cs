@@ -189,7 +189,7 @@ public class SiteCommand : FairCommand
 				
 								var rp = Ppc(new SiteCategoriesRequest(FirstEntityId));
 
-								Dump(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};

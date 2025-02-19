@@ -87,7 +87,7 @@ public class CategoryCommand : FairCommand
 				
 								var rp = Ppc(new CategoryPublicationsRequest(FirstEntityId));
 
-								Dump(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication).ToArray(), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication).ToArray(), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};
@@ -109,7 +109,7 @@ public class CategoryCommand : FairCommand
 				
 								var rp = Ppc(new CategoryCategoriesRequest(FirstEntityId));
 
-								Dump(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};
