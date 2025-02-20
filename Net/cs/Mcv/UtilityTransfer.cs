@@ -2,62 +2,138 @@
 
 public class UtilityTransfer : Operation
 {
-	public AccountAddress	To;
+	public EntityId			To;
+	public byte				ToTable;
+	public EntityId			From;
+	public byte				FromTable;
 	public long				Spacetime;
 	public long				Energy;
 	public long				EnergyNext;
 	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
 																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
 																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => Spacetime > 0 || Energy > 0 || EnergyNext > 0;
+	public override bool	IsValid(Mcv mcv) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0;
 
 	public UtilityTransfer()
 	{
 	}
 
-	public UtilityTransfer(AccountAddress to, long energy, long energynext, long spacetime)
+	public UtilityTransfer(byte fromtable, EntityId from, byte totable, EntityId to, long energy, long energynext, long spacetime)
 	{
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
 
-		To			= to;
-		Energy		= energy;
-		EnergyNext	= energynext;
-		Spacetime	= spacetime;
+		FromTable			= fromtable;
+		From				= from;
+		ToTable				= totable;
+		To					= to;
+
+		Energy				= energy;
+		EnergyNext			= energynext;
+		Spacetime			= spacetime;
 	}
 
-	public override void ReadConfirmed(BinaryReader r)
+	public override void ReadConfirmed(BinaryReader reader)
 	{
-		To			= r.ReadAccount();
-		Energy		= r.Read7BitEncodedInt64();
-		EnergyNext	= r.Read7BitEncodedInt64();
-		Spacetime	= r.Read7BitEncodedInt64();
+		FromTable				= reader.ReadByte();
+		From					= reader.Read<EntityId>();
+		ToTable					= reader.ReadByte();
+		To						= reader.Read<EntityId>();
+
+		Energy					= reader.Read7BitEncodedInt64();
+		EnergyNext				= reader.Read7BitEncodedInt64();
+		Spacetime				= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter w)
+	public override void WriteConfirmed(BinaryWriter writer)
 	{
-		w.Write(To);
-		w.Write7BitEncodedInt64(Energy);
-		w.Write7BitEncodedInt64(EnergyNext);
-		w.Write7BitEncodedInt64(Spacetime);
+		writer.Write(FromTable);
+		writer.Write(From);
+		writer.Write(ToTable);
+		writer.Write(To);
+
+		writer.Write7BitEncodedInt64(Energy);
+		writer.Write7BitEncodedInt64(EnergyNext);
+		writer.Write7BitEncodedInt64(Spacetime);
 	}
 
-	public override void Execute(Mcv chain, Round round)
+	public override void Execute(Mcv mcv, Round round)
 	{
-		if(Signer.Address != chain.Net.God || round.Id > Mcv.LastGenesisRound)
+		var to = round.Affect(ToTable, To == EntityId.LastCreated ? round.LastCreatedId : To);
+
+		IHolder h = null;
+
+		if(Signer.Address != mcv.Net.God)
 		{
-			Signer.Energy		-= Energy;
-			Signer.EnergyNext	-= EnergyNext;
-			Signer.Spacetime	-= Spacetime;
+			h = round.Affect(FromTable, From) as IHolder;
+
+			if(!h.IsSpendingAuthorized(round, Signer.Id))
+			{
+				Error = Denied;
+				return;
+			}
 		}
 
-		var to = round.AffectAccount(To, this);
+		if(Energy > 0 || EnergyNext > 0)
+		{
+			if(From != EntityId.God)
+			{
+				var s = h as IEnergyHolder;
 
-		to.Energy		+= Energy;
-		to.EnergyNext	+= EnergyNext;
-		to.Spacetime	+= Spacetime;
+				if(s == null)
+				{
+					Error = NotEnergyHolder;
+					return;
+				}
+	
+				if(Signer.Address != mcv.Net.God)
+				{
+					s.Energy		-= Energy;
+					s.EnergyNext	-= EnergyNext;
+				}
+
+				EnergySpenders.Add(s);
+			}
+
+			var d = to as IEnergyHolder;
+
+			if(d == null)
+			{
+				Error = NotEnergyHolder;
+				return;
+			}
+
+			d.Energy		+= Energy;
+			d.EnergyNext	+= EnergyNext;
 		
+		}
+				
 		if(Spacetime > 0)
-			SpacetimeSpenders.Add(Signer);
+		{	
+			if(Signer.Address != mcv.Net.God)
+			{
+				var s = h as ISpaceHolder;
+
+				if(s == null)
+				{
+					Error = NotSpacetimeHolder;
+					return;
+				}
+				
+				s.Spacetime	-= Spacetime;
+				
+				SpacetimeSpenders.Add(s);
+			}
+
+			var d = to as ISpaceHolder;
+
+			if(d == null)
+			{
+				Error = NotSpacetimeHolder;
+				return;
+			}
+
+			d.Spacetime += Spacetime;
+		}
 	}
 }

@@ -57,9 +57,21 @@ public class FairRound : Round
 		return base.NextEidsByTable(table);
 	}
 
-	public new FairAccountEntry AffectAccount(AccountAddress address, Operation operation)
+	public override ITableEntry Affect(byte table, EntityId id)
 	{
-		return base.AffectAccount(address, operation) as FairAccountEntry;
+		if(table == Mcv.Authors.Id)			return AffectAuthor(id);
+		if(table == Mcv.Products.Id)		return AffectProduct(id);
+		if(table == Mcv.Sites.Id)			return AffectSite(id);
+		if(table == Mcv.Categories.Id)		return AffectCategory(id);
+		if(table == Mcv.Publications.Id)	return AffectPublication(id);
+		if(table == Mcv.Reviews.Id)			return AffectReview(id);
+
+		return base.Affect(table, id);
+	}
+
+	public new FairAccountEntry CreateAccount(AccountAddress address)
+	{
+		return base.CreateAccount(address) as FairAccountEntry;
 	}
 
 	public new FairAccountEntry AffectAccount(EntityId id)

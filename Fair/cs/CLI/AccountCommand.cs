@@ -2,10 +2,8 @@
 
 namespace Uccs.Fair;
 
-public class AccountCommand : McvCommand
+public class AccountCommand : Net.AccountCommand
 {
-	AccountIdentifier		First => AccountIdentifier.Parse(Args[0].Name);
-
 	public AccountCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

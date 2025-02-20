@@ -105,7 +105,7 @@ public class DomainUpdation : RdnOperation
 					}
 
 					e = round.AffectDomain(e.Address);
-					e.Owner	= round.AffectAccount(Owner, this).Id;
+					e.Owner	= round.AffectAccount(Owner).Id;
 
 					break;
 				}
@@ -176,7 +176,7 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner, this).Id;
+				e.Owner	= round.AffectAccount(Owner).Id;
 			}
 		}
 	}

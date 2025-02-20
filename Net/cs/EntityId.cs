@@ -31,6 +31,10 @@ public class EntityId : BaseId
 {
 	public int		E { get; set; }
 
+	public static readonly EntityId LastCreated = new EntityId {E = -1};
+	public static readonly EntityId God = new EntityId {E = -2};
+	public static readonly EntityId Father0 = new EntityId {B = 0, E = 0};
+
 	public EntityId()
 	{
 	}

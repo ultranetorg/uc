@@ -37,6 +37,11 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceCo
 		return true;
 	}
 
+	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	{
+		return Owner == signer; /// TODO : Owner only
+	}
+
 	public static bool IsOwner(Author domain, Account account, Time time)
 	{
 		return domain.Owner == account.Id && !IsExpired(domain, time);

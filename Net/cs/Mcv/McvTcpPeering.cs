@@ -9,6 +9,7 @@ public enum McvPpcClass : byte
 {
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
+	Info,
 	Vote, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 	Stamp, TableStamp, DownloadTable, DownloadRounds,
 	Cost,

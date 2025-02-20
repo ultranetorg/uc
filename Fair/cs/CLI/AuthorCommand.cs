@@ -95,69 +95,69 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Deposit()
-	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-		
-		var energy = "e";
-		var energynext = "en";
-		var spacetime = "st";
-
-		a.Name = "d";
-		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{energy}={EC}] [{energynext}={EC}] [{spacetime}={ST}] {SignerArg}={AA}",
-
-						Arguments =	[
-										new ("<first>", "Id of a author to update"),
-										new (energy, "An amount of energy to deposit"),
-										new (energynext, "An amount of energy of next period to deposit"),
-										new (spacetime, "An amount of spacetime to deposit"),
-										new (SignerArg, "Address of account that owns the author")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {EID.Example} {energy}={EC.Example} {SignerArg}={AA.Example}")
-									]};
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-								
-								var ops = new List<Operation>();
-
-								if(Has(energy))
-								{
-									var o = new AuthorUpdation {AuthorId = FirstEntityId};
-									o.Change = AuthorChange.DepositEnergy;
-									o.Value	 = GetLong(energy);
-
-									ops.Add(o);
-								}
-
-								if(Has(energynext))
-								{
-									var o = new AuthorUpdation {AuthorId = FirstEntityId};
-									o.Change = AuthorChange.DepositEnergyNext;
-									o.Value	 = GetLong(energynext);
-
-									ops.Add(o);
-								}
-								
-								if(Has(spacetime))
-								{
-									var o = new AuthorUpdation {AuthorId = FirstEntityId};
-									o.Change = AuthorChange.DepositSpacetime;
-									o.Value	 = Account.ParseSpacetime(GetString(spacetime));
-
-									ops.Add(o);
-								}
-								
-								if(ops.Count == 0)
-									throw new SyntaxException("Unknown parameters");
-
-								return ops;
-							};
-		return a;
-	}
+// 	public CommandAction Deposit()
+// 	{
+// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		
+// 		var energy = "e";
+// 		var energynext = "en";
+// 		var spacetime = "st";
+// 
+// 		a.Name = "d";
+// 		a.Help = new() {Description = "",
+// 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{energy}={EC}] [{energynext}={EC}] [{spacetime}={ST}] {SignerArg}={AA}",
+// 
+// 						Arguments =	[
+// 										new ("<first>", "Id of a author to update"),
+// 										new (energy, "An amount of energy to deposit"),
+// 										new (energynext, "An amount of energy of next period to deposit"),
+// 										new (spacetime, "An amount of spacetime to deposit"),
+// 										new (SignerArg, "Address of account that owns the author")
+// 									],
+// 
+// 						Examples =	[
+// 										new (null, $"{Keyword} {a.Name} {EID.Example} {energy}={EC.Example} {SignerArg}={AA.Example}")
+// 									]};
+// 
+// 		a.Execute = () =>	{
+// 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+// 								
+// 								var ops = new List<Operation>();
+// 
+// 								if(Has(energy))
+// 								{
+// 									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+// 									o.Change = AuthorChange.DepositEnergy;
+// 									o.Value	 = GetLong(energy);
+// 
+// 									ops.Add(o);
+// 								}
+// 
+// 								if(Has(energynext))
+// 								{
+// 									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+// 									o.Change = AuthorChange.DepositEnergyNext;
+// 									o.Value	 = GetLong(energynext);
+// 
+// 									ops.Add(o);
+// 								}
+// 								
+// 								if(Has(spacetime))
+// 								{
+// 									var o = new AuthorUpdation {AuthorId = FirstEntityId};
+// 									o.Change = AuthorChange.DepositSpacetime;
+// 									o.Value	 = Account.ParseSpacetime(GetString(spacetime));
+// 
+// 									ops.Add(o);
+// 								}
+// 								
+// 								if(ops.Count == 0)
+// 									throw new SyntaxException("Unknown parameters");
+// 
+// 								return ops;
+// 							};
+// 		return a;
+// 	}
 
 	public CommandAction Renew()
 	{

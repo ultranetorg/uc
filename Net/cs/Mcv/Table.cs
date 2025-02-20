@@ -15,7 +15,8 @@ public abstract class TableBase
 	protected RocksDb							Engine;
 	protected Mcv								Mcv;
 	public abstract int							Size { get; }
-	public int									Id => Array.IndexOf(Mcv.Tables, this);
+	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
+	public abstract string						Name { get; }
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
 
 	//public abstract BucketBase				AddCluster(short id);
@@ -89,6 +90,8 @@ public abstract class TableBase
 
 public abstract class Table<E> : TableBase where E : class, ITableEntry
 {
+	public override string Name => typeof(E).BaseType.Name;
+
 	public class Bucket : BucketBase
 	{
 		Table<E>				Table;

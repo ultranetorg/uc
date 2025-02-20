@@ -89,33 +89,36 @@ public abstract class Mcv /// Mutual chain voting
 
 	protected Mcv(McvNet net, McvSettings settings, string databasepath, bool skipinitload = false)
 	{
-		///Settings = new RdnSettings {Roles = Role.Chain};
-		Net = net;
-		Settings = settings;
-		Databasepath = databasepath;
-
-		CreateTables(databasepath);
-
-		BaseHash = Net.Cryptography.ZeroHash;
-
-		if(!skipinitload)
+		lock(Lock)
 		{
-			var g = Database.Get(GenesisKey);
-
-			if(g == null)
+			///Settings = new RdnSettings {Roles = Role.Chain};
+			Net = net;
+			Settings = settings;
+			Databasepath = databasepath;
+	
+			CreateTables(databasepath);
+	
+			BaseHash = Net.Cryptography.ZeroHash;
+	
+			if(!skipinitload)
 			{
-				Initialize();
-			}
-			else
-			{
-				if(g.SequenceEqual(Net.Genesis.FromHex()))
+				var g = Database.Get(GenesisKey);
+	
+				if(g == null)
 				{
-					Load();
+					Initialize();
 				}
 				else
-				{ 
-					Clear();
-					Initialize();
+				{
+					if(g.SequenceEqual(Net.Genesis.FromHex()))
+					{
+						Load();
+					}
+					else
+					{ 
+						Clear();
+						Initialize();
+					}
 				}
 			}
 		}
@@ -153,7 +156,8 @@ public abstract class Mcv /// Mutual chain voting
 
 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
 			t.Member = new(0, -1);
-			t.AddOperation(new UtilityTransfer(f0, Net.ECEmission, 0, Net.BDDayEmission));
+			t.AddOperation(new AccountCreation {Owner = f0});
+			t.AddOperation(new UtilityTransfer (Accounts.Id, EntityId.God, Accounts.Id, EntityId.LastCreated, Net.ECEmission, 0, Net.BDDayEmission));
 			t.Sign(god, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 

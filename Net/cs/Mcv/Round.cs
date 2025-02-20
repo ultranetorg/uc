@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Diagnostics;
+
+namespace Uccs.Net;
 
 public abstract class Round : IBinarySerializable
 {
@@ -52,6 +54,7 @@ public abstract class Round : IBinarySerializable
 	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 	public Dictionary<int, int>							NextAccountEids;
+	public EntityId										LastCreatedId;
 	public long[]										Spacetimes = [];
 	public long[]										BandwidthAllocations = [];
 
@@ -74,7 +77,6 @@ public abstract class Round : IBinarySerializable
 			if(n == 2)	return 2;
 			if(n == 4)	return 3;
 	
-			///return Math.Min(n, Mcv.VotesRequired) * 2/3;
 			return n * 2/3;
 
 		}
@@ -160,50 +162,72 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public AccountEntry AffectAccount(AccountAddress address, Operation operation)
+	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
-		if(AffectedAccounts.TryGetValue(address, out var a))
-			return a;
-		
-		a = Mcv.Accounts.Find(address, Id - 1);	
+		if(Mcv.Accounts.Id == table)
+			return AffectAccount(id);
 
-		if(a != null)
-		{	
-			a = AffectedAccounts[address] = a.Clone();
+		throw new IntegrityException();
+	}
 
-			TransferECIfNeeded(a);
-		}
-		else
-		{
+	public AccountEntry CreateAccount(AccountAddress address)
+	{
+// 		if(AffectedAccounts.TryGetValue(address, out var a))
+// 			return a;
+// 		
+// 		a = Mcv.Accounts.Find(address, Id - 1);	
+// 
+// 		if(a != null)
+// 		{	
+// 			a = AffectedAccounts[address] = a.Clone();
+// 
+// 			TransferECIfNeeded(a);
+// 		}
+// 		else
+// 		{
 			var b = Mcv.Accounts.KeyToBid(address);
 			
 			int e = GetNextEid(Mcv.Accounts, b);
 
-			a = Mcv.Accounts.Create();
+			var a = Mcv.Accounts.Create();
 
-			a.Id		= new EntityId(b, e);
+			a.Id		= LastCreatedId = new EntityId(b, e);
 			a.Address	= address;
 			a.New		= true;
 			
-			if(operation != null && operation.Signer.Address != Mcv.Net.God) /// new Account
-			{
-				operation.Signer.Spacetime -= AccountAllocationFee(a);
-
-				operation.SpacetimeSpenders.Add(a);
-			}
 
 			AffectedAccounts[address] = a;
-		}
+//		}
 
 		return a;
 	}
 
 	public AccountEntry AffectAccount(EntityId id)
 	{
-		if(AffectedAccounts.FirstOrDefault(i => i.Value.Id == id).Value is var a)
+		if(AffectedAccounts.FirstOrDefault(i => i.Value.Id == id).Value is AccountEntry a)
+			return a;
+
+		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
+
+		if(a == null)
+			return null;
+
+		AffectedAccounts[a.Address] = a;
+
+		TransferECIfNeeded(a);
+
+		return a;
+	}
+
+	public AccountEntry AffectAccount(AccountAddress address)
+	{
+		if(address == Net.God)
+			return new AccountEntry {Address = address};
+
+		if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == address).Value is AccountEntry a)
 			return a;
 		
-		a = Mcv.Accounts.Find(id, Id - 1).Clone();	
+		a = Mcv.Accounts.Find(address, Id - 1).Clone();	
 
 		AffectedAccounts[a.Address] = a;
 
@@ -318,14 +342,6 @@ public abstract class Round : IBinarySerializable
 										.Where(v => svotes.Count(i => i.NntBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
 										.Order(Bytes.Comparer).ToArray();
 
-			//ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
-			//							.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Net.MembersLimit * 2/3)
-			//							.Order().ToArray();
-			//
-			//ConsensusFundLeavers	= gu.SelectMany(i => i.FundLeavers).Distinct()
-			//							.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Net.MembersLimit * 2/3)
-			//							.Order().ToArray();
-			//
 			Elect(svotes, min);
 		}
 
@@ -336,11 +352,6 @@ public abstract class Round : IBinarySerializable
 	
 	public IEnumerable<EntityId> ProposeViolators()
 	{
-		//var g = Id > Mcv.P ? Voters : [];
-		//var gv = VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
-		//
-		//return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
-
 		return Forkers.Select(i => Mcv.Accounts.Find(i, Previous.Id).Id);
 	}
 
@@ -398,7 +409,7 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
-			var s = AffectAccount(t.Signer, null);
+			var s = AffectAccount(t.Signer);
 
 			if(t.Nid != s.LastTransactionNid + 1)
 			{
@@ -492,10 +503,9 @@ public abstract class Round : IBinarySerializable
 
 	public void Confirm()
 	{
-// 			if(Mcv.Node != null)
-// 				if(!Monitor.IsEntered(Mcv.Lock))
-// 					Debugger.Break();
-// 
+ 		if(!Monitor.IsEntered(Mcv.Lock))
+ 			Debugger.Break();
+ 
 		if(Confirmed)
 			throw new IntegrityException();
 
@@ -533,14 +543,14 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
-			AffectAccount(i.Address, null).AverageUptime = 0;
+			AffectAccount(i.Address).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
 		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
 		{
-			var a = AffectAccount(i.Address, null);
-			//a.MRBalance += i.Pledge;
+			var a = AffectAccount(i.Id);
+			
 			a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
 		}
@@ -568,7 +578,7 @@ public abstract class Round : IBinarySerializable
 
 			BandwidthAllocations = d < BandwidthAllocations.Length ? [..BandwidthAllocations[d..], ..new long[d]] : new long[d];
 
-			foreach(var i in Members.Select(i => AffectAccount(i.Address, null)))
+			foreach(var i in Members.Select(i => AffectAccount(i.Id)))
 			{
 				i.EnergyNext	+= d * Net.ECDayEmission / Members.Count;
 				i.Spacetime += d * (Net.BDDayEmission + Spacetimes[0]) / Members.Count;
@@ -602,11 +612,6 @@ public abstract class Round : IBinarySerializable
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusECEnergyCost);
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
-				
-		#if ETHEREUM
-		writer.Write(Emission);
-		writer.Write(Emissions, i => i.WriteBaseState(writer));
-		#endif
 	}
 
 	public virtual void ReadBaseState(BinaryReader reader)
@@ -618,13 +623,8 @@ public abstract class Round : IBinarySerializable
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusECEnergyCost			= reader.Read7BitEncodedInt64();
+		ConsensusECEnergyCost	= reader.Read7BitEncodedInt64();
 		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
-
-		#if ETHEREUM
-		//Emission					= reader.Read<Money>();
-		Emissions					= reader.Read<Immission>(m => m.ReadBaseState(reader)).ToList();
-		#endif
 	}
 
 	public virtual void WriteConfirmed(BinaryWriter writer)
@@ -658,12 +658,8 @@ public abstract class Round : IBinarySerializable
 		
 		if(Confirmed)
 		{
-// #if DEBUG
-// 				w.Write(Hash);
-// #endif
 			WriteConfirmed(w);
 			w.Write(Hash);
-			//w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 		} 
 		else
 		{
@@ -680,17 +676,8 @@ public abstract class Round : IBinarySerializable
 		
 		if(Confirmed)
 		{
-// #if DEBUG
-// 				Hash = r.ReadSha3();
-// #endif
 			ReadConfirmed(r);
 			Hash = r.ReadHash();
-			//JoinRequests.AddRange(r.ReadArray(() =>	{
-			//											var b = new MemberJoinOperation();
-			//											b.RoundId = Id;
-			//											b.Read(r, Mcv.Net);
-			//											return b;
-			//										}));
 		} 
 		else
 		{

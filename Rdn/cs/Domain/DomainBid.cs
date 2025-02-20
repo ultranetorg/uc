@@ -89,7 +89,7 @@ public class DomainBid : RdnOperation
 				{
 					var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
 					
-					round.AffectAccount(lw.Address, null).Spacetime += a.LastBid;
+					round.AffectAccount(lw.Address).Spacetime += a.LastBid;
 					Signer.Spacetime -= Bid;
 					
 					a.LastBid		= Bid;

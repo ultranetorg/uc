@@ -9,9 +9,10 @@ public struct Portion
 public enum OperationClass
 {
 	None = 0, 
-	CandidacyDeclaration		= 000_000_001, 
-	UtilityTransfer				= 000_000_002,
-	BandwidthAllocation			= 000_000_003,
+	AccountCreation				= 000_000_001, 
+	CandidacyDeclaration		= 000_000_002, 
+	UtilityTransfer				= 000_000_003,
+	BandwidthAllocation			= 000_000_004,
 
 	ChildNet					= 001, 
 		ChildNetInitialization	= 001_000_001,
@@ -38,6 +39,8 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string				Sealed = "Sealed";
 	public const string				NotSealed = "NotSealed";
 	public const string				NoData = "NoData";
+	public const string				NotEnergyHolder = "Not Energy Holder";
+	public const string				NotSpacetimeHolder = "Not Spacetime Holder";
 	public const string				AlreadyExists = "Already exists";
 	public const string				NotSequential = "Not sequential";
 	public const string				NotEnoughSpacetime = "Not enough spacetime";
@@ -150,6 +153,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	public void Allocate(Round round, ISpaceHolder payer, ISpaceConsumer consumer, int space)
 	{
+		if(space == 0)
+			return;
+
 		consumer.Space += space;
 
 		var n = consumer.Expiration - round.ConsensusTime.Days;
@@ -171,6 +177,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 			return;
 
 		consumer.Space -= space;
+
+		if(consumer.Space < 0)
+			throw new IntegrityException();
 
 		var d = consumer.Expiration - round.ConsensusTime.Days;
 		

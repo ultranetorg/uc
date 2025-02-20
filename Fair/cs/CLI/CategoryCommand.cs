@@ -87,7 +87,7 @@ public class CategoryCommand : FairCommand
 				
 								var rp = Ppc(new CategoryPublicationsRequest(FirstEntityId));
 
-								DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication).ToArray(), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};

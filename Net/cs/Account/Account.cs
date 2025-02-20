@@ -2,7 +2,12 @@
 
 namespace Uccs.Net;
 
-public interface ISpaceHolder
+public interface IHolder
+{
+	bool		IsSpendingAuthorized(Round round, EntityId signer);
+}
+
+public interface ISpaceHolder : IHolder
 {
 	long		Spacetime { get; set; }
 }
@@ -13,7 +18,7 @@ public interface ISpaceConsumer
 	short		Expiration { get; set; }
 }
 
-public interface IEnergyHolder
+public interface IEnergyHolder : IHolder
 {
 	long		Energy { get; set; }
 	byte		EnergyThisPeriod { get; set; }
@@ -91,7 +96,6 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
 	{
 		return $"{Id}, {Address}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
-
 	public static long ParseSpacetime(string t)
 	{
 		t = t.Replace(" ", null).Replace("\t", null).ToUpper();
@@ -102,6 +106,11 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
 		if(t.EndsWith("BY")) return long.Parse(t.Substring(0, t.Length - 2), NumberStyles.AllowThousands) * 365;
 
 		return long.Parse(t, NumberStyles.AllowThousands);
+	}
+
+	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	{
+		return Id == signer;
 	}
 
 	public virtual void Write(BinaryWriter writer)
@@ -127,4 +136,6 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
+
+
 }

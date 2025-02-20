@@ -105,6 +105,16 @@ public class McvApiClient : ApiClient
 // 		}
 // 	}
 
+// public class TableIdApc : McvApc
+// {
+// 	public string Name { get; set; }
+// 
+// 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+// 	{
+// 		return node.Mcv.Tables.First(i => i.GetType().Name == Name + "Table").Id;
+// 	}
+// }
+
 public class McvPropertyApc : McvApc
 {
 	public string Path { get; set; }
@@ -121,14 +131,7 @@ public class McvPropertyApc : McvApc
 				throw new NodeException(NodeError.NotFound);
 		}
 
-		switch(o)
-		{
-			case byte[] b:
-				return b.ToHex();
-
-			default:
-				return o?.ToString();
-		}
+		return o;
 	}
 }
 

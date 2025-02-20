@@ -11,7 +11,8 @@ public abstract class McvCommand : NetCommand
 	public Action			Transacted;
 	protected McvCli		Cli;
 
-	public readonly ArgumentType EID	= new ArgumentType("EID",	@"Entity Id",	[@"1111-22", @"123456-789"]);
+	public readonly ArgumentType ET		= new ArgumentType("ET",	@"Entity Type",	[@"Account", @"Domain"]);
+	public readonly ArgumentType EID	= new ArgumentType("EID",	@"Entity Id",	[@"1111-22", @"123456-789", @"22222-333"]);
 
 	static McvCommand()
 	{

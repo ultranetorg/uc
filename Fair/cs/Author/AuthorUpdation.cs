@@ -2,7 +2,7 @@
 
 public enum AuthorChange : byte
 {
-	None, Renew, Owner, DepositEnergy, DepositEnergyNext, DepositSpacetime, ModerationReward
+	None, Renew, Owner, ModerationReward
 }
 
 public class AuthorUpdation : UpdateOperation
@@ -36,9 +36,6 @@ public class AuthorUpdation : UpdateOperation
 		Value = Change switch
 					   {
 							AuthorChange.Renew				=> reader.ReadByte(),
-							AuthorChange.DepositSpacetime	=> reader.Read7BitEncodedInt64(),
-							AuthorChange.DepositEnergy		=> reader.Read7BitEncodedInt64(),
-							AuthorChange.DepositEnergyNext	=> reader.Read7BitEncodedInt64(),
 							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt64(),
 							AuthorChange.Owner				=> reader.Read<EntityId>(),
 							_								=> throw new IntegrityException()
@@ -59,9 +56,6 @@ public class AuthorUpdation : UpdateOperation
 		switch(Change)
 		{
 			case AuthorChange.Renew				: writer.Write(Byte); break;
-			case AuthorChange.DepositSpacetime	: writer.Write7BitEncodedInt64(Long); break;
-			case AuthorChange.DepositEnergy		: writer.Write7BitEncodedInt64(Long); break;
-			case AuthorChange.DepositEnergyNext	: writer.Write7BitEncodedInt64(Long); break;
 			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt64(Long); break;
 			case AuthorChange.Owner				: writer.Write(EntityId); break;
 			default								: throw new IntegrityException();
@@ -96,31 +90,31 @@ public class AuthorUpdation : UpdateOperation
 				break;
 			}
 
-			case AuthorChange.DepositSpacetime:
-			{	
-				a.Spacetime		 += Long;
-				Signer.Spacetime -= Long;
-
-				SpacetimeSpenders.Add(Signer);
-
-				break;
-			}
-
-			case AuthorChange.DepositEnergy:
-			{	
-				a.Energy		+= Long;
-				Signer.Energy	-= Long;
-
-				break;
-			}
-
-			case AuthorChange.DepositEnergyNext:
-			{	
-				a.EnergyNext		+= Long;
-				Signer.EnergyNext	-= Long;
-
-				break;
-			}
+// 			case AuthorChange.DepositSpacetime:
+// 			{	
+// 				a.Spacetime		 += Long;
+// 				Signer.Spacetime -= Long;
+// 
+// 				SpacetimeSpenders.Add(Signer);
+// 
+// 				break;
+// 			}
+// 
+// 			case AuthorChange.DepositEnergy:
+// 			{	
+// 				a.Energy		+= Long;
+// 				Signer.Energy	-= Long;
+// 
+// 				break;
+// 			}
+// 
+// 			case AuthorChange.DepositEnergyNext:
+// 			{	
+// 				a.EnergyNext		+= Long;
+// 				Signer.EnergyNext	-= Long;
+// 
+// 				break;
+// 			}
 
 			case AuthorChange.ModerationReward:
 

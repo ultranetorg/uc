@@ -2,7 +2,7 @@
 
 public enum SiteChange : byte
 {
-	None, Renew, Owner, DepositEnergy, DepositEnergyNext, DepositSpacetime
+	None, Renew, Owner
 }
 
 public class SiteUpdation : UpdateOperation
@@ -36,9 +36,6 @@ public class SiteUpdation : UpdateOperation
 		Value = Change switch
 					   {
 							SiteChange.Renew				=> reader.ReadByte(),
-							SiteChange.DepositSpacetime		=> reader.Read7BitEncodedInt64(),
-							SiteChange.DepositEnergy		=> reader.Read7BitEncodedInt64(),
-							SiteChange.DepositEnergyNext	=> reader.Read7BitEncodedInt64(),
 							SiteChange.Owner				=> reader.Read<EntityId>(),
 							_								=> throw new IntegrityException()
 					   };
@@ -52,9 +49,6 @@ public class SiteUpdation : UpdateOperation
 		switch(Change)
 		{
 			case SiteChange.Renew				: writer.Write(Byte); break;
-			case SiteChange.DepositSpacetime	: writer.Write7BitEncodedInt64(Long); break;
-			case SiteChange.DepositEnergy		: writer.Write7BitEncodedInt64(Long); break;
-			case SiteChange.DepositEnergyNext	: writer.Write7BitEncodedInt64(Long); break;
 			case SiteChange.Owner				: writer.Write(EntityId); break;
 			default								: throw new IntegrityException();
 		}
@@ -78,32 +72,6 @@ public class SiteUpdation : UpdateOperation
 				}
 
 				Prolong(round, Signer, a, Time.FromYears(Byte));
-
-				break;
-			}
-
-			case SiteChange.DepositEnergy:
-			{	
-				a.Energy		+= Long;
-				Signer.Energy	-= Long;
-
-				break;
-			}
-
-			case SiteChange.DepositEnergyNext:
-			{	
-				a.EnergyNext		+= Long;
-				Signer.EnergyNext	-= Long;
-
-				break;
-			}
-
-			case SiteChange.DepositSpacetime:
-			{	
-				a.Spacetime		 += Long;
-				Signer.Spacetime -= Long;
-
-				SpacetimeSpenders.Add(Signer);
 
 				break;
 			}
