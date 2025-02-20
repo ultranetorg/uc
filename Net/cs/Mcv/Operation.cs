@@ -26,7 +26,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public AccountEntry				Signer;
 	public IEnergyHolder			EnergyFeePayer;
 	public HashSet<IEnergyHolder>	EnergySpenders;
-	public HashSet<ISpaceHolder>	SpacetimeSpenders;
+	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
 	public abstract string			Description { get; }
 	public long						EnergyConsumed;
 
@@ -118,7 +118,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return time.Days * length;
 	}
 
-	public void Prolong(Round round, ISpaceHolder payer, ISpaceConsumer consumer, Time duration)
+	public void Prolong(Round round, ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
 	{
 		var start = (short)(consumer.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : consumer.Expiration);
 
@@ -140,7 +140,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	}
 
-	public void AllocateEntity(ISpaceHolder payer)
+	public void AllocateEntity(ISpacetimeHolder payer)
 	{
 		payer.Spacetime -= ToBD(Transaction.Net.EntityLength, Mcv.Forever);
 		SpacetimeSpenders.Add(payer);
@@ -151,7 +151,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever);
 	}
 
-	public void Allocate(Round round, ISpaceHolder payer, ISpaceConsumer consumer, int space)
+	public void Allocate(Round round, ISpacetimeHolder payer, ISpaceConsumer consumer, int space)
 	{
 		if(space == 0)
 			return;
@@ -171,7 +171,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	
 	}
 
-	public void Free(Round round, ISpaceHolder beneficiary, ISpaceConsumer consumer, long space)
+	public void Free(Round round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
 	{
 		if(space == 0)
 			return;

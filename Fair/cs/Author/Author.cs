@@ -7,7 +7,7 @@ public enum AuthorFlag : byte
 	None, 
 }
 
-public class Author : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
+public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 

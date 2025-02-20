@@ -7,7 +7,7 @@ public interface IHolder
 	bool		IsSpendingAuthorized(Round round, EntityId signer);
 }
 
-public interface ISpaceHolder : IHolder
+public interface ISpacetimeHolder : IHolder
 {
 	long		Spacetime { get; set; }
 }
@@ -75,7 +75,7 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
-public class Account : IBinarySerializable, IEnergyHolder, ISpaceHolder
+public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }

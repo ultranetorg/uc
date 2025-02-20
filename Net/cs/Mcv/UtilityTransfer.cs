@@ -112,7 +112,7 @@ public class UtilityTransfer : Operation
 		{	
 			if(Signer.Address != mcv.Net.God)
 			{
-				var s = h as ISpaceHolder;
+				var s = h as ISpacetimeHolder;
 
 				if(s == null)
 				{
@@ -125,7 +125,7 @@ public class UtilityTransfer : Operation
 				SpacetimeSpenders.Add(s);
 			}
 
-			var d = to as ISpaceHolder;
+			var d = to as ISpacetimeHolder;
 
 			if(d == null)
 			{

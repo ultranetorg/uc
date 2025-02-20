@@ -38,7 +38,7 @@ public enum Actor
 // 	}
 // }
 
-public class Site : IBinarySerializable, IEnergyHolder, ISpaceHolder, ISpaceConsumer
+public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
