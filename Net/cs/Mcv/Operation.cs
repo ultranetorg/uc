@@ -191,4 +191,17 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 				round.Spacetimes[i] -= space;
 		}
 	}
+
+	public bool RequireAccount(Round round, EntityId id, out AccountEntry account)
+	{
+		account = round.Mcv.Accounts.Find(id, round.Id);
+
+		if(account == null || account.Deleted)
+		{
+			Error = NotFound;
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -196,7 +196,7 @@ public class DomainCommand : RdnCommand
 
 		a.Name = "t";
 		a.Help = new() {Description = "Changes an owner of domain",
-						Syntax = $"domain t|transfer {DA} to={AA} signer={AA}",
+						Syntax = $"domain t|transfer {DA} to={EID} signer={AA}",
 
 						Arguments =	[
 										new ("<first>", "Address of a domain to transfer"),
@@ -205,7 +205,7 @@ public class DomainCommand : RdnCommand
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} {DA.Example} to={AA.Example[1]} {SignerArg}={AA.Example}")
+										new (null, $"{Keyword} {a.Name} {DA.Example} to={EID.Example} {SignerArg}={AA.Example}")
 									]};
 
 		a.Execute = () =>	{
@@ -215,7 +215,7 @@ public class DomainCommand : RdnCommand
 
 								return new DomainUpdation  {Action	= DomainAction.Transfer,
 															Id		= d.Id,
-															Owner	= GetAccountAddress("to", false)};
+															Owner	= GetEntityId("to")};
 							};
 
 		return a;

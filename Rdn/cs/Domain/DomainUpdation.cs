@@ -10,7 +10,7 @@ public class DomainUpdation : RdnOperation
 	public new EntityId			Id {get; set;}
 	public DomainAction			Action  {get; set;}
 	public byte					Years {get; set;}
-	public AccountAddress		Owner  {get; set;}
+	public EntityId				Owner  {get; set;}
 	public DomainChildPolicy	Policy {get; set;}
 
 	//public bool					Exclusive => Domain.IsWeb(Address); 
@@ -44,7 +44,7 @@ public class DomainUpdation : RdnOperation
 			Years = reader.ReadByte();
 
 		if(Action == DomainAction.Transfer)
-			Owner = reader.Read<AccountAddress>();
+			Owner = reader.Read<EntityId>();
 		
 		if(Action == DomainAction.ChangePolicy)
 			Policy	= (DomainChildPolicy)reader.ReadByte();
@@ -104,8 +104,11 @@ public class DomainUpdation : RdnOperation
 						return;
 					}
 
+					if(!RequireAccount(round, Owner, out var o))
+						return;
+
 					e = round.AffectDomain(e.Address);
-					e.Owner	= round.AffectAccount(Owner).Id;
+					e.Owner = Owner;
 
 					break;
 				}
@@ -175,8 +178,11 @@ public class DomainUpdation : RdnOperation
 					return;
 				}
 
+				if(!RequireAccount(round, Owner, out var o))
+					return;
+
 				e = round.AffectDomain(e.Address);
-				e.Owner	= round.AffectAccount(Owner).Id;
+				e.Owner	= Owner;
 			}
 		}
 	}

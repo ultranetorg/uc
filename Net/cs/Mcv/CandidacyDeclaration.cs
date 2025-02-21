@@ -38,7 +38,7 @@ public class CandidacyDeclaration : Operation
 
 		if(c != null)
 		{
-			Error = "Already registered";
+			Error = "Already a candidate";
 			return;
 		}
 

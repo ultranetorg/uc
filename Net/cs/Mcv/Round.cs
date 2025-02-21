@@ -209,9 +209,6 @@ public abstract class Round : IBinarySerializable
 
 		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
 
-		if(a == null)
-			return null;
-
 		AffectedAccounts[a.Address] = a;
 
 		TransferECIfNeeded(a);
@@ -409,15 +406,28 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
-			var s = AffectAccount(t.Signer);
+			var s = Mcv.Accounts.Find(t.Signer, Id);
 
-			if(t.Nid != s.LastTransactionNid + 1)
+			if(t.Signer != Net.God)
 			{
-				foreach(var o in t.Operations)
-					o.Error = Operation.NotSequential;
-				
-				goto start;
+				if(s == null)
+				{
+					foreach(var o in t.Operations)
+						o.Error = Operation.NotFound;
+					
+					continue;
+				}
+	
+				if(t.Nid != s.LastTransactionNid + 1)
+				{
+					foreach(var o in t.Operations)
+						o.Error = Operation.NotSequential;
+					
+					continue;
+				}
 			}
+
+			s = AffectAccount(t.Signer);
 
 			foreach(var o in t.Operations)
 			{

@@ -61,11 +61,23 @@ public class UtilityTransfer : Operation
 	{
 		var to = round.Affect(ToTable, To == EntityId.LastCreated ? round.LastCreatedId : To);
 
+		if(to == null)
+		{
+			Error = NotFound;
+			return;
+		}
+
 		IHolder h = null;
 
 		if(Signer.Address != mcv.Net.God)
 		{
 			h = round.Affect(FromTable, From) as IHolder;
+
+			if(h == null)
+			{
+				Error = NotFound;
+				return;
+			}
 
 			if(!h.IsSpendingAuthorized(round, Signer.Id))
 			{

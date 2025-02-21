@@ -53,6 +53,6 @@ public class ChildNetInitialization : RdnOperation
 
 		e = round.AffectDomain(Domain);
 
- 			e.NtnChildNet = Net;
+ 		e.NtnChildNet = Net;
 	}
 }
