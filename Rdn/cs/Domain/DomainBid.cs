@@ -65,62 +65,62 @@ public class DomainBid : RdnOperation
 	{
 		throw new NotImplementedException();
 
-		var a = round.AffectDomain(Name);
-
- 		if(!Domain.IsExpired(a, round.ConsensusTime))
- 		{
-			if(a.LastWinner == null) /// first bid
-			{
-				Signer.Spacetime -= Bid;
-				
-				a.Owner				= null;
-				a.FirstBidTime		= round.ConsensusTime;
-				a.LastBid			= Bid;
-				a.LastBidTime		= round.ConsensusTime;
-				a.LastWinner		= Signer.Id;
-					
-				EnergySpenders.Add(Signer);
-				
-				return;
-			}
-			else if(round.ConsensusTime < a.AuctionEnd)
-			{
-				if(a.LastBid < Bid) /// outbid
-				{
-					var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
-					
-					round.AffectAccount(lw.Address).Spacetime += a.LastBid;
-					Signer.Spacetime -= Bid;
-					
-					a.LastBid		= Bid;
-					a.LastBidTime	= round.ConsensusTime;
-					a.LastWinner	= Signer.Id;
-
-					EnergySpenders.Add(Signer);
-					SpacetimeSpenders.Add(Signer);
-					
-					return;
-				}
-			}
- 		}
- 		else
- 		{
-			/// dont refund previous winner if any
-			///Transaction.BYReturned += a.LastBid;
-
-			Signer.Spacetime -= Bid;
-			
-			a.Owner				= null;
-			a.FirstBidTime		= round.ConsensusTime;
-			a.LastBid			= Bid;
-			a.LastBidTime		= round.ConsensusTime;
-			a.LastWinner		= Signer.Id;
-		
-			EnergySpenders.Add(Signer);
-
-			return;
-		}
-
-		Error = "Bid too low or auction is over";
+// 		var a = round.AffectDomain(Name);
+// 
+//  		if(!Domain.IsExpired(a, round.ConsensusTime))
+//  		{
+// 			if(a.LastWinner == null) /// first bid
+// 			{
+// 				Signer.Spacetime -= Bid;
+// 				
+// 				a.Owner				= null;
+// 				a.FirstBidTime		= round.ConsensusTime;
+// 				a.LastBid			= Bid;
+// 				a.LastBidTime		= round.ConsensusTime;
+// 				a.LastWinner		= Signer.Id;
+// 					
+// 				EnergySpenders.Add(Signer);
+// 				
+// 				return;
+// 			}
+// 			else if(round.ConsensusTime < a.AuctionEnd)
+// 			{
+// 				if(a.LastBid < Bid) /// outbid
+// 				{
+// 					var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
+// 					
+// 					round.AffectAccount(lw.Address).Spacetime += a.LastBid;
+// 					Signer.Spacetime -= Bid;
+// 					
+// 					a.LastBid		= Bid;
+// 					a.LastBidTime	= round.ConsensusTime;
+// 					a.LastWinner	= Signer.Id;
+// 
+// 					EnergySpenders.Add(Signer);
+// 					SpacetimeSpenders.Add(Signer);
+// 					
+// 					return;
+// 				}
+// 			}
+//  		}
+//  		else
+//  		{
+// 			/// dont refund previous winner if any
+// 			///Transaction.BYReturned += a.LastBid;
+// 
+// 			Signer.Spacetime -= Bid;
+// 			
+// 			a.Owner				= null;
+// 			a.FirstBidTime		= round.ConsensusTime;
+// 			a.LastBid			= Bid;
+// 			a.LastBidTime		= round.ConsensusTime;
+// 			a.LastWinner		= Signer.Id;
+// 		
+// 			EnergySpenders.Add(Signer);
+// 
+// 			return;
+// 		}
+// 
+// 		Error = "Bid too low or auction is over";
 	}
 }

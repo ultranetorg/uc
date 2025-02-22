@@ -6,9 +6,11 @@ public class ReviewCreation : FairOperation
 {
 	public EntityId				Publication { get; set; }
 	public string				Text { get; set; }
+	public override bool		NonExistingSignerAllowed => true;
+
+	public override string		Description => $"{GetType().Name} Publication={Publication}";
 
 	public override bool		IsValid(Mcv mcv) => Text.Length <= 4096;
-	public override string		Description => $"{GetType().Name} Publication={Publication}";
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
@@ -26,12 +28,6 @@ public class ReviewCreation : FairOperation
 	{
 		if(!RequirePublication(round, Publication, out var p))
 			return;
-		
-		//if(Signer.Integrate(round.ConsensusTime) < Reward)
-		//{
-		//	Error = NotEnoughEC;
-		//	return;
-		//}
 
 		var r = round.CreateReview(p);
 
@@ -42,15 +38,6 @@ public class ReviewCreation : FairOperation
 		r.TextNew		= Text;
 		r.Created		= round.ConsensusTime;
 
-// 		if(Reward > 0)
-// 		{
-// 			var d = Signer.ECBalanceDifference(round.ConsensusTime, Reward);
-// 			
-// 			Signer.ECBalanceSubtract(round.ConsensusTime, Reward);
-// 	
-// 			r.Reward = d;
-// 		}
-
 		p = round.AffectPublication(p.Id);
 
 		p.Reviews = [..p.Reviews, r.Id];
@@ -59,6 +46,14 @@ public class ReviewCreation : FairOperation
 		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
 
 		Allocate(round, a, a, mcv.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+
+		if(Signer.Id == round.LastCreatedId)
+		{
+			Signer.AllocationSponsor		= a.Id;
+			Signer.AllocationSponsorClass	= mcv.Authors.Id;
+		}
+
+		Signer.Reviews = [..Signer.Reviews, r.Id];
 
 		EnergyFeePayer = a;
 		EnergySpenders.Add(a);

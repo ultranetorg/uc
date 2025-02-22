@@ -21,38 +21,40 @@ public enum OperationClass
 
 public abstract class Operation : ITypeCode, IBinarySerializable
 {
-	public string					Error;
-	public Transaction				Transaction;
-	public AccountEntry				Signer;
-	public IEnergyHolder			EnergyFeePayer;
-	public HashSet<IEnergyHolder>	EnergySpenders;
+	public string						Error;
+	public Transaction					Transaction;
+	public AccountEntry					Signer;
+	public IEnergyHolder				EnergyFeePayer;
+	public HashSet<IEnergyHolder>		EnergySpenders;
 	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
-	public abstract string			Description { get; }
-	public long						EnergyConsumed;
+	public abstract string				Description { get; }
+	public long							EnergyConsumed;
 
-	public const string				Rejected = "Rejected";
-	public const string				NotFound = "Not found";
-	public const string				NotAvailable = "Not Available";
-	public const string				Mismatch = "Mismatch";
-	public const string				ExistingAccountRequired = "ExistingAccountRequired";
-	public const string				Expired = "Expired";
-	public const string				Sealed = "Sealed";
-	public const string				NotSealed = "NotSealed";
-	public const string				NoData = "NoData";
-	public const string				NotEnergyHolder = "Not Energy Holder";
-	public const string				NotSpacetimeHolder = "Not Spacetime Holder";
-	public const string				AlreadyExists = "Already exists";
-	public const string				NotSequential = "Not sequential";
-	public const string				NotEnoughSpacetime = "Not enough spacetime";
-	public const string				NotEnoughEnergy = "Not enough execution units";
-	public const string				NotEnoughEnergyNext = "Not enough energy for next period";
-	public const string				NotEnoughBandwidth = "Not enough bandwidth";
-	public const string				NoAnalyzers = "No analyzers";
-	public const string				Denied = "Access denied";
-	public const string				NotRelease = "Data valus is not a release";
-	public const string				LimitReached = "Limit Reached";
+	public virtual bool					NonExistingSignerAllowed => false;
 
-	protected OperationId			_Id;
+	public const string					Rejected = "Rejected";
+	public const string					NotFound = "Not found";
+	public const string					NotAvailable = "Not Available";
+	public const string					Mismatch = "Mismatch";
+	public const string					ExistingAccountRequired = "ExistingAccountRequired";
+	public const string					Expired = "Expired";
+	public const string					Sealed = "Sealed";
+	public const string					NotSealed = "NotSealed";
+	public const string					NoData = "NoData";
+	public const string					NotEnergyHolder = "Not Energy Holder";
+	public const string					NotSpacetimeHolder = "Not Spacetime Holder";
+	public const string					AlreadyExists = "Already exists";
+	public const string					NotSequential = "Not sequential";
+	public const string					NotEnoughSpacetime = "Not enough spacetime";
+	public const string					NotEnoughEnergy = "Not enough execution units";
+	public const string					NotEnoughEnergyNext = "Not enough energy for next period";
+	public const string					NotEnoughBandwidth = "Not enough bandwidth";
+	public const string					NoAnalyzers = "No analyzers";
+	public const string					Denied = "Access denied";
+	public const string					NotRelease = "Data valus is not a release";
+	public const string					LimitReached = "Limit Reached";
+
+	protected OperationId				_Id;
 	
 	public OperationId Id
 	{
@@ -65,10 +67,6 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 			return _Id;
 		}
-	}
-	
-	static Operation()
-	{
 	}
 
 	public Operation()

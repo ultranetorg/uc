@@ -20,7 +20,7 @@ public class ReviewUpdation : UpdateOperation
 	public override bool		IsValid(Mcv mcv) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}, [{Change}]";
 
-	const int					TextHsshLength = 16;
+	const int					TextHashLength = 16;
 
 	public ReviewUpdation()
 	{
@@ -35,8 +35,8 @@ public class ReviewUpdation : UpdateOperation
 					   {
 							ReviewChange.Status		=> reader.ReadEnum<ReviewStatus>(),
 							ReviewChange.Text		=> reader.ReadString(),
-							ReviewChange.Approve	=> reader.ReadBytes(TextHsshLength),
-							ReviewChange.Reject		=> reader.ReadBytes(TextHsshLength),
+							ReviewChange.Approve	=> reader.ReadBytes(TextHashLength),
+							ReviewChange.Reject		=> reader.ReadBytes(TextHashLength),
 							_ => throw new IntegrityException()
 					   };
 	}
@@ -102,7 +102,7 @@ public class ReviewUpdation : UpdateOperation
 					return;
 				}
 
-				if(!Cryptography.Hash(TextHsshLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
+				if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
 				{
 					Error = Mismatch;
 					return;
@@ -113,6 +113,9 @@ public class ReviewUpdation : UpdateOperation
 				r.Text = r.TextNew;
 				r.TextNew = "";
 				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
+
+				var c = round.AffectAccount(r.Creator);
+				c.Approvals++;
 
 				break;
 			}
@@ -127,7 +130,7 @@ public class ReviewUpdation : UpdateOperation
 					return;
 				}
 
-				if(!Cryptography.Hash(TextHsshLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
+				if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
 				{
 					Error = Mismatch;
 					return;
@@ -137,6 +140,14 @@ public class ReviewUpdation : UpdateOperation
 
 				r.TextNew = "";
 				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
+
+				var c = round.AffectAccount(r.Creator);
+				c.Rejections++;
+
+				if(c.Rejections > c.Approvals)
+				{
+					///c.Deleted = true;
+				}
 
 				break;
 			}

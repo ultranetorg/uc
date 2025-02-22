@@ -13,14 +13,14 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 			var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
 
 			if(a == null)
-				throw new EntityException(EntityError.NotFound);
-			
-#if IMMISSION
-			if(!Transaction.EmissionOnly && a == null)
-				throw new EntityException(EntityError.NotFound);
-#endif
-			Transaction.Nid		= a.LastTransactionNid + 1;
-			//Transaction.Bonus	= a.Energy;
+			{	
+				if(Transaction.Operations.All(i => i.NonExistingSignerAllowed))
+					Transaction.Nid = 0;
+				else
+					throw new EntityException(EntityError.NotFound);
+			}
+			else
+				Transaction.Nid	= a.LastTransactionNid + 1;
 
 			var r = Mcv.TryExecute(Transaction);
 			
@@ -28,12 +28,23 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 			{
 				var b = r.AffectedAccounts[Transaction.Signer];
 				
-				return new AllocateTransactionResponse {Generator			= m.Id,
-														LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-														PowHash				= Mcv.LastConfirmedRound.Hash,
-														NextNid				= Transaction.Nid,
-														SpacetimeConsumed	= a.Spacetime - b.Spacetime,
-														EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed};
+				var atr = new AllocateTransactionResponse  {Generator			= m.Id,
+															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
+															PowHash				= Mcv.LastConfirmedRound.Hash,
+															NextNid				= Transaction.Nid,
+															};
+
+				if(a != null)
+				{
+					atr.SpacetimeConsumed	= a.Spacetime - b.Spacetime;
+					atr.EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed;
+				}
+				else
+				{
+					atr.SpacetimeConsumed	= -b.Spacetime;
+				}
+
+				return atr;
 			}
 			else
 				throw new EntityException(EntityError.ExcutionFailed);

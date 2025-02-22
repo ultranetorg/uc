@@ -35,7 +35,6 @@ public class AuthorCreation : FairOperation
 	{
 		var e = round.CreateAuthor(Signer.Address);
 
-		Signer.Authors ??= [];
 		Signer.Authors = [..Signer.Authors, e.Id];
 		
 		e.Owner	= Signer.Id;

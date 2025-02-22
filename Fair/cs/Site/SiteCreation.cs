@@ -32,7 +32,6 @@ public class SiteCreation : FairOperation
 		s.Space = mcv.Net.EntityLength;
 		s.Moderators = [Signer.Id];
 
-		Signer.Sites ??= [];
 		Signer.Sites = [..Signer.Sites, s.Id];
 
 		Prolong(round, Signer, s, Time.FromYears(Years));

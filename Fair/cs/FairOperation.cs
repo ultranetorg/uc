@@ -1,4 +1,5 @@
-﻿namespace Uccs.Fair;
+﻿
+namespace Uccs.Fair;
 
 public enum FairOperationClass
 {

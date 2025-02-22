@@ -57,6 +57,28 @@ public class FairRound : Round
 		return base.NextEidsByTable(table);
 	}
 
+	public override AccountEntry AffectSigner(Transaction transaction)
+	{
+		if(transaction.Operations.All(i => i.NonExistingSignerAllowed))
+		{
+			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == transaction.Signer).Value is AccountEntry a)
+				return a;
+		
+			a = Mcv.Accounts.Find(transaction.Signer, Id - 1)?.Clone();	
+
+			if(a != null)
+				TransferECIfNeeded(a);
+			else
+				a = CreateAccount(transaction.Signer);
+
+			AffectedAccounts[a.Address] = a;
+
+			return a;
+		}
+
+		return base.AffectSigner(transaction);
+	}
+
 	public override ITableEntry Affect(byte table, EntityId id)
 	{
 		if(table == Mcv.Authors.Id)			return AffectAuthor(id);
@@ -69,9 +91,15 @@ public class FairRound : Round
 		return base.Affect(table, id);
 	}
 
-	public new FairAccountEntry CreateAccount(AccountAddress address)
+	public override FairAccountEntry CreateAccount(AccountAddress address)
 	{
-		return base.CreateAccount(address) as FairAccountEntry;
+		var a = base.CreateAccount(address) as FairAccountEntry;
+
+		a.Reviews = [];
+		a.Sites = [];
+		a.Authors = [];
+
+		return a;
 	}
 
 	public new FairAccountEntry AffectAccount(EntityId id)

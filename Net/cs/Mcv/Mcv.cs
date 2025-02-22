@@ -505,10 +505,6 @@ public abstract class Mcv /// Mutual chain voting
 		
 		r.ConsensusTime			= Time.Now(Clock);
 		r.ConsensusECEnergyCost	= LastConfirmedRound.ConsensusECEnergyCost;
-		///r.RentPerBytePerDay		= p.RentPerBytePerDay;
-		//r.Candidates			= p.Candidates;
-		//r.Members				= p.Members;
-		//r.Funds				= p.Funds;
 
 		r.Execute([transaction], true);
 

@@ -170,7 +170,7 @@ public abstract class Round : IBinarySerializable
 		throw new IntegrityException();
 	}
 
-	public AccountEntry CreateAccount(AccountAddress address)
+	public virtual AccountEntry CreateAccount(AccountAddress address)
 	{
 // 		if(AffectedAccounts.TryGetValue(address, out var a))
 // 			return a;
@@ -216,22 +216,22 @@ public abstract class Round : IBinarySerializable
 		return a;
 	}
 
-	public AccountEntry AffectAccount(AccountAddress address)
-	{
-		if(address == Net.God)
-			return new AccountEntry {Address = address};
-
-		if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == address).Value is AccountEntry a)
-			return a;
-		
-		a = Mcv.Accounts.Find(address, Id - 1).Clone();	
-
-		AffectedAccounts[a.Address] = a;
-
-		TransferECIfNeeded(a);
-
-		return a;
-	}
+// 	public AccountEntry AffectAccount(AccountAddress address)
+// 	{
+// 		if(address == Net.God)
+// 			return new AccountEntry {Address = address};
+// 
+// 		if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == address).Value is AccountEntry a)
+// 			return a;
+// 		
+// 		a = Mcv.Accounts.Find(address, Id - 1).Clone();	
+// 
+// 		AffectedAccounts[a.Address] = a;
+// 
+// 		TransferECIfNeeded(a);
+// 
+// 		return a;
+// 	}
 
 	public Generator AffectCandidate(EntityId id)
 	{
@@ -372,6 +372,32 @@ public abstract class Round : IBinarySerializable
 	{
 	}
 
+	public virtual AccountEntry AffectSigner(Transaction transaction)
+	{
+ 		if(transaction.Signer == Net.God)
+ 			return new AccountEntry {Address = Net.God};
+
+		var s = Mcv.Accounts.Find(transaction.Signer, Id);
+
+		if(s == null)
+		{
+			foreach(var o in transaction.Operations)
+				o.Error = Operation.NotFound;
+					
+			return null;
+		}
+	
+		if(transaction.Nid != s.LastTransactionNid + 1)
+		{
+			foreach(var o in transaction.Operations)
+				o.Error = Operation.NotSequential;
+					
+			return null;
+		}
+
+		return AffectAccount(s.Id);
+	}
+
 	public void Execute(IEnumerable<Transaction> transactions, bool trying = false)
 	{
 		if(Confirmed)
@@ -406,28 +432,10 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
-			var s = Mcv.Accounts.Find(t.Signer, Id);
+			var s = AffectSigner(t);
 
-			if(t.Signer != Net.God)
-			{
-				if(s == null)
-				{
-					foreach(var o in t.Operations)
-						o.Error = Operation.NotFound;
-					
-					continue;
-				}
-	
-				if(t.Nid != s.LastTransactionNid + 1)
-				{
-					foreach(var o in t.Operations)
-						o.Error = Operation.NotSequential;
-					
-					continue;
-				}
-			}
-
-			s = AffectAccount(t.Signer);
+			if(s == null)
+				continue;
 
 			foreach(var o in t.Operations)
 			{
@@ -553,7 +561,7 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
-			AffectAccount(i.Address).AverageUptime = 0;
+			AffectAccount(i.Id).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
