@@ -33,13 +33,19 @@ public class AuthorCreation : FairOperation
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
+		if(Signer.AllocationSponsor != null)
+		{
+			Error = NotAllowedForFreeAccount;
+			return;
+		}
+
 		var e = round.CreateAuthor(Signer.Address);
 
 		Signer.Authors = [..Signer.Authors, e.Id];
 		
-		e.Owner	= Signer.Id;
-		e.Title	= Title;
-		e.Space = mcv.Net.EntityLength;
+		e.Owners	= [Signer.Id];
+		e.Title		= Title;
+		e.Space		= mcv.Net.EntityLength;
 
 		Prolong(round, Signer, e, Time.FromYears(Years));
 	}

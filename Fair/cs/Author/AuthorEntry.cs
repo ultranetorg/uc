@@ -5,6 +5,7 @@ public class AuthorEntry : Author, ITableEntry
 	Mcv						Mcv;
 	public bool				Deleted { get; set; }
 	public EntityId[]		Products { get; set; }
+	public EntityId[]		Sites { get; set; }
 
 	public AuthorEntry()
 	{
@@ -17,21 +18,23 @@ public class AuthorEntry : Author, ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Id}, {Owner}, {Expiration}";
+		return $"{Id}, Owners={Owners}, Expiration={Expiration}";
 	}
 
 	public AuthorEntry Clone()
 	{
 		var a = new AuthorEntry(Mcv)   {Id					= Id,
 										Title				= Title,
-										Owner				= Owner,
+										Owners				= Owners,
 
 										Expiration			= Expiration,
 										Space				= Space,
 										Spacetime			= Spacetime,
 										ModerationReward	= ModerationReward,
 
-										Products			= Products};
+										Products			= Products,
+										Sites				= Sites
+										};
 
 		((IEnergyHolder)this).Clone(a);
 
@@ -41,13 +44,17 @@ public class AuthorEntry : Author, ITableEntry
 	public void WriteMain(BinaryWriter writer)
 	{
 		Write(writer);
+		
 		writer.Write(Products);
+		writer.Write(Sites);
 	}
 
 	public void ReadMain(BinaryReader reader)
 	{
 		Read(reader);
+		
 		Products = reader.ReadArray<EntityId>();
+		Sites = reader.ReadArray<EntityId>();
 	}
 
 	public void WriteMore(BinaryWriter w)

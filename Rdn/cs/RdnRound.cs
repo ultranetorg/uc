@@ -14,22 +14,8 @@ public class RdnRound : Round
 
 	public RdnRound(RdnMcv rds) : base(rds)
 	{
+		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 	}
-
-//	public override int GetSpaceUsers()
-//	{
-//		int s = 0;
-//
-//		foreach(var c in Mcv.Domains.Clusters)
-//		{
-//			foreach(var b in c.Buckets)
-//			{
-//				s += b.Entries.Count(i => i.Expiration >= ConsensusTime);
-//			}
-//		}
-//
-//		return s;
-//	}
 
 	public override long AccountAllocationFee(Account account)
 	{
@@ -42,14 +28,6 @@ public class RdnRound : Round
 		if(table == Mcv.Resources)	return AffectedResources;
 
 		return base.AffectedByTable(table);
-	}
-
-	public override Dictionary<int, int> NextEidsByTable(TableBase table)
-	{
-		if(table == Mcv.Domains)	return NextDomainEids;
-		if(table == Mcv.Resources)	return NextResourceEids;
-
-		return base.NextEidsByTable(table);
 	}
 
 	public DomainEntry AffectDomain(string address)

@@ -41,9 +41,7 @@ public enum FairOperationClass
 
 public abstract class FairOperation : Operation
 {
-	public const string				CantChangeSealed = "Cant change sealed resource";
-	public const string				NotRoot = "Not root domain";
-	public const string				AlreadyChild = "Already a child";
+	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
 
 	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
 
@@ -52,6 +50,15 @@ public abstract class FairOperation : Operation
 	public override void Execute(Mcv mcv, Round round)
 	{
 		Execute(mcv as FairMcv, round as FairRound);
+	}
+
+	public bool RequireAccount(Round round, EntityId id, out FairAccountEntry account)
+	{
+		var r = base.RequireAccount(round, id, out var a);
+		
+		account = a as FairAccountEntry;
+
+		return r;
 	}
 
 	public bool RequireAuthor(FairRound round, EntityId id, out AuthorEntry author)
@@ -113,7 +120,7 @@ public abstract class FairOperation : Operation
 			return false;
 		}
 
-		if(author.Owner != Signer.Id)
+		if(!author.Owners.Contains(Signer.Id))
 		{
 			Error = Denied;
 			return false;
@@ -140,7 +147,7 @@ public abstract class FairOperation : Operation
 		return r;
 	}
 
-	public bool RequireSiteAccess(FairRound round, EntityId id, out SiteEntry site)
+	public bool RequireSite(FairRound round, EntityId id, out SiteEntry site)
 	{
 		site = round.Mcv.Sites.Find(id, round.Id);
 		
@@ -149,6 +156,14 @@ public abstract class FairOperation : Operation
 			Error = NotFound;
 			return false; 
 		}
+
+		return true; 
+	}
+
+	public bool RequireSiteAccess(FairRound round, EntityId id, out SiteEntry site)
+	{
+ 		if(!RequireSite(round, id, out site))
+ 			return false; 
 
 		if(!site.Moderators.Contains(Signer.Id))
 		{
@@ -233,4 +248,17 @@ public abstract class FairOperation : Operation
  
  		return true;
  	}
+
+	public bool RequireDispute(FairRound round, EntityId id, out DisputeEntry review)
+	{
+		review = round.Mcv.Disputes.Find(id, round.Id);
+		
+		if(review == null || review.Deleted)
+		{
+			Error = NotFound;
+			return false; 
+		}
+
+		return true;
+	}
 }

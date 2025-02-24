@@ -61,20 +61,22 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
-		var owner = "owner";
+		var addowner = "addowner";
+		var removeowner = "removeowner";
 
 		a.Name = "u";
 		a.Help = new() {Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {owner}={AA} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {addowner}={AA} {removeowner}={AA} {SignerArg}={AA}",
 
 						Arguments =	[
 										new ("<first>", "Id of an author to be renewed"),
-										new (owner, "Account address of a new owner"),
+										new (addowner, "Account Id of a new owner to add"),
+										new (removeowner, "Account Id of a existing owner to remove"),
 										new (SignerArg, "Address of account that owns the author")
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} {EID.Example} {owner}={AA.Example1} {SignerArg}={AA.Example}")
+										new (null, $"{Keyword} {a.Name} {EID.Example} {addowner}={AA.Example1} {SignerArg}={AA.Example}")
 									]};
 
 		a.Execute = () =>	{
@@ -82,10 +84,15 @@ public class AuthorCommand : FairCommand
 
 								var o = new AuthorUpdation {AuthorId = FirstEntityId};
 								
-								if(Has(owner))
+								if(Has(addowner))
 								{
-									o.Change = AuthorChange.Owner;
-									o.Value	 = GetAccountAddress(owner);
+									o.Change = AuthorChange.AddOwner;
+									o.Value	 = GetAccountAddress(addowner);
+								}
+								if(Has(removeowner))
+								{
+									o.Change = AuthorChange.RemoveOwner;
+									o.Value	 = GetAccountAddress(removeowner);
 								}
 								else
 									throw new SyntaxException("Unknown parameters");

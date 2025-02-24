@@ -2,7 +2,7 @@
 
 public enum SiteChange : byte
 {
-	None, Renew, Owner
+	None, Renew, AddModerator, RemoveModerator,
 }
 
 public class SiteUpdation : UpdateOperation
@@ -36,7 +36,6 @@ public class SiteUpdation : UpdateOperation
 		Value = Change switch
 					   {
 							SiteChange.Renew				=> reader.ReadByte(),
-							SiteChange.Owner				=> reader.Read<EntityId>(),
 							_								=> throw new IntegrityException()
 					   };
 	}
@@ -49,7 +48,6 @@ public class SiteUpdation : UpdateOperation
 		switch(Change)
 		{
 			case SiteChange.Renew				: writer.Write(Byte); break;
-			case SiteChange.Owner				: writer.Write(EntityId); break;
 			default								: throw new IntegrityException();
 		}
 	}

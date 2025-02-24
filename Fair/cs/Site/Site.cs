@@ -1,13 +1,5 @@
 namespace Uccs.Fair;
 
-public enum Actor
-{
-	None,
-	Owner,
-	Creator,
-	SiteUser
-}
-
 // public class Security : IBinarySerializable
 // {
 // 	public OrderedDictionary<TopicChange, Actor[]>	Permissions;
@@ -44,14 +36,15 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public EntityId					Id { get; set; }
 	public string					Title { get; set; }
+	public int						ModerationReward { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
-	public int						ModerationReward  { get; set; }
 
 	public EntityId[]				Moderators { get; set; }
 	public EntityId[]				Categories { get; set; }
+	public EntityId[]				Disputes { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -75,19 +68,21 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public static bool CanRenew(Site author, Time time)
 	{
 		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
-										 
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-		Title			= reader.ReadUtf8();
-		Moderators		= reader.ReadArray<EntityId>();
-		Categories		= reader.ReadArray<EntityId>();
+		Id					= reader.Read<EntityId>();
+		Title				= reader.ReadUtf8();
+		ModerationReward	= reader.Read7BitEncodedInt();
+		Moderators			= reader.ReadArray<EntityId>();
+		Categories			= reader.ReadArray<EntityId>();
+		Disputes			= reader.ReadArray<EntityId>();
 
-		Expiration		= reader.ReadInt16();
-		Space			= reader.Read7BitEncodedInt64();
-		Spacetime		= reader.Read7BitEncodedInt64();
+		Expiration			= reader.ReadInt16();
+		Space				= reader.Read7BitEncodedInt64();
+		Spacetime			= reader.Read7BitEncodedInt64();
+
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -96,8 +91,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		writer.Write(Id);
 		writer.Write(Title);
+		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write(Moderators);
 		writer.Write(Categories);
+		writer.Write(Disputes);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);

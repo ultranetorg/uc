@@ -2,7 +2,7 @@
 
 public enum AuthorChange : byte
 {
-	None, Renew, Owner, ModerationReward
+	None, Renew, AddOwner, RemoveOwner, ModerationReward
 }
 
 public class AuthorUpdation : UpdateOperation
@@ -37,15 +37,10 @@ public class AuthorUpdation : UpdateOperation
 					   {
 							AuthorChange.Renew				=> reader.ReadByte(),
 							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt64(),
-							AuthorChange.Owner				=> reader.Read<EntityId>(),
+							AuthorChange.AddOwner			=> reader.Read<EntityId>(),
+							AuthorChange.RemoveOwner		=> reader.Read<EntityId>(),
 							_								=> throw new IntegrityException()
 					   };
-
-// 		Second = Change switch
-// 						{
-// 							AuthorChange.Renew				=> reader.Read7BitEncodedInt(),
-// 							_								=> throw new IntegrityException()
-// 						};
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -57,15 +52,10 @@ public class AuthorUpdation : UpdateOperation
 		{
 			case AuthorChange.Renew				: writer.Write(Byte); break;
 			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt64(Long); break;
-			case AuthorChange.Owner				: writer.Write(EntityId); break;
+			case AuthorChange.AddOwner			: writer.Write(EntityId); break;
+			case AuthorChange.RemoveOwner		: writer.Write(EntityId); break;
 			default								: throw new IntegrityException();
 		}
-
-// 		switch(Change)
-// 		{
-// 			case AuthorChange.Renew				: writer.Write7BitEncodedInt((int)Second); break;
-// 			default								: throw new IntegrityException();
-// 		}
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
@@ -79,7 +69,7 @@ public class AuthorUpdation : UpdateOperation
 		{
 			case AuthorChange.Renew:
 			{	
-				if(!Author.CanRenew(a, Signer, (short)round.ConsensusTime.Days))
+				if(!Author.CanRenew(a, Signer, round.ConsensusTime))
 				{
 					Error = NotAvailable;
 					return;
@@ -90,49 +80,40 @@ public class AuthorUpdation : UpdateOperation
 				break;
 			}
 
-// 			case AuthorChange.DepositSpacetime:
-// 			{	
-// 				a.Spacetime		 += Long;
-// 				Signer.Spacetime -= Long;
-// 
-// 				SpacetimeSpenders.Add(Signer);
-// 
-// 				break;
-// 			}
-// 
-// 			case AuthorChange.DepositEnergy:
-// 			{	
-// 				a.Energy		+= Long;
-// 				Signer.Energy	-= Long;
-// 
-// 				break;
-// 			}
-// 
-// 			case AuthorChange.DepositEnergyNext:
-// 			{	
-// 				a.EnergyNext		+= Long;
-// 				Signer.EnergyNext	-= Long;
-// 
-// 				break;
-// 			}
-
 			case AuthorChange.ModerationReward:
 
 				a.ModerationReward = Long;
 
 				break;
 
-			case AuthorChange.Owner:
+			case AuthorChange.AddOwner:
 			{
-				var x = mcv.Accounts.Find(EntityId, round.Id);
+				if(!RequireAccount(round, EntityId, out var x))
+					return;
 
-				if(x == null)
+				if(x.AllocationSponsor != null)
 				{
-					Error = NotFound;
+					Error = NotAllowedForFreeAccount;
 					return;
 				}
 
-				a.Owner	= x.Id;
+				a.Owners = [..a.Owners, x.Id];
+
+				break;;
+			}
+
+			case AuthorChange.RemoveOwner:
+			{
+				if(a.Owners.Length == 1)
+				{
+					Error = AtLeastOneOwnerRequired;
+					return;
+				}
+
+				if(!RequireAccount(round, EntityId, out var x))
+					return;
+
+				a.Owners = a.Owners.Where(i => i != x.Id).ToArray();
 
 				break;;
 			}

@@ -18,14 +18,15 @@ public class SiteEntry : Site, ITableEntry
 	{
 		var a = new SiteEntry(Mcv){	Id					= Id,
 									Title				= Title,
+									ModerationReward	= ModerationReward,
 
 									Expiration			= Expiration,
 									Space				= Space,
 									Spacetime			= Spacetime,
-									ModerationReward	= ModerationReward,
 
 									Moderators			= Moderators,
 									Categories			= Categories,
+									Disputes			= Disputes,
 									};
 		
 		((IEnergyHolder)this).Clone(a);

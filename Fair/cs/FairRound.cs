@@ -1,4 +1,5 @@
-﻿namespace Uccs.Fair;
+﻿
+namespace Uccs.Fair;
 
 public class FairRound : Round
 {
@@ -9,28 +10,25 @@ public class FairRound : Round
 	public Dictionary<EntityId, CategoryEntry>			AffectedCategories = new();
 	public Dictionary<EntityId, PublicationEntry>		AffectedPublications = new();
 	public Dictionary<EntityId, ReviewEntry>			AffectedReviews = new();
-	public Dictionary<int, int>							NextAuthorEids = new ();
-	public Dictionary<int, int>							NextProductEids = new ();
-	public Dictionary<int, int>							NextSiteEids = new ();
-	public Dictionary<int, int>							NextCategoryEids = new ();
-	public Dictionary<int, int>							NextPageEids = new ();
-	public Dictionary<int, int>							NextReviewEids = new ();
-	//public Dictionary<ushort, int>					NextAssortmentIds = new ();
+	public Dictionary<EntityId, DisputeEntry>			AffectedDisputes = new();
 
+	public FairAccountEntry								FindAccount(EntityId id) => Mcv.Accounts.Find(id, Id) as FairAccountEntry;
 	public AuthorEntry									FindAuthor(EntityId id) => Mcv.Authors.Find(id, Id);
 	public ProductEntry									FindProduct(EntityId id) => Mcv.Products.Find(id, Id);
 	public SiteEntry									FindSite(EntityId id) => Mcv.Sites.Find(id, Id);
 	public CategoryEntry								FindCategory(EntityId id) => Mcv.Categories.Find(id, Id);
 	public PublicationEntry								FindPublication(EntityId id) => Mcv.Publications.Find(id, Id);
 	public ReviewEntry									FindReview(EntityId id) => Mcv.Reviews.Find(id, Id);
+	public DisputeEntry									FindDispute(EntityId id) => Mcv.Disputes.Find(id, Id);
 
 	public FairRound(FairMcv rds) : base(rds)
 	{
+		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 	}
 
 	public override long AccountAllocationFee(Account account)
 	{
-		return FairOperation.ToBD(Net.EntityLength, (short)Uccs.Net.Mcv.Forever.Days);
+		return FairOperation.ToBD(Net.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -41,20 +39,22 @@ public class FairRound : Round
 		if(table == Mcv.Categories)		return AffectedCategories;
 		if(table == Mcv.Publications)	return AffectedPublications;
 		if(table == Mcv.Reviews)		return AffectedReviews;
+		if(table == Mcv.Disputes)		return AffectedDisputes;
 
 		return base.AffectedByTable(table);
 	}
 
-	public override Dictionary<int, int> NextEidsByTable(TableBase table)
+	public override ITableEntry Affect(byte table, EntityId id)
 	{
-		if(table == Mcv.Authors)		return NextAuthorEids;
-		if(table == Mcv.Products)		return NextProductEids;
-		if(table == Mcv.Sites)			return NextSiteEids;
-		if(table == Mcv.Categories)		return NextCategoryEids;
-		if(table == Mcv.Publications)	return NextPageEids;
-		if(table == Mcv.Reviews)		return NextReviewEids;
+		if(table == Mcv.Authors.Id)			return AffectAuthor(id);
+		if(table == Mcv.Products.Id)		return AffectProduct(id);
+		if(table == Mcv.Sites.Id)			return AffectSite(id);
+		if(table == Mcv.Categories.Id)		return AffectCategory(id);
+		if(table == Mcv.Publications.Id)	return AffectPublication(id);
+		if(table == Mcv.Reviews.Id)			return AffectReview(id);
+		if(table == Mcv.Disputes.Id)		return AffectDispute(id);
 
-		return base.NextEidsByTable(table);
+		return base.Affect(table, id);
 	}
 
 	public override AccountEntry AffectSigner(Transaction transaction)
@@ -79,18 +79,6 @@ public class FairRound : Round
 		return base.AffectSigner(transaction);
 	}
 
-	public override ITableEntry Affect(byte table, EntityId id)
-	{
-		if(table == Mcv.Authors.Id)			return AffectAuthor(id);
-		if(table == Mcv.Products.Id)		return AffectProduct(id);
-		if(table == Mcv.Sites.Id)			return AffectSite(id);
-		if(table == Mcv.Categories.Id)		return AffectCategory(id);
-		if(table == Mcv.Publications.Id)	return AffectPublication(id);
-		if(table == Mcv.Reviews.Id)			return AffectReview(id);
-
-		return base.Affect(table, id);
-	}
-
 	public override FairAccountEntry CreateAccount(AccountAddress address)
 	{
 		var a = base.CreateAccount(address) as FairAccountEntry;
@@ -100,6 +88,27 @@ public class FairRound : Round
 		a.Authors = [];
 
 		return a;
+	}
+
+	public void DeleteAccount(FairAccountEntry account)
+	{
+		account.Deleted = true;
+// 
+// 		foreach(var i in account.Authors.Select(i => Mcv.Authors.Find(i, Id)))
+// 		{
+// 			if(i.Owners.Length == 1)
+// 				DeleteAuthor(i);
+// 		}
+// 
+// 		foreach(var i in account.Sites.Select(i => Mcv.Sites.Find(i, Id)))
+// 		{
+// 			if(i.Moderators.Length == 1)
+// 				DeleteAuthor(i);
+// 		}
+	}
+
+	private void DeleteAuthor(AuthorEntry author)
+	{
 	}
 
 	public new FairAccountEntry AffectAccount(EntityId id)
@@ -116,6 +125,8 @@ public class FairRound : Round
 		var a = Mcv.Authors.Create();
 		a.Id = new EntityId(b, e);
 		a.Products = [];
+		a.Owners = [];
+		a.Sites = [];
 			
 		return AffectedAuthors[a.Id] = a;
 	}
@@ -242,6 +253,28 @@ public class FairRound : Round
 		var e = Mcv.Reviews.Find(id, Id - 1);
 
 		return AffectedReviews[id] = e.Clone();
+	}
+
+	public DisputeEntry CreateDispute(AccountEntry signer)
+	{
+		var b = Mcv.Accounts.KeyToBid(signer.Address);
+		
+		int e = GetNextEid(Mcv.Disputes, b);
+
+		var a = Mcv.Disputes.Create();
+		a.Id = new EntityId(b, e);
+
+		return AffectedDisputes[a.Id] = a;
+	}
+
+	public DisputeEntry AffectDispute(EntityId id)
+	{
+		if(AffectedDisputes.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Mcv.Disputes.Find(id, Id - 1);
+
+		return AffectedDisputes[id] = e.Clone();
 	}
 
 // 	public bool IsAllowed(Publication page, TopicChange change, AccountEntry signer)

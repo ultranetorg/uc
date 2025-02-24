@@ -26,6 +26,12 @@ public class SiteCreation : FairOperation
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
+		if(Signer.AllocationSponsor != null)
+		{
+			Error = NotAllowedForFreeAccount;
+			return;
+		}
+
 		var s = round.CreateSite(Signer);
 
 		s.Title = Title;

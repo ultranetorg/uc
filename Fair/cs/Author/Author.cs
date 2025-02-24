@@ -13,7 +13,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public EntityId				Id { get; set; }
 	public string				Title { get; set; }
-	public EntityId				Owner { get; set; }
+	public EntityId[]			Owners { get; set; }
 
 	public short				Expiration { get; set; }
 	public long					Space { get; set; }
@@ -39,30 +39,30 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public bool IsSpendingAuthorized(Round round, EntityId signer)
 	{
-		return Owner == signer; /// TODO : Owner only
+		return Owners.Contains(signer); /// TODO : Owner only
 	}
 
-	public static bool IsOwner(Author domain, Account account, Time time)
+	public static bool IsOwner(Author author, Account account, Time time)
 	{
-		return domain.Owner == account.Id && !IsExpired(domain, time);
+		return author.Owners.Contains(account.Id) && !IsExpired(author, time);
 	}
 
 	public static bool IsExpired(Author a, Time time) 
 	{
-		return	a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
+		return	time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Author author, Account by, short time)
+	public static bool CanRenew(Author author, Account by, Time time)	
 	{
-		return  author.Owner == by.Id && time > author.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-										 time <= author.Expiration;
+		return IsOwner(author, by, time) && time.Days > author.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
+											time.Days <= author.Expiration;
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Title);
-		writer.Write(Owner);
+		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
 
 		writer.Write(Expiration);
@@ -76,7 +76,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	{
 		Id					= reader.Read<EntityId>();
 		Title				= reader.ReadString();
-		Owner				= reader.Read<EntityId>();
+		Owners				= reader.ReadArray<EntityId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 
 		Expiration			= reader.ReadInt16();

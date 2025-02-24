@@ -34,7 +34,7 @@ public class PublicationDeletion : FairOperation
 
 		var a = round.FindAuthor(round.FindProduct(p.Product).Author);
 
-		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && Signer.Id == a.Owner)
+		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && a.Owners.Contains(Signer.Id))
 		{ 
 			a = round.AffectAuthor(a.Id);
 

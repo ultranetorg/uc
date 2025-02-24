@@ -524,7 +524,7 @@ public abstract class Mcv /// Mutual chain voting
 
 				foreach(var r in tail)
 					foreach(var t in Tables)
-						t.Save(b, r.AffectedByTable(t).Values, r.NextEidsByTable(t), round);
+						t.Save(b, r.AffectedByTable(t).Values, r.NextEids[t.Id], round);
 
 				LastCommittedRound = tail.Last();
 					

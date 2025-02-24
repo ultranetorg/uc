@@ -11,6 +11,7 @@ public class FairMcv : Mcv
 	public CategoryTable	Categories;
 	public PublicationTable	Publications;
 	public ReviewTable		Reviews;
+	public DisputeTable		Disputes;
 	IPAddress[]				BaseIPs;
 
 	public FairMcv()
@@ -70,8 +71,9 @@ public class FairMcv : Mcv
 		Categories = new (this);
 		Publications = new (this);
 		Reviews = new (this);
+		Disputes = new (this);
 
-		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews];
+		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes];
 	}
 
 	public override Round CreateRound()

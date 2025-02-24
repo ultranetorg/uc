@@ -144,9 +144,9 @@ public class ReviewUpdation : UpdateOperation
 				var c = round.AffectAccount(r.Creator);
 				c.Rejections++;
 
-				if(c.Rejections > c.Approvals)
+				if(c.Rejections > c.Approvals/3)
 				{
-					///c.Deleted = true;
+					round.DeleteAccount(c);
 				}
 
 				break;

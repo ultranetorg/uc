@@ -57,6 +57,7 @@ public abstract class Round : IBinarySerializable
 	public EntityId										LastCreatedId;
 	public long[]										Spacetimes = [];
 	public long[]										BandwidthAllocations = [];
+	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
@@ -66,6 +67,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(){}
+
 
 	public int MinimumForConsensus
 	{
@@ -123,20 +125,13 @@ public abstract class Round : IBinarySerializable
 		throw new IntegrityException();
 	}
 
-	public virtual Dictionary<int, int> NextEidsByTable(TableBase table)
-	{
-		if(table == Mcv.Accounts)	return NextAccountEids;
-
-		return null;
-	}
-
 	public int GetNextEid(TableBase table,  int b)
 	{
 		int e = 0;
 
 		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id))
 		{	
-			var eids = r.NextEidsByTable(table);
+			var eids = r.NextEids[table.Id];
 
 			if(eids != null && eids.TryGetValue(b, out e))
 				break;
@@ -145,7 +140,7 @@ public abstract class Round : IBinarySerializable
 		if(e == 0)
 			e = table.FindBucket(b)?.NextEid ?? 0;
 
-		NextEidsByTable(table)[b] = e + 1;
+		NextEids[table.Id][b] = e + 1;
 
 		return e;
 	}
@@ -425,8 +420,10 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 		{
 			AffectedByTable(i).Clear();
-			NextEidsByTable(i).Clear();
 		}
+		
+		foreach(var i in NextEids)
+			i.Clear();
 
 		RestartExecution();
 

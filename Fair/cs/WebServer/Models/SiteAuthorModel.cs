@@ -2,7 +2,7 @@
 
 public class SiteAuthorModel(Author author) : AuthorBaseModel(author)
 {
-	public string OwnerId { get; set; }
+	public string[] OwnerIds { get; set; }
 
 	public IEnumerable<PublicationBaseModel> Publications { get; set; }
 }

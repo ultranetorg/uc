@@ -53,6 +53,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string					Denied = "Access denied";
 	public const string					NotRelease = "Data valus is not a release";
 	public const string					LimitReached = "Limit Reached";
+	public const string					AtLeastOneOwnerRequired = "At least one owner required";
 
 	protected OperationId				_Id;
 	
@@ -97,7 +98,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		var a = round.Mcv.Accounts.Find(account, round.Id);
 
-		if(a == null)
+		if(a == null || a.Deleted)
 		{
 			Error = NotFound;
 			return a;
@@ -146,7 +147,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	public void FreeEntity(Round round)
 	{
-		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever);
+		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
 	}
 
 	public void Allocate(Round round, ISpacetimeHolder payer, ISpaceConsumer consumer, int space)

@@ -93,7 +93,7 @@ public class SitesService
 
 		return new SiteAuthorModel(author)
 		{
-			OwnerId = author.Owner.ToString(),
+			OwnerIds = author.Owners.Select(i => i.ToString()).ToArray(),
 			Publications = publication,
 		};
 	}
