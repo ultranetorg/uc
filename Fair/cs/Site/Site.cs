@@ -42,6 +42,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
+	public EntityId[]				Authors { get; set; }
 	public EntityId[]				Moderators { get; set; }
 	public EntityId[]				Categories { get; set; }
 	public EntityId[]				Disputes { get; set; }
@@ -75,14 +76,15 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Id					= reader.Read<EntityId>();
 		Title				= reader.ReadUtf8();
 		ModerationReward	= reader.Read7BitEncodedInt();
-		Moderators			= reader.ReadArray<EntityId>();
-		Categories			= reader.ReadArray<EntityId>();
-		Disputes			= reader.ReadArray<EntityId>();
 
 		Expiration			= reader.ReadInt16();
 		Space				= reader.Read7BitEncodedInt64();
 		Spacetime			= reader.Read7BitEncodedInt64();
 
+		Authors				= reader.ReadArray<EntityId>();
+		Moderators			= reader.ReadArray<EntityId>();
+		Categories			= reader.ReadArray<EntityId>();
+		Disputes			= reader.ReadArray<EntityId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -92,13 +94,15 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Id);
 		writer.Write(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
-		writer.Write(Moderators);
-		writer.Write(Categories);
-		writer.Write(Disputes);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write7BitEncodedInt64(Spacetime);
+
+		writer.Write(Authors);
+		writer.Write(Moderators);
+		writer.Write(Categories);
+		writer.Write(Disputes);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}

@@ -175,6 +175,8 @@ public class FairRound : Round
 		a.Id = new EntityId(b, e);
 		a.Categories = [];
 		a.Moderators = [];
+		a.Authors = [];
+		a.Disputes = [];
 			
 		return AffectedSites[a.Id] = a;
 	}

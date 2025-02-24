@@ -88,6 +88,7 @@ public class Dispute : IBinarySerializable
 	public Proposal			Proposal { get; set; }
 	public EntityId[]		Pros { get; set; }
 	public EntityId[]		Cons { get; set; }
+	public Time				Expirtaion { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
@@ -97,6 +98,7 @@ public class Dispute : IBinarySerializable
 		Proposal	= reader.Read<Proposal>();
 		Pros		= reader.ReadArray<EntityId>();
 		Cons		= reader.ReadArray<EntityId>();
+		Expirtaion	= reader.Read<Time>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -107,5 +109,6 @@ public class Dispute : IBinarySerializable
 		writer.Write(Proposal);
 		writer.Write(Pros);
 		writer.Write(Cons);
+		writer.Write(Expirtaion);
 	}
 }

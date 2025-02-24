@@ -17,12 +17,13 @@ public class DisputeEntry : Dispute, ITableEntry
 	public DisputeEntry Clone()
 	{
 		var a = new DisputeEntry(Mcv){	
-										Id		= Id,	
-										Site	= Site,	
-										Flags	= Flags,
-										Proposal= Proposal,
-										Pros	= Pros,
-										Cons	= Cons,
+										Id			= Id,	
+										Site		= Site,	
+										Flags		= Flags,
+										Proposal	= Proposal,
+										Pros		= Pros,
+										Cons		= Cons,
+										Expirtaion	= Expirtaion
 									};
 		return a;
 	}

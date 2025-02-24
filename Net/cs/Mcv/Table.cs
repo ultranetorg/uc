@@ -376,13 +376,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
  				Clusters.Add(c);
 			}
 		}
-
-		//CalculateSuperClusters();
 	}
 
 	public override void Clear()
 	{
-		//Clusters.Clear();
 		Clusters.Clear();
 
 		Engine.DropColumnFamily(ClusterColumnName);

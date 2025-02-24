@@ -34,11 +34,13 @@ public class PublicationCreation : FairOperation
 		var p = round.CreatePublication(mcv.Sites.Find(c.Site, round.Id));
 		
 		a = round.AffectAuthor(a.Id);
+		var s = round.AffectSite(c.Site);
 
 		if(!a.Sites.Contains(c.Site))
-		{
 			a.Sites = [..a.Sites, c.Site];
-		}
+
+		if(!s.Authors.Contains(a.Id))
+			s.Authors = [..s.Authors, a.Id];
 
 		if(CanAccessAuthor(round, a.Id))
 		{ 
@@ -55,7 +57,6 @@ public class PublicationCreation : FairOperation
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedBySite;
 
-			var s = round.AffectSite(c.Site);
 
 			Allocate(round, s, s, mcv.Net.EntityLength);
 

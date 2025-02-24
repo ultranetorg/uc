@@ -24,6 +24,7 @@ public class SiteEntry : Site, ITableEntry
 									Space				= Space,
 									Spacetime			= Spacetime,
 
+									Authors				= Authors,
 									Moderators			= Moderators,
 									Categories			= Categories,
 									Disputes			= Disputes,
