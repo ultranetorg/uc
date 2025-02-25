@@ -77,7 +77,6 @@ public class NodeGlobals
 	public static bool				ThrowOnCorrupted;
 	public static bool				SkipSynchronization;
 	public static bool				SkipMigrationVerification;
-	public static SecretSettings	Secrets;
 
 	public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 	static IEnumerable<FieldInfo>	Fields => typeof(NodeGlobals).GetFields().Where(i => i.FieldType == typeof(bool));

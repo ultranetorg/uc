@@ -185,13 +185,11 @@ public class Transaction : IBinarySerializable
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
-		//STFee		= reader.Read<Money>();
 		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
- 												//o.Placing		= PlacingStage.Confirmed;
  												o.Transaction	= this;
  												o.Read(reader); 
  												return o; 
@@ -224,7 +222,6 @@ public class Transaction : IBinarySerializable
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
-		//STFee		= reader.Read<Money>();
 		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
