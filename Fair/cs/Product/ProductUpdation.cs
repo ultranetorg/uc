@@ -37,14 +37,14 @@ public class ProductUpdation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		ProductId	= reader.Read<EntityId>();
-		Name		= reader.ReadString();
+		Name		= reader.ReadUtf8();
 		Value		= reader.ReadBytes();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(ProductId);
-		writer.Write(Name);
+		writer.WriteUtf8(Name);
 		writer.WriteBytes(Value);
 	}
 

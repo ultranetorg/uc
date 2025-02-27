@@ -30,7 +30,7 @@ public class PublicationDeletion : FairOperation
 		p.Deleted = true;
 
  		var c = round.AffectCategory(p.Category);
- 		c.Publications = c.Publications.Where(i => i != Publication).ToArray();
+ 		c.Publications = c.Publications.Remove(Publication);
 
 		var a = round.FindAuthor(round.FindProduct(p.Product).Author);
 

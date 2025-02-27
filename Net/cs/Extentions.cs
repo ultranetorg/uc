@@ -55,4 +55,26 @@ public static class Extentions
 		a.Read(r);
 		return a;
 	}
+
+	public static T[] RemoveAt<T>(this T[] arr, int index)
+	{
+		if(index != arr.Length-1)
+			arr[index] = arr[arr.Length-1];
+
+		Array.Resize(ref arr, arr.Length - 1);
+
+		return arr;
+	}
+
+	public static T[] Remove<T>(this T[] arr, T e)
+	{
+		var i = Array.IndexOf(arr, e);
+
+		if(i == -1)
+		{
+			return arr;
+		}
+
+		return RemoveAt(arr, i);
+	}
 }

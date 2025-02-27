@@ -34,6 +34,7 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 {
 	public SiteChange	Change { get; set; }
 	public object		Value { get; set; }
+	public string		Text { get; set; }
 
 	public static bool	operator == (Proposal left, Proposal right) => left.Equals(right);
 	public static bool	operator != (Proposal left, Proposal right) => !(left == right);
@@ -47,9 +48,15 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 	{
 		return other is not null && Change == other.Change && Value.Equals(other.Value);
 	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(Change, Value);
+	}
 	
 	public void Read(BinaryReader reader)
 	{
+		Text	= reader.ReadString();
 		Change	= reader.ReadEnum<SiteChange>();
 
 		Value = Change switch
@@ -63,6 +70,7 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 
 	public void Write(BinaryWriter writer)
 	{
+		writer.Write(Text);
 		writer.WriteEnum(Change);
 
 		switch(Change)
@@ -72,9 +80,28 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 			default							: throw new IntegrityException();
 		}
 	}
+
+	public void Execute(EntityId site, FairRound round)
+	{
+		switch(Change)
+		{
+			case SiteChange.AddModerator :
+			{
+				var s = round.AffectSite(site);
+				s.Moderators = [..s.Moderators, Value as EntityId];
+				break;
+			}
+			case SiteChange.RemoveModerator	: 
+			{	
+				var s = round.AffectSite(site);
+				s.Moderators = s.Moderators.Remove(Value as EntityId);
+				break;
+			}
+		}
+	}
 }
 
-public enum DisputeFlags
+public enum DisputeFlags : byte
 {
 	Resolved	= 0b0001,
 	Referendum	= 0b0010,
