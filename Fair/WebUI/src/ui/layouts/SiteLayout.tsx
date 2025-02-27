@@ -15,7 +15,8 @@ export const SiteLayout = ({ children }: PropsWithChildren) => {
     <div className="min-h-screen w-full">
       <div className="flex w-full items-center justify-between gap-16 bg-gray-400">
         <h1>
-          <Link to="/">🏡 ALL SITES</Link>
+          <Link to="/">📃 ALL SITES</Link>
+          <Link to={`/${siteId}`}>🏡 CURRENT SITE</Link>
         </h1>
         <div className="flex gap-5">
           <h1>

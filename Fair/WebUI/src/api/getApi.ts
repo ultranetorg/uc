@@ -13,7 +13,11 @@ const getPublication = (publicationId: string): Promise<Publication> =>
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
 
-const getSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites`).then(res => res.json())
+const getSites = async (page?: number, pageSize?: number, name?: string): Promise<PaginationResponse<SiteBase>> => {
+  const params = getUrlParams(name, page, pageSize)
+  const res = await fetch(`${BASE_URL}/sites` + (params.size > 0 ? `?${params.toString()}` : ""))
+  return await toPaginationResponse(res)
+}
 
 const getSiteAuthor = (siteId: string, authorId: string): Promise<SiteAuthor> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}`).then(res => res.json())

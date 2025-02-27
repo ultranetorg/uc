@@ -20,6 +20,7 @@ public class DisputeModel
 		Id = dispute.Id.ToString();
 		SiteId = dispute.Site.ToString();
 		Flags = dispute.Flags;
+		Proposal = new ProposalModel(dispute.Proposal);
 		Expirtaion = dispute.Expirtaion.Days;
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -10,9 +11,10 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
-	public IEnumerable<SiteBaseModel> ListAll()
+
+	public TotalItemsResult<SiteBaseModel> SearchNonOptimized([NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.ListAll)} method called");
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Name}}", page, pageSize, name);
 
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
@@ -20,7 +22,27 @@ public class SitesService
 			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
 		}
 
-		return sites.Select(x => new SiteBaseModel(x));
+		int totalItems = 0;
+		LinkedList<Site> list = new LinkedList<Site>();
+		foreach (Site site in sites)
+		{
+			if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(site.Title) && name.IndexOf(site.Title, StringComparison.OrdinalIgnoreCase) == -1)
+			{
+				continue;
+			}
+
+			++totalItems;
+			list.AddLast(site);
+		}
+
+		IEnumerable<Site> result = list.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
+
+		return new TotalItemsResult<SiteBaseModel>
+		{
+			Items = items,
+			TotalItems = totalItems,
+		};
 	}
 
 	public SiteModel Find(string siteId)
@@ -169,6 +191,51 @@ public class SitesService
 
 			var resultItem = new PublicationBaseModel(publicationId, product);
 			result.AddLast(resultItem);
+		}
+	}
+
+	public TotalItemsResult<DisputeModel> FindDisputesNonOptimized(string siteId, int page, int pageSize)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.FindDisputesNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NegativeOrZero(pageSize);
+		Guard.Against.Negative(page);
+
+		EntityId id = EntityId.Parse(siteId);
+		Site site = null;
+		lock (mcv.Lock)
+		{
+			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			if (site == null)
+			{
+				return null;
+			}
+		}
+
+		if (site.Disputes.Length == 0)
+		{
+			return TotalItemsResult<DisputeModel>.Empty;
+		}
+
+
+		return new TotalItemsResult<DisputeModel>
+		{
+
+		};
+	}
+
+	private IEnumerable<DisputeModel> LoadDisputes(EntityId[] disputesIds)
+	{
+		lock (mcv.Lock)
+		{
+			return disputesIds.Select(id =>
+			{
+				Dispute dispute = mcv.Disputes.Find(id, mcv.LastConfirmedRound.Id);
+				return new DisputeModel(dispute)
+				{
+				};
+			}).ToArray();
 		}
 	}
 
