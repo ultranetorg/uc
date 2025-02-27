@@ -4,6 +4,11 @@
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65537-0
 
+### GET Sites
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites
+Accept: application/json
+
 ### GET Site
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0

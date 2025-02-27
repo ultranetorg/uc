@@ -10,6 +10,19 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
+	public IEnumerable<SiteBaseModel> ListAll()
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.ListAll)} method called");
+
+		IEnumerable<Site> sites = null;
+		lock (mcv.Lock)
+		{
+			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
+		}
+
+		return sites.Select(x => new SiteBaseModel(x));
+	}
+
 	public SiteModel Find(string siteId)
 	{
 		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.Find)} method called with {{SiteId}}", siteId);
@@ -28,14 +41,28 @@ public class SitesService
 			}
 		}
 
+		IEnumerable<AuthorBaseModel> authors = site.Authors.Length > 0 ? LoadAuthors(site.Authors) : null;
 		IEnumerable<AccountModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : null;
 		IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : null;
 
 		return new SiteModel(site)
 		{
+			Authors = authors,
 			Moderators = moderators,
 			Categories = categories,
 		};
+	}
+
+	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
+	{
+		lock (mcv.Lock)
+		{
+			return authorsIds.Select(id =>
+			{
+				Author account = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
+				return new AuthorBaseModel(account);
+			}).ToArray();
+		}
 	}
 
 	private IEnumerable<AccountModel> LoadModerators(EntityId[] moderatorsIds)
@@ -93,7 +120,6 @@ public class SitesService
 
 		return new SiteAuthorModel(author)
 		{
-			OwnerIds = author.Owners.Select(i => i.ToString()).ToArray(),
 			Publications = publication,
 		};
 	}

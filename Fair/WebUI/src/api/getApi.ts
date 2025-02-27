@@ -1,4 +1,4 @@
-import { Category, PaginationResponse, Publication, Site, SiteAuthor, SitePublication, User } from "types"
+import { Category, PaginationResponse, Publication, Site, SiteAuthor, SiteBase, SitePublication, User } from "types"
 
 import { Api } from "./Api"
 import { toPaginationResponse } from "./utils"
@@ -12,6 +12,8 @@ const getPublication = (publicationId: string): Promise<Publication> =>
   fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
+
+const getSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites`).then(res => res.json())
 
 const getSiteAuthor = (siteId: string, authorId: string): Promise<SiteAuthor> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}`).then(res => res.json())
@@ -49,6 +51,7 @@ const api: Api = {
   getCategory,
   getPublication,
   getSite,
+  getSites,
   getSiteAuthor,
   getUser,
   searchPublications,

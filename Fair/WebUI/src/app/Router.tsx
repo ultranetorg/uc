@@ -1,7 +1,16 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
-import { BaseLayout } from "ui/layouts"
-import { AuthorPage, CategoryPage, ErrorPage, IndexPage, PublicationPage, PublicationsPage, UserPage } from "ui/pages"
+import { BaseLayout, SiteLayout } from "ui/layouts"
+import {
+  AuthorPage,
+  CategoryPage,
+  ErrorPage,
+  PublicationPage,
+  PublicationsPage,
+  SitePage,
+  SitesPage,
+  UserPage,
+} from "ui/pages"
 
 export const Router = () => (
   <BrowserRouter>
@@ -15,15 +24,16 @@ export const Router = () => (
           </BaseLayout>
         }
       >
-        <Route index element={<IndexPage />} />
+        <Route index element={<SitesPage />} />
 
-        <Route path="/a/:authorId" element={<AuthorPage />} />
-
-        <Route path="/c/:categoryId" element={<CategoryPage />} />
-
-        <Route path="/p">
-          <Route index element={<PublicationsPage />} />
-          <Route path=":publicationId" element={<PublicationPage />} />
+        <Route path="/:siteId" element={<SiteLayout />}>
+          <Route index element={<SitePage />} />
+          <Route path="/:siteId/a/:authorId" element={<AuthorPage />} />
+          <Route path="/:siteId/c/:categoryId" element={<CategoryPage />} />
+          <Route path="/:siteId/p">
+            <Route index element={<PublicationsPage />} />
+            <Route path=":publicationId" element={<PublicationPage />} />
+          </Route>
         </Route>
 
         <Route path="/u" element={<UserPage />} />

@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ardalis.GuardClauses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,17 +17,30 @@ public static class ConfigureCorsPolicy
 		var allowedOrigins = configurationManager.Get<AllowedOriginsConfiguration>();
 		if (allowedOrigins != null && allowedOrigins.AllowedOrigins?.Length > 0)
 		{
+			services.AddCorsPolicy(allowedOrigins.AllowedOrigins);
+		}
+
+		return services;
+	}
+
+	public static IServiceCollection AddCorsPolicy(this IServiceCollection services, [NotEmpty] string[] allowedOrigins)
+	{
+		Guard.Against.Null(services);
+		Guard.Against.Empty(allowedOrigins);
+
+		if (allowedOrigins != null)
+		{
 			services.AddCors(options =>
 			{
 				options.AddDefaultPolicy(policy =>
 				{
-					if (allowedOrigins.AllowedOrigins.Contains(AllowAnyOrigin))
+					if (allowedOrigins.Contains(AllowAnyOrigin))
 					{
 						policy.AllowAnyOrigin();
 					}
 					else
 					{
-						policy.WithOrigins(allowedOrigins.AllowedOrigins);
+						policy.WithOrigins(allowedOrigins);
 					}
 				});
 			});

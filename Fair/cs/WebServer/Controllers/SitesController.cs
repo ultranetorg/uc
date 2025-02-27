@@ -11,6 +11,14 @@ public class SitesController
 	ISitesService sitesService
 ) : BaseController
 {
+	[HttpGet]
+	public IEnumerable<SiteBaseModel> Get()
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called");
+
+		return sitesService.ListAll();
+	}
+
 	[HttpGet("{siteId}")]
 	public SiteModel Get(string siteId)
 	{

@@ -6,7 +6,7 @@ public class UserModel
 
 	public IEnumerable<UserSiteModel> Sites { get; set; }
 
-	public IEnumerable<AuthorBaseModel> Authors { get; set; }
+	public IEnumerable<UserAuthorModel> Authors { get; set; }
 
 	public IEnumerable<UserPublicationModel> Publications { get; set; }
 	public IEnumerable<UserProductModel> Products { get; set; }

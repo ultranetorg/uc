@@ -5,6 +5,8 @@ namespace Uccs.Fair;
 
 public interface ISitesService
 {
+	IEnumerable<SiteBaseModel> ListAll();
+
 	SiteModel Find([NotEmpty] string siteId);
 
 	SiteAuthorModel FindAuthorNonOptimized([NotEmpty] string siteId, [NotEmpty] string authorId);

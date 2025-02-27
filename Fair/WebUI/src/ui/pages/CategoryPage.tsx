@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom"
 import { useGetCategory } from "entities"
 
 export const CategoryPage = () => {
-  const { categoryId } = useParams()
+  const { siteId, categoryId } = useParams()
   const { data: category, isPending } = useGetCategory(categoryId)
 
   if (isPending || !category) {
@@ -18,7 +18,8 @@ export const CategoryPage = () => {
       <span>TITLE: {category.title}</span>
       <span>SITE ID: {category.siteId}</span>
       <span>
-        PARENT ID: {category.parentId ? <Link to={`/c/${category.parentId}`}>{category.parentTitle}</Link> : ""}
+        PARENT ID:{" "}
+        {category.parentId ? <Link to={`/${siteId}/c/${category.parentId}`}>{category.parentTitle}</Link> : ""}
       </span>
       <span>PARENT TITLE: {category.parentTitle}</span>
 
@@ -28,7 +29,7 @@ export const CategoryPage = () => {
           <ul>
             {category.categories.map(c => (
               <ol key={c.id}>
-                <Link to={`/c/${c.id}`}>{c.title}</Link>
+                <Link to={`/${siteId}/c/${c.id}`}>{c.title}</Link>
               </ol>
             ))}
           </ul>
@@ -43,7 +44,7 @@ export const CategoryPage = () => {
           <ul>
             {category.publications.map(p => (
               <li key={p.id}>
-                <Link to={`/p/${p.id}`}>{p.productTitle || p.id}</Link>
+                <Link to={`/${siteId}/p/${p.id}`}>{p.productTitle || p.id}</Link>
               </li>
             ))}
           </ul>
