@@ -33,7 +33,8 @@ namespace Uccs.Fair;
 public class Proposal : IBinarySerializable, IEquatable<Proposal>
 {
 	public SiteChange	Change { get; set; }
-	public object		Value { get; set; }
+	public object		First { get; set; }
+	public object		Second { get; set; }
 	public string		Text { get; set; }
 
 	public static bool	operator == (Proposal left, Proposal right) => left.Equals(right);
@@ -46,12 +47,12 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 
 	public bool Equals(Proposal other)
 	{
-		return other is not null && Change == other.Change && Value.Equals(other.Value);
+		return other is not null && Change == other.Change && First.Equals(other.First);
 	}
 
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(Change, Value);
+		return HashCode.Combine(Change, First);
 	}
 	
 	public void Read(BinaryReader reader)
@@ -59,13 +60,17 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 		Text	= reader.ReadString();
 		Change	= reader.ReadEnum<SiteChange>();
 
-		Value = Change switch
-					   {
-							SiteChange.AddModerator		=> reader.Read<EntityId>(),
-							SiteChange.RemoveModerator	=> reader.Read<EntityId>(),
-							_							=> throw new IntegrityException()
-					   };
-		
+		switch(Change)
+		{
+			case SiteChange.ReorganizeModerators :
+				First = reader.ReadArray<EntityId>();
+				Second = reader.ReadArray<EntityId>();
+				break;
+
+			case SiteChange.ModerationPermissions :
+				First = reader.ReadEnum<ModerationPermissions>();
+				break;
+		}
 	}
 
 	public void Write(BinaryWriter writer)
@@ -75,9 +80,14 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 
 		switch(Change)
 		{
-			case SiteChange.AddModerator	: writer.Write(Value as EntityId); break;
-			case SiteChange.RemoveModerator	: writer.Write(Value as EntityId); break;
-			default							: throw new IntegrityException();
+			case SiteChange.ReorganizeModerators :
+				writer.Write(First as EntityId[]);
+				writer.Write(Second as EntityId[]);
+				break;
+
+			case SiteChange.ModerationPermissions :
+				writer.WriteEnum((ModerationPermissions)First);
+				break;
 		}
 	}
 
@@ -85,16 +95,21 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 	{
 		switch(Change)
 		{
-			case SiteChange.AddModerator :
+			case SiteChange.ModerationPermissions : 
 			{
 				var s = round.AffectSite(site);
-				s.Moderators = [..s.Moderators, Value as EntityId];
+				s.ModerationPermissions = (ModerationPermissions)First;
 				break;
 			}
-			case SiteChange.RemoveModerator	: 
+
+			case SiteChange.ReorganizeModerators : 
 			{	
 				var s = round.AffectSite(site);
-				s.Moderators = s.Moderators.Remove(Value as EntityId);
+				s.Moderators = [..s.Moderators, ..First as EntityId[]];
+
+				foreach(var i in Second as EntityId[])
+					s.Moderators = s.Moderators.Remove(i);
+	
 				break;
 			}
 		}

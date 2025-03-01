@@ -14,40 +14,51 @@ public enum ProductProperty : byte
 	None,
 }
 
-public class ProductFieldVersionId  : IBinarySerializable
+public class ProductFieldVersionReference  : IBinarySerializable
 {
 	public string		Name { get; set; }
-	public int			Id { get; set; }
+	public int			Version { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
 		Name = reader.ReadString();
-		Id = reader.Read7BitEncodedInt();
+		Version = reader.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Name);
-		writer.Write7BitEncodedInt(Id);
+		writer.Write7BitEncodedInt(Version);
 	}
 }
 
 public class ProductFieldVersion : IBinarySerializable
 {
-	public int			Id { get; set; }
+	public int			Version { get; set; }
 	public byte[]		Value { get; set; }
 	public int			Refs { get; set; }
 
+	public ProductFieldVersion()
+	{
+	}
+
+	public ProductFieldVersion(int version, byte[] value, int refs)
+	{
+		Version = version;
+		Value = value;
+		Refs = refs;
+	}
+
 	public void Read(BinaryReader reader)
 	{
-		Id = reader.Read7BitEncodedInt();
+		Version = reader.Read7BitEncodedInt();
 		Value = reader.ReadBytes();
 		Refs = reader.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write7BitEncodedInt(Id);
+		writer.Write7BitEncodedInt(Version);
 		writer.WriteBytes(Value);
 		writer.Write7BitEncodedInt(Refs);
 	}
@@ -72,13 +83,13 @@ public class ProductField : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Name		= reader.ReadString();
+		Name		= reader.ReadUtf8();
 		Versions	= reader.ReadArray<ProductFieldVersion>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Name);
+		writer.WriteUtf8(Name);
 		writer.Write(Versions);
 	}
 }

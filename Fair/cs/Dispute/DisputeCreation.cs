@@ -41,6 +41,12 @@ public class DisputeCreation : FairOperation
 			return;
 		}
 
+		if(!Referendum && !s.ModerationPermissions.HasFlag(ModerationPermissions.ElectModerators))
+		{
+			Error = Denied;
+			return;
+		}
+
 		var d = round.CreateDispute(s);
 
 		d.Site = Site;

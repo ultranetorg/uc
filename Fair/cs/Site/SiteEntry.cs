@@ -16,18 +16,19 @@ public class SiteEntry : Site, ITableEntry
 
 	public SiteEntry Clone()
 	{
-		var a = new SiteEntry(Mcv){	Id					= Id,
-									Title				= Title,
-									ModerationReward	= ModerationReward,
+		var a = new SiteEntry(Mcv){	Id						= Id,
+									Title					= Title,
+									ModerationReward		= ModerationReward,
+									ModerationPermissions	= ModerationPermissions,
 
-									Expiration			= Expiration,
-									Space				= Space,
-									Spacetime			= Spacetime,
+									Expiration				= Expiration,
+									Space					= Space,
+									Spacetime				= Spacetime,
 
-									Authors				= Authors,
-									Moderators			= Moderators,
-									Categories			= Categories,
-									Disputes			= Disputes,
+									Authors					= Authors,
+									Moderators				= Moderators,
+									Categories				= Categories,
+									Disputes				= Disputes,
 									};
 		
 		((IEnergyHolder)this).Clone(a);

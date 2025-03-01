@@ -60,19 +60,22 @@ public class ProductUpdation : FairOperation
 
 		if(f == null)
 		{	
-			f = new ProductField {Name = Name, Versions = [new ProductFieldVersion {Value = Value}]};
+			f = new ProductField {Name = Name, Versions = [new ProductFieldVersion {Value = Value, Version = 0}]};
 			r.Fields = [..r.Fields, f];
 		}
 		else
 		{
+			f = new ProductField {Name = f.Name, Versions = f.Versions};
+			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
+
 			if(f.Versions.Last().Refs == 0)
 			{
 				Free(round, Signer, a, f.Versions.Last().Value.Length);
 
-				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Id = f.Versions.Last().Id}];
+				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Version = f.Versions.Last().Version}];
 			}
 			else
-				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Id = f.Versions.Length}];
+				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Version = f.Versions.Length}];
 		}
 
 		Allocate(round, Signer, a, Value.Length);
@@ -85,11 +88,11 @@ public class ProductUpdation : FairOperation
 
 			if(c == null)
 			{
-				p.Changes = [..p.Changes, new ProductFieldVersionId {Name = Name, Id = f.Versions.Last().Id}];
+				p.Changes = [..p.Changes, new ProductFieldVersionReference {Name = Name, Version = f.Versions.Last().Version}];
 			} 
 			else
 			{
-				p.Changes = [..p.Changes.Where(i => i != c), new ProductFieldVersionId {Name = Name, Id = f.Versions.Last().Id}];
+				p.Changes = [..p.Changes.Where(i => i != c), new ProductFieldVersionReference {Name = Name, Version = f.Versions.Last().Version}];
 			}
 		}
 

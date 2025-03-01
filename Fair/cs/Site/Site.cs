@@ -30,6 +30,12 @@ namespace Uccs.Fair;
 // 	}
 // }
 
+public enum ModerationPermissions : byte
+{
+	None,
+	ElectModerators	= 0b_0000_0001
+}
+
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
@@ -37,6 +43,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public EntityId					Id { get; set; }
 	public string					Title { get; set; }
 	public int						ModerationReward { get; set; }
+	public ModerationPermissions	ModerationPermissions { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -73,18 +80,19 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public void Read(BinaryReader reader)
 	{
-		Id					= reader.Read<EntityId>();
-		Title				= reader.ReadUtf8();
-		ModerationReward	= reader.Read7BitEncodedInt();
+		Id						= reader.Read<EntityId>();
+		Title					= reader.ReadUtf8();
+		ModerationReward		= reader.Read7BitEncodedInt();
+		ModerationPermissions	= reader.ReadEnum<ModerationPermissions>();
 
-		Expiration			= reader.ReadInt16();
-		Space				= reader.Read7BitEncodedInt64();
-		Spacetime			= reader.Read7BitEncodedInt64();
+		Expiration				= reader.ReadInt16();
+		Space					= reader.Read7BitEncodedInt64();
+		Spacetime				= reader.Read7BitEncodedInt64();
 
-		Authors				= reader.ReadArray<EntityId>();
-		Moderators			= reader.ReadArray<EntityId>();
-		Categories			= reader.ReadArray<EntityId>();
-		Disputes			= reader.ReadArray<EntityId>();
+		Authors					= reader.ReadArray<EntityId>();
+		Moderators				= reader.ReadArray<EntityId>();
+		Categories				= reader.ReadArray<EntityId>();
+		Disputes				= reader.ReadArray<EntityId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -92,8 +100,9 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(Title);
+		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
+		writer.WriteEnum(ModerationPermissions);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);

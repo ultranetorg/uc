@@ -466,17 +466,17 @@ public abstract class Mcv /// Mutual chain voting
 
 		foreach(var t in Tables)
 		{
-			var f = Path.Join(Databasepath, t.GetType().Name);
+			var f = Path.Join(Databasepath, t.GetType().Name + ".table");
 			File.Delete(f);
 
 			foreach(var i in t.Clusters.OrderBy(i => i.Id))
 			{	
 				foreach(var b in i.Buckets.OrderBy(i => i.Id))
 				{
-					File.AppendAllText(f + ".table", b.Id + " - " + b.Hash.ToHex() + " - " + b.Main.ToHex() + Environment.NewLine);
+					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Main.ToHex() + Environment.NewLine);
 					
 					foreach(var e in b.Entries.OrderBy(i => i.Id))
-						File.AppendAllText(f + ".table", JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);
+						File.AppendAllText(f, JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);
 				}
 			}
 		}
