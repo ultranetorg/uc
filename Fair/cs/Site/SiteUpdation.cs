@@ -2,7 +2,7 @@
 
 public enum SiteChange : byte
 {
-	None, Renew, ReorganizeModerators, ModerationPermissions
+	None, Renew, Moderators, ModeratorPermissions
 }
 
 public class SiteUpdation : UpdateOperation

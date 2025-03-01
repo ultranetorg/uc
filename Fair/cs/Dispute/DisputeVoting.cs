@@ -85,7 +85,7 @@ public class DisputeVoting : FairOperation
 			if(d.Cons.Length == s.Moderators.Length)
 			{
 				s = round.AffectSite(d.Site);
-				s.Disputes = s.Disputes?.Remove(d.Id);
+				s.Disputes = s.Disputes.Remove(d.Id);
 
 				d.Deleted = true;
 			}

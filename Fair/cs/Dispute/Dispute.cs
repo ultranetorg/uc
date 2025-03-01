@@ -57,17 +57,17 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 	
 	public void Read(BinaryReader reader)
 	{
-		Text	= reader.ReadString();
+		Text	= reader.ReadUtf8();
 		Change	= reader.ReadEnum<SiteChange>();
 
 		switch(Change)
 		{
-			case SiteChange.ReorganizeModerators :
+			case SiteChange.Moderators :
 				First = reader.ReadArray<EntityId>();
 				Second = reader.ReadArray<EntityId>();
 				break;
 
-			case SiteChange.ModerationPermissions :
+			case SiteChange.ModeratorPermissions :
 				First = reader.ReadEnum<ModerationPermissions>();
 				break;
 		}
@@ -75,17 +75,17 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Text);
+		writer.WriteUtf8(Text);
 		writer.WriteEnum(Change);
 
 		switch(Change)
 		{
-			case SiteChange.ReorganizeModerators :
+			case SiteChange.Moderators :
 				writer.Write(First as EntityId[]);
 				writer.Write(Second as EntityId[]);
 				break;
 
-			case SiteChange.ModerationPermissions :
+			case SiteChange.ModeratorPermissions :
 				writer.WriteEnum((ModerationPermissions)First);
 				break;
 		}
@@ -95,14 +95,14 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 	{
 		switch(Change)
 		{
-			case SiteChange.ModerationPermissions : 
+			case SiteChange.ModeratorPermissions : 
 			{
 				var s = round.AffectSite(site);
 				s.ModerationPermissions = (ModerationPermissions)First;
 				break;
 			}
 
-			case SiteChange.ReorganizeModerators : 
+			case SiteChange.Moderators : 
 			{	
 				var s = round.AffectSite(site);
 				s.Moderators = [..s.Moderators, ..First as EntityId[]];
