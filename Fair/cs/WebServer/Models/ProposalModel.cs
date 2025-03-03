@@ -4,11 +4,16 @@ public class ProposalModel
 {
 	public SiteChange Change { get; set; }
 
-	public object Value { get; set; }
+	public object First { get; set; }
+	public object Second { get; set; }
+
+	public string Text { get; set; }
 
 	public ProposalModel(Proposal proposal)
 	{
 		Change = proposal.Change;
-		Value = proposal.Value;
+		First = proposal.First;
+		Second = proposal.Second;
+		Text = proposal.Text;
 	}
 }

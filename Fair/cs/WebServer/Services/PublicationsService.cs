@@ -35,6 +35,7 @@ public class PublicationsService
 
 		return new PublicationModel(publication, product, author)
 		{
+			ProductFields = GetProductFields(publication, product),
 			Reviews = reviews
 		};
 	}
@@ -50,5 +51,15 @@ public class PublicationsService
 				return new ReviewModel(review, account);
 			}).ToArray(); ;
 		}
+	}
+
+	private IEnumerable<ProductFieldModel> GetProductFields(Publication publication, Product product)
+	{
+		return publication.Fields.Select(x => new ProductFieldModel
+		{
+			Name = x.Name,
+			Value = product.Fields.FirstOrDefault(field => field.Name == x.Name)?
+						   .Versions.FirstOrDefault(version => version.Version == x.Version)?.Value,
+		});
 	}
 }

@@ -259,7 +259,6 @@ public class SitesService
 			}
 		}
 
-		// TODO: optimize search.
 		SearchContext context = new SearchContext()
 		{
 			Page = page,
@@ -303,6 +302,11 @@ public class SitesService
 			lock (mcv.Lock)
 			{
 				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
+				if (publication.Status != PublicationStatus.Approved)
+				{
+					continue;
+				}
+
 				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 				author = mcv.Authors.Find(publication.Creator, mcv.LastConfirmedRound.Id);
 			}
