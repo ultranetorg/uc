@@ -4,17 +4,13 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetSite = (siteId?: string) => {
+export const useGetSites = () => {
   const queryFn = () => {
-    if (!siteId) {
-      return
-    }
-
-    return api.getSite(siteId)
+    return api.getSites()
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["sites", siteId],
+    queryKey: ["sites"],
     queryFn: queryFn,
   })
 

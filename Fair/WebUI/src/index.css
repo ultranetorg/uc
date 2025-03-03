@@ -49,6 +49,7 @@ body {
 
 /* New */
 html {
+  scrollbar-gutter: stable;
   height: 100%;
   width: 100%;
 }

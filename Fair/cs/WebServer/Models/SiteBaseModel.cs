@@ -9,4 +9,10 @@ public class SiteBaseModel
 
 	[JsonPropertyOrder(-1)]
 	public string Title { get; set; }
+
+	public SiteBaseModel(Site site)
+	{
+		Id = site.Id.ToString();
+		Title = site.Title;
+	}
 }

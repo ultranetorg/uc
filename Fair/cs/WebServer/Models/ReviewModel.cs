@@ -5,6 +5,7 @@ public class ReviewModel
 	public string Id { get; set; }
 
 	public string Text { get; set; }
+	public string TextNew { get; set; }
 
 	public byte Rating { get; set; }
 
@@ -22,6 +23,7 @@ public class ReviewModel
 	{
 		Id = review.Id.ToString();
 		Text = review.Text;
+		TextNew = review.TextNew;
 		Rating = review.Rating;
 		Status = review.Status;
 		Created = review.Created.Days;

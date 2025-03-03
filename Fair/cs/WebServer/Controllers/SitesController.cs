@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -11,6 +12,21 @@ public class SitesController
 	ISitesService sitesService
 ) : BaseController
 {
+	[HttpGet]
+	public IEnumerable<SiteBaseModel> Search([FromQuery] PaginationRequest pagination, [FromQuery] string name)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called with {{Pagination}}, {{Name}}", pagination, name);
+
+		// TODO: validate search string: name
+		paginationValidator.Validate(pagination);
+
+		int page = pagination?.Page ?? 0;
+		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
+		TotalItemsResult<SiteBaseModel> sites = sitesService.SearchNonOptimized(page, pageSize, name);
+
+		return this.OkPaged(sites.Items, page, pageSize, sites.TotalItems);
+	}
+
 	[HttpGet("{siteId}")]
 	public SiteModel Get(string siteId)
 	{
@@ -44,10 +60,29 @@ public class SitesController
 		return siteAuthor;
 	}
 
-	[HttpGet("{siteId}/publications")]
-	public IEnumerable<SitePublicationModel> Search(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string name)
+	[HttpGet("{siteId}/disputes")]
+	public IEnumerable<DisputeModel> GetDisputes(string siteId, [FromQuery] PaginationRequest pagination)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Search)} method called with {{SiteId}}, {{Pagination}}, {{Name}}", siteId, pagination, name);
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetDisputes)} method called with {{SiteId}}, {{Pagination}}", siteId, pagination);
+
+		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		int page = pagination?.Page ?? 0;
+		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
+		TotalItemsResult<DisputeModel> disputes = sitesService.FindDisputesNonOptimized(siteId, page, pageSize);
+		if (disputes == null)
+		{
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+		}
+
+		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
+	}
+
+	[HttpGet("{siteId}/publications")]
+	public IEnumerable<SitePublicationModel> SearchPublications(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string name)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.SearchPublications)} method called with {{SiteId}}, {{Pagination}}, {{Name}}", siteId, pagination, name);
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		// TODO: validate search string: name
@@ -56,6 +91,10 @@ public class SitesController
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
 		TotalItemsResult<SitePublicationModel> products = sitesService.SearchPublicationsNonOptimized(siteId, page, pageSize, name);
+		if (products == null)
+		{
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+		}
 
 		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
 	}

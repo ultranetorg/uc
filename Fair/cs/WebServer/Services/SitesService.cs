@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -10,6 +11,40 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
+
+	public TotalItemsResult<SiteBaseModel> SearchNonOptimized([NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Name}}", page, pageSize, name);
+
+		IEnumerable<Site> sites = null;
+		lock (mcv.Lock)
+		{
+			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
+		}
+
+		int totalItems = 0;
+		LinkedList<Site> list = new LinkedList<Site>();
+		foreach (Site site in sites)
+		{
+			if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(site.Title) && name.IndexOf(site.Title, StringComparison.OrdinalIgnoreCase) == -1)
+			{
+				continue;
+			}
+
+			++totalItems;
+			list.AddLast(site);
+		}
+
+		IEnumerable<Site> result = list.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
+
+		return new TotalItemsResult<SiteBaseModel>
+		{
+			Items = items,
+			TotalItems = totalItems,
+		};
+	}
+
 	public SiteModel Find(string siteId)
 	{
 		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.Find)} method called with {{SiteId}}", siteId);
@@ -28,14 +63,28 @@ public class SitesService
 			}
 		}
 
+		IEnumerable<AuthorBaseModel> authors = site.Authors.Length > 0 ? LoadAuthors(site.Authors) : null;
 		IEnumerable<AccountModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : null;
 		IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : null;
 
 		return new SiteModel(site)
 		{
+			Authors = authors,
 			Moderators = moderators,
 			Categories = categories,
 		};
+	}
+
+	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
+	{
+		lock (mcv.Lock)
+		{
+			return authorsIds.Select(id =>
+			{
+				Author account = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
+				return new AuthorBaseModel(account);
+			}).ToArray();
+		}
 	}
 
 	private IEnumerable<AccountModel> LoadModerators(EntityId[] moderatorsIds)
@@ -93,7 +142,6 @@ public class SitesService
 
 		return new SiteAuthorModel(author)
 		{
-			OwnerIds = author.Owners.Select(i => i.ToString()).ToArray(),
 			Publications = publication,
 		};
 	}
@@ -146,6 +194,51 @@ public class SitesService
 		}
 	}
 
+	public TotalItemsResult<DisputeModel> FindDisputesNonOptimized(string siteId, int page, int pageSize)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.FindDisputesNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NegativeOrZero(pageSize);
+		Guard.Against.Negative(page);
+
+		EntityId id = EntityId.Parse(siteId);
+		Site site = null;
+		lock (mcv.Lock)
+		{
+			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			if (site == null)
+			{
+				return null;
+			}
+		}
+
+		if (site.Disputes.Length == 0)
+		{
+			return TotalItemsResult<DisputeModel>.Empty;
+		}
+
+
+		return new TotalItemsResult<DisputeModel>
+		{
+
+		};
+	}
+
+	private IEnumerable<DisputeModel> LoadDisputes(EntityId[] disputesIds)
+	{
+		lock (mcv.Lock)
+		{
+			return disputesIds.Select(id =>
+			{
+				Dispute dispute = mcv.Disputes.Find(id, mcv.LastConfirmedRound.Id);
+				return new DisputeModel(dispute)
+				{
+				};
+			}).ToArray();
+		}
+	}
+
 	public TotalItemsResult<SitePublicationModel> SearchPublicationsNonOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name)
 	{
 		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchPublicationsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Name}}", siteId, page, pageSize, name);
@@ -166,7 +259,6 @@ public class SitesService
 			}
 		}
 
-		// TODO: optimize search.
 		SearchContext context = new SearchContext()
 		{
 			Page = page,
@@ -210,6 +302,11 @@ public class SitesService
 			lock (mcv.Lock)
 			{
 				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
+				if (publication.Status != PublicationStatus.Approved)
+				{
+					continue;
+				}
+
 				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 				author = mcv.Authors.Find(publication.Creator, mcv.LastConfirmedRound.Id);
 			}

@@ -27,11 +27,11 @@ export const PublicationPage = () => {
           <span>PRODUCT ID: {publication.productId}</span>
           <span>PRODUCT TITLE: {publication.productTitle}</span>
 
-          <span>SECTIONS: {JSON.stringify(publication.sections)}</span>
-          <span>STATUS: {JSON.stringify(publication.status)}</span>
           <span>CATEGORY ID: {publication.categoryId}</span>
           <span>CREATOR ID: {publication.creatorId}</span>
-          <span>PRODUCT FIELDS: {JSON.stringify(publication.productFields)}</span>
+          <span>
+            PRODUCT FIELDS: {JSON.stringify(publication.productFields.map(f => ({ ...f, value: atob(f.value) })))}
+          </span>
           <span>PRODUCT UPDATED: {publication.productUpdated}</span>
           <span>
             AUTHOR ID: <Link to={`/a/${publication.authorId}`}>{publication.authorId}</Link>

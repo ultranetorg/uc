@@ -1,12 +1,13 @@
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 
 import { useGetSite } from "entities"
 
-export const IndexPage = () => {
-  const { data: site, isPending } = useGetSite()
+export const SitePage = () => {
+  const { siteId } = useParams()
+  const { data: site, isPending } = useGetSite(siteId)
 
   if (isPending || !site) {
-    return <div>LOADING</div>
+    return <>LOADING</>
   }
 
   return (
@@ -31,7 +32,7 @@ export const IndexPage = () => {
           <ul>
             {site.categories.map(c => (
               <ol key={c.id}>
-                <Link to={`/c/${c.id}`}>{c.title}</Link>
+                <Link to={`/${siteId}/c/${c.id}`}>{c.title}</Link>
               </ol>
             ))}
           </ul>

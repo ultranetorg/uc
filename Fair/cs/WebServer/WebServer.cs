@@ -28,7 +28,9 @@ public class WebServer
 											// Add services to the container.
 											builder.Services.RegisterServices(node);
 
-											builder.Services.AddCorsPolicy(builder.Configuration);
+#if DEBUG
+											builder.Services.AddCorsPolicy(new[] { "http://localhost:5173" });
+#endif
 
 											builder.Services
 												.AddControllers(options =>

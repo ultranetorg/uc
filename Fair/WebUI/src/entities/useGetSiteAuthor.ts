@@ -2,21 +2,19 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
 
-const { VITE_APP_SITE_ID: SITE_ID } = import.meta.env
-
 const api = getApi()
 
-export const useGetSiteAuthor = (authorId?: string) => {
+export const useGetSiteAuthor = (siteId?: string, authorId?: string) => {
   const queryFn = () => {
-    if (!authorId) {
+    if (!siteId || !authorId) {
       return
     }
 
-    return api.getSiteAuthor(SITE_ID, authorId)
+    return api.getSiteAuthor(siteId, authorId)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["sites", SITE_ID, "authors", authorId],
+    queryKey: ["sites", siteId, "authors", authorId],
     queryFn: queryFn,
     enabled: !!authorId,
   })

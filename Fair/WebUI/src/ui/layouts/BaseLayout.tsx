@@ -3,18 +3,8 @@ import { Link, Outlet } from "react-router-dom"
 
 export const BaseLayout = ({ children }: PropsWithChildren) => (
   <div className="min-h-screen w-full p-12">
-    <div className="flex w-full items-center justify-between gap-16 bg-gray-400">
-      <h1>
-        <Link to="/">🏡 MY STORE</Link>
-      </h1>
-      <div className="flex gap-5">
-        <h1>
-          <Link to="/p">🔍 Search</Link>
-        </h1>
-        <h1>
-          <Link to="/u">👤</Link>
-        </h1>
-      </div>
+    <div className="absolute right-0 top-0 text-5xl">
+      <Link to="/">👤 user</Link>
     </div>
     <div className="flex-1">{children ?? <Outlet />}</div>
   </div>

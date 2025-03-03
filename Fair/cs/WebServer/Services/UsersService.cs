@@ -27,7 +27,7 @@ public class UsersService
 		}
 
 		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : null;
-		IEnumerable<AuthorBaseModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
+		IEnumerable<UserAuthorModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
 
 		IEnumerable<UserProductModel> products = null;
 		IEnumerable<UserPublicationModel> publications = null;
@@ -63,14 +63,14 @@ public class UsersService
 		}
 	}
 
-	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
+	private IEnumerable<UserAuthorModel> LoadAuthors(EntityId[] authorsIds)
 	{
 		lock (mcv.Lock)
 		{
 			return authorsIds.Select(id =>
 			{
 				Author author = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
-				return new AuthorBaseModel(author);
+				return new UserAuthorModel(author);
 			}).ToArray();
 		}
 	}
