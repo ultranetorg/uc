@@ -21,13 +21,13 @@ public class AuthorCreation : FairOperation
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
-		Title = reader.ReadString();
+		Title = reader.ReadUtf8();
 		Years = reader.ReadByte();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
-		writer.Write(Title);
+		writer.WriteUtf8(Title);
 		writer.Write(Years);
 	}
 

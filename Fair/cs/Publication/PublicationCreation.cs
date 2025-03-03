@@ -57,7 +57,6 @@ public class PublicationCreation : FairOperation
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedBySite;
 
-
 			Allocate(round, s, s, mcv.Net.EntityLength);
 
 			EnergySpenders.Add(s);

@@ -22,8 +22,8 @@ public class Publication : IBinarySerializable
 	public EntityId					Creator { get; set; }
 	public EntityId					Product { get; set; }
 	public PublicationStatus		Status { get; set; }
-	public ProductFieldVersionId[]	Fields { get; set; }
-	public ProductFieldVersionId[]	Changes { get; set; }
+	public ProductFieldVersionReference[]	Fields { get; set; }
+	public ProductFieldVersionReference[]	Changes { get; set; }
 	public EntityId[]				Reviews { get; set; }
 	public EntityId[]				ReviewChanges { get; set; }
 	public PublicationFlags			Flags { get; set; }
@@ -35,8 +35,8 @@ public class Publication : IBinarySerializable
 		Creator			= reader.Read<EntityId>();
 		Product			= reader.Read<EntityId>();
 		Status			= reader.ReadEnum<PublicationStatus>();
-		Fields			= reader.ReadArray<ProductFieldVersionId>();
-		Changes			= reader.ReadArray<ProductFieldVersionId>();
+		Fields			= reader.ReadArray<ProductFieldVersionReference>();
+		Changes			= reader.ReadArray<ProductFieldVersionReference>();
 		Reviews			= reader.ReadArray<EntityId>();
 		ReviewChanges	= reader.ReadArray<EntityId>();
 		Flags			= reader.ReadEnum<PublicationFlags>();

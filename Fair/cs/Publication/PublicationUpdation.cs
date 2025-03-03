@@ -30,8 +30,8 @@ public class PublicationUpdation : UpdateOperation
 					   {
 							PublicationChange.Status		=> reader.ReadEnum<PublicationStatus>(),
 							PublicationChange.Product		=> reader.Read<EntityId>(),
-							PublicationChange.ApproveChange	=> reader.Read<ProductFieldVersionId>(),
-							PublicationChange.RejectChange	=> reader.Read<ProductFieldVersionId>(),
+							PublicationChange.ApproveChange	=> reader.Read<ProductFieldVersionReference>(),
+							PublicationChange.RejectChange	=> reader.Read<ProductFieldVersionReference>(),
 							_ => throw new IntegrityException()
 					   };
 	}
@@ -45,8 +45,8 @@ public class PublicationUpdation : UpdateOperation
 		{
 			case PublicationChange.Status		 : writer.WriteEnum((PublicationStatus)Value); break;
 			case PublicationChange.Product		 : writer.Write(EntityId); break;
-			case PublicationChange.ApproveChange : writer.Write(Value as ProductFieldVersionId); break;
-			case PublicationChange.RejectChange	 : writer.Write(Value as ProductFieldVersionId); break;
+			case PublicationChange.ApproveChange : writer.Write(Value as ProductFieldVersionReference); break;
+			case PublicationChange.RejectChange	 : writer.Write(Value as ProductFieldVersionReference); break;
 			default : throw new IntegrityException();
 		}
 	}
@@ -96,10 +96,12 @@ public class PublicationUpdation : UpdateOperation
 
 			case PublicationChange.ApproveChange:
 			{
-				var v = Value as ProductFieldVersionId;
+				var v = Value as ProductFieldVersionReference;
 				var r = round.AffectProduct(p.Product);
 
-				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Id == v.Id);
+				var f = r.Fields.First(i => i.Name == v.Name);
+
+				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Version == v.Version);
 
 				if(c == null)
 				{
@@ -108,36 +110,36 @@ public class PublicationUpdation : UpdateOperation
 				}
 				
 				p.Changes = [..p.Changes.Where(i => i != c)];
-
-				var rf = r.Fields.First(i => i.Name == v.Name);
-				
-				if(rf != null)
+								
+				if(f != null)
 				{
-					var pf = p.Fields.FirstOrDefault(i => i.Name == v.Name);
+					var prev = p.Fields.FirstOrDefault(i => i.Name == v.Name);
 	
-					if(pf == null)
+					if(prev == null)	/// new field
 						p.Fields = [..p.Fields, v];
-					else
+					else			/// replace version
 						p.Fields = [..p.Fields.Where(i => i.Name != v.Name), v];
 		
-					if(pf != null)
+					if(prev != null) /// if previously used then decrease refs in product
 					{
-						var x = rf.Versions.First(i => i.Id == pf.Id);
+						var x = f.Versions.First(i => i.Version == prev.Version);
 	
-						rf = new ProductField {Name = rf.Name, 
-											   Versions = [..rf.Versions.Where(i => i.Id != x.Id), new ProductFieldVersion {Id = x.Id, Value = x.Value, Refs = x.Refs - 1}]};
+						f = new ProductField {Name = f.Name, 
+											  Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
 		
-						r.Fields = [..r.Fields.Where(i => i.Name != rf.Name), rf];
+						r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 					}
 	
-					var y = rf.Versions.First(i => i.Id == v.Id);
+					/// increase refs in product
+					
+					var y = f.Versions.First(i => i.Version == v.Version);
 	
-					rf = new ProductField {Name = rf.Name, 
-										  Versions = [..rf.Versions.Where(i => i.Id != y.Id), new ProductFieldVersion {Id = y.Id, Value = y.Value, Refs = y.Refs + 1}]};
+					f = new ProductField {Name = f.Name, 
+										  Versions = [..f.Versions.Where(i => i.Version != y.Version), new ProductFieldVersion(y.Version, y.Value, y.Refs + 1)]};
 	
-					r.Fields = [..r.Fields.Where(i => i.Name != v.Name), rf];
+					r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 				} 
-				else
+				else /// a field is deleted from product
 				{
 					p.Fields = [..p.Fields.Where(i => i.Name != v.Name)];
 				}
@@ -151,9 +153,9 @@ public class PublicationUpdation : UpdateOperation
 
 			case PublicationChange.RejectChange:
 			{	
-				var v = Value as ProductFieldVersionId;
+				var v = Value as ProductFieldVersionReference;
 
-				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Id == v.Id);
+				var c = p.Changes.FirstOrDefault(i => i.Name == v.Name && i.Version == v.Version);
 
 				if(c == null)
 				{

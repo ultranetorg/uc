@@ -76,12 +76,12 @@ public class PublicationCommand : FairCommand
 								else if(One(approve)?.Value is string av)
 								{
 									o.Change = PublicationChange.ApproveChange;
-									o.Value = new ProductFieldVersionId {Name = av, Id = GetInt("id")};
+									o.Value = new ProductFieldVersionReference {Name = av, Version = GetInt("id")};
 								}
 								else if(One(reject)?.Value is string rv)
 								{
 									o.Change = PublicationChange.RejectChange;
-									o.Value = new ProductFieldVersionId {Name = rv, Id = GetInt("id")};
+									o.Value = new ProductFieldVersionReference {Name = rv, Version = GetInt("id")};
 								}
 								else
 									throw new SyntaxException("Unknown arguments");

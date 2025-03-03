@@ -257,14 +257,14 @@ public class FairRound : Round
 		return AffectedReviews[id] = e.Clone();
 	}
 
-	public DisputeEntry CreateDispute(AccountEntry signer)
+	public DisputeEntry CreateDispute(SiteEntry site)
 	{
-		var b = Mcv.Accounts.KeyToBid(signer.Address);
-		
-		int e = GetNextEid(Mcv.Disputes, b);
+		int e = GetNextEid(Mcv.Disputes, site.Id.B);
 
 		var a = Mcv.Disputes.Create();
-		a.Id = new EntityId(b, e);
+		a.Id = new EntityId(site.Id.B, e);
+		a.Pros = [];
+		a.Cons = [];
 
 		return AffectedDisputes[a.Id] = a;
 	}

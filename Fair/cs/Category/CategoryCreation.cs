@@ -13,14 +13,14 @@ public class CategoryCreation : FairOperation
 	{
 		Site = reader.ReadNullable<EntityId>();
 		Parent = reader.ReadNullable<EntityId>();
-		Title = reader.ReadString();
+		Title = reader.ReadUtf8();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.WriteNullable(Site);
 		writer.WriteNullable(Parent);
-		writer.Write(Title);
+		writer.WriteUtf8(Title);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)

@@ -291,29 +291,33 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						}
 					}
 	
-					foreach(var i in Mcv.Tables)
+					while(Flow.Active)
 					{
-						download(i);
-					}
-	
-					var r = Mcv.CreateRound();
-					r.Confirmed = true;
-					r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
-	
-					var s = Call(peer, new StampRequest());
-
-					lock(Mcv.Lock)
-					{
-						Mcv.BaseState = stamp.BaseState;
-						Mcv.LastConfirmedRound = r;
-						Mcv.LastCommittedRound = r;
+						foreach(var i in Mcv.Tables)
+						{
+							download(i);
+						}
 		
-						Mcv.Hashify();
+						var r = Mcv.CreateRound();
+						r.Confirmed = true;
+						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
-						if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
- 							Mcv.LoadedRounds[r.Id] = r;
-						else
-							throw new SynchronizationException("BaseHash mismatch");
+						var s = Call(peer, new StampRequest());
+	
+						lock(Mcv.Lock)
+						{
+							Mcv.BaseState = stamp.BaseState;
+							Mcv.LastConfirmedRound = r;
+							Mcv.LastCommittedRound = r;
+			
+							Mcv.Hashify();
+			
+							if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
+	 						{	
+								Mcv.LoadedRounds[r.Id] = r;
+								break;
+							}
+						}
 					}
 				}
 	
@@ -1097,8 +1101,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
 
-		var p = new List<Transaction>();
-
 		var t = new Transaction();
 		t.Tag		= tag ?? Guid.NewGuid().ToByteArray();
 		t.Net		= Net;
@@ -1117,8 +1119,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
  
 		///Await(t, await, flow);
-
-		p.Add(t);
 
 		return t;
  	}

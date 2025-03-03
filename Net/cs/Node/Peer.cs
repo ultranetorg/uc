@@ -238,41 +238,28 @@ public class Peer : IPeer, IBinarySerializable
 			{
 				Peering.Statistics.Sending.Begin();
 
-				PeerRequest[] inrq;
+				var inrq = new PeerRequest[0];
 
 				lock(InRequests)
 				{
-					inrq = [..InRequests];
-					InRequests.Clear();
+					if(InRequests.Count > 0)
+					{
+						inrq = [..InRequests];
+						InRequests.Clear();
+					}
 				}
 						
 				foreach(var i in inrq)
 				{
-// 						if(i is ProxyRequest px)
-// 						{
-// 							Task.Run(() =>	{
-// 												var rp = i.SafeExecute(Sun);
-// 
-// 												if(i.WaitResponse)
-// 													lock(Outs)
-// 														Outs.Enqueue(rp);
-// 
-// 												SendSignal.Set();
-// 											});
-// 						}
-// 						else
+					if(i is FuncPeerRequest f)
 					{
-
-						if(i is FuncPeerRequest f)
-						{
-							var rp = f.SafeExecute();
+						var rp = f.SafeExecute();
 							
-							lock(Outs)
-								Outs.Enqueue(rp);
-						}
-						else
-							(i as ProcPeerRequest).SafeExecute();
+						lock(Outs)
+							Outs.Enqueue(rp);
 					}
+					else
+						(i as ProcPeerRequest).SafeExecute();
 				}
 
 				lock(Outs)

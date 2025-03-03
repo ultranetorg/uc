@@ -22,20 +22,24 @@ public enum FairOperationClass
 	Store							= 103,
 		ModeratorAddition			= 103_000_001,
 
-		Category					= 104_001,
-			CategoryCreation		= 104_001_001,
-			CategoryUpdation		= 104_001_002,
-			CategoryDeletion		= 104_001_003,
+		Category					= 103_001,
+			CategoryCreation		= 103_001_001,
+			CategoryUpdation		= 103_001_002,
+			CategoryDeletion		= 103_001_003,
 
-		Publication					= 105_002,
-			PublicationCreation		= 105_002_001,
-			PublicationUpdation		= 105_002_002,
-			PublicationDeletion		= 105_002_003,
+		Publication					= 103_002,
+			PublicationCreation		= 103_002_001,
+			PublicationUpdation		= 103_002_002,
+			PublicationDeletion		= 103_002_003,
 
-		Review						= 106_003,
-			ReviewCreation			= 106_003_001,
-			ReviewUpdation			= 106_003_002,
-			ReviewDeletion			= 106_003_003,
+		Review						= 103_003,
+			ReviewCreation			= 103_003_001,
+			ReviewUpdation			= 103_003_002,
+			ReviewDeletion			= 103_003_003,
+
+		Dispute						= 103_004,
+			DisputeCreation			= 103_004_001,
+			DisputeVoting			= 103_004_002,
 		
 } 
 

@@ -466,7 +466,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		foreach(var t in Tables)
 		{
-			var f = Path.Join(Databasepath, t.GetType().Name);
+			var f = Path.Join(Databasepath, t.GetType().Name + ".table");
 			File.Delete(f);
 
 			foreach(var i in t.Clusters.OrderBy(i => i.Id))
