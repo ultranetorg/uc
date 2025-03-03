@@ -243,7 +243,11 @@ public abstract class Round : IBinarySerializable
 		if(c == null)
 		{
 			c = AffectedCandidates[id] = Mcv.CreateGenerator();
+
 			Candidates.Add(c);
+		
+			if(Candidates.Count > Mcv.Net.CandidatesMaximum)
+				Candidates.RemoveAt(0);
 		}
 		else
 			throw new IntegrityException();
@@ -570,7 +574,7 @@ public abstract class Round : IBinarySerializable
 			Members.Remove(i);
 		}
 
-		foreach(var i in Candidates.OrderByHash(i => i.Address.Bytes, Hash).Take(Mcv.Net.MembersLimit - Members.Count).ToArray())
+		foreach(var i in Candidates.OrderByHash(i => i.Address.Bytes, Hash).TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
 			var c = AffectCandidate(i.Id);
 			

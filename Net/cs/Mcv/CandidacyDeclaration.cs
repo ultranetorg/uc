@@ -50,10 +50,5 @@ public class CandidacyDeclaration : Operation
 		Affected.Address	= Signer.Address;
 		Affected.BaseRdcIPs	= BaseRdcIPs;
 		Affected.Registered	= round.Id;
-		
-		if(round.Candidates.Count >= mcv.Net.CandidatesMaximum)
-		{
-			round.Candidates.RemoveAt(0);
-		}
 	}
 }
