@@ -2,7 +2,7 @@
 
 public class ProposalModel
 {
-	public SiteChange Change { get; set; }
+	public ProposalChange Change { get; set; }
 
 	public object First { get; set; }
 	public object Second { get; set; }

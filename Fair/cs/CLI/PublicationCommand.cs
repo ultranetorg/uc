@@ -4,8 +4,6 @@ namespace Uccs.Fair;
 
 public class PublicationCommand : FairCommand
 {
-	EntityId FirstEntityId => EntityId.Parse(Args[0].Name);
-
 	public PublicationCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		

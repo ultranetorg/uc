@@ -46,6 +46,7 @@ public enum FairOperationClass
 public abstract class FairOperation : Operation
 {
 	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
+	public const string				InvalidProposal = "Invalid proposal";
 
 	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
 

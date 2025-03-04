@@ -35,16 +35,41 @@ public class DisputeCreation : FairOperation
 		if(!RequireSite(round, Site, out var s))
 			return;
 
-		if(s.Disputes.Any(i => round.FindDispute(i).Proposal == Proposal))
+		if(!Proposal.Valid(s, round))
+		{
+			Error = InvalidProposal;
+			return;
+		}
+
+		if(s.Disputes.Any(i => round.FindDispute(i).Proposal.Overlaps(Proposal)))
 		{
 			Error = AlreadyExists;
 			return;
 		}
 
-		if(!Referendum && !s.ModerationPermissions.HasFlag(ModerationPermissions.ElectModerators))
+		if(Referendum)
 		{
-			Error = Denied;
-			return;
+			if(Proposal.Change == ProposalChange.Authors)
+			{
+				Error = Denied;
+				return;
+			}
+		}
+		else
+		{
+			if(Proposal.Change == ProposalChange.Moderators && !(s.ModeratorElectionPolicy == ElectionPolicy.AnyModerator ||
+																 s.ModeratorElectionPolicy == ElectionPolicy.ModeratorsMajority ||
+																 s.ModeratorElectionPolicy == ElectionPolicy.ModeratorsUnanimously))
+			{
+				Error = Denied;
+				return;
+			}
+	
+			if(Proposal.Change == ProposalChange.ModeratorElectionPolicy)
+			{
+				Error = Denied;
+				return;
+			}
 		}
 
 		var d = round.CreateDispute(s);

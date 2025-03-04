@@ -19,7 +19,8 @@ public class SiteEntry : Site, ITableEntry
 		var a = new SiteEntry(Mcv){	Id						= Id,
 									Title					= Title,
 									ModerationReward		= ModerationReward,
-									ModerationPermissions	= ModerationPermissions,
+									
+									ModeratorElectionPolicy			= ModeratorElectionPolicy,
 
 									Expiration				= Expiration,
 									Space					= Space,

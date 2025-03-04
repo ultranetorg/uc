@@ -34,6 +34,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	public const string					Rejected = "Rejected";
 	public const string					NotFound = "Not found";
+	public const string					NothingLastCreated = "Nothing last created";
 	public const string					NotAvailable = "Not Available";
 	public const string					Mismatch = "Mismatch";
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
@@ -51,7 +52,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string					NotEnoughBandwidth = "Not enough bandwidth";
 	public const string					NoAnalyzers = "No analyzers";
 	public const string					Denied = "Access denied";
-	public const string					NotRelease = "Data valus is not a release";
+	//public const string					NotRelease = "Data valus is not a release";
 	public const string					LimitReached = "Limit Reached";
 	public const string					AtLeastOneOwnerRequired = "At least one owner required";
 

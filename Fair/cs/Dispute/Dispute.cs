@@ -30,45 +30,64 @@ namespace Uccs.Fair;
 // 	}
 // }
 
-public class Proposal : IBinarySerializable, IEquatable<Proposal>
+public enum ProposalChange : byte
 {
-	public SiteChange	Change { get; set; }
-	public object		First { get; set; }
-	public object		Second { get; set; }
-	public string		Text { get; set; }
+	None, Moderators, ModeratorElectionPolicy, Authors
+}
 
-	public static bool	operator == (Proposal left, Proposal right) => left.Equals(right);
-	public static bool	operator != (Proposal left, Proposal right) => !(left == right);
+public class Proposal : IBinarySerializable
+{
+	public ProposalChange	Change { get; set; }
+	public object			First { get; set; }
+	public object			Second { get; set; }
+	public string			Text { get; set; }
 
-	public override bool Equals(object x)
+	public bool Overlaps(Proposal other)
 	{
-		return Equals(x as Proposal);
-	}
+		if(Change != other.Change)
+			return false;
 
-	public bool Equals(Proposal other)
-	{
-		return other is not null && Change == other.Change && First.Equals(other.First);
-	}
+		switch(Change)
+		{
+			case ProposalChange.Authors :
+			case ProposalChange.Moderators :
+			{	
+				var f = other.First as EntityId[];
+				var s = other.Second as EntityId[];
+				
+				foreach(var i in First as EntityId[])
+					if(f.Contains(i) || s.Contains(i))
+						return true;
 
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(Change, First);
+				foreach(var i in Second as EntityId[])
+					if(f.Contains(i) || s.Contains(i))
+						return true;
+				
+				return false;
+			}
+
+			case ProposalChange.ModeratorElectionPolicy :
+				return true;
+		}
+
+		throw new IntegrityException();
 	}
 	
 	public void Read(BinaryReader reader)
 	{
 		Text	= reader.ReadUtf8();
-		Change	= reader.ReadEnum<SiteChange>();
+		Change	= reader.ReadEnum<ProposalChange>();
 
 		switch(Change)
 		{
-			case SiteChange.Moderators :
+			case ProposalChange.Authors :
+			case ProposalChange.Moderators :
 				First = reader.ReadArray<EntityId>();
 				Second = reader.ReadArray<EntityId>();
 				break;
 
-			case SiteChange.ModeratorPermissions :
-				First = reader.ReadEnum<ModerationPermissions>();
+			case ProposalChange.ModeratorElectionPolicy :
+				First = reader.ReadEnum<ElectionPolicy>();
 				break;
 		}
 	}
@@ -80,31 +99,77 @@ public class Proposal : IBinarySerializable, IEquatable<Proposal>
 
 		switch(Change)
 		{
-			case SiteChange.Moderators :
+			case ProposalChange.Authors :
+			case ProposalChange.Moderators :
 				writer.Write(First as EntityId[]);
 				writer.Write(Second as EntityId[]);
 				break;
 
-			case SiteChange.ModeratorPermissions :
-				writer.WriteEnum((ModerationPermissions)First);
+			case ProposalChange.ModeratorElectionPolicy :
+				writer.WriteEnum((ElectionPolicy)First);
 				break;
 		}
 	}
 
-	public void Execute(EntityId site, FairRound round)
+	public bool Valid(SiteEntry site, FairRound round)
 	{
 		switch(Change)
 		{
-			case SiteChange.ModeratorPermissions : 
-			{
-				var s = round.AffectSite(site);
-				s.ModerationPermissions = (ModerationPermissions)First;
+			case ProposalChange.Authors :
+			{	
+				foreach(var i in First as EntityId[])
+					if(site.Authors.Contains(i))
+						return false;
+
+				foreach(var i in Second as EntityId[])
+					if(!site.Authors.Contains(i))
+						return false;
 				break;
 			}
 
-			case SiteChange.Moderators : 
+			case ProposalChange.Moderators :
 			{	
-				var s = round.AffectSite(site);
+				foreach(var i in First as EntityId[])
+					if(site.Moderators.Contains(i))
+						return false;
+
+				foreach(var i in Second as EntityId[])
+					if(!site.Moderators.Contains(i))
+						return false;
+				break;
+			}
+
+			case ProposalChange.ModeratorElectionPolicy :
+				return (ElectionPolicy)First != site.ModeratorElectionPolicy;
+		}
+
+		return true;
+	}
+
+	public void Execute(EntityId site, FairRound round)
+	{
+		var s = round.AffectSite(site);
+
+		switch(Change)
+		{
+			case ProposalChange.Authors : 
+			{	
+				s.Authors = [..s.Authors, ..First as EntityId[]];
+
+				foreach(var i in Second as EntityId[])
+					s.Authors = s.Authors.Remove(i);
+	
+				break;
+			}
+
+			case ProposalChange.ModeratorElectionPolicy : 
+			{
+				s.ModeratorElectionPolicy = (ElectionPolicy)First;
+				break;
+			}
+
+			case ProposalChange.Moderators : 
+			{	
 				s.Moderators = [..s.Moderators, ..First as EntityId[]];
 
 				foreach(var i in Second as EntityId[])

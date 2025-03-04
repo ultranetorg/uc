@@ -438,6 +438,8 @@ public abstract class Round : IBinarySerializable
 			if(s == null)
 				continue;
 
+			LastCreatedId = null;
+
 			foreach(var o in t.Operations)
 			{
 				o.Signer			= s;

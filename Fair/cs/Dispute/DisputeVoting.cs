@@ -17,7 +17,7 @@ public class DisputeVoting : FairOperation
 	{
 		Dispute	= reader.Read<EntityId>();
 		Voter	= reader.Read<EntityId>();
-		Pro	= reader.ReadBoolean();
+		Pro		= reader.ReadBoolean();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
@@ -71,43 +71,47 @@ public class DisputeVoting : FairOperation
 		else
 			d.Cons = [..d.Cons, Voter];
 
-		if(!d.Flags.HasFlag(DisputeFlags.Referendum))
+		var success = s.ModeratorElectionPolicy	switch
+												{
+													ElectionPolicy.AnyModerator				=> d.Pros.Length > 0,
+													ElectionPolicy.ModeratorsMajority		=> d.Pros.Length > s.Moderators.Length/2,
+													ElectionPolicy.ModeratorsUnanimously	=> d.Pros.Length == s.Moderators.Length,
+													ElectionPolicy.AuthorsMajority			=> d.Pros.Length > s.Authors.Length/2,
+													_ => throw new IntegrityException()
+												};
+
+		if(success)
 		{
-			if(d.Pros.Length == s.Moderators.Length)
-			{
-				d.Pros = [];
-				d.Cons = [];
-				d.Flags |= DisputeFlags.Resolved;
+			d.Pros = [];
+			d.Cons = [];
+			d.Flags |= DisputeFlags.Resolved;
 
-				d.Proposal.Execute(d.Site, round);
-			}
-
-			if(d.Cons.Length == s.Moderators.Length)
-			{
-				s = round.AffectSite(d.Site);
-				s.Disputes = s.Disputes.Remove(d.Id);
-
-				d.Deleted = true;
-			}
+			d.Proposal.Execute(d.Site, round);
 		}
-		else
+
+		var fail = s.ModeratorElectionPolicy switch
+											 {
+												ElectionPolicy.AnyModerator				=> d.Cons.Length > 0,
+												ElectionPolicy.ModeratorsMajority		=> d.Cons.Length > s.Moderators.Length/2,
+												ElectionPolicy.ModeratorsUnanimously	=> d.Cons.Length == s.Moderators.Length,
+												ElectionPolicy.AuthorsMajority			=> d.Cons.Length > s.Authors.Length/2,
+												_ => throw new IntegrityException()
+											 };
+
+		if(d.Cons.Length > s.Authors.Length/2)
 		{
-			if(d.Pros.Length > s.Authors.Length/2)
-			{
-				d.Pros = [];
-				d.Cons = [];
-				d.Flags |= DisputeFlags.Resolved;
+			s = round.AffectSite(d.Site);
+			s.Disputes = s.Disputes.Where(i => i != d.Id).ToArray();
 
-				d.Proposal.Execute(d.Site, round);
-			}
+			d.Deleted = true;
+		}
 
-			if(d.Cons.Length > s.Authors.Length/2)
-			{
-				s = round.AffectSite(d.Site);
-				s.Disputes = s.Disputes.Where(i => i != d.Id).ToArray();
+		if(d.Expirtaion < round.ConsensusTime)
+		{
+			s = round.AffectSite(d.Site);
+			s.Disputes = s.Disputes.Remove(d.Id);
 
-				d.Deleted = true;
-			}
+			d.Deleted = true;
 		}
 	}
 }

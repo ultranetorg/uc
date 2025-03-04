@@ -59,6 +59,12 @@ public class UtilityTransfer : Operation
 
 	public override void Execute(Mcv mcv, Round round)
 	{
+		if(To == EntityId.LastCreated && round.LastCreatedId == null)
+		{
+			Error = NothingLastCreated;
+			return;
+		}
+
 		var to = round.Affect(ToTable, To == EntityId.LastCreated ? round.LastCreatedId : To);
 
 		if(to == null)

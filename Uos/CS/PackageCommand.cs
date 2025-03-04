@@ -33,9 +33,6 @@ public class PackageCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-								Ura p = null;
-								VersionManifest m = null;
-
 								var r = RdnRequest<LocalReleaseApe>(new PackageBuildApc{Resource		 = Ura.Parse(Args[0].Name), 
 																						Sources			 = GetString("sources").Split(','), 
 																						DependenciesPath = GetString("dependencies", false),

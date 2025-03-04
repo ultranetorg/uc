@@ -1,40 +1,21 @@
 namespace Uccs.Fair;
 
-// public class Security : IBinarySerializable
+// public enum Policy : byte
 // {
-// 	public OrderedDictionary<TopicChange, Actor[]>	Permissions;
-// 
-// 	public static Security Parse(string v)
-// 	{
-// 		return new Security {Permissions = new (new Xon(v).Nodes.ToDictionary(i => Enum.Parse<TopicChange>(i.Name), 
-// 																			  i => i.Get<string>().Split(',').Select(i => Enum.Parse<Actor>(i)).ToArray()))};
-// 	}
-// 
-// 	public void Read(BinaryReader reader)
-// 	{
-// 		Permissions = reader.ReadOrderedDictionary(() => (TopicChange)reader.Read7BitEncodedInt64(),
-// 												   () => reader.ReadArray(() => (Actor)reader.Read7BitEncodedInt64()));
-// 	}
-// 
-// 	public void Write(BinaryWriter writer)
-// 	{
-// 		writer.Write(Permissions, i =>	{ 
-// 											writer.Write7BitEncodedInt64((long)i.Key); 
-// 											writer.Write(i.Value, i => writer.Write7BitEncodedInt64((long)i)); 
-// 										});
-// 	}
-// 	
-// 	public Security Clone()
-// 	{
-// 		return new Security {Permissions = new (Permissions)};
-// 	}
+// 	None,
+// 	ElectModerators	= 0b_0000_0001
 // }
 
-public enum ModerationPermissions : byte
+public enum ElectionPolicy : byte
 {
-	None,
-	ElectModerators	= 0b_0000_0001
+	None, AnyModerator, ModeratorsMajority, ModeratorsUnanimously, AuthorsMajority
 }
+
+// public class PolicyValue
+// {
+// 	public Policy	Policy { get; set; }
+// 	public byte		Value { get; set; }
+// }
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
@@ -43,7 +24,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public EntityId					Id { get; set; }
 	public string					Title { get; set; }
 	public int						ModerationReward { get; set; }
-	public ModerationPermissions	ModerationPermissions { get; set; }
+	
+	public ElectionPolicy			ModeratorElectionPolicy { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -83,7 +65,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Id						= reader.Read<EntityId>();
 		Title					= reader.ReadUtf8();
 		ModerationReward		= reader.Read7BitEncodedInt();
-		ModerationPermissions	= reader.ReadEnum<ModerationPermissions>();
+		
+		ModeratorElectionPolicy	= reader.ReadEnum<ElectionPolicy>();
 
 		Expiration				= reader.ReadInt16();
 		Space					= reader.Read7BitEncodedInt64();
@@ -102,7 +85,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Id);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
-		writer.WriteEnum(ModerationPermissions);
+		
+		writer.WriteEnum(ModeratorElectionPolicy);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
