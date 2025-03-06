@@ -46,6 +46,30 @@ public class WalletCommand : UosCommand
 		return a;
 	}
 
+	public CommandAction List()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "l";
+		a.Help = new() {Description = "Lists all existing wallets",
+						Syntax = $"{Keyword} {a.NamesSyntax}",
+
+						Arguments =	[],
+
+						Examples =	[
+										new (null, $"{Keyword} {a.Name}")
+									]};
+
+		a.Execute = () =>	{
+								var r = Api<WalletsApc.WalletApe[]>(new WalletsApc {});
+
+								Dump(r, ["Name", "State", "Accounts"], [i => i.Name, i => i.Locked ? "Locked" : "Unlocked", i => string.Join(", ", (object[])i.Accounts)]);
+
+								return r;
+							};
+		return a;
+	}
+
 	public CommandAction Unlock()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());

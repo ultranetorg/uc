@@ -109,6 +109,8 @@ public class Wallet
 	public string				Password;
 	Vault						Vault;
 
+	public bool					Locked => RawLoaded != null;
+
 	public byte[] Raw
 	{
 		get

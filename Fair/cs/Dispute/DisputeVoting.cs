@@ -13,6 +13,13 @@ public class DisputeVoting : FairOperation
 	{
 	}
 
+	public DisputeVoting(EntityId dispute, EntityId voter, bool pro)
+	{
+		Dispute = dispute;
+		Voter = voter;
+		Pro = pro;
+	}
+
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Dispute	= reader.Read<EntityId>();
@@ -43,6 +50,12 @@ public class DisputeVoting : FairOperation
 				return;
 			}
 
+			if(!s.Moderators.Contains(Voter))
+			{
+				Error = Denied;
+				return;
+			}
+
 			if(!RequireSiteAccess(round, d.Site, out s))
 				return;
 		}
@@ -56,7 +69,7 @@ public class DisputeVoting : FairOperation
 
 			if(!s.Authors.Contains(Voter))
 			{
-				Error = AlreadyExists;
+				Error = Denied;
 				return;
 			}
 

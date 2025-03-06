@@ -113,6 +113,24 @@ public class AddWalletApc : UosApc
 	}
 }
 
+public class WalletsApc : UosApc
+{
+	public class WalletApe
+	{
+ 		public string			Name { get; set; }
+		public bool				Locked  { get; set; }
+		public AccountAddress[]	Accounts { get; set; }
+	}
+
+	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+			 return uos.Vault.Wallets.Select(i => new WalletApe {Name = i.Name,
+																 Locked = i.Locked,
+																 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
+	}
+}
+
 public class UnlockWalletApc : UosApc
 {
 	public string	Name { get; set; } ///  Null means first
