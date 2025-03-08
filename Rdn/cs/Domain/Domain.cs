@@ -96,8 +96,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer
 
 	public static bool IsExpired(Domain a, Time time) 
 	{
-		return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
-				a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
+		return	a.LastWinner != null && a.Owner == null &&	time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
+															a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
 	public static bool CanRenew(Domain domain, Account by, Time time)

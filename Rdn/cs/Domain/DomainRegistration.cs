@@ -76,19 +76,14 @@ public class DomainRegistration : RdnOperation
 		}
 		else
 		{
-			var p = mcv.Domains.Find(Domain.GetParent(Address), round.Id);
-
 			if(e != null)
 			{
 				Error = AlreadyExists;
 				return;
 			}
 
-			if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
-			{
-				Error = Denied;
+			if(!RequireSignerDomain(round, Domain.GetParent(Address), out var p))
 				return;
-			}
 
 			if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
 			{
