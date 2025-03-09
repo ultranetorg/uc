@@ -3,10 +3,6 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-/// <summary>
-/// Usage: 
-///		release publish 
-/// </summary>
 public class ProductCommand : FairCommand
 {
 	EntityId First => EntityId.Parse(Args[0].Name);

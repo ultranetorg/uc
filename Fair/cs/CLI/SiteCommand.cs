@@ -81,35 +81,6 @@ public class SiteCommand : FairCommand
 							};
 		return a;
 	}
-// 
-// 	public CommandAction Transfer()
-// 	{
-// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
-// 		
-// 		var owner = "owner";
-// 
-// 		a.Name = "t";
-// 		a.Help = new() {Description = "",
-// 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {owner}={AA} {SignerArg}={AA}",
-// 
-// 						Arguments =	[new ("<first>", "Id of a site to update"),
-// 									 new (owner, "An amount of spacetime to deposit"),
-// 									 new (SignerArg, "Address of account that owns the site")],
-// 
-// 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {owner}={AA.Example[1]} {SignerArg}={AA.Example}")]};
-// 
-// 		a.Execute = () =>	{
-// 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-// 
-// 								var o = new SiteUpdation {SiteId = FirstEntityId};
-// 
-// 									o.Change = SiteChange.Owner;
-// 									o.Value	 = GetAccountAddress(owner);
-// 
-// 								return o;
-// 							};
-// 		return a;
-// 	}
 
 	public CommandAction ListCategories()
 	{
