@@ -41,7 +41,7 @@ public class ResourceCreation : RdnOperation
 
 	public override void Execute(RdnMcv mcv, RdnRound round)
 	{
-		if(RequireSignerDomain(round, Address.Domain, out var d) == false)
+		if(RequireDomainAccess(round, Address.Domain, out var d) == false)
 			return;
 
 // 			var s = round.Mcv.Sites.Find(d.Id, round.Id);

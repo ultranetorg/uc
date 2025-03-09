@@ -1,20 +1,15 @@
 ﻿namespace Uccs.Rdn;
 
-public enum DomainAction
+public enum DomainChange : byte
 {
 	None, Renew, Transfer, ChangePolicy
 }
 
-public class DomainUpdation : RdnOperation
+public class DomainUpdation : UpdateOperation
 {
 	public new EntityId			Id {get; set;}
-	public DomainAction			Action  {get; set;}
-	public byte					Years {get; set;}
-	public EntityId				Owner  {get; set;}
-	public DomainChildPolicy	Policy {get; set;}
-
-	//public bool					Exclusive => Domain.IsWeb(Address); 
-	public override string		Description => $"{Id} for {Years} years";
+	public DomainChange			Change  {get; set;}
+	public override string		Description => $"{Id} {Change}={Value}";
 	
 	public DomainUpdation()
 	{
@@ -22,14 +17,14 @@ public class DomainUpdation : RdnOperation
 	
 	public override bool IsValid(Mcv mcv)
 	{ 
-		if(!Enum.IsDefined(Action) || Action == DomainAction.None) 
+		if(!Enum.IsDefined(Change) || Change == DomainChange.None) 
 			return false;
 		
-		if(	(Action == DomainAction.Renew) && 
-			(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
+		if(	(Change == DomainChange.Renew) && 
+			(Byte < Mcv.EntityRentYearsMin || Byte > Mcv.EntityRentYearsMax))
 			return false;
 
-		if((Action == DomainAction.ChangePolicy) && (!Enum.IsDefined(Policy) || Policy == DomainChildPolicy.None))
+		if((Change == DomainChange.ChangePolicy) && (!Enum.IsDefined((DomainChildPolicy)Value) || (DomainChildPolicy)Value == DomainChildPolicy.None))
 			return false;
 
 		return true;
@@ -38,32 +33,29 @@ public class DomainUpdation : RdnOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
-		Action	= (DomainAction)reader.ReadByte();
-
-		if(Action == DomainAction.Renew)
-			Years = reader.ReadByte();
-
-		if(Action == DomainAction.Transfer)
-			Owner = reader.Read<EntityId>();
+		Change	= reader.ReadEnum<DomainChange>();
 		
-		if(Action == DomainAction.ChangePolicy)
-			Policy	= (DomainChildPolicy)reader.ReadByte();
+		Value = Change	switch
+						{
+							DomainChange.Renew			=> reader.ReadByte(),
+							DomainChange.Transfer		=> reader.Read<EntityId>(),
+							DomainChange.ChangePolicy	=> reader.ReadEnum<DomainChildPolicy>(),
+							_							=> throw new IntegrityException()
+						};
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write((byte)Action);
+		writer.WriteEnum(Change);
 
-		if(Action == DomainAction.Renew)
-			writer.Write(Years);
-
-		if(Action == DomainAction.Transfer)
-			writer.Write(Owner);
-
-		if(Action == DomainAction.ChangePolicy)
-			writer.Write((byte)Policy);
-
+		switch(Change)
+		{
+			case DomainChange.Renew :			writer.Write(Byte); break;;
+			case DomainChange.Transfer :		writer.Write(EntityId); break;;
+			case DomainChange.ChangePolicy :	writer.WriteEnum((DomainChildPolicy)Value); break;;
+			default								: throw new IntegrityException();
+		}
 	}
 
 	public override void Execute(RdnMcv mcv, RdnRound round)
@@ -78,9 +70,9 @@ public class DomainUpdation : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			switch(Action)
+			switch(Change)
 			{
-				case DomainAction.Renew :
+				case DomainChange.Renew :
 				{	
 					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
 					{
@@ -90,13 +82,13 @@ public class DomainUpdation : RdnOperation
 
 					e = round.AffectDomain(e.Address);
 
-					PayForName(e.Address, Years);
-					Prolong(round, Signer, e, Time.FromYears(Years));
+					PayForName(e.Address, Byte);
+					Prolong(round, Signer, e, Time.FromYears(Byte));
 
 					break;
 				}
 
-				case DomainAction.Transfer:
+				case DomainChange.Transfer:
 				{
 					if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
 					{
@@ -104,11 +96,11 @@ public class DomainUpdation : RdnOperation
 						return;
 					}
 
-					if(!RequireAccount(round, Owner, out var o))
+					if(!RequireAccount(round, EntityId, out var o))
 						return;
 
 					e = round.AffectDomain(e.Address);
-					e.Owner = Owner;
+					e.Owner = EntityId;
 
 					break;
 				}
@@ -125,7 +117,7 @@ public class DomainUpdation : RdnOperation
 				return;
 			}
 
-			if(Action == DomainAction.Renew)
+			if(Change == DomainChange.Renew)
 			{
 				if(!Domain.CanRenew(e, Signer, round.ConsensusTime))
 				{
@@ -135,11 +127,11 @@ public class DomainUpdation : RdnOperation
 
 				e = round.AffectDomain(e.Address);
 
-				PayForName(new string(' ', Domain.NameLengthMax), Years);
-				Prolong(round, Signer, e, Time.FromYears(Years));
+				PayForName(new string(' ', Domain.NameLengthMax), Byte);
+				Prolong(round, Signer, e, Time.FromYears(Byte));
 			}
 
-			if(Action == DomainAction.ChangePolicy)
+			if(Change == DomainChange.ChangePolicy)
 			{
 				if(e == null)
 				{
@@ -160,10 +152,10 @@ public class DomainUpdation : RdnOperation
 				}
 
 				e = round.AffectDomain(e.Address);
-				e.ParentPolicy = Policy;
+				e.ParentPolicy = (DomainChildPolicy)Value;
 			}
 
-			if(Action == DomainAction.Transfer)
+			if(Change == DomainChange.Transfer)
 			{
 				if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
 				{
@@ -178,11 +170,11 @@ public class DomainUpdation : RdnOperation
 					return;
 				}
 
-				if(!RequireAccount(round, Owner, out var o))
+				if(!RequireAccount(round, EntityId, out var o))
 					return;
 
 				e = round.AffectDomain(e.Address);
-				e.Owner	= Owner;
+				e.Owner	= EntityId;
 			}
 		}
 	}

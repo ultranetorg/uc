@@ -82,7 +82,15 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			if(!RequireSignerDomain(round, Domain.GetParent(Address), out var p))
+			var o = mcv.Accounts.Find(Owner, round.Id);
+
+			if(o == null)
+			{
+				Error = NotFound;
+				return;
+			}
+
+			if(!RequireDomainAccess(round, Domain.GetParent(Address), out var p))
 				return;
 
 			if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
@@ -95,7 +103,7 @@ public class DomainRegistration : RdnOperation
 			
 			var start = e.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : e.Expiration;
 
-			e.Owner			= mcv.Accounts.Find(Owner, round.Id).Id;
+			e.Owner			= o.Id;
 			e.ParentPolicy	= Policy;
 			e.Expiration	= (short)(start + Time.FromYears(Years).Days);
 

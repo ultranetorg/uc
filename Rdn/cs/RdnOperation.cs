@@ -96,7 +96,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomainAccess(RdnRound round, string name, out DomainEntry domain)
 	{
 		if(!RequireDomain(round, name, out domain))
 			return false;

@@ -79,9 +79,10 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
-	public long							Spacetime { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	public long							AverageUptime { get; set; }
+	
+	public long							Spacetime { get; set; }
 	
 	public long							Energy { get; set; }
 	public byte							EnergyThisPeriod { get; set; }

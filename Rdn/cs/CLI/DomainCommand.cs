@@ -121,9 +121,9 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Action	= DomainAction.Renew,
+								return new DomainUpdation  {Change	= DomainChange.Renew,
 															Id		= d.Id,
-															Years	= byte.Parse(GetString("years"))};
+															Value	= byte.Parse(GetString("years"))};
 							};
 
 		return a;
@@ -183,9 +183,9 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Action	= DomainAction.ChangePolicy,
+								return new DomainUpdation  {Change	= DomainChange.ChangePolicy,
 															Id		= d.Id,
-															Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
+															Value	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
 							};
 		return a;
 	}
@@ -213,9 +213,9 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Action	= DomainAction.Transfer,
+								return new DomainUpdation  {Change	= DomainChange.Transfer,
 															Id		= d.Id,
-															Owner	= GetEntityId("to")};
+															Value	= GetEntityId("to")};
 							};
 
 		return a;
