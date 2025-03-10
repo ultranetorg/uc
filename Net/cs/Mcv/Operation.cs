@@ -124,11 +124,11 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(consumer.Space == 0)
-			return;
-
-		payer.Spacetime -= ToBD(consumer.Space, duration);
-		SpacetimeSpenders.Add(payer);
+		if(consumer.Space > 0)
+		{
+			payer.Spacetime -= ToBD(consumer.Space, duration);
+			SpacetimeSpenders.Add(payer);
+		}
 
 		var n = start + duration.Days - round.ConsensusTime.Days;
 
@@ -163,12 +163,8 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		payer.Spacetime -= ToBD(space, (short)n);
 		SpacetimeSpenders.Add(payer);
 
-		if(n > round.Spacetimes.Length)
-			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
-
 		for(int i = 0; i < n; i++)
 			round.Spacetimes[i] += space;
-	
 	}
 
 	public void Free(Round round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
