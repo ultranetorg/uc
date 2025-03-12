@@ -178,37 +178,36 @@ public class AddAccountToWalletApc : UosApc
 	}
 }
 
-public class FindAuthenticationApc : UosApc
+public class IsAuthenticatedApc : UosApc
 {
-	public string			Net { get; set; } /// Null means to serach among all unlocked accounts
+	public string			Net { get; set; }
+	public byte[]			Session { get; set; }
 	public AccountAddress	Account { get; set; }
 
 	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(Account == null)
-		{
-			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.FindAuthentication(Net) != null)?.FindAuthentication(Net);
-		}
-		else
-		{
-			return uos.Vault.Find(Account)?.FindAuthentication(Net);
-		}
+		return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
 	}
 }
-
 
 public class AuthenticateApc : UosApc
 {
 	public string			Net { get; set; }
-	public AccountAddress	Account { get; set; }
+	public AccountAddress	Account { get; set; } /// optional
+
+	public class Result
+	{
+		public AccountAddress	Account { get; set; } /// optional
+		public byte[]			Session { get; set; }
+	}
 
 	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		var a = uos.AuthenticationRequested(Net, Account);
+		var c = uos.AuthenticationRequested(Net, Account);
 
-		if(a != null)
+		if(c != null)
 		{
-			return uos.Vault.Find(a.Account).GetSession(Net, a.Trust);
+			return new Result {Account = c.Account, Session = uos.Vault.Find(c.Account).GetAuthentication(Net, c.Trust).Session};
 		} 
 		else
 			return null;
@@ -220,7 +219,7 @@ public class AuthorizeApc : UosApc
 	public string			Net { get; set; }
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }
-	public byte[]			Data { get; set; }
+	public byte[]			Hash { get; set; }
 	public Trust			Trust { get; set; }
 
 	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -245,7 +244,7 @@ public class AuthorizeApc : UosApc
 			uos.AuthorizationRequested(Net, Account);
 		}
 
-		return uos.Settings.Rdn.Cryptography.Sign(acc.Key, Cryptography.Hash(Data)); ///TODO: CALL THE NET CLINENT ITSELF
+		return uos.Settings.Rdn.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
 	}
 }
 

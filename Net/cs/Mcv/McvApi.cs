@@ -94,27 +94,6 @@ public class McvApiClient : ApiClient
 	}
 }
 
-// 	public class RunPeerApc : McvApc
-// 	{
-// 		public override object Execute(McvTcpPeering node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 		{
-// 			lock(node.Lock)
-// 				node.RunPeer();
-// 			
-// 			return null;
-// 		}
-// 	}
-
-// public class TableIdApc : McvApc
-// {
-// 	public string Name { get; set; }
-// 
-// 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 	{
-// 		return node.Mcv.Tables.First(i => i.GetType().Name == Name + "Table").Id;
-// 	}
-// }
-
 public class McvPropertyApc : McvApc
 {
 	public string Path { get; set; }
@@ -142,15 +121,13 @@ public class PeersReportApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new Return.Peer {
-																																					IP			= i.IP,			
+			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i => new Return.Peer   {IP			= i.IP,			
 																																					Status		= i.StatusDescription,
 																																					PeerRank	= i.PeerRank,
 																																					Roles		= i.Roles,
 																																					LastSeen	= i.LastSeen,
 																																					LastTry		= i.LastTry,
-																																					Retries		= i.Retries	
-																																				}).ToArray()}; 
+																																					Retries		= i.Retries}).ToArray()}; 
 	}
 
 	public class Return
@@ -169,46 +146,6 @@ public class PeersReportApc : McvApc
 		public IEnumerable<Peer> Peers {get; set;}
 	}
 }
-
-// 	public class SummaryApc : NodeApc
-// 	{
-// 		public int		Limit  { get; set; }
-// 
-// 		public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 		{
-// 			lock(sun.Lock)
-// 			{ 
-// 				List<KeyValuePair<string, string>> f =	[
-// 															new ("Version",					sun.Version.ToString()),
-// 															new ("Profile",					sun.Settings.Profile),
-// 															new ("IP(Reported):Port",		$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
-// 															new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
-// 														];
-// 
-// 				if(sun is McvTcpPeering m)
-// 				{
-// 					f.Add(new ("Net",  m.Net.Address));
-// 				}
-// 
-// 				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Transacting (nps/μs)",	$"{sun.Statistics.Transacting	.N}/{sun.Statistics.Transacting	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Declaring (nps/μs)",	$"{sun.Statistics.Declaring		.N}/{sun.Statistics.Declaring	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Sending (nps/μs)",		$"{sun.Statistics.Sending		.N}/{sun.Statistics.Sending		.Avarage.Ticks/10}"));
-// 				f.Add(new ("Reading (nps/μs)",		$"{sun.Statistics.Reading		.N}/{sun.Statistics.Reading		.Avarage.Ticks/10}"));
-// 
-// 				sun.Statistics.Reset();
-// 		
-// 				return new Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
-// 			}
-// 		}
-// 
-// 		public class Return
-// 		{
-// 			public IEnumerable<string[]> Summary {get; set;}
-// 		}
-// 	}
-
 
 public class McvSummaryApc : McvApc
 {

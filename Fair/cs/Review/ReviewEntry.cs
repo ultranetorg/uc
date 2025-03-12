@@ -20,6 +20,7 @@ public class ReviewEntry : Review, ITableEntry
 						Publication = Publication,
 						Creator		= Creator,
 						Status		= Status,
+						Rate		= Rate,
 						Text		= Text,
 						TextNew		= TextNew,
 						Rating		= Rating,

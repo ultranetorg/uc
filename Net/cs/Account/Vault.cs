@@ -61,24 +61,22 @@ public class WalletAccount : IBinarySerializable
 		Key = key;
 	}
 
-	public byte[] GetSession(string net, Trust trust)
+	public Authentication GetAuthentication(string net, Trust trust)
 	{
 		var a = Authentications.Find(i => i.Net == net);
-			
-		if(a == null)
-		{
-			var s = new byte[32];
+		
+		if(a != null)
+			return a;
+		
+		var s = new byte[32];
 	
-			Cryptography.Random.NextBytes(s);
+		Cryptography.Random.NextBytes(s);
 	
-			Authentications.Add(new Authentication {Net = net, Session = s, Trust = trust});
+		a = new Authentication {Net = net, Session = s, Trust = trust};
+
+		Authentications.Add(a);
 	
-			return s;
-		} 
-		else
-		{
-			return a.Session;
-		}
+		return a;
 	}
 
 	public Authentication FindAuthentication(string net)

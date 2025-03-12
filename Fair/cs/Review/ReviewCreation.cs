@@ -6,6 +6,7 @@ public class ReviewCreation : FairOperation
 {
 	public EntityId				Publication { get; set; }
 	public string				Text { get; set; }
+	public byte					Rate { get; set; }
 	public override bool		NonExistingSignerAllowed => true;
 
 	public override string		Description => $"{GetType().Name} Publication={Publication}";
@@ -15,12 +16,14 @@ public class ReviewCreation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Publication = reader.Read<EntityId>();
+		Rate		= reader.ReadByte();
 		Text		= reader.ReadString();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Publication);
+		writer.Write(Rate);
 		writer.Write(Text);
 	}
 
@@ -34,6 +37,7 @@ public class ReviewCreation : FairOperation
 		r.Publication	= p.Id;
 		r.Creator		= Signer.Id;
 		r.Status		= ReviewStatus.Pending;
+		r.Rate			= Rate;
 		r.Text			= "";
 		r.TextNew		= Text;
 		r.Created		= round.ConsensusTime;

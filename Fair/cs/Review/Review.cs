@@ -32,6 +32,7 @@ public class Review : IBinarySerializable
 	public EntityId			Publication { get; set; }
     public EntityId			Creator { get; set; }
 	public ReviewStatus		Status { get; set; }
+	public byte				Rate { get; set; }
     public string			Text { get; set; }
     public string			TextNew { get; set; }
     public byte				Rating { get; set; }
@@ -43,6 +44,7 @@ public class Review : IBinarySerializable
 		Publication	= reader.Read<EntityId>();
 		Creator		= reader.Read<EntityId>();
 		Status		= reader.ReadEnum<ReviewStatus>();
+		Rate		= reader.ReadByte();
 		Text		= reader.ReadString();
 		TextNew		= reader.ReadString();
 		Rating		= reader.ReadByte();
@@ -55,6 +57,7 @@ public class Review : IBinarySerializable
 		writer.Write(Publication);
 		writer.Write(Creator);
 		writer.WriteEnum(Status);
+		writer.Write(Rate);
 		writer.Write(Text);
 		writer.Write(TextNew);
 		writer.Write(Rating);
