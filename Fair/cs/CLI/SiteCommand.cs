@@ -72,12 +72,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new SiteUpdation {SiteId = FirstEntityId};
-
-								o.Change = SiteChange.Renew;
-								o.Value	 = byte.Parse(GetString(years));
-
-								return o;
+								return new SiteRewal {SiteId = FirstEntityId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}

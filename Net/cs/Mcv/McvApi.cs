@@ -14,35 +14,35 @@ public abstract class McvApc : NodeApc
 	}
 }
 
-public class OperationJsonConverter : JsonConverter<Operation>
-{
-	Net Net;
-
-	public OperationJsonConverter(Net net)
-	{
-		Net = net;
-	}
-
-	public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-	{
-		var s = reader.GetString().Split(':');
-		var o = Net.Contruct<Operation>(uint.Parse(s[0]));
- 			
-		o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
-
-		return o;
-	}
-
-	public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
-	{
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-		
-		value.Write(w);
-		
-		writer.WriteStringValue(Net.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
-	}
-}
+//public class OperationJsonConverter : JsonConverter<Operation>
+//{
+//	Net Net;
+//
+//	public OperationJsonConverter(Net net)
+//	{
+//		Net = net;
+//	}
+//
+//	public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//	{
+//		var s = reader.GetString().Split(':');
+//		var o = Net.Contruct<Operation>(uint.Parse(s[0]));
+// 			
+//		o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
+//
+//		return o;
+//	}
+//
+//	public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
+//	{
+//		var s = new MemoryStream();
+//		var w = new BinaryWriter(s);
+//		
+//		value.Write(w);
+//		
+//		writer.WriteStringValue(Net.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
+//	}
+//}
 
 public abstract class McvApiServer : NodeApiServer
 {
@@ -75,7 +75,7 @@ public class McvApiClient : ApiClient
 	{
 		var o = CreateOptions();
 
-		o.Converters.Add(new OperationJsonConverter(net));
+		//o.Converters.Add(new OperationJsonConverter(net));
 		
 		return o;
 	}

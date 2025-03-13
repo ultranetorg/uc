@@ -7,16 +7,19 @@ public enum FairOperationClass
 
 	Author							= 100, 
 		AuthorCreation				= 100_000_001, 
-		AuthorUpdation				= 100_000_002,
+		AuthorRenewal				= 100_000_002,
+		AuthorModerationReward		= 100_000_003,
+		AuthorOwnerAddition			= 100_000_004,
+		AuthorOwnerRemoval			= 100_000_005,
 	
 	Product							= 101, 
 		ProductCreation				= 101_000_001, 
 		ProductUpdation				= 101_000_002, 
-		ProductDeletion				= 101_000_003,
+		ProductDeletion				= 101_000_999,
 	
 	Site							= 102,
 		SiteCreation				= 102_000_001, 
-		SiteUpdation				= 102_000_002,
+		SiteRewal					= 102_000_002,
 		SiteDeletion				= 102_000_999,
 	
 	Store							= 103,
@@ -24,18 +27,22 @@ public enum FairOperationClass
 
 		Category					= 103_001,
 			CategoryCreation		= 103_001_001,
-			CategoryUpdation		= 103_001_002,
-			CategoryDeletion		= 103_001_003,
+			CategoryMovement		= 103_001_002,
+			CategoryDeletion		= 103_001_999,
 
-		Publication					= 103_002,
-			PublicationCreation		= 103_002_001,
-			PublicationUpdation		= 103_002_002,
-			PublicationDeletion		= 103_002_003,
+		Publication						= 103_002,
+			PublicationCreation			= 103_002_001,
+			PublicationStatusUpdation	= 103_002_002,
+			PublicationProductUpdation	= 103_002_003,
+			PublicationChangeModeration	= 103_002_004,
+			PublicationDeletion			= 103_002_999,
 
 		Review						= 103_003,
 			ReviewCreation			= 103_003_001,
-			ReviewUpdation			= 103_003_002,
-			ReviewDeletion			= 103_003_003,
+			ReviewStatusUpdation	= 103_003_002,
+			ReviewTextUpdation		= 103_003_003,
+			ReviewTextModeration	= 103_003_004,
+			ReviewDeletion			= 103_003_999,
 
 		Dispute						= 103_004,
 			DisputeCreation			= 103_004_001,

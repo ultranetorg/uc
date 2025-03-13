@@ -82,22 +82,17 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new AuthorUpdation {AuthorId = FirstEntityId};
 								
 								if(Has(addowner))
 								{
-									o.Change = AuthorChange.AddOwner;
-									o.Value	 = GetAccountAddress(addowner);
+									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
 								}
 								if(Has(removeowner))
 								{
-									o.Change = AuthorChange.RemoveOwner;
-									o.Value	 = GetAccountAddress(removeowner);
+									return new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
 								}
 								else
 									throw new SyntaxException("Unknown parameters");
-
-								return o;
 							};
 		return a;
 	}
@@ -121,12 +116,7 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new AuthorUpdation {AuthorId = FirstEntityId};
-
-								o.Change = AuthorChange.Renew;
-								o.Value	 = byte.Parse(GetString(years));
-
-								return o;
+								return new AuthorRenewal {AuthorId = FirstEntityId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}

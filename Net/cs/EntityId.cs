@@ -1,4 +1,7 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Uccs.Net;
 
 public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, IComparable<BaseId>
 {
@@ -135,5 +138,18 @@ public class EntityId : BaseId
 	public static bool operator != (EntityId left, EntityId right)
 	{
 		return !(left == right);
+	}
+}
+
+public class EntityIdJsonConverter : JsonConverter<EntityId>
+{
+	public override EntityId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return EntityId.Parse(reader.GetString());
+	}
+
+	public override void Write(Utf8JsonWriter writer, EntityId value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.ToString());
 	}
 }

@@ -1,44 +1,23 @@
 namespace Uccs.Fair;
 
-public enum CategoryChange : byte
+public class CategoryMovement : FairOperation
 {
-	None,
-	Move,
-}
-
-public class CategoryUpdation : UpdateOperation
-{
-	public EntityId				Category { get; set; }
-	public CategoryChange		Change { get; set; }
+	public EntityId		Category { get; set; }
+	public EntityId		Parent { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
-	public override string		Description => $"{GetType().Name}, [{Change}]";
+	public override string		Description => $"{GetType().Name}, {Parent}";
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Category	= reader.Read<EntityId>();
-		Change		= reader.ReadEnum<CategoryChange>();
-		
-		Value = Change switch
-					   {
-							CategoryChange.Move		=> reader.ReadNullable<EntityId>(),
-							//CategoryChange.RemoveCategory	=> reader.Read<EntityId>(),
-							_ => throw new IntegrityException()
-					   };
+		Parent		= reader.ReadNullable<EntityId>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Category);
-		writer.WriteEnum(Change);
-
-		switch(Change)
-		{
-			case CategoryChange.Move:	writer.WriteNullable(EntityId); break;
-			//case CategoryChange.RemoveCategory:	writer.Write(EntityId); break;
-			default:
-				throw new IntegrityException();
-		}
+		writer.WriteNullable(Parent);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
@@ -48,43 +27,34 @@ public class CategoryUpdation : UpdateOperation
 
 		c = round.AffectCategory(Category);
 
-		switch(Change)
+		if(c.Parent != null)
 		{
-			case CategoryChange.Move:
-			{	
-				if(c.Parent != null)
-				{
-					var p = round.AffectCategory(c.Parent);
+			var p = round.AffectCategory(c.Parent);
 
-					p.Categories = p.Categories.Where(i => i != c.Id).ToArray();
-				}
+			p.Categories = p.Categories.Where(i => i != c.Id).ToArray();
+		}
 
-				if(EntityId == null)
-				{
-					var s = round.AffectSite(c.Site);
-		
-					s.Categories = [..s.Categories, c.Id];
-				} 
-				else
-				{
-					if(!RequireCategory(round, EntityId, out var p))
-						return;
+		if(Parent == null)
+		{
+			var s = round.AffectSite(c.Site);
+			s.Categories = [..s.Categories, c.Id];
+		} 
+		else
+		{
+			if(!RequireCategory(round, Parent, out var p))
+				return;
 
-					if(p.Site != c.Site)
-					{
-						Error = NotFound;
-						return;
-					}
-
-					c.Parent = p.Id;
-
-					p = round.AffectCategory(p.Id);
-
-					p.Categories = [..p.Categories, c.Id];
-				}
-
-				break;
+			if(p.Site != c.Site)
+			{
+				Error = NotFound;
+				return;
 			}
+
+			c.Parent = p.Id;
+
+			p = round.AffectCategory(p.Id);
+			p.Categories = [..p.Categories, c.Id];
+		}
 
 // 			case CategoryChange.RemoveCategory:
 // 			{	
@@ -120,6 +90,6 @@ public class CategoryUpdation : UpdateOperation
 			//	}
 			//	break;
 			//}
-		}
+		
 	}
 }

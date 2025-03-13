@@ -2,13 +2,13 @@
 
 public class UtilityTransfer : Operation
 {
-	public EntityId			To;
-	public byte				ToTable;
-	public EntityId			From;
-	public byte				FromTable;
-	public long				Spacetime;
-	public long				Energy;
-	public long				EnergyNext;
+	public EntityId			To { get; set; }
+	public byte				ToTable { get; set; }
+	public EntityId			From { get; set; }
+	public byte				FromTable { get; set; }
+	public long				Spacetime { get; set; }
+	public long				Energy { get; set; }
+	public long				EnergyNext { get; set; }
 	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
 																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
 																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";

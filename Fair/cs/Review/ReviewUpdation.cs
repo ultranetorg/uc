@@ -2,58 +2,65 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public enum ReviewChange : byte
-{
-	None,
-	Status,
-	Delete,
-	Text,
-	Approve,
-	Reject
-}
-
-public class ReviewUpdation : UpdateOperation
+public class ReviewStatusUpdation : FairOperation
 {
 	public EntityId				Review { get; set; }
-	public ReviewChange			Change { get; set; }
+	public ReviewStatus			Status { get; set; }
 
 	public override bool		IsValid(Mcv mcv) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
-	public override string		Description => $"{GetType().Name}, [{Change}]";
+	public override string		Description => $"{Status}";
 
-	const int					TextHashLength = 16;
-
-	public ReviewUpdation()
+	public ReviewStatusUpdation()
 	{
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Review	= reader.Read<EntityId>();
-		Change	= reader.ReadEnum<ReviewChange>();
-		
-		Value = Change switch
-					   {
-							ReviewChange.Status		=> reader.ReadEnum<ReviewStatus>(),
-							ReviewChange.Text		=> reader.ReadString(),
-							ReviewChange.Approve	=> reader.ReadBytes(TextHashLength),
-							ReviewChange.Reject		=> reader.ReadBytes(TextHashLength),
-							_ => throw new IntegrityException()
-					   };
+		Status	= reader.ReadEnum<ReviewStatus>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Review);
-		writer.WriteEnum(Change);
+		writer.WriteEnum(Status);
+	}
 
-		switch(Change)
-		{
-			case ReviewChange.Status	: writer.WriteEnum((ReviewStatus)Value); break;
-			case ReviewChange.Text		: writer.Write(String); break;
-			case ReviewChange.Approve	: writer.Write(Bytes); break;
-			case ReviewChange.Reject	: writer.Write(Bytes); break;
-			default						: throw new IntegrityException();
-		}
+	public override void Execute(FairMcv mcv, FairRound round)
+	{
+		if(!RequireReviewAccess(round, Review, Signer, out var r))
+			return;
+
+		r = round.AffectReview(Review);
+		r.Status = Status;
+
+		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+		EnergySpenders = [a];
+	}
+}
+
+public class ReviewTextUpdation : FairOperation
+{
+	public EntityId				Review { get; set; }
+	public string				Text { get; set; }
+
+	public override bool		IsValid(Mcv mcv) => true;
+	public override string		Description => $"{Review}, {Text}";
+
+	public ReviewTextUpdation()
+	{
+	}
+
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		Review	= reader.Read<EntityId>();
+		Text	= reader.ReadUtf8();
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Review);
+		writer.WriteUtf8(Text);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
@@ -66,90 +73,109 @@ public class ReviewUpdation : UpdateOperation
 
 		EnergySpenders = [a];
 
-		switch(Change)
+		Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
+		Allocate(round, a, a, Encoding.UTF8.GetByteCount(Text));
+
+		r.TextNew = Text;
+
+		var p = round.AffectPublication(r.Publication);
+
+		if(!p.ReviewChanges.Contains(r.Id))
+			p.ReviewChanges = [..p.ReviewChanges, Review];
+	}
+}
+
+public class ReviewTextModeration : FairOperation
+{
+	const int							TextHashLength = 16;
+
+	public EntityId						Review { get; set; }
+	public byte[]						Hash { get; set; }
+	public bool							Resolution { get; set; }
+
+	public override bool				IsValid(Mcv mcv) => Hash.Length == TextHashLength;
+	public override string				Description => $"{Hash.ToHex()}, {Resolution}";
+
+	public ReviewTextModeration()
+	{
+	}
+
+	public override void ReadConfirmed(BinaryReader reader)
+	{
+		Review		= reader.Read<EntityId>();
+		Hash		= reader.ReadBytes(TextHashLength);
+		Resolution	= reader.ReadBoolean();
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Review);
+		writer.Write(Hash);
+		writer.Write(Resolution);
+	}
+
+	public override void Execute(FairMcv mcv, FairRound round)
+	{
+		if(!RequireReviewAccess(round, Review, Signer, out var r))
+			return;
+
+		r = round.AffectReview(Review);
+
+		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+		EnergySpenders = [a];
+
+		if(Resolution == true)
 		{
-			case ReviewChange.Status:
+			var p = round.AffectPublication(r.Publication);
+
+			if(p.ReviewChanges.Contains(r.Id))
 			{
-				var s = (ReviewStatus)Value;
-
-				r.Status = s;
-
-				break;
+				Error = NotFound;
+				return;
 			}
 
-			case ReviewChange.Text:
+			if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Hash))
 			{
-				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
-				Allocate(round, a, a, Encoding.UTF8.GetByteCount(Value as string));
-
-				r.TextNew = Value as string;
-
-				var p = round.AffectPublication(r.Publication);
-
-				if(!p.ReviewChanges.Contains(r.Id))
-					p.ReviewChanges = [..p.ReviewChanges, Review];
-
-				break;
+				Error = Mismatch;
+				return;
 			}
 
-			case ReviewChange.Approve:
+			Free(round, a, a, Encoding.UTF8.GetByteCount(r.Text));
+
+			r.Text = r.TextNew;
+			r.TextNew = "";
+			p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
+
+			var c = round.AffectAccount(r.Creator);
+			c.Approvals++;
+		}
+		else
+		{
+			var p = round.AffectPublication(r.Publication);
+
+			if(p.ReviewChanges.Contains(r.Id))
 			{
-				var p = round.AffectPublication(r.Publication);
-
-				if(p.ReviewChanges.Contains(r.Id))
-				{
-					Error = NotFound;
-					return;
-				}
-
-				if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
-				{
-					Error = Mismatch;
-					return;
-				}
-
-				Free(round, a, a, Encoding.UTF8.GetByteCount(r.Text));
-
-				r.Text = r.TextNew;
-				r.TextNew = "";
-				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
-
-				var c = round.AffectAccount(r.Creator);
-				c.Approvals++;
-
-				break;
+				Error = NotFound;
+				return;
 			}
 
-			case ReviewChange.Reject:
+			if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Hash))
 			{
-				var p = round.AffectPublication(r.Publication);
+				Error = Mismatch;
+				return;
+			}
 
-				if(p.ReviewChanges.Contains(r.Id))
-				{
-					Error = NotFound;
-					return;
-				}
+			Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
 
-				if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Bytes))
-				{
-					Error = Mismatch;
-					return;
-				}
+			r.TextNew = "";
+			p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
 
-				Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
+			var c = round.AffectAccount(r.Creator);
+			c.Rejections++;
 
-				r.TextNew = "";
-				p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
-
-				var c = round.AffectAccount(r.Creator);
-				c.Rejections++;
-
-				if(c.Rejections > c.Approvals/3)
-				{
-					round.DeleteAccount(c);
-				}
-
-				break;
+			if(c.Rejections > c.Approvals/3)
+			{
+				round.DeleteAccount(c);
 			}
 		}
 	}
