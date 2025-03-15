@@ -82,7 +82,7 @@ public class RdnRound : Round
   	{
 		var r =	AffectedResources.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
 		
-		if(r != null)
+		if(r != null && !r.Deleted)
 			return r;
 
 		r = Mcv.Resources.Find(new Ura(domain.Address, resource), Id - 1);

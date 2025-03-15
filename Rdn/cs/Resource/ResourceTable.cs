@@ -18,16 +18,13 @@ public class ResourceTable : Table<ResourceEntry>
 
 	public ResourceEntry Find(EntityId id, int ridmax)
 	{
-if(!Monitor.IsEntered(Mcv.Lock))
-	Debugger.Break();
-
   		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedResources.TryGetValue(id, out var r))
+			if(i.AffectedResources.TryGetValue(id, out var r) && !r.Deleted)
    				return r;
 
 		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
 
-		if(e == null)
+		if(e == null || e.Deleted)
 			return null;
 
 		e.Address.Domain = Mcv.Domains.Find(e.Domain, ridmax).Address;
@@ -37,9 +34,6 @@ if(!Monitor.IsEntered(Mcv.Lock))
 	
 	public ResourceEntry Find(Ura address, int ridmax)
 	{
-if(!Monitor.IsEntered(Mcv.Lock))
-	Debugger.Break();
- 
         var d = Mcv.Domains.Find(address.Domain, ridmax);
 
         if(d == null)
@@ -50,7 +44,7 @@ if(!Monitor.IsEntered(Mcv.Lock))
  			var x = r.AffectedResources.Values.FirstOrDefault(i => i.Address == address);
  					
  			if(x != null)
-  				return x;
+  				return x.Deleted ? null : x;
  		}
 
   		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Address == address);
