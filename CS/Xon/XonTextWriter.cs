@@ -34,7 +34,7 @@ public class XonTextWriter : StreamWriter, IXonWriter
 	{
 		string s = null;
 
-		var q = v.IndexOfAny(new char[]{' ', '\t', '\r', '\n', '{', '}' }) != -1 || v.IndexOf("//") != -1 || (!isname || v.Contains('='));
+		var q = v.IndexOfAny(new char[]{' ', '\t', '\r', '\n', '{', '}' }) != -1 || v.IndexOf("//") != -1 || (isname && v.Contains('='));
 		var qq = v.IndexOf('\"') != -1;
 
 		if(q || qq)

@@ -12,8 +12,8 @@ public class Settings
 		Serializator  = serializator;
 	}
 
- 		protected object Load(string name, Type t, Xon x)
- 		{
+	protected object Load(string name, Type t, Xon x)
+	{
 		if(t.IsArray)
 		{
 			var m = x.Parent.Many(name.TrimEnd('s'));
@@ -34,7 +34,7 @@ public class Settings
 		}
 		else
 			return x.Get(t);
- 		}
+	}
 
 	public void Load(Xon xon)
 	{
@@ -127,39 +127,38 @@ public class SavableSettings : Settings
 	{
 		var doc = new Xon(Serializator);
 
-		void save(Xon parent, string name, Type type, object value)
-		{
-			if(type.Name.EndsWith("Settings"))
-			{
-				if(value != null)
-				{
-					var x = parent.Add(name);
-					///var v = fi.GetValue(owner);
+		void save(Xon parent, string name, Type type, object value)	{
+																		if(type.Name.EndsWith("Settings"))
+																		{
+																			if(value != null)
+																			{
+																				var x = parent.Add(name);
+																				///var v = fi.GetValue(owner);
 
-					foreach(var f in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
-					{
-						save(x, f.Name, f.PropertyType, f.GetValue(value));
-					}
-				}
-			}
-			else
-				if(type == typeof(bool))	
-				{ 
-					if((bool)value)
-					{
-						parent.Add(name);
-					}
-				}
-				else if(type.IsArray && value != null)
-				{
-					foreach(var i in value as IEnumerable)
-					{
-						save(parent, name.Trim('s'), type.GetElementType(), i);
-					}
-				}
-				else
-					parent.Add(name).Value = value;
-		}
+																				foreach(var f in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+																				{
+																					save(x, f.Name, f.PropertyType, f.GetValue(value));
+																				}
+																			}
+																		}
+																		else
+																			if(type == typeof(bool))	
+																			{ 
+																				if((bool)value)
+																				{
+																					parent.Add(name);
+																				}
+																			}
+																			else if(type.IsArray && type != typeof(byte[]) && value != null)
+																			{
+																				foreach(var i in value as IEnumerable)
+																				{
+																					save(parent, name.Trim('s'), type.GetElementType(), i);
+																				}
+																			}
+																			else
+																				parent.Add(name).Value = value;
+																	}
 
 		foreach(var i in GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 		{

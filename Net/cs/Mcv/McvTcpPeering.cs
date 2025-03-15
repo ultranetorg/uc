@@ -834,14 +834,16 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	byte[] GetSession(AccountAddress signer)
 	{
-		var a = Node.Settings.Sessions.FirstOrDefault(i => i.Account == signer);
+		var s = Node.Settings.Sessions.FirstOrDefault(i => i.Account == signer);
 
-		if(a != null)
-			return a.Session;
+		if(s != null)
+			return s.Session;
 
-		a = UosApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
+		var a = UosApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
 
-		Node.Settings.Sessions = [..Node.Settings.Sessions, a];
+		Node.Settings.Sessions = [..Node.Settings.Sessions, new AccountSessionSettings {Account = a.Account, Session = a.Session}];
+
+		Node.Settings.Save();
 
 		return a.Session;
 	}
