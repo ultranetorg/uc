@@ -8,6 +8,7 @@ public class McvNodeSettings : SavableSettings
 	public PeeringSettings			Peering { get; set; } = new();
 	public PeeringSettings			NtnPeering { get; set; }
 	public ApiSettings				Api { get; set; }
+	public AccountSession[]			Sessions { get; set; }
 	public bool						Log { get; set; }
 	public int						RdcQueryTimeout { get; set; } = 5000;
 	public int						RdcTransactingTimeout { get; set; } = 5*60*1000;

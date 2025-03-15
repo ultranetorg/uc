@@ -10,14 +10,14 @@ public class FairNode : McvNode
 {
 	new public FairTcpPeering		Peering => base.Peering as FairTcpPeering;
 	new public FairMcv				Mcv => base.Mcv as FairMcv;
-	public FairNodeSettings			Settings;
+	public new FairNodeSettings		Settings => base.Settings as FairNodeSettings;
 
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
 
-	public FairNode(string name, Zone zone, string profile, Settings settings, Vault vault, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow, vault)
+	public FairNode(string name, Zone zone, string profile, Settings settings, UosApiClient vault, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow, vault)
 	{
-		Settings = settings as FairNodeSettings ?? new FairNodeSettings(Path.Join(profile, Net.Address));
+		base.Settings = settings as FairNodeSettings ?? new FairNodeSettings(Path.Join(profile, Net.Address));
 
 		if(Flow.Log != null)
 		{

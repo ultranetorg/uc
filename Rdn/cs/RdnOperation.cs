@@ -8,7 +8,9 @@ public enum RdnOperationClass
 		DomainRegistration			= 100_000_001, 
 		DomainMigration				= 100_000_002, 
 		DomainBid					= 100_000_003, 
-		DomainUpdation				= 100_000_004,
+		DomainRenewal				= 100_000_004,
+		DomainTransfer				= 100_000_005,
+		DomainPolicyUpdation		= 100_000_006,
 
 	Resource						= 101,
 		ResourceCreation			= 101_000_001, 

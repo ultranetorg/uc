@@ -21,28 +21,21 @@ public class RdnTypeResolver : ApiTypeResolver
         var ti = base.GetTypeInfo(type, options);
 
         if(ti.Type == typeof(FuncPeerRequest))
-        {
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
 
         if(ti.Type == typeof(PeerResponse))
-        {
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
 
         if(ti.Type == typeof(NetException))
-        {
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
+
+         if(ti.Type == typeof(Operation))
+ 			foreach(var i in typeof(RdnOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(RdnOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+ 				ti.PolymorphismOptions.DerivedTypes.Add(i);
+
 
         return ti;
     }

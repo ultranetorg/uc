@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public class CandidacyDeclaration : Operation
 {
-	public IPAddress[]		BaseRdcIPs;
+	public IPAddress[]		BaseRdcIPs  { get; set; }
 
 	public override string	Description => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
 			

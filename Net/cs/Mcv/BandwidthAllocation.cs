@@ -2,8 +2,9 @@
 
 public class BandwidthAllocation : Operation
 {
-	public long				Bandwidth;
-	public short			Days;
+	public long				Bandwidth { get; set; }
+	public short			Days  { get; set; }
+
 	public override string	Description => $"Allocation of {Bandwidth} EC for {Days} days";
 	public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Net.BandwidthAllocationDaysMaximum;
 	

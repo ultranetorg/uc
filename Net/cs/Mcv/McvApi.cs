@@ -192,19 +192,19 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
-				foreach(var i in node.Vault.UnlockedAccounts)
-				{
-					var a = i.Address.ToString();
-
-					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
-
-					if(node.Peering.Synchronization == Synchronization.Synchronized)
-					{
-						f.Add(new ("   BD",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Spacetime:N}"));
-						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Energy:N}"));
-						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EnergyNext:N}"));
-					}
-				}
+/// 				foreach(var i in node.UosApi.Request())
+/// 				{
+/// 					var a = i.Address.ToString();
+/// 
+/// 					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
+/// 
+/// 					if(node.Peering.Synchronization == Synchronization.Synchronized)
+/// 					{
+/// 						f.Add(new ("   BD",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Spacetime:N}"));
+/// 						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Energy:N}"));
+/// 						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EnergyNext:N}"));
+/// 					}
+/// 				}
 			}
 		}
 
@@ -337,7 +337,16 @@ public class EstimateOperationApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
-		t.Sign(node.Vault.Find(By).Key, []);
+
+		t.Signer = By;
+		t.Signature	 = node.UosApi.Request<byte[]>(new AuthorizeApc{Net		= node.Mcv.Net.Name,
+																	Account	= By,
+																	Session = node.Settings.Sessions.First(i => i.Account == By).Session,
+																	Hash	= t.Hashify(node.Mcv.Net.Cryptography.ZeroHash),
+																	Trust	= Trust.None}, t.Flow);
+
+
+		///t.Sign(node.Vault.Find(By).Key, []);
 
 		return node.Peering.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 	}

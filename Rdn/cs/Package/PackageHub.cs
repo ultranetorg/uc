@@ -335,10 +335,10 @@ public class PackageHub
 
 			var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
 
-			var a = addresscreator.Create(Node.Vault, h);
+			var a = addresscreator.Create(null/*Node.Vault*/, h);
 			var r = Node.ResourceHub.Add(a);
 			 
- 				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
+ 			r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
 			r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream.ToArray());
 
 			if(istream != null)

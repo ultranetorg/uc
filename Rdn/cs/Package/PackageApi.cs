@@ -13,7 +13,7 @@ public class PackageAddApc : RdnApc
 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		var h = node.Net.Cryptography.HashFile(Manifest);
-		var a = AddressCreator.Create(node.Vault, h);
+		var a = AddressCreator.Create(null/*Vault*/, h);
 
 		lock(node.PackageHub.Lock)
 		{

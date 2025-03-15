@@ -1,4 +1,6 @@
-﻿namespace Uccs.Uos;
+﻿using Uccs.Net;
+
+namespace Uccs.Uos;
 
 public class NexusClient
 {

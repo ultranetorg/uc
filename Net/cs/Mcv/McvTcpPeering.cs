@@ -34,7 +34,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	new public McvNode						Node => base.Node as McvNode;
 	public McvNet							Net => Node.Net;
 	public Mcv								Mcv => Node.Mcv; 
-	public Vault							Vault; 
+	public UosApiClient						UosApi; 
 
 	public IEnumerable<Peer>				Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
 
@@ -53,63 +53,23 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 	public static List<McvTcpPeering>		All = new();
 
-	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, Vault vault, Flow flow) : base(node, node.Net, settings, roles, flow)
+	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, UosApiClient uosapi, Flow flow) : base(node, node.Net, settings, roles, flow)
 	{
-		Vault = vault;
+		UosApi = uosapi;
 
 		Register(typeof(McvPpcClass), node);
 	}
 
-	//public override string ToString()
-	//{
-	//	return string.Join(", ", new string[]{	Node.Name,
-	//											(Mcv.Settings.Base != null ? "B" : null) +
-	//											(Mcv.Settings.Base?.Chain != null  ? "C" : null) +
-	//											(Connections.Count() < Settings.PermanentMin ? "Low Peers" : null),
-	//											$"{Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}",
-	//											$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
-	//				.Where(i => !string.IsNullOrWhiteSpace(i)));
-	//}
-
 	public override object Constract(Type t, byte b)
 	{
-		//if(t == typeof(PeerRequest)	 && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Request").GetConstructor([]).Invoke(null) as PeerRequest;
-		//if(t == typeof(PeerResponse) && Enum.IsDefined(typeof(McvPeerCallClass), b))	return Assembly.GetExecutingAssembly().GetType(typeof(McvNode).Namespace + "." + (McvPeerCallClass)b + "Response").GetConstructor([]).Invoke(null) as PeerResponse;
-		//if(t == typeof(Operation))		return Mcv.CreateOperation(b); 
 		if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
  		if(t == typeof(Vote))			return new Vote(Mcv);
-
-// 			if(t == typeof(PeerRequest))		
-// 			{
-// 				var o = typeof(McvNode).Assembly.GetType(typeof(McvNode).Namespace + "." + ((McvPeerCallClass)b).ToString() + "Request");
-// 				
-// 				if(o != null)
-// 					return o.GetConstructor([]).Invoke(null);
-// 			}
-// 
-// 			if(t == typeof(PeerResponse))		
-// 			{
-// 				var o = typeof(McvNode).Assembly.GetType(typeof(McvNode).Namespace + "." + ((McvPeerCallClass)b).ToString() + "Response");
-// 				
-// 				if(o != null)
-// 					return o.GetConstructor([]).Invoke(null);
-// 			}
 
 		return base.Constract(t, b);
 	}
 	
 	public override byte TypeToCode(Type i)
 	{
-		//McvPeerCallClass c = 0;
-		//
-		//if(i.IsSubclassOf(typeof(PeerRequest)))
-		//	if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Request")), out c))
-		//		return (byte)c;
-		//
-		//if(i.IsSubclassOf(typeof(PeerResponse)))
-		//	if(Enum.TryParse(i.Name.Remove(i.Name.IndexOf("Response")), out c))
-		//		return (byte)c;
-
 		return base.TypeToCode(i);
 	}
 
@@ -755,7 +715,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					if(v.Transactions.Any() || must)
 					{
-						v.Sign(Vault.Find(g).Key);
+						///v.Sign(Vault.Find(g).Key);
+						v.Generator = g;
+						v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
+																				Account	= g,
+																				Session = GetSession(g),
+																				Hash	= v.Hashify(),
+																				Trust	= Trust.None}, Flow);						
+
 						votes.Add(v);
 					}
 				}
@@ -764,10 +731,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
  				{
  					r = r.Previous;
  
- 					var b = createvote(r);
+ 					var v = createvote(r);
  						
- 					b.Sign(Vault.Find(g).Key);
- 					votes.Add(b);
+ 					//b.Sign(Vault.Find(g).Key);
+					v.Generator = g;
+					v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
+																			Account	= g,
+																			Session = GetSession(g),
+																			Hash	= v.Hashify(),
+																			Trust	= Trust.None}, Flow);						
+
+ 					votes.Add(v);
  				}
 
 				if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
@@ -858,6 +832,20 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		MainWakeup.Set();
 	}
 
+	byte[] GetSession(AccountAddress signer)
+	{
+		var a = Node.Settings.Sessions.FirstOrDefault(i => i.Account == signer);
+
+		if(a != null)
+			return a.Session;
+
+		a = UosApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
+
+		Node.Settings.Sessions = [..Node.Settings.Sessions, a];
+
+		return a.Session;
+	}
+
 	void Transacting()
 	{
 		Flow.Log?.Report(this, "Transacting started");
@@ -923,8 +911,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Nid		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
+						t.Signature	 = UosApi.Request<byte[]>(new AuthorizeApc {Net		= Net.Name,
+																				Account	= t.Signer,
+																				Session = GetSession(t.Signer),
+																				Hash	= t.Hashify(Net.Cryptography.ZeroHash),
+																				Trust	= Trust.None}, t.Flow);
 
-						t.Sign(Vault.Find(t.Signer).Key, Net.Cryptography.ZeroHash);
+						///t.Sign(Vault.Find(t.Signer).Key, Net.Cryptography.ZeroHash);
 
 						var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 							
@@ -937,8 +930,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Bonus		 = 0;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
+						t.Signature	 = UosApi.Request<byte[]>(new AuthorizeApc {Net		= Net.Name,
+																				Account	= t.Signer,
+																				Session = GetSession(t.Signer),
+																				Hash	= t.Hashify(at.PowHash),
+																				Trust	= Trust.None}, t.Flow);
 
-						t.Sign(Vault.Find(t.Signer).Key, at.PowHash);
+						///t.Sign(Vault.Find(t.Signer).Key, at.PowHash);
 						txs.Add(t);
 
 						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Signature={t.Signature.ToHex()}");
@@ -1095,8 +1093,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
  	public Transaction Transact(IEnumerable<Operation> operations, AccountAddress signer, byte[] tag, TransactionStatus await, Flow flow)
  	{
-		if(!Vault.IsUnlocked(signer))
-			throw new NodeException(NodeError.NotUnlocked);
+		///if(!Vault.IsUnlocked(signer))
+		///	throw new NodeException(NodeError.NotUnlocked);
 
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);

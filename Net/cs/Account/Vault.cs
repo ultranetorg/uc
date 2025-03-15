@@ -13,6 +13,12 @@ public class AuthenticationChioce
 	public Trust			Trust { get; set; }
 }
 
+public class AccountSession
+{
+	public AccountAddress	Account { get; set; }
+	public byte[]			Session { get; set; }
+}
+
 public class Authentication : IBinarySerializable
 {
 	public string	Net { get; set; }

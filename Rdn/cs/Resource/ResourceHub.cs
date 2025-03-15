@@ -225,7 +225,7 @@ public class ResourceHub
 		index.Save(new XonBinaryWriter(ms));
 
 		var h = Net.Cryptography.HashFile(ms.ToArray());
-		var a = address.Create(Node.Vault, h);
+		var a = address.Create(null/*Node.Vault*/, h);
  				
 		var r = Add(a);
 
@@ -246,7 +246,7 @@ public class ResourceHub
 		var b = File.ReadAllBytes(path);
 
 		var h = Net.Cryptography.HashFile(b);
-		var a = address.Create(Node.Vault, h);
+		var a = address.Create(null/*Node.Vault*/, h);
  			
 		var r = Add(a);
 

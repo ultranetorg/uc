@@ -22,6 +22,8 @@ public class Node
 
 	//protected virtual void		CreateTables(ColumnFamilies columns) {}
 
+	//public UosApiClient
+
 	public Node(string name, Net net, string profile, Flow flow)
 	{
 		Name = name ?? Guid.NewGuid().ToString();

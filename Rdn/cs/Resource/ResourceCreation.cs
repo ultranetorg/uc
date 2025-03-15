@@ -44,14 +44,6 @@ public class ResourceCreation : RdnOperation
 		if(RequireDomainAccess(round, Address.Domain, out var d) == false)
 			return;
 
-// 			var s = round.Mcv.Sites.Find(d.Id, round.Id);
-// 
-// 			if(s == null)
-// 			{
-// 				Error = NotFound;
-// 				return;
-// 			}
-
 		var r = round.Mcv.Resources.Find(Address, round.Id);
 				
 		if(r != null)
