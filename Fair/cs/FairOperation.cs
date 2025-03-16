@@ -35,9 +35,9 @@ public enum FairOperationClass : uint
 
 		Publication						= 103_002,
 			PublicationCreation			= 103_002_001,
-			PublicationStatusUpdation	= 103_002_002,
-			PublicationProductUpdation	= 103_002_003,
-			PublicationChangeModeration	= 103_002_004,
+			PublicationStatusChange	= 103_002_002,
+			PublicationProductChange	= 103_002_003,
+			PublicationUpdateModeration	= 103_002_004,
 			PublicationDeletion			= 103_002_999,
 
 		Review						= 103_003,
@@ -66,20 +66,6 @@ public abstract class FairOperation : Operation
 	{
 		Execute(mcv as FairMcv, round as FairRound);
 	}
-
-	public virtual bool ValidProposal(FairMcv mcv, FairRound round, Site site)
- 	{
-		return true;
- 	}
-
- 	public virtual bool Overlaps(FairOperation other)
- 	{
-		return false;
- 	}
-
-	public virtual void Execute(FairMcv mcv, FairRound round, SiteEntry site)
-	{
- 	}
 
 	public bool RequireAccount(Round round, EntityId id, out FairAccountEntry account)
 	{
@@ -240,12 +226,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequirePublicationAccess(FairRound round, EntityId id, AccountEntry signer, out PublicationEntry publication)
+ 	public bool RequirePublicationAccess(FairRound round, EntityId id, AccountEntry signer, out PublicationEntry publication, out SiteEntry site)
  	{
+		site = null;
+
  		if(!RequirePublication(round, id, out publication))
  			return false; 
  
- 		if(!RequireSiteAccess(round, round.Mcv.Categories.Find(publication.Category, round.Id).Site, out var s))
+ 		if(!RequireSiteAccess(round, round.Mcv.Categories.Find(publication.Category, round.Id).Site, out site))
  			return false;
  
  		return true;
@@ -290,4 +278,11 @@ public abstract class FairOperation : Operation
 
 		return true;
 	}
+}
+
+public abstract class VotableOperation : FairOperation
+{
+	public abstract bool ValidProposal(FairMcv mcv, FairRound round, Site site);
+ 	public abstract bool Overlaps(VotableOperation other);
+	public abstract void Execute(FairMcv mcv, FairRound round, SiteEntry site);
 }

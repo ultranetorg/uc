@@ -42,6 +42,10 @@ public class SiteCreation : FairOperation
 		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
 
+		s.ChangePolicies[FairOperationClass.PublicationStatusChange]		= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationProductChange]		= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.ChangePolicies[FairOperationClass.PublicationUpdateModeration]	= ChangePolicy.AnyModerator;
+
 		Signer.Sites = [..Signer.Sites, s.Id];
 
 		Prolong(round, Signer, s, Time.FromYears(Years));

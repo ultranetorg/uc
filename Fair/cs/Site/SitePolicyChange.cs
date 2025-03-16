@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePolicyChange : FairOperation
+public class SitePolicyChange : VotableOperation
 {
 	public EntityId				Site { get; set; }
 	public FairOperationClass	Change { get; set; }
@@ -14,7 +14,7 @@ public class SitePolicyChange : FairOperation
 		return site.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
  	}
 
-	public bool Overlaps(Operation other)
+	public override bool Overlaps(VotableOperation other)
 	{
 		var o = other as SitePolicyChange;
 		
@@ -37,16 +37,7 @@ public class SitePolicyChange : FairOperation
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
- 		if(!RequireSiteAccess(round, Site, out var s))
- 			return;
-
- 		if(s.ChangePolicies[FairOperationClass.SitePolicyChange] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
-
- 		Execute(mcv, round, s);
+		Error = Denied;
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class SiteAuthorsChange : FairOperation
+public class SiteAuthorsChange : VotableOperation
 {
 	public EntityId				Site { get; set; }
 	public EntityId[]			Additions { get; set; }
@@ -22,7 +22,7 @@ public class SiteAuthorsChange : FairOperation
 		return true;
  	}
 
-	public bool Overlaps(Operation other)
+	public override bool Overlaps(VotableOperation other)
 	{
 		var o = other as SiteAuthorsChange;
 		

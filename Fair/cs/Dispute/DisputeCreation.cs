@@ -2,13 +2,13 @@ namespace Uccs.Fair;
 
 public class DisputeCreation : FairOperation
 {
-	public EntityId				Site { get; set; }
-	public EntityId				Creator { get; set; }
-	public string				Text { get; set; }
-	public FairOperation		Proposal { get; set; }
+	public EntityId				    Site { get; set; }
+	public EntityId				    Creator { get; set; }
+	public string				    Text { get; set; }
+	public VotableOperation	Proposal { get; set; }
 	
-	public override bool		IsValid(Mcv mcv) => true;
-	public override string		Description => $"{Id}";
+	public override bool		    IsValid(Mcv mcv) => true;
+	public override string		    Description => $"{Id}";
 
 	public DisputeCreation()
 	{
@@ -20,7 +20,7 @@ public class DisputeCreation : FairOperation
 		Creator		= reader.Read<EntityId>();
  		Text		= reader.ReadUtf8();
 
- 		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as FairOperation;
+ 		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
  		Proposal.Read(reader); 
 	}
 
