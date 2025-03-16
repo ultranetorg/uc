@@ -71,7 +71,7 @@ public class FairRound : Round
 			else
 				a = CreateAccount(transaction.Signer);
 
-			AffectedAccounts[a.Address] = a;
+			AffectedAccounts[a.Id] = a;
 
 			return a;
 		}

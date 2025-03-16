@@ -32,15 +32,4 @@ public class ProductTable : Table<ProductEntry>
 	{
 		return new ProductEntry(Mcv);
 	}
-
-	public ProductEntry Find(EntityId id, int ridmax)
-	{
-  		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedProducts.TryGetValue(id, out var r))
-    			return r;
-
-		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
-
-		return e;
-	}
  }

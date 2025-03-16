@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Uccs.Rdn;
+﻿namespace Uccs.Rdn;
 
 public class ResourceTable : Table<ResourceEntry>
 {
@@ -16,15 +14,11 @@ public class ResourceTable : Table<ResourceEntry>
 		return new ResourceEntry(Mcv);
 	}
 
-	public ResourceEntry Find(EntityId id, int ridmax)
+	public override ResourceEntry Find(EntityId id, int ridmax)
 	{
-  		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedResources.TryGetValue(id, out var r) && !r.Deleted)
-   				return r;
+		var e = base.Find(id, ridmax);
 
-		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
-
-		if(e == null || e.Deleted)
+		if(e == null)
 			return null;
 
 		e.Address.Domain = Mcv.Domains.Find(e.Domain, ridmax).Address;

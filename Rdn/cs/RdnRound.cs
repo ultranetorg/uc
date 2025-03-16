@@ -6,7 +6,7 @@ public class RdnRound : Round
 {
 	public new RdnMcv								Mcv => base.Mcv as RdnMcv;
 	public List<DomainMigration>					Migrations;
-	public Dictionary<string, DomainEntry>			AffectedDomains = [];
+	public Dictionary<EntityId, DomainEntry>		AffectedDomains = [];
 	public Dictionary<EntityId, ResourceEntry>		AffectedResources = [];
 	public Dictionary<int, int>						NextDomainEids = [];
 	public Dictionary<int, int>						NextResourceEids = [];
@@ -32,37 +32,36 @@ public class RdnRound : Round
 
 	public DomainEntry AffectDomain(string address)
 	{
-		if(AffectedDomains.TryGetValue(address, out var d))
+		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == address) is DomainEntry d && !d.Deleted)
 			return d;
 		
 		d = Mcv.Domains.Find(address, Id - 1);
 
 		if(d != null)
-			return AffectedDomains[address] = d.Clone();
+			return AffectedDomains[d.Id] = d.Clone();
 		else
 		{
 			var b = Mcv.Domains.KeyToBid(address);
 			
 			int e = GetNextEid(Mcv.Domains, b);
 
-			return AffectedDomains[address] = new DomainEntry(Mcv) {Id = new EntityId(b, e), 
-																	Address = address};
+			d = new DomainEntry(Mcv) {Id = new EntityId(b, e), Address = address};
+
+			return AffectedDomains[d.Id] = d;
 		}
 	}
 
 	public DomainEntry AffectDomain(EntityId id)
 	{
-		var a = AffectedDomains.Values.FirstOrDefault(i => i.Id == id);
-		
-		if(a != null)
+		if(AffectedDomains.TryGetValue(id, out var a))
 			return a;
-		
+			
 		a = Mcv.Domains.Find(id, Id - 1);
 
 		if(a == null)
 			throw new IntegrityException();
 		
-		return AffectedDomains[a.Address] = a.Clone();
+		return AffectedDomains[a.Id] = a.Clone();
 	}
 
 	public ResourceEntry AffectResource(EntityId id)

@@ -26,13 +26,12 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 			
 			if(Transaction.Successful)
 			{
-				var b = r.AffectedAccounts[Transaction.Signer];
+				var b = r.AffectedAccounts.Values.First(i => i.Address == Transaction.Signer);
 				
 				var atr = new AllocateTransactionResponse  {Generator			= m.Id,
 															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
 															PowHash				= Mcv.LastConfirmedRound.Hash,
-															NextNid				= Transaction.Nid,
-															};
+															NextNid				= Transaction.Nid};
 
 				if(a != null)
 				{

@@ -421,6 +421,15 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return c?.FindBucket(id);
 	}
 
+	public virtual E Find(EntityId id, int ridmax)
+	{
+  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
+			if((i.AffectedByTable(this) as IDictionary<EntityId, E>).TryGetValue(id, out var r) && !r.Deleted)
+    			return r;
+
+		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
+	}
+
 ///		public class Enumerator : IEnumerator<E>
 ///		{
 ///			public E Current => Entity.Current;

@@ -51,7 +51,7 @@ public abstract class Round : IBinarySerializable
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
 
-	public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
+	public Dictionary<EntityId, AccountEntry>			AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 	public Dictionary<int, int>							NextAccountEids;
 	public EntityId										LastCreatedId;
@@ -191,7 +191,7 @@ public abstract class Round : IBinarySerializable
 			a.New		= true;
 			
 
-			AffectedAccounts[address] = a;
+			AffectedAccounts[a.Id] = a;
 //		}
 
 		return a;
@@ -204,7 +204,7 @@ public abstract class Round : IBinarySerializable
 
 		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
 
-		AffectedAccounts[a.Address] = a;
+		AffectedAccounts[a.Id] = a;
 
 		TransferECIfNeeded(a);
 
