@@ -28,7 +28,7 @@ public class Authentication : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Net = reader.ReadString();
-		Trust = reader.ReadEnum<Trust>();
+		Trust = reader.Read<Trust>();
 		
 		if(Trust != Trust.None)
 		{
@@ -39,7 +39,7 @@ public class Authentication : IBinarySerializable
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Net);
-		writer.WriteEnum(Trust);
+		writer.Write(Trust);
 		
 		if(Trust != Trust.None)
 		{

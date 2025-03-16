@@ -64,7 +64,7 @@ public class Analysis : IBinarySerializable
 		BYPayment	= reader.Read7BitEncodedInt64();
 		ECPayment	= reader.Read7BitEncodedInt64();
 		Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
-																  Result = reader.ReadEnum<AnalysisResult>() });
+																  Result = reader.Read<AnalysisResult>() });
 	}
 
 	public void Write(BinaryWriter writer)
@@ -74,7 +74,7 @@ public class Analysis : IBinarySerializable
 		writer.Write7BitEncodedInt64(BYPayment);
 		writer.Write7BitEncodedInt64(ECPayment);
 		writer.Write(Results, i => { writer.Write(i.Analyzer);
-									 writer.WriteEnum(i.Result); });
+									 writer.Write(i.Result); });
 	}
 
 //	public Analysis Clone()

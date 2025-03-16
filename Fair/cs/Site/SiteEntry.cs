@@ -20,7 +20,7 @@ public class SiteEntry : Site, ITableEntry
 									Title					= Title,
 									ModerationReward		= ModerationReward,
 									
-									ModeratorElectionPolicy			= ModeratorElectionPolicy,
+									ChangePolicies			= ChangePolicies,
 
 									Expiration				= Expiration,
 									Space					= Space,

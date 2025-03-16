@@ -34,12 +34,12 @@ public class Publication : IBinarySerializable
 		Category		= reader.Read<EntityId>();
 		Creator			= reader.Read<EntityId>();
 		Product			= reader.Read<EntityId>();
-		Status			= reader.ReadEnum<PublicationStatus>();
+		Status			= reader.Read<PublicationStatus>();
 		Fields			= reader.ReadArray<ProductFieldVersionReference>();
 		Changes			= reader.ReadArray<ProductFieldVersionReference>();
 		Reviews			= reader.ReadArray<EntityId>();
 		ReviewChanges	= reader.ReadArray<EntityId>();
-		Flags			= reader.ReadEnum<PublicationFlags>();
+		Flags			= reader.Read<PublicationFlags>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -48,11 +48,11 @@ public class Publication : IBinarySerializable
 		writer.Write(Category);
 		writer.Write(Creator);
 		writer.Write(Product);
-		writer.WriteEnum(Status);
+		writer.Write(Status);
 		writer.Write(Fields);
 		writer.Write(Changes);
 		writer.Write(Reviews);
 		writer.Write(ReviewChanges);
-		writer.WriteEnum(Flags);
+		writer.Write(Flags);
 	}
 }

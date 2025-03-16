@@ -43,7 +43,7 @@ public class Review : IBinarySerializable
 		Id			= reader.Read<EntityId>();
 		Publication	= reader.Read<EntityId>();
 		Creator		= reader.Read<EntityId>();
-		Status		= reader.ReadEnum<ReviewStatus>();
+		Status		= reader.Read<ReviewStatus>();
 		Rate		= reader.ReadByte();
 		Text		= reader.ReadString();
 		TextNew		= reader.ReadString();
@@ -56,7 +56,7 @@ public class Review : IBinarySerializable
 		writer.Write(Id);
 		writer.Write(Publication);
 		writer.Write(Creator);
-		writer.WriteEnum(Status);
+		writer.Write(Status);
 		writer.Write(Rate);
 		writer.Write(Text);
 		writer.Write(TextNew);

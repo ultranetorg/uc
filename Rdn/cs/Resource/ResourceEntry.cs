@@ -31,7 +31,7 @@ public class ResourceEntry : Resource, ITableEntry
 		writer.Write(Id);
 		writer.Write7BitEncodedInt(Domain.E);
 		writer.WriteUtf8(Address.Resource);
-		writer.WriteEnum(Flags);
+		writer.Write(Flags);
 		writer.Write(Updated);
 		
 		if(Flags.HasFlag(ResourceFlags.Data))
@@ -46,7 +46,7 @@ public class ResourceEntry : Resource, ITableEntry
 		Id		= reader.Read<EntityId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
 		Address = new Ura(null, reader.ReadUtf8());
-		Flags	= reader.ReadEnum<ResourceFlags>();
+		Flags	= reader.Read<ResourceFlags>();
 		Updated	= reader.Read<Time>();
 
 		if(Flags.HasFlag(ResourceFlags.Data))

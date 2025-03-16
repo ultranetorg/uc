@@ -114,7 +114,7 @@ public class Product : IBinarySerializable
 	{
 		writer.Write(Id);
 		writer.Write(Author);
-		writer.WriteEnum(Flags);
+		writer.Write(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
 		writer.Write(Publications);
@@ -124,7 +124,7 @@ public class Product : IBinarySerializable
 	{
 		Id				= reader.Read<EntityId>();
 		Author			= reader.Read<EntityId>();
-		Flags			= reader.ReadEnum<ProductFlags>();
+		Flags			= reader.Read<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
 		Publications	= reader.ReadArray<EntityId>();

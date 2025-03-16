@@ -142,7 +142,8 @@ internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IUosApc
 {
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
+		lock(uos)
+			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
 	}
 }
 
@@ -150,14 +151,17 @@ internal class AuthenticateApc : Net.AuthenticateApc, IUosApc
 {
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		var c = uos.AuthenticationRequested(Net, Account);
-
-		if(c != null)
+		lock(uos)
 		{
-			return new AccountSession {Account = c.Account, Session = uos.Vault.Find(c.Account).GetAuthentication(Net, c.Trust).Session};
-		} 
-		else
-			return null;
+			var c = uos.AuthenticationRequested(Net, Account);
+	
+			if(c != null)
+			{
+				return new AccountSession {Account = c.Account, Session = uos.Vault.Find(c.Account).GetAuthentication(Net, c.Trust).Session};
+			} 
+			else
+				return null;
+		}
 	}
 }
 
@@ -185,6 +189,6 @@ internal class AuthorizeApc : Net.AuthorizeApc, IUosApc
 			uos.AuthorizationRequested(Net, Account);
 		}
 
-		return uos.Settings.Rdn.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
+		return uos.Vault.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
 	}
 }

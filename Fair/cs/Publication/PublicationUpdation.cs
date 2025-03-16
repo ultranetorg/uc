@@ -30,13 +30,13 @@ public class PublicationStatusUpdation : PublicationUpdation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Publication	= reader.Read<EntityId>();
-		Status		= reader.ReadEnum<PublicationStatus>();
+		Status		= reader.Read<PublicationStatus>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Publication);
-		writer.WriteEnum(Status);
+		writer.Write(Status);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)

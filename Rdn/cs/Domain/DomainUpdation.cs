@@ -177,13 +177,13 @@ public class DomainPolicyUpdation : RdnOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
-		Policy	= reader.ReadEnum<DomainChildPolicy>();
+		Policy	= reader.Read<DomainChildPolicy>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteEnum(Policy);
+		writer.Write(Policy);
 	}
 
 	public override void Execute(RdnMcv mcv, RdnRound round)

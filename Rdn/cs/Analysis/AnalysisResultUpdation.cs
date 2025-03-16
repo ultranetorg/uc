@@ -17,14 +17,14 @@ public class AnalysisResultUpdation : RdnOperation
 	{
 		//writer.Write(Resource);
 		writer.Write(Analysis);
-		writer.WriteEnum(Result);
+		writer.Write(Result);
 	}
 	
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		//Resource = reader.Read<ResourceId>();
 		Analysis = reader.Read<EntityId>();
-		Result	 = reader.ReadEnum<AnalysisResult>();
+		Result	 = reader.Read<AnalysisResult>();
 	}
 
 	public override void Execute(RdnMcv mcv, RdnRound round)

@@ -65,8 +65,8 @@ public class AddAccountToWalletApc : Apc
 public class IsAuthenticatedApc : Apc
 {
 	public string			Net { get; set; }
-	public byte[]			Session { get; set; }
 	public AccountAddress	Account { get; set; }
+	public byte[]			Session { get; set; }
 }
 
 public class AuthenticateApc : Apc

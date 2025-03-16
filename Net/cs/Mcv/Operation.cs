@@ -200,4 +200,18 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 		return true;
 	}
+
+	public bool RequireAccountAccess(Round round, EntityId id, out AccountEntry account)
+	{
+		if(!RequireAccount(round, id, out account))
+			return false;
+
+		if(account.Address != Signer.Address)
+		{
+			Error = Denied;
+			return false;
+		}
+
+		return true;
+	}
 }

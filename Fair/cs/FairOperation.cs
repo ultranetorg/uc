@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Fair;
 
-public enum FairOperationClass
+public enum FairOperationClass : uint
 {
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
@@ -20,6 +20,9 @@ public enum FairOperationClass
 	Site							= 102,
 		SiteCreation				= 102_000_001, 
 		SiteRewal					= 102_000_002,
+		SitePolicyChange			= 102_000_003,
+		SiteAuthorsChange			= 102_000_004,
+		SiteModeratorsChange		= 102_000_005,
 		SiteDeletion				= 102_000_999,
 	
 	Store							= 103,
@@ -63,6 +66,20 @@ public abstract class FairOperation : Operation
 	{
 		Execute(mcv as FairMcv, round as FairRound);
 	}
+
+	public virtual bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+ 	{
+		return true;
+ 	}
+
+ 	public virtual bool Overlaps(FairOperation other)
+ 	{
+		return false;
+ 	}
+
+	public virtual void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	{
+ 	}
 
 	public bool RequireAccount(Round round, EntityId id, out FairAccountEntry account)
 	{

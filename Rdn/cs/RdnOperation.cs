@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public enum RdnOperationClass
+public enum RdnOperationClass : uint
 {
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 

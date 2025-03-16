@@ -17,13 +17,13 @@ public class ReviewStatusUpdation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Review	= reader.Read<EntityId>();
-		Status	= reader.ReadEnum<ReviewStatus>();
+		Status	= reader.Read<ReviewStatus>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Review);
-		writer.WriteEnum(Status);
+		writer.Write(Status);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)

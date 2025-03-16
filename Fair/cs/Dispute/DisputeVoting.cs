@@ -1,130 +1,133 @@
 namespace Uccs.Fair;
 
+public enum DisputeVote : byte
+{
+	Abstained, Yes, No, 
+}
+
 public class DisputeVoting : FairOperation
 {
 	public EntityId				Dispute { get; set; }
 	public EntityId				Voter { get; set; }
-	public bool					Pro { get; set; }
+	public DisputeVote			Vote { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
-	public override string		Description => $"{Id}";
+	public override bool		IsValid(Mcv mcv) => Enum.IsDefined<DisputeVote>(Vote);
+	public override string		Description => $"{Id}, {Voter}, {Vote}";
 
 	public DisputeVoting()
 	{
 	}
 
-	public DisputeVoting(EntityId dispute, EntityId voter, bool pro)
+	public DisputeVoting(EntityId dispute, EntityId voter, DisputeVote pro)
 	{
 		Dispute = dispute;
 		Voter = voter;
-		Pro = pro;
+		Vote = pro;
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Dispute	= reader.Read<EntityId>();
 		Voter	= reader.Read<EntityId>();
-		Pro		= reader.ReadBoolean();
+		Vote	= reader.Read<DisputeVote>();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Dispute);
 		writer.Write(Voter);
-		writer.Write(Pro);
+		writer.Write(Vote);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(!RequireDispute(round, Dispute, out var d))
-			return;
+ 		if(!RequireDispute(round, Dispute, out var d))
+ 			return;
+ 
+ 		if(!RequireSite(round, d.Site, out var s))
+ 			return;
+ 
+ 		if(d.Yes.Contains(Voter) || d.No.Contains(Voter) || d.Abs.Contains(Voter))
+ 		{
+ 			Error = AlreadyExists;
+ 			return;
+ 		}
+ 
+        var policy = s.ChangePolicies[Enum.Parse<FairOperationClass>(d.Proposal.GetType().Name)];
 
-		if(!RequireSite(round, d.Site, out var s))
-			return;
-
-		if(!d.Flags.HasFlag(DisputeFlags.Referendum))
-		{
-			if(d.Pros.Contains(Signer.Id) || d.Cons.Contains(Signer.Id))
-			{
-				Error = AlreadyExists;
-				return;
-			}
-
-			if(!s.Moderators.Contains(Voter))
-			{
-				Error = Denied;
-				return;
-			}
-
-			if(!RequireSiteAccess(round, d.Site, out s))
-				return;
-		}
-		else
-		{
-			if(d.Pros.Contains(Voter) || d.Cons.Contains(Voter))
-			{
-				Error = AlreadyExists;
-				return;
-			}
-
-			if(!s.Authors.Contains(Voter))
-			{
-				Error = Denied;
-				return;
-			}
-
-			if(!RequireAuthorAccess(round, Voter, out var a))
-				return;
-		}
-
-		d = round.AffectDispute(Dispute);
-
-		if(Pro)
-			d.Pros = [..d.Pros, Voter];
-		else
-			d.Cons = [..d.Cons, Voter];
-
-		var success = s.ModeratorElectionPolicy	switch
-												{
-													ElectionPolicy.AnyModerator				=> d.Pros.Length > 0,
-													ElectionPolicy.ModeratorsMajority		=> d.Pros.Length > s.Moderators.Length/2,
-													ElectionPolicy.ModeratorsUnanimously	=> d.Pros.Length == s.Moderators.Length,
-													ElectionPolicy.AuthorsMajority			=> d.Pros.Length > s.Authors.Length/2,
-													_ => throw new IntegrityException()
-												};
-
-		if(success)
-		{
-			d.Pros = [];
-			d.Cons = [];
-			d.Flags |= DisputeFlags.Resolved;
-
-			d.Proposal.Execute(d.Site, round);
-		}
-
-		var fail = s.ModeratorElectionPolicy switch
-											 {
-												ElectionPolicy.AnyModerator				=> d.Cons.Length > 0,
-												ElectionPolicy.ModeratorsMajority		=> d.Cons.Length > s.Moderators.Length/2,
-												ElectionPolicy.ModeratorsUnanimously	=> d.Cons.Length == s.Moderators.Length,
-												ElectionPolicy.AuthorsMajority			=> d.Cons.Length > s.Authors.Length/2,
-												_ => throw new IntegrityException()
-											 };
-
-		if(d.Cons.Length > s.Authors.Length/2)
-		{
-			s = round.AffectSite(d.Site);
-			s.Disputes = s.Disputes.Where(i => i != d.Id).ToArray();
-
-			d.Deleted = true;
-		}
-
-		if(d.Expirtaion < round.ConsensusTime)
-		{
-			s = round.AffectSite(d.Site);
-			s.Disputes = s.Disputes.Remove(d.Id);
-
-			d.Deleted = true;
-		}
+ 		switch(policy)
+ 		{
+ 			case ChangePolicy.ElectedByModeratorsMajority :
+ 			case ChangePolicy.ElectedByModeratorsUnanimously :
+ 			{
+ 				if(!s.Moderators.Contains(Voter)) /// Voter is Account
+ 				{
+ 					Error = Denied;
+ 					return;
+ 				}
+ 
+ 				if(!RequireAccountAccess(round, Voter, out var _))
+ 					return;
+ 
+ 				break;
+ 			}
+ 			
+ 			case ChangePolicy.ElectedByAuthorsMajority :
+ 			{
+ 				if(!s.Authors.Contains(Voter)) /// Voter is Author
+ 				{
+ 					Error = Denied;
+ 					return;
+ 				}
+ 
+ 				if(!RequireAuthorAccess(round, Voter, out var _))
+ 					return;
+ 
+ 				break;
+ 			}
+ 		}
+ 
+ 		d = round.AffectDispute(Dispute);
+ 
+ 		switch(Vote)
+ 		{
+ 			case DisputeVote.Yes:		d.Yes	= [..d.Yes, Voter];	break;
+ 			case DisputeVote.No:		d.No	= [..d.No, Voter];	break;
+ 			case DisputeVote.Abstained:	d.Abs	= [..d.Abs, Voter];	break;
+ 		}
+ 
+ 		var success = policy switch
+ 							 {
+ 								ChangePolicy.ElectedByModeratorsMajority	=> d.Yes.Length > s.Moderators.Length/2,
+ 								ChangePolicy.ElectedByModeratorsUnanimously	=> d.Yes.Length == s.Moderators.Length,
+ 								ChangePolicy.ElectedByAuthorsMajority		=> d.Yes.Length > s.Authors.Length/2,
+ 								_ => throw new IntegrityException()
+ 							 };
+ 
+ 		var	fail = policy	switch
+ 						    {
+ 							    ChangePolicy.ElectedByModeratorsMajority	=> d.No.Length > s.Moderators.Length/2,
+ 							    ChangePolicy.ElectedByModeratorsUnanimously	=> d.No.Length == s.Moderators.Length,
+ 							    ChangePolicy.ElectedByAuthorsMajority		=> d.No.Length > s.Authors.Length/2,
+ 							    _ => throw new IntegrityException()
+ 						    };
+ 
+ 		if(success)
+ 		{
+ 			d.Yes = [];
+ 			d.No = [];
+ 			d.Abs = [];
+ 			d.Flags |= DisputeFlags.Resolved;
+ 
+ 			d.Proposal.Execute(mcv, round, s);
+ 		}
+ 
+ 		if(fail || d.Expirtaion < round.ConsensusTime)
+ 		{
+ 			s = round.AffectSite(d.Site);
+ 			s.Disputes = s.Disputes.Remove(d.Id);
+ 
+ 			d.Deleted = true;
+ 		}
 	}
 }

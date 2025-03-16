@@ -2,8 +2,8 @@
 
 public class DisputeEntry : Dispute, ITableEntry
 {
-	public bool				Deleted { get; set; }
-	FairMcv					Mcv;
+	public bool			Deleted { get; set; }
+	FairMcv				Mcv;
 
 	public DisputeEntry()
 	{
@@ -20,10 +20,12 @@ public class DisputeEntry : Dispute, ITableEntry
 										Id			= Id,	
 										Site		= Site,	
 										Flags		= Flags,
+										Yes			= Yes,
+										No			= No,
+										Abs			= Abs,
+										Expirtaion	= Expirtaion,
+										Text		= Text,
 										Proposal	= Proposal,
-										Pros		= Pros,
-										Cons		= Cons,
-										Expirtaion	= Expirtaion
 									};
 		return a;
 	}

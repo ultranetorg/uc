@@ -32,7 +32,7 @@ public class DomainRegistration : RdnOperation
 		if(Domain.IsChild(Address))
 		{
 			Owner = reader.Read<AccountAddress>();
-			Policy	= reader.ReadEnum<DomainChildPolicy>();
+			Policy	= reader.Read<DomainChildPolicy>();
 		}
 	}
 
@@ -44,7 +44,7 @@ public class DomainRegistration : RdnOperation
 		if(Domain.IsChild(Address))
 		{
 			writer.Write(Owner);
-			writer.WriteEnum(Policy);
+			writer.Write(Policy);
 		}
 	}
 

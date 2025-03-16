@@ -6,9 +6,9 @@ namespace Uccs.Fair;
 // 	ElectModerators	= 0b_0000_0001
 // }
 
-public enum ElectionPolicy : byte
+public enum ChangePolicy : byte
 {
-	None, AnyModerator, ModeratorsMajority, ModeratorsUnanimously, AuthorsMajority
+	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
 }
 
 // public class PolicyValue
@@ -25,7 +25,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public string					Title { get; set; }
 	public int						ModerationReward { get; set; }
 	
-	public ElectionPolicy			ModeratorElectionPolicy { get; set; }
+	public OrderedDictionary<FairOperationClass, ChangePolicy> ChangePolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -66,7 +66,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Title					= reader.ReadUtf8();
 		ModerationReward		= reader.Read7BitEncodedInt();
 		
-		ModeratorElectionPolicy	= reader.ReadEnum<ElectionPolicy>();
+		ChangePolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
 
 		Expiration				= reader.ReadInt16();
 		Space					= reader.Read7BitEncodedInt64();
@@ -86,7 +86,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
 		
-		writer.WriteEnum(ModeratorElectionPolicy);
+		writer.Write(ChangePolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);

@@ -3,9 +3,9 @@ namespace Uccs.Fair;
 public class DisputeCreation : FairOperation
 {
 	public EntityId				Site { get; set; }
-	public Proposal				Proposal { get; set; }
-	public short				Days { get; set; }
-	public bool					Referendum { get; set; }
+	public EntityId				Creator { get; set; }
+	public string				Text { get; set; }
+	public FairOperation		Proposal { get; set; }
 	
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
@@ -17,71 +17,103 @@ public class DisputeCreation : FairOperation
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Site		= reader.Read<EntityId>();
-		Proposal	= reader.Read<Proposal>();
-		Days		= reader.ReadInt16();
-		Referendum	= reader.ReadBoolean();
+		Creator		= reader.Read<EntityId>();
+ 		Text		= reader.ReadUtf8();
+
+ 		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as FairOperation;
+ 		Proposal.Read(reader); 
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Site);
-		writer.Write(Proposal);
-		writer.Write(Days);
-		writer.Write(Referendum);
+		writer.Write(Creator);
+ 		writer.WriteUtf8(Text);
+
+		writer.Write(Enum.Parse<FairOperationClass>(Proposal.GetType().Name));
+		Proposal.Write(writer);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round)
 	{
-		if(!RequireSite(round, Site, out var s))
-			return;
+ 		if(!RequireSite(round, Site, out var s))
+ 			return;
+ 
+        var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
 
-		if(!Proposal.Valid(s, round))
-		{
-			Error = InvalidProposal;
-			return;
-		}
+ 		if(!s.ChangePolicies.TryGetValue(t, out var p) || p == ChangePolicy.AnyModerator)
+ 		{
+ 			Error = InvalidProposal;
+ 			return;
+ 		}
+ 
+ 		if(!Proposal.ValidProposal(mcv, round, s))
+ 		{
+ 			Error = InvalidProposal;
+ 			return;
+ 		}
+ 
+ 		if(s.Disputes.Any(i =>  {
+                                    var p = round.FindDispute(i).Proposal;
 
-		if(s.Disputes.Any(i => round.FindDispute(i).Proposal.Overlaps(Proposal)))
-		{
-			Error = AlreadyExists;
-			return;
-		}
-
-		if(Referendum)
-		{
-			if(Proposal.Change == ProposalChange.Authors)
-			{
-				Error = Denied;
-				return;
-			}
-		}
-		else
-		{
-			if(Proposal.Change == ProposalChange.Moderators && !(s.ModeratorElectionPolicy == ElectionPolicy.AnyModerator ||
-																 s.ModeratorElectionPolicy == ElectionPolicy.ModeratorsMajority ||
-																 s.ModeratorElectionPolicy == ElectionPolicy.ModeratorsUnanimously))
-			{
-				Error = Denied;
-				return;
-			}
-	
-			if(Proposal.Change == ProposalChange.ModeratorElectionPolicy)
-			{
-				Error = Denied;
-				return;
-			}
-		}
-
-		var d = round.CreateDispute(s);
-
-		d.Site = Site;
-		d.Flags = (Referendum ? DisputeFlags.Referendum : 0);
-		d.Proposal = Proposal;
-		d.Expirtaion = round.ConsensusTime + Time.FromDays(Days);
-
-		AllocateEntity(Signer);
-
-		s = round.AffectSite(s.Id);
-		s.Disputes = [..s.Disputes, d.Id];
+                                    if(p.GetType() != Proposal.GetType())
+                                        return false;
+                                    
+                                    return p.Overlaps(Proposal);
+                                }))
+ 		{
+ 			Error = AlreadyExists;
+ 			return;
+ 		}
+ 
+ 		switch(s.ChangePolicies[t])
+ 		{
+ 			case ChangePolicy.ElectedByModeratorsMajority :
+ 			case ChangePolicy.ElectedByModeratorsUnanimously :
+ 			{
+ 				if(!s.Moderators.Contains(Creator))
+ 				{
+ 					Error = Denied;
+ 					return;
+ 				}
+ 			
+ 				if(!RequireAccountAccess(round, Creator, out var _))
+ 					return;
+ 
+ 				break;
+ 			}
+ 			
+ 			case ChangePolicy.ElectedByAuthorsMajority :
+ 			{
+ 				if(!s.Authors.Contains(Creator))
+ 				{
+ 					Error = Denied;
+ 					return;
+ 				}
+ 
+ 				if(!RequireAuthorAccess(round, Creator, out var _))
+ 					return;
+ 
+ 				break;
+ 			}
+ 
+ 			default:
+ 			{
+ 				Error = Denied;
+ 				return;
+ 			}
+ 		}
+ 
+ 		var d = round.CreateDispute(s);
+ 
+ 		d.Site       = Site;
+        d.Text       = Text;
+ 		d.Proposal   = Proposal;
+ 		d.Expirtaion = round.ConsensusTime + Time.FromDays(30);
+ 
+ 		AllocateEntity(Signer);
+ 
+ 		s = round.AffectSite(s.Id);
+ 		s.Disputes = [..s.Disputes, d.Id];
 	}
 }

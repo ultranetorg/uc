@@ -177,6 +177,7 @@ public class FairRound : Round
 		a.Moderators = [];
 		a.Authors = [];
 		a.Disputes = [];
+		a.ChangePolicies = [];
 			
 		return AffectedSites[a.Id] = a;
 	}
@@ -263,8 +264,9 @@ public class FairRound : Round
 
 		var a = Mcv.Disputes.Create();
 		a.Id = new EntityId(site.Id.B, e);
-		a.Pros = [];
-		a.Cons = [];
+		a.Yes = [];
+		a.No = [];
+		a.Abs = [];
 
 		return AffectedDisputes[a.Id] = a;
 	}

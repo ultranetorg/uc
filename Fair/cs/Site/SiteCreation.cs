@@ -34,10 +34,13 @@ public class SiteCreation : FairOperation
 
 		var s = round.CreateSite(Signer);
 
-		s.Title						= Title;
-		s.Space						= mcv.Net.EntityLength;
-		s.Moderators				= [Signer.Id];
-		s.ModeratorElectionPolicy	= ElectionPolicy.ModeratorsUnanimously;
+		s.Title			= Title;
+		s.Space			= mcv.Net.EntityLength;
+		s.Moderators	= [Signer.Id];
+
+		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
+		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
 
 		Signer.Sites = [..Signer.Sites, s.Id];
 

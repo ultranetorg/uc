@@ -30,7 +30,7 @@ public class RdnTcpPeering : McvTcpPeering
  			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
  			{
  				Codes[i] = (byte)c;
-			var x = i.GetConstructor([]);
+				var x = i.GetConstructor([]);
  				Contructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
  			}
  		}
