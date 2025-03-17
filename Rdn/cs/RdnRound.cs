@@ -30,6 +30,14 @@ public class RdnRound : Round
 		return base.AffectedByTable(table);
 	}
 
+	public override ITableEntry Affect(byte table, EntityId id)
+	{
+		if(Mcv.Domains.Id == table)		return Mcv.Domains.Find(id, Id) != null ? AffectDomain(id) : null;
+		if(Mcv.Resources.Id == table)	return Mcv.Resources.Find(id, Id) != null ? AffectResource(id) : null;
+
+		return base.Affect(table, id);
+	}
+
 	public DomainEntry AffectDomain(string address)
 	{
 		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == address) is DomainEntry d && !d.Deleted)

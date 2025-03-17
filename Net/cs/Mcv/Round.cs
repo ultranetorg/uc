@@ -159,10 +159,10 @@ public abstract class Round : IBinarySerializable
 
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Accounts.Id == table)
-			return AffectAccount(id);
+		if(Mcv.Accounts.Id == table)	
+			return Mcv.Accounts.Find(id, Id) != null ? AffectAccount(id) : null;
 
-		throw new IntegrityException();
+		return null;
 	}
 
 	public virtual AccountEntry CreateAccount(AccountAddress address)

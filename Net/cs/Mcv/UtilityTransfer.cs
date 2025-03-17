@@ -12,7 +12,7 @@ public class UtilityTransfer : Operation
 	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
 																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
 																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0;
+	public override bool	IsValid(Mcv mcv) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0 && ToTable < mcv.Tables.Length && FromTable < mcv.Tables.Length;
 
 	public UtilityTransfer()
 	{

@@ -46,13 +46,13 @@ public class FairRound : Round
 
 	public override ITableEntry Affect(byte table, EntityId id)
 	{
-		if(table == Mcv.Authors.Id)			return AffectAuthor(id);
-		if(table == Mcv.Products.Id)		return AffectProduct(id);
-		if(table == Mcv.Sites.Id)			return AffectSite(id);
-		if(table == Mcv.Categories.Id)		return AffectCategory(id);
-		if(table == Mcv.Publications.Id)	return AffectPublication(id);
-		if(table == Mcv.Reviews.Id)			return AffectReview(id);
-		if(table == Mcv.Disputes.Id)		return AffectDispute(id);
+		if(table == Mcv.Authors.Id)			return FindAuthor(id)		!= null	? AffectAuthor(id) : null;
+		if(table == Mcv.Products.Id)		return FindProduct(id)		!= null	? AffectProduct(id) : null;
+		if(table == Mcv.Sites.Id)			return FindSite(id)			!= null	? AffectSite(id) : null;
+		if(table == Mcv.Categories.Id)		return FindCategory(id)		!= null	? AffectCategory(id) : null;
+		if(table == Mcv.Publications.Id)	return FindPublication(id)	!= null	? AffectPublication(id) : null;
+		if(table == Mcv.Reviews.Id)			return FindReview(id)		!= null	? AffectReview(id) : null;
+		if(table == Mcv.Disputes.Id)		return FindDispute(id)		!= null	? AffectDispute(id) : null;
 
 		return base.Affect(table, id);
 	}
