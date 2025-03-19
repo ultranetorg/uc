@@ -27,12 +27,12 @@ public class AnalysisResultUpdation : RdnOperation
 		Result	 = reader.Read<AnalysisResult>();
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
 		//if(Require(round, null, Resource, out var d, out var r) == false)
 		//	return;
 
-		if(RequireResource(round, Analysis, out var ad, out var ar) == false)
+		if(RequireResource(execution, Analysis, out var ad, out var ar) == false)
 			return;
 
 		if(ar.Data == null)
@@ -41,7 +41,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		var c = mcv.Resources.Find(ar.Data.Read<Analysis>().Consil, round.Id)?.Data?.Read<Consil>();
+		var c = execution.FindResource(ar.Data.Read<Analysis>().Consil)?.Data?.Read<Consil>();
 
 		if(c == null)
 		{
@@ -60,7 +60,7 @@ public class AnalysisResultUpdation : RdnOperation
 		//d = round.AffectDomain(d.Id);
 		//r = d.AffectResource(r.Address.Resource);
 
-		ar = round.AffectResource(ad, ar.Address.Resource);
+		ar = execution.AffectResource(ad, ar.Address.Resource);
 
 		var an = ar.Data.Read<Analysis>();
 		 

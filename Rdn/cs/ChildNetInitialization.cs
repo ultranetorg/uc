@@ -34,9 +34,9 @@ public class ChildNetInitialization : RdnOperation
 		writer.Write(Net);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		if(RequireSignerDomain(round, Domain, out var e) == false)
+		if(RequireSignerDomain(execution, Domain, out var e) == false)
 			return;
 
 		if(e.NtnChildNet != null)
@@ -51,7 +51,7 @@ public class ChildNetInitialization : RdnOperation
 			return;
 		}
 
-		e = round.AffectDomain(Domain);
+		e = execution.AffectDomain(Domain);
 
  		e.NtnChildNet = Net;
 	}

@@ -20,19 +20,19 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 	{
 		base.ReadConfirmed(reader);
 
-		SeedHubRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
+		SeedHubRdcIPs = reader.ReadArray(reader.ReadIPAddress);
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		base.WriteConfirmed(writer);
 
-		writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+		writer.Write(SeedHubRdcIPs, writer.Write);
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
-		base.Execute(mcv, round);
+		base.Execute(execution, round);
 
 		if(Affected != null)
 		{

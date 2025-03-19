@@ -30,12 +30,12 @@ public class ResourceLinkDeletion : RdnOperation
 		Destination	= reader.Read<EntityId>();
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		if(RequireSignerResource(round, Source, out var sd, out var sr) == false)
+		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
 			return;
 
-		if(RequireResource(round, Destination, out var dd, out var dr) == false)
+		if(RequireResource(execution, Destination, out var dd, out var dr) == false)
 			return;
 
 		var l = sr.Outbounds.FirstOrDefault(i => i.Destination == dr.Id);
@@ -52,13 +52,13 @@ public class ResourceLinkDeletion : RdnOperation
 			return;
 		}
 
-		sr = round.AffectResource(sd, sr.Address.Resource);
+		sr = execution.AffectResource(sd, sr.Address.Resource);
 		sr.RemoveOutbound(dr.Id);
 
-		sd = round.AffectDomain(sd.Id);
-		Free(round, Signer, sd, mcv.Net.EntityLength);
+		sd = execution.AffectDomain(sd.Id);
+		Free(execution, Signer, sd, execution.Net.EntityLength);
 
-		dr = round.AffectResource(dd, dr.Address.Resource);
+		dr = execution.AffectResource(dd, dr.Address.Resource);
 		dr.RemoveInbound(sr.Id);
 	}
 }

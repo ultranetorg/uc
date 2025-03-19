@@ -23,7 +23,6 @@ public class FairRound : Round
 
 	public FairRound(FairMcv rds) : base(rds)
 	{
-		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 	}
 
 	public override long AccountAllocationFee(Account account)

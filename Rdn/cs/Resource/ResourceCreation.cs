@@ -39,9 +39,9 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		if(RequireDomainAccess(round, Address.Domain, out var d) == false)
+		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
 			return;
 
 		var r = round.Mcv.Resources.Find(Address, round.Id);
@@ -52,7 +52,7 @@ public class ResourceCreation : RdnOperation
 			return;
 		}
 
-		r = round.AffectResource(d, Address.Resource);
+		r = execution.AffectResource(d, Address.Resource);
 
 		if(Changes.HasFlag(ResourceChanges.SetData))
 		{
@@ -65,12 +65,12 @@ public class ResourceCreation : RdnOperation
 		{
 			r.Flags	|= ResourceFlags.Sealed;
 
-			PayForForever(mcv.Net.EntityLength + r.Length);
+			PayForForever(execution.Net.EntityLength + r.Length);
 		}
 		else
 		{	
-			d = round.AffectDomain(d.Id);
-			Allocate(round, Signer, d, mcv.Net.EntityLength + r.Length);
+			d = execution.AffectDomain(d.Id);
+			Allocate(execution, Signer, d, execution.Net.EntityLength + r.Length);
 		}
 	}
 }

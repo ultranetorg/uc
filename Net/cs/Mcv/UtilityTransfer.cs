@@ -57,15 +57,15 @@ public class UtilityTransfer : Operation
 		writer.Write7BitEncodedInt64(Spacetime);
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
-		if(To == EntityId.LastCreated && round.LastCreatedId == null)
+		if(To == EntityId.LastCreated && execution.LastCreatedId == null)
 		{
 			Error = NothingLastCreated;
 			return;
 		}
 
-		var to = round.Affect(ToTable, To == EntityId.LastCreated ? round.LastCreatedId : To);
+		var to = execution.Affect(ToTable, To == EntityId.LastCreated ? execution.LastCreatedId : To);
 
 		if(to == null)
 		{
@@ -75,9 +75,9 @@ public class UtilityTransfer : Operation
 
 		IHolder h = null;
 
-		if(Signer.Address != mcv.Net.God)
+		if(Signer.Address != execution.Net.God)
 		{
-			h = round.Affect(FromTable, From) as IHolder;
+			h = execution.Affect(FromTable, From) as IHolder;
 
 			if(h == null)
 			{
@@ -104,7 +104,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(Signer.Address != mcv.Net.God)
+				if(Signer.Address != execution.Net.God)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;
@@ -128,7 +128,7 @@ public class UtilityTransfer : Operation
 				
 		if(Spacetime > 0)
 		{	
-			if(Signer.Address != mcv.Net.God)
+			if(Signer.Address != execution.Net.God)
 			{
 				var s = h as ISpacetimeHolder;
 

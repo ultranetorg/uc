@@ -24,7 +24,7 @@ public class BandwidthAllocation : Operation
 		writer.Write(Days);
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
 		var r = Signer.BandwidthExpiration - round.ConsensusTime.Days;
 
@@ -38,7 +38,7 @@ public class BandwidthAllocation : Operation
 
 		for(int i = 0; i < Days; i++)
 		{
-			if(round.BandwidthAllocations[i] + Bandwidth <= mcv.Net.BandwidthAllocationPerDayMaximum)
+			if(round.BandwidthAllocations[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
 			{
 				round.BandwidthAllocations[i] += Bandwidth;
 			}

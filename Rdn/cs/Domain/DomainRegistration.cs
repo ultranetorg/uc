@@ -48,9 +48,9 @@ public class DomainRegistration : RdnOperation
 		}
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		var e = mcv.Domains.Find(Address, round.Id);
+		var e = execution.FindDomain(Address);
 
 		if(Domain.IsRoot(Address))
 		{
@@ -60,10 +60,10 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			e = round.AffectDomain(Address);
+			e = execution.AffectDomain(Address);
 			
 			PayForName(Address, Years);
-			Prolong(round, Signer, e, Time.FromYears(Years));
+			Prolong(execution, Signer, e, Time.FromYears(Years));
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
@@ -82,7 +82,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			var o = mcv.Accounts.Find(Owner, round.Id);
+			var o = execution.FindAccount(Owner);
 
 			if(o == null)
 			{
@@ -90,7 +90,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			if(!RequireDomainAccess(round, Domain.GetParent(Address), out var p))
+			if(!RequireDomainAccess(execution, Domain.GetParent(Address), out var p))
 				return;
 
 			if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
@@ -99,7 +99,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			e = round.AffectDomain(Address);
+			e = execution.AffectDomain(Address);
 			
 			var start = e.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : e.Expiration;
 

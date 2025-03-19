@@ -61,7 +61,7 @@ public class DomainBid : RdnOperation
 // 			Bid					= reader.Read<Money>();
 // 		}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
 		throw new NotImplementedException();
 

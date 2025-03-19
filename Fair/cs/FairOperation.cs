@@ -62,7 +62,7 @@ public abstract class FairOperation : Operation
 
 	public abstract void Execute(FairMcv mcv, FairRound round);
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
 		Execute(mcv as FairMcv, round as FairRound);
 	}

@@ -8,13 +8,23 @@ public class RdnRound : Round
 	public List<DomainMigration>					Migrations;
 	public Dictionary<EntityId, DomainEntry>		AffectedDomains = [];
 	public Dictionary<EntityId, ResourceEntry>		AffectedResources = [];
-	public Dictionary<int, int>						NextDomainEids = [];
-	public Dictionary<int, int>						NextResourceEids = [];
 	public ForeignResult[]							ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)
 	{
-		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
+	}
+
+	public override void Consume(Execution execution)
+	{
+		base.Consume(execution);
+
+		var e = execution as RdnExecution;
+
+		foreach(var i in e.AffectedDomains)
+			AffectedDomains[i.Key] = i.Value;
+
+		foreach(var i in e.AffectedResources)
+			AffectedResources[i.Key] = i.Value;
 	}
 
 	public override long AccountAllocationFee(Account account)
@@ -30,81 +40,10 @@ public class RdnRound : Round
 		return base.AffectedByTable(table);
 	}
 
-	public override ITableEntry Affect(byte table, EntityId id)
+	public override Execution CreateExecution(Transaction transaction)
 	{
-		if(Mcv.Domains.Id == table)		return Mcv.Domains.Find(id, Id) != null ? AffectDomain(id) : null;
-		if(Mcv.Resources.Id == table)	return Mcv.Resources.Find(id, Id) != null ? AffectResource(id) : null;
-
-		return base.Affect(table, id);
+		return new RdnExecution(Mcv, this, transaction);
 	}
-
-	public DomainEntry AffectDomain(string address)
-	{
-		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == address) is DomainEntry d && !d.Deleted)
-			return d;
-		
-		d = Mcv.Domains.Find(address, Id - 1);
-
-		if(d != null)
-			return AffectedDomains[d.Id] = d.Clone();
-		else
-		{
-			var b = Mcv.Domains.KeyToBid(address);
-			
-			int e = GetNextEid(Mcv.Domains, b);
-
-			d = new DomainEntry(Mcv) {Id = new EntityId(b, e), Address = address};
-
-			return AffectedDomains[d.Id] = d;
-		}
-	}
-
-	public DomainEntry AffectDomain(EntityId id)
-	{
-		if(AffectedDomains.TryGetValue(id, out var a))
-			return a;
-			
-		a = Mcv.Domains.Find(id, Id - 1);
-
-		if(a == null)
-			throw new IntegrityException();
-		
-		return AffectedDomains[a.Id] = a.Clone();
-	}
-
-	public ResourceEntry AffectResource(EntityId id)
-	{
-		if(AffectedResources.TryGetValue(id, out var a))
-			return a;
-		
-		a = Mcv.Resources.Find(id, Id - 1);
-
-		if(a == null)
-			throw new IntegrityException();
-
-		return AffectedResources[id] = a.Clone();
-	}
-
-  	public ResourceEntry AffectResource(DomainEntry domain, string resource)
-  	{
-		var r =	AffectedResources.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
-		
-		if(r != null && !r.Deleted)
-			return r;
-
-		r = Mcv.Resources.Find(new Ura(domain.Address, resource), Id - 1);
-
-  		if(r == null)
-  		{
-  			r = new ResourceEntry  {Id = new EntityId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
-									Domain = domain.Id,
-  									Address = new Ura(domain.Address, resource)};
-  		} 
-  		else
-			r = r.Clone();
-    
-  		return AffectedResources[r.Id] = r;
-  	}
 
 	public override void RestartExecution()
 	{
@@ -151,7 +90,7 @@ public class RdnRound : Round
 		}
 	}
 
-	public override void ConfirmForeign()
+	public override void ConfirmForeign(Execution execution)
 	{
 		foreach(var i in ConsensusNtnStates)
 		{
@@ -160,7 +99,7 @@ public class RdnRound : Round
 			if(b == null)
 				throw new ConfirmationException(this, []);
 
-			var d = AffectDomain(b.Net);
+			var d = (execution as RdnExecution).AffectDomain(b.Net);
 			d.NtnSelfHash	= b.State.Hash;
 			d.NtnChildNet	= b.State;
 
@@ -190,11 +129,11 @@ public class RdnRound : Round
 
 			if(i.Approved)
 			{
-				e.ConfirmedExecute(this);
+				e.ConfirmedExecute(execution);
 				Migrations.Remove(e);
 			} 
 			else
-				AffectAccount(e.Generator).AverageUptime -= 10;
+				execution.AffectAccount(e.Generator).AverageUptime -= 10;
 		}
 
 		Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);

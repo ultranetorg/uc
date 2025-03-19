@@ -73,9 +73,9 @@ public class DomainMigration : RdnOperation
 		Generator			= reader.Read<EntityId>();
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		var a = mcv.Domains.Find(Name, round.Id);
+		var a = execution.FindDomain(Name);
 
 		if(a?.Owner != null)
 		{
@@ -85,13 +85,14 @@ public class DomainMigration : RdnOperation
 
 		if(RankCheck)
 		{
-			Signer.Energy -= (mcv.Net as Rdn).DomainRankCheckECFee;
+			Signer.Energy -= execution.Net.DomainRankCheckECFee;
 		}
 	}
 
-	public void ConfirmedExecute(RdnRound round)
+	public void ConfirmedExecute(Execution execution)
 	{
-		var a = round.AffectDomain(Name);
+		var e = execution as RdnExecution;
+		var a = e.AffectDomain(Name);
 
 		switch(Tld)
 		{

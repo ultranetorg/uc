@@ -30,11 +30,11 @@ public abstract class RdnOperation : Operation
 	public const string		CantChangeSealedResource = "Cant change sealed resource";
 	public const string		NotRoot = "Not root domain";
 
-	public abstract void Execute(RdnMcv mcv, RdnRound round);
+	public abstract void Execute(RdnExecution execution, RdnRound round);
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
-		Execute(mcv as RdnMcv, round as RdnRound);
+		Execute(execution as RdnExecution, round as RdnRound);
 	}
 
 	public void PayForName(string address, int years)
@@ -60,9 +60,9 @@ public abstract class RdnOperation : Operation
 		SpacetimeSpenders.Add(Signer);
 	}
 
-	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
+	public bool RequireDomain(RdnExecution round, EntityId id, out DomainEntry domain)
 	{
-		domain = round.Mcv.Domains.Find(id, round.Id);
+		domain = round.FindDomain(id);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -70,7 +70,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.ConsensusTime))
+		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -79,9 +79,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomain(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomain(RdnExecution round, string name, out DomainEntry domain)
 	{
-		domain = round.Mcv.Domains.Find(name, round.Id);
+		domain = round.FindDomain(name);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -89,7 +89,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.ConsensusTime))
+		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -98,7 +98,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomainAccess(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomainAccess(RdnExecution round, string name, out DomainEntry domain)
 	{
 		if(!RequireDomain(round, name, out domain))
 			return false;
@@ -112,7 +112,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
+	public bool RequireSignerDomain(RdnExecution round, EntityId id, out DomainEntry domain)
 	{
 		if(!RequireDomain(round, id, out domain))
 			return false;
@@ -126,9 +126,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
+	public bool RequireResource(RdnExecution round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
 	{
-		resource = round.Mcv.Resources.Find(id, round.Id);
+		resource = round.FindResource(id);
 
 		if(resource == null || resource.Deleted)
 		{
@@ -143,7 +143,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
+	public bool RequireSignerResource(RdnExecution round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
 	{
 		if(!RequireResource(round, id, out domain, out resource))
 			return false; 

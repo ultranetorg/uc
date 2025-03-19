@@ -50,13 +50,11 @@ public abstract class Round : IBinarySerializable
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
+	public long[]										Spacetimes = [];
+	public long[]										BandwidthAllocations = [];
 
 	public Dictionary<EntityId, AccountEntry>			AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
-	public Dictionary<int, int>							NextAccountEids;
-	public EntityId										LastCreatedId;
-	public long[]										Spacetimes = [];
-	public long[]										BandwidthAllocations = [];
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
@@ -66,7 +64,7 @@ public abstract class Round : IBinarySerializable
 	//public abstract int									GetSpaceUsers();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
-	public virtual void									ConfirmForeign(){}
+	public virtual void									ConfirmForeign(Execution execution){}
 
 
 	public int MinimumForConsensus
@@ -111,6 +109,7 @@ public abstract class Round : IBinarySerializable
 	public Round(Mcv c)
 	{
 		Mcv = c;
+		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 	}
 
 	public override string ToString()
@@ -124,7 +123,7 @@ public abstract class Round : IBinarySerializable
 
 		throw new IntegrityException();
 	}
-
+	/*
 	public int GetNextEid(TableBase table,  int b)
 	{
 		int e = 0;
@@ -144,8 +143,8 @@ public abstract class Round : IBinarySerializable
 
 		return e;
 	}
-
-	public void TransferECIfNeeded(IEnergyHolder a)
+	*/
+	public void TransferEnergyIfNeeded(IEnergyHolder a)
 	{
 		if(a.EnergyThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
 		{
@@ -156,7 +155,7 @@ public abstract class Round : IBinarySerializable
 			a.EnergyThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
 		}
 	}
-
+	/*
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
 		if(Mcv.Accounts.Id == table)	
@@ -165,96 +164,91 @@ public abstract class Round : IBinarySerializable
 		return null;
 	}
 
+	public virtual AccountEntry AffectSigner(Transaction transaction)
+	{
+ 		if(transaction.Signer == Net.God)
+ 			return new AccountEntry {Address = Net.God};
+
+		var s = Mcv.Accounts.Find(transaction.Signer, Id);
+
+		if(s == null)
+		{
+			foreach(var o in transaction.Operations)
+				o.Error = Operation.NotFound;
+					
+			return null;
+		}
+	
+		if(transaction.Nid != s.LastTransactionNid + 1)
+		{
+			foreach(var o in transaction.Operations)
+				o.Error = Operation.NotSequential;
+					
+			return null;
+		}
+
+		return AffectAccount(s.Id);
+	}
+
 	public virtual AccountEntry CreateAccount(AccountAddress address)
 	{
-// 		if(AffectedAccounts.TryGetValue(address, out var a))
-// 			return a;
-// 		
-// 		a = Mcv.Accounts.Find(address, Id - 1);	
-// 
-// 		if(a != null)
-// 		{	
-// 			a = AffectedAccounts[address] = a.Clone();
-// 
-// 			TransferECIfNeeded(a);
-// 		}
-// 		else
-// 		{
-			var b = Mcv.Accounts.KeyToBid(address);
+		var b = Mcv.Accounts.KeyToBid(address);
 			
-			int e = GetNextEid(Mcv.Accounts, b);
+		int e = GetNextEid(Mcv.Accounts, b);
 
-			var a = Mcv.Accounts.Create();
+		var a = Mcv.Accounts.Create();
 
-			a.Id		= LastCreatedId = new EntityId(b, e);
-			a.Address	= address;
-			a.New		= true;
-			
-
-			AffectedAccounts[a.Id] = a;
-//		}
-
-		return a;
-	}
-
-	public AccountEntry AffectAccount(EntityId id)
-	{
-		if(AffectedAccounts.FirstOrDefault(i => i.Value.Id == id).Value is AccountEntry a)
-			return a;
-
-		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
-
+		a.Id		= LastCreatedId = new EntityId(b, e);
+		a.Address	= address;
+		a.New		= true;
+		
 		AffectedAccounts[a.Id] = a;
 
-		TransferECIfNeeded(a);
-
 		return a;
 	}
+	*/
 
-// 	public AccountEntry AffectAccount(AccountAddress address)
+// 	protected AccountEntry AffectAccount(EntityId id)
 // 	{
-// 		if(address == Net.God)
-// 			return new AccountEntry {Address = address};
-// 
-// 		if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == address).Value is AccountEntry a)
+// 		if(AffectedAccounts.TryGetValue(id, out var a))
 // 			return a;
-// 		
-// 		a = Mcv.Accounts.Find(address, Id - 1).Clone();	
 // 
-// 		AffectedAccounts[a.Address] = a;
+// 		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
 // 
-// 		TransferECIfNeeded(a);
+// 		AffectedAccounts[a.Id] = a;
+// 
+// 		TransferEnergyIfNeeded(a);
 // 
 // 		return a;
 // 	}
-
-	public Generator AffectCandidate(EntityId id)
-	{
-		if(AffectedCandidates.TryGetValue(id, out Generator a))
-			return a;
-
-		if(Id > 0 && Candidates == Previous.Candidates)
-		{
-			Candidates = Previous.Candidates.ToList();
-		}
-
-		var c = Candidates.Find(i => i.Id == id);
-
-		if(c == null)
-		{
-			c = AffectedCandidates[id] = Mcv.CreateGenerator();
-
-			Candidates.Add(c);
-		
-			if(Candidates.Count > Mcv.Net.CandidatesMaximum)
-				Candidates.RemoveAt(0);
-		}
-		else
-			throw new IntegrityException();
-
-		return c;
-	}
-
+// 
+// 	Generator AffectCandidate(EntityId id)
+// 	{
+// 		if(AffectedCandidates.TryGetValue(id, out Generator a))
+// 			return a;
+// 
+// 		if(Id > 0 && Candidates == Previous.Candidates)
+// 		{
+// 			Candidates = Previous.Candidates.ToList();
+// 		}
+// 
+// 		var c = Candidates.Find(i => i.Id == id);
+// 
+// 		if(c == null)
+// 		{
+// 			c = AffectedCandidates[id] = Mcv.CreateGenerator();
+// 
+// 			Candidates.Add(c);
+// 		
+// 			if(Candidates.Count > Mcv.Net.CandidatesMaximum)
+// 				Candidates.RemoveAt(0);
+// 		}
+// 		else
+// 			throw new IntegrityException();
+// 
+// 		return c;
+// 	}
+	
 	public virtual void Elect(Vote[] votes, int gq)
 	{
 	}
@@ -363,38 +357,17 @@ public abstract class Round : IBinarySerializable
 		return l;
 	}
 
+	public virtual Execution CreateExecution(Transaction transaction)
+	{
+		return new Execution(Mcv, this, transaction);
+	}
+
 	public virtual void RestartExecution()
 	{
 	}
 
 	public virtual void FinishExecution()
 	{
-	}
-
-	public virtual AccountEntry AffectSigner(Transaction transaction)
-	{
- 		if(transaction.Signer == Net.God)
- 			return new AccountEntry {Address = Net.God};
-
-		var s = Mcv.Accounts.Find(transaction.Signer, Id);
-
-		if(s == null)
-		{
-			foreach(var o in transaction.Operations)
-				o.Error = Operation.NotFound;
-					
-			return null;
-		}
-	
-		if(transaction.Nid != s.LastTransactionNid + 1)
-		{
-			foreach(var o in transaction.Operations)
-				o.Error = Operation.NotSequential;
-					
-			return null;
-		}
-
-		return AffectAccount(s.Id);
 	}
 
 	public void Execute(IEnumerable<Transaction> transactions, bool trying = false)
@@ -409,14 +382,11 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 				o.Error = null;
 
-	start: 
-		Candidates				= Id == 0 ? new()										 : Previous.Candidates;
+		Candidates				= Id == 0 ? new()										 : Previous.Candidates.ToList();
 		Members					= Id == 0 ? new()										 : Previous.Members;
 		Funds					= Id == 0 ? new()										 : Previous.Funds;
 		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum] : Previous.BandwidthAllocations.Clone() as long[];
 		Spacetimes				= Id == 0 ? new long[1]									 : Previous.Spacetimes.Clone() as long[];
-		
-		NextAccountEids	= new ();
 
 		AffectedCandidates.Clear();
 		AffectedAccounts.Clear();
@@ -433,12 +403,12 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
-			var s = AffectSigner(t);
+			var e = CreateExecution(t);
+
+			var s = e.AffectSigner();
 
 			if(s == null)
 				continue;
-
-			LastCreatedId = null;
 
 			foreach(var o in t.Operations)
 			{
@@ -448,10 +418,10 @@ public abstract class Round : IBinarySerializable
 				o.SpacetimeSpenders	= [];
 				o.EnergyConsumed	= ConsensusECEnergyCost;
 
-				o.Execute(Mcv, this);
+				o.Execute(e, this);
 
 				if(o.Error != null)
-					goto start;
+					break;
 			
 				if(o.EnergyFeePayer == null)
 				{
@@ -481,7 +451,7 @@ public abstract class Round : IBinarySerializable
 					if(o.EnergyFeePayer.BandwidthTodayAvailable < 0)
 					{
 						o.Error = Operation.NotEnoughBandwidth;
-						goto start;
+						break;
 					}
 				}
 				else
@@ -496,13 +466,13 @@ public abstract class Round : IBinarySerializable
 					if(i.Energy < 0)
 					{
 						o.Error = Operation.NotEnoughEnergy;
-						goto start;
+						break;
 					}
 				
 					if(i.EnergyNext < 0)
 					{
 						o.Error = Operation.NotEnoughEnergyNext;
-						goto start;
+						break;
 					}
 				}
 
@@ -511,15 +481,34 @@ public abstract class Round : IBinarySerializable
 					if(i.Spacetime < 0)
 					{
 						o.Error = Operation.NotEnoughSpacetime;
-						goto start;
+						break;
 					}
 				}
 			}
-						
-			s.LastTransactionNid++;
+			
+			if(t.Successful)
+			{
+				s.LastTransactionNid++;
+	
+				Consume(e);
+			}
 		}
 
 		FinishExecution();
+	}
+
+	public virtual void Consume(Execution execution)
+	{
+		foreach(var i in execution.AffectedAccounts)
+			AffectedAccounts[i.Key] = i.Value;
+
+		for(int t=0; t<Mcv.Tables.Length; t++)
+			foreach(var i in execution.NextEids[t])
+				NextEids[t][i.Key] = i.Value;
+
+		if(execution.Candidates != null)			Candidates			 = execution.Candidates;
+		if(execution.Spacetimes != null)			Spacetimes			 = execution.Spacetimes;
+		if(execution.BandwidthAllocations != null)	BandwidthAllocations = execution.BandwidthAllocations;
 	}
 
 	public void Confirm()
@@ -548,7 +537,9 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		ConfirmForeign();
+		var e = CreateExecution(null);
+
+		ConfirmForeign(e);
 
 		foreach(var t in OrderedTransactions)
 		{
@@ -564,25 +555,26 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
-			AffectAccount(i.Id).AverageUptime = 0;
+			e.AffectAccount(i.Id).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
 		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
 		{
-			var a = AffectAccount(i.Id);
+			var a = e.AffectAccount(i.Id);
 			
 			a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
 		}
 
-		foreach(var i in Candidates.OrderByHash(i => i.Address.Bytes, Hash).TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
+		foreach(var i in e.Candidates.OrderByHash(i => i.Address.Bytes, Hash).TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
-			var c = AffectCandidate(i.Id);
+
+			var c = e.AffectCandidate(i.Id);
 			
 			c.CastingSince = Id + Mcv.JoinToVote;
 			
-			Candidates.Remove(c);
+			e.Candidates.Remove(i);
 			Members.Add(c);
 		}
 
@@ -597,14 +589,16 @@ public abstract class Round : IBinarySerializable
 
 			//d %= Time.FromYears(1).Days;
 
-			BandwidthAllocations = d < BandwidthAllocations.Length ? [..BandwidthAllocations[d..], ..new long[d]] : new long[d];
+			e.BandwidthAllocations = d < e.BandwidthAllocations.Length ? [..e.BandwidthAllocations[d..], ..new long[d]] : new long[d];
 
-			foreach(var i in Members.Select(i => AffectAccount(i.Id)))
+			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
 			{
 				i.EnergyNext	+= d * Net.ECDayEmission / Members.Count;
-				i.Spacetime += d * (Net.BDDayEmission + Spacetimes[0]) / Members.Count;
+				i.Spacetime		+= d * (Net.BDDayEmission + e.Spacetimes[0]) / Members.Count;
 			}
 		}
+
+		Consume(e);
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;

@@ -71,7 +71,7 @@ namespace Uccs.Net
  			return Money.FromWei(wei) * Multiplier;
  		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Execution execution, Round round)
 		{
 			var a = mcv.Accounts.Find(Signer, round.Id);
 

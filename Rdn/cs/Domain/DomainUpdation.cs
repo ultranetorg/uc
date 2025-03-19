@@ -31,9 +31,9 @@ public class DomainRenewal : RdnOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		var e = mcv.Domains.Find(Id, round.Id);
+		var e = execution.FindDomain(Id);
 		
 		if(e == null)
 		{
@@ -49,7 +49,7 @@ public class DomainRenewal : RdnOperation
 				return;
 			}
 
-			e = round.AffectDomain(e.Address);
+			e = execution.AffectDomain(e.Address);
 
 			PayForName(e.Address, Years);
 		} 
@@ -61,12 +61,12 @@ public class DomainRenewal : RdnOperation
 				return;
 			}
 
-			e = round.AffectDomain(e.Address);
+			e = execution.AffectDomain(e.Address);
 
 			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		Prolong(round, Signer, e, Time.FromYears(Years));
+		Prolong(execution, Signer, e, Time.FromYears(Years));
 	}
 }
 
@@ -98,9 +98,9 @@ public class DomainTransfer : RdnOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		var e = mcv.Domains.Find(Id, round.Id);
+		var e = execution.FindDomain(Id);
 		
 		if(e == null)
 		{
@@ -116,16 +116,16 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!RequireAccount(round, Owner, out var o))
+			if(!RequireAccount(execution, Owner, out var o))
 				return;
 
-			e = round.AffectDomain(e.Address);
+			e = execution.AffectDomain(e.Address);
 			e.Owner = Owner;
 
 		} 
 		else
 		{
-			var p = mcv.Domains.Find(Domain.GetParent(e.Address), round.Id);
+			var p = execution.FindDomain(Domain.GetParent(e.Address));
 
 			//if(p == null)
 			//{
@@ -146,10 +146,10 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!RequireAccount(round, Owner, out var o))
+			if(!RequireAccount(execution, Owner, out var o))
 				return;
 
-			e = round.AffectDomain(e.Address);
+			e = execution.AffectDomain(e.Address);
 			e.Owner	= Owner;
 		}
 	}
@@ -186,9 +186,9 @@ public class DomainPolicyUpdation : RdnOperation
 		writer.Write(Policy);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution, RdnRound round)
 	{
-		var e = mcv.Domains.Find(Id, round.Id);
+		var e = execution.FindDomain(Id);
 		
 		if(e == null)
 		{
@@ -198,7 +198,7 @@ public class DomainPolicyUpdation : RdnOperation
 
 		if(!Domain.IsRoot(e.Address))
 		{
-			var p = mcv.Domains.Find(Domain.GetParent(e.Address), round.Id);
+			var p = execution.FindDomain(Domain.GetParent(e.Address));
 
 			if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
 			{
@@ -212,7 +212,7 @@ public class DomainPolicyUpdation : RdnOperation
 				return;
 			}
 
-			e = round.AffectDomain(e.Address);
+			e = execution.AffectDomain(e.Address);
 			e.ParentPolicy = Policy;
 		}
 		else

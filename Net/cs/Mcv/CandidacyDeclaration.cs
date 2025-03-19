@@ -26,7 +26,7 @@ public class CandidacyDeclaration : Operation
 		writer.Write(BaseRdcIPs, i => writer.Write(i));
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution, Round round)
 	{
 		if(round.Members.Any(i => i.Id == Signer.Id))
 		{
@@ -34,7 +34,7 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		var c = round.Candidates.Find(i => i.Id == Signer.Id);
+		var c = execution.Candidates.Find(i => i.Id == Signer.Id);
 
 		if(c != null)
 		{
@@ -42,9 +42,9 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		Signer.Energy -= mcv.Net.DeclarationCost;
+		Signer.Energy -= execution.Net.DeclarationCost;
 
-		Affected = round.AffectCandidate(Signer.Id);
+		Affected = execution.AffectCandidate(Signer.Id);
 		
 		Affected.Id			= Signer.Id;
 		Affected.Address	= Signer.Address;
