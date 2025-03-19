@@ -42,7 +42,7 @@ public enum FairOperationClass : uint
 
 		Review						= 103_003,
 			ReviewCreation			= 103_003_001,
-			ReviewStatusUpdation	= 103_003_002,
+			ReviewStatusChange	= 103_003_002,
 			ReviewTextUpdation		= 103_003_003,
 			ReviewTextModeration	= 103_003_004,
 			ReviewDeletion			= 103_003_999,
@@ -285,4 +285,17 @@ public abstract class VotableOperation : FairOperation
 	public abstract bool ValidProposal(FairMcv mcv, FairRound round, Site site);
  	public abstract bool Overlaps(VotableOperation other);
 	public abstract void Execute(FairMcv mcv, FairRound round, SiteEntry site);
+
+	protected void PayForModeration(FairRound round, Publication publication, AuthorEntry author)
+	{
+		var s = round.AffectSite(round.FindCategory(publication.Category).Site);
+
+		author.Energy -= author.ModerationReward;
+		Signer.Energy += author.ModerationReward;
+			
+		EnergyFeePayer = s;
+		EnergySpenders.Add(s);
+		EnergySpenders.Add(author);
+	}
+
 }

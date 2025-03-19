@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationStatusChange : PublicationUpdation
+public class PublicationStatusChange : VotableOperation
 {
 	public EntityId				Publication { get; set; }
 	public PublicationStatus	Status { get; set; }
@@ -17,7 +17,7 @@ public class PublicationStatusChange : PublicationUpdation
 		if(!RequirePublication(round, Publication, out var p))
 			return false;
 
-		return p.Status == PublicationStatus.Pending && Status == PublicationStatus.Approved;
+		return p.Status == PublicationStatus.Pending && (Status == PublicationStatus.Approved || Status == PublicationStatus.Rejected);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -48,24 +48,27 @@ public class PublicationStatusChange : PublicationUpdation
  			return;
  		}
  
- 		if(p.Status == PublicationStatus.Pending && Status == PublicationStatus.Approved) /// When Author asked to publish
- 		{
-			Execute(mcv, round, s);
- 		}
-		else
-		{
-			Error = NotAvailable;
-			return;
-		}
+		Execute(mcv, round, s);
 	}
 
 	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
 	{
 		var p =	round.AffectPublication(Publication);
-		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
 
-		Pay(round, p, a);
+ 		if(Status == PublicationStatus.Approved)
+ 		{
+			p.Status = Status;
 
-		p.Status = PublicationStatus.Approved;
+			if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
+			{
+				var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
+
+				PayForModeration(round, p, a);
+			}
+		}
+		else if(Status == PublicationStatus.Rejected)
+		{
+			p.Deleted = true;
+		}
 	}
 }

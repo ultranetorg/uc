@@ -5,6 +5,7 @@ public enum PublicationStatus : byte
 	None,
 	Pending,
 	Approved,
+	Rejected
 	//Disputed
 }
 

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationUpdateModeration : PublicationUpdation
+public class PublicationUpdateModeration : VotableOperation
 {
 	public EntityId						Publication { get; set; }
 	public ProductFieldVersionReference	Change { get; set; }
@@ -112,7 +112,7 @@ public class PublicationUpdateModeration : PublicationUpdation
 				p.Fields = [..p.Fields.Where(i => i.Name != Change.Name)];
 			}
 
-			Pay(round, p, a);
+			PayForModeration(round, p, a);
 		}
 		else
 		{	
@@ -126,7 +126,7 @@ public class PublicationUpdateModeration : PublicationUpdation
 				
 			p.Changes = [..p.Changes.Where(i => i != c)];
 
-			Pay(round, p, a);
+			PayForModeration(round, p, a);
 		}
 	}
 }

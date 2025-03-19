@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationProductChange : PublicationUpdation
+public class PublicationProductChange : VotableOperation
 {
 	public EntityId	Publication { get; set; }
 	public EntityId	Product { get; set; }
@@ -22,7 +22,7 @@ public class PublicationProductChange : PublicationUpdation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return (other as PublicationStatusChange).Publication == Publication;
+		return (other as PublicationProductChange).Publication == Publication;
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
