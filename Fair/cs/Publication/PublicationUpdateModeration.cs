@@ -13,12 +13,12 @@ public class PublicationUpdateModeration : VotableOperation
 	{
 	}
 	
-	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+	public override bool ValidProposal(FairExecution execution, SiteEntry site)
 	{
-		if(!RequirePublication(round, Publication, out var p))
+		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
-		var r = round.FindProduct(p.Product);
+		var r = execution.FindProduct(p.Product);
 
 		return r.Fields.Any(i => i.Name == Change.Name && i.Versions.Any(i => i.Version == Change.Version));
 	}
@@ -44,9 +44,9 @@ public class PublicationUpdateModeration : VotableOperation
 		writer.Write(Resolution);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequirePublicationAccess(round, Publication, Signer, out var p, out var s))
+		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
 			return;
 
 		if(s.ChangePolicies[FairOperationClass.PublicationUpdateModeration] != ChangePolicy.AnyModerator)
@@ -55,17 +55,17 @@ public class PublicationUpdateModeration : VotableOperation
  			return;
  		}
 
-		Execute(mcv, round, s);
+		Execute(execution, s);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
-		var p = round.AffectPublication(Publication);
-		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
+		var p = execution.AffectPublication(Publication);
+		var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
  
 		if(Resolution == true)
 		{
-			var r = round.AffectProduct(p.Product);
+			var r = execution.AffectProduct(p.Product);
 
 			var f = r.Fields.First(i => i.Name == Change.Name);
 
@@ -112,7 +112,7 @@ public class PublicationUpdateModeration : VotableOperation
 				p.Fields = [..p.Fields.Where(i => i.Name != Change.Name)];
 			}
 
-			PayForModeration(round, p, a);
+			PayForModeration(execution, p, a);
 		}
 		else
 		{	
@@ -126,7 +126,7 @@ public class PublicationUpdateModeration : VotableOperation
 				
 			p.Changes = [..p.Changes.Where(i => i != c)];
 
-			PayForModeration(round, p, a);
+			PayForModeration(execution, p, a);
 		}
 	}
 }

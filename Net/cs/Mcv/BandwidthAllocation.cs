@@ -24,23 +24,23 @@ public class BandwidthAllocation : Operation
 		writer.Write(Days);
 	}
 
-	public override void Execute(Execution execution, Round round)
+	public override void Execute(Execution execution)
 	{
-		var r = Signer.BandwidthExpiration - round.ConsensusTime.Days;
+		var r = Signer.BandwidthExpiration - execution.Time.Days;
 
 		if(r > 0) /// reclaim the remaining
 		{
 			Signer.Energy += Signer.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
-				round.BandwidthAllocations[i] -= Signer.Bandwidth;
+				execution.BandwidthAllocations[i] -= Signer.Bandwidth;
 		}
 
 		for(int i = 0; i < Days; i++)
 		{
-			if(round.BandwidthAllocations[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
+			if(execution.BandwidthAllocations[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
 			{
-				round.BandwidthAllocations[i] += Bandwidth;
+				execution.BandwidthAllocations[i] += Bandwidth;
 			}
 			else
 			{
@@ -51,6 +51,6 @@ public class BandwidthAllocation : Operation
 
 		Signer.Energy				-= Bandwidth * Days;
 		Signer.Bandwidth			= Bandwidth;
-		Signer.BandwidthExpiration	= (short)(round.ConsensusTime.Days + Days);
+		Signer.BandwidthExpiration	= (short)(execution.Time.Days + Days);
 	}
 }

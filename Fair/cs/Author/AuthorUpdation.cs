@@ -31,20 +31,20 @@ public class AuthorRenewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(round, AuthorId, out var a))
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = round.AffectAuthor(AuthorId);
+		a = execution.AffectAuthor(AuthorId);
 
-		if(!Author.CanRenew(a, Signer, round.ConsensusTime))
+		if(!Author.CanRenew(a, Signer, execution.Time))
 		{
 			Error = NotAvailable;
 			return;
 		}
 
-		Prolong(round, Signer, a, Time.FromYears(Years));
+		Prolong(execution, Signer, a, Time.FromYears(Years));
 	}
 }
 
@@ -76,12 +76,12 @@ public class AuthorModerationReward : FairOperation
 		writer.Write7BitEncodedInt64(Amount);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(round, AuthorId, out var a))
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = round.AffectAuthor(AuthorId);
+		a = execution.AffectAuthor(AuthorId);
 
 		a.ModerationReward = Amount;
 	}
@@ -115,14 +115,14 @@ public class AuthorOwnerAddition : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(round, AuthorId, out var a))
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = round.AffectAuthor(AuthorId);
+		a = execution.AffectAuthor(AuthorId);
 
-		if(!RequireAccount(round, Owner, out var x))
+		if(!RequireAccount(execution, Owner, out var x))
 			return;
 
 		if(x.AllocationSponsor != null)
@@ -163,12 +163,12 @@ public class AuthorOwnerRemoval : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(round, AuthorId, out var a))
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = round.AffectAuthor(AuthorId);
+		a = execution.AffectAuthor(AuthorId);
 
 		if(a.Owners.Length == 1)
 		{
@@ -176,7 +176,7 @@ public class AuthorOwnerRemoval : FairOperation
 			return;
 		}
 
-		if(!RequireAccount(round, Owner, out var x))
+		if(!RequireAccount(execution, Owner, out var x))
 			return;
 
 		a.Owners = a.Owners.Remove(x.Id);

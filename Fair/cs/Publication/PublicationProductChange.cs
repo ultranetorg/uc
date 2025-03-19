@@ -12,9 +12,9 @@ public class PublicationProductChange : VotableOperation
 	{
 	}
 	
-	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+	public override bool ValidProposal(FairExecution execution, SiteEntry site)
 	{
-		if(!RequirePublication(round, Publication, out var p))
+		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
 		return p.Product != Product;
@@ -37,9 +37,9 @@ public class PublicationProductChange : VotableOperation
 		writer.Write(Product);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequirePublicationAccess(round, Publication, Signer, out var p, out var s))
+		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
 			return;
 
  		if(s.ChangePolicies[FairOperationClass.PublicationProductChange] != ChangePolicy.AnyModerator)
@@ -48,19 +48,19 @@ public class PublicationProductChange : VotableOperation
  			return;
  		}
 
-		Execute(mcv, round, s);
+		Execute(execution, s);
 	}
 	
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
-		var p = round.AffectPublication(Publication);
+		var p = execution.AffectPublication(Publication);
  		
-		var r = round.AffectProduct(p.Product);
+		var r = execution.AffectProduct(p.Product);
 		r.Publications = r.Publications.Remove(p.Id);
 
 		p.Product = Product;
 
-		r = round.AffectProduct(Product);
+		r = execution.AffectProduct(Product);
 		r.Publications = [..r.Publications, p.Id];
 	}
 }

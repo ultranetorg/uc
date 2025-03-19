@@ -12,9 +12,9 @@ public class ReviewStatusChange : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+	public override bool ValidProposal(FairExecution execution, SiteEntry site)
 	{
-		if(!RequireReviewAccess(round, Review, Signer, out var r))
+		if(!RequireReviewAccess(execution, Review, Signer, out var r))
 			return false;
 
 		return true;
@@ -37,32 +37,32 @@ public class ReviewStatusChange : VotableOperation
 		writer.Write(Status);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(mcv, round, null))
+		if(!ValidProposal(execution, null))
 			return;
 
-		if(round.FindSite(round.FindCategory(round.FindPublication(round.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewStatusChange] != ChangePolicy.AnyModerator)
+		if(execution.FindSite(execution.FindCategory(execution.FindPublication(execution.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewStatusChange] != ChangePolicy.AnyModerator)
  		{
  			Error = Denied;
  			return;
  		}
 
-		Execute(mcv, round, null);
+		Execute(execution, null);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
-		if(!ValidProposal(mcv, round, null))
+		if(!ValidProposal(execution, null))
 		{	
 			Error = null;
 			return;
 		}
 
-		var r = round.AffectReview(Review);
+		var r = execution.AffectReview(Review);
 		r.Status = Status;
 
-		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
 		EnergySpenders = [a];
 	}
 }

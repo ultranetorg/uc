@@ -26,17 +26,17 @@ public class ProductCreation : FairOperation
 		writer.Write(Author);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireAuthorAccess(round, Author, out var a) == false)
+		if(RequireAuthorAccess(execution, Author, out var a) == false)
 			return;
 
-		a = round.AffectAuthor(Author);
-		var p = round.CreateProduct(a);
+		a = execution.AffectAuthor(Author);
+		var p = execution.CreateProduct(a);
 
 		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];
 
-		Allocate(round, Signer, a, mcv.Net.EntityLength);
+		Allocate(execution, Signer, a, execution.Net.EntityLength);
 	}
 }

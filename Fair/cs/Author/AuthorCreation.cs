@@ -31,7 +31,7 @@ public class AuthorCreation : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
@@ -39,14 +39,14 @@ public class AuthorCreation : FairOperation
 			return;
 		}
 
-		var e = round.CreateAuthor(Signer.Address);
+		var e = execution.CreateAuthor(Signer.Address);
 
 		Signer.Authors = [..Signer.Authors, e.Id];
 		
 		e.Owners	= [Signer.Id];
 		e.Title		= Title;
-		e.Space		= mcv.Net.EntityLength;
+		e.Space		= execution.Net.EntityLength;
 
-		Prolong(round, Signer, e, Time.FromYears(Years));
+		Prolong(execution, Signer, e, Time.FromYears(Years));
 	}
 }

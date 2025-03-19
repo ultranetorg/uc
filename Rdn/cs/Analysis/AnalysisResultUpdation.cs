@@ -27,7 +27,7 @@ public class AnalysisResultUpdation : RdnOperation
 		Result	 = reader.Read<AnalysisResult>();
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		//if(Require(round, null, Resource, out var d, out var r) == false)
 		//	return;

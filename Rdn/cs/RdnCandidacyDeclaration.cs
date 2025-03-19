@@ -30,9 +30,9 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 		writer.Write(SeedHubRdcIPs, writer.Write);
 	}
 
-	public override void Execute(Execution execution, Round round)
+	public override void Execute(Execution execution)
 	{
-		base.Execute(execution, round);
+		base.Execute(execution);
 
 		if(Affected != null)
 		{

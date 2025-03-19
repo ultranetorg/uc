@@ -37,7 +37,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return true;
 	}
 
-	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Owners.Contains(signer); /// TODO : Owner only
 	}

@@ -26,9 +26,9 @@ public class CandidacyDeclaration : Operation
 		writer.Write(BaseRdcIPs, i => writer.Write(i));
 	}
 
-	public override void Execute(Execution execution, Round round)
+	public override void Execute(Execution execution)
 	{
-		if(round.Members.Any(i => i.Id == Signer.Id))
+		if(execution.Round.Members.Any(i => i.Id == Signer.Id))
 		{
 			Error = "Already member";
 			return;
@@ -49,6 +49,6 @@ public class CandidacyDeclaration : Operation
 		Affected.Id			= Signer.Id;
 		Affected.Address	= Signer.Address;
 		Affected.BaseRdcIPs	= BaseRdcIPs;
-		Affected.Registered	= round.Id;
+		Affected.Registered	= execution.Round.Id;
 	}
 }

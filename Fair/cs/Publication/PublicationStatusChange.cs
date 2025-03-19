@@ -12,9 +12,9 @@ public class PublicationStatusChange : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+	public override bool ValidProposal(FairExecution execution, SiteEntry site)
 	{
-		if(!RequirePublication(round, Publication, out var p))
+		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
 		return p.Status == PublicationStatus.Pending && (Status == PublicationStatus.Approved || Status == PublicationStatus.Rejected);
@@ -37,9 +37,9 @@ public class PublicationStatusChange : VotableOperation
 		writer.Write(Status);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequirePublicationAccess(round, Publication, Signer, out var p, out var s))
+		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
 			return;
 
  		if(s.ChangePolicies[FairOperationClass.PublicationStatusChange] != ChangePolicy.AnyModerator)
@@ -48,12 +48,12 @@ public class PublicationStatusChange : VotableOperation
  			return;
  		}
  
-		Execute(mcv, round, s);
+		Execute(execution, s);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
-		var p =	round.AffectPublication(Publication);
+		var p =	execution.AffectPublication(Publication);
 
  		if(Status == PublicationStatus.Approved)
  		{
@@ -61,9 +61,9 @@ public class PublicationStatusChange : VotableOperation
 
 			if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
 			{
-				var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
+				var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
 
-				PayForModeration(round, p, a);
+				PayForModeration(execution, p, a);
 			}
 		}
 		else if(Status == PublicationStatus.Rejected)

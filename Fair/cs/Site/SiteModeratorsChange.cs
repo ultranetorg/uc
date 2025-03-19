@@ -9,7 +9,7 @@ public class SiteModeratorsChange : VotableOperation
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
 
- 	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+ 	public override bool ValidProposal(FairExecution mcv, SiteEntry site)
  	{
 		foreach(var i in Additions)
 			if(site.Moderators.Contains(i))
@@ -51,9 +51,9 @@ public class SiteModeratorsChange : VotableOperation
 		writer.Write(Removals);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
- 		if(!RequireSiteAccess(round, Site, out var s))
+ 		if(!RequireSiteAccess(execution, Site, out var s))
  			return;
 
  		if(s.ChangePolicies[FairOperationClass.SiteModeratorsChange] != ChangePolicy.AnyModerator)
@@ -62,12 +62,12 @@ public class SiteModeratorsChange : VotableOperation
  			return;
  		}
 
-		Execute(mcv, round, s);
+		Execute(execution, s);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
- 		var s = round.AffectSite(Site);
+ 		var s = execution.AffectSite(Site);
  
  		s.Moderators = [..s.Moderators, ..Additions];
  

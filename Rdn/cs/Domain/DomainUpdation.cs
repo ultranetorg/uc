@@ -31,7 +31,7 @@ public class DomainRenewal : RdnOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var e = execution.FindDomain(Id);
 		
@@ -43,7 +43,7 @@ public class DomainRenewal : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
+			if(!Domain.CanRegister(e.Address, e, execution.Time, Signer))
 			{
 				Error = NotAvailable;
 				return;
@@ -55,7 +55,7 @@ public class DomainRenewal : RdnOperation
 		} 
 		else
 		{
-			if(!Domain.CanRenew(e, Signer, round.ConsensusTime))
+			if(!Domain.CanRenew(e, Signer, execution.Time))
 			{
 				Error = NotAvailable;
 				return;
@@ -98,7 +98,7 @@ public class DomainTransfer : RdnOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var e = execution.FindDomain(Id);
 		
@@ -110,7 +110,7 @@ public class DomainTransfer : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
+			if(!Domain.IsOwner(e, Signer, execution.Time))
 			{
 				Error = Denied;
 				return;
@@ -133,14 +133,14 @@ public class DomainTransfer : RdnOperation
 			//	return;
 			//}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
+			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, execution.Time))
 			{
 				Error = Denied;
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
-																  !(Domain.IsOwner(p, Signer, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, execution.Time) && 
+																  !(Domain.IsOwner(p, Signer, execution.Time) && Domain.IsExpired(e, execution.Time)))
 			{
 				Error = Denied;
 				return;
@@ -186,7 +186,7 @@ public class DomainPolicyUpdation : RdnOperation
 		writer.Write(Policy);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var e = execution.FindDomain(Id);
 		
@@ -200,13 +200,13 @@ public class DomainPolicyUpdation : RdnOperation
 		{
 			var p = execution.FindDomain(Domain.GetParent(e.Address));
 
-			if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
+			if(!Domain.IsOwner(p, Signer, execution.Time))
 			{
 				Error = Denied;
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, round.ConsensusTime))
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, execution.Time))
 			{
 				Error = NotAvailable;
 				return;

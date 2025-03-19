@@ -55,7 +55,7 @@ public class ResourceUpdation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var rs = new HashSet<int>();
 
@@ -64,11 +64,11 @@ public class ResourceUpdation : RdnOperation
 
 		d = execution.AffectDomain(d.Id);
 		
-		EnergyConsumed -= round.ConsensusECEnergyCost; /// the first is alredy paid
+		EnergyConsumed -= execution.Round.ConsensusECEnergyCost; /// the first is alredy paid
 
 		void execute(Ura resource)
 		{
-			EnergyConsumed += round.ConsensusECEnergyCost;
+			EnergyConsumed += execution.Round.ConsensusECEnergyCost;
 
 			var r = execution.AffectResource(d, resource.Resource);
 
@@ -92,7 +92,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
-				r.Updated	= round.ConsensusTime;
+				r.Updated	= execution.Time;
 
 				Allocate(execution, Signer, d, r.Data.Value.Length);
 			}

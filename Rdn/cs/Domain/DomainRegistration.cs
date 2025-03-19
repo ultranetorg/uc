@@ -48,13 +48,13 @@ public class DomainRegistration : RdnOperation
 		}
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var e = execution.FindDomain(Address);
 
 		if(Domain.IsRoot(Address))
 		{
-			if(!Domain.CanRegister(Address, e, round.ConsensusTime, Signer))
+			if(!Domain.CanRegister(Address, e, execution.Time, Signer))
 			{
 				Error = NotAvailable;
 				return;
@@ -101,7 +101,7 @@ public class DomainRegistration : RdnOperation
 
 			e = execution.AffectDomain(Address);
 			
-			var start = e.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : e.Expiration;
+			var start = e.Expiration < execution.Time.Days ? execution.Time.Days : e.Expiration;
 
 			e.Owner			= o.Id;
 			e.ParentPolicy	= Policy;

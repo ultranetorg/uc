@@ -39,12 +39,12 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
 			return;
 
-		var r = round.Mcv.Resources.Find(Address, round.Id);
+		var r = execution.FindResource(Address);
 				
 		if(r != null)
 		{
@@ -58,7 +58,7 @@ public class ResourceCreation : RdnOperation
 		{
 			r.Data		= Data;
 			r.Flags		|= ResourceFlags.Data;
-			r.Updated	= round.ConsensusTime;
+			r.Updated	= execution.Time;
 		}
 
 		if(Changes.HasFlag(ResourceChanges.Seal))

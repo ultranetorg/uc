@@ -39,7 +39,7 @@ public class ResourceLinkCreation : RdnOperation
 		Changes		= (ResourceLinkChanges)reader.ReadByte();
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
 			return;

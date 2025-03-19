@@ -34,9 +34,9 @@ public class DisputeCreation : FairOperation
 		Proposal.Write(writer);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
- 		if(!RequireSite(round, Site, out var s))
+ 		if(!RequireSite(execution, Site, out var s))
  			return;
  
         var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
@@ -47,14 +47,14 @@ public class DisputeCreation : FairOperation
  			return;
  		}
  
- 		if(!Proposal.ValidProposal(mcv, round, s))
+ 		if(!Proposal.ValidProposal(execution, s))
  		{
  			Error = InvalidProposal;
  			return;
  		}
  
  		if(s.Disputes.Any(i =>  {
-                                    var p = round.FindDispute(i).Proposal;
+                                    var p = execution.FindDispute(i).Proposal;
 
                                     if(p.GetType() != Proposal.GetType())
                                         return false;
@@ -77,7 +77,7 @@ public class DisputeCreation : FairOperation
  					return;
  				}
  			
- 				if(!RequireAccountAccess(round, Creator, out var _))
+ 				if(!RequireAccountAccess(execution, Creator, out var _))
  					return;
  
  				break;
@@ -91,7 +91,7 @@ public class DisputeCreation : FairOperation
  					return;
  				}
  
- 				if(!RequireAuthorAccess(round, Creator, out var _))
+ 				if(!RequireAuthorAccess(execution, Creator, out var _))
  					return;
  
  				break;
@@ -104,16 +104,16 @@ public class DisputeCreation : FairOperation
  			}
  		}
  
- 		var d = round.CreateDispute(s);
+ 		var d = execution.CreateDispute(s);
  
  		d.Site       = Site;
         d.Text       = Text;
  		d.Proposal   = Proposal;
- 		d.Expirtaion = round.ConsensusTime + Time.FromDays(30);
+ 		d.Expirtaion = execution.Time + Time.FromDays(30);
  
  		AllocateEntity(Signer);
  
- 		s = round.AffectSite(s.Id);
+ 		s = execution.AffectSite(s.Id);
  		s.Disputes = [..s.Disputes, d.Id];
 	}
 }

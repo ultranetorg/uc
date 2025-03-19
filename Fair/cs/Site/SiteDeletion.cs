@@ -21,29 +21,29 @@ public class SiteDeletion : FairOperation
 		writer.Write(Site);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireSiteAccess(round, Site, out var s) == false)
+		if(RequireSiteAccess(execution, Site, out var s) == false)
 			return;
 
-		s = round.AffectSite(Site);
+		s = execution.AffectSite(Site);
 		s.Deleted = true;
 		
 		foreach(var i in s.Categories)
 		{
-			var c = round.AffectCategory(i);
+			var c = execution.AffectCategory(i);
 			c.Deleted = true;
 
 			foreach(var j in c.Publications)
 			{
-				var p = round.AffectPublication(j);
+				var p = execution.AffectPublication(j);
 				p.Deleted = true;
 			}
 		}
 
 		foreach(var i in s.Moderators)
 		{
-			var a = round.AffectAccount(i);
+			var a = execution.AffectAccount(i);
 			a.Sites = a.Sites.Where(i => i != Site).ToArray();
 		}
 		

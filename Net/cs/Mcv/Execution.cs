@@ -65,6 +65,18 @@ public class Execution
 		return e;
 	}
 	
+	public void TransferEnergyIfNeeded(IEnergyHolder a)
+	{
+		if(a.EnergyThisPeriod != Time.Days/Net.ECLifetime.Days)
+		{
+			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days)
+				a.Energy = a.EnergyNext;
+	
+			a.EnergyNext = 0;
+			a.EnergyThisPeriod	= (byte)(Time.Days/Net.ECLifetime.Days);
+		}
+	}
+
 	public virtual AccountEntry AffectSigner()
 	{
  		if(Transaction.Signer == Net.God)
@@ -133,7 +145,7 @@ public class Execution
 
 		AffectedAccounts[a.Id] = a;
 
-		Round.TransferEnergyIfNeeded(a);
+		TransferEnergyIfNeeded(a);
 
 		return a;
 	}

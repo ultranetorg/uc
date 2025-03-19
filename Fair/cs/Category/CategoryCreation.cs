@@ -23,39 +23,39 @@ public class CategoryCreation : FairOperation
 		writer.WriteUtf8(Title);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
 		if(Parent == null)
 		{
-			if(!RequireSiteAccess(round, Site, out var s))
+			if(!RequireSiteAccess(execution, Site, out var s))
 				return;
 				
-			var c = round.CreateCategory(s);
+			var c = execution.CreateCategory(s);
 			
 			c.Site = s.Id;
 			c.Title = Title;
 			
-			s = round.AffectSite(s.Id);
+			s = execution.AffectSite(s.Id);
 			s.Categories = [..s.Categories, c.Id];
 
-			Allocate(round, Signer, s, mcv.Net.EntityLength);
+			Allocate(execution, Signer, s, execution.Net.EntityLength);
 		} 
 		else
 		{
-			if(!RequireCategory(round, Parent, out var p))
+			if(!RequireCategory(execution, Parent, out var p))
 				return;
 
-			var s = round.AffectSite(p.Site);
-			var c = round.CreateCategory(s);
+			var s = execution.AffectSite(p.Site);
+			var c = execution.CreateCategory(s);
 			
 			c.Site = p.Site;
 			c.Parent = Parent;
 			c.Title = Title;
 
-			p = round.AffectCategory(Parent);
+			p = execution.AffectCategory(Parent);
 			p.Categories = [..p.Categories, c.Id];
 		
-			Allocate(round, Signer, s, mcv.Net.EntityLength);
+			Allocate(execution, Signer, s, execution.Net.EntityLength);
 		}
 	}
 }

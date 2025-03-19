@@ -48,13 +48,13 @@ public class ProductUpdation : FairOperation
 		writer.WriteBytes(Value);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireProductAccess(round, ProductId, out var a, out var r) == false)
+		if(RequireProductAccess(execution, ProductId, out var a, out var r) == false)
 			return;
 
-		a = round.AffectAuthor(a.Id);
-		r = round.AffectProduct(ProductId);
+		a = execution.AffectAuthor(a.Id);
+		r = execution.AffectProduct(ProductId);
 
 		var f = r.Fields.FirstOrDefault(j => j.Name == Name);
 
@@ -70,7 +70,7 @@ public class ProductUpdation : FairOperation
 
 			if(f.Versions.Last().Refs == 0)
 			{
-				Free(round, Signer, a, f.Versions.Last().Value.Length);
+				Free(execution, Signer, a, f.Versions.Last().Value.Length);
 
 				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Version = f.Versions.Last().Version}];
 			}
@@ -78,11 +78,11 @@ public class ProductUpdation : FairOperation
 				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Version = f.Versions.Length}];
 		}
 
-		Allocate(round, Signer, a, Value.Length);
+		Allocate(execution, Signer, a, Value.Length);
 
 		foreach(var j in r.Publications)
 		{
-			var p = round.AffectPublication(j);
+			var p = execution.AffectPublication(j);
 				
 			var c = p.Changes.FirstOrDefault(c => c.Name == Name);
 
@@ -96,6 +96,6 @@ public class ProductUpdation : FairOperation
 			}
 		}
 
-		r.Updated = round.ConsensusTime;
+		r.Updated = execution.Time;
 	}
 }

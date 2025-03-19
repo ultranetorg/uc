@@ -9,7 +9,7 @@ public class SitePolicyChange : VotableOperation
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
 
- 	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+ 	public override bool ValidProposal(FairExecution execution, SiteEntry site)
  	{
 		return site.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
  	}
@@ -35,14 +35,14 @@ public class SitePolicyChange : VotableOperation
 		writer.Write(Policy);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
 		Error = Denied;
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
- 		site = round.AffectSite(Site);
+ 		site = execution.AffectSite(Site);
  
 		site.ChangePolicies = new(site.ChangePolicies);
 		site.ChangePolicies[Change] = Policy;

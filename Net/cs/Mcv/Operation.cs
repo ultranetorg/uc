@@ -76,7 +76,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	}
 	
 	public abstract bool IsValid(Mcv mcv);
-	public abstract void Execute(Execution execution, Round round);
+	public abstract void Execute(Execution execution);
 	public abstract void WriteConfirmed(BinaryWriter w);
 	public abstract void ReadConfirmed(BinaryReader r);
 	 

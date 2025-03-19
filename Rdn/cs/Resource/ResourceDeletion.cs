@@ -21,7 +21,7 @@ public class ResourceDeletion : RdnOperation
 		writer.Write(Resource);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		if(RequireSignerResource(execution, Resource, out var d, out var r) == false)
 			return;

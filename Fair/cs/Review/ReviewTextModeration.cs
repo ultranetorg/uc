@@ -17,12 +17,12 @@ public class ReviewTextModeration : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairMcv mcv, FairRound round, Site site)
+	public override bool ValidProposal(FairExecution execution, SiteEntry site)
 	{
-		if(!RequireReviewAccess(round, Review, Signer, out var r))
+		if(!RequireReviewAccess(execution, Review, Signer, out var r))
 			return false;
 
-		if(!RequirePublication(round, r.Publication, out var p))
+		if(!RequirePublication(execution, r.Publication, out var p))
 			return false;
 
 		if(!p.ReviewChanges.Contains(r.Id))
@@ -59,62 +59,62 @@ public class ReviewTextModeration : VotableOperation
 		writer.Write(Resolution);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(mcv, round, null))
+		if(!ValidProposal(execution, null))
 			return;
 
-		if(round.FindSite(round.FindCategory(round.FindPublication(round.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewTextModeration] != ChangePolicy.AnyModerator)
+		if(execution.FindSite(execution.FindCategory(execution.FindPublication(execution.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewTextModeration] != ChangePolicy.AnyModerator)
  		{
  			Error = Denied;
  			return;
  		}
 
-		Execute(mcv, round, null);
+		Execute(execution, null);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round, SiteEntry site)
+	public override void Execute(FairExecution execution, SiteEntry site)
 	{
-		if(!ValidProposal(mcv, round, null))
+		if(!ValidProposal(execution, null))
 		{	
 			Error = null;
 			return;
 		}
 
-		var r = round.AffectReview(Review);
+		var r = execution.AffectReview(Review);
 
-		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
 		EnergySpenders = [a];
 		
-		var p = round.AffectPublication(r.Publication);
+		var p = execution.AffectPublication(r.Publication);
 
 		if(Resolution == true)
 		{
-			Free(round, a, a, Encoding.UTF8.GetByteCount(r.Text));
+			Free(execution, a, a, Encoding.UTF8.GetByteCount(r.Text));
 
 			r.Text = r.TextNew;
 			r.TextNew = "";
 			p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
 
-			var c = round.AffectAccount(r.Creator);
+			var c = execution.AffectAccount(r.Creator);
 			c.Approvals++;
 		}
 		else
 		{
-			Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
+			Free(execution, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
 
 			r.TextNew = "";
 			p.ReviewChanges = [..p.ReviewChanges.Where(i => i != Review)];
 
-			var c = round.AffectAccount(r.Creator);
+			var c = execution.AffectAccount(r.Creator);
 			c.Rejections++;
 
 			if(c.Rejections > c.Approvals/3)
 			{
-				round.DeleteAccount(c);
+				execution.DeleteAccount(c);
 			}
 		}
 
-		PayForModeration(round, p, a);
+		PayForModeration(execution, p, a);
 	}
 }

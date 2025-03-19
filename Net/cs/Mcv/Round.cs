@@ -54,7 +54,6 @@ public abstract class Round : IBinarySerializable
 	public long[]										BandwidthAllocations = [];
 
 	public Dictionary<EntityId, AccountEntry>			AffectedAccounts = new();
-	public Dictionary<EntityId, Generator>				AffectedCandidates = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
@@ -144,17 +143,6 @@ public abstract class Round : IBinarySerializable
 		return e;
 	}
 	*/
-	public void TransferEnergyIfNeeded(IEnergyHolder a)
-	{
-		if(a.EnergyThisPeriod != ConsensusTime.Days/Net.ECLifetime.Days)
-		{
-			if(a.EnergyThisPeriod + 1 == ConsensusTime.Days/Net.ECLifetime.Days)
-				a.Energy = a.EnergyNext;
-	
-			a.EnergyNext = 0;
-			a.EnergyThisPeriod	= (byte)(ConsensusTime.Days/Net.ECLifetime.Days);
-		}
-	}
 	/*
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
@@ -388,13 +376,8 @@ public abstract class Round : IBinarySerializable
 		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum] : Previous.BandwidthAllocations.Clone() as long[];
 		Spacetimes				= Id == 0 ? new long[1]									 : Previous.Spacetimes.Clone() as long[];
 
-		AffectedCandidates.Clear();
-		AffectedAccounts.Clear();
-
 		foreach(var i in Mcv.Tables)
-		{
 			AffectedByTable(i).Clear();
-		}
 		
 		foreach(var i in NextEids)
 			i.Clear();
@@ -418,7 +401,7 @@ public abstract class Round : IBinarySerializable
 				o.SpacetimeSpenders	= [];
 				o.EnergyConsumed	= ConsensusECEnergyCost;
 
-				o.Execute(e, this);
+				o.Execute(e);
 
 				if(o.Error != null)
 					break;

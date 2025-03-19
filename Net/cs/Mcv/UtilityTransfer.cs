@@ -57,7 +57,7 @@ public class UtilityTransfer : Operation
 		writer.Write7BitEncodedInt64(Spacetime);
 	}
 
-	public override void Execute(Execution execution, Round round)
+	public override void Execute(Execution execution)
 	{
 		if(To == EntityId.LastCreated && execution.LastCreatedId == null)
 		{
@@ -85,7 +85,7 @@ public class UtilityTransfer : Operation
 				return;
 			}
 
-			if(!h.IsSpendingAuthorized(round, Signer.Id))
+			if(!h.IsSpendingAuthorized(execution, Signer.Id))
 			{
 				Error = Denied;
 				return;

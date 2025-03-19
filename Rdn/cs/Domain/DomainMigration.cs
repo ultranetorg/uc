@@ -73,7 +73,7 @@ public class DomainMigration : RdnOperation
 		Generator			= reader.Read<EntityId>();
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var a = execution.FindDomain(Name);
 

@@ -26,22 +26,22 @@ public class ReviewTextChange : FairOperation
 		writer.WriteUtf8(Text);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireReviewAccess(round, Review, Signer, out var r))
+		if(!RequireReviewAccess(execution, Review, Signer, out var r))
 			return;
 
-		r = round.AffectReview(Review);
-		var a = round.AffectAuthor(round.FindProduct(round.FindPublication(r.Publication).Product).Author);
+		r = execution.AffectReview(Review);
+		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
 
 		EnergySpenders = [a];
 
-		Free(round, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
-		Allocate(round, a, a, Encoding.UTF8.GetByteCount(Text));
+		Free(execution, a, a, Encoding.UTF8.GetByteCount(r.TextNew));
+		Allocate(execution, a, a, Encoding.UTF8.GetByteCount(Text));
 
 		r.TextNew = Text;
 
-		var p = round.AffectPublication(r.Publication);
+		var p = execution.AffectPublication(r.Publication);
 
 		if(!p.ReviewChanges.Contains(r.Id))
 			p.ReviewChanges = [..p.ReviewChanges, Review];

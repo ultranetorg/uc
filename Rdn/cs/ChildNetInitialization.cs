@@ -34,7 +34,7 @@ public class ChildNetInitialization : RdnOperation
 		writer.Write(Net);
 	}
 
-	public override void Execute(RdnExecution execution, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		if(RequireSignerDomain(execution, Domain, out var e) == false)
 			return;

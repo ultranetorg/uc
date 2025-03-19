@@ -20,28 +20,28 @@ public class CategoryMovement : FairOperation
 		writer.WriteNullable(Parent);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireCategoryAccess(round, Category, out var c))
+		if(!RequireCategoryAccess(execution, Category, out var c))
 			return;
 
-		c = round.AffectCategory(Category);
+		c = execution.AffectCategory(Category);
 
 		if(c.Parent != null)
 		{
-			var p = round.AffectCategory(c.Parent);
+			var p = execution.AffectCategory(c.Parent);
 
 			p.Categories = p.Categories.Where(i => i != c.Id).ToArray();
 		}
 
 		if(Parent == null)
 		{
-			var s = round.AffectSite(c.Site);
+			var s = execution.AffectSite(c.Site);
 			s.Categories = [..s.Categories, c.Id];
 		} 
 		else
 		{
-			if(!RequireCategory(round, Parent, out var p))
+			if(!RequireCategory(execution, Parent, out var p))
 				return;
 
 			if(p.Site != c.Site)
@@ -52,7 +52,7 @@ public class CategoryMovement : FairOperation
 
 			c.Parent = p.Id;
 
-			p = round.AffectCategory(p.Id);
+			p = execution.AffectCategory(p.Id);
 			p.Categories = [..p.Categories, c.Id];
 		}
 

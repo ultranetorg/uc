@@ -30,11 +30,11 @@ public abstract class RdnOperation : Operation
 	public const string		CantChangeSealedResource = "Cant change sealed resource";
 	public const string		NotRoot = "Not root domain";
 
-	public abstract void Execute(RdnExecution execution, RdnRound round);
+	public abstract void Execute(RdnExecution execution);
 
-	public override void Execute(Execution execution, Round round)
+	public override void Execute(Execution execution)
 	{
-		Execute(execution as RdnExecution, round as RdnRound);
+		Execute(execution as RdnExecution);
 	}
 
 	public void PayForName(string address, int years)

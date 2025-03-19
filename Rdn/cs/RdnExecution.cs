@@ -79,6 +79,14 @@ public class RdnExecution : Execution
 		return Mcv.Resources.Find(id, Round.Id);
 	}
 
+	public ResourceEntry FindResource(Ura address)
+	{
+		if(AffectedResources.Values.FirstOrDefault(i => i.Address == address) is ResourceEntry a && !a.Deleted)
+			return a;
+
+		return Mcv.Resources.Find(address, Round.Id);
+	}
+
 	public ResourceEntry AffectResource(EntityId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))

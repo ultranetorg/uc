@@ -31,19 +31,19 @@ class SiteRewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireSiteAccess(round, SiteId, out var a))
+		if(!RequireSiteAccess(execution, SiteId, out var a))
 			return;
 		
-		a = round.AffectSite(SiteId);
+		a = execution.AffectSite(SiteId);
 
-		if(!Site.CanRenew(a, round.ConsensusTime))
+		if(!Site.CanRenew(a, execution.Time))
 		{
 			Error = NotAvailable;
 			return;
 		}
 
-		Prolong(round, Signer, a, Time.FromYears(Years));
+		Prolong(execution, Signer, a, Time.FromYears(Years));
 	}
 }

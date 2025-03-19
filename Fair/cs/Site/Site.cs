@@ -45,7 +45,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
 
-	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Moderators[0] == signer; /// TODO : Owner only
 	}

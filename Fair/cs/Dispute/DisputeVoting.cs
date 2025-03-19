@@ -39,12 +39,12 @@ public class DisputeVoting : FairOperation
 		writer.Write(Vote);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
- 		if(!RequireDispute(round, Dispute, out var d))
+ 		if(!RequireDispute(execution, Dispute, out var d))
  			return;
  
- 		if(!RequireSite(round, d.Site, out var s))
+ 		if(!RequireSite(execution, d.Site, out var s))
  			return;
  
  		if(d.Yes.Contains(Voter) || d.No.Contains(Voter) || d.Abs.Contains(Voter))
@@ -66,7 +66,7 @@ public class DisputeVoting : FairOperation
  					return;
  				}
  
- 				if(!RequireAccountAccess(round, Voter, out var _))
+ 				if(!RequireAccountAccess(execution, Voter, out var _))
  					return;
  
  				break;
@@ -80,14 +80,14 @@ public class DisputeVoting : FairOperation
  					return;
  				}
  
- 				if(!RequireAuthorAccess(round, Voter, out var _))
+ 				if(!RequireAuthorAccess(execution, Voter, out var _))
  					return;
  
  				break;
  			}
  		}
  
- 		d = round.AffectDispute(Dispute);
+ 		d = execution.AffectDispute(Dispute);
  
  		switch(Vote)
  		{
@@ -119,12 +119,12 @@ public class DisputeVoting : FairOperation
  			d.Abs = [];
  			d.Flags |= DisputeFlags.Resolved;
  
- 			d.Proposal.Execute(mcv, round, s);
+ 			d.Proposal.Execute(execution, s);
  		}
  
- 		if(fail || d.Expirtaion < round.ConsensusTime)
+ 		if(fail || d.Expirtaion < execution.Time)
  		{
- 			s = round.AffectSite(d.Site);
+ 			s = execution.AffectSite(d.Site);
  			s.Disputes = s.Disputes.Remove(d.Id);
  
  			d.Deleted = true;

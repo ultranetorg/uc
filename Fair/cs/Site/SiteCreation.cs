@@ -24,7 +24,7 @@ public class SiteCreation : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
@@ -32,10 +32,10 @@ public class SiteCreation : FairOperation
 			return;
 		}
 
-		var s = round.CreateSite(Signer);
+		var s = execution.CreateSite(Signer);
 
 		s.Title			= Title;
-		s.Space			= mcv.Net.EntityLength;
+		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [Signer.Id];
 
 		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
@@ -48,6 +48,6 @@ public class SiteCreation : FairOperation
 
 		Signer.Sites = [..Signer.Sites, s.Id];
 
-		Prolong(round, Signer, s, Time.FromYears(Years));
+		Prolong(execution, Signer, s, Time.FromYears(Years));
 	}
 }

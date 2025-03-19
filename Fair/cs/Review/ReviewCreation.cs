@@ -27,12 +27,12 @@ public class ReviewCreation : FairOperation
 		writer.Write(Text);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequirePublication(round, Publication, out var p))
+		if(!RequirePublication(execution, Publication, out var p))
 			return;
 
-		var r = round.CreateReview(p);
+		var r = execution.CreateReview(p);
 
 		r.Publication	= p.Id;
 		r.Creator		= Signer.Id;
@@ -40,21 +40,21 @@ public class ReviewCreation : FairOperation
 		r.Rate			= Rate;
 		r.Text			= "";
 		r.TextNew		= Text;
-		r.Created		= round.ConsensusTime;
+		r.Created		= execution.Time;
 
-		p = round.AffectPublication(p.Id);
+		p = execution.AffectPublication(p.Id);
 
 		p.Reviews = [..p.Reviews, r.Id];
 		p.ReviewChanges = [..p.ReviewChanges, r.Id];
 
-		var a = round.AffectAuthor(round.FindProduct(p.Product).Author);
+		var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
 
-		Allocate(round, a, a, mcv.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+		Allocate(execution, a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 
-		if(Signer.Id == round.LastCreatedId)
+		if(Signer.Id == execution.LastCreatedId)
 		{
 			Signer.AllocationSponsor		= a.Id;
-			Signer.AllocationSponsorClass	= mcv.Authors.Id;
+			Signer.AllocationSponsorClass	= execution.Mcv.Authors.Id;
 		}
 
 		Signer.Reviews = [..Signer.Reviews, r.Id];
