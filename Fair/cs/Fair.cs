@@ -21,7 +21,7 @@ public abstract class Fair : McvNet
 	
 	public Fair()
 	{
-		TablesCount = 3;
+		TablesCount = 8;
 
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
