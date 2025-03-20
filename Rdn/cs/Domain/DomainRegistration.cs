@@ -9,7 +9,7 @@ public class DomainRegistration : RdnOperation
 
 	public override string		Description => $"{Address} for {Years} years";
 	
-	public DomainRegistration ()
+	public DomainRegistration()
 	{
 	}
 	

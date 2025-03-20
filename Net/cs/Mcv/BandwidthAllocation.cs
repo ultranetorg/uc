@@ -6,7 +6,7 @@ public class BandwidthAllocation : Operation
 	public short			Days  { get; set; }
 
 	public override string	Description => $"Allocation of {Bandwidth} EC for {Days} days";
-	public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Net.BandwidthAllocationDaysMaximum;
+	public override bool	IsValid(Mcv mcv) => Bandwidth >= 0 && Days > 0 && Days <= mcv.Net.BandwidthDaysMaximum;
 	
 	public BandwidthAllocation()
 	{
@@ -33,14 +33,14 @@ public class BandwidthAllocation : Operation
 			Signer.Energy += Signer.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
-				execution.BandwidthAllocations[i] -= Signer.Bandwidth;
+				execution.Bandwidths[i] -= Signer.Bandwidth;
 		}
 
 		for(int i = 0; i < Days; i++)
 		{
-			if(execution.BandwidthAllocations[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
+			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
 			{
-				execution.BandwidthAllocations[i] += Bandwidth;
+				execution.Bandwidths[i] += Bandwidth;
 			}
 			else
 			{

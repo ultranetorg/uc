@@ -8,6 +8,8 @@ public abstract class Fair : McvNet
 	public override	string			Address => "fair";
 	public override	string			Name => "fair";
 	public override ushort			BasePort => (ushort)KnownSystem.Fair;
+	
+	public ushort					ReviewLengthMaximum = 65535;
  		
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairPublicTest();

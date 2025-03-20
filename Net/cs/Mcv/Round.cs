@@ -51,7 +51,7 @@ public abstract class Round : IBinarySerializable
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
 	public long[]										Spacetimes = [];
-	public long[]										BandwidthAllocations = [];
+	public long[]										Bandwidths = [];
 
 	public Dictionary<EntityId, AccountEntry>			AffectedAccounts = new();
 	public Dictionary<int, int>[]						NextEids;
@@ -370,11 +370,11 @@ public abstract class Round : IBinarySerializable
 			foreach(var o in t.Operations)
 				o.Error = null;
 
-		Candidates				= Id == 0 ? new()										 : Previous.Candidates.ToList();
-		Members					= Id == 0 ? new()										 : Previous.Members;
-		Funds					= Id == 0 ? new()										 : Previous.Funds;
-		BandwidthAllocations	= Id == 0 ? new long[Net.BandwidthAllocationDaysMaximum] : Previous.BandwidthAllocations.Clone() as long[];
-		Spacetimes				= Id == 0 ? new long[1]									 : Previous.Spacetimes.Clone() as long[];
+		Candidates	= Id == 0 ? new()								: Previous.Candidates.ToList();
+		Members		= Id == 0 ? new()								: Previous.Members;
+		Funds		= Id == 0 ? new()								: Previous.Funds;
+		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
+		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
 
 		foreach(var i in Mcv.Tables)
 			AffectedByTable(i).Clear();
@@ -491,7 +491,7 @@ public abstract class Round : IBinarySerializable
 
 		if(execution.Candidates != null)			Candidates			 = execution.Candidates;
 		if(execution.Spacetimes != null)			Spacetimes			 = execution.Spacetimes;
-		if(execution.BandwidthAllocations != null)	BandwidthAllocations = execution.BandwidthAllocations;
+		if(execution.Bandwidths != null)	Bandwidths = execution.Bandwidths;
 	}
 
 	public void Confirm()
@@ -572,7 +572,7 @@ public abstract class Round : IBinarySerializable
 
 			//d %= Time.FromYears(1).Days;
 
-			e.BandwidthAllocations = d < e.BandwidthAllocations.Length ? [..e.BandwidthAllocations[d..], ..new long[d]] : new long[d];
+			e.Bandwidths = d < e.Bandwidths.Length ? [..e.Bandwidths[d..], ..new long[d]] : new long[d];
 
 			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
 			{
@@ -603,7 +603,7 @@ public abstract class Round : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Hash);
-		writer.Write(BandwidthAllocations, writer.Write7BitEncodedInt64);
+		writer.Write(Bandwidths, writer.Write7BitEncodedInt64);
 		writer.Write(Funds);
 		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
@@ -616,7 +616,7 @@ public abstract class Round : IBinarySerializable
 	{
 		Id						= reader.Read7BitEncodedInt();
 		Hash					= reader.ReadHash();
-		BandwidthAllocations	= reader.ReadArray(reader.Read7BitEncodedInt64);
+		Bandwidths				= reader.ReadArray(reader.Read7BitEncodedInt64);
 		Funds					= reader.ReadList<AccountAddress>();
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 

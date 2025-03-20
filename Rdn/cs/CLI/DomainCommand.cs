@@ -61,11 +61,14 @@ public class DomainCommand : RdnCommand
 									]};
 
 		a.Execute = () =>	{
-							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							return new DomainRegistration{	Address	= First,
-															Years	= byte.Parse(GetString("years"))};
-						};
+								if(Domain.IsChild(First))
+									throw new SyntaxException("Only root domains name are allowed");
+
+								return new DomainRegistration{	Address	= First,
+																Years	= byte.Parse(GetString("years"))};
+							};
 
 		return a;
 	}

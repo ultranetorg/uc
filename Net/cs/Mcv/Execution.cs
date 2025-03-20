@@ -7,7 +7,7 @@ public class Execution
 	public Dictionary<int, int>[]				NextEids;
 	public EntityId								LastCreatedId;
 	public long[]								Spacetimes;
-	public long[]								BandwidthAllocations;
+	public long[]								Bandwidths;
 
 	public List<Generator>						Candidates;
 
@@ -29,7 +29,7 @@ public class Execution
 
 		Candidates = round.Candidates;
 		Spacetimes = round.Spacetimes;
-		BandwidthAllocations = round.BandwidthAllocations;
+		Bandwidths = round.Bandwidths;
 	}
 
 	public virtual ITableEntry Affect(byte table, EntityId id)

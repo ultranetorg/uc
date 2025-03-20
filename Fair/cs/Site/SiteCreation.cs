@@ -46,6 +46,9 @@ public class SiteCreation : FairOperation
 		s.ChangePolicies[FairOperationClass.PublicationProductChange]		= ChangePolicy.ElectedByModeratorsUnanimously;
 		s.ChangePolicies[FairOperationClass.PublicationUpdateModeration]	= ChangePolicy.AnyModerator;
 
+		s.ChangePolicies[FairOperationClass.ReviewStatusChange]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.ReviewTextModeration]		= ChangePolicy.AnyModerator;
+
 		Signer.Sites = [..Signer.Sites, s.Id];
 
 		Prolong(execution, Signer, s, Time.FromYears(Years));

@@ -7,7 +7,7 @@ public class ReviewTextChange : FairOperation
 	public EntityId				Review { get; set; }
 	public string				Text { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(Mcv mcv) => Text.Length <= (mcv.Net as Fair).ReviewLengthMaximum;
 	public override string		Description => $"{Review}, {Text}";
 
 	public ReviewTextChange()

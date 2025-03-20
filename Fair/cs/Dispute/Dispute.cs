@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public enum DisputeFlags : byte
 {
-	Resolved	= 0b0001,
+	Succeeded	= 0b0001,
 }
 
 public class Dispute : IBinarySerializable

@@ -33,26 +33,21 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public virtual bool					NonExistingSignerAllowed => false;
 
 	public const string					Rejected = "Rejected";
-	public const string					NotFound = "Not found";
 	public const string					NothingLastCreated = "Nothing last created";
-	public const string					NotAvailable = "Not Available";
 	public const string					Mismatch = "Mismatch";
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
 	public const string					Expired = "Expired";
-	public const string					Sealed = "Sealed";
-	public const string					NotSealed = "NotSealed";
-	public const string					NoData = "NoData";
-	public const string					NotEnergyHolder = "Not Energy Holder";
 	public const string					NotSpacetimeHolder = "Not Spacetime Holder";
 	public const string					AlreadyExists = "Already exists";
+	public const string					NotFound = "Not found";
+	public const string					NotAvailable = "Not Available";
 	public const string					NotSequential = "Not sequential";
+	public const string					NotEnergyHolder = "Not Energy Holder";
 	public const string					NotEnoughSpacetime = "Not enough spacetime";
 	public const string					NotEnoughEnergy = "Not enough execution units";
 	public const string					NotEnoughEnergyNext = "Not enough energy for next period";
 	public const string					NotEnoughBandwidth = "Not enough bandwidth";
-	public const string					NoAnalyzers = "No analyzers";
 	public const string					Denied = "Access denied";
-	//public const string					NotRelease = "Data valus is not a release";
 	public const string					LimitReached = "Limit Reached";
 	public const string					AtLeastOneOwnerRequired = "At least one owner required";
 

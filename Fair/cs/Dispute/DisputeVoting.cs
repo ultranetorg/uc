@@ -52,6 +52,12 @@ public class DisputeVoting : FairOperation
  			Error = AlreadyExists;
  			return;
  		}
+
+ 		if(d.Flags.HasFlag(DisputeFlags.Succeeded))
+ 		{
+ 			Error = Ended;
+ 			return;
+ 		}
  
         var policy = s.ChangePolicies[Enum.Parse<FairOperationClass>(d.Proposal.GetType().Name)];
 
@@ -104,20 +110,20 @@ public class DisputeVoting : FairOperation
  								_ => throw new IntegrityException()
  							 };
  
- 		var	fail = policy	switch
- 						    {
- 							    ChangePolicy.ElectedByModeratorsMajority	=> d.No.Length > s.Moderators.Length/2,
- 							    ChangePolicy.ElectedByModeratorsUnanimously	=> d.No.Length == s.Moderators.Length,
- 							    ChangePolicy.ElectedByAuthorsMajority		=> d.No.Length > s.Authors.Length/2,
- 							    _ => throw new IntegrityException()
- 						    };
+ 		var	fail = policy switch
+ 						  {
+ 							 ChangePolicy.ElectedByModeratorsMajority	=> d.No.Length > s.Moderators.Length/2,
+ 							 ChangePolicy.ElectedByModeratorsUnanimously	=> d.No.Length == s.Moderators.Length,
+ 							 ChangePolicy.ElectedByAuthorsMajority		=> d.No.Length > s.Authors.Length/2,
+ 							 _ => throw new IntegrityException()
+ 						  };
  
  		if(success)
  		{
  			d.Yes = [];
  			d.No = [];
  			d.Abs = [];
- 			d.Flags |= DisputeFlags.Resolved;
+ 			d.Flags |= DisputeFlags.Succeeded;
  
  			d.Proposal.Execute(execution, true);
  		}

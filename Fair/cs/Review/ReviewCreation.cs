@@ -7,24 +7,24 @@ public class ReviewCreation : FairOperation
 	public EntityId				Publication { get; set; }
 	public string				Text { get; set; }
 	public byte					Rate { get; set; }
-	public override bool		NonExistingSignerAllowed => true;
 
+	public override bool		NonExistingSignerAllowed => true;
 	public override string		Description => $"{GetType().Name} Publication={Publication}";
 
-	public override bool		IsValid(Mcv mcv) => Text.Length <= 4096;
+	public override bool		IsValid(Mcv mcv) => Text.Length <= (mcv.Net as Fair).ReviewLengthMaximum;
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Publication = reader.Read<EntityId>();
 		Rate		= reader.ReadByte();
-		Text		= reader.ReadString();
+		Text		= reader.ReadUtf8();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		writer.Write(Publication);
 		writer.Write(Rate);
-		writer.Write(Text);
+		writer.WriteUtf8(Text);
 	}
 
 	public override void Execute(FairExecution execution, bool dispute)
