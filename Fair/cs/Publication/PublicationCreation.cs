@@ -9,14 +9,14 @@ public class PublicationCreation : FairOperation
 	public override bool		IsValid(McvNet net) => Product != null && Category != null;
 	public override string		Description => $"Product={Product} Category={Category}";
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Product = reader.Read<EntityId>();
 		Category= reader.Read<EntityId>();
 		//Fields	= reader.ReadArray<ProductFieldVersionId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
 		writer.Write(Category);

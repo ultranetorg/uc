@@ -22,13 +22,13 @@ public class ChildNetInitialization : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Domain	= reader.Read<EntityId>();
 		Net		= reader.Read<NtnState>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Domain);
 		writer.Write(Net);

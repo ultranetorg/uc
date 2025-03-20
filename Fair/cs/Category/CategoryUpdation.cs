@@ -8,13 +8,13 @@ public class CategoryMovement : FairOperation
 	public override bool		IsValid(McvNet net) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}, {Parent}";
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Category	= reader.Read<EntityId>();
 		Parent		= reader.ReadNullable<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Category);
 		writer.WriteNullable(Parent);

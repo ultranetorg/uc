@@ -16,12 +16,12 @@ public class ProductCreation : FairOperation
 		Author	= author;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Author	= reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
 	}

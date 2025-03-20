@@ -30,13 +30,13 @@ public class DomainBid : RdnOperation
 		Bid = bid;
 	}
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Name	= reader.ReadUtf8();
 		Bid		= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.Write7BitEncodedInt64(Bid);

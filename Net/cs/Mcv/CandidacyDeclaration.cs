@@ -16,12 +16,12 @@ public class CandidacyDeclaration : Operation
 
 	public override bool IsValid(McvNet net) => true;
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		BaseRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(BaseRdcIPs, i => writer.Write(i));
 	}

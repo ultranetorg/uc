@@ -15,12 +15,12 @@ public class AccountCreation : Operation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Owner = reader.Read<AccountAddress>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Owner);
 	}

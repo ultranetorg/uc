@@ -9,14 +9,14 @@ public class CategoryCreation : FairOperation
 	public override bool		IsValid(McvNet net) => (Site != null || Parent != null) && (Site == null || Parent == null) && Title != null;
 	public override string		Description => $"{GetType().Name} Title={Title} Parent={Parent}, Site={Site}";
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Site = reader.ReadNullable<EntityId>();
 		Parent = reader.ReadNullable<EntityId>();
 		Title = reader.ReadUtf8();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteNullable(Site);
 		writer.WriteNullable(Parent);

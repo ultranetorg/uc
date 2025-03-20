@@ -25,14 +25,14 @@ public class DisputeVoting : FairOperation
 		Vote = pro;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Dispute	= reader.Read<EntityId>();
 		Voter	= reader.Read<EntityId>();
 		Vote	= reader.Read<DisputeVote>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Dispute);
 		writer.Write(Voter);

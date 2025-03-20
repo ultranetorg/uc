@@ -13,14 +13,14 @@ public class ReviewCreation : FairOperation
 
 	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Publication = reader.Read<EntityId>();
 		Rate		= reader.ReadByte();
 		Text		= reader.ReadUtf8();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Publication);
 		writer.Write(Rate);

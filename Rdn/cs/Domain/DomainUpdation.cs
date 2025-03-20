@@ -19,13 +19,13 @@ public class DomainRenewal : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
 		Years	= reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Years);
@@ -86,13 +86,13 @@ public class DomainTransfer : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
 		Owner	= reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Owner);
@@ -174,13 +174,13 @@ public class DomainPolicyUpdation : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
 		Policy	= reader.Read<DomainChildPolicy>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Policy);

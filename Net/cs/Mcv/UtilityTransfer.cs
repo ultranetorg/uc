@@ -33,7 +33,7 @@ public class UtilityTransfer : Operation
 		Spacetime			= spacetime;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		FromTable				= reader.ReadByte();
 		From					= reader.Read<EntityId>();
@@ -45,7 +45,7 @@ public class UtilityTransfer : Operation
 		Spacetime				= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(FromTable);
 		writer.Write(From);

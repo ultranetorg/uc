@@ -36,14 +36,14 @@ public class DomainMigration : RdnOperation
 		return true;
 	} 
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Name		= reader.ReadUtf8();
 		Tld			= reader.ReadUtf8();
 		RankCheck	= reader.ReadBoolean();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Tld);

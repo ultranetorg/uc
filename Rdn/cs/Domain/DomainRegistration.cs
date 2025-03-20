@@ -27,7 +27,7 @@ public class DomainRegistration : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Address	= reader.ReadUtf8();
 		Years = reader.ReadByte();
@@ -39,7 +39,7 @@ public class DomainRegistration : RdnOperation
 		}
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Address);
 		writer.Write(Years);

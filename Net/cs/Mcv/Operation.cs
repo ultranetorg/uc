@@ -32,24 +32,24 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	public virtual bool					NonExistingSignerAllowed => false;
 
-	public const string					Rejected = "Rejected";
-	public const string					NothingLastCreated = "Nothing last created";
-	public const string					Mismatch = "Mismatch";
+	public const string					AlreadyExists = "Already exists";
+	public const string					AtLeastOneOwnerRequired = "At least one owner required";
+	public const string					Denied = "Access denied";
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
 	public const string					Expired = "Expired";
-	public const string					NotSpacetimeHolder = "Not Spacetime Holder";
-	public const string					AlreadyExists = "Already exists";
-	public const string					NotFound = "Not found";
+	public const string					LimitReached = "Limit Reached";
+	public const string					Mismatch = "Mismatch";
 	public const string					NotAvailable = "Not Available";
+	public const string					NotFound = "Not found";
 	public const string					NotSequential = "Not sequential";
 	public const string					NotEnergyHolder = "Not Energy Holder";
 	public const string					NotEnoughSpacetime = "Not enough spacetime";
 	public const string					NotEnoughEnergy = "Not enough execution units";
 	public const string					NotEnoughEnergyNext = "Not enough energy for next period";
 	public const string					NotEnoughBandwidth = "Not enough bandwidth";
-	public const string					Denied = "Access denied";
-	public const string					LimitReached = "Limit Reached";
-	public const string					AtLeastOneOwnerRequired = "At least one owner required";
+	public const string					NotSpacetimeHolder = "Not spacetime holder";
+	public const string					NothingLastCreated = "Nothing last created";
+	public const string					Rejected = "Rejected";
 
 	protected OperationId				_Id;
 	
@@ -72,22 +72,12 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	
 	public abstract bool IsValid(McvNet net);
 	public abstract void Execute(Execution execution);
-	public abstract void WriteConfirmed(BinaryWriter w);
-	public abstract void ReadConfirmed(BinaryReader r);
+	public abstract void Write(BinaryWriter w);
+	public abstract void Read(BinaryReader r);
 	 
 	public override string ToString()
 	{
 		return $"{GetType().Name}, {Description}{(Error == null ? null : ", Error=" + Error)}";
-	}
-
-	public void Read(BinaryReader reader)
-	{
-		ReadConfirmed(reader);
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		WriteConfirmed(writer);
 	}
 
 	public AccountEntry RequireAccount(Round round, AccountAddress account)

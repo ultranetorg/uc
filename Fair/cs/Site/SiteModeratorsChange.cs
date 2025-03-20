@@ -9,14 +9,14 @@ public class SiteModeratorsChange : VotableOperation
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<EntityId>();
 		Additions	= reader.ReadArray<EntityId>();
 		Removals	= reader.ReadArray<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
 		writer.Write(Additions);

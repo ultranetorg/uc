@@ -19,13 +19,13 @@ class SiteRewal : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		SiteId	= reader.Read<EntityId>();
 		Years	= reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(SiteId);
 		writer.Write(Years);

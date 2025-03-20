@@ -19,13 +19,13 @@ public class AuthorRenewal : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		AuthorId	= reader.Read<EntityId>();
 		Years		= reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(AuthorId);
 		writer.Write(Years);
@@ -64,13 +64,13 @@ public class AuthorModerationReward : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		AuthorId	= reader.Read<EntityId>();
 		Amount		= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(AuthorId);
 		writer.Write7BitEncodedInt64(Amount);
@@ -103,13 +103,13 @@ public class AuthorOwnerAddition : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		AuthorId	= reader.Read<EntityId>();
 		Owner		= reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(AuthorId);
 		writer.Write(Owner);
@@ -151,13 +151,13 @@ public class AuthorOwnerRemoval : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		AuthorId	= reader.Read<EntityId>();
 		Owner		= reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(AuthorId);
 		writer.Write(Owner);

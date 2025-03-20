@@ -18,13 +18,13 @@ public class ResourceLinkDeletion : RdnOperation
 		Destination = destination;
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Source);
 		writer.Write(Destination);
 	}
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Source	= reader.Read<EntityId>();
 		Destination	= reader.Read<EntityId>();

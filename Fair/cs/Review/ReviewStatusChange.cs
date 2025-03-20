@@ -12,13 +12,13 @@ public class ReviewStatusChange : VotableOperation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Review	= reader.Read<EntityId>();
 		Status	= reader.Read<ReviewStatus>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Review);
 		writer.Write(Status);

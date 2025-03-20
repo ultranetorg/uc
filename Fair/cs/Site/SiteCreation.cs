@@ -12,13 +12,13 @@ public class SiteCreation : FairOperation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Title = reader.ReadString();
 		Years = reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Title);
 		writer.Write(Years);

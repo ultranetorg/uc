@@ -12,13 +12,13 @@ public class BandwidthAllocation : Operation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Bandwidth	= reader.Read7BitEncodedInt64();
 		Days		= reader.ReadInt16();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt64(Bandwidth);
 		writer.Write(Days);

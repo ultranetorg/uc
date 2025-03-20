@@ -13,14 +13,14 @@ public class AnalysisResultUpdation : RdnOperation
 	{
 	}
 	
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		//writer.Write(Resource);
 		writer.Write(Analysis);
 		writer.Write(Result);
 	}
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		//Resource = reader.Read<ResourceId>();
 		Analysis = reader.Read<EntityId>();

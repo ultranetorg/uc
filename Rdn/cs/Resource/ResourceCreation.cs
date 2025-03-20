@@ -23,7 +23,7 @@ public class ResourceCreation : RdnOperation
 		if(seal)			Changes |= ResourceChanges.Seal;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Address	= reader.Read<Ura>();
 		Changes	= (ResourceChanges)reader.ReadByte();
@@ -31,7 +31,7 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Address);
 		writer.Write((byte)Changes);

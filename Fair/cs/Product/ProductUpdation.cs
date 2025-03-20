@@ -34,14 +34,14 @@ public class ProductUpdation : FairOperation
 	//		f.Value  = data;
 	//}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		ProductId	= reader.Read<EntityId>();
 		Name		= reader.ReadUtf8();
 		Value		= reader.ReadBytes();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(ProductId);
 		writer.WriteUtf8(Name);

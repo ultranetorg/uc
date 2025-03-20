@@ -9,14 +9,14 @@ public class SitePolicyChange : VotableOperation
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Site	= reader.Read<EntityId>();
 		Change	= reader.Read<FairOperationClass>();
 		Policy	= reader.Read<ChangePolicy>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
 		writer.Write(Change);

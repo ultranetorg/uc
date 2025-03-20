@@ -17,14 +17,14 @@ public class ReviewTextModeration : VotableOperation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Review		= reader.Read<EntityId>();
 		Hash		= reader.ReadBytes(TextHashLength);
 		Resolution	= reader.ReadBoolean();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Review);
 		writer.Write(Hash);

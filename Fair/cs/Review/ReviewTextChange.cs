@@ -14,13 +14,13 @@ public class ReviewTextChange : FairOperation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Review	= reader.Read<EntityId>();
 		Text	= reader.ReadUtf8();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Review);
 		writer.WriteUtf8(Text);

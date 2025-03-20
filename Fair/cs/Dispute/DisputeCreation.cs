@@ -14,7 +14,7 @@ public class DisputeCreation : FairOperation
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<EntityId>();
 		Creator		= reader.Read<EntityId>();
@@ -24,7 +24,7 @@ public class DisputeCreation : FairOperation
  		Proposal.Read(reader); 
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
 		writer.Write(Creator);
