@@ -21,7 +21,7 @@ public class PublicationDeletion : FairOperation
 		writer.Write(Publication);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequirePublication(execution, Publication, out var p))
 			return;

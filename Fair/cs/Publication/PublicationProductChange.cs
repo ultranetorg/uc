@@ -11,19 +11,6 @@ public class PublicationProductChange : VotableOperation
 	public PublicationProductChange()
 	{
 	}
-	
-	public override bool ValidProposal(FairExecution execution, SiteEntry site)
-	{
-		if(!RequirePublication(execution, Publication, out var p))
-			return false;
-
-		return p.Product != Product;
-	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		return (other as PublicationProductChange).Publication == Publication;
-	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
@@ -37,22 +24,36 @@ public class PublicationProductChange : VotableOperation
 		writer.Write(Product);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
-			return;
-
- 		if(s.ChangePolicies[FairOperationClass.PublicationProductChange] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
-
-		Execute(execution, s);
+		return (other as PublicationProductChange).Publication == Publication;
 	}
 	
-	public override void Execute(FairExecution execution, SiteEntry site)
+	public override bool ValidProposal(FairExecution execution)
 	{
+		if(!RequirePublication(execution, Publication, out var p))
+			return false;
+
+		return p.Product != Product;
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+			if(!RequirePublicationModeratorAccess(execution, Publication, Signer, out var _, out var s))
+				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.PublicationProductChange] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}
+
 		var p = execution.AffectPublication(Publication);
  		
 		var r = execution.AffectProduct(p.Product);

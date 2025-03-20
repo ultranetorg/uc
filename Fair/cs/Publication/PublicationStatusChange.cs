@@ -12,19 +12,6 @@ public class PublicationStatusChange : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairExecution execution, SiteEntry site)
-	{
-		if(!RequirePublication(execution, Publication, out var p))
-			return false;
-
-		return p.Status == PublicationStatus.Pending && (Status == PublicationStatus.Approved || Status == PublicationStatus.Rejected);
-	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		return (other as PublicationStatusChange).Publication == Publication;
-	}
-
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Publication	= reader.Read<EntityId>();
@@ -37,22 +24,36 @@ public class PublicationStatusChange : VotableOperation
 		writer.Write(Status);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
-			return;
-
- 		if(s.ChangePolicies[FairOperationClass.PublicationStatusChange] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
- 
-		Execute(execution, s);
+		return (other as PublicationStatusChange).Publication == Publication;
 	}
 
-	public override void Execute(FairExecution execution, SiteEntry site)
+	public override bool ValidProposal(FairExecution execution)
 	{
+		if(!RequirePublication(execution, Publication, out var p))
+			return false;
+
+		return p.Status == PublicationStatus.Pending && (Status == PublicationStatus.Approved || Status == PublicationStatus.Rejected);
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+			if(!RequirePublicationModeratorAccess(execution, Publication, Signer, out var _, out var s))
+				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.PublicationStatusChange] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		} 	
+
 		var p =	execution.AffectPublication(Publication);
 
  		if(Status == PublicationStatus.Approved)

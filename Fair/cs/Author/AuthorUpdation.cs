@@ -31,7 +31,7 @@ public class AuthorRenewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
@@ -76,7 +76,7 @@ public class AuthorModerationReward : FairOperation
 		writer.Write7BitEncodedInt64(Amount);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
@@ -115,7 +115,7 @@ public class AuthorOwnerAddition : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
@@ -163,7 +163,7 @@ public class AuthorOwnerRemoval : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;

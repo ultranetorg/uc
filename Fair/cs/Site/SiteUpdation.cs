@@ -31,9 +31,9 @@ class SiteRewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireSiteAccess(execution, SiteId, out var a))
+		if(!RequireSiteModeratorAccess(execution, SiteId, out var a))
 			return;
 		
 		a = execution.AffectSite(SiteId);

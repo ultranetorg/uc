@@ -20,7 +20,7 @@ public class CategoryMovement : FairOperation
 		writer.WriteNullable(Parent);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireCategoryAccess(execution, Category, out var c))
 			return;

@@ -60,11 +60,11 @@ public abstract class FairOperation : Operation
 
 	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
 
-	public abstract void Execute(FairExecution execution);
+	public abstract void Execute(FairExecution execution, bool voted);
 
 	public override void Execute(Execution execution)
 	{
-		Execute(execution as FairExecution);
+		Execute(execution as FairExecution, false);
 	}
 
 	public bool RequireAccount(FairExecution round, EntityId id, out FairAccountEntry account)
@@ -157,7 +157,7 @@ public abstract class FairOperation : Operation
 
 	public bool CanAccessSite(FairExecution round, EntityId id)
 	{
-		var r = RequireSiteAccess(round, id, out var _);
+		var r = RequireSiteModeratorAccess(round, id, out var _);
 		Error = null;
 		return r;
 	}
@@ -175,11 +175,22 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireSiteAccess(FairExecution round, EntityId id, out SiteEntry site)
+	public bool RequireSiteModeratorAccess(FairExecution round, EntityId id, out SiteEntry site)
 	{
  		if(!RequireSite(round, id, out site))
  			return false; 
 
+		if(!site.Moderators.Contains(Signer.Id))
+		{
+			Error = Denied;
+			return false; 
+		}
+
+		return true; 
+	}
+
+	public bool RequireModeratorAccess(SiteEntry site)
+	{
 		if(!site.Moderators.Contains(Signer.Id))
 		{
 			Error = Denied;
@@ -207,7 +218,7 @@ public abstract class FairOperation : Operation
  		if(!RequireCategory(round, id, out category))
  			return false; 
  
- 		if(!RequireSiteAccess(round, category.Site, out var s))
+ 		if(!RequireSiteModeratorAccess(round, category.Site, out var s))
  			return false;
  
  		return true;
@@ -226,14 +237,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequirePublicationAccess(FairExecution round, EntityId id, AccountEntry signer, out PublicationEntry publication, out SiteEntry site)
+ 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, AccountEntry signer, out PublicationEntry publication, out SiteEntry site)
  	{
 		site = null;
 
  		if(!RequirePublication(round, id, out publication))
  			return false; 
  
- 		if(!RequireSiteAccess(round, round.FindCategory(publication.Category).Site, out site))
+ 		if(!RequireSiteModeratorAccess(round, round.FindCategory(publication.Category).Site, out site))
  			return false;
  
  		return true;
@@ -252,7 +263,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireReviewAccess(FairExecution round, EntityId id, AccountEntry signer, out ReviewEntry review)
+ 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, AccountEntry signer, out ReviewEntry review)
  	{
  		if(!RequireReview(round, id, out review))
  			return false; 
@@ -261,6 +272,19 @@ public abstract class FairOperation : Operation
 			return true;
 
  		if(!RequirePublication(round, review.Publication, out var p))
+ 			return false; 
+ 
+ 		return true;
+ 	}
+
+ 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, AccountEntry signer, out ReviewEntry review, out SiteEntry site)
+ 	{
+		site = null;
+
+ 		if(!RequireReview(round, id, out review))
+ 			return false; 
+
+ 		if(!RequirePublicationModeratorAccess(round, review.Publication, Signer, out var p, out site))
  			return false; 
  
  		return true;
@@ -282,9 +306,9 @@ public abstract class FairOperation : Operation
 
 public abstract class VotableOperation : FairOperation
 {
-	public abstract bool ValidProposal(FairExecution mcv, SiteEntry site);
+	public abstract bool ValidProposal(FairExecution execution);
  	public abstract bool Overlaps(VotableOperation other);
-	public abstract void Execute(FairExecution mcv, SiteEntry site);
+	//public abstract void Execute(FairExecution mcv, bool validate);
 
 	protected void PayForModeration(FairExecution round, Publication publication, AuthorEntry author)
 	{

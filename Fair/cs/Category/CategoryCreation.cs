@@ -23,11 +23,11 @@ public class CategoryCreation : FairOperation
 		writer.WriteUtf8(Title);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(Parent == null)
 		{
-			if(!RequireSiteAccess(execution, Site, out var s))
+			if(!RequireSiteModeratorAccess(execution, Site, out var s))
 				return;
 				
 			var c = execution.CreateCategory(s);

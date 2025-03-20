@@ -26,9 +26,9 @@ public class ReviewTextChange : FairOperation
 		writer.WriteUtf8(Text);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireReviewAccess(execution, Review, Signer, out var r))
+		if(!RequireReviewOwnerAccess(execution, Review, Signer, out var r))
 			return;
 
 		r = execution.AffectReview(Review);

@@ -48,7 +48,7 @@ public class ProductUpdation : FairOperation
 		writer.WriteBytes(Value);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(RequireProductAccess(execution, ProductId, out var a, out var r) == false)
 			return;

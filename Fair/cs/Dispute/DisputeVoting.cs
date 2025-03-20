@@ -39,7 +39,7 @@ public class DisputeVoting : FairOperation
 		writer.Write(Vote);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool _)
 	{
  		if(!RequireDispute(execution, Dispute, out var d))
  			return;
@@ -119,7 +119,7 @@ public class DisputeVoting : FairOperation
  			d.Abs = [];
  			d.Flags |= DisputeFlags.Resolved;
  
- 			d.Proposal.Execute(execution, s);
+ 			d.Proposal.Execute(execution, true);
  		}
  
  		if(fail || d.Expirtaion < execution.Time)

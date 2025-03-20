@@ -8,18 +8,6 @@ public class SitePolicyChange : VotableOperation
 
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
-
- 	public override bool ValidProposal(FairExecution execution, SiteEntry site)
- 	{
-		return site.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
- 	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as SitePolicyChange;
-		
-		return o.Change == Change;
-	}
 	
 	public override void ReadConfirmed(BinaryReader reader)
 	{
@@ -35,16 +23,41 @@ public class SitePolicyChange : VotableOperation
 		writer.Write(Policy);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
-		Error = Denied;
+		var o = other as SitePolicyChange;
+		
+		return o.Change == Change;
 	}
 
-	public override void Execute(FairExecution execution, SiteEntry site)
+ 	public override bool ValidProposal(FairExecution execution)
+ 	{
+ 		if(!RequireSite(execution, Site, out var s))
+ 			return false;
+
+		return s.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
+ 	}
+
+	public override void Execute(FairExecution execution, bool dispute)
 	{
- 		site = execution.AffectSite(Site);
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+	 		if(!RequireSiteModeratorAccess(execution, Site, out var x))
+ 				return;
+
+	 		if(x.ChangePolicies[FairOperationClass.SitePolicyChange] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}
+
+ 		var s = execution.AffectSite(Site);
  
-		site.ChangePolicies = new(site.ChangePolicies);
-		site.ChangePolicies[Change] = Policy;
+		s.ChangePolicies = new(s.ChangePolicies);
+		s.ChangePolicies[Change] = Policy;
 	}
 }

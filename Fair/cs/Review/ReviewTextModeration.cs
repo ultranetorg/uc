@@ -17,13 +17,31 @@ public class ReviewTextModeration : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairExecution execution, SiteEntry site)
+	public override void ReadConfirmed(BinaryReader reader)
 	{
-		if(!RequireReviewAccess(execution, Review, Signer, out var r))
+		Review		= reader.Read<EntityId>();
+		Hash		= reader.ReadBytes(TextHashLength);
+		Resolution	= reader.ReadBoolean();
+	}
+
+	public override void WriteConfirmed(BinaryWriter writer)
+	{
+		writer.Write(Review);
+		writer.Write(Hash);
+		writer.Write(Resolution);
+	}
+
+	public override bool Overlaps(VotableOperation other)
+	{
+		return (other as ReviewTextModeration).Review == Review;
+	}
+
+	public override bool ValidProposal(FairExecution execution)
+	{
+		if(!RequireReview(execution, Review, out var r))
 			return false;
 
-		if(!RequirePublication(execution, r.Publication, out var p))
-			return false;
+		var p = execution.FindPublication(r.Publication);
 
 		if(!p.ReviewChanges.Contains(r.Id))
 		{	
@@ -40,46 +58,22 @@ public class ReviewTextModeration : VotableOperation
 		return true;
 	}
 
-	public override bool Overlaps(VotableOperation other)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		return (other as ReviewTextModeration).Review == Review;
-	}
-
-	public override void ReadConfirmed(BinaryReader reader)
-	{
-		Review		= reader.Read<EntityId>();
-		Hash		= reader.ReadBytes(TextHashLength);
-		Resolution	= reader.ReadBoolean();
-	}
-
-	public override void WriteConfirmed(BinaryWriter writer)
-	{
-		writer.Write(Review);
-		writer.Write(Hash);
-		writer.Write(Resolution);
-	}
-
-	public override void Execute(FairExecution execution)
-	{
-		if(!ValidProposal(execution, null))
+		if(!ValidProposal(execution))
 			return;
 
-		if(execution.FindSite(execution.FindCategory(execution.FindPublication(execution.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewTextModeration] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
+		if(!dispute)
+	 	{
+			if(!RequireReviewModertorAccess(execution, Review, Signer, out var _, out var s))
+				return;
 
-		Execute(execution, null);
-	}
-
-	public override void Execute(FairExecution execution, SiteEntry site)
-	{
-		if(!ValidProposal(execution, null))
-		{	
-			Error = null;
-			return;
-		}
+	 		if(s.ChangePolicies[FairOperationClass.ReviewTextModeration] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}	 	
 
 		var r = execution.AffectReview(Review);
 

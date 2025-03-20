@@ -27,7 +27,7 @@ public class ReviewCreation : FairOperation
 		writer.Write(Text);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequirePublication(execution, Publication, out var p))
 			return;

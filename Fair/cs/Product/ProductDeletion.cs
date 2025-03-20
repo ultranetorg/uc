@@ -21,7 +21,7 @@ public class ProductDeletion : FairOperation
 		writer.Write(Product);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(RequireProductAccess(execution, Product, out var a, out var p) == false)
 			return;

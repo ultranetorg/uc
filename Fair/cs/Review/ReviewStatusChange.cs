@@ -12,19 +12,6 @@ public class ReviewStatusChange : VotableOperation
 	{
 	}
 
-	public override bool ValidProposal(FairExecution execution, SiteEntry site)
-	{
-		if(!RequireReviewAccess(execution, Review, Signer, out var r))
-			return false;
-
-		return true;
-	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		return (other as ReviewTextModeration).Review == Review;
-	}
-
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		Review	= reader.Read<EntityId>();
@@ -37,27 +24,35 @@ public class ReviewStatusChange : VotableOperation
 		writer.Write(Status);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!ValidProposal(execution, null))
-			return;
-
-		if(execution.FindSite(execution.FindCategory(execution.FindPublication(execution.FindReview(Review).Publication).Category).Site).ChangePolicies[FairOperationClass.ReviewStatusChange] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
-
-		Execute(execution, null);
+		return (other as ReviewTextModeration).Review == Review;
 	}
 
-	public override void Execute(FairExecution execution, SiteEntry site)
+	public override bool ValidProposal(FairExecution execution)
 	{
-		if(!ValidProposal(execution, null))
-		{	
-			Error = null;
+		if(!RequireReview(execution, Review, out var r))
+			return false;
+
+		return r.Status != Status;
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!ValidProposal(execution))
 			return;
-		}
+
+		if(!dispute)
+	 	{
+			if(!RequireReviewModertorAccess(execution, Review, Signer, out var _, out var s))
+				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.ReviewStatusChange] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}	 	
 
 		var r = execution.AffectReview(Review);
 		r.Status = Status;

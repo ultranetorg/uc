@@ -23,7 +23,7 @@ public class PublicationCreation : FairOperation
 		//writer.Write(Fields);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(!RequireProduct(execution, Product, out var a, out var pr))
 			return;

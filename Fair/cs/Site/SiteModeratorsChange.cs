@@ -8,34 +8,6 @@ public class SiteModeratorsChange : VotableOperation
 
 	public override bool		IsValid(Mcv mcv) => true;
 	public override string		Description => $"{Id}";
-
- 	public override bool ValidProposal(FairExecution mcv, SiteEntry site)
- 	{
-		foreach(var i in Additions)
-			if(site.Moderators.Contains(i))
-				return false;
-	
-		foreach(var i in Removals)
-			if(!site.Moderators.Contains(i))
-				return false;
-	
-		return true;
- 	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as SiteModeratorsChange;
-		
-		foreach(var i in Additions)
-			if(o.Additions.Contains(i) || o.Removals.Contains(i))
-				return true;
-	
-		foreach(var i in Removals)
-			if(o.Additions.Contains(i) || o.Removals.Contains(i))
-				return true;
-				
-		return false;
-	}
 	
 	public override void ReadConfirmed(BinaryReader reader)
 	{
@@ -51,22 +23,54 @@ public class SiteModeratorsChange : VotableOperation
 		writer.Write(Removals);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
- 		if(!RequireSiteAccess(execution, Site, out var s))
- 			return;
-
- 		if(s.ChangePolicies[FairOperationClass.SiteModeratorsChange] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
-
-		Execute(execution, s);
+		var o = other as SiteModeratorsChange;
+		
+		foreach(var i in Additions)
+			if(o.Additions.Contains(i) || o.Removals.Contains(i))
+				return true;
+	
+		foreach(var i in Removals)
+			if(o.Additions.Contains(i) || o.Removals.Contains(i))
+				return true;
+				
+		return false;
 	}
 
-	public override void Execute(FairExecution execution, SiteEntry site)
+ 	public override bool ValidProposal(FairExecution execution)
+ 	{
+ 		if(!RequireSite(execution, Site, out var s))
+			return false;
+
+		foreach(var i in Additions)
+			if(s.Moderators.Contains(i))
+				return false;
+	
+		foreach(var i in Removals)
+			if(!s.Moderators.Contains(i))
+				return false;
+	
+		return true;
+ 	}
+
+	public override void Execute(FairExecution execution, bool dispute)
 	{
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+	 		if(!RequireSiteModeratorAccess(execution, Site, out var x))
+ 				return;
+
+	 		if(x.ChangePolicies[FairOperationClass.SiteModeratorsChange] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}
+
  		var s = execution.AffectSite(Site);
  
  		s.Moderators = [..s.Moderators, ..Additions];

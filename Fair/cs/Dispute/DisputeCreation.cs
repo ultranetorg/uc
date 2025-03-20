@@ -5,7 +5,7 @@ public class DisputeCreation : FairOperation
 	public EntityId				    Site { get; set; }
 	public EntityId				    Creator { get; set; }
 	public string				    Text { get; set; }
-	public VotableOperation	Proposal { get; set; }
+	public VotableOperation	        Proposal { get; set; }
 	
 	public override bool		    IsValid(Mcv mcv) => true;
 	public override string		    Description => $"{Id}";
@@ -34,20 +34,20 @@ public class DisputeCreation : FairOperation
 		Proposal.Write(writer);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool _)
 	{
- 		if(!RequireSite(execution, Site, out var s))
- 			return;
- 
-        var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
-
- 		if(!s.ChangePolicies.TryGetValue(t, out var p) || p == ChangePolicy.AnyModerator)
+ 		if(!Proposal.ValidProposal(execution))
  		{
  			Error = InvalidProposal;
  			return;
  		}
+
+        if(!RequireSite(execution, Site, out var s))
+            return;
  
- 		if(!Proposal.ValidProposal(execution, s))
+        var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
+
+ 		if(!s.ChangePolicies.TryGetValue(t, out var p) || p == ChangePolicy.AnyModerator)
  		{
  			Error = InvalidProposal;
  			return;

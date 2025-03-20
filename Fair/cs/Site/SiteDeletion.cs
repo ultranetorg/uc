@@ -21,9 +21,9 @@ public class SiteDeletion : FairOperation
 		writer.Write(Site);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(RequireSiteAccess(execution, Site, out var s) == false)
+		if(RequireSiteModeratorAccess(execution, Site, out var s) == false)
 			return;
 
 		s = execution.AffectSite(Site);

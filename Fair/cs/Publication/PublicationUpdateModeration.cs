@@ -12,23 +12,6 @@ public class PublicationUpdateModeration : VotableOperation
 	public PublicationUpdateModeration()
 	{
 	}
-	
-	public override bool ValidProposal(FairExecution execution, SiteEntry site)
-	{
-		if(!RequirePublication(execution, Publication, out var p))
-			return false;
-
-		var r = execution.FindProduct(p.Product);
-
-		return r.Fields.Any(i => i.Name == Change.Name && i.Versions.Any(i => i.Version == Change.Version));
-	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as PublicationUpdateModeration;
-
-		return o.Publication == Publication && o.Change.Name == Change.Name;
-	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
@@ -44,38 +27,60 @@ public class PublicationUpdateModeration : VotableOperation
 		writer.Write(Resolution);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!RequirePublicationAccess(execution, Publication, Signer, out var p, out var s))
-			return;
+		var o = other as PublicationUpdateModeration;
 
-		if(s.ChangePolicies[FairOperationClass.PublicationUpdateModeration] != ChangePolicy.AnyModerator)
- 		{
- 			Error = Denied;
- 			return;
- 		}
+		return o.Publication == Publication && o.Change.Name == Change.Name;
+	}
+	
+	public override bool ValidProposal(FairExecution execution)
+	{
+		if(!RequirePublication(execution, Publication, out var p))
+			return false;
 
-		Execute(execution, s);
+		var r = execution.FindProduct(p.Product);
+
+		if(!r.Fields.Any(i => i.Name == Change.Name && i.Versions.Any(i => i.Version == Change.Version)))
+		{
+			Error = NotFound;
+			return false;
+		}
+
+		if(!p.Changes.Any(i => i.Name == Change.Name && i.Version == Change.Version))
+		{
+			Error = NotFound;
+			return false;
+		}
+
+		return true;
 	}
 
-	public override void Execute(FairExecution execution, SiteEntry site)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+			if(!RequirePublicationModeratorAccess(execution, Publication, Signer, out var _, out var s))
+				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.PublicationUpdateModeration] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+		}	 	
+
 		var p = execution.AffectPublication(Publication);
 		var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
+		var c = p.Changes.First(i => i.Name == Change.Name && i.Version == Change.Version);
  
 		if(Resolution == true)
 		{
 			var r = execution.AffectProduct(p.Product);
-
 			var f = r.Fields.First(i => i.Name == Change.Name);
-
-			var c = p.Changes.FirstOrDefault(i => i.Name == Change.Name && i.Version == Change.Version);
-
-			if(c == null)
-			{
-				Error = NotFound;
-				return;
-			}
 				
 			p.Changes = [..p.Changes.Where(i => i != c)];
 								
@@ -116,14 +121,6 @@ public class PublicationUpdateModeration : VotableOperation
 		}
 		else
 		{	
-			var c = p.Changes.FirstOrDefault(i => i.Name == Change.Name && i.Version == Change.Version);
-
-			if(c == null)
-			{
-				Error = NotFound;
-				return;
-			}
-				
 			p.Changes = [..p.Changes.Where(i => i != c)];
 
 			PayForModeration(execution, p, a);

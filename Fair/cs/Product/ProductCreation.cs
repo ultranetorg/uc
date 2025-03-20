@@ -26,7 +26,7 @@ public class ProductCreation : FairOperation
 		writer.Write(Author);
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(RequireAuthorAccess(execution, Author, out var a) == false)
 			return;
