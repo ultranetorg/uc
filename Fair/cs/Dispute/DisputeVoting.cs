@@ -11,7 +11,7 @@ public class DisputeVoting : FairOperation
 	public EntityId				Voter { get; set; }
 	public DisputeVote			Vote { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => Enum.IsDefined<DisputeVote>(Vote);
+	public override bool		IsValid(McvNet net) => Enum.IsDefined<DisputeVote>(Vote);
 	public override string		Description => $"{Id}, {Voter}, {Vote}";
 
 	public DisputeVoting()

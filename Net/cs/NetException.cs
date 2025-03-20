@@ -15,6 +15,7 @@ public enum NodeError : byte
 	Connectivity,
 	Integrity,
 	Internal,
+	Invalid,
 	AlreadyRunning,
 	Timeout,
 	NoIP,

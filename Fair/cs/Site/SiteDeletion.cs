@@ -4,7 +4,7 @@ public class SiteDeletion : FairOperation
 {
 	public EntityId				Site { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 
 	public SiteDeletion()

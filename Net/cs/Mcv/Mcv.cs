@@ -98,6 +98,9 @@ public abstract class Mcv /// Mutual chain voting
 	
 			CreateTables(databasepath);
 	
+			if(net.TablesCount != Tables.Length)
+				throw new IntegrityException();
+
 			BaseHash = Net.Cryptography.ZeroHash;
 	
 			if(!skipinitload)

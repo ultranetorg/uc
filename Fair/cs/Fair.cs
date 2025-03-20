@@ -21,6 +21,8 @@ public abstract class Fair : McvNet
 	
 	public Fair()
 	{
+		TablesCount = 3;
+
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
 			if(Enum.TryParse<FairOperationClass>(i.Name, out var v))

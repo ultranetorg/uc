@@ -22,7 +22,7 @@ public class DomainMigration : RdnOperation
 		RankCheck = checkrank;
 	}
 
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{
 		if(!Domain.Valid(Name))
 			return false;

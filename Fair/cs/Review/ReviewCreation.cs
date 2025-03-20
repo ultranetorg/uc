@@ -11,7 +11,7 @@ public class ReviewCreation : FairOperation
 	public override bool		NonExistingSignerAllowed => true;
 	public override string		Description => $"{GetType().Name} Publication={Publication}";
 
-	public override bool		IsValid(Mcv mcv) => Text.Length <= (mcv.Net as Fair).ReviewLengthMaximum;
+	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{

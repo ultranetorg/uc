@@ -70,7 +70,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 	}
 	
-	public abstract bool IsValid(Mcv mcv);
+	public abstract bool IsValid(McvNet net);
 	public abstract void Execute(Execution execution);
 	public abstract void WriteConfirmed(BinaryWriter w);
 	public abstract void ReadConfirmed(BinaryReader r);

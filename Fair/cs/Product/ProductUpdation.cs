@@ -9,7 +9,7 @@ public class ProductUpdation : FairOperation
 	public byte[]				Value	{ get; set; }
 	public override string		Description => $"{ProductId}, {Name}, {Value}";
 
-	public override bool		IsValid(Mcv mcv) => Value.Length <= ProductField.ValueLengthMaximum;
+	public override bool		IsValid(McvNet net) => Value.Length <= ProductField.ValueLengthMaximum;
 
 	public ProductUpdation()
 	{

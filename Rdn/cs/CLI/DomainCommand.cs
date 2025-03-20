@@ -63,8 +63,8 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								if(Domain.IsChild(First))
-									throw new SyntaxException("Only root domains name are allowed");
+								///if(Domain.IsChild(First))
+								///	throw new SyntaxException("Only root domains name are allowed");
 
 								return new DomainRegistration{	Address	= First,
 																Years	= byte.Parse(GetString("years"))};

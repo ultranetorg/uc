@@ -6,7 +6,7 @@ public class SitePolicyChange : VotableOperation
 	public FairOperationClass	Change { get; set; }
 	public ChangePolicy			Policy { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 	
 	public override void ReadConfirmed(BinaryReader reader)

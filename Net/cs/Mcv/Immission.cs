@@ -28,7 +28,7 @@ namespace Uccs.Net
 			Eid = eid;
 		}
 
-		public override bool IsValid(Mcv mcv) => 0 < Wei && 0 <= Eid;
+		public override bool IsValid(McvNet net) => 0 < Wei && 0 <= Eid;
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{

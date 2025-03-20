@@ -11,7 +11,7 @@ public class DomainRenewal : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
 			return false;
@@ -81,7 +81,7 @@ public class DomainTransfer : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		return true;
 	}
@@ -166,7 +166,7 @@ public class DomainPolicyUpdation : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(!Enum.IsDefined(Policy) || Policy == DomainChildPolicy.None)
 			return false;

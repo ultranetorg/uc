@@ -7,7 +7,7 @@ public class AnalysisResultUpdation : RdnOperation
 	public AnalysisResult	Result { get; set; }
 	
 	public override string	Description => $"Analysis={Analysis}, Result={Result}";
-	public override bool	IsValid(Mcv mcv) => true;
+	public override bool	IsValid(McvNet net) => true;
 
 	public AnalysisResultUpdation()
 	{

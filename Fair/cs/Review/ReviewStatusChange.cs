@@ -5,7 +5,7 @@ public class ReviewStatusChange : VotableOperation
 	public EntityId				Review { get; set; }
 	public ReviewStatus			Status { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
+	public override bool		IsValid(McvNet net) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Description => $"{Status}";
 
 	public ReviewStatusChange()

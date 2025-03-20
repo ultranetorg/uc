@@ -54,7 +54,7 @@ public class Transaction : IBinarySerializable
 	public bool Valid(Mcv mcv)
 	{
 		return	(Tag == null || Tag.Length <= TagLengthMax) &&
-				Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
+				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
 				(!mcv.Net.PoW || PoW.Length == PowLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(3).All(i => i == 0));
 	}
 

@@ -5,7 +5,7 @@ public class SiteCreation : FairOperation
 	public string				Title { get; set; }
 	public byte					Years {get; set;}
 
-	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
+	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
 
 	public SiteCreation()

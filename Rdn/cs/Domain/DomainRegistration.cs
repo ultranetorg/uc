@@ -13,12 +13,15 @@ public class DomainRegistration : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(!Domain.Valid(Address))
 			return false;
 		
 		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
+			return false;
+
+		if(Domain.IsChild(Address) && (Owner == null || !Enum.IsDefined(Policy)))
 			return false;
 
 		return true;

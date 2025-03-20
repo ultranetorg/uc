@@ -14,7 +14,7 @@ public class CandidacyDeclaration : Operation
 	{
 	}
 
-	public override bool IsValid(Mcv mcv) => true;
+	public override bool IsValid(McvNet net) => true;
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{

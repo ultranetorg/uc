@@ -119,8 +119,9 @@ public abstract class McvNet : Net
 	public long				DeclarationCost							=> 1000_000;
 	
 	public int				EntityLength							= 100;
+	public int				TablesCount								= 1;
 
-	public int				BandwidthDaysMaximum			=> 365;
+	public int				BandwidthDaysMaximum					=> 365;
 	public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
 	public long				BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 

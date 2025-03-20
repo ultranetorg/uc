@@ -10,7 +10,7 @@ public class AccountCreation : Operation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		return true;
 	}

@@ -11,7 +11,7 @@ public class AuthorRenewal : FairOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
 			return false;
@@ -59,7 +59,7 @@ public class AuthorModerationReward : FairOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		return true;
 	}
@@ -98,7 +98,7 @@ public class AuthorOwnerAddition : FairOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		return true;
 	}
@@ -146,7 +146,7 @@ public class AuthorOwnerRemoval : FairOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		return true;
 	}

@@ -22,6 +22,8 @@ public abstract class Rdn : McvNet
 	
 	public Rdn()
 	{
+		TablesCount = 3;
+
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
 			if(Enum.TryParse<RdnOperationClass>(i.Name, out var v))

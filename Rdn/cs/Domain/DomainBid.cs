@@ -6,9 +6,9 @@ public class DomainBid : RdnOperation
 	public long				Bid  { get; set; }
 	public override string	Description => $"{Bid} UNT for {Name}";
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{
-		if(!(mcv.Net as Rdn).Auctions)
+		if(!(net as Rdn).Auctions)
 			return false;
 
 		if(!Domain.IsWeb(Name))

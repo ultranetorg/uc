@@ -10,7 +10,7 @@ public class ReviewTextModeration : VotableOperation
 	public byte[]						Hash { get; set; }
 	public bool							Resolution { get; set; }
 
-	public override bool				IsValid(Mcv mcv) => Hash.Length == TextHashLength;
+	public override bool				IsValid(McvNet net) => Hash.Length == TextHashLength;
 	public override string				Description => $"{Hash.ToHex()}, {Resolution}";
 
 	public ReviewTextModeration()

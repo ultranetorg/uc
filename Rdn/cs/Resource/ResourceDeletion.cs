@@ -4,7 +4,7 @@ public class ResourceDeletion : RdnOperation
 {
 	public EntityId				Resource { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 
 	public ResourceDeletion()

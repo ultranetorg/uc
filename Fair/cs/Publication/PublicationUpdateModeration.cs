@@ -6,7 +6,7 @@ public class PublicationUpdateModeration : VotableOperation
 	public ProductFieldVersionReference	Change { get; set; }
 	public bool							Resolution { get; set; }
 
-	public override bool				IsValid(Mcv mcv) => true;
+	public override bool				IsValid(McvNet net) => true;
 	public override string				Description => $"{Publication}, {Change}, {Resolution}";
 
 	public PublicationUpdateModeration()

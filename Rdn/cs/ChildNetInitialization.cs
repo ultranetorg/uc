@@ -11,7 +11,7 @@ public class ChildNetInitialization : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(Net.Hash.Length > 1024)
 			return false;

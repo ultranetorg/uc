@@ -5,7 +5,7 @@ public class PublicationProductChange : VotableOperation
 	public EntityId	Publication { get; set; }
 	public EntityId	Product { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Publication}, [{Product}]";
 
 	public PublicationProductChange()
