@@ -26,7 +26,7 @@ public enum ReviewStatus : byte
 //	}
 //}
 
-public class Review : IBinarySerializable
+public class Review : IBinarySerializable, ITableEntry
 {
 	public EntityId			Id { get; set; }
 	public EntityId			Publication { get; set; }
@@ -37,6 +37,47 @@ public class Review : IBinarySerializable
     public string			TextNew { get; set; }
     public byte				Rating { get; set; }
     public Time	    		Created { get; set; }
+
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+
+	public Review()
+	{
+	}
+
+	public Review(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Review Clone()
+	{
+		return new(Mcv){Id			= Id,
+						Publication = Publication,
+						Creator		= Creator,
+						Status		= Status,
+						Rate		= Rate,
+						Text		= Text,
+						TextNew		= TextNew,
+						Rating		= Rating,
+						Created		= Created};
+	}
+		
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public void Read(BinaryReader reader)
 	{

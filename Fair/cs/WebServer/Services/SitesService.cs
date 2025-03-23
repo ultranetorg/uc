@@ -53,7 +53,7 @@ public class SitesService
 
 		EntityId id = EntityId.Parse(siteId);
 
-		SiteEntry site = null;
+		Site site = null;
 		lock (mcv.Lock)
 		{
 			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
@@ -122,7 +122,7 @@ public class SitesService
 		EntityId authorEntitiId = EntityId.Parse(authorId);
 
 		Site site = null;
-		AuthorEntry author = null;
+		Author author = null;
 		lock (mcv.Lock)
 		{
 			site = mcv.Sites.Find(siteEntityId, mcv.LastConfirmedRound.Id);

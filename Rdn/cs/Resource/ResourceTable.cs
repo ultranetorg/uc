@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourceTable : Table<ResourceEntry>
+public class ResourceTable : Table<Resource>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 	public new RdnMcv				Mcv => base.Mcv as RdnMcv;
@@ -9,12 +9,12 @@ public class ResourceTable : Table<ResourceEntry>
 	{
 	}
 	
-	public override ResourceEntry Create()
+	public override Resource Create()
 	{
-		return new ResourceEntry(Mcv);
+		return new Resource(Mcv);
 	}
 
-	public override ResourceEntry Find(EntityId id, int ridmax)
+	public override Resource Find(EntityId id, int ridmax)
 	{
 		var e = base.Find(id, ridmax);
 
@@ -26,7 +26,7 @@ public class ResourceTable : Table<ResourceEntry>
 		return e;
 	}
 	
-	public ResourceEntry Find(Ura address, int ridmax)
+	public Resource Find(Ura address, int ridmax)
 	{
         var d = Mcv.Domains.Find(address.Domain, ridmax);
 

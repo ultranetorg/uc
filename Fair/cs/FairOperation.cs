@@ -79,7 +79,7 @@ public abstract class FairOperation : Operation
 		return r;
 	}
 
-	public bool RequireAuthor(FairExecution round, EntityId id, out AuthorEntry author)
+	public bool RequireAuthor(FairExecution round, EntityId id, out Author author)
 	{
 		author = round.FindAuthor(id);
 
@@ -98,7 +98,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool RequireProduct(FairExecution round, EntityId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireProduct(FairExecution round, EntityId id, out Author author, out Product product)
 	{
 		author = null;
 		product = round.FindProduct(id);
@@ -122,7 +122,7 @@ public abstract class FairOperation : Operation
 		return r;
 	}
 
-	public bool RequireAuthorAccess(FairExecution round, EntityId id, out AuthorEntry author)
+	public bool RequireAuthorAccess(FairExecution round, EntityId id, out Author author)
 	{
 		author = round.FindAuthor(id);
 
@@ -147,7 +147,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool RequireProductAccess(FairExecution round, EntityId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireProductAccess(FairExecution round, EntityId id, out Author author, out Product product)
 	{
 		if(!RequireProduct(round, id, out  author, out product))
 			return false; 
@@ -165,7 +165,7 @@ public abstract class FairOperation : Operation
 		return r;
 	}
 
-	public bool RequireSite(FairExecution round, EntityId id, out SiteEntry site)
+	public bool RequireSite(FairExecution round, EntityId id, out Site site)
 	{
 		site = round.FindSite(id);
 		
@@ -178,7 +178,7 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireSiteModeratorAccess(FairExecution round, EntityId id, out SiteEntry site)
+	public bool RequireSiteModeratorAccess(FairExecution round, EntityId id, out Site site)
 	{
  		if(!RequireSite(round, id, out site))
  			return false; 
@@ -192,7 +192,7 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireModeratorAccess(SiteEntry site)
+	public bool RequireModeratorAccess(Site site)
 	{
 		if(!site.Moderators.Contains(Signer.Id))
 		{
@@ -203,7 +203,7 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireCategory(FairExecution round, EntityId id, out CategoryEntry category)
+	public bool RequireCategory(FairExecution round, EntityId id, out Category category)
 	{
 		category = round.FindCategory(id);
 		
@@ -216,7 +216,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireCategoryAccess(FairExecution round, EntityId id, out CategoryEntry category)
+ 	public bool RequireCategoryAccess(FairExecution round, EntityId id, out Category category)
  	{
  		if(!RequireCategory(round, id, out category))
  			return false; 
@@ -227,7 +227,7 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
-	public bool RequirePublication(FairExecution round, EntityId id, out PublicationEntry publication)
+	public bool RequirePublication(FairExecution round, EntityId id, out Publication publication)
 	{
 		publication = round.FindPublication(id);
 		
@@ -240,7 +240,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, Account signer, out PublicationEntry publication, out SiteEntry site)
+ 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, Account signer, out Publication publication, out Site site)
  	{
 		site = null;
 
@@ -253,7 +253,7 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
-	public bool RequireReview(FairExecution round, EntityId id, out ReviewEntry review)
+	public bool RequireReview(FairExecution round, EntityId id, out Review review)
 	{
 		review = round.FindReview(id);
 		
@@ -266,7 +266,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, Account signer, out ReviewEntry review)
+ 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, Account signer, out Review review)
  	{
  		if(!RequireReview(round, id, out review))
  			return false; 
@@ -280,7 +280,7 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
- 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, Account signer, out ReviewEntry review, out SiteEntry site)
+ 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, Account signer, out Review review, out Site site)
  	{
 		site = null;
 
@@ -293,7 +293,7 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
-	public bool RequireDispute(FairExecution round, EntityId id, out DisputeEntry review)
+	public bool RequireDispute(FairExecution round, EntityId id, out Dispute review)
 	{
 		review = round.FindDispute(id);
 		
@@ -313,7 +313,7 @@ public abstract class VotableOperation : FairOperation
  	public abstract bool Overlaps(VotableOperation other);
 	//public abstract void Execute(FairExecution mcv, bool validate);
 
-	protected void PayForModeration(FairExecution round, Publication publication, AuthorEntry author)
+	protected void PayForModeration(FairExecution round, Publication publication, Author author)
 	{
 		var s = round.AffectSite(round.FindCategory(publication.Category).Site);
 

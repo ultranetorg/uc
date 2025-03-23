@@ -32,10 +32,46 @@ public class TextField : IBinarySerializable
 	}
 }
 
-public class Text : IBinarySerializable
+public class Text : IBinarySerializable, ITableEntry
 {
 	public StringId			Id { get; set; }
 	public TextField[]		Entities { get; set; }
+
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+
+	public Text()
+	{
+	}
+
+	public Text(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Text Clone()
+	{
+		var a = new Text(Mcv){	Id			= Id,
+								Entities	= Entities
+								};
+
+		return a;
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public void Read(BinaryReader reader)
 	{

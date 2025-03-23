@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class SiteTable : Table<SiteEntry>
+public class SiteTable : Table<Site>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -9,8 +9,8 @@ public class SiteTable : Table<SiteEntry>
 	{
 	}
 	
-	public override SiteEntry Create()
+	public override Site Create()
 	{
-		return new SiteEntry(Mcv);
+		return new Site(Mcv);
 	}
  }

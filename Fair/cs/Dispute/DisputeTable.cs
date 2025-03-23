@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class DisputeTable : Table<DisputeEntry>
+public class DisputeTable : Table<Dispute>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -9,8 +9,8 @@ public class DisputeTable : Table<DisputeEntry>
 	{
 	}
 	
-	public override DisputeEntry Create()
+	public override Dispute Create()
 	{
-		return new DisputeEntry(Mcv);
+		return new Dispute(Mcv);
 	}
  }

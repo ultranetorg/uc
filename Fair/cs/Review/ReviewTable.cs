@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ReviewTable : Table<ReviewEntry>
+public class ReviewTable : Table<Review>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -9,8 +9,8 @@ public class ReviewTable : Table<ReviewEntry>
 	{
 	}
 	
-	public override ReviewEntry Create()
+	public override Review Create()
 	{
-		return new ReviewEntry(Mcv);
+		return new Review(Mcv);
 	}
  }

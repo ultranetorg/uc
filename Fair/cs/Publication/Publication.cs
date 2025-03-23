@@ -16,18 +16,60 @@ public enum PublicationFlags : byte
 	CreatedBySite	= 0b0000_0001,
 }
 
-public class Publication : IBinarySerializable
+public class Publication : IBinarySerializable, ITableEntry
 {
-	public EntityId					Id { get; set; }
-	public EntityId					Category { get; set; }
-	public EntityId					Creator { get; set; }
-	public EntityId					Product { get; set; }
-	public PublicationStatus		Status { get; set; }
+	public EntityId							Id { get; set; }
+	public EntityId							Category { get; set; }
+	public EntityId							Creator { get; set; }
+	public EntityId							Product { get; set; }
+	public PublicationStatus				Status { get; set; }
 	public ProductFieldVersionReference[]	Fields { get; set; }
 	public ProductFieldVersionReference[]	Changes { get; set; }
-	public EntityId[]				Reviews { get; set; }
-	public EntityId[]				ReviewChanges { get; set; }
-	public PublicationFlags			Flags { get; set; }
+	public EntityId[]						Reviews { get; set; }
+	public EntityId[]						ReviewChanges { get; set; }
+	public PublicationFlags					Flags { get; set; }
+
+	public BaseId							Key => Id;
+	public bool								Deleted { get; set; }
+	FairMcv									Mcv;
+
+	public Publication()
+	{
+	}
+
+	public Publication(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Publication Clone()
+	{
+		return new(Mcv){Id				= Id,
+						Category		= Category,
+						Creator			= Creator,
+						Product			= Product,
+						Status			= Status,
+						Fields			= Fields,
+						Changes			= Changes,
+						Reviews			= Reviews,
+						ReviewChanges	= ReviewChanges,
+						Flags			= Flags,
+						};
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public void Read(BinaryReader reader)
 	{

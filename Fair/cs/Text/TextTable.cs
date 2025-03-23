@@ -1,16 +1,16 @@
 ﻿namespace Uccs.Fair;
 
-public class NicknameTable : Table<TextEntry>
+public class TextTable : Table<Text>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public NicknameTable(FairMcv mcv) : base(mcv)
+	public TextTable(FairMcv mcv) : base(mcv)
 	{
 	}
 	
-	public override TextEntry Create()
+	public override Text Create()
 	{
-		return new TextEntry(Mcv);
+		return new Text(Mcv);
 	}
  }

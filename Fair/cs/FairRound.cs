@@ -3,15 +3,15 @@ namespace Uccs.Fair;
 
 public class FairRound : Round
 {
-	public new FairMcv									Mcv => base.Mcv as FairMcv;
-	public Dictionary<EntityId, AuthorEntry>			AffectedAuthors = new();
-	public Dictionary<EntityId, ProductEntry>			AffectedProducts = new();
-	public Dictionary<EntityId, SiteEntry>				AffectedSites = new();
-	public Dictionary<EntityId, CategoryEntry>			AffectedCategories = new();
-	public Dictionary<EntityId, PublicationEntry>		AffectedPublications = new();
-	public Dictionary<EntityId, ReviewEntry>			AffectedReviews = new();
-	public Dictionary<EntityId, DisputeEntry>			AffectedDisputes = new();
-	public Dictionary<StringId, TextEntry>			AffectedNicknames = new();
+	public new FairMcv							Mcv => base.Mcv as FairMcv;
+	public Dictionary<EntityId, Author>			AffectedAuthors = new();
+	public Dictionary<EntityId, Product>		AffectedProducts = new();
+	public Dictionary<EntityId, Site>			AffectedSites = new();
+	public Dictionary<EntityId, Category>		AffectedCategories = new();
+	public Dictionary<EntityId, Publication>	AffectedPublications = new();
+	public Dictionary<EntityId, Review>			AffectedReviews = new();
+	public Dictionary<EntityId, Dispute>		AffectedDisputes = new();
+	public Dictionary<StringId, Text>			AffectedNicknames = new();
 
 	public FairRound(FairMcv rds) : base(rds)
 	{

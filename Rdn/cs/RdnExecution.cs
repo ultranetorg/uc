@@ -6,8 +6,8 @@ public class RdnExecution : Execution
 	public new RdnMcv			Mcv => base.Mcv as RdnMcv;
 	public new RdnRound			Round => base.Round as RdnRound;
 
-	public Dictionary<EntityId, DomainEntry>		AffectedDomains = [];
-	public Dictionary<EntityId, ResourceEntry>		AffectedResources = [];
+	public Dictionary<EntityId, Domain>		AffectedDomains = [];
+	public Dictionary<EntityId, Resource>		AffectedResources = [];
 
 	public RdnExecution(RdnMcv mcv, RdnRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -21,7 +21,7 @@ public class RdnExecution : Execution
 		return base.Affect(table, id);
 	}
 
-	public DomainEntry FindDomain(EntityId id)
+	public Domain FindDomain(EntityId id)
 	{
 		if(AffectedDomains.TryGetValue(id, out var a))
 			return a;
@@ -29,17 +29,17 @@ public class RdnExecution : Execution
 		return Mcv.Domains.Find(id, Round.Id);
 	}
 
-	public DomainEntry FindDomain(string name)
+	public Domain FindDomain(string name)
 	{
-		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == name) is DomainEntry a)
+		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == name) is Domain a)
 			return a;
 
 		return Mcv.Domains.Find(name, Round.Id);
 	}
 
-	public DomainEntry AffectDomain(string address)
+	public Domain AffectDomain(string address)
 	{
-		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == address) is DomainEntry d && !d.Deleted)
+		if(AffectedDomains.Values.FirstOrDefault(i => i.Address == address) is Domain d && !d.Deleted)
 			return d;
 		
 		d = Mcv.Domains.Find(address, Round.Id);
@@ -52,13 +52,13 @@ public class RdnExecution : Execution
 			
 			int e = GetNextEid(Mcv.Domains, b);
 
-			d = new DomainEntry(Mcv) {Id = new EntityId(b, e), Address = address};
+			d = new Domain(Mcv) {Id = new EntityId(b, e), Address = address};
 
 			return AffectedDomains[d.Id] = d;
 		}
 	}
 
-	public DomainEntry AffectDomain(EntityId id)
+	public Domain AffectDomain(EntityId id)
 	{
 		if(AffectedDomains.TryGetValue(id, out var a))
 			return a;
@@ -71,7 +71,7 @@ public class RdnExecution : Execution
 		return AffectedDomains[a.Id] = a.Clone();
 	}
 
-	public ResourceEntry FindResource(EntityId id)
+	public Resource FindResource(EntityId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))
 			return a;
@@ -79,15 +79,15 @@ public class RdnExecution : Execution
 		return Mcv.Resources.Find(id, Round.Id);
 	}
 
-	public ResourceEntry FindResource(Ura address)
+	public Resource FindResource(Ura address)
 	{
-		if(AffectedResources.Values.FirstOrDefault(i => i.Address == address) is ResourceEntry a && !a.Deleted)
+		if(AffectedResources.Values.FirstOrDefault(i => i.Address == address) is Resource a && !a.Deleted)
 			return a;
 
 		return Mcv.Resources.Find(address, Round.Id);
 	}
 
-	public ResourceEntry AffectResource(EntityId id)
+	public Resource AffectResource(EntityId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))
 			return a;
@@ -100,7 +100,7 @@ public class RdnExecution : Execution
 		return AffectedResources[id] = a.Clone();
 	}
 
-  	public ResourceEntry AffectResource(DomainEntry domain, string resource)
+  	public Resource AffectResource(Domain domain, string resource)
   	{
 		var r =	AffectedResources.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
 		
@@ -111,7 +111,7 @@ public class RdnExecution : Execution
 
   		if(r == null)
   		{
-  			r = new ResourceEntry  {Id = new EntityId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
+  			r = new Resource  {Id = new EntityId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
 									Domain = domain.Id,
   									Address = new Ura(domain.Address, resource)};
   		} 

@@ -103,7 +103,7 @@ public class UsersService
 		{
 			productModels = authorsIds.SelectMany(authorId =>
 			{
-				AuthorEntry author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
+				Author author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
 
 				return author.Products.Select(productId =>
 				{

@@ -5,7 +5,7 @@ public enum DisputeFlags : byte
 	Succeeded	= 0b0001,
 }
 
-public class Dispute : IBinarySerializable
+public class Dispute : IBinarySerializable, ITableEntry
 {
 	public EntityId					Id { get; set; }
 	public EntityId					Site { get; set; }
@@ -16,6 +16,49 @@ public class Dispute : IBinarySerializable
 	public Time						Expirtaion { get; set; }
  	public string					Text { get; set; }
 	public VotableOperation	Proposal { get; set; }
+
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+		
+	public Dispute()
+	{
+	}
+
+	public Dispute(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Dispute Clone()
+	{
+		var a = new Dispute(Mcv){	
+										Id			= Id,	
+										Site		= Site,	
+										Flags		= Flags,
+										Yes			= Yes,
+										No			= No,
+										Abs			= Abs,
+										Expirtaion	= Expirtaion,
+										Text		= Text,
+										Proposal	= Proposal,
+									};
+		return a;
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public void Read(BinaryReader reader)
 	{

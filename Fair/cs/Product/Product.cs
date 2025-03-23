@@ -94,7 +94,7 @@ public class ProductField : IBinarySerializable
 	}
 }
 
-public class Product : IBinarySerializable
+public class Product : IBinarySerializable, ITableEntry
 {
 	public EntityId				Id { get; set; }
 	public EntityId				Author { get; set; }
@@ -109,6 +109,44 @@ public class Product : IBinarySerializable
 	public override string ToString()
 	{
 		return $"{Id}, [{Flags}], Fields={Fields}";
+	}
+
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+
+	public Product()
+	{
+	}
+
+	public Product(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Product Clone()
+	{
+		return new(Mcv){Id = Id,
+						Author = Author,
+						Nickname = Nickname,
+						Flags = Flags,
+						Fields = Fields,
+						Updated = Updated,
+						Publications = Publications};
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
 	}
 
 	public void Write(BinaryWriter writer)

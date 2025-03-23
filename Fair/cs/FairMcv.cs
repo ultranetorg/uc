@@ -12,7 +12,7 @@ public class FairMcv : Mcv
 	public PublicationTable	Publications;
 	public ReviewTable		Reviews;
 	public DisputeTable		Disputes;
-	public NicknameTable	Nicknames;
+	public TextTable	Nicknames;
 	IPAddress[]				BaseIPs;
 
 	public FairMcv()

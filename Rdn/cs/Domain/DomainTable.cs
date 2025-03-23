@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn;
 
-public class DomainTable : Table<DomainEntry>
+public class DomainTable : Table<Domain>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
@@ -12,15 +12,15 @@ public class DomainTable : Table<DomainEntry>
 	{
 	}
 	
-	public override DomainEntry Create()
+	public override Domain Create()
 	{
-		return new DomainEntry(Mcv);
+		return new Domain(Mcv);
 	}
 	
- 	public DomainEntry Find(string name, int ridmax)
+ 	public Domain Find(string name, int ridmax)
  	{
  		foreach(var r in Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedDomains.Values.FirstOrDefault(i => i.Address == name) is DomainEntry d && !d.Deleted)
+			if(r.AffectedDomains.Values.FirstOrDefault(i => i.Address == name) is Domain d && !d.Deleted)
 				return d;
  		
 		var bid = KeyToBid(name);

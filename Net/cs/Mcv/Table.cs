@@ -11,7 +11,7 @@ public abstract class TableBase
 	protected ColumnFamilyHandle				ClusterColumn;
 	protected ColumnFamilyHandle				MetaColumn;
 	protected ColumnFamilyHandle				MainColumn;
-	protected ColumnFamilyHandle				MoreColumn;
+	//protected ColumnFamilyHandle				MoreColumn;
 	protected RocksDb							Engine;
 	protected Mcv								Mcv;
 	public abstract int							Size { get; }
@@ -160,19 +160,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 											return e;
 										});
 					
-				var more = Table.Engine.Get(ToBytes(Id), Table.MoreColumn);
-							
-				if(more != null)
-				{
-					s = new MemoryStream();
-					r = new BinaryReader(s);
-		
-					for(int i = 0; i < a.Count; i++)
-					{
-						a[i].ReadMore(r);
-					}
-				}
-			
 				_Entries = a;
 			} 
 			else
@@ -211,13 +198,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write7BitEncodedInt(_Main.Length);
 
 			batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
-
-			s.SetLength(0);
-
-			foreach(var i in _Entries)
-				i.WriteMore(w);
-
-			batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
 		}
 
 		public override void Save(WriteBatch batch, byte[] main)
@@ -344,7 +324,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public static string			ClusterColumnName	=> typeof(E).Name.Replace("Entry", null) + nameof(ClusterColumn);
 	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MetaColumn);
 	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
-	public static string			MoreColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MoreColumn);
 
 	public abstract E				Create();
 
@@ -357,7 +336,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		if(!Engine.TryGetColumnFamily(ClusterColumnName, out ClusterColumn))	ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
 		if(!Engine.TryGetColumnFamily(MetaColumnName,	 out MetaColumn))		MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
 		if(!Engine.TryGetColumnFamily(MainColumnName,	 out MainColumn))		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
-		if(!Engine.TryGetColumnFamily(MoreColumnName,	 out MoreColumn))		MoreColumn		= Engine.CreateColumnFamily(new (), MoreColumnName);
 
 		using(var i = Engine.NewIterator(ClusterColumn))
 		{
@@ -377,12 +355,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		Engine.DropColumnFamily(ClusterColumnName);
 		Engine.DropColumnFamily(MetaColumnName);
 		Engine.DropColumnFamily(MainColumnName);
-		Engine.DropColumnFamily(MoreColumnName);
 
 		ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
 		MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
 		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
-		MoreColumn		= Engine.CreateColumnFamily(new (), MoreColumnName);
 	}
 
 	public override Cluster FindCluster(short id)

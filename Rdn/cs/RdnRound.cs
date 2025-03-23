@@ -6,8 +6,8 @@ public class RdnRound : Round
 {
 	public new RdnMcv								Mcv => base.Mcv as RdnMcv;
 	public List<DomainMigration>					Migrations;
-	public Dictionary<EntityId, DomainEntry>		AffectedDomains = [];
-	public Dictionary<EntityId, ResourceEntry>		AffectedResources = [];
+	public Dictionary<EntityId, Domain>		AffectedDomains = [];
+	public Dictionary<EntityId, Resource>		AffectedResources = [];
 	public ForeignResult[]							ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)

@@ -17,7 +17,7 @@ public enum ChangePolicy : byte
 // 	public byte		Value { get; set; }
 // }
 
-public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
+public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
@@ -46,6 +46,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
 
+	public BaseId					Key => Id;
+	public bool						Deleted { get; set; }
+	FairMcv							Mcv;
+
 	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Moderators[0] == signer; /// TODO : Owner only
@@ -60,6 +64,54 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
 	}
+
+	public Site()
+	{
+	}
+
+	public Site(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Site Clone()
+	{
+		var a = new Site(Mcv){	Id						= Id,
+									Title					= Title,
+									Nickname				= Nickname,
+									ModerationReward		= ModerationReward,
+									
+									ChangePolicies			= ChangePolicies,
+
+									Expiration				= Expiration,
+									Space					= Space,
+									Spacetime				= Spacetime,
+
+									Authors					= Authors,
+									Moderators				= Moderators,
+									Categories				= Categories,
+									Disputes				= Disputes,
+									};
+		
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
 
 	public void Read(BinaryReader reader)
 	{

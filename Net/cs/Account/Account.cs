@@ -87,6 +87,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 	public long							Energy { get; set; }
 	public byte							EnergyThisPeriod { get; set; }
 	public long							EnergyNext { get; set; }
+
 	public long							Bandwidth { get; set; }
 	public short						BandwidthExpiration { get; set; } = -1;
 	public long							BandwidthToday { get; set; }
@@ -178,30 +179,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 		Read(r);
 	}
 
-	public void WriteMore(BinaryWriter w)
-	{
-		//if(Mcv.Settings.Chain != null)
-		//{
-		//	w.Write(Transactions, w.Write7BitEncodedInt);
-		//}
-	}
-
-	public void ReadMore(BinaryReader r)
-	{
-		//if(Mcv.Settings.Chain != null)
-		//{
-		//	Transactions = r.ReadList(r.Read7BitEncodedInt);
-		//}
-	}
-
 	public void Cleanup(Round lastInCommit)
 	{
-		//if(ECBalance.Any(i => i.Expiration < lastInCommit.ConsensusTime))
-		//	ECBalance = ECBalance.Where(i => i.Expiration < lastInCommit.ConsensusTime).ToArray();
-
-		//if(lastInCommit.ConsensusTime.Days/Time.FromYears(1))
-		//{
-		//}
 	}
-
 }

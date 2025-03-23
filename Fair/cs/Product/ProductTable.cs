@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductTable : Table<ProductEntry>
+public class ProductTable : Table<Product>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -28,8 +28,8 @@ public class ProductTable : Table<ProductEntry>
 /// 		_102 = _102;
 	}
 	
-	public override ProductEntry Create()
+	public override Product Create()
 	{
-		return new ProductEntry(Mcv);
+		return new Product(Mcv);
 	}
  }

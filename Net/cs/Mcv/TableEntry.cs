@@ -42,7 +42,4 @@ public interface ITableEntry
 
 	void		ReadMain(BinaryReader r);
 	void		WriteMain(BinaryWriter r);
-
-	void		ReadMore(BinaryReader r);
-	void		WriteMore(BinaryWriter r);
 }

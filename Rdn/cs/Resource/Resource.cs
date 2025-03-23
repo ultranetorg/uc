@@ -56,7 +56,7 @@ public class ResourceLink : IBinarySerializable
 	}
 }
 
-public class Resource// : IBinarySerializable
+public class Resource : ITableEntry
 {
 	public EntityId				Id { get; set; }
 	public EntityId				Domain { get; set; }
@@ -67,16 +67,72 @@ public class Resource// : IBinarySerializable
 	public ResourceLink[]		Outbounds { get; set; } = [];
 	public EntityId[]			Inbounds { get; set; } = [];
 
-	//public bool					New;
-	//public bool					Affected;
 	bool						OutboundsCloned;
 	bool						InboundsCloned;
+	public BaseId				Key => Id;
+	public bool					Deleted { get; set; }
+	RdnMcv						Mcv;
 
 	public int					Length => (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
+	}
+
+	public Resource()
+	{
+	}
+
+	public Resource(RdnMcv rdn)
+	{
+		Mcv = rdn;
+	}
+
+	public Resource Clone()
+	{
+		return new Resource(Mcv)  {	Id = Id,
+									Domain = Domain,
+						            Address	= Address, 
+						            Flags = Flags,
+						            Data = Data?.Clone(),
+						            Updated = Updated,
+						            Outbounds = Outbounds,
+						            Inbounds = Inbounds};
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write7BitEncodedInt(Domain.E);
+		writer.WriteUtf8(Address.Resource);
+		writer.Write(Flags);
+		writer.Write(Updated);
+		
+		if(Flags.HasFlag(ResourceFlags.Data))
+			writer.Write(Data);
+	
+		writer.Write(Outbounds);
+		writer.Write(Inbounds);
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Id		= reader.Read<EntityId>();
+		Domain	= new (Id.B, reader.Read7BitEncodedInt());
+		Address = new Ura(null, reader.ReadUtf8());
+		Flags	= reader.Read<ResourceFlags>();
+		Updated	= reader.Read<Time>();
+
+		if(Flags.HasFlag(ResourceFlags.Data))
+			Data = reader.Read<ResourceData>();
+
+		Outbounds	= reader.ReadArray<ResourceLink>();
+		Inbounds	= reader.ReadArray<EntityId>();
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
 	}
 
 	public ResourceLink AffectOutbound(EntityId destination)

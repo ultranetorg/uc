@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryTable : Table<CategoryEntry>
+public class CategoryTable : Table<Category>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -9,8 +9,8 @@ public class CategoryTable : Table<CategoryEntry>
 	{
 	}
 	
-	public override CategoryEntry Create()
+	public override Category Create()
 	{
-		return new CategoryEntry(Mcv);
+		return new Category(Mcv);
 	}
  }

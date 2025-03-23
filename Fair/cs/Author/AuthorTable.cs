@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class AuthorTable : Table<AuthorEntry>
+public class AuthorTable : Table<Author>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 
@@ -8,9 +8,9 @@ public class AuthorTable : Table<AuthorEntry>
 	{
 	}
 		
-	public override AuthorEntry Create()
+	public override Author Create()
 	{
-		return new AuthorEntry(Mcv);
+		return new Author(Mcv);
 	}
 }
 
