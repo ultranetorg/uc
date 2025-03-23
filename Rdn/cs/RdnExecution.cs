@@ -13,10 +13,10 @@ public class RdnExecution : Execution
 	{
 	}
 
-	public override ITableEntry Affect(byte table, EntityId id)
+	public override ITableEntry Affect(byte table, BaseId id)
 	{
-		if(Mcv.Domains.Id == table)		return FindDomain(id) != null ? AffectDomain(id) : null;
-		if(Mcv.Resources.Id == table)	return FindResource(id) != null ? AffectResource(id) : null;
+		if(Mcv.Domains.Id == table)		return FindDomain(id as EntityId) != null ? AffectDomain(id as EntityId) : null;
+		if(Mcv.Resources.Id == table)	return FindResource(id as EntityId) != null ? AffectResource(id as EntityId) : null;
 
 		return base.Affect(table, id);
 	}

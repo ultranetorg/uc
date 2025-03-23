@@ -2,8 +2,10 @@
 
 public class AuthorEntry : Author, ITableEntry
 {
+	public BaseId			Key => Id;
 	Mcv						Mcv;
 	public bool				Deleted { get; set; }
+	
 	public EntityId[]		Products { get; set; }
 	public EntityId[]		Sites { get; set; }
 
@@ -24,6 +26,7 @@ public class AuthorEntry : Author, ITableEntry
 	public AuthorEntry Clone()
 	{
 		var a = new AuthorEntry(Mcv)   {Id					= Id,
+										Nickname			= Nickname,
 										Title				= Title,
 										Owners				= Owners,
 

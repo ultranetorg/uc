@@ -53,7 +53,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										Spacetimes = [];
 	public long[]										Bandwidths = [];
 
-	public Dictionary<EntityId, AccountEntry>			AffectedAccounts = new();
+	public Dictionary<EntityId, Account>			AffectedAccounts = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;

@@ -5,7 +5,8 @@ namespace Uccs.Fair;
 public enum FairPpcClass : byte
 {
 	None = 0, 
-	FairMembers = McvPpcClass._Last + 1, 
+	FairAccount = McvPpcClass._Last + 1, 
+	FairMembers,
 
 	AccountAuthors,
 	AccountSites,
@@ -36,6 +37,13 @@ public class FairTcpPeering : McvTcpPeering
 		Run();
 	}
 
+	public override object Constract(Type t, byte b)
+	{
+ 			if(t == typeof(FairAccount))	
+ 				return new FairAccount(Mcv);
+
+		return base.Constract(t, b);
+	}
 	public override bool ProcessIncomingOperation(Operation o)
 	{
 		return true;

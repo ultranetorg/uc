@@ -2,8 +2,9 @@
 
 public class PublicationEntry : Publication, ITableEntry
 {
-	public bool			Deleted { get; set; }
-	FairMcv				Mcv;
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
 
 	public PublicationEntry()
 	{

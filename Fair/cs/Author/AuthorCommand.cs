@@ -32,6 +32,32 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+	
+	public CommandAction Nickname()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var nickname = "nickname";
+
+		a.Name = "n";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (nickname, "A new nickname"),
+									 new (SignerArg, "Address of account that is author's owner")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return new NicknameChange  {Entity = FirstAuthorId,
+															Field = EntityTextField.AuthorNickname,
+															Nickname = GetString(nickname)}; 
+							};
+		return a;
+	}
 
 	public CommandAction Entity()
 	{

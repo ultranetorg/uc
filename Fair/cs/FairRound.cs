@@ -11,6 +11,7 @@ public class FairRound : Round
 	public Dictionary<EntityId, PublicationEntry>		AffectedPublications = new();
 	public Dictionary<EntityId, ReviewEntry>			AffectedReviews = new();
 	public Dictionary<EntityId, DisputeEntry>			AffectedDisputes = new();
+	public Dictionary<StringId, TextEntry>			AffectedNicknames = new();
 
 	public FairRound(FairMcv rds) : base(rds)
 	{
@@ -30,6 +31,7 @@ public class FairRound : Round
 		if(table == Mcv.Publications)	return AffectedPublications;
 		if(table == Mcv.Reviews)		return AffectedReviews;
 		if(table == Mcv.Disputes)		return AffectedDisputes;
+		if(table == Mcv.Nicknames)		return AffectedNicknames;
 
 		return base.AffectedByTable(table);
 	}
@@ -52,6 +54,7 @@ public class FairRound : Round
 		foreach(var i in e.AffectedPublications)	AffectedPublications[i.Key] = i.Value;
 		foreach(var i in e.AffectedReviews)			AffectedReviews[i.Key] = i.Value;
 		foreach(var i in e.AffectedDisputes)		AffectedDisputes[i.Key] = i.Value;
+		foreach(var i in e.AffectedNicknames)		AffectedNicknames[i.Key] = i.Value;
 	}
 
 // 	public bool IsAllowed(Publication page, TopicChange change, AccountEntry signer)

@@ -2,7 +2,7 @@
 
 public class Execution
 {
-	public Dictionary<EntityId, AccountEntry>	AffectedAccounts = new();
+	public Dictionary<EntityId, Account>	AffectedAccounts = new();
 	public Dictionary<EntityId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
 	public EntityId								LastCreatedId;
@@ -32,10 +32,10 @@ public class Execution
 		Bandwidths = round.Bandwidths;
 	}
 
-	public virtual ITableEntry Affect(byte table, EntityId id)
+	public virtual ITableEntry Affect(byte table, BaseId id)
 	{
 		if(Mcv.Accounts.Id == table)	
-			return FindAccount(id) != null ? AffectAccount(id) : null;
+			return FindAccount(id as EntityId) != null ? AffectAccount(id as EntityId) : null;
 
 		return null;
 	}
@@ -77,10 +77,10 @@ public class Execution
 		}
 	}
 
-	public virtual AccountEntry AffectSigner()
+	public virtual Account AffectSigner()
 	{
  		if(Transaction.Signer == Net.God)
- 			return new AccountEntry {Address = Net.God};
+ 			return new Account {Address = Net.God};
 
 		var s = Mcv.Accounts.Find(Transaction.Signer, Round.Id);
 
@@ -103,7 +103,7 @@ public class Execution
 		return AffectAccount(s.Id);
 	}
 
-	public AccountEntry FindAccount(EntityId id)
+	public Account FindAccount(EntityId id)
 	{
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
@@ -111,15 +111,15 @@ public class Execution
 		return Mcv.Accounts.Find(id, Round.Id);
 	}
 
-	public AccountEntry FindAccount(AccountAddress address)
+	public Account FindAccount(AccountAddress address)
 	{
-		if(AffectedAccounts.Values.FirstOrDefault(i => i.Address == address) is AccountEntry a)
+		if(AffectedAccounts.Values.FirstOrDefault(i => i.Address == address) is Account a)
 			return a;
 
 		return Mcv.Accounts.Find(address, Round.Id);
 	}
 
-	public virtual AccountEntry CreateAccount(AccountAddress address)
+	public virtual Account CreateAccount(AccountAddress address)
 	{
 		var b = Mcv.Accounts.KeyToBid(address);
 			
@@ -129,14 +129,13 @@ public class Execution
 
 		a.Id		= LastCreatedId = new EntityId(b, e);
 		a.Address	= address;
-		a.New		= true;
 
 		AffectedAccounts[a.Id] = a;
 
 		return a;
 	}
 
-	public AccountEntry AffectAccount(EntityId id)
+	public Account AffectAccount(EntityId id)
 	{
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;

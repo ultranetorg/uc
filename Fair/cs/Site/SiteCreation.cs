@@ -38,6 +38,8 @@ public class SiteCreation : FairOperation
 		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [Signer.Id];
 
+		s.ChangePolicies[FairOperationClass.NicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
+
 		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
 		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;

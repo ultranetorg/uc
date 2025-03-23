@@ -90,8 +90,6 @@ public abstract class TableBase
 
 public abstract class Table<E> : TableBase where E : class, ITableEntry
 {
-	public override string Name => typeof(E).BaseType.Name;
-
 	public class Bucket : BucketBase
 	{
 		Table<E>				Table;
@@ -192,10 +190,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			///if(_Main == null || base.Entries != null)
 			///{
 			///
-				var entities = Entries.OrderBy(i => i.Id).ToArray();
+				_Entries = Entries.OrderBy(i => i.Key).ToList();
 
 				w.Write7BitEncodedInt(NextEid);
-				w.Write(entities, i =>	{
+				w.Write(_Entries, i =>	{
 											i.WriteMain(w);
 										});
 
@@ -216,7 +214,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 			s.SetLength(0);
 
-			foreach(var i in entities)
+			foreach(var i in _Entries)
 				i.WriteMore(w);
 
 			batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
@@ -295,14 +293,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			return $"{Id}, Buckets={{{Buckets?.Count}}}, Hash={Hash?.ToHex()}";
 		}
 
-// 			public Bucket AddBucket(int id)
-// 			{
-// 				var c = new Bucket(Table, id);
-// 				Buckets.Add(c);
-// 			
-// 				return c;
-// 			}
-
 		public override Bucket GetBucket(int id)
 		{
 			var c = FindBucket(id);
@@ -347,12 +337,14 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
+	public override string			Name => typeof(E).Name.Replace("Entry", null);
+
 	public override List<Cluster>	Clusters { get; }
 	public override int				Size => Clusters.Sum(i => i.MainLength);
-	public static string			ClusterColumnName	=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(ClusterColumn);
-	public static string			MetaColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
-	public static string			MainColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
-	public static string			MoreColumnName		=> typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
+	public static string			ClusterColumnName	=> typeof(E).Name.Replace("Entry", null) + nameof(ClusterColumn);
+	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MetaColumn);
+	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
+	public static string			MoreColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MoreColumn);
 
 	public abstract E				Create();
 
@@ -427,7 +419,25 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			if((i.AffectedByTable(this) as IDictionary<EntityId, E>).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 
-		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
+		/// Use binary search!
+		/// var eee = FindBucket(id.B)?.Entries;
+		/// var i = eee.BinarySearch(null, Comparer<E>.Create((x, y) => ((EntityId)x.Key).E.CompareTo(((EntityId)y.Key))));
+
+		return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
+
+	}
+
+	public virtual E Find(StringId id, int ridmax)
+	{
+  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
+			if((i.AffectedByTable(this) as IDictionary<StringId, E>).TryGetValue(id, out var r) && !r.Deleted)
+    			return r;
+				
+		/// Use binary search!
+		/// var eee = FindBucket(id.B)?.Entries;
+		/// var i = eee.BinarySearch(null, Comparer<E>.Create((x, y) => ((EntityId)x.Key).E.CompareTo(((EntityId)y.Key))));
+
+		return FindBucket(id.B)?.Entries.Find(i => i.Key == id);
 	}
 
 ///		public class Enumerator : IEnumerator<E>
@@ -514,10 +524,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		foreach(var i in entities.Cast<E>())
 		{
-			var c = GetCluster(ClusterFromBucket(i.Id.B));
-			var b = c.GetBucket(i.Id.B);
+			var c = GetCluster(ClusterFromBucket(i.Key.B));
+			var b = c.GetBucket(i.Key.B);
 
-			var e = b.Entries.Find(e => e.Id == i.Id);
+			var e = b.Entries.Find(e => e.Key == i.Key);
 			
 			if(e != null)
 				b.Entries.Remove(e);
@@ -525,8 +535,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			if(!i.Deleted)
 				b.Entries.Add(i);
 
-			if(b.NextEid < i.Id.E + 1)
-				b.NextEid = Math.Max(b.NextEid, i.Id.E + 1);
+			if(i.Key is EntityId x)
+				if(b.NextEid < x.E + 1)
+					b.NextEid = Math.Max(b.NextEid, x.E + 1);
 
 			bs.Add(b);
 			cs.Add(c);

@@ -2,6 +2,7 @@
 
 public class ResourceEntry : Resource, ITableEntry
 {
+	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
 	RdnMcv					Mcv;
 

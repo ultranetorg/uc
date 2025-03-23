@@ -6,8 +6,8 @@ public class FairAccountTable : AccountTable
 	{
 	}
 
-	public override AccountEntry Create()
+	public override Account Create()
 	{
-		return new FairAccountEntry(Mcv);
+		return new FairAccount(Mcv);
 	}
 }

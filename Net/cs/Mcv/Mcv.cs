@@ -478,7 +478,7 @@ public abstract class Mcv /// Mutual chain voting
 				{
 					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Main.ToHex() + Environment.NewLine);
 					
-					foreach(var e in b.Entries.OrderBy(i => i.Id))
+					foreach(var e in b.Entries.OrderBy(i => i.Key))
 						File.AppendAllText(f, JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);
 				}
 			}

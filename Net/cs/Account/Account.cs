@@ -75,7 +75,7 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
-public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
+public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
@@ -93,10 +93,16 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 	public short						BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
+	public BaseId						Key => Id;
+	public bool							Deleted { get; set; }
+
+	Mcv									Mcv;
+
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
+
 	public static long ParseSpacetime(string t)
 	{
 		t = t.Replace(" ", null).Replace("\t", null).ToUpper();
@@ -138,5 +144,64 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
 
+	public Account()
+	{
+	}
+
+	public Account(Mcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public virtual Account Clone()
+	{
+		var a = Mcv.Accounts.Create();
+
+		a.Id						= Id;
+		a.Address					= Address;
+		a.Spacetime					= Spacetime;
+		a.LastTransactionNid		= LastTransactionNid;
+		a.AverageUptime				= AverageUptime;
+
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
+	}
+
+	public virtual void WriteMain(BinaryWriter w)
+	{
+		Write(w);
+	}
+
+	public virtual void ReadMain(BinaryReader r)
+	{
+		Read(r);
+	}
+
+	public void WriteMore(BinaryWriter w)
+	{
+		//if(Mcv.Settings.Chain != null)
+		//{
+		//	w.Write(Transactions, w.Write7BitEncodedInt);
+		//}
+	}
+
+	public void ReadMore(BinaryReader r)
+	{
+		//if(Mcv.Settings.Chain != null)
+		//{
+		//	Transactions = r.ReadList(r.Read7BitEncodedInt);
+		//}
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+		//if(ECBalance.Any(i => i.Expiration < lastInCommit.ConsensusTime))
+		//	ECBalance = ECBalance.Where(i => i.Expiration < lastInCommit.ConsensusTime).ToArray();
+
+		//if(lastInCommit.ConsensusTime.Days/Time.FromYears(1))
+		//{
+		//}
+	}
 
 }

@@ -23,7 +23,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 {
 	public string						Error;
 	public Transaction					Transaction;
-	public AccountEntry					Signer;
+	public Account					Signer;
 	public IEnergyHolder				EnergyFeePayer;
 	public HashSet<IEnergyHolder>		EnergySpenders;
 	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
@@ -80,7 +80,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Description}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
-	public AccountEntry RequireAccount(Round round, AccountAddress account)
+	public Account RequireAccount(Round round, AccountAddress account)
 	{
 		var a = round.Mcv.Accounts.Find(account, round.Id);
 
@@ -173,7 +173,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		}
 	}
 
-	public bool RequireAccount(Execution round, EntityId id, out AccountEntry account)
+	public bool RequireAccount(Execution round, EntityId id, out Account account)
 	{
 		account = round.FindAccount(id);
 
@@ -186,7 +186,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return true;
 	}
 
-	public bool RequireAccountAccess(Execution round, EntityId id, out AccountEntry account)
+	public bool RequireAccountAccess(Execution round, EntityId id, out Account account)
 	{
 		if(!RequireAccount(round, id, out account))
 			return false;

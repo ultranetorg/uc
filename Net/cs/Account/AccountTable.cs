@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class AccountTable : Table<AccountEntry>
+public class AccountTable : Table<Account>
 {
 	public int	KeyToBid(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
 
@@ -8,22 +8,22 @@ public class AccountTable : Table<AccountEntry>
 	{
 	}
 
-	public override AccountEntry Create()
+	public override Account Create()
 	{
-		return new AccountEntry(Mcv);
+		return new Account(Mcv);
 	}
 
-	public AccountEntry FindEntry(AccountAddress key)
+	public Account FindEntry(AccountAddress key)
 	{
 		var bid = KeyToBid(key);
 
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 	}
 
-	public AccountEntry Find(AccountAddress account, int ridmax)
+	public Account Find(AccountAddress account, int ridmax)
 	{
 		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Address == account) is AccountEntry e && !e.Deleted)
+			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Address == account) is Account e && !e.Deleted)
 				return e;
 
 		return FindEntry(account);

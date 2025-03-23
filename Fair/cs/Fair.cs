@@ -10,6 +10,7 @@ public abstract class Fair : McvNet
 	public override ushort			BasePort => (ushort)KnownSystem.Fair;
 	
 	public ushort					ReviewLengthMaximum = 65535;
+	public ushort					NicknameLengthMaximum = 32;
  		
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairPublicTest();
@@ -21,7 +22,7 @@ public abstract class Fair : McvNet
 	
 	public Fair()
 	{
-		TablesCount = 8;
+		TablesCount = 9;
 
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{

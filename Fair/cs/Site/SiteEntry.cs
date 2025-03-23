@@ -2,6 +2,7 @@
 
 public class SiteEntry : Site, ITableEntry
 {
+	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
@@ -18,6 +19,7 @@ public class SiteEntry : Site, ITableEntry
 	{
 		var a = new SiteEntry(Mcv){	Id						= Id,
 									Title					= Title,
+									Nickname				= Nickname,
 									ModerationReward		= ModerationReward,
 									
 									ChangePolicies			= ChangePolicies,

@@ -4,52 +4,54 @@ namespace Uccs.Fair;
 public enum FairOperationClass : uint
 {
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
-
-	Author							= 100, 
-		AuthorCreation				= 100_000_001, 
-		AuthorRenewal				= 100_000_002,
-		AuthorModerationReward		= 100_000_003,
-		AuthorOwnerAddition			= 100_000_004,
-		AuthorOwnerRemoval			= 100_000_005,
 	
-	Product							= 101, 
-		ProductCreation				= 101_000_001, 
-		ProductUpdation				= 101_000_002, 
-		ProductDeletion				= 101_000_999,
+	NicknameChange					= 100_000_000,
+
+	Author							= 101, 
+		AuthorCreation				= 101_000_001, 
+		AuthorRenewal				= 101_000_002,
+		AuthorModerationReward		= 101_000_003,
+		AuthorOwnerAddition			= 101_000_004,
+		AuthorOwnerRemoval			= 101_000_005,
 	
-	Site							= 102,
-		SiteCreation				= 102_000_001, 
-		SiteRewal					= 102_000_002,
-		SitePolicyChange			= 102_000_003,
-		SiteAuthorsChange			= 102_000_004,
-		SiteModeratorsChange		= 102_000_005,
-		SiteDeletion				= 102_000_999,
+	Product							= 102, 
+		ProductCreation				= 102_000_001, 
+		ProductUpdation				= 102_000_002, 
+		ProductDeletion				= 102_000_999,
 	
-	Store							= 103,
-		ModeratorAddition			= 103_000_001,
+	Site							= 103,
+		SiteCreation				= 103_000_001, 
+		SiteRewal					= 103_000_002,
+		SitePolicyChange			= 103_000_003,
+		SiteAuthorsChange			= 103_000_004,
+		SiteModeratorsChange		= 103_000_005,
+		SiteDeletion				= 103_000_999,
+	
+	Store							= 104,
+		ModeratorAddition			= 104_000_001,
 
-		Category					= 103_001,
-			CategoryCreation		= 103_001_001,
-			CategoryMovement		= 103_001_002,
-			CategoryDeletion		= 103_001_999,
+		Category					= 104_001,
+			CategoryCreation		= 104_001_001,
+			CategoryMovement		= 104_001_002,
+			CategoryDeletion		= 104_001_999,
 
-		Publication						= 103_002,
-			PublicationCreation			= 103_002_001,
-			PublicationStatusChange		= 103_002_002,
-			PublicationProductChange	= 103_002_003,
-			PublicationUpdateModeration	= 103_002_004,
-			PublicationDeletion			= 103_002_999,
+		Publication						= 104_002,
+			PublicationCreation			= 104_002_001,
+			PublicationStatusChange		= 104_002_002,
+			PublicationProductChange	= 104_002_003,
+			PublicationUpdateModeration	= 104_002_004,
+			PublicationDeletion			= 104_002_999,
 
-		Review						= 103_003,
-			ReviewCreation			= 103_003_001,
-			ReviewStatusChange		= 103_003_002,
-			ReviewTextUpdation		= 103_003_003,
-			ReviewTextModeration	= 103_003_004,
-			ReviewDeletion			= 103_003_999,
+		Review						= 104_003,
+			ReviewCreation			= 104_003_001,
+			ReviewStatusChange		= 104_003_002,
+			ReviewTextUpdation		= 104_003_003,
+			ReviewTextModeration	= 104_003_004,
+			ReviewDeletion			= 104_003_999,
 
-		Dispute						= 103_004,
-			DisputeCreation			= 103_004_001,
-			DisputeVoting			= 103_004_002,
+		Dispute						= 104_004,
+			DisputeCreation			= 104_004_001,
+			DisputeVoting			= 104_004_002,
 		
 } 
 
@@ -59,7 +61,7 @@ public abstract class FairOperation : Operation
 	public const string				InvalidProposal = "Invalid proposal";
 	public const string				Ended = "Ended";
 
-	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
+	public new FairAccount		Signer => base.Signer as FairAccount;
 
 	public abstract void Execute(FairExecution execution, bool voted);
 
@@ -68,11 +70,11 @@ public abstract class FairOperation : Operation
 		Execute(execution as FairExecution, false);
 	}
 
-	public bool RequireAccount(FairExecution round, EntityId id, out FairAccountEntry account)
+	public bool RequireAccount(FairExecution round, EntityId id, out FairAccount account)
 	{
 		var r = base.RequireAccount(round, id, out var a);
 		
-		account = a as FairAccountEntry;
+		account = a as FairAccount;
 
 		return r;
 	}
@@ -238,7 +240,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, AccountEntry signer, out PublicationEntry publication, out SiteEntry site)
+ 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, Account signer, out PublicationEntry publication, out SiteEntry site)
  	{
 		site = null;
 
@@ -264,7 +266,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, AccountEntry signer, out ReviewEntry review)
+ 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, Account signer, out ReviewEntry review)
  	{
  		if(!RequireReview(round, id, out review))
  			return false; 
@@ -278,7 +280,7 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
- 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, AccountEntry signer, out ReviewEntry review, out SiteEntry site)
+ 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, Account signer, out ReviewEntry review, out SiteEntry site)
  	{
 		site = null;
 

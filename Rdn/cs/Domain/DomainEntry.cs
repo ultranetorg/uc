@@ -2,6 +2,7 @@
 
 public class DomainEntry : Domain, ITableEntry
 {
+	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
 	Mcv						Mcv;
 	//bool					ResourcesCloned;

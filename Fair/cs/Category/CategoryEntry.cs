@@ -2,8 +2,9 @@
 
 public class CategoryEntry : Category, ITableEntry
 {
-	public bool			Deleted { get; set; }
-	FairMcv				Mcv;
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
 
 	public CategoryEntry()
 	{

@@ -2,6 +2,7 @@
 
 public class ProductEntry : Product, ITableEntry
 {
+	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
@@ -18,6 +19,7 @@ public class ProductEntry : Product, ITableEntry
 	{
 		return new(Mcv){Id = Id,
 						Author = Author,
+						Nickname = Nickname,
 						Flags = Flags,
 						Fields = Fields,
 						Updated = Updated,

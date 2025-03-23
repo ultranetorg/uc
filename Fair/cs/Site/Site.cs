@@ -22,6 +22,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public EntityId					Id { get; set; }
+	public string					Nickname { get; set; }
 	public string					Title { get; set; }
 	public int						ModerationReward { get; set; }
 	
@@ -63,6 +64,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Read(BinaryReader reader)
 	{
 		Id						= reader.Read<EntityId>();
+		Nickname				= reader.ReadUtf8();
 		Title					= reader.ReadUtf8();
 		ModerationReward		= reader.Read7BitEncodedInt();
 		
@@ -83,6 +85,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
+		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
 		

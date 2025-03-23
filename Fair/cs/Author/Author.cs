@@ -12,6 +12,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public EntityId				Id { get; set; }
+	public string				Nickname { get; set; }
 	public string				Title { get; set; }
 	public EntityId[]			Owners { get; set; }
 
@@ -61,6 +62,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
+		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
@@ -75,6 +77,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Read(BinaryReader reader)
 	{
 		Id					= reader.Read<EntityId>();
+		Nickname			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
 		Owners				= reader.ReadArray<EntityId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();

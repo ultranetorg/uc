@@ -1,24 +1,24 @@
 ﻿namespace Uccs.Fair;
 
-public class AccountSitesRequest : McvPpc<AccountSitesResponse>
+public class FairAccountRequest : McvPpc<FairAccountResponse>
 {
 	public AccountIdentifier		Identifier {get; set;}
 
-	public AccountSitesRequest()
+	public FairAccountRequest()
 	{
 	}
 
-	public AccountSitesRequest(AccountIdentifier identifier)
+	public FairAccountRequest(AccountIdentifier identifier)
 	{
 		Identifier = identifier;
 	}
 
-	public AccountSitesRequest(AccountAddress addres)
+	public FairAccountRequest(AccountAddress addres)
 	{
 		Identifier = new(addres);
 	}
 
-	public AccountSitesRequest(EntityId id)
+	public FairAccountRequest(EntityId id)
 	{
 		Identifier = new(id);
 	}
@@ -41,12 +41,12 @@ public class AccountSitesRequest : McvPpc<AccountSitesResponse>
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new AccountSitesResponse {Sites = e.Sites};
+			return new FairAccountResponse {Account = e};
 		}
 	}
 }
 
-public class AccountSitesResponse : PeerResponse
+public class FairAccountResponse : PeerResponse
 {
-	public EntityId[] Sites {get; set;}
+	public FairAccount Account {get; set;}
 }
