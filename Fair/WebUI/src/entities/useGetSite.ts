@@ -20,3 +20,14 @@ export const useGetSite = (siteId?: string) => {
 
   return { isPending, error, data }
 }
+
+export const useGetSites = (page?: number, pageSize?: number, title?: string) => {
+  const queryFn = () => api.getSites(page, pageSize, title)
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", { page, pageSize, title }],
+    queryFn: queryFn,
+  })
+
+  return { isPending, error, data }
+}

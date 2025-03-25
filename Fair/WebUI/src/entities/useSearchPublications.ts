@@ -4,17 +4,17 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useSearchPublications = (siteId?: string, name?: string, page?: number, pageSize?: number) => {
+export const useSearchPublications = (siteId?: string, page?: number, pageSize?: number, title?: string) => {
   const queryFn = () => {
     if (!siteId) {
       return
     }
 
-    return api.searchPublications(siteId, name, page, pageSize)
+    return api.searchPublications(siteId, page, pageSize, title)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["sites", siteId, "publications", { name, page, pageSize }],
+    queryKey: ["sites", siteId, "publications", { page, pageSize, title }],
     queryFn: queryFn,
   })
 

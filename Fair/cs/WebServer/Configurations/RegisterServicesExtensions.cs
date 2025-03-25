@@ -19,7 +19,9 @@ public static class RegisterServicesExtensions
 	private static void RegisterServicesInternal(IServiceCollection services, FairNode node)
 	{
 		services.AddSingleton<ICategoriesService, CategoriesService>();
+		services.AddSingleton<IDisputesService, DisputesService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
+		services.AddSingleton<IReviewsService, ReviewsService>();
 		services.AddSingleton<ISitesService, SitesService>();
 		services.AddSingleton<IUsersService, UsersService>();
 	}

@@ -1,30 +1,30 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text;
+
+namespace Uccs.Fair;
 
 public static class ProductUtils
 {
-	public static string GetTitle(Product product)
+	public static string GetTitle(Product product, Publication publication)
 	{
-		//ProductField titleField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Title);
-		//return titleField != null ? titleField.Value.ToString() : null;
+		if (publication.Fields.All(x => x.Name != ProductField.Title))
+		{
+			return product.Id.ToString();
+		}
 
-		// TODO: should be changed in release version.
-
-		ProductField titleField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Title);
-// TODO by Maximion		var title = titleField != null ? titleField.Value.ToString() : null;
-// TODO by Maximion		return !string.IsNullOrEmpty(title) ? title : product.Id.ToString();
-		return null;	
+		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Title).Version;
+		byte[] bytes = product.Fields.FirstOrDefault(x => x.Name == ProductField.Title)?.Versions.FirstOrDefault(x => x.Version == version)?.Value;
+		return Encoding.UTF8.GetString(bytes);
 	}
 
-	public static string GetDescription(Product product)
+	public static string? GetDescription(Product product, Publication publication)
 	{
-		//ProductField descriptionField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description);
-		//return descriptionField != null ? descriptionField.Value.ToString() : null;
+		if (publication.Fields.All(x => x.Name != ProductField.Description))
+		{
+			return product.Id.ToString() + " Description";
+		}
 
-		// TODO: should be changed in release version.
-
-		ProductField descriptionField = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description);
-// TODO	by Maximion		var description = descriptionField != null ? descriptionField.Value.ToString() : null;
-// TODO	by Maximion		return !string.IsNullOrEmpty(description) ? description : $"({product.Id} {product.Flags} {product.AuthorId})";
-		return null;	
+		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Title).Version;
+		byte[] bytes = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description)?.Versions.FirstOrDefault(x => x.Version == version)?.Value;
+		return Encoding.UTF8.GetString(bytes);	
 	}
 }

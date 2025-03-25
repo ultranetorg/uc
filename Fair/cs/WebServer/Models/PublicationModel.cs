@@ -15,9 +15,9 @@ public class PublicationModel : PublicationBaseModel
 	public string AuthorId { get; set; }
 	public string AuthorTitle { get; set; }
 
-	public IEnumerable<ReviewModel> Reviews { get; set; }
+	public IEnumerable<PublicationReviewModel> Reviews { get; set; }
 
-	public PublicationModel(Publication publication, Product product, Author author) : base(publication.Id, product)
+	public PublicationModel(Publication publication, Product product, Author author) : base(publication, product)
 	{
 		CategoryId = publication.Category.ToString();
 

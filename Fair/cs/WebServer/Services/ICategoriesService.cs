@@ -4,5 +4,5 @@ namespace Uccs.Fair;
 
 public interface ICategoriesService
 {
-	public CategoryModel Find([NotEmpty] string categoryId);
+	public CategoryModel GetCategory([NotNull][NotEmpty] string categoryId);
 }

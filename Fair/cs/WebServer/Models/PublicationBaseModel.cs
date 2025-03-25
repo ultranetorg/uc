@@ -14,12 +14,12 @@ public class PublicationBaseModel
 	[JsonPropertyOrder(-1)]
 	public string ProductDescription { get; set; }
 
-	public PublicationBaseModel(EntityId id, Product product)
+	public PublicationBaseModel(Publication publication, Product product)
 	{
-		Id = id.ToString();
+		Id = publication.Id.ToString();
 
 		ProductId = product.Id.ToString();
-		ProductTitle = ProductUtils.GetTitle(product);
-		ProductDescription = ProductUtils.GetDescription(product);
+		ProductTitle = ProductUtils.GetTitle(product, publication);
+		ProductDescription = ProductUtils.GetDescription(product, publication);
 	}
 }

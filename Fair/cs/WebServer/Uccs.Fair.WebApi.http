@@ -3,6 +3,7 @@
 ### GET User
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65537-0
+Accept: application/json
 
 ### GET Sites
 
@@ -14,9 +15,40 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0
 Accept: application/json
 
+### GET Site Authors
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors
+Accept: application/json
+
+### GET Site Categories
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/categories
+Accept: application/json
+
 ### GET Site Author
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0
+Accept: application/json
+
+### Get Site Disputes
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/disputes
+Accept: application/json
+
+### Get Site Dispute
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/disputes/67329-0
+Accept: application/json
+
+### Get Site Referendums
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/referendums
+Accept: application/json
+
+### Get Site Referendum
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/referendums/67329-1
+Accept: application/json
 
 ### GET Category
 
@@ -30,5 +62,19 @@ Accept: application/json
 
 ### Publications Search
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?name=2&page=0&pageSize=10
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?title=2&page=0&pageSize=10
+Accept: application/json
+
+### Test 1
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0
+Accept: application/json
+
+### Test 2
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/categories
+Accept: application/json
+
+### Test 3
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/67329-2
 Accept: application/json

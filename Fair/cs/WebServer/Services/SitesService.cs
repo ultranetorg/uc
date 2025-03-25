@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -11,10 +10,9 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
-
-	public TotalItemsResult<SiteBaseModel> SearchNonOptimized([NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name)
+	public TotalItemsResult<SiteBaseModel> SearchNonOptimized(int page, int pageSize, string title)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Name}}", page, pageSize, name);
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Title}}", page, pageSize, title);
 
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
@@ -22,26 +20,66 @@ public class SitesService
 			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
 		}
 
-		int totalItems = 0;
-		LinkedList<Site> list = new LinkedList<Site>();
-		foreach (Site site in sites)
-		{
-			if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(site.Title) && name.IndexOf(site.Title, StringComparison.OrdinalIgnoreCase) == -1)
-			{
-				continue;
-			}
-
-			++totalItems;
-			list.AddLast(site);
-		}
-
-		IEnumerable<Site> result = list.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, title));
+		IEnumerable<Site> result = matched.Skip(page * pageSize).Take(pageSize);
 		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
 
 		return new TotalItemsResult<SiteBaseModel>
 		{
 			Items = items,
-			TotalItems = totalItems,
+			TotalItems = matched.Count(),
+		};
+	}
+
+	public TotalItemsResult<AuthorBaseModel> GetAuthors(string siteId, int page, int pageSize)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.GetAuthors)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		EntityId id = EntityId.Parse(siteId);
+
+		Site site = null;
+		lock (mcv.Lock)
+		{
+			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			if (site == null)
+			{
+				return null;
+			}
+		}
+
+		IEnumerable<EntityId> authorsIds = site.Authors.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<AuthorBaseModel> items = authorsIds.Count() > 0 ? LoadAuthors(authorsIds) : null;
+
+		return new TotalItemsResult<AuthorBaseModel>
+		{
+			Items = items,
+			TotalItems = site.Authors.Count(),
+		};
+	}
+
+	public TotalItemsResult<CategoryParentBaseModel> GetCategories(string siteId, int page, int pageSize)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.GetCategories)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		EntityId id = EntityId.Parse(siteId);
+
+		IEnumerable<Category> categories = null;
+		lock (mcv.Lock)
+		{
+			categories = mcv.Categories.FindBySiteId(id);
+		}
+
+		IEnumerable<Category> skippedAndTaken = categories.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<CategoryParentBaseModel> items = skippedAndTaken.Select(x => new CategoryParentBaseModel(x));
+
+		return new TotalItemsResult<CategoryParentBaseModel>
+		{
+			Items = items,
+			TotalItems = categories.Count(),
 		};
 	}
 
@@ -75,7 +113,7 @@ public class SitesService
 		};
 	}
 
-	private IEnumerable<AuthorBaseModel> LoadAuthors(EntityId[] authorsIds)
+	private IEnumerable<AuthorBaseModel> LoadAuthors(IEnumerable<EntityId> authorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -189,152 +227,8 @@ public class SitesService
 				continue;
 			}
 
-			var resultItem = new PublicationBaseModel(publicationId, product);
+			var resultItem = new PublicationBaseModel(publication, product);
 			result.AddLast(resultItem);
 		}
-	}
-
-	public TotalItemsResult<DisputeModel> FindDisputesNonOptimized(string siteId, int page, int pageSize)
-	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.FindDisputesNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NegativeOrZero(pageSize);
-		Guard.Against.Negative(page);
-
-		EntityId id = EntityId.Parse(siteId);
-		Site site = null;
-		lock (mcv.Lock)
-		{
-			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
-			if (site == null)
-			{
-				return null;
-			}
-		}
-
-		if (site.Disputes.Length == 0)
-		{
-			return TotalItemsResult<DisputeModel>.Empty;
-		}
-
-
-		return new TotalItemsResult<DisputeModel>
-		{
-
-		};
-	}
-
-	private IEnumerable<DisputeModel> LoadDisputes(EntityId[] disputesIds)
-	{
-		lock (mcv.Lock)
-		{
-			return disputesIds.Select(id =>
-			{
-				Dispute dispute = mcv.Disputes.Find(id, mcv.LastConfirmedRound.Id);
-				return new DisputeModel(dispute)
-				{
-				};
-			}).ToArray();
-		}
-	}
-
-	public TotalItemsResult<SitePublicationModel> SearchPublicationsNonOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name)
-	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchPublicationsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Name}}", siteId, page, pageSize, name);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NegativeOrZero(pageSize);
-		Guard.Against.Negative(page);
-
-		EntityId id = EntityId.Parse(siteId);
-
-		Site site = null;
-		lock (mcv.Lock)
-		{
-			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
-			if (site == null)
-			{
-				return TotalItemsResult<SitePublicationModel>.Empty;
-			}
-		}
-
-		SearchContext context = new SearchContext()
-		{
-			Page = page,
-			PageSize = pageSize,
-			SearchName = name,
-			Result = new List<SitePublicationModel>()
-		};
-		SearchInCategories(context, site.Categories);
-
-		return new TotalItemsResult<SitePublicationModel>
-		{
-			Items = context.Result.Skip(page * pageSize).Take(pageSize),
-			TotalItems = context.TotalItems,
-		};
-	}
-
-	private void SearchInCategories(SearchContext context, EntityId[] categoriesIds)
-	{
-		foreach (EntityId categoryId in categoriesIds)
-		{
-			Category category = null;
-
-			lock (mcv.Lock)
-			{
-				category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
-			}
-
-			SearchInPublications(context, category, category.Publications);
-			SearchInCategories(context, category.Categories);
-		}
-	}
-
-	private void SearchInPublications(SearchContext context, Category category, EntityId[] publicationsIds)
-	{
-		foreach(EntityId publicationId in publicationsIds)
-		{
-			Publication publication = null;
-			Product product = null;
-			Author author = null;
-
-			lock (mcv.Lock)
-			{
-				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
-				if (publication.Status != PublicationStatus.Approved)
-				{
-					continue;
-				}
-
-				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-				author = mcv.Authors.Find(publication.Creator, mcv.LastConfirmedRound.Id);
-			}
-
-			string productTitle = ProductUtils.GetTitle(product);
-			if (string.IsNullOrEmpty(productTitle))
-			{
-				continue;
-			}
-			if (!string.IsNullOrEmpty(context.SearchName) && productTitle.IndexOf(context.SearchName, StringComparison.OrdinalIgnoreCase) == -1)
-			{
-				continue;
-			}
-
-			SitePublicationModel resultItem = new SitePublicationModel(publication.Id, category, author, product);
-			context.Result.Add(resultItem);
-
-			++context.TotalItems;
-		}
-	}
-
-	class SearchContext
-	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
-		public string SearchName { get; set; }
-
-		public int TotalItems { get; set; }
-		public List<SitePublicationModel> Result { get; set; }
 	}
 }

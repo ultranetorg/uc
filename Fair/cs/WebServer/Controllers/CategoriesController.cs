@@ -18,12 +18,6 @@ public class CategoriesController
 
 		entityIdValidator.Validate(categoryId, nameof(Category).ToLower());
 
-		CategoryModel category = categoriesService.Find(categoryId);
-		if (category == null)
-		{
-			throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
-		}
-
-		return category;
+		return categoriesService.GetCategory(categoryId);
 	}
 }

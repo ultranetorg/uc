@@ -29,12 +29,12 @@ public class UsersService
 		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : null;
 		IEnumerable<UserAuthorModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
 
-		IEnumerable<UserProductModel> products = null;
+		// IEnumerable<UserProductModel> products = null;
 		IEnumerable<UserPublicationModel> publications = null;
 		if (account.Authors.Length > 0)
 		{
 			LoadProductsResult loadProductsResult = LoadProducts(account.Authors);
-			products = loadProductsResult.ProductsModels;
+			// products = loadProductsResult.ProductsModels;
 			publications = loadProductsResult.Products?.Length > 0 ? LoadPublications(loadProductsResult.Products) : null;
 		}
 
@@ -43,7 +43,7 @@ public class UsersService
 			Sites = sites,
 			Authors = authors,
 			Publications = publications,
-			Products = products,
+			// Products = products,
 		};
 	}
 
