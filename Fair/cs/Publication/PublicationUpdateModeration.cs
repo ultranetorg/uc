@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text;
+
+namespace Uccs.Fair;
 
 public class PublicationUpdateModeration : VotableOperation
 {
@@ -84,38 +86,37 @@ public class PublicationUpdateModeration : VotableOperation
 				
 			p.Changes = [..p.Changes.Where(i => i != c)];
 								
-			if(f != null)
+			var prev = p.Fields.FirstOrDefault(i => i.Name == Change.Name);
+	
+			if(prev == null)	/// new field
+				p.Fields = [..p.Fields, Change];
+			else				/// replace version
 			{
-				var prev = p.Fields.FirstOrDefault(i => i.Name == Change.Name);
-	
-				if(prev == null)	/// new field
-					p.Fields = [..p.Fields, Change];
-				else			/// replace version
-					p.Fields = [..p.Fields.Where(i => i.Name != Change.Name), Change];
+				p.Fields = [..p.Fields.Where(i => i.Name != Change.Name), Change];
 		
-				if(prev != null) /// if previously used then decrease refs in product
-				{
-					var x = f.Versions.First(i => i.Version == prev.Version);
-	
-					f = new ProductField {Name = f.Name, 
-											Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
-		
-					r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
-				}
-	
-				/// increase refs in product
-					
-				var y = f.Versions.First(i => i.Version == Change.Version);
+				/// decrease refs in product
+				var x = f.Versions.First(i => i.Version == prev.Version);
 	
 				f = new ProductField {Name = f.Name, 
-										Versions = [..f.Versions.Where(i => i.Version != y.Version), new ProductFieldVersion(y.Version, y.Value, y.Refs + 1)]};
-	
+										Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
+		
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
-			} 
-			else /// a field is deleted from product
-			{
-				p.Fields = [..p.Fields.Where(i => i.Name != Change.Name)];
+
+				if(f.Name == ProductField.Title)
+					execution.RemoveTextIndices(Encoding.UTF8.GetString(x.Value), p.Id);
 			}
+	
+			/// increase refs in product
+					
+			var v = f.Versions.First(i => i.Version == Change.Version);
+	
+			f = new ProductField {Name = f.Name, 
+								  Versions = [..f.Versions.Where(i => i.Version != v.Version), new ProductFieldVersion(v.Version, v.Value, v.Refs + 1)]};
+	
+			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
+
+			if(f.Name == ProductField.Title)
+				execution.AddTextIndices(Encoding.UTF8.GetString(v.Value), p.Id);
 
 			PayForModeration(execution, p, a);
 		}

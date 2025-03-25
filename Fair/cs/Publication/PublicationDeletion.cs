@@ -55,5 +55,12 @@ public class PublicationDeletion : FairOperation
 			Error = Denied;
 			return;
 		}
+
+		var f = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
+		
+		if(f != null)
+		{
+			execution.RemoveTextIndices(execution.FindProduct(p.Product).GetString(f), p.Id);
+		}
 	}
 }

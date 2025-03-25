@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text;
+
+namespace Uccs.Fair;
 
 public class FairExecution : Execution
 {
@@ -28,7 +30,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Publications.Id)	return FindPublication(id as EntityId)	!= null	? AffectPublication(id as EntityId) : null;
 		if(table == Mcv.Reviews.Id)			return FindReview(id as EntityId)		!= null	? AffectReview(id as EntityId) : null;
 		if(table == Mcv.Disputes.Id)		return FindDispute(id as EntityId)		!= null	? AffectDispute(id as EntityId) : null;
-		if(table == Mcv.Nicknames.Id)		return FindText(id as StringId)		!= null	? AffectText(id as StringId) : null;
+		if(table == Mcv.Texts.Id)		return FindText(id as StringId)		!= null	? AffectText(id as StringId) : null;
 
 		return base.Affect(table, id);
 	}
@@ -331,12 +333,12 @@ public class FairExecution : Execution
  		if(AffectedNicknames.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Nicknames.Find(id, Round.Id);
+ 		return Mcv.Texts.Find(id, Round.Id);
  	}
 
 	public Text CreateText(string name)
 	{
-		var a = Mcv.Nicknames.Create();
+		var a = Mcv.Texts.Create();
 		a.Id = new StringId(name);
 		a.Entities = [];
 
@@ -348,8 +350,51 @@ public class FairExecution : Execution
 		if(AffectedNicknames.TryGetValue(id, out var a))
 			return a;
 			
-		var e = Mcv.Nicknames.Find(id, Round.Id);
+		var e = Mcv.Texts.Find(id, Round.Id);
 
 		return AffectedNicknames[id] = e.Clone();
+	}
+
+	public void AddTextIndices(string text, EntityId entity)
+	{
+		foreach(var i in text.Split([' ']))
+		{
+			var id = new StringId(i.ToLower());
+
+			var t = FindText(id);
+
+			if(t == null)
+				t = CreateText(i.ToLower());
+			else
+				t = AffectText(id);
+
+			var e = t.Entities.FirstOrDefault(e => e.Field == EntityTextField.PublicationTitle && e.Entity == entity);
+
+			if(e == null)
+			{
+				t.Entities = [..t.Entities, new TextField {Entity = entity, Field = EntityTextField.PublicationTitle}];
+			}
+		}
+	}
+
+	public void RemoveTextIndices(string text, EntityId entity)
+	{
+		foreach(var i in text.Split([' ']))
+		{
+			var id = new StringId(i.ToLower());
+
+			var t = FindText(id);
+
+			if(t != null)
+			{
+				var e = t.Entities.FirstOrDefault(e => e.Field == EntityTextField.PublicationTitle && e.Entity == entity);
+	
+				if(e != null)
+				{
+					t = AffectText(id);
+					t.Entities = t.Entities.Remove(e);
+				}
+			}
+		}
 	}
 }

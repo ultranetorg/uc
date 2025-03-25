@@ -11,7 +11,7 @@ public enum EntityTextField : byte
 	SiteTitle,
 
 	ProductNickname, 
-	ProductTitle,
+	PublicationTitle,
 }
 
 public class TextField : IBinarySerializable

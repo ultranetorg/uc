@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -126,5 +128,49 @@ public class CostApc : FairApc
 							//RentProductData				= Years.Select(y => FairOperation.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
 							//RentProductDataForever		= FairOperation.SpacetimeFee(1, Mcv.Forever) * Rate
 							};
+	}
+}
+
+
+public class SearchPublicationsApc : FairApc
+{
+	public EntityId		Site { get; set; }
+	public string		Query { get; set; }
+	public int			Page { get; set; }
+	public byte			Lines { get; set; }
+
+	public class Return
+	{
+		public string		Text { get; set; }
+		public EntityId		Entity { get; set; }
+	}
+
+	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		IEnumerable<Publication> items = [];
+
+		lock(node.Mcv.Lock)
+		{
+			foreach(var i in Query.Trim().Split(' '))
+			{
+				var t = node.Mcv.Texts.Latest(new StringId(i));
+	
+				if(t != null)
+				{
+					items = items.Intersect(t.Entities	.Where(i => i.Field == EntityTextField.PublicationTitle)
+														.Select(i => node.Mcv.Publications.Latest(i.Entity))
+														.Where(p => node.Mcv.Categories.Latest(p.Category).Site == Site), EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id));
+				}
+			}
+
+			return items.Skip(Page * Lines).Select(p => {
+															var r = node.Mcv.Products.Latest(p.Product);
+														
+															var f = p.Fields.First(i => i.Name == ProductField.Title);
+
+															return new Return {Text = r.GetString(f), Entity = p.Id};
+														})
+										   .Take(Lines);
+		}
 	}
 }

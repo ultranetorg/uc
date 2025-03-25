@@ -124,6 +124,11 @@ public class Product : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
+	public string GetString(ProductFieldVersionReference reference)
+	{
+		return Encoding.UTF8.GetString(Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value);
+	}
+
 	public Product Clone()
 	{
 		return new(Mcv){Id = Id,

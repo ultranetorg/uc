@@ -31,7 +31,7 @@ public class FairRound : Round
 		if(table == Mcv.Publications)	return AffectedPublications;
 		if(table == Mcv.Reviews)		return AffectedReviews;
 		if(table == Mcv.Disputes)		return AffectedDisputes;
-		if(table == Mcv.Nicknames)		return AffectedNicknames;
+		if(table == Mcv.Texts)		return AffectedNicknames;
 
 		return base.AffectedByTable(table);
 	}

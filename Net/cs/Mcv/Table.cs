@@ -317,6 +317,21 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
+	public class BinaryComparer : IComparer<E>
+	{
+		Func<E, int> Labda;
+
+		public BinaryComparer(Func<E, int> comparer)
+		{
+			Labda = comparer;
+		}
+
+		public int Compare(E x, E y)
+		{
+			return Labda(x);
+		}
+}
+
 	public override string			Name => typeof(E).Name.Replace("Entry", null);
 
 	public override List<Cluster>	Clusters { get; }
@@ -395,12 +410,17 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			if((i.AffectedByTable(this) as IDictionary<EntityId, E>).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 
-		/// Use binary search!
-		/// var eee = FindBucket(id.B)?.Entries;
-		/// var i = eee.BinarySearch(null, Comparer<E>.Create((x, y) => ((EntityId)x.Key).E.CompareTo(((EntityId)y.Key))));
+		var eee = FindBucket(id.B)?.Entries;
+		var j = eee?.BinarySearch(null, new BinaryComparer(x => ((EntityId)x.Key).E.CompareTo(id.E)));
+		
+		return j >= 0 ? eee[j.Value] : null;
 
-		return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
+		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
+	}
 
+	public virtual E Latest(EntityId id)
+	{
+		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
 	public virtual E Find(StringId id, int ridmax)
@@ -410,10 +430,13 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
     			return r;
 				
 		/// Use binary search!
-		/// var eee = FindBucket(id.B)?.Entries;
-		/// var i = eee.BinarySearch(null, Comparer<E>.Create((x, y) => ((EntityId)x.Key).E.CompareTo(((EntityId)y.Key))));
 
 		return FindBucket(id.B)?.Entries.Find(i => i.Key == id);
+	}
+
+	public virtual E Latest(StringId id)
+	{
+		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
 ///		public class Enumerator : IEnumerator<E>
