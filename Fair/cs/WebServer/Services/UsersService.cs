@@ -16,10 +16,10 @@ public class UsersService
 
 		EntityId entityId = EntityId.Parse(userId);
 
-		FairAccountEntry account = null;
+		FairAccount account = null;
 		lock (mcv.Lock)
 		{
-			account = (FairAccountEntry) mcv.Accounts.Find(entityId, mcv.LastConfirmedRound.Id);
+			account = (FairAccount) mcv.Accounts.Find(entityId, mcv.LastConfirmedRound.Id);
 			if (account == null)
 			{
 				return null;
@@ -103,7 +103,7 @@ public class UsersService
 		{
 			productModels = authorsIds.SelectMany(authorId =>
 			{
-				AuthorEntry author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
+				Author author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
 
 				return author.Products.Select(productId =>
 				{

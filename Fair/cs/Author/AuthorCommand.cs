@@ -32,6 +32,32 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+	
+	public CommandAction Nickname()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var nickname = "nickname";
+
+		a.Name = "n";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (nickname, "A new nickname"),
+									 new (SignerArg, "Address of account that is author's owner")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return new NicknameChange  {Entity = FirstAuthorId,
+															Field = EntityTextField.AuthorNickname,
+															Nickname = GetString(nickname)}; 
+							};
+		return a;
+	}
 
 	public CommandAction Entity()
 	{
@@ -82,22 +108,17 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new AuthorUpdation {AuthorId = FirstEntityId};
 								
 								if(Has(addowner))
 								{
-									o.Change = AuthorChange.AddOwner;
-									o.Value	 = GetAccountAddress(addowner);
+									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
 								}
 								if(Has(removeowner))
 								{
-									o.Change = AuthorChange.RemoveOwner;
-									o.Value	 = GetAccountAddress(removeowner);
+									return new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
 								}
 								else
 									throw new SyntaxException("Unknown parameters");
-
-								return o;
 							};
 		return a;
 	}
@@ -121,12 +142,7 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new AuthorUpdation {AuthorId = FirstEntityId};
-
-								o.Change = AuthorChange.Renew;
-								o.Value	 = byte.Parse(GetString(years));
-
-								return o;
+								return new AuthorRenewal {AuthorId = FirstEntityId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}

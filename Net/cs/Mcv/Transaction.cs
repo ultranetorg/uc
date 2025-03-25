@@ -54,7 +54,7 @@ public class Transaction : IBinarySerializable
 	public bool Valid(Mcv mcv)
 	{
 		return	(Tag == null || Tag.Length <= TagLengthMax) &&
-				Operations.Any() && Operations.All(i => i.IsValid(mcv)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
+				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
 				(!mcv.Net.PoW || PoW.Length == PowLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(3).All(i => i == 0));
 	}
 
@@ -65,6 +65,36 @@ public class Transaction : IBinarySerializable
 	public override string ToString()
 	{
 		return $"Id={Id}, Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+	}
+
+	public byte[] Hashify(byte[] powhash)
+	{
+		if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
+		{
+			PoW = new byte[PowLength];
+		}
+		else
+        {
+            var r = new Random();
+			var h = new byte[32];
+
+			var x = new byte[32 + PowLength];
+
+			Array.Copy(powhash, x, 32);
+
+			do
+			{
+				r.NextBytes(new Span<byte>(x, 32, PowLength));
+				
+				h = Cryptography.Hash(x);
+			
+			}
+			while(h[0] != 0 || h[1] != 0 || h[2] != 0);
+			
+			PoW = x.Skip(32).ToArray();
+        }
+
+		return Hashify();
 	}
 
 	public void Sign(AccountKey signer, byte[] powhash)
@@ -120,7 +150,6 @@ public class Transaction : IBinarySerializable
 		w.Write(Member);
 		w.Write7BitEncodedInt(Nid);
 		w.Write7BitEncodedInt(Expiration);
-		//w.Write(STFee);
 		w.Write(Bonus);
 		w.WriteBytes(PoW);
 		w.WriteBytes(Tag);
@@ -218,7 +247,7 @@ public class Transaction : IBinarySerializable
 	{
 		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 	
-		Member	= reader.Read<EntityId>();
+		Member		= reader.Read<EntityId>();
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();

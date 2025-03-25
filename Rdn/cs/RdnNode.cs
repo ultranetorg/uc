@@ -16,7 +16,7 @@ public class RdnNode : McvNode
 {
 	new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;
 	new public RdnMcv				Mcv => base.Mcv as RdnMcv;
-	public RdnNodeSettings			Settings;
+	public new RdnNodeSettings		Settings => base.Settings as RdnNodeSettings;
 
 	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 	HttpClient						Http = new HttpClient();
@@ -27,9 +27,9 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, Vault vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
+	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, UosApiClient vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
 	{
-		Settings = settings ?? new RdnNodeSettings(Path.Join(profile, net.Address));
+		base.Settings = settings ?? new RdnNodeSettings(Path.Join(profile, net.Address));
 
 		if(Flow.Log != null)
 		{
@@ -130,6 +130,7 @@ public class RdnNode : McvNode
 												(Settings.Api != null ? "A" : null) +
 												(Settings.Mcv != null ? "B" : null) +
 												(Settings.Mcv?.Chain != null  ? "C" : null) +
+												(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
 												(Settings.Seed != null  ? "S" : null),
 												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 												Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

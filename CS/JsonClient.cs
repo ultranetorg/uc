@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
@@ -63,7 +64,7 @@ public class JsonClient// : RpcClient
 	public JsonClient(string address, string accesskey, int timeout = 30)
 	{
 		Http = new HttpClient();
-		Http.Timeout = timeout == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
+		Http.Timeout = Debugger.IsAttached ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
 
 		Address = address;
 		Key = accesskey;

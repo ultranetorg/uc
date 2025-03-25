@@ -6,9 +6,9 @@ namespace Uccs.Fair;
 // 	ElectModerators	= 0b_0000_0001
 // }
 
-public enum ElectionPolicy : byte
+public enum ChangePolicy : byte
 {
-	None, AnyModerator, ModeratorsMajority, ModeratorsUnanimously, AuthorsMajority
+	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
 }
 
 // public class PolicyValue
@@ -17,15 +17,16 @@ public enum ElectionPolicy : byte
 // 	public byte		Value { get; set; }
 // }
 
-public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
+public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public EntityId					Id { get; set; }
+	public string					Nickname { get; set; }
 	public string					Title { get; set; }
 	public int						ModerationReward { get; set; }
 	
-	public ElectionPolicy			ModeratorElectionPolicy { get; set; }
+	public OrderedDictionary<FairOperationClass, ChangePolicy> ChangePolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -45,7 +46,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
 
-	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	public BaseId					Key => Id;
+	public bool						Deleted { get; set; }
+	FairMcv							Mcv;
+
+	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Moderators[0] == signer; /// TODO : Owner only
 	}
@@ -60,13 +65,62 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
 	}
 
+	public Site()
+	{
+	}
+
+	public Site(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Site Clone()
+	{
+		var a = new Site(Mcv){	Id						= Id,
+									Title					= Title,
+									Nickname				= Nickname,
+									ModerationReward		= ModerationReward,
+									
+									ChangePolicies			= ChangePolicies,
+
+									Expiration				= Expiration,
+									Space					= Space,
+									Spacetime				= Spacetime,
+
+									Authors					= Authors,
+									Moderators				= Moderators,
+									Categories				= Categories,
+									Disputes				= Disputes,
+									};
+		
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
+
 	public void Read(BinaryReader reader)
 	{
 		Id						= reader.Read<EntityId>();
+		Nickname				= reader.ReadUtf8();
 		Title					= reader.ReadUtf8();
 		ModerationReward		= reader.Read7BitEncodedInt();
 		
-		ModeratorElectionPolicy	= reader.ReadEnum<ElectionPolicy>();
+		ChangePolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
 
 		Expiration				= reader.ReadInt16();
 		Space					= reader.Read7BitEncodedInt64();
@@ -83,10 +137,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
+		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
 		
-		writer.WriteEnum(ModeratorElectionPolicy);
+		writer.Write(ChangePolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);

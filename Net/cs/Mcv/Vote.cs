@@ -56,6 +56,10 @@ public class Vote : IBinarySerializable
 
 			return _Generator;
 		}
+		set
+		{
+			_Generator = value;
+		}
 	}
 
 	public byte[] Hash
@@ -114,7 +118,7 @@ public class Vote : IBinarySerializable
 		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
 	}
 
-	protected byte[] Hashify()
+	public byte[] Hashify()
 	{
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);

@@ -1,66 +1,194 @@
 ﻿namespace Uccs.Rdn;
 
-public enum DomainChange : byte
-{
-	None, Renew, Transfer, ChangePolicy
-}
-
-public class DomainUpdation : UpdateOperation
+public class DomainRenewal : RdnOperation
 {
 	public new EntityId			Id {get; set;}
-	public DomainChange			Change  {get; set;}
-	public override string		Description => $"{Id} {Change}={Value}";
+	public byte					Years  {get; set;}
+
+	public override string		Description => $"{Id} {Years}";
 	
-	public DomainUpdation()
+	public DomainRenewal()
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
-		if(!Enum.IsDefined(Change) || Change == DomainChange.None) 
-			return false;
-		
-		if(	(Change == DomainChange.Renew) && 
-			(Byte < Mcv.EntityRentYearsMin || Byte > Mcv.EntityRentYearsMax))
-			return false;
-
-		if((Change == DomainChange.ChangePolicy) && (!Enum.IsDefined((DomainChildPolicy)Value) || (DomainChildPolicy)Value == DomainChildPolicy.None))
+		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
 			return false;
 
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Id		= reader.Read<EntityId>();
-		Change	= reader.ReadEnum<DomainChange>();
-		
-		Value = Change	switch
-						{
-							DomainChange.Renew			=> reader.ReadByte(),
-							DomainChange.Transfer		=> reader.Read<EntityId>(),
-							DomainChange.ChangePolicy	=> reader.ReadEnum<DomainChildPolicy>(),
-							_							=> throw new IntegrityException()
-						};
+		Years	= reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteEnum(Change);
-
-		switch(Change)
-		{
-			case DomainChange.Renew :			writer.Write(Byte); break;;
-			case DomainChange.Transfer :		writer.Write(EntityId); break;;
-			case DomainChange.ChangePolicy :	writer.WriteEnum((DomainChildPolicy)Value); break;;
-			default								: throw new IntegrityException();
-		}
+		writer.Write(Years);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		var e = mcv.Domains.Find(Id, round.Id);
+		var e = execution.FindDomain(Id);
+		
+		if(e == null)
+		{
+			Error = NotFound;
+			return;
+		}	
+
+		if(Domain.IsRoot(e.Address))
+		{
+			if(!Domain.CanRegister(e.Address, e, execution.Time, Signer))
+			{
+				Error = NotAvailable;
+				return;
+			}
+
+			e = execution.AffectDomain(e.Address);
+
+			PayForName(e.Address, Years);
+		} 
+		else
+		{
+			if(!Domain.CanRenew(e, Signer, execution.Time))
+			{
+				Error = NotAvailable;
+				return;
+			}
+
+			e = execution.AffectDomain(e.Address);
+
+			PayForName(new string(' ', Domain.NameLengthMax), Years);
+		}
+
+		Prolong(execution, Signer, e, Time.FromYears(Years));
+	}
+}
+
+public class DomainTransfer : RdnOperation
+{
+	public new EntityId			Id {get; set;}
+	public EntityId				Owner  {get; set;}
+
+	public override string		Description => $"{Id} {Owner}";
+	
+	public DomainTransfer()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		return true;
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		Id		= reader.Read<EntityId>();
+		Owner	= reader.Read<EntityId>();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(Owner);
+	}
+
+	public override void Execute(RdnExecution execution)
+	{
+		var e = execution.FindDomain(Id);
+		
+		if(e == null)
+		{
+			Error = NotFound;
+			return;
+		}	
+
+		if(Domain.IsRoot(e.Address))
+		{
+			if(!Domain.IsOwner(e, Signer, execution.Time))
+			{
+				Error = Denied;
+				return;
+			}
+
+			if(!RequireAccount(execution, Owner, out var o))
+				return;
+
+			e = execution.AffectDomain(e.Address);
+			e.Owner = Owner;
+
+		} 
+		else
+		{
+			var p = execution.FindDomain(Domain.GetParent(e.Address));
+
+			//if(p == null)
+			//{
+			//	Error = NotFound;
+			//	return;
+			//}
+
+			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, execution.Time))
+			{
+				Error = Denied;
+				return;
+			}
+
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, execution.Time) && 
+																  !(Domain.IsOwner(p, Signer, execution.Time) && Domain.IsExpired(e, execution.Time)))
+			{
+				Error = Denied;
+				return;
+			}
+
+			if(!RequireAccount(execution, Owner, out var o))
+				return;
+
+			e = execution.AffectDomain(e.Address);
+			e.Owner	= Owner;
+		}
+	}
+}
+
+public class DomainPolicyUpdation : RdnOperation
+{
+	public new EntityId			Id { get; set; }
+	public DomainChildPolicy	Policy { get; set; }
+
+	public override string		Description => $"{Id} {Policy}";
+	
+	public DomainPolicyUpdation()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		if(!Enum.IsDefined(Policy) || Policy == DomainChildPolicy.None)
+			return false;
+
+		return true;
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		Id		= reader.Read<EntityId>();
+		Policy	= reader.Read<DomainChildPolicy>();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(Policy);
+	}
+
+	public override void Execute(RdnExecution execution)
+	{
+		var e = execution.FindDomain(Id);
 		
 		if(e == null)
 		{
@@ -68,114 +196,29 @@ public class DomainUpdation : UpdateOperation
 			return;
 		}			
 
-		if(Domain.IsRoot(e.Address))
+		if(!Domain.IsRoot(e.Address))
 		{
-			switch(Change)
+			var p = execution.FindDomain(Domain.GetParent(e.Address));
+
+			if(!Domain.IsOwner(p, Signer, execution.Time))
 			{
-				case DomainChange.Renew :
-				{	
-					if(!Domain.CanRegister(e.Address, e, round.ConsensusTime, Signer))
-					{
-						Error = NotAvailable;
-						return;
-					}
-
-					e = round.AffectDomain(e.Address);
-
-					PayForName(e.Address, Byte);
-					Prolong(round, Signer, e, Time.FromYears(Byte));
-
-					break;
-				}
-
-				case DomainChange.Transfer:
-				{
-					if(!Domain.IsOwner(e, Signer, round.ConsensusTime))
-					{
-						Error = Denied;
-						return;
-					}
-
-					if(!RequireAccount(round, EntityId, out var o))
-						return;
-
-					e = round.AffectDomain(e.Address);
-					e.Owner = EntityId;
-
-					break;
-				}
-			}
-
-		} 
-		else
-		{
-			var p = mcv.Domains.Find(Domain.GetParent(e.Address), round.Id);
-
-			if(p == null)
-			{
-				Error = NotFound;
+				Error = Denied;
 				return;
 			}
 
-			if(Change == DomainChange.Renew)
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, execution.Time))
 			{
-				if(!Domain.CanRenew(e, Signer, round.ConsensusTime))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectDomain(e.Address);
-
-				PayForName(new string(' ', Domain.NameLengthMax), Byte);
-				Prolong(round, Signer, e, Time.FromYears(Byte));
+				Error = NotAvailable;
+				return;
 			}
 
-			if(Change == DomainChange.ChangePolicy)
-			{
-				if(e == null)
-				{
-					Error = NotFound;
-					return;
-				}
-
-				if(!Domain.IsOwner(p, Signer, round.ConsensusTime))
-				{
-					Error = Denied;
-					return;
-				}
-
-				if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, round.ConsensusTime))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				e = round.AffectDomain(e.Address);
-				e.ParentPolicy = (DomainChildPolicy)Value;
-			}
-
-			if(Change == DomainChange.Transfer)
-			{
-				if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, round.ConsensusTime))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, round.ConsensusTime) && 
-																	  !(Domain.IsOwner(p, Signer, round.ConsensusTime) && Domain.IsExpired(e, round.ConsensusTime)))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				if(!RequireAccount(round, EntityId, out var o))
-					return;
-
-				e = round.AffectDomain(e.Address);
-				e.Owner	= EntityId;
-			}
+			e = execution.AffectDomain(e.Address);
+			e.ParentPolicy = Policy;
+		}
+		else
+		{
+			Error = NotAvailable;
+			return;
 		}
 	}
 }

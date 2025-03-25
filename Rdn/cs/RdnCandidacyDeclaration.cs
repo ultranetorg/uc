@@ -16,23 +16,23 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 		SeedHubRdcIPs = seedHubRdcIPs;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
-		base.ReadConfirmed(reader);
+		base.Read(reader);
 
-		SeedHubRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
+		SeedHubRdcIPs = reader.ReadArray(reader.ReadIPAddress);
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
-		base.WriteConfirmed(writer);
+		base.Write(writer);
 
-		writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+		writer.Write(SeedHubRdcIPs, writer.Write);
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution)
 	{
-		base.Execute(mcv, round);
+		base.Execute(execution);
 
 		if(Affected != null)
 		{

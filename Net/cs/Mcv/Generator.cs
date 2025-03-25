@@ -49,7 +49,11 @@ public class Generator
 
 	public virtual Generator Clone()
 	{
-		throw new NotImplementedException();
+		var g = new Generator();
+	
+		Clone(g);
+	
+		return g;
 	}
 
 	public void Clone(Generator generator)

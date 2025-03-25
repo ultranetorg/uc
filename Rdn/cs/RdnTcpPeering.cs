@@ -19,7 +19,7 @@ public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse
 
 public class RdnTcpPeering : McvTcpPeering
 {
-	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Vault vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
+	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, UosApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
 		Register(typeof(RdnPpcClass), node);
  	 
@@ -30,7 +30,7 @@ public class RdnTcpPeering : McvTcpPeering
  			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
  			{
  				Codes[i] = (byte)c;
-			var x = i.GetConstructor([]);
+				var x = i.GetConstructor([]);
  				Contructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
  			}
  		}

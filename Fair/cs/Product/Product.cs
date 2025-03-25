@@ -94,10 +94,11 @@ public class ProductField : IBinarySerializable
 	}
 }
 
-public class Product : IBinarySerializable
+public class Product : IBinarySerializable, ITableEntry
 {
 	public EntityId				Id { get; set; }
 	public EntityId				Author { get; set; }
+	public string				Nickname { get; set; }
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
@@ -110,11 +111,55 @@ public class Product : IBinarySerializable
 		return $"{Id}, [{Flags}], Fields={Fields}";
 	}
 
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+
+	public Product()
+	{
+	}
+
+	public Product(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public string GetString(ProductFieldVersionReference reference)
+	{
+		return Encoding.UTF8.GetString(Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value);
+	}
+
+	public Product Clone()
+	{
+		return new(Mcv){Id = Id,
+						Author = Author,
+						Nickname = Nickname,
+						Flags = Flags,
+						Fields = Fields,
+						Updated = Updated,
+						Publications = Publications};
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
 		writer.Write(Author);
-		writer.WriteEnum(Flags);
+		writer.WriteUtf8(Nickname);
+		writer.Write(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
 		writer.Write(Publications);
@@ -124,7 +169,8 @@ public class Product : IBinarySerializable
 	{
 		Id				= reader.Read<EntityId>();
 		Author			= reader.Read<EntityId>();
-		Flags			= reader.ReadEnum<ProductFlags>();
+		Nickname		= reader.ReadUtf8();
+		Flags			= reader.Read<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
 		Publications	= reader.ReadArray<EntityId>();

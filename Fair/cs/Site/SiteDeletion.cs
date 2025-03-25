@@ -4,46 +4,46 @@ public class SiteDeletion : FairOperation
 {
 	public EntityId				Site { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 
 	public SiteDeletion()
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Site = reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(RequireSiteAccess(round, Site, out var s) == false)
+		if(RequireSiteModeratorAccess(execution, Site, out var s) == false)
 			return;
 
-		s = round.AffectSite(Site);
+		s = execution.AffectSite(Site);
 		s.Deleted = true;
 		
 		foreach(var i in s.Categories)
 		{
-			var c = round.AffectCategory(i);
+			var c = execution.AffectCategory(i);
 			c.Deleted = true;
 
 			foreach(var j in c.Publications)
 			{
-				var p = round.AffectPublication(j);
+				var p = execution.AffectPublication(j);
 				p.Deleted = true;
 			}
 		}
 
 		foreach(var i in s.Moderators)
 		{
-			var a = round.AffectAccount(i);
+			var a = execution.AffectAccount(i);
 			a.Sites = a.Sites.Where(i => i != Site).ToArray();
 		}
 		

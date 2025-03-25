@@ -7,11 +7,12 @@ public enum AuthorFlag : byte
 	None, 
 }
 
-public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
+public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public EntityId				Id { get; set; }
+	public string				Nickname { get; set; }
 	public string				Title { get; set; }
 	public EntityId[]			Owners { get; set; }
 
@@ -28,6 +29,67 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public long					BandwidthToday { get; set; }
 	public short				BandwidthTodayTime { get; set; }
 	public long					BandwidthTodayAvailable { get; set; }
+	
+	public EntityId[]			Products { get; set; }
+	public EntityId[]			Sites { get; set; }
+
+	public BaseId				Key => Id;
+	Mcv							Mcv;
+	public bool					Deleted { get; set; }
+
+	public Author()
+	{
+	}
+
+	public Author(Mcv chain)
+	{
+		Mcv = chain;
+	}
+
+	public override string ToString()
+	{
+		return $"{Id}, Owners={Owners}, Expiration={Expiration}";
+	}
+
+	public Author Clone()
+	{
+		var a = new Author(Mcv){Id					= Id,
+								Nickname			= Nickname,
+								Title				= Title,
+								Owners				= Owners,
+
+								Expiration			= Expiration,
+								Space				= Space,
+								Spacetime			= Spacetime,
+								ModerationReward	= ModerationReward,
+
+								Products			= Products,
+								Sites				= Sites};
+
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+		
+		writer.Write(Products);
+		writer.Write(Sites);
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+		
+		Products = reader.ReadArray<EntityId>();
+		Sites = reader.ReadArray<EntityId>();
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public static bool Valid(string name)
 	{
@@ -37,7 +99,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return true;
 	}
 
-	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Owners.Contains(signer); /// TODO : Owner only
 	}
@@ -61,6 +123,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
+		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
@@ -75,6 +138,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Read(BinaryReader reader)
 	{
 		Id					= reader.Read<EntityId>();
+		Nickname			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
 		Owners				= reader.ReadArray<EntityId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();

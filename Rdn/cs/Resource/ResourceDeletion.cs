@@ -4,26 +4,26 @@ public class ResourceDeletion : RdnOperation
 {
 	public EntityId				Resource { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 
 	public ResourceDeletion()
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Resource = reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Resource);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(round, Resource, out var d, out var r) == false)
+		if(RequireSignerResource(execution, Resource, out var d, out var r) == false)
 			return;
 
 		if(r.Flags.HasFlag(ResourceFlags.Sealed))
@@ -32,26 +32,26 @@ public class ResourceDeletion : RdnOperation
 			return;
 		}
 
-		d = round.AffectDomain(d.Id);
-		round.AffectResource(Resource).Deleted = true;
+		d = execution.AffectDomain(d.Id);
+		execution.AffectResource(Resource).Deleted = true;
 
-		Free(round, Signer, d, mcv.Net.EntityLength + r.Length);
+		Free(execution, Signer, d, execution.Net.EntityLength + r.Length);
 
 		foreach(var i in r.Outbounds)
 		{
-			var dr = mcv.Resources.Find(i.Destination, round.Id);
+			var dr = execution.FindResource(i.Destination);
 
-			dr = round.AffectResource(d, dr.Address.Resource);
+			dr = execution.AffectResource(d, dr.Address.Resource);
 			dr.RemoveInbound(r.Id);
 
-			Free(round, Signer, d, mcv.Net.EntityLength);
+			Free(execution, Signer, d, execution.Net.EntityLength);
 		}
 
 		foreach(var i in r.Inbounds ?? [])
 		{
-			var sr = mcv.Resources.Find(i, round.Id);
+			var sr = execution.FindResource(i);
 
-			sr = round.AffectResource(d, sr.Address.Resource);
+			sr = execution.AffectResource(d, sr.Address.Resource);
 			sr.RemoveOutbound(r.Id);
 		}
 	}

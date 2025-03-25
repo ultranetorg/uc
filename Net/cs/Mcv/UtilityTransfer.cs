@@ -2,17 +2,17 @@
 
 public class UtilityTransfer : Operation
 {
-	public EntityId			To;
-	public byte				ToTable;
-	public EntityId			From;
-	public byte				FromTable;
-	public long				Spacetime;
-	public long				Energy;
-	public long				EnergyNext;
+	public EntityId			To { get; set; }
+	public byte				ToTable { get; set; }
+	public EntityId			From { get; set; }
+	public byte				FromTable { get; set; }
+	public long				Spacetime { get; set; }
+	public long				Energy { get; set; }
+	public long				EnergyNext { get; set; }
 	public override string	Description => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
 																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
 																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
-	public override bool	IsValid(Mcv mcv) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0;
+	public override bool	IsValid(McvNet net) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0 && ToTable < net.TablesCount && FromTable < net.TablesCount;
 
 	public UtilityTransfer()
 	{
@@ -33,7 +33,7 @@ public class UtilityTransfer : Operation
 		Spacetime			= spacetime;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		FromTable				= reader.ReadByte();
 		From					= reader.Read<EntityId>();
@@ -45,7 +45,7 @@ public class UtilityTransfer : Operation
 		Spacetime				= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(FromTable);
 		writer.Write(From);
@@ -57,15 +57,15 @@ public class UtilityTransfer : Operation
 		writer.Write7BitEncodedInt64(Spacetime);
 	}
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution)
 	{
-		if(To == EntityId.LastCreated && round.LastCreatedId == null)
+		if(To == EntityId.LastCreated && execution.LastCreatedId == null)
 		{
 			Error = NothingLastCreated;
 			return;
 		}
 
-		var to = round.Affect(ToTable, To == EntityId.LastCreated ? round.LastCreatedId : To);
+		var to = execution.Affect(ToTable, To == EntityId.LastCreated ? execution.LastCreatedId : To);
 
 		if(to == null)
 		{
@@ -75,9 +75,9 @@ public class UtilityTransfer : Operation
 
 		IHolder h = null;
 
-		if(Signer.Address != mcv.Net.God)
+		if(Signer.Address != execution.Net.God)
 		{
-			h = round.Affect(FromTable, From) as IHolder;
+			h = execution.Affect(FromTable, From) as IHolder;
 
 			if(h == null)
 			{
@@ -85,7 +85,7 @@ public class UtilityTransfer : Operation
 				return;
 			}
 
-			if(!h.IsSpendingAuthorized(round, Signer.Id))
+			if(!h.IsSpendingAuthorized(execution, Signer.Id))
 			{
 				Error = Denied;
 				return;
@@ -104,7 +104,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(Signer.Address != mcv.Net.God)
+				if(Signer.Address != execution.Net.God)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;
@@ -128,7 +128,7 @@ public class UtilityTransfer : Operation
 				
 		if(Spacetime > 0)
 		{	
-			if(Signer.Address != mcv.Net.God)
+			if(Signer.Address != execution.Net.God)
 			{
 				var s = h as ISpacetimeHolder;
 

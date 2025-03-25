@@ -1,48 +1,25 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
-public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, IComparable<BaseId>
-{
-	public int				B { get; set; }
-
-	public abstract int		CompareTo(BaseId other);
-	public abstract bool	Equals(BaseId other);
-	public abstract void	Read(BinaryReader reader);
-	public abstract void	Write(BinaryWriter writer);
-
- 	public static bool operator == (BaseId left, BaseId right)
- 	{
- 		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
- 	}
- 
- 	public static bool operator != (BaseId left, BaseId right)
- 	{
- 		return !(left == right);
- 	}
-
-	public override int GetHashCode()
-	{
-		return B.GetHashCode();
-	}
-
-	public override abstract bool Equals(object obj);
-}
+namespace Uccs.Net;
 
 public class EntityId : BaseId
 {
-	public int		E { get; set; }
+	public override int					B { get; set; }
+	public int							E { get; set; }
 
-	public static readonly EntityId LastCreated = new EntityId {E = -1};
-	public static readonly EntityId God = new EntityId {E = -2};
-	public static readonly EntityId Father0 = new EntityId {B = 0, E = 0};
+	public static readonly EntityId		LastCreated = new EntityId {E = -1};
+	public static readonly EntityId		God = new EntityId {E = -2};
+	public static readonly EntityId		Father0 = new EntityId(0, 0);
 
 	public EntityId()
 	{
 	}
 
-	public EntityId(int ci, int ei)
+	public EntityId(int b , int e)
 	{
-		B = ci;
-		E = ei;
+		B = b;
+		E = e;
 	}
 
 	public override string ToString()
@@ -135,5 +112,18 @@ public class EntityId : BaseId
 	public static bool operator != (EntityId left, EntityId right)
 	{
 		return !(left == right);
+	}
+}
+
+public class EntityIdJsonConverter : JsonConverter<EntityId>
+{
+	public override EntityId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return EntityId.Parse(reader.GetString());
+	}
+
+	public override void Write(Utf8JsonWriter writer, EntityId value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.ToString());
 	}
 }

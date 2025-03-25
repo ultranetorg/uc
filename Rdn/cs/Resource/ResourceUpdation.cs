@@ -6,7 +6,7 @@ public class ResourceUpdation : RdnOperation
 	public ResourceChanges		Changes	{ get; set; }
 	public ResourceData			Data { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
+	public override bool		IsValid(McvNet net) => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
 													(!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
 	public override string		Description => $"{Resource}, [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
@@ -39,7 +39,7 @@ public class ResourceUpdation : RdnOperation
 		Changes |= ResourceChanges.Recursive;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Resource	= reader.Read<EntityId>();
 		Changes		= (ResourceChanges)reader.ReadByte();
@@ -47,7 +47,7 @@ public class ResourceUpdation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Resource);
 		writer.Write((byte)Changes);
@@ -55,22 +55,22 @@ public class ResourceUpdation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		var rs = new HashSet<int>();
 
-		if(RequireSignerResource(round, Resource, out var d, out var x) == false)
+		if(RequireSignerResource(execution, Resource, out var d, out var x) == false)
 			return;
 
-		d = round.AffectDomain(d.Id);
+		d = execution.AffectDomain(d.Id);
 		
-		EnergyConsumed -= round.ConsensusECEnergyCost; /// the first is alredy paid
+		EnergyConsumed -= execution.Round.ConsensusECEnergyCost; /// the first is alredy paid
 
 		void execute(Ura resource)
 		{
-			EnergyConsumed += round.ConsensusECEnergyCost;
+			EnergyConsumed += execution.Round.ConsensusECEnergyCost;
 
-			var r = round.AffectResource(d, resource.Resource);
+			var r = execution.AffectResource(d, resource.Resource);
 
 			if(rs.Contains(r.Id.E))
 				return;
@@ -87,14 +87,14 @@ public class ResourceUpdation : RdnOperation
 
 				if(r.Flags.HasFlag(ResourceFlags.Data))
 				{
-					Free(round, Signer, d, r.Data.Value.Length);
+					Free(execution, Signer, d, r.Data.Value.Length);
 				}
 
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
-				r.Updated	= round.ConsensusTime;
+				r.Updated	= execution.Time;
 
-				Allocate(round, Signer, d, r.Data.Value.Length);
+				Allocate(execution, Signer, d, r.Data.Value.Length);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
@@ -110,7 +110,7 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
-				Free(round, Signer, d, r.Data.Value.Length);
+				Free(execution, Signer, d, r.Data.Value.Length);
 
 				r.Flags	&= ~ResourceFlags.Data;
 				r.Data = null;
@@ -126,7 +126,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForForever(mcv.Net.EntityLength + r.Length);
+				PayForForever(execution.Net.EntityLength + r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))
@@ -137,7 +137,7 @@ public class ResourceUpdation : RdnOperation
 					{
 						if(i == d.Id)
 						{
-							var l = mcv.Resources.Find(i, round.Id);
+							var l = execution.FindResource(i);
 
 							execute(l.Address);
 						}

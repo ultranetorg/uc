@@ -3,7 +3,7 @@
 public class SiteModel : SiteBaseModel
 {
 	public int ModerationReward { get; set; }
-	public ElectionPolicy ModerationPermissions { get; set; }
+	public OrderedDictionary<FairOperationClass, ChangePolicy> ChangePolicies { get; set; }
 
 	public short Expiration { get; set; }
 	public long Space { get; set; }
@@ -29,7 +29,7 @@ public class SiteModel : SiteBaseModel
 	public SiteModel(Site site) : base(site)
 	{
 		ModerationReward = site.ModerationReward;
-		ModerationPermissions = site.ModeratorElectionPolicy;
+		ChangePolicies = site.ChangePolicies;
 		Expiration = site.Expiration;
 		Space = site.Space;
 		Spacetime = site.Spacetime;

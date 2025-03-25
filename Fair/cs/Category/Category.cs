@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace Uccs.Fair;
 
-public class Category : IBinarySerializable
+public class Category : IBinarySerializable, ITableEntry
 {
 	public EntityId			Id { get; set; }
 	public EntityId			Site { get; set; }
@@ -11,12 +11,42 @@ public class Category : IBinarySerializable
 	public EntityId[]		Categories { get; set; }
 	public EntityId[]		Publications { get; set; }
 
-	//[Flags]
-	//enum Field
-	//{
-	//	None,
-	//	Security	= 1
-	//}
+	public BaseId			Key => Id;
+	public bool				Deleted { get; set; }
+	FairMcv					Mcv;
+
+	public Category()
+	{
+	}
+
+	public Category(FairMcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public Category Clone()
+	{
+		return new(Mcv){Id			 = Id,
+						Site		 = Site,
+						Parent		 = Parent,
+						Title		 = Title,
+						Categories	 = Categories,
+						Publications = Publications};
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public void Read(BinaryReader reader)
 	{

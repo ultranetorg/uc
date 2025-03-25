@@ -29,7 +29,7 @@ public enum NtnStatus
 	BlockSent
 }
 
-public class Domain : IBinarySerializable, ISpaceConsumer
+public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 {
 	//public const int				ExclusiveLengthMax = 12;
 	public const int				NameLengthMin = 1;
@@ -62,11 +62,61 @@ public class Domain : IBinarySerializable, ISpaceConsumer
 	public NtnState					NtnChildNet { get; set; }
 	public byte[]					NtnSelfHash { get; set; }
 
+	public BaseId					Key => Id;
+	public bool						Deleted { get; set; }
+	Mcv								Mcv;
+
 	public static bool				IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
 	public static bool				IsRoot(string name) => !name.Contains('.'); 
 	public static bool				IsChild(string name) => name.Contains('.'); 
 	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
 	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
+
+	public Domain()
+	{
+	}
+
+	public Domain(Mcv chain)
+	{
+		Mcv = chain;
+	}
+
+	public override string ToString()
+	{
+		return $"{Address}, {Id}, Owner={Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+	}
+
+	public Domain Clone()
+	{
+		return new Domain(Mcv){	Id = Id,
+								Address = Address,
+								Owner = Owner,
+								Expiration = Expiration,
+								FirstBidTime = FirstBidTime,
+								LastWinner = LastWinner,
+								LastBid = LastBid,
+								LastBidTime = LastBidTime,
+								ComOwner = ComOwner,
+								OrgOwner = OrgOwner,
+								NetOwner = NetOwner,
+								Space = Space,
+								NtnChildNet = NtnChildNet,
+								NtnSelfHash = NtnSelfHash};
+	}
+
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 
 	public static bool Valid(string name)
 	{

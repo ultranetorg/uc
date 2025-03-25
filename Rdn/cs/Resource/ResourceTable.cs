@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace Uccs.Rdn;
 
-namespace Uccs.Rdn;
-
-public class ResourceTable : Table<ResourceEntry>
+public class ResourceTable : Table<Resource>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 	public new RdnMcv				Mcv => base.Mcv as RdnMcv;
@@ -11,21 +9,14 @@ public class ResourceTable : Table<ResourceEntry>
 	{
 	}
 	
-	public override ResourceEntry Create()
+	public override Resource Create()
 	{
-		return new ResourceEntry(Mcv);
+		return new Resource(Mcv);
 	}
 
-	public ResourceEntry Find(EntityId id, int ridmax)
+	public override Resource Find(EntityId id, int ridmax)
 	{
-if(!Monitor.IsEntered(Mcv.Lock))
-	Debugger.Break();
-
-  		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedResources.TryGetValue(id, out var r))
-   				return r;
-
-		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
+		var e = base.Find(id, ridmax);
 
 		if(e == null)
 			return null;
@@ -35,11 +26,8 @@ if(!Monitor.IsEntered(Mcv.Lock))
 		return e;
 	}
 	
-	public ResourceEntry Find(Ura address, int ridmax)
+	public Resource Find(Ura address, int ridmax)
 	{
-if(!Monitor.IsEntered(Mcv.Lock))
-	Debugger.Break();
- 
         var d = Mcv.Domains.Find(address.Domain, ridmax);
 
         if(d == null)
@@ -50,7 +38,7 @@ if(!Monitor.IsEntered(Mcv.Lock))
  			var x = r.AffectedResources.Values.FirstOrDefault(i => i.Address == address);
  					
  			if(x != null)
-  				return x;
+  				return x.Deleted ? null : x;
  		}
 
   		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Address == address);

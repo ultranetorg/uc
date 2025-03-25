@@ -6,35 +6,35 @@ public class PublicationCreation : FairOperation
 	public EntityId					Category { get; set; }
 	//public ProductFieldVersionId[]	Fields { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => Product != null && Category != null;
+	public override bool		IsValid(McvNet net) => Product != null && Category != null;
 	public override string		Description => $"Product={Product} Category={Category}";
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Product = reader.Read<EntityId>();
 		Category= reader.Read<EntityId>();
 		//Fields	= reader.ReadArray<ProductFieldVersionId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
 		writer.Write(Category);
 		//writer.Write(Fields);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireProduct(round, Product, out var a, out var pr))
+		if(!RequireProduct(execution, Product, out var a, out var pr))
 			return;
 
-		if(!RequireCategory(round, Category, out var c))
+		if(!RequireCategory(execution, Category, out var c))
 			return;
 					
-		var p = round.CreatePublication(mcv.Sites.Find(c.Site, round.Id));
+		var p = execution.CreatePublication(execution.FindSite(c.Site));
 		
-		a = round.AffectAuthor(a.Id);
-		var s = round.AffectSite(c.Site);
+		a = execution.AffectAuthor(a.Id);
+		var s = execution.AffectSite(c.Site);
 
 		if(!a.Sites.Contains(c.Site))
 			a.Sites = [..a.Sites, c.Site];
@@ -42,22 +42,22 @@ public class PublicationCreation : FairOperation
 		if(!s.Authors.Contains(a.Id))
 			s.Authors = [..s.Authors, a.Id];
 
-		if(CanAccessAuthor(round, a.Id))
+		if(CanAccessAuthor(execution, a.Id))
 		{ 
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedByAuthor;
 						
-			Allocate(round, a, a, mcv.Net.EntityLength);
+			Allocate(execution, a, a, execution.Net.EntityLength);
 
 			EnergySpenders.Add(a);
 			SpacetimeSpenders.Add(a);
 		}
-		else if(CanAccessSite(round, c.Site))
+		else if(CanAccessSite(execution, c.Site))
 		{	
 			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedBySite;
 
-			Allocate(round, s, s, mcv.Net.EntityLength);
+			Allocate(execution, s, s, execution.Net.EntityLength);
 
 			EnergySpenders.Add(s);
 			SpacetimeSpenders.Add(s);
@@ -72,10 +72,10 @@ public class PublicationCreation : FairOperation
 		p.Category	= Category;
 		p.Creator	= Signer.Id;
 
-		var r = round.AffectProduct(Product);
+		var r = execution.AffectProduct(Product);
 		r.Publications = [..r.Publications, p.Id];
 
-		c = round.AffectCategory(c.Id);
+		c = execution.AffectCategory(c.Id);
 		c.Publications = [..c.Publications, p.Id];
 	}
 }

@@ -55,17 +55,12 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new CategoryUpdation();
-
-								o.Category = FirstEntityId;
-
 								if(One("parent")?.Value is string id)
 								{	
-									o.Change = CategoryChange.Move;
-									o.Value = EntityId.Parse(id); 
+									return new CategoryMovement {Category = FirstEntityId, Parent = EntityId.Parse(id)};
 								}
 
-								return o;
+								throw new SynchronizationException("Wrong arguments");
 							};
 		return a;
 	}

@@ -2,11 +2,11 @@
 
 public class DomainMigration : RdnOperation
 {
-	public string			Name;
-	public string			Tld;
-	public bool				RankCheck;
+	public string			Name  { get; set; }
+	public string			Tld  { get; set; }
+	public bool				RankCheck  { get; set; }
+
 	public override string	Description => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
-	
 	public bool				DnsApproved;
 	public bool				RankApproved;
 	public EntityId			Generator;
@@ -22,7 +22,7 @@ public class DomainMigration : RdnOperation
 		RankCheck = checkrank;
 	}
 
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{
 		if(!Domain.Valid(Name))
 			return false;
@@ -36,14 +36,14 @@ public class DomainMigration : RdnOperation
 		return true;
 	} 
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Name		= reader.ReadUtf8();
 		Tld			= reader.ReadUtf8();
 		RankCheck	= reader.ReadBoolean();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Tld);
@@ -73,9 +73,9 @@ public class DomainMigration : RdnOperation
 		Generator			= reader.Read<EntityId>();
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		var a = mcv.Domains.Find(Name, round.Id);
+		var a = execution.FindDomain(Name);
 
 		if(a?.Owner != null)
 		{
@@ -85,13 +85,14 @@ public class DomainMigration : RdnOperation
 
 		if(RankCheck)
 		{
-			Signer.Energy -= (mcv.Net as Rdn).DomainRankCheckECFee;
+			Signer.Energy -= execution.Net.DomainRankCheckECFee;
 		}
 	}
 
-	public void ConfirmedExecute(RdnRound round)
+	public void ConfirmedExecute(Execution execution)
 	{
-		var a = round.AffectDomain(Name);
+		var e = execution as RdnExecution;
+		var a = e.AffectDomain(Name);
 
 		switch(Tld)
 		{

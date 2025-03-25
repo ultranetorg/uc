@@ -95,7 +95,7 @@ public static class Extentions
 		w.Write(a.ToByteArray());
 	}
 
-	public static void WriteEnum<E>(this BinaryWriter writer, E a) where E : struct, System.Enum
+	public static void Write<E>(this BinaryWriter writer, E a) where E : unmanaged, System.Enum
 	{
 		var t = Enum.GetUnderlyingType(typeof(E));
 
@@ -106,7 +106,7 @@ public static class Extentions
 		writer.Write((ulong)(object)a);
 	}
 
-	public static E ReadEnum<E>(this BinaryReader reader) where E : struct, System.Enum
+	public static E Read<E>(this BinaryReader reader, E _ignore = default) where E : unmanaged, System.Enum
 	{
 		var t = Enum.GetUnderlyingType(typeof(E));
 

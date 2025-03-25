@@ -33,7 +33,7 @@ public class Uos : Cli
 	public static string		ExeDirectory;
 	public UosSettings			Settings;
 	public List<NodeInstance>	Nodes = [];
-	public UosApiServer			ApiServer;
+	internal UosApiServer		ApiServer;
 	public IClock				Clock;
 	public Delegate				Stopped;
 	public Vault				Vault;
@@ -163,7 +163,7 @@ public class Uos : Cli
 		{
 			var f = Flow.CreateNested(net, new Log());
 
-			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, Vault, clock, f);
+			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, new UosApiClient(ApiHttpClient, Settings.Api.ListenAddress, Settings.Api.AccessKey), clock, f);
 
 			Nodes.Add(new NodeInstance {Net = net,
 										Api = n.Settings.Api,
@@ -181,14 +181,14 @@ public class Uos : Cli
 			var a = Assembly.LoadFrom(p);
 
 			var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
-					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(Vault), typeof(IClock), typeof(Flow)]);
+					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(UosApiClient), typeof(IClock), typeof(Flow)]);
 
 			if(c != null)
 			//if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
 			{
 				var f = Flow.CreateNested(net, new Log());
 	
-				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, Vault, clock, f]) as McvNode;
+				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, new UosApiClient(ApiHttpClient, Settings.Api.ListenAddress, Settings.Api.AccessKey), clock, f]) as McvNode;
 				//var n = new FairNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
 	
 				Nodes.Add(new NodeInstance {Net = net,

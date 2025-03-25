@@ -138,7 +138,7 @@ public class ParentPackage
 	//}
 }
 
-public class Execution// : IBinarySerializable
+public class Start// : IBinarySerializable
 {
 	public string				Path { get; set; }
 	public string				Arguments { get; set; }
@@ -161,9 +161,9 @@ public class Execution// : IBinarySerializable
 	//	writer.WriteUtf8(Arguments);
 	//}
 
-	public static Execution FromXon(Xon x)
+	public static Start FromXon(Xon x)
 	{
-		var m = new Execution ();
+		var m = new Start ();
 		m.Path		= x.Get<string>("Path", null);
 		m.Arguments	= x.Get<string>("Arguments", null);
 		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : new PlatformExpression();
@@ -193,9 +193,9 @@ public class VersionManifest
 	public byte[]					IncrementalHash { get; set; }
 	public ParentPackage[]			Parents { get; set; }
 	public Ura[]					History { get; set; }
-	public Execution[]				Executions { get; set; }
+	public Start[]					Starts { get; set; }
 
-	public Execution				MatchExecution(Platform platform) => Executions.FirstOrDefault(i => i.Condition.Match(platform)); 
+	public Start					MatchExecution(Platform platform) => Starts.FirstOrDefault(i => i.Condition.Match(platform)); 
 
 	[JsonIgnore]
 	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
@@ -240,7 +240,7 @@ public class VersionManifest
 		m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
 		m.Parents				= xon.One("Incremental/Parents")?.Nodes.Select(ParentPackage.FromXon).ToArray();
 		m.History				= xon.One("History")?.Nodes.Select(i => Ura.Parse(i.Name)).ToArray();
-		m.Executions			= xon.Many("Execution").Select(Execution.FromXon).ToArray();
+		m.Starts				= xon.Many("Execution").Select(Start.FromXon).ToArray();
 
 		return m;
 	}
@@ -267,12 +267,12 @@ public class VersionManifest
 		if(History != null && History.Any())
 			x.Add("History").Nodes.AddRange(History.Select(i => new Xon(serializator, i.ToString())));
 
-		if(Executions != null && Executions.Any())
-			x.Nodes.AddRange(Executions.Select(i => {
-														var e = i.ToXon(serializator);
-														e.Name = "Execution";
-														return e;
-													}));
+		if(Starts != null && Starts.Any())
+			x.Nodes.AddRange(Starts.Select(i => {
+													var e = i.ToXon(serializator);
+													e.Name = "Execution";
+													return e;
+												}));
 
 		return x;
 	}

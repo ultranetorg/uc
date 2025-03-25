@@ -1,45 +1,57 @@
 ﻿
 namespace Uccs.Fair;
 
-public enum FairOperationClass
+public enum FairOperationClass : uint
 {
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
-
-	Author							= 100, 
-		AuthorCreation				= 100_000_001, 
-		AuthorUpdation				= 100_000_002,
 	
-	Product							= 101, 
-		ProductCreation				= 101_000_001, 
-		ProductUpdation				= 101_000_002, 
-		ProductDeletion				= 101_000_003,
+	NicknameChange					= 100_000_000,
+
+	Author							= 101, 
+		AuthorCreation				= 101_000_001, 
+		AuthorRenewal				= 101_000_002,
+		AuthorModerationReward		= 101_000_003,
+		AuthorOwnerAddition			= 101_000_004,
+		AuthorOwnerRemoval			= 101_000_005,
 	
-	Site							= 102,
-		SiteCreation				= 102_000_001, 
-		SiteUpdation				= 102_000_002,
-		SiteDeletion				= 102_000_999,
+	Product							= 102, 
+		ProductCreation				= 102_000_001, 
+		ProductUpdation				= 102_000_002, 
+		ProductDeletion				= 102_000_999,
 	
-	Store							= 103,
-		ModeratorAddition			= 103_000_001,
+	Site							= 103,
+		SiteCreation				= 103_000_001, 
+		SiteRewal					= 103_000_002,
+		SitePolicyChange			= 103_000_003,
+		SiteAuthorsChange			= 103_000_004,
+		SiteModeratorsChange		= 103_000_005,
+		SiteDeletion				= 103_000_999,
+	
+	Store							= 104,
+		ModeratorAddition			= 104_000_001,
 
-		Category					= 103_001,
-			CategoryCreation		= 103_001_001,
-			CategoryUpdation		= 103_001_002,
-			CategoryDeletion		= 103_001_003,
+		Category					= 104_001,
+			CategoryCreation		= 104_001_001,
+			CategoryMovement		= 104_001_002,
+			CategoryDeletion		= 104_001_999,
 
-		Publication					= 103_002,
-			PublicationCreation		= 103_002_001,
-			PublicationUpdation		= 103_002_002,
-			PublicationDeletion		= 103_002_003,
+		Publication						= 104_002,
+			PublicationCreation			= 104_002_001,
+			PublicationStatusChange		= 104_002_002,
+			PublicationProductChange	= 104_002_003,
+			PublicationUpdateModeration	= 104_002_004,
+			PublicationDeletion			= 104_002_999,
 
-		Review						= 103_003,
-			ReviewCreation			= 103_003_001,
-			ReviewUpdation			= 103_003_002,
-			ReviewDeletion			= 103_003_003,
+		Review						= 104_003,
+			ReviewCreation			= 104_003_001,
+			ReviewStatusChange		= 104_003_002,
+			ReviewTextUpdation		= 104_003_003,
+			ReviewTextModeration	= 104_003_004,
+			ReviewDeletion			= 104_003_999,
 
-		Dispute						= 103_004,
-			DisputeCreation			= 103_004_001,
-			DisputeVoting			= 103_004_002,
+		Dispute						= 104_004,
+			DisputeCreation			= 104_004_001,
+			DisputeVoting			= 104_004_002,
 		
 } 
 
@@ -47,28 +59,29 @@ public abstract class FairOperation : Operation
 {
 	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
 	public const string				InvalidProposal = "Invalid proposal";
+	public const string				Ended = "Ended";
 
-	public new FairAccountEntry		Signer => base.Signer as FairAccountEntry;
+	public new FairAccount		Signer => base.Signer as FairAccount;
 
-	public abstract void Execute(FairMcv mcv, FairRound round);
+	public abstract void Execute(FairExecution execution, bool voted);
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution)
 	{
-		Execute(mcv as FairMcv, round as FairRound);
+		Execute(execution as FairExecution, false);
 	}
 
-	public bool RequireAccount(Round round, EntityId id, out FairAccountEntry account)
+	public bool RequireAccount(FairExecution round, EntityId id, out FairAccount account)
 	{
 		var r = base.RequireAccount(round, id, out var a);
 		
-		account = a as FairAccountEntry;
+		account = a as FairAccount;
 
 		return r;
 	}
 
-	public bool RequireAuthor(FairRound round, EntityId id, out AuthorEntry author)
+	public bool RequireAuthor(FairExecution round, EntityId id, out Author author)
 	{
-		author = round.Mcv.Authors.Find(id, round.Id);
+		author = round.FindAuthor(id);
 
 		if(author == null || author.Deleted)
 		{
@@ -76,7 +89,7 @@ public abstract class FairOperation : Operation
 			return false;
 		}
 
-		if(Author.IsExpired(author, round.ConsensusTime))
+		if(Author.IsExpired(author, round.Time))
 		{
 			Error = Expired;
 			return false;
@@ -85,10 +98,10 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool RequireProduct(FairRound round, EntityId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireProduct(FairExecution round, EntityId id, out Author author, out Product product)
 	{
 		author = null;
-		product = round.Mcv.Products.Find(id, round.Id);
+		product = round.FindProduct(id);
 		
 		if(product == null || product.Deleted)
 		{
@@ -102,16 +115,16 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool CanAccessAuthor(FairRound round, EntityId id)
+	public bool CanAccessAuthor(FairExecution round, EntityId id)
 	{
 		var r = RequireAuthorAccess(round, id, out var _);
 		Error = null;
 		return r;
 	}
 
-	public bool RequireAuthorAccess(FairRound round, EntityId id, out AuthorEntry author)
+	public bool RequireAuthorAccess(FairExecution round, EntityId id, out Author author)
 	{
-		author = round.Mcv.Authors.Find(id, round.Id);
+		author = round.FindAuthor(id);
 
 		if(author == null || author.Deleted)
 		{
@@ -119,7 +132,7 @@ public abstract class FairOperation : Operation
 			return false;
 		}
 
-		if(Author.IsExpired(author, round.ConsensusTime))
+		if(Author.IsExpired(author, round.Time))
 		{
 			Error = Expired;
 			return false;
@@ -134,7 +147,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool RequireProductAccess(FairRound round, EntityId id, out AuthorEntry author, out ProductEntry product)
+	public bool RequireProductAccess(FairExecution round, EntityId id, out Author author, out Product product)
 	{
 		if(!RequireProduct(round, id, out  author, out product))
 			return false; 
@@ -145,16 +158,16 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool CanAccessSite(FairRound round, EntityId id)
+	public bool CanAccessSite(FairExecution round, EntityId id)
 	{
-		var r = RequireSiteAccess(round, id, out var _);
+		var r = RequireSiteModeratorAccess(round, id, out var _);
 		Error = null;
 		return r;
 	}
 
-	public bool RequireSite(FairRound round, EntityId id, out SiteEntry site)
+	public bool RequireSite(FairExecution round, EntityId id, out Site site)
 	{
-		site = round.Mcv.Sites.Find(id, round.Id);
+		site = round.FindSite(id);
 		
 		if(site == null || site.Deleted)
 		{
@@ -165,7 +178,7 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireSiteAccess(FairRound round, EntityId id, out SiteEntry site)
+	public bool RequireSiteModeratorAccess(FairExecution round, EntityId id, out Site site)
 	{
  		if(!RequireSite(round, id, out site))
  			return false; 
@@ -179,9 +192,20 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool RequireCategory(FairRound round, EntityId id, out CategoryEntry category)
+	public bool RequireModeratorAccess(Site site)
 	{
-		category = round.Mcv.Categories.Find(id, round.Id);
+		if(!site.Moderators.Contains(Signer.Id))
+		{
+			Error = Denied;
+			return false; 
+		}
+
+		return true; 
+	}
+
+	public bool RequireCategory(FairExecution round, EntityId id, out Category category)
+	{
+		category = round.FindCategory(id);
 		
 		if(category == null || category.Deleted)
 		{
@@ -192,20 +216,20 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireCategoryAccess(FairRound round, EntityId id, out CategoryEntry category)
+ 	public bool RequireCategoryAccess(FairExecution round, EntityId id, out Category category)
  	{
  		if(!RequireCategory(round, id, out category))
  			return false; 
  
- 		if(!RequireSiteAccess(round, category.Site, out var s))
+ 		if(!RequireSiteModeratorAccess(round, category.Site, out var s))
  			return false;
  
  		return true;
  	}
 
-	public bool RequirePublication(FairRound round, EntityId id, out PublicationEntry publication)
+	public bool RequirePublication(FairExecution round, EntityId id, out Publication publication)
 	{
-		publication = round.Mcv.Publications.Find(id, round.Id);
+		publication = round.FindPublication(id);
 		
 		if(publication == null || publication.Deleted)
 		{
@@ -216,20 +240,22 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequirePublicationAccess(FairRound round, EntityId id, AccountEntry signer, out PublicationEntry publication)
+ 	public bool RequirePublicationModeratorAccess(FairExecution round, EntityId id, Account signer, out Publication publication, out Site site)
  	{
+		site = null;
+
  		if(!RequirePublication(round, id, out publication))
  			return false; 
  
- 		if(!RequireSiteAccess(round, round.Mcv.Categories.Find(publication.Category, round.Id).Site, out var s))
+ 		if(!RequireSiteModeratorAccess(round, round.FindCategory(publication.Category).Site, out site))
  			return false;
  
  		return true;
  	}
 
-	public bool RequireReview(FairRound round, EntityId id, out ReviewEntry review)
+	public bool RequireReview(FairExecution round, EntityId id, out Review review)
 	{
-		review = round.Mcv.Reviews.Find(id, round.Id);
+		review = round.FindReview(id);
 		
 		if(review == null || review.Deleted)
 		{
@@ -240,7 +266,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireReviewAccess(FairRound round, EntityId id, AccountEntry signer, out ReviewEntry review)
+ 	public bool RequireReviewOwnerAccess(FairExecution round, EntityId id, Account signer, out Review review)
  	{
  		if(!RequireReview(round, id, out review))
  			return false; 
@@ -254,9 +280,22 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
-	public bool RequireDispute(FairRound round, EntityId id, out DisputeEntry review)
+ 	public bool RequireReviewModertorAccess(FairExecution round, EntityId id, Account signer, out Review review, out Site site)
+ 	{
+		site = null;
+
+ 		if(!RequireReview(round, id, out review))
+ 			return false; 
+
+ 		if(!RequirePublicationModeratorAccess(round, review.Publication, Signer, out var p, out site))
+ 			return false; 
+ 
+ 		return true;
+ 	}
+
+	public bool RequireDispute(FairExecution round, EntityId id, out Dispute review)
 	{
-		review = round.Mcv.Disputes.Find(id, round.Id);
+		review = round.FindDispute(id);
 		
 		if(review == null || review.Deleted)
 		{
@@ -266,4 +305,24 @@ public abstract class FairOperation : Operation
 
 		return true;
 	}
+}
+
+public abstract class VotableOperation : FairOperation
+{
+	public abstract bool ValidProposal(FairExecution execution);
+ 	public abstract bool Overlaps(VotableOperation other);
+	//public abstract void Execute(FairExecution mcv, bool validate);
+
+	protected void PayForModeration(FairExecution round, Publication publication, Author author)
+	{
+		var s = round.AffectSite(round.FindCategory(publication.Category).Site);
+
+		author.Energy -= author.ModerationReward;
+		Signer.Energy += author.ModerationReward;
+			
+		EnergyFeePayer = s;
+		EnergySpenders.Add(s);
+		EnergySpenders.Add(author);
+	}
+
 }

@@ -6,8 +6,8 @@ public class ResourceLinkCreation : RdnOperation
 	public EntityId				Destination { get; set; }
 	public ResourceLinkChanges	Changes  { get; set; }
 	
-	public override string	Description => $"Source={Source}, Destination={Destination}";
-	public override bool	IsValid(Mcv mcv) => true;
+	public override string		Description => $"Source={Source}, Destination={Destination}";
+	public override bool		IsValid(McvNet net) => true;
 
 	public ResourceLinkCreation()
 	{
@@ -25,32 +25,32 @@ public class ResourceLinkCreation : RdnOperation
 		Destination = destination;
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Source);
 		writer.Write(Destination);
 		writer.Write((byte)Changes);
 	}
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Source		= reader.Read<EntityId>();
 		Destination	= reader.Read<EntityId>();
 		Changes		= (ResourceLinkChanges)reader.ReadByte();
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(round, Source, out var sd, out var sr) == false)
+		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
 			return;
 
-		if(RequireResource(round, Destination, out var dd, out var dr) == false)
+		if(RequireResource(execution, Destination, out var dd, out var dr) == false)
 			return;
 
-		sr = round.AffectResource(sd, sr.Address.Resource);
+		sr = execution.AffectResource(sd, sr.Address.Resource);
 		sr.AffectOutbound(dr.Id);
 
-		dr = round.AffectResource(dd, dr.Address.Resource);
+		dr = execution.AffectResource(dd, dr.Address.Resource);
 		dr.AffectInbound(sr.Id);
 
 		if(Changes.HasFlag(ResourceLinkChanges.Seal))
@@ -61,12 +61,12 @@ public class ResourceLinkCreation : RdnOperation
 				return;
 			}
 
-			PayForForever(mcv.Net.EntityLength);
+			PayForForever(execution.Net.EntityLength);
 		}
 		else
 		{	
-			sd = round.AffectDomain(sd.Id);
-			Allocate(round, Signer, sd, mcv.Net.EntityLength);
+			sd = execution.AffectDomain(sd.Id);
+			Allocate(execution, Signer, sd, execution.Net.EntityLength);
 		}
 	}
 }

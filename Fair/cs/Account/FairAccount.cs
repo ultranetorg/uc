@@ -1,23 +1,29 @@
 ﻿namespace Uccs.Fair;
 
-public class FairAccountEntry : AccountEntry
+public class FairAccount : Account
 {
-	public EntityId[]		Authors;
-	public EntityId[]		Sites;
-	public EntityId[]		Reviews;
-	public int				Approvals;
-	public int				Rejections;
-	public EntityId			AllocationSponsor;
-	public byte				AllocationSponsorClass;
+	public string					Nickname { get; set; }
+	public EntityId[]				Authors  { get; set; }
+	public EntityId[]				Sites  { get; set; }
+	public EntityId[]				Reviews  { get; set; }
+	public int						Approvals  { get; set; }
+	public int						Rejections  { get; set; }
+	public EntityId					AllocationSponsor { get; set; }
+	public byte						AllocationSponsorClass  { get; set; }
 
-	public FairAccountEntry(Mcv mcv) : base(mcv)
+	public FairAccount()
 	{
 	}
 
-	public override AccountEntry Clone()
+	public FairAccount(Mcv mcv) : base(mcv)
 	{
-		var a = base.Clone() as FairAccountEntry;
+	}
 
+	public override Account Clone()
+	{
+		var a = base.Clone() as FairAccount;
+
+		a.Nickname				 = Nickname;
 		a.Authors				 = Authors;
 		a.Sites					 = Sites;
 		a.Reviews				 = Reviews;
@@ -29,10 +35,11 @@ public class FairAccountEntry : AccountEntry
 		return a;
 	}
 
-	public override void WriteMain(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
 
+		writer.WriteUtf8(Nickname);
 		writer.Write(Authors);
 		writer.Write(Sites);
 		writer.Write(Reviews);
@@ -47,10 +54,11 @@ public class FairAccountEntry : AccountEntry
 		}
 	}
 
-	public override void ReadMain(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
 
+		Nickname				= reader.ReadUtf8();
 		Authors					= reader.ReadArray<EntityId>();
 		Sites					= reader.ReadArray<EntityId>();
 		Reviews					= reader.ReadArray<EntityId>();

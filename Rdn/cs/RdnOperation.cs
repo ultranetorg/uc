@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public enum RdnOperationClass
+public enum RdnOperationClass : uint
 {
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
@@ -8,7 +8,9 @@ public enum RdnOperationClass
 		DomainRegistration			= 100_000_001, 
 		DomainMigration				= 100_000_002, 
 		DomainBid					= 100_000_003, 
-		DomainUpdation				= 100_000_004,
+		DomainRenewal				= 100_000_004,
+		DomainTransfer				= 100_000_005,
+		DomainPolicyUpdation		= 100_000_006,
 
 	Resource						= 101,
 		ResourceCreation			= 101_000_001, 
@@ -25,14 +27,17 @@ public enum RdnOperationClass
 
 public abstract class RdnOperation : Operation
 {
-	public const string		CantChangeSealedResource = "Cant change sealed resource";
-	public const string		NotRoot = "Not root domain";
+	public const string					CantChangeSealedResource = "Cant change sealed resource";
+	public const string					NotRoot = "Not root domain";
+	public const string					Sealed = "Sealed";
+	public const string					NotSealed = "NotSealed";
+	public const string					NoData = "NoData";
 
-	public abstract void Execute(RdnMcv mcv, RdnRound round);
+	public abstract void Execute(RdnExecution execution);
 
-	public override void Execute(Mcv mcv, Round round)
+	public override void Execute(Execution execution)
 	{
-		Execute(mcv as RdnMcv, round as RdnRound);
+		Execute(execution as RdnExecution);
 	}
 
 	public void PayForName(string address, int years)
@@ -58,9 +63,9 @@ public abstract class RdnOperation : Operation
 		SpacetimeSpenders.Add(Signer);
 	}
 
-	public bool RequireDomain(RdnRound round, EntityId id, out DomainEntry domain)
+	public bool RequireDomain(RdnExecution round, EntityId id, out Domain domain)
 	{
-		domain = round.Mcv.Domains.Find(id, round.Id);
+		domain = round.FindDomain(id);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -68,7 +73,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.ConsensusTime))
+		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -77,9 +82,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomain(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomain(RdnExecution round, string name, out Domain domain)
 	{
-		domain = round.Mcv.Domains.Find(name, round.Id);
+		domain = round.FindDomain(name);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -87,7 +92,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.ConsensusTime))
+		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -96,7 +101,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomainAccess(RdnRound round, string name, out DomainEntry domain)
+	public bool RequireDomainAccess(RdnExecution round, string name, out Domain domain)
 	{
 		if(!RequireDomain(round, name, out domain))
 			return false;
@@ -110,7 +115,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnRound round, EntityId id, out DomainEntry domain)
+	public bool RequireSignerDomain(RdnExecution round, EntityId id, out Domain domain)
 	{
 		if(!RequireDomain(round, id, out domain))
 			return false;
@@ -124,9 +129,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
+	public bool RequireResource(RdnExecution round, EntityId id, out Domain domain, out Resource resource)
 	{
-		resource = round.Mcv.Resources.Find(id, round.Id);
+		resource = round.FindResource(id);
 
 		if(resource == null || resource.Deleted)
 		{
@@ -141,7 +146,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerResource(RdnRound round, EntityId id, out DomainEntry domain, out ResourceEntry resource)
+	public bool RequireSignerResource(RdnExecution round, EntityId id, out Domain domain, out Resource resource)
 	{
 		if(!RequireResource(round, id, out domain, out resource))
 			return false; 

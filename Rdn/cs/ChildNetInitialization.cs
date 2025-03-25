@@ -11,7 +11,7 @@ public class ChildNetInitialization : RdnOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(Net.Hash.Length > 1024)
 			return false;
@@ -22,21 +22,21 @@ public class ChildNetInitialization : RdnOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Domain	= reader.Read<EntityId>();
 		Net		= reader.Read<NtnState>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Domain);
 		writer.Write(Net);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerDomain(round, Domain, out var e) == false)
+		if(RequireSignerDomain(execution, Domain, out var e) == false)
 			return;
 
 		if(e.NtnChildNet != null)
@@ -51,7 +51,7 @@ public class ChildNetInitialization : RdnOperation
 			return;
 		}
 
-		e = round.AffectDomain(Domain);
+		e = execution.AffectDomain(Domain);
 
  		e.NtnChildNet = Net;
 	}

@@ -14,35 +14,35 @@ public abstract class McvApc : NodeApc
 	}
 }
 
-public class OperationJsonConverter : JsonConverter<Operation>
-{
-	Net Net;
-
-	public OperationJsonConverter(Net net)
-	{
-		Net = net;
-	}
-
-	public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-	{
-		var s = reader.GetString().Split(':');
-		var o = Net.Contruct<Operation>(uint.Parse(s[0]));
- 			
-		o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
-
-		return o;
-	}
-
-	public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
-	{
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-		
-		value.Write(w);
-		
-		writer.WriteStringValue(Net.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
-	}
-}
+//public class OperationJsonConverter : JsonConverter<Operation>
+//{
+//	Net Net;
+//
+//	public OperationJsonConverter(Net net)
+//	{
+//		Net = net;
+//	}
+//
+//	public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//	{
+//		var s = reader.GetString().Split(':');
+//		var o = Net.Contruct<Operation>(uint.Parse(s[0]));
+// 			
+//		o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
+//
+//		return o;
+//	}
+//
+//	public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
+//	{
+//		var s = new MemoryStream();
+//		var w = new BinaryWriter(s);
+//		
+//		value.Write(w);
+//		
+//		writer.WriteStringValue(Net.Codes[value.GetType()] + ":" + s.ToArray().ToHex());
+//	}
+//}
 
 public abstract class McvApiServer : NodeApiServer
 {
@@ -75,7 +75,7 @@ public class McvApiClient : ApiClient
 	{
 		var o = CreateOptions();
 
-		o.Converters.Add(new OperationJsonConverter(net));
+		//o.Converters.Add(new OperationJsonConverter(net));
 		
 		return o;
 	}
@@ -93,27 +93,6 @@ public class McvApiClient : ApiClient
 		Net = net;
 	}
 }
-
-// 	public class RunPeerApc : McvApc
-// 	{
-// 		public override object Execute(McvTcpPeering node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 		{
-// 			lock(node.Lock)
-// 				node.RunPeer();
-// 			
-// 			return null;
-// 		}
-// 	}
-
-// public class TableIdApc : McvApc
-// {
-// 	public string Name { get; set; }
-// 
-// 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 	{
-// 		return node.Mcv.Tables.First(i => i.GetType().Name == Name + "Table").Id;
-// 	}
-// }
 
 public class McvPropertyApc : McvApc
 {
@@ -142,15 +121,13 @@ public class PeersReportApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new Return.Peer {
-																																					IP			= i.IP,			
+			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i => new Return.Peer   {IP			= i.IP,			
 																																					Status		= i.StatusDescription,
 																																					PeerRank	= i.PeerRank,
 																																					Roles		= i.Roles,
 																																					LastSeen	= i.LastSeen,
 																																					LastTry		= i.LastTry,
-																																					Retries		= i.Retries	
-																																				}).ToArray()}; 
+																																					Retries		= i.Retries}).ToArray()}; 
 	}
 
 	public class Return
@@ -169,46 +146,6 @@ public class PeersReportApc : McvApc
 		public IEnumerable<Peer> Peers {get; set;}
 	}
 }
-
-// 	public class SummaryApc : NodeApc
-// 	{
-// 		public int		Limit  { get; set; }
-// 
-// 		public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-// 		{
-// 			lock(sun.Lock)
-// 			{ 
-// 				List<KeyValuePair<string, string>> f =	[
-// 															new ("Version",					sun.Version.ToString()),
-// 															new ("Profile",					sun.Settings.Profile),
-// 															new ("IP(Reported):Port",		$"{sun.Settings.Peering.IP} ({sun.IP}) : {sun.Settings.Peering.Port}"),
-// 															new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
-// 														];
-// 
-// 				if(sun is McvTcpPeering m)
-// 				{
-// 					f.Add(new ("Net",  m.Net.Address));
-// 				}
-// 
-// 				f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Transacting (nps/μs)",	$"{sun.Statistics.Transacting	.N}/{sun.Statistics.Transacting	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Declaring (nps/μs)",	$"{sun.Statistics.Declaring		.N}/{sun.Statistics.Declaring	.Avarage.Ticks/10}"));
-// 				f.Add(new ("Sending (nps/μs)",		$"{sun.Statistics.Sending		.N}/{sun.Statistics.Sending		.Avarage.Ticks/10}"));
-// 				f.Add(new ("Reading (nps/μs)",		$"{sun.Statistics.Reading		.N}/{sun.Statistics.Reading		.Avarage.Ticks/10}"));
-// 
-// 				sun.Statistics.Reset();
-// 		
-// 				return new Return{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
-// 			}
-// 		}
-// 
-// 		public class Return
-// 		{
-// 			public IEnumerable<string[]> Summary {get; set;}
-// 		}
-// 	}
-
 
 public class McvSummaryApc : McvApc
 {
@@ -255,19 +192,19 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.LoadedRounds.Count}"));
 				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
-				foreach(var i in node.Vault.UnlockedAccounts)
-				{
-					var a = i.Address.ToString();
-
-					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
-
-					if(node.Peering.Synchronization == Synchronization.Synchronized)
-					{
-						f.Add(new ("   BD",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Spacetime:N}"));
-						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Energy:N}"));
-						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EnergyNext:N}"));
-					}
-				}
+/// 				foreach(var i in node.UosApi.Request())
+/// 				{
+/// 					var a = i.Address.ToString();
+/// 
+/// 					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
+/// 
+/// 					if(node.Peering.Synchronization == Synchronization.Synchronized)
+/// 					{
+/// 						f.Add(new ("   BD",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Spacetime:N}"));
+/// 						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Energy:N}"));
+/// 						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EnergyNext:N}"));
+/// 					}
+/// 				}
 			}
 		}
 
@@ -400,7 +337,16 @@ public class EstimateOperationApc : McvApc
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
-		t.Sign(node.Vault.Find(By).Key, []);
+
+		t.Signer = By;
+		t.Signature	 = node.UosApi.Request<byte[]>(new AuthorizeApc{Net		= node.Mcv.Net.Name,
+																	Account	= By,
+																	Session = node.Settings.Sessions.First(i => i.Account == By).Session,
+																	Hash	= t.Hashify(node.Mcv.Net.Cryptography.ZeroHash),
+																	Trust	= Trust.None}, t.Flow);
+
+
+		///t.Sign(node.Vault.Find(By).Key, []);
 
 		return node.Peering.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
 	}

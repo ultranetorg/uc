@@ -23,7 +23,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 {
 	public string						Error;
 	public Transaction					Transaction;
-	public AccountEntry					Signer;
+	public Account					Signer;
 	public IEnergyHolder				EnergyFeePayer;
 	public HashSet<IEnergyHolder>		EnergySpenders;
 	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
@@ -32,29 +32,24 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 
 	public virtual bool					NonExistingSignerAllowed => false;
 
-	public const string					Rejected = "Rejected";
-	public const string					NotFound = "Not found";
-	public const string					NothingLastCreated = "Nothing last created";
-	public const string					NotAvailable = "Not Available";
-	public const string					Mismatch = "Mismatch";
+	public const string					AlreadyExists = "Already exists";
+	public const string					AtLeastOneOwnerRequired = "At least one owner required";
+	public const string					Denied = "Access denied";
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
 	public const string					Expired = "Expired";
-	public const string					Sealed = "Sealed";
-	public const string					NotSealed = "NotSealed";
-	public const string					NoData = "NoData";
-	public const string					NotEnergyHolder = "Not Energy Holder";
-	public const string					NotSpacetimeHolder = "Not Spacetime Holder";
-	public const string					AlreadyExists = "Already exists";
+	public const string					LimitReached = "Limit Reached";
+	public const string					Mismatch = "Mismatch";
+	public const string					NotAvailable = "Not Available";
+	public const string					NotFound = "Not found";
 	public const string					NotSequential = "Not sequential";
+	public const string					NotEnergyHolder = "Not Energy Holder";
 	public const string					NotEnoughSpacetime = "Not enough spacetime";
 	public const string					NotEnoughEnergy = "Not enough execution units";
 	public const string					NotEnoughEnergyNext = "Not enough energy for next period";
 	public const string					NotEnoughBandwidth = "Not enough bandwidth";
-	public const string					NoAnalyzers = "No analyzers";
-	public const string					Denied = "Access denied";
-	//public const string					NotRelease = "Data valus is not a release";
-	public const string					LimitReached = "Limit Reached";
-	public const string					AtLeastOneOwnerRequired = "At least one owner required";
+	public const string					NotSpacetimeHolder = "Not spacetime holder";
+	public const string					NothingLastCreated = "Nothing last created";
+	public const string					Rejected = "Rejected";
 
 	protected OperationId				_Id;
 	
@@ -75,27 +70,17 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 	}
 	
-	public abstract bool IsValid(Mcv mcv);
-	public abstract void Execute(Mcv mcv, Round round);
-	public abstract void WriteConfirmed(BinaryWriter w);
-	public abstract void ReadConfirmed(BinaryReader r);
+	public abstract bool IsValid(McvNet net);
+	public abstract void Execute(Execution execution);
+	public abstract void Write(BinaryWriter w);
+	public abstract void Read(BinaryReader r);
 	 
 	public override string ToString()
 	{
 		return $"{GetType().Name}, {Description}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
-	public void Read(BinaryReader reader)
-	{
-		ReadConfirmed(reader);
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		WriteConfirmed(writer);
-	}
-
-	public AccountEntry RequireAccount(Round round, AccountAddress account)
+	public Account RequireAccount(Round round, AccountAddress account)
 	{
 		var a = round.Mcv.Accounts.Find(account, round.Id);
 
@@ -118,9 +103,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return time.Days * length;
 	}
 
-	public void Prolong(Round round, ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
-	{
-		var start = (short)(consumer.Expiration < round.ConsensusTime.Days ? round.ConsensusTime.Days : consumer.Expiration);
+	public void Prolong(Execution execution, ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
+	{	
+		var start = (short)(consumer.Expiration < execution.Time.Days ? execution.Time.Days : consumer.Expiration);
 
 		consumer.Expiration = (short)(start + duration.Days);
 
@@ -130,13 +115,13 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 			SpacetimeSpenders.Add(payer);
 		}
 
-		var n = start + duration.Days - round.ConsensusTime.Days;
+		var n = start + duration.Days - execution.Time.Days;
 
-		if(n > round.Spacetimes.Length)
-			round.Spacetimes = [..round.Spacetimes, ..new long[n - round.Spacetimes.Length]];
+		if(n > execution.Spacetimes.Length)
+			execution.Spacetimes = [..execution.Spacetimes, ..new long[n - execution.Spacetimes.Length]];
 
 		for(int i = 0; i < duration.Days; i++)
-			round.Spacetimes[start - round.ConsensusTime.Days + i] += consumer.Space;
+			execution.Spacetimes[start - execution.Time.Days + i] += consumer.Space;
 
 	}
 
@@ -146,19 +131,19 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		SpacetimeSpenders.Add(payer);
 	}
 
-	public void FreeEntity(Round round)
+	public void FreeEntity(Execution round)
 	{
 		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
 	}
 
-	public void Allocate(Round round, ISpacetimeHolder payer, ISpaceConsumer consumer, int space)
+	public void Allocate(Execution round, ISpacetimeHolder payer, ISpaceConsumer consumer, int space)
 	{
 		if(space == 0)
 			return;
 
 		consumer.Space += space;
 
-		var n = consumer.Expiration - round.ConsensusTime.Days;
+		var n = consumer.Expiration - round.Time.Days;
 	
 		payer.Spacetime -= ToBD(space, (short)n);
 		SpacetimeSpenders.Add(payer);
@@ -167,7 +152,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 			round.Spacetimes[i] += space;
 	}
 
-	public void Free(Round round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
+	public void Free(Execution round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
 	{
 		if(space == 0)
 			return;
@@ -177,7 +162,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		if(consumer.Space < 0)
 			throw new IntegrityException();
 
-		var d = consumer.Expiration - round.ConsensusTime.Days;
+		var d = consumer.Expiration - round.Time.Days;
 		
 		if(d > 0)
 		{
@@ -188,13 +173,27 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		}
 	}
 
-	public bool RequireAccount(Round round, EntityId id, out AccountEntry account)
+	public bool RequireAccount(Execution round, EntityId id, out Account account)
 	{
-		account = round.Mcv.Accounts.Find(id, round.Id);
+		account = round.FindAccount(id);
 
 		if(account == null || account.Deleted)
 		{
 			Error = NotFound;
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool RequireAccountAccess(Execution round, EntityId id, out Account account)
+	{
+		if(!RequireAccount(round, id, out account))
+			return false;
+
+		if(account.Address != Signer.Address)
+		{
+			Error = Denied;
 			return false;
 		}
 

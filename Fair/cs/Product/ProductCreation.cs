@@ -4,7 +4,7 @@ public class ProductCreation : FairOperation
 {
 	public EntityId				Author { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
+	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
 	public override string		Description => $"{Author}";
 
 	public ProductCreation()
@@ -16,27 +16,27 @@ public class ProductCreation : FairOperation
 		Author	= author;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Author	= reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(RequireAuthorAccess(round, Author, out var a) == false)
+		if(RequireAuthorAccess(execution, Author, out var a) == false)
 			return;
 
-		a = round.AffectAuthor(Author);
-		var p = round.CreateProduct(a);
+		a = execution.AffectAuthor(Author);
+		var p = execution.CreateProduct(a);
 
 		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];
 
-		Allocate(round, Signer, a, mcv.Net.EntityLength);
+		Allocate(execution, Signer, a, execution.Net.EntityLength);
 	}
 }

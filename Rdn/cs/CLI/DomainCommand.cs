@@ -61,11 +61,14 @@ public class DomainCommand : RdnCommand
 									]};
 
 		a.Execute = () =>	{
-							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-							return new DomainRegistration{	Address	= First,
-															Years	= byte.Parse(GetString("years"))};
-						};
+								///if(Domain.IsChild(First))
+								///	throw new SyntaxException("Only root domains name are allowed");
+
+								return new DomainRegistration{	Address	= First,
+																Years	= byte.Parse(GetString("years"))};
+							};
 
 		return a;
 	}
@@ -121,9 +124,8 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Change	= DomainChange.Renew,
-															Id		= d.Id,
-															Value	= byte.Parse(GetString("years"))};
+								return new DomainRenewal() {Id		= d.Id,
+															Years	= byte.Parse(GetString("years"))};
 							};
 
 		return a;
@@ -152,7 +154,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new DomainRegistration{	Address	= First,
+								return new DomainRegistration  {Address	= First,
 																Years	= byte.Parse(GetString("years")),
 																Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
 																Owner	= GetAccountAddress("for")};
@@ -183,9 +185,8 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Change	= DomainChange.ChangePolicy,
-															Id		= d.Id,
-															Value	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
+								return new DomainPolicyUpdation {Id		= d.Id,
+																 Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
 							};
 		return a;
 	}
@@ -213,9 +214,8 @@ public class DomainCommand : RdnCommand
 
 								var d = Ppc(new DomainRequest(First)).Domain;
 
-								return new DomainUpdation  {Change	= DomainChange.Transfer,
-															Id		= d.Id,
-															Value	= GetEntityId("to")};
+								return new DomainTransfer  {Id		= d.Id,
+															Owner	= GetEntityId("to")};
 							};
 
 		return a;

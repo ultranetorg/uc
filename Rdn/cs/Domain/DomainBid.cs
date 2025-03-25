@@ -2,13 +2,13 @@
 
 public class DomainBid : RdnOperation
 {
-	public string			Name;
-	public long				Bid;
+	public string			Name  { get; set; }
+	public long				Bid  { get; set; }
 	public override string	Description => $"{Bid} UNT for {Name}";
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{
-		if(!(mcv.Net as Rdn).Auctions)
+		if(!(net as Rdn).Auctions)
 			return false;
 
 		if(!Domain.IsWeb(Name))
@@ -30,13 +30,13 @@ public class DomainBid : RdnOperation
 		Bid = bid;
 	}
 	
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Name	= reader.ReadUtf8();
 		Bid		= reader.Read7BitEncodedInt64();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.Write7BitEncodedInt64(Bid);
@@ -61,29 +61,29 @@ public class DomainBid : RdnOperation
 // 			Bid					= reader.Read<Money>();
 // 		}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
 		throw new NotImplementedException();
 
 // 		var a = round.AffectDomain(Name);
 // 
-//  		if(!Domain.IsExpired(a, round.ConsensusTime))
+//  		if(!Domain.IsExpired(a, execution.Time))
 //  		{
 // 			if(a.LastWinner == null) /// first bid
 // 			{
 // 				Signer.Spacetime -= Bid;
 // 				
 // 				a.Owner				= null;
-// 				a.FirstBidTime		= round.ConsensusTime;
+// 				a.FirstBidTime		= execution.Time;
 // 				a.LastBid			= Bid;
-// 				a.LastBidTime		= round.ConsensusTime;
+// 				a.LastBidTime		= execution.Time;
 // 				a.LastWinner		= Signer.Id;
 // 					
 // 				EnergySpenders.Add(Signer);
 // 				
 // 				return;
 // 			}
-// 			else if(round.ConsensusTime < a.AuctionEnd)
+// 			else if(execution.Time < a.AuctionEnd)
 // 			{
 // 				if(a.LastBid < Bid) /// outbid
 // 				{
@@ -93,7 +93,7 @@ public class DomainBid : RdnOperation
 // 					Signer.Spacetime -= Bid;
 // 					
 // 					a.LastBid		= Bid;
-// 					a.LastBidTime	= round.ConsensusTime;
+// 					a.LastBidTime	= execution.Time;
 // 					a.LastWinner	= Signer.Id;
 // 
 // 					EnergySpenders.Add(Signer);
@@ -111,9 +111,9 @@ public class DomainBid : RdnOperation
 // 			Signer.Spacetime -= Bid;
 // 			
 // 			a.Owner				= null;
-// 			a.FirstBidTime		= round.ConsensusTime;
+// 			a.FirstBidTime		= execution.Time;
 // 			a.LastBid			= Bid;
-// 			a.LastBidTime		= round.ConsensusTime;
+// 			a.LastBidTime		= execution.Time;
 // 			a.LastWinner		= Signer.Id;
 // 		
 // 			EnergySpenders.Add(Signer);

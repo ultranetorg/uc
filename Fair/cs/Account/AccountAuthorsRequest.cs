@@ -29,12 +29,12 @@ public class AccountAuthorsRequest : McvPpc<AccountAuthorsResponse>
 		{
 			RequireBase();
 
-			FairAccountEntry e;
+			FairAccount e;
 
 			if(Identifier.Address != null)
-				e = Mcv.Accounts.Find(Identifier.Address, Mcv.LastConfirmedRound.Id) as FairAccountEntry;
+				e = Mcv.Accounts.Find(Identifier.Address, Mcv.LastConfirmedRound.Id) as FairAccount;
 			else if(Identifier.Id != null)
-				e = Mcv.Accounts.Find(Identifier.Id, Mcv.LastConfirmedRound.Id) as FairAccountEntry;
+				e = Mcv.Accounts.Find(Identifier.Id, Mcv.LastConfirmedRound.Id) as FairAccount;
 			else
 				throw new RequestException(RequestError.IncorrectRequest);
 			

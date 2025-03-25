@@ -17,7 +17,7 @@ public class UosCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 			
-		if(call is UosApc u)
+		if(call is IUosApc u)
 		{
 			u.Execute(Uos, null, null, Flow);
 			return;
@@ -31,7 +31,7 @@ public class UosCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		if(call is UosApc u)	return (Rp)u.Execute(Uos, null, null, Flow);
+		if(call is IUosApc u)	return (Rp)u.Execute(Uos, null, null, Flow);
 
 		throw new Exception();
 	}

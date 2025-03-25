@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductTable : Table<ProductEntry>
+public class ProductTable : Table<Product>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -28,19 +28,8 @@ public class ProductTable : Table<ProductEntry>
 /// 		_102 = _102;
 	}
 	
-	public override ProductEntry Create()
+	public override Product Create()
 	{
-		return new ProductEntry(Mcv);
-	}
-
-	public ProductEntry Find(EntityId id, int ridmax)
-	{
-  		foreach(var i in Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedProducts.TryGetValue(id, out var r))
-    			return r;
-
-		var e = FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
-
-		return e;
+		return new Product(Mcv);
 	}
  }

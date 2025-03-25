@@ -28,7 +28,7 @@ namespace Uccs.Net
 			Eid = eid;
 		}
 
-		public override bool IsValid(Mcv mcv) => 0 < Wei && 0 <= Eid;
+		public override bool IsValid(McvNet net) => 0 < Wei && 0 <= Eid;
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
@@ -71,7 +71,7 @@ namespace Uccs.Net
  			return Money.FromWei(wei) * Multiplier;
  		}
 
-		public override void Execute(Mcv mcv, Round round)
+		public override void Execute(Execution execution)
 		{
 			var a = mcv.Accounts.Find(Signer, round.Id);
 

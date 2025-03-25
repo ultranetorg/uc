@@ -4,33 +4,33 @@ public class ProductDeletion : FairOperation
 {
 	public EntityId				Product { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => true;
+	public override bool		IsValid(McvNet net) => true;
 	public override string		Description => $"{Id}";
 
 	public ProductDeletion()
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Product = reader.Read<EntityId>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(RequireProductAccess(round, Product, out var a, out var p) == false)
+		if(RequireProductAccess(execution, Product, out var a, out var p) == false)
 			return;
 
-		a = round.AffectAuthor(p.Author);
+		a = execution.AffectAuthor(p.Author);
 		a.Products = a.Products.Where(i => i != Product).ToArray();
 
-		round.AffectProduct(Product).Deleted = true;
+		execution.AffectProduct(Product).Deleted = true;
 
-		Free(round, Signer, a, mcv.Net.EntityLength + p.Length);
+		Free(execution, Signer, a, execution.Net.EntityLength + p.Length);
 	}
 }

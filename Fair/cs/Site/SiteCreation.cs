@@ -5,26 +5,26 @@ public class SiteCreation : FairOperation
 	public string				Title { get; set; }
 	public byte					Years {get; set;}
 
-	public override bool		IsValid(Mcv mcv) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
+	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
 	public override string		Description => $"{GetType().Name}";
 
 	public SiteCreation()
 	{
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Title = reader.ReadString();
 		Years = reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Title);
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
@@ -32,15 +32,27 @@ public class SiteCreation : FairOperation
 			return;
 		}
 
-		var s = round.CreateSite(Signer);
+		var s = execution.CreateSite(Signer);
 
-		s.Title						= Title;
-		s.Space						= mcv.Net.EntityLength;
-		s.Moderators				= [Signer.Id];
-		s.ModeratorElectionPolicy	= ElectionPolicy.ModeratorsUnanimously;
+		s.Title			= Title;
+		s.Space			= execution.Net.EntityLength;
+		s.Moderators	= [Signer.Id];
+
+		s.ChangePolicies[FairOperationClass.NicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
+
+		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
+		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
+
+		s.ChangePolicies[FairOperationClass.PublicationStatusChange]		= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationProductChange]		= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.ChangePolicies[FairOperationClass.PublicationUpdateModeration]	= ChangePolicy.AnyModerator;
+
+		s.ChangePolicies[FairOperationClass.ReviewStatusChange]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.ReviewTextModeration]		= ChangePolicy.AnyModerator;
 
 		Signer.Sites = [..Signer.Sites, s.Id];
 
-		Prolong(round, Signer, s, Time.FromYears(Years));
+		Prolong(execution, Signer, s, Time.FromYears(Years));
 	}
 }

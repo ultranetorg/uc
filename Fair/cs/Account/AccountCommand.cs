@@ -8,6 +8,56 @@ public class AccountCommand : Net.AccountCommand
 	{
 	}
 
+	public override CommandAction Entity()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+
+		a.Name = "e";
+		a.Help = new() {Description = "Get account entity information from Ultranet distributed database",
+						Syntax = $"{Keyword} {a.NamesSyntax} {AA}",
+
+						Arguments = [new ("<first>", "Address of an account to get information about")],
+
+						Examples = [new (null, $"{Keyword} {a.Name} {AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								var i = Ppc(new FairAccountRequest(First));
+												
+								Dump(i.Account);
+
+								return i.Account;
+							};
+		return a;
+	}
+	
+	public CommandAction Nickname()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var nickname = "nickname";
+
+		a.Name = "n";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a account to update"),
+									 new (nickname, "A new nickname"),
+									 new (SignerArg, "Address of account")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return new NicknameChange  {Entity = EntityId.Parse(Args[0].Name),
+															Field = EntityTextField.AccountNickname,
+															Nickname = GetString(nickname)}; 
+							};
+		return a;
+	}
+
 	public CommandAction ListAuthors()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());

@@ -6,7 +6,7 @@ public class ResourceCreation : RdnOperation
 	public ResourceChanges		Changes { get; set; }
 	public ResourceData			Data { get; set; }
 
-	public override bool		IsValid(Mcv mcv) => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
+	public override bool		IsValid(McvNet net) => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
 													(!Changes.HasFlag(ResourceChanges.NullData));
 	public override string		Description => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
@@ -23,7 +23,7 @@ public class ResourceCreation : RdnOperation
 		if(seal)			Changes |= ResourceChanges.Seal;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Address	= reader.Read<Ura>();
 		Changes	= (ResourceChanges)reader.ReadByte();
@@ -31,7 +31,7 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Address);
 		writer.Write((byte)Changes);
@@ -39,20 +39,12 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 	}
 
-	public override void Execute(RdnMcv mcv, RdnRound round)
+	public override void Execute(RdnExecution execution)
 	{
-		if(RequireDomainAccess(round, Address.Domain, out var d) == false)
+		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
 			return;
 
-// 			var s = round.Mcv.Sites.Find(d.Id, round.Id);
-// 
-// 			if(s == null)
-// 			{
-// 				Error = NotFound;
-// 				return;
-// 			}
-
-		var r = round.Mcv.Resources.Find(Address, round.Id);
+		var r = execution.FindResource(Address);
 				
 		if(r != null)
 		{
@@ -60,25 +52,25 @@ public class ResourceCreation : RdnOperation
 			return;
 		}
 
-		r = round.AffectResource(d, Address.Resource);
+		r = execution.AffectResource(d, Address.Resource);
 
 		if(Changes.HasFlag(ResourceChanges.SetData))
 		{
 			r.Data		= Data;
 			r.Flags		|= ResourceFlags.Data;
-			r.Updated	= round.ConsensusTime;
+			r.Updated	= execution.Time;
 		}
 
 		if(Changes.HasFlag(ResourceChanges.Seal))
 		{
 			r.Flags	|= ResourceFlags.Sealed;
 
-			PayForForever(mcv.Net.EntityLength + r.Length);
+			PayForForever(execution.Net.EntityLength + r.Length);
 		}
 		else
 		{	
-			d = round.AffectDomain(d.Id);
-			Allocate(round, Signer, d, mcv.Net.EntityLength + r.Length);
+			d = execution.AffectDomain(d.Id);
+			Allocate(execution, Signer, d, execution.Net.EntityLength + r.Length);
 		}
 	}
 }

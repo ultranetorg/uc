@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -21,28 +23,20 @@ public class FairTypeResolver : ApiTypeResolver
         var ti = base.GetTypeInfo(type, options);
 
         if(ti.Type == typeof(FuncPeerRequest))
-        {
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
 
         if(ti.Type == typeof(PeerResponse))
-        {
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
 
         if(ti.Type == typeof(NetException))
-        {
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
-			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-			}
-        }
+
+         if(ti.Type == typeof(Operation))
+ 			foreach(var i in typeof(FairOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FairOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+ 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         return ti;
     }
@@ -134,5 +128,49 @@ public class CostApc : FairApc
 							//RentProductData				= Years.Select(y => FairOperation.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
 							//RentProductDataForever		= FairOperation.SpacetimeFee(1, Mcv.Forever) * Rate
 							};
+	}
+}
+
+
+public class SearchPublicationsApc : FairApc
+{
+	public EntityId		Site { get; set; }
+	public string		Query { get; set; }
+	public int			Page { get; set; }
+	public byte			Lines { get; set; }
+
+	public class Return
+	{
+		public string		Text { get; set; }
+		public EntityId		Entity { get; set; }
+	}
+
+	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		IEnumerable<Publication> items = [];
+
+		lock(node.Mcv.Lock)
+		{
+			foreach(var i in Query.Trim().Split(' '))
+			{
+				var t = node.Mcv.Texts.Latest(new StringId(i));
+	
+				if(t != null)
+				{
+					items = items.Intersect(t.Entities	.Where(i => i.Field == EntityTextField.PublicationTitle)
+														.Select(i => node.Mcv.Publications.Latest(i.Entity))
+														.Where(p => node.Mcv.Categories.Latest(p.Category).Site == Site), EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id));
+				}
+			}
+
+			return items.Skip(Page * Lines).Select(p => {
+															var r = node.Mcv.Products.Latest(p.Product);
+														
+															var f = p.Fields.First(i => i.Name == ProductField.Title);
+
+															return new Return {Text = r.GetString(f), Entity = p.Id};
+														})
+										   .Take(Lines);
+		}
 	}
 }

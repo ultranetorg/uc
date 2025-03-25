@@ -1,122 +1,184 @@
 ﻿namespace Uccs.Fair;
 
-public enum AuthorChange : byte
-{
-	None, Renew, AddOwner, RemoveOwner, ModerationReward
-}
-
-public class AuthorUpdation : UpdateOperation
+public class AuthorRenewal : FairOperation
 {
 	public EntityId				AuthorId { get; set; }
-	public AuthorChange			Change { get; set; }
-	public object				Second { get; set; }
+	public byte					Years { get; set; }
 
-	public override string		Description => $"{AuthorId}, {Change}, {Value}";
+	public override string		Description => $"{AuthorId}, {Years}";
 	
-	public AuthorUpdation()
+	public AuthorRenewal()
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
-		if(!Enum.IsDefined(Change) || Change == AuthorChange.None) 
-			return false;
-		
-		if(Change == AuthorChange.Renew && (Byte < Mcv.EntityRentYearsMin || Byte > Mcv.EntityRentYearsMax))
+		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
 			return false;
 
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		AuthorId	= reader.Read<EntityId>();
-		Change		= reader.ReadEnum<AuthorChange>();
-
-		Value = Change switch
-					   {
-							AuthorChange.Renew				=> reader.ReadByte(),
-							AuthorChange.ModerationReward	=> reader.Read7BitEncodedInt64(),
-							AuthorChange.AddOwner			=> reader.Read<EntityId>(),
-							AuthorChange.RemoveOwner		=> reader.Read<EntityId>(),
-							_								=> throw new IntegrityException()
-					   };
+		Years		= reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(AuthorId);
-		writer.WriteEnum(Change);
-
-		switch(Change)
-		{
-			case AuthorChange.Renew				: writer.Write(Byte); break;
-			case AuthorChange.ModerationReward	: writer.Write7BitEncodedInt64(Long); break;
-			case AuthorChange.AddOwner			: writer.Write(EntityId); break;
-			case AuthorChange.RemoveOwner		: writer.Write(EntityId); break;
-			default								: throw new IntegrityException();
-		}
+		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireAuthorAccess(round, AuthorId, out var a))
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = round.AffectAuthor(AuthorId);
+		a = execution.AffectAuthor(AuthorId);
 
-		switch(Change)
+		if(!Author.CanRenew(a, Signer, execution.Time))
 		{
-			case AuthorChange.Renew:
-			{	
-				if(!Author.CanRenew(a, Signer, round.ConsensusTime))
-				{
-					Error = NotAvailable;
-					return;
-				}
-
-				Prolong(round, Signer, a, Time.FromYears(Byte));
-
-				break;
-			}
-
-			case AuthorChange.ModerationReward:
-
-				a.ModerationReward = Long;
-
-				break;
-
-			case AuthorChange.AddOwner:
-			{
-				if(!RequireAccount(round, EntityId, out var x))
-					return;
-
-				if(x.AllocationSponsor != null)
-				{
-					Error = NotAllowedForFreeAccount;
-					return;
-				}
-
-				a.Owners = [..a.Owners, x.Id];
-
-				break;;
-			}
-
-			case AuthorChange.RemoveOwner:
-			{
-				if(a.Owners.Length == 1)
-				{
-					Error = AtLeastOneOwnerRequired;
-					return;
-				}
-
-				if(!RequireAccount(round, EntityId, out var x))
-					return;
-
-				a.Owners = a.Owners.Where(i => i != x.Id).ToArray();
-
-				break;;
-			}
+			Error = NotAvailable;
+			return;
 		}
+
+		Prolong(execution, Signer, a, Time.FromYears(Years));
+	}
+}
+
+public class AuthorModerationReward : FairOperation
+{
+	public EntityId				AuthorId { get; set; }
+	public long					Amount { get; set; }
+
+	public override string		Description => $"{AuthorId}, {Amount}";
+	
+	public AuthorModerationReward()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		return true;
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		AuthorId	= reader.Read<EntityId>();
+		Amount		= reader.Read7BitEncodedInt64();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		writer.Write(AuthorId);
+		writer.Write7BitEncodedInt64(Amount);
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+			return;
+		
+		a = execution.AffectAuthor(AuthorId);
+
+		a.ModerationReward = Amount;
+	}
+}
+
+public class AuthorOwnerAddition : FairOperation
+{
+	public EntityId				AuthorId { get; set; }
+	public EntityId				Owner { get; set; }
+
+	public override string		Description => $"{AuthorId}, {Owner}";
+	
+	public AuthorOwnerAddition()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		return true;
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		AuthorId	= reader.Read<EntityId>();
+		Owner		= reader.Read<EntityId>();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		writer.Write(AuthorId);
+		writer.Write(Owner);
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+			return;
+		
+		a = execution.AffectAuthor(AuthorId);
+
+		if(!RequireAccount(execution, Owner, out var x))
+			return;
+
+		if(x.AllocationSponsor != null)
+		{
+			Error = NotAllowedForFreeAccount;
+			return;
+		}
+
+		a.Owners = [..a.Owners, x.Id];
+	}
+}
+
+public class AuthorOwnerRemoval : FairOperation
+{
+	public EntityId				AuthorId { get; set; }
+	public EntityId				Owner { get; set; }
+
+	public override string		Description => $"{AuthorId}, {Owner}";
+	
+	public AuthorOwnerRemoval()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		return true;
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		AuthorId	= reader.Read<EntityId>();
+		Owner		= reader.Read<EntityId>();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		writer.Write(AuthorId);
+		writer.Write(Owner);
+	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+			return;
+		
+		a = execution.AffectAuthor(AuthorId);
+
+		if(a.Owners.Length == 1)
+		{
+			Error = AtLeastOneOwnerRequired;
+			return;
+		}
+
+		if(!RequireAccount(execution, Owner, out var x))
+			return;
+
+		a.Owners = a.Owners.Remove(x.Id);
 	}
 }

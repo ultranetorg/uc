@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class AccountTable : Table<AccountEntry>
+public class AccountTable : Table<Account>
 {
 	public int	KeyToBid(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
 
@@ -8,16 +8,25 @@ public class AccountTable : Table<AccountEntry>
 	{
 	}
 
-	public override AccountEntry Create()
+	public override Account Create()
 	{
-		return new AccountEntry(Mcv);
+		return new Account(Mcv);
 	}
 
-	public AccountEntry FindEntry(AccountAddress key)
+	public Account FindEntry(AccountAddress key)
 	{
 		var bid = KeyToBid(key);
 
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
+	}
+
+	public Account Find(AccountAddress account, int ridmax)
+	{
+		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Address == account) is Account e && !e.Deleted)
+				return e;
+
+		return FindEntry(account);
 	}
 
 // 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
@@ -123,32 +132,4 @@ public class AccountTable : Table<AccountEntry>
 // 					if(op == null || op(o))
 // 						yield return o;
 // 		}
-
-	public AccountEntry Find(AccountAddress account, int ridmax)
-	{
-		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-		//	throw new IntegrityException("maxrid works inside pool only");
-
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedAccounts.TryGetValue(account, out var e))
-				return e;
-
-		return FindEntry(account);
-	}
-
-	public AccountEntry Find(EntityId id, int ridmax)
-	{
-		//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-		//	throw new IntegrityException("maxrid works inside pool only");
-
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-		{
-			var a = r.AffectedAccounts.Values.FirstOrDefault(i => i.Id == id);
-			
-			if(a != null)
-				return a;
-		}
-
-		return FindBucket(id.B)?.Entries.Find(i => i.Id.E == id.E);
-	}
 }

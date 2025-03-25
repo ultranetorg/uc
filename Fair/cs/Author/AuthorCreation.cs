@@ -11,7 +11,7 @@ public class AuthorCreation : FairOperation
 	{
 	}
 	
-	public override bool IsValid(Mcv mcv)
+	public override bool IsValid(McvNet net)
 	{ 
 		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
 			return false;
@@ -19,19 +19,19 @@ public class AuthorCreation : FairOperation
 		return true;
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
 		Title = reader.ReadUtf8();
 		Years = reader.ReadByte();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Title);
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairMcv mcv, FairRound round)
+	public override void Execute(FairExecution execution, bool dispute)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
@@ -39,14 +39,14 @@ public class AuthorCreation : FairOperation
 			return;
 		}
 
-		var e = round.CreateAuthor(Signer.Address);
+		var e = execution.CreateAuthor(Signer.Address);
 
 		Signer.Authors = [..Signer.Authors, e.Id];
 		
 		e.Owners	= [Signer.Id];
 		e.Title		= Title;
-		e.Space		= mcv.Net.EntityLength;
+		e.Space		= execution.Net.EntityLength;
 
-		Prolong(round, Signer, e, Time.FromYears(Years));
+		Prolong(execution, Signer, e, Time.FromYears(Years));
 	}
 }

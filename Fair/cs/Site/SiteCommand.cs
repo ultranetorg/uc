@@ -72,12 +72,33 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new SiteUpdation {SiteId = FirstEntityId};
+								return new SiteRewal {SiteId = FirstEntityId, Years = byte.Parse(GetString(years))};
+							};
+		return a;
+	}
 
-								o.Change = SiteChange.Renew;
-								o.Value	 = byte.Parse(GetString(years));
+	public CommandAction Nickname()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var nickname = "nickname";
 
-								return o;
+		a.Name = "n";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a site to update"),
+									 new (nickname, "A new nickname"),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return new NicknameChange  {Entity = FirstEntityId,
+															Field = EntityTextField.SiteNickname,
+															Nickname = GetString(nickname)}; 
 							};
 		return a;
 	}

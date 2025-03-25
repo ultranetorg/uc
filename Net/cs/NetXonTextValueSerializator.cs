@@ -7,14 +7,12 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 	public override object Set(Xon node, object val)
 	{
 		if(val == null)
-		{
 			return null;
-		}
 
-		if(	val is AccountAddress	||
-			val is Time)
+		if(	val is AccountAddress ||
+			val is Time ||
+			val is Unit)
 			return val.ToString();
-		if(val is Unit c)		return c.ToString();
 
 		return base.Set(node, val);
 	}

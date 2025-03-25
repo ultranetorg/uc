@@ -4,7 +4,7 @@ using Uccs.Net;
 
 namespace Uccs.Uos;
 
-public class UosApiServer : JsonServer
+internal class UosApiServer : JsonServer
 {
 	Uos Uos;
 
@@ -20,40 +20,21 @@ public class UosApiServer : JsonServer
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(call is UosApc u) 
+		if(call is IUosApc u) 
 			return u.Execute(Uos, request, response, flow);
 
 		throw new ApiCallException("Unknown call");
 	}
 }
 
-public class UosApiClient : ApiClient
-{
-	//public PackageInfo			GetPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new PackageGetApc {Address = address}, flow);
-
-	static UosApiClient()
-	{
-	}
-
-	public UosApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
-	{
-	}
-
-	public UosApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
-	{
-	}
-}
-
-public abstract class UosApc : Apc
+internal interface IUosApc
 {
 	public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
-public class PropertyApc : UosApc
+public class UosPropertyApc : Net.UosPropertyApc, IUosApc
 {
-	public string Path { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		object o = uos;
 
@@ -76,11 +57,9 @@ public class PropertyApc : UosApc
 	}
 }
 
-public class RunNodeApc : UosApc
+internal class RunNodeApc : Net.RunNodeApc, IUosApc
 {
-	public string	Net { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			uos.RunNode(Net);
@@ -89,22 +68,18 @@ public class RunNodeApc : UosApc
 	}
 }
 
-public class NodeInfoApc : UosApc
+internal class NodeInfoApc : Net.NodeInfoApc, IUosApc
 {
-	public string	Net { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			return uos.Nodes.Find(i => i.Node.Net.Address == Net);
 	}
 }
 
-public class AddWalletApc : UosApc
+internal class AddWalletApc : Net.AddWalletApc, IUosApc
 {
-	public byte[]	Raw { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			uos.Vault.AddWallet(Raw);
@@ -113,16 +88,9 @@ public class AddWalletApc : UosApc
 	}
 }
 
-public class WalletsApc : UosApc
+internal class WalletsApc : Net.WalletsApc, IUosApc
 {
-	public class WalletApe
-	{
- 		public string			Name { get; set; }
-		public bool				Locked  { get; set; }
-		public AccountAddress[]	Accounts { get; set; }
-	}
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			 return uos.Vault.Wallets.Select(i => new WalletApe {Name = i.Name,
@@ -131,12 +99,9 @@ public class WalletsApc : UosApc
 	}
 }
 
-public class UnlockWalletApc : UosApc
+internal class UnlockWalletApc : Net.UnlockWalletApc, IUosApc
 {
-	public string	Name { get; set; } ///  Null means first
-	public string	Password { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
@@ -147,11 +112,9 @@ public class UnlockWalletApc : UosApc
 	}
 }
 
-public class LockWalletApc : UosApc
+internal class LockWalletApc : Net.LockWalletApc, IUosApc
 {
-	public string	Name { get; set; } ///  Null means first
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
@@ -162,12 +125,9 @@ public class LockWalletApc : UosApc
 	}
 }
 
-public class AddAccountToWalletApc : UosApc
+internal class AddAccountToWalletApc : Net.AddAccountToWalletApc, IUosApc
 {
-	public string	Name { get; set; } ///  Null means first
-	public byte[]	Key { get; set; } ///  Null means create new
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{	
@@ -178,52 +138,36 @@ public class AddAccountToWalletApc : UosApc
 	}
 }
 
-public class FindAuthenticationApc : UosApc
+internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IUosApc
 {
-	public string			Net { get; set; } /// Null means to serach among all unlocked accounts
-	public AccountAddress	Account { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(Account == null)
+		lock(uos)
+			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
+	}
+}
+
+internal class AuthenticateApc : Net.AuthenticateApc, IUosApc
+{
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
 		{
-			return uos.Vault.UnlockedAccounts.FirstOrDefault(i => i.FindAuthentication(Net) != null)?.FindAuthentication(Net);
-		}
-		else
-		{
-			return uos.Vault.Find(Account)?.FindAuthentication(Net);
+			var c = uos.AuthenticationRequested(Net, Account);
+	
+			if(c != null)
+			{
+				return new AccountSession {Account = c.Account, Session = uos.Vault.Find(c.Account).GetAuthentication(Net, c.Trust).Session};
+			} 
+			else
+				return null;
 		}
 	}
 }
 
-
-public class AuthenticateApc : UosApc
+internal class AuthorizeApc : Net.AuthorizeApc, IUosApc
 {
-	public string			Net { get; set; }
-	public AccountAddress	Account { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		var a = uos.AuthenticationRequested(Net, Account);
-
-		if(a != null)
-		{
-			return uos.Vault.Find(a.Account).GetSession(Net, a.Trust);
-		} 
-		else
-			return null;
-	}
-}
-
-public class AuthorizeApc : UosApc
-{
-	public string			Net { get; set; }
-	public AccountAddress	Account { get; set; }
-	public byte[]			Session { get; set; }
-	public byte[]			Data { get; set; }
-	public Trust			Trust { get; set; }
-
-	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		var acc = uos.Vault.Find(Account);
 		
@@ -245,25 +189,6 @@ public class AuthorizeApc : UosApc
 			uos.AuthorizationRequested(Net, Account);
 		}
 
-		return uos.Settings.Rdn.Cryptography.Sign(acc.Key, Cryptography.Hash(Data)); ///TODO: CALL THE NET CLINENT ITSELF
+		return uos.Vault.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
 	}
 }
-
-//public class PackageGetApc : UosApc
-//{
-//	public AprvAddress	Address { get; set; }
-//
-//	public override object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-//	{
-//		var p = uos.Rdn.FindLocalPackage(Address, flow);
- 	//		
-//		if(p == null || !p.Available)
-//		{
-//			p = uos.Rdn.DeployPackage(Address, uos.Settings.Packages, flow);
-//		}
-//
-//		p.Path = PackageHub.AddressToDeployment(uos.Settings.Packages, Address);
-//
-//		return p;
-//	}
-//}

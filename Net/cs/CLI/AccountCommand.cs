@@ -32,7 +32,7 @@ public class AccountCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Entity()
+	public virtual CommandAction Entity()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 

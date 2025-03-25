@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public interface IHolder
 {
-	bool		IsSpendingAuthorized(Round round, EntityId signer);
+	bool		IsSpendingAuthorized(Execution round, EntityId signer);
 }
 
 public interface ISpacetimeHolder : IHolder
@@ -75,7 +75,7 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
-public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
+public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
 {
 	public EntityId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
@@ -87,16 +87,23 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 	public long							Energy { get; set; }
 	public byte							EnergyThisPeriod { get; set; }
 	public long							EnergyNext { get; set; }
+
 	public long							Bandwidth { get; set; }
 	public short						BandwidthExpiration { get; set; } = -1;
 	public long							BandwidthToday { get; set; }
 	public short						BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
+	public BaseId						Key => Id;
+	public bool							Deleted { get; set; }
+
+	Mcv									Mcv;
+
 	public override string ToString()
 	{
 		return $"{Id}, {Address}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
 	}
+
 	public static long ParseSpacetime(string t)
 	{
 		t = t.Replace(" ", null).Replace("\t", null).ToUpper();
@@ -109,7 +116,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 		return long.Parse(t, NumberStyles.AllowThousands);
 	}
 
-	public bool IsSpendingAuthorized(Round round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, EntityId signer)
 	{
 		return Id == signer;
 	}
@@ -138,5 +145,41 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
 
+	public Account()
+	{
+	}
 
+	public Account(Mcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public virtual Account Clone()
+	{
+		var a = Mcv.Accounts.Create();
+
+		a.Id						= Id;
+		a.Address					= Address;
+		a.Spacetime					= Spacetime;
+		a.LastTransactionNid		= LastTransactionNid;
+		a.AverageUptime				= AverageUptime;
+
+		((IEnergyHolder)this).Clone(a);
+
+		return a;
+	}
+
+	public virtual void WriteMain(BinaryWriter w)
+	{
+		Write(w);
+	}
+
+	public virtual void ReadMain(BinaryReader r)
+	{
+		Read(r);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
 }
