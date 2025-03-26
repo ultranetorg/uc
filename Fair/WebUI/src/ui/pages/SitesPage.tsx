@@ -3,8 +3,10 @@ import { Link, useSearchParams } from "react-router-dom"
 
 import { useGetSites } from "entities"
 import { useQueryParams } from "hooks"
-import { Input, Pagination, Select } from "ui/components"
-import { DEFAULT_PAGE_SIZE } from "constants"
+import { Input, Pagination, Select, SelectItem } from "ui/components"
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
+
+const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
 type SiteCardProps = {
   title: string
@@ -76,15 +78,7 @@ export const SitesPage = () => {
         </h1>
         <div className="flex w-80 gap-3">
           <Input placeholder="Search site" value={title} onChange={setTitle} />
-          <Select
-            items={[
-              { label: "10", value: "10" },
-              { label: "20", value: "20" },
-              { label: "50", value: "50" },
-            ]}
-            value={pageSize}
-            onChange={handlePageSizeChange}
-          />
+          <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
           <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
         </div>
         {isPending || !sites ? (

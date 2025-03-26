@@ -11,7 +11,7 @@ public interface ISitesService
 
 	TotalItemsResult<CategoryParentBaseModel> GetCategories([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize);
 
-	SiteModel Find([NotEmpty] string siteId);
+	SiteModel Get([NotEmpty] string siteId);
 
 	SiteAuthorModel FindAuthorNonOptimized([NotEmpty] string siteId, [NotEmpty] string authorId);
 }

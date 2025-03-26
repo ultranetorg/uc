@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
-import { DEFAULT_PAGE_SIZE } from "constants"
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
 import { useGetModeratorReviews } from "entities"
 import { useQueryParams } from "hooks"
-import { Input, Pagination, Select } from "ui/components"
+import { Input, Pagination, Select, SelectItem } from "ui/components"
+
+const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
 export const ReviewsTab = () => {
   const [page, setPage] = useState(0)
@@ -66,15 +68,7 @@ export const ReviewsTab = () => {
       <div className="flex justify-between">
         <span>Reviews</span>
         <Input placeholder="Search review" value={search} onChange={setSearch} />
-        <Select
-          items={[
-            { label: "10", value: "10" },
-            { label: "20", value: "20" },
-            { label: "50", value: "50" },
-          ]}
-          value={pageSize}
-          onChange={handlePageSizeChange}
-        />
+        <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
       <div>

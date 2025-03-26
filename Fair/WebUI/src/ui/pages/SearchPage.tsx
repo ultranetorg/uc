@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
 import { useSearchContext } from "app"
-import { DEFAULT_PAGE_SIZE } from "constants"
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
 import { useSearchPublications } from "entities"
 import { useQueryParams } from "hooks"
-import { Pagination, PublicationCard, Select } from "ui/components"
+import { Pagination, PublicationCard, Select, SelectItem } from "ui/components"
+
+const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
 export const SearchPage = () => {
   const [page, setPage] = useState(0)
@@ -66,15 +68,7 @@ export const SearchPage = () => {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-3">
-        <Select
-          items={[
-            { label: "10", value: "10" },
-            { label: "20", value: "20" },
-            { label: "50", value: "50" },
-          ]}
-          value={pageSize}
-          onChange={handlePageSizeChange}
-        />
+        <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
       {isPending ? (

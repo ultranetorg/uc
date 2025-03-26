@@ -45,7 +45,7 @@ public class SitesService
 			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
 			if (site == null)
 			{
-				return null;
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 		}
 
@@ -83,9 +83,9 @@ public class SitesService
 		};
 	}
 
-	public SiteModel Find(string siteId)
+	public SiteModel Get(string siteId)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.Find)} method called with {{SiteId}}", siteId);
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.Get)} method called with {{SiteId}}", siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -97,7 +97,7 @@ public class SitesService
 			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
 			if (site == null)
 			{
-				return null;
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 		}
 

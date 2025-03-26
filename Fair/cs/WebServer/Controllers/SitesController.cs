@@ -33,13 +33,7 @@ public class SitesController
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 
-		SiteModel site = sitesService.Find(siteId);
-		if (site == null)
-		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-		}
-
-		return site;
+		return sitesService.Get(siteId);
 	}
 
 	[HttpGet("{siteId}/authors")]
@@ -53,10 +47,6 @@ public class SitesController
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
 		TotalItemsResult<AuthorBaseModel> authors = sitesService.GetAuthors(siteId, page, pageSize);
-		if (authors == null)
-		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-		}
 
 		return this.OkPaged(authors.Items, page, pageSize, authors.TotalItems);
 	}
