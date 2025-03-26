@@ -22,7 +22,7 @@ public class ModeratorDisputesController
 
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<DisputeModel> disputes = disputesService.GetDisputes(siteId, true, page, pageSize, search, cancellationToken);
+		TotalItemsResult<DisputeModel> disputes = disputesService.GetDisputesOrReferendums(siteId, true, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
 	}
@@ -35,6 +35,6 @@ public class ModeratorDisputesController
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		entityIdValidator.Validate(disputeId, nameof(Dispute).ToLower());
 
-		return disputesService.GetDispute(siteId, disputeId, true);
+		return disputesService.GetDisputeOrReferendum(siteId, disputeId, true);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Runtime.CompilerServices;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -9,9 +10,12 @@ public class DisputesService
 	FairMcv mcv
 ) : IDisputesService
 {
-	public DisputeDetailsModel GetDispute(string siteId, string disputeId, bool disputesOrReferendums)
+	private const string ReferendumEntityName = "referendum";
+
+	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
+	public DisputeDetailsModel GetDisputeOrReferendum(string siteId, string disputeId, bool disputesOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDispute)} method called with {{SiteId}}, {{DisputeId}}, {{DisputesOrReferendums}}", siteId, disputeId, disputesOrReferendums);
+		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputeOrReferendum)} method called with {{SiteId}}, {{DisputeId}}, {{DisputesOrReferendums}}", siteId, disputeId, disputesOrReferendums);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(disputeId);
@@ -27,14 +31,14 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			string entityName = disputesOrReferendums ? nameof(Dispute).ToLower() : nameof(DisputeFlags.Referendum).ToLower();
+			string entityName = disputesOrReferendums ? nameof(Dispute).ToLower() : ReferendumEntityName;
 			if (!site.Disputes.Any(x => x == disputeEntityId))
 			{
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
-			Dispute dispute = mcv.Disputes.Find(disputeEntityId, mcv.LastConfirmedRound.Id);
-			if (dispute == null || disputesOrReferendums == dispute.Flags.HasFlag(DisputeFlags.Referendum))
+			Dispute dispute = mcv.Disputes.Latest(siteEntityId);
+			if (dispute == null || dispute.Proposal is not SitePolicyChange change || disputesOrReferendums != IsChangePolicyDispute(change))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
 			}
@@ -43,9 +47,9 @@ public class DisputesService
 		}
 	}
 
-	public TotalItemsResult<DisputeModel> GetDisputes(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	public TotalItemsResult<DisputeModel> GetDisputesOrReferendums(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputes)} method called with {{SiteId}}, {{DisputesOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputesOrReferendums)} method called with {{SiteId}}, {{DisputesOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));
@@ -65,6 +69,7 @@ public class DisputesService
 		}
 	}
 
+	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
 	public TotalItemsResult<DisputeModel> LoadReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
@@ -79,7 +84,7 @@ public class DisputesService
 				return ToTotalItemsResult(disputes, totalItems);
 
 			Dispute dispute = mcv.Disputes.Find(disputeId, mcv.LastConfirmedRound.Id);
-			if (disputesOrReferendums == !dispute.Flags.HasFlag(DisputeFlags.Referendum) && SearchUtils.IsMatch(dispute, search))
+			if (dispute.Proposal is SitePolicyChange change && disputesOrReferendums == IsChangePolicyDispute(change) && SearchUtils.IsMatch(dispute, search))
 			{
 				if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 				{
@@ -102,4 +107,7 @@ public class DisputesService
 			TotalItems = totalItems
 		};
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static bool IsChangePolicyDispute(SitePolicyChange change) => change.Policy != ChangePolicy.ElectedByAuthorsMajority;
 }

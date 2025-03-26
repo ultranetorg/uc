@@ -22,7 +22,7 @@ public class AuthorReferendumsController
 
 		int page = pagination?.Page ?? 0;
 		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<DisputeModel> referendums = disputesService.GetDisputes(siteId, false, page, pageSize, search, cancellationToken);
+		TotalItemsResult<DisputeModel> referendums = disputesService.GetDisputesOrReferendums(siteId, false, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(referendums.Items, page, pageSize, referendums.TotalItems);
 	}
@@ -35,6 +35,6 @@ public class AuthorReferendumsController
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		entityIdValidator.Validate(referendumId, nameof(Dispute).ToLower());
 
-		return disputesService.GetDispute(siteId, referendumId, false);
+		return disputesService.GetDisputeOrReferendum(siteId, referendumId, false);
 	}
 }

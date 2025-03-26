@@ -25,7 +25,7 @@ internal class SearchUtils
 			return true;
 		}
 
-		if (dispute.Proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (dispute.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}
