@@ -29,7 +29,7 @@ public class EntityId : BaseId
 
 	public override int GetHashCode()
 	{
-		return B.GetHashCode();
+		return B;
 	}
 
 	public static bool TryParse(string t, out EntityId entity)

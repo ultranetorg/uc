@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Uccs.Fair;
 
 public class NicknameChange : VotableOperation
@@ -6,10 +8,9 @@ public class NicknameChange : VotableOperation
 	public EntityTextField		Field { get; set; }
 	public EntityId				Entity { get; set; }
 
-	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || 
-														Field == EntityTextField.AuthorNickname || 
-														Field == EntityTextField.ProductNickname || 
-														Field == EntityTextField.SiteNickname) && Nickname.Length <= 32;
+	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || Field == EntityTextField.AuthorNickname || Field == EntityTextField.ProductNickname || Field == EntityTextField.SiteNickname) 
+														&& Nickname.Length <= 32 
+														&& Regex.Match(Nickname, "[a-z0-9]").Success;
 	public override string		Description => $"{Nickname}";
 
 	public NicknameChange()
@@ -64,9 +65,8 @@ public class NicknameChange : VotableOperation
 	 		}
 		}
 
-		var t = execution.FindText(new StringId(Nickname));
-		var e = t?.Entities.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.ProductNickname || i.Field == EntityTextField.SiteNickname);
-
+		//var id = Ngram.GetId(Nickname);
+		var e = execution.FindWord(Nickname, i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.ProductNickname || i.Field == EntityTextField.SiteNickname);
 
 		if(e != null)
 		{
@@ -77,16 +77,12 @@ public class NicknameChange : VotableOperation
 			}
 
 			if(e.Field != Field)
-				t.Entities = t.Entities.Remove(e);
+				execution.DeindexText(Nickname, e.Field, e.Entity);
 		}
 
 		if(Nickname != "")
 		{
-			t = t == null ? execution.CreateText(Nickname) : execution.AffectText(new StringId(Nickname));
-			
-			e = new TextField {Entity = Entity, Field = Field};
-				
-			t.Entities = [..t.Entities, e];
+			execution.IndexText(Nickname, Field, Entity);
 		}
 
 		switch(Field)
