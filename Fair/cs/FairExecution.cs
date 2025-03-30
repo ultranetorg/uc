@@ -397,35 +397,14 @@ public class FairExecution : Execution
 
 	public void IndexText(string text, EntityTextField field, EntityId entity)
 	{
-		foreach(var i in text.Split(' '))
+		foreach(var w in text.Split(' '))
 		{
-			var w = i;
-			
-			if(w.Length < 3)
+			for(int n=1; n<=5; n++)
 			{
-				w = w.PadLeft(3, '\0');
-			}
-
-			if(w.Length == 3)
-			{
-				var id = Ngram.GetId(3, w, 0);
-
-				var t = AffectNgram(id);
-
-				var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-		
-				if(e == null)
+				for(int j=0; j <= w.Length - n; j++)
 				{
-					t.References = [..t.References, new TextReference {Entity = entity, Field = field}];
-				}
-			}
-
-			for(int j=0; j <= w.Length - 4; j++)
-			{
-				var id = Ngram.GetId(4, w, j);
+					var id = Ngram.GetId(n, w, j);
 				
-				if(w.Length == 4)
-				{
 					var t = AffectNgram(id);
 
 					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
@@ -434,46 +413,22 @@ public class FairExecution : Execution
 					{
 						t.References = [..t.References, new TextReference {Entity = entity, Field = field}];
 					}
-				} 
 
-				var p = AffectNgram(Ngram.GetId(3, w, j));
-				
-				if(!p.Ngrams.Contains(id))
-					p.Ngrams = [..p.Ngrams, id];
+					if(n > 1)
+					{
+						var p = AffectNgram(Ngram.GetId(n - 1, w, j));
+	
+						if(!p.Ngrams.Contains(id))	/// add parent
+							p.Ngrams = [..p.Ngrams, id];
 
-				if(j == w.Length - 4)
-				{
-					p = AffectNgram(Ngram.GetId(3, w, j+1));
-				
-					if(!p.Ngrams.Contains(id))
-						p.Ngrams = [..p.Ngrams, id];
-				}
-			}
-
-			for(int j=0; j <= w.Length - 5; j++)
-			{
-				var id = Ngram.GetId(5, w, j);
-				
-				var t = AffectNgram(id);
-
-				var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-			
-				if(e == null)
-				{
-					t.References = [..t.References, new TextReference {Entity = entity, Field = field}];
-				}
-
-				var p = AffectNgram(Ngram.GetId(4, w, j));
-
-				if(!p.Ngrams.Contains(id))
-					p.Ngrams = [..p.Ngrams, id];
-
-				if(j == w.Length - 5)
-				{
-					p = AffectNgram(Ngram.GetId(4, w, j+1));
-				
-					if(!p.Ngrams.Contains(id))
-						p.Ngrams = [..p.Ngrams, id];
+						if(j == w.Length - n)		/// all prev parent are prefixes, the last one is postfix [.. parent]
+						{
+							p = AffectNgram(Ngram.GetId(n - 1, w, j + 1));
+					
+							if(!p.Ngrams.Contains(id))
+								p.Ngrams = [..p.Ngrams, id];
+						}
+					}
 				}
 			}
 		}

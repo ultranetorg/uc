@@ -4,6 +4,11 @@ public class TextSearchResult
 {
 	public string		Text { get; set; }
 	public EntityId		Entity { get; set; }
+
+	public override string ToString()
+	{
+		return $"{Text}, {Entity}";
+	}
 }
 
 public class NgramTable : Table<Ngram>
@@ -43,13 +48,8 @@ public class NgramTable : Table<Ngram>
 			var w = i;
 			
 			IEnumerable<Publication> word = null;
-			
-			if(w.Length < 3)
-			{
-				w = w.PadLeft(3, '\0');
-			}
 
-			for(int n = 5; n >= 3; n--)
+			for(int n = w.Length; n >= 1; n--)
 			{
 				for(int j=0; j <= w.Length - n; j++)
 				{
@@ -83,7 +83,7 @@ public class NgramTable : Table<Ngram>
 
  				if(g != null)
  				{
-	 				word = enumerate(g);
+ 					word = enumerate(g);
  				}
  			}
 
@@ -111,8 +111,13 @@ public class NgramTable : Table<Ngram>
 
 			if(results == null)
 				results = word;
-			else if(word != null)
-				results = results.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+			else 
+			{
+				if(word != null)
+					results = results.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+				else
+					results = null;
+			}
 		}
 
 

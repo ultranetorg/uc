@@ -44,8 +44,6 @@ public class Ngram : IBinarySerializable, ITableEntry
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
-	//public static RawId		GetId(string t) => new RawId(Encoding.UTF8.GetBytes(t.ToLower(), 0, 3).Order().ToArray());
-	public static RawId		GetId(int n, string t, int start) => new RawId(Encoding.UTF8.GetBytes(t.ToLower(), start, n).Order().ToArray());
 
 	public Ngram()
 	{
@@ -54,6 +52,13 @@ public class Ngram : IBinarySerializable, ITableEntry
 	public Ngram(FairMcv mcv)
 	{
 		Mcv = mcv;
+	}
+	
+	public static RawId	GetId(int n, string t, int start)
+	{
+		var b = Encoding.UTF8.GetBytes(t.ToLower(), start, n).Order();
+
+		return new RawId(b.Count() > 2 ? b.ToArray() : (b.Count() == 1 ? [0,0, ..b] : [0, ..b]));
 	}
 
 	public Ngram Clone()
