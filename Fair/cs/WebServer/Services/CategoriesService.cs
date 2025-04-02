@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -58,5 +59,33 @@ public class CategoriesService
 			Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 			return new PublicationBaseModel(publication, product);
 		}).ToArray();
+	}
+
+	public TotalItemsResult<CategoryParentBaseModel> GetCategories(string siteId, int page, int pageSize)
+	{
+		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategories)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		EntityId id = EntityId.Parse(siteId);
+
+		IEnumerable<Category> categories = null;
+		lock (mcv.Lock)
+		{
+			categories = mcv.Categories.FindBySiteId(id);
+			if (categories == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+		}
+
+		IEnumerable<Category> skippedAndTaken = categories.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<CategoryParentBaseModel> items = skippedAndTaken.Select(x => new CategoryParentBaseModel(x));
+
+		return new TotalItemsResult<CategoryParentBaseModel>
+		{
+			Items = items,
+			TotalItems = categories.Count(),
+		};
 	}
 }

@@ -8,9 +8,9 @@ public class UsersService
 	FairMcv mcv
 ) : IUsersService
 {
-	public UserModel Find(string userId)
+	public UserModel Get(string userId)
 	{
-		logger.LogDebug($"GET {nameof(UsersService)}.{nameof(UsersService.Find)} method called with {{UserId}}", userId);
+		logger.LogDebug($"GET {nameof(UsersService)}.{nameof(UsersService.Get)} method called with {{UserId}}", userId);
 
 		Guard.Against.NullOrEmpty(userId);
 
@@ -22,7 +22,7 @@ public class UsersService
 			account = (FairAccount) mcv.Accounts.Find(entityId, mcv.LastConfirmedRound.Id);
 			if (account == null)
 			{
-				return null;
+				throw new EntityNotFoundException(nameof(Account).ToLower(), userId);
 			}
 		}
 

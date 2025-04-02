@@ -16,12 +16,6 @@ public class UsersController
 
 		entityIdValidator.Validate(userId, nameof(Account).ToLower());
 
-		UserModel user = usersService.Find(userId);
-		if (user == null)
-		{
-			throw new EntityNotFoundException(nameof(Account).ToLower(), userId);
-		}
-
-		return user;
+		return usersService.Get(userId);
 	}
 }

@@ -5,8 +5,10 @@ namespace Uccs.Fair;
 
 public interface IReviewsService
 {
-	TotalItemsResult<ReviewModel> GetModeratorsReviewsNonOptimized(
+	TotalItemsResult<ModeratorReviewModel> GetModeratorsReviewsNonOptimized(
 		[NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken);
 
-	ReviewDetailsModel GetModeratorReview([NotNull][NotEmpty] string reviewId);
+	ModeratorReviewDetailsModel GetModeratorReview([NotNull][NotEmpty] string reviewId);
+
+	TotalItemsResult<ReviewModel> GetPublicationReviews([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 }

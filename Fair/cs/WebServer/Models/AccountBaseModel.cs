@@ -1,14 +1,17 @@
 ﻿namespace Uccs.Fair;
 
-public class AccountModel
+public class AccountBaseModel
 {
 	public string Id { get; set; }
 
 	public string Address { get; set; }
 
-	public AccountModel(Account account)
+	public string Nickname { get; set; }
+
+	public AccountBaseModel(FairAccount account)
 	{
 		Id = account.Id.ToString();
 		Address = account.Address.ToString();
+		Nickname = account.Nickname;
 	}
 }
