@@ -550,7 +550,7 @@ public abstract class Round : IBinarySerializable
 			Members.Remove(i);
 		}
 
-		foreach(var i in e.Candidates.OrderByHash(i => i.Address.Bytes, Hash).TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
+		foreach(var i in e.Candidates/*.OrderByHash(i => i.Address.Bytes, Hash)*/.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
 
 			var c = e.AffectCandidate(i.Id);

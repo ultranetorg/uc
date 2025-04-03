@@ -14,6 +14,9 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 	public abstract void	Read(BinaryReader reader);
 	public abstract void	Write(BinaryWriter writer);
 
+	public static byte[]	BucketToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
+	public static int		BytesToBucket(byte[] id) => id[0] | id[1]<< 8 | id[2] << 16;
+
  	public static bool operator == (BaseId left, BaseId right)
  	{
  		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!

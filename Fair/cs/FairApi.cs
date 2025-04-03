@@ -132,45 +132,23 @@ public class CostApc : FairApc
 }
 
 
-public class SearchPublicationsApc : FairApc
+public class SearchApc : FairApc
 {
-	public EntityId		Site { get; set; }
-	public string		Query { get; set; }
-	public int			Page { get; set; }
-	public byte			Lines { get; set; }
-
-	public class Return
-	{
-		public string		Text { get; set; }
-		public EntityId		Entity { get; set; }
-	}
+	public EntityId			Site { get; set; }
+	public string			Query { get; set; }
+	public int				Page { get; set; }
+	public byte				Lines { get; set; } = 10;
+	public EntityTextField	Field { get; set; }
 
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		IEnumerable<Publication> items = [];
-
 		lock(node.Mcv.Lock)
 		{
-			foreach(var i in Query.Trim().Split(' '))
-			{
-				var t = node.Mcv.Texts.Latest(new StringId(i));
-	
-				if(t != null)
-				{
-					items = items.Intersect(t.Entities	.Where(i => i.Field == EntityTextField.PublicationTitle)
-														.Select(i => node.Mcv.Publications.Latest(i.Entity))
-														.Where(p => node.Mcv.Categories.Latest(p.Category).Site == Site), EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id));
-				}
-			}
-
-			return items.Skip(Page * Lines).Select(p => {
-															var r = node.Mcv.Products.Latest(p.Product);
-														
-															var f = p.Fields.First(i => i.Name == ProductField.Title);
-
-															return new Return {Text = r.GetString(f), Entity = p.Id};
-														})
-										   .Take(Lines);
+			return Field switch
+						 {
+							 EntityTextField.PublicationTitle => node.Mcv.Ngrams.SearchPublications(Site, Query, Page, Lines),
+							 _ => throw new RequestException(RequestError.IncorrectRequest)
+						 };
 		}
 	}
 }
