@@ -6,7 +6,7 @@ public class DomainTable : Table<Domain>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
-	public int						KeyToBid(string domain) => BucketBase.FromBytes(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
+	public int						KeyToBid(string domain) => BaseId.BytesToBucket(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
 	public DomainTable(RdnMcv rds) : base(rds)
 	{

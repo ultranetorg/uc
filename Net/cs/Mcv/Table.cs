@@ -37,8 +37,6 @@ public abstract class TableBase
 		public abstract byte[]						Main { get; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
 
-		public static byte[]						ToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
-		public static int							FromBytes(byte[] id) => id[0] | id[1]<< 8 | id[2] << 16;
 		public abstract void						Save(WriteBatch batch);
 		public abstract void						Save(WriteBatch batch, byte[] main);
 
@@ -96,7 +94,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		byte[]					_Main;
 		int						_NextEntryId;
 		List<E>					_Entries;
-		public override byte[]	Main  => _Main ??= Table.Engine.Get(ToBytes(Id), Table.MainColumn);
+		public override byte[]	Main  => _Main ??= Table.Engine.Get(BaseId.BucketToBytes(Id), Table.MainColumn);
 
 		public override List<E> Entries
 		{
@@ -129,7 +127,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			Table = table;
 			Id = id;
 
-			var meta = Table.Engine.Get(ToBytes(Id), Table.MetaColumn);
+			var meta = Table.Engine.Get(BaseId.BucketToBytes(Id), Table.MetaColumn);
 
 			if(meta != null)
 			{
@@ -187,7 +185,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 				_Main = s.ToArray();
 			///}
 
-			batch.Put(ToBytes(Id), _Main, Table.MainColumn);
+			batch.Put(BaseId.BucketToBytes(Id), _Main, Table.MainColumn);
 
 			Hash = Cryptography.Hash(_Main);
 			MainLength = _Main.Length;
@@ -197,14 +195,14 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write(Hash);
 			w.Write7BitEncodedInt(_Main.Length);
 
-			batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
+			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
 		}
 
 		public override void Save(WriteBatch batch, byte[] main)
 		{
 			_Main = main;
 
-			batch.Put(ToBytes(Id), _Main, Table.MainColumn);
+			batch.Put(BaseId.BucketToBytes(Id), _Main, Table.MainColumn);
 
 			Hash = Cryptography.Hash(_Main);
 			MainLength = _Main.Length;
@@ -215,7 +213,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write(Hash);
 			w.Write7BitEncodedInt(MainLength);
 
-			batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
+			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
 		}
 	}
 
@@ -423,10 +421,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
-	public virtual E Find(StringId id, int ridmax)
+	public virtual E Find(RawId id, int ridmax)
 	{
   		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if((i.AffectedByTable(this) as IDictionary<StringId, E>).TryGetValue(id, out var r) && !r.Deleted)
+			if((i.AffectedByTable(this) as IDictionary<RawId, E>).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 				
 		/// Use binary search!
@@ -434,7 +432,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return FindBucket(id.B)?.Entries.Find(i => i.Key == id);
 	}
 
-	public virtual E Latest(StringId id)
+	public virtual E Latest(RawId id)
 	{
 		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
