@@ -8,7 +8,7 @@ public class NicknameChangeModel : BaseVotableOperationModel
 
 	public string EntityId { get; set; }
 
-	public NicknameChangeModel(NicknameChange operation) : base(operation)
+	public NicknameChangeModel(NicknameChange operation)
 	{
 		Nickname = operation.Nickname;
 		Field = operation.Field;

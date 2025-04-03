@@ -12,15 +12,15 @@ public class SitesController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<SiteBaseModel> Get([FromQuery] PaginationRequest pagination, [FromQuery] string? title)
+	public IEnumerable<SiteBaseModel> Search([FromQuery] PaginationRequest pagination, [FromQuery] string? search)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called with {{Pagination}}, {{Title}}", pagination, title);
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called with {{Pagination}}, {{Search}}", pagination, search);
 
 		// TODO: validate search string: title
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<SiteBaseModel> sites = sitesService.SearchNonOptimized(page, pageSize, title);
+		TotalItemsResult<SiteBaseModel> sites = sitesService.SearchNonOptimized(page, pageSize, search);
 
 		return this.OkPaged(sites.Items, page, pageSize, sites.TotalItems);
 	}

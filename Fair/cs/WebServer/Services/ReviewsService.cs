@@ -105,9 +105,9 @@ public class ReviewsService
 		}
 	}
 
-	public TotalItemsResult<ReviewModel> GetPublicationReviews(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviews)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
+		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(publicationId);
 		Guard.Against.Negative(page, nameof(page));
@@ -123,45 +123,51 @@ public class ReviewsService
 				throw new EntityNotFoundException(nameof(Publication), publicationId);
 			}
 
-			IEnumerable<EntityId> pagedEntities = publication.Reviews.Skip(page * pageSize).Take(pageSize);
-			IEnumerable<ReviewModel> items = LoadReviews(pagedEntities, cancellationToken);
+			var context = new SearchContext<ReviewModel>
+			{
+				Page = page,
+				PageSize = pageSize,
+				Items = new List<ReviewModel>(pageSize)
+			};
+			LoadReviews(context, publication.Reviews, cancellationToken);
 
 			return new TotalItemsResult<ReviewModel>
 			{
-				TotalItems = publication.Reviews.Length,
-				Items = items,
+				TotalItems = context.TotalItems,
+				Items = context.Items,
 			};
 		}
 	}
 
-	private IEnumerable<ReviewModel> LoadReviews(IEnumerable<EntityId> reviewsIds, CancellationToken cancellationToken)
+	private void LoadReviews(SearchContext<ReviewModel> context, IEnumerable<EntityId> reviewsIds, CancellationToken cancellationToken)
 	{
-		var result = new List<ReviewModel>(reviewsIds.Count());
-
 		if (cancellationToken.IsCancellationRequested)
-			return result;
+			return;
 
 		foreach (var id in reviewsIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
-				return result;
+				return;
 
 			Review review = mcv.Reviews.Latest(id);
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
-			var model = new ReviewModel(review, account);
-			result.Add(model);
-		}
+			if (review.Status != ReviewStatus.Accepted)
+			{
+				continue;
+			}
 
-		return result;
+			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+			{
+				FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
+				var model = new ReviewModel(review, account);
+				context.Items.Add(model);
+			}
+
+			++context.TotalItems;
+		}
 	}
 
-	private class Context
+	private class Context : SearchContext<ModeratorReviewModel>
 	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
 		public string? Search { get; set; }
-
-		public int TotalItems { get; set; }
-		public IList<ModeratorReviewModel> Items { get; set; }
 	}
 }

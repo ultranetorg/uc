@@ -16,7 +16,7 @@ public class AuthorBaseModel
 	public AuthorBaseModel(Author author)
 	{
 		Id = author.Id.ToString();
-		Nickname = author.Nickname.ToString();
+		Nickname = author.Nickname;
 		Title = author.Title;
 	}
 }

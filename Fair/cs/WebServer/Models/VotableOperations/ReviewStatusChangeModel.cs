@@ -6,7 +6,7 @@ public class ReviewStatusChangeModel : BaseVotableOperationModel
 
 	public ReviewStatus Status { get; set; }
 
-	public ReviewStatusChangeModel(ReviewStatusChange operation) : base(operation)
+	public ReviewStatusChangeModel(ReviewStatusChange operation)
 	{
 		ReviewId = operation.Review.ToString();
 		Status = operation.Status;

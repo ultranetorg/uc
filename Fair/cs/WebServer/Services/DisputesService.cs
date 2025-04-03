@@ -38,12 +38,15 @@ public class DisputesService
 			}
 
 			Dispute dispute = mcv.Disputes.Latest(siteEntityId);
-			if (dispute == null || dispute.Proposal is not SitePolicyChange change || disputesOrReferendums != IsChangePolicyDispute(change))
+			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
 			}
 
-			return new DisputeDetailsModel(dispute);
+			return new DisputeDetailsModel(dispute)
+			{
+				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+			};
 		}
 	}
 
@@ -84,15 +87,22 @@ public class DisputesService
 				return ToTotalItemsResult(disputes, totalItems);
 
 			Dispute dispute = mcv.Disputes.Find(disputeId, mcv.LastConfirmedRound.Id);
-			if (dispute.Proposal is SitePolicyChange change && disputesOrReferendums == IsChangePolicyDispute(change) && SearchUtils.IsMatch(dispute, search))
-			{
-				if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
-				{
-					disputes.Add(dispute);
-				}
 
-				++totalItems;
+			if (disputesOrReferendums != IsProposalIsDispute(dispute))
+			{
+				continue;
 			}
+			if (!SearchUtils.IsMatch(dispute, search))
+			{
+				continue;
+			}
+
+			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
+			{
+				disputes.Add(dispute);
+			}
+
+			++totalItems;
 		}
 
 		return ToTotalItemsResult(disputes, totalItems);
@@ -100,7 +110,11 @@ public class DisputesService
 
 	private static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
 	{
-		IEnumerable<DisputeModel> items = disputes.Select(items => new DisputeModel(items));
+		IEnumerable<DisputeModel> items = disputes.Select(dispute =>
+			new DisputeModel(dispute)
+			{
+				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+			});
 		return new TotalItemsResult<DisputeModel>
 		{
 			Items = items,
@@ -108,6 +122,23 @@ public class DisputesService
 		};
 	}
 
+	private static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
+	{
+		return proposal switch
+		{
+			NicknameChange operation => new NicknameChangeModel(operation),
+			PublicationProductChange operation => new PublicationProductChangeModel(operation),
+			PublicationStatusChange operation => new PublicationStatusChangeModel(operation),
+			PublicationUpdateModeration operation => new PublicationUpdateModerationModel(operation),
+			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
+			ReviewTextModeration operation => new ReviewTextModerationModel(operation),
+			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
+			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
+			SitePolicyChange operation => new SitePolicyChangeModel(operation),
+			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
+		};
+	}
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static bool IsChangePolicyDispute(SitePolicyChange change) => change.Policy != ChangePolicy.ElectedByAuthorsMajority;
+	bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
 }

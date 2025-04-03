@@ -4,7 +4,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("publications/{publicationId}/[controller]")]
+[Route("api/publications/{publicationId}/[controller]")]
 public class ReviewsController
 (
 	ILogger<ReviewsController> logger,
@@ -22,7 +22,7 @@ public class ReviewsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ReviewModel> reviews = reviewsService.GetPublicationReviews(publicationId, page, pageSize, cancellationToken);
+		TotalItemsResult<ReviewModel> reviews = reviewsService.GetPublicationReviewsNotOptimized(publicationId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

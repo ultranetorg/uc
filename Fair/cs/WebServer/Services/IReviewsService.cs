@@ -10,5 +10,5 @@ public interface IReviewsService
 
 	ModeratorReviewDetailsModel GetModeratorReview([NotNull][NotEmpty] string reviewId);
 
-	TotalItemsResult<ReviewModel> GetPublicationReviews([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
+	TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 }

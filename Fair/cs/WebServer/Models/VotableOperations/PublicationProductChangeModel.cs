@@ -6,7 +6,7 @@ public class PublicationProductChangeModel : BaseVotableOperationModel
 
 	public string ProductId { get; set; }
 
-	public PublicationProductChangeModel(PublicationProductChange opeartion) : base(opeartion)
+	public PublicationProductChangeModel(PublicationProductChange opeartion)
 	{
 		PublicationId = opeartion.Publication.ToString();
 		ProductId = opeartion.Product.ToString();

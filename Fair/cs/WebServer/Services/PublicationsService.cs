@@ -10,7 +10,7 @@ public class PublicationsService
 	FairMcv mcv
 ) : IPublicationsService
 {
-	public PublicationModel GetPublication(string publicationId)
+	public PublicationDetailsModel GetPublication(string publicationId)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetPublication)} method called with {{PublicationId}}", publicationId);
 
@@ -21,7 +21,7 @@ public class PublicationsService
 		lock (mcv.Lock)
 		{
 			Publication publication = mcv.Publications.Find(entityId, mcv.LastConfirmedRound.Id);
-			if (publication == null)
+			if (publication == null || publication.Status != PublicationStatus.Approved)
 			{
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
@@ -29,27 +29,14 @@ public class PublicationsService
 			Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 			Author author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
 
-			var reviews = publication.Reviews.Length > 0 ? LoadReviews(publication.Reviews) : null;
-
-			return new PublicationModel(publication, product, author)
+			return new PublicationDetailsModel(publication, product, author)
 			{
 				ProductFields = GetProductFields(publication, product),
-				Reviews = reviews
 			};
 		}
 	}
 
-	private IEnumerable<ReviewModel> LoadReviews(EntityId[] reviewsIds)
-	{
-		return reviewsIds.Select(id =>
-		{
-			Review review = mcv.Reviews.Find(id, mcv.LastConfirmedRound.Id);
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
-			return new ReviewModel(review, account);
-		}).ToArray();
-	}
-
-	private IEnumerable<ProductFieldModel> GetProductFields(Publication publication, Product product)
+	IEnumerable<ProductFieldModel> GetProductFields(Publication publication, Product product)
 	{
 		return publication.Fields.Select(x => new ProductFieldModel
 		{
@@ -85,15 +72,14 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
 			}
 
-			var context = new SearchPublicationsContext
+			var context = new PublicationsContext
 			{
-				CategoriesIds = site.Categories,
 				AuthorId = authorEntitiId,
 				Page = page,
 				PageSize = pageSize,
 				Items = new List<PublicationBaseModel>(pageSize)
 			};
-			SearchInCategories(context, cancellationToken);
+			SearchInCategories(context, site.Categories, cancellationToken);
 
 			return new TotalItemsResult<PublicationBaseModel>
 			{
@@ -103,12 +89,12 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInCategories(SearchPublicationsContext context, CancellationToken cancellationToken)
+	void SearchInCategories(PublicationsContext context, IEnumerable<EntityId> categoriesIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
 
-		foreach (EntityId categoryId in context.CategoriesIds)
+		foreach (EntityId categoryId in categoriesIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -121,11 +107,11 @@ public class PublicationsService
 			}
 
 			SearchInPublications(context, category.Publications, cancellationToken);
-			SearchInCategories(context, cancellationToken);
+			SearchInCategories(context, category.Categories, cancellationToken);
 		}
 	}
 
-	void SearchInPublications(SearchPublicationsContext context, EntityId[] publicationsIds, CancellationToken cancellationToken)
+	void SearchInPublications(PublicationsContext context, EntityId[] publicationsIds, CancellationToken cancellationToken)
 	{
 		foreach (EntityId publicationId in publicationsIds)
 		{
@@ -138,6 +124,10 @@ public class PublicationsService
 				product = mcv.Products.Latest(publication.Product);
 			}
 
+			if (publication.Status != PublicationStatus.Approved)
+			{
+				continue;
+			}
 			if (product.Author != context.AuthorId)
 			{
 				continue;
@@ -171,7 +161,7 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var context = new Context
+			var context = new FilteredContext<ModeratorPublicationModel>
 			{
 				Page = page,
 				PageSize = pageSize,
@@ -188,7 +178,7 @@ public class PublicationsService
 		}
 	}
 
-	private void LoadReviewsRecursively(IEnumerable<EntityId> categoriesIds, Context context, CancellationToken canellationToken)
+	void LoadReviewsRecursively(IEnumerable<EntityId> categoriesIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken canellationToken)
 	{
 		if (canellationToken.IsCancellationRequested)
 			return;
@@ -253,9 +243,9 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<SitePublicationModel> SearchPublicationsNonOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationModel> SearchPublicationsNotOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchPublicationsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Title}}", siteId, page, pageSize, title);
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Title}}", siteId, page, pageSize, title);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NegativeOrZero(pageSize);
@@ -273,23 +263,23 @@ public class PublicationsService
 			}
 		}
 
-		SearchContext context = new SearchContext()
+		var context = new FilteredContext<PublicationModel>()
 		{
 			Page = page,
 			PageSize = pageSize,
-			SearchTitle = title,
-			Result = new List<SitePublicationModel>()
+			Search = title,
+			Items = new List<PublicationModel>()
 		};
 		SearchInCategories(context, site.Categories, cancellationToken);
 
-		return new TotalItemsResult<SitePublicationModel>
+		return new TotalItemsResult<PublicationModel>
 		{
-			Items = context.Result.Skip(page * pageSize).Take(pageSize),
+			Items = context.Items.Skip(page * pageSize).Take(pageSize),
 			TotalItems = context.TotalItems,
 		};
 	}
 
-	private void SearchInCategories(SearchContext context, EntityId[] categoriesIds, CancellationToken cancellationToken)
+	void SearchInCategories(FilteredContext<PublicationModel> context, EntityId[] categoriesIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -311,7 +301,7 @@ public class PublicationsService
 		}
 	}
 
-	private void SearchInPublications(SearchContext context, Category category, EntityId[] publicationsIds, CancellationToken cancellationToken)
+	void SearchInPublications(FilteredContext<PublicationModel> context, Category category, EntityId[] publicationsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -328,10 +318,10 @@ public class PublicationsService
 			lock (mcv.Lock)
 			{
 				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
-				//if (publication.Status != PublicationStatus.Approved)
-				//{
-				//	continue;
-				//}
+				if (publication.Status != PublicationStatus.Approved)
+				{
+					continue;
+				}
 
 				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
 				author = mcv.Authors.Find(publication.Creator, mcv.LastConfirmedRound.Id);
@@ -342,51 +332,25 @@ public class PublicationsService
 			{
 				continue;
 			}
-			if (!string.IsNullOrEmpty(context.SearchTitle) && productTitle.IndexOf(context.SearchTitle, StringComparison.OrdinalIgnoreCase) == -1)
+			if (!string.IsNullOrEmpty(context.Search) && productTitle.IndexOf(context.Search, StringComparison.OrdinalIgnoreCase) == -1)
 			{
 				continue;
 			}
 
-			SitePublicationModel resultItem = new SitePublicationModel(publication, category, author, product);
-			context.Result.Add(resultItem);
+			PublicationModel resultItem = new PublicationModel(publication, category, author, product);
+			context.Items.Add(resultItem);
 
 			++context.TotalItems;
 		}
 	}
 
-	class SearchContext
+	private class FilteredContext<T> : SearchContext<T> where T : class
 	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
-		public string SearchTitle { get; set; }
-
-		public int TotalItems { get; set; }
-		public List<SitePublicationModel> Result { get; set; }
-	}
-
-	private class Context
-	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
 		public string? Search { get; set; }
-
-		public int TotalItems { get; set; }
-		public IList<ModeratorPublicationModel> Items { get; set; }
 	}
 
-	private class SearchContext<T> where T : class
+	private class PublicationsContext : SearchContext<PublicationBaseModel>
 	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
-
-		public int TotalItems { get; set; }
-		public IList<T> Items { get; set; }
-	}
-
-	private class SearchPublicationsContext : SearchContext<PublicationBaseModel>
-	{
-		public EntityId[] CategoriesIds { get; set; }
-
 		public EntityId AuthorId { get; set; }
 	}
 }

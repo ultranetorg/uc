@@ -21,7 +21,7 @@ public class CategoriesController
 		return categoriesService.GetCategory(categoryId);
 	}
 
-	[HttpGet("~/sites/{siteId}/categories")]
+	[HttpGet("~/api/sites/{siteId}/categories")]
 	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, [FromQuery] PaginationRequest pagination)
 	{
 		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{Pagination}}", siteId, pagination);

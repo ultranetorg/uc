@@ -2,7 +2,7 @@
 
 public class PublicationUpdateModerationModel : BaseVotableOperationModel
 {
-	public PublicationUpdateModerationModel(PublicationUpdateModeration operation) : base(operation)
+	public PublicationUpdateModerationModel(PublicationUpdateModeration operation)
 	{
 	}
 }

@@ -6,7 +6,7 @@ public class SiteModeratorsChangeModel : BaseVotableOperationModel
 	public IEnumerable<string> AdditionsIds { get; set; }
 	public IEnumerable<string> RemovalsIds { get; set; }
 
-	public SiteModeratorsChangeModel(SiteModeratorsChange operation) : base(operation)
+	public SiteModeratorsChangeModel(SiteModeratorsChange operation)
 	{
 		SiteId = operation.Site.ToString();
 		AdditionsIds = operation.Additions.Select(x => x.ToString());

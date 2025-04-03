@@ -31,8 +31,8 @@ public class CategoriesService
 				parentCategory = mcv.Categories.Find(category.Parent, mcv.LastConfirmedRound.Id);
 			}
 
-			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : null;
-			IEnumerable<PublicationBaseModel> publications = category.Publications.Length > 0 ? LoadPublications(category.Publications) : null;
+			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
+			IEnumerable<PublicationBaseModel> publications = category.Publications.Length > 0 ? LoadPublications(category.Publications) : [];
 
 			return new CategoryModel(category, parentCategory?.Title.ToString())
 			{

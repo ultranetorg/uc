@@ -4,7 +4,9 @@ internal class SearchUtils
 {
 	internal static bool IsMatch(Site site, string? title)
 	{
-		return string.IsNullOrEmpty(title) || site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
+		return string.IsNullOrEmpty(title)
+			|| site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1
+			|| site.Nickname.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
 	internal static bool IsMatch(Dispute dispute, string? search)

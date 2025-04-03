@@ -7,7 +7,7 @@ public class SitePolicyChangeModel : BaseVotableOperationModel
 	public FairOperationClass Change { get; set; }
 	public ChangePolicy Policy { get; set; }
 
-	public SitePolicyChangeModel(SitePolicyChange operation) : base(operation)
+	public SitePolicyChangeModel(SitePolicyChange operation)
 	{
 		SiteId = operation.Site.ToString();
 		Change = operation.Change;

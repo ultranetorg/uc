@@ -1,0 +1,12 @@
+@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
+@Uccs.Fair.WebApi_BasePath = http://127.0.0.101:80/api/author/sites/65793-0/referendums
+
+### GET Referendums
+
+GET {{Uccs.Fair.WebApi_BasePath}}
+Accept: application/json
+
+### GET Referendum
+
+GET {{Uccs.Fair.WebApi_BasePath}}/
+Accept: application/json
