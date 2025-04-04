@@ -102,8 +102,8 @@ public class PublicationUpdateModeration : VotableOperation
 		
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
-				if(f.Name == ProductField.Title)
-					execution.DeindexText(Encoding.UTF8.GetString(x.Value), EntityTextField.PublicationTitle, p.Id);
+				///if(f.Name == ProductField.Title)
+				///	execution.reDeindexText(Encoding.UTF8.GetString(x.Value), EntityTextField.PublicationTitle, p.Id);
 			}
 	
 			/// increase refs in product
@@ -115,8 +115,8 @@ public class PublicationUpdateModeration : VotableOperation
 	
 			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
-			if(f.Name == ProductField.Title)
-				execution.IndexText(Encoding.UTF8.GetString(v.Value), EntityTextField.PublicationTitle, p.Id);
+			///if(f.Name == ProductField.Title)
+			///	execution.IndexText(Encoding.UTF8.GetString(v.Value), EntityTextField.PublicationTitle, p.Id);
 
 			PayForModeration(execution, p, a);
 		}

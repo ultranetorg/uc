@@ -210,50 +210,49 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				{
 					stamp = Call(peer, new StampRequest());
 	
-					void download(TableBase t)
-					{
-						var ts = Call(peer, new TableStampRequest {Table = t.Id, 
-																   Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
-																										 .Select(i => i.Id)
-																										 .ToArray()});
-						using(var w = new WriteBatch())
-						{
-							foreach(var i in ts.Clusters)
-							{
-								///lock(Mcv.Lock)	
-								{
-									var c = t.GetCluster(i.Id);
+					void download(TableBase t)	{
+													var ts = Call(peer, new TableStampRequest {Table = t.Id, 
+																							   Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
+																																	 .Select(i => i.Id)
+																																	 .ToArray()});
+													using(var w = new WriteBatch())
+													{
+														foreach(var i in ts.Clusters)
+														{
+															///lock(Mcv.Lock)	
+															{
+																var c = t.GetCluster(i.Id);
 
-									foreach(var j in i.Buckets)
-									{
-										var b = c.GetBucket(j.Id);
+																foreach(var j in i.Buckets)
+																{
+																	var b = c.GetBucket(j.Id);
 			
-										if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
-										{
-											var d = Call(peer, new DownloadTableRequest {Table		= t.Id,
-																						 BucketId	= j.Id, 
-																						 Hash		= j.Hash});
+																	if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
+																	{
+																		var d = Call(peer, new DownloadTableRequest {Table		= t.Id,
+																													 BucketId	= j.Id, 
+																													 Hash		= j.Hash});
 
-											b.Save(w, d.Main);
+																		b.Save(w, d.Main);
 				
-											if(!b.Hash.SequenceEqual(j.Hash))
-												throw new SynchronizationException("Cluster hash mismatch");
+																		if(!b.Hash.SequenceEqual(j.Hash))
+																			throw new SynchronizationException("Cluster hash mismatch");
 			
-											Flow.Log?.Report(this, $"Bucket downloaded {t.GetType().Name}, {b.Id}");
-										}
-									}
+																		Flow.Log?.Report(this, $"Bucket downloaded {t.GetType().Name}, {b.Id}");
+																	}
+																}
 
-									c.Save(w);
-								}
-							}
+																c.Save(w);
+															}
+														}
 							
-							Mcv.Database.Write(w);
-						}
-					}
+														Mcv.Database.Write(w);
+													}
+												}
 	
 					while(Flow.Active)
 					{
-						foreach(var i in Mcv.Tables)
+						foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 						{
 							download(i);
 						}

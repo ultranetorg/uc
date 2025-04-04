@@ -35,7 +35,6 @@ public class Review : IBinarySerializable, ITableEntry
 	public byte				Rate { get; set; }
     public string			Text { get; set; }
     public string			TextNew { get; set; }
-    public byte				Rating { get; set; }
     public Time	    		Created { get; set; }
 
 	public BaseId			Key => Id;
@@ -60,7 +59,6 @@ public class Review : IBinarySerializable, ITableEntry
 						Rate		= Rate,
 						Text		= Text,
 						TextNew		= TextNew,
-						Rating		= Rating,
 						Created		= Created};
 	}
 		
@@ -88,7 +86,6 @@ public class Review : IBinarySerializable, ITableEntry
 		Rate		= reader.ReadByte();
 		Text		= reader.ReadString();
 		TextNew		= reader.ReadString();
-		Rating		= reader.ReadByte();
 		Created		= reader.Read<Time>();
 	}
 
@@ -101,7 +98,6 @@ public class Review : IBinarySerializable, ITableEntry
 		writer.Write(Rate);
 		writer.Write(Text);
 		writer.Write(TextNew);
-		writer.Write(Rating);
 		writer.Write(Created);
 	}
 }

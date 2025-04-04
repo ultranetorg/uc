@@ -15,7 +15,7 @@ public class FairExecution : Execution
 	public Dictionary<EntityId, Publication>	AffectedPublications = new();
 	public Dictionary<EntityId, Review>			AffectedReviews = new();
 	public Dictionary<EntityId, Dispute>		AffectedDisputes = new();
-	public Dictionary<RawId, Ngram>			AffectedNgrams = new();
+	public Dictionary<RawId, Word>				AffectedWords = new();
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -30,7 +30,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Publications.Id)	return FindPublication(id as EntityId)	!= null	? AffectPublication(id as EntityId) : null;
 		if(table == Mcv.Reviews.Id)			return FindReview(id as EntityId)		!= null	? AffectReview(id as EntityId) : null;
 		if(table == Mcv.Disputes.Id)		return FindDispute(id as EntityId)		!= null	? AffectDispute(id as EntityId) : null;
-		if(table == Mcv.Ngrams.Id)		return FindNgram(id as RawId)			!= null	? AffectNgram(id as RawId) : null;
+		if(table == Mcv.Words.Id)			return FindWord(id as RawId)			!= null	? AffectWord(id as RawId) : null;
 
 		return base.Affect(table, id);
 	}
@@ -327,14 +327,6 @@ public class FairExecution : Execution
 
 		return AffectedDisputes[id] = e.Clone();
 	}
- 
- 	public Ngram FindNgram(RawId id)
- 	{
- 		if(AffectedNgrams.TryGetValue(id, out var a))
- 			return a;
- 
- 		return Mcv.Ngrams.Find(id, Round.Id);
- 	}
 
 	//public Ngram CreateNgram(RawId id)
 	//{
@@ -344,151 +336,196 @@ public class FairExecution : Execution
 	//
 	//	return AffectedNgrams[a.Id] = a;
 	//}
+ 
+ 	public Word FindWord(RawId id)
+ 	{
+ 		if(AffectedWords.TryGetValue(id, out var a))
+ 			return a;
+ 
+ 		return Mcv.Words.Find(id, Round.Id);
+ 	}
 
-	public Ngram AffectNgram(RawId id)
+	public Word AffectWord(RawId id)
 	{
-		if(AffectedNgrams.TryGetValue(id, out var a))
+		if(AffectedWords.TryGetValue(id, out var a))
 			return a;
 			
-		a = Mcv.Ngrams.Find(id, Round.Id);
+		a = Mcv.Words.Find(id, Round.Id);
 
 		if(a == null)
 		{
-			a = Mcv.Ngrams.Create();
+			a = Mcv.Words.Create();
 			a.Id = id;
 			a.References = [];
-			a.Ngrams = [];
 		
-			return AffectedNgrams[id] = a;
+			return AffectedWords[id] = a;
 		} 
 		else
 		{
-			return AffectedNgrams[id] = a.Clone();
+			return AffectedWords[id] = a.Clone();
 		}
 	}
-
-	public TextReference FindWord(string text, Func<TextReference, bool> predicate)
-	{
-		Ngram r;
-		
-		if(text.Length <= 3)
-			r = FindNgram(Ngram.GetId(3, text.PadLeft(3, '\0'), 0));
-		else if(text.Length == 4)
-			r = FindNgram(Ngram.GetId(4, text, 0));
-		else
-			r= FindNgram(Ngram.GetId(5, text, 0));
-
-		return r?.References.FirstOrDefault(predicate);
-	}
-
-	public IEnumerable<TextReference> FindSimilar(string text, Func<TextReference, bool> predicate)
-	{
-		Ngram r;
-		
-		if(text.Length <= 3)
-			r = FindNgram(Ngram.GetId(3, text.PadLeft(3, '\0'), 0));
-		else if(text.Length == 4)
-			r = FindNgram(Ngram.GetId(4, text, 0));
-		else
-			r= FindNgram(Ngram.GetId(5, text, 0));
-
-		return r?.References.Where(predicate);
-	}
-
-	public void IndexText(string text, EntityTextField field, EntityId entity)
-	{
-		foreach(var w in text.Split(' '))
-		{
-			for(int n=1; n<=5; n++)
-			{
-				for(int j=0; j <= w.Length - n; j++)
-				{
-					var id = Ngram.GetId(n, w, j);
-				
-					var t = AffectNgram(id);
-
-					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-			
-					if(e == null)
-					{
-						t.References = [..t.References, new TextReference {Entity = entity, Field = field}];
-					}
-
-					if(n > 1)
-					{
-						var p = AffectNgram(Ngram.GetId(n - 1, w, j));
 	
-						if(!p.Ngrams.Contains(id))	/// add parent
-							p.Ngrams = [..p.Ngrams, id];
+//  public Ngram FindNgram(RawId id)
+//  {
+//  	if(AffectedNgrams.TryGetValue(id, out var a))
+//  		return a;
+//  
+//  	return Mcv.Ngrams.Find(id, Round.Id);
+//  }
+// 
+// 	//public Ngram CreateNgram(RawId id)
+// 	//{
+// 	//	var a = Mcv.Ngrams.Create();
+// 	//	a.Id = id;
+// 	//	a.References = [];
+// 	//
+// 	//	return AffectedNgrams[a.Id] = a;
+// 	//}
+// 
+// 	public Ngram AffectNgram(RawId id)
+// 	{
+// 		if(AffectedNgrams.TryGetValue(id, out var a))
+// 			return a;
+// 			
+// 		a = Mcv.Ngrams.Find(id, Round.Id);
+// 
+// 		if(a == null)
+// 		{
+// 			a = Mcv.Ngrams.Create();
+// 			a.Id = id;
+// 			a.References = [];
+// 			a.Ngrams = [];
+// 		
+// 			return AffectedNgrams[id] = a;
+// 		} 
+// 		else
+// 		{
+// 			return AffectedNgrams[id] = a.Clone();
+// 		}
+// 	}
 
-						if(j == w.Length - n)		/// all prev parent are prefixes, the last one is postfix [.. parent]
-						{
-							p = AffectNgram(Ngram.GetId(n - 1, w, j + 1));
-					
-							if(!p.Ngrams.Contains(id))
-								p.Ngrams = [..p.Ngrams, id];
-						}
-					}
-				}
-			}
-		}
-	}
 
-	public void DeindexText(string text, EntityTextField field, EntityId entity)
+	public void RegisterWord(string word, EntityTextField field, EntityId entity)
 	{
-		foreach(var i in text.Split(' '))
+		var id = Word.GetId(word);
+		var w = FindWord(id)?.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);;
+		
+		if(w == null)
 		{
-			var w = i;
-			
-			if(w.Length < 3)
-			{
-				w = w.PadLeft(3, '\0');
-			}
-
-			if(w.Length == 3)
-			{
-				var id = Ngram.GetId(3, w, 0);
-
-				var t = AffectNgram(id);
-				var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-		
-				if(e == null)
-				{
-					t.References = t.References.Remove(e);
-				}
-			}
-
-			for(int j=0; j <= w.Length - 4; j++)
-			{
-				var id = Ngram.GetId(4, w, j);
-				
-				if(w.Length == 4)
-				{
-					var t = AffectNgram(id);
-					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-		
-					if(e == null)
-					{
-						t.References = t.References.Remove(e);
-					}
-				} 
-			}
-
-			for(int j=0; j <= w.Length - 5; j++)
-			{
-				var id = Ngram.GetId(5, w, j);
-				
-				if(w.Length >= 5)
-				{
-					var t = AffectNgram(id);
-					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
-		
-					if(e == null)
-					{
-						t.References = t.References.Remove(e);
-					}
-				} 
-			}
+			var t = AffectWord(id);
+	
+			t.References = [..t.References, new WordReference {Entity = entity, Field = field}];
 		}
 	}
+
+	public void UnregisterWord(string word, EntityTextField field, EntityId entity)
+	{
+		var id = Word.GetId(word);
+		var w = FindWord(id)?.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);;
+		
+		if(w == null)
+		{
+			var t = AffectWord(id);
+	
+			t.References = t.References.Remove(w);
+		}
+	}
+
+/// 	public void IndexText(string text, EntityTextField field, EntityId entity)
+/// 	{
+/// 		foreach(var w in text.Split(' '))
+/// 		{
+/// 			for(int n = 1; n <= 5; n++)
+/// 			{
+/// 				for(int j = 0; j <= w.Length - n; j++)
+/// 				{
+/// 					var id = Ngram.GetId(n, w, j);
+/// 				
+/// 					var t = AffectNgram(id);
+/// 
+/// 					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
+/// 			
+/// 					if(e == null)
+/// 					{
+/// 						t.References = [..t.References, new WordReference {Entity = entity, Field = field}];
+/// 					}
+/// 
+/// 					if(n > 1)
+/// 					{
+/// 						var p = AffectNgram(Ngram.GetId(n - 1, w, j));
+/// 	
+/// 						if(!p.Ngrams.Contains(id))	/// add parent
+/// 							p.Ngrams = [..p.Ngrams, id];
+/// 
+/// 						if(j == w.Length - n)		/// all prev parent are prefixes, the last one is postfix [.. parent]
+/// 						{
+/// 							p = AffectNgram(Ngram.GetId(n - 1, w, j + 1));
+/// 					
+/// 							if(!p.Ngrams.Contains(id))
+/// 								p.Ngrams = [..p.Ngrams, id];
+/// 						}
+/// 					}
+/// 				}
+/// 			}
+/// 		}
+/// 	}
+/// 
+/// 	public void DeindexText(string text, EntityTextField field, EntityId entity)
+/// 	{
+/// 		foreach(var i in text.Split(' '))
+/// 		{
+/// 			var w = i;
+/// 			
+/// 			if(w.Length < 3)
+/// 			{
+/// 				w = w.PadLeft(3, '\0');
+/// 			}
+/// 
+/// 			if(w.Length == 3)
+/// 			{
+/// 				var id = Ngram.GetId(3, w, 0);
+/// 
+/// 				var t = AffectNgram(id);
+/// 				var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
+/// 		
+/// 				if(e == null)
+/// 				{
+/// 					t.References = t.References.Remove(e);
+/// 				}
+/// 			}
+/// 
+/// 			for(int j=0; j <= w.Length - 4; j++)
+/// 			{
+/// 				var id = Ngram.GetId(4, w, j);
+/// 				
+/// 				if(w.Length == 4)
+/// 				{
+/// 					var t = AffectNgram(id);
+/// 					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
+/// 		
+/// 					if(e == null)
+/// 					{
+/// 						t.References = t.References.Remove(e);
+/// 					}
+/// 				} 
+/// 			}
+/// 
+/// 			for(int j=0; j <= w.Length - 5; j++)
+/// 			{
+/// 				var id = Ngram.GetId(5, w, j);
+/// 				
+/// 				if(w.Length >= 5)
+/// 				{
+/// 					var t = AffectNgram(id);
+/// 					var e = t.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);
+/// 		
+/// 					if(e == null)
+/// 					{
+/// 						t.References = t.References.Remove(e);
+/// 					}
+/// 				} 
+/// 			}
+/// 		}
+///	
 }

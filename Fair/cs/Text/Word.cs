@@ -16,7 +16,7 @@ public enum EntityTextField : byte
 	PublicationTitle,
 }
 
-public class TextReference : IBinarySerializable
+public class WordReference : IBinarySerializable
 {
 	public EntityTextField		Field { get; set; }
 	public EntityId				Entity { get; set; }
@@ -34,38 +34,36 @@ public class TextReference : IBinarySerializable
 	}
 }
 
-public class Ngram : IBinarySerializable, ITableEntry
+public class Word : IBinarySerializable, ITableEntry
 {
 	public RawId			Id { get; set; }
-	public RawId[]			Ngrams { get; set; }
-	public TextReference[]	References { get; set; }
+	public WordReference[]	References { get; set; }
 
 	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
 
-	public Ngram()
+	public Word()
 	{
 	}
 
-	public Ngram(FairMcv mcv)
+	public Word(FairMcv mcv)
 	{
 		Mcv = mcv;
 	}
 	
-	public static RawId	GetId(int n, string t, int start)
+	public static RawId	GetId(string t)
 	{
-		var b = Encoding.UTF8.GetBytes(t.ToLower(), start, n).Order();
+		var b = Encoding.UTF8.GetBytes(t);
 
-		return new RawId(b.Count() > 2 ? b.ToArray() : (b.Count() == 1 ? [0,0, ..b] : [0, ..b]));
+		return new RawId(b);
 	}
 
-	public Ngram Clone()
+	public Word Clone()
 	{
-		var a = new Ngram(Mcv)  {Id			= Id,
-								 Ngrams		= Ngrams,
-								 References	= References};
+		var a = new Word(Mcv)  {Id			= Id,
+								References	= References};
 
 		return a;
 	}
@@ -87,14 +85,12 @@ public class Ngram : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<RawId>();
-		Ngrams		= reader.ReadArray<RawId>();
-		References	= reader.ReadArray<TextReference>();
+		References	= reader.ReadArray<WordReference>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(Ngrams);
 		writer.Write(References);
 	}
 }

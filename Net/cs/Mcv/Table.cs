@@ -17,6 +17,7 @@ public abstract class TableBase
 	public abstract int							Size { get; }
 	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
 	public abstract string						Name { get; }
+	public virtual bool							IsIndex => false;
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
 
 	//public abstract BucketBase				AddCluster(short id);
@@ -24,7 +25,7 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Dictionary<int, int> eids, Round lastconfirmedround);
+	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Round lastconfirmedround);
 	public static short							ClusterFromBucket(int id) => (short)(id >> 12);
 
 	public abstract class BucketBase
@@ -214,6 +215,8 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write7BitEncodedInt(MainLength);
 
 			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
+
+			Table.IndexBucket(batch, this);
 		}
 	}
 
@@ -328,7 +331,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		{
 			return Labda(x);
 		}
-}
+	}
 
 	public override string			Name => typeof(E).Name.Replace("Entry", null);
 
@@ -339,6 +342,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
 
 	public abstract E				Create();
+	public virtual void				IndexBucket(WriteBatch batch, Bucket bucket){}
 
 	public Table(Mcv chain)
 	{
@@ -511,7 +515,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//}
 	}
 
-	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Dictionary<int, int> eids, Round lastInCommit)
+	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Round lastInCommit)
 	{
 		if(entities.Count == 0)
 			return;

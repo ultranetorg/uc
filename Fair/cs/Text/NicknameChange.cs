@@ -66,7 +66,7 @@ public class NicknameChange : VotableOperation
 		}
 
 		//var id = Ngram.GetId(Nickname);
-		var e = execution.FindWord(Nickname, i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.ProductNickname || i.Field == EntityTextField.SiteNickname);
+		var e = execution.FindWord(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.ProductNickname || i.Field == EntityTextField.SiteNickname);
 
 		if(e != null)
 		{
@@ -77,12 +77,12 @@ public class NicknameChange : VotableOperation
 			}
 
 			if(e.Field != Field)
-				execution.DeindexText(Nickname, e.Field, e.Entity);
+				execution.UnregisterWord(Nickname, e.Field, e.Entity);
 		}
 
 		if(Nickname != "")
 		{
-			execution.IndexText(Nickname, Field, Entity);
+			execution.RegisterWord(Nickname, Field, Entity);
 		}
 
 		switch(Field)

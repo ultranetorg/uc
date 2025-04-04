@@ -24,7 +24,6 @@ public class ReviewModel
 		Id = review.Id.ToString();
 		Text = review.Text;
 		TextNew = review.TextNew;
-		Rating = review.Rating;
 		Status = review.Status;
 		Created = review.Created.Days;
 

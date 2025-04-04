@@ -146,7 +146,7 @@ public class SearchApc : FairApc
 		{
 			return Field switch
 						 {
-							 EntityTextField.PublicationTitle => node.Mcv.Ngrams.SearchPublications(Site, Query, Page, Lines),
+							 ///EntityTextField.PublicationTitle => node.Mcv.Ngrams.SearchPublications(Site, Query, Page, Lines),
 							 _ => throw new RequestException(RequestError.IncorrectRequest)
 						 };
 		}
