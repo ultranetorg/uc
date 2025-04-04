@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class FairAccountTable : AccountTable
 {
-	public new FairMcv				Mcv => base.Mcv as FairMcv;
+	public new FairMcv		Mcv => base.Mcv as FairMcv;
 
 	public FairAccountTable(Mcv chain) : base(chain)
 	{

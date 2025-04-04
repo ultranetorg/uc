@@ -155,7 +155,6 @@ public class FairExecution : Execution
 		p.Id = new EntityId(author.Id.B, e);
 		p.Fields = []; 
 		p.Publications = [];
-		p.Nickname = "";
 
   		return AffectedProducts[p.Id] = p;
 	}

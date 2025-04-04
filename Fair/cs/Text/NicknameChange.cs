@@ -8,7 +8,7 @@ public class NicknameChange : VotableOperation
 	public EntityTextField		Field { get; set; }
 	public EntityId				Entity { get; set; }
 
-	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || Field == EntityTextField.AuthorNickname || Field == EntityTextField.ProductNickname || Field == EntityTextField.SiteNickname) 
+	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || Field == EntityTextField.AuthorNickname || Field == EntityTextField.SiteNickname) 
 														&& Nickname.Length <= 32 
 														&& Regex.Match(Nickname, "[a-z0-9]").Success;
 	public override string		Description => $"{Nickname}";
@@ -42,7 +42,6 @@ public class NicknameChange : VotableOperation
  	{
 		if(Field == EntityTextField.AccountNickname	&& !RequireAccountAccess(execution, Entity, out _)) return false;
 		if(Field == EntityTextField.AuthorNickname	&& !RequireAuthorAccess(execution, Entity, out _)) return false;
-		if(Field == EntityTextField.ProductNickname	&& !RequireProductAccess(execution, Entity, out _, out _)) return false;
 		if(Field == EntityTextField.SiteNickname	&& !RequireSite(execution, Entity, out _)) return false;
 
 		return true;
@@ -66,7 +65,7 @@ public class NicknameChange : VotableOperation
 		}
 
 		//var id = Ngram.GetId(Nickname);
-		var e = execution.FindWord(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.ProductNickname || i.Field == EntityTextField.SiteNickname);
+		var e = execution.FindWord(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
 
 		if(e != null)
 		{
@@ -90,7 +89,6 @@ public class NicknameChange : VotableOperation
 			case EntityTextField.AccountNickname:	execution.AffectAccount(Entity).Nickname = Nickname;	break;
 			case EntityTextField.AuthorNickname:	execution.AffectAuthor(Entity).Nickname = Nickname;		break;
 			case EntityTextField.SiteNickname:		execution.AffectSite(Entity).Nickname = Nickname;		break;
-			case EntityTextField.ProductNickname:	execution.AffectProduct(Entity).Nickname = Nickname;	break;
 		}
 	}
 }

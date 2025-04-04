@@ -12,7 +12,6 @@ public enum EntityTextField : byte
 	SiteNickname, 
 	SiteTitle,
 
-	ProductNickname, 
 	PublicationTitle,
 }
 
