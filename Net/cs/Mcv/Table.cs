@@ -347,7 +347,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public Table(Mcv chain)
 	{
 		Mcv = chain;
-		Engine = Mcv.Database;
+		Engine = Mcv.Rocks;
 		Clusters = new List<Cluster>();
 
 		if(!Engine.TryGetColumnFamily(ClusterColumnName, out ClusterColumn))	ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);

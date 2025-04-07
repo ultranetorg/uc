@@ -14,9 +14,9 @@ public class RdnRound : Round
 	{
 	}
 
-	public override void Consume(Execution execution)
+	public override void Absorb(Execution execution)
 	{
-		base.Consume(execution);
+		base.Absorb(execution);
 
 		var e = execution as RdnExecution;
 

@@ -6,7 +6,7 @@ public class Ngram : IBinarySerializable, ITableEntry
 {
 	public RawId			Id { get; set; }
 	public RawId[]			Ngrams { get; set; }
-	public WordReference[]	References { get; set; }
+	public EntityFieldAddress[]	References { get; set; }
 
 	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -56,7 +56,7 @@ public class Ngram : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<RawId>();
 		Ngrams		= reader.ReadArray<RawId>();
-		References	= reader.ReadArray<WordReference>();
+		References	= reader.ReadArray<EntityFieldAddress>();
 	}
 
 	public void Write(BinaryWriter writer)

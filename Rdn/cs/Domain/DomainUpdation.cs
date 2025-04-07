@@ -41,28 +41,20 @@ public class DomainRenewal : RdnOperation
 			return;
 		}	
 
+		if(!Domain.CanRenew(e, Signer, execution.Time, Time.FromYears(Years)))
+		{
+			Error = NotAvailable;
+			return;
+		}
+	
+		e = execution.AffectDomain(e.Address);
+
 		if(Domain.IsRoot(e.Address))
 		{
-			if(!Domain.CanRegister(e.Address, e, execution.Time, Signer))
-			{
-				Error = NotAvailable;
-				return;
-			}
-
-			e = execution.AffectDomain(e.Address);
-
 			PayForName(e.Address, Years);
 		} 
 		else
 		{
-			if(!Domain.CanRenew(e, Signer, execution.Time))
-			{
-				Error = NotAvailable;
-				return;
-			}
-
-			e = execution.AffectDomain(e.Address);
-
 			PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 

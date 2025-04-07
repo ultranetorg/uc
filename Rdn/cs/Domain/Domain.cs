@@ -41,7 +41,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 	public static readonly Time		AuctionMinimalDuration = Time.FromDays(365);
 	public static readonly Time		Prolongation = Time.FromDays(30);
 	public static readonly Time		WinnerRegistrationPeriod = Time.FromDays(30);
-	public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
+	//public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
 	public Time						AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 	public EntityId					Id { get; set; }
@@ -150,10 +150,11 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 															a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Domain domain, Account by, Time time)
+	public static bool CanRenew(Domain domain, Account owner, Time time, Time duration)
 	{
-		return  domain != null && domain.Owner == by.Id &&	time.Days > domain.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-															time.Days <= domain.Expiration;
+		return  domain.Owner == owner.Id && 
+				time.Days <= domain.Expiration &&
+				domain.Expiration + duration.Days - time.Days < Time.FromYears(10).Days;
 	}
 
 	public static bool CanRegister(string name, Domain domain, Time time, Account by)
@@ -163,8 +164,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 				domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by.Id &&	
 					time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 					time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
-					time < domain.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an domain during special period
-				CanRenew(domain, by, time);
+					time < domain.AuctionEnd + WinnerRegistrationPeriod; /// auction is over and a winner can register an domain during special period
+				
 	}
 
 	public static bool CanBid(Domain domain, Time time)

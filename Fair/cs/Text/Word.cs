@@ -15,10 +15,42 @@ public enum EntityTextField : byte
 	PublicationTitle,
 }
 
-public class WordReference : IBinarySerializable
+public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAddress>
 {
-	public EntityTextField		Field { get; set; }
 	public EntityId				Entity { get; set; }
+	public EntityTextField		Field { get; set; }
+
+	public EntityFieldAddress()
+	{
+	}
+
+	public EntityFieldAddress(EntityId entity, EntityTextField field)
+	{
+		Entity = entity;
+		Field = field;
+	}
+
+	public EntityFieldAddress(byte[] raw)
+	{
+		Read(new BinaryReader(new MemoryStream(raw)));
+	}
+
+	public override string ToString()
+	{
+		return $"{Entity}/{(byte)Field}";
+	}
+
+	public static EntityFieldAddress Parse(string t)
+	{
+		var e = new EntityFieldAddress();
+		
+		var i = t.IndexOf('/');
+		
+		e.Entity = EntityId.Parse(t.Substring(0, i));
+		e.Field = (EntityTextField)byte.Parse(t.Substring(i + 1));
+
+		return e;
+	}
 
 	public void Read(BinaryReader reader)
 	{
@@ -31,16 +63,23 @@ public class WordReference : IBinarySerializable
 		writer.Write(Field);
 		writer.Write(Entity);
 	}
+
+	public int CompareTo(EntityFieldAddress x)
+	{
+		var c = Entity.CompareTo(Entity);
+
+		return c != 0 ? c : Field.CompareTo(x.Field);
+	}
 }
 
 public class Word : IBinarySerializable, ITableEntry
 {
-	public RawId			Id { get; set; }
-	public WordReference[]	References { get; set; }
+	public RawId				Id { get; set; }
+	public EntityFieldAddress[]	References { get; set; }
 
-	public BaseId			Key => Id;
-	public bool				Deleted { get; set; }
-	FairMcv					Mcv;
+	public BaseId				Key => Id;
+	public bool					Deleted { get; set; }
+	FairMcv						Mcv;
 
 
 	public Word()
@@ -84,7 +123,7 @@ public class Word : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<RawId>();
-		References	= reader.ReadArray<WordReference>();
+		References	= reader.ReadArray<EntityFieldAddress>();
 	}
 
 	public void Write(BinaryWriter writer)

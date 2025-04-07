@@ -1,4 +1,8 @@
 ﻿using System.Text;
+using Lucene.Net.Documents;
+using Lucene.Net.Documents.Extensions;
+using Lucene.Net.Index;
+using Lucene.Net.Search;
 
 namespace Uccs.Fair;
 
@@ -8,14 +12,15 @@ public class FairExecution : Execution
 	public new FairMcv			Mcv => base.Mcv as FairMcv;
 	public new FairRound		Round => base.Round as FairRound;
 
-	public Dictionary<EntityId, Author>			AffectedAuthors = new();
-	public Dictionary<EntityId, Product>		AffectedProducts = new();
-	public Dictionary<EntityId, Site>			AffectedSites = new();
-	public Dictionary<EntityId, Category>		AffectedCategories = new();
-	public Dictionary<EntityId, Publication>	AffectedPublications = new();
-	public Dictionary<EntityId, Review>			AffectedReviews = new();
-	public Dictionary<EntityId, Dispute>		AffectedDisputes = new();
-	public Dictionary<RawId, Word>				AffectedWords = new();
+	public Dictionary<EntityId, Author>				AffectedAuthors = new();
+	public Dictionary<EntityId, Product>			AffectedProducts = new();
+	public Dictionary<EntityId, Site>				AffectedSites = new();
+	public Dictionary<EntityId, Category>			AffectedCategories = new();
+	public Dictionary<EntityId, Publication>		AffectedPublications = new();
+	public Dictionary<EntityId, Review>				AffectedReviews = new();
+	public Dictionary<EntityId, Dispute>			AffectedDisputes = new();
+	public Dictionary<RawId, Word>					AffectedWords = new();
+	public Dictionary<EntityFieldAddress, LuceneEntity>	AffectedTexts = new();
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -335,35 +340,6 @@ public class FairExecution : Execution
 	//
 	//	return AffectedNgrams[a.Id] = a;
 	//}
- 
- 	public Word FindWord(RawId id)
- 	{
- 		if(AffectedWords.TryGetValue(id, out var a))
- 			return a;
- 
- 		return Mcv.Words.Find(id, Round.Id);
- 	}
-
-	public Word AffectWord(RawId id)
-	{
-		if(AffectedWords.TryGetValue(id, out var a))
-			return a;
-			
-		a = Mcv.Words.Find(id, Round.Id);
-
-		if(a == null)
-		{
-			a = Mcv.Words.Create();
-			a.Id = id;
-			a.References = [];
-		
-			return AffectedWords[id] = a;
-		} 
-		else
-		{
-			return AffectedWords[id] = a.Clone();
-		}
-	}
 	
 //  public Ngram FindNgram(RawId id)
 //  {
@@ -403,7 +379,35 @@ public class FairExecution : Execution
 // 			return AffectedNgrams[id] = a.Clone();
 // 		}
 // 	}
+ 
+ 	public Word FindWord(RawId id)
+ 	{
+ 		if(AffectedWords.TryGetValue(id, out var a))
+ 			return a;
+ 
+ 		return Mcv.Words.Find(id, Round.Id);
+ 	}
 
+	public Word AffectWord(RawId id)
+	{
+		if(AffectedWords.TryGetValue(id, out var a))
+			return a;
+			
+		a = Mcv.Words.Find(id, Round.Id);
+
+		if(a == null)
+		{
+			a = Mcv.Words.Create();
+			a.Id = id;
+			a.References = [];
+		
+			return AffectedWords[id] = a;
+		} 
+		else
+		{
+			return AffectedWords[id] = a.Clone();
+		}
+	}
 
 	public void RegisterWord(string word, EntityTextField field, EntityId entity)
 	{
@@ -414,7 +418,7 @@ public class FairExecution : Execution
 		{
 			var t = AffectWord(id);
 	
-			t.References = [..t.References, new WordReference {Entity = entity, Field = field}];
+			t.References = [..t.References, new EntityFieldAddress {Entity = entity, Field = field}];
 		}
 	}
 
@@ -430,6 +434,61 @@ public class FairExecution : Execution
 			t.References = t.References.Remove(w);
 		}
 	}
+
+	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
+	{
+		var id = new EntityFieldAddress(entity, field);
+
+ 		if(AffectedTexts.TryGetValue(id, out var a))
+ 		{
+			a.Text = text;
+			return;
+		}
+
+		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Text = text};
+	}
+
+	public void DeindexText(EntityTextField field, EntityId entity, EntityId site)
+	{
+		var id = new EntityFieldAddress(entity, field);
+
+ 		if(AffectedTexts.TryGetValue(id, out var a))
+ 		{
+			a.Deleted = true;
+			return;
+		}
+
+		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Deleted = true};
+	}
+ 
+/// 	public LuceneEntity FindText(EntityField id)
+/// 	{
+/// 		if(AffectedTexts.TryGetValue(id, out var a))
+/// 			return a;
+///
+///		var docs = Mcv.LuceneSearcher.Search(new TermQuery(new Term("id", new Lucene.Net.Util.BytesRef((id as IBinarySerializable).Raw))), 1);
+///
+///		if(docs.TotalHits > 0)
+///			return new LuceneEntity() {Entity = id, Text = Mcv.LuceneSearcher.Doc(docs.ScoreDocs[0].Doc).Get("t")};
+///		else
+///			return null;
+/// 	}
+///
+///	public LuceneEntity AffectedText(EntityField id)
+///	{
+///		if(AffectedTexts.TryGetValue(id, out var a))
+///			return a;
+///			
+///		/// This can be skipped since there is no cause when we need to read current text value
+///		/// 
+///		///var docs = Mcv.LuceneSearcher.Search(new TermQuery(new Term("id", new Lucene.Net.Util.BytesRef((id as IBinarySerializable).Raw))), 1);
+///		///
+///		///if(docs.TotalHits > 0)
+///		///	return AffectedTexts[id] = new LuceneEntity() {Entity = id, Text = Mcv.LuceneSearcher.Doc(docs.ScoreDocs[0].Doc).Get("t")};
+///		///else
+///			return AffectedTexts[id] = new LuceneEntity() {Entity = id};
+///	}
+
 
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity)
 /// 	{

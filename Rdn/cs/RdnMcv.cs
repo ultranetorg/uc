@@ -56,7 +56,7 @@ public class RdnMcv : Mcv
 		else
 			cfs.Add(ChainFamilyName, new ());
 
-		Database = RocksDb.Open(dbo, databasepath, cfs);
+		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
 		Accounts = new (this);
 		Domains = new (this);

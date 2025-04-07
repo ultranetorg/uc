@@ -33,7 +33,7 @@ public abstract class Mcv /// Mutual chain voting
 	public Log									Log;
 	public string								Databasepath;
 
-	public RocksDb								Database;
+	public RocksDb								Rocks;
 	public byte[]								BaseState;
 	public byte[]								BaseHash;
 	static readonly byte[]						BaseStateKey = [0x01];
@@ -71,7 +71,7 @@ public abstract class Mcv /// Mutual chain voting
 	public List<NtnBlock>						NtnBlocks = [];
 
 	public const string							ChainFamilyName = "Chain";
-	public ColumnFamilyHandle					ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
+	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);
 
 	public static int							GetValidityPeriod(int rid) => rid + P;
 
@@ -105,7 +105,7 @@ public abstract class Mcv /// Mutual chain voting
 	
 			if(!skipinitload)
 			{
-				var g = Database.Get(GenesisKey);
+				var g = Rocks.Get(GenesisKey);
 	
 				if(g == null)
 				{
@@ -229,12 +229,12 @@ public abstract class Mcv /// Mutual chain voting
 				throw new IntegrityException("Genesis construction failed");
 		}
 	
-		Database.Put(GenesisKey, Net.Genesis.FromHex());
+		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
 	}
 	
 	public void Load()
 	{
-		BaseState = Database.Get(BaseStateKey);
+		BaseState = Rocks.Get(BaseStateKey);
 
 		if(BaseState != null)
 		{
@@ -247,7 +247,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			Hashify();
 
-			if(!BaseHash.SequenceEqual(Database.Get(__BaseHashKey)))
+			if(!BaseHash.SequenceEqual(Rocks.Get(__BaseHashKey)))
 			{
 				throw new IntegrityException();
 			}
@@ -255,7 +255,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(Settings.Chain != null)
 		{
-			var s = Database.Get(ChainStateKey);
+			var s = Rocks.Get(ChainStateKey);
 
 			var rd = new BinaryReader(new MemoryStream(s));
 
@@ -298,18 +298,18 @@ public abstract class Mcv /// Mutual chain voting
 		foreach(var i in Tables)
 			i.Clear();
 
-		Database.Remove(BaseStateKey);
-		Database.Remove(__BaseHashKey);
-		Database.Remove(ChainStateKey);
-		Database.Remove(GenesisKey);
+		Rocks.Remove(BaseStateKey);
+		Rocks.Remove(__BaseHashKey);
+		Rocks.Remove(ChainStateKey);
+		Rocks.Remove(GenesisKey);
 
-		Database.DropColumnFamily(ChainFamilyName);
-		Database.CreateColumnFamily(new (), ChainFamilyName);
+		Rocks.DropColumnFamily(ChainFamilyName);
+		Rocks.CreateColumnFamily(new (), ChainFamilyName);
 	}
 
 	public void Stop()
 	{
-		Database.Dispose();
+		Rocks.Dispose();
 	}
 
 	public bool Add(Vote vote)
@@ -404,7 +404,7 @@ public abstract class Mcv /// Mutual chain voting
 		if(LoadedRounds.TryGetValue(rid, out var r))
 			return r;
 
-		var d = Database.Get(BitConverter.GetBytes(rid), ChainFamily);
+		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
 
 		if(d != null)
 		{
@@ -574,7 +574,7 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
 			}
 
-			Database.Write(b);
+			Rocks.Write(b);
 		}
 
 		Commited?.Invoke(round);

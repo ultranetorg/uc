@@ -1,17 +1,30 @@
-﻿
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
+
+public class LuceneEntity
+{
+	public EntityFieldAddress	Address;
+	public EntityId				Site;
+	public string				Text;
+	public bool					Deleted;
+
+	public LuceneEntity Clone()
+	{
+		return new LuceneEntity {Address = Address, Text = Text};
+	}
+}
 
 public class FairRound : Round
 {
-	public new FairMcv							Mcv => base.Mcv as FairMcv;
-	public Dictionary<EntityId, Author>			AffectedAuthors = new();
-	public Dictionary<EntityId, Product>		AffectedProducts = new();
-	public Dictionary<EntityId, Site>			AffectedSites = new();
-	public Dictionary<EntityId, Category>		AffectedCategories = new();
-	public Dictionary<EntityId, Publication>	AffectedPublications = new();
-	public Dictionary<EntityId, Review>			AffectedReviews = new();
-	public Dictionary<EntityId, Dispute>		AffectedDisputes = new();
-	public Dictionary<RawId, Word>				AffectedWords = new();
+	public new FairMcv									Mcv => base.Mcv as FairMcv;
+	public Dictionary<EntityId, Author>					AffectedAuthors = new();
+	public Dictionary<EntityId, Product>				AffectedProducts = new();
+	public Dictionary<EntityId, Site>					AffectedSites = new();
+	public Dictionary<EntityId, Category>				AffectedCategories = new();
+	public Dictionary<EntityId, Publication>			AffectedPublications = new();
+	public Dictionary<EntityId, Review>					AffectedReviews = new();
+	public Dictionary<EntityId, Dispute>				AffectedDisputes = new();
+	public Dictionary<RawId, Word>						AffectedWords = new();
+	public Dictionary<EntityFieldAddress, LuceneEntity>	AffectedTexts = new();
 
 	public FairRound(FairMcv rds) : base(rds)
 	{
@@ -41,9 +54,9 @@ public class FairRound : Round
 		return new FairExecution(Mcv, this, transaction);
 	}
 	
-	public override void Consume(Execution execution)
+	public override void Absorb(Execution execution)
 	{
-		base.Consume(execution);
+		base.Absorb(execution);
 
 		var e = execution as FairExecution;
 
@@ -55,69 +68,12 @@ public class FairRound : Round
 		foreach(var i in e.AffectedReviews)			AffectedReviews[i.Key] = i.Value;
 		foreach(var i in e.AffectedDisputes)		AffectedDisputes[i.Key] = i.Value;
 		foreach(var i in e.AffectedWords)			AffectedWords[i.Key] = i.Value;
+		foreach(var i in e.AffectedTexts)			AffectedTexts[i.Key] = i.Value;
 	}
-
-// 	public bool IsAllowed(Publication page, TopicChange change, AccountEntry signer)
-// 	{
-// 		if(page == null)
-// 		{
-// 			return Mcv.Sites.Find(page.Site, Id)?.Owners.Contains(signer.Id) ?? false;
-// 		}
-// 
-// 		if(page.Security != null)
-// 		{
-// 			if(page.Security.Permissions.TryGetValue(change, out var a))
-// 			{
-// 				return a.Any(i =>	{
-// 										switch(i)
-// 										{
-// 											case Actor.Owner:
-// 												return Mcv.Sites.Find(page.Site, Id)?.Owners.Contains(signer.Id) ?? false;
-// 
-// 											case Actor.Creator:
-// 												return page.Creator == signer.Id;
-// 
-// 											case Actor.SiteUser :
-// 											{
-// 												throw new NotImplementedException();
-// 												break;
-// 											}
-// 
-// 											default:
-// 												return false;
-// 										}
-// 									});
-// 			}
-// 			else
-// 				return false;
-// 		}
-// 
-// 		if(Parent != null)
-// 		{
-// 			var p = Mcv.Publications.Find(page.Parent, Id);
-// 
-// 			return IsAllowed(p, change, signer);
-// 		}
-// 
-// 		return false;
-// 	}
-// 
-// 	public bool NotPermitted(Publication page, TopicChange permission, AccountEntry signer)
-// 	{
-// 		return !IsAllowed(page, permission, signer);
-// 	}
 
 	public override void RestartExecution()
 	{
-// 		AffectedAuthors.Clear();
-// 		AffectedProducts.Clear();
-// 		AffectedSites.Clear();
-// 		AffectedCards.Clear();
-// 
-// 		NextAuthorEids.Clear();
-// 		NextProductEids.Clear();
-// 		NextSiteEids.Clear();
-// 		NextCardEids.Clear();
+		AffectedTexts.Clear();
 	}
 
 	public override void FinishExecution()

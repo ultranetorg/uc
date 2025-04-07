@@ -473,14 +473,14 @@ public abstract class Round : IBinarySerializable
 			{
 				s.LastTransactionNid++;
 	
-				Consume(e);
+				Absorb(e);
 			}
 		}
 
 		FinishExecution();
 	}
 
-	public virtual void Consume(Execution execution)
+	public virtual void Absorb(Execution execution)
 	{
 		foreach(var i in execution.AffectedAccounts)
 			AffectedAccounts[i.Key] = i.Value;
@@ -489,9 +489,9 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in execution.NextEids[t])
 				NextEids[t][i.Key] = i.Value;
 
-		if(execution.Candidates != null)			Candidates			 = execution.Candidates;
-		if(execution.Spacetimes != null)			Spacetimes			 = execution.Spacetimes;
-		if(execution.Bandwidths != null)	Bandwidths = execution.Bandwidths;
+		if(execution.Candidates != null)	Candidates	= execution.Candidates;
+		if(execution.Spacetimes != null)	Spacetimes	= execution.Spacetimes;
+		if(execution.Bandwidths != null)	Bandwidths	= execution.Bandwidths;
 	}
 
 	public void Confirm()
@@ -552,7 +552,6 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in e.Candidates/*.OrderByHash(i => i.Address.Bytes, Hash)*/.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
-
 			var c = e.AffectCandidate(i.Id);
 			
 			c.CastingSince = Id + Mcv.JoinToVote;
@@ -581,7 +580,7 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		Consume(e);
+		Absorb(e);
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;

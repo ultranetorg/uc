@@ -23,7 +23,7 @@ public class FairAccountTable : AccountTable
 		{
 			var w = e.AffectWord(Word.GetId(i.Nickname));
 
-			w.References = [..w.References, new WordReference {Entity = i.Id, Field = EntityTextField.AccountNickname}];
+			w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AccountNickname}];
 		}
 	
 		Mcv.Words.Save(batch, e.AffectedWords.Values, null);
