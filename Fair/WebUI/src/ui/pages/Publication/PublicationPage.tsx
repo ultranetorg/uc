@@ -1,18 +1,33 @@
+import { useCallback, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useDocumentTitle } from "usehooks-ts"
 
-import { useGetPublication } from "entities"
+import { PAGE_SIZES } from "constants"
+import { useGetPublication, useGetReviews } from "entities"
+import { Pagination, Select, SelectItem } from "ui/components"
 
 import { Review } from "./Review"
 
+const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
+
 export const PublicationPage = () => {
-  const { publicationId } = useParams()
+  const { siteId, publicationId } = useParams()
   useDocumentTitle(
     publicationId ? `Publication - ${publicationId} | Ultranet Explorer` : "Publication | Ultranet Explorer",
   )
 
+  const [reviewsPage, setReviewsPage] = useState(0)
+  const [reviewPageSize, setReviewsPageSize] = useState(20)
+
   const { isPending, data: publication } = useGetPublication(publicationId)
-  console.log(JSON.stringify(publication))
+  const { isPending: isPendingReviews, data: reviews } = useGetReviews(publicationId, reviewsPage, reviewPageSize)
+
+  const pagesCount = reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / reviewPageSize) : 0
+
+  const handlePageSizeChange = useCallback((value: string) => {
+    setReviewsPage(0)
+    setReviewsPageSize(parseInt(value))
+  }, [])
 
   if (isPending || !publication) {
     return <div>Loading</div>
@@ -34,7 +49,7 @@ export const PublicationPage = () => {
           </span>
           <span>PRODUCT UPDATED: {publication.productUpdated}</span>
           <span>
-            AUTHOR ID: <Link to={`/a/${publication.authorId}`}>{publication.authorId}</Link>
+            AUTHOR ID: <Link to={`/${siteId}/a/${publication.authorId}`}>{publication.authorId}</Link>
           </span>
           <span>AUTHOR TITLE: {publication.authorTitle}</span>
 
@@ -68,15 +83,33 @@ export const PublicationPage = () => {
           <li>Requirements</li>
         </ul>
       </div>
-      {publication.reviews ? (
-        <div className="flex flex-col gap-3">
-          {publication.reviews.map(r => (
-            <Review key={r.id} text={r.text} rating={r.rating} userId={r.accountId} userName={r.accountAddress} />
-          ))}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Select items={pageSizes} value={reviewPageSize} onChange={handlePageSizeChange} />
+          <Pagination pagesCount={pagesCount} onClick={setReviewsPage} page={reviewsPage} />
         </div>
-      ) : (
-        <div className="flex flex-col gap-3">🚫 NO REVIEWS</div>
-      )}
+        <div>REVIEWS:</div>
+        <div>
+          {isPendingReviews || !reviews || !reviews.items ? (
+            <div>⌛ LOADING REVIEWS</div>
+          ) : reviews.items.length === 0 ? (
+            <div>🚫 NO REVIEWS</div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {reviews.items.map(r => (
+                <Review
+                  key={r.id}
+                  text={r.text}
+                  rating={r.rating}
+                  userId={r.accountId}
+                  userName={r.accountNickname || r.accountAddress}
+                  created={r.created}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

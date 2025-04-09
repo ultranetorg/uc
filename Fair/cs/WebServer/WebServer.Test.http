@@ -1,0 +1,16 @@
+﻿@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
+
+### Test 1
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0
+Accept: application/json
+
+### Test 2
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/categories
+Accept: application/json
+
+### Test 3
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/67329-2
+Accept: application/json

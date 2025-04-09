@@ -4,8 +4,6 @@ public class DisputeModel
 {
 	public string Id { get; set; }
 
-	public DisputeFlags Flags { get; set; }
-
 	public int YesCount { get; set; }
 	public int NoCount { get; set; }
 	public int AbsCount { get; set; }
@@ -19,7 +17,6 @@ public class DisputeModel
 	public DisputeModel(Dispute dispute)
 	{
 		Id = dispute.Id.ToString();
-		Flags = dispute.Flags;
 		YesCount = dispute.Yes.Count();
 		NoCount = dispute.No.Count();
 		AbsCount = dispute.Abs.Count();

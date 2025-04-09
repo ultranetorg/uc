@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
 import { useGetModeratorDisputes } from "entities"
@@ -14,6 +15,7 @@ export const ModeratorDisputesPage = () => {
   const [search, setSearch] = useState("")
 
   const { siteId } = useParams()
+  const { t } = useTranslation()
   const { isPending, data: disputes } = useGetModeratorDisputes(siteId, page, pageSize, search)
 
   const { page: queryPage, pageSize: querySize, search: querySearch } = useQueryParams()
@@ -71,42 +73,34 @@ export const ModeratorDisputesPage = () => {
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
       <div>
-        {" "}
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Flags</th>
-              <th>Proposals</th>
-              <th>Props</th>
-              <th>Cons</th>
+              <th>Text</th>
               <th>Expiration</th>
+              <th>Votes</th>
+              <th>Type</th>
+              <th>Proposal</th>
             </tr>
           </thead>
           <tbody>
-            {disputes?.items?.map(dispute => (
-              <tr key={dispute.id}>
+            {disputes?.items?.map(d => (
+              <tr key={d.id}>
                 <td>
-                  <Link to={`/${siteId}/m-d/${dispute.id}`}>{dispute.id}</Link>
+                  <Link to={`/${siteId}/m-d/${d.id}`}>{d.id}</Link>
                 </td>
-                <td>{dispute.flags}</td>
                 <td>
-                  <div>
-                    <strong>Change:</strong> {dispute.proposal?.change}
-                  </div>
-                  <div>
-                    <strong>Text:</strong> {dispute.proposal?.text}
-                  </div>
-                  <div>
-                    <strong>First:</strong> {JSON.stringify(dispute.proposal?.first)}
-                  </div>
-                  <div>
-                    <strong>Second:</strong> {JSON.stringify(dispute.proposal?.second)}
-                  </div>
+                  <div>{d.text}</div>
                 </td>
-                <td>{dispute.pros.length}</td>
-                <td>{dispute.cons.length}</td>
-                <td>{dispute.expiration}</td>
+                <td>{d.expiration}</td>
+                <td>
+                  <span className="text-red-500">{d.yesCount}</span> /{" "}
+                  <span className="text-green-500">{d.noCount}</span> /{" "}
+                  <span className="text-gray-500">{d.absCount}</span>
+                </td>
+                <td>{t(d.proposal.$type, { ns: "votableOperations" })}</td>
+                <td>{JSON.stringify(d.proposal)}</td>
               </tr>
             ))}
           </tbody>

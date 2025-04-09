@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -21,7 +22,11 @@ public class PublicationsService
 		lock (mcv.Lock)
 		{
 			Publication publication = mcv.Publications.Find(entityId, mcv.LastConfirmedRound.Id);
-			if (publication == null || publication.Status != PublicationStatus.Approved)
+			if (publication == null)
+			{
+				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
+			}
+			if (!IsApprovedStatus(publication))
 			{
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
@@ -124,7 +129,7 @@ public class PublicationsService
 				product = mcv.Products.Latest(publication.Product);
 			}
 
-			if (publication.Status != PublicationStatus.Approved)
+			if (!IsApprovedStatus(publication))
 			{
 				continue;
 			}
@@ -195,7 +200,7 @@ public class PublicationsService
 					return;
 
 				Publication publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
-				if (publication.Status != PublicationStatus.Pending)
+				if (IsPendingStatus(publication))
 				{
 					continue;
 				}
@@ -318,7 +323,7 @@ public class PublicationsService
 			lock (mcv.Lock)
 			{
 				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
-				if (publication.Status != PublicationStatus.Approved)
+				if (!IsApprovedStatus(publication))
 				{
 					continue;
 				}
@@ -343,6 +348,12 @@ public class PublicationsService
 			++context.TotalItems;
 		}
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static bool IsPendingStatus(Publication publication) => publication.Status == PublicationStatus.Pending;
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static bool IsApprovedStatus(Publication publication) => publication.Status == PublicationStatus.Approved;
 
 	private class FilteredContext<T> : SearchContext<T> where T : class
 	{

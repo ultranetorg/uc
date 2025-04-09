@@ -23,7 +23,7 @@ public class PublicationModel
 		ProductId = product.Id.ToString();
 		ProductTitle = ProductUtils.GetTitle(product, publication);
 
-		AuthorId = author.Id.ToString();
-		AuthorTitle = author.Title;
+		AuthorId = author?.Id.ToString();
+		AuthorTitle = author?.Title;
 	}
 }

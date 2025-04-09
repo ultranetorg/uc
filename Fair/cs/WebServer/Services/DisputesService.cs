@@ -12,8 +12,20 @@ public class DisputesService
 {
 	private const string ReferendumEntityName = "referendum";
 
+	public DisputeDetailsModel GetDispute(string siteId, string disputeId) =>
+		GetDisputeOrReferendum(siteId, disputeId, true);
+
+	public TotalItemsResult<DisputeModel> GetDisputes(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+		GetDisputesOrReferendums(siteId, true, page, pageSize, search, cancellationToken);
+
+	public DisputeDetailsModel GetReferendum(string siteId, string disputeId) =>
+		GetDisputeOrReferendum(siteId, disputeId, false);
+
+	public TotalItemsResult<DisputeModel> GetReferendums(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+		GetDisputesOrReferendums(siteId, false, page, pageSize, search, cancellationToken);
+
 	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
-	public DisputeDetailsModel GetDisputeOrReferendum(string siteId, string disputeId, bool disputesOrReferendums)
+	DisputeDetailsModel GetDisputeOrReferendum(string siteId, string disputeId, bool disputesOrReferendums)
 	{
 		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputeOrReferendum)} method called with {{SiteId}}, {{DisputeId}}, {{DisputesOrReferendums}}", siteId, disputeId, disputesOrReferendums);
 
@@ -37,7 +49,7 @@ public class DisputesService
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
-			Dispute dispute = mcv.Disputes.Latest(siteEntityId);
+			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
 			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
@@ -50,7 +62,7 @@ public class DisputesService
 		}
 	}
 
-	public TotalItemsResult<DisputeModel> GetDisputesOrReferendums(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	TotalItemsResult<DisputeModel> GetDisputesOrReferendums(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputesOrReferendums)} method called with {{SiteId}}, {{DisputesOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
 
@@ -68,12 +80,12 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
+			return LoadDisputesOrReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
 		}
 	}
 
 	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
-	public TotalItemsResult<DisputeModel> LoadReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<DisputeModel>.Empty;
@@ -86,7 +98,7 @@ public class DisputesService
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(disputes, totalItems);
 
-			Dispute dispute = mcv.Disputes.Find(disputeId, mcv.LastConfirmedRound.Id);
+			Dispute dispute = mcv.Disputes.Latest(disputeId);
 
 			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
@@ -108,13 +120,14 @@ public class DisputesService
 		return ToTotalItemsResult(disputes, totalItems);
 	}
 
-	private static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
+	static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
 	{
 		IEnumerable<DisputeModel> items = disputes.Select(dispute =>
 			new DisputeModel(dispute)
 			{
 				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
 			});
+
 		return new TotalItemsResult<DisputeModel>
 		{
 			Items = items,
@@ -122,7 +135,7 @@ public class DisputesService
 		};
 	}
 
-	private static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
+	static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
 	{
 		return proposal switch
 		{
@@ -140,5 +153,5 @@ public class DisputesService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
+	static bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
 }

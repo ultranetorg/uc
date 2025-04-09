@@ -45,26 +45,6 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-0/reviews
 Accept: application/json
 
-### Get Site Disputes
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/disputes
-Accept: application/json
-
-### Get Site Dispute
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/disputes/67329-0
-Accept: application/json
-
-### Get Site Referendums
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/referendums
-Accept: application/json
-
-### Get Site Referendum
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/referendums/67329-1
-Accept: application/json
-
 ### GET Category
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-2
@@ -83,19 +63,4 @@ Accept: application/json
 ### GET Author Publications
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0/publications
-Accept: application/json
-
-### Test 1
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0
-Accept: application/json
-
-### Test 2
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/categories
-Accept: application/json
-
-### Test 3
-
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/67329-2
 Accept: application/json

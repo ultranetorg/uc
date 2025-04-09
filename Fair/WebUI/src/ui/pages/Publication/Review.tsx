@@ -6,16 +6,20 @@ export type ReviewProps = {
   userId: string
   userName: string
   rating: number
+  created: number
 }
 
-export const Review = ({ text, userId, userName, rating }: ReviewProps) => {
+export const Review = ({ text, userId, userName, rating, created }: ReviewProps) => {
   return (
-    <div className="flex justify-between gap-8 border border-black px-4 py-3 text-black">
-      <div>{text}</div>
-      <div className="flex flex-col gap-8">
-        <RatingBar rating={rating} />
-        <Link to={`/users/${userId}`}>{userName}</Link>
+    <div className="flex flex-col gap-8 border border-black px-4 py-3 text-black">
+      <div className="flex justify-between">
+        <div>{text}</div>
+        <div className="flex flex-col gap-8">
+          <RatingBar rating={rating} />
+          <Link to={`/users/${userId}`}>{userName}</Link>
+        </div>
       </div>
+      <span>Created at: {created}</span>
     </div>
   )
 }

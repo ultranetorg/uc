@@ -1,12 +1,15 @@
 import { useParams } from "react-router-dom"
 
 import { useGetModeratorDispute } from "entities"
+import { useTranslation } from "react-i18next"
 
 export const ModeratorDisputePage = () => {
   const { siteId, disputeId } = useParams()
+  const { t } = useTranslation()
+
   const { isPending, data: dispute } = useGetModeratorDispute(siteId, disputeId)
 
-  if (isPending) {
+  if (isPending || !dispute) {
     return "Loading..."
   }
 
@@ -14,27 +17,43 @@ export const ModeratorDisputePage = () => {
     <div className="flex flex-col gap-2">
       <div>
         <div>ID</div>
-        <div>{dispute?.id}</div>
+        <div>{dispute.id}</div>
       </div>
       <div>
-        <div>Flags</div>
-        <div>{dispute?.flags}</div>
-      </div>
-      <div>
-        <div>Proposal</div>
-        <div>{JSON.stringify(dispute?.proposal)}</div>
-      </div>
-      <div>
-        <div>Pros</div>
-        <div>{dispute?.pros.join(",")}</div>
-      </div>
-      <div>
-        <div>Cons</div>
-        <div>{dispute?.cons.join(",")}</div>
+        <div>Text</div>
+        <div>{dispute.text}</div>
       </div>
       <div>
         <div>Expiration</div>
-        <div>{dispute?.expiration}</div>
+        <div>{dispute.expiration}</div>
+      </div>
+      <div>
+        <div>Votes</div>
+        <div>
+          <span className="text-red-500">{dispute.yesCount}</span> /{" "}
+          <span className="text-green-500">{dispute.noCount}</span> /{" "}
+          <span className="text-gray-500">{dispute.absCount}</span>
+        </div>
+      </div>
+      <div>
+        <div>Pros</div>
+        <div>{dispute.pros.join(",")}</div>
+      </div>
+      <div>
+        <div>Cons</div>
+        <div>{dispute.cons.join(",")}</div>
+      </div>
+      <div>
+        <div>Abs</div>
+        <div>{dispute.abs.join(",")}</div>
+      </div>
+      <div>
+        <div>Type:</div>
+        <div>{t(dispute.proposal.$type, { ns: "votableOperations" })}</div>
+      </div>
+      <div>
+        <div>Type:</div>
+        <div>{JSON.stringify(dispute.proposal)}</div>
       </div>
     </div>
   )

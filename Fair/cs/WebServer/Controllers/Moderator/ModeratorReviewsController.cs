@@ -20,11 +20,10 @@ public class ModeratorReviewsController
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
-		int page = pagination?.Page ?? 0;
-		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<ModeratorReviewModel> disputes = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
 
-		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
+		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
 
 	[HttpGet("~/api/moderator/reviews/{reviewId}")]

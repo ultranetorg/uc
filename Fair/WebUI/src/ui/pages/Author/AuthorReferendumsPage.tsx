@@ -5,6 +5,7 @@ import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
 import { useGetAuthorReferendums } from "entities"
 import { useQueryParams } from "hooks"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
+import { useTranslation } from "react-i18next"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
@@ -15,6 +16,8 @@ export const AuthorReferendumsPage = () => {
 
   const { siteId } = useParams()
   const { isPending, data: referendums } = useGetAuthorReferendums(siteId, page, pageSize, search)
+
+  const { t } = useTranslation()
 
   const { page: queryPage, pageSize: querySize, search: querySearch } = useQueryParams()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -72,16 +75,15 @@ export const AuthorReferendumsPage = () => {
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
       <div>
-        {" "}
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Flags</th>
-              <th>Proposals</th>
-              <th>Props</th>
-              <th>Cons</th>
+              <th>Text</th>
               <th>Expiration</th>
+              <th>Votes</th>
+              <th>Type</th>
+              <th>Proposal</th>
             </tr>
           </thead>
           <tbody>
@@ -90,24 +92,17 @@ export const AuthorReferendumsPage = () => {
                 <td>
                   <Link to={`/${siteId}/a-r/${r.id}`}>{r.id}</Link>
                 </td>
-                <td>{r.flags}</td>
                 <td>
-                  <div>
-                    <strong>Change:</strong> {r.proposal?.change}
-                  </div>
-                  <div>
-                    <strong>Text:</strong> {r.proposal?.text}
-                  </div>
-                  <div>
-                    <strong>First:</strong> {JSON.stringify(r.proposal?.first)}
-                  </div>
-                  <div>
-                    <strong>Second:</strong> {JSON.stringify(r.proposal?.second)}
-                  </div>
+                  <div>{r.text}</div>
                 </td>
-                <td>{r.pros.length}</td>
-                <td>{r.cons.length}</td>
                 <td>{r.expiration}</td>
+                <td>
+                  <span className="text-red-500">{r.yesCount}</span> /{" "}
+                  <span className="text-green-500">{r.noCount}</span> /{" "}
+                  <span className="text-gray-500">{r.absCount}</span>
+                </td>
+                <td>{t(r.proposal.$type, { ns: "votableOperations" })}</td>
+                <td>{JSON.stringify(r.proposal)}</td>
               </tr>
             ))}
           </tbody>

@@ -10,10 +10,14 @@ const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), valu
 
 type SiteCardProps = {
   title: string
+  nickname?: string
 }
 
-const SiteCard = ({ title }: SiteCardProps) => (
-  <div className="flex h-24 w-48 items-center justify-center rounded-md bg-gray-400 hover:font-semibold">{title}</div>
+const SiteCard = ({ title, nickname }: SiteCardProps) => (
+  <div className="flex h-24 w-48 flex-col items-center justify-center rounded-md bg-gray-400 hover:font-semibold">
+    <span>{title}</span>
+    {nickname && <span className="text-sm text-gray-600">Nickname: {nickname}</span>}
+  </div>
 )
 
 export const SitesPage = () => {
@@ -83,7 +87,7 @@ export const SitesPage = () => {
         </div>
         {isPending || !sites ? (
           <div>LOADING</div>
-        ) : !sites.items ? (
+        ) : sites.items.length === 0 ? (
           <div>🚫 NO SITES</div>
         ) : (
           <div className="flex h-full w-full flex-wrap gap-3">
