@@ -71,9 +71,9 @@ export const SearchPage = () => {
         <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
-      {isPending ? (
+      {isPending || !publications ? (
         <h2>Loading</h2>
-      ) : publications?.items !== undefined ? (
+      ) : publications.items.length > 0 ? (
         <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
           {publications.items.map(p => (
             <Link to={`/${siteId}/p/${p.id}`} key={p.id}>

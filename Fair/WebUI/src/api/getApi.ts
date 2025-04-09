@@ -1,6 +1,7 @@
 import {
   Author,
   AuthorReferendum,
+  AuthorReferendumDetails,
   Category,
   ModeratorDispute,
   ModeratorDisputeDetails,
