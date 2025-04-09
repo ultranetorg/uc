@@ -16,6 +16,7 @@ export const useSearchPublications = (siteId?: string, page?: number, pageSize?:
   const { isPending, error, data } = useQuery({
     queryKey: ["sites", siteId, "publications", { page, pageSize, title }],
     queryFn: queryFn,
+    enabled: !!siteId && !!title,
   })
 
   return { isPending, error, data }

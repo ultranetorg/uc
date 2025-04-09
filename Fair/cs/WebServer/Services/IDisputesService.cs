@@ -5,9 +5,16 @@ namespace Uccs.Fair;
 
 public interface IDisputesService
 {
-	public DisputeDetailsModel GetDispute([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId, bool disputesOrReferendums);
+
+	public DisputeDetailsModel GetDispute([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
 
 	public TotalItemsResult<DisputeModel> GetDisputes(
-		[NotEmpty][NotNull] string siteId, bool disputesOrReferendums, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
+		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
+		string? search, CancellationToken cancellationToken);
+
+	public DisputeDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
+
+	public TotalItemsResult<DisputeModel> GetReferendums(
+		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		string? search, CancellationToken cancellationToken);
 }

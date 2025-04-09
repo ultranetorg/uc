@@ -9,7 +9,7 @@ public class ReviewsService
 	FairMcv mcv
 ) : IReviewsService
 {
-	public TotalItemsResult<ReviewModel> GetModeratorsReviewsNonOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<ModeratorReviewModel> GetModeratorsReviewsNonOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
 		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorsReviewsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
@@ -32,11 +32,11 @@ public class ReviewsService
 				Page = page,
 				PageSize = pageSize,
 				Search = search,
-				Items = new List<ReviewModel>(pageSize),
+				Items = new List<ModeratorReviewModel>(pageSize),
 			};
 			LoadReviewsRecursively(site.Categories, context, canellationToken);
 
-			return new TotalItemsResult<ReviewModel>
+			return new TotalItemsResult<ModeratorReviewModel>
 			{
 				Items = context.Items,
 				TotalItems = context.TotalItems
@@ -54,24 +54,24 @@ public class ReviewsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			Category category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(categoryId);
 			foreach (var publicationId in category.Publications)
 			{
 				if (cancellationToken.IsCancellationRequested)
 					return;
 
-				Publication publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
+				Publication publication = mcv.Publications.Latest(publicationId);
 				foreach (var reviewId in publication.Reviews)
 				{
 					if (cancellationToken.IsCancellationRequested)
 						return;
 
-					Review review = mcv.Reviews.Find(reviewId, mcv.LastConfirmedRound.Id);
+					Review review = mcv.Reviews.Latest(reviewId);
 					if (review.Status == ReviewStatus.Pending && SearchUtils.IsMatch(review, context.Search))
 					{
 						if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 						{
-							var model = new ReviewModel(review);
+							ModeratorReviewModel model = new (review);
 							context.Items.Add(model);
 						}
 
@@ -84,7 +84,7 @@ public class ReviewsService
 		}
 	}
 
-	public ReviewDetailsModel GetModeratorReview(string reviewId)
+	public ModeratorReviewDetailsModel GetModeratorReview(string reviewId)
 	{
 		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorReview)} method called with {{ReviewId}}", reviewId);
 
@@ -99,19 +99,75 @@ public class ReviewsService
 			{
 				throw new EntityNotFoundException(nameof(Review).ToLower(), reviewId);
 			}
-			Account account = mcv.Accounts.Find(review.Creator, mcv.LastConfirmedRound.Id);
 
-			return new ReviewDetailsModel(review, account);
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
+			return new ModeratorReviewDetailsModel(review, account);
 		}
 	}
 
-	private class Context
+	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		public int Page { get; set; }
-		public int PageSize { get; set; }
-		public string? Search { get; set; }
+		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
 
-		public int TotalItems { get; set; }
-		public IList<ReviewModel> Items { get; set; }
+		Guard.Against.NullOrEmpty(publicationId);
+		Guard.Against.Negative(page, nameof(page));
+		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+
+		EntityId publicationEntityId = EntityId.Parse(publicationId);
+
+		lock (mcv.Lock)
+		{
+			Publication publication = mcv.Publications.Latest(publicationEntityId);
+			if (publication == null)
+			{
+				throw new EntityNotFoundException(nameof(Publication), publicationId);
+			}
+
+			var context = new SearchContext<ReviewModel>
+			{
+				Page = page,
+				PageSize = pageSize,
+				Items = new List<ReviewModel>(pageSize)
+			};
+			LoadReviews(context, publication.Reviews, cancellationToken);
+
+			return new TotalItemsResult<ReviewModel>
+			{
+				TotalItems = context.TotalItems,
+				Items = context.Items,
+			};
+		}
+	}
+
+	private void LoadReviews(SearchContext<ReviewModel> context, IEnumerable<EntityId> reviewsIds, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return;
+
+		foreach (var id in reviewsIds)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Review review = mcv.Reviews.Latest(id);
+			if (review.Status != ReviewStatus.Accepted)
+			{
+				continue;
+			}
+
+			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+			{
+				FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
+				var model = new ReviewModel(review, account);
+				context.Items.Add(model);
+			}
+
+			++context.TotalItems;
+		}
+	}
+
+	private class Context : SearchContext<ModeratorReviewModel>
+	{
+		public string? Search { get; set; }
 	}
 }

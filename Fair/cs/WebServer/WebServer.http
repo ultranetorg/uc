@@ -1,0 +1,66 @@
+@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
+
+### GET User
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65537-0
+Accept: application/json
+
+### GET Sites
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites
+Accept: application/json
+
+### GET Site
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0
+Accept: application/json
+
+### GET Site Authors
+
+# GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors
+# Accept: application/json
+
+### Get Site Author
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/authors/65793-0
+Accept: application/json
+
+### GET Site Categories
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/categories
+Accept: application/json
+
+### Get Site Category
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-3
+Accept: application/json
+
+### GET Site Author
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0
+Accept: application/json
+
+### Get Reviews
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-0/reviews
+Accept: application/json
+
+### GET Category
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-2
+Accept: application/json
+
+### GET Publication
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-2
+Accept: application/json
+
+### Publications Search
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?search=2&page=0&pageSize=10
+Accept: application/json
+
+### GET Author Publications
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0/publications
+Accept: application/json

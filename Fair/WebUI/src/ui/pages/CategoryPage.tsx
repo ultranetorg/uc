@@ -10,8 +10,6 @@ export const CategoryPage = () => {
     return <div>LOADING</div>
   }
 
-  console.log(JSON.stringify(category))
-
   return (
     <div className="flex flex-col">
       <span>ID: {category.id}</span>

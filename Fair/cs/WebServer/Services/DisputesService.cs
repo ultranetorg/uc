@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Runtime.CompilerServices;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -9,9 +10,24 @@ public class DisputesService
 	FairMcv mcv
 ) : IDisputesService
 {
-	public DisputeDetailsModel GetDispute(string siteId, string disputeId, bool disputesOrReferendums)
+	private const string ReferendumEntityName = "referendum";
+
+	public DisputeDetailsModel GetDispute(string siteId, string disputeId) =>
+		GetDisputeOrReferendum(siteId, disputeId, true);
+
+	public TotalItemsResult<DisputeModel> GetDisputes(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+		GetDisputesOrReferendums(siteId, true, page, pageSize, search, cancellationToken);
+
+	public DisputeDetailsModel GetReferendum(string siteId, string disputeId) =>
+		GetDisputeOrReferendum(siteId, disputeId, false);
+
+	public TotalItemsResult<DisputeModel> GetReferendums(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+		GetDisputesOrReferendums(siteId, false, page, pageSize, search, cancellationToken);
+
+	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
+	DisputeDetailsModel GetDisputeOrReferendum(string siteId, string disputeId, bool disputesOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDispute)} method called with {{SiteId}}, {{DisputeId}}, {{DisputesOrReferendums}}", siteId, disputeId, disputesOrReferendums);
+		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputeOrReferendum)} method called with {{SiteId}}, {{DisputeId}}, {{DisputesOrReferendums}}", siteId, disputeId, disputesOrReferendums);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(disputeId);
@@ -27,25 +43,28 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			string entityName = disputesOrReferendums ? nameof(Dispute).ToLower() : nameof(DisputeFlags.Referendum).ToLower();
+			string entityName = disputesOrReferendums ? nameof(Dispute).ToLower() : ReferendumEntityName;
 			if (!site.Disputes.Any(x => x == disputeEntityId))
 			{
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
-			Dispute dispute = mcv.Disputes.Find(disputeEntityId, mcv.LastConfirmedRound.Id);
-			if (dispute == null || disputesOrReferendums == dispute.Flags.HasFlag(DisputeFlags.Referendum))
+			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
+			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
 			}
 
-			return new DisputeDetailsModel(dispute);
+			return new DisputeDetailsModel(dispute)
+			{
+				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+			};
 		}
 	}
 
-	public TotalItemsResult<DisputeModel> GetDisputes(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	TotalItemsResult<DisputeModel> GetDisputesOrReferendums(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputes)} method called with {{SiteId}}, {{DisputesOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(DisputesService)}.{nameof(DisputesService.GetDisputesOrReferendums)} method called with {{SiteId}}, {{DisputesOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));
@@ -61,11 +80,12 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
+			return LoadDisputesOrReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
 		}
 	}
 
-	public TotalItemsResult<DisputeModel> LoadReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
+	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<DisputeModel>.Empty;
@@ -78,28 +98,60 @@ public class DisputesService
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(disputes, totalItems);
 
-			Dispute dispute = mcv.Disputes.Find(disputeId, mcv.LastConfirmedRound.Id);
-			if (disputesOrReferendums == !dispute.Flags.HasFlag(DisputeFlags.Referendum) && SearchUtils.IsMatch(dispute, search))
-			{
-				if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
-				{
-					disputes.Add(dispute);
-				}
+			Dispute dispute = mcv.Disputes.Latest(disputeId);
 
-				++totalItems;
+			if (disputesOrReferendums != IsProposalIsDispute(dispute))
+			{
+				continue;
 			}
+			if (!SearchUtils.IsMatch(dispute, search))
+			{
+				continue;
+			}
+
+			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
+			{
+				disputes.Add(dispute);
+			}
+
+			++totalItems;
 		}
 
 		return ToTotalItemsResult(disputes, totalItems);
 	}
 
-	private static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
+	static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
 	{
-		IEnumerable<DisputeModel> items = disputes.Select(items => new DisputeModel(items));
+		IEnumerable<DisputeModel> items = disputes.Select(dispute =>
+			new DisputeModel(dispute)
+			{
+				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+			});
+
 		return new TotalItemsResult<DisputeModel>
 		{
 			Items = items,
 			TotalItems = totalItems
 		};
 	}
+
+	static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
+	{
+		return proposal switch
+		{
+			NicknameChange operation => new NicknameChangeModel(operation),
+			PublicationProductChange operation => new PublicationProductChangeModel(operation),
+			PublicationStatusChange operation => new PublicationStatusChangeModel(operation),
+			PublicationUpdateModeration operation => new PublicationUpdateModerationModel(operation),
+			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
+			ReviewTextModeration operation => new ReviewTextModerationModel(operation),
+			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
+			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
+			SitePolicyChange operation => new SitePolicyChangeModel(operation),
+			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
+		};
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	static bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
 }

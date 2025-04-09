@@ -14,12 +14,13 @@ export const SitePage = () => {
     <div className="flex flex-col">
       <span>ID: {site.id}</span>
       <span>TITLE: {site.title}</span>
+      <span>NICKNAME: {site.nickname}</span>
       {site.moderators ? (
         <>
           <span className="text-black">MODERATORS:</span>
           <ul>
             {site.moderators.map(c => (
-              <ol key={c.id}>{c.address}</ol>
+              <ol key={c.id}>{"Address" + c.address + " Nickname" + c.nickname}</ol>
             ))}
           </ul>
         </>

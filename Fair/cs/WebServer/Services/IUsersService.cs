@@ -4,5 +4,5 @@ namespace Uccs.Fair;
 
 public interface IUsersService
 {
-	UserModel Find([NotNull] string userId);
+	UserModel Get([NotNull] string userId);
 }

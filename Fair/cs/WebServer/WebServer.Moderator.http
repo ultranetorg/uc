@@ -1,0 +1,12 @@
+@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:80
+@Uccs.Fair.WebApi_BasePath = http://127.0.0.101:80/api/moderator/sites/65793-0/disputes
+
+### GET Disputes
+
+GET {{Uccs.Fair.WebApi_BasePath}}
+Accept: application/json
+
+### GET Dispute
+
+GET {{Uccs.Fair.WebApi_BasePath}}/65793-1
+Accept: application/json

@@ -4,7 +4,9 @@ internal class SearchUtils
 {
 	internal static bool IsMatch(Site site, string? title)
 	{
-		return string.IsNullOrEmpty(title) || site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
+		return string.IsNullOrEmpty(title)
+			|| site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1
+			|| site.Nickname.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
 	internal static bool IsMatch(Dispute dispute, string? search)
@@ -25,7 +27,7 @@ internal class SearchUtils
 			return true;
 		}
 
-		if (dispute.Proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (dispute.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}

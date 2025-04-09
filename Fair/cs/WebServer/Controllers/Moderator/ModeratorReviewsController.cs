@@ -13,22 +13,21 @@ public class ModeratorReviewsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ReviewModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ModeratorReviewModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
-		int page = pagination?.Page ?? 0;
-		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<ReviewModel> disputes = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
 
-		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
+		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
 
 	[HttpGet("~/api/moderator/reviews/{reviewId}")]
-	public ReviewModel Get(string reviewId)
+	public ModeratorReviewModel Get(string reviewId)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{ReviewId}}", reviewId);
 

@@ -20,21 +20,20 @@ public class ModeratorDisputesController
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
-		int page = pagination?.Page ?? 0;
-		int pageSize = pagination?.PageSize ?? Pagination.DefaultPageSize;
-		TotalItemsResult<DisputeModel> disputes = disputesService.GetDisputes(siteId, true, page, pageSize, search, cancellationToken);
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<DisputeModel> disputes = disputesService.GetDisputes(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
 	}
 
 	[HttpGet("{disputeId}")]
-	public DisputeModel Get(string siteId, string disputeId)
+	public DisputeDetailsModel Get(string siteId, string disputeId)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{SiteId}}, {{DisputeId}}", siteId, disputeId);
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
 		entityIdValidator.Validate(disputeId, nameof(Dispute).ToLower());
 
-		return disputesService.GetDispute(siteId, disputeId, true);
+		return disputesService.GetDispute(siteId, disputeId);
 	}
 }

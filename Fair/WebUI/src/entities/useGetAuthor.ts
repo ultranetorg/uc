@@ -4,17 +4,17 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetSiteAuthor = (siteId?: string, authorId?: string) => {
+export const useGetAuthor = (authorId?: string) => {
   const queryFn = () => {
-    if (!siteId || !authorId) {
+    if (!authorId) {
       return
     }
 
-    return api.getSiteAuthor(siteId, authorId)
+    return api.getAuthor(authorId)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["sites", siteId, "authors", authorId],
+    queryKey: ["authors", authorId],
     queryFn: queryFn,
     enabled: !!authorId,
   })

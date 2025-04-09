@@ -39,14 +39,7 @@ public class WebServer
 												})
 												.AddJsonOptions(options =>
 												{
-													//options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
-													//{
-													//	Modifiers =
-													//	{
-													//		IgnorePropertiesModifier.IgnoreProperties
-													//	}
-													//};
-													//options.JsonSerializerOptions.TypeInfoResolver.WithAddedModifier(IgnorePropertiesModifier.IgnoreProperties);
+													options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
 
 													options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 												});

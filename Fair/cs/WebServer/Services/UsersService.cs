@@ -8,9 +8,9 @@ public class UsersService
 	FairMcv mcv
 ) : IUsersService
 {
-	public UserModel Find(string userId)
+	public UserModel Get(string userId)
 	{
-		logger.LogDebug($"GET {nameof(UsersService)}.{nameof(UsersService.Find)} method called with {{UserId}}", userId);
+		logger.LogDebug($"GET {nameof(UsersService)}.{nameof(UsersService.Get)} method called with {{UserId}}", userId);
 
 		Guard.Against.NullOrEmpty(userId);
 
@@ -22,12 +22,12 @@ public class UsersService
 			account = (FairAccount) mcv.Accounts.Find(entityId, mcv.LastConfirmedRound.Id);
 			if (account == null)
 			{
-				return null;
+				throw new EntityNotFoundException(nameof(Account).ToLower(), userId);
 			}
 		}
 
-		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : null;
-		IEnumerable<UserAuthorModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : null;
+		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : [];
+		IEnumerable<UserAuthorModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : [];
 
 		// IEnumerable<UserProductModel> products = null;
 		IEnumerable<UserPublicationModel> publications = null;
@@ -35,7 +35,7 @@ public class UsersService
 		{
 			LoadProductsResult loadProductsResult = LoadProducts(account.Authors);
 			// products = loadProductsResult.ProductsModels;
-			publications = loadProductsResult.Products?.Length > 0 ? LoadPublications(loadProductsResult.Products) : null;
+			publications = loadProductsResult.Products?.Length > 0 ? LoadPublications(loadProductsResult.Products) : [];
 		}
 
 		return new UserModel(account.Id.ToString())
@@ -114,8 +114,8 @@ public class UsersService
 			}).ToArray();
 		}
 
-		result.Products = productsList.Count > 0 ? productsList.ToArray() : null;
-		result.ProductsModels = productModels.Length > 0 ? productModels : null;
+		result.Products = productsList.Count > 0 ? productsList.ToArray() : [];
+		result.ProductsModels = productModels.Length > 0 ? productModels : [];
 
 		return result;
 	}

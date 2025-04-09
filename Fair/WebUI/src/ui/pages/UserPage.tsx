@@ -7,7 +7,6 @@ const { VITE_APP_USER_ID: USER_ID } = import.meta.env
 
 export const UserPage = () => {
   const { isPending, data: user } = useGetUser(USER_ID)
-  console.log(user)
 
   useDocumentTitle(user?.id ? `User - ${user?.id} | Ultranet Explorer` : "User | Ultranet Explorer")
 

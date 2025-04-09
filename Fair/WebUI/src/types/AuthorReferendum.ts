@@ -1,15 +1,11 @@
-type Proposal = {
-  change: string
-  first: object
-  second: object
-  text: string
-}
+import { BaseVotableOperation } from "./VotableOperations"
 
 export type AuthorReferendum = {
   id: string
-  flags: string[]
-  proposal: Proposal
-  pros: string[]
-  cons: string[]
+  yesCount: number
+  noCount: number
+  absCount: number
   expiration: number
+  text: string
+  proposal: BaseVotableOperation
 }
