@@ -59,6 +59,8 @@ public enum VaultError : byte
 	Locked,
 	AlreadyLocked,
 	AlreadyUnlocked,
+    AccountNotFound,
+    NetNotFound,
 }
 
 public abstract class NetException : Exception, ITypeCode, IBinarySerializable 

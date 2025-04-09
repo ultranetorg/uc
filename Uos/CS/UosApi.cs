@@ -155,10 +155,20 @@ internal class AuthenticateApc : Net.AuthenticateApc, IUosApc
 		{
 			var c = uos.AuthenticationRequested(Net, Account);
 	
-			if(c != null)
-			{
-				return new AccountSession {Account = c.Account, Session = uos.Vault.Find(c.Account).GetAuthentication(Net, c.Trust).Session};
-			} 
+		if(c != null)
+		{
+			var a = uos.Vault.Find(c.Account);
+		
+			if(a == null)
+				throw new VaultException(VaultError.AccountNotFound);
+		
+			var n = a.GetAuthentication(Net, c.Trust);
+		
+			if (n == null)
+				throw new VaultException(VaultError.NetNotFound);
+		
+			return new AccountSession {Account = c.Account, Session = n.Session};
+		} 
 			else
 				return null;
 		}

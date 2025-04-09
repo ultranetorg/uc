@@ -944,14 +944,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					}
 					catch(NodeException ex)
 					{
-						Flow.Log?.ReportError(this, "AllocateTransactionRequest", ex);
+						Flow.Log?.ReportError(this, "Transaction allocation", ex);
 						
 						Thread.Sleep(1000);
 						continue;
 					}
 					catch(EntityException ex)
 					{
-						Flow.Log?.ReportError(this, "AllocateTransactionRequest", ex);
+						Flow.Log?.ReportError(this, "Transaction allocation", ex);
 
 						if(t.__ExpectedOutcome == TransactionStatus.FailedOrNotFound)
 						{
@@ -963,6 +963,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						} 
 						//else
 						//	Thread.Sleep(1000);
+
+						continue;
+					}
+					catch(ApiCallException ex)
+					{
+						Flow.Log?.ReportError(this, "Transaction allocation", ex);
+
+						lock(Lock)
+							t.Status = TransactionStatus.FailedOrNotFound;
 
 						continue;
 					}
