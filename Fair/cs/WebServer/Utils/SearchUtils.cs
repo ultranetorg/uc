@@ -76,7 +76,7 @@ internal class SearchUtils
 			return true;
 		}
 
-		string rating = review.Rating.ToString();
+		string rating = review.Rate.ToString();
 		if ( rating == search)
 		{
 			return true;
