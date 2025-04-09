@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Runtime.CompilerServices;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -9,7 +10,7 @@ public class CategoriesService
 	FairMcv mcv
 ) : ICategoriesService
 {
-	public CategoryModel GetCategory(string categoryId)
+	public CategoryModel GetCategory(string categoryId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategory)} method called with {{CategoryId}}", categoryId);
 
@@ -32,32 +33,20 @@ public class CategoriesService
 			}
 
 			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
-			IEnumerable<PublicationBaseModel> publications = category.Publications.Length > 0 ? LoadPublications(category.Publications) : [];
 
 			return new CategoryModel(category, parentCategory?.Title.ToString())
 			{
 				Categories = categories,
-				Publications = publications,
 			};
 		}
 	}
 
-	private IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
+	IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
 	{
 		return categoriesIds.Select(id =>
 		{
 			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
 			return new CategoryBaseModel(category);
-		}).ToArray();
-	}
-
-	private IEnumerable<PublicationBaseModel> LoadPublications(EntityId[] publicationsIds)
-	{
-		return publicationsIds.Select(id =>
-		{
-			Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
-			Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-			return new PublicationBaseModel(publication, product);
 		}).ToArray();
 	}
 
@@ -88,4 +77,7 @@ public class CategoriesService
 			TotalItems = categories.Count(),
 		};
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	static bool IsApprovedStatus(Publication publication) => publication.Status == PublicationStatus.Approved;
 }

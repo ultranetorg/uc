@@ -1,10 +1,11 @@
 import { Link, useParams } from "react-router-dom"
 
-import { useGetCategory } from "entities"
+import { useGetCategory, useGetCategoryPublications } from "entities"
 
 export const CategoryPage = () => {
   const { siteId, categoryId } = useParams()
   const { data: category, isPending } = useGetCategory(categoryId)
+  const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id)
 
   if (isPending || !category) {
     return <div>LOADING</div>
@@ -14,7 +15,6 @@ export const CategoryPage = () => {
     <div className="flex flex-col">
       <span>ID: {category.id}</span>
       <span>TITLE: {category.title}</span>
-      <span>SITE ID: {category.siteId}</span>
       <span>
         PARENT ID:{" "}
         {category.parentId ? <Link to={`/${siteId}/c/${category.parentId}`}>{category.parentTitle}</Link> : ""}
@@ -36,11 +36,13 @@ export const CategoryPage = () => {
         <>🚫 NO CATEGORIES</>
       )}
 
-      {category.publications ? (
+      <span className="text-black">PUBLICATIONS:</span>
+      {isPendingPublications ? (
+        <div>⏱️ LOADING PUBLICATIONS</div>
+      ) : publications && publications.items.length > 0 ? (
         <>
-          <span className="text-black">PUBLICATIONS:</span>
           <ul>
-            {category.publications.map(p => (
+            {publications.items.map(p => (
               <li key={p.id}>
                 <Link to={`/${siteId}/p/${p.id}`}>{p.productTitle || p.id}</Link>
               </li>

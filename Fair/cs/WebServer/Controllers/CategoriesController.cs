@@ -12,13 +12,13 @@ public class CategoriesController
 ) : BaseController
 {
 	[HttpGet("{categoryId}")]
-	public CategoryModel Get(string categoryId)
+	public CategoryModel Get(string categoryId, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.Get)} method called with {{CategoryId}}", categoryId);
 
 		entityIdValidator.Validate(categoryId, nameof(Category).ToLower());
 
-		return categoriesService.GetCategory(categoryId);
+		return categoriesService.GetCategory(categoryId, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/categories")]

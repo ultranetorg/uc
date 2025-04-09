@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -59,7 +60,7 @@ public class SitesService
 		};
 	}
 
-	private IEnumerable<AccountBaseModel> LoadModerators(EntityId[] moderatorsIds)
+	IEnumerable<AccountBaseModel> LoadModerators(EntityId[] moderatorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -71,7 +72,7 @@ public class SitesService
 		}
 	}
 
-	private IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
+	IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
 	{
 		lock (mcv.Lock)
 		{

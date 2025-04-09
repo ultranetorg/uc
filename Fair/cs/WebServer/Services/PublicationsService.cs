@@ -148,6 +148,69 @@ public class PublicationsService
 		}
 	}
 
+	public TotalItemsResult<PublicationBaseModel> GetCategoryPublicationsNotOptimized(string categoryId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoryPublicationsNotOptimized)} method called with {{CategoryId}}", categoryId);
+
+		Guard.Against.NullOrEmpty(categoryId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		EntityId categoryEntityId = EntityId.Parse(categoryId);
+
+		lock (mcv.Lock)
+		{
+			Category category = mcv.Categories.Latest(categoryEntityId);
+			if (category == null)
+			{
+				throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
+			}
+
+			if (category.Publications.Length == 0)
+			{
+				return TotalItemsResult<PublicationBaseModel>.Empty;
+			}
+
+			var context = new SearchContext<PublicationBaseModel>
+			{
+				Page = page,
+				PageSize = pageSize,
+				Items = new List<PublicationBaseModel>(pageSize)
+			};
+			LoadPublications(category.Publications, context, cancellationToken);
+
+			return new TotalItemsResult<PublicationBaseModel>
+			{
+				Items = context.Items,
+				TotalItems = context.TotalItems
+			};
+		}
+	}
+
+	void LoadPublications(IEnumerable<EntityId> publicationsIds, SearchContext<PublicationBaseModel> context, CancellationToken cancellationToken)
+	{
+		foreach (EntityId publicationId in publicationsIds)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			if (!IsApprovedStatus(publication))
+			{
+				continue;
+			}
+
+			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+			{
+				Product product = mcv.Products.Latest(publication.Product);
+				var model = new PublicationBaseModel(publication, product);
+				context.Items.Add(model);
+			}
+
+			++context.TotalItems;
+		}
+	}
+
 	public TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNonOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
@@ -173,7 +236,7 @@ public class PublicationsService
 				Search = search,
 				Items = new List<ModeratorPublicationModel>(pageSize),
 			};
-			LoadReviewsRecursively(site.Categories, context, canellationToken);
+			LoadModeratorsReviewsRecursively(site.Categories, context, canellationToken);
 
 			return new TotalItemsResult<ModeratorPublicationModel>
 			{
@@ -183,7 +246,7 @@ public class PublicationsService
 		}
 	}
 
-	void LoadReviewsRecursively(IEnumerable<EntityId> categoriesIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken canellationToken)
+	void LoadModeratorsReviewsRecursively(IEnumerable<EntityId> categoriesIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken canellationToken)
 	{
 		if (canellationToken.IsCancellationRequested)
 			return;
@@ -220,7 +283,7 @@ public class PublicationsService
 				++context.TotalItems;
 			}
 
-			LoadReviewsRecursively(category.Categories, context, canellationToken);
+			LoadModeratorsReviewsRecursively(category.Categories, context, canellationToken);
 		}
 	}
 

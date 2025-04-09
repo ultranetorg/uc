@@ -23,11 +23,11 @@ const SiteCard = ({ title, nickname }: SiteCardProps) => (
 export const SitesPage = () => {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [title, setTitle] = useState("")
+  const [search, setSearch] = useState("")
 
-  const { isPending, data: sites } = useGetSites(page, pageSize, title)
+  const { isPending, data: sites } = useGetSites(page, pageSize, search)
 
-  const { page: queryPage, pageSize: querySize, title: queryTitle } = useQueryParams()
+  const { page: queryPage, pageSize: querySize, search: querySearch } = useQueryParams()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / pageSize) : 0
@@ -39,8 +39,8 @@ export const SitesPage = () => {
     if (pageSize != querySize) {
       setPageSize(querySize)
     }
-    if (title != queryTitle) {
-      setTitle(queryTitle)
+    if (search != querySearch) {
+      setSearch(querySearch)
     }
   }, [])
 
@@ -61,13 +61,13 @@ export const SitesPage = () => {
     } else {
       searchParams.delete("pageSize")
     }
-    if (title !== "") {
-      searchParams.set("title", title)
+    if (search !== "") {
+      searchParams.set("search", search)
     } else {
-      searchParams.delete("title")
+      searchParams.delete("search")
     }
     setSearchParams(searchParams)
-  }, [page, pageSize, searchParams, title, setSearchParams])
+  }, [page, pageSize, searchParams, search, setSearchParams])
 
   const handlePageSizeChange = useCallback((value: string) => {
     setPage(0)
@@ -81,7 +81,7 @@ export const SitesPage = () => {
           <center>LIST OF ALL SITES</center>
         </h1>
         <div className="flex w-80 gap-3">
-          <Input placeholder="Search site" value={title} onChange={setTitle} />
+          <Input placeholder="Search site" value={search} onChange={setSearch} />
           <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
           <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
         </div>
