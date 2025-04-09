@@ -21,5 +21,6 @@ public class DisputeModel
 		NoCount = dispute.No.Count();
 		AbsCount = dispute.Abs.Count();
 		Expiration = dispute.Expirtaion.Days;
+		Text = dispute.Text;
 	}
 }
