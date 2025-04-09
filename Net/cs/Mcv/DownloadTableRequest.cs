@@ -12,6 +12,9 @@ public class DownloadTableRequest : McvPpc<DownloadTableResponse>
 		{
 			RequireBase();
 
+			if(Mcv.Tables[Table].IsIndex)
+				throw new RequestException(RequestError.IncorrectRequest);
+
 			var b = Mcv.Tables[Table].FindBucket(BucketId);
 
 			if(b == null)
@@ -19,7 +22,6 @@ public class DownloadTableRequest : McvPpc<DownloadTableResponse>
 
 			if(!b.Hash.SequenceEqual(Hash))
 				throw new EntityException(EntityError.HashMismatach);
-
 
 			return new DownloadTableResponse {Main = b.Main};
 		}

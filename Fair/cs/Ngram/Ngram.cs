@@ -2,43 +2,11 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public enum EntityTextField : byte
-{
-	AccountNickname, 
-
-	AuthorNickname, 
-	AuthorTitle,
-
-	SiteNickname, 
-	SiteTitle,
-
-	ProductNickname, 
-	PublicationTitle,
-}
-
-public class TextReference : IBinarySerializable
-{
-	public EntityTextField		Field { get; set; }
-	public EntityId				Entity { get; set; }
-
-	public void Read(BinaryReader reader)
-	{
-		Field	= reader.Read<EntityTextField>();
-		Entity	= reader.Read<EntityId>();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write(Field);
-		writer.Write(Entity);
-	}
-}
-
 public class Ngram : IBinarySerializable, ITableEntry
 {
 	public RawId			Id { get; set; }
 	public RawId[]			Ngrams { get; set; }
-	public TextReference[]	References { get; set; }
+	public EntityFieldAddress[]	References { get; set; }
 
 	public BaseId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -88,7 +56,7 @@ public class Ngram : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<RawId>();
 		Ngrams		= reader.ReadArray<RawId>();
-		References	= reader.ReadArray<TextReference>();
+		References	= reader.ReadArray<EntityFieldAddress>();
 	}
 
 	public void Write(BinaryWriter writer)

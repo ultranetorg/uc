@@ -60,7 +60,7 @@ public class PublicationDeletion : FairOperation
 		
 		if(f != null)
 		{
-			execution.DeindexText(execution.FindProduct(p.Product).GetString(f), EntityTextField.PublicationTitle, p.Id);
+			execution.UnregisterWord(execution.FindProduct(p.Product).GetString(f), EntityTextField.PublicationTitle, p.Id);
 		}
 	}
 }

@@ -97,13 +97,13 @@ public class PublicationUpdateModeration : VotableOperation
 				/// decrease refs in product
 				var x = f.Versions.First(i => i.Version == prev.Version);
 	
-				f = new ProductField {Name = f.Name, 
-										Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
+				f = new ProductField{Name = f.Name, 
+									 Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
 		
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 				if(f.Name == ProductField.Title)
-					execution.DeindexText(Encoding.UTF8.GetString(x.Value), EntityTextField.PublicationTitle, p.Id);
+					execution.DeindexText(EntityTextField.PublicationTitle, p.Id, execution.FindCategory(p.Category).Site);
 			}
 	
 			/// increase refs in product
@@ -116,7 +116,7 @@ public class PublicationUpdateModeration : VotableOperation
 			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 			if(f.Name == ProductField.Title)
-				execution.IndexText(Encoding.UTF8.GetString(v.Value), EntityTextField.PublicationTitle, p.Id);
+				execution.IndexText(Encoding.UTF8.GetString(v.Value), EntityTextField.PublicationTitle, p.Id, execution.FindCategory(p.Category).Site);
 
 			PayForModeration(execution, p, a);
 		}

@@ -254,7 +254,7 @@ public abstract class JsonServer
 		{
 			RespondError(rp, ex.Message, HttpStatusCode.BadRequest);
 		}
-		catch(Exception ex)  when (!Debugger.IsAttached)
+		catch(Exception ex) when (Environment.GetEnvironmentVariable("UO_Environment") != "Development")
 		{
 			RespondError(rp, ex.ToString(), HttpStatusCode.InternalServerError);
 			Flow.Log?.ReportError(this, "Request Processing Error", ex);

@@ -98,7 +98,6 @@ public class Product : IBinarySerializable, ITableEntry
 {
 	public EntityId				Id { get; set; }
 	public EntityId				Author { get; set; }
-	public string				Nickname { get; set; }
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
@@ -133,7 +132,6 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		return new(Mcv){Id = Id,
 						Author = Author,
-						Nickname = Nickname,
 						Flags = Flags,
 						Fields = Fields,
 						Updated = Updated,
@@ -158,7 +156,6 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Author);
-		writer.WriteUtf8(Nickname);
 		writer.Write(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
@@ -169,7 +166,6 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		Id				= reader.Read<EntityId>();
 		Author			= reader.Read<EntityId>();
-		Nickname		= reader.ReadUtf8();
 		Flags			= reader.Read<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
