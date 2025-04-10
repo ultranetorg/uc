@@ -15,7 +15,7 @@ export const SearchPage = () => {
 
   const { search: contextSearch, setSearch: setContextSearch } = useSearchContext()
   const { siteId } = useParams()
-  const { isPending, data: publications } = useSearchPublications(siteId, page, pageSize, contextSearch)
+  const { isPending, data: publications } = useSearchPublications(siteId, page, pageSize, contextSearch, true)
 
   const { page: queryPage, pageSize: querySize, search: querySearch } = useQueryParams()
   const [searchParams, setSearchParams] = useSearchParams()
