@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { useCallback, useEffect } from "react"
+import { Link } from "react-router-dom"
 
 import { useGetSites } from "entities"
-import { useQueryParams } from "hooks"
+import { PAGE_SIZES } from "constants"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
+import { usePagePagination } from "ui/pages/hooks"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
@@ -21,58 +21,25 @@ const SiteCard = ({ title, nickname }: SiteCardProps) => (
 )
 
 export const SitesPage = () => {
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [search, setSearch] = useState("")
+  const { page, setPage, pageSize, setPageSize, search, setSearch } = usePagePagination()
 
   const { isPending, data: sites } = useGetSites(page, pageSize, search)
 
-  const { page: queryPage, pageSize: querySize, search: querySearch } = useQueryParams()
-  const [searchParams, setSearchParams] = useSearchParams()
-
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / pageSize) : 0
-
-  useEffect(() => {
-    if (page != queryPage) {
-      setPage(queryPage)
-    }
-    if (pageSize != querySize) {
-      setPageSize(querySize)
-    }
-    if (search != querySearch) {
-      setSearch(querySearch)
-    }
-  }, [])
 
   useEffect(() => {
     if (!isPending && pagesCount > 0 && page > pagesCount) {
       setPage(0)
     }
-  }, [isPending, page, pagesCount])
+  }, [isPending, page, pagesCount, setPage])
 
-  useEffect(() => {
-    if (page !== 0) {
-      searchParams.set("page", page.toString())
-    } else {
-      searchParams.delete("page")
-    }
-    if (pageSize !== DEFAULT_PAGE_SIZE) {
-      searchParams.set("pageSize", pageSize.toString())
-    } else {
-      searchParams.delete("pageSize")
-    }
-    if (search !== "") {
-      searchParams.set("search", search)
-    } else {
-      searchParams.delete("search")
-    }
-    setSearchParams(searchParams)
-  }, [page, pageSize, searchParams, search, setSearchParams])
-
-  const handlePageSizeChange = useCallback((value: string) => {
-    setPage(0)
-    setPageSize(parseInt(value))
-  }, [])
+  const handlePageSizeChange = useCallback(
+    (value: string) => {
+      setPage(0)
+      setPageSize(parseInt(value))
+    },
+    [setPage, setPageSize],
+  )
 
   return (
     <div className="flex flex-col">
