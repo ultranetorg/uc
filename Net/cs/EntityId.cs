@@ -126,4 +126,14 @@ public class EntityIdJsonConverter : JsonConverter<EntityId>
 	{
 		writer.WriteStringValue(value.ToString());
 	}
+
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, EntityId currency, JsonSerializerOptions options)
+	{
+		writer.WritePropertyName(currency.ToString());
+	}
+
+    public override EntityId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return Read(ref reader, typeToConvert, options);
+	}
 }

@@ -1,18 +1,19 @@
 ﻿using System.Net;
-using Lucene.Net.Analysis;
-using Lucene.Net.Analysis.Core;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Documents;
-using Lucene.Net.Index;
-using Lucene.Net.Search;
-using Lucene.Net.Store;
-using Lucene.Net.Util;
+// using Lucene.Net.Analysis;
+// using Lucene.Net.Analysis.Core;
+// using Lucene.Net.Analysis.Standard;
+// using Lucene.Net.Documents;
+// using Lucene.Net.Index;
+// using Lucene.Net.Search;
+// using Lucene.Net.Store;
+// using Lucene.Net.Util;
 using RocksDbSharp;
 
 namespace Uccs.Fair;
 
 public class FairMcv : Mcv
 {
+	IPAddress[]				BaseIPs;
 	public AuthorTable		Authors;
 	public ProductTable		Products;
 	public SiteTable		Sites;
@@ -21,9 +22,9 @@ public class FairMcv : Mcv
 	public ReviewTable		Reviews;
 	public DisputeTable		Disputes;
 	public WordTable		Words;
-	IPAddress[]				BaseIPs;
-	public Analyzer			LuceneAnalyzer;
-	public IndexWriter		LuceneWriter;
+	public SiteTermTable	PublicationTitles;
+	//public Analyzer		LuceneAnalyzer;
+	//public IndexWriter	LuceneWriter;
 	//public IndexSearcher	LuceneSearcher;
 
 	public FairMcv()
@@ -38,6 +39,7 @@ public class FairMcv : Mcv
 	{
 		BaseIPs = baseips;
 
+/*
 		var luceneVersion = LuceneVersion.LUCENE_48; 
 
 		var indexDir = FSDirectory.Open(Path.Join(databasepath, "Lucene"));
@@ -48,7 +50,7 @@ public class FairMcv : Mcv
 		indexConfig.OpenMode = OpenMode.CREATE_OR_APPEND;
 		LuceneWriter = new IndexWriter(indexDir, indexConfig);
 
-/*
+/ *
   		var a = new Document();
   		a.Add(new StringField("t", "The great application", Field.Store.YES));
   		a.Add(new TextField("s", "111-11 567-22\n222-22 567-44", Field.Store.YES));
@@ -72,7 +74,7 @@ public class FairMcv : Mcv
   
   		var docs = LuceneSearcher.Search(q, 10);
   
-  		var d = LuceneSearcher.Doc(docs.ScoreDocs[0].Doc);*/
+  		var d = LuceneSearcher.Doc(docs.ScoreDocs[0].Doc);* /
 
 		Commited += r => { 
 							using var rd = LuceneWriter.GetReader(applyAllDeletes: true);
@@ -109,7 +111,7 @@ public class FairMcv : Mcv
 							}
 						
 							LuceneWriter.Commit();
-						 };
+						 };*/
 	}
 
 	public string CreateGenesis(AccountKey god, AccountKey f0)
@@ -158,8 +160,9 @@ public class FairMcv : Mcv
 		Reviews = new (this);
 		Disputes = new (this);
 		Words = new (this);
+		PublicationTitles = new (this);
 
-		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words];
+		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles];
 	}
 
 	public override Round CreateRound()

@@ -82,13 +82,15 @@ public abstract class RdnCommand : McvCommand
 			
 					if(cnt == ContentType.Rdn_Consil)
 						return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																PerByteBYFee = d.Get<long>("pbstf") });
+																SizeEnergyFeeMinimum = d.Get<long>("sefm"),
+																ResultEnergyFeeMinimum = d.Get<long>("refm"),
+																ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")});
 					
 					if(cnt == ContentType.Rdn_Analysis)
-						return new ResourceData(t, new Analysis{Release		= Urr.Parse(d.Get<string>("release")), 
-																ECPayment	= d.Get<long>("ecpayment"),
-																BYPayment	= d.Get<long>("bypayment"),
-																Consil		= GetResourceId(d.Get<string>("consil"))});
+						return new ResourceData(t, new Analysis{Release			= Urr.Parse(d.Get<string>("release")), 
+																EnergyReward	= d.Get<long>("ereward"),
+																SpacetimeReward	= d.Get<long>("streward"),
+																Consil			= GetResourceId(d.Get<string>("consil"))});
 				}
 				else
 				{

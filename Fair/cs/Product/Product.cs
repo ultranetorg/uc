@@ -128,6 +128,11 @@ public class Product : IBinarySerializable, ITableEntry
 		return Encoding.UTF8.GetString(Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value);
 	}
 
+	public byte[] Get(ProductFieldVersionReference reference)
+	{
+		return Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value;
+	}
+
 	public Product Clone()
 	{
 		return new(Mcv){Id = Id,

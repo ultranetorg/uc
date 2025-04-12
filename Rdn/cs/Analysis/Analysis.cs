@@ -2,26 +2,36 @@
 
 public class Consil : IBinarySerializable
 {
-	public long				PerByteBYFee;
+	public long				SizeEnergyFeeMinimum;
+	public long				ResultEnergyFeeMinimum;
+	public long				ResultSpacetimeFeeMinimum;
 	public AccountAddress[]	Analyzers;
 
+	public const int		AnalyzersMaximum = 256;
 
 	public void Read(BinaryReader reader)
 	{
-		PerByteBYFee	= reader.Read7BitEncodedInt64();
-		Analyzers		= reader.ReadArray<AccountAddress>();
+		ResultEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
+		SizeEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
+		ResultSpacetimeFeeMinimum	= reader.Read7BitEncodedInt64();
+		Analyzers					= reader.ReadArray<AccountAddress>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write7BitEncodedInt64(PerByteBYFee);
+		writer.Write7BitEncodedInt64(SizeEnergyFeeMinimum);
+		writer.Write7BitEncodedInt64(ResultEnergyFeeMinimum);
+		writer.Write7BitEncodedInt64(ResultSpacetimeFeeMinimum);
 		writer.Write(Analyzers);
 	}
 
 	public Consil Clone()
 	{
-		return new Consil {	PerByteBYFee= PerByteBYFee, 
-							Analyzers	= Analyzers.Clone() as AccountAddress[]};
+		return new Consil()	{	SizeEnergyFeeMinimum			= SizeEnergyFeeMinimum, 
+								ResultSpacetimeFeeMinimum	= ResultSpacetimeFeeMinimum, 
+								ResultEnergyFeeMinimum		= ResultEnergyFeeMinimum, 
+								Analyzers						= Analyzers
+							};
 	}
 }
 
@@ -47,32 +57,32 @@ public struct AnalyzerResult
 public class Analysis : IBinarySerializable
 {
 	public Urr						Release { get; set; }
-	public long						ECPayment { get; set; }
-	public long						BYPayment { get; set; }
+	public long						EnergyReward { get; set; }
+	public long						SpacetimeReward { get; set; }
 	public EntityId					Consil	{ get; set; }
 	public AnalyzerResult[]			Results { get; set; }
 
 	public override string ToString()
 	{
-		return $"{Release}, STPayment={BYPayment}, EUPayment={ECPayment}, Consil={Consil}, Results={Results.Length}";
+		return $"{Release}, EnergyReward={EnergyReward}, SpacetimeReward={SpacetimeReward}, Consil={Consil}, Results={Results.Length}";
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Release		= Urr.ReadVirtual(reader);
-		Consil		= reader.Read<EntityId>();
-		BYPayment	= reader.Read7BitEncodedInt64();
-		ECPayment	= reader.Read7BitEncodedInt64();
-		Results		= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
-																  Result = reader.Read<AnalysisResult>() });
+		Release					= Urr.ReadVirtual(reader);
+		Consil					= reader.Read<EntityId>();
+		EnergyReward			= reader.Read7BitEncodedInt64();
+		SpacetimeReward			= reader.Read7BitEncodedInt64();
+		Results					= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), 
+																			 Result = reader.Read<AnalysisResult>() });
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		Release.WriteVirtual(writer);
 		writer.Write(Consil);
-		writer.Write7BitEncodedInt64(BYPayment);
-		writer.Write7BitEncodedInt64(ECPayment);
+		writer.Write7BitEncodedInt64(EnergyReward);
+		writer.Write7BitEncodedInt64(SpacetimeReward);
 		writer.Write(Results, i => { writer.Write(i.Analyzer);
 									 writer.Write(i.Result); });
 	}

@@ -1,8 +1,4 @@
 ﻿using System.Text;
-using Lucene.Net.Documents;
-using Lucene.Net.Documents.Extensions;
-using Lucene.Net.Index;
-using Lucene.Net.Search;
 
 namespace Uccs.Fair;
 
@@ -20,7 +16,7 @@ public class FairExecution : Execution
 	public Dictionary<EntityId, Review>				AffectedReviews = new();
 	public Dictionary<EntityId, Dispute>			AffectedDisputes = new();
 	public Dictionary<RawId, Word>					AffectedWords = new();
-	public Dictionary<EntityFieldAddress, LuceneEntity>	AffectedTexts = new();
+	public Dictionary<RawId, SiteTerm>				AffectedPublicationTitles = new();
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -28,14 +24,15 @@ public class FairExecution : Execution
 
 	public override ITableEntry Affect(byte table, BaseId id)
 	{
-		if(table == Mcv.Authors.Id)			return FindAuthor(id as EntityId)		!= null	? AffectAuthor(id as EntityId) : null;
-		if(table == Mcv.Products.Id)		return FindProduct(id as EntityId)		!= null	? AffectProduct(id as EntityId) : null;
-		if(table == Mcv.Sites.Id)			return FindSite(id as EntityId)			!= null	? AffectSite(id as EntityId) : null;
-		if(table == Mcv.Categories.Id)		return FindCategory(id as EntityId)		!= null	? AffectCategory(id as EntityId) : null;
-		if(table == Mcv.Publications.Id)	return FindPublication(id as EntityId)	!= null	? AffectPublication(id as EntityId) : null;
-		if(table == Mcv.Reviews.Id)			return FindReview(id as EntityId)		!= null	? AffectReview(id as EntityId) : null;
-		if(table == Mcv.Disputes.Id)		return FindDispute(id as EntityId)		!= null	? AffectDispute(id as EntityId) : null;
-		if(table == Mcv.Words.Id)			return FindWord(id as RawId)			!= null	? AffectWord(id as RawId) : null;
+		if(table == Mcv.Authors.Id)				return FindAuthor(id as EntityId)		!= null	? AffectAuthor(id as EntityId) : null;
+		if(table == Mcv.Products.Id)			return FindProduct(id as EntityId)		!= null	? AffectProduct(id as EntityId) : null;
+		if(table == Mcv.Sites.Id)				return FindSite(id as EntityId)			!= null	? AffectSite(id as EntityId) : null;
+		if(table == Mcv.Categories.Id)			return FindCategory(id as EntityId)		!= null	? AffectCategory(id as EntityId) : null;
+		if(table == Mcv.Publications.Id)		return FindPublication(id as EntityId)	!= null	? AffectPublication(id as EntityId) : null;
+		if(table == Mcv.Reviews.Id)				return FindReview(id as EntityId)		!= null	? AffectReview(id as EntityId) : null;
+		if(table == Mcv.Disputes.Id)			return FindDispute(id as EntityId)		!= null	? AffectDispute(id as EntityId) : null;
+		if(table == Mcv.Words.Id)				return FindWord(id as RawId)			!= null	? AffectWord(id as RawId) : null;
+		if(table == Mcv.PublicationTitles.Id)	return FindPublicationTitle(id as RawId)!= null	? AffectPublicationTitle(id as RawId) : null;
 
 		return base.Affect(table, id);
 	}
@@ -435,31 +432,90 @@ public class FairExecution : Execution
 		}
 	}
 
-	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
+	 public SiteTerm FindPublicationTitle(RawId id)
+ 	{
+ 		if(AffectedPublicationTitles.TryGetValue(id, out var a))
+ 			return a;
+ 
+ 		return Mcv.PublicationTitles.Find(id, Round.Id);
+ 	}
+
+	public SiteTerm AffectPublicationTitle(RawId id)
 	{
-		var id = new EntityFieldAddress(entity, field);
+		if(AffectedPublicationTitles.TryGetValue(id, out var a))
+			return a;
+			
+		a = Mcv.PublicationTitles.Find(id, Round.Id);
 
- 		if(AffectedTexts.TryGetValue(id, out var a))
- 		{
-			a.Text = text;
-			return;
+		if(a == null)
+		{
+			a = Mcv.PublicationTitles.Create();
+			a.Id = id;
+			a.Children = [];
+			a.References = [];
+		
+			return AffectedPublicationTitles[id] = a;
+		} 
+		else
+		{
+			return AffectedPublicationTitles[id] = a.Clone();
 		}
-
-		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Text = text};
 	}
 
-	public void DeindexText(EntityTextField field, EntityId entity, EntityId site)
-	{
-		var id = new EntityFieldAddress(entity, field);
-
- 		if(AffectedTexts.TryGetValue(id, out var a))
- 		{
-			a.Deleted = true;
-			return;
+ 	public void IndexPublicationTitle(EntityId site, string text, EntityId entity)
+ 	{
+		foreach(var i in text.ToLowerInvariant().Split(' '))
+		{
+			var t = Mcv.PublicationTitles.Add(i, FindPublicationTitle, AffectPublicationTitle);
+	
+			t = AffectPublicationTitle(t.Id);
+	
+			if(!t.References.TryGetValue(site, out var eee))
+				eee = [];
+	
+			if(!eee.Contains(entity))
+				t.References[site] = [..eee, entity];
 		}
+ 	}
 
-		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Deleted = true};
-	}
+ 	public void DeindexPublicationTitle(string text, Publication publication, EntityId site)
+ 	{
+		foreach(var i in text.ToLowerInvariant().Split(' '))
+		{
+			var r = Mcv.PublicationTitles.Search(site, i, 0, 0, 1, null);
+	
+			var e = AffectPublicationTitle(r[0].Term.Id);
+	
+			e.References = new SortedDictionary<EntityId, EntityId[]>(e.References);
+			e.References[site] = e.References[site].Remove(r[0].Entity);
+		}
+ 	}
+
+/// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
+/// 	{
+/// 		var id = new EntityFieldAddress(entity, field);
+/// 
+///  		if(AffectedTexts.TryGetValue(id, out var a))
+///  		{
+/// 			a.Text = text;
+/// 			return;
+/// 		}
+/// 
+/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Text = text};
+/// 	}
+/// 
+/// 	public void DeindexText(EntityTextField field, EntityId entity, EntityId site)
+/// 	{
+/// 		var id = new EntityFieldAddress(entity, field);
+/// 
+///  		if(AffectedTexts.TryGetValue(id, out var a))
+///  		{
+/// 			a.Deleted = true;
+/// 			return;
+/// 		}
+/// 
+/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Deleted = true};
+/// 	}
  
 /// 	public LuceneEntity FindText(EntityField id)
 /// 	{

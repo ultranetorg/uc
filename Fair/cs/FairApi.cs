@@ -131,24 +131,55 @@ public class CostApc : FairApc
 	}
 }
 
-
-public class SearchApc : FairApc
+public class TermSearchResult
 {
-	public EntityId			Site { get; set; }
-	public string			Query { get; set; }
-	public int				Page { get; set; }
-	public byte				Lines { get; set; } = 10;
-	public EntityTextField	Field { get; set; }
+	public string		Text { get; set; }
+	public EntityId		Entity { get; set; }
+
+	public override string ToString()
+	{
+		return $"{Text}, {Entity}";
+	}
+}
+
+public class PublicationsSearchApc : FairApc
+{
+	public EntityId		Site { get; set; }
+	public string		Query { get; set; }
+	public int			Skip { get; set; }
+	public int			Take { get; set; } = 10;
 
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Mcv.Lock)
 		{
-			return Field switch
-						 {
-							EntityTextField.PublicationTitle => node.Mcv.Publications.Search(Site, Query, Page, Lines),
-							 _ => throw new RequestException(RequestError.IncorrectRequest)
-						 };
+			IEnumerable<SiteTermTable.SearchItem> result = null;
+
+			for(int i=0; i<5; i++)
+			{
+				IEnumerable<SiteTermTable.SearchItem> r = null;
+
+				foreach(var w in Query.ToLowerInvariant().Split(' '))
+ 				{
+	 				r = node.Mcv.PublicationTitles.Search(Site, w, i, Skip, Take, r);
+ 				}
+
+				result = r;
+
+				if(r.Count() >= Take)
+					break;
+			}
+
+			return result.OrderBy(i => i.Distance)
+						 .Select(i =>	{
+											var p = node.Mcv.Publications.Latest(i.Entity);
+											var r = node.Mcv.Products.Latest(p.Product);
+																								 
+											var t = r.GetString(p.Fields.First(f => f.Name == ProductField.Title));
+																								 
+											return new TermSearchResult {Entity = i.Entity, Text = t};
+																								 
+										}).ToArray();
 		}
 	}
 }

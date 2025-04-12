@@ -11,12 +11,13 @@
 		<AssemblyName>fair</AssemblyName>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <NoWarn>1701;1702;8632</NoWarn>
+	</PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="Lucene.Net" Version="4.8.0-beta00017" />
-	  <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00017" />
-	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <NoWarn>1701;1702;8632</NoWarn>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Net\cs\Uccs.Net.csproj" />

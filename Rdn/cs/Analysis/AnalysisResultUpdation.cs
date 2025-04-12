@@ -57,9 +57,6 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		//d = round.AffectDomain(d.Id);
-		//r = d.AffectResource(r.Address.Resource);
-
 		ar = execution.AffectResource(ad, ar.Address.Resource);
 
 		var an = ar.Data.Read<Analysis>();
@@ -69,12 +66,23 @@ public class AnalysisResultUpdation : RdnOperation
 		
  		if(j == -1)
 		{
-			an.Results = an.Results.Append(new AnalyzerResult {Analyzer = (byte)aix, Result = Result}).ToArray();
+			an.Results = [..an.Results, new AnalyzerResult {Analyzer = (byte)aix, Result = Result}];
 
-			Signer.Energy += an.ECPayment/c.Analyzers.Length;
-			Signer.Spacetime += an.BYPayment/c.Analyzers.Length;
+			Signer.Energy	  += an.EnergyReward / c.Analyzers.Length;
+			Signer.Spacetime  += an.SpacetimeReward / c.Analyzers.Length;
+
+			var o = execution.AffectAccount(ad.Owner);
+
+			o.Energy	-= an.EnergyReward / c.Analyzers.Length;
+			o.Spacetime -= an.SpacetimeReward / c.Analyzers.Length;
+
+			SpacetimeSpenders.Add(o);
+			EnergySpenders.Add(o);
 		}
  		else
+		{	
+			an.Results = [..an.Results];
 			an.Results[j].Result = Result;
+		}
 	}
 }

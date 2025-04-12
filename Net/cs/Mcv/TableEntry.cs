@@ -15,7 +15,14 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 	public abstract void	Write(BinaryWriter writer);
 
 	public static byte[]	BucketToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
-	public static int		BytesToBucket(byte[] id) => id[0] | id[1]<< 8 | id[2] << 16;
+	
+	public static int BytesToBucket(byte[] id)
+	{
+		if(id.Length >= 3) return	  id[2] << 16 | id[1] << 8 | id[0];
+		if(id.Length == 2) return					id[1] << 8 | id[0];
+ 		
+		return id[0];
+	}
 
  	public static bool operator == (BaseId left, BaseId right)
  	{

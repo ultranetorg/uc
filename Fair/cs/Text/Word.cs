@@ -5,13 +5,11 @@ namespace Uccs.Fair;
 public enum EntityTextField : byte
 {
 	AccountNickname, 
-
 	AuthorNickname, 
-	AuthorTitle,
-
 	SiteNickname, 
-	SiteTitle,
 
+	AuthorTitle,
+	SiteTitle,
 	PublicationTitle,
 }
 
@@ -80,7 +78,6 @@ public class Word : IBinarySerializable, ITableEntry
 	public BaseId				Key => Id;
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
-
 
 	public Word()
 	{

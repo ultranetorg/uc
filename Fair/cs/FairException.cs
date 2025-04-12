@@ -18,7 +18,7 @@ public enum ProductError : byte
 public class ProductException : NetException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (ProductError)value; }
-	public ProductError			Error { get; protected set; }
+	public ProductError				Error { get; protected set; }
 	public override string			Message => Error.ToString();
 
 	public ProductException()

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Net;
 using System.Numerics;
 using System.Text;
@@ -46,7 +47,7 @@ public class BigIntegerJsonConverter : JsonConverter<BigInteger>
 	}
 }
 
-public class JsonClient// : RpcClient
+public class JsonClient
 {
 	HttpClient						Http;
 	public string					Address;

@@ -1,16 +1,5 @@
 ﻿namespace Uccs.Fair;
 
-public class TextSearchResult
-{
-	public string		Text { get; set; }
-	public EntityId		Entity { get; set; }
-
-	public override string ToString()
-	{
-		return $"{Text}, {Entity}";
-	}
-}
-
 public class WordTable : Table<Word>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
