@@ -27,9 +27,14 @@ export type Api = {
     page?: number,
     pageSize?: number,
   ): Promise<PaginationResponse<PublicationBase>>
+  getCategoryPublications(
+    categoryId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<PaginationResponse<PublicationBase>>
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<PaginationResponse<Review>>
   getSite(siteId: string): Promise<Site>
-  getSites(page?: number, pageSize?: number, title?: string): Promise<PaginationResponse<SiteBase>>
+  getSites(page?: number, pageSize?: number, search?: string): Promise<PaginationResponse<SiteBase>>
   getUser(userId: string): Promise<User>
   searchPublications(
     siteId: string,

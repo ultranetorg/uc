@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { useCallback, useEffect } from "react"
+import { Link } from "react-router-dom"
 
 import { useGetSites } from "entities"
-import { useQueryParams } from "hooks"
+import { PAGE_SIZES } from "constants"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "constants"
+import { usePagePagination } from "ui/pages/hooks"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
@@ -21,58 +21,25 @@ const SiteCard = ({ title, nickname }: SiteCardProps) => (
 )
 
 export const SitesPage = () => {
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [title, setTitle] = useState("")
+  const { page, setPage, pageSize, setPageSize, search, setSearch } = usePagePagination()
 
-  const { isPending, data: sites } = useGetSites(page, pageSize, title)
-
-  const { page: queryPage, pageSize: querySize, title: queryTitle } = useQueryParams()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { isPending, data: sites } = useGetSites(page, pageSize, search)
 
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / pageSize) : 0
-
-  useEffect(() => {
-    if (page != queryPage) {
-      setPage(queryPage)
-    }
-    if (pageSize != querySize) {
-      setPageSize(querySize)
-    }
-    if (title != queryTitle) {
-      setTitle(queryTitle)
-    }
-  }, [])
 
   useEffect(() => {
     if (!isPending && pagesCount > 0 && page > pagesCount) {
       setPage(0)
     }
-  }, [isPending, page, pagesCount])
+  }, [isPending, page, pagesCount, setPage])
 
-  useEffect(() => {
-    if (page !== 0) {
-      searchParams.set("page", page.toString())
-    } else {
-      searchParams.delete("page")
-    }
-    if (pageSize !== DEFAULT_PAGE_SIZE) {
-      searchParams.set("pageSize", pageSize.toString())
-    } else {
-      searchParams.delete("pageSize")
-    }
-    if (title !== "") {
-      searchParams.set("title", title)
-    } else {
-      searchParams.delete("title")
-    }
-    setSearchParams(searchParams)
-  }, [page, pageSize, searchParams, title, setSearchParams])
-
-  const handlePageSizeChange = useCallback((value: string) => {
-    setPage(0)
-    setPageSize(parseInt(value))
-  }, [])
+  const handlePageSizeChange = useCallback(
+    (value: string) => {
+      setPage(0)
+      setPageSize(parseInt(value))
+    },
+    [setPage, setPageSize],
+  )
 
   return (
     <div className="flex flex-col">
@@ -81,7 +48,7 @@ export const SitesPage = () => {
           <center>LIST OF ALL SITES</center>
         </h1>
         <div className="flex w-80 gap-3">
-          <Input placeholder="Search site" value={title} onChange={setTitle} />
+          <Input placeholder="Search site" value={search} onChange={setSearch} />
           <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
           <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
         </div>
