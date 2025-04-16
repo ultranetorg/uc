@@ -29,7 +29,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 
 		while(true)
 		{
-			byte dist = ComputeLevenshteinDistance(word, current.Word);
+			byte dist = (byte)ComputeLevenshteinDistance(word, current.Word);
 
 			if(dist == 0)
 				return current;
@@ -39,7 +39,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 				var t = affect(Word.GetId(word));
 
 				current = affect(current.Id);
-				current.Children = new OrderedDictionary<byte, RawId>(current.Children);
+				current.Children = new SortedDictionary<byte, RawId>(current.Children);
 				current.Children[dist] = t.Id;
 			
 				return t;
@@ -79,7 +79,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 		}
 	}
 
-	public byte ComputeLevenshteinDistance(string s, string t)
+	public int ComputeLevenshteinDistance(string s, string t)
 	{
 		var dp = new byte[s.Length + 1, t.Length + 1];
 
@@ -100,6 +100,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 
 		return dp[s.Length, t.Length];
 	}
+
 }
 
 public class EntityTermTable : TermTable<EntityTerm>
@@ -116,11 +117,16 @@ public class EntityTermTable : TermTable<EntityTerm>
 
 public class SiteTermTable : TermTable<SiteTerm>
 {
-	public class SearchItem
+	public class FoundEntity
 	{
 		public EntityId		Entity;
 		public SiteTerm		Term;
 		public byte			Distance;
+
+		public override string ToString()
+		{
+			return $"{Term.Word}, {Distance}, {Entity}";
+		}
 	}
 
 	public SiteTermTable(FairMcv mcv) : base(mcv)
@@ -132,9 +138,9 @@ public class SiteTermTable : TermTable<SiteTerm>
 		return new SiteTerm(Mcv);
 	}
 
-	public List<SearchItem> Search(EntityId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.SearchItem> tointersect)
+	public List<FoundEntity> Search(EntityId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
 	{
-		var result = new List<SearchItem>();
+		var result = new List<FoundEntity>();
 
 		bool search(SiteTerm node)
 		{
@@ -151,7 +157,7 @@ public class SiteTermTable : TermTable<SiteTerm>
 					{
 						if(skip == 0)
 						{
-							result.Add(new SearchItem {Entity = i, Term = node, Distance = dist});
+							result.Add(new FoundEntity {Entity = i, Term = node, Distance = (byte)dist});
 	
 							take--;
 	
@@ -164,11 +170,12 @@ public class SiteTermTable : TermTable<SiteTerm>
 				}
 			}
 
-			for(byte i = (byte)(dist - tolerance); i <= dist + tolerance; i++)
+			//foreach(byte i in Enumerable.Range(dist - tolerance, tolerance * 2 + 1).Where(i => i >= 0).OrderBy(i => i))
+			for(int i = Math.Max(0, dist - tolerance); i <= dist + tolerance; i++)
 			{
-				if(node.Children.ContainsKey(i))
+				if(node.Children.ContainsKey((byte)i))
 				{
-					if(!search(Latest(node.Children[i]) as SiteTerm))
+					if(!search(Latest(node.Children[(byte)i])))
 						return false;
 				}
 			}
@@ -208,93 +215,93 @@ public class SiteTermTable : TermTable<SiteTerm>
 
 }
 
-	///		Searchs using any part of word no matter the order of letters
-	///		
-	/// 	public TextSearchResult[] SearchPublications(EntityId site, string query, int page, int lines)
-	/// 	{
-	/// 		IEnumerable<Publication> results = null;
-	/// 
-	///  		IEnumerable<Publication> enumerate(Ngram g)
-	///  		{
-	///  			var a = g.References.Where(i => i.Field == EntityTextField.PublicationTitle)
-	///  								.Select(i => Mcv.Publications.Latest(i.Entity))
-	///  								.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
-	///  			
-	///  			foreach(var i in a)
-	///  				yield return i;
-	///  
-	///  			foreach(var i in g.Ngrams.Select(i => Mcv.Ngrams.Latest(i)))
-	///  				foreach(var k in enumerate(i))
-	///  					yield return k;
-	///  		}
-	/// 
-	/// 		foreach(var w in query.Split(' '))
-	/// 		{
-	/// 			IEnumerable<Publication> word = null;
-	/// 
-	/// 			for(int n = w.Length; n >= 1; n--)
-	/// 			{
-	/// 				for(int j=0; j <= w.Length - n; j++)
-	/// 				{
-	/// 					var id = Ngram.GetId(n, w, j);
-	/// 	
-	/// 					var t = Mcv.Ngrams.Latest(id);
-	/// 		
-	/// 					if(t != null)
-	/// 					{
-	/// 						var a = t.References.Where(i => i.Field == EntityTextField.PublicationTitle)
-	/// 											.Select(i => Mcv.Publications.Latest(i.Entity))
-	/// 											.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
-	/// 	
-	/// 						if(a.Any())
-	/// 						{
-	/// 							if(word == null)
-	/// 								word = a;
-	/// 							else
-	/// 								word = a.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
-	/// 						}
-	/// 					}
-	/// 				}
-	/// 
-	/// 				if(word != null)
-	/// 					break;
-	/// 			}
-	/// 
-	///  			if(word == null && w.Length <= 4)
-	///  			{
-	/// 				var g = Mcv.Ngrams.Latest(Ngram.GetId(w.Length, w, 0));
-	/// 
-	///  				if(g != null)
-	///  				{
-	///  					word = enumerate(g);
-	///  				}
-	///  			}
-	/// 
-	/// 			if(results == null)
-	/// 				results = word;
-	/// 			else 
-	/// 			{
-	/// 				if(word != null)
-	/// 					results = results.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
-	/// 				else
-	/// 				{
-	/// 					results = null; /// if no match for current word then nothing is found
-	/// 					break;
-	/// 				}
-	/// 			}
-	/// 		}
-	/// 
-	/// 
-	/// 
-	/// 		return results?.Skip(page * lines).Select(p =>	{
-	/// 															var r = Mcv.Products.Latest(p.Product);
-	/// 														
-	/// 															var f = p.Fields.First(i => i.Name == ProductField.Title);
-	/// 
-	/// 															return new TextSearchResult {Text = r.GetString(f), Entity = p.Id};
-	/// 														})
-	/// 											.Take(lines).ToArray() ?? [];
-	/// 	}
+///		Searchs using any part of word no matter the order of letters
+///		
+/// 	public TextSearchResult[] SearchPublications(EntityId site, string query, int page, int lines)
+/// 	{
+/// 		IEnumerable<Publication> results = null;
+/// 
+///  		IEnumerable<Publication> enumerate(Ngram g)
+///  		{
+///  			var a = g.References.Where(i => i.Field == EntityTextField.PublicationTitle)
+///  								.Select(i => Mcv.Publications.Latest(i.Entity))
+///  								.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
+///  			
+///  			foreach(var i in a)
+///  				yield return i;
+///  
+///  			foreach(var i in g.Ngrams.Select(i => Mcv.Ngrams.Latest(i)))
+///  				foreach(var k in enumerate(i))
+///  					yield return k;
+///  		}
+/// 
+/// 		foreach(var w in query.Split(' '))
+/// 		{
+/// 			IEnumerable<Publication> word = null;
+/// 
+/// 			for(int n = w.Length; n >= 1; n--)
+/// 			{
+/// 				for(int j=0; j <= w.Length - n; j++)
+/// 				{
+/// 					var id = Ngram.GetId(n, w, j);
+/// 	
+/// 					var t = Mcv.Ngrams.Latest(id);
+/// 		
+/// 					if(t != null)
+/// 					{
+/// 						var a = t.References.Where(i => i.Field == EntityTextField.PublicationTitle)
+/// 											.Select(i => Mcv.Publications.Latest(i.Entity))
+/// 											.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
+/// 	
+/// 						if(a.Any())
+/// 						{
+/// 							if(word == null)
+/// 								word = a;
+/// 							else
+/// 								word = a.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+/// 						}
+/// 					}
+/// 				}
+/// 
+/// 				if(word != null)
+/// 					break;
+/// 			}
+/// 
+///  			if(word == null && w.Length <= 4)
+///  			{
+/// 				var g = Mcv.Ngrams.Latest(Ngram.GetId(w.Length, w, 0));
+/// 
+///  				if(g != null)
+///  				{
+///  					word = enumerate(g);
+///  				}
+///  			}
+/// 
+/// 			if(results == null)
+/// 				results = word;
+/// 			else 
+/// 			{
+/// 				if(word != null)
+/// 					results = results.Intersect(word, EqualityComparer<Publication>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+/// 				else
+/// 				{
+/// 					results = null; /// if no match for current word then nothing is found
+/// 					break;
+/// 				}
+/// 			}
+/// 		}
+/// 
+/// 
+/// 
+/// 		return results?.Skip(page * lines).Select(p =>	{
+/// 															var r = Mcv.Products.Latest(p.Product);
+/// 														
+/// 															var f = p.Fields.First(i => i.Name == ProductField.Title);
+/// 
+/// 															return new TextSearchResult {Text = r.GetString(f), Entity = p.Id};
+/// 														})
+/// 											.Take(lines).ToArray() ?? [];
+/// 	}
 
 
 

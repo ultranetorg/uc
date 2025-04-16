@@ -474,7 +474,10 @@ public class FairExecution : Execution
 				eee = [];
 	
 			if(!eee.Contains(entity))
+			{	
+				t.References = new (t.References);
 				t.References[site] = [..eee, entity];
+			}
 		}
  	}
 
@@ -486,7 +489,7 @@ public class FairExecution : Execution
 	
 			var e = AffectPublicationTitle(r[0].Term.Id);
 	
-			e.References = new SortedDictionary<EntityId, EntityId[]>(e.References);
+			e.References = new (e.References);
 			e.References[site] = e.References[site].Remove(r[0].Entity);
 		}
  	}

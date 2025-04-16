@@ -7,7 +7,7 @@ public abstract class Term : IBinarySerializable, ITableEntry
 {
 	public RawId							Id { get; set; }
 	public string							Word => _Text ??= Encoding.UTF8.GetString(Id.Bytes);
-	public OrderedDictionary<byte, RawId>	Children { get; set; }
+	public SortedDictionary<byte, RawId>	Children { get; set; }
 
 	public BaseId							Key => Id;
 	public bool								Deleted { get; set; }
@@ -50,7 +50,7 @@ public abstract class Term : IBinarySerializable, ITableEntry
 	public virtual void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<RawId>();
-		Children	= reader.ReadOrderedDictionary(() => reader.ReadByte(), () => reader.Read<RawId>());
+		Children	= reader.ReadSortedDictionary(() => reader.ReadByte(), () => reader.Read<RawId>());
 	}
 
 	public virtual void Write(BinaryWriter writer)

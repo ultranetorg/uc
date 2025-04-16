@@ -135,10 +135,11 @@ public class TermSearchResult
 {
 	public string		Text { get; set; }
 	public EntityId		Entity { get; set; }
+	public byte			Distance { get; set; }
 
 	public override string ToString()
 	{
-		return $"{Text}, {Entity}";
+		return $"{Text}, {Entity}, {Distance}";
 	}
 }
 
@@ -153,31 +154,29 @@ public class PublicationsSearchApc : FairApc
 	{
 		lock(node.Mcv.Lock)
 		{
-			IEnumerable<SiteTermTable.SearchItem> result = null;
+			IEnumerable<TermSearchResult> result = null;
 
-			for(int i=0; i<5; i++)
-			{
-				IEnumerable<SiteTermTable.SearchItem> r = null;
+			foreach(var w in Query.ToLowerInvariant().Split(' '))
+ 			{
+				IEnumerable<TermSearchResult> r = null;
 
-				foreach(var w in Query.ToLowerInvariant().Split(' '))
- 				{
-	 				r = node.Mcv.PublicationTitles.Search(Site, w, i, Skip, Take, r);
- 				}
-
-				result = r;
-
-				if(r.Count() >= Take)
-					break;
-			}
+				r = node.Mcv.PublicationTitles.Search(Site, w, 10, Skip, Take, null)//.GroupBy(i => i.Entity).Select(i => new TermSearchResult {Distance = (byte)i.Sum(j => j.Distance), Entity = i.First().Entity});
+																					.Select(i => new TermSearchResult {Distance = i.Distance, Entity = i.Entity});
+				if(result == null)
+					result = r;
+				else
+				//	result = result.Intersect(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
+					result = result.Union(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
+ 			}
 
 			return result.OrderBy(i => i.Distance)
-						 .Select(i =>	{
+						.Select(i =>	{
 											var p = node.Mcv.Publications.Latest(i.Entity);
 											var r = node.Mcv.Products.Latest(p.Product);
 																								 
 											var t = r.GetString(p.Fields.First(f => f.Name == ProductField.Title));
 																								 
-											return new TermSearchResult {Entity = i.Entity, Text = t};
+											return new TermSearchResult {Entity = i.Entity, Text = t, Distance = i.Distance};
 																								 
 										}).ToArray();
 		}
