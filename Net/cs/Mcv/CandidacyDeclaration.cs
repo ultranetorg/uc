@@ -6,7 +6,7 @@ public class CandidacyDeclaration : Operation
 {
 	public IPAddress[]		BaseRdcIPs  { get; set; }
 
-	public override string	Description => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
+	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
 			
 	protected Generator		Affected;
 

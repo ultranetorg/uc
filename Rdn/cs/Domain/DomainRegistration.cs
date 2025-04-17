@@ -7,7 +7,7 @@ public class DomainRegistration : RdnOperation
 	public AccountAddress		Owner  {get; set;}
 	public DomainChildPolicy	Policy {get; set;}
 
-	public override string		Description => $"{Address} for {Years} years";
+	public override string		Explanation => $"{Address} for {Years} years";
 	
 	public DomainRegistration()
 	{

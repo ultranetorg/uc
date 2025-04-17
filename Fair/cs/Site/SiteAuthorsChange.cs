@@ -7,7 +7,7 @@ public class SiteAuthorsChange : VotableOperation
 	public EntityId[]			Removals { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Description => $"{Id}";
+	public override string		Explanation => $"{Id}";
 	
 	public override void Read(BinaryReader reader)
 	{

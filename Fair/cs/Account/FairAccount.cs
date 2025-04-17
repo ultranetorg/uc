@@ -6,6 +6,7 @@ public class FairAccount : Account
 	public EntityId[]				Authors  { get; set; }
 	public EntityId[]				Sites  { get; set; }
 	public EntityId[]				Reviews  { get; set; }
+	public EntityId[]				FavoriteSites  { get; set; }
 	public int						Approvals  { get; set; }
 	public int						Rejections  { get; set; }
 	public EntityId					AllocationSponsor { get; set; }
@@ -31,6 +32,7 @@ public class FairAccount : Account
 		a.Rejections			 = Rejections;
 		a.AllocationSponsor		 = AllocationSponsor;
 		a.AllocationSponsorClass = AllocationSponsorClass;
+		a.FavoriteSites			 = FavoriteSites;
 
 		return a;
 	}
@@ -43,6 +45,7 @@ public class FairAccount : Account
 		writer.Write(Authors);
 		writer.Write(Sites);
 		writer.Write(Reviews);
+		writer.Write(FavoriteSites);
 
 		writer.WriteNullable(AllocationSponsor);
 		
@@ -62,6 +65,7 @@ public class FairAccount : Account
 		Authors					= reader.ReadArray<EntityId>();
 		Sites					= reader.ReadArray<EntityId>();
 		Reviews					= reader.ReadArray<EntityId>();
+		FavoriteSites			= reader.ReadArray<EntityId>();
 
 		AllocationSponsor		= reader.ReadNullable<EntityId>();
 		

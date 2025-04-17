@@ -8,7 +8,7 @@ public class DisputeCreation : FairOperation
 	public VotableOperation	        Proposal { get; set; }
 	
 	public override bool		    IsValid(McvNet net) => true;
-	public override string		    Description => $"{Id}";
+	public override string		    Explanation => $"{Id}";
 
 	public DisputeCreation()
 	{

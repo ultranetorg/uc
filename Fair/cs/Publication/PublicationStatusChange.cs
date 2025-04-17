@@ -6,7 +6,7 @@ public class PublicationStatusChange : VotableOperation
 	public PublicationStatus	Status { get; set; }
 
 	public override bool		IsValid(McvNet net) => Publication != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
-	public override string		Description => $"{Publication}, {Status}";
+	public override string		Explanation => $"{Publication}, {Status}";
 
 	public PublicationStatusChange()
 	{

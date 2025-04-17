@@ -186,7 +186,7 @@ public class NodeCommand : McvCommand
 									Dump(t);
 
 									foreach(var o in t.Operations)
-										Report("   " + o.Description);
+										Report("   " + o.Explanation);
 								}
 													
 								return r;
@@ -215,7 +215,7 @@ public class NodeCommand : McvCommand
 									Dump(t);
 
 									foreach(var o in t.Operations)
-										Report("   " + o.Description);
+										Report("   " + o.Explanation);
 								}
 													
 								return r;

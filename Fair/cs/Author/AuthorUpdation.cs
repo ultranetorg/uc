@@ -5,7 +5,7 @@ public class AuthorRenewal : FairOperation
 	public EntityId				AuthorId { get; set; }
 	public byte					Years { get; set; }
 
-	public override string		Description => $"{AuthorId}, {Years}";
+	public override string		Explanation => $"{AuthorId}, {Years}";
 	
 	public AuthorRenewal()
 	{
@@ -53,7 +53,7 @@ public class AuthorModerationReward : FairOperation
 	public EntityId				AuthorId { get; set; }
 	public long					Amount { get; set; }
 
-	public override string		Description => $"{AuthorId}, {Amount}";
+	public override string		Explanation => $"{AuthorId}, {Amount}";
 	
 	public AuthorModerationReward()
 	{
@@ -92,7 +92,7 @@ public class AuthorOwnerAddition : FairOperation
 	public EntityId				AuthorId { get; set; }
 	public EntityId				Owner { get; set; }
 
-	public override string		Description => $"{AuthorId}, {Owner}";
+	public override string		Explanation => $"{AuthorId}, {Owner}";
 	
 	public AuthorOwnerAddition()
 	{
@@ -140,7 +140,7 @@ public class AuthorOwnerRemoval : FairOperation
 	public EntityId				AuthorId { get; set; }
 	public EntityId				Owner { get; set; }
 
-	public override string		Description => $"{AuthorId}, {Owner}";
+	public override string		Explanation => $"{AuthorId}, {Owner}";
 	
 	public AuthorOwnerRemoval()
 	{

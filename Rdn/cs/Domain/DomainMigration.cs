@@ -6,7 +6,7 @@ public class DomainMigration : RdnOperation
 	public string			Tld  { get; set; }
 	public bool				RankCheck  { get; set; }
 
-	public override string	Description => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
+	public override string	Explanation => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
 	public bool				DnsApproved;
 	public bool				RankApproved;
 	public EntityId			Generator;

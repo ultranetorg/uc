@@ -5,7 +5,7 @@ public class ProductDeletion : FairOperation
 	public EntityId				Product { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Description => $"{Id}";
+	public override string		Explanation => $"{Id}";
 
 	public ProductDeletion()
 	{

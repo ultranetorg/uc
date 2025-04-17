@@ -5,7 +5,7 @@ public class ResourceLinkDeletion : RdnOperation
 	public EntityId	Source { get; set; }
 	public EntityId	Destination { get; set; }
 	
-	public override string	Description => $"Source={Source}, Destination={Destination}";
+	public override string	Explanation => $"Source={Source}, Destination={Destination}";
 	public override bool	IsValid(McvNet net) => true;
 
 	public ResourceLinkDeletion()

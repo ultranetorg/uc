@@ -7,7 +7,7 @@ public class ProductUpdation : FairOperation
 	public EntityId				ProductId { get; set; }
 	public string				Name	{ get; set; }
 	public byte[]				Value	{ get; set; }
-	public override string		Description => $"{ProductId}, {Name}, {Value}";
+	public override string		Explanation => $"{ProductId}, {Name}, {Value}";
 
 	public override bool		IsValid(McvNet net) => Value.Length <= ProductField.ValueLengthMaximum;
 

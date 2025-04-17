@@ -5,7 +5,7 @@ public class ProductCreation : FairOperation
 	public EntityId				Author { get; set; }
 
 	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
-	public override string		Description => $"{Author}";
+	public override string		Explanation => $"{Author}";
 
 	public ProductCreation()
 	{

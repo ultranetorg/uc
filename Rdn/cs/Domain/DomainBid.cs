@@ -4,7 +4,7 @@ public class DomainBid : RdnOperation
 {
 	public string			Name  { get; set; }
 	public long				Bid  { get; set; }
-	public override string	Description => $"{Bid} UNT for {Name}";
+	public override string	Explanation => $"{Bid} UNT for {Name}";
 	
 	public override bool IsValid(McvNet net)
 	{

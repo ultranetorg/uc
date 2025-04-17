@@ -8,7 +8,7 @@ public class ResourceCreation : RdnOperation
 
 	public override bool		IsValid(McvNet net) =>	(!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
 														!Changes.HasFlag(ResourceChanges.NullData);
-	public override string		Description => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+	public override string		Explanation => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
 	public ResourceCreation()
 	{

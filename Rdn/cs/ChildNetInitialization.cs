@@ -5,7 +5,7 @@ public class ChildNetInitialization : RdnOperation
 	public EntityId		Domain  { get; set; }
 	public NtnState		Net { get; set; }
 
-	public override string		Description => $"Hash={Net.Hash.ToHex()}, Pees={Net.Peers.Length}";
+	public override string		Explanation => $"Hash={Net.Hash.ToHex()}, Pees={Net.Peers.Length}";
 	
 	public ChildNetInitialization ()
 	{

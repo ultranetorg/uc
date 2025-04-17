@@ -76,6 +76,7 @@ public class FairExecution : Execution
 		a.Reviews = [];
 		a.Sites = [];
 		a.Authors = [];
+		a.FavoriteSites = [];
 		a.Nickname = "";
 
 		return a;
@@ -194,6 +195,7 @@ public class FairExecution : Execution
 		a.Disputes = [];
 		a.ChangePolicies = [];
 		a.Nickname = "";
+		a.Description = "";
 		
 		return AffectedSites[a.Id] = a;
 	}

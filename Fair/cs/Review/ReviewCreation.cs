@@ -9,7 +9,7 @@ public class ReviewCreation : FairOperation
 	public byte					Rate { get; set; }
 
 	public override bool		NonExistingSignerAllowed => true;
-	public override string		Description => $"{GetType().Name} Publication={Publication}";
+	public override string		Explanation => $"{GetType().Name} Publication={Publication}";
 
 	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
 

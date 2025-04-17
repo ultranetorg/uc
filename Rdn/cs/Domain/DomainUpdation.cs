@@ -5,7 +5,7 @@ public class DomainRenewal : RdnOperation
 	public new EntityId			Id {get; set;}
 	public byte					Years  {get; set;}
 
-	public override string		Description => $"{Id} {Years}";
+	public override string		Explanation => $"{Id} {Years}";
 	
 	public DomainRenewal()
 	{
@@ -67,7 +67,7 @@ public class DomainTransfer : RdnOperation
 	public new EntityId			Id {get; set;}
 	public EntityId				Owner  {get; set;}
 
-	public override string		Description => $"{Id} {Owner}";
+	public override string		Explanation => $"{Id} {Owner}";
 	
 	public DomainTransfer()
 	{
@@ -152,7 +152,7 @@ public class DomainPolicyUpdation : RdnOperation
 	public new EntityId			Id { get; set; }
 	public DomainChildPolicy	Policy { get; set; }
 
-	public override string		Description => $"{Id} {Policy}";
+	public override string		Explanation => $"{Id} {Policy}";
 	
 	public DomainPolicyUpdation()
 	{

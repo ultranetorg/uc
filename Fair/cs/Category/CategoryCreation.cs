@@ -7,7 +7,7 @@ public class CategoryCreation : FairOperation
 	public string				Title { get; set; }
 
 	public override bool		IsValid(McvNet net) => (Site != null || Parent != null) && (Site == null || Parent == null) && Title != null;
-	public override string		Description => $"{GetType().Name} Title={Title} Parent={Parent}, Site={Site}";
+	public override string		Explanation => $"{GetType().Name} Title={Title} Parent={Parent}, Site={Site}";
 
 	public override void Read(BinaryReader reader)
 	{

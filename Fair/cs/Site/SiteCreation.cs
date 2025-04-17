@@ -6,7 +6,7 @@ public class SiteCreation : FairOperation
 	public byte					Years {get; set;}
 
 	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
-	public override string		Description => $"{GetType().Name}";
+	public override string		Explanation => $"{GetType().Name}";
 
 	public SiteCreation()
 	{
@@ -39,6 +39,7 @@ public class SiteCreation : FairOperation
 		s.Moderators	= [Signer.Id];
 
 		s.ChangePolicies[FairOperationClass.NicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
+		s.ChangePolicies[FairOperationClass.SiteDescriptionChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
 
 		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
 		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;

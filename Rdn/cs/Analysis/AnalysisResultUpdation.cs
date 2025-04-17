@@ -6,7 +6,7 @@ public class AnalysisResultUpdation : RdnOperation
 	public EntityId			Analysis { get; set; }
 	public AnalysisResult	Result { get; set; }
 	
-	public override string	Description => $"Analysis={Analysis}, Result={Result}";
+	public override string	Explanation => $"Analysis={Analysis}, Result={Result}";
 	public override bool	IsValid(McvNet net) => true;
 
 	public AnalysisResultUpdation()

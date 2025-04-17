@@ -7,7 +7,7 @@ public class PublicationCreation : FairOperation
 	//public ProductFieldVersionId[]	Fields { get; set; }
 
 	public override bool		IsValid(McvNet net) => Product != null && Category != null;
-	public override string		Description => $"Product={Product} Category={Category}";
+	public override string		Explanation => $"Product={Product} Category={Category}";
 
 	public override void Read(BinaryReader reader)
 	{

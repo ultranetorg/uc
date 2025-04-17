@@ -6,6 +6,7 @@ public enum FairOperationClass : uint
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 	
 	NicknameChange					= 100_000_000,
+	FavoriteSiteChange				= 100_000_001,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -25,6 +26,7 @@ public enum FairOperationClass : uint
 		SitePolicyChange			= 103_000_003,
 		SiteAuthorsChange			= 103_000_004,
 		SiteModeratorsChange		= 103_000_005,
+		SiteDescriptionChange		= 103_000_006,
 		SiteDeletion				= 103_000_999,
 	
 	Store							= 104,

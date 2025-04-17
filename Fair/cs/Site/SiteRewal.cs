@@ -5,7 +5,7 @@ class SiteRewal : FairOperation
 	public EntityId				SiteId { get; set; }
 	public byte					Years { get; set; }
 
-	public override string		Description => $"{SiteId}, {Years}";
+	public override string		Explanation => $"{SiteId}, {Years}";
 	
 	public SiteRewal()
 	{

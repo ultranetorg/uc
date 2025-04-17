@@ -24,6 +24,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public EntityId					Id { get; set; }
 	public string					Nickname { get; set; }
 	public string					Title { get; set; }
+	public string					Description { get; set; }
 	public int						ModerationReward { get; set; }
 	
 	public OrderedDictionary<FairOperationClass, ChangePolicy> ChangePolicies { get; set; }
@@ -77,21 +78,22 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public Site Clone()
 	{
 		var a = new Site(Mcv){	Id						= Id,
-									Title					= Title,
-									Nickname				= Nickname,
-									ModerationReward		= ModerationReward,
+								Title					= Title,
+								Description				= Description,
+								Nickname				= Nickname,
+								ModerationReward		= ModerationReward,
 									
-									ChangePolicies			= ChangePolicies,
+								ChangePolicies			= ChangePolicies,
 
-									Expiration				= Expiration,
-									Space					= Space,
-									Spacetime				= Spacetime,
+								Expiration				= Expiration,
+								Space					= Space,
+								Spacetime				= Spacetime,
 
-									Authors					= Authors,
-									Moderators				= Moderators,
-									Categories				= Categories,
-									Disputes				= Disputes,
-									};
+								Authors					= Authors,
+								Moderators				= Moderators,
+								Categories				= Categories,
+								Disputes				= Disputes,
+								};
 		
 		((IEnergyHolder)this).Clone(a);
 
@@ -117,6 +119,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		Id						= reader.Read<EntityId>();
 		Nickname				= reader.ReadUtf8();
+		Description				= reader.ReadUtf8();
 		Title					= reader.ReadUtf8();
 		ModerationReward		= reader.Read7BitEncodedInt();
 		
@@ -138,6 +141,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		writer.Write(Id);
 		writer.WriteUtf8(Nickname);
+		writer.WriteUtf8(Description);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
 		

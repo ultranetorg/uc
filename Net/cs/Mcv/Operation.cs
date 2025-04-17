@@ -23,11 +23,11 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 {
 	public string						Error;
 	public Transaction					Transaction;
-	public Account					Signer;
+	public Account						Signer;
 	public IEnergyHolder				EnergyFeePayer;
 	public HashSet<IEnergyHolder>		EnergySpenders;
 	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
-	public abstract string				Description { get; }
+	public abstract string				Explanation { get; }
 	public long							EnergyConsumed;
 
 	public virtual bool					NonExistingSignerAllowed => false;
@@ -77,7 +77,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	 
 	public override string ToString()
 	{
-		return $"{GetType().Name}, {Description}{(Error == null ? null : ", Error=" + Error)}";
+		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
 	public Account RequireAccount(Round round, AccountAddress account)

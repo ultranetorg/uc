@@ -8,7 +8,7 @@ public class ReviewTextChange : FairOperation
 	public string				Text { get; set; }
 
 	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
-	public override string		Description => $"{Review}, {Text}";
+	public override string		Explanation => $"{Review}, {Text}";
 
 	public ReviewTextChange()
 	{

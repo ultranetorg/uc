@@ -11,7 +11,7 @@ public class ReviewTextModeration : VotableOperation
 	public bool							Resolution { get; set; }
 
 	public override bool				IsValid(McvNet net) => Hash.Length == TextHashLength;
-	public override string				Description => $"{Hash.ToHex()}, {Resolution}";
+	public override string				Explanation => $"{Hash.ToHex()}, {Resolution}";
 
 	public ReviewTextModeration()
 	{

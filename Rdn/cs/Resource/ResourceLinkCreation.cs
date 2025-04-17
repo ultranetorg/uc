@@ -6,7 +6,7 @@ public class ResourceLinkCreation : RdnOperation
 	public EntityId				Destination { get; set; }
 	public ResourceLinkChanges	Changes  { get; set; }
 	
-	public override string		Description => $"Source={Source}, Destination={Destination}";
+	public override string		Explanation => $"Source={Source}, Destination={Destination}";
 	public override bool		IsValid(McvNet net) => true;
 
 	public ResourceLinkCreation()

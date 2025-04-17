@@ -11,7 +11,7 @@ public class NicknameChange : VotableOperation
 	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || Field == EntityTextField.AuthorNickname || Field == EntityTextField.SiteNickname) 
 														&& Nickname.Length <= 32 
 														&& Regex.Match(Nickname, "[a-z0-9]").Success;
-	public override string		Description => $"{Nickname}";
+	public override string		Explanation => $"{Nickname}";
 
 	public NicknameChange()
 	{
