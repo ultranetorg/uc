@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom"
-import { usePagePagination } from "./hooks"
+
 import { useGetCategories } from "entities"
+
+import { usePagePagination } from "./hooks"
 
 export const CategoriesPage = () => {
   const { siteId } = useParams()

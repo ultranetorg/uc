@@ -3,11 +3,10 @@ import { useTranslation } from "react-i18next"
 
 import { useGetSites } from "entities"
 import { PAGE_SIZES } from "constants"
-import { Input, Pagination, Select, SelectItem } from "ui/components"
+import { Input, Pagination, Select, SelectItem, SitesList } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"
 
 import { PageHeader } from "./PageHeader"
-import { SitesList } from "ui/components/specific/SitesList"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
