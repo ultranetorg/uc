@@ -27,6 +27,7 @@ public abstract class TableBase
 	public abstract void						Clear();
 	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Round lastconfirmedround);
 	public static short							ClusterFromBucket(int id) => (short)(id >> 12);
+	public virtual void							Index(WriteBatch batch){}
 
 	public abstract class BucketBase
 	{
@@ -60,31 +61,6 @@ public abstract class TableBase
 		public abstract BucketBase					GetBucket(int id);
 		public abstract void						Save(WriteBatch batch);
 	}
-
-// 		public void CalculateSuperClusters()
-// 		{
-// 			if(!Clusters.Any())
-// 				return;
-// 
-// 			var ocs = Clusters.OrderBy(i => i.Id);
-// 
-// 			var b = ocs.First().SuperId;
-// 			byte[] h = ocs.First().Hash;
-// 
-// 			foreach(var i in ocs.Skip(1))
-// 			{
-// 				if(b != i.SuperId)
-// 				{
-// 					SuperClusters[b] = h;
-// 					b = i.SuperId;
-// 					h = i.Hash;
-// 				}
-// 				else
-// 					h = Cryptography.Hash(h, i.Hash);
-// 			}
-// 
-// 			SuperClusters[b] = h;
-// 		}
 }
 
 public abstract class Table<E> : TableBase where E : class, ITableEntry
@@ -215,8 +191,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write7BitEncodedInt(MainLength);
 
 			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
-
-			Table.IndexBucket(batch, this);
 		}
 	}
 
@@ -342,7 +316,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
 
 	public abstract E				Create();
-	public virtual void				IndexBucket(WriteBatch batch, Bucket bucket){}
 
 	public Table(Mcv chain)
 	{
