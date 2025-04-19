@@ -1,10 +1,10 @@
 export * from "./Author"
+export * from "./Category"
 export * from "./Moderator"
 export * from "./Publication"
 export * from "./Sites"
 
 export * from "./AuthorPage"
-export * from "./CategoriesPage"
 export * from "./CategoryPage"
 export * from "./ErrorPage"
 export * from "./SearchPage"

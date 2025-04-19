@@ -4,17 +4,17 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetCategories = (siteId?: string, page?: number, pageSize?: number) => {
+export const useGetCategories = (siteId?: string, depth?: number) => {
   const queryFn = () => {
     if (!siteId) {
       return
     }
 
-    return api.getCategories(siteId, page, pageSize)
+    return api.getCategories(siteId, depth)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["sites", siteId, "categories", { page, pageSize }],
+    queryKey: ["sites", siteId, "categories", { depth }],
     queryFn: queryFn,
     enabled: !!siteId,
   })

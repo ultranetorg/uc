@@ -19,7 +19,7 @@ import {
 
 export type Api = {
   getAuthor(authorId: string): Promise<Author>
-  getCategories(siteId: string, page?: number, pageSize?: number): Promise<PaginationResponse<CategoryParentBase>>
+  getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
   getPublication(publicationId: string): Promise<Publication>
   getAuthorPublications(

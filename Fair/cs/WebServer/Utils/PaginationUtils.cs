@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class PaginationUtils
+public static class PaginationUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static (int page, int pageSize) GetPaginationParams(PaginationRequest pagination)

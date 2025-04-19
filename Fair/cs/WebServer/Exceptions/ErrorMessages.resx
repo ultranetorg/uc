@@ -132,4 +132,7 @@
   <data name="ProductNotFoundFormat2" xml:space="preserve">
     <value>The {0} with the specified identifier {1} was not found.</value>
   </data>
+  <data name="InvalidDepthFormat1" xml:space="preserve">
+    <value>Invalid depth {0} specified.</value>
+  </data>
 </root>

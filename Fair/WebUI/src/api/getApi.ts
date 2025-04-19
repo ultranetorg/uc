@@ -69,15 +69,10 @@ const getPaginationParams = (page?: number, pageSize?: number): URLSearchParams 
 const getAuthor = (authorId: string): Promise<Author> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
 
-const getCategories = async (
-  siteId: string,
-  page?: number,
-  pageSize?: number,
-): Promise<PaginationResponse<CategoryParentBase>> => {
-  const params = getPaginationParams(page, pageSize)
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/categories` + (params.size > 0 ? `?${params.toString()}` : ""))
-  return await toPaginationResponse(res)
-}
+const getCategories = (siteId: string, depth?: number): Promise<CategoryParentBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/categories` + (depth !== undefined ? `?depth=${depth}` : "")).then(res =>
+    res.json(),
+  )
 
 const getCategory = (categoryId: string): Promise<Category> =>
   fetch(`${BASE_URL}/categories/${categoryId}`).then(res => res.json())
