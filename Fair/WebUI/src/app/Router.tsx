@@ -5,6 +5,7 @@ import {
   AuthorPage,
   AuthorReferendumPage,
   AuthorReferendumsPage,
+  CategoriesPage,
   CategoryPage,
   ErrorPage,
   ModerationPage,
@@ -45,6 +46,7 @@ export const Router = () => (
         >
           <Route index element={<SitePage />} />
           <Route path="/:siteId/a/:authorId" element={<AuthorPage />} />
+          <Route path="/:siteId/c" element={<CategoriesPage />} />
           <Route path="/:siteId/c/:categoryId" element={<CategoryPage />} />
           <Route path="/:siteId/p/:publicationId" element={<PublicationPage />} />
           <Route path="/:siteId/s" element={<SearchPage />} />

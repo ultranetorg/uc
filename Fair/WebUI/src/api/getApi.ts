@@ -1,8 +1,10 @@
+import { DEFAULT_PAGE_SIZE } from "constants"
 import {
   Author,
   AuthorReferendum,
   AuthorReferendumDetails,
   Category,
+  CategoryParentBase,
   ModeratorDispute,
   ModeratorDisputeDetails,
   ModeratorPublication,
@@ -13,13 +15,11 @@ import {
   Review,
   Site,
   SiteBase,
-  SitePublication,
   User,
 } from "types"
 
 import { Api } from "./Api"
 import { toPaginationResponse } from "./utils"
-import { DEFAULT_PAGE_SIZE } from "constants"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
@@ -68,6 +68,16 @@ const getPaginationParams = (page?: number, pageSize?: number): URLSearchParams 
 
 const getAuthor = (authorId: string): Promise<Author> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
+
+const getCategories = async (
+  siteId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<PaginationResponse<CategoryParentBase>> => {
+  const params = getPaginationParams(page, pageSize)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/categories` + (params.size > 0 ? `?${params.toString()}` : ""))
+  return await toPaginationResponse(res)
+}
 
 const getCategory = (categoryId: string): Promise<Category> =>
   fetch(`${BASE_URL}/categories/${categoryId}`).then(res => res.json())
@@ -199,6 +209,7 @@ const getModeratorReviews = async (
 
 const api: Api = {
   getAuthor,
+  getCategories,
   getCategory,
   getPublication,
   getAuthorPublications,

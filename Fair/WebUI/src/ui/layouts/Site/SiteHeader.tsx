@@ -18,7 +18,9 @@ export const SiteHeader = () => {
       <Link to={`/${siteId}`}>
         <Logo title={site.title} />
       </Link>
-      <Button className="gap-2" image={<GridSvg className="stroke-zinc-700" />} label="Categories" />
+      <Link to={`/${siteId}/c`}>
+        <Button className="gap-2" image={<GridSvg className="stroke-zinc-700" />} label="Categories" />
+      </Link>
       <Link to={`/${siteId}/m-d`}>
         <Button className="gap-2" image={<ChatXSvg className="fill-zinc-700 stroke-zinc-700" />} label="Disputes" />
       </Link>

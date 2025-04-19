@@ -3,6 +3,7 @@ import {
   AuthorReferendum,
   AuthorReferendumDetails,
   Category,
+  CategoryParentBase,
   ModeratorDispute,
   ModeratorDisputeDetails,
   ModeratorPublication,
@@ -18,6 +19,7 @@ import {
 
 export type Api = {
   getAuthor(authorId: string): Promise<Author>
+  getCategories(siteId: string, page?: number, pageSize?: number): Promise<PaginationResponse<CategoryParentBase>>
   getCategory(categoryId: string): Promise<Category>
   getPublication(publicationId: string): Promise<Publication>
   getAuthorPublications(
