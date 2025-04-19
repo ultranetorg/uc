@@ -23,15 +23,17 @@ public class PublicationTable : Table<Publication>
 		foreach(var i in bucket.Entries.Cast<Publication>())
 		{
 			var c = e.FindCategory(i.Category);
-			var r = Mcv.Products.Latest(i.Product);
-			var t = r.Get(i.Fields.First(f => f.Name == ProductField.Title));
+			var r = Mcv.Products.Find(i.Product);
+			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
 
-			var w = e.AffectPublicationTitle(new RawId(t));
+			if(f != null)
+			{
+				var t = r.Get(f);
 
-			/// 
-			/// Sort !!!!!!!!!!!!
-			/// 
-			w.References[c.Site] = [..w.References[c.Site], i.Id];
+				var w = e.AffectPublicationTitle(new RawId(t));
+	
+				w.References[c.Site] = [..w.References[c.Site], i.Id];
+			}
 		}
 	
 		Mcv.Words.Save(batch, e.AffectedWords.Values, null);

@@ -405,6 +405,17 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		return c?.FindBucket(id);
 	}
+	
+	public virtual E Find(EntityId id)
+	{
+		var eee = FindBucket(id.B)?.Entries;
+		var j = eee?.BinarySearch(null, new BinaryComparer(x => ((EntityId)x.Key).E.CompareTo(id.E)));
+		
+		return j >= 0 ? eee[j.Value] : null;
+
+		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
+	}
+
 
 	public virtual E Find(EntityId id, int ridmax)
 	{
@@ -412,12 +423,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			if((i.AffectedByTable(this) as IDictionary<EntityId, E>).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 
-		var eee = FindBucket(id.B)?.Entries;
-		var j = eee?.BinarySearch(null, new BinaryComparer(x => ((EntityId)x.Key).E.CompareTo(id.E)));
-		
-		return j >= 0 ? eee[j.Value] : null;
-
-		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
+		return Find(id);
 	}
 
 	public virtual E Latest(EntityId id)

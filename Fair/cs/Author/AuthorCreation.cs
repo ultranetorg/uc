@@ -1,47 +1,52 @@
 ﻿namespace Uccs.Fair;
 
-public class FavoriteSiteChange : FairOperation
+public class AuthorCreation : FairOperation
 {
-	public EntityId				Site { get; set; }
-	public bool					Action {get; set;} /// True = Add
+	public string				Title { get; set; }
+	public byte					Years {get; set;}
 
-	public override string		Explanation => $"{Site}, AddRevoce={Action}";
+	public override string		Explanation => $"{Title}, for {Years} years";
 	
-	public FavoriteSiteChange ()
+	public AuthorCreation ()
 	{
 	}
 	
 	public override bool IsValid(McvNet net)
 	{ 
+		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
+			return false;
+
 		return true;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
-		Site = reader.Read<EntityId>();
-		Action = reader.ReadBoolean();
+		Title = reader.ReadUtf8();
+		Years = reader.ReadByte();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Site);
-		writer.Write(Action);
+		writer.WriteUtf8(Title);
+		writer.Write(Years);
 	}
 
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireAccountAccess(execution, Signer.Id, out var a))
+		if(Signer.AllocationSponsor != null)
+		{
+			Error = NotAllowedForFreeAccount;
 			return;
-
-		var e = execution.AffectAccount(Signer.Id);
-
-		if(Action)
-		{
-			Signer.FavoriteSites = [..Signer.FavoriteSites, Site];
-		} 
-		else
-		{
-			Signer.FavoriteSites = Signer.FavoriteSites.Remove(Site);
 		}
+
+		var e = execution.CreateAuthor(Signer.Address);
+
+		Signer.Authors = [..Signer.Authors, e.Id];
+		
+		e.Owners	= [Signer.Id];
+		e.Title		= Title;
+		e.Space		= execution.Net.EntityLength;
+
+		Prolong(execution, Signer, e, Time.FromYears(Years));
 	}
 }
