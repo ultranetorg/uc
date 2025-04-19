@@ -127,7 +127,7 @@ const searchPublications = async (
   page?: number,
   pageSize?: number,
   title?: string,
-): Promise<PaginationResponse<SitePublication>> => {
+): Promise<PaginationResponse<Publication>> => {
   const params = getUrlParams(title, page, pageSize)
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""))
   return await toPaginationResponse(res)

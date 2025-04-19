@@ -1,9 +1,12 @@
 export * from "./Modal"
+export * from "./specific"
 
 export * from "./Button"
 export * from "./Input"
+export * from "./Logo"
+export * from "./MultilineText"
 export * from "./Pagination"
-export * from "./PublicationCard"
+export * from "./PrimaryButton"
 export * from "./SearchInput"
 export * from "./Select"
 export * from "./Tabs"

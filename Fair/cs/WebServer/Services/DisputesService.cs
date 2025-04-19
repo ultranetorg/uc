@@ -146,6 +146,7 @@ public class DisputesService
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			ReviewTextModeration operation => new ReviewTextModerationModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
+			SiteDescriptionChange operation => new SiteDescriptionChangeModel(operation),
 			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
 			SitePolicyChange operation => new SitePolicyChangeModel(operation),
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")

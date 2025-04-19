@@ -13,7 +13,6 @@ import {
   Review,
   Site,
   SiteBase,
-  SitePublication,
   User,
 } from "types"
 
@@ -41,7 +40,7 @@ export type Api = {
     page?: number,
     pageSize?: number,
     title?: string,
-  ): Promise<PaginationResponse<SitePublication>>
+  ): Promise<PaginationResponse<Publication>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
   getAuthorReferendums(

@@ -19,6 +19,8 @@ import {
   UserPage,
 } from "ui/pages"
 
+import { SiteProvider } from "./SiteContext"
+
 export const Router = () => (
   <BrowserRouter>
     <Routes>
@@ -33,7 +35,14 @@ export const Router = () => (
       >
         <Route index element={<SitesPage />} />
 
-        <Route path="/:siteId" element={<SiteLayout />}>
+        <Route
+          path="/:siteId"
+          element={
+            <SiteProvider>
+              <SiteLayout />
+            </SiteProvider>
+          }
+        >
           <Route index element={<SitePage />} />
           <Route path="/:siteId/a/:authorId" element={<AuthorPage />} />
           <Route path="/:siteId/c/:categoryId" element={<CategoryPage />} />

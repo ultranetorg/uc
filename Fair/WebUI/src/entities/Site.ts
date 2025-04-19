@@ -18,7 +18,7 @@ export const useGetSite = (siteId?: string) => {
     queryFn: queryFn,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
 
 export const useGetSites = (page?: number, pageSize?: number, search?: string) => {
@@ -29,5 +29,5 @@ export const useGetSites = (page?: number, pageSize?: number, search?: string) =
     queryFn: queryFn,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

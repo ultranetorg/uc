@@ -3,18 +3,22 @@
 @tailwind utilities;
 
 :root {
+  background-color: #fcfcfc;
+  color-scheme: light dark;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-size: 1rem;
+  font-synthesis: none;
   font-weight: 400;
 
-  color-scheme: light dark;
-  /* color: rgba(255, 255, 255, 0.87);*/
-  background-color: #242424;
+  height: 100%;
+  width: 100%;
 
-  font-synthesis: none;
+  scrollbar-gutter: stable;
+
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* a {
@@ -32,29 +36,28 @@ a {
 }
 
 /* New */
-#root {
+/* #root {
   width: 100%;
-}
+} */
 
-body {
+/* body {
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
 
-  /* New */
   background-color: lightgray;
-}
+} */
 
 /* New */
-html {
+/* html {
   scrollbar-gutter: stable;
   height: 100%;
   width: 100%;
-}
+} */
 
-h1 {
+/* h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
@@ -76,7 +79,7 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 /* @media (prefers-color-scheme: light) {
   :root {
@@ -90,3 +93,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+h1 {
+  font-weight: 500;
+  font-size: 4rem;
+  line-height: 100%;
+}
+
+h5 {
+  font-size: 1.125rem;
+}

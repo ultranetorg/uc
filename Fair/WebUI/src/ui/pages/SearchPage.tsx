@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 import { useSearchContext } from "app"
 import { PAGE_SIZES } from "constants"
 import { useSearchPublications } from "entities"
-import { Pagination, PublicationCard, Select, SelectItem } from "ui/components"
+import { Pagination, PublicationsList, Select, SelectItem } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
@@ -33,13 +33,18 @@ export const SearchPage = () => {
     [setPage, setPageSize],
   )
 
+  if (isPending && publications === undefined) {
+    return <h2>LOADING</h2>
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-3">
         <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
-      {isPending || !publications ? (
+      <PublicationsList publications={publications!.items} isPending={isPending} siteId={siteId!} />
+      {/* {isPending || !publications ? (
         <h2>Loading</h2>
       ) : publications.items.length > 0 ? (
         <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
@@ -51,7 +56,7 @@ export const SearchPage = () => {
         </div>
       ) : (
         <h2>Not found</h2>
-      )}
+      )} */}
     </div>
   )
 }

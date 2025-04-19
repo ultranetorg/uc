@@ -18,7 +18,7 @@ export const Input = memo(({ placeholder, value, className, onChange }: InputPro
   return (
     <input
       type="text"
-      className={twMerge("", className)}
+      className={twMerge("h-full border", className)}
       onChange={handleChange}
       value={value ?? ""}
       placeholder={placeholder}
