@@ -15,16 +15,18 @@ public class AuthorTable : Table<Author>
 		return new Author(Mcv);
 	}
 
-	public override void IndexBucket(WriteBatch batch, Bucket bucket)
+	public override void Index(WriteBatch batch)
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var i in bucket.Entries.Cast<Author>().Where(i => i.Nickname != ""))
-		{
-			var w = e.AffectWord(Word.GetId(i.Nickname));
+		foreach(var cl in Clusters)
+			foreach(var b in cl.Buckets)
+				foreach(var i in b.Entries.Where(i => i.Nickname != ""))
+				{
+					var w = e.AffectWord(Word.GetId(i.Nickname));
 
-			w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname}];
-		}
+					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname}];
+				}
 	
 		Mcv.Words.Save(batch, e.AffectedWords.Values, null);
 	}
