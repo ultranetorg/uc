@@ -48,7 +48,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public override string ToString()
 	{
-		return $"{Id}, Owners={Owners}, Expiration={Expiration}";
+		return $"{Id}, {Title}{(Nickname != "" ? $"({Nickname})" : null)}, Owners={Owners.Length}, Expiration={Expiration}";
 	}
 
 	public Author Clone()

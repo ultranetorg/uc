@@ -1,4 +1,5 @@
-﻿using RocksDbSharp;
+﻿using System.Collections;
+using RocksDbSharp;
 
 namespace Uccs.Net;
 
@@ -292,6 +293,161 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
+	public class TailBaseEnumerator : IEnumerator<E>
+	{
+		public E Current => Entity.Current;
+		object IEnumerator.Current => Entity.Current;
+
+		Dictionary<BaseId, E>	NotCommited = [];
+
+		IEnumerator<Round>		Round;
+		IEnumerator<E>			Entity;
+		Table<E>				Table;
+
+		public TailBaseEnumerator(Table<E> table)
+		{
+			Table = table;
+
+			Reset();
+		}
+
+		public void Dispose()
+		{
+			Round?.Dispose();
+			Entity?.Dispose();
+		}
+
+		public bool MoveNext()
+		{
+			while(true)
+			{
+				if(Round != null)
+				{
+					if(Entity == null)
+					{	
+						if(!Round.MoveNext())
+						{	
+							Round = null;
+							Entity = Table.BaseIntities.GetEnumerator();
+							continue;
+						}
+						else
+							while(!Round.Current.Confirmed)
+								Round.MoveNext();
+								
+						Entity = Round.Current.AffectedByTable(Table).Values.GetEnumerator() as IEnumerator<E>;
+					}
+	
+					if(Entity.MoveNext())
+					{
+						if(!NotCommited.ContainsKey(Entity.Current.Key))
+						{
+							NotCommited[Entity.Current.Key] = Entity.Current;
+							return true;
+						}
+						else
+							continue;
+					}
+					else
+					{
+						Entity = null;
+					}
+				} 
+				else
+				{
+					if(Entity.MoveNext())
+					{
+						if(!NotCommited.ContainsKey(Entity.Current.Key))
+						{
+							NotCommited[Entity.Current.Key] = Entity.Current;
+							return true;
+						}
+						else
+							continue;
+					}
+					else
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		public void Reset()
+		{
+			Round = Table.Mcv.Tail.GetEnumerator();
+			Entity = null;
+		}
+	}
+
+	public class BaseEnumerator : IEnumerator<E>
+	{
+		public E Current => Entity.Current;
+		object IEnumerator.Current => Entity.Current;
+
+		Dictionary<BaseId, E>	NotCommited = [];
+
+		IEnumerator<Cluster>	Cluster;
+		IEnumerator<Bucket>		Bucket;
+		IEnumerator<E>			Entity;
+		Table<E>				Table;
+
+		public BaseEnumerator(Table<E> table)
+		{
+			Table = table;
+
+			Cluster = Table.Clusters.GetEnumerator();
+		}
+
+		public void Dispose()
+		{
+			Cluster?.Dispose();
+			Bucket?.Dispose();
+			Entity?.Dispose();
+		}
+
+		public bool MoveNext()
+		{
+			while(true)
+			{
+				if(Bucket == null)
+				{	
+					if(!Cluster.MoveNext())
+						return false;
+
+					Bucket = Cluster.Current.Buckets.GetEnumerator();
+				}
+
+				if(Entity == null)
+				{	
+					if(!Bucket.MoveNext())
+					{	
+						Bucket = null;
+						continue;
+					}
+							
+					Entity = Bucket.Current.Entries.GetEnumerator();
+				}
+
+				if(Entity.MoveNext())
+				{
+					return true;
+				}
+				else
+				{
+					Entity = null;
+				}
+			}
+		}
+
+		public void Reset()
+		{
+			Cluster = Table.Clusters.GetEnumerator();
+			Bucket = null;
+			Entity = null;
+		}
+	}
+
 	public class BinaryComparer : IComparer<E>
 	{
 		Func<E, int> Labda;
@@ -307,6 +463,26 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
+	public class EntityCollection : IEnumerable<E>
+	{
+		Func<IEnumerator<E>> Create;
+
+		public EntityCollection(Func<IEnumerator<E>> create)
+		{
+			Create = create;
+		}
+
+		public IEnumerator<E> GetEnumerator()
+		{
+			return Create();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return Create();
+		}
+	}
+
 	public override string			Name => typeof(E).Name.Replace("Entry", null);
 
 	public override List<Cluster>	Clusters { get; }
@@ -316,6 +492,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
 
 	public abstract E				Create();
+
+	public EntityCollection			BaseIntities => new (() => new BaseEnumerator(this));
+	public EntityCollection			TailBaseIntities => new (() => new TailBaseEnumerator(this));
 
 	public Table(Mcv chain)
 	{
@@ -420,69 +599,6 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
-///		public class Enumerator : IEnumerator<E>
-///		{
-///			public E Current => Entity.Current;
-///			object IEnumerator.Current => Entity.Current;
-///
-///			IEnumerator<Cluster>	Cluster;
-///			IEnumerator<E>			Entity;
-///			Table<E>				Table;
-///
-///			public Enumerator(Table<E> table)
-///			{
-///				Table = table;
-///
-///				Cluster = Table.Clusters.GetEnumerator();
-///			}
-///
-///			public void Dispose()
-///			{
-///				Cluster?.Dispose();
-///				Entity?.Dispose();
-///			}
-///
-///			public bool MoveNext()
-///			{
-///				start: 
-///					if(Entity == null)
-///					{
-///						if(Cluster.MoveNext())
-///						{
-///							Entity = Cluster.Current.Entries.GetEnumerator();
-///						}
-///						else
-///							return false;
-///					}
-///
-///					if(Entity.MoveNext())
-///					{
-///						return true;
-///					}
-///					else
-///					{
-///						Entity = null;
-///						goto start;
-///					}
-///			}
-///
-///			public void Reset()
-///			{
-///				Entity = null;
-///				Cluster = Table.Clusters.GetEnumerator();
-///			}
-///		}
-///
-///		public IEnumerator<E> GetEnumerator()
-///		{
-///			return new Enumerator(this);
-///		}
-///
-///		IEnumerator IEnumerable.GetEnumerator()
-///		{
-///			return new Enumerator(this);
-///		}
-
 	void Recycle()
 	{
 		//if(Clusters.Count > ClustersCacheLimit)
@@ -494,7 +610,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//}
 	}
 
-	public override void Save(WriteBatch batch, System.Collections.ICollection entities, Round lastInCommit)
+	public override void Save(WriteBatch batch, ICollection entities, Round lastInCommit)
 	{
 		if(entities.Count == 0)
 			return;
