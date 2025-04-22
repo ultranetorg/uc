@@ -18,8 +18,7 @@ public class SitesService
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
 		{
-			// TODO: Use TailBaseIntities instead:
-			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
+			sites = mcv.Sites.TailBaseIntities;
 		}
 
 		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, search));
