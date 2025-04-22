@@ -12,7 +12,7 @@ export type CategoriesListProps = {
 }
 
 export const CategoriesList = ({ siteId, isPending, categories }: CategoriesListProps) => (
-  <div className="flex gap-8">
+  <div className="flex flex-wrap gap-8">
     {isPending ? (
       <div>⌛ LOADING</div>
     ) : categories.length === 0 ? (

@@ -23,7 +23,7 @@ public static class ProductUtils
 			return product.Id.ToString() + " Description";
 		}
 
-		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Title).Version;
+		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Description).Version;
 		byte[] bytes = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description)?.Versions.FirstOrDefault(x => x.Version == version)?.Value;
 		return Encoding.UTF8.GetString(bytes);	
 	}

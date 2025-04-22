@@ -18,6 +18,7 @@ public class SitesService
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
 		{
+			// TODO: Use TailBaseIntities instead:
 			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
 		}
 
@@ -40,47 +41,40 @@ public class SitesService
 
 		EntityId id = EntityId.Parse(siteId);
 
-		Site site = null;
 		lock (mcv.Lock)
 		{
-			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(id);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
+
+			IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
+			IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
+
+			return new SiteModel(site)
+			{
+				Moderators = moderators,
+				Categories = categories,
+			};
 		}
-
-		IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
-		IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
-
-		return new SiteModel(site)
-		{
-			Moderators = moderators,
-			Categories = categories,
-		};
 	}
 
 	IEnumerable<AccountBaseModel> LoadModerators(EntityId[] moderatorsIds)
 	{
-		lock (mcv.Lock)
+		return moderatorsIds.Select(id =>
 		{
-			return moderatorsIds.Select(id =>
-			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-				return new AccountBaseModel(account);
-			}).ToArray();
-		}
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+			return new AccountBaseModel(account);
+		}).ToArray();
 	}
 
 	IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
 	{
-		lock (mcv.Lock)
+		return categoriesIds.Select(id =>
 		{
-			return categoriesIds.Select(id =>
-			{
-				Category category = mcv.Categories.Latest(id);
-				return new CategoryBaseModel(category);
-			}).ToArray();
-		}
+			Category category = mcv.Categories.Latest(id);
+			return new CategoryBaseModel(category);
+		}).ToArray();
 	}
 }

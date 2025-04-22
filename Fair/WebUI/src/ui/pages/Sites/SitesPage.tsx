@@ -34,12 +34,14 @@ export const SitesPage = () => {
   )
 
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col items-center gap-6 py-16">
       <PageHeader title={t("title")} description={t("description")} />
-      <div className="mx-auto flex h-12 items-center gap-3">
-        <Input placeholder="Search site" value={search} onChange={setSearch} />
-        <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
-        <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
+      <div className="w-full max-w-[820px]">
+        <div className="flex h-12 items-center gap-3">
+          <Input className="flex-grow" placeholder="Search site" value={search} onChange={setSearch} />
+          <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
+          <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
+        </div>
       </div>
       <SitesList isPending={isPending} sites={sites} error={error} />
     </div>

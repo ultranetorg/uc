@@ -11,7 +11,7 @@ export type PublicationsListProps = {
 }
 
 export const PublicationsList = ({ siteId, isPending, publications }: PublicationsListProps) => (
-  <div className="flex gap-8">
+  <div className="flex flex-wrap gap-8">
     {isPending ? (
       <div>⌛ LOADING</div>
     ) : publications.length === 0 ? (

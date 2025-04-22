@@ -104,6 +104,7 @@ public class DisputesService
 			{
 				continue;
 			}
+
 			if (!SearchUtils.IsMatch(dispute, search))
 			{
 				continue;

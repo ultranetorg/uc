@@ -94,7 +94,7 @@ public class CategoriesService
 			CategoryParentBaseModel model = new CategoryParentBaseModel(category);
 			result.Add(model);
 
-			if (currentDepth > 1 && category.Categories.Length > 0)
+			if (category.Categories.Length > 0 && currentDepth > 1)
 			{
 				result.Capacity += category.Categories.Length;
 				LoadCategoriesRecursively(category.Categories, currentDepth - 1, ref result, cancellationToken);

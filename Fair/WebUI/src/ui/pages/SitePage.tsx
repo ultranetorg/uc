@@ -12,5 +12,9 @@ export const SitePage = () => {
     return <>LOADING</>
   }
 
-  return <CategoriesList siteId={siteId!} isPending={isPending} categories={site.categories} />
+  return (
+    <>
+      <CategoriesList siteId={siteId!} isPending={isPending} categories={site.categories} />
+    </>
+  )
 }
