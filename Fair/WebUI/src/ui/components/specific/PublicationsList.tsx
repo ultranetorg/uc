@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom"
 
-import { Publication } from "types"
+import { Publication, PublicationSearch } from "types"
 
 import { PublicationCard } from "./PublicationCard"
 
 export type PublicationsListProps = {
   siteId: string
   isPending: boolean
-  publications: Publication[]
+  publications: (Publication | PublicationSearch)[]
 }
 
 export const PublicationsList = ({ siteId, isPending, publications }: PublicationsListProps) => (
@@ -20,7 +20,7 @@ export const PublicationsList = ({ siteId, isPending, publications }: Publicatio
       <>
         {publications.map(x => (
           <Link key={x.id} to={`/${siteId}/p/${x.id}`}>
-            <PublicationCard key={x.id} publicationName={x.productTitle} authorTitle={x.productDescription} />
+            <PublicationCard siteId={siteId} {...x} />
           </Link>
         ))}
       </>

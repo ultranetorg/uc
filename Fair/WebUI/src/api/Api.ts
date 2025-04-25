@@ -10,7 +10,9 @@ import {
   ModeratorReview,
   PaginationResponse,
   Publication,
-  PublicationBase,
+  PublicationAuthor,
+  PublicationDetails,
+  PublicationSearch,
   Review,
   Site,
   SiteBase,
@@ -21,18 +23,18 @@ export type Api = {
   getAuthor(authorId: string): Promise<Author>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
-  getPublication(publicationId: string): Promise<Publication>
+  getPublication(publicationId: string): Promise<PublicationDetails>
   getAuthorPublications(
     siteId: string,
     authorId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<PaginationResponse<PublicationBase>>
+  ): Promise<PaginationResponse<PublicationAuthor>>
   getCategoryPublications(
     categoryId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<PaginationResponse<PublicationBase>>
+  ): Promise<PaginationResponse<Publication>>
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<PaginationResponse<Review>>
   getSite(siteId: string): Promise<Site>
   getSites(page?: number, pageSize?: number, search?: string): Promise<PaginationResponse<SiteBase>>
@@ -42,7 +44,7 @@ export type Api = {
     page?: number,
     pageSize?: number,
     title?: string,
-  ): Promise<PaginationResponse<Publication>>
+  ): Promise<PaginationResponse<PublicationSearch>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
   getAuthorReferendums(

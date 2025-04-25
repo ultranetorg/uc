@@ -19,7 +19,7 @@ export const useGetModeratorReview = (reviewId?: string) => {
     enabled: !!reviewId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
 
 export const useGetModeratorReviews = (siteId?: string, page?: number, pageSize?: number, search?: string) => {

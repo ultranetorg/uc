@@ -19,5 +19,5 @@ export const useGetAuthor = (authorId?: string) => {
     enabled: !!authorId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

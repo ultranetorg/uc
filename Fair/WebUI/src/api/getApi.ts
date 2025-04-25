@@ -11,7 +11,9 @@ import {
   ModeratorReview,
   PaginationResponse,
   Publication,
-  PublicationBase,
+  PublicationAuthor,
+  PublicationDetails,
+  PublicationSearch,
   Review,
   Site,
   SiteBase,
@@ -77,7 +79,7 @@ const getCategories = (siteId: string, depth?: number): Promise<CategoryParentBa
 const getCategory = (categoryId: string): Promise<Category> =>
   fetch(`${BASE_URL}/categories/${categoryId}`).then(res => res.json())
 
-const getPublication = (publicationId: string): Promise<Publication> =>
+const getPublication = (publicationId: string): Promise<PublicationDetails> =>
   fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
 
 const getAuthorPublications = async (
@@ -85,7 +87,7 @@ const getAuthorPublications = async (
   authorId: string,
   page?: number,
   pageSize?: number,
-): Promise<PaginationResponse<PublicationBase>> => {
+): Promise<PaginationResponse<PublicationAuthor>> => {
   const params = getPaginationParams(page, pageSize)
   const res = await fetch(
     `${BASE_URL}/sites/${siteId}/authors/${authorId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""),
@@ -97,7 +99,7 @@ const getCategoryPublications = async (
   categoryId: string,
   page?: number,
   pageSize?: number,
-): Promise<PaginationResponse<PublicationBase>> => {
+): Promise<PaginationResponse<Publication>> => {
   const params = getPaginationParams(page, pageSize)
   const res = await fetch(
     `${BASE_URL}/categories/${categoryId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""),
@@ -132,7 +134,7 @@ const searchPublications = async (
   page?: number,
   pageSize?: number,
   title?: string,
-): Promise<PaginationResponse<Publication>> => {
+): Promise<PaginationResponse<PublicationSearch>> => {
   const params = getUrlParams(title, page, pageSize)
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""))
   return await toPaginationResponse(res)

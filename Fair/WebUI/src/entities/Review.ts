@@ -19,5 +19,5 @@ export const useGetReviews = (publicationId?: string, page?: number, pageSize?: 
     enabled: !!publicationId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

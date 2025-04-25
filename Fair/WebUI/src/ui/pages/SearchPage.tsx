@@ -44,19 +44,6 @@ export const SearchPage = () => {
         <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
       </div>
       <PublicationsList publications={publications!.items} isPending={isPending} siteId={siteId!} />
-      {/* {isPending || !publications ? (
-        <h2>Loading</h2>
-      ) : publications.items.length > 0 ? (
-        <div className="flex w-full flex-wrap gap-x-6 gap-y-6">
-          {publications.items.map(p => (
-            <Link to={`/${siteId}/p/${p.id}`} key={p.id}>
-              <PublicationCard publicationName={p.productTitle} authorTitle={p.authorTitle} />
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <h2>Not found</h2>
-      )} */}
     </div>
   )
 }

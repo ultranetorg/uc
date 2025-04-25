@@ -1,32 +1,13 @@
-﻿using Uccs.Web.Pagination;
+﻿namespace Uccs.Fair;
 
-namespace Uccs.Fair;
-
-public class PublicationDetailsModel : PublicationBaseModel
+public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category)
+	: PublicationSearchModel(publication, product, author, category)
 {
-	public string CategoryId { get; set; }
+	public int ReviewsCount { get; set;} = publication.Reviews.Count();
 
-	// References to Account.
-	public string CreatorId { get; set; }
+	public string CreatorId { get; set; } = publication.Creator.ToString();
 
-	public IEnumerable<ProductFieldModel> ProductFields { get; set; }
-	public int ProductUpdated { get; set; }
+	public string Description { get; set; } = PublicationUtils.GetDescription(publication, product);	
 
-	public string AuthorId { get; set; }
-	public string AuthorTitle { get; set; }
-	public string AuthorNickname { get; set; }
-
-	public PublicationDetailsModel(Publication publication, Product product, Author author) : base(publication, product)
-	{
-		CategoryId = publication.Category.ToString();
-
-		CreatorId = publication.Creator.ToString();
-
-		ProductId = publication.Product.ToString();
-		ProductUpdated = product.Updated.Days;
-
-		AuthorId = author.Id.ToString();
-		AuthorTitle = author.Title;
-		AuthorNickname = author.Nickname;
-	}
+	public int ProductUpdated { get; set; } = product.Updated.Days;
 }

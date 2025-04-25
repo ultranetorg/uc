@@ -80,5 +80,5 @@ export const useSearchPublications = (
     enabled: !!siteId && (!isUndefOrEmpty(search) || forceEnable === true),
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

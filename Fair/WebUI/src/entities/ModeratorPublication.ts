@@ -19,7 +19,7 @@ export const useGetModeratorPublication = (publicationId?: string) => {
     enabled: !!publicationId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
 
 export const useGetModeratorPublications = (siteId?: string, page?: number, pageSize?: number, search?: string) => {

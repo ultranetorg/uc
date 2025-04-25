@@ -19,5 +19,5 @@ export const useGetUser = (userId?: string) => {
     enabled: !!userId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

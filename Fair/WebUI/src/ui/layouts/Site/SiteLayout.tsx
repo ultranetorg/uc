@@ -25,7 +25,7 @@ export const SiteLayout = ({ children }: PropsWithChildren) => {
             <div className="flex cursor-pointer flex-col" onClick={() => setSearch("")}>
               {publication.items.map(p => (
                 <div key={p.id} className="">
-                  <Link to={`/${siteId}/p/${p.id}`}>{p.productTitle}</Link>
+                  <Link to={`/${siteId}/p/${p.id}`}>{p.title}</Link>
                 </div>
               ))}
             </div>

@@ -19,7 +19,7 @@ export const useGetAuthorReferendum = (siteId?: string, referendumId?: string) =
     enabled: !!siteId && !!referendumId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
 
 export const useGetAuthorReferendums = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
@@ -37,5 +37,5 @@ export const useGetAuthorReferendums = (siteId?: string, page?: number, pageSize
     enabled: !!siteId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }

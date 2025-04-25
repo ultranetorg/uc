@@ -19,7 +19,7 @@ export const useGetModeratorDispute = (siteId?: string, disputeId?: string) => {
     enabled: !!siteId && !!disputeId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
 
 export const useGetModeratorDisputes = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
@@ -37,5 +37,5 @@ export const useGetModeratorDisputes = (siteId?: string, page?: number, pageSize
     enabled: !!siteId,
   })
 
-  return { isPending, error, data }
+  return { isPending, error: error ?? undefined, data }
 }
