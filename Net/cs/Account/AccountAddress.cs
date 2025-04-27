@@ -86,8 +86,13 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public int CompareTo(object obj)
 	{
+		return CompareTo(obj as AccountAddress);
+	}
+
+	public int CompareTo(AccountAddress obj)
+	{
 		var x = Bytes;
-		var y = ((AccountAddress)obj).Bytes;
+		var y = obj.Bytes;
 
 		var len = Math.Min(x.Length, y.Length);
 
@@ -101,11 +106,6 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		}
 
 		return x.Length.CompareTo(y.Length);
-	}
-
-	public int CompareTo([AllowNull] AccountAddress other)
-	{
-		return CompareTo(other as object);
 	}
 }
 

@@ -256,16 +256,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							download(i);
 						}
-
-						using(var w = new WriteBatch())
-						{
-							foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
-							{
-								i.Index(w);
-							}
-						
-							Mcv.Rocks.Write(w);
-						}
 		
 						var r = Mcv.CreateRound();
 						r.Confirmed = true;
@@ -284,6 +274,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
 	 						{	
 								Mcv.LoadedRounds[r.Id] = r;
+
+								using(var w = new WriteBatch())
+								{
+									foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
+									{
+										i.Index(w);
+									}
+						
+									Mcv.Rocks.Write(w);
+								}
+
 								break;
 							}
 						}

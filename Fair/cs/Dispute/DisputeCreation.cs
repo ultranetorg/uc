@@ -7,7 +7,7 @@ public class DisputeCreation : FairOperation
 	public string				    Text { get; set; }
 	public VotableOperation	        Proposal { get; set; }
 	
-	public override bool		    IsValid(McvNet net) => true;
+	public override bool		    IsValid(McvNet net) => Proposal.IsValid(net) && Text.Length < 8192;
 	public override string		    Explanation => $"{Id}";
 
 	public DisputeCreation()

@@ -87,7 +87,12 @@ public class Word : IBinarySerializable, ITableEntry
 	{
 		Mcv = mcv;
 	}
-	
+
+	public override string ToString()
+	{
+		return $"{Id}, {Encoding.UTF8.GetString(Id.Bytes)}, References={References.Length}";
+	}
+
 	public static RawId	GetId(string t)
 	{
 		var b = Encoding.UTF8.GetBytes(t);

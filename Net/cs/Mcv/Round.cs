@@ -122,6 +122,11 @@ public abstract class Round : IBinarySerializable
 
 		throw new IntegrityException();
 	}
+
+	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
+	{
+		return AffectedByTable(table) as Dictionary<K, E>;
+	}
 	/*
 	public int GetNextEid(TableBase table,  int b)
 	{
@@ -308,11 +313,11 @@ public abstract class Round : IBinarySerializable
 
 		if(Id >= Mcv.P)
 		{
-			ConsensusMemberLeavers = svotes.SelectMany(i => i.MemberLeavers).Distinct()
+			ConsensusMemberLeavers = svotes	.SelectMany(i => i.MemberLeavers).Distinct()
 											.Where(x => Members.Any(j => j.Id == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
 											.Order().ToArray();
 
-			ConsensusViolators = svotes.SelectMany(i => i.Violators).Distinct()
+			ConsensusViolators = svotes	.SelectMany(i => i.Violators).Distinct()
 										.Where(x => svotes.Count(b => b.Violators.Contains(x)) >= min)
 										.Order().ToArray();
 
@@ -387,6 +392,9 @@ public abstract class Round : IBinarySerializable
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
 			var e = CreateExecution(t);
+
+			foreach(var i in Mcv.Tables)
+				i.StartExecution(e);
 
 			var s = e.AffectSigner();
 

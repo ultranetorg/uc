@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Fair;
 
-public class Simhash
+public class Simhash : IMetric<string>
 {
 	public const int Length = 64;
 
@@ -12,38 +12,23 @@ public class Simhash
 	{
 	}
 
-	public static ulong Generate(string content)
+	public ulong Hashify(string a)
 	{
-		var tokens = Tokenize(content);
-		int[] v = new int[Length];
-
-		foreach(var t in tokens)
-		{
-			ulong hash = System.IO.Hashing.XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(t));
-
-			for(int i = 0; i < Length; i++)
-			{
-				if(((hash >> i) & 1) == 1)
-					v[i] += 1;
-				else
-					v[i] -= 1;
-			}
-		}
-
-		ulong h = 0;
-
-		for(int i = 0; i < Length; i++)
-		{
-			if(v[i] > 0)
-				h |= (1UL << i);
-		}
-
-		return h;
+		return Generate(a);
 	}
 
-	public static ulong GenerateFast(string content)
+	public int ComputeDistance(ulong a, ulong b)
 	{
-		var tokens = Tokenize(content);
+		return HammingDistance(a, b);
+	}
+
+	public static ulong Generate(string content)
+	{
+		return Generate(Tokenize(content, 2));
+	}
+
+	public static ulong Generate(string[] tokens)
+	{
 		ulong[] v = new ulong[8];
 
 		ulong mask = 0x0101_0101_0101_0101;
@@ -81,31 +66,7 @@ public class Simhash
 	
 	public static ulong GenerateFromWord(string content)
 	{
-		int[] v = new int[Length];
-
-		foreach(var t in content.ToLowerInvariant())
-		{
-			ulong hash = System.IO.Hashing.XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(t.ToString()));
-			//ulong hash = BitConverter.ToUInt64(_jenkinsOneAtATime.ComputeHash(Encoding.UTF8.GetBytes(t.ToString())).Hash, 0);
-
-			for(int i = 0; i < Length; i++)
-			{
-				if(((hash >> i) & 1) == 1)
-					v[i] += 1;
-				else
-					v[i] -= 1;
-			}
-		}
-
-		ulong h = 0;
-
-		for(int i = 0; i < Length; i++)
-		{
-			if(v[i] > 0)
-				h |= (1UL << i);
-		}
-
-		return h;
+		return Generate(content.ToCharArray().Select(i => i.ToString()).ToArray());
 	}
 
 	public static string[] Slide(string content, int width = 4)

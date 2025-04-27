@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public abstract class Term : IBinarySerializable, ITableEntry
+public abstract class BKTerm : IBinarySerializable, ITableEntry
 {
 	public RawId							Id { get; set; }
 	public string							Word => _Text ??= Encoding.UTF8.GetString(Id.Bytes);
@@ -14,13 +14,13 @@ public abstract class Term : IBinarySerializable, ITableEntry
 	protected FairMcv						Mcv;
 	string									_Text;
 
-	public abstract Term					Clone();
+	public abstract BKTerm					Clone();
 
-	public Term()
+	public BKTerm()
 	{
 	}
 
-	public Term(FairMcv mcv)
+	public BKTerm(FairMcv mcv)
 	{
 		Mcv = mcv;
 	}
@@ -60,7 +60,7 @@ public abstract class Term : IBinarySerializable, ITableEntry
 	}
 }
 
-public class EntityTerm : Term
+public class EntityTerm : BKTerm
 {
 	public EntityId[]	References { get; set; }
 
@@ -96,7 +96,7 @@ public class EntityTerm : Term
 	}
 }
 
-public class SiteTerm : Term
+public class SiteTerm : BKTerm
 {
 	public SortedDictionary<EntityId, EntityId[]>	References { get; set; }
 

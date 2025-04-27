@@ -13,19 +13,16 @@ namespace Uccs.Fair;
 
 public class FairMcv : Mcv
 {
-	IPAddress[]				BaseIPs;
-	public AuthorTable		Authors;
-	public ProductTable		Products;
-	public SiteTable		Sites;
-	public CategoryTable	Categories;
-	public PublicationTable	Publications;
-	public ReviewTable		Reviews;
-	public DisputeTable		Disputes;
-	public WordTable		Words;
-	public SiteTermTable	PublicationTitles;
-	//public Analyzer		LuceneAnalyzer;
-	//public IndexWriter	LuceneWriter;
-	//public IndexSearcher	LuceneSearcher;
+	IPAddress[]						BaseIPs;
+	public AuthorTable				Authors;
+	public ProductTable				Products;
+	public SiteTable				Sites;
+	public CategoryTable			Categories;
+	public PublicationTable			Publications;
+	public ReviewTable				Reviews;
+	public DisputeTable				Disputes;
+	public WordTable				Words;
+	public PublicationTitleIndex	PublicationTitles;
 
 	public FairMcv()
 	{

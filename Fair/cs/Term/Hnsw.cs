@@ -1,305 +1,476 @@
-﻿
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Uccs.Fair;
 
-public static class SimHashUtil
+public interface IMetric<T>
 {
-    public static ulong ComputeSimHash(string input)
-    {
-        int[] bits = new int[64];
-        var tokens = input.Split(new[] { ' ', '.', ',', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (var token in tokens)
-        {
-            ulong hash = Fnv1aHash64(token.ToLowerInvariant());
-            for (int i = 0; i < 64; i++)
-                bits[i] += ((hash >> i) & 1UL) == 1UL ? 1 : -1;
-        }
-
-        ulong simHash = 0;
-        for (int i = 0; i < 64; i++)
-            if (bits[i] > 0)
-                simHash |= (1UL << i);
-
-        return simHash;
-    }
-
-    public static int HammingDistance(ulong a, ulong b)
-    {
-        ulong x = a ^ b;
-        int dist = 0;
-        while (x != 0)
-        {
-            dist += (int)(x & 1);
-            x >>= 1;
-        }
-        return dist;
-    }
-
-    private static ulong Fnv1aHash64(string text)
-    {
-        const ulong FNV_OFFSET_BASIS = 14695981039346656037UL;
-        const ulong FNV_PRIME = 1099511628211UL;
-
-        ulong hash = FNV_OFFSET_BASIS;
-        foreach (var c in Encoding.UTF8.GetBytes(text))
-        {
-            hash ^= c;
-            hash *= FNV_PRIME;
-        }
-
-        return hash;
-    }
+    ulong	Hashify(T data);
+    int		ComputeDistance(ulong a, ulong b);
 }
 
-
-public class HnswNode
+public abstract class HnswNode : ITableEntry, IBinarySerializable
 {
-	public string data { get; }
-	public ulong hash { get; }
-	public int level { get; }
-	public Dictionary<int, List<HnswNode>> connections { get; }
+	public HnswId									Id { get; set; }
+	public ulong									Hash { get; set; }
+	public SortedDictionary<int, HnswId[]>			Connections { get; set; }
+	
+	public byte										Level => Id.Level;
+	public BaseId									Key => Id;
+	public bool										Deleted { get;  set; }
 
-	public HnswNode(string data, int level)
-	{
-		this.data = data;
-		this.level = level;
-		hash = SimHashUtil.ComputeSimHash(data);
-		connections = new Dictionary<int, List<HnswNode>>();
-	}
+	public abstract void							Cleanup(Round lastInCommit);
+	public abstract void							ReadMain(BinaryReader r);
+	public abstract void							WriteMain(BinaryWriter r);
 
 	public void AddConnection(int level, HnswNode node)
 	{
-		if(!connections.ContainsKey(level))
-			connections[level] = new List<HnswNode>();
-		connections[level].Add(node);
+		if(!Connections.ContainsKey(level))
+			Connections[level] = [];
+
+		Connections = new(Connections);
+		Connections[level] = [..Connections[level], node.Id];
+	}
+
+	public virtual void Write(BinaryWriter writer)
+	{
+		writer.Write(Id);
+		writer.Write(Hash);
+		writer.Write(Connections, i => writer.Write((byte)i), i => writer.Write(i));
+	}
+
+	public virtual void Read(BinaryReader reader)
+	{
+		Id			= reader.Read<HnswId>();
+		Hash		= reader.ReadUInt64();
+		Connections = reader.ReadSortedDictionary(() => (int)reader.ReadByte(), () => reader.ReadArray<HnswId>());
 	}
 }
 
-public class HnswTable
+public abstract class HnswTable<D, E> : Table<E> where E : HnswNode
 {
-	private readonly Random random = new();
-	private readonly int maxLevel;
-	private readonly int maxConnections;
-	private readonly int efConstruction;
-	private readonly int hammingThreshold;
-	private readonly int minDiversity;
+	protected IMetric<D>						Metric;
+	readonly int								MaxLevel;
+	readonly int								MaxConnections;
+	readonly int								EfConstruction;
+	readonly int								Threshold;
+	readonly int								MinDiversity;
 
-	private readonly Dictionary<int, List<HnswNode>> layers = new();
-	private readonly List<HnswNode> entryPoints = new();
+	List<E>										ConfirmedEntryPoints = new();
+	List<E>										EntryPoints = new();
 
-	public HnswTable(int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int hammingThreshold = 10, int minDiversity = 10)
+	public abstract ulong						Hashify(D data);
+	public abstract E							Affect(HnswId id, FairExecution execution);
+
+	public class LevelEnumerator : IEnumerator<E>
 	{
-		this.maxLevel = maxLevel;
-		this.maxConnections = maxConnections;
-		this.efConstruction = efConstruction;
-		this.hammingThreshold = hammingThreshold;
-		this.minDiversity = minDiversity;
+		public E				Current => Entity.Current;
+		object					IEnumerator.Current => Entity.Current;
+
+		byte					Level;
+		HnswTable<D, E>			Table;
+		HashSet<E>				Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+		IEnumerator<E>			Execution;
+		IEnumerator<Round>		Round;
+		IEnumerator<E>			Entity;
+		IEnumerator<Bucket>		Bucket;
+		IEnumerator<Cluster>	Cluster;
+
+		public LevelEnumerator(HnswTable<D, E> table, byte level, Execution execution)
+		{
+			Table = table;
+			Level = level;
+
+			Execution = execution.Round.AffectedByTable<HnswId, E>(table).Values.GetEnumerator();
+			Round = Table.Mcv.Tail.GetEnumerator();
+			Cluster = Table.Clusters.GetEnumerator();
+		}
+
+		public void Reset()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Dispose()
+		{
+			Round?.Dispose();
+			Entity?.Dispose();
+		}
+
+		public bool MoveNext()
+		{
+			while(true)
+			{
+				if(Execution != null)
+				{
+					if(Execution.MoveNext())
+					{
+						if(Execution.Current.Level != Level)
+							continue;
+						
+						Unique.Add(Execution.Current);
+						return true;
+					}
+					else
+						Execution = null;
+				}
+				else if(Round != null)
+				{
+					if(Entity == null)
+					{	
+						if(!Round.MoveNext())
+						{	
+							Round = null;
+							continue;
+						}
+						else
+							while(!Round.Current.Confirmed) 
+								if(!Round.MoveNext())
+								{
+									Round = null; /// No confirmed rounds
+									break;
+								}
+
+						if(Round == null)  
+							continue; /// No confirmed rounds
+								
+						Entity = Round.Current.AffectedByTable<HnswId, E>(Table).Values.GetEnumerator();
+					}
+	
+					if(Entity.MoveNext())
+					{
+						if(Entity.Current.Level != Level || Unique.Contains(Entity.Current))
+							continue;
+						
+						Unique.Add(Entity.Current);
+						return true;
+					}
+					else
+						Entity = null;
+				}
+				else
+				{
+					if(Bucket == null)
+					{	
+						if(!Cluster.MoveNext())
+							return false;
+
+						if(HnswId.BucketToLevel(Cluster.Current.Id) != Level)
+							continue;
+
+						Bucket = Cluster.Current.Buckets.GetEnumerator();
+					}
+
+					if(Entity == null)
+					{	
+						if(!Bucket.MoveNext())
+						{	
+							Bucket = null;
+							continue;
+						}
+							
+						Entity = Bucket.Current.Entries.GetEnumerator();
+					}
+
+					if(Entity.MoveNext())
+					{
+						if(Entity.Current.Level != Level || Unique.Contains(Entity.Current))
+							continue;
+						
+						Unique.Add(Entity.Current);
+						return true;
+					}
+					else
+						Entity = null;
+				}
+			}
+		}
 	}
 
-	public void Add(string data)
+	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 10, int minDiversity = 10) : base(mcv)
 	{
-		int level = RandomLevel();
-		var newNode = new HnswNode(data, level);
+		Metric = metric;
+		MaxLevel = maxLevel;
+		MaxConnections = maxConnections;
+		EfConstruction = efConstruction;
+		Threshold = threshold;
+		MinDiversity = minDiversity;
+	}
 
-		for(int l = 0; l <= level; l++)
+	public override void Load()
+	{
+		int maxlevel = 0;
+
+		ConfirmedEntryPoints.Clear();
+
+		foreach(var r in Mcv.Tail.Where(i => i.Confirmed))
+			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
+				if(i.Level > maxlevel)
+					maxlevel = i.Level;
+
+		foreach(var c in Clusters)
+			if(HnswId.ClusterToLevel(c.Id) > maxlevel)
+				maxlevel = HnswId.ClusterToLevel(c.Id);
+
+		foreach(var c in Clusters.Where(i => HnswId.ClusterToLevel(i.Id) == maxlevel))
+			foreach(var b in c.Buckets)
+				ConfirmedEntryPoints.AddRange(b.Entries);
+
+		foreach(var r in Mcv.Tail.Where(i => i.Confirmed))
+			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
+				if(i.Level == maxlevel && !ConfirmedEntryPoints.Any(j => j.Id == i.Id))
+					ConfirmedEntryPoints.Add(i);
+	}
+
+	public override void StartExecution(Execution execution)
+	{
+		//Execution = execution;
+
+		EntryPoints = new(ConfirmedEntryPoints);
+	}
+
+	public E Find(HnswId id, Execution execution)
+ 	{
+		if(execution != null)
+ 			if(execution.Round.AffectedByTable<HnswId, E>(this).TryGetValue(id, out var a))
+ 				return a;
+ 
+		var ridmax = execution?.Round.Id - 1 ?? Mcv.LastConfirmedRound.Id;
+
+  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
+			if(i.AffectedByTable<HnswId, E>(this).TryGetValue(id, out var r) && !r.Deleted)
+    			return r;
+	
+		return Find(id);
+ 	}
+
+	public EntityEnumeration GetLevel(byte level, Execution execution)
+	{
+		return new EntityEnumeration(() => new LevelEnumerator(this, level, execution));
+	}
+
+	public byte RandomLevel(byte[] start)
+	{
+		var r = start;
+		
+		uint p = 24109; /// 2^16 * 0.367879 => double p = 1.0 / Math.E;
+		byte level = 0;
+
+		while(((r[1]<<8 | r[0])) < p && level < MaxLevel)
+		{	
+			level++;
+
+			r = Cryptography.Hash(r);
+		}
+
+		return level;
+	}
+
+	public void Add(E node, FairExecution execution)
+	{
+		for(byte l = 0; l <= node.Level; l++)
 		{
-			if(!layers.ContainsKey(l))
-				layers[l] = new List<HnswNode>();
-
-			var neighbors = entryPoints.Count > 0
-				? EfSearch(newNode.hash, entryPoints[0], l, efConstruction)
+			var neighbors = EntryPoints.Count > 0
+				? EfSearch(node.Hash, EntryPoints[0], l, EfConstruction, null, execution)
 				: new();
 
 			if(neighbors.Count == 0)
 			{
-				var fallback = GlobalBestNeighbor(newNode, l);
+				var fallback = GlobalBestNeighbor(node, l, execution);
+				
 				if(fallback != null)
-					neighbors.Add((fallback, SimHashUtil.HammingDistance(newNode.hash, fallback.hash)));
+					neighbors.Add((fallback, Metric.ComputeDistance(node.Hash, fallback.Hash)));
 			}
 
-			var topNeighbors = ApplyEFHeuristic(neighbors, maxConnections);
+			var topNeighbors = ApplyEFHeuristic(neighbors, MaxConnections);
 
-			foreach(var neighbor in topNeighbors)
+			foreach(var i in topNeighbors)
 			{
-				newNode.AddConnection(l, neighbor);
-				neighbor.AddConnection(l, newNode);
-			}
+				var neighbor = Affect(i.Id, execution);
 
-			layers[l].Add(newNode);
+				node.AddConnection(l, neighbor);
+				neighbor.AddConnection(l, node);
+			}
 		}
 
-		if(entryPoints.Count == 0 || level > entryPoints[0].level)
+		if(EntryPoints.Count == 0 || node.Level > EntryPoints[0].Level)
 		{
-			entryPoints.Clear();
-			entryPoints.Add(newNode);
+			EntryPoints.Clear();
+			EntryPoints.Add(node);
 		}
 	}
 
-	public void Remove(string data)
+/// 	public void Remove(string data)
+/// 	{
+/// 		bool removedEntry = false;
+/// 
+/// 		foreach(var level in Layers.Keys.ToList())
+/// 		{
+/// 			var node = Layers[level].FirstOrDefault(n => n.Data == data);
+/// 			if(node != null)
+/// 			{
+/// 				foreach(var conn in node.Connections.GetValueOrDefault(level, new()))
+/// 					conn.Connections[level]?.RemoveAll(n => n.Data == data);
+/// 
+/// 				Layers[level].Remove(node);
+/// 
+/// 				if(Layers[level].Count == 0)
+/// 					Layers.Remove(level);
+/// 
+/// 				if(EntryPoints.Contains(node))
+/// 					removedEntry = true;
+/// 			}
+/// 		}
+/// 
+/// 		if(removedEntry)
+/// 		{
+/// 			var all = Layers.SelectMany(kvp => kvp.Value).ToList();
+/// 			if(all.Any())
+/// 			{
+/// 				var newEntry = all.OrderByDescending(n => n.Level).First();
+/// 				EntryPoints.Clear();
+/// 				EntryPoints.Add(newEntry);
+/// 			}
+/// 			else
+/// 			{
+/// 				EntryPoints.Clear();
+/// 			}
+/// 		}
+/// 	}
+
+/// 	public void Rebuild()
+/// 	{
+/// 		Console.WriteLine("[HNSW] Rebuilding graph...");
+/// 		var allData = Layers
+/// 			.SelectMany(kv => kv.Value)
+/// 			.Select(n => n.Data)
+/// 			.Distinct()
+/// 			.ToList();
+/// 
+/// 		Layers.Clear();
+/// 		EntryPoints.Clear();
+/// 
+/// 		foreach(var item in allData)
+/// 			Add(item);
+/// 
+/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
+/// 	}
+
+	public List<E> Search(D query, int k, Func<E, bool> criteria, int efSearch = 32)
 	{
-		bool removedEntry = false;
+		if(EntryPoints.Count == 0)
+			return new();
 
-		foreach(var level in layers.Keys.ToList())
-		{
-			var node = layers[level].FirstOrDefault(n => n.data == data);
-			if(node != null)
-			{
-				foreach(var conn in node.connections.GetValueOrDefault(level, new()))
-					conn.connections[level]?.RemoveAll(n => n.data == data);
+		var queryHash = Metric.Hashify(query);
+		var current = EntryPoints[0];
 
-				layers[level].Remove(node);
-
-				if(layers[level].Count == 0)
-					layers.Remove(level);
-
-				if(entryPoints.Contains(node))
-					removedEntry = true;
-			}
-		}
-
-		if(removedEntry)
-		{
-			var all = layers.SelectMany(kvp => kvp.Value).ToList();
-			if(all.Any())
-			{
-				var newEntry = all.OrderByDescending(n => n.level).First();
-				entryPoints.Clear();
-				entryPoints.Add(newEntry);
-			}
-			else
-			{
-				entryPoints.Clear();
-			}
-		}
-	}
-
-	public void Rebuild()
-	{
-		Console.WriteLine("[HNSW] Rebuilding graph...");
-		var allData = layers
-			.SelectMany(kv => kv.Value)
-			.Select(n => n.data)
-			.Distinct()
-			.ToList();
-
-		layers.Clear();
-		entryPoints.Clear();
-
-		foreach(var item in allData)
-			Add(item);
-
-		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
-	}
-
-	public List<(string, int)> Search(string query, int k, int efSearch = 32)
-	{
-		if(entryPoints.Count == 0) return new();
-
-		ulong queryHash = SimHashUtil.ComputeSimHash(query);
-		HnswNode current = entryPoints[0];
-
-		for(int level = current.level; level >= 1; level--)
+		for(var level = current.Level; level >= 1; level--)
 			current = SearchBestNeighbor(queryHash, current, level);
 
-		var resultNodes = EfSearch(queryHash, current, 0, efSearch);
+		var resultNodes = EfSearch(queryHash, current, 0, efSearch, criteria, null);
 
-		return resultNodes
-			.OrderBy(x => x.dist)
-			.Take(k)
-			.Select(x => (x.node.data, x.dist))
-			.ToList();
+		return resultNodes	.Where(i => criteria(i.node))
+							.OrderBy(x => x.dist)
+							.Take(k)
+							.Select(x => x.node)
+							.ToList();
 	}
 
-	private List<(HnswNode node, int dist)> EfSearch(ulong queryHash, HnswNode entry, int level, int ef)
+	private List<(E node, int dist)> EfSearch(ulong queryHash, E entry, int level, int ef, Func<E, bool> criteria, Execution execution)
 	{
-		var visited = new HashSet<HnswNode>();
-		var candidates = new PriorityQueue<HnswNode, int>();
-		var topCandidates = new SortedList<int, HnswNode>();
+		var visited = new HashSet<HnswId>();
+		var candidates = new PriorityQueue<E, int>();
 
-		int entryDist = SimHashUtil.HammingDistance(queryHash, entry.hash);
+		// Сортировка по расстоянию (меньше — лучше)
+		var topCandidates = new SortedSet<(int dist, E node)>(Comparer<(int dist, E node)>.Create((a, b) =>	{
+																												int cmp = a.dist.CompareTo(b.dist);
+																												if(cmp != 0) return cmp;
+
+																												// Учитываем Id, чтобы избежать конфликтов
+																												return a.node.Id.CompareTo(b.node.Id);
+																											}));
+
+		int entryDist = Metric.ComputeDistance(queryHash, entry.Hash);
 		candidates.Enqueue(entry, entryDist);
-		visited.Add(entry);
-		topCandidates[entryDist] = entry;
+		visited.Add(entry.Id);
+		topCandidates.Add((entryDist, entry));
 
 		while(candidates.Count > 0 && topCandidates.Count < ef)
 		{
 			candidates.TryDequeue(out var current, out _);
 
-			foreach(var neighbor in current.connections.GetValueOrDefault(level, new()))
+			foreach(var neighborId in current.Connections.GetValueOrDefault(level, []))
 			{
-				if(visited.Contains(neighbor)) continue;
-				visited.Add(neighbor);
+				if(visited.Contains(neighborId))
+					continue;
 
-				int dist = SimHashUtil.HammingDistance(queryHash, neighbor.hash);
+				visited.Add(neighborId);
 
-				if(!topCandidates.ContainsKey(dist))
-					topCandidates[dist] = neighbor;
+				var neighbor = Find(neighborId, execution);
 
+				if(criteria != null && !criteria(neighbor))
+					continue;
+
+				int dist = Metric.ComputeDistance(queryHash, neighbor.Hash);
+
+				var candidate = (dist, neighbor);
+				topCandidates.Add(candidate);
 				candidates.Enqueue(neighbor, dist);
 
-				while(topCandidates.Count > ef)
-					topCandidates.RemoveAt(topCandidates.Count - 1);
+				// Обрезаем, если превысили ef
+				if(topCandidates.Count > ef)
+					topCandidates.Remove(topCandidates.Max); // Удаляем наихудшего
 			}
 		}
 
-		return topCandidates.Select(kvp => (kvp.Value, kvp.Key)).ToList();
+		// Возвращаем как список
+		return topCandidates.Select(x => (x.node, x.dist)).ToList();
 	}
 
-	private List<HnswNode> ApplyEFHeuristic(List<(HnswNode node, int dist)> candidates, int maxConnections)
+	private List<E> ApplyEFHeuristic(List<(E node, int dist)> candidates, int maxConnections)
 	{
-		var selected = new List<HnswNode>();
+		var selected = new List<E>();
 
 		foreach(var (candidate, _) in candidates.OrderBy(x => x.dist))
 		{
-			bool good = true;
+			bool diverse = true;
 
+			// Проверяем на разнообразие
 			foreach(var existing in selected)
 			{
-				int d = SimHashUtil.HammingDistance(candidate.hash, existing.hash);
-				if(d < minDiversity)
+				if(Metric.ComputeDistance(candidate.Hash, existing.Hash) < MinDiversity)
 				{
-					good = false;
+					diverse = false;
 					break;
 				}
 			}
 
-			if(good)
+			// Добавляем, если прошёл по разнообразию или уже нужно просто добрать
+			if(diverse || selected.Count < maxConnections)
 			{
 				selected.Add(candidate);
-				if(selected.Count >= maxConnections)
-					break;
 			}
-		}
 
-		if(selected.Count < maxConnections)
-		{
-			foreach(var (node, _) in candidates)
-			{
-				if(!selected.Contains(node))
-				{
-					selected.Add(node);
-					if(selected.Count >= maxConnections)
-						break;
-				}
-			}
+			// Ограничиваем количество соединений
+			if(selected.Count >= maxConnections)
+				break;
 		}
 
 		return selected;
 	}
 
-	private HnswNode? GlobalBestNeighbor(HnswNode node, int level)
+	private E? GlobalBestNeighbor(HnswNode node, byte level, Execution execution)
 	{
-		if(!layers.ContainsKey(level)) return null;
-
+// 		if(!Layers.ContainsKey(level))
+// 			return null;
+// 
 		int bestDist = int.MaxValue;
-		HnswNode? best = null;
+		E? best = null;
 
-		foreach(var n in layers[level])
+		foreach(var n in GetLevel(level, execution))
 		{
-			int dist = SimHashUtil.HammingDistance(node.hash, n.hash);
+			int dist = Metric.ComputeDistance(node.Hash, n.Hash);
+
 			if(dist < bestDist)
 			{
 				bestDist = dist;
@@ -310,25 +481,28 @@ public class HnswTable
 		return best;
 	}
 
-	private HnswNode SearchBestNeighbor(ulong queryHash, HnswNode start, int level)
+	private E SearchBestNeighbor(ulong queryHash, E start, int level)
 	{
-		var visited = new HashSet<HnswNode>();
-		var queue = new Queue<HnswNode>();
+		var visited = new HashSet<HnswId>();
+		var queue = new Queue<E>();
 		queue.Enqueue(start);
 
-		HnswNode best = start;
-		int bestDist = SimHashUtil.HammingDistance(queryHash, best.hash);
+		E best = start;
+		int bestDist = Metric.ComputeDistance(queryHash, best.Hash);
 
 		while(queue.Count > 0)
 		{
 			var current = queue.Dequeue();
-			visited.Add(current);
+			visited.Add(current.Id);
 
-			foreach(var neighbor in current.connections.GetValueOrDefault(level, new()))
+			foreach(var i in current.Connections.GetValueOrDefault(level, []))
 			{
-				if(!visited.Contains(neighbor))
+				if(!visited.Contains(i))
 				{
-					int dist = SimHashUtil.HammingDistance(queryHash, neighbor.hash);
+					var neighbor = Find(i);
+
+					int dist = Metric.ComputeDistance(queryHash, neighbor.Hash);
+
 					if(dist < bestDist)
 					{
 						best = neighbor;
@@ -340,14 +514,5 @@ public class HnswTable
 		}
 
 		return best;
-	}
-
-	private int RandomLevel()
-	{
-		double p = 1.0 / Math.E;
-		int level = 0;
-		while(random.NextDouble() < p && level < maxLevel)
-			level++;
-		return level;
 	}
 }

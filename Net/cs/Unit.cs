@@ -142,7 +142,7 @@ public struct Unit : IComparable, IComparable<Unit>, IEquatable<Unit>, IBinarySe
 		return Attos.CompareTo(((Unit)obj).Attos);
 	}
 
-	public int CompareTo([AllowNull] Unit o)
+	public int CompareTo(Unit o)
 	{
 		return Attos.CompareTo(o.Attos);
 	}

@@ -93,14 +93,17 @@ public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network 
 
 	public int CompareTo(Unea other)
 	{
-		if(Scheme.CompareTo(other.Scheme) != 0)
-			return Scheme.CompareTo(other.Scheme);
+		var c = Scheme.CompareTo(other.Scheme);
+		if(c != 0)
+			return c;
 
-		if(Net != other.Net)
-			return Net.CompareTo(other.Net);
+		c = Net.CompareTo(other.Net);
+		if(c != 0)
+			return c;
 
-		if(Entity.CompareTo(other.Entity) != 0)
-			return Entity.CompareTo(other.Entity);
+		c = Entity.CompareTo(other.Entity);
+		if(c != 0)
+			return c;
 
 		return 0;
 	}

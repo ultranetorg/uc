@@ -10,7 +10,7 @@ public class EntityId : BaseId
 
 	public static readonly EntityId		LastCreated = new EntityId {E = -1};
 	public static readonly EntityId		God = new EntityId {E = -2};
-	public static readonly EntityId		Father0 = new EntityId(0, 0);
+	public static readonly EntityId		Father0 = new EntityId(165, 0);
 
 	public EntityId()
 	{
@@ -43,7 +43,7 @@ public class EntityId : BaseId
 
 		int e = 0;
 		
-		var r = int.TryParse(t.Substring(0, i), out var b) && int.TryParse(t.Substring(i + 1), out e);
+		var r = int.TryParse(t.AsSpan(0, i), out var b) && int.TryParse(t.AsSpan(i + 1), out e);
 
 		if(r)
 		{
@@ -95,11 +95,15 @@ public class EntityId : BaseId
 
 	public int CompareTo(EntityId a)
 	{
-		if(B != a.B)
-			return B.CompareTo(a.B);
+		var c = B.CompareTo(a.B);
 		
-		if(E != a.E)
-			return E.CompareTo(a.E);
+		if(c != 0)
+			return c;
+		
+		c = E.CompareTo(a.E);
+		
+		if(c != 0)
+			return c;
 
 		return 0;
 	}

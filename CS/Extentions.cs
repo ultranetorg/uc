@@ -246,6 +246,22 @@ public static class Extentions
 			w.Write7BitEncodedInt(0);
 	}
 
+	public static void Write<K, V>(this BinaryWriter w, IDictionary<K, V> items, Action<K> writek, Action<V> writev)
+	{
+		if(items != null)
+		{
+			w.Write7BitEncodedInt(items.Count());
+		
+			foreach(var i in items)
+			{	
+				writek(i.Key);
+				writev(i.Value);
+			}
+		}
+		else
+			w.Write7BitEncodedInt(0);
+	}
+
 	public static void Write(this BinaryWriter w, IEnumerable<int> items)
 	{
 		if(items != null)

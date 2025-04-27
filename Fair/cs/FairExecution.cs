@@ -8,15 +8,15 @@ public class FairExecution : Execution
 	public new FairMcv			Mcv => base.Mcv as FairMcv;
 	public new FairRound		Round => base.Round as FairRound;
 
-	public Dictionary<EntityId, Author>				AffectedAuthors = new();
-	public Dictionary<EntityId, Product>			AffectedProducts = new();
-	public Dictionary<EntityId, Site>				AffectedSites = new();
-	public Dictionary<EntityId, Category>			AffectedCategories = new();
-	public Dictionary<EntityId, Publication>		AffectedPublications = new();
-	public Dictionary<EntityId, Review>				AffectedReviews = new();
-	public Dictionary<EntityId, Dispute>			AffectedDisputes = new();
-	public Dictionary<RawId, Word>					AffectedWords = new();
-	public Dictionary<RawId, SiteTerm>				AffectedPublicationTitles = new();
+	public Dictionary<EntityId, Author>						AffectedAuthors = new();
+	public Dictionary<EntityId, Product>					AffectedProducts = new();
+	public Dictionary<EntityId, Site>						AffectedSites = new();
+	public Dictionary<EntityId, Category>					AffectedCategories = new();
+	public Dictionary<EntityId, Publication>				AffectedPublications = new();
+	public Dictionary<EntityId, Review>						AffectedReviews = new();
+	public Dictionary<EntityId, Dispute>					AffectedDisputes = new();
+	public Dictionary<RawId, Word>							AffectedWords = new();
+	public Dictionary<HnswId, PublicationTitleHnswEntity>	AffectedPublicationTitles = new();
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -24,15 +24,15 @@ public class FairExecution : Execution
 
 	public override ITableEntry Affect(byte table, BaseId id)
 	{
-		if(table == Mcv.Authors.Id)				return FindAuthor(id as EntityId)		!= null	? AffectAuthor(id as EntityId) : null;
-		if(table == Mcv.Products.Id)			return FindProduct(id as EntityId)		!= null	? AffectProduct(id as EntityId) : null;
-		if(table == Mcv.Sites.Id)				return FindSite(id as EntityId)			!= null	? AffectSite(id as EntityId) : null;
-		if(table == Mcv.Categories.Id)			return FindCategory(id as EntityId)		!= null	? AffectCategory(id as EntityId) : null;
-		if(table == Mcv.Publications.Id)		return FindPublication(id as EntityId)	!= null	? AffectPublication(id as EntityId) : null;
-		if(table == Mcv.Reviews.Id)				return FindReview(id as EntityId)		!= null	? AffectReview(id as EntityId) : null;
-		if(table == Mcv.Disputes.Id)			return FindDispute(id as EntityId)		!= null	? AffectDispute(id as EntityId) : null;
-		if(table == Mcv.Words.Id)				return FindWord(id as RawId)			!= null	? AffectWord(id as RawId) : null;
-		if(table == Mcv.PublicationTitles.Id)	return FindPublicationTitle(id as RawId)!= null	? AffectPublicationTitle(id as RawId) : null;
+		if(table == Mcv.Authors.Id)				return FindAuthor(id as EntityId)				!= null	? AffectAuthor(id as EntityId) : null;
+		if(table == Mcv.Products.Id)			return FindProduct(id as EntityId)				!= null	? AffectProduct(id as EntityId) : null;
+		if(table == Mcv.Sites.Id)				return FindSite(id as EntityId)					!= null	? AffectSite(id as EntityId) : null;
+		if(table == Mcv.Categories.Id)			return FindCategory(id as EntityId)				!= null	? AffectCategory(id as EntityId) : null;
+		if(table == Mcv.Publications.Id)		return FindPublication(id as EntityId)			!= null	? AffectPublication(id as EntityId) : null;
+		if(table == Mcv.Reviews.Id)				return FindReview(id as EntityId)				!= null	? AffectReview(id as EntityId) : null;
+		if(table == Mcv.Disputes.Id)			return FindDispute(id as EntityId)				!= null	? AffectDispute(id as EntityId) : null;
+		//if(table == Mcv.Words.Id)				return FindWord(id as RawId)					!= null	? AffectWord(id as RawId) : null;
+		//if(table == Mcv.PublicationTitles.Id)	return Mcv.PublicationTitles.Find(id as HnswId)	!= null	? AffectPublicationTitle(id as RawId) : null;
 
 		return base.Affect(table, id);
 	}
@@ -104,12 +104,12 @@ public class FairExecution : Execution
  		if(AffectedAuthors.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Authors.Find(id, Round.Id);
+ 		return Mcv.Authors.Find(id, Round.Id - 1);
  	}
 
 	public Author CreateAuthor(AccountAddress signer)
 	{
-		var b = Mcv.Accounts.KeyToBid(signer);
+		var b = Mcv.Accounts.KeyToBucket(signer);
 		
 		int e = GetNextEid(Mcv.Authors, b);
 
@@ -128,7 +128,7 @@ public class FairExecution : Execution
 		if(AffectedAuthors.TryGetValue(id, out var a))
 			return a;
 			
-		var e = Mcv.Authors.Find(id, Round.Id);
+		var e = FindAuthor(id);
 
 		e = AffectedAuthors[id] = e.Clone();
 
@@ -146,7 +146,7 @@ public class FairExecution : Execution
  		if(AffectedProducts.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Products.Find(id, Round.Id);
+ 		return Mcv.Products.Find(id, Round.Id - 1);
  	}
 
 	public Product CreateProduct(Author author)
@@ -177,12 +177,12 @@ public class FairExecution : Execution
  		if(AffectedSites.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Sites.Find(id, Round.Id);
+ 		return Mcv.Sites.Find(id, Round.Id - 1);
  	}
 
 	public Site CreateSite(Account signer)
 	{
-		var b = Mcv.Accounts.KeyToBid(signer.Address);
+		var b = Mcv.Accounts.KeyToBucket(signer.Address);
 		
 		int e = GetNextEid(Mcv.Sites, b);
 
@@ -215,7 +215,7 @@ public class FairExecution : Execution
  		if(AffectedCategories.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Categories.Find(id, Round.Id);
+ 		return Mcv.Categories.Find(id, Round.Id - 1);
  	}
 
 	public Category CreateCategory(Site site)
@@ -245,7 +245,7 @@ public class FairExecution : Execution
  		if(AffectedPublications.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Publications.Find(id, Round.Id);
+ 		return Mcv.Publications.Find(id, Round.Id - 1);
  	}
 
 	public Publication CreatePublication(Site site)
@@ -277,7 +277,7 @@ public class FairExecution : Execution
  		if(AffectedDisputes.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Disputes.Find(id, Round.Id);
+ 		return Mcv.Disputes.Find(id, Round.Id - 1);
  	}
 
 	public Review CreateReview(Publication publication)
@@ -305,7 +305,7 @@ public class FairExecution : Execution
  		if(AffectedReviews.TryGetValue(id, out var a))
  			return a;
  
- 		return Mcv.Reviews.Find(id, Round.Id);
+ 		return Mcv.Reviews.Find(id, Round.Id - 1);
  	}
 
 	public Dispute CreateDispute(Site site)
@@ -433,68 +433,6 @@ public class FairExecution : Execution
 			t.References = t.References.Remove(w);
 		}
 	}
-
-	 public SiteTerm FindPublicationTitle(RawId id)
- 	{
- 		if(AffectedPublicationTitles.TryGetValue(id, out var a))
- 			return a;
- 
- 		return Mcv.PublicationTitles.Find(id, Round.Id);
- 	}
-
-	public SiteTerm AffectPublicationTitle(RawId id)
-	{
-		if(AffectedPublicationTitles.TryGetValue(id, out var a))
-			return a;
-			
-		a = Mcv.PublicationTitles.Find(id, Round.Id);
-
-		if(a == null)
-		{
-			a = Mcv.PublicationTitles.Create();
-			a.Id = id;
-			a.Children = [];
-			a.References = [];
-		
-			return AffectedPublicationTitles[id] = a;
-		} 
-		else
-		{
-			return AffectedPublicationTitles[id] = a.Clone();
-		}
-	}
-
- 	public void IndexPublicationTitle(EntityId site, string text, EntityId entity)
- 	{
-		foreach(var i in text.ToLowerInvariant().Split(' '))
-		{
-			var t = Mcv.PublicationTitles.Add(i, FindPublicationTitle, AffectPublicationTitle);
-	
-			t = AffectPublicationTitle(t.Id);
-	
-			if(!t.References.TryGetValue(site, out var eee))
-				eee = [];
-	
-			if(!eee.Contains(entity))
-			{	
-				t.References = new (t.References);
-				t.References[site] = [..eee, entity];
-			}
-		}
- 	}
-
- 	public void DeindexPublicationTitle(string text, Publication publication, EntityId site)
- 	{
-		foreach(var i in text.ToLowerInvariant().Split(' '))
-		{
-			var r = Mcv.PublicationTitles.Search(site, i, 0, 0, 1, null);
-	
-			var e = AffectPublicationTitle(r[0].Term.Id);
-	
-			e.References = new (e.References);
-			e.References[site] = e.References[site].Remove(r[0].Entity);
-		}
- 	}
 
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
 /// 	{

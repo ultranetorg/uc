@@ -27,10 +27,10 @@ public class Consil : IBinarySerializable
 
 	public Consil Clone()
 	{
-		return new Consil()	{	SizeEnergyFeeMinimum			= SizeEnergyFeeMinimum, 
+		return new Consil()	{	SizeEnergyFeeMinimum		= SizeEnergyFeeMinimum, 
 								ResultSpacetimeFeeMinimum	= ResultSpacetimeFeeMinimum, 
 								ResultEnergyFeeMinimum		= ResultEnergyFeeMinimum, 
-								Analyzers						= Analyzers
+								Analyzers					= Analyzers
 							};
 	}
 }
@@ -69,12 +69,12 @@ public class Analysis : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Release					= Urr.ReadVirtual(reader);
-		Consil					= reader.Read<EntityId>();
-		EnergyReward			= reader.Read7BitEncodedInt64();
-		SpacetimeReward			= reader.Read7BitEncodedInt64();
-		Results					= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), 
-																			 Result = reader.Read<AnalysisResult>() });
+		Release			= Urr.ReadVirtual(reader);
+		Consil			= reader.Read<EntityId>();
+		EnergyReward	= reader.Read7BitEncodedInt64();
+		SpacetimeReward	= reader.Read7BitEncodedInt64();
+		Results			= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), 
+																	 Result = reader.Read<AnalysisResult>() });
 	}
 
 	public void Write(BinaryWriter writer)

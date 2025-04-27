@@ -47,8 +47,13 @@ public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IC
 
 	public int CompareTo(TransactionId a)
 	{
-		if(Ri != a.Ri)	return Ri.CompareTo(a.Ri);
-		if(Ti != a.Ti)	return Ti.CompareTo(a.Ti);
+		var c =	Ri.CompareTo(a.Ri);
+		if(c !=0)
+			return c;
+
+		c = Ti.CompareTo(a.Ti);
+		if(c !=0)
+			return c;
 
 		return 0;
 	}

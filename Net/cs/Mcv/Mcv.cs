@@ -280,6 +280,11 @@ public abstract class Mcv /// Mutual chain voting
 				}
 			}
 		}
+
+		foreach(var i in Tables)
+		{
+			i.Load();
+		}
 	}
 
 	public void Clear()
@@ -489,7 +494,7 @@ public abstract class Mcv /// Mutual chain voting
 	{
 		BaseHash = Cryptography.Hash(BaseState);
 
-		foreach(var t in Tables)
+		foreach(var t in Tables.Where(i => !i.IsIndex))
 			foreach(var i in t.Clusters.OrderBy(i => i.Id))
 				BaseHash = Cryptography.Hash(BaseHash, i.Hash);
 	}

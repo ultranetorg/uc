@@ -2,7 +2,7 @@
 
 public class AccountTable : Table<Account>
 {
-	public int	KeyToBid(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[0];
+	public int	KeyToBucket(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[2];
 
 	public AccountTable(Mcv chain) : base(chain)
 	{
@@ -15,7 +15,7 @@ public class AccountTable : Table<Account>
 
 	public Account FindEntry(AccountAddress key)
 	{
-		var bid = KeyToBid(key);
+		var bid = KeyToBucket(key);
 
 		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
 	}

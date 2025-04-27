@@ -131,15 +131,14 @@ public class CostApc : FairApc
 	}
 }
 
-public class TermSearchResult
+public class SearchResult
 {
 	public string		Text { get; set; }
 	public EntityId		Entity { get; set; }
-	public byte			Distance { get; set; }
 
 	public override string ToString()
 	{
-		return $"{Text}, {Entity}, {Distance}";
+		return $"{Text}, {Entity}";
 	}
 }
 
@@ -154,31 +153,38 @@ public class PublicationsSearchApc : FairApc
 	{
 		lock(node.Mcv.Lock)
 		{
-			IEnumerable<TermSearchResult> result = null;
+			var result = node.Mcv.PublicationTitles.Search(Query, Take, i => i.References.ContainsKey(Site));
 
-			foreach(var w in Query.ToLowerInvariant().Split(' '))
- 			{
-				IEnumerable<TermSearchResult> r = null;
-
-				r = node.Mcv.PublicationTitles.Search(Site, w, 10, Skip, Take, null)//.GroupBy(i => i.Entity).Select(i => new TermSearchResult {Distance = (byte)i.Sum(j => j.Distance), Entity = i.First().Entity});
-																					.Select(i => new TermSearchResult {Distance = i.Distance, Entity = i.Entity});
-				if(result == null)
-					result = r;
-				else
-				//	result = result.Intersect(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
-					result = result.Union(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
- 			}
-
-			return result.OrderBy(i => i.Distance)
-						.Select(i =>	{
-											var p = node.Mcv.Publications.Latest(i.Entity);
-											var r = node.Mcv.Products.Latest(p.Product);
-																								 
-											var t = r.GetString(p.Fields.First(f => f.Name == ProductField.Title));
-																								 
-											return new TermSearchResult {Entity = i.Entity, Text = t, Distance = i.Distance};
+			return result.Select(i =>	{
+											return new SearchResult {Entity = i.References[Site], Text = i.Text};
 																								 
 										}).ToArray();
+
+// 			IEnumerable<TermSearchResult> result = null;
+// 
+// 			foreach(var w in Query.ToLowerInvariant().Split(' '))
+//  		{
+// 				IEnumerable<TermSearchResult> r = null;
+// 
+// 				r = node.Mcv.PublicationTitles.Search(Site, w, 10, Skip, Take, null)//.GroupBy(i => i.Entity).Select(i => new TermSearchResult {Distance = (byte)i.Sum(j => j.Distance), Entity = i.First().Entity});
+// 																					.Select(i => new TermSearchResult {Distance = i.Distance, Entity = i.Entity});
+// 				if(result == null)
+// 					result = r;
+// 				else
+// 				//	result = result.Intersect(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
+// 					result = result.Union(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
+//  		}
+// 
+// 			return result.OrderBy(i => i.Distance)
+// 						.Select(i =>	{
+// 											var p = node.Mcv.Publications.Latest(i.Entity);
+// 											var r = node.Mcv.Products.Latest(p.Product);
+// 																								 
+// 											var t = r.GetString(p.Fields.First(f => f.Name == ProductField.Title));
+// 																								 
+// 											return new TermSearchResult {Entity = i.Entity, Text = t, Distance = i.Distance};
+// 																								 
+// 										}).ToArray();
 		}
 	}
 }

@@ -21,7 +21,8 @@ public abstract class TableBase
 	public virtual bool							IsIndex => false;
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
 
-	//public abstract BucketBase				AddCluster(short id);
+	public virtual void							Load(){}
+	public virtual void							StartExecution(Execution execution){}
 	public abstract ClusterBase					GetCluster(short id);
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
@@ -295,11 +296,10 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 	public class TailBaseEnumerator : IEnumerator<E>
 	{
-		public E Current => Entity.Current;
-		object IEnumerator.Current => Entity.Current;
+		public E				Current => Entity.Current;
+		object					IEnumerator.Current => Entity.Current;
 
-		Dictionary<BaseId, E>	NotCommited = [];
-
+		HashSet<E>				Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Key == b.Key, i => i.Key.GetHashCode()));
 		IEnumerator<Round>		Round;
 		IEnumerator<E>			Entity;
 		Table<E>				Table;
@@ -308,7 +308,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		{
 			Table = table;
 
-			Reset();
+			Round = Table.Mcv.Tail.GetEnumerator();
 		}
 
 		public void Dispose()
@@ -328,7 +328,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 						if(!Round.MoveNext())
 						{	
 							Round = null;
-							Entity = Table.BaseIntities.GetEnumerator();
+							Entity = Table.BaseEntities.GetEnumerator();
 							continue;
 						}
 						else
@@ -340,9 +340,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	
 					if(Entity.MoveNext())
 					{
-						if(!NotCommited.ContainsKey(Entity.Current.Key))
+						if(!Unique.Contains(Entity.Current))
 						{
-							NotCommited[Entity.Current.Key] = Entity.Current;
+							Unique.Add(Entity.Current);
 							return true;
 						}
 						else
@@ -357,9 +357,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 				{
 					if(Entity.MoveNext())
 					{
-						if(!NotCommited.ContainsKey(Entity.Current.Key))
+						if(!Unique.Contains(Entity.Current))
 						{
-							NotCommited[Entity.Current.Key] = Entity.Current;
+							Unique.Add(Entity.Current);
 							return true;
 						}
 						else
@@ -375,8 +375,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		public void Reset()
 		{
-			Round = Table.Mcv.Tail.GetEnumerator();
-			Entity = null;
+			throw new NotImplementedException();
 		}
 	}
 
@@ -442,9 +441,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 		public void Reset()
 		{
-			Cluster = Table.Clusters.GetEnumerator();
-			Bucket = null;
-			Entity = null;
+			throw new NotImplementedException();
 		}
 	}
 
@@ -463,11 +460,11 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
-	public class EntityCollection : IEnumerable<E>
+	public class EntityEnumeration : IEnumerable<E>
 	{
 		Func<IEnumerator<E>> Create;
 
-		public EntityCollection(Func<IEnumerator<E>> create)
+		public EntityEnumeration(Func<IEnumerator<E>> create)
 		{
 			Create = create;
 		}
@@ -493,8 +490,8 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 	public abstract E				Create();
 
-	public EntityCollection			BaseIntities => new (() => new BaseEnumerator(this));
-	public EntityCollection			TailBaseIntities => new (() => new TailBaseEnumerator(this));
+	public EntityEnumeration		BaseEntities => new (() => new BaseEnumerator(this));
+	public EntityEnumeration		TailBaseEntities => new (() => new TailBaseEnumerator(this));
 
 	public Table(Mcv chain)
 	{
@@ -558,21 +555,20 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return c?.FindBucket(id);
 	}
 	
-	public virtual E Find(EntityId id)
+	public virtual E Find(BaseId id)
 	{
 		var eee = FindBucket(id.B)?.Entries;
-		var j = eee?.BinarySearch(null, new BinaryComparer(x => ((EntityId)x.Key).E.CompareTo(id.E)));
+		var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
 		
 		return j >= 0 ? eee[j.Value] : null;
 
 		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
 	}
 
-
 	public virtual E Find(EntityId id, int ridmax)
 	{
   		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if((i.AffectedByTable(this) as IDictionary<EntityId, E>).TryGetValue(id, out var r) && !r.Deleted)
+			if(i.AffectedByTable<EntityId, E>(this).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 
 		return Find(id);

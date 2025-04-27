@@ -20,24 +20,22 @@ public class PublicationTable : Table<Publication>
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var cl in Clusters)
-			foreach(var b in cl.Buckets)
-				foreach(var i in b.Entries)
-				{
-					var c = e.FindCategory(i.Category);
-					var r = Mcv.Products.Find(i.Product);
-					var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
+		Mcv.PublicationTitles.StartExecution(e);
 
-					if(f != null)
-					{
-						var t = r.Get(f);
+		foreach(var i in BaseEntities)
+		{
+			var c = e.FindCategory(i.Category);
+			var r = Mcv.Products.Find(i.Product);
+			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
 
-						var w = e.AffectPublicationTitle(new RawId(t));
+			if(f != null)
+			{
+				var t = r.Get(f);
+
+				Mcv.PublicationTitles.Index(c.Site, i.Id, t.AsUtf8, e);
+			}
+		}
 	
-						w.References[c.Site] = [..w.References[c.Site], i.Id];
-					}
-				}
-	
-		Mcv.Words.Save(batch, e.AffectedWords.Values, null);
+		Mcv.PublicationTitles.Save(batch, e.AffectedPublicationTitles.Values, null);
 	}
 }

@@ -31,8 +31,15 @@ public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IC
 
 	public int CompareTo(ForeignResult a)
 	{
-		if(OperationId != a.OperationId)	return OperationId.CompareTo(a.OperationId);
-		if(Approved != a.Approved)			return Approved.CompareTo(a.Approved);
+		var c = OperationId.CompareTo(a.OperationId);
+
+		if(c != 0)
+			return c;
+
+		c = Approved.CompareTo(a.Approved);
+
+		if(c != 0)
+			return c;
 
 		return 0;
 	}
@@ -120,9 +127,17 @@ public struct OperationId : IBinarySerializable, IEquatable<OperationId>, ICompa
 
 	public int CompareTo(OperationId a)
 	{
-		if(Ri != a.Ri)	return Ri.CompareTo(a.Ri);
-		if(Ti != a.Ti)	return Ti.CompareTo(a.Ti);
-		if(Oi != a.Oi)	return Oi.CompareTo(a.Oi);
+		var c =	Ri.CompareTo(a.Ri);
+		if(c !=0)
+			return c;
+
+		c = Ti.CompareTo(a.Ti);
+		if(c !=0)
+			return c;
+
+		c = Oi.CompareTo(a.Oi);
+		if(c !=0)
+			return c;
 
 		return 0;
 	}

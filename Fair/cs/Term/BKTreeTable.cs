@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public abstract class TermTable<E> : Table<E> where E : Term
+public abstract class BKTreeTable<E> : Table<E> where E : BKTerm
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -8,7 +8,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 
 	public override abstract E		Create();
 
-	public TermTable(FairMcv mcv) : base(mcv)
+	public BKTreeTable(FairMcv mcv) : base(mcv)
 	{
 	}
 
@@ -103,7 +103,7 @@ public abstract class TermTable<E> : Table<E> where E : Term
 
 }
 
-public class EntityTermTable : TermTable<EntityTerm>
+public class EntityTermTable : BKTreeTable<EntityTerm>
 {
 	public EntityTermTable(FairMcv mcv) : base(mcv)
 	{
@@ -115,7 +115,7 @@ public class EntityTermTable : TermTable<EntityTerm>
 	}
 }
 
-public class SiteTermTable : TermTable<SiteTerm>
+public class SiteTermTable : BKTreeTable<SiteTerm>
 {
 	public class FoundEntity
 	{

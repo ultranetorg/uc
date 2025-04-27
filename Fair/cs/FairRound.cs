@@ -15,17 +15,17 @@
 
 public class FairRound : Round
 {
-	public new FairMcv							Mcv => base.Mcv as FairMcv;
+	public new FairMcv										Mcv => base.Mcv as FairMcv;
 
-	public Dictionary<EntityId, Author>			AffectedAuthors = new();
-	public Dictionary<EntityId, Product>		AffectedProducts = new();
-	public Dictionary<EntityId, Site>			AffectedSites = new();
-	public Dictionary<EntityId, Category>		AffectedCategories = new();
-	public Dictionary<EntityId, Publication>	AffectedPublications = new();
-	public Dictionary<EntityId, Review>			AffectedReviews = new();
-	public Dictionary<EntityId, Dispute>		AffectedDisputes = new();
-	public Dictionary<RawId, Word>				AffectedWords = new();
-	public Dictionary<RawId, SiteTerm>			AffectedPublicationTitles = new();
+	public Dictionary<EntityId, Author>						AffectedAuthors = new();
+	public Dictionary<EntityId, Product>					AffectedProducts = new();
+	public Dictionary<EntityId, Site>						AffectedSites = new();
+	public Dictionary<EntityId, Category>					AffectedCategories = new();
+	public Dictionary<EntityId, Publication>				AffectedPublications = new();
+	public Dictionary<EntityId, Review>						AffectedReviews = new();
+	public Dictionary<EntityId, Dispute>					AffectedDisputes = new();
+	public Dictionary<RawId, Word>							AffectedWords = new();
+	public Dictionary<HnswId, PublicationTitleHnswEntity>	AffectedPublicationTitles = new();
 
 	public FairRound(FairMcv rds) : base(rds)
 	{

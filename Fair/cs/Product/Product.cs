@@ -38,6 +38,8 @@ public class ProductFieldVersion : IBinarySerializable
 	public byte[]		Value { get; set; }
 	public int			Refs { get; set; }
 
+	public string		AsUtf8 => Encoding.UTF8.GetString(Value);
+
 	public ProductFieldVersion()
 	{
 	}
@@ -123,14 +125,9 @@ public class Product : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	public string GetString(ProductFieldVersionReference reference)
+	public ProductFieldVersion Get(ProductFieldVersionReference reference)
 	{
-		return Encoding.UTF8.GetString(Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value);
-	}
-
-	public byte[] Get(ProductFieldVersionReference reference)
-	{
-		return Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version).Value;
+		return Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version);
 	}
 
 	public Product Clone()
