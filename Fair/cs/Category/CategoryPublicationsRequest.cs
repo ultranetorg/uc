@@ -2,13 +2,13 @@
 
 public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 {
-	public EntityId		Category {get; set;}
+	public AutoId		Category {get; set;}
 
 	public CategoryPublicationsRequest()
 	{
 	}
 
-	public CategoryPublicationsRequest(EntityId id)
+	public CategoryPublicationsRequest(AutoId id)
 	{
 		Category = id;
 	}
@@ -17,7 +17,7 @@ public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			var e = Mcv.Categories.Find(Category, Mcv.LastConfirmedRound.Id);
 			
@@ -31,5 +31,5 @@ public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 
 public class CategoryPublicationsResponse : PeerResponse
 {
-	public EntityId[] Publications {get; set;}
+	public AutoId[] Publications {get; set;}
 }

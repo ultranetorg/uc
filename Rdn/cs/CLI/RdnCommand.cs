@@ -12,10 +12,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType RZA		= new ArgumentType("RZA",		@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 
 	protected RdnCli			Program;
-	protected override Type[]	TypesForExpanding => [typeof(IEnumerable<Dependency>), 
-													  typeof(IEnumerable<AnalyzerResult>), 
-													  typeof(Resource), 
-													  typeof(VersionManifest)];
+
 	static RdnCommand()
 	{
 		try
@@ -32,6 +29,14 @@ public abstract class RdnCommand : McvCommand
 	protected RdnCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Program = program;
+
+		if(flow != null)
+		{
+			Flow.Log.TypesForExpanding.AddRange([typeof(IEnumerable<Dependency>), 
+												 typeof(IEnumerable<AnalyzerResult>), 
+												 typeof(Resource), 
+												 typeof(VersionManifest)]);
+		}
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
@@ -45,11 +50,11 @@ public abstract class RdnCommand : McvCommand
 				return null;
 	}
 
-	protected EntityId GetResourceId(string text)
+	protected AutoId GetResourceId(string text)
 	{
 		return text.Contains('/') ? Ppc(new ResourceRequest(Ura.Parse(text))).Resource.Id
 									:
-									EntityId.Parse(text);
+									AutoId.Parse(text);
 	}
 
 	protected Urr GetReleaseAddress(string paramenter, bool mandatory = true)

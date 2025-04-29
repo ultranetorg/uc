@@ -1,28 +1,22 @@
 ﻿using System.Net;
-// using Lucene.Net.Analysis;
-// using Lucene.Net.Analysis.Core;
-// using Lucene.Net.Analysis.Standard;
-// using Lucene.Net.Documents;
-// using Lucene.Net.Index;
-// using Lucene.Net.Search;
-// using Lucene.Net.Store;
-// using Lucene.Net.Util;
 using RocksDbSharp;
 
 namespace Uccs.Fair;
 
 public class FairMcv : Mcv
 {
-	IPAddress[]						BaseIPs;
-	public AuthorTable				Authors;
-	public ProductTable				Products;
-	public SiteTable				Sites;
-	public CategoryTable			Categories;
-	public PublicationTable			Publications;
-	public ReviewTable				Reviews;
-	public DisputeTable				Disputes;
-	public WordTable				Words;
-	public PublicationTitleIndex	PublicationTitles;
+	IPAddress[]							GraphIPs;
+	public AuthorTable					Authors;
+	public ProductTable					Products;
+	public SiteTable					Sites;
+	public CategoryTable				Categories;
+	public PublicationTable				Publications;
+	public ReviewTable					Reviews;
+	public DisputeTable					Disputes;
+	public WordTable					Words;
+	public PublicationTitleIndex		PublicationTitles;
+
+	public new IEnumerable<FairRound>	Tail => base.Tail.Cast<FairRound>();
 
 	public FairMcv()
 	{
@@ -34,7 +28,7 @@ public class FairMcv : Mcv
 
 	public FairMcv(Fair net, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(net, settings, databasepath, clock)
 	{
-		BaseIPs = baseips;
+		GraphIPs = baseips;
 
 /*
 		var luceneVersion = LuceneVersion.LUCENE_48; 
@@ -113,7 +107,7 @@ public class FairMcv : Mcv
 
 	public string CreateGenesis(AccountKey god, AccountKey f0)
 	{
-		return CreateGenesis(god, f0, new CandidacyDeclaration {BaseRdcIPs = [Net.Father0IP]});
+		return CreateGenesis(god, f0, new CandidacyDeclaration {GraphIPs = [Net.Father0IP]});
 	}
 
 	public override string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
@@ -179,7 +173,7 @@ public class FairMcv : Mcv
 
 	public override CandidacyDeclaration CreateCandidacyDeclaration()
 	{
-		return new CandidacyDeclaration {BaseRdcIPs	= BaseIPs};
+		return new CandidacyDeclaration {GraphIPs	= GraphIPs};
 	}
 
 	public override void FillVote(Vote vote)

@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class ReviewStatusChange : VotableOperation
 {
-	public EntityId				Review { get; set; }
+	public AutoId				Review { get; set; }
 	public ReviewStatus			Status { get; set; }
 
 	public override bool		IsValid(McvNet net) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
@@ -14,7 +14,7 @@ public class ReviewStatusChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Review	= reader.Read<EntityId>();
+		Review	= reader.Read<AutoId>();
 		Status	= reader.Read<ReviewStatus>();
 	}
 

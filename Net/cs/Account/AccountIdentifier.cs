@@ -3,10 +3,10 @@
 public class AccountIdentifier
 {
 	public AccountAddress	Address { get; set; }
-	public EntityId			Id { get; set; }
+	public AutoId			Id { get; set; }
 
 	public static implicit operator AccountAddress(AccountIdentifier d) => d.Address;
-	public static implicit operator EntityId(AccountIdentifier d) => d.Id;
+	public static implicit operator AutoId(AccountIdentifier d) => d.Id;
 
 	public AccountIdentifier()
 	{
@@ -17,14 +17,14 @@ public class AccountIdentifier
 		Address = addres;
 	}
 
-	public AccountIdentifier(EntityId id)
+	public AccountIdentifier(AutoId id)
 	{
 		Id = id;
 	}
 
 	public static AccountIdentifier Parse(string text)
 	{
-		return text.StartsWith("0x") ? new AccountIdentifier(AccountAddress.Parse(text)) : new AccountIdentifier(EntityId.Parse(text));
+		return text.StartsWith("0x") ? new AccountIdentifier(AccountAddress.Parse(text)) : new AccountIdentifier(AutoId.Parse(text));
 	}
 
 }

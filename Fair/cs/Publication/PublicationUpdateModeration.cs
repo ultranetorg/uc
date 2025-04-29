@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class PublicationUpdateModeration : VotableOperation
 {
-	public EntityId						Publication { get; set; }
+	public AutoId						Publication { get; set; }
 	public ProductFieldVersionReference	Change { get; set; }
 	public bool							Resolution { get; set; }
 
@@ -17,7 +17,7 @@ public class PublicationUpdateModeration : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Publication	= reader.Read<EntityId>();
+		Publication	= reader.Read<AutoId>();
 		Change		= reader.Read<ProductFieldVersionReference>();
 		Resolution	= reader.ReadBoolean();
 	}
@@ -103,7 +103,7 @@ public class PublicationUpdateModeration : VotableOperation
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 				if(f.Name == ProductField.Title)
-					execution.Mcv.PublicationTitles.Deindex(execution.FindCategory(p.Category).Site, p, r.Get(prev).AsUtf8, execution);
+					execution.PublicationTitles.Deindex(execution.FindCategory(p.Category).Site, p, r.Get(prev).AsUtf8);
 			}
 	
 			/// increase refs in product
@@ -116,7 +116,7 @@ public class PublicationUpdateModeration : VotableOperation
 			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 			if(f.Name == ProductField.Title)
-				execution.Mcv.PublicationTitles.Index(execution.FindCategory(p.Category).Site, p.Id, v.AsUtf8, execution);
+				execution.PublicationTitles.Index(execution.FindCategory(p.Category).Site, p.Id, v.AsUtf8);
 
 			PayForModeration(execution, p, a);
 		}

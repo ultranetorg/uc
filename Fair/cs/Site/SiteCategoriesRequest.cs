@@ -2,13 +2,13 @@
 
 public class SiteCategoriesRequest : FairPpc<SiteCategoriesResponse>
 {
-	public EntityId		Site {get; set;}
+	public AutoId		Site {get; set;}
 
 	public SiteCategoriesRequest()
 	{
 	}
 
-	public SiteCategoriesRequest(EntityId siteid)
+	public SiteCategoriesRequest(AutoId siteid)
 	{
 		Site = siteid;
 	}
@@ -17,7 +17,7 @@ public class SiteCategoriesRequest : FairPpc<SiteCategoriesResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			var e = Mcv.Sites.Find(Site, Mcv.LastConfirmedRound.Id);
 			
@@ -31,5 +31,5 @@ public class SiteCategoriesRequest : FairPpc<SiteCategoriesResponse>
 
 public class SiteCategoriesResponse : PeerResponse
 {
-	public EntityId[] Categories {get; set;}
+	public AutoId[] Categories {get; set;}
 }

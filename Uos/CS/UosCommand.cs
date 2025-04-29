@@ -5,7 +5,6 @@ namespace Uccs.Uos;
 public class UosCommand : NetCommand
 {
 	public Uos					Uos;
-	protected override Type[]	TypesForExpanding => [];
 
 	public UosCommand(Uos uos, List<Xon> args, Flow flow) : base(args, flow)
 	{

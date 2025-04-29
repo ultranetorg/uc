@@ -35,7 +35,7 @@ public class Transaction : IBinarySerializable
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
-	public EntityId					Member;
+	public AutoId					Member;
 	public int						Expiration { get; set; }
 	public byte[]					PoW;
 	public byte[]					Tag;
@@ -175,7 +175,7 @@ public class Transaction : IBinarySerializable
  	{
 		Status		= TransactionStatus.Confirmed;
 
-		Member	= reader.Read<EntityId>();
+		Member	= reader.Read<AutoId>();
 		Signer		= reader.ReadAccount();
 		Nid			= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
@@ -210,7 +210,7 @@ public class Transaction : IBinarySerializable
 	{
 		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 
-		Member	= reader.Read<EntityId>();
+		Member	= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
@@ -247,7 +247,7 @@ public class Transaction : IBinarySerializable
 	{
 		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 	
-		Member		= reader.Read<EntityId>();
+		Member		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();

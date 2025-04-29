@@ -40,7 +40,7 @@ public class PackageCommand : UosCommand
 																						AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
 																													Owner = GetAccountAddress("owner", false),
 																													Resource = Ura.Parse(Args[0].Name)} });
-								Dump($"Address : {r}");
+								Flow.Log.Dump($"Address : {r}");
 
 								return r;
 							};
@@ -66,7 +66,7 @@ public class PackageCommand : UosCommand
 		a.Execute = () =>	{
 							var r = RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package});
 				
-							Dump(r);
+							Flow.Log.Dump(r);
 
 							return null;
 						};

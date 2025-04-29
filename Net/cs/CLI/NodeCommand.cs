@@ -156,9 +156,9 @@ public class NodeCommand : McvCommand
 		a.Execute = () =>	{
 								var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
 																
-								Dump(	r.Peers, 
-										["IP", "Status", "PeerRank", "Roles"], 
-										[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
+								Flow.Log.Dump(	r.Peers, 
+												["IP", "Status", "PeerRank", "Roles"], 
+												[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
 													
 								return r;
 							};
@@ -183,7 +183,7 @@ public class NodeCommand : McvCommand
 			
 								foreach(var t in r)
 								{
-									Dump(t);
+									Flow.Log.Dump(t);
 
 									foreach(var o in t.Operations)
 										Report("   " + o.Explanation);
@@ -212,7 +212,7 @@ public class NodeCommand : McvCommand
 			
 								foreach(var t in r)
 								{
-									Dump(t);
+									Flow.Log.Dump(t);
 
 									foreach(var o in t.Operations)
 										Report("   " + o.Explanation);
@@ -282,7 +282,7 @@ public class NodeCommand : McvCommand
 								if(m == null)
 									throw new EntityException(EntityError.NotFound);
 
-								Dump(m);
+								Flow.Log.Dump(m);
 
 								return m;
 							};

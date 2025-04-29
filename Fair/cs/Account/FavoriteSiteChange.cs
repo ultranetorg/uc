@@ -2,7 +2,7 @@
 
 public class FavoriteSiteChange : FairOperation
 {
-	public EntityId				Site { get; set; }
+	public AutoId				Site { get; set; }
 	public bool					Action {get; set;} /// True = Add
 
 	public override string		Explanation => $"{Site}, AddRevoce={Action}";
@@ -18,7 +18,7 @@ public class FavoriteSiteChange : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Site = reader.Read<EntityId>();
+		Site = reader.Read<AutoId>();
 		Action = reader.ReadBoolean();
 	}
 

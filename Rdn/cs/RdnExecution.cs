@@ -6,22 +6,22 @@ public class RdnExecution : Execution
 	public new RdnMcv			Mcv => base.Mcv as RdnMcv;
 	public new RdnRound			Round => base.Round as RdnRound;
 
-	public Dictionary<EntityId, Domain>		AffectedDomains = [];
-	public Dictionary<EntityId, Resource>		AffectedResources = [];
+	public Dictionary<AutoId, Domain>		AffectedDomains = [];
+	public Dictionary<AutoId, Resource>		AffectedResources = [];
 
 	public RdnExecution(RdnMcv mcv, RdnRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
 	}
 
-	public override ITableEntry Affect(byte table, BaseId id)
+	public override ITableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Domains.Id == table)		return FindDomain(id as EntityId) != null ? AffectDomain(id as EntityId) : null;
-		if(Mcv.Resources.Id == table)	return FindResource(id as EntityId) != null ? AffectResource(id as EntityId) : null;
+		if(Mcv.Domains.Id == table)		return FindDomain(id as AutoId) != null ? AffectDomain(id as AutoId) : null;
+		if(Mcv.Resources.Id == table)	return FindResource(id as AutoId) != null ? AffectResource(id as AutoId) : null;
 
 		return base.Affect(table, id);
 	}
 
-	public Domain FindDomain(EntityId id)
+	public Domain FindDomain(AutoId id)
 	{
 		if(AffectedDomains.TryGetValue(id, out var a))
 			return a;
@@ -52,13 +52,13 @@ public class RdnExecution : Execution
 			
 			int e = GetNextEid(Mcv.Domains, b);
 
-			d = new Domain(Mcv) {Id = new EntityId(b, e), Address = address};
+			d = new Domain(Mcv) {Id = new AutoId(b, e), Address = address};
 
 			return AffectedDomains[d.Id] = d;
 		}
 	}
 
-	public Domain AffectDomain(EntityId id)
+	public Domain AffectDomain(AutoId id)
 	{
 		if(AffectedDomains.TryGetValue(id, out var a))
 			return a;
@@ -71,7 +71,7 @@ public class RdnExecution : Execution
 		return AffectedDomains[a.Id] = a.Clone();
 	}
 
-	public Resource FindResource(EntityId id)
+	public Resource FindResource(AutoId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))
 			return a;
@@ -87,7 +87,7 @@ public class RdnExecution : Execution
 		return Mcv.Resources.Find(address, Round.Id);
 	}
 
-	public Resource AffectResource(EntityId id)
+	public Resource AffectResource(AutoId id)
 	{
 		if(AffectedResources.TryGetValue(id, out var a))
 			return a;
@@ -111,7 +111,7 @@ public class RdnExecution : Execution
 
   		if(r == null)
   		{
-  			r = new Resource  {Id = new EntityId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
+  			r = new Resource  {Id = new AutoId(domain.Id.B, GetNextEid(Mcv.Resources, domain.Id.B)),
 									Domain = domain.Id,
   									Address = new Ura(domain.Address, resource)};
   		} 

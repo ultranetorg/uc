@@ -14,7 +14,7 @@ public class AuthorsService
 
 		Guard.Against.NullOrEmpty(authorId);
 
-		EntityId authorEntitiId = EntityId.Parse(authorId);
+		AutoId authorEntitiId = AutoId.Parse(authorId);
 
 		lock (mcv.Lock)
 		{

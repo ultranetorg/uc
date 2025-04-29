@@ -1,16 +1,11 @@
 ﻿namespace Uccs.Net;
 
-//public interface ITableKey
-//{
-//	int	B { get; }
-//}
-
-public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, IComparable<BaseId>//, ITableKey
+public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>//, ITableKey
 {
 	public abstract int		B { get; set; }
 
-	public abstract int		CompareTo(BaseId other);
-	public abstract bool	Equals(BaseId other);
+	public abstract int		CompareTo(EntityId other);
+	public abstract bool	Equals(EntityId other);
 	public abstract void	Read(BinaryReader reader);
 	public abstract void	Write(BinaryWriter writer);
 
@@ -24,12 +19,12 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 		return id[0];
 	}
 
- 	public static bool operator == (BaseId left, BaseId right)
+ 	public static bool operator == (EntityId left, EntityId right)
  	{
  		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
  	}
  
- 	public static bool operator != (BaseId left, BaseId right)
+ 	public static bool operator != (EntityId left, EntityId right)
  	{
  		return !(left == right);
  	}
@@ -44,7 +39,7 @@ public abstract class BaseId : IBinarySerializable, IEquatable<BaseId>, ICompara
 
 public interface ITableEntry
 {
-	BaseId		Key { get; }
+	EntityId	Key { get; }
 	//bool		New { get; set; }
 	bool		Deleted { get; }
 

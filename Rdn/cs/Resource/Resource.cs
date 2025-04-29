@@ -33,7 +33,7 @@ public enum ResourceLinkChanges : byte
 
 public class ResourceLink : IBinarySerializable
 {
-	public EntityId			Destination { get; set; }
+	public AutoId			Destination { get; set; }
 	public ResourceLinkFlag	Flags { get; set; }
 
 	public bool				Affected;
@@ -45,7 +45,7 @@ public class ResourceLink : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Destination	= reader.Read<EntityId>();
+		Destination	= reader.Read<AutoId>();
 		Flags		= (ResourceLinkFlag)reader.ReadByte();
 	}
 
@@ -58,18 +58,18 @@ public class ResourceLink : IBinarySerializable
 
 public class Resource : ITableEntry
 {
-	public EntityId				Id { get; set; }
-	public EntityId				Domain { get; set; }
+	public AutoId				Id { get; set; }
+	public AutoId				Domain { get; set; }
 	[JsonIgnore]public Ura		Address { get; set; }
 	public ResourceFlags		Flags { get; set; }
 	public ResourceData			Data { get; set; }
 	public Time					Updated { get; set; }
 	public ResourceLink[]		Outbounds { get; set; } = [];
-	public EntityId[]			Inbounds { get; set; } = [];
+	public AutoId[]			Inbounds { get; set; } = [];
 
 	bool						OutboundsCloned;
 	bool						InboundsCloned;
-	public BaseId				Key => Id;
+	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
@@ -118,7 +118,7 @@ public class Resource : ITableEntry
 
 	public void ReadMain(BinaryReader reader)
 	{
-		Id		= reader.Read<EntityId>();
+		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
 		Address = new Ura(null, reader.ReadUtf8());
 		Flags	= reader.Read<ResourceFlags>();
@@ -128,14 +128,14 @@ public class Resource : ITableEntry
 			Data = reader.Read<ResourceData>();
 
 		Outbounds	= reader.ReadArray<ResourceLink>();
-		Inbounds	= reader.ReadArray<EntityId>();
+		Inbounds	= reader.ReadArray<AutoId>();
 	}
 
 	public void Cleanup(Round lastInCommit)
 	{
 	}
 
-	public ResourceLink AffectOutbound(EntityId destination)
+	public ResourceLink AffectOutbound(AutoId destination)
 	{
 		var i = Outbounds == null ? -1 : Array.FindIndex(Outbounds, i => i.Destination == destination);
 
@@ -166,7 +166,7 @@ public class Resource : ITableEntry
 		}
 	}
 
-	public void AffectInbound(EntityId source)
+	public void AffectInbound(AutoId source)
 	{
 		var i = Inbounds == null ? -1 : Array.IndexOf(Inbounds, source);
 		
@@ -183,13 +183,13 @@ public class Resource : ITableEntry
 		InboundsCloned = true;
 	}
 
-	public void RemoveOutbound(EntityId destination)
+	public void RemoveOutbound(AutoId destination)
 	{
 		Outbounds = Outbounds.Where(i => i.Destination != destination).ToArray();
 		OutboundsCloned = true;
 	}
 
-	public void RemoveInbound(EntityId destination)
+	public void RemoveInbound(AutoId destination)
 	{
 		Inbounds = Inbounds.Where(i => i != destination).ToArray();
 		InboundsCloned = true;

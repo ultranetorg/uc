@@ -134,7 +134,7 @@ public class CostApc : FairApc
 public class SearchResult
 {
 	public string		Text { get; set; }
-	public EntityId		Entity { get; set; }
+	public AutoId		Entity { get; set; }
 
 	public override string ToString()
 	{
@@ -144,7 +144,7 @@ public class SearchResult
 
 public class PublicationsSearchApc : FairApc
 {
-	public EntityId		Site { get; set; }
+	public AutoId		Site { get; set; }
 	public string		Query { get; set; }
 	public int			Skip { get; set; }
 	public int			Take { get; set; } = 10;
@@ -153,7 +153,11 @@ public class PublicationsSearchApc : FairApc
 	{
 		lock(node.Mcv.Lock)
 		{
-			var result = node.Mcv.PublicationTitles.Search(Query, Take, i => i.References.ContainsKey(Site));
+			var result = node.Mcv.PublicationTitles.Search(	Query, 
+															Skip, 
+															Take, 
+															i => i.References.TryGetValue(Site, out var p) && node.Mcv.Publications.Latest(p).Status == PublicationStatus.Approved,
+															node.Mcv.PublicationTitles.Latest, (node.Mcv.LastConfirmedRound as FairRound).PublicationTitlesEntryPoints);
 
 			return result.Select(i =>	{
 											return new SearchResult {Entity = i.References[Site], Text = i.Text};

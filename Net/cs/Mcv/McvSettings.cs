@@ -11,7 +11,7 @@ public class McvSettings : Settings
 {
 	public AccountAddress[]			Generators { get; set; } = [];
 	public ChainSettings			Chain { get; set; }
-	public virtual long				Roles => ((long)Role.Base) |
+	public virtual long				Roles => ((long)Role.Graph) |
 											 (Chain != null ? (long)Role.Chain : 0);
 
 	//public long					Pledge { get; set; }

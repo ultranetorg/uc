@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class AccountTable : Table<Account>
+public class AccountTable : Table<AutoId, Account>
 {
 	public int	KeyToBucket(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[2];
 

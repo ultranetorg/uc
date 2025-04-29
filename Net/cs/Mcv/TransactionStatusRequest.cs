@@ -28,7 +28,7 @@ public class TransactionStatusRequest : McvPpc<TransactionStatusResponse>
 		{
 			lock(Mcv.Lock)
 			{
-				RequireBase();
+				RequireGraph();
 	
 				return new TransactionStatusResponse {	LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
 														Transactions = Transactions.Select(t => new{Q = t,

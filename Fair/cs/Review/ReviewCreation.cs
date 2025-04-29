@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class ReviewCreation : FairOperation
 {
-	public EntityId				Publication { get; set; }
+	public AutoId				Publication { get; set; }
 	public string				Text { get; set; }
 	public byte					Rate { get; set; }
 
@@ -15,7 +15,7 @@ public class ReviewCreation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Publication = reader.Read<EntityId>();
+		Publication = reader.Read<AutoId>();
 		Rate		= reader.ReadByte();
 		Text		= reader.ReadUtf8();
 	}

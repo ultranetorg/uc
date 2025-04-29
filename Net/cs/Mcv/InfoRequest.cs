@@ -6,7 +6,7 @@ public class InfoRequest : McvPpc<InfoResponse>
 	{
 		lock(Mcv.Lock)
 		{
-			RequireBase();		
+			RequireGraph();		
 
 			return new InfoResponse {Tables = Mcv.Tables.ToDictionary(i => i.Name, i => i.Id)};
 		}

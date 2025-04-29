@@ -7,17 +7,17 @@ public enum DisputeFlags : byte
 
 public class Dispute : IBinarySerializable, ITableEntry
 {
-	public EntityId					Id { get; set; }
-	public EntityId					Site { get; set; }
+	public AutoId					Id { get; set; }
+	public AutoId					Site { get; set; }
 	public DisputeFlags				Flags { get; set; }
-	public EntityId[]				Yes { get; set; }
-	public EntityId[]				No { get; set; }
-	public EntityId[]				Abs { get; set; }
+	public AutoId[]				Yes { get; set; }
+	public AutoId[]				No { get; set; }
+	public AutoId[]				Abs { get; set; }
 	public Time						Expirtaion { get; set; }
  	public string					Text { get; set; }
 	public VotableOperation	Proposal { get; set; }
 
-	public BaseId			Key => Id;
+	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 		
@@ -62,12 +62,12 @@ public class Dispute : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
-		Site		= reader.Read<EntityId>();
+		Id			= reader.Read<AutoId>();
+		Site		= reader.Read<AutoId>();
 		Flags		= reader.Read<DisputeFlags>();
-		Yes			= reader.ReadArray<EntityId>();
-		No			= reader.ReadArray<EntityId>();
-		Abs			= reader.ReadArray<EntityId>();
+		Yes			= reader.ReadArray<AutoId>();
+		No			= reader.ReadArray<AutoId>();
+		Abs			= reader.ReadArray<AutoId>();
 		Expirtaion	= reader.Read<Time>();
  		Text		= reader.ReadUtf8();
 		//Proposal	= reader.Read<Proposal>();

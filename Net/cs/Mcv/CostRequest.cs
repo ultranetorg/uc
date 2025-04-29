@@ -6,7 +6,7 @@ public class CostRequest : McvPpc<CostResponse>
 	{
 		lock(Peering.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			return new CostResponse{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
 									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusECEnergyCost};

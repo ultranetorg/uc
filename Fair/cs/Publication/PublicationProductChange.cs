@@ -2,8 +2,8 @@
 
 public class PublicationProductChange : VotableOperation
 {
-	public EntityId	Publication { get; set; }
-	public EntityId	Product { get; set; }
+	public AutoId	Publication { get; set; }
+	public AutoId	Product { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Publication}, [{Product}]";
@@ -14,8 +14,8 @@ public class PublicationProductChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Publication	= reader.Read<EntityId>();
-		Product		= reader.Read<EntityId>();
+		Publication	= reader.Read<AutoId>();
+		Product		= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

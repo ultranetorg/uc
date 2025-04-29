@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class ProductCreation : FairOperation
 {
-	public EntityId				Author { get; set; }
+	public AutoId				Author { get; set; }
 
 	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
 	public override string		Explanation => $"{Author}";
@@ -11,14 +11,14 @@ public class ProductCreation : FairOperation
 	{
 	}
 
-	public ProductCreation(EntityId author)
+	public ProductCreation(AutoId author)
 	{
 		Author	= author;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
-		Author	= reader.Read<EntityId>();
+		Author	= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

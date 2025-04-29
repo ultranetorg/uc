@@ -18,18 +18,18 @@ public enum PublicationFlags : byte
 
 public class Publication : IBinarySerializable, ITableEntry
 {
-	public EntityId							Id { get; set; }
-	public EntityId							Category { get; set; }
-	public EntityId							Creator { get; set; }
-	public EntityId							Product { get; set; }
+	public AutoId							Id { get; set; }
+	public AutoId							Category { get; set; }
+	public AutoId							Creator { get; set; }
+	public AutoId							Product { get; set; }
 	public PublicationStatus				Status { get; set; }
 	public ProductFieldVersionReference[]	Fields { get; set; }
 	public ProductFieldVersionReference[]	Changes { get; set; }
-	public EntityId[]						Reviews { get; set; }
-	public EntityId[]						ReviewChanges { get; set; }
+	public AutoId[]							Reviews { get; set; }
+	public AutoId[]							ReviewChanges { get; set; }
 	public PublicationFlags					Flags { get; set; }
 
-	public BaseId							Key => Id;
+	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
 	FairMcv									Mcv;
 
@@ -40,6 +40,11 @@ public class Publication : IBinarySerializable, ITableEntry
 	public Publication(FairMcv mcv)
 	{
 		Mcv = mcv;
+	}
+
+	public override string ToString()
+	{
+		return $"{Id}, Product={Product}, Category={Category}, Creator={Creator}, Fields={Fields.Length}, Changes={Changes.Length}, Flags={Flags}";
 	}
 
 	public Publication Clone()
@@ -73,15 +78,15 @@ public class Publication : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-		Category		= reader.Read<EntityId>();
-		Creator			= reader.Read<EntityId>();
-		Product			= reader.Read<EntityId>();
+		Id				= reader.Read<AutoId>();
+		Category		= reader.Read<AutoId>();
+		Creator			= reader.Read<AutoId>();
+		Product			= reader.Read<AutoId>();
 		Status			= reader.Read<PublicationStatus>();
 		Fields			= reader.ReadArray<ProductFieldVersionReference>();
 		Changes			= reader.ReadArray<ProductFieldVersionReference>();
-		Reviews			= reader.ReadArray<EntityId>();
-		ReviewChanges	= reader.ReadArray<EntityId>();
+		Reviews			= reader.ReadArray<AutoId>();
+		ReviewChanges	= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
 	}
 

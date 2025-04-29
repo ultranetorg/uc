@@ -32,8 +32,8 @@ public class DisputesService
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(disputeId);
 
-		EntityId siteEntityId = EntityId.Parse(siteId);
-		EntityId disputeEntityId = EntityId.Parse(disputeId);
+		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId disputeEntityId = AutoId.Parse(disputeId);
 
 		lock (mcv.Lock)
 		{
@@ -70,7 +70,7 @@ public class DisputesService
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		EntityId siteEntityId = EntityId.Parse(siteId);
+		AutoId siteEntityId = AutoId.Parse(siteId);
 
 		lock (mcv.Lock)
 		{
@@ -85,7 +85,7 @@ public class DisputesService
 	}
 
 	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
-	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(IEnumerable<EntityId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(IEnumerable<AutoId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<DisputeModel>.Empty;

@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class PublicationDeletion : FairOperation
 {
-	public EntityId				Publication { get; set; }
+	public AutoId				Publication { get; set; }
 
 	public override bool		IsValid(McvNet net) => Publication != null;
 	public override string		Explanation => $"{Id}";
@@ -13,7 +13,7 @@ public class PublicationDeletion : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Publication = reader.Read<EntityId>();
+		Publication = reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -60,7 +60,7 @@ public class PublicationDeletion : FairOperation
 		
 		if(f != null)
 		{
-			execution.Mcv.PublicationTitles.Deindex(c.Site, p, execution.FindProduct(p.Product).Get(f).AsUtf8, execution);
+			execution.PublicationTitles.Deindex(c.Site, p, execution.FindProduct(p.Product).Get(f).AsUtf8);
 		}
 	}
 }

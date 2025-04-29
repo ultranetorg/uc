@@ -2,7 +2,7 @@
 
 public class AuthorRenewal : FairOperation
 {
-	public EntityId				AuthorId { get; set; }
+	public AutoId				AuthorId { get; set; }
 	public byte					Years { get; set; }
 
 	public override string		Explanation => $"{AuthorId}, {Years}";
@@ -21,7 +21,7 @@ public class AuthorRenewal : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		AuthorId	= reader.Read<EntityId>();
+		AuthorId	= reader.Read<AutoId>();
 		Years		= reader.ReadByte();
 	}
 
@@ -50,7 +50,7 @@ public class AuthorRenewal : FairOperation
 
 public class AuthorModerationReward : FairOperation
 {
-	public EntityId				AuthorId { get; set; }
+	public AutoId				AuthorId { get; set; }
 	public long					Amount { get; set; }
 
 	public override string		Explanation => $"{AuthorId}, {Amount}";
@@ -66,7 +66,7 @@ public class AuthorModerationReward : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		AuthorId	= reader.Read<EntityId>();
+		AuthorId	= reader.Read<AutoId>();
 		Amount		= reader.Read7BitEncodedInt64();
 	}
 
@@ -89,8 +89,8 @@ public class AuthorModerationReward : FairOperation
 
 public class AuthorOwnerAddition : FairOperation
 {
-	public EntityId				AuthorId { get; set; }
-	public EntityId				Owner { get; set; }
+	public AutoId				AuthorId { get; set; }
+	public AutoId				Owner { get; set; }
 
 	public override string		Explanation => $"{AuthorId}, {Owner}";
 	
@@ -105,8 +105,8 @@ public class AuthorOwnerAddition : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		AuthorId	= reader.Read<EntityId>();
-		Owner		= reader.Read<EntityId>();
+		AuthorId	= reader.Read<AutoId>();
+		Owner		= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -137,8 +137,8 @@ public class AuthorOwnerAddition : FairOperation
 
 public class AuthorOwnerRemoval : FairOperation
 {
-	public EntityId				AuthorId { get; set; }
-	public EntityId				Owner { get; set; }
+	public AutoId				AuthorId { get; set; }
+	public AutoId				Owner { get; set; }
 
 	public override string		Explanation => $"{AuthorId}, {Owner}";
 	
@@ -153,8 +153,8 @@ public class AuthorOwnerRemoval : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		AuthorId	= reader.Read<EntityId>();
-		Owner		= reader.Read<EntityId>();
+		AuthorId	= reader.Read<AutoId>();
+		Owner		= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

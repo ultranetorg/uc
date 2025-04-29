@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net;
 
-public class RawId : BaseId
+public class RawId : EntityId
 {
 	public byte[]		Bytes;
 	
@@ -52,12 +52,12 @@ public class RawId : BaseId
 		return obj is RawId id && Equals(id);
 	}
 
-	public override bool Equals(BaseId a)
+	public override bool Equals(EntityId a)
 	{
 		return a is RawId e && Bytes.SequenceEqual(e.Bytes);
 	}
 
-	public override int CompareTo(BaseId a)
+	public override int CompareTo(EntityId a)
 	{
 		return CompareTo((RawId)a);
 	}

@@ -7,7 +7,7 @@ public class EntityIdValidator : IEntityIdValidator
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(string entityId, string entityName)
 	{
-		bool isParsed = EntityId.TryParse(entityId, out _);
+		bool isParsed = AutoId.TryParse(entityId, out _);
 		if (!isParsed)
 		{
 			throw new InvalidEntityIdException(entityName, entityId);

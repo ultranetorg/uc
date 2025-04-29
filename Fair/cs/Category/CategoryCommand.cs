@@ -57,7 +57,7 @@ public class CategoryCommand : FairCommand
 
 								if(One("parent")?.Value is string id)
 								{	
-									return new CategoryMovement {Category = FirstEntityId, Parent = EntityId.Parse(id)};
+									return new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
 								}
 
 								throw new SynchronizationException("Wrong arguments");
@@ -80,7 +80,7 @@ public class CategoryCommand : FairCommand
 				
 								var rp = Ppc(new CategoryPublicationsRequest(FirstEntityId));
 
-								DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								Flow.Log.DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};
@@ -102,7 +102,7 @@ public class CategoryCommand : FairCommand
 				
 								var rp = Ppc(new CategoryCategoriesRequest(FirstEntityId));
 
-								DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};

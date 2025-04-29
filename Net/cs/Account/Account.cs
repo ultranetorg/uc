@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public interface IHolder
 {
-	bool		IsSpendingAuthorized(Execution round, EntityId signer);
+	bool		IsSpendingAuthorized(Execution round, AutoId signer);
 }
 
 public interface ISpacetimeHolder : IHolder
@@ -77,7 +77,7 @@ public interface IEnergyHolder : IHolder
 
 public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
 {
-	public EntityId						Id { get; set; }
+	public AutoId						Id { get; set; }
 	public AccountAddress				Address { get; set; }
 	public int							LastTransactionNid { get; set; } = -1;
 	public long							AverageUptime { get; set; }
@@ -94,7 +94,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 	public short						BandwidthTodayTime { get; set; }
 	public long							BandwidthTodayAvailable { get; set; }
 
-	public BaseId						Key => Id;
+	public EntityId						Key => Id;
 	public bool							Deleted { get; set; }
 
 	Mcv									Mcv;
@@ -116,7 +116,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 		return long.Parse(t, NumberStyles.AllowThousands);
 	}
 
-	public bool IsSpendingAuthorized(Execution round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, AutoId signer)
 	{
 		return Id == signer;
 	}
@@ -135,7 +135,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 
 	public virtual void Read(BinaryReader reader)
 	{
-		Id					= reader.Read<EntityId>();
+		Id					= reader.Read<AutoId>();
 		Address				= reader.ReadAccount();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();

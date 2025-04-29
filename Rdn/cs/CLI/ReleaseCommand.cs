@@ -71,7 +71,7 @@ public class ReleaseCommand : RdnCommand
 				
 								if(r != null)
 								{
-									Dump(r);
+									Flow.Log.Dump(r);
 									return r;
 								}
 								else

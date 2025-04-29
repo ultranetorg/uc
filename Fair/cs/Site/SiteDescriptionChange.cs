@@ -2,7 +2,7 @@
 
 public class SiteDescriptionChange : VotableOperation
 {
-	public EntityId				Site { get; set; }
+	public AutoId				Site { get; set; }
 	public string				Description { get; set; }
 
 	public override bool		IsValid(McvNet net) => Description.Length < 1024;
@@ -10,7 +10,7 @@ public class SiteDescriptionChange : VotableOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Site		= reader.Read<EntityId>();
+		Site		= reader.Read<AutoId>();
 		Description	= reader.ReadUtf8();
 	}
 

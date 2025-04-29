@@ -240,7 +240,7 @@ public abstract class NtnTcpPeering : TcpPeering
 			}
 			catch(NodeException)
 			{
-				p.LastFailure[Role.Base] = DateTime.UtcNow;
+				p.LastFailure[Role.Graph] = DateTime.UtcNow;
 			}
 			catch(ContinueException)
 			{

@@ -6,10 +6,10 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 	public new McvNode			Node => base.Node as McvNode;
 	public Mcv					Mcv => Node.Mcv;
 
-	protected void RequireBase()
+	protected void RequireGraph()
 	{
 		if(Node.Mcv == null)
-			throw new NodeException(NodeError.NotBase);
+			throw new NodeException(NodeError.NotGraph);
 
 		if(Peering.Synchronization != Synchronization.Synchronized)
 			throw new NodeException(NodeError.NotSynchronized);
@@ -17,7 +17,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 
 	protected void RequireMember()
 	{
-		RequireBase();
+		RequireGraph();
 
 		if(!Node.Mcv.NextVoteRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Contains(i.Address))) 
 			throw new NodeException(NodeError.NotMember);
@@ -25,7 +25,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 
 	protected Generator RequireMemberFor(AccountAddress signer)
 	{
-		RequireBase();
+		RequireGraph();
 
 		var m = Node.Mcv.NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, signer);
 

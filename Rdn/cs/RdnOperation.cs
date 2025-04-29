@@ -63,7 +63,7 @@ public abstract class RdnOperation : Operation
 		SpacetimeSpenders.Add(Signer);
 	}
 
-	public bool RequireDomain(RdnExecution round, EntityId id, out Domain domain)
+	public bool RequireDomain(RdnExecution round, AutoId id, out Domain domain)
 	{
 		domain = round.FindDomain(id);
 
@@ -115,7 +115,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnExecution round, EntityId id, out Domain domain)
+	public bool RequireSignerDomain(RdnExecution round, AutoId id, out Domain domain)
 	{
 		if(!RequireDomain(round, id, out domain))
 			return false;
@@ -129,7 +129,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireResource(RdnExecution round, EntityId id, out Domain domain, out Resource resource)
+	public bool RequireResource(RdnExecution round, AutoId id, out Domain domain, out Resource resource)
 	{
 		resource = round.FindResource(id);
 
@@ -146,7 +146,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerResource(RdnExecution round, EntityId id, out Domain domain, out Resource resource)
+	public bool RequireSignerResource(RdnExecution round, AutoId id, out Domain domain, out Resource resource)
 	{
 		if(!RequireResource(round, id, out domain, out resource))
 			return false; 

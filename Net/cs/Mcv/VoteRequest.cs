@@ -13,7 +13,7 @@ public class VoteRequest : ProcPeerRequest
 		var p = Peering as McvTcpPeering;
 
 		if(p.Node.Mcv == null)
-			throw new NodeException(NodeError.NotBase);
+			throw new NodeException(NodeError.NotGraph);
 
 		lock(p.Lock)
 		{

@@ -17,10 +17,10 @@ public class Vote : IBinarySerializable
 	public int					Try; /// TODO: revote if consensus not reached
 	public Time					Time;
 	public byte[]				ParentHash;
-	public EntityId[]			MemberLeavers = [];
+	public AutoId[]			MemberLeavers = [];
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
-	public EntityId[]			Violators = [];
+	public AutoId[]			Violators = [];
 	public byte[][]				NntBlocks = [];
 	public Transaction[]		Transactions = [];
 	public byte[]				Signature { get; set; }
@@ -153,10 +153,10 @@ public class Vote : IBinarySerializable
 		Time				= reader.Read<Time>();
 		ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
-		MemberLeavers		= reader.ReadArray<EntityId>();
+		MemberLeavers		= reader.ReadArray<AutoId>();
 		///FundJoiners		= reader.ReadArray<AccountAddress>();
 		///FundLeavers		= reader.ReadArray<AccountAddress>();
-		Violators			= reader.ReadArray<EntityId>();
+		Violators			= reader.ReadArray<AutoId>();
 		NntBlocks			= reader.ReadArray(reader.ReadBytes);
 
 		Transactions = reader.ReadArray(() =>	{

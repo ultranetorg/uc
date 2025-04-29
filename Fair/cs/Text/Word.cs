@@ -15,14 +15,14 @@ public enum EntityTextField : byte
 
 public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAddress>
 {
-	public EntityId				Entity { get; set; }
+	public AutoId				Entity { get; set; }
 	public EntityTextField		Field { get; set; }
 
 	public EntityFieldAddress()
 	{
 	}
 
-	public EntityFieldAddress(EntityId entity, EntityTextField field)
+	public EntityFieldAddress(AutoId entity, EntityTextField field)
 	{
 		Entity = entity;
 		Field = field;
@@ -44,7 +44,7 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 		
 		var i = t.IndexOf('/');
 		
-		e.Entity = EntityId.Parse(t.Substring(0, i));
+		e.Entity = AutoId.Parse(t.Substring(0, i));
 		e.Field = (EntityTextField)byte.Parse(t.Substring(i + 1));
 
 		return e;
@@ -53,7 +53,7 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 	public void Read(BinaryReader reader)
 	{
 		Field	= reader.Read<EntityTextField>();
-		Entity	= reader.Read<EntityId>();
+		Entity	= reader.Read<AutoId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -75,7 +75,7 @@ public class Word : IBinarySerializable, ITableEntry
 	public RawId				Id { get; set; }
 	public EntityFieldAddress[]	References { get; set; }
 
-	public BaseId				Key => Id;
+	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
 

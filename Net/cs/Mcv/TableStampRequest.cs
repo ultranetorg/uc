@@ -12,9 +12,9 @@ public class TableStampRequest : McvPpc<TableStampResponse>
 
 		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 			
-			if(Mcv.BaseState == null)
+			if(Mcv.GraphState == null)
 				throw new NodeException(NodeError.TooEearly);
 
 			if(Table < 0 || Mcv.Tables.Length <= Table)

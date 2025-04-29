@@ -4,9 +4,9 @@ namespace Uccs.Net;
 
 public class CandidacyDeclaration : Operation
 {
-	public IPAddress[]		BaseRdcIPs  { get; set; }
+	public IPAddress[]		GraphIPs  { get; set; }
 
-	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', BaseRdcIPs as object[])}";
+	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
 			
 	protected Generator		Affected;
 
@@ -18,12 +18,12 @@ public class CandidacyDeclaration : Operation
 
 	public override void Read(BinaryReader reader)
 	{
-		BaseRdcIPs = reader.ReadArray(() => reader.ReadIPAddress());
+		GraphIPs = reader.ReadArray(() => reader.ReadIPAddress());
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(BaseRdcIPs, i => writer.Write(i));
+		writer.Write(GraphIPs, i => writer.Write(i));
 	}
 
 	public override void Execute(Execution execution)
@@ -48,7 +48,7 @@ public class CandidacyDeclaration : Operation
 		
 		Affected.Id			= Signer.Id;
 		Affected.Address	= Signer.Address;
-		Affected.BaseRdcIPs	= BaseRdcIPs;
+		Affected.BaseRdcIPs	= GraphIPs;
 		Affected.Registered	= execution.Round.Id;
 	}
 }

@@ -269,21 +269,21 @@ public class EconomyCommand : RdnCommand
 
 								Report($"");
 
-								Dump(	r.RentDomain,
-										["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
-										[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Unit[], int, object>((j, i) => j[li].ToString()))]);
+								Flow.Log.Dump(	r.RentDomain,
+												["Domains Rent |>", .. c.DomainLengths.Select(i => $"{i} chars>")],
+												[(o, i) => $"{c.Years[i]} year(s) |", .. c.DomainLengths.Select((x, li) => new Func<Unit[], int, object>((j, i) => j[li].ToString()))]);
 
 								Report($"");
 
-								Dump(	r.RentResource.Append(r.RentResourceForever),
-										["Resource Rent>", "Cost>"],
-										[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
+								Flow.Log.Dump(	r.RentResource.Append(r.RentResourceForever),
+												["Resource Rent>", "Cost>"],
+												[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
 
 								Report($"");
 
-								Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
-										["Resource Data Per Byte Rent>", "Cost>"],
-										[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
+								Flow.Log.Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
+												["Resource Data Per Byte Rent>", "Cost>"],
+												[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToString()]);
 
 								return r;
 							};

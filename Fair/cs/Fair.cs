@@ -7,7 +7,7 @@ public abstract class Fair : McvNet
 {
 	public override	string			Address => "fair";
 	public override	string			Name => "fair";
-	public override ushort			BasePort => (ushort)KnownSystem.Fair;
+	public override ushort			GraphPort => (ushort)KnownSystem.Fair;
 	
 	public ushort					ReviewLengthMaximum = 65535;
 	public ushort					NicknameLengthMaximum = 32;

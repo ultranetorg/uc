@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class AuthorCommand : FairCommand
 {
-	EntityId FirstAuthorId => EntityId.Parse(Args[0].Name);
+	AutoId FirstAuthorId => AutoId.Parse(Args[0].Name);
 
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -76,7 +76,7 @@ public class AuthorCommand : FairCommand
 				
 								var rp = Ppc(new AuthorRequest(FirstAuthorId));
 
-								Dump(rp.Author);
+								Flow.Log.Dump(rp.Author);
 					
 								return rp.Author;
 							};

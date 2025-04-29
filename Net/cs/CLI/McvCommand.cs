@@ -74,15 +74,17 @@ public abstract class McvCommand : NetCommand
 
 	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
 	{
-		var t =  Cli.ApiClient.Request<TransactionApe>(new TransactApc {Operations = operations,
-																			 Signer = signer,
-																			 Await = await}, Flow);
-		
+		var t =  Cli.ApiClient.Request<TransactionApe>(new TransactApc  {Operations = operations,
+																		 Signer = signer,
+																		 Await = await}, Flow);
 		int n = 0;
 
 		do 
 		{
 			t = Cli.ApiClient.Request<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+
+			if(t == null)
+				throw new NodeException(NodeError.TransactionRejected);
 
 			foreach(var i in t.Log.Skip(n))
 			{
@@ -97,7 +99,7 @@ public abstract class McvCommand : NetCommand
 		while(t.Status != await);
 
 		if(t.Status == TransactionStatus.Confirmed)
-			Dump(t);
+			Flow.Log.Dump(t);
 
 		return t;
 	}
@@ -126,22 +128,22 @@ public abstract class McvCommand : NetCommand
 			return TransactionStatus.Placed;
 	}
 
-	protected EntityId GetEntityId(string paramenter)
+	protected AutoId GetEntityId(string paramenter)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
-			return EntityId.Parse(p.Get<string>());
+			return AutoId.Parse(p.Get<string>());
 		else
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected EntityId GetEntityId(string paramenter, EntityId @default)
+	protected AutoId GetEntityId(string paramenter, AutoId @default)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
-			return EntityId.Parse(p.Get<string>());
+			return AutoId.Parse(p.Get<string>());
 		else
 			return @default;
 	}

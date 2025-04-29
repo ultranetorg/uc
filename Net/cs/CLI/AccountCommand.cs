@@ -49,7 +49,7 @@ public class AccountCommand : McvCommand
 
 								var i = Ppc(new AccountRequest(First));
 												
-								Dump(i.Account);
+								Flow.Log.Dump(i.Account);
 
 								return i.Account;
 							};

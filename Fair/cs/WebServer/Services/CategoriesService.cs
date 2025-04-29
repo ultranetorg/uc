@@ -16,7 +16,7 @@ public class CategoriesService
 
 		Guard.Against.NullOrEmpty(categoryId);
 
-		EntityId categoryEntityId = EntityId.Parse(categoryId);
+		AutoId categoryEntityId = AutoId.Parse(categoryId);
 
 		lock (mcv.Lock)
 		{
@@ -41,7 +41,7 @@ public class CategoriesService
 		}
 	}
 
-	IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
+	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
 	{
 		return categoriesIds.Select(id =>
 		{
@@ -56,7 +56,7 @@ public class CategoriesService
 
 		Guard.Against.NullOrEmpty(siteId);
 
-		EntityId id = EntityId.Parse(siteId);
+		AutoId id = AutoId.Parse(siteId);
 
 		IEnumerable<Category> categories = null;
 		lock (mcv.Lock)

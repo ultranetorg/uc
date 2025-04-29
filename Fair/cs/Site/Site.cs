@@ -21,7 +21,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
-	public EntityId					Id { get; set; }
+	public AutoId					Id { get; set; }
 	public string					Nickname { get; set; }
 	public string					Title { get; set; }
 	public string					Description { get; set; }
@@ -33,10 +33,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
-	public EntityId[]				Authors { get; set; }
-	public EntityId[]				Moderators { get; set; }
-	public EntityId[]				Categories { get; set; }
-	public EntityId[]				Disputes { get; set; }
+	public AutoId[]				Authors { get; set; }
+	public AutoId[]				Moderators { get; set; }
+	public AutoId[]				Categories { get; set; }
+	public AutoId[]				Disputes { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -47,11 +47,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
 
-	public BaseId					Key => Id;
+	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	FairMcv							Mcv;
 
-	public bool IsSpendingAuthorized(Execution round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, AutoId signer)
 	{
 		return Moderators[0] == signer; /// TODO : Owner only
 	}
@@ -117,7 +117,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public void Read(BinaryReader reader)
 	{
-		Id						= reader.Read<EntityId>();
+		Id						= reader.Read<AutoId>();
 		Nickname				= reader.ReadUtf8();
 		Description				= reader.ReadUtf8();
 		Title					= reader.ReadUtf8();
@@ -129,10 +129,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Space					= reader.Read7BitEncodedInt64();
 		Spacetime				= reader.Read7BitEncodedInt64();
 
-		Authors					= reader.ReadArray<EntityId>();
-		Moderators				= reader.ReadArray<EntityId>();
-		Categories				= reader.ReadArray<EntityId>();
-		Disputes				= reader.ReadArray<EntityId>();
+		Authors					= reader.ReadArray<AutoId>();
+		Moderators				= reader.ReadArray<AutoId>();
+		Categories				= reader.ReadArray<AutoId>();
+		Disputes				= reader.ReadArray<AutoId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}

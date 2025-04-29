@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class ReviewTextChange : FairOperation
 {
-	public EntityId				Review { get; set; }
+	public AutoId				Review { get; set; }
 	public string				Text { get; set; }
 
 	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
@@ -16,7 +16,7 @@ public class ReviewTextChange : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Review	= reader.Read<EntityId>();
+		Review	= reader.Read<AutoId>();
 		Text	= reader.ReadUtf8();
 	}
 

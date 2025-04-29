@@ -18,7 +18,7 @@ public class DomainRequest : RdnPpc<DomainResponse>
 		Identifier = new(addres);
 	}
 
-	public DomainRequest(EntityId id)
+	public DomainRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}
@@ -30,7 +30,7 @@ public class DomainRequest : RdnPpc<DomainResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			Domain e;
 

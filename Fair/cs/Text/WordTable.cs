@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class WordTable : Table<Word>
+public class WordTable : Table<RawId, Word>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;

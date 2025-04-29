@@ -14,7 +14,7 @@ public class UsersService
 
 		Guard.Against.NullOrEmpty(userId);
 
-		EntityId entityId = EntityId.Parse(userId);
+		AutoId entityId = AutoId.Parse(userId);
 
 		FairAccount account = null;
 		lock (mcv.Lock)
@@ -47,7 +47,7 @@ public class UsersService
 		};
 	}
 
-	private IEnumerable<UserSiteModel> LoadSites(EntityId[] sitesIds)
+	private IEnumerable<UserSiteModel> LoadSites(AutoId[] sitesIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -63,7 +63,7 @@ public class UsersService
 		}
 	}
 
-	private IEnumerable<UserAuthorModel> LoadAuthors(EntityId[] authorsIds)
+	private IEnumerable<UserAuthorModel> LoadAuthors(AutoId[] authorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -93,7 +93,7 @@ public class UsersService
 		}
 	}
 
-	private LoadProductsResult LoadProducts(EntityId[] authorsIds)
+	private LoadProductsResult LoadProducts(AutoId[] authorsIds)
 	{
 		var result = new LoadProductsResult();
 		var productsList = new LinkedList<Product>();

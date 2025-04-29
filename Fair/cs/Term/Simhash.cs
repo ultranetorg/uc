@@ -17,21 +17,28 @@ public class Simhash : IMetric<string>
 		return Generate(a);
 	}
 
+	public int ComputeDistance(string a, string b)
+	{
+		return HammingDistance(Hashify(a), Hashify(b));
+	}
+
 	public int ComputeDistance(ulong a, ulong b)
 	{
 		return HammingDistance(a, b);
 	}
 
-	public static ulong Generate(string content)
+	public static ulong Generate(string content, int width = 3)
 	{
-		return Generate(Tokenize(content, 2));
+		return Generate(Tokenize(content, width));
 	}
 
-	public static ulong Generate(string[] tokens)
+	public static ulong Generate(IEnumerable<string> tokens)
 	{
 		ulong[] v = new ulong[8];
 
 		ulong mask = 0x0101_0101_0101_0101;
+
+		int n = 0;
 
 		foreach(var t in tokens)
 		{
@@ -43,10 +50,12 @@ public class Simhash : IMetric<string>
 
 				hash >>= 1;
 			}
+
+			n++;
 		}
 
 		ulong h = 0;
-		ulong m = (ulong)tokens.Length/2;
+		ulong m = (ulong)n/2;
 		var b = 1UL;
 
 		foreach(var i in v)
@@ -66,20 +75,16 @@ public class Simhash : IMetric<string>
 	
 	public static ulong GenerateFromWord(string content)
 	{
-		return Generate(content.ToCharArray().Select(i => i.ToString()).ToArray());
+		return Generate(content.ToCharArray().Select(i => i.ToString()));
 	}
 
-	public static string[] Slide(string content, int width = 4)
+	public static IEnumerable<string> Slide(string content, int width = 4)
 	{
-		var listOfShingles = new string[content.Length + 1 - width];
-
-		for(int i = 0; i < listOfShingles.Length; i++)
+		for(int i = 0; i < content.Length + 1 - width; i++)
 		{
 			string piece = content.Substring(i, width);
-			listOfShingles[i] = piece;
+			yield return piece;
 		}
-
-		return listOfShingles;
 	}
 
 	public static string Scrub(string content)
@@ -95,7 +100,7 @@ public class Simhash : IMetric<string>
 		return ans;
 	}
 
- 	public static string[] Tokenize(string content, int width = 3)
+ 	public static IEnumerable<string> Tokenize(string content, int width)
  	{
  		content = content.ToLower();
  		content = Scrub(content);

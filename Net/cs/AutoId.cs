@@ -3,20 +3,20 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net;
 
-public class EntityId : BaseId
+public class AutoId : EntityId
 {
 	public override int					B { get; set; }
 	public int							E { get; set; }
 
-	public static readonly EntityId		LastCreated = new EntityId {E = -1};
-	public static readonly EntityId		God = new EntityId {E = -2};
-	public static readonly EntityId		Father0 = new EntityId(165, 0);
+	public static readonly AutoId		LastCreated = new AutoId {E = -1};
+	public static readonly AutoId		God = new AutoId {E = -2};
+	public static readonly AutoId		Father0 = new AutoId(165, 0);
 
-	public EntityId()
+	public AutoId()
 	{
 	}
 
-	public EntityId(int b , int e)
+	public AutoId(int b , int e)
 	{
 		B = b;
 		E = e;
@@ -32,7 +32,7 @@ public class EntityId : BaseId
 		return B;
 	}
 
-	public static bool TryParse(string t, out EntityId entity)
+	public static bool TryParse(string t, out AutoId entity)
 	{
 		var i = t.IndexOf('-');
 
@@ -53,17 +53,17 @@ public class EntityId : BaseId
 			if(e < 0)
 				return false;
 
-			entity = new EntityId(b, e);
+			entity = new AutoId(b, e);
 		}
 
 		return r;
 	}
 
-	public static EntityId Parse(string t)
+	public static AutoId Parse(string t)
 	{
 		var i = t.IndexOf('-');
 
-		return new EntityId(int.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
+		return new AutoId(int.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
 	}
 
 	public override void Read(BinaryReader reader)
@@ -80,20 +80,20 @@ public class EntityId : BaseId
 
 	public override bool Equals(object obj)
 	{
-		return obj is EntityId id && Equals(id);
+		return obj is AutoId id && Equals(id);
 	}
 
-	public override bool Equals(BaseId a)
+	public override bool Equals(EntityId a)
 	{
-		return a is EntityId e && B == a.B && E == e.E;
+		return a is AutoId e && B == a.B && E == e.E;
 	}
 
-	public override int CompareTo(BaseId a)
+	public override int CompareTo(EntityId a)
 	{
-		return CompareTo((EntityId)a);
+		return CompareTo((AutoId)a);
 	}
 
-	public int CompareTo(EntityId a)
+	public int CompareTo(AutoId a)
 	{
 		var c = B.CompareTo(a.B);
 		
@@ -108,35 +108,35 @@ public class EntityId : BaseId
 		return 0;
 	}
 
-	public static bool operator == (EntityId left, EntityId right)
+	public static bool operator == (AutoId left, AutoId right)
 	{
 		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
 	}
 
-	public static bool operator != (EntityId left, EntityId right)
+	public static bool operator != (AutoId left, AutoId right)
 	{
 		return !(left == right);
 	}
 }
 
-public class EntityIdJsonConverter : JsonConverter<EntityId>
+public class EntityIdJsonConverter : JsonConverter<AutoId>
 {
-	public override EntityId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	public override AutoId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return EntityId.Parse(reader.GetString());
+		return AutoId.Parse(reader.GetString());
 	}
 
-	public override void Write(Utf8JsonWriter writer, EntityId value, JsonSerializerOptions options)
+	public override void Write(Utf8JsonWriter writer, AutoId value, JsonSerializerOptions options)
 	{
 		writer.WriteStringValue(value.ToString());
 	}
 
-    public override void WriteAsPropertyName(Utf8JsonWriter writer, EntityId currency, JsonSerializerOptions options)
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, AutoId currency, JsonSerializerOptions options)
 	{
 		writer.WritePropertyName(currency.ToString());
 	}
 
-    public override EntityId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override AutoId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		return Read(ref reader, typeToConvert, options);
 	}

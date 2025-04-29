@@ -17,7 +17,7 @@ public class PublicationsService
 
 		Guard.Against.NullOrEmpty(publicationId);
 
-		EntityId entityId = EntityId.Parse(publicationId);
+		AutoId entityId = AutoId.Parse(publicationId);
 
 		lock (mcv.Lock)
 		{
@@ -60,8 +60,8 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		EntityId siteEntityId = EntityId.Parse(siteId);
-		EntityId authorEntitiId = EntityId.Parse(authorId);
+		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId authorEntitiId = AutoId.Parse(authorId);
 
 		lock (mcv.Lock)
 		{
@@ -94,12 +94,12 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInCategories(PublicationsContext context, IEnumerable<EntityId> categoriesIds, CancellationToken cancellationToken)
+	void SearchInCategories(PublicationsContext context, IEnumerable<AutoId> categoriesIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
 
-		foreach (EntityId categoryId in categoriesIds)
+		foreach (AutoId categoryId in categoriesIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -116,9 +116,9 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInPublications(PublicationsContext context, EntityId[] publicationsIds, CancellationToken cancellationToken)
+	void SearchInPublications(PublicationsContext context, AutoId[] publicationsIds, CancellationToken cancellationToken)
 	{
-		foreach (EntityId publicationId in publicationsIds)
+		foreach (AutoId publicationId in publicationsIds)
 		{
 			Publication publication = null;
 			Product product = null;
@@ -156,7 +156,7 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		EntityId categoryEntityId = EntityId.Parse(categoryId);
+		AutoId categoryEntityId = AutoId.Parse(categoryId);
 
 		lock (mcv.Lock)
 		{
@@ -187,9 +187,9 @@ public class PublicationsService
 		}
 	}
 
-	void LoadPublications(IEnumerable<EntityId> publicationsIds, SearchContext<PublicationBaseModel> context, CancellationToken cancellationToken)
+	void LoadPublications(IEnumerable<AutoId> publicationsIds, SearchContext<PublicationBaseModel> context, CancellationToken cancellationToken)
 	{
-		foreach (EntityId publicationId in publicationsIds)
+		foreach (AutoId publicationId in publicationsIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -219,7 +219,7 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		EntityId siteEntityId = EntityId.Parse(siteId);
+		AutoId siteEntityId = AutoId.Parse(siteId);
 
 		lock (mcv.Lock)
 		{
@@ -246,7 +246,7 @@ public class PublicationsService
 		}
 	}
 
-	void LoadModeratorsReviewsRecursively(IEnumerable<EntityId> categoriesIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken canellationToken)
+	void LoadModeratorsReviewsRecursively(IEnumerable<AutoId> categoriesIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken canellationToken)
 	{
 		if (canellationToken.IsCancellationRequested)
 			return;
@@ -293,7 +293,7 @@ public class PublicationsService
 
 		Guard.Against.NullOrEmpty(publicationId);
 
-		EntityId publicationEntityId = EntityId.Parse(publicationId);
+		AutoId publicationEntityId = AutoId.Parse(publicationId);
 
 		lock (mcv.Lock)
 		{
@@ -319,7 +319,7 @@ public class PublicationsService
 		Guard.Against.NegativeOrZero(pageSize);
 		Guard.Against.Negative(page);
 
-		EntityId entitySiteId = EntityId.Parse(siteId);
+		AutoId entitySiteId = AutoId.Parse(siteId);
 
 		Site site = null;
 		lock (mcv.Lock)
@@ -347,12 +347,12 @@ public class PublicationsService
 		};
 	}
 
-	void SearchInCategories(FilteredContext<PublicationModel> context, EntityId[] categoriesIds, CancellationToken cancellationToken)
+	void SearchInCategories(FilteredContext<PublicationModel> context, AutoId[] categoriesIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
 
-		foreach (EntityId categoryId in categoriesIds)
+		foreach (AutoId categoryId in categoriesIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -369,12 +369,12 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInPublications(FilteredContext<PublicationModel> context, Category category, EntityId[] publicationsIds, CancellationToken cancellationToken)
+	void SearchInPublications(FilteredContext<PublicationModel> context, Category category, AutoId[] publicationsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
 
-		foreach (EntityId publicationId in publicationsIds)
+		foreach (AutoId publicationId in publicationsIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -425,6 +425,6 @@ public class PublicationsService
 
 	private class PublicationsContext : SearchContext<PublicationBaseModel>
 	{
-		public EntityId AuthorId { get; set; }
+		public AutoId AuthorId { get; set; }
 	}
 }

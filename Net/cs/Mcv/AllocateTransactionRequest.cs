@@ -58,5 +58,5 @@ public class AllocateTransactionResponse : PeerResponse
 	public byte[]		PowHash { get; set; }
 	public long			SpacetimeConsumed { get; set; }
 	public long			EnergyConsumed { get; set; }
-	public EntityId		Generator { get; set; }
+	public AutoId		Generator { get; set; }
 }

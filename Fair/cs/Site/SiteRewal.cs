@@ -2,7 +2,7 @@
 
 class SiteRewal : FairOperation
 {
-	public EntityId				SiteId { get; set; }
+	public AutoId				SiteId { get; set; }
 	public byte					Years { get; set; }
 
 	public override string		Explanation => $"{SiteId}, {Years}";
@@ -21,7 +21,7 @@ class SiteRewal : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		SiteId	= reader.Read<EntityId>();
+		SiteId	= reader.Read<AutoId>();
 		Years	= reader.ReadByte();
 	}
 

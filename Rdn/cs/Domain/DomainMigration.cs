@@ -9,7 +9,7 @@ public class DomainMigration : RdnOperation
 	public override string	Explanation => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
 	public bool				DnsApproved;
 	public bool				RankApproved;
-	public EntityId			Generator;
+	public AutoId			Generator;
 
 	public DomainMigration()
 	{
@@ -70,7 +70,7 @@ public class DomainMigration : RdnOperation
 		Name				= reader.ReadUtf8();
 		Tld					= reader.ReadUtf8();
 		RankCheck			= reader.ReadBoolean();
-		Generator			= reader.Read<EntityId>();
+		Generator			= reader.Read<AutoId>();
 	}
 
 	public override void Execute(RdnExecution execution)

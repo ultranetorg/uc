@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class SiteTable : Table<Site>
+public class SiteTable : Table<AutoId, Site>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -29,6 +29,6 @@ public class SiteTable : Table<Site>
 					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname}];
 				}
 	
-		Mcv.Words.Save(batch, e.AffectedWords.Values, null);
+		Mcv.Words.Dissolve(batch, e.AffectedWords.Values, null);
 	}
  }

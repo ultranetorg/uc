@@ -2,18 +2,18 @@
 
 public class SiteModeratorsChange : VotableOperation
 {
-	public EntityId				Site { get; set; }
-	public EntityId[]			Additions { get; set; }
-	public EntityId[]			Removals { get; set; }
+	public AutoId				Site { get; set; }
+	public AutoId[]			Additions { get; set; }
+	public AutoId[]			Removals { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Id}";
 	
 	public override void Read(BinaryReader reader)
 	{
-		Site		= reader.Read<EntityId>();
-		Additions	= reader.ReadArray<EntityId>();
-		Removals	= reader.ReadArray<EntityId>();
+		Site		= reader.Read<AutoId>();
+		Additions	= reader.ReadArray<AutoId>();
+		Removals	= reader.ReadArray<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

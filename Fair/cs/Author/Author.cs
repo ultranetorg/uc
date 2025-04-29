@@ -11,10 +11,10 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
-	public EntityId				Id { get; set; }
+	public AutoId				Id { get; set; }
 	public string				Nickname { get; set; }
 	public string				Title { get; set; }
-	public EntityId[]			Owners { get; set; }
+	public AutoId[]			Owners { get; set; }
 
 	public short				Expiration { get; set; }
 	public long					Space { get; set; }
@@ -30,10 +30,10 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public short				BandwidthTodayTime { get; set; }
 	public long					BandwidthTodayAvailable { get; set; }
 	
-	public EntityId[]			Products { get; set; }
-	public EntityId[]			Sites { get; set; }
+	public AutoId[]			Products { get; set; }
+	public AutoId[]			Sites { get; set; }
 
-	public BaseId				Key => Id;
+	public EntityId				Key => Id;
 	Mcv							Mcv;
 	public bool					Deleted { get; set; }
 
@@ -83,8 +83,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	{
 		Read(reader);
 		
-		Products = reader.ReadArray<EntityId>();
-		Sites = reader.ReadArray<EntityId>();
+		Products = reader.ReadArray<AutoId>();
+		Sites = reader.ReadArray<AutoId>();
 	}
 
 	public void Cleanup(Round lastInCommit)
@@ -99,7 +99,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return true;
 	}
 
-	public bool IsSpendingAuthorized(Execution round, EntityId signer)
+	public bool IsSpendingAuthorized(Execution round, AutoId signer)
 	{
 		return Owners.Contains(signer); /// TODO : Owner only
 	}
@@ -137,10 +137,10 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public void Read(BinaryReader reader)
 	{
-		Id					= reader.Read<EntityId>();
+		Id					= reader.Read<AutoId>();
 		Nickname			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
-		Owners				= reader.ReadArray<EntityId>();
+		Owners				= reader.ReadArray<AutoId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 
 		Expiration			= reader.ReadInt16();

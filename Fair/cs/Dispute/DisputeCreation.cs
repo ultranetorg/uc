@@ -2,8 +2,8 @@ namespace Uccs.Fair;
 
 public class DisputeCreation : FairOperation
 {
-	public EntityId				    Site { get; set; }
-	public EntityId				    Creator { get; set; }
+	public AutoId				    Site { get; set; }
+	public AutoId				    Creator { get; set; }
 	public string				    Text { get; set; }
 	public VotableOperation	        Proposal { get; set; }
 	
@@ -16,8 +16,8 @@ public class DisputeCreation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Site		= reader.Read<EntityId>();
-		Creator		= reader.Read<EntityId>();
+		Site		= reader.Read<AutoId>();
+		Creator		= reader.Read<AutoId>();
  		Text		= reader.ReadUtf8();
 
  		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;

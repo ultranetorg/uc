@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class ProductDeletion : FairOperation
 {
-	public EntityId				Product { get; set; }
+	public AutoId				Product { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Id}";
@@ -13,7 +13,7 @@ public class ProductDeletion : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Product = reader.Read<EntityId>();
+		Product = reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

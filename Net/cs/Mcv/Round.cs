@@ -36,8 +36,8 @@ public abstract class Round : IBinarySerializable
 
 	public Time											ConsensusTime;
 	public Transaction[]								ConsensusTransactions = {};
-	public EntityId[]									ConsensusMemberLeavers = {};
-	public EntityId[]									ConsensusViolators = {};
+	public AutoId[]										ConsensusMemberLeavers = {};
+	public AutoId[]										ConsensusViolators = {};
 	public AccountAddress[]								ConsensusFundJoiners = {};
 	public AccountAddress[]								ConsensusFundLeavers = {};
 	public long											ConsensusECEnergyCost;
@@ -53,7 +53,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										Spacetimes = [];
 	public long[]										Bandwidths = [];
 
-	public Dictionary<EntityId, Account>			AffectedAccounts = new();
+	public Dictionary<AutoId, Account>					AffectedAccounts = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
@@ -121,6 +121,11 @@ public abstract class Round : IBinarySerializable
 		if(table == Mcv.Accounts)	return AffectedAccounts;
 
 		throw new IntegrityException();
+	}
+
+	public virtual void Clear()
+	{
+		AffectedAccounts.Clear();
 	}
 
 	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
@@ -333,12 +338,12 @@ public abstract class Round : IBinarySerializable
 		return Hash;
 	}
 	
-	public IEnumerable<EntityId> ProposeViolators()
+	public IEnumerable<AutoId> ProposeViolators()
 	{
 		return Forkers.Select(i => Mcv.Accounts.Find(i, Previous.Id).Id);
 	}
 
-	public IEnumerable<EntityId> ProposeMemberLeavers(AccountAddress generator)
+	public IEnumerable<AutoId> ProposeMemberLeavers(AccountAddress generator)
 	{
 		var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
@@ -381,8 +386,7 @@ public abstract class Round : IBinarySerializable
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
 		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
 
-		foreach(var i in Mcv.Tables)
-			AffectedByTable(i).Clear();
+		Clear();
 		
 		foreach(var i in NextEids)
 			i.Clear();
@@ -599,14 +603,14 @@ public abstract class Round : IBinarySerializable
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
 
-		w.Write(Mcv.BaseHash);
+		w.Write(Mcv.GraphHash);
 		w.Write(Id > 0 ? Previous.Hash : Mcv.Net.Cryptography.ZeroHash);
 		WriteConfirmed(w);
 
 		Hash = Cryptography.Hash(s.ToArray());
 	}
 
-	public virtual void WriteBaseState(BinaryWriter writer)
+	public virtual void WriteGraphState(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Hash);
@@ -619,7 +623,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write7BitEncodedInt(ConsensusOverloadRound);
 	}
 
-	public virtual void ReadBaseState(BinaryReader reader)
+	public virtual void ReadGraphState(BinaryReader reader)
 	{
 		Id						= reader.Read7BitEncodedInt();
 		Hash					= reader.ReadHash();
@@ -649,8 +653,8 @@ public abstract class Round : IBinarySerializable
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusECEnergyCost	= reader.Read7BitEncodedInt64();
 		ConsensusOverloadRound	= reader.Read7BitEncodedInt();
-		ConsensusMemberLeavers	= reader.ReadArray<EntityId>();
-		ConsensusViolators		= reader.ReadArray<EntityId>();
+		ConsensusMemberLeavers	= reader.ReadArray<AutoId>();
+		ConsensusViolators		= reader.ReadArray<AutoId>();
 		ConsensusFundJoiners	= reader.ReadArray<AccountAddress>();
 		ConsensusFundLeavers	= reader.ReadArray<AccountAddress>();
 		ConsensusTransactions	= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();

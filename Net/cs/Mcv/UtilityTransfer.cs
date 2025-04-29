@@ -2,9 +2,9 @@
 
 public class UtilityTransfer : Operation
 {
-	public EntityId			To { get; set; }
+	public AutoId			To { get; set; }
 	public byte				ToTable { get; set; }
-	public EntityId			From { get; set; }
+	public AutoId			From { get; set; }
 	public byte				FromTable { get; set; }
 	public long				Spacetime { get; set; }
 	public long				Energy { get; set; }
@@ -18,7 +18,7 @@ public class UtilityTransfer : Operation
 	{
 	}
 
-	public UtilityTransfer(byte fromtable, EntityId from, byte totable, EntityId to, long energy, long energynext, long spacetime)
+	public UtilityTransfer(byte fromtable, AutoId from, byte totable, AutoId to, long energy, long energynext, long spacetime)
 	{
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
@@ -36,9 +36,9 @@ public class UtilityTransfer : Operation
 	public override void Read(BinaryReader reader)
 	{
 		FromTable				= reader.ReadByte();
-		From					= reader.Read<EntityId>();
+		From					= reader.Read<AutoId>();
 		ToTable					= reader.ReadByte();
-		To						= reader.Read<EntityId>();
+		To						= reader.Read<AutoId>();
 
 		Energy					= reader.Read7BitEncodedInt64();
 		EnergyNext				= reader.Read7BitEncodedInt64();
@@ -59,13 +59,13 @@ public class UtilityTransfer : Operation
 
 	public override void Execute(Execution execution)
 	{
-		if(To == EntityId.LastCreated && execution.LastCreatedId == null)
+		if(To == AutoId.LastCreated && execution.LastCreatedId == null)
 		{
 			Error = NothingLastCreated;
 			return;
 		}
 
-		var to = execution.Affect(ToTable, To == EntityId.LastCreated ? execution.LastCreatedId : To);
+		var to = execution.Affect(ToTable, To == AutoId.LastCreated ? execution.LastCreatedId : To);
 
 		if(to == null)
 		{
@@ -94,7 +94,7 @@ public class UtilityTransfer : Operation
 
 		if(Energy > 0 || EnergyNext > 0)
 		{
-			if(From != EntityId.God)
+			if(From != AutoId.God)
 			{
 				var s = h as IEnergyHolder;
 

@@ -2,13 +2,13 @@
 
 public class ReviewRequest : FairPpc<ReviewResponse>
 {
-	public new EntityId	Id { get; set; }
+	public new AutoId	Id { get; set; }
 
 	public ReviewRequest()
 	{
 	}
 
-	public ReviewRequest(EntityId id)
+	public ReviewRequest(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,7 +20,7 @@ public class ReviewRequest : FairPpc<ReviewResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			var	e = Mcv.Reviews.Find(Id, Mcv.LastConfirmedRound.Id);
 			

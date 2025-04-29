@@ -18,7 +18,7 @@ public class FairAccountRequest : McvPpc<FairAccountResponse>
 		Identifier = new(addres);
 	}
 
-	public FairAccountRequest(EntityId id)
+	public FairAccountRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}
@@ -27,7 +27,7 @@ public class FairAccountRequest : McvPpc<FairAccountResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			FairAccount e;
 

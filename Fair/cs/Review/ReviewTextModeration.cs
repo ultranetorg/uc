@@ -6,7 +6,7 @@ public class ReviewTextModeration : VotableOperation
 {
 	const int							TextHashLength = 16;
 
-	public EntityId						Review { get; set; }
+	public AutoId						Review { get; set; }
 	public byte[]						Hash { get; set; }
 	public bool							Resolution { get; set; }
 
@@ -19,7 +19,7 @@ public class ReviewTextModeration : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Review		= reader.Read<EntityId>();
+		Review		= reader.Read<AutoId>();
 		Hash		= reader.ReadBytes(TextHashLength);
 		Resolution	= reader.ReadBoolean();
 	}

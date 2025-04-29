@@ -2,13 +2,13 @@
 
 public class AuthorRequest : FairPpc<AuthorResponse>
 {
-	public new EntityId	Id { get; set; }
+	public new AutoId	Id { get; set; }
 
 	public AuthorRequest()
 	{
 	}
 
-	public AuthorRequest(EntityId id)
+	public AuthorRequest(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,7 +20,7 @@ public class AuthorRequest : FairPpc<AuthorResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			var	e = Mcv.Authors.Find(Id, Mcv.LastConfirmedRound.Id);
 			

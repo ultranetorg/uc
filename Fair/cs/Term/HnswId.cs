@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class HnswId : EntityId
+public class HnswId : AutoId
 {
 	public byte				Level => BucketToLevel(B); /// 3 bit = 8 levels
 

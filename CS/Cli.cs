@@ -54,7 +54,7 @@ public abstract class Cli
 
 				c.Report("Arguments :");
 				c.Report("");
-				c.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
+				c.Flow.Log?.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
 			}
 								
 			return c;

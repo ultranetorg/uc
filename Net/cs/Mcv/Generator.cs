@@ -5,7 +5,7 @@ namespace Uccs.Net;
 public class Generator
 {
 	public AccountAddress	Address { get; set; }
-	public EntityId			Id { get; set; }
+	public AutoId			Id { get; set; }
 	public int				Registered { get; set; }
 	public IPAddress[]		BaseRdcIPs { get; set; } = [];
 	public int				CastingSince { get; set; }
@@ -27,7 +27,7 @@ public class Generator
  
  	public virtual void ReadMember(BinaryReader reader)
  	{
-		Id				= reader.Read<EntityId>();
+		Id				= reader.Read<AutoId>();
 		Address			= reader.Read<AccountAddress>();
 		BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
  		CastingSince	= reader.Read7BitEncodedInt();
@@ -42,7 +42,7 @@ public class Generator
  
  	public virtual void ReadCandidate(BinaryReader reader)
  	{
-		Id			= reader.Read<EntityId>();
+		Id			= reader.Read<AutoId>();
 		Registered	= reader.Read7BitEncodedInt();
 		BaseRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 	}

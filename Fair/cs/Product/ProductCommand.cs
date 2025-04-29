@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 
 public class ProductCommand : FairCommand
 {
-	EntityId First => EntityId.Parse(Args[0].Name);
+	AutoId First => AutoId.Parse(Args[0].Name);
 
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -26,7 +26,7 @@ public class ProductCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new ProductCreation(EntityId.Parse(Args[0].Name));
+								return new ProductCreation(AutoId.Parse(Args[0].Name));
 							};
 		return a;
 	}
@@ -98,7 +98,7 @@ public class ProductCommand : FairCommand
 
 								var	r = Ppc(new ProductRequest(First)).Product;
 				
-								Dump(r);
+								Flow.Log.Dump(r);
 
 								return r;
 							};

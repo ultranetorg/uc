@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductTable : Table<Product>
+public class ProductTable : Table<AutoId, Product>
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public abstract class BKTreeTable<E> : Table<E> where E : BKTerm
+public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
@@ -119,7 +119,7 @@ public class SiteTermTable : BKTreeTable<SiteTerm>
 {
 	public class FoundEntity
 	{
-		public EntityId		Entity;
+		public AutoId		Entity;
 		public SiteTerm		Term;
 		public byte			Distance;
 
@@ -138,7 +138,7 @@ public class SiteTermTable : BKTreeTable<SiteTerm>
 		return new SiteTerm(Mcv);
 	}
 
-	public List<FoundEntity> Search(EntityId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
+	public List<FoundEntity> Search(AutoId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
 	{
 		var result = new List<FoundEntity>();
 

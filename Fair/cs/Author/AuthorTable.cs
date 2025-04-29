@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class AuthorTable : Table<Author>
+public class AuthorTable : Table<AutoId, Author>
 {
 	public new FairMcv	Mcv => base.Mcv as FairMcv;
 
@@ -28,7 +28,7 @@ public class AuthorTable : Table<Author>
 					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname}];
 				}
 	
-		Mcv.Words.Save(batch, e.AffectedWords.Values, null);
+		Mcv.Words.Dissolve(batch, e.AffectedWords.Values, null);
 	}
 }
 

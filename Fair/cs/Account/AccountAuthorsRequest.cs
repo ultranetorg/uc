@@ -18,7 +18,7 @@ public class AccountAuthorsRequest : McvPpc<AccountAuthorsResponse>
 		Identifier = new(addres);
 	}
 
-	public AccountAuthorsRequest(EntityId id)
+	public AccountAuthorsRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}
@@ -27,7 +27,7 @@ public class AccountAuthorsRequest : McvPpc<AccountAuthorsResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			FairAccount e;
 
@@ -48,5 +48,5 @@ public class AccountAuthorsRequest : McvPpc<AccountAuthorsResponse>
 
 public class AccountAuthorsResponse : PeerResponse
 {
-	public EntityId[] Authors {get; set;}
+	public AutoId[] Authors {get; set;}
 }

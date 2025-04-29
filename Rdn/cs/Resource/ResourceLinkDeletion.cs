@@ -2,8 +2,8 @@
 
 public class ResourceLinkDeletion : RdnOperation
 {
-	public EntityId	Source { get; set; }
-	public EntityId	Destination { get; set; }
+	public AutoId	Source { get; set; }
+	public AutoId	Destination { get; set; }
 	
 	public override string	Explanation => $"Source={Source}, Destination={Destination}";
 	public override bool	IsValid(McvNet net) => true;
@@ -12,7 +12,7 @@ public class ResourceLinkDeletion : RdnOperation
 	{
 	}
 
-	public ResourceLinkDeletion(EntityId source, EntityId destination)
+	public ResourceLinkDeletion(AutoId source, AutoId destination)
 	{
 		Source = source;
 		Destination = destination;
@@ -26,8 +26,8 @@ public class ResourceLinkDeletion : RdnOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Source	= reader.Read<EntityId>();
-		Destination	= reader.Read<EntityId>();
+		Source	= reader.Read<AutoId>();
+		Destination	= reader.Read<AutoId>();
 	}
 
 	public override void Execute(RdnExecution execution)

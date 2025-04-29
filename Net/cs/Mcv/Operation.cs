@@ -173,7 +173,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		}
 	}
 
-	public bool RequireAccount(Execution round, EntityId id, out Account account)
+	public bool RequireAccount(Execution round, AutoId id, out Account account)
 	{
 		account = round.FindAccount(id);
 
@@ -186,7 +186,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return true;
 	}
 
-	public bool RequireAccountAccess(Execution round, EntityId id, out Account account)
+	public bool RequireAccountAccess(Execution round, AutoId id, out Account account)
 	{
 		if(!RequireAccount(round, id, out account))
 			return false;

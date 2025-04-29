@@ -38,7 +38,7 @@ public class SitesService
 
 		Guard.Against.NullOrEmpty(siteId);
 
-		EntityId id = EntityId.Parse(siteId);
+		AutoId id = AutoId.Parse(siteId);
 
 		Site site = null;
 		lock (mcv.Lock)
@@ -60,7 +60,7 @@ public class SitesService
 		};
 	}
 
-	IEnumerable<AccountBaseModel> LoadModerators(EntityId[] moderatorsIds)
+	IEnumerable<AccountBaseModel> LoadModerators(AutoId[] moderatorsIds)
 	{
 		lock (mcv.Lock)
 		{
@@ -72,7 +72,7 @@ public class SitesService
 		}
 	}
 
-	IEnumerable<CategoryBaseModel> LoadCategories(EntityId[] categoriesIds)
+	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
 	{
 		lock (mcv.Lock)
 		{

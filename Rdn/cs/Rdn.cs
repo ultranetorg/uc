@@ -7,7 +7,7 @@ public abstract class Rdn : McvNet
 {
 	public override	string			Address => Root;
 	public override	string			Name => Root;
-	public override ushort			BasePort => (ushort)KnownSystem.Rdn;
+	public override ushort			GraphPort => (ushort)KnownSystem.Rdn;
  		
 	public bool						Auctions				= false;
 	public long						DomainRankCheckECFee	= 5;

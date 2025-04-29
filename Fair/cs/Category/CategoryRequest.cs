@@ -2,13 +2,13 @@
 
 public class CategoryRequest : FairPpc<CategoryResponse>
 {
-	public new EntityId	Id { get; set; }
+	public new AutoId	Id { get; set; }
 
 	public CategoryRequest()
 	{
 	}
 
-	public CategoryRequest(EntityId id)
+	public CategoryRequest(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,7 +20,7 @@ public class CategoryRequest : FairPpc<CategoryResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			var	e = Mcv.Categories.Find(Id, Mcv.LastConfirmedRound.Id);
 			

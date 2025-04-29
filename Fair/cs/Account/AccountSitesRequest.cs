@@ -18,7 +18,7 @@ public class AccountSitesRequest : McvPpc<AccountSitesResponse>
 		Identifier = new(addres);
 	}
 
-	public AccountSitesRequest(EntityId id)
+	public AccountSitesRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}
@@ -27,7 +27,7 @@ public class AccountSitesRequest : McvPpc<AccountSitesResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			FairAccount e;
 
@@ -48,5 +48,5 @@ public class AccountSitesRequest : McvPpc<AccountSitesResponse>
 
 public class AccountSitesResponse : PeerResponse
 {
-	public EntityId[] Sites {get; set;}
+	public AutoId[] Sites {get; set;}
 }

@@ -6,7 +6,7 @@ public class NicknameChange : VotableOperation
 {
 	public string				Nickname { get; set; }
 	public EntityTextField		Field { get; set; }
-	public EntityId				Entity { get; set; }
+	public AutoId				Entity { get; set; }
 
 	public override bool		IsValid(McvNet net) => (Field == EntityTextField.AccountNickname || Field == EntityTextField.AuthorNickname || Field == EntityTextField.SiteNickname) 
 														&& Nickname.Length <= 32 
@@ -22,7 +22,7 @@ public class NicknameChange : VotableOperation
 	{
 		Nickname		= reader.ReadUtf8();
 		Field		= reader.Read<EntityTextField>();
-		Entity		= reader.Read<EntityId>();
+		Entity		= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

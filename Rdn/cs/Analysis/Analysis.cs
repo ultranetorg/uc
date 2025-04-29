@@ -59,7 +59,7 @@ public class Analysis : IBinarySerializable
 	public Urr						Release { get; set; }
 	public long						EnergyReward { get; set; }
 	public long						SpacetimeReward { get; set; }
-	public EntityId					Consil	{ get; set; }
+	public AutoId					Consil	{ get; set; }
 	public AnalyzerResult[]			Results { get; set; }
 
 	public override string ToString()
@@ -70,7 +70,7 @@ public class Analysis : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		Release			= Urr.ReadVirtual(reader);
-		Consil			= reader.Read<EntityId>();
+		Consil			= reader.Read<AutoId>();
 		EnergyReward	= reader.Read7BitEncodedInt64();
 		SpacetimeReward	= reader.Read7BitEncodedInt64();
 		Results			= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), 

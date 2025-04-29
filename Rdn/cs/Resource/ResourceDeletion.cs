@@ -2,7 +2,7 @@ namespace Uccs.Rdn;
 
 public class ResourceDeletion : RdnOperation
 {
-	public EntityId				Resource { get; set; }
+	public AutoId				Resource { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Id}";
@@ -13,7 +13,7 @@ public class ResourceDeletion : RdnOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Resource = reader.Read<EntityId>();
+		Resource = reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

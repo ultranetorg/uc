@@ -3,7 +3,7 @@
 public class AnalysisResultUpdation : RdnOperation
 {
 	//public ResourceId		Resource { get; set; }
-	public EntityId			Analysis { get; set; }
+	public AutoId			Analysis { get; set; }
 	public AnalysisResult	Result { get; set; }
 	
 	public override string	Explanation => $"Analysis={Analysis}, Result={Result}";
@@ -23,7 +23,7 @@ public class AnalysisResultUpdation : RdnOperation
 	public override void Read(BinaryReader reader)
 	{
 		//Resource = reader.Read<ResourceId>();
-		Analysis = reader.Read<EntityId>();
+		Analysis = reader.Read<AutoId>();
 		Result	 = reader.Read<AnalysisResult>();
 	}
 

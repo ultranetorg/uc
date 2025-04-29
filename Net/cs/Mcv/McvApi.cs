@@ -183,7 +183,7 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Synchronization",		$"{node.Peering.Synchronization}"));
 				f.Add(new ("Size",					$"{node.Mcv.Size}"));
 				f.Add(new ("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}"));
-				f.Add(new ("Base Hash",				node.Mcv.BaseHash.ToHex()));
+				f.Add(new ("Base Hash",				node.Mcv.GraphHash.ToHex()));
 				//f.Add(new ("Emission",			$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
 				f.Add(new ("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}"));
 				f.Add(new ("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}"));
@@ -357,7 +357,7 @@ public class TransactionApe
 	public TransactionId			Id { get; set; }
 	public int						Nid { get; set; }
 		
-	public EntityId					Member { get; set; }
+	public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
 	public byte[]					PoW { get; set; }
 	public byte[]					Tag { get; set; }

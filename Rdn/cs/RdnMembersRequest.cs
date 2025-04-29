@@ -6,7 +6,7 @@ public class RdnMembersRequest : McvPpc<RdnMembersResponse>
 	{
 		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 		
 			if(Mcv.NextVoteRound.VotersRound.Members.Count == 0)
 				throw new EntityException(EntityError.NoMembers);

@@ -44,14 +44,14 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 	//public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
 	public Time						AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
-	public EntityId					Id { get; set; }
+	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
-	public EntityId					Owner { get; set; }
-	public EntityId					ComOwner { get; set; }
-	public EntityId					OrgOwner { get; set; }
-	public EntityId					NetOwner { get; set; }
+	public AutoId					Owner { get; set; }
+	public AutoId					ComOwner { get; set; }
+	public AutoId					OrgOwner { get; set; }
+	public AutoId					NetOwner { get; set; }
 	public Time						FirstBidTime { get; set; } = Time.Empty;
-	public EntityId					LastWinner { get; set; }
+	public AutoId					LastWinner { get; set; }
 	public long						LastBid { get; set; }
 	public Time						LastBidTime { get; set; } = Time.Empty;
 	
@@ -62,7 +62,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 	public NtnState					NtnChildNet { get; set; }
 	public byte[]					NtnSelfHash { get; set; }
 
-	public BaseId					Key => Id;
+	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
 
@@ -242,7 +242,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
+		Id			= reader.Read<AutoId>();
 		var f		= (DomainFlag)reader.ReadByte();
 		Address		= reader.ReadUtf8();
 		Space		= reader.Read7BitEncodedInt64();
@@ -252,19 +252,19 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 			if(f.HasFlag(DomainFlag.Auction))
 			{
 				FirstBidTime	= reader.Read<Time>();
-				LastWinner		= reader.Read<EntityId>();
+				LastWinner		= reader.Read<AutoId>();
 				LastBidTime		= reader.Read<Time>();
 				LastBid			= reader.Read7BitEncodedInt64();
 			}
 
-			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<EntityId>();
-			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<EntityId>();
-			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<EntityId>();
+			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AutoId>();
+			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AutoId>();
+			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AutoId>();
 		}
 
 		if(f.HasFlag(DomainFlag.Owned))
 		{
-			Owner		= reader.Read<EntityId>();
+			Owner		= reader.Read<AutoId>();
 			Expiration	= reader.ReadInt16();
 		}
 

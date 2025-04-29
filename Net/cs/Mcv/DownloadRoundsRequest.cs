@@ -9,7 +9,7 @@ public class DownloadRoundsRequest : McvPpc<DownloadRoundsResponse>
 	{
 		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 			
 			if(Mcv.LastNonEmptyRound == null)	
 				throw new NodeException(NodeError.TooEearly);
@@ -24,7 +24,7 @@ public class DownloadRoundsRequest : McvPpc<DownloadRoundsResponse>
 		
 			return new DownloadRoundsResponse {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
 												LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
-												BaseHash			= Mcv.BaseHash,
+												BaseHash			= Mcv.GraphHash,
 												Rounds				= s.ToArray()};
 		}
 	}

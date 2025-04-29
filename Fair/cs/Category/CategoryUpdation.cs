@@ -2,16 +2,16 @@ namespace Uccs.Fair;
 
 public class CategoryMovement : FairOperation
 {
-	public EntityId		Category { get; set; }
-	public EntityId		Parent { get; set; }
+	public AutoId		Category { get; set; }
+	public AutoId		Parent { get; set; }
 
 	public override bool		IsValid(McvNet net) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Explanation => $"{GetType().Name}, {Parent}";
 
 	public override void Read(BinaryReader reader)
 	{
-		Category	= reader.Read<EntityId>();
-		Parent		= reader.ReadNullable<EntityId>();
+		Category	= reader.Read<AutoId>();
+		Parent		= reader.ReadNullable<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

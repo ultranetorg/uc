@@ -6,8 +6,8 @@ public class RdnRound : Round
 {
 	public new RdnMcv								Mcv => base.Mcv as RdnMcv;
 	public List<DomainMigration>					Migrations;
-	public Dictionary<EntityId, Domain>		AffectedDomains = [];
-	public Dictionary<EntityId, Resource>		AffectedResources = [];
+	public Dictionary<AutoId, Domain>		AffectedDomains = [];
+	public Dictionary<AutoId, Resource>		AffectedResources = [];
 	public ForeignResult[]							ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)
@@ -38,6 +38,14 @@ public class RdnRound : Round
 		if(table == Mcv.Resources)	return AffectedResources;
 
 		return base.AffectedByTable(table);
+	}
+
+	public override void Clear()
+	{
+		base.Clear();
+
+		AffectedDomains.Clear();
+		AffectedResources.Clear();
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -139,18 +147,18 @@ public class RdnRound : Round
 		Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);
 	}
 
-	public override void WriteBaseState(BinaryWriter writer)
+	public override void WriteGraphState(BinaryWriter writer)
 	{
-		base.WriteBaseState(writer);
+		base.WriteGraphState(writer);
 
 		writer.Write(Candidates, i => i.WriteCandidate(writer));  
 		writer.Write(Members, i => i.WriteMember(writer));  
 		writer.Write(Migrations, i => i.WriteBaseState(writer));
 	}
 
-	public override void ReadBaseState(BinaryReader reader)
+	public override void ReadGraphState(BinaryReader reader)
 	{
-		base.ReadBaseState(reader);
+		base.ReadGraphState(reader);
 
 		Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
 		Members		= reader.Read<RdnGenerator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();

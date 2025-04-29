@@ -8,14 +8,14 @@ public class Analyzer
 	public byte						Id;
 	public int						JoinedAt;
 
-  	public void WriteBaseState(BinaryWriter w)
+  	public void WriteGraphState(BinaryWriter w)
  	{
  		w.Write(Account);
 		w.Write(Id); /// negative if inactive
 		w.Write7BitEncodedInt(JoinedAt); /// negative if inactive
  	}
  
- 	public void ReadBaseState(BinaryReader r)
+ 	public void ReadGraphState(BinaryReader r)
  	{
 		Account		= r.ReadAccount();
 		Id			= r.ReadByte();

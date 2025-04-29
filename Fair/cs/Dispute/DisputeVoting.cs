@@ -7,8 +7,8 @@ public enum DisputeVote : byte
 
 public class DisputeVoting : FairOperation
 {
-	public EntityId				Dispute { get; set; }
-	public EntityId				Voter { get; set; }
+	public AutoId				Dispute { get; set; }
+	public AutoId				Voter { get; set; }
 	public DisputeVote			Vote { get; set; }
 
 	public override bool		IsValid(McvNet net) => Enum.IsDefined<DisputeVote>(Vote);
@@ -18,7 +18,7 @@ public class DisputeVoting : FairOperation
 	{
 	}
 
-	public DisputeVoting(EntityId dispute, EntityId voter, DisputeVote pro)
+	public DisputeVoting(AutoId dispute, AutoId voter, DisputeVote pro)
 	{
 		Dispute = dispute;
 		Voter = voter;
@@ -27,8 +27,8 @@ public class DisputeVoting : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Dispute	= reader.Read<EntityId>();
-		Voter	= reader.Read<EntityId>();
+		Dispute	= reader.Read<AutoId>();
+		Voter	= reader.Read<AutoId>();
 		Vote	= reader.Read<DisputeVote>();
 	}
 

@@ -18,7 +18,7 @@ public class ResourceRequest : RdnPpc<ResourceResponse>
 		Identifier = new(addres);
 	}
 
-	public ResourceRequest(EntityId id)
+	public ResourceRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}

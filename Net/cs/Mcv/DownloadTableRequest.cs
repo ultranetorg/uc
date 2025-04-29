@@ -10,7 +10,7 @@ public class DownloadTableRequest : McvPpc<DownloadTableResponse>
 	{
 		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			if(Mcv.Tables[Table].IsIndex)
 				throw new RequestException(RequestError.IncorrectRequest);

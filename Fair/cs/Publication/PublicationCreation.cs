@@ -2,8 +2,8 @@ namespace Uccs.Fair;
 
 public class PublicationCreation : FairOperation
 {
-	public EntityId					Product { get; set; }
-	public EntityId					Category { get; set; }
+	public AutoId					Product { get; set; }
+	public AutoId					Category { get; set; }
 	//public ProductFieldVersionId[]	Fields { get; set; }
 
 	public override bool		IsValid(McvNet net) => Product != null && Category != null;
@@ -11,8 +11,8 @@ public class PublicationCreation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Product = reader.Read<EntityId>();
-		Category= reader.Read<EntityId>();
+		Product = reader.Read<AutoId>();
+		Category= reader.Read<AutoId>();
 		//Fields	= reader.ReadArray<ProductFieldVersionId>();
 	}
 

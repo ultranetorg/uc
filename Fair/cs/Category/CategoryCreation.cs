@@ -2,8 +2,8 @@ namespace Uccs.Fair;
 
 public class CategoryCreation : FairOperation
 {
-	public EntityId				Site { get; set; }
-	public EntityId				Parent { get; set; }
+	public AutoId				Site { get; set; }
+	public AutoId				Parent { get; set; }
 	public string				Title { get; set; }
 
 	public override bool		IsValid(McvNet net) => (Site != null || Parent != null) && (Site == null || Parent == null) && Title != null;
@@ -11,8 +11,8 @@ public class CategoryCreation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Site = reader.ReadNullable<EntityId>();
-		Parent = reader.ReadNullable<EntityId>();
+		Site = reader.ReadNullable<AutoId>();
+		Parent = reader.ReadNullable<AutoId>();
 		Title = reader.ReadUtf8();
 	}
 

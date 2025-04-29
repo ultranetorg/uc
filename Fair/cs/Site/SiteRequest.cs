@@ -2,13 +2,13 @@
 
 public class SiteRequest : FairPpc<SiteResponse>
 {
-	public new EntityId	Id { get; set; }
+	public new AutoId	Id { get; set; }
 
 	public SiteRequest()
 	{
 	}
 
-	public SiteRequest(EntityId id)
+	public SiteRequest(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,7 +20,7 @@ public class SiteRequest : FairPpc<SiteResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			var	e = Mcv.Sites.Find(Id, Mcv.LastConfirmedRound.Id);
 			

@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Diagnostics;
 using System.Text.Json;
 using RocksDbSharp;
 
@@ -34,10 +33,10 @@ public abstract class Mcv /// Mutual chain voting
 	public string								Databasepath;
 
 	public RocksDb								Rocks;
-	public byte[]								BaseState;
-	public byte[]								BaseHash;
-	static readonly byte[]						BaseStateKey = [0x01];
-	static readonly byte[]						__BaseHashKey = [0x02];
+	public byte[]								GraphState;
+	public byte[]								GraphHash;
+	static readonly byte[]						GraphStateKey = [0x01];
+	static readonly byte[]						__GraphHashKey = [0x02];
 	static readonly byte[]						ChainStateKey = [0x03];
 	static readonly byte[]						GenesisKey = [0x04];
 	public AccountTable							Accounts;
@@ -61,7 +60,7 @@ public abstract class Mcv /// Mutual chain voting
 												}
 	public Dictionary<int, Round>				LoadedRounds = new();
 	public Round								LastConfirmedRound;
-	public Round								LastCommittedRound;
+	public Round								LastDissolvedRound;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 	public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
@@ -101,7 +100,7 @@ public abstract class Mcv /// Mutual chain voting
 			if(net.TablesCount != Tables.Length)
 				throw new IntegrityException();
 
-			BaseHash = Net.Cryptography.ZeroHash;
+			GraphHash = Net.Cryptography.ZeroHash;
 	
 			if(!skipinitload)
 			{
@@ -160,7 +159,7 @@ public abstract class Mcv /// Mutual chain voting
 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
 			t.Member = new(0, -1);
 			t.AddOperation(new AccountCreation {Owner = f0});
-			t.AddOperation(new UtilityTransfer (Accounts.Id, EntityId.God, Accounts.Id, EntityId.LastCreated, Net.ECEmission, 0, Net.BDDayEmission));
+			t.AddOperation(new UtilityTransfer (Accounts.Id, AutoId.God, Accounts.Id, AutoId.LastCreated, Net.ECEmission, 0, Net.BDDayEmission));
 			t.Sign(god, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 
@@ -234,20 +233,20 @@ public abstract class Mcv /// Mutual chain voting
 	
 	public void Load()
 	{
-		BaseState = Rocks.Get(BaseStateKey);
+		GraphState = Rocks.Get(GraphStateKey);
 
-		if(BaseState != null)
+		if(GraphState != null)
 		{
-			var r = new BinaryReader(new MemoryStream(BaseState));
+			var r = new BinaryReader(new MemoryStream(GraphState));
 	
-			LastCommittedRound = CreateRound();
-			LastCommittedRound.ReadBaseState(r);
+			LastDissolvedRound = CreateRound();
+			LastDissolvedRound.ReadGraphState(r);
 
-			LoadedRounds.Add(LastCommittedRound.Id, LastCommittedRound);
+			LoadedRounds.Add(LastDissolvedRound.Id, LastDissolvedRound);
 
 			Hashify();
 
-			if(!BaseHash.SequenceEqual(Rocks.Get(__BaseHashKey)))
+			if(!GraphHash.SequenceEqual(Rocks.Get(__GraphHashKey)))
 			{
 				throw new IntegrityException();
 			}
@@ -291,10 +290,10 @@ public abstract class Mcv /// Mutual chain voting
 	{
 		Tail.Clear();
 
-		BaseState = null;
-		BaseHash = Net.Cryptography.ZeroHash;
+		GraphState = null;
+		GraphHash = Net.Cryptography.ZeroHash;
 
-		LastCommittedRound = null;
+		LastDissolvedRound = null;
 		LastConfirmedRound = null;
 
 		LoadedRounds.Clear();
@@ -303,8 +302,8 @@ public abstract class Mcv /// Mutual chain voting
 		foreach(var i in Tables)
 			i.Clear();
 
-		Rocks.Remove(BaseStateKey);
-		Rocks.Remove(__BaseHashKey);
+		Rocks.Remove(GraphStateKey);
+		Rocks.Remove(__GraphHashKey);
 		Rocks.Remove(ChainStateKey);
 		Rocks.Remove(GenesisKey);
 
@@ -492,11 +491,11 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Hashify()
 	{
-		BaseHash = Cryptography.Hash(BaseState);
+		GraphHash = Cryptography.Hash(GraphState);
 
 		foreach(var t in Tables.Where(i => !i.IsIndex))
 			foreach(var i in t.Clusters.OrderBy(i => i.Id))
-				BaseHash = Cryptography.Hash(BaseHash, i.Hash);
+				GraphHash = Cryptography.Hash(GraphHash, i.Hash);
 	}
 
 
@@ -533,21 +532,21 @@ public abstract class Mcv /// Mutual chain voting
 
 				foreach(var r in tail)
 					foreach(var t in Tables)
-						t.Save(b, r.AffectedByTable(t).Values, round);
+						t.Dissolve(b, r.AffectedByTable(t).Values, round);
 
-				LastCommittedRound = tail.Last();
+				LastDissolvedRound = tail.Last();
 					
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 	
-				LastCommittedRound.WriteBaseState(w);
+				LastDissolvedRound.WriteGraphState(w);
 	
-				BaseState = s.ToArray();
+				GraphState = s.ToArray();
 
 				Hashify();
 				
-				b.Put(BaseStateKey, BaseState);
-				b.Put(__BaseHashKey, BaseHash);
+				b.Put(GraphStateKey, GraphState);
+				b.Put(__GraphHashKey, GraphHash);
 
 				foreach(var i in tail)
 				{
@@ -592,8 +591,8 @@ public abstract class Mcv /// Mutual chain voting
 				if(transaction_predicate(t))
 					return t;
 
-		if(LastCommittedRound != null)
-			for(int i = LastCommittedRound.Id; i > LastCommittedRound.Id - Net.CommitLength; i--)
+		if(LastDissolvedRound != null)
+			for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
 			{
 				var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
 

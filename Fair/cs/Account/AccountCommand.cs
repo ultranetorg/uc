@@ -25,7 +25,7 @@ public class AccountCommand : Net.AccountCommand
 
 								var i = Ppc(new FairAccountRequest(First));
 												
-								Dump(i.Account);
+								Flow.Log.Dump(i.Account);
 
 								return i.Account;
 							};
@@ -51,7 +51,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new NicknameChange  {Entity = EntityId.Parse(Args[0].Name),
+								return new NicknameChange  {Entity = AutoId.Parse(Args[0].Name),
 															Field = EntityTextField.AccountNickname,
 															Nickname = GetString(nickname)}; 
 							};
@@ -77,7 +77,7 @@ public class AccountCommand : Net.AccountCommand
 				
 								var rp = Ppc(new AccountAuthorsRequest(First));
 
-								Dump(rp.Authors, ["Id"], [i => i]);
+								Flow.Log.Dump(rp.Authors, ["Id"], [i => i]);
 					
 								return rp.Authors;
 							};
@@ -102,7 +102,7 @@ public class AccountCommand : Net.AccountCommand
 				
 								var rp = Ppc(new AccountSitesRequest(First));
 
-								Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Flow.Log.Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
 								return rp.Sites;
 							};

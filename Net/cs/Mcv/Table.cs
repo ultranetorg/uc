@@ -5,15 +5,15 @@ namespace Uccs.Net;
 
 public abstract class TableBase
 {
-	public const int							BucketsCountMax = 4096 * 4096;
-	public const int							ClustersCountMax = 4096;
+	public const int							BucketsCountMax = 1 << BucketBase.Length;
+	public const int							ClustersCountMax = 1 << ClusterBase.Length;
 	const int									ClustersCacheLimit = 1000;
 
 	protected ColumnFamilyHandle				ClusterColumn;
 	protected ColumnFamilyHandle				MetaColumn;
 	protected ColumnFamilyHandle				MainColumn;
 	//protected ColumnFamilyHandle				MoreColumn;
-	protected RocksDb							Engine;
+	protected RocksDb							Rocks;
 	protected Mcv								Mcv;
 	public abstract int							Size { get; }
 	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
@@ -27,14 +27,16 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Save(WriteBatch batch, System.Collections.ICollection entities, Round lastconfirmedround);
-	public static short							ClusterFromBucket(int id) => (short)(id >> 12);
+	public abstract void						Dissolve(WriteBatch batch, ICollection entities, Round lastconfirmedround);
+	public static short							ClusterFromBucket(int id) => (short)(id >> ClusterBase.Length);
 	public virtual void							Index(WriteBatch batch){}
 
 	public abstract class BucketBase
 	{
+		public const int							Length = 24;
+
 		public int									Id;
-		public short								SuperId => (short)(Id >> 12);
+		public short								SuperId => (short)(Id >> Length);
 		public int									MainLength;
  		public abstract int							NextEid { get; set; }
 		public byte[]								Hash { get; set; }
@@ -55,6 +57,8 @@ public abstract class TableBase
 
 	public abstract class ClusterBase
 	{
+		public const int							Length = 12;
+
 		public short								Id;
 		public byte[]								Hash;
 		public int									MainLength;
@@ -65,15 +69,15 @@ public abstract class TableBase
 	}
 }
 
-public abstract class Table<E> : TableBase where E : class, ITableEntry
+public abstract class Table<ID, E> : TableBase where E : class, ITableEntry where ID : EntityId
 {
 	public class Bucket : BucketBase
 	{
-		Table<E>				Table;
+		Table<ID, E>			Table;
 		byte[]					_Main;
 		int						_NextEntryId;
 		List<E>					_Entries;
-		public override byte[]	Main  => _Main ??= Table.Engine.Get(BaseId.BucketToBytes(Id), Table.MainColumn);
+		public override byte[]	Main  => _Main ??= Table.Rocks.Get(EntityId.BucketToBytes(Id), Table.MainColumn);
 
 		public override List<E> Entries
 		{
@@ -101,12 +105,12 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			}
 		}
 
-		public Bucket(Table<E> table, int id)
+		public Bucket(Table<ID, E> table, int id)
 		{
 			Table = table;
 			Id = id;
 
-			var meta = Table.Engine.Get(BaseId.BucketToBytes(Id), Table.MetaColumn);
+			var meta = Table.Rocks.Get(EntityId.BucketToBytes(Id), Table.MetaColumn);
 
 			if(meta != null)
 			{
@@ -164,7 +168,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 				_Main = s.ToArray();
 			///}
 
-			batch.Put(BaseId.BucketToBytes(Id), _Main, Table.MainColumn);
+			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.MainColumn);
 
 			Hash = Cryptography.Hash(_Main);
 			MainLength = _Main.Length;
@@ -174,14 +178,14 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write(Hash);
 			w.Write7BitEncodedInt(_Main.Length);
 
-			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
+			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
 		}
 
 		public override void Save(WriteBatch batch, byte[] main)
 		{
 			_Main = main;
 
-			batch.Put(BaseId.BucketToBytes(Id), _Main, Table.MainColumn);
+			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.MainColumn);
 
 			Hash = Cryptography.Hash(_Main);
 			MainLength = _Main.Length;
@@ -192,14 +196,14 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			w.Write(Hash);
 			w.Write7BitEncodedInt(MainLength);
 
-			batch.Put(BaseId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
+			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
 		}
 	}
 
 
 	public class Cluster : ClusterBase
 	{
-		Table<E>							Table;
+		Table<ID, E>						Table;
 		List<Bucket>						_Buckets;
 
 		public static byte[]				ToBytes(short id) => [(byte)id, (byte)(id >> 8)];
@@ -211,7 +215,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			{
 				if(_Buckets == null)
 				{
-					var m = Table.Engine.Get(ToBytes(Id), Table.ClusterColumn);
+					var m = Table.Rocks.Get(ToBytes(Id), Table.ClusterColumn);
 
 					if(m != null)
 					{
@@ -229,12 +233,12 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			}
 		}
 
-		public Cluster(Table<E> table, short id)
+		public Cluster(Table<ID, E> table, short id)
 		{
 			Table = table;
 			Id = id;
 
-			var m = Table.Engine.Get(ToBytes(Id), Table.ClusterColumn);
+			var m = Table.Rocks.Get(ToBytes(Id), Table.ClusterColumn);
 
 			if(m != null)
 			{
@@ -294,7 +298,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
-	public class TailBaseEnumerator : IEnumerator<E>
+	public class TailGraphEnumerator : IEnumerator<E>
 	{
 		public E				Current => Entity.Current;
 		object					IEnumerator.Current => Entity.Current;
@@ -302,9 +306,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		HashSet<E>				Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Key == b.Key, i => i.Key.GetHashCode()));
 		IEnumerator<Round>		Round;
 		IEnumerator<E>			Entity;
-		Table<E>				Table;
+		Table<ID, E>			Table;
 
-		public TailBaseEnumerator(Table<E> table)
+		public TailGraphEnumerator(Table<ID, E> table)
 		{
 			Table = table;
 
@@ -328,7 +332,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 						if(!Round.MoveNext())
 						{	
 							Round = null;
-							Entity = Table.BaseEntities.GetEnumerator();
+							Entity = Table.GraphEntities.GetEnumerator();
 							continue;
 						}
 						else
@@ -379,19 +383,17 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		}
 	}
 
-	public class BaseEnumerator : IEnumerator<E>
+	public class GraphEnumerator : IEnumerator<E>
 	{
 		public E Current => Entity.Current;
 		object IEnumerator.Current => Entity.Current;
 
-		Dictionary<BaseId, E>	NotCommited = [];
-
 		IEnumerator<Cluster>	Cluster;
 		IEnumerator<Bucket>		Bucket;
 		IEnumerator<E>			Entity;
-		Table<E>				Table;
+		Table<ID, E>			Table;
 
-		public BaseEnumerator(Table<E> table)
+		public GraphEnumerator(Table<ID, E> table)
 		{
 			Table = table;
 
@@ -490,20 +492,20 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 
 	public abstract E				Create();
 
-	public EntityEnumeration		BaseEntities => new (() => new BaseEnumerator(this));
-	public EntityEnumeration		TailBaseEntities => new (() => new TailBaseEnumerator(this));
+	public EntityEnumeration		GraphEntities => new (() => new GraphEnumerator(this));
+	public EntityEnumeration		TailGraphEntities => new (() => new TailGraphEnumerator(this));
 
 	public Table(Mcv chain)
 	{
 		Mcv = chain;
-		Engine = Mcv.Rocks;
+		Rocks = Mcv.Rocks;
 		Clusters = new List<Cluster>();
 
-		if(!Engine.TryGetColumnFamily(ClusterColumnName, out ClusterColumn))	ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
-		if(!Engine.TryGetColumnFamily(MetaColumnName,	 out MetaColumn))		MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
-		if(!Engine.TryGetColumnFamily(MainColumnName,	 out MainColumn))		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
+		if(!Rocks.TryGetColumnFamily(ClusterColumnName,	out ClusterColumn))	ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
+		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out MetaColumn))	MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
+		if(!Rocks.TryGetColumnFamily(MainColumnName,	out MainColumn))	MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
 
-		using(var i = Engine.NewIterator(ClusterColumn))
+		using(var i = Rocks.NewIterator(ClusterColumn))
 		{
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
@@ -518,13 +520,13 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 	{
 		Clusters.Clear();
 
-		Engine.DropColumnFamily(ClusterColumnName);
-		Engine.DropColumnFamily(MetaColumnName);
-		Engine.DropColumnFamily(MainColumnName);
+		Rocks.DropColumnFamily(ClusterColumnName);
+		Rocks.DropColumnFamily(MetaColumnName);
+		Rocks.DropColumnFamily(MainColumnName);
 
-		ClusterColumn	= Engine.CreateColumnFamily(new (), ClusterColumnName);
-		MetaColumn		= Engine.CreateColumnFamily(new (), MetaColumnName);
-		MainColumn		= Engine.CreateColumnFamily(new (), MainColumnName);
+		ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
+		MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
+		MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
 	}
 
 	public override Cluster FindCluster(short id)
@@ -555,7 +557,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		return c?.FindBucket(id);
 	}
 	
-	public virtual E Find(BaseId id)
+	public virtual E Find(ID id)
 	{
 		var eee = FindBucket(id.B)?.Entries;
 		var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
@@ -565,32 +567,16 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
 	}
 
-	public virtual E Find(EntityId id, int ridmax)
+	public virtual E Find(ID id, int ridmax)
 	{
   		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedByTable<EntityId, E>(this).TryGetValue(id, out var r) && !r.Deleted)
+			if(i.AffectedByTable<ID, E>(this).TryGetValue(id, out var r) && !r.Deleted)
     			return r;
 
 		return Find(id);
 	}
 
-	public virtual E Latest(EntityId id)
-	{
-		return Find(id, Mcv.LastConfirmedRound.Id);
-	}
-
-	public virtual E Find(RawId id, int ridmax)
-	{
-  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if((i.AffectedByTable(this) as IDictionary<RawId, E>).TryGetValue(id, out var r) && !r.Deleted)
-    			return r;
-				
-		/// Use binary search!
-
-		return FindBucket(id.B)?.Entries.Find(i => i.Key == id);
-	}
-
-	public virtual E Latest(RawId id)
+	public virtual E Latest(ID id)
 	{
 		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
@@ -606,7 +592,7 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 		//}
 	}
 
-	public override void Save(WriteBatch batch, ICollection entities, Round lastInCommit)
+	public override void Dissolve(WriteBatch batch, ICollection entities, Round lastInCommit)
 	{
 		if(entities.Count == 0)
 			return;
@@ -627,9 +613,9 @@ public abstract class Table<E> : TableBase where E : class, ITableEntry
 			if(!i.Deleted)
 				b.Entries.Add(i);
 
-			if(i.Key is EntityId x)
-				if(b.NextEid < x.E + 1)
-					b.NextEid = Math.Max(b.NextEid, x.E + 1);
+			if(i.Key is AutoId id)
+				if(b.NextEid < id.E + 1)
+					b.NextEid = id.E + 1;
 
 			bs.Add(b);
 			cs.Add(c);

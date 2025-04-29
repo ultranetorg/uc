@@ -38,8 +38,8 @@ public abstract class Net
 	public abstract string		Name { get; }
 	//public Guid					Id;
 	public abstract	Zone		Zone { get; }
-	public abstract ushort		BasePort { get; }
-	public ushort				Port => (ushort)((ushort)Zone * 1000 + BasePort);
+	public abstract ushort		GraphPort { get; }
+	public ushort				Port => (ushort)((ushort)Zone * 1000 + GraphPort);
 	public ushort				NtnPort => (ushort)(Port + 1);
 
 	public IPAddress[]			Initials;

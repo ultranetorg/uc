@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class ProductUpdation : FairOperation
 {
-	public EntityId				ProductId { get; set; }
+	public AutoId				ProductId { get; set; }
 	public string				Name	{ get; set; }
 	public byte[]				Value	{ get; set; }
 	public override string		Explanation => $"{ProductId}, {Name}, {Value}";
@@ -15,7 +15,7 @@ public class ProductUpdation : FairOperation
 	{
 	}
 
-	public ProductUpdation(EntityId id)
+	public ProductUpdation(AutoId id)
 	{
 		ProductId = id;
 	}
@@ -36,7 +36,7 @@ public class ProductUpdation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		ProductId	= reader.Read<EntityId>();
+		ProductId	= reader.Read<AutoId>();
 		Name		= reader.ReadUtf8();
 		Value		= reader.ReadBytes();
 	}

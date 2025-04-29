@@ -3,13 +3,13 @@
 public class FairAccount : Account
 {
 	public string					Nickname { get; set; }
-	public EntityId[]				Authors  { get; set; }
-	public EntityId[]				Sites  { get; set; }
-	public EntityId[]				Reviews  { get; set; }
-	public EntityId[]				FavoriteSites  { get; set; }
+	public AutoId[]				Authors  { get; set; }
+	public AutoId[]				Sites  { get; set; }
+	public AutoId[]				Reviews  { get; set; }
+	public AutoId[]				FavoriteSites  { get; set; }
 	public int						Approvals  { get; set; }
 	public int						Rejections  { get; set; }
-	public EntityId					AllocationSponsor { get; set; }
+	public AutoId					AllocationSponsor { get; set; }
 	public byte						AllocationSponsorClass  { get; set; }
 
 	public FairAccount()
@@ -62,12 +62,12 @@ public class FairAccount : Account
 		base.Read(reader);
 
 		Nickname				= reader.ReadUtf8();
-		Authors					= reader.ReadArray<EntityId>();
-		Sites					= reader.ReadArray<EntityId>();
-		Reviews					= reader.ReadArray<EntityId>();
-		FavoriteSites			= reader.ReadArray<EntityId>();
+		Authors					= reader.ReadArray<AutoId>();
+		Sites					= reader.ReadArray<AutoId>();
+		Reviews					= reader.ReadArray<AutoId>();
+		FavoriteSites			= reader.ReadArray<AutoId>();
 
-		AllocationSponsor		= reader.ReadNullable<EntityId>();
+		AllocationSponsor		= reader.ReadNullable<AutoId>();
 		
 		if(AllocationSponsor != null)
 		{

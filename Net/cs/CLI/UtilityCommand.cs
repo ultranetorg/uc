@@ -36,15 +36,15 @@ public class UtilityCommand : McvCommand
 								
 								var toe = GetString(to).Split('/')[1];
 
-								EntityId toid;
+								AutoId toid;
 
 								if(toe == "lastcreated")
-									toid = EntityId.LastCreated;
+									toid = AutoId.LastCreated;
 								else
-									toid = EntityId.Parse(toe);
+									toid = AutoId.Parse(toe);
 
 								return new UtilityTransfer( info.Tables[GetString(from).Split('/')[0]], 
-															EntityId.Parse(GetString(from).Split('/')[1]),
+															AutoId.Parse(GetString(from).Split('/')[1]),
 															info.Tables[GetString(to).Split('/')[0]], 
 															toid,
 															GetEC("e", 0), 

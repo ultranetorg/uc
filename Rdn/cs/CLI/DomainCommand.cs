@@ -242,7 +242,7 @@ public class DomainCommand : RdnCommand
 				
 								var rp = Ppc(new DomainRequest(First));
 
-								Dump(rp.Domain);
+								Flow.Log.Dump(rp.Domain);
 					
 								return rp.Domain;
 							};

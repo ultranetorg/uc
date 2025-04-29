@@ -2,7 +2,7 @@
 
 public class DomainRenewal : RdnOperation
 {
-	public new EntityId			Id {get; set;}
+	public new AutoId			Id {get; set;}
 	public byte					Years  {get; set;}
 
 	public override string		Explanation => $"{Id} {Years}";
@@ -21,7 +21,7 @@ public class DomainRenewal : RdnOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Id		= reader.Read<EntityId>();
+		Id		= reader.Read<AutoId>();
 		Years	= reader.ReadByte();
 	}
 
@@ -64,8 +64,8 @@ public class DomainRenewal : RdnOperation
 
 public class DomainTransfer : RdnOperation
 {
-	public new EntityId			Id {get; set;}
-	public EntityId				Owner  {get; set;}
+	public new AutoId			Id {get; set;}
+	public AutoId				Owner  {get; set;}
 
 	public override string		Explanation => $"{Id} {Owner}";
 	
@@ -80,8 +80,8 @@ public class DomainTransfer : RdnOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Id		= reader.Read<EntityId>();
-		Owner	= reader.Read<EntityId>();
+		Id		= reader.Read<AutoId>();
+		Owner	= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -149,7 +149,7 @@ public class DomainTransfer : RdnOperation
 
 public class DomainPolicyUpdation : RdnOperation
 {
-	public new EntityId			Id { get; set; }
+	public new AutoId			Id { get; set; }
 	public DomainChildPolicy	Policy { get; set; }
 
 	public override string		Explanation => $"{Id} {Policy}";
@@ -168,7 +168,7 @@ public class DomainPolicyUpdation : RdnOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Id		= reader.Read<EntityId>();
+		Id		= reader.Read<AutoId>();
 		Policy	= reader.Read<DomainChildPolicy>();
 	}
 

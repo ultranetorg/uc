@@ -3,10 +3,10 @@
 public class DomainIdentifier
 {
 	public string			Addres { get; set; }
-	public EntityId			Id { get; set; }
+	public AutoId			Id { get; set; }
 
 	public static implicit	operator string(DomainIdentifier d) => d.Addres;
-	public static implicit	operator EntityId(DomainIdentifier d) => d.Id;
+	public static implicit	operator AutoId(DomainIdentifier d) => d.Id;
 
 	public DomainIdentifier()
 	{
@@ -17,7 +17,7 @@ public class DomainIdentifier
 		Addres = address;
 	}
 
-	public DomainIdentifier(EntityId id)
+	public DomainIdentifier(AutoId id)
 	{
 		Id = id;
 	}

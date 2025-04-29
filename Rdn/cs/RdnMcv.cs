@@ -9,7 +9,7 @@ public class RdnMcv : Mcv
 	public ResourceTable			Resources;
 	//public List<ForeignResult>	ApprovedEmissions = new();
 	public List<ForeignResult>		ApprovedMigrations = new();
-	IPAddress[]						BaseIPs;
+	IPAddress[]						GraphIPs;
 	IPAddress[]						SeedHubIPs;
 
 	public RdnMcv()
@@ -22,13 +22,13 @@ public class RdnMcv : Mcv
 
 	public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, clock)
 	{
-		BaseIPs = baseips;
+		GraphIPs = baseips;
 		SeedHubIPs = seedhubips;
 	}
 
 	public string CreateGenesis(AccountKey god, AccountKey f0)
 	{
-		return CreateGenesis(god, f0, new RdnCandidacyDeclaration {BaseRdcIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
+		return CreateGenesis(god, f0, new RdnCandidacyDeclaration {GraphIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
 	}
 
 	protected override void GenesisInitilize(Round round)
@@ -82,7 +82,7 @@ public class RdnMcv : Mcv
 
 	public override CandidacyDeclaration CreateCandidacyDeclaration()
 	{
-		return new RdnCandidacyDeclaration {BaseRdcIPs		= BaseIPs,
+		return new RdnCandidacyDeclaration {GraphIPs		= GraphIPs,
 											SeedHubRdcIPs	= SeedHubIPs};
 
 	}

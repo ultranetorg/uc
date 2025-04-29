@@ -28,16 +28,16 @@ public enum ReviewStatus : byte
 
 public class Review : IBinarySerializable, ITableEntry
 {
-	public EntityId			Id { get; set; }
-	public EntityId			Publication { get; set; }
-    public EntityId			Creator { get; set; }
+	public AutoId			Id { get; set; }
+	public AutoId			Publication { get; set; }
+    public AutoId			Creator { get; set; }
 	public ReviewStatus		Status { get; set; }
 	public byte				Rate { get; set; }
     public string			Text { get; set; }
     public string			TextNew { get; set; }
     public Time	    		Created { get; set; }
 
-	public BaseId			Key => Id;
+	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
@@ -79,9 +79,9 @@ public class Review : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<EntityId>();
-		Publication	= reader.Read<EntityId>();
-		Creator		= reader.Read<EntityId>();
+		Id			= reader.Read<AutoId>();
+		Publication	= reader.Read<AutoId>();
+		Creator		= reader.Read<AutoId>();
 		Status		= reader.Read<ReviewStatus>();
 		Rate		= reader.ReadByte();
 		Text		= reader.ReadString();

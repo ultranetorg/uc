@@ -2,7 +2,7 @@
 
 public class PublicationStatusChange : VotableOperation
 {
-	public EntityId				Publication { get; set; }
+	public AutoId				Publication { get; set; }
 	public PublicationStatus	Status { get; set; }
 
 	public override bool		IsValid(McvNet net) => Publication != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
@@ -14,7 +14,7 @@ public class PublicationStatusChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Publication	= reader.Read<EntityId>();
+		Publication	= reader.Read<AutoId>();
 		Status		= reader.Read<PublicationStatus>();
 	}
 
@@ -66,6 +66,11 @@ public class PublicationStatusChange : VotableOperation
 
 				PayForModeration(execution, p, a);
 			}
+
+			var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
+			
+			if(tr != null)
+				execution.PublicationTitles.Index(execution.FindCategory(p.Category).Site, p.Id, execution.FindProduct(p.Product).Get(tr).AsUtf8);
 		}
 		else if(Status == PublicationStatus.Rejected)
 		{

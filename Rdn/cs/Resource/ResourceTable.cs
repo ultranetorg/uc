@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourceTable : Table<Resource>
+public class ResourceTable : Table<AutoId, Resource>
 {
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 	public new RdnMcv				Mcv => base.Mcv as RdnMcv;
@@ -14,7 +14,7 @@ public class ResourceTable : Table<Resource>
 		return new Resource(Mcv);
 	}
 
-	public override Resource Find(EntityId id, int ridmax)
+	public override Resource Find(AutoId id, int ridmax)
 	{
 		var e = base.Find(id, ridmax);
 

@@ -2,13 +2,13 @@
 
 public class PublicationRequest : FairPpc<PublicationResponse>
 {
-	public new EntityId	Id { get; set; }
+	public new AutoId	Id { get; set; }
 
 	public PublicationRequest()
 	{
 	}
 
-	public PublicationRequest(EntityId id)
+	public PublicationRequest(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,7 +20,7 @@ public class PublicationRequest : FairPpc<PublicationResponse>
 
  		lock(Mcv.Lock)
 		{	
-			RequireBase();
+			RequireGraph();
 
 			var	e = Mcv.Publications.Find(Id, Mcv.LastConfirmedRound.Id);
 			

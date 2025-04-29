@@ -6,7 +6,7 @@ public class TimeRequest : McvPpc<TimeResponse>
 	{
 		lock(Peering.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 			
 			return new TimeResponse {Time = Mcv.LastConfirmedRound.ConsensusTime};
 		}

@@ -4,14 +4,14 @@ namespace Uccs.Fair;
 
 public class Category : IBinarySerializable, ITableEntry
 {
-	public EntityId			Id { get; set; }
-	public EntityId			Site { get; set; }
-	public EntityId			Parent { get; set; }
+	public AutoId			Id { get; set; }
+	public AutoId			Site { get; set; }
+	public AutoId			Parent { get; set; }
 	public string			Title { get; set; }
-	public EntityId[]		Categories { get; set; }
-	public EntityId[]		Publications { get; set; }
+	public AutoId[]		Categories { get; set; }
+	public AutoId[]		Publications { get; set; }
 
-	public BaseId			Key => Id;
+	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
@@ -50,12 +50,12 @@ public class Category : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-		Site			= reader.Read<EntityId>();
-		Parent			= reader.ReadNullable<EntityId>();
+		Id				= reader.Read<AutoId>();
+		Site			= reader.Read<AutoId>();
+		Parent			= reader.ReadNullable<AutoId>();
 		Title			= reader.ReadUtf8();
-		Categories		= reader.ReadArray<EntityId>();
-		Publications	= reader.ReadArray<EntityId>();
+		Categories		= reader.ReadArray<AutoId>();
+		Publications	= reader.ReadArray<AutoId>();
 	}
 
 	public void Write(BinaryWriter writer)

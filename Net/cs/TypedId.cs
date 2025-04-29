@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class TypedId<T> : EntityId where T : unmanaged, Enum
+public class TypedId<T> : AutoId where T : unmanaged, Enum
 {
 	public T Type { get; set; }
 
@@ -81,12 +81,12 @@ public class TypedId<T> : EntityId where T : unmanaged, Enum
 		return obj is TypedId<T> id && Equals(id);
 	}
 
-	public override bool Equals(BaseId a)
+	public override bool Equals(EntityId a)
 	{
 		return a is TypedId<T> e && B == a.B && E == e.E && Type.Equals(e.Type);
 	}
 
-	public override int CompareTo(BaseId a)
+	public override int CompareTo(EntityId a)
 	{
 		return CompareTo((TypedId<T>)a);
 	}

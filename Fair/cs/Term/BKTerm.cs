@@ -9,7 +9,7 @@ public abstract class BKTerm : IBinarySerializable, ITableEntry
 	public string							Word => _Text ??= Encoding.UTF8.GetString(Id.Bytes);
 	public SortedDictionary<byte, RawId>	Children { get; set; }
 
-	public BaseId							Key => Id;
+	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
 	protected FairMcv						Mcv;
 	string									_Text;
@@ -62,7 +62,7 @@ public abstract class BKTerm : IBinarySerializable, ITableEntry
 
 public class EntityTerm : BKTerm
 {
-	public EntityId[]	References { get; set; }
+	public AutoId[]	References { get; set; }
 
 	public EntityTerm()
 	{
@@ -85,7 +85,7 @@ public class EntityTerm : BKTerm
 	{
 		base.Read(reader);
 
-		References = reader.ReadArray<EntityId>();
+		References = reader.ReadArray<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -98,7 +98,7 @@ public class EntityTerm : BKTerm
 
 public class SiteTerm : BKTerm
 {
-	public SortedDictionary<EntityId, EntityId[]>	References { get; set; }
+	public SortedDictionary<AutoId, AutoId[]>	References { get; set; }
 
 	public SiteTerm()
 	{
@@ -121,7 +121,7 @@ public class SiteTerm : BKTerm
 	{
 		base.Read(reader);
 
-		References = reader.ReadSortedDictionary(() => reader.Read<EntityId>(), () => reader.ReadArray<EntityId>());
+		References = reader.ReadSortedDictionary(() => reader.Read<AutoId>(), () => reader.ReadArray<AutoId>());
 	}
 
 	public override void Write(BinaryWriter writer)

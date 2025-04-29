@@ -6,7 +6,7 @@ public class FundsRequest : McvPpc<FundsResponse>
 	{
 		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 		
 			return new FundsResponse {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
 		}

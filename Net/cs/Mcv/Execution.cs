@@ -2,10 +2,10 @@
 
 public class Execution
 {
-	public Dictionary<EntityId, Account>	AffectedAccounts = new();
-	public Dictionary<EntityId, Generator>		AffectedCandidates = new();
+	public Dictionary<AutoId, Account>		AffectedAccounts = new();
+	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
-	public EntityId								LastCreatedId;
+	public AutoId								LastCreatedId;
 	public long[]								Spacetimes;
 	public long[]								Bandwidths;
 
@@ -32,12 +32,24 @@ public class Execution
 		Bandwidths = round.Bandwidths;
 	}
 
-	public virtual ITableEntry Affect(byte table, BaseId id)
+	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
 		if(Mcv.Accounts.Id == table)	
-			return FindAccount(id as EntityId) != null ? AffectAccount(id as EntityId) : null;
+			return FindAccount(id as AutoId) != null ? AffectAccount(id as AutoId) : null;
 
 		return null;
+	}
+
+	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
+	{
+		if(table == Mcv.Accounts)	return AffectedAccounts;
+
+		throw new IntegrityException();
+	}
+
+	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
+	{
+		return AffectedByTable(table) as Dictionary<K, E>;
 	}
 
 	public int GetNextEid(TableBase table,  int b)
@@ -103,7 +115,7 @@ public class Execution
 		return AffectAccount(s.Id);
 	}
 
-	public Account FindAccount(EntityId id)
+	public Account FindAccount(AutoId id)
 	{
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
@@ -127,7 +139,7 @@ public class Execution
 
 		var a = Mcv.Accounts.Create();
 
-		a.Id		= LastCreatedId = new EntityId(b, e);
+		a.Id		= LastCreatedId = new AutoId(b, e);
 		a.Address	= address;
 
 		AffectedAccounts[a.Id] = a;
@@ -135,7 +147,7 @@ public class Execution
 		return a;
 	}
 
-	public Account AffectAccount(EntityId id)
+	public Account AffectAccount(AutoId id)
 	{
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
@@ -149,7 +161,7 @@ public class Execution
 		return a;
 	}
 
-	public Generator AffectCandidate(EntityId id)
+	public Generator AffectCandidate(AutoId id)
 	{
 		if(AffectedCandidates.TryGetValue(id, out Generator a))
 			return a;

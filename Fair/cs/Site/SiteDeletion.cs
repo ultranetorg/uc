@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class SiteDeletion : FairOperation
 {
-	public EntityId				Site { get; set; }
+	public AutoId				Site { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Id}";
@@ -13,7 +13,7 @@ public class SiteDeletion : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Site = reader.Read<EntityId>();
+		Site = reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)

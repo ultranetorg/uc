@@ -25,7 +25,7 @@ public enum Synchronization
 public enum Role : long
 {
 	None,
-	Base		= 0b00000001,
+	Graph		= 0b00000001,
 	Chain		= 0b00000010,
 }
 
@@ -36,7 +36,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	public Mcv								Mcv => Node.Mcv; 
 	public UosApiClient						UosApi; 
 
-	public IEnumerable<Peer>				Bases => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Base));
+	public IEnumerable<Peer>				Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
 	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
@@ -118,7 +118,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	{
 		base.OnRequestException(peer, ex);
 
-		if(ex.Error == NodeError.NotBase)	peer.Roles  &= ~(long)Role.Base;
+		if(ex.Error == NodeError.NotGraph)	peer.Roles  &= ~(long)Role.Graph;
 		if(ex.Error == NodeError.NotChain)	peer.Roles  &= ~(long)Role.Chain;
 	}
 
@@ -128,11 +128,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(Mcv != null)
 		{
-			var needed = Settings.PermanentBaseMin - Bases.Count();
+			var needed = Settings.PermanentBaseMin - Graphs.Count();
 
 			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
-									.ThenByDescending(i => i.Roles.IsSet(Role.Base))
+									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
 									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
 			{
@@ -142,7 +142,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(!MinimalPeersReached && 
 			Connections.Count(i => i.Permanent) >= Settings.PermanentMin && 
-			(Mcv == null || Bases.Count() >= Settings.PermanentBaseMin))
+			(Mcv == null || Graphs.Count() >= Settings.PermanentBaseMin))
 		{
 			MinimalPeersReached = true;
 			Flow.Log?.Report(this, $"Minimal peers reached");
@@ -259,28 +259,29 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		
 						var r = Mcv.CreateRound();
 						r.Confirmed = true;
-						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
+						r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
 		
 						var s = Call(peer, new StampRequest());
 	
 						lock(Mcv.Lock)
 						{
-							Mcv.BaseState = stamp.BaseState;
+							Mcv.GraphState = stamp.GraphState;
 							Mcv.LastConfirmedRound = r;
-							Mcv.LastCommittedRound = r;
+							Mcv.LastDissolvedRound = r;
 			
 							Mcv.Hashify();
 			
-							if(s.BaseHash.SequenceEqual(Mcv.BaseHash))
+							if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
 	 						{	
 								Mcv.LoadedRounds[r.Id] = r;
 
 								using(var w = new WriteBatch())
 								{
 									foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
-									{
 										i.Index(w);
-									}
+
+									foreach(var i in Mcv.Tables)
+										i.Load();
 						
 									Mcv.Rocks.Write(w);
 								}
@@ -1189,7 +1190,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					return Send(c);
 				}
 
-				p = ChooseBestPeer((long)Role.Base, tried);
+				p = ChooseBestPeer((long)Role.Graph, tried);
 
 				if(p == null)
 				{
@@ -1211,7 +1212,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			}
 			catch(NodeException)
 			{
-				p.LastFailure[Role.Base] = DateTime.UtcNow;
+				p.LastFailure[Role.Graph] = DateTime.UtcNow;
 			}
 			catch(ContinueException)
 			{
@@ -1223,7 +1224,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public void Broadcast(Vote vote, Peer skip = null)
 	{
-		foreach(var i in Bases.Where(i => i != skip))
+		foreach(var i in Graphs.Where(i => i != skip))
 		{
 			try
 			{
@@ -1237,13 +1238,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
-	public static void CompareBases(string destination)
+	public static void CompareGraphs(string destination)
 	{
 		var mcvs = All.OfType<McvTcpPeering>().GroupBy(i => i.Net.Address);
 
 		foreach(var i in mcvs)
 		{
-			var d = Path.Join(destination, "CompareBases - " + i.Key);
+			var d = Path.Join(destination, "CompareGraphs- " + i.Key);
 
 			CompareBase(i.Where(i => i.Mcv != null).ToArray(), d);
 		}
@@ -1331,7 +1332,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			}
 		}
 
-		foreach(var t in all[0].Mcv.Tables)
+		foreach(var t in all[0].Mcv.Tables.Where(i => !i.IsIndex))
 			compare(t.Id);
 
 		foreach(var i in all)

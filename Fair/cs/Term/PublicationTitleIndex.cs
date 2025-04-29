@@ -1,19 +1,21 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Uccs.Fair;
 
-public class PublicationTitleHnswEntity : HnswNode
+public class StringHnswEntity : HnswNode<string>
 {
 	public string								Text { get; set; }
-	public SortedDictionary<EntityId, EntityId>	References { get; set; }
+	public override string						Data => Text;
+	public SortedDictionary<AutoId, AutoId>	References { get; set; }
 
-	public PublicationTitleHnswEntity Clone()
+	public StringHnswEntity Clone()
 	{
-		var a = new PublicationTitleHnswEntity()  {	Id			= Id,
-													Hash		= Hash,
-													Connections	= Connections,
-													Text		= Text,
-													References	= References};
+		var a = new StringHnswEntity() {Id			= Id,
+										Connections	= Connections,
+										Text		= Text,
+										References	= References};
 
 		return a;
 	}
@@ -23,7 +25,7 @@ public class PublicationTitleHnswEntity : HnswNode
 		base.Read(reader);
 
 		Text		= reader.ReadUtf8();
-		References	= reader.ReadSortedDictionary(() => reader.Read<EntityId>(), () => reader.Read<EntityId>());
+		References	= reader.ReadSortedDictionary(reader.Read<AutoId>, reader.Read<AutoId>);
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -50,69 +52,126 @@ public class PublicationTitleHnswEntity : HnswNode
 }
 
 
-public class PublicationTitleIndex : HnswTable<string, PublicationTitleHnswEntity>
+public class PublicationTitleIndex : HnswTable<string, StringHnswEntity>
 {
 	public override bool			IsIndex => true;
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
+	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 
-	public PublicationTitleIndex(Mcv mcv, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 10, int minDiversity = 10) : base(mcv, new Simhash(), maxLevel, maxConnections, efConstruction, threshold, minDiversity)
+	public PublicationTitleIndex(Mcv mcv, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 100, int minDiversity = 100) : base(mcv, new NeedlemanWunsch(), maxLevel, maxConnections, efConstruction, threshold, minDiversity)
 	{
 	}
 
-	public override PublicationTitleHnswEntity Create()
+	public override StringHnswEntity Create()
 	{
-		return new PublicationTitleHnswEntity();
+		return new StringHnswEntity();
 	}
 
-	public override ulong Hashify(string data)
+	public ExecutingPublicationTitleIndex CreateExecuting(Execution execution)
 	{
-		return Metric.Hashify(data.ToLowerInvariant());
+		return new ExecutingPublicationTitleIndex(execution as FairExecution);
+	}
+}
+
+public class ExecutingPublicationTitleIndex : ExecutingHnswTable<string, StringHnswEntity>
+{
+	public override PublicationTitleIndex		Table => Execution.Mcv.PublicationTitles;
+
+	public ExecutingPublicationTitleIndex(FairExecution execution) : base(execution)
+	{
+		EntryPoints = execution.Round.PublicationTitlesEntryPoints ?? Table.EntryPoints;
 	}
 
-	public override PublicationTitleHnswEntity Affect(HnswId id, FairExecution execution)
+	public override StringHnswEntity Affect(HnswId id)
 	{
- 		if(execution.AffectedPublicationTitles.TryGetValue(id, out var a))
+ 		if(Affected.TryGetValue(id, out var a))
  			return a;
- 			
- 		a = Mcv.PublicationTitles.Find(id, execution);
+ 		
+ 		a = Table.Find(id, Execution.Round.Id);
  
  		if(a == null)
  		{
- 			a = Mcv.PublicationTitles.Create();
+ 			a = Table.Create();
  			a.Id = id;
  			a.Connections = [];
  			a.References = [];
  		
- 			return execution.AffectedPublicationTitles[id] = a;
+ 			return Affected[id] = a;
  		} 
  		else
  		{
- 			return execution.AffectedPublicationTitles[id] = a.Clone();
+			a = a.Clone();
+
+			var e = EntryPoints.Find(i => i.Id == a.Id);
+			
+			if(e != null)
+			{
+				AffectEntryPoints();
+				EntryPoints.Remove(e);
+				EntryPoints.Add(a);
+			}
+
+ 			return Affected[id] = a;
  		}
 	}
 
- 	public void Index(EntityId site, EntityId entity, string text, FairExecution execution)
+	public StringHnswEntity Find(string text)
+ 	{
+		var e = Affected.Values.FirstOrDefault(i => i.Text == text);
+
+ 		if(e != null)
+			if(!e.Deleted)
+    			return e;
+			else
+				return null;
+
+  		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
+		{	
+			e = i.AffectedPublicationTitles.Values.FirstOrDefault(i => i.Text == text);
+			if(e != null)
+				if(!e.Deleted)
+    				return e;
+				else
+					return null;
+		}
+
+ 		var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
+ 		var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(x)), x);
+ 		
+		e = Table.FindBucket(b)?.Entries.Find(i => i.Text == text);
+
+		if(e != null)
+			if(!e.Deleted)
+    			return e;
+			else
+				return null;
+
+		return null;
+ 	}
+
+ 	public void Index(AutoId site, AutoId entity, string text)
  	{
 		text = text.ToLowerInvariant();
 
- 		var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
- 		
- 		var e = Search(text, 1, i => i.References.ContainsKey(site)).FirstOrDefault();
- 
- 		if(e == null)
+		var e =	Find(text);
+
+ 		if(e == null || Table.Metric.ComputeDistance(e.Text, text) != 0)
  		{
+ 			var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
  			var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(x)), x);
+
+ 			var id = new HnswId(b, Execution.GetNextEid(Table, b));
  	
- 			var id = new HnswId(b, execution.GetNextEid(this, b));
- 	
- 			e = Affect(id, execution);
+ 			e = Affect(id);
  	
  			e.Text = text;
-			e.Hash = Metric.Hashify(text);
+			//e.Hash = Metric.Hashify(text);
  			
- 			Add(e, execution);
+ 			Add(e);
  		}
- 		
+ 		else
+			e = Affect(e.Id);
+
  		if(!e.References.ContainsKey(site))
  		{	
  			e.References = new (e.References);
@@ -120,13 +179,15 @@ public class PublicationTitleIndex : HnswTable<string, PublicationTitleHnswEntit
  		}
  	}
 
- 	public void Deindex(EntityId site, Publication publication, string text, FairExecution execution)
+ 	public void Deindex(AutoId site, Publication publication, string text)
  	{
-//		var r = Mcv.PublicationTitles.Search(text, 1, i => i.References.ContainsKey(site));
-//	
-//		var e = Affect(r[0].Id, execution);
-//	
-//		e.References = new (e.References);
-//		e.References.Remove(site);
+		text = text.ToLowerInvariant();
+
+ 		var e =	Find(text);
+	
+		e = Affect(e.Id);
+	
+		e.References = new (e.References);
+		e.References.Remove(site);
  	}
 }

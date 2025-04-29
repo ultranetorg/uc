@@ -138,7 +138,7 @@ public class ResourceCommand : RdnCommand
 
 								var	r = Ppc(new ResourceRequest(First)).Resource;
 				
-								Dump(r);
+								Flow.Log.Dump(r);
 
 								return r;
 							};
@@ -166,7 +166,7 @@ public class ResourceCommand : RdnCommand
 				
 								if(r != null)
 								{
-									Dump(	r.Datas, 
+									Flow.Log.Dump(	r.Datas, 
 											["Type", "Data", "Length"], 
 											[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
 
@@ -201,13 +201,13 @@ public class ResourceCommand : RdnCommand
 
 								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = Args.Any() ? Args[0].Name : null});
 				
-								Dump(	r, 
-										["Address", "Releases", "Type", "Data", "Length"], 
-										[i =>	i.Address.Domain + '/' + i.Address.Resource,
-												i => i.Datas.Count,
-												i => i.Last.Type,
-												i => i.Last.Value.ToHex(32),
-												i => i.Last.Value.Length]);
+								Flow.Log.Dump(	r, 
+												["Address", "Releases", "Type", "Data", "Length"], 
+												[i =>	i.Address.Domain + '/' + i.Address.Resource,
+														i => i.Datas.Count,
+														i => i.Last.Type,
+														i => i.Last.Value.ToHex(32),
+														i => i.Last.Value.Length]);
 								return r;
 							};
 		return a;

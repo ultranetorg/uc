@@ -18,7 +18,7 @@ public class AccountRequest : McvPpc<AccountResponse>
 		Identifier = new(addres);
 	}
 
-	public AccountRequest(EntityId id)
+	public AccountRequest(AutoId id)
 	{
 		Identifier = new(id);
 	}
@@ -27,7 +27,7 @@ public class AccountRequest : McvPpc<AccountResponse>
 	{
  		lock(Mcv.Lock)
 		{
-			RequireBase();
+			RequireGraph();
 
 			Account e;
 

@@ -1,12 +1,17 @@
 ﻿namespace Uccs.Fair;
 
-public class NeedlemanWunsch
+public class NeedlemanWunsch : IMetric<string>
 {
     static int matchScore = 1;
     static int mismatchPenalty = -1;
     static int gapPenalty = -2;
 
-    public static int NeedlemanWunschAlignment(string seq1, string seq2)
+	public int ComputeDistance(string seq1, string seq2)
+    {
+		return ComputeAlignmentFast(seq1, seq2);
+	}
+
+	public static int ComputeAlignment(string seq1, string seq2)
     {
         int rows = seq1.Length + 1;
         int cols = seq2.Length + 1;
@@ -30,39 +35,105 @@ public class NeedlemanWunsch
             }
         }
 
-        // Обратный путь (Traceback)
-        int m = seq1.Length;
-        int n = seq2.Length;
-        string align1 = "";
-        string align2 = "";
-
-        while (m > 0 || n > 0)
-        {
-            if (m > 0 && n > 0 && scoreMatrix[m, n] == scoreMatrix[m - 1, n - 1] + (seq1[m - 1] == seq2[n - 1] ? matchScore : mismatchPenalty))
-            {
-                align1 = seq1[m - 1] + align1;
-                align2 = seq2[n - 1] + align2;
-                m--;
-                n--;
-            }
-            else if (m > 0 && scoreMatrix[m, n] == scoreMatrix[m - 1, n] + gapPenalty)
-            {
-                align1 = seq1[m - 1] + align1;
-                align2 = "-" + align2;
-                m--;
-            }
-            else
-            {
-                align1 = "-" + align1;
-                align2 = seq2[n - 1] + align2;
-                n--;
-            }
-        }
-
-        // Степень близости (нормализованная)
+        // Только расчет similarity
         int maxLen = Math.Max(seq1.Length, seq2.Length);
         int maxScore = maxLen * matchScore;
 
-        return scoreMatrix[seq1.Length, seq2.Length] * 100 / maxScore;
+        return 100 - scoreMatrix[seq1.Length, seq2.Length] * 100 / maxScore;
+    }
+
+	public static int ComputeAlignmentFast(string seq1, string seq2)
+    {
+        int m = seq1.Length;
+        int n = seq2.Length;
+
+        if (m == 0 && n == 0)
+            return 100; // Обе строки пустые — 100% совпадение
+
+        int[] previousRow = new int[n + 1];
+        int[] currentRow = new int[n + 1];
+
+        // Инициализация первой строки
+        for (int j = 0; j <= n; j++)
+            previousRow[j] = j * gapPenalty;
+
+        // Заполнение строк
+        for (int i = 1; i <= m; i++)
+        {
+            currentRow[0] = i * gapPenalty;
+            for (int j = 1; j <= n; j++)
+            {
+                int match = previousRow[j - 1] + (seq1[i - 1] == seq2[j - 1] ? matchScore : mismatchPenalty);
+                int delete = previousRow[j] + gapPenalty;
+                int insert = currentRow[j - 1] + gapPenalty;
+                currentRow[j] = Math.Max(match, Math.Max(delete, insert));
+            }
+            // Перекидываем текущую строку в previousRow
+            var temp = previousRow;
+            previousRow = currentRow;
+            currentRow = temp;
+        }
+
+        // Корректная нормализация
+        int totalLength = Math.Max(m, n);
+        int maxScore = totalLength * matchScore;
+
+        int rawScore = previousRow[n];
+        int similarity = 100 - (rawScore * 100) / maxScore;
+
+        return similarity;
+    }
+
+    public static int ComputeGreedyAlignment(string seq1, string seq2)
+    {
+        int i = 0, j = 0;
+        int score = 0;
+
+        while (i < seq1.Length && j < seq2.Length)
+        {
+            if (seq1[i] == seq2[j])
+            {
+                score += matchScore;
+                i++;
+                j++;
+            }
+            else
+            {
+                // Выбираем наименьшее "наказание"
+                int mismatch = mismatchPenalty;
+                int gap1 = gapPenalty;
+                int gap2 = gapPenalty;
+
+                if (i + 1 < seq1.Length && seq1[i + 1] == seq2[j])
+                {
+                    // Пропускаем символ в seq1
+                    score += gapPenalty;
+                    i++;
+                }
+                else if (j + 1 < seq2.Length && seq1[i] == seq2[j + 1])
+                {
+                    // Пропускаем символ в seq2
+                    score += gapPenalty;
+                    j++;
+                }
+                else
+                {
+                    // Несовпадение
+                    score += mismatchPenalty;
+                    i++;
+                    j++;
+                }
+            }
+        }
+
+        // Остаток пропусков
+        score += (seq1.Length - i) * gapPenalty;
+        score += (seq2.Length - j) * gapPenalty;
+
+        // Нормализация
+        int maxLen = Math.Max(seq1.Length, seq2.Length);
+        int maxScore = maxLen * matchScore;
+
+        return 100 - (score * 100) / maxScore;
     }
 }

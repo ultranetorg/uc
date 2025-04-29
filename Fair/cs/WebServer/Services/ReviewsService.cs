@@ -17,7 +17,7 @@ public class ReviewsService
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		EntityId siteEntityId = EntityId.Parse(siteId);
+		AutoId siteEntityId = AutoId.Parse(siteId);
 
 		lock (mcv.Lock)
 		{
@@ -44,7 +44,7 @@ public class ReviewsService
 		}
 	}
 
-	private void LoadReviewsRecursively(IEnumerable<EntityId> categoriesIds, Context context, CancellationToken cancellationToken)
+	private void LoadReviewsRecursively(IEnumerable<AutoId> categoriesIds, Context context, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -90,7 +90,7 @@ public class ReviewsService
 
 		Guard.Against.NullOrEmpty(reviewId);
 
-		EntityId reviewEntityId = EntityId.Parse(reviewId);
+		AutoId reviewEntityId = AutoId.Parse(reviewId);
 
 		lock (mcv.Lock)
 		{
@@ -113,7 +113,7 @@ public class ReviewsService
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		EntityId publicationEntityId = EntityId.Parse(publicationId);
+		AutoId publicationEntityId = AutoId.Parse(publicationId);
 
 		lock (mcv.Lock)
 		{
@@ -139,7 +139,7 @@ public class ReviewsService
 		}
 	}
 
-	private void LoadReviews(SearchContext<ReviewModel> context, IEnumerable<EntityId> reviewsIds, CancellationToken cancellationToken)
+	private void LoadReviews(SearchContext<ReviewModel> context, IEnumerable<AutoId> reviewsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;

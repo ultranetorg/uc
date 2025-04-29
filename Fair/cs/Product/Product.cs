@@ -98,12 +98,12 @@ public class ProductField : IBinarySerializable
 
 public class Product : IBinarySerializable, ITableEntry
 {
-	public EntityId				Id { get; set; }
-	public EntityId				Author { get; set; }
+	public AutoId				Id { get; set; }
+	public AutoId				Author { get; set; }
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
-	public EntityId[]			Publications { get; set; }
+	public AutoId[]			Publications { get; set; }
 
 	public int					Length => Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
@@ -112,7 +112,7 @@ public class Product : IBinarySerializable, ITableEntry
 		return $"{Id}, [{Flags}], Fields={Fields}";
 	}
 
-	public BaseId			Key => Id;
+	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
@@ -166,11 +166,11 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<EntityId>();
-		Author			= reader.Read<EntityId>();
+		Id				= reader.Read<AutoId>();
+		Author			= reader.Read<AutoId>();
 		Flags			= reader.Read<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
-		Publications	= reader.ReadArray<EntityId>();
+		Publications	= reader.ReadArray<AutoId>();
 	}
 }

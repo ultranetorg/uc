@@ -2,7 +2,7 @@
 
 public class SitePolicyChange : VotableOperation
 {
-	public EntityId				Site { get; set; }
+	public AutoId				Site { get; set; }
 	public FairOperationClass	Change { get; set; }
 	public ChangePolicy			Policy { get; set; }
 
@@ -11,7 +11,7 @@ public class SitePolicyChange : VotableOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Site	= reader.Read<EntityId>();
+		Site	= reader.Read<AutoId>();
 		Change	= reader.Read<FairOperationClass>();
 		Policy	= reader.Read<ChangePolicy>();
 	}
