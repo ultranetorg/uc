@@ -11,10 +11,12 @@ public interface IPublicationsService
 
 	TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 
-	TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNonOptimized(
+	TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNotOptimized(
 		[NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken canellationToken);
 
 	ModeratorPublicationModel GetModeratorPublication(string publicationId);
 
-	TotalItemsResult<PublicationSearchModel> SearchPublicationsNotOptimized([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string name, CancellationToken cancellationToken);
+	TotalItemsResult<PublicationSearchModel> SearchNotOptimized([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, [NotNull][NotEmpty] string name, CancellationToken cancellationToken);
+
+	TotalItemsResult<PublicationBaseModel> SearchLightNotOptimized([NotEmpty] string siteId, [NotNull][NotEmpty] string query, CancellationToken cancellationToken);
 }

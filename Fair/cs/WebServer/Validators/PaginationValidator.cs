@@ -16,4 +16,13 @@ public class PaginationValidator : IPaginationValidator
 			throw new InvalidPaginationParametersException();
 		}
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public void Validate(int? page)
+	{
+		if (page.HasValue && page.Value < 0)
+		{
+			throw new InvalidPaginationParametersException();
+		}
+	}
 }

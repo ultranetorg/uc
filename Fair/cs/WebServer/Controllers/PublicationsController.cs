@@ -8,6 +8,7 @@ public class PublicationsController
 	ILogger<PublicationsController> logger,
 	IEntityIdValidator entityIdValidator,
 	IPaginationValidator paginationValidator,
+	ISearchQueryValidator searchQueryValidator,
 	IPublicationsService publicationsService
 ) : BaseController
 {
@@ -27,13 +28,26 @@ public class PublicationsController
 		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(PublicationsController.Search)} method called with {{SiteId}}, {{Pagination}}, {{Title}}", siteId, pagination, title);
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
-		// TODO: validate search string: title
 		paginationValidator.Validate(pagination);
+		searchQueryValidator.Validate(title);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationSearchModel> products = publicationsService.SearchPublicationsNotOptimized(siteId, page, pageSize, title, cancellationToken);
+		TotalItemsResult<PublicationSearchModel> products = publicationsService.SearchNotOptimized(siteId, page, pageSize, title, cancellationToken);
 
 		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
+	}
+
+	[HttpGet("~/api/sites/{siteId}/publications/search")]
+	public IEnumerable<PublicationBaseModel> SearchLight(string siteId, [FromQuery] string? query, CancellationToken cancellationToken)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(PublicationsController.SearchLight)} method called with {{SiteId}}, {{Query}}", siteId, query);
+
+		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		searchQueryValidator.Validate(query);
+
+		TotalItemsResult<PublicationBaseModel> products = publicationsService.SearchLightNotOptimized(siteId, query, cancellationToken);
+
+		return this.OkPaged(products.Items, products.TotalItems);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]

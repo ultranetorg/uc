@@ -23,6 +23,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IDisputesService, DisputesService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();
+		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
 		services.AddSingleton<ISitesService, SitesService>();
 		services.AddSingleton<IUsersService, UsersService>();
 	}

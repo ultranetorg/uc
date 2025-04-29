@@ -18,7 +18,7 @@ export const SitesList = memo(({ isPending, sites, error }: SitesListProps) => (
       <div>🚫 NO SITES</div>
     ) : (
       <div className="flex justify-center">
-        <div className="flex h-full w-full max-w-[1200px] flex-wrap items-center justify-center gap-6">
+        <div className="flex h-full w-full max-w-[1248px] flex-wrap items-center justify-center gap-6">
           {sites.items.map(x => (
             <Link key={x.id} to={`/${x.id}`}>
               <SiteCard title={x.title} description={x.description} />

@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -9,9 +10,9 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
-	public TotalItemsResult<SiteBaseModel> SearchNonOptimized(int page, int pageSize, string? search)
+	public TotalItemsResult<SiteBaseModel> SearchNotOptimized(int page, int pageSize, string? search)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Title}}", page, pageSize, search);
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNotOptimized)} method called with {{Page}}, {{PageSize}}, {{Search}}", page, pageSize, search);
 
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
@@ -24,6 +25,32 @@ public class SitesService
 		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
 
 		return new TotalItemsResult<SiteBaseModel>
+		{
+			Items = items,
+			TotalItems = matched.Count(),
+		};
+	}
+
+	public TotalItemsResult<SiteSearchLightModel> SearchLightNotOpmized(string query, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchLightNotOpmized)} method called with {{Query}}", query);
+
+		Guard.Against.NullOrEmpty(query);
+
+		if (cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<SiteSearchLightModel>.Empty;
+
+		IEnumerable<Site> sites = null;
+		lock(mcv.Lock)
+		{
+			sites = mcv.Sites.TailBaseIntities;
+		}
+
+		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, query));
+		IEnumerable<Site> result = matched.Take(10);
+		IEnumerable<SiteSearchLightModel> items = result.Select(x => new SiteSearchLightModel(x));
+
+		return new TotalItemsResult<SiteSearchLightModel>
 		{
 			Items = items,
 			TotalItems = matched.Count(),

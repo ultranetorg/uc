@@ -34,7 +34,7 @@ public class PublicationTable : Table<Publication>
 
 						var w = e.AffectPublicationTitle(new RawId(t));
 	
-						w.References[c.Site] = [..w.References[c.Site], i.Id];
+						// w.References[c.Site] = [..w.References[c.Site], i.Id];
 					}
 				}
 	

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -219,9 +220,9 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNonOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
@@ -319,9 +320,9 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<PublicationSearchModel> SearchPublicationsNotOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationSearchModel> SearchNotOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Title}}", siteId, page, pageSize, title);
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Title}}", siteId, page, pageSize, title);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NegativeOrZero(pageSize);
@@ -329,30 +330,30 @@ public class PublicationsService
 
 		EntityId entitySiteId = EntityId.Parse(siteId);
 
-		Site site = null;
 		lock (mcv.Lock)
 		{
-			site = mcv.Sites.Find(entitySiteId, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(entitySiteId);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
+
+			var context = new FilteredContext<PublicationSearchModel>()
+			{
+				Page = page,
+				PageSize = pageSize,
+				Search = title,
+				Items = new List<PublicationSearchModel>()
+			};
+
+			SearchInCategories(context, site.Categories, cancellationToken);
+
+			return new TotalItemsResult<PublicationSearchModel>
+			{
+				Items = context.Items.Skip(page * pageSize).Take(pageSize),
+				TotalItems = context.TotalItems,
+			};
 		}
-
-		var context = new FilteredContext<PublicationSearchModel>()
-		{
-			Page = page,
-			PageSize = pageSize,
-			Search = title,
-			Items = new List<PublicationSearchModel>()
-		};
-		SearchInCategories(context, site.Categories, cancellationToken);
-
-		return new TotalItemsResult<PublicationSearchModel>
-		{
-			Items = context.Items.Skip(page * pageSize).Take(pageSize),
-			TotalItems = context.TotalItems,
-		};
 	}
 
 	void SearchInCategories(FilteredContext<PublicationSearchModel> context, EntityId[] categoriesIds, CancellationToken cancellationToken)
@@ -365,13 +366,7 @@ public class PublicationsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			Category category = null;
-
-			lock (mcv.Lock)
-			{
-				category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
-			}
-
+			Category category = mcv.Categories.Latest(categoryId);
 			SearchInPublications(context, category, category.Publications, cancellationToken);
 			SearchInCategories(context, category.Categories, cancellationToken);
 		}
@@ -387,21 +382,13 @@ public class PublicationsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			Publication publication = null;
-			Product product = null;
-			Author author = null;
-
-			lock (mcv.Lock)
+			Publication publication = mcv.Publications.Latest(publicationId);
+			if(!IsApprovedStatus(publication))
 			{
-				publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
-				if (!IsApprovedStatus(publication))
-				{
-					continue;
-				}
-
-				product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-				author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
+				continue;
 			}
+
+			Product product = mcv.Products.Latest(publication.Product);
 
 			string productTitle = PublicationUtils.GetTitle(publication, product);
 			if (string.IsNullOrEmpty(productTitle))
@@ -413,12 +400,92 @@ public class PublicationsService
 				continue;
 			}
 
+			Author author = mcv.Authors.Latest(product.Author);
+
 			PublicationSearchModel resultItem = new PublicationSearchModel(publication, product, author, category)
 			{
 				SupportedOSes = PublicationUtils.GetSupportedOSes(publication, product),
 				// TODO: calculate average rating.
 				AverageRating = 3,
 			};
+			context.Items.Add(resultItem);
+
+			++context.TotalItems;
+		}
+	}
+
+	public TotalItemsResult<PublicationBaseModel> SearchLightNotOptimized(string siteId, string query, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchLightNotOptimized)} method called with {{SiteId}}, {{Query}}", siteId, query);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(query);
+
+		if (cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<PublicationBaseModel>.Empty;
+
+		EntityId id = EntityId.Parse(siteId);
+
+		lock (mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
+			var context = new SearchLightContext<PublicationBaseModel>
+			{
+				Query = query,
+				Items = new List<PublicationBaseModel>()
+			};
+
+			SearchLightInCategories(context, site.Categories, cancellationToken);
+
+			return new TotalItemsResult<PublicationBaseModel>
+			{
+				Items = context.Items,
+				TotalItems = context.TotalItems,
+			};
+		}
+	}
+
+	void SearchLightInCategories(SearchLightContext<PublicationBaseModel> context, EntityId[] categoriesIds, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return;
+
+		foreach(EntityId categoryId in categoriesIds)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Category category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
+			SearchLightInPublications(context, category.Publications, cancellationToken);
+			SearchLightInCategories(context, category.Categories, cancellationToken);
+		}
+	}
+
+	void SearchLightInPublications(SearchLightContext<PublicationBaseModel> context, EntityId[] publicationsIds, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return;
+
+		foreach(EntityId publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Product product = mcv.Products.Latest(publication.Product);
+
+			string productTitle = PublicationUtils.GetTitle(publication, product);
+			if(!SearchUtils.IsMatch(publication, product, context.Query))
+			{
+				continue;
+			}
+
+			PublicationBaseModel resultItem = new PublicationBaseModel(publication, product);
 			context.Items.Add(resultItem);
 
 			++context.TotalItems;

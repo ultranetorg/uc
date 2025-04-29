@@ -82,3 +82,21 @@ export const useSearchPublications = (
 
   return { isPending, error: error ?? undefined, data }
 }
+
+export const useSearchLightPublications = (siteId?: string, query?: string) => {
+  const queryFn = () => {
+    if (!siteId || !query) {
+      return
+    }
+
+    return api.searchLightPublication(siteId, query)
+  }
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", siteId, "publications", "search", { query }],
+    queryFn: queryFn,
+    enabled: !!siteId && !!query,
+  })
+
+  return { isPending, error: error ?? undefined, data }
+}

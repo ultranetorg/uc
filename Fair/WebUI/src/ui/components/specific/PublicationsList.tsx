@@ -15,7 +15,7 @@ export const PublicationsList = ({ siteId, isPending, publications }: Publicatio
     {isPending ? (
       <div>⌛ LOADING</div>
     ) : publications.length === 0 ? (
-      <div>🚫 NO CATEGORIES</div>
+      <div>🚫 NO PUBLICATIONS</div>
     ) : (
       <>
         {publications.map(x => (

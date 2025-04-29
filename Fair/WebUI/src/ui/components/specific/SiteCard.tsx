@@ -11,7 +11,9 @@ export const SiteCard = ({ title, description }: SiteCardProps) => (
         {title}
       </span>
       {description && (
-        <span className="line-clamp-2 h-8 w-52 overflow-hidden text-center text-[13px] leading-4">{description}</span>
+        <span className="line-clamp-2 h-9 w-52 overflow-hidden text-center text-[13px] leading-[18px]">
+          {description}
+        </span>
       )}
     </div>
   </div>

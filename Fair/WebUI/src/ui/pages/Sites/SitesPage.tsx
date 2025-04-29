@@ -1,23 +1,40 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 
-import { useGetSites } from "entities"
-import { PAGE_SIZES } from "constants"
-import { Input, Pagination, Select, SelectItem, SitesList } from "ui/components"
+import { useSearchLightSites, useSearchSites } from "entities"
+import { SITES_PAGE_SIZE } from "constants"
+import { Pagination, SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"
 
 import { PageHeader } from "./PageHeader"
 
-const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
-
 export const SitesPage = () => {
   const { t } = useTranslation("sites")
+  const navigate = useNavigate()
 
-  const { page, setPage, pageSize, setPageSize, search, setSearch } = usePagePagination()
+  const [query, setQuery] = useState("")
+  const [isDropdownHidden, setDropdownHidden] = useState(false)
+  const { page, setPage, search, setSearch } = usePagePagination()
+  const { data: options } = useSearchLightSites(query)
 
-  const { isPending, data: sites, error } = useGetSites(page, pageSize, search)
+  const { isPending, data: sites, error } = useSearchSites(page, search)
 
-  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / pageSize) : 0
+  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / SITES_PAGE_SIZE) : 0
+
+  const handleKeyDown = useCallback(
+    (key: string) => {
+      if (key === "Enter") {
+        setSearch(query)
+        setDropdownHidden(true)
+      } else {
+        setDropdownHidden(false)
+      }
+    },
+    [query, setSearch],
+  )
+
+  const handleSelectItem = useCallback((e: SearchDropdownItem) => navigate(`/${e.id}`), [navigate])
 
   useEffect(() => {
     if (!isPending && pagesCount > 0 && page > pagesCount) {
@@ -25,21 +42,21 @@ export const SitesPage = () => {
     }
   }, [isPending, page, pagesCount, setPage])
 
-  const handlePageSizeChange = useCallback(
-    (value: string) => {
-      setPage(0)
-      setPageSize(parseInt(value))
-    },
-    [setPage, setPageSize],
-  )
-
   return (
     <div className="flex flex-col items-center gap-6 py-16">
       <PageHeader title={t("title")} description={t("description")} />
       <div className="w-full max-w-[820px]">
         <div className="flex h-12 items-center gap-3">
-          <Input className="flex-grow" placeholder="Search site" value={search} onChange={setSearch} />
-          <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
+          {/* <Input placeholder="Search site" value={search} onChange={setSearch} /> */}
+          <SearchDropdown
+            className="flex-grow"
+            isDropdownHidden={isDropdownHidden}
+            items={options}
+            value={query}
+            onChange={setQuery}
+            onKeyDown={handleKeyDown}
+            onSelectItem={handleSelectItem}
+          />
           <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
         </div>
       </div>

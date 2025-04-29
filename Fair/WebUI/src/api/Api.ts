@@ -11,11 +11,14 @@ import {
   PaginationResponse,
   Publication,
   PublicationAuthor,
+  PublicationBase,
   PublicationDetails,
   PublicationSearch,
   Review,
   Site,
   SiteBase,
+  SiteLightSearch,
+  TotalItemsResponse,
   User,
 } from "types"
 
@@ -37,7 +40,8 @@ export type Api = {
   ): Promise<PaginationResponse<Publication>>
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<PaginationResponse<Review>>
   getSite(siteId: string): Promise<Site>
-  getSites(page?: number, pageSize?: number, search?: string): Promise<PaginationResponse<SiteBase>>
+  searchSites(page?: number, search?: string): Promise<PaginationResponse<SiteBase>>
+  searchLightSites(query?: string): Promise<TotalItemsResponse<SiteLightSearch>>
   getUser(userId: string): Promise<User>
   searchPublications(
     siteId: string,
@@ -45,6 +49,7 @@ export type Api = {
     pageSize?: number,
     title?: string,
   ): Promise<PaginationResponse<PublicationSearch>>
+  searchLightPublication(siteId: string, query?: string): Promise<TotalItemsResponse<PublicationBase>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
   getAuthorReferendums(
