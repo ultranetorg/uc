@@ -8,15 +8,15 @@ public class FairExecution : Execution
 	public new FairMcv			Mcv => base.Mcv as FairMcv;
 	public new FairRound		Round => base.Round as FairRound;
 
-	public Dictionary<AutoId, Author>						AffectedAuthors = new();
+	public Dictionary<AutoId, Author>					AffectedAuthors = new();
 	public Dictionary<AutoId, Product>					AffectedProducts = new();
 	public Dictionary<AutoId, Site>						AffectedSites = new();
 	public Dictionary<AutoId, Category>					AffectedCategories = new();
 	public Dictionary<AutoId, Publication>				AffectedPublications = new();
-	public Dictionary<AutoId, Review>						AffectedReviews = new();
+	public Dictionary<AutoId, Review>					AffectedReviews = new();
 	public Dictionary<AutoId, Dispute>					AffectedDisputes = new();
-	public Dictionary<RawId, Word>							AffectedWords = new();
-	public ExecutingPublicationTitleIndex					PublicationTitles;
+	public Dictionary<RawId, Word>						AffectedWords = new();
+	public PublicationTitleExecution				PublicationTitles;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{

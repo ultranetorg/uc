@@ -2,9 +2,9 @@
 
 public class SmithWaterman
 {
-    static int matchScore = 2;
-    static int mismatchPenalty = -1;
-    static int gapPenalty = -2;
+    public static int matchScore = 2;
+    public static int mismatchPenalty = -1;
+    public static int gapPenalty = -2;
 
     public static int SmithWatermanAlignment(string seq1, string seq2)
     {

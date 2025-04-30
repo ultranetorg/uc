@@ -324,7 +324,13 @@ public class OutgoingTransactionApc : McvApc
 		{
 			var t = mcv.Peering.OutgoingTransactions.Find(i => i.Tag != null && i.Tag.SequenceEqual(Tag));
 
-			return t != null ? new TransactionApe(t) : null;
+			if(t != null)
+			{
+				t.Inquired = DateTime.UtcNow;
+				return new TransactionApe(t);
+			} 
+			else
+				return null;
 		}
 	}
 }

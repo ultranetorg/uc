@@ -157,7 +157,8 @@ public class PublicationsSearchApc : FairApc
 															Skip, 
 															Take, 
 															i => i.References.TryGetValue(Site, out var p) && node.Mcv.Publications.Latest(p).Status == PublicationStatus.Approved,
-															node.Mcv.PublicationTitles.Latest, (node.Mcv.LastConfirmedRound as FairRound).PublicationTitlesEntryPoints);
+															node.Mcv.PublicationTitles.Latest, (node.Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints)
+													.ToArray();
 
 			return result.Select(i =>	{
 											return new SearchResult {Entity = i.References[Site], Text = i.Text};

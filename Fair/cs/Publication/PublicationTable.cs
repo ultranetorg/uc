@@ -20,8 +20,6 @@ public class PublicationTable : Table<AutoId, Publication>
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		Mcv.PublicationTitles.StartExecution(e);
-
 		foreach(var i in GraphEntities)
 		{
 			var c = e.FindCategory(i.Category);
@@ -36,6 +34,6 @@ public class PublicationTable : Table<AutoId, Publication>
 			}
 		}
 	
-		Mcv.PublicationTitles.Dissolve(batch, e.PublicationTitles.Affected.Values, null);
+		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
 	}
 }

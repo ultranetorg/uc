@@ -49,6 +49,7 @@ public class Transaction : IBinarySerializable
 	public TransactionStatus		Status;
 	public IPeer					Rdi;
 	public Flow						Flow;
+	public DateTime					Inquired;
 	public TransactionStatus		__ExpectedOutcome = TransactionStatus.None;
 
 	public bool Valid(Mcv mcv)

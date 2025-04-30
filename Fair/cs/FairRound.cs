@@ -1,35 +1,22 @@
 ﻿namespace Uccs.Fair;
 
-//public class LuceneEntity
-//{
-//	public EntityFieldAddress	Address;
-//	public EntityId				Site;
-//	public string				Text;
-//	public bool					Deleted;
-//
-//	public LuceneEntity Clone()
-//	{
-//		return new LuceneEntity {Address = Address, Text = Text};
-//	}
-//}
-
 public class FairRound : Round
 {
 	public new FairMcv										Mcv => base.Mcv as FairMcv;
 
 	public Dictionary<AutoId, Author>						AffectedAuthors = new();
-	public Dictionary<AutoId, Product>					AffectedProducts = new();
-	public Dictionary<AutoId, Site>						AffectedSites = new();
-	public Dictionary<AutoId, Category>					AffectedCategories = new();
-	public Dictionary<AutoId, Publication>				AffectedPublications = new();
+	public Dictionary<AutoId, Product>						AffectedProducts = new();
+	public Dictionary<AutoId, Site>							AffectedSites = new();
+	public Dictionary<AutoId, Category>						AffectedCategories = new();
+	public Dictionary<AutoId, Publication>					AffectedPublications = new();
 	public Dictionary<AutoId, Review>						AffectedReviews = new();
-	public Dictionary<AutoId, Dispute>					AffectedDisputes = new();
+	public Dictionary<AutoId, Dispute>						AffectedDisputes = new();
 	public Dictionary<RawId, Word>							AffectedWords = new();
-	public Dictionary<HnswId, StringHnswEntity>				AffectedPublicationTitles = new();
-	public List<StringHnswEntity>							PublicationTitlesEntryPoints;
+	public PublicationTitleState							PublicationTitles;
 
-	public FairRound(FairMcv rds) : base(rds)
+	public FairRound(FairMcv mcv) : base(mcv)
 	{
+		PublicationTitles = new (mcv.PublicationTitles);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -52,15 +39,20 @@ public class FairRound : Round
 		if(table == Mcv.Reviews)			return AffectedReviews;
 		if(table == Mcv.Disputes)			return AffectedDisputes;
 		if(table == Mcv.Words)				return AffectedWords;
-		if(table == Mcv.PublicationTitles)	return AffectedPublicationTitles;
+		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
 
-	public override void Clear()
+	public override S FindState<S>(TableBase table)
 	{
-		base.Clear();
+		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
 
+		return base.FindState<S>(table);
+	}
+
+	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	{
 		AffectedAuthors.Clear();
 		AffectedProducts.Clear();
 		AffectedSites.Clear();
@@ -69,9 +61,10 @@ public class FairRound : Round
 		AffectedReviews.Clear();
 		AffectedDisputes.Clear();
 		AffectedWords.Clear();
-		AffectedPublicationTitles.Clear();
 
-		PublicationTitlesEntryPoints = null;
+		//PublicationTitles = null;
+
+		base.Execute(transactions, trying);
 	}
 	
 	public override void Absorb(Execution execution)
@@ -88,15 +81,8 @@ public class FairRound : Round
 		foreach(var i in e.AffectedReviews)				AffectedReviews[i.Key] = i.Value;
 		foreach(var i in e.AffectedDisputes)			AffectedDisputes[i.Key] = i.Value;
 		foreach(var i in e.AffectedWords)				AffectedWords[i.Key] = i.Value;
-		foreach(var i in e.PublicationTitles.Affected)	AffectedPublicationTitles[i.Key] = i.Value;
 
-		PublicationTitlesEntryPoints = e.PublicationTitles.EntryPoints;
-	}
-
-	public override void RestartExecution()
-	{
-		//AffectedTexts.Clear();
-		PublicationTitlesEntryPoints =  Id == 0 ? [] : (Previous as FairRound).PublicationTitlesEntryPoints;
+		PublicationTitles.Absorb(e.PublicationTitles);
 	}
 
 	public override void FinishExecution()

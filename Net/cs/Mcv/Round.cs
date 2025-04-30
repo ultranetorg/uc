@@ -2,6 +2,12 @@
 
 namespace Uccs.Net;
 
+public interface ITableState
+{
+	void Absorb(ITableState execution);
+	void StartRoundExecution(Round round);
+}
+
 public abstract class Round : IBinarySerializable
 {
 	public int											Id;
@@ -123,9 +129,9 @@ public abstract class Round : IBinarySerializable
 		throw new IntegrityException();
 	}
 
-	public virtual void Clear()
+	public virtual S FindState<S>(TableBase table) where S : class, ITableState
 	{
-		AffectedAccounts.Clear();
+		return null;
 	}
 
 	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
@@ -360,15 +366,11 @@ public abstract class Round : IBinarySerializable
 		return new Execution(Mcv, this, transaction);
 	}
 
-	public virtual void RestartExecution()
-	{
-	}
-
 	public virtual void FinishExecution()
 	{
 	}
 
-	public void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	public virtual void Execute(IEnumerable<Transaction> transactions, bool trying = false)
 	{
 		if(Confirmed)
 			throw new IntegrityException();
@@ -386,19 +388,17 @@ public abstract class Round : IBinarySerializable
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
 		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
 
-		Clear();
+		AffectedAccounts.Clear();
 		
 		foreach(var i in NextEids)
 			i.Clear();
 
-		RestartExecution();
+		foreach(var i in Mcv.Tables)
+			FindState<ITableState>(i)?.StartRoundExecution(this);
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
 			var e = CreateExecution(t);
-
-			foreach(var i in Mcv.Tables)
-				i.StartExecution(e);
 
 			var s = e.AffectSigner();
 
@@ -519,8 +519,8 @@ public abstract class Round : IBinarySerializable
 
 		Execute(ConsensusTransactions);
 
-		Members		= Members.ToList();
-		Funds		= Funds.ToList();
+		Members	= Members.ToList();
+		Funds	= Funds.ToList();
 
 		CopyConfirmed();
 		

@@ -20,7 +20,7 @@ public abstract class Mcv /// Mutual chain voting
 	//public const int							EntityLength = 100;
 	public const int							EntityRentYearsMin = 1;
 	public const int							EntityRentYearsMax = 10;
-	public const int							OperationsQueueLimit = 1000;
+	public const int							TransactionQueueLimit = 1000;
 	public static readonly Time					Forever = Time.FromYears(30);
 	//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
 	//public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
@@ -280,10 +280,10 @@ public abstract class Mcv /// Mutual chain voting
 			}
 		}
 
-		foreach(var i in Tables)
-		{
-			i.Load();
-		}
+// 		foreach(var i in Tables)
+// 		{
+// 			i.Load();
+// 		}
 	}
 
 	public void Clear()
@@ -528,13 +528,16 @@ public abstract class Mcv /// Mutual chain voting
 				//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
 				//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");
 
-				var tail = Tail.AsEnumerable().Reverse().Take(Net.CommitLength);
+				//var tail = Tail.AsEnumerable().Reverse().Take(Net.CommitLength);
 
-				foreach(var r in tail)
-					foreach(var t in Tables)
-						t.Dissolve(b, r.AffectedByTable(t).Values, round);
+				//foreach(var r in tail)
+				//	foreach(var t in Tables)
+				//		t.Commit(b, r.AffectedByTable(t).Values, round);
 
-				LastDissolvedRound = tail.Last();
+				foreach(var t in Tables)
+					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>), round.FindState<ITableState>(t), round);
+
+				LastDissolvedRound = round;
 					
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
@@ -548,15 +551,15 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(GraphStateKey, GraphState);
 				b.Put(__GraphHashKey, GraphHash);
 
-				foreach(var i in tail)
+				foreach(var i in Tail.TakeLast(Net.CommitLength))
 				{
 					if(!LoadedRounds.ContainsKey(i.Id))
 					{
 						LoadedRounds.Add(i.Id, i);
 					}
-						
-					Tail.Remove(i);
 				}
+
+				Tail.RemoveAll(i => i.Id <= round.Id);
 
 				Recycle();
 			}

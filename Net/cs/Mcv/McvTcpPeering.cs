@@ -280,8 +280,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 									foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 										i.Index(w);
 
-									foreach(var i in Mcv.Tables)
-										i.Load();
+									//foreach(var i in Mcv.Tables)
+									//	i.Commit();
 						
 									Mcv.Rocks.Write(w);
 								}
@@ -1095,7 +1095,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	void Transact(Transaction t)
 	{
-		if(OutgoingTransactions.Count <= Mcv.OperationsQueueLimit)
+		if(OutgoingTransactions.Count > Mcv.TransactionQueueLimit)
+		{
+			OutgoingTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionNoInquireKeepPeriod));
+		}
+		
+		if(OutgoingTransactions.Count <= Mcv.TransactionQueueLimit)
 		{
 			if(TransactingThread == null)
 			{
@@ -1110,6 +1115,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		else
 		{
 			Flow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
+			throw new NodeException(NodeError.LimitExceeded);
 		}
 	}
 
@@ -1129,6 +1135,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		t.Net		= Net;
 		t.Signer	= signer;
 		t.Flow		= flow;
+		t.Inquired	= DateTime.UtcNow;
  		t.__ExpectedOutcome	= await;
 		
 		foreach(var i in operations)

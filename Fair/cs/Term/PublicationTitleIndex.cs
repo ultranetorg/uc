@@ -4,54 +4,6 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public class StringHnswEntity : HnswNode<string>
-{
-	public string								Text { get; set; }
-	public override string						Data => Text;
-	public SortedDictionary<AutoId, AutoId>	References { get; set; }
-
-	public StringHnswEntity Clone()
-	{
-		var a = new StringHnswEntity() {Id			= Id,
-										Connections	= Connections,
-										Text		= Text,
-										References	= References};
-
-		return a;
-	}
-
-	public override void Read(BinaryReader reader)
-	{
-		base.Read(reader);
-
-		Text		= reader.ReadUtf8();
-		References	= reader.ReadSortedDictionary(reader.Read<AutoId>, reader.Read<AutoId>);
-	}
-
-	public override void Write(BinaryWriter writer)
-	{
-		base.Write(writer);
-
-		writer.WriteUtf8(Text);
-		writer.Write(References, i => writer.Write(i), i => writer.Write(i));
-	}
-
-	public override void ReadMain(BinaryReader r)
-	{
-		Read(r);
-	}
-
-	public override void WriteMain(BinaryWriter w)
-	{
-		Write(w);
-	}
-
-	public override void Cleanup(Round lastInCommit)
-	{
-	}
-}
-
-
 public class PublicationTitleIndex : HnswTable<string, StringHnswEntity>
 {
 	public override bool			IsIndex => true;
@@ -67,19 +19,24 @@ public class PublicationTitleIndex : HnswTable<string, StringHnswEntity>
 		return new StringHnswEntity();
 	}
 
-	public ExecutingPublicationTitleIndex CreateExecuting(Execution execution)
+	public PublicationTitleExecution CreateExecuting(Execution execution)
 	{
-		return new ExecutingPublicationTitleIndex(execution as FairExecution);
+		return new PublicationTitleExecution(execution as FairExecution);
 	}
 }
 
-public class ExecutingPublicationTitleIndex : ExecutingHnswTable<string, StringHnswEntity>
+public class PublicationTitleState : HnswTableState<string, StringHnswEntity>
 {
-	public override PublicationTitleIndex		Table => Execution.Mcv.PublicationTitles;
-
-	public ExecutingPublicationTitleIndex(FairExecution execution) : base(execution)
+	public PublicationTitleState(HnswTable<string, StringHnswEntity> table) : base(table)
 	{
-		EntryPoints = execution.Round.PublicationTitlesEntryPoints ?? Table.EntryPoints;
+	}
+}
+
+public class PublicationTitleExecution : HnswTableExecution<string, StringHnswEntity>
+{
+	public PublicationTitleExecution(FairExecution execution) : base(execution, execution.Mcv.PublicationTitles)
+	{
+		EntryPoints = execution.Round.PublicationTitles?.EntryPoints ?? Table.EntryPoints;
 	}
 
 	public override StringHnswEntity Affect(HnswId id)
@@ -127,7 +84,7 @@ public class ExecutingPublicationTitleIndex : ExecutingHnswTable<string, StringH
 
   		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
 		{	
-			e = i.AffectedPublicationTitles.Values.FirstOrDefault(i => i.Text == text);
+			e = i.FindState<PublicationTitleState>(Table).Affected.Values.FirstOrDefault(i => i.Text == text);
 			if(e != null)
 				if(!e.Deleted)
     				return e;
@@ -136,7 +93,7 @@ public class ExecutingPublicationTitleIndex : ExecutingHnswTable<string, StringH
 		}
 
  		var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
- 		var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(x)), x);
+ 		var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
  		
 		e = Table.FindBucket(b)?.Entries.Find(i => i.Text == text);
 
@@ -158,7 +115,7 @@ public class ExecutingPublicationTitleIndex : ExecutingHnswTable<string, StringH
  		if(e == null || Table.Metric.ComputeDistance(e.Text, text) != 0)
  		{
  			var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
- 			var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(x)), x);
+ 			var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
 
  			var id = new HnswId(b, Execution.GetNextEid(Table, b));
  	

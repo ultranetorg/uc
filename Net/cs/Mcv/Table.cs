@@ -10,6 +10,7 @@ public abstract class TableBase
 	const int									ClustersCacheLimit = 1000;
 
 	protected ColumnFamilyHandle				ClusterColumn;
+	protected ColumnFamilyHandle				StateColumn;
 	protected ColumnFamilyHandle				MetaColumn;
 	protected ColumnFamilyHandle				MainColumn;
 	//protected ColumnFamilyHandle				MoreColumn;
@@ -21,13 +22,11 @@ public abstract class TableBase
 	public virtual bool							IsIndex => false;
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
 
-	public virtual void							Load(){}
-	public virtual void							StartExecution(Execution execution){}
 	public abstract ClusterBase					GetCluster(short id);
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Dissolve(WriteBatch batch, ICollection entities, Round lastconfirmedround);
+	public abstract void						Commit(WriteBatch batch, IEnumerable<ITableEntry> entries, ITableState executed, Round lastconfirmedround);
 	public static short							ClusterFromBucket(int id) => (short)(id >> ClusterBase.Length);
 	public virtual void							Index(WriteBatch batch){}
 
@@ -486,6 +485,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 	public override List<Cluster>	Clusters { get; }
 	public override int				Size => Clusters.Sum(i => i.MainLength);
+	public static string			StateColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(StateColumn);
 	public static string			ClusterColumnName	=> typeof(E).Name.Replace("Entry", null) + nameof(ClusterColumn);
 	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MetaColumn);
 	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
@@ -501,6 +501,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		Rocks = Mcv.Rocks;
 		Clusters = new List<Cluster>();
 
+		if(!Rocks.TryGetColumnFamily(StateColumnName,	out StateColumn))	StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		if(!Rocks.TryGetColumnFamily(ClusterColumnName,	out ClusterColumn))	ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
 		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out MetaColumn))	MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
 		if(!Rocks.TryGetColumnFamily(MainColumnName,	out MainColumn))	MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
@@ -520,10 +521,12 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	{
 		Clusters.Clear();
 
+		Rocks.DropColumnFamily(StateColumnName);
 		Rocks.DropColumnFamily(ClusterColumnName);
 		Rocks.DropColumnFamily(MetaColumnName);
 		Rocks.DropColumnFamily(MainColumnName);
 
+		StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
 		MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
 		MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
@@ -592,15 +595,15 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		//}
 	}
 
-	public override void Dissolve(WriteBatch batch, ICollection entities, Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, ITableState executed,  Round lastInCommit)
 	{
-		if(entities.Count == 0)
+		if(!entities.Any())
 			return;
 
 		var bs = new HashSet<Bucket>();
 		var cs = new HashSet<Cluster>();
 
-		foreach(var i in entities.Cast<E>())
+		foreach(var i in entities.DistinctBy(i => i.Key).Cast<E>())
 		{
 			var c = GetCluster(ClusterFromBucket(i.Key.B));
 			var b = c.GetBucket(i.Key.B);

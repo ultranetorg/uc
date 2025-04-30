@@ -4,11 +4,11 @@ namespace Uccs.Rdn;
 
 public class RdnRound : Round
 {
-	public new RdnMcv								Mcv => base.Mcv as RdnMcv;
-	public List<DomainMigration>					Migrations;
+	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
+	public List<DomainMigration>			Migrations;
 	public Dictionary<AutoId, Domain>		AffectedDomains = [];
 	public Dictionary<AutoId, Resource>		AffectedResources = [];
-	public ForeignResult[]							ConsensusMigrations = {};
+	public ForeignResult[]					ConsensusMigrations = {};
 
 	public RdnRound(RdnMcv rds) : base(rds)
 	{
@@ -40,22 +40,20 @@ public class RdnRound : Round
 		return base.AffectedByTable(table);
 	}
 
-	public override void Clear()
+	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
 	{
-		base.Clear();
+		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
 
 		AffectedDomains.Clear();
 		AffectedResources.Clear();
+
+		base.Execute(transactions, trying);
+
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
 	{
 		return new RdnExecution(Mcv, this, transaction);
-	}
-
-	public override void RestartExecution()
-	{
-		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
 	}
 
 	public override void FinishExecution()

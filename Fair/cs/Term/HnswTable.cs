@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using RocksDbSharp;
 
 namespace Uccs.Fair;
 
@@ -24,7 +25,7 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Id}, {Data}, Connections={Connections.Count}";
+		return $"{Id}, {Data}, Level={Id.Level}, Connections={Connections.Count}";
 	}
 
 	public void AddConnection(int level, HnswNode<D> node)
@@ -182,102 +183,112 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		EfConstruction = efConstruction;
 		Threshold = threshold;
 		MinDiversity = minDiversity;
+
+		using(var i = Rocks.NewIterator(StateColumn))
+		{
+			for(i.SeekToFirst(); i.Valid(); i.Next())
+			{
+				var e = Create();
+
+				e.Read(new BinaryReader(new MemoryStream(i.Value())));
+
+				EntryPoints.Add(e);
+			}
+		}
 	}
 
-	public override void Load()
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, ITableState executed, Round lastInCommit)
 	{
-		int maxlevel = 0;
+		base.Commit(batch, entities, executed, lastInCommit);
 
-		EntryPoints.Clear();
-
-		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
-			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
-				if(i.Level > maxlevel)
-					maxlevel = i.Level;
-
-		foreach(var c in Clusters)
-			if(HnswId.ClusterToLevel(c.Id) > maxlevel)
-				maxlevel = HnswId.ClusterToLevel(c.Id);
-
-		foreach(var c in Clusters.Where(i => HnswId.ClusterToLevel(i.Id) == maxlevel))
-			foreach(var b in c.Buckets)
-				EntryPoints.AddRange(b.Entries);
-
-		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
-			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
-				if(i.Level == maxlevel && !EntryPoints.Any(j => j.Id == i.Id))
-					EntryPoints.Add(i);
+		foreach(var i in (executed as HnswTableState<D, E>).EntryPoints)
+		{
+			batch.Put(((IBinarySerializable)i.Id).Raw, ((IBinarySerializable)i).Raw, StateColumn);
+		}
 	}
 
-	public override void StartExecution(Execution execution)
-	{
-		//Execution = execution;
+	// 	public override void Load()
+	// 	{
+	// 		int maxlevel = 0;
+	// 
+	// 		EntryPoints.Clear();
+	// 
+	// 		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
+	// 			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
+	// 				if(i.Level > maxlevel)
+	// 					maxlevel = i.Level;
+	// 
+	// 		foreach(var c in Clusters)
+	// 			if(HnswId.ClusterToLevel(c.Id) > maxlevel)
+	// 				maxlevel = HnswId.ClusterToLevel(c.Id);
+	// 
+	// 		foreach(var c in Clusters.Where(i => HnswId.ClusterToLevel(i.Id) == maxlevel))
+	// 			foreach(var b in c.Buckets)
+	// 				EntryPoints.AddRange(b.Entries);
+	// 
+	// 		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
+	// 			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
+	// 				if(i.Level == maxlevel && !EntryPoints.Any(j => j.Id == i.Id))
+	// 					EntryPoints.Add(i);
+	// 	}
 
-		//EntryPoints = new(ConfirmedEntryPoints);
-	}
+	/// 	public void Remove(string data)
+	/// 	{
+	/// 		bool removedEntry = false;
+	/// 
+	/// 		foreach(var level in Layers.Keys.ToList())
+	/// 		{
+	/// 			var node = Layers[level].FirstOrDefault(n => n.Data == data);
+	/// 			if(node != null)
+	/// 			{
+	/// 				foreach(var conn in node.Connections.GetValueOrDefault(level, new()))
+	/// 					conn.Connections[level]?.RemoveAll(n => n.Data == data);
+	/// 
+	/// 				Layers[level].Remove(node);
+	/// 
+	/// 				if(Layers[level].Count == 0)
+	/// 					Layers.Remove(level);
+	/// 
+	/// 				if(EntryPoints.Contains(node))
+	/// 					removedEntry = true;
+	/// 			}
+	/// 		}
+	/// 
+	/// 		if(removedEntry)
+	/// 		{
+	/// 			var all = Layers.SelectMany(kvp => kvp.Value).ToList();
+	/// 			if(all.Any())
+	/// 			{
+	/// 				var newEntry = all.OrderByDescending(n => n.Level).First();
+	/// 				EntryPoints.Clear();
+	/// 				EntryPoints.Add(newEntry);
+	/// 			}
+	/// 			else
+	/// 			{
+	/// 				EntryPoints.Clear();
+	/// 			}
+	/// 		}
+	/// 	}
 
-// 	public EntityEnumeration GetLevelLatest(byte level)
-// 	{
-// 		return new EntityEnumeration(() => new LevelEnumerator(this, level, Mcv.LastConfirmedRound.Id, null));
-// 	}
+	/// 	public void Rebuild()
+	/// 	{
+	/// 		Console.WriteLine("[HNSW] Rebuilding graph...");
+	/// 		var allData = Layers
+	/// 			.SelectMany(kv => kv.Value)
+	/// 			.Select(n => n.Data)
+	/// 			.Distinct()
+	/// 			.ToList();
+	/// 
+	/// 		Layers.Clear();
+	/// 		EntryPoints.Clear();
+	/// 
+	/// 		foreach(var item in allData)
+	/// 			Add(item);
+	/// 
+	/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
+	/// 	}
 
-/// 	public void Remove(string data)
-/// 	{
-/// 		bool removedEntry = false;
-/// 
-/// 		foreach(var level in Layers.Keys.ToList())
-/// 		{
-/// 			var node = Layers[level].FirstOrDefault(n => n.Data == data);
-/// 			if(node != null)
-/// 			{
-/// 				foreach(var conn in node.Connections.GetValueOrDefault(level, new()))
-/// 					conn.Connections[level]?.RemoveAll(n => n.Data == data);
-/// 
-/// 				Layers[level].Remove(node);
-/// 
-/// 				if(Layers[level].Count == 0)
-/// 					Layers.Remove(level);
-/// 
-/// 				if(EntryPoints.Contains(node))
-/// 					removedEntry = true;
-/// 			}
-/// 		}
-/// 
-/// 		if(removedEntry)
-/// 		{
-/// 			var all = Layers.SelectMany(kvp => kvp.Value).ToList();
-/// 			if(all.Any())
-/// 			{
-/// 				var newEntry = all.OrderByDescending(n => n.Level).First();
-/// 				EntryPoints.Clear();
-/// 				EntryPoints.Add(newEntry);
-/// 			}
-/// 			else
-/// 			{
-/// 				EntryPoints.Clear();
-/// 			}
-/// 		}
-/// 	}
-
-/// 	public void Rebuild()
-/// 	{
-/// 		Console.WriteLine("[HNSW] Rebuilding graph...");
-/// 		var allData = Layers
-/// 			.SelectMany(kv => kv.Value)
-/// 			.Select(n => n.Data)
-/// 			.Distinct()
-/// 			.ToList();
-/// 
-/// 		Layers.Clear();
-/// 		EntryPoints.Clear();
-/// 
-/// 		foreach(var item in allData)
-/// 			Add(item);
-/// 
-/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
-/// 	}
-
-	public IEnumerable<E> Search(D query, int skip, int k, Func<E, bool> criteria, Func<HnswId, E> find, List<E> entrypoints, int efSearch = 32)
+	public IEnumerable<E> Search(D query, int skip, int k, Func<E, bool> criteria, Func<HnswId, E> find, List<E> entrypoints)
 	{
 		if(entrypoints.Count == 0)
 			return [];
@@ -288,7 +299,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		for(var level = current.Level; level >= 1; level--)
 			current = SearchBestNeighbor(query, current, level, find);
 
-		var resultNodes = EfSearch(query, current, 0, efSearch, skip, criteria, find);
+		var resultNodes = EfSearch(query, current, 0, k * 2, skip, criteria, find);
 
 		return resultNodes.Take(k);
 	}
@@ -312,7 +323,9 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		int entryDist = Metric.ComputeDistance(query, entry.Data);
 		candidates.Enqueue(entry, entryDist);
 		visited.Add(entry.Id);
-		topCandidates.Add((entryDist, entry));
+		
+		if(criteria == null || criteria(entry))
+			topCandidates.Add((entryDist, entry));
 
 		while(candidates.Count > 0 && topCandidates.Count < ef)
 		{
@@ -327,9 +340,6 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 				var neighbor = find(neighborId);
 
-				if(criteria != null && !criteria(neighbor))
-					continue;
-
 				if(skip > 0)
 				{	
 					skip--;
@@ -339,8 +349,10 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 				int dist = Metric.ComputeDistance(query, neighbor.Data);
 
 				var candidate = (dist, neighbor);
-				topCandidates.Add(candidate);
 				candidates.Enqueue(neighbor, dist);
+
+				if(criteria == null || criteria(neighbor))
+					topCandidates.Add(candidate);
 
 				// Обрезаем, если превысили ef
 				while(topCandidates.Count > ef)
@@ -348,8 +360,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 			}
 		}
 
-		// Возвращаем как список
-		return topCandidates.Select(x => x.node);
+		return topCandidates.Select(x => x.node).ToArray();
 	}
 
 	private E SearchBestNeighbor(D query, E start, int level, Func<HnswId, E> find)
@@ -388,19 +399,38 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	}
 }
 
-public abstract class ExecutingHnswTable<D, E> where E : HnswNode<D>
+public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 {
-	public abstract HnswTable<D, E>			Table { get; }
 	public List<E>							EntryPoints;
-	public FairExecution					Execution;
 	public Dictionary<HnswId, E>			Affected = new();
+	public HnswTable<D, E>					Table { get; }
+
+	protected HnswTableState(HnswTable<D, E> table)
+	{
+		Table = table;
+	}
+
+	public void StartRoundExecution(Round round)
+	{
+		Affected.Clear();
+		EntryPoints = round.Id == 0 ? [] : (round.Previous as FairRound).FindState<HnswTableState<D, E>>(Table).EntryPoints;
+	}
+
+	public void Absorb(ITableState execution)
+	{
+		var e = execution as HnswTableState<D, E>;
+
+		foreach(var i in e.Affected)	Affected[i.Key] = i.Value;
+
+		EntryPoints = e.EntryPoints;
+	}
+}
+
+public abstract class HnswTableExecution<D, E> : HnswTableState<D, E>  where E : HnswNode<D>
+{
+	public FairExecution					Execution;
 
 	public abstract  E						Affect(HnswId id);
-
-	protected ExecutingHnswTable(FairExecution execution)
-	{
-		Execution = execution;
-	}
 
 	public class LevelEnumerator : IEnumerator<E>
 	{
@@ -460,6 +490,11 @@ public abstract class ExecutingHnswTable<D, E> where E : HnswNode<D>
 			}
 		}
 	}
+
+	protected HnswTableExecution(FairExecution execution, HnswTable<D, E> table) : base(table)
+	{
+		Execution = execution;
+	}
 	
 	public List<E> AffectEntryPoints()
 	{
@@ -479,7 +514,7 @@ public abstract class ExecutingHnswTable<D, E> where E : HnswNode<D>
 		{	
 			level++;
 
-			r = Cryptography.Hash(r);
+			r = Cryptography.Hash(2, r);
 		}
 
 		return level;
