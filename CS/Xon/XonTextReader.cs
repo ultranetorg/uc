@@ -1,149 +1,158 @@
-﻿namespace Uccs;
+﻿using System.Text;
+
+namespace Uccs;
 
 public class XonTextReader : IXonReader
 {
-	//public IXonValueSerializator Serializator;
-	public XonToken Current { get; set; }
-
-	string Text;
-	Stack<bool> Type = new ();
-
-	private int c;
-	private char C { get => Text[c]; }
+	Stack<bool>				Type = new ();
+	public XonToken			Current { get; set; }
+	char					C;
+	CharEnumerator			Enumerator;
+	bool					R;
 
 	public XonTextReader(string s)
 	{
-		Text = s;
+		Enumerator = s.GetEnumerator();
+	}
+
+	void Move()
+	{
+		R = Enumerator.MoveNext();
+		
+		if(R)
+			C = Enumerator.Current;
 	}
 
 	public XonToken Read(IXonValueSerializator serializator)
 	{
-		if(Text.Length > 0)
+		Move();
+		
+		if(R)
 		{
 			Type.Push(false);
 			Current = XonToken.NodeBegin;
-			c = 0;
 		}
 		else
 			Current = XonToken.End;
+
 		return Current;
 	}
 
 	public XonToken ReadNext()
 	{
-		Next(ref c);
+		Next();
 
-		if(c < Text.Length)
+		if(!R)
 		{
-			switch(Current)
+			Current = XonToken.End;
+			return Current;
+		}
+
+		switch(Current)
+		{
+			case XonToken.NodeEnd:
 			{
-				case XonToken.NodeEnd:
+				if(C == '}') // after last child
 				{
-					if(C == '}') // after last child
-					{
-						bool t = Type.Pop();
+					bool t = Type.Pop();
 
-						Current = t ? XonToken.AttrValueEnd : XonToken.ChildrenEnd;
-						c++;
-					}
-					else // next child
-					{
-						Current = XonToken.NodeBegin;
-					}
-					break;
+					Current = t ? XonToken.AttrValueEnd : XonToken.ChildrenEnd;
+					Move();
 				}
-				case XonToken.NodeBegin:
-					Current = XonToken.NameBegin;
-					break;
+				else // next child
+				{
+					Current = XonToken.NodeBegin;
+				}
+				break;
+			}
+			case XonToken.NodeBegin:
+				Current = XonToken.NameBegin;
+				break;
 
-				case XonToken.NameEnd:
-					if(C == '=')
-					{
-						c++;
-						Current = XonToken.ValueBegin;
-					}
-					else if(C == '{')
-					{
-						c++;
-						Type.Push(false);
-						Current = XonToken.ChildrenBegin;
-					}
-					else
-						Current = XonToken.NodeEnd;
-					break;
-
-				case XonToken.ValueBegin:
-					if(C == '{')
-					{
-						c++;
-						Type.Push(true);
-						Current = XonToken.AttrValueBegin;
-					}
-					else
-						Current = XonToken.SimpleValueBegin;
-					break;
-
-				case XonToken.AttrValueBegin:
-					if(C == '}')
-					{
-						c++;
-						Current = XonToken.AttrValueEnd;
-					}
-					else
-					{
-						Current = XonToken.NodeBegin;
-					}
-					break;
-
-				case XonToken.ChildrenBegin:
-					if(C == '}')
-					{
-						Current = XonToken.ChildrenEnd;
-						c++;
-					}
-					else
-					{
-						Current = XonToken.NodeBegin;
-					}
-					break;
-
-				case XonToken.ChildrenEnd:
+			case XonToken.NameEnd:
+				if(C == '=')
+				{
+					Move();
+					Current = XonToken.ValueBegin;
+				}
+				else if(C == '{')
+				{
+					Move();
+					Type.Push(false);
+					Current = XonToken.ChildrenBegin;
+				}
+				else
 					Current = XonToken.NodeEnd;
-					break;
+				break;
 
-				case XonToken.AttrValueEnd:
-				case XonToken.SimpleValueEnd:
-					Current = XonToken.ValueEnd;
-					break;
-
-				case XonToken.ValueEnd:
+			case XonToken.ValueBegin:
+				if(C == '{')
 				{
-					if(C == '{')
-					{
-						c++;
-						Type.Push(false);
-						Current = XonToken.ChildrenBegin;
-					}
-					else
-						Current = XonToken.NodeEnd;
-					break;
+					Move();
+					Type.Push(true);
+					Current = XonToken.AttrValueBegin;
 				}
+				else
+					Current = XonToken.SimpleValueBegin;
+				break;
+
+			case XonToken.AttrValueBegin:
+				if(C == '}')
+				{
+					Move();
+					Current = XonToken.AttrValueEnd;
+				}
+				else
+				{
+					Current = XonToken.NodeBegin;
+				}
+				break;
+
+			case XonToken.ChildrenBegin:
+				if(C == '}')
+				{
+					Current = XonToken.ChildrenEnd;
+					Move();
+				}
+				else
+				{
+					Current = XonToken.NodeBegin;
+				}
+				break;
+
+			case XonToken.ChildrenEnd:
+				Current = XonToken.NodeEnd;
+				break;
+
+			case XonToken.AttrValueEnd:
+			case XonToken.SimpleValueEnd:
+				Current = XonToken.ValueEnd;
+				break;
+
+			case XonToken.ValueEnd:
+			{
+				if(C == '{')
+				{
+					Move();
+					Type.Push(false);
+					Current = XonToken.ChildrenBegin;
+				}
+				else
+					Current = XonToken.NodeEnd;
+				break;
 			}
 		}
-		else
-			Current = XonToken.End;
 
 		return Current;
 	}
 
 	public object ParseValue()
 	{
-		string value = null;
+		StringBuilder value = null; 
 
-		//bool found = false;
 		bool q = false;
 
-		while(c < Text.Length)
+		while(R)
 		{
 			if(!q)
 			{
@@ -152,10 +161,9 @@ public class XonTextReader : IXonReader
 					if(value != null)
 						break;
 				}
-				else if(C == '\"') // opening "
+				else if(C == '\"') /// opening "
 				{
-					value = "";
-					//if(!foundsemicolon)
+					value = new StringBuilder();
 					q = true;
 				}
 				else
@@ -163,73 +171,70 @@ public class XonTextReader : IXonReader
 					if(value == null)
 					{
 						//found = true;
-						value = "";
+						value = new StringBuilder();
 					}
-					value += C;
+					value.Append(C);
 				}
 			}
 			else
 			{
-				if(C == '"') // closing " or escaping
+				if(C == '"') /// closing " or escaping
 				{
-					c++;
-					if(c == Text.Length)
+					Move();
+					
+					if(!R)
 						break;
 					else if(C == '"')
 					{
-						value += C;
-						//c++;
+						value.Append(C);
 					}
 					else
 						break;
 				}
 				else
-					value += C;
+					value.Append(C);
 
 			}
-			c++;
+			Move();
 		}
-
 
 		Current = XonToken.SimpleValueEnd;
 
-		return value;
+		return value?.ToString();
 	}
 
 	public string ParseName()
 	{
-		//bool typefound = false;
 		bool q = false;
 
-		string name = null; 
+		var name = new StringBuilder(); 
 
 		while(true)
 		{
 			if(!q)
 			{
-				if(c == Text.Length || C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '{' || C == '}' || C == '=')
+				if(!R || C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '{' || C == '}' || C == '=')
 				{
 					Current = XonToken.NameEnd;
-					return name;
+					return name.ToString();
 				}
 				else if(C == '\"') // opening '
 				{
-					//if(!foundsemicolon)
 					q = true;
 				}
 				else
 				{
-					name += C;
+					name.Append(C);
 				}
 			}
 			else
 			{
-				if(C == '\"') // closing ' or escaping
+				if(C == '\"') /// closing ' or escaping
 				{
-					c++;
+					Move();
 					if(C == '\"')
 					{
-						name += C;
+						name.Append(C);
 						//c++;
 					}
 					else
@@ -239,12 +244,12 @@ public class XonTextReader : IXonReader
 					}
 				}
 				else
-					name += C;
+					name.Append(C);
 			}
-			c++;
+			Move();
 		}
 
-		return name;
+		return name.ToString();
 	}
 
 	public object ParseMeta()
@@ -252,26 +257,26 @@ public class XonTextReader : IXonReader
 		throw new NotSupportedException();
 	}
 
-	private void Next(ref int c)
+	private void Next()
 	{
-		while(c < Text.Length)
+		while(R)
 		{
 			if(C == ' ' || C == '\t' || C == '\r' || C == '\n')
 			{
-				c++;
+				Move();
 			}
-			else if(C == '/')
-			{
-				c++;
-				if(c < Text.Length && C == '/')
-					while(c < Text.Length && C != '\r' && C != '\n')
-						c++;
-				else
-				{
-					c--;
-					break;
-				}
-			}
+			//else if(C == '/')
+			//{
+			//	Move();
+			//	if(R && C == '/')
+			//		while(R && C != '\r' && C != '\n')
+			//			Move();
+			//	else
+			//	{
+			//		c--;
+			//		break;
+			//	}
+			//}
 			else
 				break;
 		}
