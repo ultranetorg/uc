@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom"
 
-import { useSite } from "app"
+import { useSiteContext } from "app"
 
 import { CategoriesList } from "ui/components"
 
 export const SitePage = () => {
   const { siteId } = useParams()
-  const { isPending, site } = useSite()
+  const { isPending, site } = useSiteContext()
 
   if (isPending || !site) {
     return <>LOADING</>

@@ -1,14 +1,14 @@
 const THREE_DOTS = "..."
 const OS_DIVIDER = " | "
 
-export const formatFolderName = (name: string, maxLength: number = 48, endLength: number = 16): string => {
-  if (name.length <= maxLength) {
-    return name
+export const formatTitle = (title: string, maxLength: number = 48, endLength: number = 16): string => {
+  if (title.length <= maxLength) {
+    return title
   }
 
   const availableStartLength = maxLength - endLength - THREE_DOTS.length // Minus "..."
-  const start = name.slice(0, availableStartLength)
-  const end = name.slice(-endLength)
+  const start = title.slice(0, availableStartLength)
+  const end = title.slice(-endLength)
   return `${start} ${THREE_DOTS} ${end}`
 }
 

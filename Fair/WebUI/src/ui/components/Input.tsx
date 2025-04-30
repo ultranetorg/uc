@@ -1,4 +1,4 @@
-import { ChangeEvent, InputHTMLAttributes, memo, useCallback } from "react"
+import { ChangeEvent, InputHTMLAttributes, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -13,7 +13,7 @@ export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "placeholde
   InputBaseProps
 
 export const Input = memo(({ placeholder, value, className, onChange }: InputProps) => {
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value), [onChange])
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value)
 
   return (
     <input

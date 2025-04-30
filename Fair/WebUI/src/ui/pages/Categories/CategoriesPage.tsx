@@ -2,8 +2,7 @@ import { Link, useParams } from "react-router-dom"
 import { useMemo } from "react"
 
 import { useGetCategories } from "entities"
-
-import { buildCategoryTree } from "./utils"
+import { buildCategoryTree } from "utils"
 
 export const CategoriesPage = () => {
   const { siteId } = useParams()

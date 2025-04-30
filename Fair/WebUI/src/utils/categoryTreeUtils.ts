@@ -1,6 +1,4 @@
-import { CategoryParentBase } from "types"
-
-import { CategoryParentBaseWithChildren } from "./types"
+import { CategoryParentBase, CategoryParentBaseWithChildren } from "types"
 
 export const buildCategoryTree = (categories: CategoryParentBase[]): CategoryParentBaseWithChildren[] => {
   const map = new Map<string, CategoryParentBaseWithChildren>()

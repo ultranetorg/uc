@@ -36,6 +36,7 @@ export const useSearchSites = (page?: number, search?: string) => {
 export const useSearchLightSites = (query?: string) => {
   const queryFn = async () => {
     const response = await api.searchLightSites(query)
+    // TODO: response of useSearchLightSites method should be TotalItemsResponse<SiteLightSearch>.
     return response.items.map<SearchDropdownItem>(x => ({
       id: x.id,
       value: x.title,

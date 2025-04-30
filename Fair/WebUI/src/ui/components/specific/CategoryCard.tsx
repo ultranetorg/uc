@@ -1,4 +1,4 @@
-import { formatFolderName } from "utils"
+import { formatTitle } from "utils"
 
 export type CategoryCardProps = {
   image: JSX.Element
@@ -11,6 +11,6 @@ export const CategoryCard = ({ image, title }: CategoryCardProps) => (
     title={title}
   >
     <div>{image}</div>
-    <span>{formatFolderName(title)}</span>
+    <span>{formatTitle(title)}</span>
   </div>
 )
