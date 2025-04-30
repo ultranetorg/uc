@@ -27,7 +27,7 @@ public class WordExecution : TableExecution<RawId, Word>
 		if(Affected.TryGetValue(id, out var a))
 			return a;
 			
-		a = Find(id);
+		a = Table.Find(id, Execution.Round.Id);
 
 		if(a == null)
 		{
