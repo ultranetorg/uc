@@ -41,7 +41,7 @@ public class ReviewTextModeration : VotableOperation
 		if(!RequireReview(execution, Review, out var r))
 			return false;
 
-		var p = execution.FindPublication(r.Publication);
+		var p = execution.Publications.Find(r.Publication);
 
 		if(!p.ReviewChanges.Contains(r.Id))
 		{	
@@ -75,12 +75,12 @@ public class ReviewTextModeration : VotableOperation
 	 		}
 		}	 	
 
-		var r = execution.AffectReview(Review);
+		var r = execution.Reviews.Affect(Review);
 
-		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
+		var a = execution.Authors.Affect(execution.Products.Find(execution.Publications.Find(r.Publication).Product).Author);
 		EnergySpenders = [a];
 		
-		var p = execution.AffectPublication(r.Publication);
+		var p = execution.Publications.Affect(r.Publication);
 
 		if(Resolution == true)
 		{

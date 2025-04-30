@@ -55,7 +55,7 @@ public class SitePolicyChange : VotableOperation
 	 		}
 		}
 
- 		var s = execution.AffectSite(Site);
+ 		var s = execution.Sites.Affect(Site);
  
 		s.ChangePolicies = new(s.ChangePolicies);
 		s.ChangePolicies[Change] = Policy;

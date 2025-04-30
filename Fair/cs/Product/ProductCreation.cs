@@ -31,8 +31,8 @@ public class ProductCreation : FairOperation
 		if(RequireAuthorAccess(execution, Author, out var a) == false)
 			return;
 
-		a = execution.AffectAuthor(Author);
-		var p = execution.CreateProduct(a);
+		a = execution.Authors.Affect(Author);
+		var p = execution.Products.Create(a);
 
 		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];

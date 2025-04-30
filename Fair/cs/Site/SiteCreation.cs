@@ -32,7 +32,7 @@ public class SiteCreation : FairOperation
 			return;
 		}
 
-		var s = execution.CreateSite(Signer);
+		var s = execution.Sites.Create(Signer);
 
 		s.Title			= Title;
 		s.Space			= execution.Net.EntityLength;

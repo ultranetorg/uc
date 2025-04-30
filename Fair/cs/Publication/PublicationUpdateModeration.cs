@@ -41,7 +41,7 @@ public class PublicationUpdateModeration : VotableOperation
 		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
-		var r = execution.FindProduct(p.Product);
+		var r = execution.Products.Find(p.Product);
 
 		if(!r.Fields.Any(i => i.Name == Change.Name && i.Versions.Any(i => i.Version == Change.Version)))
 		{
@@ -75,13 +75,13 @@ public class PublicationUpdateModeration : VotableOperation
 	 		}
 		}	 	
 
-		var p = execution.AffectPublication(Publication);
-		var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
+		var p = execution.Publications.Affect(Publication);
+		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
 		var c = p.Changes.First(i => i.Name == Change.Name && i.Version == Change.Version);
  
 		if(Resolution == true)
 		{
-			var r = execution.AffectProduct(p.Product);
+			var r = execution.Products.Affect(p.Product);
 			var f = r.Fields.First(i => i.Name == Change.Name);
 				
 			p.Changes = [..p.Changes.Where(i => i != c)];
@@ -103,7 +103,7 @@ public class PublicationUpdateModeration : VotableOperation
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 				if(f.Name == ProductField.Title)
-					execution.PublicationTitles.Deindex(execution.FindCategory(p.Category).Site, p, r.Get(prev).AsUtf8);
+					execution.PublicationTitles.Deindex(execution.Categories.Find(p.Category).Site, p, r.Get(prev).AsUtf8);
 			}
 	
 			/// increase refs in product
@@ -116,7 +116,7 @@ public class PublicationUpdateModeration : VotableOperation
 			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 			if(f.Name == ProductField.Title)
-				execution.PublicationTitles.Index(execution.FindCategory(p.Category).Site, p.Id, v.AsUtf8);
+				execution.PublicationTitles.Index(execution.Categories.Find(p.Category).Site, p.Id, v.AsUtf8);
 
 			PayForModeration(execution, p, a);
 		}

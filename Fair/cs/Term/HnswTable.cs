@@ -403,7 +403,7 @@ public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 {
 	public List<E>							EntryPoints;
 	public Dictionary<HnswId, E>			Affected = new();
-	public HnswTable<D, E>					Table { get; }
+	public HnswTable<D, E>					Table; 
 
 	protected HnswTableState(HnswTable<D, E> table)
 	{
@@ -413,7 +413,7 @@ public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 	public void StartRoundExecution(Round round)
 	{
 		Affected.Clear();
-		EntryPoints = round.Id == 0 ? [] : (round.Previous as FairRound).FindState<HnswTableState<D, E>>(Table).EntryPoints;
+		EntryPoints = round.Id == 0 ? [] : round.Previous.FindState<HnswTableState<D, E>>(Table).EntryPoints;
 	}
 
 	public void Absorb(ITableState execution)

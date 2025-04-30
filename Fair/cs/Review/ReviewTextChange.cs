@@ -31,8 +31,8 @@ public class ReviewTextChange : FairOperation
 		if(!RequireReviewOwnerAccess(execution, Review, Signer, out var r))
 			return;
 
-		r = execution.AffectReview(Review);
-		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
+		r = execution.Reviews.Affect(Review);
+		var a = execution.Authors.Affect(execution.Products.Find(execution.Publications.Find(r.Publication).Product).Author);
 
 		EnergySpenders = [a];
 
@@ -41,7 +41,7 @@ public class ReviewTextChange : FairOperation
 
 		r.TextNew = Text;
 
-		var p = execution.AffectPublication(r.Publication);
+		var p = execution.Publications.Affect(r.Publication);
 
 		if(!p.ReviewChanges.Contains(r.Id))
 			p.ReviewChanges = [..p.ReviewChanges, Review];

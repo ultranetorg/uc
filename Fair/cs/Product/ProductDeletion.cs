@@ -26,10 +26,10 @@ public class ProductDeletion : FairOperation
 		if(RequireProductAccess(execution, Product, out var a, out var p) == false)
 			return;
 
-		a = execution.AffectAuthor(p.Author);
+		a = execution.Authors.Affect(p.Author);
 		a.Products = a.Products.Where(i => i != Product).ToArray();
 
-		execution.AffectProduct(Product).Deleted = true;
+		execution.Products.Affect(Product).Deleted = true;
 
 		Free(execution, Signer, a, execution.Net.EntityLength + p.Length);
 	}

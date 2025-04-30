@@ -23,11 +23,11 @@ public class FairAccountTable : AccountTable
 			foreach(var b in cl.Buckets)
 				foreach(var i in b.Entries.Cast<FairAccount>().Where(i => i.Nickname != ""))
 				{
-					var w = e.AffectWord(Word.GetId(i.Nickname));
+					var w = e.Words.Affect(Word.GetId(i.Nickname));
 
 					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AccountNickname}];
 				}
 	
-		Mcv.Words.Commit(batch, e.AffectedWords.Values, null, null);
+		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
 	}
 }

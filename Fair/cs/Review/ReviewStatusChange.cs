@@ -54,10 +54,10 @@ public class ReviewStatusChange : VotableOperation
 	 		}
 		}	 	
 
-		var r = execution.AffectReview(Review);
+		var r = execution.Reviews.Affect(Review);
 		r.Status = Status;
 
-		var a = execution.AffectAuthor(execution.FindProduct(execution.FindPublication(r.Publication).Product).Author);
+		var a = execution.Authors.Affect(execution.Products.Find(execution.Publications.Find(r.Publication).Product).Author);
 		EnergySpenders = [a];
 	}
 }

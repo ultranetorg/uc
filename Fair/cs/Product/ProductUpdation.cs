@@ -53,8 +53,8 @@ public class ProductUpdation : FairOperation
 		if(RequireProductAccess(execution, ProductId, out var a, out var r) == false)
 			return;
 
-		a = execution.AffectAuthor(a.Id);
-		r = execution.AffectProduct(ProductId);
+		a = execution.Authors.Affect(a.Id);
+		r = execution.Products.Affect(ProductId);
 
 		var f = r.Fields.FirstOrDefault(j => j.Name == Name);
 
@@ -82,7 +82,7 @@ public class ProductUpdation : FairOperation
 
 		foreach(var j in r.Publications)
 		{
-			var p = execution.AffectPublication(j);
+			var p = execution.Publications.Affect(j);
 				
 			var c = p.Changes.FirstOrDefault(c => c.Name == Name);
 

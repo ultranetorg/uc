@@ -36,7 +36,7 @@ public class AuthorRenewal : FairOperation
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = execution.AffectAuthor(AuthorId);
+		a = execution.Authors.Affect(AuthorId);
 
 		if(!Author.CanRenew(a, Signer, execution.Time))
 		{
@@ -81,7 +81,7 @@ public class AuthorModerationReward : FairOperation
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = execution.AffectAuthor(AuthorId);
+		a = execution.Authors.Affect(AuthorId);
 
 		a.ModerationReward = Amount;
 	}
@@ -120,7 +120,7 @@ public class AuthorOwnerAddition : FairOperation
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = execution.AffectAuthor(AuthorId);
+		a = execution.Authors.Affect(AuthorId);
 
 		if(!RequireAccount(execution, Owner, out var x))
 			return;
@@ -168,7 +168,7 @@ public class AuthorOwnerRemoval : FairOperation
 		if(!RequireAuthorAccess(execution, AuthorId, out var a))
 			return;
 		
-		a = execution.AffectAuthor(AuthorId);
+		a = execution.Authors.Affect(AuthorId);
 
 		if(a.Owners.Length == 1)
 		{

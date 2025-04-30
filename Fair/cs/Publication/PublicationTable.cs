@@ -22,7 +22,7 @@ public class PublicationTable : Table<AutoId, Publication>
 
 		foreach(var i in GraphEntities)
 		{
-			var c = e.FindCategory(i.Category);
+			var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
 			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
 
@@ -35,5 +35,36 @@ public class PublicationTable : Table<AutoId, Publication>
 		}
 	
 		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
+	}
+}
+
+public class PublicationExecution : TableExecution<AutoId, Publication>
+{
+	public PublicationExecution(FairExecution execution) : base(execution.Mcv.Publications, execution)
+	{
+	}
+ 
+	public Publication Create(Site site)
+	{
+		int e = Execution.GetNextEid(Table, site.Id.B);
+
+		var a = Table.Create();
+		a.Id = new AutoId(site.Id.B, e);
+		a.Fields = [];
+		a.Changes = [];
+		a.Reviews = [];
+		a.ReviewChanges = [];
+			
+		return Affected[a.Id] = a;
+	}
+
+	public Publication Affect(AutoId id)
+	{
+		if(Affected.TryGetValue(id, out var a))
+			return a;
+			
+		var e = Find(id);
+
+		return Affected[id] = e.Clone();
 	}
 }

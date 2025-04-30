@@ -20,7 +20,7 @@ public class NicknameChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Nickname		= reader.ReadUtf8();
+		Nickname	= reader.ReadUtf8();
 		Field		= reader.Read<EntityTextField>();
 		Entity		= reader.Read<AutoId>();
 	}
@@ -66,7 +66,7 @@ public class NicknameChange : VotableOperation
 		}
 
 		//var id = Ngram.GetId(Nickname);
-		var e = execution.FindWord(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
+		var e = execution.Words.Find(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
 
 		if(e != null)
 		{
@@ -77,19 +77,19 @@ public class NicknameChange : VotableOperation
 			}
 
 			if(e.Field != Field)
-				execution.UnregisterWord(Nickname, e.Field, e.Entity);
+				execution.Words.Unregister(Nickname, e.Field, e.Entity);
 		}
 
 		if(Nickname != "")
 		{
-			execution.RegisterWord(Nickname, Field, Entity);
+			execution.Words.Register(Nickname, Field, Entity);
 		}
 
 		switch(Field)
 		{
 			case EntityTextField.AccountNickname:	execution.AffectAccount(Entity).Nickname = Nickname;	break;
-			case EntityTextField.AuthorNickname:	execution.AffectAuthor(Entity).Nickname = Nickname;		break;
-			case EntityTextField.SiteNickname:		execution.AffectSite(Entity).Nickname = Nickname;		break;
+			case EntityTextField.AuthorNickname:	execution.Authors.Affect(Entity).Nickname = Nickname;	break;
+			case EntityTextField.SiteNickname:		execution.Sites.Affect(Entity).Nickname = Nickname;		break;
 		}
 	}
 }

@@ -25,18 +25,18 @@ public class CategoryMovement : FairOperation
 		if(!RequireCategoryAccess(execution, Category, out var c))
 			return;
 
-		c = execution.AffectCategory(Category);
+		c = execution.Categories.Affect(Category);
 
 		if(c.Parent != null)
 		{
-			var p = execution.AffectCategory(c.Parent);
+			var p = execution.Categories.Affect(c.Parent);
 
 			p.Categories = p.Categories.Where(i => i != c.Id).ToArray();
 		}
 
 		if(Parent == null)
 		{
-			var s = execution.AffectSite(c.Site);
+			var s = execution.Sites.Affect(c.Site);
 			s.Categories = [..s.Categories, c.Id];
 		} 
 		else
@@ -52,7 +52,7 @@ public class CategoryMovement : FairOperation
 
 			c.Parent = p.Id;
 
-			p = execution.AffectCategory(p.Id);
+			p = execution.Categories.Affect(p.Id);
 			p.Categories = [..p.Categories, c.Id];
 		}
 
@@ -67,7 +67,7 @@ public class CategoryMovement : FairOperation
 // 					return;
 // 				}
 // 
-// 				c = round.AffectCategory(EntityId);
+// 				c = round.Categories.Affect(EntityId);
 // 
 // 				c.Parent = null;
 // 				c.Categories = c.Categories.Where(i => i != EntityId).ToArray();

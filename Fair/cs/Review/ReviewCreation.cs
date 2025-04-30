@@ -32,7 +32,7 @@ public class ReviewCreation : FairOperation
 		if(!RequirePublication(execution, Publication, out var p))
 			return;
 
-		var r = execution.CreateReview(p);
+		var r = execution.Reviews.Create(p);
 
 		r.Publication	= p.Id;
 		r.Creator		= Signer.Id;
@@ -42,12 +42,12 @@ public class ReviewCreation : FairOperation
 		r.TextNew		= Text;
 		r.Created		= execution.Time;
 
-		p = execution.AffectPublication(p.Id);
+		p = execution.Publications.Affect(p.Id);
 
 		p.Reviews = [..p.Reviews, r.Id];
 		p.ReviewChanges = [..p.ReviewChanges, r.Id];
 
-		var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
+		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
 
 		Allocate(execution, a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 

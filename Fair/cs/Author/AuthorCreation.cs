@@ -39,7 +39,7 @@ public class AuthorCreation : FairOperation
 			return;
 		}
 
-		var e = execution.CreateAuthor(Signer.Address);
+		var e = execution.Authors.Create(Signer.Address);
 
 		Signer.Authors = [..Signer.Authors, e.Id];
 		

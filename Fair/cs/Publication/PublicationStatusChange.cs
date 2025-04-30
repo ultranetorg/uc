@@ -54,7 +54,7 @@ public class PublicationStatusChange : VotableOperation
 	 		}
 		} 	
 
-		var p =	execution.AffectPublication(Publication);
+		var p =	execution.Publications.Affect(Publication);
 
  		if(Status == PublicationStatus.Approved)
  		{
@@ -62,7 +62,7 @@ public class PublicationStatusChange : VotableOperation
 
 			if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
 			{
-				var a = execution.AffectAuthor(execution.FindProduct(p.Product).Author);
+				var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
 
 				PayForModeration(execution, p, a);
 			}
@@ -70,7 +70,7 @@ public class PublicationStatusChange : VotableOperation
 			var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
 			
 			if(tr != null)
-				execution.PublicationTitles.Index(execution.FindCategory(p.Category).Site, p.Id, execution.FindProduct(p.Product).Get(tr).AsUtf8);
+				execution.PublicationTitles.Index(execution.Categories.Find(p.Category).Site, p.Id, execution.Products.Find(p.Product).Get(tr).AsUtf8);
 		}
 		else if(Status == PublicationStatus.Rejected)
 		{

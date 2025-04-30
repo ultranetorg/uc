@@ -26,17 +26,17 @@ public class SiteDeletion : FairOperation
 		if(RequireSiteModeratorAccess(execution, Site, out var s) == false)
 			return;
 
-		s = execution.AffectSite(Site);
+		s = execution.Sites.Affect(Site);
 		s.Deleted = true;
 		
 		foreach(var i in s.Categories)
 		{
-			var c = execution.AffectCategory(i);
+			var c = execution.Categories.Affect(i);
 			c.Deleted = true;
 
 			foreach(var j in c.Publications)
 			{
-				var p = execution.AffectPublication(j);
+				var p = execution.Publications.Affect(j);
 				p.Deleted = true;
 			}
 		}

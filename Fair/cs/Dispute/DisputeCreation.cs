@@ -54,7 +54,7 @@ public class DisputeCreation : FairOperation
  		}
  
  		if(s.Disputes.Any(i =>  {
-                                    var p = execution.FindDispute(i).Proposal;
+                                    var p = execution.Disputes.Find(i).Proposal;
 
                                     if(p.GetType() != Proposal.GetType())
                                         return false;
@@ -104,7 +104,7 @@ public class DisputeCreation : FairOperation
  			}
  		}
  
- 		var d = execution.CreateDispute(s);
+ 		var d = execution.Disputes.Create(s);
  
  		d.Site       = Site;
         d.Text       = Text;
@@ -113,7 +113,7 @@ public class DisputeCreation : FairOperation
  
  		AllocateEntity(Signer);
  
- 		s = execution.AffectSite(s.Id);
+ 		s = execution.Sites.Affect(s.Id);
  		s.Disputes = [..s.Disputes, d.Id];
 	}
 }

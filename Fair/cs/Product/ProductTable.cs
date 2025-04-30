@@ -32,4 +32,34 @@ public class ProductTable : Table<AutoId, Product>
 	{
 		return new Product(Mcv);
 	}
- }
+}
+
+public class ProductExecution : TableExecution<AutoId, Product>
+{
+	public ProductExecution(FairExecution execution) : base(execution.Mcv.Products, execution)
+	{
+	}
+
+	public Product Create(Author author)
+	{
+		int e = Execution.GetNextEid(Table, author.Id.B);
+
+  		var	p = new Product();
+
+		p.Id = new AutoId(author.Id.B, e);
+		p.Fields = []; 
+		p.Publications = [];
+
+  		return Affected[p.Id] = p;
+	}
+
+	public Product Affect(AutoId id)
+	{
+		if(Affected.TryGetValue(id, out var a))
+			return a;
+		
+		a = Find(id);
+
+		return Affected[id] = a.Clone();
+	}
+}

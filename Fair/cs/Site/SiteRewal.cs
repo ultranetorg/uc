@@ -36,7 +36,7 @@ class SiteRewal : FairOperation
 		if(!RequireSiteModeratorAccess(execution, SiteId, out var a))
 			return;
 		
-		a = execution.AffectSite(SiteId);
+		a = execution.Sites.Affect(SiteId);
 
 		if(!Site.CanRenew(a, execution.Time))
 		{
