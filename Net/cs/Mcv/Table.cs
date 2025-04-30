@@ -689,8 +689,8 @@ public interface ITableState
 
 public class TableState<ID, E> : ITableState where ID : EntityId where E : class, ITableEntry
 {
-	public Dictionary<ID, E>				Affected = new();
-	public Table<ID, E>						Table;
+	public Dictionary<ID, E>	Affected = new();
+	public Table<ID, E>			Table;
 
 	public TableState(Table<ID, E> table)
 	{
@@ -727,4 +727,17 @@ public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : Entit
  		
 		return Table.Find(id, Execution.Round.Id);
  	}
+
+	public virtual E Affect(ID id)
+	{
+		if(Affected.TryGetValue(id, out var a))
+			return a;
+			
+		a = Table.Find(id, Execution.Round.Id);
+
+		if(a == null)
+			throw new IntegrityException();
+		
+		return Affected[id] = a.Clone() as E;
+	}
 }

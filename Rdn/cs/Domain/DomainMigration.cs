@@ -75,7 +75,7 @@ public class DomainMigration : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var a = execution.FindDomain(Name);
+		var a = execution.Domains.Find(Name);
 
 		if(a?.Owner != null)
 		{
@@ -92,7 +92,7 @@ public class DomainMigration : RdnOperation
 	public void ConfirmedExecute(Execution execution)
 	{
 		var e = execution as RdnExecution;
-		var a = e.AffectDomain(Name);
+		var a = e.Domains.Affect(Name);
 
 		switch(Tld)
 		{

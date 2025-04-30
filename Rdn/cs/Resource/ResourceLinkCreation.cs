@@ -47,10 +47,10 @@ public class ResourceLinkCreation : RdnOperation
 		if(RequireResource(execution, Destination, out var dd, out var dr) == false)
 			return;
 
-		sr = execution.AffectResource(sd, sr.Address.Resource);
+		sr = execution.Resources.Affect(sd, sr.Address.Resource);
 		sr.AffectOutbound(dr.Id);
 
-		dr = execution.AffectResource(dd, dr.Address.Resource);
+		dr = execution.Resources.Affect(dd, dr.Address.Resource);
 		dr.AffectInbound(sr.Id);
 
 		if(Changes.HasFlag(ResourceLinkChanges.Seal))
@@ -65,7 +65,7 @@ public class ResourceLinkCreation : RdnOperation
 		}
 		else
 		{	
-			sd = execution.AffectDomain(sd.Id);
+			sd = execution.Domains.Affect(sd.Id);
 			Allocate(execution, Signer, sd, execution.Net.EntityLength);
 		}
 	}

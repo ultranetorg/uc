@@ -57,14 +57,4 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			
 		return Affected[a.Id] = a;
 	}
-
-	public Publication Affect(AutoId id)
-	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-			
-		var e = Find(id);
-
-		return Affected[id] = e.Clone();
-	}
 }

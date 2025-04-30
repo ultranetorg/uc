@@ -551,12 +551,9 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(GraphStateKey, GraphState);
 				b.Put(__GraphHashKey, GraphHash);
 
-				foreach(var i in Tail.TakeLast(Net.CommitLength))
+				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote))
 				{
-					if(!LoadedRounds.ContainsKey(i.Id))
-					{
-						LoadedRounds.Add(i.Id, i);
-					}
+					LoadedRounds[i.Id] = i;
 				}
 
 				Tail.RemoveAll(i => i.Id <= round.Id);

@@ -50,16 +50,16 @@ public class Review : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	public Review Clone()
+	public object Clone()
 	{
-		return new(Mcv){Id			= Id,
-						Publication = Publication,
-						Creator		= Creator,
-						Status		= Status,
-						Rate		= Rate,
-						Text		= Text,
-						TextNew		= TextNew,
-						Created		= Created};
+		return new Review(Mcv) {Id			= Id,
+								Publication = Publication,
+								Creator		= Creator,
+								Status		= Status,
+								Rate		= Rate,
+								Text		= Text,
+								TextNew		= TextNew,
+								Created		= Created};
 	}
 		
 

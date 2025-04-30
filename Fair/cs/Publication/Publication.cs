@@ -47,19 +47,18 @@ public class Publication : IBinarySerializable, ITableEntry
 		return $"{Id}, Product={Product}, Category={Category}, Creator={Creator}, Fields={Fields.Length}, Changes={Changes.Length}, Flags={Flags}";
 	}
 
-	public Publication Clone()
+	public object Clone()
 	{
-		return new(Mcv){Id				= Id,
-						Category		= Category,
-						Creator			= Creator,
-						Product			= Product,
-						Status			= Status,
-						Fields			= Fields,
-						Changes			= Changes,
-						Reviews			= Reviews,
-						ReviewChanges	= ReviewChanges,
-						Flags			= Flags,
-						};
+		return new Publication(Mcv){Id				= Id,
+									Category		= Category,
+									Creator			= Creator,
+									Product			= Product,
+									Status			= Status,
+									Fields			= Fields,
+									Changes			= Changes,
+									Reviews			= Reviews,
+									ReviewChanges	= ReviewChanges,
+									Flags			= Flags};
 	}
 
 	public void ReadMain(BinaryReader reader)

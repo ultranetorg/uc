@@ -1,22 +1,20 @@
-﻿using System.Text;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public class FairExecution : Execution
 {
-	public new Fair				Net => base.Net as Fair;
-	public new FairMcv			Mcv => base.Mcv as FairMcv;
-	public new FairRound		Round => base.Round as FairRound;
+	public new Fair						Net => base.Net as Fair;
+	public new FairMcv					Mcv => base.Mcv as FairMcv;
+	public new FairRound				Round => base.Round as FairRound;
 
-	public AuthorExecution						Authors;
-	public ProductExecution						Products;
-	public SiteExecution						Sites;
-	public CategoryExecution					Categories;
-	public PublicationExecution					Publications;
-	public ReviewExecution						Reviews;
-	public DisputeExecution						Disputes;
-	public WordExecution						Words;
-	public PublicationTitleExecution			PublicationTitles;
+	public AuthorExecution				Authors;
+	public ProductExecution				Products;
+	public SiteExecution				Sites;
+	public CategoryExecution			Categories;
+	public PublicationExecution			Publications;
+	public ReviewExecution				Reviews;
+	public DisputeExecution				Disputes;
+	public WordExecution				Words;
+	public PublicationTitleExecution	PublicationTitles;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -26,7 +24,6 @@ public class FairExecution : Execution
 		Categories = new(this);
 		Publications = new(this);
 		Reviews = new(this);
-
 		Disputes = new(this);
 		Words = new(this);
 		PublicationTitles = new(this);
@@ -37,9 +34,9 @@ public class FairExecution : Execution
 		if(table == Mcv.Authors.Id)				return Authors.Find(id as AutoId)				!= null	? Authors.Affect(id as AutoId) : null;
 		if(table == Mcv.Sites.Id)				return Sites.Find(id as AutoId)					!= null	? Sites.Affect(id as AutoId) : null;
 		//if(table == Mcv.Products.Id)			return Products.Find(id as AutoId)				!= null	? Products.Affect(id as AutoId) : null;
-		//if(table == Mcv.Categories.Id)			return Categories.Find(id as AutoId)				!= null	? Categories.Affect(id as AutoId) : null;
+		//if(table == Mcv.Categories.Id)		return Categories.Find(id as AutoId)			!= null	? Categories.Affect(id as AutoId) : null;
 		//if(table == Mcv.Publications.Id)		return Publications.Find(id as AutoId)			!= null	? Publications.Affect(id as AutoId) : null;
-		//if(table == Mcv.Reviews.Id)				return FindReview(id as AutoId)					!= null	? Reviews.Affect(id as AutoId) : null;
+		//if(table == Mcv.Reviews.Id)			return FindReview(id as AutoId)					!= null	? Reviews.Affect(id as AutoId) : null;
 		//if(table == Mcv.Disputes.Id)			return FindDispute(id as AutoId)				!= null	? AffectDispute(id as AutoId) : null;
 		//if(table == Mcv.Words.Id)				return FindWord(id as RawId)					!= null	? AffectWord(id as RawId) : null;
 		//if(table == Mcv.PublicationTitles.Id)	return Mcv.PublicationTitles.Find(id as HnswId)	!= null	? AffectPublicationTitle(id as RawId) : null;
@@ -79,7 +76,7 @@ public class FairExecution : Execution
 			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
 				return a;
 		
-			a = Mcv.Accounts.Find(Transaction.Signer, Round.Id)?.Clone();	
+			a = Mcv.Accounts.Find(Transaction.Signer, Round.Id)?.Clone() as Account;	
 
 			if(a != null)
 				TransferEnergyIfNeeded(a);
@@ -123,55 +120,6 @@ public class FairExecution : Execution
 // 				DeleteAuthor(i);
 // 		}
 	}
-
-
-	//public Ngram CreateNgram(RawId id)
-	//{
-	//	var a = Mcv.Ngrams.Create();
-	//	a.Id = id;
-	//	a.References = [];
-	//
-	//	return AffectedNgrams[a.Id] = a;
-	//}
-	
-//  public Ngram FindNgram(RawId id)
-//  {
-//  	if(AffectedNgrams.TryGetValue(id, out var a))
-//  		return a;
-//  
-//  	return Mcv.Ngrams.Find(id, Round.Id);
-//  }
-// 
-// 	//public Ngram CreateNgram(RawId id)
-// 	//{
-// 	//	var a = Mcv.Ngrams.Create();
-// 	//	a.Id = id;
-// 	//	a.References = [];
-// 	//
-// 	//	return AffectedNgrams[a.Id] = a;
-// 	//}
-// 
-// 	public Ngram AffectNgram(RawId id)
-// 	{
-// 		if(AffectedNgrams.TryGetValue(id, out var a))
-// 			return a;
-// 			
-// 		a = Mcv.Ngrams.Find(id, Round.Id);
-// 
-// 		if(a == null)
-// 		{
-// 			a = Mcv.Ngrams.Create();
-// 			a.Id = id;
-// 			a.References = [];
-// 			a.Ngrams = [];
-// 		
-// 			return AffectedNgrams[id] = a;
-// 		} 
-// 		else
-// 		{
-// 			return AffectedNgrams[id] = a.Clone();
-// 		}
-// 	}
 
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
 /// 	{

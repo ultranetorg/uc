@@ -32,14 +32,4 @@ public class CategoryExecution : TableExecution<AutoId, Category>
 
 		return Affected[a.Id] = a;
 	}
-		
-	public Category Affect(AutoId id)
-	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-			
-		var e = Find(id);
-
-		return Affected[id] = e.Clone();
-	}
 }

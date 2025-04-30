@@ -43,6 +43,7 @@ public interface ITableEntry
 	//bool		New { get; set; }
 	bool		Deleted { get; }
 
+	object		Clone();
 	void		Cleanup(Round lastInCommit);
 
 	void		ReadMain(BinaryReader r);

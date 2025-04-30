@@ -2,7 +2,7 @@
 
 public class Execution
 {
-	public Dictionary<AutoId, Account>		AffectedAccounts = new();
+	public Dictionary<AutoId, Account>			AffectedAccounts = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
 	public AutoId								LastCreatedId;
@@ -152,7 +152,7 @@ public class Execution
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 
-		a = Mcv.Accounts.Find(id, Round.Id)?.Clone();	
+		a = Mcv.Accounts.Find(id, Round.Id)?.Clone() as Account;
 
 		AffectedAccounts[a.Id] = a;
 

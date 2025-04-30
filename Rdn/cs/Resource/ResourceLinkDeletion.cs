@@ -52,13 +52,13 @@ public class ResourceLinkDeletion : RdnOperation
 			return;
 		}
 
-		sr = execution.AffectResource(sd, sr.Address.Resource);
+		sr = execution.Resources.Affect(sd, sr.Address.Resource);
 		sr.RemoveOutbound(dr.Id);
 
-		sd = execution.AffectDomain(sd.Id);
+		sd = execution.Domains.Affect(sd.Id);
 		Free(execution, Signer, sd, execution.Net.EntityLength);
 
-		dr = execution.AffectResource(dd, dr.Address.Resource);
+		dr = execution.Resources.Affect(dd, dr.Address.Resource);
 		dr.RemoveInbound(sr.Id);
 	}
 }

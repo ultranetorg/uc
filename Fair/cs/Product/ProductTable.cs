@@ -52,14 +52,4 @@ public class ProductExecution : TableExecution<AutoId, Product>
 
   		return Affected[p.Id] = p;
 	}
-
-	public Product Affect(AutoId id)
-	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-		
-		a = Find(id);
-
-		return Affected[id] = a.Clone();
-	}
 }

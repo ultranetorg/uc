@@ -62,7 +62,7 @@ public class ResourceUpdation : RdnOperation
 		if(RequireSignerResource(execution, Resource, out var d, out var x) == false)
 			return;
 
-		d = execution.AffectDomain(d.Id);
+		d = execution.Domains.Affect(d.Id);
 		
 		EnergyConsumed -= execution.Round.ConsensusECEnergyCost; /// the first is alredy paid
 
@@ -70,7 +70,7 @@ public class ResourceUpdation : RdnOperation
 		{
 			EnergyConsumed += execution.Round.ConsensusECEnergyCost;
 
-			var r = execution.AffectResource(d, resource.Resource);
+			var r = execution.Resources.Affect(d, resource.Resource);
 
 			if(rs.Contains(r.Id.E))
 				return;
@@ -137,7 +137,7 @@ public class ResourceUpdation : RdnOperation
 					{
 						if(i == d.Id)
 						{
-							var l = execution.FindResource(i);
+							var l = execution.Resources.Find(i);
 
 							execute(l.Address);
 						}

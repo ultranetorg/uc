@@ -30,7 +30,7 @@ public class Dispute : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	public Dispute Clone()
+	public object Clone()
 	{
 		var a = new Dispute(Mcv){	
 										Id			= Id,	

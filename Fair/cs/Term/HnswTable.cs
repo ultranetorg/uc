@@ -19,6 +19,7 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 	public EntityId									Key => Id;
 	public bool										Deleted { get;  set; }
 
+	public abstract object							Clone();
 	public abstract void							Cleanup(Round lastInCommit);
 	public abstract void							ReadMain(BinaryReader r);
 	public abstract void							WriteMain(BinaryWriter r);

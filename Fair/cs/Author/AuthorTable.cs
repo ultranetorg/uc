@@ -54,14 +54,14 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		return Affected[a.Id] = a;
 	}
 
-	public Author Affect(AutoId id)
+	public override Author Affect(AutoId id)
 	{
 		if(Affected.TryGetValue(id, out var a))
 			return a;
 			
-		var e = Find(id);
+		var e = Table.Find(id, Execution.Round.Id);
 
-		e = Affected[id] = e.Clone();
+		e = Affected[id] = e.Clone() as Author;
 
 		Execution.TransferEnergyIfNeeded(e);
 

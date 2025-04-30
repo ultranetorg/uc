@@ -31,7 +31,7 @@ public class SiteTable : Table<AutoId, Site>
 	
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
 	}
- }
+}
 
 public class SiteExecution : TableExecution<AutoId, Site>
 {
@@ -57,15 +57,5 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		a.Description = "";
 		
 		return Affected[a.Id] = a;
-	}
-
-	public Site Affect(AutoId id)
-	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-			
-		var e = Find(id);
-
-		return Affected[id] = e.Clone();
 	}
 }

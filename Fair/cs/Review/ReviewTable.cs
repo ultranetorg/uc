@@ -30,14 +30,4 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 
 		return Affected[a.Id] = a;
 	}
-
-	public Review Affect(AutoId id)
-	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-			
-		var e = Find(id);
-
-		return Affected[id] = e.Clone();
-	}
 }

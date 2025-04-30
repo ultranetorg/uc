@@ -75,7 +75,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Mcv = mcv;
 	}
 
-	public Site Clone()
+	public object Clone()
 	{
 		var a = new Site(Mcv){	Id						= Id,
 								Title					= Title,

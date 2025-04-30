@@ -86,7 +86,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 		return $"{Address}, {Id}, Owner={Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 	}
 
-	public Domain Clone()
+	public object Clone()
 	{
 		return new Domain(Mcv){	Id = Id,
 								Address = Address,

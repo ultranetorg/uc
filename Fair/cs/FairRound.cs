@@ -66,37 +66,12 @@ public class FairRound : Round
 
 		return base.FindState<S>(table);
 	}
-
-	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
-	{
-		//AffectedAuthors.Clear();
-		//AffectedProducts.Clear();
-		//AffectedSites.Clear();
-		//AffectedCategories.Clear();
-		//AffectedPublications.Clear();
-		//AffectedReviews.Clear();
-		//AffectedDisputes.Clear();
-		//AffectedWords.Clear();
-
-		//PublicationTitles = null;
-
-		base.Execute(transactions, trying);
-	}
 	
 	public override void Absorb(Execution execution)
 	{
 		base.Absorb(execution);
 
 		var e = execution as FairExecution;
-
-		//foreach(var i in e.AffectedAuthors)				AffectedAuthors[i.Key] = i.Value;
-		//foreach(var i in e.AffectedProducts)			AffectedProducts[i.Key] = i.Value;
-		//foreach(var i in e.AffectedSites)				AffectedSites[i.Key] = i.Value;
-		//foreach(var i in e.AffectedCategories)			AffectedCategories[i.Key] = i.Value;
-		//foreach(var i in e.AffectedPublications)		AffectedPublications[i.Key] = i.Value;
-		//foreach(var i in e.AffectedReviews)				AffectedReviews[i.Key] = i.Value;
-		//foreach(var i in e.AffectedDisputes)			AffectedDisputes[i.Key] = i.Value;
-		//foreach(var i in e.AffectedWords)				AffectedWords[i.Key] = i.Value;
 
 		Authors.Absorb(e.Authors);
 		Products.Absorb(e.Products);

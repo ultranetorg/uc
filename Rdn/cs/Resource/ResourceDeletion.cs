@@ -32,16 +32,16 @@ public class ResourceDeletion : RdnOperation
 			return;
 		}
 
-		d = execution.AffectDomain(d.Id);
-		execution.AffectResource(Resource).Deleted = true;
+		d = execution.Domains.Affect(d.Id);
+		execution.Resources.Affect(Resource).Deleted = true;
 
 		Free(execution, Signer, d, execution.Net.EntityLength + r.Length);
 
 		foreach(var i in r.Outbounds)
 		{
-			var dr = execution.FindResource(i.Destination);
+			var dr = execution.Resources.Find(i.Destination);
 
-			dr = execution.AffectResource(d, dr.Address.Resource);
+			dr = execution.Resources.Affect(d, dr.Address.Resource);
 			dr.RemoveInbound(r.Id);
 
 			Free(execution, Signer, d, execution.Net.EntityLength);
@@ -49,9 +49,9 @@ public class ResourceDeletion : RdnOperation
 
 		foreach(var i in r.Inbounds ?? [])
 		{
-			var sr = execution.FindResource(i);
+			var sr = execution.Resources.Find(i);
 
-			sr = execution.AffectResource(d, sr.Address.Resource);
+			sr = execution.Resources.Affect(d, sr.Address.Resource);
 			sr.RemoveOutbound(r.Id);
 		}
 	}

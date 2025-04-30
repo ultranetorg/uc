@@ -33,7 +33,7 @@ public class DomainRenewal : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.FindDomain(Id);
+		var e = execution.Domains.Find(Id);
 		
 		if(e == null)
 		{
@@ -47,7 +47,7 @@ public class DomainRenewal : RdnOperation
 			return;
 		}
 	
-		e = execution.AffectDomain(e.Address);
+		e = execution.Domains.Affect(e.Address);
 
 		if(Domain.IsRoot(e.Address))
 		{
@@ -92,7 +92,7 @@ public class DomainTransfer : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.FindDomain(Id);
+		var e = execution.Domains.Find(Id);
 		
 		if(e == null)
 		{
@@ -111,13 +111,13 @@ public class DomainTransfer : RdnOperation
 			if(!RequireAccount(execution, Owner, out var o))
 				return;
 
-			e = execution.AffectDomain(e.Address);
+			e = execution.Domains.Affect(e.Address);
 			e.Owner = Owner;
 
 		} 
 		else
 		{
-			var p = execution.FindDomain(Domain.GetParent(e.Address));
+			var p = execution.Domains.Find(Domain.GetParent(e.Address));
 
 			//if(p == null)
 			//{
@@ -141,7 +141,7 @@ public class DomainTransfer : RdnOperation
 			if(!RequireAccount(execution, Owner, out var o))
 				return;
 
-			e = execution.AffectDomain(e.Address);
+			e = execution.Domains.Affect(e.Address);
 			e.Owner	= Owner;
 		}
 	}
@@ -180,7 +180,7 @@ public class DomainPolicyUpdation : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.FindDomain(Id);
+		var e = execution.Domains.Find(Id);
 		
 		if(e == null)
 		{
@@ -190,7 +190,7 @@ public class DomainPolicyUpdation : RdnOperation
 
 		if(!Domain.IsRoot(e.Address))
 		{
-			var p = execution.FindDomain(Domain.GetParent(e.Address));
+			var p = execution.Domains.Find(Domain.GetParent(e.Address));
 
 			if(!Domain.IsOwner(p, Signer, execution.Time))
 			{
@@ -204,7 +204,7 @@ public class DomainPolicyUpdation : RdnOperation
 				return;
 			}
 
-			e = execution.AffectDomain(e.Address);
+			e = execution.Domains.Affect(e.Address);
 			e.ParentPolicy = Policy;
 		}
 		else

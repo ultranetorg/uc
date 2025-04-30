@@ -65,7 +65,7 @@ public abstract class RdnOperation : Operation
 
 	public bool RequireDomain(RdnExecution round, AutoId id, out Domain domain)
 	{
-		domain = round.FindDomain(id);
+		domain = round.Domains.Find(id);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -84,7 +84,7 @@ public abstract class RdnOperation : Operation
 
 	public bool RequireDomain(RdnExecution round, string name, out Domain domain)
 	{
-		domain = round.FindDomain(name);
+		domain = round.Domains.Find(name);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -131,7 +131,7 @@ public abstract class RdnOperation : Operation
 
 	public bool RequireResource(RdnExecution round, AutoId id, out Domain domain, out Resource resource)
 	{
-		resource = round.FindResource(id);
+		resource = round.Resources.Find(id);
 
 		if(resource == null || resource.Deleted)
 		{

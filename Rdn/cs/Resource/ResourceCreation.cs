@@ -44,7 +44,7 @@ public class ResourceCreation : RdnOperation
 		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
 			return;
 
-		var r = execution.FindResource(Address);
+		var r = execution.Resources.Find(Address);
 				
 		if(r != null)
 		{
@@ -52,7 +52,7 @@ public class ResourceCreation : RdnOperation
 			return;
 		}
 
-		r = execution.AffectResource(d, Address.Resource);
+		r = execution.Resources.Affect(d, Address.Resource);
 
 		if(Changes.HasFlag(ResourceChanges.SetData))
 		{
@@ -69,7 +69,7 @@ public class ResourceCreation : RdnOperation
 		}
 		else
 		{	
-			d = execution.AffectDomain(d.Id);
+			d = execution.Domains.Affect(d.Id);
 			Allocate(execution, Signer, d, execution.Net.EntityLength + r.Length);
 		}
 	}

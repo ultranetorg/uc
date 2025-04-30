@@ -51,7 +51,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return $"{Id}, {Title}{(Nickname != "" ? $"({Nickname})" : null)}, Owners={Owners.Length}, Expiration={Expiration}";
 	}
 
-	public Author Clone()
+	public object Clone()
 	{
 		var a = new Author(Mcv){Id					= Id,
 								Nickname			= Nickname,

@@ -22,7 +22,7 @@ public class WordExecution : TableExecution<RawId, Word>
 	{
 	}
 
-	public Word Affect(RawId id)
+	public override Word Affect(RawId id)
 	{
 		if(Affected.TryGetValue(id, out var a))
 			return a;
@@ -39,7 +39,7 @@ public class WordExecution : TableExecution<RawId, Word>
 		} 
 		else
 		{
-			return Affected[id] = a.Clone();
+			return Affected[id] = a.Clone() as Word;
 		}
 	}
 
