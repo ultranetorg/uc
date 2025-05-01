@@ -23,12 +23,14 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IDisputesService, DisputesService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();
+		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
 		services.AddSingleton<ISitesService, SitesService>();
 		services.AddSingleton<IUsersService, UsersService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)
 	{
+		services.AddSingleton<IDepthValidator, DepthValidator>();
 		services.AddSingleton<IEntityIdValidator, EntityIdValidator>();
 		services.AddSingleton<IPaginationValidator, PaginationValidator>();
 	}

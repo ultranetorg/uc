@@ -9,9 +9,9 @@ public class ReviewsService
 	FairMcv mcv
 ) : IReviewsService
 {
-	public TotalItemsResult<ModeratorReviewModel> GetModeratorsReviewsNonOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<ModeratorReviewModel> GetModeratorsReviewsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorsReviewsNonOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorsReviewsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));

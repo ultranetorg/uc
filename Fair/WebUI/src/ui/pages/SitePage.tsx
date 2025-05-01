@@ -1,46 +1,20 @@
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
-import { useGetSite } from "entities"
+import { useSiteContext } from "app"
+
+import { CategoriesList } from "ui/components"
 
 export const SitePage = () => {
   const { siteId } = useParams()
-  const { data: site, isPending } = useGetSite(siteId)
+  const { isPending, site } = useSiteContext()
 
   if (isPending || !site) {
     return <>LOADING</>
   }
 
   return (
-    <div className="flex flex-col">
-      <span>ID: {site.id}</span>
-      <span>TITLE: {site.title}</span>
-      <span>NICKNAME: {site.nickname}</span>
-      {site.moderators ? (
-        <>
-          <span className="text-black">MODERATORS:</span>
-          <ul>
-            {site.moderators.map(c => (
-              <ol key={c.id}>{"Address" + c.address + " Nickname" + c.nickname}</ol>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <>🚫 NO MODERATORS</>
-      )}
-      {site.categories ? (
-        <>
-          <span className="text-black">CATEGORIES:</span>
-          <ul>
-            {site.categories.map(c => (
-              <ol key={c.id}>
-                <Link to={`/${siteId}/c/${c.id}`}>{c.title}</Link>
-              </ol>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <>🚫 NO CATEGORIES</>
-      )}
-    </div>
+    <>
+      <CategoriesList siteId={siteId!} isPending={isPending} categories={site.categories} />
+    </>
   )
 }

@@ -3,6 +3,9 @@ import defaultTheme from "tailwindcss/defaultTheme"
 
 export default {
   content: ["./src/**/*.{ts,tsx}"],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+  ],
   theme: {
     screens: {
       xs: "475px",

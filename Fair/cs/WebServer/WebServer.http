@@ -27,7 +27,7 @@ Accept: application/json
 
 ### GET Site Categories
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/categories
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67073-0/categories
 Accept: application/json
 
 ### Get Site Category

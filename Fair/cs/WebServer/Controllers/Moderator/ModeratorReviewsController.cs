@@ -21,7 +21,7 @@ public class ModeratorReviewsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

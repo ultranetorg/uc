@@ -1,6 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -11,14 +10,14 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
-	public TotalItemsResult<SiteBaseModel> SearchNonOptimized(int page, int pageSize, string? search)
+	public TotalItemsResult<SiteBaseModel> SearchNotOptimized(int page, int pageSize, string? search)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNonOptimized)} method called with {{Page}}, {{PageSize}}, {{Title}}", page, pageSize, search);
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNotOptimized)} method called with {{Page}}, {{PageSize}}, {{Search}}", page, pageSize, search);
 
 		IEnumerable<Site> sites = null;
 		lock (mcv.Lock)
 		{
-			sites = mcv.Sites.Clusters.SelectMany(x => x.Buckets.SelectMany(x => x.Entries));
+			sites = mcv.Sites.TailGraphEntities;
 		}
 
 		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, search));
@@ -26,6 +25,32 @@ public class SitesService
 		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
 
 		return new TotalItemsResult<SiteBaseModel>
+		{
+			Items = items,
+			TotalItems = matched.Count(),
+		};
+	}
+
+	public TotalItemsResult<SiteSearchLightModel> SearchLightNotOpmized(string query, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchLightNotOpmized)} method called with {{Query}}", query);
+
+		Guard.Against.NullOrEmpty(query);
+
+		if (cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<SiteSearchLightModel>.Empty;
+
+		IEnumerable<Site> sites = null;
+		lock(mcv.Lock)
+		{
+			sites = mcv.Sites.TailGraphEntities;
+		}
+
+		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, query));
+		IEnumerable<Site> result = matched.Take(10);
+		IEnumerable<SiteSearchLightModel> items = result.Select(x => new SiteSearchLightModel(x));
+
+		return new TotalItemsResult<SiteSearchLightModel>
 		{
 			Items = items,
 			TotalItems = matched.Count(),
@@ -40,47 +65,40 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = null;
 		lock (mcv.Lock)
 		{
-			site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(id);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
+
+			IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
+			IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
+
+			return new SiteModel(site)
+			{
+				Moderators = moderators,
+				Categories = categories,
+			};
 		}
-
-		IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
-		IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
-
-		return new SiteModel(site)
-		{
-			Moderators = moderators,
-			Categories = categories,
-		};
 	}
 
 	IEnumerable<AccountBaseModel> LoadModerators(AutoId[] moderatorsIds)
 	{
-		lock (mcv.Lock)
+		return moderatorsIds.Select(id =>
 		{
-			return moderatorsIds.Select(id =>
-			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-				return new AccountBaseModel(account);
-			}).ToArray();
-		}
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+			return new AccountBaseModel(account);
+		}).ToArray();
 	}
 
 	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
 	{
-		lock (mcv.Lock)
+		return categoriesIds.Select(id =>
 		{
-			return categoriesIds.Select(id =>
-			{
-				Category category = mcv.Categories.Latest(id);
-				return new CategoryBaseModel(category);
-			}).ToArray();
-		}
+			Category category = mcv.Categories.Latest(id);
+			return new CategoryBaseModel(category);
+		}).ToArray();
 	}
 }

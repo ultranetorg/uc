@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -16,11 +15,11 @@ public class CategoriesService
 
 		Guard.Against.NullOrEmpty(categoryId);
 
-		AutoId categoryEntityId = AutoId.Parse(categoryId);
+		AutoId id = AutoId.Parse(categoryId);
 
 		lock (mcv.Lock)
 		{
-			Category category = mcv.Categories.Find(categoryEntityId, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
 			if (category == null)
 			{
 				throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
@@ -50,32 +49,56 @@ public class CategoriesService
 		}).ToArray();
 	}
 
-	public TotalItemsResult<CategoryParentBaseModel> GetCategories(string siteId, int page, int pageSize)
+	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, int depth, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategories)} method called with {{SiteId}}, {{Page}}, {{PageSize}}", siteId, page, pageSize);
+		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategories)} method called with {{SiteId}}, {{Depth}}", siteId, depth);
 
 		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NegativeOrZero(depth);
 
 		AutoId id = AutoId.Parse(siteId);
 
-		IEnumerable<Category> categories = null;
 		lock (mcv.Lock)
 		{
-			categories = mcv.Categories.FindBySiteId(id);
-			if (categories == null)
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
+
+			if (site.Categories.Length == 0)
+			{
+				return [];
+			}
+
+			List<CategoryParentBaseModel> result = new List<CategoryParentBaseModel>(site.Categories.Length);
+			LoadCategoriesRecursively(site.Categories, depth, ref result, cancellationToken);
+
+			return result;
 		}
+	}
 
-		IEnumerable<Category> skippedAndTaken = categories.Skip(page * pageSize).Take(pageSize);
-		IEnumerable<CategoryParentBaseModel> items = skippedAndTaken.Select(x => new CategoryParentBaseModel(x));
+	void LoadCategoriesRecursively(AutoId[] categories, int currentDepth, ref List<CategoryParentBaseModel> result, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return;
 
-		return new TotalItemsResult<CategoryParentBaseModel>
+		foreach(AutoId id in categories)
 		{
-			Items = items,
-			TotalItems = categories.Count(),
-		};
+			if(cancellationToken.IsCancellationRequested)
+				return;
+
+			Category category = mcv.Categories.Latest(id);
+
+			CategoryParentBaseModel model = new CategoryParentBaseModel(category);
+			result.Add(model);
+
+			if (category.Categories.Length > 0 && currentDepth > 1)
+			{
+				result.Capacity += category.Categories.Length;
+				LoadCategoriesRecursively(category.Categories, currentDepth - 1, ref result, cancellationToken);
+			}
+		}
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

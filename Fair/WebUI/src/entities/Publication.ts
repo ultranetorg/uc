@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
+import { isUndefOrEmpty } from "utils"
 
 const api = getApi()
 
@@ -56,4 +57,46 @@ export const useGetCategoryPublications = (categoryId?: string, page?: number, p
   })
 
   return { isPending, isError, data }
+}
+
+export const useSearchPublications = (
+  siteId?: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+  forceEnable?: boolean,
+) => {
+  const queryFn = () => {
+    if (!siteId) {
+      return
+    }
+
+    return api.searchPublications(siteId, page, pageSize, search)
+  }
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", siteId, "publications", { page, pageSize, search }],
+    queryFn: queryFn,
+    enabled: !!siteId && (!isUndefOrEmpty(search) || forceEnable === true),
+  })
+
+  return { isPending, error: error ?? undefined, data }
+}
+
+export const useSearchLightPublications = (siteId?: string, query?: string) => {
+  const queryFn = () => {
+    if (!siteId || !query) {
+      return
+    }
+
+    return api.searchLightPublication(siteId, query)
+  }
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", siteId, "publications", "search", { query }],
+    queryFn: queryFn,
+    enabled: !!siteId && !!query,
+  })
+
+  return { isPending, error: error ?? undefined, data }
 }

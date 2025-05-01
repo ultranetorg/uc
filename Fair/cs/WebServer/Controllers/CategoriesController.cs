@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -7,7 +6,7 @@ public class CategoriesController
 (
 	ILogger<CategoriesController> logger,
 	IEntityIdValidator entityIdValidator,
-	IPaginationValidator paginationValidator,
+	IDepthValidator depthValidator,
 	ICategoriesService categoriesService
 ) : BaseController
 {
@@ -22,16 +21,14 @@ public class CategoriesController
 	}
 
 	[HttpGet("~/api/sites/{siteId}/categories")]
-	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, [FromQuery] PaginationRequest pagination)
+	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, [FromQuery] int depth, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{Pagination}}", siteId, pagination);
+		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{De[tj}}", siteId, depth);
 
 		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
-		paginationValidator.Validate(pagination);
+		depthValidator.Validate(depth);
 
-		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<CategoryParentBaseModel> categories = categoriesService.GetCategories(siteId, page, pageSize);
-
-		return this.OkPaged(categories.Items, page, pageSize, categories.TotalItems);
+		int categoriesDepth = DepthUtils.GetDepth(depth);
+		return categoriesService.GetCategories(siteId, categoriesDepth, cancellationToken);
 	}
 }

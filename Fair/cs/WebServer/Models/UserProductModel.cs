@@ -11,7 +11,7 @@ public class UserProductModel
 	public UserProductModel(Product product)
 	{
 		Id = product.Id.ToString();
-		// Title = ProductUtils.GetTitle(product);
+		// Title = PublicationUtils.GetTitle(publication, product);
 		Updated = product.Updated.Days;
 	}
 }

@@ -3,9 +3,9 @@
 public enum ErrorCodes
 {
 	// General
-	InvalidEntityId = 1010,
-	EntityNotFound = 1020,
+	InvalidEntityId = 1001,
+	EntityNotFound = 1002,
 
-	// Pagination
-	InvalidPaginationParameters = 1030,
+	InvalidPaginationParameters = 1003,
+	InvalidDepth = 1004,
 }
