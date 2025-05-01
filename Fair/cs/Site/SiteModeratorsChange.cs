@@ -71,7 +71,7 @@ public class SiteModeratorsChange : VotableOperation
 	 		}
 		}
 
- 		var s = execution.AffectSite(Site);
+ 		var s = execution.Sites.Affect(Site);
  
  		s.Moderators = [..s.Moderators, ..Additions];
  

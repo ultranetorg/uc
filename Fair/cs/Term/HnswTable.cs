@@ -19,6 +19,7 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 	public EntityId									Key => Id;
 	public bool										Deleted { get;  set; }
 
+	public abstract object							Clone();
 	public abstract void							Cleanup(Round lastInCommit);
 	public abstract void							ReadMain(BinaryReader r);
 	public abstract void							WriteMain(BinaryWriter r);
@@ -403,7 +404,7 @@ public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 {
 	public List<E>							EntryPoints;
 	public Dictionary<HnswId, E>			Affected = new();
-	public HnswTable<D, E>					Table { get; }
+	public HnswTable<D, E>					Table; 
 
 	protected HnswTableState(HnswTable<D, E> table)
 	{
@@ -413,7 +414,7 @@ public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 	public void StartRoundExecution(Round round)
 	{
 		Affected.Clear();
-		EntryPoints = round.Id == 0 ? [] : (round.Previous as FairRound).FindState<HnswTableState<D, E>>(Table).EntryPoints;
+		EntryPoints = round.Id == 0 ? [] : round.Previous.FindState<HnswTableState<D, E>>(Table).EntryPoints;
 	}
 
 	public void Absorb(ITableState execution)

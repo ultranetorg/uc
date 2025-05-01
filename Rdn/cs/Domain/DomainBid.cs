@@ -65,7 +65,7 @@ public class DomainBid : RdnOperation
 	{
 		throw new NotImplementedException();
 
-// 		var a = round.AffectDomain(Name);
+// 		var a = round.Domains.Affect(Name);
 // 
 //  		if(!Domain.IsExpired(a, execution.Time))
 //  		{

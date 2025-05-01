@@ -100,7 +100,7 @@ public class Word : IBinarySerializable, ITableEntry
 		return new RawId(b);
 	}
 
-	public Word Clone()
+	public object Clone()
 	{
 		var a = new Word(Mcv)  {Id			= Id,
 								References	= References};

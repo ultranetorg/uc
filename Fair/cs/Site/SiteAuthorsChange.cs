@@ -71,7 +71,7 @@ public class SiteAuthorsChange : VotableOperation
 	 		}
 		}
 
- 		var s = execution.AffectSite(Site);
+ 		var s = execution.Sites.Affect(Site);
  
  		s.Authors = [..s.Authors, ..Additions];
  

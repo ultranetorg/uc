@@ -54,14 +54,14 @@ public class PublicationProductChange : VotableOperation
 	 		}
 		}
 
-		var p = execution.AffectPublication(Publication);
+		var p = execution.Publications.Affect(Publication);
  		
-		var r = execution.AffectProduct(p.Product);
+		var r = execution.Products.Affect(p.Product);
 		r.Publications = r.Publications.Remove(p.Id);
 
 		p.Product = Product;
 
-		r = execution.AffectProduct(Product);
+		r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
 	}
 }

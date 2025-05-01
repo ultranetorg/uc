@@ -252,7 +252,7 @@ public class LocalReleaseReadApc : RdnApc
 // 		{
 // 			lock(sun.ResourceHub.Lock)
 // 			{	
-// 				var r = sun.Call<ResourceResponse>(p => p.FindResource(Resource), workflow);
+// 				var r = sun.Call<ResourceResponse>(p => p.Resources.Find(Resource), workflow);
 // 
 // 				//var a = sun.ResourceHub.Find(Resource, Hash);
 // 

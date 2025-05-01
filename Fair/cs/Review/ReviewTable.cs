@@ -14,3 +14,20 @@ public class ReviewTable : Table<AutoId, Review>
 		return new Review(Mcv);
 	}
  }
+
+public class ReviewExecution : TableExecution<AutoId, Review>
+{
+	public ReviewExecution(FairExecution execution) : base(execution.Mcv.Reviews, execution)
+	{
+	}
+
+	public Review Create(Publication publication)
+	{
+		int e = Execution.GetNextEid(Table, publication.Id.B);
+
+		var a = Table.Create();
+		a.Id = new AutoId(publication.Id.B, e);
+
+		return Affected[a.Id] = a;
+	}
+}

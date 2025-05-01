@@ -2,12 +2,6 @@
 
 namespace Uccs.Net;
 
-public interface ITableState
-{
-	void Absorb(ITableState execution);
-	void StartRoundExecution(Round round);
-}
-
 public abstract class Round : IBinarySerializable
 {
 	public int											Id;

@@ -41,7 +41,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		var c = execution.FindResource(ar.Data.Read<Analysis>().Consil)?.Data?.Read<Consil>();
+		var c = execution.Resources.Find(ar.Data.Read<Analysis>().Consil)?.Data?.Read<Consil>();
 
 		if(c == null)
 		{
@@ -57,7 +57,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		ar = execution.AffectResource(ad, ar.Address.Resource);
+		ar = execution.Resources.Affect(ad, ar.Address.Resource);
 
 		var an = ar.Data.Read<Analysis>();
 		 

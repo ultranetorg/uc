@@ -30,12 +30,12 @@ public class CategoryCreation : FairOperation
 			if(!RequireSiteModeratorAccess(execution, Site, out var s))
 				return;
 				
-			var c = execution.CreateCategory(s);
+			var c = execution.Categories.Create(s);
 			
 			c.Site = s.Id;
 			c.Title = Title;
 			
-			s = execution.AffectSite(s.Id);
+			s = execution.Sites.Affect(s.Id);
 			s.Categories = [..s.Categories, c.Id];
 
 			Allocate(execution, Signer, s, execution.Net.EntityLength);
@@ -45,14 +45,14 @@ public class CategoryCreation : FairOperation
 			if(!RequireCategory(execution, Parent, out var p))
 				return;
 
-			var s = execution.AffectSite(p.Site);
-			var c = execution.CreateCategory(s);
+			var s = execution.Sites.Affect(p.Site);
+			var c = execution.Categories.Create(s);
 			
 			c.Site = p.Site;
 			c.Parent = Parent;
 			c.Title = Title;
 
-			p = execution.AffectCategory(Parent);
+			p = execution.Categories.Affect(Parent);
 			p.Categories = [..p.Categories, c.Id];
 		
 			Allocate(execution, Signer, s, execution.Net.EntityLength);

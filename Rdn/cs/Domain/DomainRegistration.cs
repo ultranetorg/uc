@@ -53,7 +53,7 @@ public class DomainRegistration : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.FindDomain(Address);
+		var e = execution.Domains.Find(Address);
 
 		if(Domain.IsRoot(Address))
 		{
@@ -63,7 +63,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			e = execution.AffectDomain(Address);
+			e = execution.Domains.Affect(Address);
 			
 			PayForName(Address, Years);
 			Prolong(execution, Signer, e, Time.FromYears(Years));
@@ -102,7 +102,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			e = execution.AffectDomain(Address);
+			e = execution.Domains.Affect(Address);
 			
 			var start = e.Expiration < execution.Time.Days ? execution.Time.Days : e.Expiration;
 

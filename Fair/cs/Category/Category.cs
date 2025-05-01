@@ -8,8 +8,8 @@ public class Category : IBinarySerializable, ITableEntry
 	public AutoId			Site { get; set; }
 	public AutoId			Parent { get; set; }
 	public string			Title { get; set; }
-	public AutoId[]		Categories { get; set; }
-	public AutoId[]		Publications { get; set; }
+	public AutoId[]			Categories { get; set; }
+	public AutoId[]			Publications { get; set; }
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -24,14 +24,14 @@ public class Category : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	public Category Clone()
+	public object Clone()
 	{
-		return new(Mcv){Id			 = Id,
-						Site		 = Site,
-						Parent		 = Parent,
-						Title		 = Title,
-						Categories	 = Categories,
-						Publications = Publications};
+		return new Category(Mcv)   {Id			 = Id,
+									Site		 = Site,
+									Parent		 = Parent,
+									Title		 = Title,
+									Categories	 = Categories,
+									Publications = Publications};
 	}
 
 	public void ReadMain(BinaryReader reader)

@@ -6,7 +6,7 @@ public class StringHnswEntity : HnswNode<string>
 	public override string						Data => Text;
 	public SortedDictionary<AutoId, AutoId>		References { get; set; }
 
-	public StringHnswEntity Clone()
+	public override object Clone()
 	{
 		var a = new StringHnswEntity() {Id			= Id,
 										Connections	= Connections,

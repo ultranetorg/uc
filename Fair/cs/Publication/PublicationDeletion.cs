@@ -26,25 +26,25 @@ public class PublicationDeletion : FairOperation
 		if(!RequirePublication(execution, Publication, out var p))
 			return;
 
-		p = execution.AffectPublication(Publication);
+		p = execution.Publications.Affect(Publication);
 		p.Deleted = true;
 
- 		var c = execution.AffectCategory(p.Category);
+ 		var c = execution.Categories.Affect(p.Category);
  		c.Publications = c.Publications.Remove(Publication);
 
-		var a = execution.FindAuthor(execution.FindProduct(p.Product).Author);
+		var a = execution.Authors.Find(execution.Products.Find(p.Product).Author);
 
 		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && a.Owners.Contains(Signer.Id))
 		{ 
-			a = execution.AffectAuthor(a.Id);
+			a = execution.Authors.Affect(a.Id);
 
 			Free(execution, a, a, execution.Net.EntityLength);
 
 			EnergySpenders.Add(a);
 		}
-		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (execution.FindSite(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
+		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (execution.Sites.Find(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
 		{	
-			var s = execution.AffectSite(c.Site);
+			var s = execution.Sites.Affect(c.Site);
 
 			Free(execution, s, s, execution.Net.EntityLength);
 
@@ -60,7 +60,7 @@ public class PublicationDeletion : FairOperation
 		
 		if(f != null)
 		{
-			execution.PublicationTitles.Deindex(c.Site, p, execution.FindProduct(p.Product).Get(f).AsUtf8);
+			execution.PublicationTitles.Deindex(c.Site, p, execution.Products.Find(p.Product).Get(f).AsUtf8);
 		}
 	}
 }

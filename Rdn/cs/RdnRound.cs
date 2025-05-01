@@ -6,25 +6,19 @@ public class RdnRound : Round
 {
 	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 	public List<DomainMigration>			Migrations;
-	public Dictionary<AutoId, Domain>		AffectedDomains = [];
-	public Dictionary<AutoId, Resource>		AffectedResources = [];
+	public TableState<AutoId, Domain>		Domains;
+	public TableState<AutoId, Resource>		Resources;
 	public ForeignResult[]					ConsensusMigrations = {};
 
-	public RdnRound(RdnMcv rds) : base(rds)
+	public RdnRound(RdnMcv mcv) : base(mcv)
 	{
+		Domains		= new (mcv.Domains);
+		Resources	= new (mcv.Resources);
 	}
 
-	public override void Absorb(Execution execution)
+	public override Execution CreateExecution(Transaction transaction)
 	{
-		base.Absorb(execution);
-
-		var e = execution as RdnExecution;
-
-		foreach(var i in e.AffectedDomains)
-			AffectedDomains[i.Key] = i.Value;
-
-		foreach(var i in e.AffectedResources)
-			AffectedResources[i.Key] = i.Value;
+		return new RdnExecution(Mcv, this, transaction);
 	}
 
 	public override long AccountAllocationFee(Account account)
@@ -34,31 +28,40 @@ public class RdnRound : Round
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Domains)	return AffectedDomains;
-		if(table == Mcv.Resources)	return AffectedResources;
+		if(table == Mcv.Domains)	return Domains.Affected;
+		if(table == Mcv.Resources)	return Resources.Affected;
 
 		return base.AffectedByTable(table);
 	}
 
-	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	public override S FindState<S>(TableBase table)
 	{
-		Migrations	= Id == 0 ? new() : (Previous as RdnRound).Migrations;
+		if(table == Mcv.Domains)	return Domains as S;
+		if(table == Mcv.Resources)	return Resources as S;
 
-		AffectedDomains.Clear();
-		AffectedResources.Clear();
-
-		base.Execute(transactions, trying);
-
+		return base.FindState<S>(table);
 	}
 
-	public override Execution CreateExecution(Transaction transaction)
+	public override void Absorb(Execution execution)
 	{
-		return new RdnExecution(Mcv, this, transaction);
+		base.Absorb(execution);
+
+		var e = execution as RdnExecution;
+
+		Domains.Absorb(e.Domains);
+		Resources.Absorb(e.Resources);
+	}
+
+	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	{
+		Migrations	= Id == 0 ? [] : (Previous as RdnRound).Migrations;
+
+		base.Execute(transactions, trying);
 	}
 
 	public override void FinishExecution()
 	{
-		foreach(var r in AffectedResources.Values)
+		foreach(var r in Resources.Affected.Values)
 		{
 			if(r.Outbounds != null)
 				foreach(var l in r.Outbounds.Where(i => i.Affected))
@@ -105,7 +108,7 @@ public class RdnRound : Round
 			if(b == null)
 				throw new ConfirmationException(this, []);
 
-			var d = (execution as RdnExecution).AffectDomain(b.Net);
+			var d = (execution as RdnExecution).Domains.Affect(b.Net);
 			d.NtnSelfHash	= b.State.Hash;
 			d.NtnChildNet	= b.State;
 

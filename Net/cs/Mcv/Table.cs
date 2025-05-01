@@ -680,3 +680,64 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	///	return si.Length - se.Length ;
 	///}
 }
+
+public interface ITableState
+{
+	void Absorb(ITableState execution);
+	void StartRoundExecution(Round round);
+}
+
+public class TableState<ID, E> : ITableState where ID : EntityId where E : class, ITableEntry
+{
+	public Dictionary<ID, E>	Affected = new();
+	public Table<ID, E>			Table;
+
+	public TableState(Table<ID, E> table)
+	{
+		Table = table;
+	}
+
+	public virtual void StartRoundExecution(Round round)
+	{
+		Affected.Clear();
+	}
+
+	public virtual void Absorb(ITableState execution)
+	{
+		var e = execution as TableState<ID, E>;
+
+		foreach(var i in e.Affected)	
+			Affected[i.Key] = i.Value;
+	}
+}
+
+public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : EntityId where E : class, ITableEntry
+{
+	public Execution	Execution;
+
+	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
+	{
+		Execution = execution;
+	}
+	
+	public E Find(ID id)
+ 	{
+ 		if(Affected.TryGetValue(id, out var a))
+ 			return a;
+ 		
+		return Table.Find(id, Execution.Round.Id);
+ 	}
+
+	public virtual E Affect(ID id)
+	{
+		if(Affected.TryGetValue(id, out var a))
+			return a;
+			
+		a = Table.Find(id, Execution.Round.Id);
+
+		if(a == null)
+			throw new IntegrityException();
+		
+		return Affected[id] = a.Clone() as E;
+	}
+}

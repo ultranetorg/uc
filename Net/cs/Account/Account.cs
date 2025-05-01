@@ -154,7 +154,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 		Mcv = mcv;
 	}
 
-	public virtual Account Clone()
+	public virtual object Clone()
 	{
 		var a = Mcv.Accounts.Create();
 

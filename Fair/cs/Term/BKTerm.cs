@@ -14,7 +14,7 @@ public abstract class BKTerm : IBinarySerializable, ITableEntry
 	protected FairMcv						Mcv;
 	string									_Text;
 
-	public abstract BKTerm					Clone();
+	public abstract object					Clone();
 
 	public BKTerm()
 	{

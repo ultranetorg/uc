@@ -13,4 +13,23 @@ public class DisputeTable : Table<AutoId, Dispute>
 	{
 		return new Dispute(Mcv);
 	}
- }
+}
+public class DisputeExecution : TableExecution<AutoId, Dispute>
+{
+	public DisputeExecution(FairExecution execution) : base(execution.Mcv.Disputes, execution)
+	{
+	}
+
+	public Dispute Create(Site site)
+	{
+		int e = Execution.GetNextEid(Table, site.Id.B);
+
+		var a = Table.Create();
+		a.Id = new AutoId(site.Id.B, e);
+		a.Yes = [];
+		a.No = [];
+		a.Abs = [];
+
+		return Affected[a.Id] = a;
+	}
+}

@@ -35,7 +35,7 @@ public class ResourceTable : Table<AutoId, Resource>
 
   		foreach(var r in Tail.Where(i => i.Id <= ridmax))
  		{	
- 			var x = r.AffectedResources.Values.FirstOrDefault(i => i.Address == address);
+ 			var x = r.Resources.Affected.Values.FirstOrDefault(i => i.Address == address);
  					
  			if(x != null)
   				return x.Deleted ? null : x;
@@ -51,3 +51,42 @@ public class ResourceTable : Table<AutoId, Resource>
 		return e;
 	}
  }
+
+public class ResourceExecution : TableExecution<AutoId, Resource>
+{
+	new ResourceTable Table => base.Table as ResourceTable;
+		
+	public ResourceExecution(RdnExecution execution) : base(execution.Mcv.Resources, execution)
+	{
+	}
+
+	public Resource Find(Ura address)
+	{
+		if(Affected.Values.FirstOrDefault(i => i.Address == address) is Resource a && !a.Deleted)
+			return a;
+
+		return Table.Find(address, Execution.Round.Id);
+	}
+
+  	public Resource Affect(Domain domain, string resource)
+  	{
+		var r =	Affected.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
+		
+		if(r != null && !r.Deleted)
+			return r;
+
+		r = Table.Find(new Ura(domain.Address, resource), Execution.Round.Id);
+
+  		if(r == null)
+  		{
+  			r = new Resource{Id = new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B)),
+							 Domain = domain.Id,
+  							 Address = new Ura(domain.Address, resource)};
+  		} 
+  		else
+			r = r.Clone() as Resource;
+    
+  		return Affected[r.Id] = r;
+  	}
+
+}

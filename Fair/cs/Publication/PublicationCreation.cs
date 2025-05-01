@@ -31,10 +31,10 @@ public class PublicationCreation : FairOperation
 		if(!RequireCategory(execution, Category, out var c))
 			return;
 					
-		var p = execution.CreatePublication(execution.FindSite(c.Site));
+		var p = execution.Publications.Create(execution.Sites.Find(c.Site));
 		
-		a = execution.AffectAuthor(a.Id);
-		var s = execution.AffectSite(c.Site);
+		a = execution.Authors.Affect(a.Id);
+		var s = execution.Sites.Affect(c.Site);
 
 		if(!a.Sites.Contains(c.Site))
 			a.Sites = [..a.Sites, c.Site];
@@ -72,10 +72,10 @@ public class PublicationCreation : FairOperation
 		p.Category	= Category;
 		p.Creator	= Signer.Id;
 
-		var r = execution.AffectProduct(Product);
+		var r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
 
-		c = execution.AffectCategory(c.Id);
+		c = execution.Categories.Affect(c.Id);
 		c.Publications = [..c.Publications, p.Id];
 	}
 }

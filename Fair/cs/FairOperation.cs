@@ -83,7 +83,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireAuthor(FairExecution round, AutoId id, out Author author)
 	{
-		author = round.FindAuthor(id);
+		author = round.Authors.Find(id);
 
 		if(author == null || author.Deleted)
 		{
@@ -103,7 +103,7 @@ public abstract class FairOperation : Operation
 	public bool RequireProduct(FairExecution round, AutoId id, out Author author, out Product product)
 	{
 		author = null;
-		product = round.FindProduct(id);
+		product = round.Products.Find(id);
 		
 		if(product == null || product.Deleted)
 		{
@@ -126,7 +126,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireAuthorAccess(FairExecution round, AutoId id, out Author author)
 	{
-		author = round.FindAuthor(id);
+		author = round.Authors.Find(id);
 
 		if(author == null || author.Deleted)
 		{
@@ -169,7 +169,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireSite(FairExecution round, AutoId id, out Site site)
 	{
-		site = round.FindSite(id);
+		site = round.Sites.Find(id);
 		
 		if(site == null || site.Deleted)
 		{
@@ -207,7 +207,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireCategory(FairExecution round, AutoId id, out Category category)
 	{
-		category = round.FindCategory(id);
+		category = round.Categories.Find(id);
 		
 		if(category == null || category.Deleted)
 		{
@@ -231,7 +231,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequirePublication(FairExecution round, AutoId id, out Publication publication)
 	{
-		publication = round.FindPublication(id);
+		publication = round.Publications.Find(id);
 		
 		if(publication == null || publication.Deleted)
 		{
@@ -249,7 +249,7 @@ public abstract class FairOperation : Operation
  		if(!RequirePublication(round, id, out publication))
  			return false; 
  
- 		if(!RequireSiteModeratorAccess(round, round.FindCategory(publication.Category).Site, out site))
+ 		if(!RequireSiteModeratorAccess(round, round.Categories.Find(publication.Category).Site, out site))
  			return false;
  
  		return true;
@@ -257,7 +257,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireReview(FairExecution round, AutoId id, out Review review)
 	{
-		review = round.FindReview(id);
+		review = round.Reviews.Find(id);
 		
 		if(review == null || review.Deleted)
 		{
@@ -297,7 +297,7 @@ public abstract class FairOperation : Operation
 
 	public bool RequireDispute(FairExecution round, AutoId id, out Dispute review)
 	{
-		review = round.FindDispute(id);
+		review = round.Disputes.Find(id);
 		
 		if(review == null || review.Deleted)
 		{
@@ -317,7 +317,7 @@ public abstract class VotableOperation : FairOperation
 
 	protected void PayForModeration(FairExecution round, Publication publication, Author author)
 	{
-		var s = round.AffectSite(round.FindCategory(publication.Category).Site);
+		var s = round.Sites.Affect(round.Categories.Find(publication.Category).Site);
 
 		author.Energy -= author.ModerationReward;
 		Signer.Energy += author.ModerationReward;

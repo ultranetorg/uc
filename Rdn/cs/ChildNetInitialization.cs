@@ -51,7 +51,7 @@ public class ChildNetInitialization : RdnOperation
 			return;
 		}
 
-		e = execution.AffectDomain(Domain);
+		e = execution.Domains.Affect(Domain);
 
  		e.NtnChildNet = Net;
 	}

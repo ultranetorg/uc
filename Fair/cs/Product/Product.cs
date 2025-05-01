@@ -130,14 +130,14 @@ public class Product : IBinarySerializable, ITableEntry
 		return Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version);
 	}
 
-	public Product Clone()
+	public object Clone()
 	{
-		return new(Mcv){Id = Id,
-						Author = Author,
-						Flags = Flags,
-						Fields = Fields,
-						Updated = Updated,
-						Publications = Publications};
+		return new Product(Mcv){Id = Id,
+								Author = Author,
+								Flags = Flags,
+								Fields = Fields,
+								Updated = Updated,
+								Publications = Publications};
 	}
 
 	public void ReadMain(BinaryReader reader)

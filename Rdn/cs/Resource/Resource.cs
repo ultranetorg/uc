@@ -89,7 +89,7 @@ public class Resource : ITableEntry
 		Mcv = rdn;
 	}
 
-	public Resource Clone()
+	public object Clone()
 	{
 		return new Resource(Mcv)  {	Id = Id,
 									Domain = Domain,

@@ -57,7 +57,7 @@ public class PublicationTitleExecution : HnswTableExecution<string, StringHnswEn
  		} 
  		else
  		{
-			a = a.Clone();
+			a = a.Clone() as StringHnswEntity;
 
 			var e = EntryPoints.Find(i => i.Id == a.Id);
 			

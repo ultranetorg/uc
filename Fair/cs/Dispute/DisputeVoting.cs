@@ -93,7 +93,7 @@ public class DisputeVoting : FairOperation
  			}
  		}
  
- 		d = execution.AffectDispute(Dispute);
+ 		d = execution.Disputes.Affect(Dispute);
  
  		switch(Vote)
  		{
@@ -130,7 +130,7 @@ public class DisputeVoting : FairOperation
  
  		if(fail || d.Expirtaion < execution.Time)
  		{
- 			s = execution.AffectSite(d.Site);
+ 			s = execution.Sites.Affect(d.Site);
  			s.Disputes = s.Disputes.Remove(d.Id);
  
  			d.Deleted = true;

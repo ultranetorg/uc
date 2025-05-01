@@ -50,7 +50,7 @@ public class SiteDescriptionChange : VotableOperation
 	 		}
 		}
 
- 		var s = execution.AffectSite(Site);
+ 		var s = execution.Sites.Affect(Site);
  
 		s.Description = Description;
 	}
