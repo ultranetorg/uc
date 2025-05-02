@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useSearchLightSites, useSearchSites } from "entities"
-import { SITES_PAGE_SIZE } from "constants"
+import { DEFAULT_PAGE_SIZE } from "constants"
 import { Pagination, SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"
 
@@ -20,7 +20,7 @@ export const SitesPage = () => {
 
   const { isPending, data: sites, error } = useSearchSites(page, search)
 
-  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / SITES_PAGE_SIZE) : 0
+  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
 
   const handleKeyDown = useCallback(
     (key: string) => {

@@ -8,7 +8,7 @@ namespace Uccs.Fair;
 public class ReviewsController
 (
 	ILogger<ReviewsController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	IReviewsService reviewsService
 ) : BaseController
@@ -18,7 +18,7 @@ public class ReviewsController
 	{
 		logger.LogInformation($"GET {nameof(ReviewsController)}.{nameof(ReviewsController.Get)} method called with {{PublicationId}}, {{Pagination}}", publicationId, pagination);
 
-		entityIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

@@ -61,29 +61,29 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid depth {0} specified..
-        /// </summary>
-        internal static string InvalidDepthFormat1 {
-            get {
-                return ResourceManager.GetString("InvalidDepthFormat1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An incorrect {0} identifier has been provided..
         /// </summary>
-        internal static string InvalidEntityIdFormat1 {
+        internal static string InvalidAutoIdFormat1 {
             get {
-                return ResourceManager.GetString("InvalidEntityIdFormat1", resourceCulture);
+                return ResourceManager.GetString("InvalidAutoIdFormat1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to An incorrect {0} identifier has been provided {1}..
         /// </summary>
-        internal static string InvalidEntityIdFormat2 {
+        internal static string InvalidAutoIdFormat2 {
             get {
-                return ResourceManager.GetString("InvalidEntityIdFormat2", resourceCulture);
+                return ResourceManager.GetString("InvalidAutoIdFormat2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid depth {0} specified..
+        /// </summary>
+        internal static string InvalidDepthFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidDepthFormat1", resourceCulture);
             }
         }
         

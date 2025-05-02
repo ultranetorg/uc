@@ -7,6 +7,9 @@ export const enUS = {
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
   },
+  category: {
+    empty: "This category is empty.",
+  },
   votableOperations: {
     "nickname-change": "Nickname Change",
     "publication-product-change": "Publication Product Change",

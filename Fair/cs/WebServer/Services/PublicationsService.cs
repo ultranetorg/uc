@@ -22,7 +22,7 @@ public class PublicationsService
 
 		lock (mcv.Lock)
 		{
-			Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
+			Publication publication = mcv.Publications.Latest(id);
 			if (publication == null)
 			{
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
@@ -32,15 +32,15 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
 
-			Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-			Author author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
+			Product product = mcv.Products.Latest(publication.Product);
+			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 
 			return new PublicationDetailsModel(publication, product, author, category)
 			{
 				SupportedOSes = PublicationUtils.GetSupportedOSesExtended(publication, product),
 				// TODO: calculate average rating.
-				AverageRating = 3,
+				AverageRating = 31,
 			};
 		}
 	}
@@ -211,7 +211,7 @@ public class PublicationsService
 				{
 					SupportedOSes = PublicationUtils.GetSupportedOSes(publication, product),
 					// TODO: calculate average rating.
-					AverageRating = 3,
+					AverageRating = 34,
 				};
 				context.Items.Add(model);
 			}
@@ -232,7 +232,7 @@ public class PublicationsService
 
 		lock (mcv.Lock)
 		{
-			Site site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(id);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
@@ -265,13 +265,13 @@ public class PublicationsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			Category category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(categoryId);
 			foreach (var publicationId in category.Publications)
 			{
 				if (cancellationToken.IsCancellationRequested)
 					return;
 
-				Publication publication = mcv.Publications.Find(publicationId, mcv.LastConfirmedRound.Id);
+				Publication publication = mcv.Publications.Latest(publicationId);
 				if (IsPendingStatus(publication))
 				{
 					continue;
@@ -283,8 +283,8 @@ public class PublicationsService
 
 				if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 				{
-					Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-					Author author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
+					Product product = mcv.Products.Latest(publication.Product);
+					Author author = mcv.Authors.Latest(product.Author);
 					var model = new ModeratorPublicationModel(publication, category, product, author);
 					context.Items.Add(model);
 				}
@@ -306,21 +306,21 @@ public class PublicationsService
 
 		lock (mcv.Lock)
 		{
-			Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
+			Publication publication = mcv.Publications.Latest(id);
 			if (publication == null)
 			{
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
 
-			Category category = mcv.Categories.Find(publication.Category, mcv.LastConfirmedRound.Id);
-			Product product = mcv.Products.Find(publication.Product, mcv.LastConfirmedRound.Id);
-			Author author = mcv.Authors.Find(product.Author, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(publication.Category);
+			Product product = mcv.Products.Latest(publication.Product);
+			Author author = mcv.Authors.Latest(product.Author);
 
 			return new ModeratorPublicationModel(publication, category, product, author);
 		}
 	}
 
-	public TotalItemsResult<PublicationSearchModel> SearchNotOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationExtendedModel> SearchNotOptimized(string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, string? title, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.SearchNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Title}}", siteId, page, pageSize, title);
 
@@ -338,17 +338,17 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var context = new FilteredContext<PublicationSearchModel>()
+			var context = new FilteredContext<PublicationExtendedModel>()
 			{
 				Page = page,
 				PageSize = pageSize,
 				Search = title,
-				Items = new List<PublicationSearchModel>()
+				Items = new List<PublicationExtendedModel>()
 			};
 
 			SearchInCategories(context, site.Categories, cancellationToken);
 
-			return new TotalItemsResult<PublicationSearchModel>
+			return new TotalItemsResult<PublicationExtendedModel>
 			{
 				Items = context.Items.Skip(page * pageSize).Take(pageSize),
 				TotalItems = context.TotalItems,
@@ -356,7 +356,7 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInCategories(FilteredContext<PublicationSearchModel> context, AutoId[] categoriesIds, CancellationToken cancellationToken)
+	void SearchInCategories(FilteredContext<PublicationExtendedModel> context, AutoId[] categoriesIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -372,7 +372,7 @@ public class PublicationsService
 		}
 	}
 
-	void SearchInPublications(FilteredContext<PublicationSearchModel> context, Category category, AutoId[] publicationsIds, CancellationToken cancellationToken)
+	void SearchInPublications(FilteredContext<PublicationExtendedModel> context, Category category, AutoId[] publicationsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -402,11 +402,11 @@ public class PublicationsService
 
 			Author author = mcv.Authors.Latest(product.Author);
 
-			PublicationSearchModel resultItem = new PublicationSearchModel(publication, product, author, category)
+			PublicationExtendedModel resultItem = new PublicationExtendedModel(publication, product, author, category)
 			{
 				SupportedOSes = PublicationUtils.GetSupportedOSes(publication, product),
 				// TODO: calculate average rating.
-				AverageRating = 3,
+				AverageRating = 35,
 			};
 			context.Items.Add(resultItem);
 
@@ -460,7 +460,7 @@ public class PublicationsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			Category category = mcv.Categories.Find(categoryId, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(categoryId);
 			SearchLightInPublications(context, category.Publications, cancellationToken);
 			SearchLightInCategories(context, category.Categories, cancellationToken);
 		}
@@ -489,6 +489,110 @@ public class PublicationsService
 			context.Items.Add(resultItem);
 
 			++context.TotalItems;
+		}
+	}
+
+	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotEmpty] string siteId, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoriesPublicationsNotOptimized)} method called with {{SiteId}}", siteId);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		if (cancellationToken.IsCancellationRequested)
+			return Enumerable.Empty<CategoryPublicationsModel>();
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock (mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if (site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site), siteId);
+			}
+			if (site.Categories.Length == 0)
+			{
+				return Enumerable.Empty<CategoryPublicationsModel>();
+			}
+
+			var result = new List<CategoryPublicationsModel>(site.Categories.Length);
+			LoadCategoriesPublications(site.Categories, result, cancellationToken);
+
+			return result;
+		}
+	}
+
+	void LoadCategoriesPublications(AutoId[] categoriesIds, IList<CategoryPublicationsModel> result, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return;
+
+		foreach (AutoId categoryId in categoriesIds)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Category category = mcv.Categories.Latest(categoryId);
+
+			var resultCategory = new CategoryPublicationsModel(category)
+			{
+				Publications = new List<PublicationExtendedModel>(CategoriesPublications.DefaultPublicationsCount)
+			};
+
+			LoadPublicationsFromCategory(category, resultCategory, cancellationToken);
+
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			if (resultCategory.Publications.Count > 0)
+			{
+				result.Add(resultCategory);
+			}
+		}
+	}
+
+	void LoadPublicationsFromCategory(Category category, CategoryPublicationsModel result, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return;
+
+		if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)
+		{
+			return;
+		}
+
+		foreach (AutoId publicationId in category.Publications)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			if(!IsApprovedStatus(publication))
+			{
+				continue;
+			}
+
+			Product product = mcv.Products.Latest(publication.Product);
+			Author author = mcv.Authors.Latest(product.Author);
+			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category)
+			{
+				AverageRating = 32
+			};
+			result.Publications.Add(model);
+
+			if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)
+			{
+				return;
+			}
+		}
+
+		foreach (AutoId subCategoryId in category.Categories)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			Category subCategory = mcv.Categories.Latest(subCategoryId);
+			LoadPublicationsFromCategory(subCategory, result, cancellationToken);
 		}
 	}
 

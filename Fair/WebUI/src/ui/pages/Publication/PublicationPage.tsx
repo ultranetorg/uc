@@ -4,10 +4,8 @@ import { useDocumentTitle } from "usehooks-ts"
 
 import { PAGE_SIZES } from "constants"
 import { useGetPublication, useGetReviews } from "entities"
-import { Pagination, Select, SelectItem } from "ui/components"
-
-import { Review } from "./Review"
-import { ReviewsList } from "ui/components/specific/ReviewsList"
+import { Pagination, ReviewsList, Select, SelectItem } from "ui/components"
+import { formatAverageRating } from "utils"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
 
@@ -44,7 +42,7 @@ export const PublicationPage = () => {
         <div className="w-1/2 border border-black px-4 py-3 text-center text-purple-500">Logo/Screenshot</div>
         <div className="flex w-1/2 flex-col border border-black px-4 py-3">
           <span>Title: {publication.title}</span>
-          <span>Average Rating: {publication.averageRating}</span>
+          <span>Average Rating: {formatAverageRating(publication.averageRating)}</span>
           <span>
             Author: <Link to={`/${siteId}/a/${publication.authorId}`}>{publication.authorTitle}</Link>
           </span>

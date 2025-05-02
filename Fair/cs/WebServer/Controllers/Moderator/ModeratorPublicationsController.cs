@@ -7,7 +7,7 @@ namespace Uccs.Fair;
 public class ModeratorPublicationsController
 (
 	ILogger<ModeratorPublicationsController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	IPublicationsService publicationsService
 ) : BaseController
@@ -17,7 +17,7 @@ public class ModeratorPublicationsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorPublicationsController)}.{nameof(ModeratorPublicationsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -31,7 +31,7 @@ public class ModeratorPublicationsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{PublicationId}}", publicationId);
 
-		entityIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return publicationsService.GetModeratorPublication(publicationId);
 	}

@@ -1,21 +1,19 @@
 import { Link } from "react-router-dom"
 
-import { Publication, PublicationSearch } from "types"
+import { Publication, PublicationExtended } from "types"
 
 import { PublicationCard } from "./PublicationCard"
 
 export type PublicationsListProps = {
   siteId: string
   isPending: boolean
-  publications: (Publication | PublicationSearch)[]
+  publications: (Publication | PublicationExtended)[]
 }
 
 export const PublicationsList = ({ siteId, isPending, publications }: PublicationsListProps) => (
   <div className="flex flex-wrap gap-8">
     {isPending ? (
       <div>⌛ LOADING</div>
-    ) : publications.length === 0 ? (
-      <div>🚫 NO PUBLICATIONS</div>
     ) : (
       <>
         {publications.map(x => (

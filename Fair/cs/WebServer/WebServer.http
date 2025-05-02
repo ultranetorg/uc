@@ -15,6 +15,11 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0
 Accept: application/json
 
+### GET Categories Publications
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/categories/publications
+Accept: application/json
+
 ### GET Site Authors
 
 # GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors

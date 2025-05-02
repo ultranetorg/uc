@@ -1,6 +1,6 @@
 import { Publication } from "./Publication"
 
-export type PublicationSearch = {
+export type PublicationExtended = {
   authorId: string
   authorTitle: string
   categoryId: string

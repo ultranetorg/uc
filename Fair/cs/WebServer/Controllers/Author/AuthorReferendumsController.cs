@@ -7,7 +7,7 @@ namespace Uccs.Fair;
 public class AuthorReferendumsController
 (
 	ILogger<AuthorReferendumsController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	IDisputesService disputesService
 ) : BaseController
@@ -17,7 +17,7 @@ public class AuthorReferendumsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -31,8 +31,8 @@ public class AuthorReferendumsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{ReferendumId}}", siteId, referendumId);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
-		entityIdValidator.Validate(referendumId, nameof(Dispute).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(referendumId, nameof(Dispute).ToLower());
 
 		return disputesService.GetReferendum(siteId, referendumId);
 	}

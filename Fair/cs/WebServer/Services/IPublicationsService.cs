@@ -16,7 +16,9 @@ public interface IPublicationsService
 
 	ModeratorPublicationModel GetModeratorPublication(string publicationId);
 
-	TotalItemsResult<PublicationSearchModel> SearchNotOptimized([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, [NotNull][NotEmpty] string name, CancellationToken cancellationToken);
+	TotalItemsResult<PublicationExtendedModel> SearchNotOptimized([NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, [NotNull][NotEmpty] string name, CancellationToken cancellationToken);
 
 	TotalItemsResult<PublicationBaseModel> SearchLightNotOptimized([NotEmpty] string siteId, [NotNull][NotEmpty] string query, CancellationToken cancellationToken);
+
+	IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotEmpty] string siteId, CancellationToken cancellationToken);
 }

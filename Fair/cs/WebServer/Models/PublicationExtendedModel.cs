@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Fair;
 
-public class PublicationSearchModel(Publication publication, Product product, Author author, Category category)
+public class PublicationExtendedModel(Publication publication, Product product, Author author, Category category)
 	: PublicationModel(publication, product)
 {
 	public string AuthorId { get; set; } = author.Id.ToString();

@@ -1,7 +1,7 @@
 ﻿namespace Uccs.Fair;
 
 public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category)
-	: PublicationSearchModel(publication, product, author, category)
+	: PublicationExtendedModel(publication, product, author, category)
 {
 	public int ReviewsCount { get; set;} = publication.Reviews.Count();
 

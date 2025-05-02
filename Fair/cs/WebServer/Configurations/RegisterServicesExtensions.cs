@@ -31,7 +31,7 @@ public static class RegisterServicesExtensions
 	private static void RegisterValidators(IServiceCollection services)
 	{
 		services.AddSingleton<IDepthValidator, DepthValidator>();
-		services.AddSingleton<IEntityIdValidator, EntityIdValidator>();
+		services.AddSingleton<IAutoIdValidator, AutoIdValidator>();
 		services.AddSingleton<IPaginationValidator, PaginationValidator>();
 	}
 }

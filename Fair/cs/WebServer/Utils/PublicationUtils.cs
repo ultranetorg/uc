@@ -20,27 +20,28 @@ public static class PublicationUtils
 		return ["Windows 3.11", "Windows 95", "Windows 98", "macOS Sierra", "Ubuntu", "Xubuntu", "Android 11", "Android 12", "Android 13", "Android 14"];
 	}
 
-	public static string GetTitle(Publication publication, Product product)
+	public static string? GetTitle(Publication publication, Product product)
 	{
-		if (publication.Fields.All(x => x.Name != ProductField.Title))
+		var index = Array.FindIndex(publication.Fields, x => x.Name == ProductField.Title);
+		if (index == -1)
 		{
-			return product.Id.ToString();
+			return null;
 		}
 
-		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Title).Version;
-		byte[] bytes = product.Fields.FirstOrDefault(x => x.Name == ProductField.Title)?.Versions.FirstOrDefault(x => x.Version == version)?.Value;
-		return Encoding.UTF8.GetString(bytes);
+
+		int version = publication.Fields[index].Version;
+		return product.Fields.First(x => x.Name == ProductField.Title).Versions.First(x => x.Version == version).AsUtf8;
 	}
 
 	public static string? GetDescription(Publication publication, Product product)
 	{
-		if (publication.Fields.All(x => x.Name != ProductField.Description))
+		var index = Array.FindIndex(publication.Fields, x => x.Name == ProductField.Description);
+		if(index == -1)
 		{
-			return product.Id.ToString() + " Description";
+			return null;
 		}
 
-		int version = publication.Fields.FirstOrDefault(x => x.Name == ProductField.Description).Version;
-		byte[] bytes = product.Fields.FirstOrDefault(x => x.Name == ProductField.Description)?.Versions.FirstOrDefault(x => x.Version == version)?.Value;
-		return Encoding.UTF8.GetString(bytes);	
+		int version = publication.Fields[index].Version;
+		return product.Fields.First(x => x.Name == ProductField.Description).Versions.First(x => x.Version == version).AsUtf8;
 	}
 }

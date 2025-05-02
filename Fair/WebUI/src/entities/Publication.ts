@@ -23,6 +23,24 @@ export const useGetPublication = (publicationId?: string) => {
   return { isPending, isError, data }
 }
 
+export const useGetCategoriesPublications = (siteId?: string) => {
+  const queryFn = () => {
+    if (!siteId) {
+      return
+    }
+
+    return api.getCategoriesPublications(siteId)
+  }
+
+  const { isPending, isError, data } = useQuery({
+    queryKey: ["sites", siteId, "categories", "publications"],
+    queryFn: queryFn,
+    enabled: !!siteId,
+  })
+
+  return { isPending, isError, data }
+}
+
 export const useGetAuthorPublications = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => {
     if (!siteId || !authorId) {
@@ -41,17 +59,17 @@ export const useGetAuthorPublications = (siteId?: string, authorId?: string, pag
   return { isPending, isError, data }
 }
 
-export const useGetCategoryPublications = (categoryId?: string, page?: number, pageSize?: number) => {
+export const useGetCategoryPublications = (categoryId?: string, page?: number) => {
   const queryFn = () => {
     if (!categoryId) {
       return
     }
 
-    return api.getCategoryPublications(categoryId, page, pageSize)
+    return api.getCategoryPublications(categoryId, page)
   }
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ["categories", categoryId, "publications", { page, pageSize }],
+    queryKey: ["categories", categoryId, "publications", { page }],
     queryFn: queryFn,
     enabled: !!categoryId,
   })

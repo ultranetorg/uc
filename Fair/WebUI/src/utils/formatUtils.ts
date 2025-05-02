@@ -1,6 +1,8 @@
 const THREE_DOTS = "..."
 const OS_DIVIDER = " | "
 
+export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
+
 export const formatTitle = (title: string, maxLength: number = 48, endLength: number = 16): string => {
   if (title.length <= maxLength) {
     return title

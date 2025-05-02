@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class AuthorsController
 (
 	ILogger<AuthorsController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IAuthorsService authorsService
 ) : BaseController
 {
@@ -14,7 +14,7 @@ public class AuthorsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorsController)}.{nameof(AuthorsController.Get)} method called with {{AuthorId}}", authorId);
 
-		entityIdValidator.Validate(authorId, nameof(Author).ToLower());
+		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
 
 		return authorsService.GetAuthor(authorId);
 	}
@@ -25,7 +25,7 @@ public class AuthorsController
 	//{
 	//	logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetAuthors)} method called with {{SiteId}}, {{Pagination}}", siteId, pagination);
 
-	//	entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 	//	paginationValidator.Validate(pagination);
 
 	//	int page = pagination?.Page ?? 0;

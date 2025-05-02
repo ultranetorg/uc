@@ -15,8 +15,6 @@ export const CategoriesList = ({ siteId, isPending, categories }: CategoriesList
   <div className="flex flex-wrap gap-8">
     {isPending ? (
       <div>⌛ LOADING</div>
-    ) : categories.length === 0 ? (
-      <div>🚫 NO CATEGORIES</div>
     ) : (
       <>
         {categories.map(x => (

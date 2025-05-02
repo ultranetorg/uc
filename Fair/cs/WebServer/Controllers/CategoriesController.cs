@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class CategoriesController
 (
 	ILogger<CategoriesController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IDepthValidator depthValidator,
 	ICategoriesService categoriesService
 ) : BaseController
@@ -15,7 +15,7 @@ public class CategoriesController
 	{
 		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.Get)} method called with {{CategoryId}}", categoryId);
 
-		entityIdValidator.Validate(categoryId, nameof(Category).ToLower());
+		autoIdValidator.Validate(categoryId, nameof(Category).ToLower());
 
 		return categoriesService.GetCategory(categoryId, cancellationToken);
 	}
@@ -25,7 +25,7 @@ public class CategoriesController
 	{
 		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{De[tj}}", siteId, depth);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		depthValidator.Validate(depth);
 
 		int categoriesDepth = DepthUtils.GetDepth(depth);

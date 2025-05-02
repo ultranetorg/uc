@@ -6,7 +6,7 @@ namespace Uccs.Fair;
 public class SitesController
 (
 	ILogger<SitesController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	ISearchQueryValidator searchQueryValidator,
 	ISitesService sitesService
@@ -43,7 +43,7 @@ public class SitesController
 	{
 		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called with {{SiteId}}", siteId);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
 		return sitesService.GetSite(siteId);
 	}

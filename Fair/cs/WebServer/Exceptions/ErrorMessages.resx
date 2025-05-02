@@ -120,10 +120,10 @@
   <data name="InvalidPaginationParameters" xml:space="preserve">
     <value>Invalid pagination parameters.</value>
   </data>
-  <data name="InvalidEntityIdFormat1" xml:space="preserve">
+  <data name="InvalidAutoIdFormat1" xml:space="preserve">
     <value>An incorrect {0} identifier has been provided.</value>
   </data>
-  <data name="InvalidEntityIdFormat2" xml:space="preserve">
+  <data name="InvalidAutoIdFormat2" xml:space="preserve">
     <value>An incorrect {0} identifier has been provided {1}.</value>
   </data>
   <data name="ProductNotFoundFormat1" xml:space="preserve">
