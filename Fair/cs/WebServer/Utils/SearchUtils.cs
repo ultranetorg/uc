@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using NBitcoin.Secp256k1;
+
+namespace Uccs.Fair;
 
 internal class SearchUtils
 {
@@ -117,5 +119,16 @@ internal class SearchUtils
 		}
 
 		return false;
+	}
+
+	internal static bool IsMatch(Publication publication, Product product, string query)
+	{
+		string productTitle = PublicationUtils.GetTitle(publication, product);
+		if(string.IsNullOrEmpty(productTitle))
+		{
+			return false;
+		}
+
+		return productTitle.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 }

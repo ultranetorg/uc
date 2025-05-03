@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class UsersController
 (
 	ILogger<UsersController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IUsersService usersService
 ) : BaseController
 {
@@ -14,7 +14,7 @@ public class UsersController
 	{
 		logger.LogInformation($"GET {nameof(UsersController)}.{nameof(UsersController.Get)} method called with {{UserId}}", userId);
 
-		entityIdValidator.Validate(userId, nameof(Account).ToLower());
+		autoIdValidator.Validate(userId, nameof(Account).ToLower());
 
 		return usersService.Get(userId);
 	}

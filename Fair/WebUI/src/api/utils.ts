@@ -1,4 +1,4 @@
-import { PaginationResponse } from "types"
+import { PaginationResponse, TotalItemsResponse } from "types"
 
 export const toPaginationResponse = async <T>(response: Response): Promise<PaginationResponse<T>> => {
   const itemsResponse = (await response.json()) as T[]
@@ -11,5 +11,15 @@ export const toPaginationResponse = async <T>(response: Response): Promise<Pagin
     totalItems,
     page,
     pageSize,
+  }
+}
+
+export const toTotalItemsResponse = async <T>(response: Response): Promise<TotalItemsResponse<T>> => {
+  const itemsResponse = (await response.json()) as T[]
+  const totalItems = parseInt(response.headers.get("x-total-items")!)
+
+  return {
+    items: itemsResponse,
+    totalItems,
   }
 }

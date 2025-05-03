@@ -14,12 +14,12 @@ public class UsersService
 
 		Guard.Against.NullOrEmpty(userId);
 
-		AutoId entityId = AutoId.Parse(userId);
+		AutoId id = AutoId.Parse(userId);
 
 		FairAccount account = null;
 		lock (mcv.Lock)
 		{
-			account = (FairAccount) mcv.Accounts.Find(entityId, mcv.LastConfirmedRound.Id);
+			account = (FairAccount) mcv.Accounts.Find(id, mcv.LastConfirmedRound.Id);
 			if (account == null)
 			{
 				throw new EntityNotFoundException(nameof(Account).ToLower(), userId);

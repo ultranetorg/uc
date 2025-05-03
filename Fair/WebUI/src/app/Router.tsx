@@ -5,6 +5,7 @@ import {
   AuthorPage,
   AuthorReferendumPage,
   AuthorReferendumsPage,
+  CategoriesPage,
   CategoryPage,
   ErrorPage,
   ModerationPage,
@@ -18,6 +19,8 @@ import {
   SitesPage,
   UserPage,
 } from "ui/pages"
+
+import { SiteProvider } from "./SiteContext"
 
 export const Router = () => (
   <BrowserRouter>
@@ -33,9 +36,17 @@ export const Router = () => (
       >
         <Route index element={<SitesPage />} />
 
-        <Route path="/:siteId" element={<SiteLayout />}>
+        <Route
+          path="/:siteId"
+          element={
+            <SiteProvider>
+              <SiteLayout />
+            </SiteProvider>
+          }
+        >
           <Route index element={<SitePage />} />
           <Route path="/:siteId/a/:authorId" element={<AuthorPage />} />
+          <Route path="/:siteId/c" element={<CategoriesPage />} />
           <Route path="/:siteId/c/:categoryId" element={<CategoryPage />} />
           <Route path="/:siteId/p/:publicationId" element={<PublicationPage />} />
           <Route path="/:siteId/s" element={<SearchPage />} />

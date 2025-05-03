@@ -30,13 +30,12 @@ export const AuthorPage = () => {
       ) : publications.items.length === 0 ? (
         <div>🚫 NO PUBLICATIONS</div>
       ) : (
-        <div className="flex flex-wrap">
+        <div className="flex flex-col flex-wrap">
           {publications.items.map(p => (
             <Link to={`/${siteId}/p/${p.id}`}>
               <div className="flex flex-col border border-red-300">
-                <span>PRODUCT ID: {p.productId}</span>
-                <span>TITLE: {p.productTitle}</span>
-                <span>DESCRIPTION: {p.productDescription}</span>
+                <span>PRODUCT ID: {p.id}</span>
+                <span>TITLE: {p.title}</span>
               </div>
             </Link>
           ))}

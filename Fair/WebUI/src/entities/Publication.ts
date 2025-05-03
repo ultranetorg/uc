@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
+import { isUndefOrEmpty } from "utils"
 
 const api = getApi()
 
@@ -17,6 +18,24 @@ export const useGetPublication = (publicationId?: string) => {
     queryKey: ["publications", publicationId],
     queryFn: queryFn,
     enabled: !!publicationId,
+  })
+
+  return { isPending, isError, data }
+}
+
+export const useGetCategoriesPublications = (siteId?: string) => {
+  const queryFn = () => {
+    if (!siteId) {
+      return
+    }
+
+    return api.getCategoriesPublications(siteId)
+  }
+
+  const { isPending, isError, data } = useQuery({
+    queryKey: ["sites", siteId, "categories", "publications"],
+    queryFn: queryFn,
+    enabled: !!siteId,
   })
 
   return { isPending, isError, data }
@@ -40,20 +59,62 @@ export const useGetAuthorPublications = (siteId?: string, authorId?: string, pag
   return { isPending, isError, data }
 }
 
-export const useGetCategoryPublications = (categoryId?: string, page?: number, pageSize?: number) => {
+export const useGetCategoryPublications = (categoryId?: string, page?: number) => {
   const queryFn = () => {
     if (!categoryId) {
       return
     }
 
-    return api.getCategoryPublications(categoryId, page, pageSize)
+    return api.getCategoryPublications(categoryId, page)
   }
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ["categories", categoryId, "publications", { page, pageSize }],
+    queryKey: ["categories", categoryId, "publications", { page }],
     queryFn: queryFn,
     enabled: !!categoryId,
   })
 
   return { isPending, isError, data }
+}
+
+export const useSearchPublications = (
+  siteId?: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+  forceEnable?: boolean,
+) => {
+  const queryFn = () => {
+    if (!siteId) {
+      return
+    }
+
+    return api.searchPublications(siteId, page, pageSize, search)
+  }
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", siteId, "publications", { page, pageSize, search }],
+    queryFn: queryFn,
+    enabled: !!siteId && (!isUndefOrEmpty(search) || forceEnable === true),
+  })
+
+  return { isPending, error: error ?? undefined, data }
+}
+
+export const useSearchLightPublications = (siteId?: string, query?: string) => {
+  const queryFn = () => {
+    if (!siteId || !query) {
+      return
+    }
+
+    return api.searchLightPublication(siteId, query)
+  }
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["sites", siteId, "publications", "search", { query }],
+    queryFn: queryFn,
+    enabled: !!siteId && !!query,
+  })
+
+  return { isPending, error: error ?? undefined, data }
 }

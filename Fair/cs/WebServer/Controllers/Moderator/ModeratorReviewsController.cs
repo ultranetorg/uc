@@ -7,7 +7,7 @@ namespace Uccs.Fair;
 public class ModeratorReviewsController
 (
 	ILogger<ModeratorReviewsController> logger,
-	IEntityIdValidator entityIdValidator,
+	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	IReviewsService reviewsService
 ) : BaseController
@@ -17,11 +17,11 @@ public class ModeratorReviewsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
-		entityIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNonOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorsReviewsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
@@ -31,7 +31,7 @@ public class ModeratorReviewsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{ReviewId}}", reviewId);
 
-		entityIdValidator.Validate(reviewId, nameof(Review).ToLower());
+		autoIdValidator.Validate(reviewId, nameof(Review).ToLower());
 
 		return reviewsService.GetModeratorReview(reviewId);
 	}

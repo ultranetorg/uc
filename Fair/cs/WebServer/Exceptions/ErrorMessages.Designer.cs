@@ -61,6 +61,33 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An incorrect {0} identifier has been provided..
+        /// </summary>
+        internal static string InvalidAutoIdFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidAutoIdFormat1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An incorrect {0} identifier has been provided {1}..
+        /// </summary>
+        internal static string InvalidAutoIdFormat2 {
+            get {
+                return ResourceManager.GetString("InvalidAutoIdFormat2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid depth {0} specified..
+        /// </summary>
+        internal static string InvalidDepthFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidDepthFormat1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid pagination parameters..
         /// </summary>
         internal static string InvalidPaginationParameters {
@@ -70,25 +97,7 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An incorrect product identifier has been provided..
-        /// </summary>
-        internal static string InvalidEntityIdFormat1 {
-            get {
-                return ResourceManager.GetString("InvalidEntityIdFormat1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An incorrect product identifier has been provided {0}..
-        /// </summary>
-        internal static string InvalidEntityIdFormat2 {
-            get {
-                return ResourceManager.GetString("InvalidEntityIdFormat2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Product not found..
+        ///   Looks up a localized string similar to The {0} with the specified identifier was not found..
         /// </summary>
         internal static string ProductNotFoundFormat1 {
             get {
@@ -97,7 +106,7 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The product with the specified identifier {0} was not found..
+        ///   Looks up a localized string similar to The {0} with the specified identifier {1} was not found..
         /// </summary>
         internal static string ProductNotFoundFormat2 {
             get {

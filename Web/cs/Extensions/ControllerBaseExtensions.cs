@@ -19,4 +19,16 @@ public static class ControllerBaseExtensions
 
 		return response;
 	}
+
+	public static T OkPaged<T>(this ControllerBase controller, T response, int totalItems)
+		where T : class
+	{
+		Guard.Against.Null(controller);
+		Guard.Against.Negative(totalItems);
+
+		controller.Response.Headers["X-Total-Items"] = totalItems.ToString();
+		controller.Response.Headers.AccessControlExposeHeaders = "X-Total-Items";
+
+		return response;
+	}
 }

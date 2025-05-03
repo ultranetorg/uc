@@ -13,7 +13,7 @@ public class EntityNotFoundException : BaseException
 	{
 	}
 
-	public EntityNotFoundException(string entityName, string entityId) : base(string.Format(ErrorMessages.ProductNotFoundFormat2, entityName, entityId))
+	public EntityNotFoundException(string entityName, string autoId) : base(string.Format(ErrorMessages.ProductNotFoundFormat2, entityName, autoId))
 	{
 	}
 }
