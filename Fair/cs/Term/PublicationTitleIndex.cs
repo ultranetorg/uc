@@ -95,7 +95,7 @@ public class PublicationTitleExecution : HnswTableExecution<string, StringHnswEn
  		var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
  		var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
  		
-		e = Table.FindBucket(b)?.Entries.Find(i => i.Text == text);
+		e = Table.FindBucket(b)?.Entries.FirstOrDefault(i => i.Text == text);
 
 		if(e != null)
 			if(!e.Deleted)

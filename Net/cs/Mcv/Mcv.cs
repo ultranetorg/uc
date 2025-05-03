@@ -480,7 +480,7 @@ public abstract class Mcv /// Mutual chain voting
 			{	
 				foreach(var b in i.Buckets.OrderBy(i => i.Id))
 				{
-					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Main.ToHex() + Environment.NewLine);
+					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Export().ToHex() + Environment.NewLine);
 					
 					foreach(var e in b.Entries.OrderBy(i => i.Key))
 						File.AppendAllText(f, JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);

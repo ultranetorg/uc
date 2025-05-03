@@ -232,8 +232,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																		var d = Call(peer, new DownloadTableRequest {Table		= t.Id,
 																													 BucketId	= j.Id, 
 																													 Hash		= j.Hash});
-
-																		b.Save(w, d.Main);
+																		lock(Mcv.Lock)	
+																			b.Import(w, d.Main);
 				
 																		if(!b.Hash.SequenceEqual(j.Hash))
 																			throw new SynchronizationException("Cluster hash mismatch");
@@ -1251,7 +1251,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		foreach(var i in mcvs)
 		{
-			var d = Path.Join(destination, "CompareGraphs- " + i.Key);
+			var d = Path.Join(destination, "!CompareGraphs- " + i.Key);
 
 			CompareBase(i.Where(i => i.Mcv != null).ToArray(), d);
 		}

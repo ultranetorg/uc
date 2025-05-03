@@ -11,8 +11,8 @@ public abstract class TableBase
 
 	protected ColumnFamilyHandle				ClusterColumn;
 	protected ColumnFamilyHandle				StateColumn;
-	protected ColumnFamilyHandle				MetaColumn;
-	protected ColumnFamilyHandle				MainColumn;
+	protected ColumnFamilyHandle				BucketColumn;
+	protected ColumnFamilyHandle				EntityColumn;
 	//protected ColumnFamilyHandle				MoreColumn;
 	protected RocksDb							Rocks;
 	protected Mcv								Mcv;
@@ -32,18 +32,19 @@ public abstract class TableBase
 
 	public abstract class BucketBase
 	{
-		public const int							Length = 24;
+		public const int							Length = 20;
 
 		public int									Id;
 		public short								SuperId => (short)(Id >> Length);
-		public int									MainLength;
- 		public abstract int							NextEid { get; set; }
+		public int									Size;
+ 		public int									NextE { get; set; }
 		public byte[]								Hash { get; set; }
-		public abstract byte[]						Main { get; }
+		//public abstract byte[]						Main { get; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
 
-		public abstract void						Save(WriteBatch batch);
-		public abstract void						Save(WriteBatch batch, byte[] main);
+		public abstract void						Commit(WriteBatch batch);
+		public abstract void						Import(WriteBatch batch, byte[] main);
+		public abstract byte[]						Export();
 
 		public void Cleanup(Round lastInCommit)
 		{
@@ -56,7 +57,7 @@ public abstract class TableBase
 
 	public abstract class ClusterBase
 	{
-		public const int							Length = 12;
+		public const int							Length = 10;
 
 		public short								Id;
 		public byte[]								Hash;
@@ -68,135 +69,250 @@ public abstract class TableBase
 	}
 }
 
-public abstract class Table<ID, E> : TableBase where E : class, ITableEntry where ID : EntityId
+public abstract class Table<ID, E> : TableBase where E : class, ITableEntry where ID : EntityId, new()
 {
 	public class Bucket : BucketBase
 	{
-		Table<ID, E>			Table;
-		byte[]					_Main;
-		int						_NextEntryId;
-		List<E>					_Entries;
-		public override byte[]	Main  => _Main ??= Table.Rocks.Get(EntityId.BucketToBytes(Id), Table.MainColumn);
-
-		public override List<E> Entries
+		class Item
 		{
-			get
-			{
-				if(_Entries == null)
-					Load();
+			public E		Entity;
+			public byte[]	Main;
 
-				return _Entries;
+			public Item()
+			{
 			}
 		}
 
-		public override int NextEid 
-		{
-			get
-			{
-				if(_Entries == null)
-					Load();
-
-				return _NextEntryId;
-			}
-			set
-			{
-				_NextEntryId = value;
-			}
-		}
+		Table<ID, E>					Table;
+		public override IEnumerable<E>	Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
+		SortedDictionary<ID, Item>		_Entries = new SortedDictionary<ID, Item>();
 
 		public Bucket(Table<ID, E> table, int id)
 		{
 			Table = table;
 			Id = id;
 
-			var meta = Table.Rocks.Get(EntityId.BucketToBytes(Id), Table.MetaColumn);
+			var meta = Table.Rocks.Get(EntityId.BucketToBytes(Id), Table.BucketColumn);
 
 			if(meta != null)
 			{
 				var r = new BinaryReader(new MemoryStream(meta));
 	
-				Hash		= r.ReadHash();
-				MainLength	= r.Read7BitEncodedInt();
+				Hash			= r.ReadHash();
+				Size			= r.Read7BitEncodedInt();
+				NextE			= r.Read7BitEncodedInt();
+				_Entries		= r.ReadSortedDictionary(() => r.Read<ID>(), () => new Item());
 			}
 		}
+
 
 		public override string ToString()
 		{
-			return $"{Id}, Entries={{{Entries?.Count}}}, Hash={Hash?.ToHex()}, NextEntryId={NextEid}";
+			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextE}";
 		}
 
-		void Load()
+		public E Find(ID id)
 		{
-			if(Main != null)
-			{
-				var s = new MemoryStream(Main);
-				var r = new BinaryReader(s);
-	
-				_NextEntryId = r.Read7BitEncodedInt();
+			if(!_Entries.TryGetValue(id, out var e))
+				return null;
 
-				var a = r.ReadList(()=>	{ 
-											var e = Table.Create();
-											e.ReadMain(r);
-											return e;
-										});
-					
-				_Entries = a;
-			} 
-			else
+			if(e.Entity != null)
+				return e.Entity;
+
+			e.Main ??= Table.Rocks.Get(id.Raw, Table.EntityColumn);
+			e.Entity = Table.Create();
+			e.Entity.ReadMain(new BinaryReader(new MemoryStream(e.Main)));
+
+			return e.Entity;
+		}
+
+		public void Add(WriteBatch batch, E entity)
+		{
+			_Entries[entity.Key as ID] = new Item {Entity = entity};
+			batch.Put(entity.Key.Raw, entity.ToMain(), Table.EntityColumn);
+		}
+
+		public void Remove(WriteBatch batch, ID id)
+		{
+			_Entries.Remove(id);
+			batch.Delete(id.Raw, Table.EntityColumn);
+		}
+
+		public override void Commit(WriteBatch batch)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(_Entries.Count);
+
+			Hash = Cryptography.Hash(s.ToArray());
+			Size = 0;
+
+			foreach(var i in _Entries)
 			{
-				_NextEntryId = 0;
-				_Entries = new List<E>();
+				if(i.Value.Main == null)
+				{	
+					if(i.Value.Entity == null)
+						i.Value.Main = Table.Rocks.Get(i.Key.Raw, Table.EntityColumn);
+					else
+					{
+						i.Value.Main = i.Value.Entity.ToMain();
+						batch.Put(i.Key.Raw, i.Value.Main, Table.EntityColumn);
+					}
+				}
+
+				Hash = Cryptography.Hash(Hash, i.Value.Main);
+				Size += i.Value.Main.Length;
 			}
+
+			s.Position = 0;
+
+			w.Write(Hash);
+			w.Write7BitEncodedInt(Size);
+			w.Write7BitEncodedInt(NextE);
+			w.Write(_Entries.Keys);
+
+			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
 		}
 
-		public override void Save(WriteBatch batch)
+		public override byte[] Export()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			///if(_Main == null || base.Entries != null)
-			///{
-			///
-				_Entries = Entries.OrderBy(i => i.Key).ToList();
+			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(_Entries.Count);
 
-				w.Write7BitEncodedInt(NextEid);
-				w.Write(_Entries, i =>	{
-											i.WriteMain(w);
-										});
+			foreach(var i in _Entries)
+			{
+				w.Write(i.Key);
 
-				_Main = s.ToArray();
-			///}
+				if(i.Value.Main == null)
+				{	
+					if(i.Value.Entity == null)
+						i.Value.Main = Table.Rocks.Get(i.Key.Raw, Table.EntityColumn);
+					else
+						i.Value.Main = i.Value.Entity.ToMain();
+				}
 
-			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.MainColumn);
+				w.WriteBytes(i.Value.Main);
+			}
 
-			Hash = Cryptography.Hash(_Main);
-			MainLength = _Main.Length;
-			
-			s.SetLength(0);
-
-			w.Write(Hash);
-			w.Write7BitEncodedInt(_Main.Length);
-
-			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
+			return s.ToArray();
 		}
 
-		public override void Save(WriteBatch batch, byte[] main)
+		public override void Import(WriteBatch batch, byte[] data)
 		{
-			_Main = main;
+			var s = new MemoryStream(data);
+			var r = new BinaryReader(s);
 
-			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.MainColumn);
+			NextE = r.Read7BitEncodedInt();
+			var n = r.Read7BitEncodedInt();
 
-			Hash = Cryptography.Hash(_Main);
-			MainLength = _Main.Length;
+			Hash = Cryptography.Hash(data[..(int)s.Position]);
+			Size = 0;
 
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			for(int i=0; i<n; i++)
+			{
+				//var e = new Item();
+
+				var id = r.Read<ID>();
+				var main = r.ReadBytes();
+				//e.Entity = Table.Create();
+				//e.Entity.ReadMain(new BinaryReader(new MemoryStream(e.Raw)));
+
+				_Entries[id] = new Item {Main = main};
+
+				batch.Put(id.Raw, main, Table.EntityColumn);
+
+				Hash = Cryptography.Hash(Hash, main);
+				Size += main.Length;
+			}
 			
-			w.Write(Hash);
-			w.Write7BitEncodedInt(MainLength);
+			s = new MemoryStream();
+			var w = new BinaryWriter(s);
 
-			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.MetaColumn);
+			w.Write(Hash);
+			w.Write7BitEncodedInt(Size);
+			w.Write7BitEncodedInt(NextE);
+			w.Write(_Entries.Keys);
+
+			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
 		}
+
+// 		void Load()
+// 		{
+// 			if(Main != null)
+// 			{
+// 				var s = new MemoryStream(Main);
+// 				var r = new BinaryReader(s);
+// 	
+// 				_NextEntryId = r.Read7BitEncodedInt();
+// 
+// 				var a = r.ReadList(()=>	{ 
+// 											var e = Table.Create();
+// 											e.ReadMain(r);
+// 											return e;
+// 										});
+// 					
+// 				_Entries = a;
+// 			} 
+// 			else
+// 			{
+// 				_NextEntryId = 0;
+// 				_Entries = new List<E>();
+// 			}
+// 		}
+
+// 		public override void Save(WriteBatch batch)
+// 		{
+// 			var s = new MemoryStream();
+// 			var w = new BinaryWriter(s);
+// 
+// 			///if(_Main == null || base.Entries != null)
+// 			///{
+// 			///
+// 				_Entries = Entries.OrderBy(i => i.Key).ToList();
+// 
+// 				w.Write7BitEncodedInt(NextEid);
+// 				w.Write(_Entries, i =>	{
+// 											i.WriteMain(w);
+// 										});
+// 
+// 				_Main = s.ToArray();
+// 			///}
+// 
+// 			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.EntityColumn);
+// 
+// 			Hash = Cryptography.Hash(_Main);
+// 			Size = _Main.Length;
+// 			
+// 			s.SetLength(0);
+// 
+// 			w.Write(Hash);
+// 			w.Write7BitEncodedInt(_Main.Length);
+// 
+// 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
+// 		}
+// 
+// 		public override void Save(WriteBatch batch, byte[] main)
+// 		{
+// 			_Main = main;
+// 
+// 			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.EntityColumn);
+// 
+// 			Hash = Cryptography.Hash(_Main);
+// 			Size = _Main.Length;
+// 
+// 			var s = new MemoryStream();
+// 			var w = new BinaryWriter(s);
+// 			
+// 			w.Write(Hash);
+// 			w.Write7BitEncodedInt(Size);
+// 
+// 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
+// 		}
 	}
 
 
@@ -278,12 +394,12 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var buckets = Buckets.OrderBy(i => i.Id).ToArray();
 
 			Hash = buckets.First().Hash;
-			MainLength = buckets.First().MainLength;
+			MainLength = buckets.First().Size;
 
 			foreach(var i in buckets.Skip(1))
 			{
 				Hash = Cryptography.Hash(Hash, i.Hash);
-				MainLength += i.MainLength;
+				MainLength += i.Size;
 			}
 
 			var s = new MemoryStream();
@@ -487,8 +603,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	public override int				Size => Clusters.Sum(i => i.MainLength);
 	public static string			StateColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(StateColumn);
 	public static string			ClusterColumnName	=> typeof(E).Name.Replace("Entry", null) + nameof(ClusterColumn);
-	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MetaColumn);
-	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(MainColumn);
+	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(BucketColumn);
+	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(EntityColumn);
 
 	public abstract E				Create();
 
@@ -503,8 +619,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		if(!Rocks.TryGetColumnFamily(StateColumnName,	out StateColumn))	StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		if(!Rocks.TryGetColumnFamily(ClusterColumnName,	out ClusterColumn))	ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
-		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out MetaColumn))	MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
-		if(!Rocks.TryGetColumnFamily(MainColumnName,	out MainColumn))	MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
+		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out BucketColumn))	BucketColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
+		if(!Rocks.TryGetColumnFamily(MainColumnName,	out EntityColumn))	EntityColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
 
 		using(var i = Rocks.NewIterator(ClusterColumn))
 		{
@@ -528,8 +644,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
-		MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
-		MainColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
+		BucketColumn	= Rocks.CreateColumnFamily(new (), MetaColumnName);
+		EntityColumn	= Rocks.CreateColumnFamily(new (), MainColumnName);
 	}
 
 	public override Cluster FindCluster(short id)
@@ -562,10 +678,10 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	
 	public virtual E Find(ID id)
 	{
-		var eee = FindBucket(id.B)?.Entries;
-		var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
-		
-		return j >= 0 ? eee[j.Value] : null;
+		return FindBucket(id.B)?.Find(id);
+		//var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
+		//
+		//return j >= 0 ? eee[j.Value] : null;
 
 		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
 	}
@@ -608,17 +724,14 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var c = GetCluster(ClusterFromBucket(i.Key.B));
 			var b = c.GetBucket(i.Key.B);
 
-			var e = b.Entries.Find(e => e.Key == i.Key);
-			
-			if(e != null)
-				b.Entries.Remove(e);
-
 			if(!i.Deleted)
-				b.Entries.Add(i);
+				b.Add(batch, i);
+			else
+				b.Remove(batch, i.Key as ID);
 
 			if(i.Key is AutoId id)
-				if(b.NextEid < id.E + 1)
-					b.NextEid = id.E + 1;
+				if(b.NextE < id.E + 1)
+					b.NextE = id.E + 1;
 
 			bs.Add(b);
 			cs.Add(c);
@@ -627,7 +740,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		foreach(var i in bs)
 		{
 			i.Cleanup(lastInCommit);
-			i.Save(batch);
+			i.Commit(batch);
 		}
 
 		foreach(var i in cs)
@@ -687,7 +800,7 @@ public interface ITableState
 	void StartRoundExecution(Round round);
 }
 
-public class TableState<ID, E> : ITableState where ID : EntityId where E : class, ITableEntry
+public class TableState<ID, E> : ITableState where ID : EntityId, new() where E : class, ITableEntry
 {
 	public Dictionary<ID, E>	Affected = new();
 	public Table<ID, E>			Table;
@@ -711,7 +824,7 @@ public class TableState<ID, E> : ITableState where ID : EntityId where E : class
 	}
 }
 
-public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : EntityId where E : class, ITableEntry
+public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : EntityId, new() where E : class, ITableEntry
 {
 	public Execution	Execution;
 

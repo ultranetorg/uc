@@ -11,10 +11,28 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 
 	public static byte[]	BucketToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
 	
+	byte[]					_Raw;
+
+	public byte[] Raw
+	{
+		get
+		{
+			if(_Raw != null)
+				return _Raw;
+
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+								
+			Write(w);
+								
+			return _Raw = s.ToArray();
+		}
+	}
+
 	public static int BytesToBucket(byte[] id)
 	{
-		if(id.Length >= 3) return	  id[2] << 16 | id[1] << 8 | id[0];
-		if(id.Length == 2) return					id[1] << 8 | id[0];
+		if(id.Length >= 3) return id[2] << 16 | id[1] << 8 | id[0];
+		if(id.Length == 2) return				id[1] << 8 | id[0];
  		
 		return id[0];
 	}
@@ -48,4 +66,14 @@ public interface ITableEntry
 
 	void		ReadMain(BinaryReader r);
 	void		WriteMain(BinaryWriter r);
+
+	public byte[] ToMain()
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+								
+		WriteMain(w);
+								
+		return s.ToArray();
+	}
 }

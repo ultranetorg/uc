@@ -23,7 +23,7 @@ public class DownloadTableRequest : McvPpc<DownloadTableResponse>
 			if(!b.Hash.SequenceEqual(Hash))
 				throw new EntityException(EntityError.HashMismatach);
 
-			return new DownloadTableResponse {Main = b.Main};
+			return new DownloadTableResponse {Main = b.Export()};
 		}
 	}
 }

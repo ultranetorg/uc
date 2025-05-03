@@ -51,7 +51,7 @@ public abstract class Cryptography
 		return Blake2b.ComputeHash(length, data);
 	}
 
-	public static byte[] Hash(byte[] iv, byte[] data)
+	public static byte[] Hash(byte[] a, byte[] b)
 	{
 		//if(SHA == null)
 		//{
@@ -63,12 +63,12 @@ public abstract class Cryptography
 		//return Sha3Keccack.Current.CalculateHash(data);
 		
 		//return SHA256.HashData(data);
-		return Blake2b.ComputeHash(32, iv, data);
+		return Blake2b.ComputeHash(32, [..a, ..b]);
 	}
 
 	public byte[] HashFile(byte[] data)
 	{
-		return System.Security.Cryptography.SHA256.HashData(data);
+		return SHA256.HashData(data);
 	}
 
 	public virtual bool Valid(byte[] signature, byte[] hash, AccountAddress a)

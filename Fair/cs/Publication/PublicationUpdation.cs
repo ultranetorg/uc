@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class PublicationUpdateModeration : VotableOperation
+public class PublicationUpdation : VotableOperation
 {
 	public AutoId						Publication { get; set; }
 	public ProductFieldVersionReference	Change { get; set; }
@@ -11,7 +11,7 @@ public class PublicationUpdateModeration : VotableOperation
 	public override bool				IsValid(McvNet net) => true;
 	public override string				Explanation => $"{Publication}, {Change}, {Resolution}";
 
-	public PublicationUpdateModeration()
+	public PublicationUpdation()
 	{
 	}
 
@@ -31,7 +31,7 @@ public class PublicationUpdateModeration : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		var o = other as PublicationUpdateModeration;
+		var o = other as PublicationUpdation;
 
 		return o.Publication == Publication && o.Change.Name == Change.Name;
 	}
@@ -49,11 +49,11 @@ public class PublicationUpdateModeration : VotableOperation
 			return false;
 		}
 
-		if(!p.Changes.Any(i => i.Name == Change.Name && i.Version == Change.Version))
-		{
-			Error = NotFound;
-			return false;
-		}
+// 		if(!p.Changes.Any(i => i.Name == Change.Name && i.Version == Change.Version))
+// 		{
+// 			Error = NotFound;
+// 			return false;
+// 		}
 
 		return true;
 	}
@@ -68,7 +68,7 @@ public class PublicationUpdateModeration : VotableOperation
 			if(!RequirePublicationModeratorAccess(execution, Publication, Signer, out var _, out var s))
 				return;
 
-	 		if(s.ChangePolicies[FairOperationClass.PublicationUpdateModeration] != ChangePolicy.AnyModerator)
+	 		if(s.ChangePolicies[FairOperationClass.PublicationUpdation] != ChangePolicy.AnyModerator)
 	 		{
 		 		Error = Denied;
 		 		return;
@@ -77,14 +77,17 @@ public class PublicationUpdateModeration : VotableOperation
 
 		var p = execution.Publications.Affect(Publication);
 		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
-		var c = p.Changes.First(i => i.Name == Change.Name && i.Version == Change.Version);
- 
+		var c = p.Changes.FirstOrDefault(i => i.Name == Change.Name && i.Version == Change.Version);
+
+		if(c != null)
+		{
+			p.Changes = [..p.Changes.Where(i => i != c)];
+		}
+		
 		if(Resolution == true)
 		{
 			var r = execution.Products.Affect(p.Product);
 			var f = r.Fields.First(i => i.Name == Change.Name);
-				
-			p.Changes = [..p.Changes.Where(i => i != c)];
 								
 			var prev = p.Fields.FirstOrDefault(i => i.Name == Change.Name);
 	
@@ -117,14 +120,8 @@ public class PublicationUpdateModeration : VotableOperation
 
 			if(f.Name == ProductField.Title)
 				execution.PublicationTitles.Index(execution.Categories.Find(p.Category).Site, p.Id, v.AsUtf8);
-
-			PayForModeration(execution, p, a);
 		}
-		else
-		{	
-			p.Changes = [..p.Changes.Where(i => i != c)];
-
-			PayForModeration(execution, p, a);
-		}
+	
+		PayForModeration(execution, p, a);
 	}
 }

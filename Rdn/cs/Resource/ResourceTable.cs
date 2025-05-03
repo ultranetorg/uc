@@ -41,7 +41,7 @@ public class ResourceTable : Table<AutoId, Resource>
   				return x.Deleted ? null : x;
  		}
 
-  		var e = FindBucket(d.Id.B)?.Entries.Find(i => i.Address == address);
+  		var e = FindBucket(d.Id.B)?.Entries.FirstOrDefault(i => i.Address == address);
 
 		if(e == null)
 			return null;

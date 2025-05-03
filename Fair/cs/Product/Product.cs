@@ -21,13 +21,13 @@ public class ProductFieldVersionReference  : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Name = reader.ReadString();
+		Name = reader.ReadUtf8();
 		Version = reader.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Name);
+		writer.WriteUtf8(Name);
 		writer.Write7BitEncodedInt(Version);
 	}
 }
@@ -103,7 +103,7 @@ public class Product : IBinarySerializable, ITableEntry
 	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
-	public AutoId[]			Publications { get; set; }
+	public AutoId[]				Publications { get; set; }
 
 	public int					Length => Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 

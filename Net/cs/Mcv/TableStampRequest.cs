@@ -27,7 +27,7 @@ public class TableStampRequest : McvPpc<TableStampResponse>
 																						{
 																							Id = c.Id,
 																							Buckets = c.Buckets.Select(i => new TableStampResponse.Bucket { Id = i.Id, 
-																																							Length = i.MainLength, 
+																																							//Length = i.Size, 
 																																							Hash = i.Hash}).ToArray()
 																							
 																						};
@@ -51,7 +51,7 @@ public class TableStampResponse : PeerResponse
 	{
 		public int		Id { get; set; }
 		public byte[]	Hash { get; set; }
-		public int		Length { get; set; }
+		//public int		Length { get; set; }
 	}
 
 	public Cluster[]	Clusters { get; set; }

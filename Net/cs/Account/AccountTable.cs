@@ -17,7 +17,7 @@ public class AccountTable : Table<AutoId, Account>
 	{
 		var bid = KeyToBucket(key);
 
-		return FindBucket(bid)?.Entries.Find(i => i.Address == key);
+		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == key);
 	}
 
 	public Account Find(AccountAddress account, int ridmax)

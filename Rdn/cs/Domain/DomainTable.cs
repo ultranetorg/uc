@@ -25,7 +25,7 @@ public class DomainTable : Table<AutoId, Domain>
  		
 		var bid = KeyToBid(name);
 
-		return FindBucket(bid)?.Entries.Find(i => i.Address == name);
+		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == name);
  	}
 }
 

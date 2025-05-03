@@ -26,15 +26,15 @@ public class FairTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        if(ti.Type == typeof(PeerResponse))
+        else if(ti.Type == typeof(PeerResponse))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        if(ti.Type == typeof(NetException))
+        else if(ti.Type == typeof(NetException))
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-         if(ti.Type == typeof(Operation))
+        else if(ti.Type == typeof(Operation))
  			foreach(var i in typeof(FairOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FairOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
@@ -153,43 +153,18 @@ public class PublicationsSearchApc : FairApc
 	{
 		lock(node.Mcv.Lock)
 		{
-			var result = node.Mcv.PublicationTitles.Search(	Query, 
+			var result = node.Mcv.PublicationTitles.Search(	Query.ToLowerInvariant(), 
 															Skip, 
 															Take, 
 															i => i.References.TryGetValue(Site, out var p) && node.Mcv.Publications.Latest(p).Status == PublicationStatus.Approved,
-															node.Mcv.PublicationTitles.Latest, (node.Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints)
+															node.Mcv.PublicationTitles.Latest, 
+															(node.Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints)
 													.ToArray();
 
 			return result.Select(i =>	{
 											return new SearchResult {Entity = i.References[Site], Text = i.Text};
 																								 
 										}).ToArray();
-
-// 			IEnumerable<TermSearchResult> result = null;
-// 
-// 			foreach(var w in Query.ToLowerInvariant().Split(' '))
-//  		{
-// 				IEnumerable<TermSearchResult> r = null;
-// 
-// 				r = node.Mcv.PublicationTitles.Search(Site, w, 10, Skip, Take, null)//.GroupBy(i => i.Entity).Select(i => new TermSearchResult {Distance = (byte)i.Sum(j => j.Distance), Entity = i.First().Entity});
-// 																					.Select(i => new TermSearchResult {Distance = i.Distance, Entity = i.Entity});
-// 				if(result == null)
-// 					result = r;
-// 				else
-// 				//	result = result.Intersect(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
-// 					result = result.Union(r, EqualityComparer<TermSearchResult>.Create((a, b) => a.Entity == b.Entity, i => i.Entity.GetHashCode()));
-//  		}
-// 
-// 			return result.OrderBy(i => i.Distance)
-// 						.Select(i =>	{
-// 											var p = node.Mcv.Publications.Latest(i.Entity);
-// 											var r = node.Mcv.Products.Latest(p.Product);
-// 																								 
-// 											var t = r.GetString(p.Fields.First(f => f.Name == ProductField.Title));
-// 																								 
-// 											return new TermSearchResult {Entity = i.Entity, Text = t, Distance = i.Distance};
-// 																								 
-// 										}).ToArray();
 		}
 	}
 }
