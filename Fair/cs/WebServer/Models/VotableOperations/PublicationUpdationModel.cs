@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationUpdateModerationModel : BaseVotableOperationModel
+public class PublicationUpdationModel : BaseVotableOperationModel
 {
 	public string PublicationId { get; set; }
 	public ProductFieldVersionReferenceModel Change { get; set; }
 	public bool Resolution { get; set; }
 
-	public PublicationUpdateModerationModel(PublicationUpdation operation)
+	public PublicationUpdationModel(PublicationUpdation operation)
 	{
 		PublicationId = operation.Publication.ToString();
 		Change = new ProductFieldVersionReferenceModel(operation.Change);

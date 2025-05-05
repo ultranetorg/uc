@@ -14,6 +14,7 @@ public static class RegisterServicesExtensions
 	private static void RegisterMisc(IServiceCollection services, FairNode node)
 	{
 		services.AddSingleton(node.Mcv);
+		// services.AddSingleton<FairApiClient>(new FairApiClient(new UosApiClient(), node.Settings.Api.ListenAddress));
 	}
 
 	private static void RegisterServicesInternal(IServiceCollection services, FairNode node)
