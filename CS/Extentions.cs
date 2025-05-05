@@ -337,6 +337,20 @@ public static class Extentions
 		return o;
 	}
 
+	public static SortedSet<T> ReadSortedSet<T>(this BinaryReader r, Func<T> a)
+	{
+		var n = r.Read7BitEncodedInt();
+		
+		var o = new SortedSet<T>();
+					
+		for(int i = 0; i < n; i++)
+		{
+			o.Add(a());
+		}
+
+		return o;
+	}
+
 	public static T[] ReadArray<T>(this BinaryReader r, Func<T> a)
 	{
 		var n = r.Read7BitEncodedInt();

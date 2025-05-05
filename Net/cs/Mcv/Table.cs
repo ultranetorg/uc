@@ -10,25 +10,29 @@ public abstract class TableBase
 	const int									ClustersCacheLimit = 1000;
 
 	protected ColumnFamilyHandle				ClusterColumn;
-	protected ColumnFamilyHandle				StateColumn;
 	protected ColumnFamilyHandle				BucketColumn;
 	protected ColumnFamilyHandle				EntityColumn;
-	//protected ColumnFamilyHandle				MoreColumn;
-	protected RocksDb							Rocks;
-	protected Mcv								Mcv;
-	public abstract int							Size { get; }
+	protected ColumnFamilyHandle				StateColumn;
+	public string								ClusterColumnName	=> Name + nameof(ClusterColumn);
+	public string								BucketColumnName	=> Name + nameof(BucketColumn);
+	public string								EntityColumnName	=> Name + nameof(EntityColumn);
+	public string								StateColumnName		=> Name + nameof(StateColumn);
+	
+	public virtual string						Name => GetType().Name.Replace("Table", null);
+	public int									Size => Clusters.Sum(i => i.MainLength);
 	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
-	public abstract string						Name { get; }
 	public virtual bool							IsIndex => false;
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
+	protected RocksDb							Rocks;
+	protected Mcv								Mcv;
 
 	public abstract ClusterBase					GetCluster(short id);
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
 	public abstract void						Commit(WriteBatch batch, IEnumerable<ITableEntry> entries, ITableState executed, Round lastconfirmedround);
+	public virtual void							Index(WriteBatch batch, Round lastincommit){}
 	public static short							ClusterFromBucket(int id) => (short)(id >> ClusterBase.Length);
-	public virtual void							Index(WriteBatch batch){}
 
 	public abstract class BucketBase
 	{
@@ -104,7 +108,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				_Entries		= r.ReadSortedDictionary(() => r.Read<ID>(), () => new Item());
 			}
 		}
-
 
 		public override string ToString()
 		{
@@ -240,81 +243,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
 		}
-
-// 		void Load()
-// 		{
-// 			if(Main != null)
-// 			{
-// 				var s = new MemoryStream(Main);
-// 				var r = new BinaryReader(s);
-// 	
-// 				_NextEntryId = r.Read7BitEncodedInt();
-// 
-// 				var a = r.ReadList(()=>	{ 
-// 											var e = Table.Create();
-// 											e.ReadMain(r);
-// 											return e;
-// 										});
-// 					
-// 				_Entries = a;
-// 			} 
-// 			else
-// 			{
-// 				_NextEntryId = 0;
-// 				_Entries = new List<E>();
-// 			}
-// 		}
-
-// 		public override void Save(WriteBatch batch)
-// 		{
-// 			var s = new MemoryStream();
-// 			var w = new BinaryWriter(s);
-// 
-// 			///if(_Main == null || base.Entries != null)
-// 			///{
-// 			///
-// 				_Entries = Entries.OrderBy(i => i.Key).ToList();
-// 
-// 				w.Write7BitEncodedInt(NextEid);
-// 				w.Write(_Entries, i =>	{
-// 											i.WriteMain(w);
-// 										});
-// 
-// 				_Main = s.ToArray();
-// 			///}
-// 
-// 			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.EntityColumn);
-// 
-// 			Hash = Cryptography.Hash(_Main);
-// 			Size = _Main.Length;
-// 			
-// 			s.SetLength(0);
-// 
-// 			w.Write(Hash);
-// 			w.Write7BitEncodedInt(_Main.Length);
-// 
-// 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
-// 		}
-// 
-// 		public override void Save(WriteBatch batch, byte[] main)
-// 		{
-// 			_Main = main;
-// 
-// 			batch.Put(EntityId.BucketToBytes(Id), _Main, Table.EntityColumn);
-// 
-// 			Hash = Cryptography.Hash(_Main);
-// 			Size = _Main.Length;
-// 
-// 			var s = new MemoryStream();
-// 			var w = new BinaryWriter(s);
-// 			
-// 			w.Write(Hash);
-// 			w.Write7BitEncodedInt(Size);
-// 
-// 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
-// 		}
 	}
-
 
 	public class Cluster : ClusterBase
 	{
@@ -597,14 +526,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 	}
 
-	public override string			Name => typeof(E).Name.Replace("Entry", null);
 
 	public override List<Cluster>	Clusters { get; }
-	public override int				Size => Clusters.Sum(i => i.MainLength);
-	public static string			StateColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(StateColumn);
-	public static string			ClusterColumnName	=> typeof(E).Name.Replace("Entry", null) + nameof(ClusterColumn);
-	public static string			MetaColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(BucketColumn);
-	public static string			MainColumnName		=> typeof(E).Name.Replace("Entry", null) + nameof(EntityColumn);
 
 	public abstract E				Create();
 
@@ -619,8 +542,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		if(!Rocks.TryGetColumnFamily(StateColumnName,	out StateColumn))	StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		if(!Rocks.TryGetColumnFamily(ClusterColumnName,	out ClusterColumn))	ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
-		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out BucketColumn))	BucketColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
-		if(!Rocks.TryGetColumnFamily(MainColumnName,	out EntityColumn))	EntityColumn		= Rocks.CreateColumnFamily(new (), MainColumnName);
+		if(!Rocks.TryGetColumnFamily(BucketColumnName,	out BucketColumn))	BucketColumn		= Rocks.CreateColumnFamily(new (), BucketColumnName);
+		if(!Rocks.TryGetColumnFamily(EntityColumnName,	out EntityColumn))	EntityColumn		= Rocks.CreateColumnFamily(new (), EntityColumnName);
 
 		using(var i = Rocks.NewIterator(ClusterColumn))
 		{
@@ -639,13 +562,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		Rocks.DropColumnFamily(StateColumnName);
 		Rocks.DropColumnFamily(ClusterColumnName);
-		Rocks.DropColumnFamily(MetaColumnName);
-		Rocks.DropColumnFamily(MainColumnName);
+		Rocks.DropColumnFamily(BucketColumnName);
+		Rocks.DropColumnFamily(EntityColumnName);
 
 		StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
 		ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
-		BucketColumn	= Rocks.CreateColumnFamily(new (), MetaColumnName);
-		EntityColumn	= Rocks.CreateColumnFamily(new (), MainColumnName);
+		BucketColumn	= Rocks.CreateColumnFamily(new (), BucketColumnName);
+		EntityColumn	= Rocks.CreateColumnFamily(new (), EntityColumnName);
 	}
 
 	public override Cluster FindCluster(short id)

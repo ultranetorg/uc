@@ -15,6 +15,7 @@ public class FairExecution : Execution
 	public DisputeExecution				Disputes;
 	public WordExecution				Words;
 	public PublicationTitleExecution	PublicationTitles;
+	public SiteTitleExecution			SiteTitles;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -27,6 +28,7 @@ public class FairExecution : Execution
 		Disputes = new(this);
 		Words = new(this);
 		PublicationTitles = new(this);
+		SiteTitles = new(this);
 	}
 
 	public override ITableEntry Affect(byte table, EntityId id)
@@ -55,6 +57,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Disputes)			return Disputes.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
+		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}

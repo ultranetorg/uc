@@ -15,6 +15,7 @@ public class FairMcv : Mcv
 	public DisputeTable					Disputes;
 	public WordTable					Words;
 	public PublicationTitleIndex		PublicationTitles;
+	public SiteTitleIndex				SiteTitles;
 
 	public new IEnumerable<FairRound>	Tail => base.Tail.Cast<FairRound>();
 
@@ -152,8 +153,9 @@ public class FairMcv : Mcv
 		Disputes = new (this);
 		Words = new (this);
 		PublicationTitles = new (this);
+		SiteTitles = new (this);
 
-		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles];
+		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

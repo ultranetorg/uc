@@ -2,17 +2,18 @@
 
 public class FairRound : Round
 {
-	public new FairMcv										Mcv => base.Mcv as FairMcv;
+	public new FairMcv											Mcv => base.Mcv as FairMcv;
 
-	public TableState<AutoId, Author>						Authors;
-	public TableState<AutoId, Product>						Products;
-	public TableState<AutoId, Site>							Sites;
-	public TableState<AutoId, Category>						Categories;
-	public TableState<AutoId, Publication>					Publications;
-	public TableState<AutoId, Review>						Reviews;
-	public TableState<AutoId, Dispute>						Disputes;
-	public TableState<RawId, Word>							Words;
-	public PublicationTitleState							PublicationTitles;
+	public TableState<AutoId, Author>							Authors;
+	public TableState<AutoId, Product>							Products;
+	public TableState<AutoId, Site>								Sites;
+	public TableState<AutoId, Category>							Categories;
+	public TableState<AutoId, Publication>						Publications;
+	public TableState<AutoId, Review>							Reviews;
+	public TableState<AutoId, Dispute>							Disputes;
+	public TableState<RawId, Word>								Words;
+	public HnswTableState<string, StringToDictionaryHnswEntity>	PublicationTitles;
+	public HnswTableState<string, StringHnswEntity>				SiteTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
 	{
@@ -25,6 +26,7 @@ public class FairRound : Round
 		Disputes			= new (mcv.Disputes);
 		Words				= new (mcv.Words);
 		PublicationTitles	= new (mcv.PublicationTitles);
+		SiteTitles			= new (mcv.SiteTitles);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -48,6 +50,7 @@ public class FairRound : Round
 		if(table == Mcv.Disputes)			return Disputes.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
+		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -63,6 +66,7 @@ public class FairRound : Round
 		if(table == Mcv.Disputes)			return Disputes as S;
 		if(table == Mcv.Words)				return Words as S;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
+		if(table == Mcv.SiteTitles)			return SiteTitles as S;
 
 		return base.FindState<S>(table);
 	}
@@ -83,6 +87,7 @@ public class FairRound : Round
 		Disputes.Absorb(e.Disputes);
 		Words.Absorb(e.Words);
 		PublicationTitles.Absorb(e.PublicationTitles);
+		SiteTitles.Absorb(e.SiteTitles);
 	}
 
 	public override void FinishExecution()

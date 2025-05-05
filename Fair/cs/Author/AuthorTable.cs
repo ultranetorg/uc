@@ -15,7 +15,7 @@ public class AuthorTable : Table<AutoId, Author>
 		return new Author(Mcv);
 	}
 
-	public override void Index(WriteBatch batch)
+	public override void Index(WriteBatch batch, Round lastincommit)
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 

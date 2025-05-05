@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using RocksDbSharp;
 
 namespace Uccs.Fair;
@@ -12,9 +13,9 @@ public interface IMetric<D>
 public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 {
 	public HnswId									Id { get; set; }
-	public abstract D								Data { get; }
 	public SortedDictionary<int, HnswId[]>			Connections { get; set; }
-	
+
+	public abstract D								Data { get; }
 	public byte										Level => Id.Level;
 	public EntityId									Key => Id;
 	public bool										Deleted { get;  set; }
@@ -64,6 +65,10 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	public readonly int							MinDiversity;
 
 	public List<E>								EntryPoints = new();
+
+	public override bool						IsIndex => true;
+	public new FairMcv							Mcv => base.Mcv as FairMcv;
+	public IEnumerable<FairRound>				Tail => Mcv.Tail.Cast<FairRound>();
 
 	public class LevelEnumerator : IEnumerator<E>
 	{
@@ -202,36 +207,13 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	{
 		base.Commit(batch, entities, executed, lastInCommit);
 
+		EntryPoints = (executed as HnswTableState<D, E>).EntryPoints;
+
 		foreach(var i in (executed as HnswTableState<D, E>).EntryPoints)
 		{
-			batch.Put(((IBinarySerializable)i.Id).Raw, ((IBinarySerializable)i).Raw, StateColumn);
+			batch.Put(i.Id.Raw, ((IBinarySerializable)i).Raw, StateColumn);
 		}
 	}
-
-	// 	public override void Load()
-	// 	{
-	// 		int maxlevel = 0;
-	// 
-	// 		EntryPoints.Clear();
-	// 
-	// 		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
-	// 			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
-	// 				if(i.Level > maxlevel)
-	// 					maxlevel = i.Level;
-	// 
-	// 		foreach(var c in Clusters)
-	// 			if(HnswId.ClusterToLevel(c.Id) > maxlevel)
-	// 				maxlevel = HnswId.ClusterToLevel(c.Id);
-	// 
-	// 		foreach(var c in Clusters.Where(i => HnswId.ClusterToLevel(i.Id) == maxlevel))
-	// 			foreach(var b in c.Buckets)
-	// 				EntryPoints.AddRange(b.Entries);
-	// 
-	// 		foreach(var r in Mcv.Tail.SkipWhile(i => !i.Confirmed))
-	// 			foreach(var i in (r.AffectedByTable(this) as IDictionary<HnswId, E>).Values)
-	// 				if(i.Level == maxlevel && !EntryPoints.Any(j => j.Id == i.Id))
-	// 					EntryPoints.Add(i);
-	// 	}
 
 	/// 	public void Remove(string data)
 	/// 	{
@@ -400,13 +382,13 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	}
 }
 
-public abstract class HnswTableState<D, E> : ITableState where E : HnswNode<D>
+public class HnswTableState<D, E> : ITableState where E : HnswNode<D>
 {
 	public List<E>							EntryPoints;
 	public Dictionary<HnswId, E>			Affected = new();
 	public HnswTable<D, E>					Table; 
 
-	protected HnswTableState(HnswTable<D, E> table)
+	public HnswTableState(HnswTable<D, E> table)
 	{
 		Table = table;
 	}
@@ -431,7 +413,8 @@ public abstract class HnswTableExecution<D, E> : HnswTableState<D, E>  where E :
 {
 	public FairExecution					Execution;
 
-	public abstract  E						Affect(HnswId id);
+	//public abstract  E						Affect(HnswId id);
+	protected abstract int					DataToBucket(D data);
 
 	public class LevelEnumerator : IEnumerator<E>
 	{
@@ -443,6 +426,7 @@ public abstract class HnswTableExecution<D, E> : HnswTableState<D, E>  where E :
 		IEnumerator<E>						Affected;
 		HnswTable<D, E>.LevelEnumerator		TailGraph;
 		HashSet<E>							Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
+
 
 		public LevelEnumerator(HnswTable<D, E> table, IEnumerable<E> affected, byte level, int ridmax)
 		{
@@ -623,4 +607,83 @@ public abstract class HnswTableExecution<D, E> : HnswTableState<D, E>  where E :
 
 		return selected;
 	}
+
+	public virtual E Affect(HnswId id)
+	{
+ 		if(Affected.TryGetValue(id, out var a))
+ 			return a;
+ 		
+ 		a = Table.Find(id, Execution.Round.Id);
+ 
+ 		if(a == null)
+ 		{
+ 			a = Table.Create();
+ 			a.Id = id;
+ 			a.Connections = [];
+ 		
+ 			return Affected[id] = a;
+ 		} 
+ 		else
+ 		{
+			a = a.Clone() as E;
+
+			var e = EntryPoints.Find(i => i.Id == a.Id);
+			
+			if(e != null)
+			{
+				AffectEntryPoints();
+				EntryPoints.Remove(e);
+				EntryPoints.Add(a);
+			}
+
+ 			return Affected[id] = a;
+ 		}
+	}
+
+	public E Find(D data)
+ 	{
+		var e = Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
+
+ 		if(e != null)
+			if(!e.Deleted)
+    			return e;
+			else
+				return null;
+
+  		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
+		{	
+			e = i.FindState<HnswTableState<D, E>>(Table).Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
+
+			if(e != null)
+				if(!e.Deleted)
+    				return e;
+				else
+					return null;
+		}
+ 		
+		e = Table.FindBucket(DataToBucket(data))?.Entries.FirstOrDefault(i => i.Data.Equals(data));
+
+		if(e != null)
+			if(!e.Deleted)
+    			return e;
+			else
+				return null;
+
+		return null;
+ 	}
 }
+
+public class StringHnswTableExecution<E> : HnswTableExecution<string, E>  where E : HnswNode<string>
+{
+	public StringHnswTableExecution(FairExecution execution, HnswTable<string, E> table) : base(execution, table)
+	{
+	}
+
+	protected override int DataToBucket(string data)
+	{
+		var x = Encoding.UTF8.GetBytes(data, 0, Math.Min(data.Length, 32));
+ 		return HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
+	} 
+}
+
+

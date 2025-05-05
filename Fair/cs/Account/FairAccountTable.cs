@@ -4,6 +4,8 @@ namespace Uccs.Fair;
 
 public class FairAccountTable : AccountTable
 {
+	public override string	Name => base.Name.Replace("Fair", null);
+
 	public new FairMcv		Mcv => base.Mcv as FairMcv;
 
 	public FairAccountTable(Mcv chain) : base(chain)
@@ -15,7 +17,7 @@ public class FairAccountTable : AccountTable
 		return new FairAccount(Mcv);
 	}
 
-	public override void Index(WriteBatch batch)
+	public override void Index(WriteBatch batch, Round lastincommit)
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 

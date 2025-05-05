@@ -16,20 +16,42 @@ public class SiteTable : Table<AutoId, Site>
 		return new Site(Mcv);
 	}
 
-	public override void Index(WriteBatch batch)
+	public override void Index(WriteBatch batch, Round lastincommit)
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var cl in Clusters)
-			foreach(var b in cl.Buckets)
-				foreach(var i in b.Entries.Where(i => i.Nickname != ""))
-				{
-					var w = e.Words.Affect(Word.GetId(i.Nickname));
+		foreach(var i in GraphEntities.Where(i => i.Nickname != ""))
+		{
+			var w = e.Words.Affect(Word.GetId(i.Nickname));
 
-					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname}];
-				}
-	
+			w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname}];
+		}
+
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
+
+		e = new FairExecution(Mcv, new FairRound(Mcv), null);
+
+		foreach(var i in GraphEntities)
+		{
+			e.SiteTitles.Index(i.Id, i.Title);
+		}
+	
+		Mcv.SiteTitles.Commit(batch, e.SiteTitles.Affected.Values, e.SiteTitles, lastincommit);
+		(lastincommit as FairRound).SiteTitles = new (Mcv.SiteTitles) { EntryPoints = e.SiteTitles.EntryPoints};
+	}
+
+	public SearchResult[] Search(string query, int skip, int take)
+	{
+		var result = Mcv.SiteTitles.Search(	query.ToLowerInvariant(), 
+											skip, 
+											take, 
+											null,
+											Mcv.SiteTitles.Latest, 
+											(Mcv.LastConfirmedRound as FairRound).SiteTitles.EntryPoints);
+
+		return result.SelectMany(i =>	{
+											return i.References.Select(j => new SearchResult {Entity = j, Text = i.Text});
+										}).ToArray();
 	}
 }
 

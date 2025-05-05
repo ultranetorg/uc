@@ -39,8 +39,8 @@ public class FairTcpPeering : McvTcpPeering
 
 	public override object Constract(Type t, byte b)
 	{
- 			if(t == typeof(FairAccount))	
- 				return new FairAccount(Mcv);
+ 		if(t == typeof(FairAccount))	
+ 			return new FairAccount(Mcv);
 
 		return base.Constract(t, b);
 	}

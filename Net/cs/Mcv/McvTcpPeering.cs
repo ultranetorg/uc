@@ -278,7 +278,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								using(var w = new WriteBatch())
 								{
 									foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
-										i.Index(w);
+										i.Index(w, r);
 
 									//foreach(var i in Mcv.Tables)
 									//	i.Commit();

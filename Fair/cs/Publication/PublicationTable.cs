@@ -16,7 +16,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		return new Publication(Mcv);
 	}
 
-	public override void Index(WriteBatch batch)
+	public override void Index(WriteBatch batch, Round lastincommit)
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
@@ -33,8 +33,9 @@ public class PublicationTable : Table<AutoId, Publication>
 				e.PublicationTitles.Index(c.Site, i.Id, t.AsUtf8);
 			}
 		}
-	
+			
 		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
+		(lastincommit as FairRound).PublicationTitles = new (Mcv.PublicationTitles) { EntryPoints = e.PublicationTitles.EntryPoints};
 	}
 
 	public SearchResult[] Search(AutoId site, string query, int skip, int take)
