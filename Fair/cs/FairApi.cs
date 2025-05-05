@@ -152,19 +152,6 @@ public class PublicationsSearchApc : FairApc
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Mcv.Lock)
-		{
-			var result = node.Mcv.PublicationTitles.Search(	Query.ToLowerInvariant(), 
-															Skip, 
-															Take, 
-															i => i.References.TryGetValue(Site, out var p) && node.Mcv.Publications.Latest(p).Status == PublicationStatus.Approved,
-															node.Mcv.PublicationTitles.Latest, 
-															(node.Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints)
-													.ToArray();
-
-			return result.Select(i =>	{
-											return new SearchResult {Entity = i.References[Site], Text = i.Text};
-																								 
-										}).ToArray();
-		}
+			return node.Mcv.Publications.Search(Site, Query, Skip, Take);
 	}
 }

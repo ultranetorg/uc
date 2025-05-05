@@ -36,6 +36,21 @@ public class PublicationTable : Table<AutoId, Publication>
 	
 		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
 	}
+
+	public SearchResult[] Search(AutoId site, string query, int skip, int take)
+	{
+		var result = Mcv.PublicationTitles.Search(	query.ToLowerInvariant(), 
+													skip, 
+													take, 
+													i => i.References.TryGetValue(site, out var p) && Latest(p).Status == PublicationStatus.Approved,
+													Mcv.PublicationTitles.Latest, 
+													(Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints);
+
+		return result.Select(i =>	{
+										return new SearchResult {Entity = i.References[site], Text = i.Text};
+																								 
+									}).ToArray();
+	}
 }
 
 public class PublicationExecution : TableExecution<AutoId, Publication>
