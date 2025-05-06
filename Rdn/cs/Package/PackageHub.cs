@@ -18,9 +18,9 @@ public class PackageHub
 		DeploymentPath = deploymentpath;
 	}
 
- 	public static string AddressToDeployment(string packagespath, ApvAddress resource)
+ 	public static string AddressToDeployment(string packagespath, Ura resource)
  	{
- 		return Path.Join(packagespath, ResourceHub.Escape(resource.AP), ResourceHub.Escape(resource.Version));
+ 		return Path.Join(packagespath, ResourceHub.Escape(resource.Domain), ResourceHub.Escape(resource.Resource));
  	}
 
  	public string AddressToReleases(Urr release)

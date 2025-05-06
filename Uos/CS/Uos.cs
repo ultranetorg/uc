@@ -238,7 +238,7 @@ public class Uos : Cli
 			throw new UosException("Incorrent resource type");
 
 		//Ura apr = null;
-		ApvAddress aprv = null;
+		Ura aprv = null;
 
 		if(d.Type.Content == ContentType.Rdn_ProductManifest)
 		{
@@ -246,11 +246,11 @@ public class Uos : Cli
 
 			var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 
-			aprv = new (m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest);
+			aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 		}
 		else if(d.Type.Content == ContentType.Rdn_PackageManifest)
 		{
-			aprv = new (address);
+			aprv = address;
 		}
 		else
 			throw new UosException("Incorrent resource type");
@@ -273,7 +273,7 @@ public class Uos : Cli
  		ps.Start();
 	}
 
-	public void SetupApplicationEnvironemnt(ApvAddress address)
+	public void SetupApplicationEnvironemnt(Ura address)
 	{
 		Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.ListenAddress);
 		Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
