@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using Uccs.Rdn;
 
@@ -29,12 +30,12 @@ namespace Uccs.Demo.Application
             var flow = new Flow("SimulateMain");
 
  			Task.Run(() =>	{
-                                var d = Application.Nexus.Rdn.FindLocalPackage(Application.Address, flow).Manifest.CompleteDependencies.FirstOrDefault(i => new AprvAddress(i.Address).Product == "demo.component");
-                                var p = Application.Nexus.Rdn.FindLocalPackage(new AprvAddress(d.Address), flow);
+                                var d = Application.Nexus.Rdn.FindLocalPackage(Application.Address, flow).Manifest.CompleteDependencies.FirstOrDefault(i => new ApvAddress(i.Address).Product == "demo.component/dotnet");
+                                var p = Application.Nexus.Rdn.FindLocalPackage(d.Address, flow);
  			
 								///if(p == null || !p.Available)
 								{
-									p = Application.Nexus.Rdn.DeployPackage(new AprvAddress(d.Address), Application.PackagesPath, flow);
+									p = Application.Nexus.Rdn.DeployPackage(d.Address, Application.PackagesPath, flow);
 								}
 
  								f.BeginInvoke(() =>	{

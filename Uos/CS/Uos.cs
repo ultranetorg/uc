@@ -221,7 +221,7 @@ public class Uos : Cli
   		//	return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
   		//}
 
-	public VersionManifest GetCurrentManifest(AprvAddress address)
+	public VersionManifest GetCurrentManifest(ApvAddress address)
 	{
 		var h = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, address), "." + VersionManifest.Extension);
 		
@@ -237,8 +237,8 @@ public class Uos : Cli
 		if(d == null)
 			throw new UosException("Incorrent resource type");
 
-		Ura apr = null;
-		AprvAddress aprv = null;
+		//Ura apr = null;
+		ApvAddress aprv = null;
 
 		if(d.Type.Content == ContentType.Rdn_ProductManifest)
 		{
@@ -246,11 +246,7 @@ public class Uos : Cli
 
 			var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 
-			apr = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Address;
-		}
-		else if(d.Type.Control == DataType.Redirect_ProductRealization)
-		{
-			aprv = d.Parse<AprvAddress>();
+			aprv = new (m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest);
 		}
 		else if(d.Type.Content == ContentType.Rdn_PackageManifest)
 		{
@@ -258,12 +254,6 @@ public class Uos : Cli
 		}
 		else
 			throw new UosException("Incorrent resource type");
-
-		if(aprv == null)
-		{
-			d = RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (apr)}}, flow).Resource?.Data;
-			aprv = d.Parse<AprvAddress>();
-		}
 
 		RdnApi.DeployPackage(aprv, Settings.Packages, flow);
 
@@ -283,13 +273,13 @@ public class Uos : Cli
  		ps.Start();
 	}
 
-	public void SetupApplicationEnvironemnt(AprvAddress address)
+	public void SetupApplicationEnvironemnt(ApvAddress address)
 	{
 		Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.ListenAddress);
 		Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
 		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
 		Environment.SetEnvironmentVariable(Application.PackagesPathKey,		Settings.Packages);
 
-		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, new AprvAddress(address));
+		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
 	}
 }	

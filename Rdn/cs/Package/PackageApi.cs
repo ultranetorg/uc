@@ -132,7 +132,7 @@ public class PackageInfo
 
 public class PackageDeployApc : RdnApc
 {
-	public AprvAddress	Address { get; set; }
+	public Ura			Address { get; set; }
 	public string		DeploymentPath { get; set; }
 
 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)

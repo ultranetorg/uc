@@ -94,9 +94,9 @@ public class RdnApiClient : McvApiClient
 	
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
 	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-	public PackageInfo		FindLocalPackage(AprvAddress address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+	public PackageInfo		FindLocalPackage(Ura address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 	
-	public PackageInfo DeployPackage(AprvAddress address, string desination, Flow flow)
+	public PackageInfo DeployPackage(Ura address, string desination, Flow flow)
 	{
 		Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
 

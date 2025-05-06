@@ -125,17 +125,25 @@ public class RdnNode : McvNode
 
 	public override string ToString()
 	{
-		return string.Join(", ", new string[]{	GetType().Name,
-												Name,
-												(Settings.Api != null ? "A" : null) +
-												(Settings.Mcv != null ? "B" : null) +
-												(Settings.Mcv?.Chain != null  ? "C" : null) +
-												(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
-												(Settings.Seed != null  ? "S" : null),
-												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-												Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-												$"T(i/o)={Peering.IncomingTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
-					.Where(i => !string.IsNullOrWhiteSpace(i)));
+		string f()=> string.Join(", ", new string[]{GetType().Name,
+													Name,
+													(Settings.Api != null ? "A" : null) +
+													(Settings.Mcv != null ? "B" : null) +
+													(Settings.Mcv?.Chain != null  ? "C" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
+													(Settings.Seed != null  ? "S" : null),
+													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
+													$"T(i/o)={Peering.IncomingTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
+						.Where(i => !string.IsNullOrWhiteSpace(i)));
+
+		if(Mcv != null)
+		{
+			lock(Mcv.Lock)
+				return f();
+		} 
+		else
+			return f();
 	}
 
 	public override void Stop()

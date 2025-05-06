@@ -145,7 +145,7 @@ public class PackageCommand : UosCommand
 		};
 
 		a.Execute = () =>	{
-							RdnSend(new PackageDeployApc {Address = AprvAddress.Parse(Args[0].Name),
+							RdnSend(new PackageDeployApc {Address = ApvAddress.Parse(Args[0].Name),
 														  DeploymentPath = GetString("destination", null)});
 
 							try

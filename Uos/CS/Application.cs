@@ -10,7 +10,7 @@ public class Application
 	public const string			PackagesPathKey		= "PackagesPathKey";
 
 	public NexusClient			Nexus;
-	public AprvAddress			Address => AprvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
+	public ApvAddress			Address => ApvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
 	public string				PackagesPath => Environment.GetEnvironmentVariable(PackagesPathKey);
 
 	public Application()

@@ -105,8 +105,8 @@ public class PlatformExpression
 
 public class Realization
 {
-	public Ura					Address;
-	public string				Name => Address.Resource.Substring(Address.Resource.LastIndexOf('/') + 1);
+	public Ura					Latest;
+	public string				Name;
 	public PlatformExpression	Condition;
 	public string				Channel;
 
@@ -118,7 +118,8 @@ public class Realization
 	{
 		var r = new Realization();
 
-		r.Address = xon.Get<Ura>();
+		r.Name = xon.Get<string>();
+		r.Latest = xon.One("Latest")?.Get<Ura>();
 		r.Channel = xon.Get<string>("Channel");
 		r.Condition = xon.Has("Condition") ? PlatformExpression.FromXon(xon.One("Condition").Nodes.First()) : null;
 
@@ -130,7 +131,8 @@ public class Realization
 		var x = new Xon(serializator);
 		
 		x.Name = "Realization";
-		x.Value = Address.ToString();
+		x.Value = Name;
+		x.Add("Latest").Value = Latest;
 		x.Add("Channel").Value = Channel;
 		x.Add("Condition").Nodes.Add(Condition.ToXon(serializator));
 

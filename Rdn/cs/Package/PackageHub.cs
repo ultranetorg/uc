@@ -18,15 +18,15 @@ public class PackageHub
 		DeploymentPath = deploymentpath;
 	}
 
- 		public static string AddressToDeployment(string packagespath, AprvAddress resource)
- 		{
- 			return Path.Join(packagespath, ResourceHub.Escape(resource.DPR), ResourceHub.Escape(resource.Version));
- 		}
+ 	public static string AddressToDeployment(string packagespath, ApvAddress resource)
+ 	{
+ 		return Path.Join(packagespath, ResourceHub.Escape(resource.AP), ResourceHub.Escape(resource.Version));
+ 	}
 
- 		public string AddressToReleases(Urr release)
- 		{
- 			return Path.Join(Settings.Releases, ResourceHub.Escape(release.ToString()));
- 		}
+ 	public string AddressToReleases(Urr release)
+ 	{
+ 		return Path.Join(Settings.Releases, ResourceHub.Escape(release.ToString()));
+ 	}
 
 	IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
 	{

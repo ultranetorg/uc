@@ -41,7 +41,7 @@ public class NexusClient
 		Rdn = new RdnApiClient(http, null, s.Api.ListenAddress, s.Api.AccessKey);
 	}
 
-	public PackageInfo GetPackage(AprvAddress package, Flow flow)
+	public PackageInfo GetPackage(Ura package, Flow flow)
 	{
 		var p = Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
 
