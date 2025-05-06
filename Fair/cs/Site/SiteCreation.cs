@@ -55,5 +55,7 @@ public class SiteCreation : FairOperation
 		Signer.Sites = [..Signer.Sites, s.Id];
 
 		Prolong(execution, Signer, s, Time.FromYears(Years));
+
+		execution.SiteTitles.Index(s.Id, Title);
 	}
 }
