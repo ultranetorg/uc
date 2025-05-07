@@ -9,7 +9,8 @@ public class PublicationsController
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	ISearchQueryValidator searchQueryValidator,
-	IPublicationsService publicationsService
+	IPublicationsService publicationsService,
+	ISearchService searchService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
@@ -33,18 +34,18 @@ public class PublicationsController
 	}
 
 	[HttpGet("~/api/sites/{siteId}/publications")]
-	public IEnumerable<PublicationExtendedModel> Search(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? title, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> Search(string siteId, [FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.Search)} method called with {{SiteId}}, {{Pagination}}, {{Title}}", siteId, pagination, title);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.Search)} method called with {{SiteId}}, {{Query}}, {{Page}}", siteId, query, page);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		paginationValidator.Validate(pagination);
-		searchQueryValidator.Validate(title);
+		searchQueryValidator.Validate(query);
+		paginationValidator.Validate(page);
 
-		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationExtendedModel> products = publicationsService.SearchNotOptimized(siteId, page, pageSize, title, cancellationToken);
+		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
+		var products = searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
 
-		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
+		return this.OkPaged(products, pageValue, pageSizeValue);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/publications/search")]
@@ -55,9 +56,7 @@ public class PublicationsController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		searchQueryValidator.Validate(query);
 
-		TotalItemsResult<PublicationBaseModel> products = publicationsService.SearchLightNotOptimized(siteId, query, cancellationToken);
-
-		return this.OkPaged(products.Items, products.TotalItems);
+		return searchService.SearchLitePublications(siteId, query, 0, Pagination.SearchLightPageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]

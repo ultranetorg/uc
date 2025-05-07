@@ -60,9 +60,14 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-2
 Accept: application/json
 
-### Publications Search
+### Search Publications
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/publications?search=2&page=0&pageSize=10
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications?title=a
+Accept: application/json
+
+### SEARCH Publications Light
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications/search
 Accept: application/json
 
 ### GET Author Publications

@@ -7,6 +7,9 @@ public class SearchQueryValidator : ISearchQueryValidator
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(string searchQuery)
 	{
-		// TODO: implement validator.
+		if (string.IsNullOrEmpty(searchQuery))
+		{
+			throw new InvalidSearchQueryException();
+		}
 	}
 }

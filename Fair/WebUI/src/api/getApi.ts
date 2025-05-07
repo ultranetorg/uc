@@ -11,6 +11,7 @@ import {
   ModeratorPublication,
   ModeratorReview,
   PaginationResponse,
+  PaginationResult,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -20,32 +21,15 @@ import {
   Site,
   SiteBase,
   SiteLightSearch,
-  TotalItemsResponse,
   User,
 } from "types"
 
 import { Api } from "./Api"
-import { toPaginationResponse, toTotalItemsResponse } from "./utils"
+import { toPaginationResponse, toPaginationResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 // TODO: refactor these methods: getUrlParams, buildUrlParams, buildUrlParams2, getPaginationParams.
-const getUrlParams = (title?: string, page?: number, pageSize?: number): URLSearchParams => {
-  const params = new URLSearchParams()
-
-  if (title !== null && title !== undefined && title != "") {
-    params.append("title", title)
-  }
-  if (page !== undefined) {
-    params.append("page", page.toString())
-  }
-  if (pageSize !== undefined) {
-    params.append("pageSize", pageSize.toString())
-  }
-
-  return params
-}
-
 const buildUrlParams = (page?: number, pageSize?: number, search?: string): URLSearchParams => {
   const params = new URLSearchParams()
   if (page !== undefined && page > 0) {
@@ -60,13 +44,13 @@ const buildUrlParams = (page?: number, pageSize?: number, search?: string): URLS
   return params
 }
 
-const buildUrlParams2 = (page?: number, search?: string): URLSearchParams => {
+const buildUrlParams2 = (query?: string, page?: number): URLSearchParams => {
   const params = new URLSearchParams()
+  if (!!query && query != "") {
+    params.append("query", query)
+  }
   if (page !== undefined && page > 0) {
     params.append("page", page.toString())
-  }
-  if (!!search && search != "") {
-    params.append("search", search)
   }
   return params
 }
@@ -83,6 +67,8 @@ const getPaginationParams = (page?: number, pageSize?: number): URLSearchParams 
 
   return params
 }
+
+const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/default`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<Author> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
@@ -135,34 +121,29 @@ const getReviews = async (
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
 
-const searchLightSites = async (query?: string): Promise<TotalItemsResponse<SiteLightSearch>> => {
-  const res = await fetch(`${BASE_URL}/sites/search?query=${query}`)
-  return await toTotalItemsResponse(res)
+const searchSites = async (query?: string, page?: number): Promise<PaginationResult<SiteBase>> => {
+  const params = buildUrlParams2(query, page)
+  const res = await fetch(`${BASE_URL}/sites` + (params.size > 0 ? `?${params.toString()}` : ""))
+  return await toPaginationResult(res)
 }
 
-const searchSites = async (page?: number, search?: string): Promise<PaginationResponse<SiteBase>> => {
-  const params = buildUrlParams2(page, search)
-  const res = await fetch(`${BASE_URL}/sites` + (params.size > 0 ? `?${params.toString()}` : ""))
-  return await toPaginationResponse(res)
-}
+const searchLightSites = async (query?: string): Promise<SiteLightSearch[]> =>
+  fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
 
 const searchPublications = async (
   siteId: string,
+  query?: string,
   page?: number,
-  pageSize?: number,
-  title?: string,
-): Promise<PaginationResponse<PublicationExtended>> => {
-  const params = getUrlParams(title, page, pageSize)
+): Promise<PaginationResult<PublicationExtended>> => {
+  const params = buildUrlParams2(query, page)
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""))
-  return await toPaginationResponse(res)
+  return await toPaginationResult(res)
 }
 
-const searchLightPublication = async (siteId: string, query?: string): Promise<TotalItemsResponse<PublicationBase>> => {
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`)
-  return await toPaginationResponse(res)
-}
+const searchLightPublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
 
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<AuthorReferendumDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
@@ -229,6 +210,7 @@ const getModeratorReviews = async (
 }
 
 const api: Api = {
+  getDefaultSites,
   getAuthor,
   getCategories,
   getCategory,

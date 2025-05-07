@@ -14,7 +14,6 @@ public static class RegisterServicesExtensions
 	private static void RegisterMisc(IServiceCollection services, FairNode node)
 	{
 		services.AddSingleton(node.Mcv);
-		// services.AddSingleton<FairApiClient>(new FairApiClient(new UosApiClient(), node.Settings.Api.ListenAddress));
 	}
 
 	private static void RegisterServicesInternal(IServiceCollection services, FairNode node)
@@ -24,7 +23,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IDisputesService, DisputesService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();
-		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
+		services.AddSingleton<ISearchService, SearchService>();
 		services.AddSingleton<ISitesService, SitesService>();
 		services.AddSingleton<IUsersService, UsersService>();
 	}
@@ -34,5 +33,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IDepthValidator, DepthValidator>();
 		services.AddSingleton<IAutoIdValidator, AutoIdValidator>();
 		services.AddSingleton<IPaginationValidator, PaginationValidator>();
+		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
+		services.AddSingleton<ISiteSearchQueryValidator, SiteSearchQueryValidator>();
 	}
 }

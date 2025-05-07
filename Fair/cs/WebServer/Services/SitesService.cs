@@ -1,6 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -10,56 +8,41 @@ public class SitesService
 	FairMcv mcv
 ) : ISitesService
 {
-	public TotalItemsResult<SiteBaseModel> SearchNotOptimized(int page, int pageSize, string? search)
+	public IEnumerable<SiteBaseModel> GetDefaultSites(CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchNotOptimized)} method called with {{Page}}, {{PageSize}}, {{Search}}", page, pageSize, search);
-
-		IEnumerable<Site> sites = null;
-		lock (mcv.Lock)
-		{
-			sites = mcv.Sites.TailGraphEntities;
-		}
-
-		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, search));
-		IEnumerable<Site> result = matched.Skip(page * pageSize).Take(pageSize);
-		IEnumerable<SiteBaseModel> items = result.Select(x => new SiteBaseModel(x));
-
-		return new TotalItemsResult<SiteBaseModel>
-		{
-			Items = items,
-			TotalItems = matched.Count(),
-		};
-	}
-
-	public TotalItemsResult<SiteSearchLightModel> SearchLightNotOpmized(string query, CancellationToken cancellationToken)
-	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.SearchLightNotOpmized)} method called with {{Query}}", query);
-
-		Guard.Against.NullOrEmpty(query);
+		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetDefaultSites)} method called without parameters");
 
 		if (cancellationToken.IsCancellationRequested)
-			return TotalItemsResult<SiteSearchLightModel>.Empty;
+			return Enumerable.Empty<SiteBaseModel>();
 
-		IEnumerable<Site> sites = null;
-		lock(mcv.Lock)
+		lock (mcv.Lock)
 		{
-			sites = mcv.Sites.TailGraphEntities;
+			var result = new List<SiteBaseModel>(SiteConstants.DEFAULT_SITES_IDS.Length);
+			return LoadSites(SiteConstants.DEFAULT_SITES_IDS, result, cancellationToken);
+		}
+	}
+
+	IList<SiteBaseModel> LoadSites(AutoId[] sitesIds, IList<SiteBaseModel> result, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return result;
+
+		foreach (AutoId siteId in sitesIds)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				return result;
+
+			Site site = mcv.Sites.Latest(siteId);
+			SiteBaseModel model = new SiteBaseModel(site);
+			result.Add(model);
 		}
 
-		IEnumerable<Site> matched = sites.Where(x => SearchUtils.IsMatch(x, query));
-		IEnumerable<Site> result = matched.Take(10);
-		IEnumerable<SiteSearchLightModel> items = result.Select(x => new SiteSearchLightModel(x));
-
-		return new TotalItemsResult<SiteSearchLightModel>
-		{
-			Items = items,
-			TotalItems = matched.Count(),
-		};
+		return result;
 	}
 
 	public SiteModel GetSite(string siteId)
 	{
-		logger.LogDebug($"GET {nameof(SitesService)}.{nameof(SitesService.GetSite)} method called with {{SiteId}}", siteId);
+		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetSite)} method called with {{SiteId}}", siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 

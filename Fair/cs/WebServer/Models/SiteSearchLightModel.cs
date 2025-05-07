@@ -13,4 +13,10 @@ public sealed class SiteSearchLightModel
 		Id = site.Id.ToString();
 		Title = site.Title;
 	}
+
+	public SiteSearchLightModel(string id, string title)
+	{
+		Id = id;
+		Title = title;
+	}
 }

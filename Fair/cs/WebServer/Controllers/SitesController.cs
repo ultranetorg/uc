@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -8,22 +7,32 @@ public class SitesController
 	ILogger<SitesController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
+	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
-	ISitesService sitesService
+	ISitesService sitesService,
+	ISearchService searchService
 ) : BaseController
 {
-	[HttpGet]
-	public IEnumerable<SiteBaseModel> Search([FromQuery] int? page, [FromQuery] string? search)
+	[HttpGet("default")]
+	public IEnumerable<SiteBaseModel> Default(CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Search)} method called with {{Page}}, {{Search}}", page, search);
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Default)} method called without parameters");
 
-		searchQueryValidator.Validate(search);
+		return sitesService.GetDefaultSites(cancellationToken);
+	}
+
+	[HttpGet]
+	public IEnumerable<SiteBaseModel> Search([FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Search)} method called with {{Query}}, {{Page}}", query, page);
+
 		paginationValidator.Validate(page);
+		siteSearchQueryValidator.Validate(query);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		TotalItemsResult<SiteBaseModel> sites = sitesService.SearchNotOptimized(pageValue, pageSizeValue, search);
+		IEnumerable<SiteBaseModel> sites = searchService.SearchSites(query, pageValue, pageSizeValue, cancellationToken);
 
-		return this.OkPaged(sites.Items, pageValue, pageSizeValue, sites.TotalItems);
+		return this.OkPaged(sites, pageValue, pageSizeValue);
 	}
 
 	[HttpGet("search")]
@@ -33,9 +42,7 @@ public class SitesController
 
 		searchQueryValidator.Validate(query);
 
-		TotalItemsResult<SiteSearchLightModel> sites = sitesService.SearchLightNotOpmized(query, cancellationToken);
-
-		return this.OkPaged(sites.Items, sites.TotalItems);
+		return searchService.SearchLiteSites(query, 0, Pagination.SearchLightPageSize, cancellationToken);
 	}
 
 	[HttpGet("{siteId}")]

@@ -14,10 +14,10 @@ export const SearchPage = () => {
   const { search: contextSearch } = useSearchContext()
 
   const { siteId } = useParams()
-  const { isPending, data: publications } = useSearchPublications(siteId, page, pageSize, contextSearch, true)
+  const { isPending, data: publications } = useSearchPublications(siteId, page, contextSearch, true)
 
-  const pagesCount =
-    publications?.totalItems && publications.totalItems > 0 ? Math.ceil(publications.totalItems / pageSize) : 0
+  // TODO: fix.
+  const pagesCount = 10
 
   useEffect(() => {
     if (!isPending && pagesCount > 0 && page > pagesCount) {

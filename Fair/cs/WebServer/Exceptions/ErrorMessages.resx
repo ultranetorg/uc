@@ -135,4 +135,7 @@
   <data name="InvalidDepthFormat1" xml:space="preserve">
     <value>Invalid depth {0} specified.</value>
   </data>
+  <data name="InvalidSearchQuery" xml:space="preserve">
+    <value>Invalid search query specified.</value>
+  </data>
 </root>

@@ -97,6 +97,15 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string InvalidSearchQuery {
+            get {
+                return ResourceManager.GetString("InvalidSearchQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} with the specified identifier was not found..
         /// </summary>
         internal static string ProductNotFoundFormat1 {

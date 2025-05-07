@@ -18,7 +18,7 @@ export const SiteHeader = () => {
   const { search, setSearch } = useSearchContext()
   const { data: publication } = useSearchLightPublications(siteId, query)
 
-  const items = useMemo(() => publication?.items.map(x => ({ id: x.id, value: x.title })) ?? [], [publication])
+  const items = useMemo(() => publication?.map(x => ({ id: x.id, value: x.title })) ?? [], [publication])
 
   const handleChange = useCallback(
     (value: string) => {

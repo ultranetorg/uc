@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from "react"
+import { useCallback, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useDocumentTitle } from "usehooks-ts"
 
@@ -68,16 +68,6 @@ export const PublicationPage = () => {
       </div>
       <div className="border border-black px-4 py-3 text-black">
         <span>DESCRIPTION: {publication.description}</span>
-      </div>
-      <div className="flex flex-col border border-black px-4 py-3 text-black">
-        {publication.supportedOSes.map(x => (
-          <Fragment key={x}>
-            <span>{x}</span>
-            <ul className="ml-4">
-              <li>Requirements</li>
-            </ul>
-          </Fragment>
-        ))}
       </div>
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">

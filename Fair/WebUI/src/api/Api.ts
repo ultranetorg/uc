@@ -9,6 +9,7 @@ import {
   ModeratorPublication,
   ModeratorReview,
   PaginationResponse,
+  PaginationResult,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -18,12 +19,19 @@ import {
   Site,
   SiteBase,
   SiteLightSearch,
-  TotalItemsResponse,
   User,
 } from "types"
 import { CategoryPublications } from "types/CategoryPublications"
 
 export type Api = {
+  getDefaultSites(): Promise<SiteBase[]>
+  getSite(siteId: string): Promise<Site>
+
+  searchSites(query?: string, page?: number): Promise<PaginationResult<SiteBase>>
+  searchLightSites(query?: string): Promise<SiteLightSearch[]>
+  searchPublications(siteId: string, query?: string, page?: number): Promise<PaginationResult<PublicationExtended>>
+  searchLightPublication(siteId: string, query?: string): Promise<PublicationBase[]>
+
   getAuthor(authorId: string): Promise<Author>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
@@ -37,17 +45,7 @@ export type Api = {
   ): Promise<PaginationResponse<PublicationAuthor>>
   getCategoryPublications(categoryId: string, page?: number): Promise<PaginationResponse<Publication>>
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<PaginationResponse<Review>>
-  getSite(siteId: string): Promise<Site>
-  searchSites(page?: number, search?: string): Promise<PaginationResponse<SiteBase>>
-  searchLightSites(query?: string): Promise<TotalItemsResponse<SiteLightSearch>>
   getUser(userId: string): Promise<User>
-  searchPublications(
-    siteId: string,
-    page?: number,
-    pageSize?: number,
-    title?: string,
-  ): Promise<PaginationResponse<PublicationExtended>>
-  searchLightPublication(siteId: string, query?: string): Promise<TotalItemsResponse<PublicationBase>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
   getAuthorReferendums(

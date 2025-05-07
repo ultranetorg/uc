@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom"
-
 import { RatingBar } from "ui/components"
 
 export type ReviewProps = {
@@ -10,7 +8,7 @@ export type ReviewProps = {
   created: number
 }
 
-export const Review = ({ text, userId, userName, rating, created }: ReviewProps) => {
+export const Review = ({ text, userName, rating, created }: ReviewProps) => {
   return (
     <div className="flex flex-col gap-6 rounded-lg border border-zinc-700 p-6">
       <div className="flex flex-col gap-4">

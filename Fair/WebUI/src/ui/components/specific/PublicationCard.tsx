@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 
 import { Publication, PublicationExtended } from "types"
-import { formatAverageRating, formatOSes } from "utils"
+import { formatAverageRating } from "utils"
 
 type PublicationBaseProps = {
   siteId: string
@@ -20,11 +20,6 @@ export const PublicationCard = (props: PublicationCardProps) => {
       <div className="h-14 w-14 rounded-2xl border bg-zinc-700" />
       <div className="flex w-60 flex-col gap-1 text-center">
         <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold">{props.title}</span>
-        {props.supportedOSes && (
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
-            {formatOSes(props.supportedOSes)}
-          </span>
-        )}
         {props.categoryId && (
           <span className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
             {<Link to={`/${props.siteId}/c/${props.categoryId}`}>{props.categoryTitle}</Link>}

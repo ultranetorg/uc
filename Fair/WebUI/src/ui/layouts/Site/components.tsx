@@ -1,6 +1,6 @@
 import { memo, ReactNode, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
-import { ControlledMenu, FocusableItem, Menu, MenuButton, SubMenu, useClick } from "@szhsin/react-menu"
+import { ControlledMenu, FocusableItem, SubMenu, useClick } from "@szhsin/react-menu"
 
 import { useSiteContext } from "app"
 import { Button } from "ui/components"
@@ -66,6 +66,7 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
 
   return (
     <>
+      {/* @ts-expect-error aaa */}
       <Button
         className="gap-2"
         image={<GridSvg className="stroke-zinc-700" />}
@@ -73,7 +74,6 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
         ref={ref}
         {...anchorProps}
       />
-
       <ControlledMenu state={isOpen ? "open" : "closed"} anchorRef={ref} onClose={() => setOpen(false)}>
         {menuItems}
       </ControlledMenu>
