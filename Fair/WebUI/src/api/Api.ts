@@ -8,7 +8,6 @@ import {
   ModeratorDisputeDetails,
   ModeratorPublication,
   ModeratorReview,
-  PaginationResponse,
   PaginationResult,
   Publication,
   PublicationAuthor,
@@ -19,6 +18,7 @@ import {
   Site,
   SiteBase,
   SiteLightSearch,
+  TotalItemsResult,
   User,
 } from "types"
 import { CategoryPublications } from "types/CategoryPublications"
@@ -42,9 +42,9 @@ export type Api = {
     authorId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<PaginationResponse<PublicationAuthor>>
-  getCategoryPublications(categoryId: string, page?: number): Promise<PaginationResponse<Publication>>
-  getReviews(publicationId: string, page?: number, pageSize?: number): Promise<PaginationResponse<Review>>
+  ): Promise<TotalItemsResult<PublicationAuthor>>
+  getCategoryPublications(categoryId: string, page?: number): Promise<TotalItemsResult<Publication>>
+  getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
   getUser(userId: string): Promise<User>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
@@ -53,7 +53,7 @@ export type Api = {
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<PaginationResponse<AuthorReferendum>>
+  ): Promise<TotalItemsResult<AuthorReferendum>>
 
   getModeratorDispute(siteId: string, disputeId: string): Promise<ModeratorDisputeDetails>
   getModeratorDisputes(
@@ -61,19 +61,19 @@ export type Api = {
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<PaginationResponse<ModeratorDispute>>
+  ): Promise<TotalItemsResult<ModeratorDispute>>
   getModeratorPublication(publicationId: string): Promise<ModeratorPublication>
   getModeratorPublications(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<PaginationResponse<ModeratorPublication>>
+  ): Promise<TotalItemsResult<ModeratorPublication>>
   getModeratorReview(reviewId: string): Promise<ModeratorReview>
   getModeratorReviews(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<PaginationResponse<ModeratorReview>>
+  ): Promise<TotalItemsResult<ModeratorReview>>
 }

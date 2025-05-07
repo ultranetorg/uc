@@ -10,7 +10,6 @@ import {
   ModeratorDisputeDetails,
   ModeratorPublication,
   ModeratorReview,
-  PaginationResponse,
   PaginationResult,
   Publication,
   PublicationAuthor,
@@ -21,54 +20,40 @@ import {
   Site,
   SiteBase,
   SiteLightSearch,
+  TotalItemsResult,
   User,
 } from "types"
 
 import { Api } from "./Api"
-import { toPaginationResponse, toPaginationResult } from "./utils"
+import { buildUrlParams, toTotalItemsResult, toPaginationResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
-// TODO: refactor these methods: getUrlParams, buildUrlParams, buildUrlParams2, getPaginationParams.
-const buildUrlParams = (page?: number, pageSize?: number, search?: string): URLSearchParams => {
-  const params = new URLSearchParams()
-  if (page !== undefined && page > 0) {
-    params.append("page", page.toString())
-  }
-  if (pageSize !== undefined && pageSize !== DEFAULT_PAGE_SIZE_2) {
-    params.append("pageSize", pageSize.toString())
-  }
-  if (!!search && search != "") {
-    params.append("search", search)
-  }
-  return params
-}
-
-const buildUrlParams2 = (query?: string, page?: number): URLSearchParams => {
-  const params = new URLSearchParams()
-  if (!!query && query != "") {
-    params.append("query", query)
-  }
-  if (page !== undefined && page > 0) {
-    params.append("page", page.toString())
-  }
-  return params
-}
-
-const getPaginationParams = (page?: number, pageSize?: number): URLSearchParams => {
-  const params = new URLSearchParams()
-
-  if (page !== undefined) {
-    params.append("page", page.toString())
-  }
-  if (pageSize !== undefined) {
-    params.append("pageSize", pageSize.toString())
-  }
-
-  return params
-}
-
 const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/default`).then(res => res.json())
+
+const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
+
+const searchSites = async (query?: string, page?: number): Promise<PaginationResult<SiteBase>> => {
+  const params = buildUrlParams({ query, page })
+  const res = await fetch(`${BASE_URL}/sites` + params)
+  return await toPaginationResult(res)
+}
+
+const searchLightSites = async (query?: string): Promise<SiteLightSearch[]> =>
+  fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
+
+const searchPublications = async (
+  siteId: string,
+  query?: string,
+  page?: number,
+): Promise<PaginationResult<PublicationExtended>> => {
+  const params = buildUrlParams({ query, page })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + params)
+  return await toPaginationResult(res)
+}
+
+const searchLightPublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<Author> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
@@ -92,58 +77,30 @@ const getAuthorPublications = async (
   authorId: string,
   page?: number,
   pageSize?: number,
-): Promise<PaginationResponse<PublicationAuthor>> => {
-  const params = getPaginationParams(page, pageSize)
-  const res = await fetch(
-    `${BASE_URL}/sites/${siteId}/authors/${authorId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""),
-  )
-  return await toPaginationResponse(res)
+): Promise<TotalItemsResult<PublicationAuthor>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/publications` + params)
+  return await toTotalItemsResult(res)
 }
 
-const getCategoryPublications = async (categoryId: string, page?: number): Promise<PaginationResponse<Publication>> => {
+const getCategoryPublications = async (categoryId: string, page?: number): Promise<TotalItemsResult<Publication>> => {
   const res = await fetch(
     `${BASE_URL}/categories/${categoryId}/publications${page && page > 0 ? "?page=" + page.toString() : ""}`,
   )
-  return await toPaginationResponse(res)
+  return await toTotalItemsResult(res)
 }
 
 const getReviews = async (
   publicationId: string,
   page?: number,
   pageSize?: number,
-): Promise<PaginationResponse<Review>> => {
-  const params = getPaginationParams(page, pageSize)
-  const res = await fetch(
-    `${BASE_URL}/publications/${publicationId}/reviews` + (params.size > 0 ? `?${params.toString()}` : ""),
-  )
-  return await toPaginationResponse(res)
+): Promise<TotalItemsResult<Review>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/publications/${publicationId}/reviews` + params)
+  return await toTotalItemsResult(res)
 }
-
-const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
-
-const searchSites = async (query?: string, page?: number): Promise<PaginationResult<SiteBase>> => {
-  const params = buildUrlParams2(query, page)
-  const res = await fetch(`${BASE_URL}/sites` + (params.size > 0 ? `?${params.toString()}` : ""))
-  return await toPaginationResult(res)
-}
-
-const searchLightSites = async (query?: string): Promise<SiteLightSearch[]> =>
-  fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
-
-const searchPublications = async (
-  siteId: string,
-  query?: string,
-  page?: number,
-): Promise<PaginationResult<PublicationExtended>> => {
-  const params = buildUrlParams2(query, page)
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""))
-  return await toPaginationResult(res)
-}
-
-const searchLightPublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
 
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<AuthorReferendumDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
@@ -153,12 +110,13 @@ const getAuthorReferendums = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<PaginationResponse<AuthorReferendum>> => {
-  const params = buildUrlParams(page, pageSize, search)
-  const res = await fetch(
-    `${BASE_URL}/author/sites/${siteId}/referendums` + (params.size > 0 ? `?${params.toString()}` : ""),
+): Promise<TotalItemsResult<AuthorReferendum>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  return await toPaginationResponse(res)
+  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums` + params)
+  return await toTotalItemsResult(res)
 }
 
 const getModeratorDispute = async (siteId: string, disputeId: string): Promise<ModeratorDisputeDetails> =>
@@ -169,12 +127,13 @@ const getModeratorDisputes = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<PaginationResponse<ModeratorDispute>> => {
-  const params = buildUrlParams(page, pageSize, search)
-  const res = await fetch(
-    `${BASE_URL}/moderator/sites/${siteId}/disputes` + (params.size > 0 ? `?${params.toString()}` : ""),
+): Promise<TotalItemsResult<ModeratorDispute>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  return await toPaginationResponse(res)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes` + params)
+  return await toTotalItemsResult(res)
 }
 
 const getModeratorPublication = (publicationId: string): Promise<ModeratorPublication> =>
@@ -185,12 +144,13 @@ const getModeratorPublications = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<PaginationResponse<ModeratorPublication>> => {
-  const params = buildUrlParams(page, pageSize, search)
-  const res = await fetch(
-    `${BASE_URL}/moderator/sites/${siteId}/publications` + (params.size > 0 ? `?${params.toString()}` : ""),
+): Promise<TotalItemsResult<ModeratorPublication>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  return await toPaginationResponse(res)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/publications` + params)
+  return await toTotalItemsResult(res)
 }
 
 const getModeratorReview = (reviewId: string): Promise<ModeratorReview> =>
@@ -201,12 +161,13 @@ const getModeratorReviews = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<PaginationResponse<ModeratorReview>> => {
-  const params = buildUrlParams(page, pageSize, search)
-  const res = await fetch(
-    `${BASE_URL}/moderator/sites/${siteId}/reviews` + (params.size > 0 ? `?${params.toString()}` : ""),
+): Promise<TotalItemsResult<ModeratorReview>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  return await toPaginationResponse(res)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
+  return await toTotalItemsResult(res)
 }
 
 const api: Api = {

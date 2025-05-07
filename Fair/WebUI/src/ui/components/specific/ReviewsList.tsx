@@ -1,12 +1,12 @@
 import { memo } from "react"
 
-import { PaginationResponse, Review } from "types"
+import { TotalItemsResult, Review } from "types"
 
 import { Review as ReviewComponent } from "./Review"
 
 export type ReviewsListProps = {
   isPending: boolean
-  reviews?: PaginationResponse<Review>
+  reviews?: TotalItemsResult<Review>
   error?: Error
 }
 
