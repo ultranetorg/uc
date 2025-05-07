@@ -1,4 +1,4 @@
-import { BaseVotableOperation } from "./VotableOperations"
+import { BaseVotableOperation } from "./votableOperations"
 
 export type AuthorReferendum = {
   id: string
