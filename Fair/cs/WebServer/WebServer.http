@@ -65,7 +65,7 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications?title=a
 Accept: application/json
 
-### SEARCH Publications Light
+### SEARCH Publications Lite
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications/search
 Accept: application/json

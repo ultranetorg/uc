@@ -36,13 +36,13 @@ public class SitesController
 	}
 
 	[HttpGet("search")]
-	public IEnumerable<SiteSearchLightModel> SearchLight([FromQuery] string? query, CancellationToken cancellationToken)
+	public IEnumerable<SiteSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.SearchLight)} method called with {{Query}}", query);
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.SearchLite)} method called with {{Query}}", query);
 
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLiteSites(query, 0, Pagination.SearchLightPageSize, cancellationToken);
+		return searchService.SearchLiteSites(query, 0, Pagination.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("{siteId}")]

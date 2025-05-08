@@ -1,49 +1,49 @@
-import { useCallback, useMemo, useState } from "react"
+import { KeyboardEvent, useCallback, useMemo } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
+import { useDebounceValue } from "usehooks-ts"
 
 import { useSearchContext, useSiteContext } from "app"
-import { useSearchLightPublications } from "entities"
-import { Button, Logo, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { ChatXSvg, PersonKingSvg } from "assets"
+import { SEARCH_DELAY } from "constants"
+import { useSearchLitePublications } from "entities"
+import { Button, Logo, SearchDropdown, SearchDropdownItem } from "ui/components"
 
 import { CategoriesButton } from "./components"
 
 export const SiteHeader = () => {
-  const [query, setQuery] = useState("")
-  const [isDropdownHidden, setDropdownHidden] = useState(false)
-
   const { siteId } = useParams()
   const navigate = useNavigate()
   const { site } = useSiteContext()
   const { search, setSearch } = useSearchContext()
-  const { data: publication } = useSearchLightPublications(siteId, query)
 
-  const items = useMemo(() => publication?.map(x => ({ id: x.id, value: x.title })) ?? [], [publication])
+  const [debouncedQuery] = useDebounceValue(search, SEARCH_DELAY)
+
+  const { data: publication, isFetching } = useSearchLitePublications(siteId, debouncedQuery)
+  const items = useMemo(() => publication?.map(x => ({ value: x.id, label: x.title })), [publication])
 
   const handleChange = useCallback(
+    (item?: SearchDropdownItem) => {
+      if (item) {
+        navigate(`/${siteId}/p/${item.value}`)
+      }
+    },
+    [siteId, navigate],
+  )
+
+  const handleInputChange = useCallback(
     (value: string) => {
-      setQuery(value)
       setSearch(value)
     },
     [setSearch],
   )
 
   const handleKeyDown = useCallback(
-    (key: string) => {
-      if (key === "Enter" && !!search) {
-        setDropdownHidden(true)
+    (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !!search) {
         navigate(`/${siteId}/s`)
       }
     },
-    [navigate, search, siteId],
-  )
-
-  const handleSelectItem = useCallback(
-    (item: SearchDropdownItem) => {
-      setQuery("")
-      navigate(`/${siteId}/p/${item.id}`)
-    },
-    [siteId, navigate],
+    [search, siteId, navigate],
   )
 
   if (!site) {
@@ -64,12 +64,11 @@ export const SiteHeader = () => {
       </Link>
       <SearchDropdown
         className="flex-grow"
-        isDropdownHidden={isDropdownHidden}
+        isLoading={isFetching}
         items={items}
-        value={query}
         onChange={handleChange}
+        onInputChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        onSelectItem={handleSelectItem}
       />
     </div>
   )

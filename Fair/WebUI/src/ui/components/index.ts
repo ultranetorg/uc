@@ -1,4 +1,5 @@
 export * from "./Modal"
+export * from "./SearchDropdown"
 export * from "./specific"
 
 export * from "./Breadcrumbs"
@@ -9,7 +10,6 @@ export * from "./MultilineText"
 export * from "./Pagination"
 export * from "./PrimaryButton"
 export * from "./RatingBar"
-export * from "./SearchDropdown"
 export * from "./SearchInput"
 export * from "./Select"
 export * from "./Tabs"
