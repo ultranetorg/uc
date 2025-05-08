@@ -40,14 +40,14 @@ export const useSearchSites = (query?: string, page?: number) => {
   return { isFetching, error: error ?? undefined, data }
 }
 
-export const useSearchLightSites = (query?: string) => {
-  const queryFn = async () => api.searchLightSites(query)
+export const useSearchLiteSites = (query?: string) => {
+  const queryFn = async () => api.searchLiteSites(query)
 
-  const { isPending, error, data } = useQuery({
+  const { isPending, isFetching, error, data } = useQuery({
     queryKey: ["sites", "search", query],
     queryFn: queryFn,
     enabled: !!query,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isPending, isFetching, error: error ?? undefined, data }
 }

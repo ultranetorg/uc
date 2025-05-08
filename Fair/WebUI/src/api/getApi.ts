@@ -19,7 +19,7 @@ import {
   Review,
   Site,
   SiteBase,
-  SiteLightSearch,
+  SiteLiteSearch,
   TotalItemsResult,
   User,
 } from "types"
@@ -39,7 +39,7 @@ const searchSites = async (query?: string, page?: number): Promise<PaginationRes
   return await toPaginationResult(res)
 }
 
-const searchLightSites = async (query?: string): Promise<SiteLightSearch[]> =>
+const searchLiteSites = async (query?: string): Promise<SiteLiteSearch[]> =>
   fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
 const searchPublications = async (
@@ -52,7 +52,7 @@ const searchPublications = async (
   return await toPaginationResult(res)
 }
 
-const searchLightPublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
+const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<Author> =>
@@ -181,10 +181,10 @@ const api: Api = {
   getReviews,
   getSite,
   searchSites,
-  searchLightSites,
+  searchLiteSites,
   getUser,
   searchPublications,
-  searchLightPublication,
+  searchLitePublication,
   getAuthorReferendum,
   getCategoryPublications,
   getAuthorReferendums,

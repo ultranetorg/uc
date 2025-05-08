@@ -17,7 +17,7 @@ import {
   Review,
   Site,
   SiteBase,
-  SiteLightSearch,
+  SiteLiteSearch,
   TotalItemsResult,
   User,
 } from "types"
@@ -28,9 +28,9 @@ export type Api = {
   getSite(siteId: string): Promise<Site>
 
   searchSites(query?: string, page?: number): Promise<PaginationResult<SiteBase>>
-  searchLightSites(query?: string): Promise<SiteLightSearch[]>
+  searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<PaginationResult<PublicationExtended>>
-  searchLightPublication(siteId: string, query?: string): Promise<PublicationBase[]>
+  searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
 
   getAuthor(authorId: string): Promise<Author>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>

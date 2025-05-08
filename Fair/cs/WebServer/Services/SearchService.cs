@@ -112,10 +112,10 @@ public class SearchService
 		return result;
 	}
 
-	public IEnumerable<SiteSearchLightModel> SearchLiteSites([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
-			return Enumerable.Empty<SiteSearchLightModel>();
+			return Enumerable.Empty<SiteSearchLiteModel>();
 
 		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with{{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
@@ -126,7 +126,7 @@ public class SearchService
 		lock (mcv.Lock)
 		{
 			SearchResult[] result = mcv.Sites.Search(query, page * pageSize, pageSize);
-			return result.Select(x => new SiteSearchLightModel(x.Entity.ToString(), x.Text));
+			return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 		}
 	}
 }

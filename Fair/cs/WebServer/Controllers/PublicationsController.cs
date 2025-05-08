@@ -49,14 +49,14 @@ public class PublicationsController
 	}
 
 	[HttpGet("~/api/sites/{siteId}/publications/search")]
-	public IEnumerable<PublicationBaseModel> SearchLight(string siteId, [FromQuery] string? query, CancellationToken cancellationToken)
+	public IEnumerable<PublicationBaseModel> SearchLite(string siteId, [FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLight)} method called with {{SiteId}}, {{Query}}", siteId, query);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{SiteId}}, {{Query}}", siteId, query);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLitePublications(siteId, query, 0, Pagination.SearchLightPageSize, cancellationToken);
+		return searchService.SearchLitePublications(siteId, query, 0, Pagination.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]

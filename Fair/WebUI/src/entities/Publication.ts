@@ -89,14 +89,14 @@ export const useSearchPublications = (siteId?: string, page?: number, query?: st
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useSearchLightPublications = (siteId?: string, query?: string) => {
-  const queryFn = () => api.searchLightPublication(siteId!, query!)
+export const useSearchLitePublications = (siteId?: string, query?: string) => {
+  const queryFn = () => api.searchLitePublication(siteId!, query!)
 
-  const { isPending, error, data } = useQuery({
+  const { isPending, isFetching, error, data } = useQuery({
     queryKey: ["sites", siteId, "publications", "search", query],
     queryFn: queryFn,
     enabled: !!siteId && !!query,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isPending, isFetching, error: error ?? undefined, data }
 }

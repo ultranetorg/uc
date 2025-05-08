@@ -13,6 +13,6 @@ public interface ISearchService
 	IEnumerable<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		CancellationToken cancellationToken);
 
-	IEnumerable<SiteSearchLightModel> SearchLiteSites([NotNull][NotEmpty] string query, [NonNegativeValue] int page,
+	IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotNull][NotEmpty] string query, [NonNegativeValue] int page,
 		[NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 }
