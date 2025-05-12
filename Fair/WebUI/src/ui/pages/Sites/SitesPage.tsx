@@ -6,11 +6,11 @@ import { isNumber } from "lodash"
 
 import { SEARCH_DELAY } from "constants"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
+import { useUrlParamsState } from "hooks"
 import { SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
 import { parseInteger } from "utils"
 
 import { PageHeader } from "./PageHeader"
-import { useUrlParamsState } from "../hooks"
 
 export const SitesPage = () => {
   const { t } = useTranslation("sites")
@@ -37,7 +37,7 @@ export const SitesPage = () => {
   const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
 
-  const { isFetching, data: sites, error } = useSearchSites(query, 0)
+  const { isFetching, data: sites, error } = useSearchSites(query, state.page)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
