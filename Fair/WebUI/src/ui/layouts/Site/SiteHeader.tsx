@@ -2,7 +2,7 @@ import { KeyboardEvent, useCallback, useMemo } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSearchContext, useSiteContext } from "app"
+import { useSearchQueryContext, useSiteContext } from "app"
 import { ChatXSvg, PersonKingSvg } from "assets"
 import { SEARCH_DELAY } from "constants"
 import { useSearchLitePublications } from "entities"
@@ -13,10 +13,11 @@ import { CategoriesButton } from "./components"
 export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
-  const { site } = useSiteContext()
-  const { search, setSearch } = useSearchContext()
 
-  const [debouncedQuery] = useDebounceValue(search, SEARCH_DELAY)
+  const { site } = useSiteContext()
+  const { query, setQuery, triggerSearchEvent } = useSearchQueryContext()
+
+  const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
   const { data: publication, isFetching } = useSearchLitePublications(siteId, debouncedQuery)
   const items = useMemo(() => publication?.map(x => ({ value: x.id, label: x.title })), [publication])
@@ -30,21 +31,33 @@ export const SiteHeader = () => {
     [siteId, navigate],
   )
 
+  const handleClearInputClick = useCallback(() => {
+    setQuery("")
+  }, [setQuery])
+
   const handleInputChange = useCallback(
     (value: string) => {
-      setSearch(value)
+      setQuery(value)
     },
-    [setSearch],
+    [setQuery],
   )
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !!search) {
+      if (e.key === "Enter" && !!query) {
         navigate(`/${siteId}/s`)
+
+        triggerSearchEvent()
       }
     },
-    [search, siteId, navigate],
+    [query, siteId, triggerSearchEvent, navigate],
   )
+
+  const handleSearchClick = useCallback(() => {
+    if (query) {
+      triggerSearchEvent()
+    }
+  }, [query, triggerSearchEvent])
 
   if (!site) {
     return null
@@ -67,8 +80,10 @@ export const SiteHeader = () => {
         isLoading={isFetching}
         items={items}
         onChange={handleChange}
+        onClearInputClick={handleClearInputClick}
         onInputChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        onSearchClick={handleSearchClick}
       />
     </div>
   )

@@ -2,18 +2,33 @@ import { KeyboardEvent, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
+import { isNumber } from "lodash"
 
 import { SEARCH_DELAY } from "constants"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
 import { SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
+import { parseInteger } from "utils"
 
 import { PageHeader } from "./PageHeader"
+import { useUrlParamsState } from "../hooks"
 
 export const SitesPage = () => {
   const { t } = useTranslation("sites")
   const navigate = useNavigate()
 
-  const [query, setQuery] = useState("")
+  const [state, setState] = useUrlParamsState({
+    page: {
+      defaultValue: 0,
+      parse: v => parseInteger(v),
+      validate: v => isNumber(v) && v >= 0,
+    },
+    query: {
+      defaultValue: "",
+      validate: v => v !== "",
+    },
+  })
+
+  const [query, setQuery] = useState(state.query)
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
 
@@ -36,7 +51,8 @@ export const SitesPage = () => {
   const handleClearInputClick = useCallback(() => {
     setLiteQuery("")
     setQuery("")
-  }, [])
+    setState()
+  }, [setState])
 
   const handleInputChange = useCallback((value: string) => setLiteQuery(value), [])
 
@@ -44,14 +60,16 @@ export const SitesPage = () => {
     (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         setQuery(liteQuery)
+        setState({ query: liteQuery, page: 0 })
       }
     },
-    [liteQuery],
+    [liteQuery, setState],
   )
 
   const handleSearchClick = useCallback(() => {
     setQuery(liteQuery)
-  }, [liteQuery])
+    setState({ query: liteQuery, page: 0 })
+  }, [liteQuery, setState])
 
   return (
     <div className="flex flex-col items-center gap-6 py-16">
@@ -61,6 +79,7 @@ export const SitesPage = () => {
           <SearchDropdown
             className="w-full"
             isLoading={isLiteFetching}
+            inputValue={state.query}
             items={liteItems}
             onChange={handleChange}
             onClearInputClick={handleClearInputClick}

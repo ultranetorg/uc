@@ -1,22 +1,40 @@
 import { createContext, useState, useContext, PropsWithChildren } from "react"
 
-type SearchContextType = {
-  search: string
-  setSearch: (value: string) => void
+type SearchQueryContextType = {
+  query: string
+  setQuery: (value: string) => void
+  triggerSearchEvent: () => void
+  onSearchEvent: (callback: () => void) => () => void
 }
 
-const SearchContext = createContext<SearchContextType | undefined>(undefined)
+const SearchQueryContext = createContext<SearchQueryContextType | undefined>(undefined)
 
-export const SearchProvider = ({ children }: PropsWithChildren) => {
-  const [search, setSearch] = useState("")
+export const SearchQueryProvider = ({ children }: PropsWithChildren) => {
+  const [query, setQuery] = useState("")
+  const [subscribers, setSubscribers] = useState<(() => void)[]>([])
 
-  return <SearchContext.Provider value={{ search, setSearch }}>{children}</SearchContext.Provider>
+  const triggerSearchEvent = () => {
+    subscribers.forEach(callback => callback())
+  }
+
+  const onSearchEvent = (callback: () => void) => {
+    setSubscribers(prev => [...prev, callback])
+    return () => {
+      setSubscribers(prev => prev.filter(cb => cb !== callback))
+    }
+  }
+
+  return (
+    <SearchQueryContext.Provider value={{ query, setQuery, triggerSearchEvent, onSearchEvent }}>
+      {children}
+    </SearchQueryContext.Provider>
+  )
 }
 
-export const useSearchContext = () => {
-  const context = useContext(SearchContext)
+export const useSearchQueryContext = () => {
+  const context = useContext(SearchQueryContext)
   if (!context) {
-    throw new Error("useSearchContext must be used within an SearchProvider")
+    throw new Error("useSearchQueryContext must be used within an SearchQueryProvider")
   }
   return context
 }
