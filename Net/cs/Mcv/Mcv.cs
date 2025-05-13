@@ -47,14 +47,13 @@ public abstract class Mcv /// Mutual chain voting
 	public ConsensusDelegate					ConsensusConcluded;
 	public RoundDelegate						Commited;
 
-	bool										_init = true;
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
 												{
 													set => _Tail = value;
 													get 
 													{
-														if(!_init && !Monitor.IsEntered(Lock))
+														if(!Monitor.IsEntered(Lock))
 															Debugger.Break();
 
 														return _Tail;
@@ -126,8 +125,6 @@ public abstract class Mcv /// Mutual chain voting
 				}
 			}
 		}
-
-		_init = false;
 	}
 
 	public Mcv(McvNet net, McvSettings settings, string databasepath, IClock clock) : this(net, settings, databasepath)
