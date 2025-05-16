@@ -23,6 +23,8 @@ public class CategoryExecution : TableExecution<AutoId, Category>
 
 	public Category Create(Site site)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.CategoriesCount);
+
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();

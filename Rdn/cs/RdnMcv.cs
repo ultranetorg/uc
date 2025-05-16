@@ -58,11 +58,12 @@ public class RdnMcv : Mcv
 
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
+		Metas = new (this);
 		Accounts = new (this);
 		Domains = new (this);
 		Resources = new (this);
 
-		Tables = [Accounts, Domains, Resources];
+		Tables = [Metas, Accounts, Domains, Resources];
 	}
 
 	public override Round CreateRound()

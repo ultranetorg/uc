@@ -22,6 +22,8 @@ public class DisputeExecution : TableExecution<AutoId, Dispute>
 
 	public Dispute Create(Site site)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.DisputesCount);
+
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();

@@ -4,15 +4,15 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public class SiteTitleIndex : HnswTable<string, StringHnswEntity>
+public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 {
 	public SiteTitleIndex(Mcv mcv, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 100, int minDiversity = 100) : base(mcv, new NeedlemanWunsch(), maxLevel, maxConnections, efConstruction, threshold, minDiversity)
 	{
 	}
 
-	public override StringHnswEntity Create()
+	public override StringToOneHnswEntity Create()
 	{
-		return new StringHnswEntity() {References = []};
+		return new StringToOneHnswEntity() {References = []};
 	}
 
 	public SiteTitleExecution CreateExecuting(Execution execution)
@@ -21,56 +21,28 @@ public class SiteTitleIndex : HnswTable<string, StringHnswEntity>
 	}
 }
 
-// public class SiteTitleState : HnswTableState<string, StringHnswEntity>
-// {
-// 	public SiteTitleState(HnswTable<string, StringHnswEntity> table) : base(table)
-// 	{
-// 	}
-// }
-
-public class SiteTitleExecution : StringHnswTableExecution<StringHnswEntity>
+public class SiteTitleExecution : StringHnswTableExecution<StringToOneHnswEntity>
 {
 	public SiteTitleExecution(FairExecution execution) : base(execution, execution.Mcv.SiteTitles)
 	{
-		EntryPoints = execution.Round.SiteTitles?.EntryPoints ?? Table.EntryPoints;
 	}
 
-  	public void Index(AutoId site, string text)
+  	public override StringToOneHnswEntity Index(AutoId site, string text)
   	{
- 		text = text.ToLowerInvariant();
- 
- 		var e =	Find(text);
- 
-  		if(e == null)
-  		{
-			var b = DataToBucket(text);
-			
-  			var id = new HnswId(b, Execution.GetNextEid(Table, b));
-  	
-  			e = Affect(id);
-  	
-  			e.Text = text;
- 			//e.Hash = Metric.Hashify(text);
-  			
-  			Add(e);
-  		}
-  		else
- 			e = Affect(e.Id);
+		var e = base.Index(site, text);
  
   		if(!e.References.Contains(site))
   		{	
   			e.References = new (e.References);
   			e.References.Add(site);
   		}
+
+		return e;
   	}
  
   	public void Deindex(AutoId site, string text)
   	{
- 		text = text.ToLowerInvariant();
- 
-  		var e =	Find(text);
- 	
- 		e = Affect(e.Id);
+ 		var e = Affect(text);
  	
  		e.References = new (e.References);
  		e.References.Remove(site);

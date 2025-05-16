@@ -2,6 +2,7 @@
 
 public class Execution
 {
+	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
 	public Dictionary<AutoId, Account>			AffectedAccounts = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
@@ -50,6 +51,32 @@ public class Execution
 	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
 	{
 		return AffectedByTable(table) as Dictionary<K, E>;
+	}
+
+	public MetaEntity AffectMeta(MetaId id)
+	{
+		if(AffectedMetas.TryGetValue(id, out var a))
+			return a;
+
+		a = Mcv.Metas.Find(id, Round.Id);
+		
+		if(a == null)
+		{
+			a = Mcv.Metas.Create();
+			a.Id = id;
+		}
+		else
+			a = a.Clone() as MetaEntity;
+
+		AffectedMetas[a.Id] = a;
+
+		return a;
+	}
+
+	public void IncrementCount(int type)
+	{
+		var m = AffectMeta(new MetaId(type, []));
+		m.Value = m.Value == null ? [1, 0, 0, 0] : BitConverter.GetBytes(BitConverter.ToInt32(m.Value) + 1);
 	}
 
 	public int GetNextEid(TableBase table,  int b)
@@ -143,6 +170,8 @@ public class Execution
 		a.Address	= address;
 
 		AffectedAccounts[a.Id] = a;
+
+		IncrementCount((int)MetaEntityType.AccountCount);
 
 		return a;
 	}

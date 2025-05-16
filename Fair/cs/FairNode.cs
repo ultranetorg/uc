@@ -1,11 +1,5 @@
 ﻿namespace Uccs.Fair;
 
-[Flags]
-public enum FairRole : uint
-{
-	None,
-}
-
 public class FairNode : McvNode
 {
 	new public FairTcpPeering		Peering => base.Peering as FairTcpPeering;

@@ -12,11 +12,11 @@ public abstract class TableBase
 	protected ColumnFamilyHandle				ClusterColumn;
 	protected ColumnFamilyHandle				BucketColumn;
 	protected ColumnFamilyHandle				EntityColumn;
-	protected ColumnFamilyHandle				StateColumn;
+	protected ColumnFamilyHandle				MetaColumn;
 	public string								ClusterColumnName	=> Name + nameof(ClusterColumn);
 	public string								BucketColumnName	=> Name + nameof(BucketColumn);
 	public string								EntityColumnName	=> Name + nameof(EntityColumn);
-	public string								StateColumnName		=> Name + nameof(StateColumn);
+	public string								MetaColumnName		=> Name + nameof(MetaColumn);
 	
 	public virtual string						Name => GetType().Name.Replace("Table", null);
 	public int									Size => Clusters.Sum(i => i.MainLength);
@@ -30,7 +30,7 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Commit(WriteBatch batch, IEnumerable<ITableEntry> entries, ITableState executed, Round lastconfirmedround);
+	public abstract void						Commit(WriteBatch batch, IEnumerable<ITableEntry> entries, TableStateBase executed, Round lastconfirmedround);
 	public virtual void							Index(WriteBatch batch, Round lastincommit){}
 	public static short							ClusterFromBucket(int id) => (short)(id >> ClusterBase.Length);
 
@@ -69,7 +69,7 @@ public abstract class TableBase
 		public abstract IEnumerable<BucketBase>		Buckets { get; }
 
 		public abstract BucketBase					GetBucket(int id);
-		public abstract void						Save(WriteBatch batch);
+		public abstract void						Commit(WriteBatch batch);
 	}
 }
 
@@ -218,12 +218,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			for(int i=0; i<n; i++)
 			{
-				//var e = new Item();
-
 				var id = r.Read<ID>();
 				var main = r.ReadBytes();
-				//e.Entity = Table.Create();
-				//e.Entity.ReadMain(new BinaryReader(new MemoryStream(e.Raw)));
 
 				_Entries[id] = new Item {Main = main};
 
@@ -318,7 +314,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			return Buckets.Find(i => i.Id == id);
 		}
 
-		public override void Save(WriteBatch batch)
+		public override void Commit(WriteBatch batch)
 		{
 			var buckets = Buckets.OrderBy(i => i.Id).ToArray();
 
@@ -429,8 +425,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 	public class GraphEnumerator : IEnumerator<E>
 	{
-		public E Current => Entity.Current;
-		object IEnumerator.Current => Entity.Current;
+		public E				Current => Entity.Current;
+		object					IEnumerator.Current => Entity.Current;
 
 		IEnumerator<Cluster>	Cluster;
 		IEnumerator<Bucket>		Bucket;
@@ -526,13 +522,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 	}
 
-
 	public override List<Cluster>	Clusters { get; }
-
-	public abstract E				Create();
-
+	protected TableStateBase		Assosiated;
 	public EntityEnumeration		GraphEntities => new (() => new GraphEnumerator(this));
 	public EntityEnumeration		TailGraphEntities => new (() => new TailGraphEnumerator(this));
+
+	public abstract E				Create();
+	public virtual TableStateBase	CreateAssosiated() => new TableState<ID, E>(this);
 
 	public Table(Mcv chain)
 	{
@@ -540,10 +536,10 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		Rocks = Mcv.Rocks;
 		Clusters = new List<Cluster>();
 
-		if(!Rocks.TryGetColumnFamily(StateColumnName,	out StateColumn))	StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
+		if(!Rocks.TryGetColumnFamily(MetaColumnName,	out MetaColumn))	MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
 		if(!Rocks.TryGetColumnFamily(ClusterColumnName,	out ClusterColumn))	ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
-		if(!Rocks.TryGetColumnFamily(BucketColumnName,	out BucketColumn))	BucketColumn		= Rocks.CreateColumnFamily(new (), BucketColumnName);
-		if(!Rocks.TryGetColumnFamily(EntityColumnName,	out EntityColumn))	EntityColumn		= Rocks.CreateColumnFamily(new (), EntityColumnName);
+		if(!Rocks.TryGetColumnFamily(BucketColumnName,	out BucketColumn))	BucketColumn	= Rocks.CreateColumnFamily(new (), BucketColumnName);
+		if(!Rocks.TryGetColumnFamily(EntityColumnName,	out EntityColumn))	EntityColumn	= Rocks.CreateColumnFamily(new (), EntityColumnName);
 
 		using(var i = Rocks.NewIterator(ClusterColumn))
 		{
@@ -554,18 +550,76 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
  				Clusters.Add(c);
 			}
 		}
+
+		Assosiated = CreateAssosiated();
+		
+		var s = Rocks.Get([0], MetaColumn);
+		
+		if(s != null)
+		{
+			var r = new BinaryReader(new MemoryStream(s));
+			Assosiated.Read(r);
+		}
+	}
+
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase executed,  Round lastInCommit)
+	{
+		if(!entities.Any())
+			return;
+
+		var bs = new HashSet<Bucket>();
+		var cs = new HashSet<Cluster>();
+
+		foreach(var i in entities.Cast<E>())
+		{
+			var c = GetCluster(ClusterFromBucket(i.Key.B));
+			var b = c.GetBucket(i.Key.B);
+
+			if(!i.Deleted)
+				b.Add(batch, i);
+			else
+				b.Remove(batch, i.Key as ID);
+
+			if(i.Key is AutoId id)
+				if(b.NextE < id.E + 1)
+					b.NextE = id.E + 1;
+
+			bs.Add(b);
+			cs.Add(c);
+		}
+
+		foreach(var i in bs)
+		{
+			i.Cleanup(lastInCommit);
+			i.Commit(batch);
+		}
+
+		foreach(var i in cs)
+			i.Commit(batch);
+
+		if(executed != null) /// null == Account
+		{
+			Assosiated = executed;
+	
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			Assosiated.Write(w);
+		
+			batch.Put(new byte[]{0}, s.ToArray(), MetaColumn);
+		}
 	}
 
 	public override void Clear()
 	{
 		Clusters.Clear();
 
-		Rocks.DropColumnFamily(StateColumnName);
+		Rocks.DropColumnFamily(MetaColumnName);
 		Rocks.DropColumnFamily(ClusterColumnName);
 		Rocks.DropColumnFamily(BucketColumnName);
 		Rocks.DropColumnFamily(EntityColumnName);
 
-		StateColumn		= Rocks.CreateColumnFamily(new (), StateColumnName);
+		MetaColumn		= Rocks.CreateColumnFamily(new (), MetaColumnName);
 		ClusterColumn	= Rocks.CreateColumnFamily(new (), ClusterColumnName);
 		BucketColumn	= Rocks.CreateColumnFamily(new (), BucketColumnName);
 		EntityColumn	= Rocks.CreateColumnFamily(new (), EntityColumnName);
@@ -634,44 +688,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		//}
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, ITableState executed,  Round lastInCommit)
-	{
-		if(!entities.Any())
-			return;
-
-		var bs = new HashSet<Bucket>();
-		var cs = new HashSet<Cluster>();
-
-		foreach(var i in entities.DistinctBy(i => i.Key).Cast<E>())
-		{
-			var c = GetCluster(ClusterFromBucket(i.Key.B));
-			var b = c.GetBucket(i.Key.B);
-
-			if(!i.Deleted)
-				b.Add(batch, i);
-			else
-				b.Remove(batch, i.Key as ID);
-
-			if(i.Key is AutoId id)
-				if(b.NextE < id.E + 1)
-					b.NextE = id.E + 1;
-
-			bs.Add(b);
-			cs.Add(c);
-		}
-
-		foreach(var i in bs)
-		{
-			i.Cleanup(lastInCommit);
-			i.Commit(batch);
-		}
-
-		foreach(var i in cs)
-			i.Save(batch);
-
-		//CalculateSuperClusters();
-	}
-
 	///public override long MeasureChanges(IEnumerable<Round> tail)
 	///{
 	///	var affected = new Dictionary<K, E>();
@@ -717,13 +733,21 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	///}
 }
 
-public interface ITableState
-{
-	void Absorb(ITableState execution);
-	void StartRoundExecution(Round round);
+public abstract class TableStateBase
+{	
+	public abstract void	Absorb(TableStateBase execution);
+	public abstract void	StartRoundExecution(Round round);
+
+	public virtual void Write(BinaryWriter writer)
+	{
+	}
+
+	public virtual void Read(BinaryReader reader)
+	{
+	}
 }
 
-public class TableState<ID, E> : ITableState where ID : EntityId, new() where E : class, ITableEntry
+public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry
 {
 	public Dictionary<ID, E>	Affected = new();
 	public Table<ID, E>			Table;
@@ -733,12 +757,12 @@ public class TableState<ID, E> : ITableState where ID : EntityId, new() where E 
 		Table = table;
 	}
 
-	public virtual void StartRoundExecution(Round round)
+	public override void StartRoundExecution(Round round)
 	{
 		Affected.Clear();
 	}
 
-	public virtual void Absorb(ITableState execution)
+	public override void Absorb(TableStateBase execution)
 	{
 		var e = execution as TableState<ID, E>;
 

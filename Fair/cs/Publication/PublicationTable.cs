@@ -62,6 +62,8 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
  
 	public Publication Create(Site site)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.PublicationsCount);
+
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();

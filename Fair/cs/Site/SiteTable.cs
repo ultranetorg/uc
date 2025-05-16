@@ -7,7 +7,7 @@ public class SiteTable : Table<AutoId, Site>
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public SiteTable(FairMcv rds) : base(rds)
+	public SiteTable(FairMcv mcv) : base(mcv)
 	{
 	}
 	
@@ -27,7 +27,7 @@ public class SiteTable : Table<AutoId, Site>
 			w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname}];
 		}
 
-		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
+		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
 
 		e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
@@ -37,7 +37,9 @@ public class SiteTable : Table<AutoId, Site>
 		}
 	
 		Mcv.SiteTitles.Commit(batch, e.SiteTitles.Affected.Values, e.SiteTitles, lastincommit);
-		(lastincommit as FairRound).SiteTitles = new (Mcv.SiteTitles) { EntryPoints = e.SiteTitles.EntryPoints};
+		(lastincommit as FairRound).SiteTitles = new (Mcv.SiteTitles){
+																		EntryPoints = e.SiteTitles.EntryPoints
+																	 };
 	}
 
 	public SearchResult[] Search(string query, int skip, int take)
@@ -63,6 +65,8 @@ public class SiteExecution : TableExecution<AutoId, Site>
 
 	public Site Create(Account signer)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.SitesCount);
+
 		var b = Execution.Mcv.Accounts.KeyToBucket(signer.Address);
 		
 		int e = Execution.GetNextEid(Table, b);
