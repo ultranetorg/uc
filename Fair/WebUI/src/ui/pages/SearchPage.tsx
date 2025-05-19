@@ -49,7 +49,7 @@ export const SearchPage = () => {
     <div className="flex flex-col gap-3">
       <div className="flex gap-3">
         <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
-        <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
+        <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
       </div>
       <PublicationsList publications={publications!.items} isPending={isPending} siteId={siteId!} />
     </div>

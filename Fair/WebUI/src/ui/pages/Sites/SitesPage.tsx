@@ -62,6 +62,7 @@ export const SitesPage = () => {
       if (e.key === "Enter") {
         setQuery(liteQuery)
         setState({ query: liteQuery, page: 0 })
+        setPage(0)
       }
     },
     [liteQuery, setState],
@@ -70,7 +71,16 @@ export const SitesPage = () => {
   const handleSearchClick = useCallback(() => {
     setQuery(liteQuery)
     setState({ query: liteQuery, page: 0 })
+    setPage(0)
   }, [liteQuery, setState])
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setState({ query: query, page: page })
+      setPage(page)
+    },
+    [query, setState],
+  )
 
   return (
     <div className="flex flex-col items-center gap-6 py-16">
@@ -94,7 +104,7 @@ export const SitesPage = () => {
         itemsCount={sites?.items.length ?? defaultSites?.length ?? 0}
         error={error}
       />
-      {sites && <Pagination page={page} pagesCount={pagesCount} onClick={setPage} />}
+      {sites && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
     </div>
   )
 }
