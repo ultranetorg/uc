@@ -33,10 +33,8 @@ export const SitesPage = () => {
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
 
   const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultSites(!query)
-
   const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-
   const { isFetching, data: sites, error } = useSearchSites(query, state.page)
 
   const handleChange = useCallback(
@@ -75,19 +73,17 @@ export const SitesPage = () => {
     <div className="flex flex-col items-center gap-6 py-16">
       <PageHeader title={t("title")} description={t("description")} />
       <div className="w-full max-w-[820px]">
-        <div className="flex w-full">
-          <SearchDropdown
-            className="w-full"
-            isLoading={isLiteFetching}
-            inputValue={state.query}
-            items={liteItems}
-            onChange={handleChange}
-            onClearInputClick={handleClearInputClick}
-            onInputChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onSearchClick={handleSearchClick}
-          />
-        </div>
+        <SearchDropdown
+          className="w-full"
+          isLoading={isLiteFetching}
+          inputValue={state.query}
+          items={liteItems}
+          onChange={handleChange}
+          onClearInputClick={handleClearInputClick}
+          onInputChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onSearchClick={handleSearchClick}
+        />
       </div>
       <SitesList
         isFetching={isFetching ?? isDefaultSitesFetching}
