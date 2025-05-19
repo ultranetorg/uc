@@ -72,7 +72,7 @@ export const PublicationPage = () => {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <Select items={pageSizes} value={reviewPageSize} onChange={handlePageSizeChange} />
-          <Pagination pagesCount={pagesCount} onClick={setReviewsPage} page={reviewsPage} />
+          <Pagination pagesCount={pagesCount} onPageChange={setReviewsPage} page={reviewsPage} />
         </div>
         <div>REVIEWS: {publication.reviewsCount}</div>
         <ReviewsList isPending={isPending || isPendingReviews} reviews={reviews} error={error} />

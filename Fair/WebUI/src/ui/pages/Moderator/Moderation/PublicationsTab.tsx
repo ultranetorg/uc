@@ -43,7 +43,7 @@ export const PublicationsTab = () => {
         <span>Publications</span>
         <Input placeholder="Search by title or description" value={search} onChange={setSearch} />
         <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
-        <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
+        <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
       </div>
       <div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>

@@ -298,7 +298,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
 	/// 	}
 
-	public IEnumerable<E> Search(D query, int skip, int k, Func<E, bool> criteria, Func<HnswId, E> find, List<E> entrypoints)
+	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> find, List<E> entrypoints)
 	{
 		if(entrypoints.Count == 0)
 			return [];
@@ -309,12 +309,12 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		for(var level = current.Level; level >= 1; level--)
 			current = SearchBestNeighbor(query, current, level, find);
 
-		var resultNodes = EfSearch(query, current, 0, k * 2, skip, criteria, find);
+		var resultNodes = EfSearch(query, current, 0, (skip + take) * 2, criteria, find);
 
-		return resultNodes.Take(k);
+		return resultNodes.Skip(skip).Take(take);
 	}
 
-	public IEnumerable<E> EfSearch(D query, E entry, int level, int ef, int skip, Func<E, bool> criteria, Func<HnswId, E> find)
+	public IEnumerable<E> EfSearch(D query, E entry, int level, int ef, Func<E, bool> criteria, Func<HnswId, E> find)
 	{
 		var visited = new HashSet<HnswId>();
 		var candidates = new PriorityQueue<E, int>();
@@ -350,12 +350,6 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 				var neighbor = find(neighborId);
 
-				if(skip > 0)
-				{	
-					skip--;
-					continue;
-				}
-
 				int dist = Metric.ComputeDistance(query, neighbor.Data);
 
 				var candidate = (dist, neighbor);
@@ -370,7 +364,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 			}
 		}
 
-		return topCandidates.Select(x => x.node).ToArray();
+		return topCandidates.Select(x => x.node);
 	}
 
 	private E SearchBestNeighbor(D query, E start, int level, Func<HnswId, E> find)

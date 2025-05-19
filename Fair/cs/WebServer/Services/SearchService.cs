@@ -17,8 +17,6 @@ public class SearchService
 		Guard.Against.NullOrEmpty(siteId);
 
 		AutoId id = AutoId.Parse(siteId);
-		string queryLowercase = query.ToLowerInvariant();
-		int skip = page * pageSize;
 
 		lock (mcv.Lock)
 		{
@@ -65,8 +63,6 @@ public class SearchService
 		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId id = AutoId.Parse(siteId);
-		string queryLowercase = query.ToLowerInvariant();
-		int skip = page * pageSize;
 
 		lock (mcv.Lock)
 		{
