@@ -6,6 +6,7 @@ import { PropsWithClassName } from "types"
 import { CustomSelect, IndicatorsContainer } from "./components"
 import { styles } from "./styles"
 import { IndicatorsContainerSelectProps, SearchDropdownItem } from "./types"
+import { twMerge } from "tailwind-merge"
 
 export type SearchDropdownBaseProps = {
   isLoading?: boolean
@@ -76,7 +77,7 @@ export const SearchDropdown = memo(
 
     return (
       <CustomSelect
-        className={className}
+        className={twMerge("border-gray-300 bg-gray-100 hover:border-gray-400", className)}
         inputValue={inputValue}
         isLoading={isLoading}
         menuIsOpen={isDropdownOpen}
