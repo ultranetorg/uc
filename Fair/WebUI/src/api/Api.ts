@@ -27,7 +27,7 @@ export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
 
-  searchSites(query?: string, page?: number): Promise<PaginationResult<SiteBase>>
+  searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<PaginationResult<PublicationExtended>>
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>

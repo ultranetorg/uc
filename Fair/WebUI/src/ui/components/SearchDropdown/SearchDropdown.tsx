@@ -9,6 +9,7 @@ import { IndicatorsContainerSelectProps, SearchDropdownItem } from "./types"
 
 export type SearchDropdownBaseProps = {
   isLoading?: boolean
+  inputValue?: string
   items?: SearchDropdownItem[]
   onChange?: (item?: SearchDropdownItem) => void
   onClearInputClick?: (e: MouseEvent<HTMLDivElement>) => void
@@ -23,6 +24,7 @@ export const SearchDropdown = memo(
   ({
     className,
     isLoading,
+    inputValue: propInputValue,
     items,
     onChange,
     onClearInputClick,
@@ -30,7 +32,7 @@ export const SearchDropdown = memo(
     onKeyDown,
     onSearchClick,
   }: SearchDropdownProps) => {
-    const [inputValue, setInputValue] = useState("")
+    const [inputValue, setInputValue] = useState(propInputValue)
     const [isDropdownOpen, setDropdownOpen] = useState(false)
 
     const handleBlur = () => setDropdownOpen(false)

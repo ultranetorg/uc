@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
-import { useSearchContext } from "app"
+import { useSearchQueryContext } from "app"
 import { PAGE_SIZES } from "constants"
 import { useSearchPublications } from "entities"
 import { Pagination, PublicationsList, Select, SelectItem } from "ui/components"
@@ -11,10 +11,18 @@ const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), valu
 
 export const SearchPage = () => {
   const { page, setPage, pageSize, setPageSize } = usePagePagination()
-  const { search: contextSearch } = useSearchContext()
+  const { query, onSearchEvent } = useSearchQueryContext()
 
   const { siteId } = useParams()
-  const { isPending, data: publications } = useSearchPublications(siteId, page, contextSearch, true)
+  const { isPending, data: publications } = useSearchPublications(siteId, page, query, true)
+
+  useEffect(() => {
+    const unsubscribe = onSearchEvent(() => {
+      console.log("search event")
+    })
+
+    return unsubscribe
+  }, [onSearchEvent])
 
   // TODO: fix.
   const pagesCount = 10
@@ -41,7 +49,7 @@ export const SearchPage = () => {
     <div className="flex flex-col gap-3">
       <div className="flex gap-3">
         <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
-        <Pagination pagesCount={pagesCount} onClick={setPage} page={page} />
+        <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
       </div>
       <PublicationsList publications={publications!.items} isPending={isPending} siteId={siteId!} />
     </div>

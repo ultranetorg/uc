@@ -1,6 +1,7 @@
 export const enUS = {
   common: {
     home: "Home",
+    next: "Next",
   },
   sites: {
     title: "Explore Multiple\nDecentralized Stores",

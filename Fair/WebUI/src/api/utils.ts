@@ -1,12 +1,12 @@
 import { TotalItemsResult, PaginationResult } from "types"
 
-type ParamsValue = string | number | undefined
+type ParamsTypes = string | number | undefined
 
-type FilterRules<T extends Record<string, ParamsValue>> = {
+type FilterRules<T extends Record<string, ParamsTypes>> = {
   [K in keyof T]?: (value: T[K]) => boolean
 }
 
-export const buildUrlParams = <T extends Record<string, ParamsValue>>(
+export const buildUrlParams = <T extends Record<string, ParamsTypes>>(
   paramsObj: T,
   filters: FilterRules<T> = {},
 ): string => {

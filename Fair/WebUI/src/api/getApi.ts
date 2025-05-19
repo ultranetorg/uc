@@ -33,10 +33,10 @@ const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/defa
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
 
-const searchSites = async (query?: string, page?: number): Promise<PaginationResult<SiteBase>> => {
+const searchSites = async (query?: string, page?: number): Promise<TotalItemsResult<SiteBase>> => {
   const params = buildUrlParams({ query, page })
   const res = await fetch(`${BASE_URL}/sites` + params)
-  return await toPaginationResult(res)
+  return await toTotalItemsResult(res)
 }
 
 const searchLiteSites = async (query?: string): Promise<SiteLiteSearch[]> =>

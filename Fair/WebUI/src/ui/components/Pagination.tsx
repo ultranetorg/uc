@@ -7,12 +7,12 @@ import { PropsWithClassName } from "types"
 type PaginationBaseProps = {
   page: number
   pagesCount: number
-  onClick(page: number): void
+  onPageChange(page: number): void
 }
 
 export type PaginationProps = PropsWithClassName & PaginationBaseProps
 
-export const Pagination = memo(({ className, page, pagesCount, onClick }: PaginationProps) => {
+export const Pagination = memo(({ className, page, pagesCount, onPageChange }: PaginationProps) => {
   return (
     <div className="flex gap-2">
       Pagination{" "}
@@ -20,7 +20,7 @@ export const Pagination = memo(({ className, page, pagesCount, onClick }: Pagina
         <div
           className={twMerge("cursor-pointer", i === page && "text-red-500", className)}
           key={i}
-          onClick={() => onClick(i)}
+          onClick={() => onPageChange(i)}
         >
           {i}
         </div>

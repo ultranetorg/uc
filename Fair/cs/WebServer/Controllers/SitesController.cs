@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -30,9 +31,9 @@ public class SitesController
 		siteSearchQueryValidator.Validate(query);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		IEnumerable<SiteBaseModel> sites = searchService.SearchSites(query, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<SiteBaseModel> sites = searchService.SearchSites(query, pageValue, pageSizeValue, cancellationToken);
 
-		return this.OkPaged(sites, pageValue, pageSizeValue);
+		return this.OkPaged(sites.Items, pageValue, pageSizeValue, sites.TotalItems);
 	}
 
 	[HttpGet("search")]
