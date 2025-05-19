@@ -117,7 +117,7 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 	{
 		for(byte l = 0; l <= node.Level; l++)
 		{
-			var neighbors = EntryPoints.Count > 0 ? Table.EfSearch(node.Data, EntryPoints[0], l, Table.EfConstruction, 0, null, Find) : [];
+			var neighbors = EntryPoints.Count > 0 ? Table.EfSearch(node.Data, EntryPoints[0], l, Table.EfConstruction, null, Find) : [];
 
 			if(neighbors.Count() == 0)
 			{
