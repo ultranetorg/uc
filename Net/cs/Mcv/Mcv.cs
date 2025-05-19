@@ -40,6 +40,7 @@ public abstract class Mcv /// Mutual chain voting
 	static readonly byte[]						__GraphHashKey = [0x02];
 	static readonly byte[]						ChainStateKey = [0x03];
 	static readonly byte[]						GenesisKey = [0x04];
+	public MetaTable							Metas;
 	public AccountTable							Accounts;
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
@@ -47,14 +48,13 @@ public abstract class Mcv /// Mutual chain voting
 	public ConsensusDelegate					ConsensusConcluded;
 	public RoundDelegate						Commited;
 
-	bool										_init = true;
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
 												{
 													set => _Tail = value;
 													get 
 													{
-														if(!_init && !Monitor.IsEntered(Lock))
+														if(!Monitor.IsEntered(Lock))
 															Debugger.Break();
 
 														return _Tail;
@@ -126,8 +126,6 @@ public abstract class Mcv /// Mutual chain voting
 				}
 			}
 		}
-
-		_init = false;
 	}
 
 	public Mcv(McvNet net, McvSettings settings, string databasepath, IClock clock) : this(net, settings, databasepath)
@@ -529,17 +527,8 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			if(round.IsLastInCommit)
 			{
-				//if(LastCommittedRound != null && LastCommittedRound != round.Previous)
-				//	throw new IntegrityException("Id % 100 == 0 && LastConfirmedRound != Previous");
-
-				//var tail = Tail.AsEnumerable().Reverse().Take(Net.CommitLength);
-
-				//foreach(var r in tail)
-				//	foreach(var t in Tables)
-				//		t.Commit(b, r.AffectedByTable(t).Values, round);
-
 				foreach(var t in Tables)
-					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>), round.FindState<ITableState>(t), round);
+					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>).DistinctBy(i => i.Key), round.FindState<TableStateBase>(t), round);
 
 				LastDissolvedRound = round;
 					

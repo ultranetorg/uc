@@ -106,7 +106,7 @@ public class PublicationUpdation : VotableOperation
 				r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
 
 				if(f.Name == ProductField.Title)
-					execution.PublicationTitles.Deindex(execution.Categories.Find(p.Category).Site, p, r.Get(prev).AsUtf8);
+					execution.PublicationTitles.Deindex(execution.Categories.Find(p.Category).Site, r.Get(prev).AsUtf8);
 			}
 	
 			/// increase refs in product

@@ -23,6 +23,8 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 
 	public Review Create(Publication publication)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.ReviewsCount);
+
 		int e = Execution.GetNextEid(Table, publication.Id.B);
 
 		var a = Table.Create();

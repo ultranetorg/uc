@@ -30,6 +30,6 @@ public class FairAccountTable : AccountTable
 					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AccountNickname}];
 				}
 	
-		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
+		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
 	}
 }

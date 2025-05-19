@@ -53,6 +53,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										Spacetimes = [];
 	public long[]										Bandwidths = [];
 
+	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
 	public Dictionary<AutoId, Account>					AffectedAccounts = new();
 	public Dictionary<int, int>[]						NextEids;
 
@@ -119,11 +120,12 @@ public abstract class Round : IBinarySerializable
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
 		if(table == Mcv.Accounts)	return AffectedAccounts;
+		if(table == Mcv.Metas)	return AffectedMetas;
 
 		throw new IntegrityException();
 	}
 
-	public virtual S FindState<S>(TableBase table) where S : class, ITableState
+	public virtual S FindState<S>(TableBase table) where S : TableStateBase
 	{
 		return null;
 	}
@@ -382,13 +384,14 @@ public abstract class Round : IBinarySerializable
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
 		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
 
+		AffectedMetas.Clear();
 		AffectedAccounts.Clear();
 		
 		foreach(var i in NextEids)
 			i.Clear();
 
 		foreach(var i in Mcv.Tables)
-			FindState<ITableState>(i)?.StartRoundExecution(this);
+			FindState<TableStateBase>(i)?.StartRoundExecution(this);
 
 		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 		{
@@ -488,6 +491,9 @@ public abstract class Round : IBinarySerializable
 
 	public virtual void Absorb(Execution execution)
 	{
+		foreach(var i in execution.AffectedMetas)
+			AffectedMetas[i.Key] = i.Value;
+
 		foreach(var i in execution.AffectedAccounts)
 			AffectedAccounts[i.Key] = i.Value;
 

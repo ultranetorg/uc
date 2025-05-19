@@ -13,7 +13,7 @@ public class FairRound : Round
 	public TableState<AutoId, Dispute>							Disputes;
 	public TableState<RawId, Word>								Words;
 	public HnswTableState<string, StringToDictionaryHnswEntity>	PublicationTitles;
-	public HnswTableState<string, StringHnswEntity>				SiteTitles;
+	public HnswTableState<string, StringToOneHnswEntity>		SiteTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
 	{
@@ -73,6 +73,7 @@ public class FairRound : Round
 	
 	public override void Absorb(Execution execution)
 	{
+
 		base.Absorb(execution);
 
 		var e = execution as FairExecution;

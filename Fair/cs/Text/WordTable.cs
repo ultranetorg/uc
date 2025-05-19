@@ -31,6 +31,8 @@ public class WordExecution : TableExecution<RawId, Word>
 
 		if(a == null)
 		{
+			Execution.IncrementCount((int)FairMetaEntityType.WordsCount);
+
 			a = Table.Create();
 			a.Id = id;
 			a.References = [];

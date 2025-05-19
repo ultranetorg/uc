@@ -28,7 +28,7 @@ public class AuthorTable : Table<AutoId, Author>
 					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname}];
 				}
 	
-		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, null);
+		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
 	}
 }
 
@@ -50,6 +50,8 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		a.Owners = [];
 		a.Sites = [];
 		a.Nickname = "";			
+
+		Execution.IncrementCount((int)FairMetaEntityType.AuthorsCount);
 
 		return Affected[a.Id] = a;
 	}

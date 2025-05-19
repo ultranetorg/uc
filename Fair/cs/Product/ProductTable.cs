@@ -42,6 +42,8 @@ public class ProductExecution : TableExecution<AutoId, Product>
 
 	public Product Create(Author author)
 	{
+		Execution.IncrementCount((int)FairMetaEntityType.ProductsCount);
+
 		int e = Execution.GetNextEid(Table, author.Id.B);
 
   		var	p = new Product();

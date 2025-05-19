@@ -3,9 +3,23 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
+public enum FairMetaEntityType : int
+{
+	AuthorsCount = MetaEntityType._Last + 1,
+	ProductsCount,
+	SitesCount,
+	CategoriesCount,
+	PublicationsCount,
+	ReviewsCount,
+	DisputesCount,
+	WordsCount,
+
+	SiteTitleEntryPoint,
+	PublicationTitleEntryPoint,
+}
+
 public class FairMcv : Mcv
 {
-	IPAddress[]							GraphIPs;
 	public AuthorTable					Authors;
 	public ProductTable					Products;
 	public SiteTable					Sites;
@@ -17,6 +31,7 @@ public class FairMcv : Mcv
 	public PublicationTitleIndex		PublicationTitles;
 	public SiteTitleIndex				SiteTitles;
 
+	IPAddress[]							GraphIPs;
 	public new IEnumerable<FairRound>	Tail => base.Tail.Cast<FairRound>();
 
 	public FairMcv()
@@ -30,80 +45,6 @@ public class FairMcv : Mcv
 	public FairMcv(Fair net, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(net, settings, databasepath, clock)
 	{
 		GraphIPs = baseips;
-
-/*
-		var luceneVersion = LuceneVersion.LUCENE_48; 
-
-		var indexDir = FSDirectory.Open(Path.Join(databasepath, "Lucene"));
-
-		LuceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
-
-		var indexConfig = new IndexWriterConfig(luceneVersion, LuceneAnalyzer);
-		indexConfig.OpenMode = OpenMode.CREATE_OR_APPEND;
-		LuceneWriter = new IndexWriter(indexDir, indexConfig);
-
-/ *
-  		var a = new Document();
-  		a.Add(new StringField("t", "The great application", Field.Store.YES));
-  		a.Add(new TextField("s", "111-11 567-22\n222-22 567-44", Field.Store.YES));
-  		LuceneWriter.AddDocument(a);
-  		var b = new Document();
-  		b.Add(new StringField("t", "The great", Field.Store.YES));
-  		b.Add(new TextField("s", "1111-11 5678-22\n333-33 9999-66", Field.Store.YES));
-  		LuceneWriter.AddDocument(b);
-  		
-  		LuceneWriter.Commit();
- 
-  		var reader = LuceneWriter.GetReader(applyAllDeletes: true);
-  		var LuceneSearcher = new IndexSearcher(reader);
-  
-  		var q = new BooleanQuery();
-  		q.Add(new TermQuery(new Term("s", "111-11")), Occur.MUST);
-
-		//var phq = new PhraseQuery();
-		//phq.Add(new Term("id", "The"));
-		//phq.Add(new Term("id", "great"));
-  
-  		var docs = LuceneSearcher.Search(q, 10);
-  
-  		var d = LuceneSearcher.Doc(docs.ScoreDocs[0].Doc);* /
-
-		Commited += r => { 
-							using var rd = LuceneWriter.GetReader(applyAllDeletes: true);
-							var s = new IndexSearcher(rd);
-
-							foreach(var i in (r as FairRound).AffectedTexts.Values)
-							{
-								if(!i.Deleted)
-								{
-									var t = new Term("e", $"s{i.Site} {i.Address.Entity}");
-
-									var docs = s.Search(new TermQuery(t), 1);
-
-									if(docs.TotalHits == 0)
-									{	
-										var d = new Document();
-										d.Add(new TextField("t", i.Text, Field.Store.YES));
-										d.Add(new TextField("e", t.Text, Field.Store.YES));
-
-										LuceneWriter.AddDocument(d);
-									}
-									else
-									{	
-										var d = s.Doc(docs.ScoreDocs[0].Doc);
-
-										d.Add(new TextField("e", $"{d.Get("e")}\n{t.Text}", Field.Store.YES));
-
-										LuceneWriter.UpdateDocument(t, d);
-									}
-								}
-								else
-								{
-								}
-							}
-						
-							LuceneWriter.Commit();
-						 };*/
 	}
 
 	public string CreateGenesis(AccountKey god, AccountKey f0)
@@ -143,6 +84,7 @@ public class FairMcv : Mcv
 
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
+		Metas = new (this);
 		Accounts = new FairAccountTable(this);
 		Authors = new (this);
 		Products = new (this);
@@ -155,7 +97,7 @@ public class FairMcv : Mcv
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

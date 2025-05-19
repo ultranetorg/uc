@@ -21,108 +21,15 @@ public class PublicationTitleIndex : HnswTable<string, StringToDictionaryHnswEnt
 	}
 }
 
-// public class PublicationTitleState : HnswTableState<string, StringHnswEntity>
-// {
-// 	public PublicationTitleState(HnswTable<string, StringHnswEntity> table) : base(table)
-// 	{
-// 	}
-// }
-
 public class PublicationTitleExecution : StringHnswTableExecution<StringToDictionaryHnswEntity>
 {
 	public PublicationTitleExecution(FairExecution execution) : base(execution, execution.Mcv.PublicationTitles)
 	{
-		EntryPoints = execution.Round.PublicationTitles?.EntryPoints ?? Table.EntryPoints;
 	}
 
-// 	public override StringHnswEntity Affect(HnswId id)
-// 	{
-//  		if(Affected.TryGetValue(id, out var a))
-//  			return a;
-//  		
-//  		a = Table.Find(id, Execution.Round.Id);
-//  
-//  		if(a == null)
-//  		{
-//  			a = Table.Create();
-//  			a.Id = id;
-//  			a.Connections = [];
-//  			a.References = [];
-//  		
-//  			return Affected[id] = a;
-//  		} 
-//  		else
-//  		{
-// 			a = a.Clone() as StringHnswEntity;
-// 
-// 			var e = EntryPoints.Find(i => i.Id == a.Id);
-// 			
-// 			if(e != null)
-// 			{
-// 				AffectEntryPoints();
-// 				EntryPoints.Remove(e);
-// 				EntryPoints.Add(a);
-// 			}
-// 
-//  			return Affected[id] = a;
-//  		}
-// 	}
-// 
-// 	public StringHnswEntity Find(string text)
-//  	{
-// 		var e = Affected.Values.FirstOrDefault(i => i.Text == text);
-// 
-//  		if(e != null)
-// 			if(!e.Deleted)
-//     			return e;
-// 			else
-// 				return null;
-// 
-//   		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
-// 		{	
-// 			e = i.FindState<HnswTableState<string, StringHnswEntity>>(Table).Affected.Values.FirstOrDefault(i => i.Text == text);
-// 			if(e != null)
-// 				if(!e.Deleted)
-//     				return e;
-// 				else
-// 					return null;
-// 		}
-// 
-//  		var x = Encoding.UTF8.GetBytes(text, 0, Math.Min(text.Length, 32));
-//  		var b = HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
-//  		
-// 		e = Table.FindBucket(b)?.Entries.FirstOrDefault(i => i.Text == text);
-// 
-// 		if(e != null)
-// 			if(!e.Deleted)
-//     			return e;
-// 			else
-// 				return null;
-// 
-// 		return null;
-//  	}
-// 
   	public void Index(AutoId site, AutoId entity, string text)
   	{
- 		text = text.ToLowerInvariant();
- 
- 		var e =	Find(text);
- 
-  		if(e == null)
-  		{
-			var b = DataToBucket(text);
-
-  			var id = new HnswId(b, Execution.GetNextEid(Table, b));
-  	
-  			e = Affect(id);
-  	
-  			e.Text = text;
- 			//e.Hash = Metric.Hashify(text);
-  			
-  			Add(e);
-  		}
-  		else
- 			e = Affect(e.Id);
+ 		var e = Index(entity, text);
  
   		if(!e.References.ContainsKey(site))
   		{	
@@ -131,13 +38,9 @@ public class PublicationTitleExecution : StringHnswTableExecution<StringToDictio
   		}
   	}
  
-  	public void Deindex(AutoId site, Publication publication, string text)
+  	public void Deindex(AutoId site, string text)
   	{
- 		text = text.ToLowerInvariant();
- 
-  		var e =	Find(text);
- 	
- 		e = Affect(e.Id);
+ 		var e = Affect(text);
  	
  		e.References = new (e.References);
  		e.References.Remove(site);
