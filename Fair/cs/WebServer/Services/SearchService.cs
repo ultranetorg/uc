@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -74,10 +75,10 @@ public class SearchService
 		}
 	}
 
-	public IEnumerable<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
-			return Enumerable.Empty<SiteBaseModel>();
+			return TotalItemsResult<SiteBaseModel>.Empty;
 
 		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with{{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
@@ -89,15 +90,21 @@ public class SearchService
 			SearchResult[] searchResult = mcv.Sites.Search(query ?? "", page * pageSize, pageSize);
 			if (searchResult.Length == 0)
 			{
-				return Enumerable.Empty<SiteBaseModel>();
+				return TotalItemsResult<SiteBaseModel>.Empty;
 			}
 
 			List<SiteBaseModel> result = new List<SiteBaseModel>(searchResult.Length);
-			return LoadSites(searchResult, result, cancellationToken);
+			LoadSites(searchResult, result, cancellationToken);
+
+			return new TotalItemsResult<SiteBaseModel>
+			{
+				Items = result,
+				TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int) FairMetaEntityType.SitesCount)).Value)
+			};
 		}
 	}
 
-	IList<SiteBaseModel> LoadSites(SearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
+	void LoadSites(SearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
 	{
 		foreach (SearchResult search in searchResult)
 		{
@@ -108,8 +115,6 @@ public class SearchService
 			SiteBaseModel model = new SiteBaseModel(site);
 			result.Add(model);
 		}
-
-		return result;
 	}
 
 	public IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)

@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
-import { SEARCH_DELAY } from "constants"
+import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "constants"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
 import { useUrlParamsState } from "hooks"
-import { SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
+import { Pagination, SearchDropdown, SearchDropdownItem, SitesList } from "ui/components"
 import { parseInteger } from "utils"
 
 import { PageHeader } from "./PageHeader"
@@ -28,6 +28,8 @@ export const SitesPage = () => {
     },
   })
 
+  const [page, setPage] = useState(state.page)
+
   const [query, setQuery] = useState(state.query)
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
@@ -35,7 +37,8 @@ export const SitesPage = () => {
   const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultSites(!query)
   const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-  const { isFetching, data: sites, error } = useSearchSites(query, state.page)
+  const { isFetching, data: sites, error } = useSearchSites(query, page)
+  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -91,6 +94,7 @@ export const SitesPage = () => {
         itemsCount={sites?.items.length ?? defaultSites?.length ?? 0}
         error={error}
       />
+      {sites && <Pagination page={page} pagesCount={pagesCount} onClick={setPage} />}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -10,7 +11,7 @@ public interface ISearchService
 	IEnumerable<PublicationBaseModel> SearchLitePublications([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string query,
 		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 
-	IEnumerable<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
+	TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		CancellationToken cancellationToken);
 
 	IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotNull][NotEmpty] string query, [NonNegativeValue] int page,
