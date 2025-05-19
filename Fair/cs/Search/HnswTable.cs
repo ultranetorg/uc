@@ -309,7 +309,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		for(var level = current.Level; level >= 1; level--)
 			current = SearchBestNeighbor(query, current, level, find);
 
-		var resultNodes = EfSearch(query, current, 0, take * 2, criteria, find);
+		var resultNodes = EfSearch(query, current, 0, (skip + take) * 2, criteria, find);
 
 		return resultNodes.Skip(skip).Take(take);
 	}
