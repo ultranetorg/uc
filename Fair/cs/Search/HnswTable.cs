@@ -341,14 +341,14 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		{
 			candidates.TryDequeue(out var current, out _);
 
-			foreach(var neighborId in current.Connections.GetValueOrDefault(level, []))
+			foreach(var id in current.Connections.GetValueOrDefault(level, []))
 			{
-				if(visited.Contains(neighborId))
+				if(visited.Contains(id))
 					continue;
 
-				visited.Add(neighborId);
+				visited.Add(id);
 
-				var neighbor = find(neighborId);
+				var neighbor = find(id);
 
 				int dist = Metric.ComputeDistance(query, neighbor.Data);
 

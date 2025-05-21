@@ -21,7 +21,7 @@ public class PackageAddApc : RdnApc
 			
 			lock(node.ResourceHub.Lock)
 			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Rdn_PackageManifest), a));
+				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Rdn_VersionManifest), a));
 				
 				var r = node.ResourceHub.Find(a) ?? node.ResourceHub.Add(a);
 

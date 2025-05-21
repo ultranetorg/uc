@@ -316,8 +316,8 @@ public class PackageHub
 
 		///Add(release, m);
 		
- 			lock(Node.ResourceHub.Lock)
- 			{
+ 		lock(Node.ResourceHub.Lock)
+ 		{
 			m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream.ToArray());
 			m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream.ToArray()) : null;
 
@@ -347,12 +347,12 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Rdn_PackageManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Rdn_VersionManifest), a);
 
 			workflow.Log?.Report(this, $"Address: {a}");
 
 			return r;
- 			}
+ 		}
 	}
  
 //  		public Urr AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Flow flow)

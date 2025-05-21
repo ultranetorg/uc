@@ -102,7 +102,7 @@ public enum ContentType
 	Applied						= 100,
 		Rdn						= 100_000,
 			Rdn_ProductManifest	= 100_000_000,
-			Rdn_PackageManifest	= 100_000_001,
+			Rdn_VersionManifest	= 100_000_001,
 			Rdn_Consil			= 100_000_002,
 			Rdn_Analysis		= 100_000_003,
 }

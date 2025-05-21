@@ -235,7 +235,7 @@ public class Uos : Cli
 				RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
 
 		if(d == null)
-			throw new UosException("Incorrent resource type");
+			throw new UosException("Incorrect resource type");
 
 		//Ura apr = null;
 		Ura aprv = null;
@@ -248,12 +248,12 @@ public class Uos : Cli
 
 			aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 		}
-		else if(d.Type.Content == ContentType.Rdn_PackageManifest)
+		else if(d.Type.Content == ContentType.Rdn_VersionManifest)
 		{
 			aprv = address;
 		}
 		else
-			throw new UosException("Incorrent resource type");
+			throw new UosException("Incorrect resource type");
 
 		RdnApi.DeployPackage(aprv, Settings.Packages, flow);
 
