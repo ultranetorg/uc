@@ -43,7 +43,7 @@ public class SitesController
 
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLiteSites(query, 0, Pagination.SearchLitePageSize, cancellationToken);
+		return searchService.SearchLiteSites(query, 0, SiteConstants.SEARCH_LITE_PAGE_SIZE, cancellationToken);
 	}
 
 	[HttpGet("{siteId}")]

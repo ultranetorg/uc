@@ -1,20 +1,29 @@
 import type { Config } from "tailwindcss"
-import defaultTheme from "tailwindcss/defaultTheme"
 
 export default {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
-    colors: {
-      gray: {
-        100: "#F3F4F9",
-        300: "#D2D4E4",
-        400: "#9798A6",
-        500: "#6B7280",
+    extend: {
+      animation: {
+        "spin-slow": "spin 3s linear infinite",
       },
-    },
-    screens: {
-      xs: "475px",
-      ...defaultTheme.screens,
+      colors: {
+        dark: {
+          100: "#14181F",
+        },
+        gray: {
+          50: "#FCFCFD",
+          200: "#E8E9F1",
+          100: "#F3F4F9",
+          300: "#D2D4E4",
+          400: "#9798A6",
+          500: "#737582",
+          800: "#2A2932",
+        },
+      },
+      screens: {
+        xs: "475px",
+      },
     },
   },
 } satisfies Config

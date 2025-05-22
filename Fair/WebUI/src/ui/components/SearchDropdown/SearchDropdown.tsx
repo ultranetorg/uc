@@ -3,15 +3,16 @@ import { InputActionMeta } from "react-select"
 
 import { PropsWithClassName } from "types"
 
-import { CustomSelect, IndicatorsContainer } from "./components"
+import { CustomSelect, IndicatorsContainer, LoadingMessage, Menu, Option } from "./components"
 import { styles } from "./styles"
 import { IndicatorsContainerSelectProps, SearchDropdownItem } from "./types"
-import { twMerge } from "tailwind-merge"
 
 export type SearchDropdownBaseProps = {
   isLoading?: boolean
   inputValue?: string
   items?: SearchDropdownItem[]
+  noticeMessage?: string
+  placeholder?: string
   onChange?: (item?: SearchDropdownItem) => void
   onClearInputClick?: (e: MouseEvent<HTMLDivElement>) => void
   onInputChange?: (value: string) => void
@@ -27,6 +28,8 @@ export const SearchDropdown = memo(
     isLoading,
     inputValue: propInputValue,
     items,
+    noticeMessage,
+    placeholder,
     onChange,
     onClearInputClick,
     onInputChange,
@@ -77,12 +80,14 @@ export const SearchDropdown = memo(
 
     return (
       <CustomSelect
-        className={twMerge("border-gray-300 bg-gray-100 hover:border-gray-400", className)}
+        className={className}
         inputValue={inputValue}
         isLoading={isLoading}
         menuIsOpen={isDropdownOpen}
         menuPortalTarget={document.body}
         options={isDropdownOpen ? items : undefined}
+        placeholder={placeholder}
+        noticeMessage={noticeMessage}
         onBlur={handleBlur}
         onChange={handleChange}
         onClearInputClick={handleClearInputClick}
@@ -93,7 +98,8 @@ export const SearchDropdown = memo(
         filterOption={() => true}
         noOptionsMessage={() => null}
         styles={styles}
-        components={{ IndicatorsContainer, DropdownIndicator: () => null, IndicatorSeparator: () => null }}
+        components={{ IndicatorsContainer, LoadingMessage, Menu, Option }}
+        maxMenuHeight={360}
       />
     )
   },
