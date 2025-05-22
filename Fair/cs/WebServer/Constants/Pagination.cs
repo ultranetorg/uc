@@ -8,7 +8,5 @@ public static class Pagination
 
 	public static int[] AllowedPageSizes = [ 5, 10, 20, 50 ];
 
-	public const int SearchLitePageSize = 10;
-
 	public const int PublicationsSearchPageSize = 30;
 }

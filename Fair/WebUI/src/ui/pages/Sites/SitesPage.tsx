@@ -91,6 +91,8 @@ export const SitesPage = () => {
           isLoading={isLiteFetching}
           inputValue={state.query}
           items={liteItems}
+          noticeMessage={t("notice")}
+          placeholder={t("placeholder")}
           onChange={handleChange}
           onClearInputClick={handleClearInputClick}
           onInputChange={handleInputChange}
