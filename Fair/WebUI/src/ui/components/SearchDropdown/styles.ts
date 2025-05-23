@@ -13,6 +13,7 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     "&:hover": {
       borderColor: "#9798A6",
     },
+    height: "52px",
   }),
   input: base => ({ ...base, color: "#2A2932" }),
   menu: base => ({
@@ -37,7 +38,7 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     display: "flex",
     gap: "8px",
     lineHeight: "18px",
-    padding: "12px 8px",
+    padding: "11px 8px",
   }),
   placeholder: base => ({
     ...base,
@@ -45,8 +46,7 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
   }),
   valueContainer: base => ({
     ...base,
-    paddingLeft: "18px",
-    paddingRight: "18px",
+    padding: "0px 14px 0px 18px",
   }),
 
   // Hidden components.
