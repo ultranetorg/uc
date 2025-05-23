@@ -317,9 +317,9 @@ public abstract class VotableOperation : FairOperation
  	public abstract bool Overlaps(VotableOperation other);
 	//public abstract void Execute(FairExecution mcv, bool validate);
 
-	protected void PayForModeration(FairExecution round, Publication publication, Author author)
+	protected void PayForModeration(FairExecution execution, Publication publication, Author author)
 	{
-		var s = round.Sites.Affect(round.Categories.Find(publication.Category).Site);
+		var s = execution.Sites.Affect(publication.Site);
 
 		author.Energy -= author.ModerationReward;
 		Signer.Energy += author.ModerationReward;

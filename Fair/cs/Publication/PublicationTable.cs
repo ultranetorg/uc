@@ -22,7 +22,7 @@ public class PublicationTable : Table<AutoId, Publication>
 
 		foreach(var i in GraphEntities)
 		{
-			var c = e.Categories.Find(i.Category);
+			//var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
 			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
 
@@ -30,7 +30,7 @@ public class PublicationTable : Table<AutoId, Publication>
 			{
 				var t = r.Get(f);
 
-				e.PublicationTitles.Index(c.Site, i.Id, t.AsUtf8);
+				e.PublicationTitles.Index(i.Site, i.Id, t.AsUtf8);
 			}
 		}
 			

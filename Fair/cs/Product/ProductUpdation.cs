@@ -82,7 +82,7 @@ public class ProductUpdation : FairOperation
 
 		foreach(var p in r.Publications)
 		{
-			var s = execution.Sites.Affect(execution.Categories.Find(execution.Publications.Find(p).Category).Site);
+			var s = execution.Sites.Affect(execution.Publications.Find(p).Site);
 				
 			if(!s.PendingPublications.Contains(p))
 			{
