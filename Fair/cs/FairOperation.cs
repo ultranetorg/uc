@@ -39,7 +39,7 @@ public enum FairOperationClass : uint
 
 		Publication						= 104_002,
 			PublicationCreation			= 104_002_001,
-			PublicationStatusChange		= 104_002_002,
+			PublicationApproval			= 104_002_002,
 			PublicationProductChange	= 104_002_003,
 			PublicationUpdation			= 104_002_004,
 			PublicationDeletion			= 104_002_999,

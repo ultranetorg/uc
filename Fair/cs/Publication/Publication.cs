@@ -1,14 +1,5 @@
 namespace Uccs.Fair;
 
-public enum PublicationStatus : byte
-{
-	None,
-	Pending,
-	Approved,
-	Rejected
-	//Disputed
-}
-
 public enum PublicationFlags : byte
 {
 	None,
@@ -22,9 +13,8 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId							Category { get; set; }
 	public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
-	public PublicationStatus				Status { get; set; }
+	//public PublicationStatus				Status { get; set; }
 	public ProductFieldVersionReference[]	Fields { get; set; }
-	public ProductFieldVersionReference[]	Changes { get; set; }
 	public AutoId[]							Reviews { get; set; }
 	public AutoId[]							ReviewChanges { get; set; }
 	public PublicationFlags					Flags { get; set; }
@@ -44,7 +34,7 @@ public class Publication : IBinarySerializable, ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Id}, Product={Product}, Category={Category}, Creator={Creator}, Fields={Fields.Length}, Changes={Changes.Length}, Flags={Flags}";
+		return $"{Id}, Product={Product}, Category={Category}, Creator={Creator}, Fields={Fields.Length}, Flags={Flags}";
 	}
 
 	public object Clone()
@@ -53,9 +43,7 @@ public class Publication : IBinarySerializable, ITableEntry
 									Category		= Category,
 									Creator			= Creator,
 									Product			= Product,
-									Status			= Status,
 									Fields			= Fields,
-									Changes			= Changes,
 									Reviews			= Reviews,
 									ReviewChanges	= ReviewChanges,
 									Flags			= Flags};
@@ -81,9 +69,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		Category		= reader.Read<AutoId>();
 		Creator			= reader.Read<AutoId>();
 		Product			= reader.Read<AutoId>();
-		Status			= reader.Read<PublicationStatus>();
 		Fields			= reader.ReadArray<ProductFieldVersionReference>();
-		Changes			= reader.ReadArray<ProductFieldVersionReference>();
 		Reviews			= reader.ReadArray<AutoId>();
 		ReviewChanges	= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
@@ -95,9 +81,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		writer.Write(Category);
 		writer.Write(Creator);
 		writer.Write(Product);
-		writer.Write(Status);
 		writer.Write(Fields);
-		writer.Write(Changes);
 		writer.Write(Reviews);
 		writer.Write(ReviewChanges);
 		writer.Write(Flags);

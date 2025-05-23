@@ -80,20 +80,14 @@ public class ProductUpdation : FairOperation
 
 		Allocate(execution, Signer, a, Value.Length);
 
-		foreach(var j in r.Publications)
+		foreach(var p in r.Publications)
 		{
-			var p = execution.Publications.Affect(j);
+			var s = execution.Sites.Affect(execution.Categories.Find(execution.Publications.Find(p).Category).Site);
 				
-			var c = p.Changes.FirstOrDefault(c => c.Name == Name);
-
-			if(c == null)
+			if(!s.PendingPublications.Contains(p))
 			{
-				p.Changes = [..p.Changes, new ProductFieldVersionReference {Name = Name, Version = f.Versions.Last().Version}];
+				s.PendingPublications = [..s.PendingPublications, p];
 			} 
-			else
-			{
-				p.Changes = [..p.Changes.Where(i => i != c), new ProductFieldVersionReference {Name = Name, Version = f.Versions.Last().Version}];
-			}
 		}
 
 		r.Updated = execution.Time;

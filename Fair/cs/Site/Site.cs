@@ -33,10 +33,13 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
-	public AutoId[]				Authors { get; set; }
-	public AutoId[]				Moderators { get; set; }
-	public AutoId[]				Categories { get; set; }
-	public AutoId[]				Disputes { get; set; }
+	public AutoId[]					Authors { get; set; }
+	public AutoId[]					Moderators { get; set; }
+	public AutoId[]					Categories { get; set; }
+	public AutoId[]					Disputes { get; set; }
+	public AutoId[]					PendingPublications { get; set; }
+
+	public int						PublicationsCount { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -89,10 +92,13 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 								Space					= Space,
 								Spacetime				= Spacetime,
 
+								PublicationsCount		= PublicationsCount,
+
 								Authors					= Authors,
 								Moderators				= Moderators,
 								Categories				= Categories,
 								Disputes				= Disputes,
+								PendingPublications		= PendingPublications
 								};
 		
 		((IEnergyHolder)this).Clone(a);
@@ -128,11 +134,14 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Expiration				= reader.ReadInt16();
 		Space					= reader.Read7BitEncodedInt64();
 		Spacetime				= reader.Read7BitEncodedInt64();
+		
+		PublicationsCount		= reader.Read7BitEncodedInt();
 
 		Authors					= reader.ReadArray<AutoId>();
 		Moderators				= reader.ReadArray<AutoId>();
 		Categories				= reader.ReadArray<AutoId>();
 		Disputes				= reader.ReadArray<AutoId>();
+		PendingPublications		= reader.ReadArray<AutoId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -151,10 +160,13 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write7BitEncodedInt64(Spacetime);
 
+		writer.Write7BitEncodedInt(PublicationsCount);
+
 		writer.Write(Authors);
 		writer.Write(Moderators);
 		writer.Write(Categories);
 		writer.Write(Disputes);
+		writer.Write(PendingPublications);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}

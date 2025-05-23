@@ -6,9 +6,9 @@ public class PublicationStatusChangeModel : BaseVotableOperationModel
 
 	public PublicationStatus Status { get; set; }
 
-	public PublicationStatusChangeModel(PublicationStatusChange operation)
+	public PublicationStatusChangeModel(PublicationApproval operation)
 	{
 		PublicationId = operation.Publication.ToString();
-		Status = operation.Status;
+		throw new NotImplementedException(); ///Status = operation.Status;
 	}
 }

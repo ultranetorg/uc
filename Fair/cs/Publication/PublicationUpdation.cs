@@ -77,12 +77,6 @@ public class PublicationUpdation : VotableOperation
 
 		var p = execution.Publications.Affect(Publication);
 		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
-		var c = p.Changes.FirstOrDefault(i => i.Name == Change.Name && i.Version == Change.Version);
-
-		if(c != null)
-		{
-			p.Changes = [..p.Changes.Where(i => i != c)];
-		}
 		
 		if(Resolution == true)
 		{

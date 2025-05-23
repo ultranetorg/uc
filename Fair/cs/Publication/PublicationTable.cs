@@ -43,7 +43,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		var result = Mcv.PublicationTitles.Search(	query.ToLowerInvariant(), 
 													skip, 
 													take, 
-													i => i.References.TryGetValue(site, out var p) && Latest(p).Status == PublicationStatus.Approved,
+													i => i.References.ContainsKey(site),
 													Mcv.PublicationTitles.Latest, 
 													(Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints);
 
@@ -69,7 +69,6 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		var a = Table.Create();
 		a.Id = new AutoId(site.Id.B, e);
 		a.Fields = [];
-		a.Changes = [];
 		a.Reviews = [];
 		a.ReviewChanges = [];
 			

@@ -142,7 +142,7 @@ public class DisputesService
 		{
 			NicknameChange operation => new NicknameChangeModel(operation),
 			PublicationProductChange operation => new PublicationProductChangeModel(operation),
-			PublicationStatusChange operation => new PublicationStatusChangeModel(operation),
+			PublicationApproval operation => new PublicationStatusChangeModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			ReviewTextModeration operation => new ReviewTextModerationModel(operation),

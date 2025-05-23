@@ -30,6 +30,12 @@ public class PublicationCreation : FairOperation
 
 		if(!RequireCategory(execution, Category, out var c))
 			return;
+
+		if(pr.Publications.Any(i => execution.Categories.Find(execution.Publications.Find(i).Category).Site == c.Site))
+		{
+			Error = AlreadyExists;
+			return;
+		}
 					
 		var p = execution.Publications.Create(execution.Sites.Find(c.Site));
 		
@@ -44,7 +50,6 @@ public class PublicationCreation : FairOperation
 
 		if(CanAccessAuthor(execution, a.Id))
 		{ 
-			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedByAuthor;
 						
 			Allocate(execution, a, a, execution.Net.EntityLength);
@@ -54,7 +59,6 @@ public class PublicationCreation : FairOperation
 		}
 		else if(CanAccessSite(execution, c.Site))
 		{	
-			p.Status = PublicationStatus.Pending;
 			p.Flags = PublicationFlags.CreatedBySite;
 
 			Allocate(execution, s, s, execution.Net.EntityLength);
@@ -75,7 +79,6 @@ public class PublicationCreation : FairOperation
 		var r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
 
-		c = execution.Categories.Affect(c.Id);
-		c.Publications = [..c.Publications, p.Id];
+		s.PendingPublications = [..s.PendingPublications, p.Id];
 	}
 }

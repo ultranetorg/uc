@@ -422,10 +422,10 @@ public class PublicationsService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static bool IsPendingStatus(Publication publication) => publication.Status == PublicationStatus.Pending;
+	private static bool IsPendingStatus(Publication publication) => throw new NotImplementedException(); //publication.Status == PublicationStatus.Pending;
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static bool IsApprovedStatus(Publication publication) => publication.Status == PublicationStatus.Approved;
+	private static bool IsApprovedStatus(Publication publication) => throw new NotImplementedException(); // publication.Status == PublicationStatus.Approved;
 
 	private class FilteredContext<T> : SearchContext<T> where T : class
 	{
