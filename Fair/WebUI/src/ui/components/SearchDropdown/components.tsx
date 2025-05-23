@@ -53,7 +53,7 @@ export const Menu = (props: MenuProps<SearchDropdownItem, false> & MenuBaseProps
     <components.Menu {...rest}>
       {children}
       {!props.selectProps.isLoading && props.selectProps.noticeMessage && (
-        <div className="select-none border-t border-t-gray-200 py-4 text-center text-[13px] leading-[14px] text-gray-500">
+        <div className="text-2xs leading-3.5 select-none border-t border-t-gray-200 py-4 text-center text-gray-500">
           {props.selectProps.noticeMessage}
         </div>
       )}
