@@ -1,20 +1,34 @@
+import { twMerge } from "tailwind-merge"
+
+import { StarSvg } from "assets"
+
 export type SiteCardProps = {
   title: string
   description?: string
+  isStarred?: boolean
 }
 
-export const SiteCard = ({ title, description }: SiteCardProps) => (
-  <div className="flex flex-col items-center gap-4 rounded-2xl border border-transparent px-2 py-6 hover:border-zinc-800">
-    <div className="h-20 w-20 rounded-2xl bg-zinc-700" />
-    <div className="flex w-full flex-col gap-[6px]">
-      <span className="h-[18px] w-52 overflow-hidden text-ellipsis whitespace-nowrap text-center text-[15px] font-semibold leading-[18px]">
-        {title}
-      </span>
-      {description && (
-        <span className="line-clamp-2 h-9 w-52 overflow-hidden text-center text-[13px] leading-[18px]">
-          {description}
+export const SiteCard = ({ title, description, isStarred = false }: SiteCardProps) => (
+  <>
+    <div
+      className="w-55 group relative flex h-48 flex-col gap-4 rounded-lg bg-gray-100 px-2 py-6 hover:bg-gray-200"
+      title={title}
+    >
+      <div className="h-18 w-18 mx-auto rounded-2xl bg-gray-700" />
+      <div className="w-51 flex flex-col gap-2 text-center">
+        <span className="leading-4.5 text-2sm overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-gray-800">
+          {title}
         </span>
-      )}
+        {description && (
+          <span className="text-2xs line-clamp-2 h-8 overflow-hidden leading-4 text-gray-500">{description}</span>
+        )}
+      </div>
+      <StarSvg
+        className={twMerge(
+          "invisible absolute right-3 top-3 group-hover:visible",
+          isStarred !== true ? "stroke-gray-400" : "stroke-favorite fill-favorite",
+        )}
+      />
     </div>
-  </div>
+  </>
 )
