@@ -24,13 +24,13 @@ type IndicatorsContainerProps = IndicatorsProps<SearchDropdownItem, false> & Ind
 export const IndicatorsContainer = ({
   selectProps: { inputValue, onClearInputClick, onSearchClick },
 }: IndicatorsContainerProps) => (
-  <div className="flex">
+  <div className="mr-[10px] flex">
     {inputValue && (
-      <div onClick={onClearInputClick} className="cursor-pointer p-2">
+      <div onClick={onClearInputClick} className="cursor-pointer p-1">
         <XSvg className="stroke-gray-400 hover:stroke-[#0C0E22]" />
       </div>
     )}
-    <div onClick={onSearchClick} className="cursor-pointer py-2 pl-2 pr-[10px]">
+    <div onClick={onSearchClick} className="cursor-pointer p-1">
       <SearchSvg className="stroke-[#737582] hover:stroke-[#0C0E22]" />
     </div>
   </div>
