@@ -24,14 +24,14 @@ type IndicatorsContainerProps = IndicatorsProps<SearchDropdownItem, false> & Ind
 export const IndicatorsContainer = ({
   selectProps: { inputValue, onClearInputClick, onSearchClick },
 }: IndicatorsContainerProps) => (
-  <div className="mr-[10px] flex">
+  <div className="mr-2.5 flex">
     {inputValue && (
       <div onClick={onClearInputClick} className="cursor-pointer p-1">
-        <XSvg className="stroke-gray-400 hover:stroke-[#0C0E22]" />
+        <XSvg className="stroke-gray-400 hover:stroke-gray-950" />
       </div>
     )}
     <div onClick={onSearchClick} className="cursor-pointer p-1">
-      <SearchSvg className="stroke-[#737582] hover:stroke-[#0C0E22]" />
+      <SearchSvg className="stroke-gray-500 hover:stroke-gray-950" />
     </div>
   </div>
 )
@@ -64,7 +64,7 @@ export const Menu = (props: MenuProps<SearchDropdownItem, false> & MenuBaseProps
 export const Option = (props: OptionProps<SearchDropdownItem>) => {
   return (
     <components.Option {...props}>
-      <SearchSvg className="h-4 w-4 stroke-[#737582]" />
+      <SearchSvg className="h-4 w-4 stroke-gray-500" />
       <span>
         <HighlightText highlightText={props.selectProps.inputValue} className="font-bold text-dark-100">
           {props.data.label}
