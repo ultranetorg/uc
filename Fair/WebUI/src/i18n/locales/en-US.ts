@@ -3,15 +3,16 @@ export const enUS = {
     home: "Home",
     next: "Next",
   },
+  sidebar: { allSites: "All Stores", currentSite: "Current store", starredSites: "Starred" },
+  category: {
+    empty: "This category is empty.",
+  },
   sites: {
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
     notice: "Press Enter to view all search results.",
     placeholder: "Enter store name or description...",
     title: "Explore Multiple\nDecentralized Stores",
-  },
-  category: {
-    empty: "This category is empty.",
   },
   votableOperations: {
     "nickname-change": "Nickname Change",

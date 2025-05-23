@@ -28,8 +28,12 @@ export default {
         "2xs": "0.8125rem",
         "2sm": "0.9375rem",
       },
+      letterSpacing: {
+        "tight-048": "0.48px",
+      },
       lineHeight: {
         "3.5": "0.875rem",
+        "3.75": "0.9375rem",
         "4.5": "1.125rem",
       },
       screens: {
@@ -40,6 +44,8 @@ export default {
         18: "4.5rem",
         51: "12.75rem",
         55: "13.75rem",
+        61: "15.25rem",
+        65: "16.25rem",
       },
     },
   },
