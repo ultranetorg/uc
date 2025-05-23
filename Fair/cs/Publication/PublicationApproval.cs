@@ -62,9 +62,35 @@ public class PublicationApproval : VotableOperation
 		} 	
 
 		var p =	execution.Publications.Affect(Publication);
-		var c = execution.Categories.Find(p.Category);
-		var s = execution.Sites.Affect(c.Site);
 
+		if(p.Category == null)
+		{
+			Error = CategoryNotSet;
+			return;
+		}
+
+		var s = execution.Sites.Affect(p.Site);
+		
+		if(!s.PendingPublications.Contains(p.Id))
+		{
+			Error = NotAvailable;
+			return;
+		}
+
+		s.PendingPublications = s.PendingPublications.Remove(p.Id);
+		
+		var c = execution.Categories.Find(p.Category);
+		var r = execution.Products.Find(p.Product);
+		var a = execution.Authors.Find(r.Author);
+
+		if(!s.Authors.Contains(a.Id))
+		{
+			a = execution.Authors.Affect(a.Id);
+			s = execution.Sites.Affect(s.Id);
+
+			s.Authors = [..s.Authors, a.Id];
+			a.Sites = [.. a.Sites, s.Id];
+		}
 
 		if(!c.Publications.Contains(p.Id))
 		{
@@ -74,14 +100,9 @@ public class PublicationApproval : VotableOperation
 			s.PublicationsCount++;
 		}
 
-		if(s.PendingPublications.Contains(p.Id))
-		{
-			s.PendingPublications = s.PendingPublications.Remove(p.Id);
-		}
-
 		if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
 		{
-			var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
+			a = execution.Authors.Affect(a.Id);
 
 			PayForModeration(execution, p, a);
 		}
@@ -89,28 +110,6 @@ public class PublicationApproval : VotableOperation
 		var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
 			
 		if(tr != null)
-			execution.PublicationTitles.Index(execution.Categories.Find(p.Category).Site, p.Id, execution.Products.Find(p.Product).Get(tr).AsUtf8);
-		
-		//else if(Status == PublicationStatus.Reject)
-		//{
-		//	if(c.Publications.Contains(p.Id))
-		//	{
-		//		c = execution.Categories.Affect(c.Id);
-		//		c.Publications = c.Publications.Remove(p.Id);
-		//	}
-		//
-		//	if(s.PendingPublications.Contains(p.Id))
-		//	{
-		//		s = execution.Sites.Affect(s.Id);
-		//		s.PendingPublications = s.PendingPublications.Remove(p.Id);
-		//	}
-		//
-		//	var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
-		//
-		//	if(tr != null)
-		//		execution.PublicationTitles.Deindex(execution.Categories.Find(p.Category).Site, execution.Products.Find(p.Product).Get(tr).AsUtf8);
-		//
-		//	p.Deleted = true;
-		//}
+			execution.PublicationTitles.Index(s.Id, p.Id, r.Get(tr).AsUtf8);
 	}
 }

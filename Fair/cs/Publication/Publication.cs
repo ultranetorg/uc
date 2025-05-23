@@ -10,6 +10,7 @@ public enum PublicationFlags : byte
 public class Publication : IBinarySerializable, ITableEntry
 {
 	public AutoId							Id { get; set; }
+	public AutoId							Site { get; set; }
 	public AutoId							Category { get; set; }
 	public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
@@ -40,6 +41,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public object Clone()
 	{
 		return new Publication(Mcv){Id				= Id,
+									Site			= Site,
 									Category		= Category,
 									Creator			= Creator,
 									Product			= Product,
@@ -66,7 +68,8 @@ public class Publication : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id				= reader.Read<AutoId>();
-		Category		= reader.Read<AutoId>();
+		Site			= reader.Read<AutoId>();
+		Category		= reader.ReadNullable<AutoId>();
 		Creator			= reader.Read<AutoId>();
 		Product			= reader.Read<AutoId>();
 		Fields			= reader.ReadArray<ProductFieldVersionReference>();
@@ -78,7 +81,8 @@ public class Publication : IBinarySerializable, ITableEntry
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(Category);
+		writer.Write(Site);
+		writer.WriteNullable(Category);
 		writer.Write(Creator);
 		writer.Write(Product);
 		writer.Write(Fields);

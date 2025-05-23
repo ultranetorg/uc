@@ -1,32 +1,32 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationProductChange : VotableOperation
+public class PublicationCategoryChange : VotableOperation
 {
-	public AutoId	Publication { get; set; }
-	public AutoId	Product { get; set; }
+	public AutoId				Publication { get; set; }
+	public AutoId				Category { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Explanation => $"{Publication}, [{Product}]";
+	public override string		Explanation => $"{Publication}, [{Category}]";
 
-	public PublicationProductChange()
+	public PublicationCategoryChange()
 	{
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		Publication	= reader.Read<AutoId>();
-		Product		= reader.Read<AutoId>();
+		Category	= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Publication);
-		writer.Write(Product);
+		writer.Write(Category);
 	}
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return (other as PublicationProductChange).Publication == Publication;
+		return (other as PublicationCategoryChange).Publication == Publication;
 	}
 	
 	public override bool ValidProposal(FairExecution execution)
@@ -34,10 +34,10 @@ public class PublicationProductChange : VotableOperation
 		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
-		if(!RequireProduct(execution, Product, out var _, out var _))
+		if(!RequireCategory(execution, Category, out var c))
 			return false;
 
-		return p.Product != Product;
+		return p.Category != Category;
 	}
 
 	public override void Execute(FairExecution execution, bool dispute)
@@ -50,21 +50,26 @@ public class PublicationProductChange : VotableOperation
 			if(!RequirePublicationModeratorAccess(execution, Publication, Signer, out var _, out var s))
 				return;
 
-	 		if(s.ChangePolicies[FairOperationClass.PublicationProductChange] != ChangePolicy.AnyModerator)
+	 		if(s.ChangePolicies[FairOperationClass.PublicationCategoryChange] != ChangePolicy.AnyModerator)
 	 		{
 		 		Error = Denied;
 		 		return;
 	 		}
 		}
 
+		Category c;
+
 		var p = execution.Publications.Affect(Publication);
  		
-		var r = execution.Products.Affect(p.Product);
-		r.Publications = r.Publications.Remove(p.Id);
+		if(p.Category != null)
+		{
+			c = execution.Categories.Affect(p.Category);
+			c.Publications = c.Publications.Remove(p.Id);
+		}
 
-		p.Product = Product;
+		p.Category = Category;
 
-		r = execution.Products.Affect(Product);
-		r.Publications = [..r.Publications, p.Id];
+		c = execution.Categories.Affect(Category);
+		c.Publications = [..c.Publications, p.Id];
 	}
 }

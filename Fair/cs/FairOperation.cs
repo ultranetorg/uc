@@ -41,7 +41,8 @@ public enum FairOperationClass : uint
 			PublicationCreation			= 104_002_001,
 			PublicationApproval			= 104_002_002,
 			PublicationProductChange	= 104_002_003,
-			PublicationUpdation			= 104_002_004,
+			PublicationCategoryChange	= 104_002_004,
+			PublicationUpdation			= 104_002_005,
 			PublicationDeletion			= 104_002_999,
 
 		Review						= 104_003,
@@ -61,6 +62,7 @@ public abstract class FairOperation : Operation
 {
 	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
 	public const string				InvalidProposal = "Invalid proposal";
+	public const string				CategoryNotSet = "Category not set";
 	public const string				Ended = "Ended";
 
 	public new FairAccount		Signer => base.Signer as FairAccount;
@@ -249,7 +251,7 @@ public abstract class FairOperation : Operation
  		if(!RequirePublication(round, id, out publication))
  			return false; 
  
- 		if(!RequireSiteModeratorAccess(round, round.Categories.Find(publication.Category).Site, out site))
+ 		if(!RequireSiteModeratorAccess(round, publication.Site, out site))
  			return false;
  
  		return true;
