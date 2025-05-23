@@ -8,6 +8,7 @@ export default {
         "spin-slow": "spin 3s linear infinite",
       },
       colors: {
+        favorite: "#E3A427",
         dark: {
           100: "#14181F",
         },
@@ -18,15 +19,27 @@ export default {
           300: "#D2D4E4",
           400: "#9798A6",
           500: "#737582",
+          700: "#3F3F46",
           800: "#2A2932",
           950: "#0C0E22",
         },
       },
-      mr: {
-        "2.5": "0.625rem",
+      fontSize: {
+        "2xs": "0.8125rem",
+        "2sm": "0.9375rem",
+      },
+      lineHeight: {
+        "3.5": "0.875rem",
+        "4.5": "1.125rem",
       },
       screens: {
         xs: "475px",
+      },
+      spacing: {
+        "2.5": "0.625rem",
+        18: "4.5rem",
+        51: "12.75rem",
+        55: "13.75rem",
       },
     },
   },
