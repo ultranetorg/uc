@@ -4,7 +4,6 @@ public class PublicationCreation : FairOperation
 {
 	public AutoId					Product { get; set; }
 	public AutoId					Site { get; set; }
-	//public ProductFieldVersionId[]	Fields { get; set; }
 
 	public override bool		IsValid(McvNet net) => Product != null && Site != null;
 	public override string		Explanation => $"Product={Product} Site={Site}";
@@ -13,14 +12,12 @@ public class PublicationCreation : FairOperation
 	{
 		Product = reader.Read<AutoId>();
 		Site	= reader.Read<AutoId>();
-		//Fields	= reader.ReadArray<ProductFieldVersionId>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
 		writer.Write(Site);
-		//writer.Write(Fields);
 	}
 
 	public override void Execute(FairExecution execution, bool dispute)
