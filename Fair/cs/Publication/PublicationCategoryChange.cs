@@ -57,19 +57,19 @@ public class PublicationCategoryChange : VotableOperation
 	 		}
 		}
 
-		Category c;
 
 		var p = execution.Publications.Affect(Publication);
+		p.Category = Category;
+
+		var c = execution.Categories.Find(p.Category);
  		
-		if(p.Category != null)
+		if(c.Publications.Contains(p.Id)) /// published
 		{
 			c = execution.Categories.Affect(p.Category);
 			c.Publications = c.Publications.Remove(p.Id);
+
+			c = execution.Categories.Affect(Category);
+			c.Publications = [..c.Publications, p.Id];
 		}
-
-		p.Category = Category;
-
-		c = execution.Categories.Affect(Category);
-		c.Publications = [..c.Publications, p.Id];
 	}
 }

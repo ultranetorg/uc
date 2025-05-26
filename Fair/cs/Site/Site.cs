@@ -1,21 +1,9 @@
 namespace Uccs.Fair;
 
-// public enum Policy : byte
-// {
-// 	None,
-// 	ElectModerators	= 0b_0000_0001
-// }
-
 public enum ChangePolicy : byte
 {
 	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
 }
-
-// public class PolicyValue
-// {
-// 	public Policy	Policy { get; set; }
-// 	public byte		Value { get; set; }
-// }
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
