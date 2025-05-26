@@ -79,6 +79,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		a.Authors = [];
 		a.Disputes = [];
 		a.ChangePolicies = [];
+		a.PendingPublications = [];
 		a.Nickname = "";
 		a.Description = "";
 		

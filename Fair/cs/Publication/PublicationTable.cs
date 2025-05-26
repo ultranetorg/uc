@@ -22,7 +22,7 @@ public class PublicationTable : Table<AutoId, Publication>
 
 		foreach(var i in GraphEntities)
 		{
-			var c = e.Categories.Find(i.Category);
+			//var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
 			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
 
@@ -30,7 +30,7 @@ public class PublicationTable : Table<AutoId, Publication>
 			{
 				var t = r.Get(f);
 
-				e.PublicationTitles.Index(c.Site, i.Id, t.AsUtf8);
+				e.PublicationTitles.Index(i.Site, i.Id, t.AsUtf8);
 			}
 		}
 			
@@ -43,7 +43,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		var result = Mcv.PublicationTitles.Search(	query.ToLowerInvariant(), 
 													skip, 
 													take, 
-													i => i.References.TryGetValue(site, out var p) && Latest(p).Status == PublicationStatus.Approved,
+													i => i.References.ContainsKey(site),
 													Mcv.PublicationTitles.Latest, 
 													(Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints);
 
@@ -69,7 +69,6 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		var a = Table.Create();
 		a.Id = new AutoId(site.Id.B, e);
 		a.Fields = [];
-		a.Changes = [];
 		a.Reviews = [];
 		a.ReviewChanges = [];
 			

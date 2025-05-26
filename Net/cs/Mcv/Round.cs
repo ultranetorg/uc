@@ -28,8 +28,8 @@ public abstract class Round : IBinarySerializable
 	public List<AccountAddress>							Forkers = new();
 	public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 	public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-	public IEnumerable<Vote>							Required => VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator));
-	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash => Required.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+	public IEnumerable<Vote>							SelectedArrived => VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator));
+	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash => SelectedArrived.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
@@ -98,7 +98,7 @@ public abstract class Round : IBinarySerializable
 		get
 		{ 
 			var s = SelectedVoters;
-			var r = Required;
+			var r = SelectedArrived;
 		
 			var missing = s.Count() - r.Count();
 
@@ -260,7 +260,7 @@ public abstract class Round : IBinarySerializable
 
 		var min = MinimumForConsensus;
 		var all = VotesOfTry.ToArray();
-		var svotes = Id < Mcv.JoinToVote ? [] : Required.ToArray();
+		var svotes = Id < Mcv.JoinToVote ? [] : SelectedArrived.ToArray();
 					
 		ConsensusECEnergyCost	= Id == 0 ? 0 : Previous.ConsensusECEnergyCost;
 		ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;

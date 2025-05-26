@@ -100,7 +100,4 @@ public class CategoriesService
 			}
 		}
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsApprovedStatus(Publication publication) => publication.Status == PublicationStatus.Approved;
 }

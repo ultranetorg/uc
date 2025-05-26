@@ -14,9 +14,9 @@ public abstract class Mcv /// Mutual chain voting
 	public const int							P = 6; /// pitch
 	public const int							RequiredVotersMaximum = 21; 
 	//public int									VotesRequired => Net.MembersLimit; /// 1000/8
-	public const int							JoinToVote = P*2;
+	public const int							JoinToVote = P + 1;
+	public const int							LastGenesisRound = JoinToVote + P - 1;
 	public const int							TransactionPlacingLifetime = P*2;
-	public const int							LastGenesisRound = P*3 - 1;
 	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
 	//public const int							EntityLength = 100;
 	public const int							EntityRentYearsMin = 1;
@@ -208,7 +208,7 @@ public abstract class Mcv /// Mutual chain voting
 	
 				Tail.Insert(0, r);
 
-				if(i < P*2)
+				if(i < JoinToVote)
 				{
 					if(i > 0)
 						r.ConsensusECEnergyCost = 1;

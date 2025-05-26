@@ -34,6 +34,9 @@ public class PublicationProductChange : VotableOperation
 		if(!RequirePublication(execution, Publication, out var p))
 			return false;
 
+		if(!RequireProduct(execution, Product, out var _, out var _))
+			return false;
+
 		return p.Product != Product;
 	}
 

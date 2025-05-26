@@ -29,10 +29,18 @@ public class PublicationDeletion : FairOperation
 		p = execution.Publications.Affect(Publication);
 		p.Deleted = true;
 
- 		var c = execution.Categories.Affect(p.Category);
- 		c.Publications = c.Publications.Remove(Publication);
 
+ 		var c = execution.Categories.Find(p.Category);
+		var s = execution.Sites.Affect(c.Site);
 		var a = execution.Authors.Find(execution.Products.Find(p.Product).Author);
+
+		if(c.Publications.Contains(p.Id))
+		{
+			c = execution.Categories.Affect(c.Id);
+			c.Publications = c.Publications.Remove(Publication);
+
+			s.PublicationsCount--;
+		}
 
 		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && a.Owners.Contains(Signer.Id))
 		{ 
@@ -44,8 +52,6 @@ public class PublicationDeletion : FairOperation
 		}
 		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (execution.Sites.Find(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
 		{	
-			var s = execution.Sites.Affect(c.Site);
-
 			Free(execution, s, s, execution.Net.EntityLength);
 
 			EnergySpenders.Add(s);
@@ -54,6 +60,12 @@ public class PublicationDeletion : FairOperation
 		{
 			Error = Denied;
 			return;
+		}
+		
+		if(s.PendingPublications.Contains(p.Id))
+		{
+			s = execution.Sites.Affect(s.Id);
+			s.PendingPublications = s.PendingPublications.Remove(p.Id);
 		}
 
 		var f = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
