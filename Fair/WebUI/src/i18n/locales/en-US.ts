@@ -16,7 +16,8 @@ export const enUS = {
   votableOperations: {
     "nickname-change": "Nickname Change",
     "publication-product-change": "Publication Product Change",
-    "publication-status-change": "Publication Status Change",
+    "publication-approval": "Publication Approval",
+    "publication-category-change": "Publication Category Change",
     "publication-update-moderation": "Publication Update Moderation",
     "review-status-change": "Review Status Change",
     "review-text-moderation": "Review Text Moderation",
