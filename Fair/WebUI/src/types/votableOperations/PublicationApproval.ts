@@ -1,6 +1,5 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
-export type PublicationStatusChange = {
+export type PublicationApproval = {
   publicationId: string
-  status: string
 } & BaseVotableOperation
