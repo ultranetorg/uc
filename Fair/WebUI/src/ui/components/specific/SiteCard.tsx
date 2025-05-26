@@ -1,6 +1,7 @@
 import { twMerge } from "tailwind-merge"
 
 import { StarSvg } from "assets"
+import { memo } from "react"
 
 export type SiteCardProps = {
   title: string
@@ -8,7 +9,7 @@ export type SiteCardProps = {
   isStarred?: boolean
 }
 
-export const SiteCard = ({ title, description, isStarred = false }: SiteCardProps) => (
+export const SiteCard = memo(({ title, description, isStarred = false }: SiteCardProps) => (
   <>
     <div
       className="w-55 group relative flex h-48 flex-col gap-4 rounded-lg bg-gray-100 px-2 py-6 hover:bg-gray-200"
@@ -31,4 +32,4 @@ export const SiteCard = ({ title, description, isStarred = false }: SiteCardProp
       />
     </div>
   </>
-)
+))
