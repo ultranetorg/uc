@@ -83,7 +83,7 @@ export const SitesPage = () => {
   )
 
   return (
-    <div className="flex flex-col items-center gap-6 py-16">
+    <div className="flex flex-col items-center gap-6 py-8">
       <PageHeader title={t("title")} description={t("description")} />
       <div className="w-full max-w-[820px]">
         <SearchDropdown
