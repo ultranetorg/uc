@@ -1,4 +1,5 @@
 export * from "./categoryTreeUtils"
 export * from "./formatUtils"
 export * from "./integerUtils"
+export * from "./shortenUtils"
 export * from "./stringUtils"

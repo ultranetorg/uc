@@ -6,6 +6,7 @@ import { Router, SearchQueryProvider } from "./app"
 import "./i18n"
 
 import "./index.css"
+import { FloatingTree } from "@floating-ui/react"
 
 const queryClient = new QueryClient()
 
@@ -13,7 +14,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <SearchQueryProvider>
-        <Router />
+        <FloatingTree>
+          <Router />
+        </FloatingTree>
       </SearchQueryProvider>
     </QueryClientProvider>
   </StrictMode>,

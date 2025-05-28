@@ -15,6 +15,7 @@ export default {
         gray: {
           0: "#ffffff",
           50: "#fcfcfd",
+          75: "#fefefe",
           200: "#e8e9f1",
           100: "#f3f4f9",
           300: "#d2d4e4",
@@ -35,6 +36,7 @@ export default {
       lineHeight: {
         "3.5": "0.875rem",
         "3.75": "0.9375rem",
+        "4.25": "1.0625rem",
         "4.5": "1.125rem",
       },
       screens: {
@@ -43,6 +45,7 @@ export default {
       spacing: {
         "2.5": "0.625rem",
         18: "4.5rem",
+        39: "9.75rem",
         51: "12.75rem",
         55: "13.75rem",
         61: "15.25rem",

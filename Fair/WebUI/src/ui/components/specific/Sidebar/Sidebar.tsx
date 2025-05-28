@@ -1,0 +1,88 @@
+import { memo, useState } from "react"
+import { Link } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import {
+  offset,
+  safePolygon,
+  useDismiss,
+  useFloating,
+  useFloatingParentNodeId,
+  useHover,
+  useInteractions,
+  useRole,
+} from "@floating-ui/react"
+import { twMerge } from "tailwind-merge"
+
+import { PropsWithClassName } from "types"
+
+import { AllSitesButton, CurrentAccountButton } from "./components"
+import { AccountMenu } from "./AccountMenu"
+import { SitesList } from "./SitesList"
+
+const TEST_CURRENT_SITE: SidebarSite = {
+  id: "0",
+  title: "GameNest",
+}
+
+const TEST_SITES: SidebarSite[] = [
+  { id: "1", title: "SoftVault" },
+  { id: "2", title: "MovieMesh" },
+  {
+    id: "3",
+    title:
+      "This is very ery very very very ery very very very ery very very very ery very very very ery very very long site name",
+  },
+]
+
+type SidebarSite = {
+  id: string
+  title: string
+  selectedAccountId: string
+}
+
+export const Sidebar = memo(({ className }: PropsWithClassName) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { t } = useTranslation("sidebar")
+
+  const nodeId = useFloatingParentNodeId()
+  const { context, floatingStyles, refs } = useFloating({
+    nodeId: nodeId!,
+    middleware: [offset(8)],
+    open: isOpen,
+    placement: "top-start",
+    onOpenChange: setIsOpen,
+  })
+
+  const dismiss = useDismiss(context)
+  const hover = useHover(context, { handleClose: safePolygon({ requireIntent: true }) })
+  const role = useRole(context)
+  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+
+  return (
+    <div className={twMerge("flex min-w-65 flex-col gap-6 p-2", className)}>
+      <div className="flex flex-grow flex-col gap-8 p-2">
+        <Link to="/">
+          <AllSitesButton title={t("allSites")} />
+        </Link>
+        <SitesList title={t("currentSite")} items={[TEST_CURRENT_SITE]} />
+        <SitesList title={t("starredSites")} items={TEST_SITES} />
+      </div>
+      <CurrentAccountButton
+        nickname="This is very very long nickname"
+        address="0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936"
+        ref={refs.setReference}
+        {...getReferenceProps()}
+      />
+      {isOpen && (
+        <AccountMenu
+          ref={refs.setFloating}
+          style={floatingStyles}
+          nickname="This is very very long nickname nickname nickname nickname nickname nickname nickname"
+          address="0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936"
+          {...getFloatingProps()}
+        />
+      )}
+    </div>
+  )
+})
