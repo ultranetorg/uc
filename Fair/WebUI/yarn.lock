@@ -536,13 +536,29 @@
   dependencies:
     "@floating-ui/utils" "^0.2.9"
 
-"@floating-ui/dom@^1.0.1":
+"@floating-ui/dom@^1.0.0", "@floating-ui/dom@^1.0.1":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.7.0.tgz#f9f83ee4fee78ac23ad9e65b128fc11a27857532"
   integrity sha512-lGTor4VlXcesUMh1cupTUTDoCxMb0V6bm3CnxHzQcw8Eaf1jQbgQX4i02fYgT0vJ82tb5MZ4CZk1LRGkktJCzg==
   dependencies:
     "@floating-ui/core" "^1.7.0"
     "@floating-ui/utils" "^0.2.9"
+
+"@floating-ui/react-dom@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@floating-ui/react-dom/-/react-dom-2.1.2.tgz#a1349bbf6a0e5cb5ded55d023766f20a4d439a31"
+  integrity sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==
+  dependencies:
+    "@floating-ui/dom" "^1.0.0"
+
+"@floating-ui/react@^0.27.9":
+  version "0.27.9"
+  resolved "https://registry.yarnpkg.com/@floating-ui/react/-/react-0.27.9.tgz#b3c445a85ead27b73715c978a19b5506532ff097"
+  integrity sha512-Y0aCJBNtfVF6ikI1kVzA0WzSAhVBz79vFWOhvb5MLCRNODZ1ylGSLTuncchR7JsLyn9QzV6JD44DyZhhOtvpRw==
+  dependencies:
+    "@floating-ui/react-dom" "^2.1.2"
+    "@floating-ui/utils" "^0.2.9"
+    tabbable "^6.0.0"
 
 "@floating-ui/utils@^0.2.9":
   version "0.2.9"
@@ -2306,6 +2322,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+tabbable@^6.0.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/tabbable/-/tabbable-6.2.0.tgz#732fb62bc0175cfcec257330be187dcfba1f3b97"
+  integrity sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==
 
 tailwind-merge@^2.6.0:
   version "2.6.0"

@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react"
 import { Outlet } from "react-router-dom"
 
-import { Sidebar } from "./Sidebar"
+import { Sidebar } from "ui/components"
 
 export const BaseLayout = ({ children }: PropsWithChildren) => (
   <div className="min-h-screen w-full">

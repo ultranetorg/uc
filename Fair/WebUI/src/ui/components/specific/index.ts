@@ -1,7 +1,7 @@
+export * from "./Sidebar"
+
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
 export * from "./PublicationsList"
 export * from "./ReviewsList"
-export * from "./SidebarButton"
-export * from "./SidebarSitesList"
 export * from "./SitesList"
