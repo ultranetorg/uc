@@ -57,7 +57,11 @@ export type CurrentAccountButtonProps = Omit<AccountBase, "id">
 
 export const CurrentAccountButton = memo(
   forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ nickname, address, ...rest }, ref) => (
-    <div className="flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100" ref={ref} {...rest}>
+    <div
+      className="sticky bottom-2 z-20 flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100"
+      ref={ref}
+      {...rest}
+    >
       <div className="h-10 w-10 rounded-full" title={nickname ?? address}>
         <img src={personSquareColoredImg} />
       </div>
