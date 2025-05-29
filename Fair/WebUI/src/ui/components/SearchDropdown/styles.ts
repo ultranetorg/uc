@@ -36,6 +36,7 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     borderRadius: "4px",
     cursor: "pointer",
     display: "flex",
+    fontSize: "15px",
     gap: "8px",
     lineHeight: "18px",
     padding: "11px 8px",
