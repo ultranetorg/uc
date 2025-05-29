@@ -1171,7 +1171,14 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cross-spawn@^7.0.0, cross-spawn@^7.0.6:
+cross-env@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
+  integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
+  dependencies:
+    cross-spawn "^7.0.1"
+
+cross-spawn@^7.0.0, cross-spawn@^7.0.1, cross-spawn@^7.0.6:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
   integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
@@ -2454,6 +2461,13 @@ util-deprecate@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
+
+vite-plugin-singlefile@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-singlefile/-/vite-plugin-singlefile-2.2.0.tgz#0ae8604d8e7845e8d4b036e58b15456b989e98de"
+  integrity sha512-Ik1wXmJaGzeQtUeIV7JprDUqqy6DlLzXAY27Blei5peE4c9VJF+Kp9xWDJeuX0RJUZmFbIAuw1/RAh06A+Ql7w==
+  dependencies:
+    micromatch "^4.0.8"
 
 vite-tsconfig-paths@^5.1.4:
   version "5.1.4"
