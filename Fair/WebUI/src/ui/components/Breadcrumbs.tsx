@@ -1,5 +1,4 @@
-import React from "react"
-import { memo } from "react"
+import React, { memo } from "react"
 import { Link } from "react-router-dom"
 
 import { ChevronRightSvg, ThreeDotsSvg } from "assets"
@@ -11,7 +10,7 @@ export type BreadcrumbsItemProps = {
 
 const BreadcrumbsItem = memo(({ title, path }: BreadcrumbsItemProps) =>
   path ? (
-    <Link className="text-[#0B5CAB]" to={path}>
+    <Link className="text-dark-100" to={path}>
       {title}
     </Link>
   ) : (
@@ -29,7 +28,7 @@ export const Breadcrumbs = memo(({ items }: BreadcrumbsProps) => {
   }
 
   return (
-    <div className="flex h-5 items-center gap-1 text-[13px] leading-[20px]">
+    <div className="flex h-6 items-center gap-1 text-2xs leading-5">
       {items.length === 1 ? (
         <BreadcrumbsItem {...items[0]} />
       ) : items.length === 2 ? (
