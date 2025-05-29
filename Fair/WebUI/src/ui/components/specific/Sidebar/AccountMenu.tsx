@@ -58,7 +58,7 @@ export const AccountMenu = memo(
     return (
       <>
         <div
-          className="h-[392px] w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
+          className="z-10 h-[392px] w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
           ref={ref}
           style={style}
         >

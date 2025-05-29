@@ -1,4 +1,5 @@
 export * from "./chat-x"
+export * from "./chevron-left"
 export * from "./chevron-right"
 export * from "./check-circle-fill"
 export * from "./folder2"
