@@ -22,7 +22,7 @@ import {
 
 import { SiteProvider } from "./SiteContext"
 
-const { VITE_APP_SERVERLESS_BUILD } = import.meta.env
+const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
 
 const routes: RouteObject[] = [
   {
@@ -113,6 +113,6 @@ const routes: RouteObject[] = [
 ]
 
 const browserRouter = createBrowserRouter(routes)
-const hashRouter = createHashRouter(routes)
-const router = VITE_APP_SERVERLESS_BUILD === 1 ? hashRouter : browserRouter
+const hashRouter = createHashRouter(routes, { basename: "/" })
+const router = SERVERLESS_BUILD === "1" ? hashRouter : browserRouter
 export const Router = () => <RouterProvider router={router} />
