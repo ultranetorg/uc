@@ -56,6 +56,9 @@ public class CategoryMovement : FairOperation
 			p.Categories = [..p.Categories, c.Id];
 		}
 
+		PayBySite(execution, c.Site);
+
+
 // 			case CategoryChange.RemoveCategory:
 // 			{	
 // 				if(!RequireCategoryAccess(round, EntityId, Signer, out var c))

@@ -43,21 +43,22 @@ public class PublicationCreation : FairOperation
 		{ 
 			a = execution.Authors.Affect(a.Id);
 
-			p.Flags = PublicationFlags.CreatedByAuthor;
+			p.Flags = PublicationFlags.ApprovedByAuthor;
 						
 			Allocate(execution, a, a, execution.Net.EntityLength);
 
+			a.Energy	-= s.AuthorPublicationRequestFee;
+			s.Energy	+= s.AuthorPublicationRequestFee;
+
+			EnergyFeePayer = a;
 			EnergySpenders.Add(a);
-			SpacetimeSpenders.Add(a);
 		}
 		else if(CanAccessSite(execution, Site))
 		{	
-			p.Flags = PublicationFlags.CreatedBySite;
-
 			Allocate(execution, s, s, execution.Net.EntityLength);
 
+			EnergyFeePayer = s;
 			EnergySpenders.Add(s);
-			SpacetimeSpenders.Add(s);
 		}
 		else
 		{

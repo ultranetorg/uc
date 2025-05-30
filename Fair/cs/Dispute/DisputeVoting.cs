@@ -74,7 +74,8 @@ public class DisputeVoting : FairOperation
  
  				if(!RequireAccountAccess(execution, Voter, out var _))
  					return;
- 
+
+				PayBySite(execution, s.Id);
  				break;
  			}
  			

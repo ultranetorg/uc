@@ -83,6 +83,11 @@ public class PublicationApproval : VotableOperation
 		var r = execution.Products.Find(p.Product);
 		var a = execution.Authors.Find(r.Author);
 
+		PayEnergy(execution, p, a);
+
+		if(Error != null)
+			return;
+
 		if(!s.Authors.Contains(a.Id))
 		{
 			a = execution.Authors.Affect(a.Id);
@@ -98,13 +103,6 @@ public class PublicationApproval : VotableOperation
 			c.Publications = [..c.Publications, p.Id];
 
 			s.PublicationsCount++;
-		}
-
-		if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
-		{
-			a = execution.Authors.Affect(a.Id);
-
-			PayForModeration(execution, p, a);
 		}
 
 		var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);

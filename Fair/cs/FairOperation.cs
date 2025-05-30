@@ -22,7 +22,7 @@ public enum FairOperationClass : uint
 	
 	Site							= 103,
 		SiteCreation				= 103_000_001, 
-		SiteRewal					= 103_000_002,
+		SiteRenewal					= 103_000_002,
 		SitePolicyChange			= 103_000_003,
 		SiteAuthorsChange			= 103_000_004,
 		SiteModeratorsChange		= 103_000_005,
@@ -119,9 +119,9 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool CanAccessAuthor(FairExecution round, AutoId id)
+	public bool CanAccessAuthor(FairExecution execution, AutoId id)
 	{
-		var r = RequireAuthorAccess(round, id, out var _);
+		var r = RequireAuthorAccess(execution, id, out var _);
 		Error = null;
 		return r;
 	}
@@ -309,24 +309,42 @@ public abstract class FairOperation : Operation
 
 		return true;
 	}
+
+	protected void PayBySite(FairExecution execution, AutoId site)
+	{
+		var s = execution.Sites.Affect(site);
+			
+		EnergyFeePayer = s;
+		EnergySpenders = [s];
+	}
+
+	protected void PayByAuthor(FairExecution execution, AutoId site, AutoId author)
+	{
+		var a = execution.Authors.Affect(author);
+		var s = execution.Sites.Affect(site);
+
+		a.Energy	-= a.ModerationReward;
+		s.Energy	+= a.ModerationReward;
+			
+		EnergyFeePayer = a;
+		EnergySpenders.Add(a);
+	}
+
+	protected void PayEnergy(FairExecution execution, Publication publication, Author author)
+	{
+		if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{ 
+			PayByAuthor(execution, publication.Site, author.Id);
+		}
+		else
+		{	
+			PayBySite(execution, publication.Site);
+		}
+	}
 }
 
 public abstract class VotableOperation : FairOperation
 {
 	public abstract bool ValidProposal(FairExecution execution);
  	public abstract bool Overlaps(VotableOperation other);
-	//public abstract void Execute(FairExecution mcv, bool validate);
-
-	protected void PayForModeration(FairExecution execution, Publication publication, Author author)
-	{
-		var s = execution.Sites.Affect(publication.Site);
-
-		author.Energy -= author.ModerationReward;
-		Signer.Energy += author.ModerationReward;
-			
-		EnergyFeePayer = s;
-		EnergySpenders.Add(s);
-		EnergySpenders.Add(author);
-	}
-
 }

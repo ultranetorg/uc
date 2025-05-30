@@ -66,5 +66,7 @@ public class PublicationProductChange : VotableOperation
 
 		r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
+
+		PayBySite(execution, p.Site);
 	}
 }

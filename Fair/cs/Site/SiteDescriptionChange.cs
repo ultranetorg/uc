@@ -53,5 +53,7 @@ public class SiteDescriptionChange : VotableOperation
  		var s = execution.Sites.Affect(Site);
  
 		s.Description = Description;
+
+		PayBySite(execution, s.Id);
 	}
 }

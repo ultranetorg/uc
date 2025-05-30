@@ -80,7 +80,8 @@ public class DisputeCreation : FairOperation
  				if(!RequireAccountAccess(execution, Creator, out var _))
  					return;
  
- 				break;
+				PayBySite(execution, Site);
+				break;
  			}
  			
  			case ChangePolicy.ElectedByAuthorsMajority :
@@ -110,10 +111,10 @@ public class DisputeCreation : FairOperation
         d.Text       = Text;
  		d.Proposal   = Proposal;
  		d.Expirtaion = execution.Time + Time.FromDays(30);
- 
- 		AllocateEntity(Signer);
- 
+  
  		s = execution.Sites.Affect(s.Id);
  		s.Disputes = [..s.Disputes, d.Id];
+
+ 		AllocateEntity(Signer);
 	}
 }

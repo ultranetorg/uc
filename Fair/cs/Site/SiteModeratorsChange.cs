@@ -77,5 +77,7 @@ public class SiteModeratorsChange : VotableOperation
  
  		foreach(var i in Removals)
  			s.Moderators = s.Moderators.Remove(i);
+
+		PayBySite(execution, s.Id);
 	}
 }

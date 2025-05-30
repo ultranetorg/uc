@@ -75,5 +75,7 @@ public class PublicationCategoryChange : VotableOperation
 		}
 
 		p.Category = Category;
+	
+		PayBySite(execution, p.Site);
 	}
 }

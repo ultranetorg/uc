@@ -3,8 +3,8 @@ namespace Uccs.Fair;
 public enum PublicationFlags : byte
 {
 	None,
-	CreatedByAuthor	= 0b0000_0000,
-	CreatedBySite	= 0b0000_0001,
+	ApprovedByAuthor	= 0b0000_0001,
+	//ApprovedByModerator	= 0b0000_0010,
 }
 
 public class Publication : IBinarySerializable, ITableEntry
@@ -14,7 +14,6 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId							Category { get; set; }
 	public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
-	//public PublicationStatus				Status { get; set; }
 	public ProductFieldVersionReference[]	Fields { get; set; }
 	public AutoId[]							Reviews { get; set; }
 	public AutoId[]							ReviewChanges { get; set; }

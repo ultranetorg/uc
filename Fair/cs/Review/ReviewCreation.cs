@@ -61,5 +61,7 @@ public class ReviewCreation : FairOperation
 
 		EnergyFeePayer = a;
 		EnergySpenders.Add(a);
+
+		PayEnergy(execution, p, a);
 	}
 }
