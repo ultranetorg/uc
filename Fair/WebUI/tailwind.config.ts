@@ -26,6 +26,9 @@ export default {
           950: "#0c0e22",
         },
       },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+      },
       fontSize: {
         "2xs": "0.8125rem",
         "2sm": "0.9375rem",

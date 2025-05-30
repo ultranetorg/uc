@@ -13,18 +13,18 @@ import {
 } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { PropsWithClassName } from "types"
+import { PropsWithClassName, SiteBase } from "types"
 
 import { AllSitesButton, CurrentAccountButton } from "./components"
 import { AccountMenu } from "./AccountMenu"
 import { SitesList } from "./SitesList"
 
-const TEST_CURRENT_SITE: SidebarSite = {
+const TEST_CURRENT_SITE: SiteBase = {
   id: "0",
   title: "GameNest",
 }
 
-const TEST_SITES: SidebarSite[] = [
+const TEST_SITES: SiteBase[] = [
   { id: "1", title: "SoftVault" },
   { id: "2", title: "MovieMesh" },
   {
@@ -33,12 +33,6 @@ const TEST_SITES: SidebarSite[] = [
       "This is very ery very very very ery very very very ery very very very ery very very very ery very very long site name",
   },
 ]
-
-type SidebarSite = {
-  id: string
-  title: string
-  selectedAccountId: string
-}
 
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const [isOpen, setIsOpen] = useState(false)

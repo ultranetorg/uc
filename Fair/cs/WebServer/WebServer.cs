@@ -29,7 +29,7 @@ public class WebServer
 											builder.Services.RegisterServices(node);
 
 #if DEBUG
-											builder.Services.AddCorsPolicy(new[] { "http://localhost:5173" });
+											builder.Services.AddCorsPolicy(new[] { "*" });
 #endif
 
 											builder.Services
