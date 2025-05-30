@@ -13,7 +13,7 @@ const BreadcrumbsItem = memo(({ title, path }: BreadcrumbsItemProps) => {
   const formattedTitle = formatTitle(title)
 
   return path ? (
-    <Link className="text-dark-100" to={path} title={title}>
+    <Link className="text-dark-100 hover:font-medium" to={path} title={title}>
       {formattedTitle}
     </Link>
   ) : (
