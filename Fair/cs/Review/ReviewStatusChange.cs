@@ -61,6 +61,6 @@ public class ReviewStatusChange : VotableOperation
 		var pr = execution.Products.Find(p.Product);
 		var a = execution.Authors.Find(pr.Author);
 	
-		PayEnergy(execution, p, a);
+		PayEnergyForModeration(execution, p, a);
 	}
 }

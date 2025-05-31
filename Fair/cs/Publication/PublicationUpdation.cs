@@ -116,6 +116,6 @@ public class PublicationUpdation : VotableOperation
 				execution.PublicationTitles.Index(p.Site, p.Id, v.AsUtf8);
 		}
 	
-		PayEnergy(execution, p, a);
+		PayEnergyForModeration(execution, p, a);
 	}
 }

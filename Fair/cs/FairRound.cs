@@ -11,6 +11,7 @@ public class FairRound : Round
 	public TableState<AutoId, Publication>						Publications;
 	public TableState<AutoId, Review>							Reviews;
 	public TableState<AutoId, Dispute>							Disputes;
+	public TableState<AutoId, DisputeComment>					DisputeComments;
 	public TableState<RawId, Word>								Words;
 	public HnswTableState<string, StringToDictionaryHnswEntity>	PublicationTitles;
 	public HnswTableState<string, StringToOneHnswEntity>		SiteTitles;
@@ -24,6 +25,7 @@ public class FairRound : Round
 		Publications		= new (mcv.Publications);
 		Reviews				= new (mcv.Reviews);
 		Disputes			= new (mcv.Disputes);
+		DisputeComments		= new (mcv.DisputeComments);
 		Words				= new (mcv.Words);
 		PublicationTitles	= new (mcv.PublicationTitles);
 		SiteTitles			= new (mcv.SiteTitles);
@@ -48,6 +50,7 @@ public class FairRound : Round
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
 		if(table == Mcv.Disputes)			return Disputes.Affected;
+		if(table == Mcv.DisputeComments)	return DisputeComments.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
@@ -64,6 +67,7 @@ public class FairRound : Round
 		if(table == Mcv.Publications)		return Publications as S;
 		if(table == Mcv.Reviews)			return Reviews as S;
 		if(table == Mcv.Disputes)			return Disputes as S;
+		if(table == Mcv.DisputeComments)	return DisputeComments as S;
 		if(table == Mcv.Words)				return Words as S;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
 		if(table == Mcv.SiteTitles)			return SiteTitles as S;
@@ -73,7 +77,6 @@ public class FairRound : Round
 	
 	public override void Absorb(Execution execution)
 	{
-
 		base.Absorb(execution);
 
 		var e = execution as FairExecution;
@@ -84,8 +87,8 @@ public class FairRound : Round
 		Categories.Absorb(e.Categories);
 		Publications.Absorb(e.Publications);
 		Reviews.Absorb(e.Reviews);
-		
 		Disputes.Absorb(e.Disputes);
+		DisputeComments.Absorb(e.DisputeComments);
 		Words.Absorb(e.Words);
 		PublicationTitles.Absorb(e.PublicationTitles);
 		SiteTitles.Absorb(e.SiteTitles);

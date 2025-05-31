@@ -3,10 +3,10 @@
 public class FairAccount : Account
 {
 	public string					Nickname { get; set; }
-	public AutoId[]				Authors  { get; set; }
-	public AutoId[]				Sites  { get; set; }
-	public AutoId[]				Reviews  { get; set; }
-	public AutoId[]				FavoriteSites  { get; set; }
+	public AutoId[]					Authors  { get; set; }
+	public AutoId[]					Sites  { get; set; }
+	public AutoId[]					Reviews  { get; set; }
+	public AutoId[]					FavoriteSites  { get; set; }
 	public int						Approvals  { get; set; }
 	public int						Rejections  { get; set; }
 	public AutoId					AllocationSponsor { get; set; }

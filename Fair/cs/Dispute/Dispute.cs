@@ -7,15 +7,16 @@ public enum DisputeFlags : byte
 
 public class Dispute : IBinarySerializable, ITableEntry
 {
-	public AutoId					Id { get; set; }
-	public AutoId					Site { get; set; }
-	public DisputeFlags				Flags { get; set; }
-	public AutoId[]				Yes { get; set; }
-	public AutoId[]				No { get; set; }
-	public AutoId[]				Abs { get; set; }
-	public Time						Expirtaion { get; set; }
- 	public string					Text { get; set; }
+	public AutoId			Id { get; set; }
+	public AutoId			Site { get; set; }
+	public DisputeFlags		Flags { get; set; }
+	public AutoId[]			Yes { get; set; }
+	public AutoId[]			No { get; set; }
+	public AutoId[]			Abs { get; set; }
+	public Time				Expirtaion { get; set; }
+ 	public string			Text { get; set; }
 	public VotableOperation	Proposal { get; set; }
+	public AutoId[]			Comments;
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -33,16 +34,17 @@ public class Dispute : IBinarySerializable, ITableEntry
 	public object Clone()
 	{
 		var a = new Dispute(Mcv){	
-										Id			= Id,	
-										Site		= Site,	
-										Flags		= Flags,
-										Yes			= Yes,
-										No			= No,
-										Abs			= Abs,
-										Expirtaion	= Expirtaion,
-										Text		= Text,
-										Proposal	= Proposal,
-									};
+									Id			= Id,	
+									Site		= Site,	
+									Flags		= Flags,
+									Yes			= Yes,
+									No			= No,
+									Abs			= Abs,
+									Expirtaion	= Expirtaion,
+									Text		= Text,
+									Proposal	= Proposal,
+									Comments	= Comments
+								};
 		return a;
 	}
 
@@ -74,6 +76,8 @@ public class Dispute : IBinarySerializable, ITableEntry
 
  		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
  		Proposal.Read(reader); 
+
+		Comments	= reader.ReadArray<AutoId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -90,5 +94,7 @@ public class Dispute : IBinarySerializable, ITableEntry
 
 		writer.Write(Enum.Parse<FairOperationClass>(Proposal.GetType().Name));
 		Proposal.Write(writer);
+
+		writer.Write(Comments);
 	}
 }

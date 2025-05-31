@@ -63,6 +63,7 @@ public abstract class FairOperation : Operation
 	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
 	public const string				InvalidProposal = "Invalid proposal";
 	public const string				CategoryNotSet = "Category not set";
+	public const string				NotEmpty = "Not empty";
 	public const string				Ended = "Ended";
 
 	public new FairAccount		Signer => base.Signer as FairAccount;
@@ -151,6 +152,24 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
+	public bool RequireAuthorMembership(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author)
+	{
+		site = null;
+
+		if(!RequireAuthorAccess(execution, authorid, out author))
+			return false;
+
+		site = execution.Sites.Find(siteid);
+
+ 		if(!site.Authors.Contains(authorid))
+ 		{
+ 			Error = Denied;
+ 			return false;
+ 		}
+
+		return true;
+	}
+
 	public bool RequireProductAccess(FairExecution round, AutoId id, out Author author, out Product product)
 	{
 		if(!RequireProduct(round, id, out  author, out product))
@@ -187,17 +206,6 @@ public abstract class FairOperation : Operation
  		if(!RequireSite(round, id, out site))
  			return false; 
 
-		if(!site.Moderators.Contains(Signer.Id))
-		{
-			Error = Denied;
-			return false; 
-		}
-
-		return true; 
-	}
-
-	public bool RequireModeratorAccess(Site site)
-	{
 		if(!site.Moderators.Contains(Signer.Id))
 		{
 			Error = Denied;
@@ -310,7 +318,28 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	protected void PayBySite(FairExecution execution, AutoId site)
+ 	public bool RequireDisputeCommentOwnerAccess(FairExecution execution, AutoId commentid, out Site site, out Author author, out Dispute dispute, out DisputeComment comment)
+ 	{
+		site = null;
+		author = null;
+		dispute = null;
+		comment = execution.DisputeComments.Find(commentid);
+		
+		if(comment == null || comment.Deleted)
+		{
+			Error = NotFound;
+			return false; 
+		}
+ 
+		dispute = execution.Disputes.Find(comment.Dispute);
+
+		if(!RequireAuthorMembership(execution, dispute.Site, comment.Author, out site, out author))
+			return false;
+
+ 		return true;
+ 	}
+
+	protected void PayEnergyBySite(FairExecution execution, AutoId site)
 	{
 		var s = execution.Sites.Affect(site);
 			
@@ -318,27 +347,43 @@ public abstract class FairOperation : Operation
 		EnergySpenders = [s];
 	}
 
-	protected void PayByAuthor(FairExecution execution, AutoId site, AutoId author)
+	protected void PayEnergyByAuthor(FairExecution execution, AutoId author)
 	{
 		var a = execution.Authors.Affect(author);
-		var s = execution.Sites.Affect(site);
-
-		a.Energy	-= a.ModerationReward;
-		s.Energy	+= a.ModerationReward;
 			
 		EnergyFeePayer = a;
-		EnergySpenders.Add(a);
+		EnergySpenders = [a];
 	}
 
-	protected void PayEnergy(FairExecution execution, Publication publication, Author author)
+	protected void PayEnergyForModeration(FairExecution execution, Publication publication, Author author = null)
 	{
 		if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 
-			PayByAuthor(execution, publication.Site, author.Id);
+			var a = execution.Authors.Affect(author?.Id ?? execution.Products.Find(publication.Product).Author);
+			var s = execution.Sites.Affect(publication.Site);
+
+			a.Energy	-= a.ModerationReward;
+			s.Energy	+= a.ModerationReward;
+			
+			EnergyFeePayer = a;
+			EnergySpenders.Add(a);
 		}
 		else
 		{	
-			PayBySite(execution, publication.Site);
+			PayEnergyBySite(execution, publication.Site);
+		}
+
+	}
+
+	protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
+	{
+		if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{ 
+			PayEnergyByAuthor(execution, author?.Id ?? execution.Products.Find(publication.Product).Author);
+		}
+		else
+		{	
+			PayEnergyBySite(execution, publication.Site);
 		}
 	}
 }

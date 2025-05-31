@@ -78,6 +78,6 @@ public class SiteAuthorsChange : VotableOperation
  		foreach(var i in Removals)
  			s.Authors = s.Authors.Remove(i);
 
-		PayBySite(execution, s.Id);
+		PayEnergyBySite(execution, s.Id);
 	}
 }

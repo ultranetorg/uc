@@ -60,6 +60,6 @@ public class SitePolicyChange : VotableOperation
 		s.ChangePolicies = new(s.ChangePolicies);
 		s.ChangePolicies[Change] = Policy;
 
-		PayBySite(execution, s.Id);
+		PayEnergyBySite(execution, s.Id);
 	}
 }

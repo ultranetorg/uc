@@ -12,6 +12,7 @@ public enum FairMetaEntityType : int
 	PublicationsCount,
 	ReviewsCount,
 	DisputesCount,
+	DisputeCommentsCount,
 	WordsCount,
 
 	SiteTitleEntryPoint,
@@ -27,6 +28,7 @@ public class FairMcv : Mcv
 	public PublicationTable				Publications;
 	public ReviewTable					Reviews;
 	public DisputeTable					Disputes;
+	public DisputeCommentTable			DisputeComments;
 	public WordTable					Words;
 	public PublicationTitleIndex		PublicationTitles;
 	public SiteTitleIndex				SiteTitles;
@@ -93,11 +95,12 @@ public class FairMcv : Mcv
 		Publications = new (this);
 		Reviews = new (this);
 		Disputes = new (this);
+		DisputeComments = new (this);
 		Words = new (this);
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, DisputeComments, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

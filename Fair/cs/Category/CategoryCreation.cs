@@ -60,6 +60,6 @@ public class CategoryCreation : FairOperation
 			Allocate(execution, Signer, s, execution.Net.EntityLength);
 		}
 
-		PayBySite(execution, s.Id);
+		PayEnergyBySite(execution, s.Id);
 	}
 }

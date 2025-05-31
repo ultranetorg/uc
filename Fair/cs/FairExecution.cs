@@ -13,6 +13,7 @@ public class FairExecution : Execution
 	public PublicationExecution			Publications;
 	public ReviewExecution				Reviews;
 	public DisputeExecution				Disputes;
+	public DisputeCommentExecution		DisputeComments;
 	public WordExecution				Words;
 	public PublicationTitleExecution	PublicationTitles;
 	public SiteTitleExecution			SiteTitles;
@@ -26,6 +27,7 @@ public class FairExecution : Execution
 		Publications = new(this);
 		Reviews = new(this);
 		Disputes = new(this);
+		DisputeComments = new(this);
 		Words = new(this);
 		PublicationTitles = new(this);
 		SiteTitles = new(this);
@@ -55,6 +57,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
 		if(table == Mcv.Disputes)			return Disputes.Affected;
+		if(table == Mcv.DisputeComments)	return DisputeComments.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;

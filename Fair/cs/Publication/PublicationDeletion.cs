@@ -47,15 +47,12 @@ public class PublicationDeletion : FairOperation
 			a = execution.Authors.Affect(a.Id);
 
 			Free(execution, a, a, execution.Net.EntityLength);
-
-			EnergyFeePayer = a;
-			EnergySpenders.Add(a);
+			PayEnergyByAuthor(execution, a.Id);
 		}
 		else if(CanAccessSite(execution, s.Id))
 		{	
 			Free(execution, s, s, execution.Net.EntityLength);
-
-			PayBySite(execution, s.Id);
+			PayEnergyBySite(execution, s.Id);
 		}
 		else
 		{

@@ -97,7 +97,7 @@ public class NicknameChange : VotableOperation
 			
 			case EntityTextField.SiteNickname:		
 				execution.Sites.Affect(Entity).Nickname = Nickname;	
-				PayBySite(execution, Entity);	
+				PayEnergyBySite(execution, Entity);	
 				break;
 		}
 	}

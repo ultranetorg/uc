@@ -11,7 +11,7 @@ public class ReviewCreation : FairOperation
 	public override bool		NonExistingSignerAllowed => true;
 	public override string		Explanation => $"{GetType().Name} Publication={Publication}";
 
-	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).ReviewLengthMaximum;
+	public override bool		IsValid(McvNet net) => Text.Length <= (net as Fair).PostLengthMaximum;
 
 	public override void Read(BinaryReader reader)
 	{
@@ -44,24 +44,42 @@ public class ReviewCreation : FairOperation
 
 		p = execution.Publications.Affect(p.Id);
 
-		p.Reviews = [..p.Reviews, r.Id];
+		p.Reviews		= [..p.Reviews, r.Id];
 		p.ReviewChanges = [..p.ReviewChanges, r.Id];
-
-		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
-
-		Allocate(execution, a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
-
-		if(Signer.Id == execution.LastCreatedId)
-		{
-			Signer.AllocationSponsor		= a.Id;
-			Signer.AllocationSponsorClass	= execution.Mcv.Authors.Id;
-		}
 
 		Signer.Reviews = [..Signer.Reviews, r.Id];
 
-		EnergyFeePayer = a;
-		EnergySpenders.Add(a);
+		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
 
-		PayEnergy(execution, p, a);
+		ISpacetimeHolder sh;
+		ISpaceConsumer sc;
+
+		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			sh = a; 
+			sc = a;
+
+			if(Signer.Id == execution.LastCreatedId)
+			{
+				Signer.AllocationSponsor		= a.Id;
+				Signer.AllocationSponsorClass	= execution.Mcv.Authors.Id;
+			}
+		}
+		else
+		{
+			var s = execution.Sites.Affect(p.Site);
+			sh = s; 
+			sc = s;
+
+			if(Signer.Id == execution.LastCreatedId)
+			{
+				Signer.AllocationSponsor		= s.Id;
+				Signer.AllocationSponsorClass	= execution.Mcv.Sites.Id;
+			}
+		}
+
+		Allocate(execution, sh, sc, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+
+		PayEnergyBySiteOrAuthor(execution, p, a);
 	}
 }

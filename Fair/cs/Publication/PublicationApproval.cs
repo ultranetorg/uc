@@ -83,11 +83,6 @@ public class PublicationApproval : VotableOperation
 		var r = execution.Products.Find(p.Product);
 		var a = execution.Authors.Find(r.Author);
 
-		PayEnergy(execution, p, a);
-
-		if(Error != null)
-			return;
-
 		if(!s.Authors.Contains(a.Id))
 		{
 			a = execution.Authors.Affect(a.Id);
@@ -109,5 +104,7 @@ public class PublicationApproval : VotableOperation
 			
 		if(tr != null)
 			execution.PublicationTitles.Index(s.Id, p.Id, r.Get(tr).AsUtf8);
+
+		PayEnergyForModeration(execution, p, a);
 	}
 }

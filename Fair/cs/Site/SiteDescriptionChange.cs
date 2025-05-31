@@ -54,6 +54,6 @@ public class SiteDescriptionChange : VotableOperation
  
 		s.Description = Description;
 
-		PayBySite(execution, s.Id);
+		PayEnergyBySite(execution, s.Id);
 	}
 }
