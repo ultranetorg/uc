@@ -55,7 +55,7 @@ public class NicknameChange : VotableOperation
 
 		if(!dispute && Field == EntityTextField.SiteNickname)
 	 	{
-	 		if(!RequireSiteModeratorAccess(execution, Entity, out var x))
+	 		if(!RequireModeratorAccess(execution, Entity, out var x))
  				return;
 
 	 		if(x.ChangePolicies[FairOperationClass.NicknameChange] != ChangePolicy.AnyModerator)

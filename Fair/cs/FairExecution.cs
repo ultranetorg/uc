@@ -127,6 +127,16 @@ public class FairExecution : Execution
 // 		}
 	}
 
+	 public bool IsReferendum(Dispute dispute)
+	 {
+		return Sites.Find(dispute.Site).ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Proposal.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+	 }
+
+	 public bool IsReferendum(ChangePolicy policy)
+	 {
+		return policy == ChangePolicy.ElectedByAuthorsMajority;
+	 }
+
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
 /// 	{
 /// 		var id = new EntityFieldAddress(entity, field);

@@ -66,7 +66,7 @@ public class DisputeVoting : FairOperation
  			case ChangePolicy.ElectedByModeratorsMajority :
  			case ChangePolicy.ElectedByModeratorsUnanimously :
  			{
- 				if(!RequireSiteModeratorAccess(execution, s.Id, out var _))
+ 				if(!RequireModeratorAccess(execution, s.Id, out var _))
  					return;
 
 				PayEnergyBySite(execution, s.Id);

@@ -28,18 +28,34 @@ public class DisputeCommentTextChange : FairOperation
 
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireDisputeCommentOwnerAccess(execution, Comment, out var s, out var a, out var d, out var c))
-			return;
+		var c = execution.DisputeComments.Affect(Comment);
+		var d = execution.Disputes.Find(c.Dispute);
 
-		c = execution.DisputeComments.Affect(Comment);
-		a = execution.Authors.Affect(a.Id);
+		if(!execution.IsReferendum(d))
+ 		{
+ 			if(!RequireModeratorAccess(execution, d.Site, out var s))
+ 				return;
+ 
+			s = execution.Sites.Affect(s.Id);
 
-		Free(execution, a, a, Encoding.UTF8.GetByteCount(c.Text));
+			Free(execution, s, s, Encoding.UTF8.GetByteCount(c.Text));
+ 			Allocate(execution, s, s, Encoding.UTF8.GetByteCount(Text));
 		
-		c.Text = Text;
-		
-		Allocate(execution, a, a, Encoding.UTF8.GetByteCount(Text));
+			PayEnergyBySite(execution, s.Id);
+ 		}
+ 		else
+ 		{
+			if(!RequireReferendumCommentAuthorAccess(execution, Comment, out var s, out var a, out var _, out var _))
+				return;
 
-		PayEnergyByAuthor(execution, a.Id);
+			a = execution.Authors.Affect(a.Id);
+
+			Free(execution, a, a, Encoding.UTF8.GetByteCount(c.Text));
+ 			Allocate(execution, a, a, Encoding.UTF8.GetByteCount(Text));
+
+			PayEnergyByAuthor(execution, a.Id);
+ 		}
+
+		c.Text = Text; /// after all above
 	}
 }

@@ -29,7 +29,7 @@ public class CategoryCreation : FairOperation
 
 		if(Parent == null)
 		{
-			if(!RequireSiteModeratorAccess(execution, Site, out s))
+			if(!RequireModeratorAccess(execution, Site, out s))
 				return;
 				
 			var c = execution.Categories.Create(s);

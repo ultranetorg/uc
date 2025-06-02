@@ -16,12 +16,14 @@ public class DisputeCommentCreation : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Dispute		= reader.Read<AutoId>();
+		Author		= reader.ReadNullable<AutoId>();
 		Text		= reader.ReadUtf8();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Dispute);
+		writer.WriteNullable(Author);
 		writer.WriteUtf8(Text);
 	}
 
@@ -30,20 +32,42 @@ public class DisputeCommentCreation : FairOperation
 		if(!RequireDispute(execution, Dispute, out var d))
 			return;
 
-		if(!RequireAuthorMembership(execution, d.Site, Author, out var s, out var a))
-			return;
-
 		var c = execution.DisputeComments.Create(d);
 
 		c.Dispute		= d.Id;
-		c.Author		= Author;
 		c.Text			= Text;
 		c.Created		= execution.Time;
 
 		d = execution.Disputes.Affect(d.Id);
-
 		d.Comments = [..d.Comments, c.Id];
 
-		PayEnergyByAuthor(execution, a.Id);
+		var s = execution.Sites.Find(d.Site);
+
+		if(!execution.IsReferendum(d))
+ 		{
+ 			if(!RequireModeratorAccess(execution, s.Id, out var _))
+ 				return;
+
+			c.Creator = Signer.Id;
+
+			s = execution.Sites.Affect(s.Id);
+
+ 			AllocateEntity(s);
+ 			Allocate(execution, s, s, Encoding.UTF8.GetByteCount(Text));
+			PayEnergyBySite(execution, s.Id);
+ 		}
+ 		else
+ 		{
+ 			if(!RequireAuthorMembership(execution, s.Id, Author, out var _, out var a))
+ 				return;
+ 
+			c.Creator = Author;
+
+			a = execution.Authors.Affect(a.Id);
+
+ 			AllocateEntity(a);
+			Allocate(execution, a, a, Encoding.UTF8.GetByteCount(Text));
+			PayEnergyByAuthor(execution, a.Id);
+ 		}
 	}
 }

@@ -31,6 +31,7 @@ public class DisputeExecution : TableExecution<AutoId, Dispute>
 		a.Yes = [];
 		a.No = [];
 		a.Abs = [];
+		a.Comments = [];
 
 		return Affected[a.Id] = a;
 	}

@@ -66,38 +66,25 @@ public class DisputeCreation : FairOperation
  			return;
  		}
  
- 		switch(p)
+		if(!execution.IsReferendum(p))
  		{
- 			case ChangePolicy.ElectedByModeratorsMajority :
- 			case ChangePolicy.ElectedByModeratorsUnanimously :
- 			{
- 				if(!RequireSiteModeratorAccess(execution, s.Id, out var _))
- 					return;
- 
-				s = execution.Sites.Affect(s.Id);
-
- 				AllocateEntity(s);
-				PayEnergyBySite(execution, s.Id);
-				break;
- 			}
- 			
- 			case ChangePolicy.ElectedByAuthorsMajority :
- 			{
- 				if(!RequireAuthorMembership(execution, s.Id, Creator, out var _, out var a))
- 					return;
- 
-				a = execution.Authors.Affect(a.Id);
-
- 				AllocateEntity(a);
-				PayEnergyByAuthor(execution, a.Id);
- 				break;
- 			}
- 
- 			default:
- 			{
- 				Error = Denied;
+ 			if(!RequireModeratorAccess(execution, s.Id, out var _))
  				return;
- 			}
+ 
+			s = execution.Sites.Affect(s.Id);
+
+ 			AllocateEntity(s);
+			PayEnergyBySite(execution, s.Id);
+ 		}
+ 		else
+ 		{
+ 			if(!RequireAuthorMembership(execution, s.Id, Creator, out var _, out var a))
+ 				return;
+ 
+			a = execution.Authors.Affect(a.Id);
+
+ 			AllocateEntity(a);
+			PayEnergyByAuthor(execution, a.Id);
  		}
  
  		var d = execution.Disputes.Create(s);

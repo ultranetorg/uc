@@ -4,7 +4,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Dispute { get; set; }
-    public AutoId			Author { get; set; }
+    public AutoId			Creator { get; set; }
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
 
@@ -25,7 +25,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	{
 		return new DisputeComment(Mcv) {Id			= Id,
 										Dispute		= Dispute,
-										Author		= Author,
+										Creator		= Creator,
 										Text		= Text,
 										Created		= Created
 										};
@@ -50,7 +50,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<AutoId>();
 		Dispute		= reader.Read<AutoId>();
-		Author		= reader.Read<AutoId>();
+		Creator		= reader.Read<AutoId>();
 		Text		= reader.ReadUtf8();
 		Created		= reader.Read<Time>();
 	}
@@ -59,7 +59,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Dispute);
-		writer.Write(Author);
+		writer.Write(Creator);
 		writer.WriteUtf8(Text);
 		writer.Write(Created);
 	}
