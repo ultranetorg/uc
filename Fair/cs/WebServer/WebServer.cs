@@ -16,14 +16,19 @@ public class WebServer
 
 		var t = node.CreateThread(() =>	{
 											var o = new WebApplicationOptions
-											{
+													{
 														ApplicationName = GetType().Assembly.GetName().Name,
 														ContentRootPath = Path.GetDirectoryName(GetType().Assembly.Location),
 														//WebRootPath = $"{Path.GetDirectoryName(GetType().Assembly.Location)}/WebUI",
 														EnvironmentName = Node.Net.Zone > Zone._Public ? Environments.Production : Environments.Development
-											};
+													};
 
 											var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(o);
+
+											if(!node.Settings.WebServerLogging)
+											{
+												builder.Logging.ClearProviders();
+											}
 
 											// Add services to the container.
 											builder.Services.RegisterServices(node);
@@ -32,17 +37,13 @@ public class WebServer
 											builder.Services.AddCorsPolicy(new[] { "*" });
 #endif
 
-											builder.Services
-												.AddControllers(options =>
-												{
-													options.Filters.Add<HttpResponseExceptionFilter>();
-												})
-												.AddJsonOptions(options =>
-												{
-													options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
-
-													options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-												});
+											builder.Services.AddControllers(options =>	{
+																							options.Filters.Add<HttpResponseExceptionFilter>();
+																						})
+															.AddJsonOptions(options =>	{
+																							options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
+																							options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+																						});
 
 											WebApplication = builder.Build();
 

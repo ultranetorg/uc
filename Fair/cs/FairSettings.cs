@@ -31,6 +31,7 @@ public class EthereumSettings : Settings
 public class FairNodeSettings : McvNodeSettings
 {
 	public string		WebServerListenUrl { get; set; }
+	public bool			WebServerLogging { get; set; }
 
 	public FairNodeSettings()
 	{
