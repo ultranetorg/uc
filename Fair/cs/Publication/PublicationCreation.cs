@@ -35,29 +35,29 @@ public class PublicationCreation : FairOperation
 		}
 					
 		var p = execution.Publications.Create(s);
-		p.Site = Site;
+		p.Site		= Site;
+		p.Product	= Product;
+		p.Creator	= Signer.Id;
 	
 		s = execution.Sites.Affect(Site);
+		s.PendingPublications = [..s.PendingPublications, p.Id];
 		
 		if(CanAccessAuthor(execution, a.Id))
 		{ 
 			a = execution.Authors.Affect(a.Id);
 
-			p.Flags = PublicationFlags.CreatedByAuthor;
-						
-			Allocate(execution, a, a, execution.Net.EntityLength);
+			p.Flags = PublicationFlags.ApprovedByAuthor;
 
-			EnergySpenders.Add(a);
-			SpacetimeSpenders.Add(a);
+			a.Energy	-= s.AuthorPublicationRequestFee;
+			s.Energy	+= s.AuthorPublicationRequestFee;
+
+			Allocate(execution, a, a, execution.Net.EntityLength);
+			PayEnergyByAuthor(execution, a.Id);
 		}
 		else if(CanAccessSite(execution, Site))
 		{	
-			p.Flags = PublicationFlags.CreatedBySite;
-
 			Allocate(execution, s, s, execution.Net.EntityLength);
-
-			EnergySpenders.Add(s);
-			SpacetimeSpenders.Add(s);
+			PayEnergyBySite(execution, s.Id);
 		}
 		else
 		{
@@ -65,12 +65,8 @@ public class PublicationCreation : FairOperation
 			return;
 		}
 
-		p.Product	= Product;
-		p.Creator	= Signer.Id;
-
 		var r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
 
-		s.PendingPublications = [..s.PendingPublications, p.Id];
 	}
 }

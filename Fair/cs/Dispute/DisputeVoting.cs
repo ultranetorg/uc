@@ -28,14 +28,14 @@ public class DisputeVoting : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Dispute	= reader.Read<AutoId>();
-		Voter	= reader.Read<AutoId>();
+		Voter	= reader.ReadNullable<AutoId>();
 		Vote	= reader.Read<DisputeVote>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Dispute);
-		writer.Write(Voter);
+		writer.WriteNullable(Voter);
 		writer.Write(Vote);
 	}
 
@@ -66,29 +66,19 @@ public class DisputeVoting : FairOperation
  			case ChangePolicy.ElectedByModeratorsMajority :
  			case ChangePolicy.ElectedByModeratorsUnanimously :
  			{
- 				if(!s.Moderators.Contains(Voter)) /// Voter is Account
- 				{
- 					Error = Denied;
+ 				if(!RequireModeratorAccess(execution, s.Id, out var _))
  					return;
- 				}
- 
- 				if(!RequireAccountAccess(execution, Voter, out var _))
- 					return;
- 
+
+				PayEnergyBySite(execution, s.Id);
  				break;
  			}
  			
  			case ChangePolicy.ElectedByAuthorsMajority :
  			{
- 				if(!s.Authors.Contains(Voter)) /// Voter is Author
- 				{
- 					Error = Denied;
- 					return;
- 				}
- 
- 				if(!RequireAuthorAccess(execution, Voter, out var _))
+ 				if(!RequireAuthorMembership(execution, s.Id, Voter, out var _, out var a))
  					return;
  
+				PayEnergyByAuthor(execution, a.Id);
  				break;
  			}
  		}
@@ -112,9 +102,9 @@ public class DisputeVoting : FairOperation
  
  		var	fail = policy switch
  						  {
- 							 ChangePolicy.ElectedByModeratorsMajority	=> d.No.Length > s.Moderators.Length/2,
+ 							 ChangePolicy.ElectedByModeratorsMajority		=> d.No.Length > s.Moderators.Length/2,
  							 ChangePolicy.ElectedByModeratorsUnanimously	=> d.No.Length == s.Moderators.Length,
- 							 ChangePolicy.ElectedByAuthorsMajority		=> d.No.Length > s.Authors.Length/2,
+ 							 ChangePolicy.ElectedByAuthorsMajority			=> d.No.Length > s.Authors.Length/2,
  							 _ => throw new IntegrityException()
  						  };
  

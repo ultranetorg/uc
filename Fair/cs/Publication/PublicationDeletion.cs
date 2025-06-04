@@ -42,19 +42,17 @@ public class PublicationDeletion : FairOperation
 			s.PublicationsCount--;
 		}
 
-		if(((p.Flags & PublicationFlags.CreatedByAuthor) == PublicationFlags.CreatedByAuthor) && a.Owners.Contains(Signer.Id))
+		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor) && CanAccessAuthor(execution, a.Id))
 		{ 
 			a = execution.Authors.Affect(a.Id);
 
 			Free(execution, a, a, execution.Net.EntityLength);
-
-			EnergySpenders.Add(a);
+			PayEnergyByAuthor(execution, a.Id);
 		}
-		else if(((p.Flags & PublicationFlags.CreatedBySite) == PublicationFlags.CreatedBySite) && (execution.Sites.Find(c.Site)?.Moderators.Contains(Signer.Id) ?? false))
+		else if(CanAccessSite(execution, s.Id))
 		{	
 			Free(execution, s, s, execution.Net.EntityLength);
-
-			EnergySpenders.Add(s);
+			PayEnergyBySite(execution, s.Id);
 		}
 		else
 		{

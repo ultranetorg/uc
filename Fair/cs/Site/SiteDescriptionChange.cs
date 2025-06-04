@@ -40,7 +40,7 @@ public class SiteDescriptionChange : VotableOperation
 
 		if(!dispute)
 	 	{
-	 		if(!RequireSiteModeratorAccess(execution, Site, out var x))
+	 		if(!RequireModeratorAccess(execution, Site, out var x))
  				return;
 
 	 		if(x.ChangePolicies[FairOperationClass.SiteDescriptionChange] != ChangePolicy.AnyModerator)
@@ -53,5 +53,7 @@ public class SiteDescriptionChange : VotableOperation
  		var s = execution.Sites.Affect(Site);
  
 		s.Description = Description;
+
+		PayEnergyBySite(execution, s.Id);
 	}
 }

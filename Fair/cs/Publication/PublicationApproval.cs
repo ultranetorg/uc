@@ -100,16 +100,11 @@ public class PublicationApproval : VotableOperation
 			s.PublicationsCount++;
 		}
 
-		if(p.Flags.HasFlag(PublicationFlags.CreatedByAuthor))
-		{
-			a = execution.Authors.Affect(a.Id);
-
-			PayForModeration(execution, p, a);
-		}
-
 		var tr = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
 			
 		if(tr != null)
 			execution.PublicationTitles.Index(s.Id, p.Id, r.Get(tr).AsUtf8);
+
+		PayEnergyForModeration(execution, p, a);
 	}
 }

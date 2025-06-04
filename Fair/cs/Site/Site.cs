@@ -28,6 +28,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					PendingPublications { get; set; }
 
 	public int						PublicationsCount { get; set; }
+	public int						AuthorPublicationRequestFee { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -68,25 +69,26 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public object Clone()
 	{
-		var a = new Site(Mcv){	Id						= Id,
-								Title					= Title,
-								Description				= Description,
-								Nickname				= Nickname,
-								ModerationReward		= ModerationReward,
-									
-								ChangePolicies			= ChangePolicies,
+		var a = new Site(Mcv){	Id							= Id,
+								Title						= Title,
+								Description					= Description,
+								Nickname					= Nickname,
+								ModerationReward			= ModerationReward,
+								AuthorPublicationRequestFee	= AuthorPublicationRequestFee,
+								
+								ChangePolicies				= ChangePolicies,
 
-								Expiration				= Expiration,
-								Space					= Space,
-								Spacetime				= Spacetime,
+								Expiration					= Expiration,
+								Space						= Space,
+								Spacetime					= Spacetime,
 
-								PublicationsCount		= PublicationsCount,
+								PublicationsCount			= PublicationsCount,
 
-								Authors					= Authors,
-								Moderators				= Moderators,
-								Categories				= Categories,
-								Disputes				= Disputes,
-								PendingPublications		= PendingPublications
+								Authors						= Authors,
+								Moderators					= Moderators,
+								Categories					= Categories,
+								Disputes					= Disputes,
+								PendingPublications			= PendingPublications
 								};
 		
 		((IEnergyHolder)this).Clone(a);
@@ -111,25 +113,26 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public void Read(BinaryReader reader)
 	{
-		Id						= reader.Read<AutoId>();
-		Nickname				= reader.ReadUtf8();
-		Description				= reader.ReadUtf8();
-		Title					= reader.ReadUtf8();
-		ModerationReward		= reader.Read7BitEncodedInt();
+		Id							= reader.Read<AutoId>();
+		Nickname					= reader.ReadUtf8();
+		Description					= reader.ReadUtf8();
+		Title						= reader.ReadUtf8();
+		ModerationReward			= reader.Read7BitEncodedInt();
+		AuthorPublicationRequestFee	= reader.Read7BitEncodedInt();
 		
-		ChangePolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
+		ChangePolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
 
-		Expiration				= reader.ReadInt16();
-		Space					= reader.Read7BitEncodedInt64();
-		Spacetime				= reader.Read7BitEncodedInt64();
+		Expiration					= reader.ReadInt16();
+		Space						= reader.Read7BitEncodedInt64();
+		Spacetime					= reader.Read7BitEncodedInt64();
 		
-		PublicationsCount		= reader.Read7BitEncodedInt();
+		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Authors					= reader.ReadArray<AutoId>();
-		Moderators				= reader.ReadArray<AutoId>();
-		Categories				= reader.ReadArray<AutoId>();
-		Disputes				= reader.ReadArray<AutoId>();
-		PendingPublications		= reader.ReadArray<AutoId>();
+		Authors						= reader.ReadArray<AutoId>();
+		Moderators					= reader.ReadArray<AutoId>();
+		Categories					= reader.ReadArray<AutoId>();
+		Disputes					= reader.ReadArray<AutoId>();
+		PendingPublications			= reader.ReadArray<AutoId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -141,6 +144,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8(Description);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
+		writer.Write7BitEncodedInt(AuthorPublicationRequestFee);
 		
 		writer.Write(ChangePolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
 

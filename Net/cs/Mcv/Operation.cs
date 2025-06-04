@@ -146,10 +146,11 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		var n = consumer.Expiration - round.Time.Days;
 	
 		payer.Spacetime -= ToBD(space, (short)n);
-		SpacetimeSpenders.Add(payer);
 
 		for(int i = 0; i < n; i++)
 			round.Spacetimes[i] += space;
+
+		SpacetimeSpenders.Add(payer);
 	}
 
 	public void Free(Execution round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)

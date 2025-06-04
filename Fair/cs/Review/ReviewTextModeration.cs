@@ -109,6 +109,6 @@ public class ReviewTextModeration : VotableOperation
 			}
 		}
 
-		PayForModeration(execution, p, a);
+		PayEnergyForModeration(execution, p, a);
 	}
 }

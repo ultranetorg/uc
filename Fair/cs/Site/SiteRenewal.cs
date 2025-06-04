@@ -1,13 +1,13 @@
 ﻿namespace Uccs.Fair;
 
-class SiteRewal : FairOperation
+class SiteRenewal : FairOperation
 {
 	public AutoId				SiteId { get; set; }
 	public byte					Years { get; set; }
 
 	public override string		Explanation => $"{SiteId}, {Years}";
 	
-	public SiteRewal()
+	public SiteRenewal()
 	{
 	}
 	
@@ -33,7 +33,7 @@ class SiteRewal : FairOperation
 
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireSiteModeratorAccess(execution, SiteId, out var a))
+		if(!RequireModeratorAccess(execution, SiteId, out var a))
 			return;
 		
 		a = execution.Sites.Affect(SiteId);

@@ -2,8 +2,8 @@ namespace Uccs.Fair;
 
 public class CategoryMovement : FairOperation
 {
-	public AutoId		Category { get; set; }
-	public AutoId		Parent { get; set; }
+	public AutoId				Category { get; set; }
+	public AutoId				Parent { get; set; }
 
 	public override bool		IsValid(McvNet net) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Explanation => $"{GetType().Name}, {Parent}";
@@ -56,40 +56,6 @@ public class CategoryMovement : FairOperation
 			p.Categories = [..p.Categories, c.Id];
 		}
 
-// 			case CategoryChange.RemoveCategory:
-// 			{	
-// 				if(!RequireCategoryAccess(round, EntityId, Signer, out var c))
-// 					return;
-// 
-// 				if(c.Parent != Category)
-// 				{
-// 					Error = NotFound;
-// 					return;
-// 				}
-// 
-// 				c = round.Categories.Affect(EntityId);
-// 
-// 				c.Parent = null;
-// 				c.Categories = c.Categories.Where(i => i != EntityId).ToArray();
-// 				
-// 				break;
-// 			}
-			
-			//case CategoryChange.Security:
-			//{
-			//	p.Fields |= CategoryField.Security;
-			//	
-			//	p.AffectSecurity();
-			//
-			//	foreach(var i in Security.Permissions)
-			//	{
-			//		if(i.Value[0] == CategoryActor.None)
-			//			p.Security.Permissions.Remove(i.Key);
-			//		else
-			//			p.Security.Permissions[i.Key] = i.Value;
-			//	}
-			//	break;
-			//}
-		
+		PayEnergyBySite(execution, c.Site);
 	}
 }

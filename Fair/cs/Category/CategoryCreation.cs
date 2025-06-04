@@ -25,9 +25,11 @@ public class CategoryCreation : FairOperation
 
 	public override void Execute(FairExecution execution, bool dispute)
 	{
+		Site s;
+
 		if(Parent == null)
 		{
-			if(!RequireSiteModeratorAccess(execution, Site, out var s))
+			if(!RequireModeratorAccess(execution, Site, out s))
 				return;
 				
 			var c = execution.Categories.Create(s);
@@ -45,7 +47,7 @@ public class CategoryCreation : FairOperation
 			if(!RequireCategory(execution, Parent, out var p))
 				return;
 
-			var s = execution.Sites.Affect(p.Site);
+			s = execution.Sites.Affect(p.Site);
 			var c = execution.Categories.Create(s);
 			
 			c.Site = p.Site;
@@ -57,5 +59,7 @@ public class CategoryCreation : FairOperation
 		
 			Allocate(execution, Signer, s, execution.Net.EntityLength);
 		}
+
+		PayEnergyBySite(execution, s.Id);
 	}
 }

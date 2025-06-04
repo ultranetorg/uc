@@ -55,7 +55,7 @@ public class NicknameChange : VotableOperation
 
 		if(!dispute && Field == EntityTextField.SiteNickname)
 	 	{
-	 		if(!RequireSiteModeratorAccess(execution, Entity, out var x))
+	 		if(!RequireModeratorAccess(execution, Entity, out var x))
  				return;
 
 	 		if(x.ChangePolicies[FairOperationClass.NicknameChange] != ChangePolicy.AnyModerator)
@@ -87,9 +87,18 @@ public class NicknameChange : VotableOperation
 
 		switch(Field)
 		{
-			case EntityTextField.AccountNickname:	execution.AffectAccount(Entity).Nickname = Nickname;	break;
-			case EntityTextField.AuthorNickname:	execution.Authors.Affect(Entity).Nickname = Nickname;	break;
-			case EntityTextField.SiteNickname:		execution.Sites.Affect(Entity).Nickname = Nickname;		break;
+			case EntityTextField.AccountNickname:	
+				execution.AffectAccount(Entity).Nickname = Nickname;	
+				break;
+
+			case EntityTextField.AuthorNickname:	
+				execution.Authors.Affect(Entity).Nickname = Nickname;	
+				break;
+			
+			case EntityTextField.SiteNickname:		
+				execution.Sites.Affect(Entity).Nickname = Nickname;	
+				PayEnergyBySite(execution, Entity);	
+				break;
 		}
 	}
 }

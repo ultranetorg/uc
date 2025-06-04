@@ -45,7 +45,7 @@ public class SitePolicyChange : VotableOperation
 
 		if(!dispute)
 	 	{
-	 		if(!RequireSiteModeratorAccess(execution, Site, out var x))
+	 		if(!RequireModeratorAccess(execution, Site, out var x))
  				return;
 
 	 		if(x.ChangePolicies[FairOperationClass.SitePolicyChange] != ChangePolicy.AnyModerator)
@@ -59,5 +59,7 @@ public class SitePolicyChange : VotableOperation
  
 		s.ChangePolicies = new(s.ChangePolicies);
 		s.ChangePolicies[Change] = Policy;
+
+		PayEnergyBySite(execution, s.Id);
 	}
 }

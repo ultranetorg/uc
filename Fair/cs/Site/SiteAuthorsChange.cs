@@ -61,7 +61,7 @@ public class SiteAuthorsChange : VotableOperation
 
 		if(!dispute)
 	 	{
-	 		if(!RequireSiteModeratorAccess(execution, Site, out var x))
+	 		if(!RequireModeratorAccess(execution, Site, out var x))
  				return;
 
 	 		if(x.ChangePolicies[FairOperationClass.SiteAuthorsChange] != ChangePolicy.AnyModerator)
@@ -77,5 +77,7 @@ public class SiteAuthorsChange : VotableOperation
  
  		foreach(var i in Removals)
  			s.Authors = s.Authors.Remove(i);
+
+		PayEnergyBySite(execution, s.Id);
 	}
 }

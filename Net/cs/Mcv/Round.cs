@@ -417,17 +417,8 @@ public abstract class Round : IBinarySerializable
 			
 				if(o.EnergyFeePayer == null)
 				{
-					if(o.EnergySpenders.Count == 0)
-					{	
-						o.EnergyFeePayer = s;
-						o.EnergySpenders.Add(s);
-					}
-					else if(o.EnergySpenders.Count == 1)
-					{
-						o.EnergyFeePayer = o.EnergySpenders.First();
-					}
-					else
-						throw new IntegrityException();
+					o.EnergyFeePayer = s;
+					o.EnergySpenders.Add(s);
 				}
 
 				if(o.EnergyFeePayer.BandwidthExpiration >= ConsensusTime.Days)
