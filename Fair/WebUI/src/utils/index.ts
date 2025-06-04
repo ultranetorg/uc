@@ -1,3 +1,4 @@
+export * from "./arrayUtils"
 export * from "./categoryTreeUtils"
 export * from "./formatUtils"
 export * from "./integerUtils"
