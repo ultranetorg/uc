@@ -8,5 +8,10 @@ Accept: application/json
 
 ### GET Dispute
 
-GET {{Uccs.Fair.WebApi_BasePath}}/65793-1
+GET {{Uccs.Fair.WebApi_BasePath}}/65576-21
+Accept: application/json
+
+### GET Dispute Comments
+
+GET {{Uccs.Fair.WebApi_BasePath}}/65576-21/comments
 Accept: application/json

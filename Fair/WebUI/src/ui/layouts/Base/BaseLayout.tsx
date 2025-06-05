@@ -8,7 +8,7 @@ export const BaseLayout = ({ children }: PropsWithChildren) => (
     <div className="mx-auto max-w-[1440px] px-8">
       <div className="flex min-h-screen w-full">
         <Sidebar className="w-61" />
-        <div className="z-0 w-full pl-8">{children ?? <Outlet />}</div>
+        <div className="w-full pl-8">{children ?? <Outlet />}</div>
       </div>
     </div>
   </div>

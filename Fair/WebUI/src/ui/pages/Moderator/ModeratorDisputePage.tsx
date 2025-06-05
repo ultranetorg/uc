@@ -1,13 +1,15 @@
 import { useParams } from "react-router-dom"
-
-import { useGetModeratorDispute } from "entities"
 import { useTranslation } from "react-i18next"
+
+import { useGetModeratorDispute, useGetModeratorDisputeComments } from "entities"
 
 export const ModeratorDisputePage = () => {
   const { siteId, disputeId } = useParams()
   const { t } = useTranslation()
 
   const { isPending, data: dispute } = useGetModeratorDispute(siteId, disputeId)
+  const { isPending: isCommentsPending, data: comments } = useGetModeratorDisputeComments(siteId, disputeId)
+  console.log("comments", comments)
 
   if (isPending || !dispute) {
     return "Loading..."
@@ -55,6 +57,20 @@ export const ModeratorDisputePage = () => {
         <div>Type:</div>
         <div>{JSON.stringify(dispute.proposal)}</div>
       </div>
+      <h3>Comments:</h3>
+      {isCommentsPending || !comments ? (
+        "Loading comments..."
+      ) : (
+        <ul>
+          {comments.items.map(comment => (
+            <li className="m-2 border" key={comment.id}>
+              <div>{comment.text}</div>
+              <div>Author: {comment.creatorNickname || comment.creatorAddress}</div>
+              <div>Created at: {comment.created}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

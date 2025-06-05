@@ -7,6 +7,9 @@ export default {
       animation: {
         "spin-slow": "spin 3s linear infinite",
       },
+      boxShadow: {
+        md: "0 4px 14px 0 rgba(28, 38, 58, 0.1)",
+      },
       colors: {
         favorite: "#e3a427",
         dark: {
@@ -47,6 +50,7 @@ export default {
       },
       spacing: {
         "2.5": "0.625rem",
+        "8.5": "2.125rem",
         18: "4.5rem",
         39: "9.75rem",
         51: "12.75rem",
