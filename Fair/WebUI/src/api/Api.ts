@@ -22,6 +22,7 @@ import {
   User,
 } from "types"
 import { CategoryPublications } from "types/CategoryPublications"
+import { ModeratorDisputeComment } from "types/ModeratorDisputeComment"
 
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
@@ -56,6 +57,12 @@ export type Api = {
   ): Promise<TotalItemsResult<AuthorReferendum>>
 
   getModeratorDispute(siteId: string, disputeId: string): Promise<ModeratorDisputeDetails>
+  getModeratorDisputeComments(
+    siteId: string,
+    disputeId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<ModeratorDisputeComment>>
   getModeratorDisputes(
     siteId: string,
     page?: number,

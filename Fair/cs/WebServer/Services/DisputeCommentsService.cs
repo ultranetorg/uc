@@ -9,20 +9,22 @@ public class DisputeCommentsService
 	FairMcv mcv
 ) : IDisputeCommentsService
 {
-	public TotalItemsResult<DisputeCommentModel> GetDisputeComments(string disputeId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<DisputeCommentModel> GetDisputeComments(string siteId, string disputeId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(DisputeCommentsService)}.{nameof(DisputeCommentsService.GetDisputeComments)} method called with {{DisputeId}}, {{Page}}, {{PageSize}}", disputeId, page, pageSize);
+		logger.LogDebug($"GET {nameof(DisputeCommentsService)}.{nameof(DisputeCommentsService.GetDisputeComments)} method called with {{SiteId}}, {{DisputeId}}, {{Page}}, {{PageSize}}", siteId, disputeId, page, pageSize);
 
+		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(disputeId);
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
+		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId disputeEntityId = AutoId.Parse(disputeId);
 
 		lock(mcv.Lock)
 		{
 			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
-			if(dispute == null)
+			if(dispute == null || dispute.Site != siteEntityId)
 			{
 				throw new EntityNotFoundException(nameof(Dispute).ToLower(), disputeId);
 			}

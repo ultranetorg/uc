@@ -1,26 +1,18 @@
 ﻿namespace Uccs.Fair;
 
-public class DisputeModel
+public class DisputeModel(Dispute dispute)
 {
-	public string Id { get; set; }
+	public string Id { get; set; } = dispute.Id.ToString();
 
-	public int YesCount { get; set; }
-	public int NoCount { get; set; }
-	public int AbsCount { get; set; }
+	public int YesCount { get; set; } = dispute.Yes.Count();
+	public int NoCount { get; set; } = dispute.No.Count();
+	public int AbsCount { get; set; } = dispute.Abs.Count();
 
-	public int Expiration { get; set; }
+	public int Expiration { get; set; } = dispute.Expirtaion.Days;
 
-	public string Text { get; set; }
+	public string Text { get; set; } = dispute.Text;
 
 	public BaseVotableOperationModel Proposal { get; set; }
 
-	public DisputeModel(Dispute dispute)
-	{
-		Id = dispute.Id.ToString();
-		YesCount = dispute.Yes.Count();
-		NoCount = dispute.No.Count();
-		AbsCount = dispute.Abs.Count();
-		Expiration = dispute.Expirtaion.Days;
-		Text = dispute.Text;
-	}
+	public int CommentsCount { get; set; } = dispute.Comments.Count();
 }

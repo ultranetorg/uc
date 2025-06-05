@@ -49,6 +49,7 @@ export const ModeratorDisputesPage = () => {
               <th>Votes</th>
               <th>Type</th>
               <th>Proposal</th>
+              <th>Comments Count</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +69,7 @@ export const ModeratorDisputesPage = () => {
                 </td>
                 <td>{t(d.proposal.$type, { ns: "votableOperations" })}</td>
                 <td>{JSON.stringify(d.proposal)}</td>
+                <td>{d.commentsCount}</td>
               </tr>
             ))}
           </tbody>

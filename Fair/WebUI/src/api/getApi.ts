@@ -7,6 +7,7 @@ import {
   CategoryParentBase,
   CategoryPublications,
   ModeratorDispute,
+  ModeratorDisputeComment,
   ModeratorDisputeDetails,
   ModeratorPublication,
   ModeratorReview,
@@ -122,6 +123,20 @@ const getAuthorReferendums = async (
 const getModeratorDispute = async (siteId: string, disputeId: string): Promise<ModeratorDisputeDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes/${disputeId}`).then(res => res.json())
 
+const getModeratorDisputeComments = async (
+  siteId: string,
+  disputeId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ModeratorDisputeComment>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes/${disputeId}/comments` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getModeratorDisputes = async (
   siteId: string,
   page?: number,
@@ -189,6 +204,7 @@ const api: Api = {
   getCategoryPublications,
   getAuthorReferendums,
   getModeratorDispute,
+  getModeratorDisputeComments,
   getModeratorDisputes,
   getModeratorPublication,
   getModeratorPublications,
