@@ -1,3 +1,4 @@
+export * from "./arrow-up"
 export * from "./chat-x"
 export * from "./chevron-left"
 export * from "./chevron-right"
