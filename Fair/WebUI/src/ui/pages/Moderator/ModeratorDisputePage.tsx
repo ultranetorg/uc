@@ -9,7 +9,6 @@ export const ModeratorDisputePage = () => {
 
   const { isPending, data: dispute } = useGetModeratorDispute(siteId, disputeId)
   const { isPending: isCommentsPending, data: comments } = useGetModeratorDisputeComments(siteId, disputeId)
-  console.log("comments", comments)
 
   if (isPending || !dispute) {
     return "Loading..."

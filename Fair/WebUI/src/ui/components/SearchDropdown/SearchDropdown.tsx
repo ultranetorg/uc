@@ -4,10 +4,11 @@ import { InputActionMeta } from "react-select"
 import { PropsWithClassName } from "types"
 
 import { CustomSelect, IndicatorsContainer, LoadingMessage, Menu, Option } from "./components"
-import { styles } from "./styles"
-import { IndicatorsContainerSelectProps, SearchDropdownItem } from "./types"
+import { getStyles } from "./styles"
+import { IndicatorsContainerSelectProps, SearchDropdownItem, SearchDropdownSize } from "./types"
 
 export type SearchDropdownBaseProps = {
+  size?: SearchDropdownSize
   isLoading?: boolean
   inputValue?: string
   items?: SearchDropdownItem[]
@@ -24,6 +25,7 @@ export type SearchDropdownProps = PropsWithClassName & IndicatorsContainerSelect
 
 export const SearchDropdown = memo(
   ({
+    size = "large",
     className,
     isLoading,
     inputValue: propInputValue,
@@ -39,9 +41,16 @@ export const SearchDropdown = memo(
     const [inputValue, setInputValue] = useState(propInputValue)
     const [isDropdownOpen, setDropdownOpen] = useState(false)
 
+    const styles = getStyles(size)
+
     const handleBlur = () => setDropdownOpen(false)
 
-    const handleChange = (item: SearchDropdownItem | null) => onChange?.(item ?? undefined)
+    const handleChange = (item: SearchDropdownItem | null) => {
+      setInputValue("")
+      setDropdownOpen(false)
+
+      onChange?.(item ?? undefined)
+    }
 
     const handleClearInputClick = (e: MouseEvent<HTMLDivElement>) => {
       e.preventDefault()
@@ -100,6 +109,7 @@ export const SearchDropdown = memo(
         styles={styles}
         components={{ IndicatorsContainer, LoadingMessage, Menu, Option }}
         maxMenuHeight={360}
+        value={null}
       />
     )
   },

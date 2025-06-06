@@ -1,18 +1,20 @@
 import { KeyboardEvent, useCallback, useMemo } from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useSearchQueryContext, useSiteContext } from "app"
-import { ChatXSvg, PersonKingSvg } from "assets"
 import { SEARCH_DELAY } from "constants"
 import { useSearchLitePublications } from "entities"
-import { Button, Logo, SearchDropdown, SearchDropdownItem } from "ui/components"
+import { SearchDropdown, SearchDropdownItem } from "ui/components"
 
-import { CategoriesButton } from "./components"
+import { LinkCounter } from "./LinkCounter"
+import { LogoDropdownButton } from "./LogoDropdownButton"
+import { useTranslation } from "react-i18next"
 
 export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation("siteHeader")
 
   const { site } = useSiteContext()
   const { query, setQuery, triggerSearchEvent } = useSearchQueryContext()
@@ -28,7 +30,7 @@ export const SiteHeader = () => {
         navigate(`/${siteId}/p/${item.value}`)
       }
     },
-    [siteId, navigate],
+    [navigate, siteId],
   )
 
   const handleClearInputClick = useCallback(() => {
@@ -65,17 +67,9 @@ export const SiteHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-8 py-8">
-      <Link to={`/${siteId}`}>
-        <Logo title={site.title} />
-      </Link>
-      <CategoriesButton siteId={siteId!} />
-      <Link to={`/${siteId}/m-d`}>
-        <Button className="gap-2" image={<ChatXSvg className="fill-zinc-700 stroke-zinc-700" />} label="Disputes" />
-      </Link>
-      <Link to={`/${siteId}/m`}>
-        <Button className="gap-2" image={<PersonKingSvg className="stroke-zinc-700" />} label="Moderation" />
-      </Link>
+      <LogoDropdownButton title={site.title} />
       <SearchDropdown
+        size="medium"
         className="flex-grow"
         isLoading={isFetching}
         items={items}
@@ -85,6 +79,13 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
+      <LinkCounter count={2} to={`/${siteId}/m-d`}>
+        {t("governance")}
+      </LinkCounter>
+      <LinkCounter count={2} to={`/${siteId}/m`}>
+        {t("moderation")}
+      </LinkCounter>
+      <LinkCounter to={`/${siteId}/b`}>{t("about")}</LinkCounter>
     </div>
   )
 }

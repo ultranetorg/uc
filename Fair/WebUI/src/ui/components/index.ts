@@ -4,6 +4,7 @@ export * from "./specific"
 
 export * from "./Breadcrumbs"
 export * from "./Button"
+export * from "./DropdownButton"
 export * from "./HighlightText"
 export * from "./Input"
 export * from "./Logo"

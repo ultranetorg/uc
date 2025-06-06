@@ -13,3 +13,5 @@ export type IndicatorsContainerSelectProps = {
 export type MenuSelectProps = {
   noticeMessage?: string
 }
+
+export type SearchDropdownSize = "medium" | "large"

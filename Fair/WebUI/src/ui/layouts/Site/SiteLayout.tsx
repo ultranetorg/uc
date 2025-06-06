@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react"
 import { Outlet } from "react-router-dom"
 
-import { SiteHeader } from "./SiteHeader"
+import { SiteHeader } from "ui/components"
 
 export const SiteLayout = ({ children }: PropsWithChildren) => {
   return (
