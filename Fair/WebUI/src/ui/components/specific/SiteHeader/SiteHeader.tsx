@@ -66,7 +66,7 @@ export const SiteHeader = () => {
   }
 
   return (
-    <div className="flex items-center justify-between gap-8 py-8">
+    <div className="flex items-center justify-between gap-8 pb-8 pt-6">
       <LogoDropdownButton title={site.title} />
       <SearchDropdown
         size="medium"
