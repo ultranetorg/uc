@@ -21,7 +21,6 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
   useEffect(() => {
     const handleResize = () => {
       const count = getVisibleItemsCount(containerRef, itemRefs)
-      console.log(count)
       setVisibleCount(count)
     }
 
