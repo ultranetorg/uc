@@ -20,7 +20,7 @@ public class WebServer
 														ApplicationName = GetType().Assembly.GetName().Name,
 														ContentRootPath = Path.GetDirectoryName(GetType().Assembly.Location),
 														//WebRootPath = $"{Path.GetDirectoryName(GetType().Assembly.Location)}/WebUI",
-														EnvironmentName = Node.Net.Zone > Zone._Public ? Environments.Production : Environments.Development
+														EnvironmentName = Node.Net.Zone >= Zone.Main ? Environments.Production : Environments.Development
 													};
 
 											var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(o);

@@ -27,7 +27,7 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, UosApiClient vault, IClock clock, Flow flow) : base(name, net, profile, flow, vault)
+	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(Path.Join(profile, net.Address));
 
@@ -107,7 +107,7 @@ public class RdnNode : McvNode
 			}
 		}
 
-		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
+		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
 
 		if(Settings.Seed != null)
 		{
@@ -117,9 +117,9 @@ public class RdnNode : McvNode
 			ResourceHub.RunDeclaring();
 		}
 
-		if(Settings.Api != null)
+		if(apisettings != null)
 		{
-			ApiServer = new RdnApiServer(this, Settings.Api, Flow);
+			ApiServer = new RdnApiServer(this, apisettings, Flow);
 		}
 	}
 
@@ -127,7 +127,7 @@ public class RdnNode : McvNode
 	{
 		string f()=> string.Join(", ", new string[]{GetType().Name,
 													Name,
-													(Settings.Api != null ? "A" : null) +
+													(ApiServer != null ? "A" : null) +
 													(Settings.Mcv != null ? "B" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
 													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
