@@ -1,8 +1,8 @@
 import { CSSObjectWithLabel, StylesConfig } from "react-select"
 
-import { SearchDropdownItem } from "./types"
+import { SearchDropdownItem, SearchDropdownSize } from "./types"
 
-export const styles: StylesConfig<SearchDropdownItem, false> = {
+export const getStyles = (size: SearchDropdownSize): StylesConfig<SearchDropdownItem, false> => ({
   control: (base: CSSObjectWithLabel) => ({
     ...base,
     backgroundColor: "#F3F4F9",
@@ -13,9 +13,15 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     "&:hover": {
       borderColor: "#9798A6",
     },
-    height: "52px",
+    height: size == "medium" ? "44px" : "52px",
   }),
   input: base => ({ ...base, color: "#2A2932" }),
+  valueContainer: base => ({
+    ...base,
+    padding: size == "medium" ? "0 6px 0 10px" : "0 14px 0 18px",
+  }),
+
+  // Menu.
   menu: base => ({
     ...base,
     backgroundColor: "#FCFCFD",
@@ -45,10 +51,6 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     ...base,
     color: "#737582",
   }),
-  valueContainer: base => ({
-    ...base,
-    padding: "0px 14px 0px 18px",
-  }),
 
   // Hidden components.
   dropdownIndicator: base => ({
@@ -59,4 +61,4 @@ export const styles: StylesConfig<SearchDropdownItem, false> = {
     ...base,
     display: "none",
   }),
-}
+})

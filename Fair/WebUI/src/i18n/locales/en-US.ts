@@ -4,6 +4,11 @@ export const enUS = {
     next: "Next",
   },
   sidebar: { allSites: "All Stores", currentSite: "Current store", starredSites: "Starred" },
+  siteHeader: {
+    governance: "Governance",
+    moderation: "Moderation",
+    about: "About",
+  },
   category: {
     empty: "This category is empty.",
   },
