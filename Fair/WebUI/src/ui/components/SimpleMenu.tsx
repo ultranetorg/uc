@@ -4,23 +4,29 @@ import { Link, To } from "react-router-dom"
 import { PropsWithStyle } from "types"
 import { chunkArray } from "utils"
 
-export type MenuLinkItem = {
+export type SimpleMenuItem = {
   to: To
   label: string
 }
 
-type MenuLinksBaseProps = {
-  items: MenuLinkItem[]
+type SimpleMenuBaseProps = {
+  items: SimpleMenuItem[]
+  onClick?: () => void
 }
 
-export type MenuLinksProps = PropsWithStyle & MenuLinksBaseProps
+export type SimpleMenuProps = PropsWithStyle & SimpleMenuBaseProps
 
-export const MenuLinks = memo(
-  forwardRef<HTMLDivElement, MenuLinksProps>(({ style, items }, ref) => {
+export const SimpleMenu = memo(
+  forwardRef<HTMLDivElement, SimpleMenuProps>(({ style, items, onClick }, ref) => {
     const chunks = useMemo(() => chunkArray(items, 8), [items])
 
     return (
-      <div ref={ref} style={style} className="flex flex-wrap rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md">
+      <div
+        ref={ref}
+        style={style}
+        className="flex flex-wrap rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md"
+        onClick={onClick}
+      >
         {chunks.map((chunk, i) => (
           <div key={i} className="flex flex-col">
             {chunk.map(x => (

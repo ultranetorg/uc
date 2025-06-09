@@ -23,7 +23,7 @@ public class CategoriesController
 	[HttpGet("~/api/sites/{siteId}/categories")]
 	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, [FromQuery] int depth, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{De[tj}}", siteId, depth);
+		logger.LogInformation($"GET {nameof(CategoriesController)}.{nameof(CategoriesController.GetCategories)} method called with {{SiteId}}, {{Depth}}", siteId, depth);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		depthValidator.Validate(depth);

@@ -5,9 +5,10 @@ export const enUS = {
   },
   sidebar: { allSites: "All Stores", currentSite: "Current store", starredSites: "Starred" },
   siteHeader: {
+    about: "About",
+    categories: "Categories",
     governance: "Governance",
     moderation: "Moderation",
-    about: "About",
   },
   category: {
     empty: "This category is empty.",
