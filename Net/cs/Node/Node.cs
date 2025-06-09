@@ -49,11 +49,14 @@ public class Node
 
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 
-		var h = new HttpClientHandler();
-		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-		HttpClient = new HttpClient(h) { Timeout = Timeout.InfiniteTimeSpan };
-
-		UosApi = new UosApiClient(HttpClient, uosapisettings.ListenAddress, uosapisettings.AccessKey);
+		if(uosapisettings != null)
+		{
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			HttpClient = new HttpClient(h) { Timeout = Timeout.InfiniteTimeSpan };
+	
+			UosApi = new UosApiClient(HttpClient, uosapisettings.ListenAddress, uosapisettings.AccessKey);
+		}
 
 	}
 
