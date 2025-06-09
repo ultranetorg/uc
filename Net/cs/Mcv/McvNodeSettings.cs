@@ -13,7 +13,6 @@ public class McvNodeSettings : SavableSettings
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
 	public PeeringSettings			NtnPeering { get; set; }
-	public ApiSettings				Api { get; set; }
 	public AccountSessionSettings[]	Sessions { get; set; }
 	public bool						Log { get; set; }
 	public int						RdcQueryTimeout { get; set; } = 5000;

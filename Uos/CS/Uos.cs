@@ -9,6 +9,7 @@ namespace Uccs.Uos;
 public class NodeInstance
 {
 	public ApiSettings	Api { get; set; }
+	public int			ApiPort { get; set; }
 	public McvNode		Node;
 	public string		Net;
 
@@ -159,14 +160,25 @@ public class Uos : Cli
 
 	public McvNode RunNode(string net, IClock clock = null)
 	{
+		var u = new Uri(Settings.Api.ListenAddress);
+		var sh = $"{u.Scheme}://{u.Host}";
+
+		var api = new ApiSettings();
+		
+		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, 999 - (int)KnownSystem.NodeApiPool % 1000).Where(i => (i - Settings.NodesApiListenPortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
+
+		api.ListenAddress = $"{sh}:{port}";
+		api.AccessKey = Guid.NewGuid().ToString();
+
 		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.Rdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
 		{
 			var f = Flow.CreateNested(net, new Log());
 
-			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, new UosApiClient(ApiHttpClient, Settings.Api.ListenAddress, Settings.Api.AccessKey), clock, f);
+			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, Settings.Api, api, clock, f);
 
 			Nodes.Add(new NodeInstance {Net = net,
-										Api = n.Settings.Api,
+										Api = api,
+										ApiPort = port,
 										Node = n});
 
 			NodeStarted?.Invoke(n);
@@ -181,14 +193,14 @@ public class Uos : Cli
 			var a = Assembly.LoadFrom(p);
 
 			var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
-					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(UosApiClient), typeof(IClock), typeof(Flow)]);
+					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(ApiSettings), typeof(ApiSettings), typeof(IClock), typeof(Flow)]);
 
 			if(c != null)
 			//if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
 			{
 				var f = Flow.CreateNested(net, new Log());
 	
-				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, new UosApiClient(ApiHttpClient, Settings.Api.ListenAddress, Settings.Api.AccessKey), clock, f]) as McvNode;
+				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, Settings.Api, api, clock, f]) as McvNode;
 				//var n = new FairNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
 	
 				Nodes.Add(new NodeInstance {Net = net,

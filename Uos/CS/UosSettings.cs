@@ -8,6 +8,7 @@ public class UosSettings : SavableSettings
 	public Rdn.Rdn			Rdn;
 	public bool				EncryptVault { get; set; }
 	public ApiSettings		Api { get; set; }
+	public int				NodesApiListenPortPostfix { get; set; }
 	public string			Packages { get; set; }
 
 	public UosSettings() : base(NetXonTextValueSerializator.Default)

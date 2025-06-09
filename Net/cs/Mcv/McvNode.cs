@@ -39,14 +39,12 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 public class McvNode : Node
 {
 	public new McvNet		Net => base.Net as McvNet;
-	public UosApiClient		UosApi; 
 	public Mcv				Mcv;
 	public McvTcpPeering	Peering;
 	public McvNodeSettings	Settings;
 
-	public McvNode(string name, McvNet net, string profile, Flow flow, UosApiClient vault) : base(name, net, profile, flow)
+	public McvNode(string name, McvNet net, string profile, ApiSettings uosapisettings, ApiSettings apisettings, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
 	{
-		UosApi = vault;
 	}
 
 	public override string ToString()

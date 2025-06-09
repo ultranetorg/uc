@@ -6,28 +6,20 @@ namespace Uccs.Net;
 public enum Zone
 {
 	None, 
-	Local		= 01, 
-	Developer0	= 10,
-	Developer1	= 11,
-	Developer2	= 12,
-	Developer3	= 13,
-	Developer4	= 14,
-	Developer5	= 15,
-	Developer6	= 16,
-	Developer7	= 17,
-	Developer8	= 18,
-	Developer9	= 19,
-	_Public		= 20,
-	PublicTest	= 21,
-	Main		= 30
+	Local		= 0_0000, 
+	Main		= 1_0000,
+	Test		= 2_0000,
+	Developer0	= 3_0000,
 }
 
 public enum KnownSystem
 {
-	//Ntn = 010,
-	Rdn	= 020,
-	Fair = 030,
-	Uos = 900,
+	Ntn			= 0002,
+	Rdn			= 0003,
+	Fair		= 0004,
+
+	UosApi		= 9000,
+	NodeApiPool	= 9100,
 }
 
 public abstract class Net
@@ -36,10 +28,9 @@ public abstract class Net
 
 	public abstract string		Address { get; }
 	public abstract string		Name { get; }
-	//public Guid					Id;
 	public abstract	Zone		Zone { get; }
-	public abstract ushort		GraphPort { get; }
-	public ushort				Port => (ushort)((ushort)Zone * 1000 + GraphPort);
+	public abstract ushort		McvPortPostfix { get; }
+	public ushort				Port => (ushort)((ushort)Zone + McvPortPostfix);
 	public ushort				NtnPort => (ushort)(Port + 1);
 
 	public IPAddress[]			Initials;
@@ -52,7 +43,7 @@ public abstract class Net
 	public Dictionary<Type, uint>								Codes = [];
 	public Dictionary<Type, Dictionary<uint, ConstructorInfo>>	Contructors = [];
 
-	public T				Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
+	public T					Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
 
 	public override string ToString()
 	{
@@ -60,12 +51,12 @@ public abstract class Net
 	}
 }
 
-//  	public class Ntn
-//  	{
-//  		public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
+//  public class Ntn
+//  {
+//  	public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
 // 
 // 		public static ushort	GetPort(Zone land) => (ushort)((ushort)land * 1000 + BasePort);
-//  	}
+//	}
  
 // 	public class LocalNexus : NetToNet
 // 	{

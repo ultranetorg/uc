@@ -13,6 +13,9 @@ public class Node
 	public Net					Net;
 	public string				Profile;
 	public Flow					Flow;
+	public ApiSettings			ApiSettings;
+	public UosApiClient			UosApi;
+	public HttpClient			HttpClient;
 
 	public const string			FailureExt = "failure";
 
@@ -24,12 +27,13 @@ public class Node
 
 	//public UosApiClient
 
-	public Node(string name, Net net, string profile, Flow flow)
+	public Node(string name, Net net, string profile, ApiSettings uosapisettings, ApiSettings apisettings, Flow flow)
 	{
 		Name = name ?? Guid.NewGuid().ToString();
 		Net = net;
 		Profile = profile;
 		Flow = flow;
+		ApiSettings = apisettings;
 
 		var cf = new ColumnFamilies();
 
@@ -44,6 +48,16 @@ public class Node
 		}
 
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
+
+		if(uosapisettings != null)
+		{
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			HttpClient = new HttpClient(h) { Timeout = Timeout.InfiniteTimeSpan };
+	
+			UosApi = new UosApiClient(HttpClient, uosapisettings.ListenAddress, uosapisettings.AccessKey);
+		}
+
 	}
 
 	public virtual void Stop()

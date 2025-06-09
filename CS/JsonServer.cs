@@ -17,12 +17,12 @@ public abstract class Apc
 
 public class ApiSettings : Settings
 {
+	public string	ListenAddress { get; set; }
+	public string	AccessKey { get; set; }
+
 	public ApiSettings() : base(XonTextValueSerializator.Default)
 	{
 	}
-
-	public string	AccessKey { get; set; }
-	public string	ListenAddress { get; set; }
 }
 
 public class PingApc : Apc
@@ -57,7 +57,7 @@ public abstract class JsonServer
 {
 	HttpListener					Listener;
 	Thread							Thread;
-	ApiSettings						Settings	;
+	ApiSettings						Settings;
 	Flow							Flow;
 	JsonSerializerOptions			Options;
 

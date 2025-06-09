@@ -9,7 +9,7 @@ public class FairNode : McvNode
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
 
-	public FairNode(string name, Zone zone, string profile, Settings settings, UosApiClient vault, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow, vault)
+	public FairNode(string name, Zone zone, string profile, Settings settings, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, uosapisettings, apisettings, flow)
 	{
 		base.Settings = settings as FairNodeSettings ?? new FairNodeSettings(Path.Join(profile, Net.Address));
 
@@ -21,11 +21,10 @@ public class FairNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		if(Settings.Api != null)
+		if(apisettings != null)
 		{
-			ApiServer = new FairApiServer(this, Settings.Api, Flow);
+			ApiServer = new FairApiServer(this, apisettings, Flow);
 		}
-
 
 		if(Settings.Mcv != null)
 		{
@@ -37,14 +36,14 @@ public class FairNode : McvNode
 			}
 		}
 
-		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, vault, flow, clock);
+		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
 	}
 
 	public override string ToString()
 	{
 		return string.Join(", ", new string[]{	GetType().Name,
 												Name,
-												(Settings.Api != null ? "A" : null) +
+												(ApiServer != null ? "A" : null) +
 												(Settings.Mcv != null ? "B" : null) +
 												(Settings.Mcv?.Chain != null  ? "C" : null),
 												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
