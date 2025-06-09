@@ -1,5 +1,6 @@
 import { KeyboardEvent, useCallback, useMemo } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useSearchQueryContext, useSiteContext } from "app"
@@ -7,9 +8,10 @@ import { SEARCH_DELAY } from "constants"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 
+import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
 import { LinkCounter } from "./LinkCounter"
 import { LogoDropdownButton } from "./LogoDropdownButton"
-import { useTranslation } from "react-i18next"
+import { toSimpleMenuItems } from "./utils"
 
 export const SiteHeader = () => {
   const { siteId } = useParams()
@@ -18,6 +20,10 @@ export const SiteHeader = () => {
 
   const { site } = useSiteContext()
   const { query, setQuery, triggerSearchEvent } = useSearchQueryContext()
+  const categoriesItems = useMemo(
+    () => (site?.categories && siteId ? toSimpleMenuItems(site?.categories, siteId) : undefined),
+    [site, siteId],
+  )
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
@@ -68,6 +74,7 @@ export const SiteHeader = () => {
   return (
     <div className="flex items-center justify-between gap-8 pb-8 pt-6">
       <LogoDropdownButton title={site.title} />
+      <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
       <SearchDropdown
         size="medium"
         className="flex-grow"
@@ -79,13 +86,15 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
-      <LinkCounter count={2} to={`/${siteId}/m-d`}>
+      <LinkCounter to={`/${siteId}/a-r`} className="w-[115px]">
         {t("governance")}
       </LinkCounter>
-      <LinkCounter count={2} to={`/${siteId}/m`}>
+      <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
         {t("moderation")}
       </LinkCounter>
-      <LinkCounter to={`/${siteId}/b`}>{t("about")}</LinkCounter>
+      <LinkCounter to={`/${siteId}/b`} className="w-[45px]">
+        {t("about")}
+      </LinkCounter>
     </div>
   )
 }
