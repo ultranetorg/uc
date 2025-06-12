@@ -1,24 +1,31 @@
+import { ComponentType } from "react"
 import { Link } from "react-router-dom"
 
 import { Publication, PublicationExtended } from "types"
 
-import { PublicationCard } from "./PublicationCard"
+import { SoftwarePublicationCard } from "./SoftwarePublicationCard"
 
 export type PublicationsListProps = {
   siteId: string
   isPending: boolean
   publications: (Publication | PublicationExtended)[]
+  CardComponent?: ComponentType<{ siteId: string } & (Publication | PublicationExtended)>
 }
 
-export const PublicationsList = ({ siteId, isPending, publications }: PublicationsListProps) => (
-  <div className="flex flex-wrap gap-8">
+export const PublicationsList = ({
+  siteId,
+  isPending,
+  publications,
+  CardComponent = SoftwarePublicationCard,
+}: PublicationsListProps) => (
+  <div className="flex flex-wrap gap-4">
     {isPending ? (
       <div>⌛ LOADING</div>
     ) : (
       <>
         {publications.map(x => (
           <Link key={x.id} to={`/${siteId}/p/${x.id}`}>
-            <PublicationCard siteId={siteId} {...x} />
+            <CardComponent siteId={siteId} {...x} />
           </Link>
         ))}
       </>

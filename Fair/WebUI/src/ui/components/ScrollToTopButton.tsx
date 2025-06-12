@@ -1,13 +1,21 @@
-import { ArrowUpSvg } from "assets/arrow-up"
 import { memo } from "react"
+import { twMerge } from "tailwind-merge"
 
-export type ScrollToTopButtonProps = {
+import { ArrowUpSvg } from "assets"
+import { PropsWithClassName } from "types"
+
+type ScrollToTopButtonBaseProps = {
   onClick: () => void
 }
 
-export const ScrollToTopButton = memo(({ onClick }: ScrollToTopButtonProps) => (
+export type ScrollToTopButtonProps = PropsWithClassName & ScrollToTopButtonBaseProps
+
+export const ScrollToTopButton = memo(({ className, onClick }: ScrollToTopButtonProps) => (
   <div
-    className="w-13 h-13 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-950"
+    className={twMerge(
+      "flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-gray-800 hover:bg-gray-950",
+      className,
+    )}
     onClick={onClick}
   >
     <ArrowUpSvg className="stroke-gray-100" />

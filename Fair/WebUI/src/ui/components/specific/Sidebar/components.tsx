@@ -18,7 +18,7 @@ export const Account = memo(({ nickname, address, addressShort, selected }: Acco
     <div className="h-8 w-8 rounded-full" title={nickname ?? address}>
       <img src={personSquareColoredImg} />
     </div>
-    <div className="w-39 flex flex-col gap-1">
+    <div className="flex w-39 flex-col gap-1">
       {nickname && (
         <span
           className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium leading-4.25 text-gray-900"

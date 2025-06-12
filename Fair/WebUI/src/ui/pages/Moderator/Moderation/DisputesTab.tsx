@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 import { PAGE_SIZES } from "constants"
 import { useGetModeratorPublications } from "entities"

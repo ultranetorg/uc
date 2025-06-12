@@ -13,6 +13,9 @@ export const enUS = {
   category: {
     empty: "This category is empty.",
   },
+  site: {
+    seeAll: "See all",
+  },
   sites: {
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
