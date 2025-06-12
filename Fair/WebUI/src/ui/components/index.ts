@@ -1,6 +1,6 @@
+export * from "./BigCategoriesList"
 export * from "./Modal"
 export * from "./SearchDropdown"
-export * from "./specific"
 
 export * from "./Breadcrumbs"
 export * from "./Button"

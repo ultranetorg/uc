@@ -1,5 +1,6 @@
 import { PublicationBase } from "./PublicationBase"
 
 export type Publication = {
-  averageRating: number
+  categoryId: string
+  categoryTitle: string
 } & PublicationBase

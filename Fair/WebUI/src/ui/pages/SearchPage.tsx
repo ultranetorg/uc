@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom"
 import { useSearchQueryContext } from "app"
 import { PAGE_SIZES } from "constants"
 import { useSearchPublications } from "entities"
-import { Pagination, PublicationsList, Select, SelectItem } from "ui/components"
+import { Pagination, Select, SelectItem } from "ui/components"
+import { PublicationsList } from "ui/components/specific"
 import { usePagePagination } from "ui/pages/hooks"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))

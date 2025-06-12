@@ -1,27 +1,39 @@
+import { useMemo } from "react"
 import { useParams } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications } from "entities"
-import { CategoriesList, CategoriesPublicationsList } from "ui/components"
+import { BigCategoriesList } from "ui/components"
+import { CategoriesPublicationsList } from "ui/components/specific"
+
+import { toBigCategoriesListItems } from "./utils"
+import { useTranslation } from "react-i18next"
 
 export const SitePage = () => {
   const { siteId } = useParams()
+  const { t } = useTranslation("site")
   const { isPending, site } = useSiteContext()
   const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(
     site?.id,
   )
 
-  if (isPending || !site) {
+  const categoriesItems = useMemo(
+    () => (site?.categories && site ? toBigCategoriesListItems(site.categories) : undefined),
+    [site],
+  )
+
+  if (isPending || !site || !siteId) {
     return <>LOADING</>
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <CategoriesList siteId={siteId!} isPending={isPending} categories={site.categories} />
+      <BigCategoriesList isLoading={isPending} siteId={siteId} items={categoriesItems} />
       <CategoriesPublicationsList
         siteId={siteId!}
         isPending={isCategoriesPublicationsPending}
         categoriesPublications={categoriesPublications}
+        seeAllLabel={t("seeAll")}
       />
     </div>
   )

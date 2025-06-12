@@ -55,6 +55,7 @@ export const CategoriesDropdownButton = memo(({ className, label, items }: Categ
         className={twMerge(
           "flex cursor-pointer items-center text-2sm font-medium leading-6 text-gray-800 hover:font-semibold",
           className,
+          isExpanded && "font-semibold",
         )}
         {...getReferenceProps()}
       >

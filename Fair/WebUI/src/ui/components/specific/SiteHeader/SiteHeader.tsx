@@ -72,7 +72,7 @@ export const SiteHeader = () => {
   }
 
   return (
-    <div className="flex items-center justify-between gap-8 pb-8 pt-6">
+    <div className="flex items-center justify-between gap-8 pb-8">
       <LogoDropdownButton title={site.title} />
       <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
       <SearchDropdown
