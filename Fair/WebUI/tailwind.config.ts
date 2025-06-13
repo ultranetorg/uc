@@ -36,6 +36,7 @@ export default {
         "2xs": "0.8125rem",
         "2sm": "0.9375rem",
         "2base": "1.0625rem",
+        "3.5xl": "2rem",
       },
       letterSpacing: {
         "tight-048": "0.48px",
@@ -46,6 +47,7 @@ export default {
         "4.25": "1.0625rem",
         "4.5": "1.125rem",
         "5.25": "1.3125rem",
+        "9.75": "2.4375rem",
       },
       screens: {
         xs: "475px",

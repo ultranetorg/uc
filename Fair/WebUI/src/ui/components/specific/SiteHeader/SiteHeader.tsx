@@ -1,5 +1,5 @@
 import { KeyboardEvent, useCallback, useMemo } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
@@ -16,6 +16,8 @@ import { toSimpleMenuItems } from "./utils"
 export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
+  const isSearchPage = useMatch("/:siteId/s")
+
   const { t } = useTranslation("siteHeader")
 
   const { site } = useSiteContext()
@@ -27,8 +29,11 @@ export const SiteHeader = () => {
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: publication, isFetching } = useSearchLitePublications(siteId, debouncedQuery)
-  const items = useMemo(() => publication?.map(x => ({ value: x.id, label: x.title })), [publication])
+  const { data: publication, isFetching } = useSearchLitePublications(siteId, debouncedQuery, !!isSearchPage)
+  const items = useMemo(
+    () => (!isSearchPage ? publication?.map(x => ({ value: x.id, label: x.title })) : undefined),
+    [isSearchPage, publication],
+  )
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -52,9 +57,8 @@ export const SiteHeader = () => {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !!query) {
+      if (e.key === "Enter" && query) {
         navigate(`/${siteId}/s`)
-
         triggerSearchEvent()
       }
     },

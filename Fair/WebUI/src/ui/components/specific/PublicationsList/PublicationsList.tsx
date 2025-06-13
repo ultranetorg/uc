@@ -8,7 +8,7 @@ import { SoftwarePublicationCard } from "./SoftwarePublicationCard"
 export type PublicationsListProps = {
   siteId: string
   isPending: boolean
-  publications: (Publication | PublicationExtended)[]
+  publications?: (Publication | PublicationExtended)[]
   CardComponent?: ComponentType<{ siteId: string } & (Publication | PublicationExtended)>
 }
 
@@ -23,7 +23,7 @@ export const PublicationsList = ({
       <div>⌛ LOADING</div>
     ) : (
       <>
-        {publications.map(x => (
+        {publications!.map(x => (
           <Link key={x.id} to={`/${siteId}/p/${x.id}`}>
             <CardComponent siteId={siteId} {...x} />
           </Link>

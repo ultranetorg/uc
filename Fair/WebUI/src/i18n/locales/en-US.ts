@@ -13,6 +13,9 @@ export const enUS = {
   category: {
     empty: "This category is empty.",
   },
+  searchPage: {
+    searchResults: "Search Results",
+  },
   site: {
     seeAll: "See all",
   },
