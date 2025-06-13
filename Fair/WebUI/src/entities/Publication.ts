@@ -77,25 +77,25 @@ export const useGetCategoryPublications = (categoryId?: string, page?: number) =
   return { isPending, isError, data }
 }
 
-export const useSearchPublications = (siteId?: string, page?: number, query?: string, forceEnable?: boolean) => {
+export const useSearchPublications = (siteId?: string, page?: number, query?: string) => {
   const queryFn = () => api.searchPublications(siteId!, query, page)
 
   const { isPending, error, data } = useQuery({
     queryKey: ["sites", siteId, "publications", { query, page }],
     queryFn: queryFn,
-    enabled: !!siteId && (!isUndefOrEmpty(query) || forceEnable === true),
+    enabled: !!siteId && !!query,
   })
 
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useSearchLitePublications = (siteId?: string, query?: string) => {
+export const useSearchLitePublications = (siteId?: string, query?: string, disabled?: boolean) => {
   const queryFn = () => api.searchLitePublication(siteId!, query!)
 
   const { isPending, isFetching, error, data } = useQuery({
     queryKey: ["sites", siteId, "publications", "search", query],
     queryFn: queryFn,
-    enabled: !!siteId && !!query,
+    enabled: !disabled && !!siteId && !!query,
   })
 
   return { isPending, isFetching, error: error ?? undefined, data }

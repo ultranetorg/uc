@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, PropsWithChildren } from "react"
+import { createContext, useState, useContext, PropsWithChildren, useCallback } from "react"
 
 type SearchQueryContextType = {
   query: string
@@ -17,12 +17,12 @@ export const SearchQueryProvider = ({ children }: PropsWithChildren) => {
     subscribers.forEach(callback => callback())
   }
 
-  const onSearchEvent = (callback: () => void) => {
+  const onSearchEvent = useCallback((callback: () => void) => {
     setSubscribers(prev => [...prev, callback])
     return () => {
       setSubscribers(prev => prev.filter(cb => cb !== callback))
     }
-  }
+  }, [])
 
   return (
     <SearchQueryContext.Provider value={{ query, setQuery, triggerSearchEvent, onSearchEvent }}>
