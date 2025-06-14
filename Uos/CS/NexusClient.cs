@@ -38,7 +38,7 @@ public class NexusClient
 
 		var s = Uos.Request<NodeInstance>(new NodeInfoApc {Net = Uccs.Rdn.Rdn.Local.Address}, new Flow(GetType().Name));
 
-		Rdn = new RdnApiClient(http, null, s.Api.ListenAddress, s.Api.AccessKey);
+		Rdn = new RdnApiClient(http, s.ApiSettings.ListenAddress, s.ApiSettings.AccessKey);
 	}
 
 	public PackageInfo GetPackage(Ura package, Flow flow)

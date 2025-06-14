@@ -48,7 +48,7 @@ public abstract class McvApiServer : NodeApiServer
 {
 	McvNode Node;
 
-	public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options = null) : base(node, settings, workflow, options ?? McvApiClient.CreateOptions(node.Net))
+	public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options = null) : base(node, settings, workflow, options ?? McvApiClient.CreateOptions())
 	{
 		Node = node;
 	}
@@ -69,28 +69,23 @@ public abstract class McvApiServer : NodeApiServer
 
 public class McvApiClient : ApiClient
 {
-	public Net Net;
-
-	public static JsonSerializerOptions CreateOptions(Net net)
+	new public static JsonSerializerOptions CreateOptions()
 	{
-		var o = CreateOptions();
+		var o = ApiClient.CreateOptions();
 
 		//o.Converters.Add(new OperationJsonConverter(net));
 		
 		return o;
 	}
 
-	public McvApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, address, accesskey)
+	public McvApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 	{
-		Options = CreateOptions(net);
-		Net = net;
-		
+		Options = CreateOptions();
 	}
 
-	public McvApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public McvApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 	{
-		Options = CreateOptions(net);
-		Net = net;
+		Options = CreateOptions();
 	}
 }
 
@@ -450,6 +445,19 @@ public class SetGeneratorApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			node.Mcv.Settings.Generators = Generators.ToArray();
+
+		return null;
+	}
+}
+
+public class EnforceSessionsApc : McvApc
+{
+	public AccountAddress	 Account {get; set;}
+
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(node.Peering.Lock)
+			node.Peering.GetSession(Account);
 
 		return null;
 	}

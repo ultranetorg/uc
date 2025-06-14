@@ -8,7 +8,7 @@ namespace Uccs.Uos;
 
 public class NodeInstance
 {
-	public ApiSettings	Api { get; set; }
+	public ApiSettings	ApiSettings { get; set; }
 	public int			ApiPort { get; set; }
 	public McvNode		Node;
 	public string		Net;
@@ -42,11 +42,12 @@ public class Uos : Cli
 	public static				ConsoleLogView	LogView = new ConsoleLogView(false, false);
 	public static HttpClient	ApiHttpClient;
 
-	public McvNode				Find(string net) => Nodes.Find(i => i.Net == net)?.Node;
+	public NodeInstance			Find(string net) => Nodes.Find(i => i.Net == net);
 	public N					Find<N>() where N : class => Nodes.Find(i => i.Node is N)?.Node as N;
 
 	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Rdn, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.ListenAddress, Nodes.Find(i => i.Net == Settings.Rdn.Address).Api.AccessKey);
+	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Nodes.Find(i => i.Net == Settings.Rdn.Address).ApiSettings.ListenAddress, Nodes.Find(i => i.Net == Settings.Rdn.Address).ApiSettings.AccessKey);
+	//public McvApiClient			GetMcvApi(string net) => new McvApiClient(ApiHttpClient, Nodes.Find(i => i.Net == net).ApiSettings.ListenAddress, Nodes.Find(i => i.Net == net).ApiSettings.AccessKey);
 
 	public NodeDelegate			NodeStarted;
 
@@ -208,7 +209,7 @@ public class Uos : Cli
 		if(n != null)
 		{
 			Nodes.Add(new NodeInstance {Net = net,
-										Api = api,
+										ApiSettings = api,
 										ApiPort = port,
 										Node = n});
 		
@@ -218,6 +219,13 @@ public class Uos : Cli
 		} 
 		else
 			throw new NodeException(NodeError.NoNodeForNet);
+	}
+
+	public McvApiClient GetMcvNodeApi(string net)
+	{
+		var ni = Find(net);
+														
+		return new McvApiClient(ApiHttpClient, ni.ApiSettings.ListenAddress, ni.ApiSettings.AccessKey);
 	}
 
 	public override UosCommand Create(IEnumerable<Xon> commnad, Flow flow)

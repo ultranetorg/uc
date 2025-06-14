@@ -843,7 +843,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		MainWakeup.Set();
 	}
 
-	byte[] GetSession(AccountAddress signer)
+	public byte[] GetSession(AccountAddress signer)
 	{
 		var s = Node.Settings.Sessions.FirstOrDefault(i => i.Account == signer);
 
@@ -868,7 +868,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		while(Flow.Active)
 		{
-			if(OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed || i.Status == TransactionStatus.FailedOrNotFound))
+			bool nothing;
+
+			lock(Lock)
+				nothing = OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed || i.Status == TransactionStatus.FailedOrNotFound);
+			
+			if(nothing)		
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
 			var cr = Call(() => new MembersRequest(), Flow);

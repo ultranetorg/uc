@@ -242,21 +242,18 @@ public class Vault
 	public Wallet CreateWallet(string password, int accounts = 1)
 	{
 		var w = new Wallet(this, Wallets.Count.ToString(), Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
-		Wallets.Add(w);
 		return w;
 	}
 
 	public Wallet CreateWallet(AccountKey[] key, string password)
 	{
 		var w = new Wallet(this, Wallets.Count.ToString(), key, password);
-		Wallets.Add(w);
 		return w;
 	}
 
 	public Wallet CreateWallet(byte[] raw)
 	{
 		var w = new Wallet(this, Wallets.Count.ToString(), raw);
-		Wallets.Add(w);
 		return w;
 	}
 
@@ -276,6 +273,8 @@ public class Vault
 		w.Password = password;
 
 		w.Save();
+
+		Wallets.Add(w);
 
 		return w;
 	}

@@ -147,16 +147,37 @@ internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IUosApc
 	}
 }
 
-internal class BypassAuthenticationApc : Net.BypassAuthenticationApc, IUosApc
+internal class EnforceAuthenticationApc : Net.EnforceAuthenticationApc, IUosApc
 {
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
 			if(Active)
+			{
 				uos.AuthenticationRequested = (net, account) => new AuthenticationChioce {Account = account, Trust = Trust.Spending};
+			} 
 			else
+			{
 				uos.AuthenticationRequested = null;
+			}
+
+			//if(Account != null)
+			//{
+			//	uos.GetMcvApi(Net).Send(new EnforceSessionsApc {Account = Account}, flow);
+			//} 
+			//else
+			//{
+			//	foreach(var w in uos.Vault.Wallets)
+			//	{
+			//		foreach(var i in w.Accounts)
+			//		{
+			//			 uos.GetMcvApi(Net).Send(new EnforceSessionsApc {Account = i.Address}, flow);
+			//		}
+			//	}
+			//}
+
+			//uos.AuthenticationRequested = old;
 		}
 
 		return null;

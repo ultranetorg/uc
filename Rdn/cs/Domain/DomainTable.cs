@@ -27,6 +27,11 @@ public class DomainTable : Table<AutoId, Domain>
 
 		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == name);
  	}
+
+	public virtual Domain Latest(string name)
+	{
+		return Find(name, Mcv.LastConfirmedRound.Id);
+	}
 }
 
 public class DomainExecution : TableExecution<AutoId, Domain>

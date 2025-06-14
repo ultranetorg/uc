@@ -36,6 +36,11 @@ public class FairNode : McvNode
 			}
 		}
 
+		if(Settings.NtnPeering != null)
+		{
+			///NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+		}
+
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
 	}
 

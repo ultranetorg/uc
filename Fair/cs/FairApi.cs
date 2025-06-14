@@ -46,7 +46,7 @@ public class FairApiServer : McvApiServer
 {
 	FairNode Node;
 
-	public FairApiServer(FairNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, FairApiClient.CreateOptions(node.Net))
+	public FairApiServer(FairNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, FairApiClient.CreateOptions())
 	{
 		Node = node;
 	}
@@ -67,26 +67,23 @@ public class FairApiServer : McvApiServer
 
 public class FairApiClient : McvApiClient
 {
-	new public static JsonSerializerOptions CreateOptions(Net.Net net)
+	new public static JsonSerializerOptions CreateOptions()
 	{
-		var o = McvApiClient.CreateOptions(net);
+		var o = McvApiClient.CreateOptions();
 
 		o.TypeInfoResolver = new FairTypeResolver();
 		
 		return o;
 	}
 
-	public FairApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
+	public FairApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, address, accesskey)
 	{
-		Options = CreateOptions(net);
-		Net = net;
-		
+		Options = CreateOptions();
 	}
 
-	public FairApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
+	public FairApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 	{
-		Options = CreateOptions(net);
-		Net = net;
+		Options = CreateOptions();
 	}
 }
 

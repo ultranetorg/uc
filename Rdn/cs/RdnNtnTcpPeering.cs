@@ -6,24 +6,21 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 
 	public RdnNtnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, roles, flow)
 	{
-		node.Mcv.ConsensusConcluded += (r, reached) =>	{
-															if(reached)
-															{
-																foreach(var i in r.ConsensusNtnStates)
-																{
-																	var b = new NtnBlock();
+		node.Mcv.ConsensusConcluded +=	(r, reached) =>
+										{
+											if(reached)
+											{
+												foreach(var i in r.ConsensusNtnStates)
+												{
+													var b = new NtnBlock();
 
-																	b.Net	= node.Net.Name;
-																	b.State = new () {State = node.Mcv.LastConfirmedRound.Hash,
-																					  Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.BaseRdcIPs[0], Port = 0}).ToArray()};
-
-
-
-																	Broadcast(b);
-
-																}
-															}
-														};
+													b.Net	= node.Net.Name;
+													b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
+																	 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.BaseRdcIPs[0], Port = 0}).ToArray()};
+													Broadcast(b);
+												}
+											}
+										};
 		Run();
 	}
 
@@ -49,7 +46,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 		{
 			lock(Node.Mcv.Lock)
 			{	
-				var n = Node.Mcv.Domains.Find(hello.Net, Node.Mcv.LastConfirmedRound.Id)?.NtnChildNet;
+				var n = Node.Mcv.Domains.Latest(hello.Net)?.NtnChildNet;
 				
 				if(n == null)
 					return false;

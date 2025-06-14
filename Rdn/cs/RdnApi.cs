@@ -45,7 +45,7 @@ public class RdnApiServer : McvApiServer
 {
 	RdnNode Node;
 
-	public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions(node.Net))
+	public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions())
 	{
 		Node = node;
 	}
@@ -66,9 +66,9 @@ public class RdnApiServer : McvApiServer
 
 public class RdnApiClient : McvApiClient
 {
-	new public static JsonSerializerOptions CreateOptions(Net.Net net)
+	new public static JsonSerializerOptions CreateOptions()
 	{
-		var o = McvApiClient.CreateOptions(net);
+		var o = McvApiClient.CreateOptions();
 
 		o.TypeInfoResolver = new RdnTypeResolver();
 		
@@ -79,17 +79,15 @@ public class RdnApiClient : McvApiClient
 		return o;
 	}
 
-	public RdnApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, net, address, accesskey)
+	public RdnApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 	{
-		Options = CreateOptions(net);
-		Net = net;
+		Options = CreateOptions();
 		
 	}
 
-	public RdnApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(net, address, accesskey, timeout)
+	public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 	{
-		Options = CreateOptions(net);
-		Net = net;
+		Options = CreateOptions();
 	}
 	
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
