@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationModel(Publication publication, Product product)
+public class PublicationModel(Publication publication, Product product, Category category)
 	: PublicationBaseModel(publication, product)
 {
-	// TODO: fix.
-	public byte AverageRating { get; set; }
+	public string CategoryId { get; set; } = category.Id.ToString();
+	public string CategoryTitle { get; set; } = category.Title;
 }

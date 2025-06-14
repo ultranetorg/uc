@@ -4,7 +4,8 @@ import { useDocumentTitle } from "usehooks-ts"
 
 import { PAGE_SIZES } from "constants"
 import { useGetPublication, useGetReviews } from "entities"
-import { Pagination, ReviewsList, Select, SelectItem } from "ui/components"
+import { Pagination, Select, SelectItem } from "ui/components"
+import { ReviewsList } from "ui/components/specific"
 import { formatAverageRating } from "utils"
 
 const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))

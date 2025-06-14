@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { useGetCategory, useGetCategoryPublications } from "entities"
-import { CategoriesList, Pagination, PublicationsList } from "ui/components"
+import { Pagination } from "ui/components"
+import { CategoriesList, PublicationsList } from "ui/components/specific"
 
 import { CategoryHeader } from "./CategoryHeader"
 

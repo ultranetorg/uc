@@ -160,7 +160,7 @@ public class PublicationsService
 				PageSize = pageSize,
 				Items = new List<PublicationModel>(pageSize)
 			};
-			LoadPublications(category.Publications, context, cancellationToken);
+			LoadPublications(category, context, cancellationToken);
 
 			return new TotalItemsResult<PublicationModel>
 			{
@@ -170,9 +170,9 @@ public class PublicationsService
 		}
 	}
 
-	void LoadPublications(IEnumerable<AutoId> publicationsIds, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
+	void LoadPublications(Category category, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
 	{
-		foreach (AutoId publicationId in publicationsIds)
+		foreach (AutoId publicationId in category.Publications)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;
@@ -181,11 +181,7 @@ public class PublicationsService
 			{
 				Publication publication = mcv.Publications.Latest(publicationId);
 				Product product = mcv.Products.Latest(publication.Product);
-				var model = new PublicationModel(publication, product)
-				{
-					// TODO: calculate average rating.
-					AverageRating = 34,
-				};
+				var model = new PublicationModel(publication, product, category);
 				context.Items.Add(model);
 			}
 
@@ -360,10 +356,7 @@ public class PublicationsService
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
-			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category)
-			{
-				AverageRating = 32
-			};
+			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category);
 			result.Publications.Add(model);
 
 			if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)
