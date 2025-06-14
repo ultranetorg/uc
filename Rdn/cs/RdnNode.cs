@@ -29,7 +29,7 @@ public class RdnNode : McvNode
 
 	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
 	{
-		base.Settings = settings ?? new RdnNodeSettings(Path.Join(profile, net.Address));
+		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
 		{
@@ -41,7 +41,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
 			Mcv.Commited += r => {
 									if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))

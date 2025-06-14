@@ -20,12 +20,12 @@ public class PackageHub
 
  	public static string AddressToDeployment(string packagespath, Ura resource)
  	{
- 		return Path.Join(packagespath, ResourceHub.Escape(resource.Domain), ResourceHub.Escape(resource.Resource));
+ 		return Path.Join(packagespath, Net.Net.Escape(resource.Domain), Net.Net.Escape(resource.Resource));
  	}
 
  	public string AddressToReleases(Urr release)
  	{
- 		return Path.Join(Settings.Releases, ResourceHub.Escape(release.ToString()));
+ 		return Path.Join(Settings.Releases, Net.Net.Escape(release.ToString()));
  	}
 
 	IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)

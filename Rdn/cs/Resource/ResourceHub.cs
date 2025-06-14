@@ -55,17 +55,7 @@ public class ResourceHub
 
 	public string ToReleases(Urr urr)
 	{
-		return Path.Join(Settings.Releases, Escape(urr.ToString()));
-	}
-
-	public static string Escape(string path)
-	{
-		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
-	}
-
-	public static string Unescape(string path)
-	{
-		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
+		return Path.Join(Settings.Releases, Uccs.Net.Net.Escape(urr.ToString()));
 	}
 
 	public LocalRelease Add(byte[] address)

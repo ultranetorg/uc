@@ -11,11 +11,11 @@ public class FairNode : McvNode
 
 	public FairNode(string name, Zone zone, string profile, Settings settings, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, uosapisettings, apisettings, flow)
 	{
-		base.Settings = settings as FairNodeSettings ?? new FairNodeSettings(Path.Join(profile, Net.Address));
+		base.Settings = settings as FairNodeSettings ?? new FairNodeSettings(profile);
 
 		if(Flow.Log != null)
 		{
-			new FileLog(Flow.Log, Net.Address, Settings.Profile);
+			new FileLog(Flow.Log, Uccs.Net.Net.Escape(Net.Address), Settings.Profile);
 		}
 
 		if(NodeGlobals.Any)
@@ -28,7 +28,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
 
 			if(Settings.Mcv.Generators.Any())
 			{

@@ -30,7 +30,7 @@ public enum NodeError : byte
 	NotOnlineYet,
 	NotSeed,
 	NotSynchronized,
-	NotUnlocked,
+	Locked,
 	Timeout,
 	TransactionRejected,
 	TooEearly,

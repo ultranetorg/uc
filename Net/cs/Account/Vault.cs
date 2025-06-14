@@ -197,10 +197,9 @@ public class Wallet
 
 public class Vault
 {
-	public const string					EncryptedWalletExtention = "uwa";
-	public const string					NoEncryptionWalletExtention = "uwne";
+	public const string					WalletExtention = "uwa";
 	public const string					PrivateKeyExtention = "pk";
-	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? EncryptedWalletExtention : NoEncryptionWalletExtention;
+	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? WalletExtention : PrivateKeyExtention;
 
 	public string						Profile;
 	public List<Wallet>					Wallets = new();
@@ -240,19 +239,25 @@ public class Vault
 		return null;
 	}
 
-	public Wallet CreateWallet(string password)
+	public Wallet CreateWallet(string password, int accounts = 1)
 	{
-		return new Wallet(this, Wallets.Count.ToString(), [AccountKey.Create()], password);
+		var w = new Wallet(this, Wallets.Count.ToString(), Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
+		Wallets.Add(w);
+		return w;
 	}
 
 	public Wallet CreateWallet(AccountKey[] key, string password)
 	{
-		return new Wallet(this, Wallets.Count.ToString(), key, password);
+		var w = new Wallet(this, Wallets.Count.ToString(), key, password);
+		Wallets.Add(w);
+		return w;
 	}
 
 	public Wallet CreateWallet(byte[] raw)
 	{
-		return new Wallet(this, Wallets.Count.ToString(), raw);
+		var w = new Wallet(this, Wallets.Count.ToString(), raw);
+		Wallets.Add(w);
+		return w;
 	}
 
 	public void AddWallet(byte[] raw)
@@ -269,8 +274,6 @@ public class Vault
 		var w = CreateWallet(key, password);
 		
 		w.Password = password;
-
-		Wallets.Add(w);
 
 		w.Save();
 

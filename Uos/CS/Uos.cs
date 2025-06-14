@@ -97,6 +97,8 @@ public class Uos : Cli
 		Flow = flow;
 		Clock = clock;
 
+		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
+
 		Settings.Packages ??= Path.Join(Settings.Profile, nameof(Settings.Packages));
 		Directory.CreateDirectory(Settings.Packages);
 
@@ -163,57 +165,59 @@ public class Uos : Cli
 		var u = new Uri(Settings.Api.ListenAddress);
 		var sh = $"{u.Scheme}://{u.Host}";
 
+		
+		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, (int)KnownSystem.NodeApiPoolSize).Where(i => (i - Settings.NodesApiListenPortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
+
 		var api = new ApiSettings();
 		
-		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, 999 - (int)KnownSystem.NodeApiPool % 1000).Where(i => (i - Settings.NodesApiListenPortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
-
 		api.ListenAddress = $"{sh}:{port}";
 		api.AccessKey = Guid.NewGuid().ToString();
+
+		McvNode n = null;
 
 		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.Rdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
 		{
 			var f = Flow.CreateNested(net, new Log());
 
-			var n = new RdnNode(Settings.Name, rdn, Settings.Profile, null, Settings.Packages, Settings.Api, api, clock, f);
+			f.WorkDirectory = Path.Join(Settings.Profile, rdn.Address);
 
+			n = new RdnNode(Settings.Name, rdn, f.WorkDirectory, null, Settings.Packages, Settings.Api, api, clock, f);
+		}
+		else
+		{
+			var p = Path.Join(Path.GetDirectoryName(GetType().Assembly.Location), net + ".dll");
+		
+			if(p != null)
+			{
+				var a = Assembly.LoadFrom(p);
+
+				var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
+						 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(ApiSettings), typeof(ApiSettings), typeof(IClock), typeof(Flow)]);
+
+				if(c != null)
+				{
+					var f = Flow.CreateNested(net, new Log());
+
+					f.WorkDirectory = Path.Join(Settings.Profile, Net.Net.Escape(net));
+	
+					n = c.Invoke([Settings.Name, Settings.Rdn.Zone, f.WorkDirectory, null, Settings.Api, api, clock, f]) as McvNode;
+				}
+			}
+		}
+
+		if(n != null)
+		{
 			Nodes.Add(new NodeInstance {Net = net,
 										Api = api,
 										ApiPort = port,
 										Node = n});
-
-			NodeStarted?.Invoke(n);
-
-			return n;
-		}
-
-		var p = Path.Join(Path.GetDirectoryName(GetType().Assembly.Location), net + ".dll");
 		
-		if(p != null)
-		{
-			var a = Assembly.LoadFrom(p);
-
-			var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
-					 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(ApiSettings), typeof(ApiSettings), typeof(IClock), typeof(Flow)]);
-
-			if(c != null)
-			//if(Fair.Fair.Official.FirstOrDefault(i => i.Zone == Settings.RootRdn.Zone) is Fair.Fair fair && fair.Name == net)
-			{
-				var f = Flow.CreateNested(net, new Log());
-	
-				var n = c.Invoke([Settings.Name, Settings.Rdn.Zone, Settings.Profile, null, Settings.Api, api, clock, f]) as McvNode;
-				//var n = new FairNode(Settings.Name, fair, Settings.Profile, null, Vault, clock, f);
-	
-				Nodes.Add(new NodeInstance {Net = net,
-											Api = null,
-											Node = n});
-	
-				NodeStarted?.Invoke(n);
-	
-				return n;
-			}
-		}
-
-		throw new NodeException(NodeError.NoNodeForNet);
+			NodeStarted?.Invoke(n);
+		
+			return n;
+		} 
+		else
+			throw new NodeException(NodeError.NoNodeForNet);
 	}
 
 	public override UosCommand Create(IEnumerable<Xon> commnad, Flow flow)

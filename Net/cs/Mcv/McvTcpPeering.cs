@@ -852,6 +852,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		var a = UosApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
 
+		if(a == null)
+			return null;
+
 		Node.Settings.Sessions = [..Node.Settings.Sessions, new AccountSessionSettings {Account = a.Account, Session = a.Session}];
 
 		Node.Settings.Save();
@@ -865,7 +868,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		while(Flow.Active)
 		{
-			if(!OutgoingTransactions.Any())
+			if(OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed || i.Status == TransactionStatus.FailedOrNotFound))
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
 			var cr = Call(() => new MembersRequest(), Flow);
@@ -893,7 +896,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			IEnumerable<IGrouping<AccountAddress, Transaction>> nones;
 
 			lock(Lock)
-				nones = OutgoingTransactions.GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
+				nones = OutgoingTransactions.Where(i => GetSession(i.Signer) != null).GroupBy(i => i.Signer).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
 			foreach(var g in nones)
 			{
@@ -1102,6 +1105,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		
 		if(OutgoingTransactions.Count <= Mcv.TransactionQueueLimit)
 		{
+			if(GetSession(t.Signer) == null)
+				throw new NodeException(NodeError.Locked);
+
 			if(TransactingThread == null)
 			{
 				TransactingThread = Node.CreateThread(Transacting);

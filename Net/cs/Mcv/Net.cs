@@ -14,12 +14,12 @@ public enum Zone
 
 public enum KnownSystem
 {
-	Ntn			= 0002,
-	Rdn			= 0003,
-	Fair		= 0004,
+	Rdn			= 0001,
+	Fair		= 0003,
 
-	UosApi		= 9000,
-	NodeApiPool	= 9100,
+	UosApi			= 9000,
+	NodeApiPool		= 9100,
+	NodeApiPoolSize	= 900,
 }
 
 public abstract class Net
@@ -49,6 +49,17 @@ public abstract class Net
 	{
 		return Address;
 	}
+
+	public static string Escape(string path)
+	{
+		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
+	}
+
+	public static string Unescape(string path)
+	{
+		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
+	}
+
 }
 
 //  public class Ntn

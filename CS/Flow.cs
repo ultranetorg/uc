@@ -10,6 +10,7 @@ public class Flow : IDisposable
 	public bool						Aborted => Cancellation.IsCancellationRequested;
 	public bool						Active => !Aborted;
 	public string					Name;
+	public string					WorkDirectory;
 	Flow							Parent;
 
 	public Flow(string name)
@@ -47,7 +48,7 @@ public class Flow : IDisposable
 	{
 		var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
 		
-		return new Flow(name, log ?? Log, a) {Parent = this};
+		return new Flow(name, log ?? Log, a) {Parent = this, WorkDirectory = WorkDirectory};
 	}
 
 	public void Abort()

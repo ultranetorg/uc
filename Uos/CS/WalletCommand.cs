@@ -157,7 +157,7 @@ public class WalletCommand : UosCommand
 									],
 
 						Examples =	[
-										new (null, $"{Keyword} {a.Name} {p}={DIRPATH}\\wallet.{Vault.EncryptedWalletExtention}")
+										new (null, $"{Keyword} {a.Name} {p}={DIRPATH}\\wallet.{Vault.WalletExtention}")
 									]};
 
 		a.Execute = () =>	{

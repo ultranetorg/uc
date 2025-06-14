@@ -70,31 +70,19 @@ public abstract class JsonServer
 		Options		= options;
 		Flow		= workflow.CreateNested("JsonServer", new Log());
 
-		//if(profile != null)
-		//{
-		//	Flow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
-		//}
+		if(Flow.Log != null && Flow.WorkDirectory != null)
+		{
+			new FileLog(Flow.Log, GetType().Name, Flow.WorkDirectory);
+		}
 
 		Thread = new Thread(() =>	{ 
 										try
 										{
 											Listener = new HttpListener();
-											
 											Listener.Prefixes.Add(settings.ListenAddress + "/");
-
- 												//if(ip != null)
- 												//{
- 												//	Listener.Prefixes.Add($"http://{ip}:{port}/");
- 												//}
- 												//else
- 												//{
- 												//	Listener.Prefixes.Add($"http://+:{port}/");
- 												//}
-
-									
-											Flow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
-
 											Listener.Start();
+
+											Flow.Log?.Report(this, "Listening started", settings.ListenAddress);
 					
 											while(Flow.Active)
 											{
@@ -198,7 +186,7 @@ public abstract class JsonServer
 				return;
 			}
 			
-			var t = Type.GetType(typeof(JsonServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
+			var t = Type.GetType(typeof(JsonServer).Namespace + '.' + rq.Url.LocalPath.TrimStart('/') + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
 
 			if(t == null)
 			{

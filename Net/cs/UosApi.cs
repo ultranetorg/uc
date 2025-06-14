@@ -69,6 +69,12 @@ public class IsAuthenticatedApc : Apc
 	public byte[]			Session { get; set; }
 }
 
+public class BypassAuthenticationApc : Apc
+{
+	//public string		Net { get; set; }
+	public bool			Active { get; set; } /// optional
+}
+
 public class AuthenticateApc : Apc
 {
 	public string			Net { get; set; }

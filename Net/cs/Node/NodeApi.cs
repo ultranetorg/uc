@@ -17,10 +17,10 @@ public class NodeApiServer : JsonServer
 		Node = node;
 	}
  	
- 		protected override Type Create(string call)
- 		{
- 			return Type.GetType(typeof(NodeApiServer).Namespace + '.' + call);
- 		}
+ 	protected override Type Create(string call)
+ 	{
+ 		return Type.GetType(typeof(NodeApiServer).Namespace + '.' + call);
+ 	}
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{

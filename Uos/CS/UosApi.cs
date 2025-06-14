@@ -73,7 +73,7 @@ internal class NodeInfoApc : Net.NodeInfoApc, IUosApc
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			return uos.Nodes.Find(i => i.Node.Net.Address == Net);
+			return uos.Nodes.Find(i => i.Net == Net);
 	}
 }
 
@@ -147,28 +147,44 @@ internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IUosApc
 	}
 }
 
+internal class BypassAuthenticationApc : Net.BypassAuthenticationApc, IUosApc
+{
+	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(uos)
+		{
+			if(Active)
+				uos.AuthenticationRequested = (net, account) => new AuthenticationChioce {Account = account, Trust = Trust.Spending};
+			else
+				uos.AuthenticationRequested = null;
+		}
+
+		return null;
+	}
+}
+
 internal class AuthenticateApc : Net.AuthenticateApc, IUosApc
 {
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 		{
-			var c = uos.AuthenticationRequested(Net, Account);
+			var c = uos.AuthenticationRequested?.Invoke(Net, Account);
 	
-		if(c != null)
-		{
-			var a = uos.Vault.Find(c.Account);
+			if(c != null)
+			{
+				var a = uos.Vault.Find(c.Account);
 		
-			if(a == null)
-				throw new VaultException(VaultError.AccountNotFound);
+				if(a == null)
+					throw new VaultException(VaultError.AccountNotFound);
 		
-			var n = a.GetAuthentication(Net, c.Trust);
+				var n = a.GetAuthentication(Net, c.Trust);
 		
-			if (n == null)
-				throw new VaultException(VaultError.NetNotFound);
+				if(n == null)
+					throw new VaultException(VaultError.NetNotFound);
 		
-			return new AccountSession {Account = c.Account, Session = n.Session};
-		} 
+				return new AccountSession {Account = c.Account, Session = n.Session};
+			} 
 			else
 				return null;
 		}

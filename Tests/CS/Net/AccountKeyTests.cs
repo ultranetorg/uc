@@ -34,6 +34,9 @@ public class AccountKeyTests
 		Assert.True(Cryptography.Normal.Valid(s, h, k));
 		Assert.False(Cryptography.Normal.Valid(s, h, kk));
 					
+		string p = "password";
+		Assert.True(Cryptography.Normal.Decrypt(Cryptography.Normal.Encrypt(h, p), p).SequenceEqual(h));
+		Assert.Equal(Cryptography.Normal.Decrypt(Cryptography.Normal.Encrypt(h, p), p), h);
 		//Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  	}
 }
