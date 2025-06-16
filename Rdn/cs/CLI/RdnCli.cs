@@ -17,7 +17,7 @@ public class RdnCli : McvCli
 		Thread.CurrentThread.CurrentCulture = 
 		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
-		new McvCli();
+		new RdnCli();
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)

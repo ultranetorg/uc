@@ -14,8 +14,9 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		a.Name = "ping";
 		a.Execute = () =>	{
-								string host = GetString(Args[0].Name);
+								string host = Args[0].Name;
 								var s = host.Split(':');
 	
 								for(int i=0; i<4; i++)
@@ -48,6 +49,7 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		a.Name = "listen";
 		a.Execute = () =>	{
 								var host = Args[0].Name;
 								var s = host.Split(':');
@@ -68,6 +70,7 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		a.Name = "keypair";
 		a.Execute = () =>	{
 								var k = AccountKey.Create();
 
