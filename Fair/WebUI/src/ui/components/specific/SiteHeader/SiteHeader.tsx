@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useMemo } from "react"
+import { KeyboardEvent, useCallback, useMemo, useState } from "react"
 import { useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
@@ -21,7 +21,8 @@ export const SiteHeader = () => {
   const { t } = useTranslation("siteHeader")
 
   const { site } = useSiteContext()
-  const { query, setQuery, triggerSearchEvent } = useSearchQueryContext()
+  const { setQuery: setSiteQuery } = useSearchQueryContext()
+  const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
     () => (site?.categories && siteId ? toSimpleMenuItems(site?.categories, siteId) : undefined),
     [site, siteId],
@@ -58,18 +59,18 @@ export const SiteHeader = () => {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Enter" && query) {
+        setSiteQuery(query)
         navigate(`/${siteId}/s`)
-        triggerSearchEvent()
       }
     },
-    [query, siteId, triggerSearchEvent, navigate],
+    [query, navigate, siteId, setSiteQuery],
   )
 
   const handleSearchClick = useCallback(() => {
     if (query) {
-      triggerSearchEvent()
+      setSiteQuery(query)
     }
-  }, [query, triggerSearchEvent])
+  }, [query, setSiteQuery])
 
   if (!site) {
     return null

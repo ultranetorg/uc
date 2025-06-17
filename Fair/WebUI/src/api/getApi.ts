@@ -11,7 +11,6 @@ import {
   ModeratorDisputeDetails,
   ModeratorPublication,
   ModeratorReview,
-  PaginationResult,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -26,7 +25,7 @@ import {
 } from "types"
 
 import { Api } from "./Api"
-import { buildUrlParams, toTotalItemsResult, toPaginationResult } from "./utils"
+import { buildUrlParams, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
@@ -47,10 +46,10 @@ const searchPublications = async (
   siteId: string,
   query?: string,
   page?: number,
-): Promise<PaginationResult<PublicationExtended>> => {
+): Promise<TotalItemsResult<PublicationExtended>> => {
   const params = buildUrlParams({ query, page })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + params)
-  return await toPaginationResult(res)
+  return await toTotalItemsResult(res)
 }
 
 const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
