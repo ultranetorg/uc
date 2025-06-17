@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 
 public interface ISearchService
 {
-	IEnumerable<PublicationExtendedModel> SearchPublications([NotNull][NotEmpty] string siteId, string query, int page, int pageSize,
+	TotalItemsResult<PublicationExtendedModel> SearchPublications([NotNull][NotEmpty] string siteId, string query, int page, int pageSize,
 		CancellationToken cancellationToken);
 
 	IEnumerable<PublicationBaseModel> SearchLitePublications([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string query,

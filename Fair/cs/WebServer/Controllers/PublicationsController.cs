@@ -43,9 +43,9 @@ public class PublicationsController
 		paginationValidator.Validate(page);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		var products = searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<PublicationExtendedModel> products = searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
 
-		return this.OkPaged(products, pageValue, pageSizeValue);
+		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/publications/search")]

@@ -10,7 +10,7 @@ public class SearchService
 	FairMcv mcv
 ) : ISearchService
 {
-	public IEnumerable<PublicationExtendedModel> SearchPublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationExtendedModel> SearchPublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchPublications)} method called with {{SiteId}}, {{Query}}, {{PageSize}}", siteId, query, pageSize);
 
@@ -20,18 +20,30 @@ public class SearchService
 
 		lock (mcv.Lock)
 		{
+			Site site = mcv.Sites.Latest(id);
+			if (site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
 			SearchResult[] searchResult = mcv.Publications.Search(id, query, page * pageSize, pageSize);
 			if (searchResult.Length == 0)
 			{
-				return Enumerable.Empty<PublicationExtendedModel>();
+				return TotalItemsResult<PublicationExtendedModel>.Empty;
 			}
 
 			List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Length);
-			return LoadPublications(searchResult, result, cancellationToken);
+			LoadPublications(searchResult, result, cancellationToken);
+
+			return new TotalItemsResult<PublicationExtendedModel>
+			{
+				Items = result,
+				TotalItems = Math.Min(site.PublicationsCount, Pagination.PageSize30 * Pagination.PagesCountMax)
+			};
 		}
 	}
 
-	IList<PublicationExtendedModel> LoadPublications(SearchResult[] searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
+	void LoadPublications(SearchResult[] searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
 	{
 		foreach (SearchResult search in searchResult)
 		{
@@ -46,8 +58,6 @@ public class SearchService
 			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category);
 			result.Add(model);
 		}
-
-		return result;
 	}
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
