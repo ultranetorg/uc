@@ -21,12 +21,11 @@ export const CategoryPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <CategoryHeader siteId={siteId!} category={category} />
-
-      {category.categories.length !== 0 || publications.items.length !== 0 ? (
-        <>
-          <CategoriesList siteId={siteId!} categories={category.categories} isPending={isPending} />
-          <PublicationsList isPending={isPendingPublications} publications={publications.items} siteId={siteId!} />
-        </>
+      {category.categories.length > 0 && (
+        <CategoriesList siteId={siteId!} categories={category.categories} isPending={isPending} />
+      )}
+      {publications.items.length !== 0 ? (
+        <PublicationsList isPending={isPendingPublications} publications={publications.items} siteId={siteId!} />
       ) : (
         <span className="text-center">{t("empty")}</span>
       )}
