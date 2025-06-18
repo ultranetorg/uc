@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
-import { isUndefOrEmpty } from "utils"
 
 const api = getApi()
 
