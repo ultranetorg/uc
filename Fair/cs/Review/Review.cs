@@ -32,7 +32,7 @@ public class Review : IBinarySerializable, ITableEntry
 	public AutoId			Publication { get; set; }
     public AutoId			Creator { get; set; }
 	public ReviewStatus		Status { get; set; }
-	public byte				Rate { get; set; }
+	public byte				Rating { get; set; }
     public string			Text { get; set; }
     public string			TextNew { get; set; }
     public Time	    		Created { get; set; }
@@ -56,7 +56,7 @@ public class Review : IBinarySerializable, ITableEntry
 								Publication = Publication,
 								Creator		= Creator,
 								Status		= Status,
-								Rate		= Rate,
+								Rating		= Rating,
 								Text		= Text,
 								TextNew		= TextNew,
 								Created		= Created};
@@ -83,7 +83,7 @@ public class Review : IBinarySerializable, ITableEntry
 		Publication	= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
 		Status		= reader.Read<ReviewStatus>();
-		Rate		= reader.ReadByte();
+		Rating		= reader.ReadByte();
 		Text		= reader.ReadString();
 		TextNew		= reader.ReadString();
 		Created		= reader.Read<Time>();
@@ -95,7 +95,7 @@ public class Review : IBinarySerializable, ITableEntry
 		writer.Write(Publication);
 		writer.Write(Creator);
 		writer.Write(Status);
-		writer.Write(Rate);
+		writer.Write(Rating);
 		writer.Write(Text);
 		writer.Write(TextNew);
 		writer.Write(Created);

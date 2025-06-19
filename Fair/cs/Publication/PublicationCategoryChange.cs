@@ -55,8 +55,9 @@ public class PublicationCategoryChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
-		}
 
+			PayEnergyBySite(execution, s.Id);
+		}
 
 		var p = execution.Publications.Affect(Publication);
 
@@ -75,7 +76,5 @@ public class PublicationCategoryChange : VotableOperation
 		}
 
 		p.Category = Category;
-	
-		PayEnergyBySite(execution, p.Site);
 	}
 }

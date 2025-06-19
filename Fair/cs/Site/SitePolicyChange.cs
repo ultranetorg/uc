@@ -53,6 +53,8 @@ public class SitePolicyChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
+		
+			PayEnergyBySite(execution, x.Id);
 		}
 
  		var s = execution.Sites.Affect(Site);
@@ -60,6 +62,5 @@ public class SitePolicyChange : VotableOperation
 		s.ChangePolicies = new(s.ChangePolicies);
 		s.ChangePolicies[Change] = Policy;
 
-		PayEnergyBySite(execution, s.Id);
 	}
 }

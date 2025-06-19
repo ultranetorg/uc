@@ -1,9 +1,9 @@
-import { TEST_EBOOK_SRC } from "testConstants"
+import { TEST_EBOOK_SRC } from "testConfig"
 
 import { PublicationCardProps } from "./types"
 
 export const EBookPublicationCard = ({ title, categoryTitle }: PublicationCardProps) => (
-  <div className="w-67.75 h-106.5 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
+  <div className="h-106.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
     <div className="h-91.25 overflow-hidden">
       <img src={TEST_EBOOK_SRC} className="h-full w-full object-cover" />
     </div>

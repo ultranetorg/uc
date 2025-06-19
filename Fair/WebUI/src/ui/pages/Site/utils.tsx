@@ -1,4 +1,4 @@
-import { TestCategoryIcon } from "testConstants"
+import { TestCategoryIcon } from "testConfig"
 import { CategoryBase } from "types"
 import { BigCategoriesListItem } from "ui/components"
 

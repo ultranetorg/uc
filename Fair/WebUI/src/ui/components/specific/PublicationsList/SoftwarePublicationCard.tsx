@@ -1,10 +1,10 @@
-import { TEST_SOFTWARE_SRC } from "testConstants"
+import { TEST_SOFTWARE_SRC } from "testConfig"
 
 import { PublicationCardProps } from "./types"
 
 export const SoftwarePublicationCard = ({ title, authorTitle, categoryTitle }: PublicationCardProps) => (
   <div
-    className="w-67.75 flex flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
+    className="flex w-67.75 flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
     title={title}
   >
     <div className="h-14 w-14 overflow-hidden">

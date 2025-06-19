@@ -22,7 +22,7 @@ public class SiteDescriptionChange : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return true;
+		return false;
 	}
 
  	public override bool ValidProposal(FairExecution execution)

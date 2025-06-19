@@ -115,6 +115,16 @@ public class DisputeVoting : FairOperation
  			d.Abs = [];
  			d.Flags |= DisputeFlags.Succeeded;
  
+			//d.Proposal.EnergyFeePayer	 = EnergyFeePayer;
+			//d.Proposal.EnergySpenders	 = EnergySpenders;
+			//d.Proposal.EnergyConsumed	 = execution.Round.ConsensusECEnergyCost;
+			d.Proposal.SpacetimeSpenders = [];
+
+ 			s = execution.Sites.Affect(d.Site);
+
+			//SpacetimeSpenders			= d.Proposal.SpacetimeSpenders;
+			d.Proposal.EnergyConsumed	+= d.Proposal.EnergyConsumed;
+
  			d.Proposal.Execute(execution, true);
  		}
  

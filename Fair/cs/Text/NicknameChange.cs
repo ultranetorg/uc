@@ -63,6 +63,8 @@ public class NicknameChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
+			
+			PayEnergyBySite(execution, Entity);	
 		}
 
 		//var id = Ngram.GetId(Nickname);
@@ -97,7 +99,6 @@ public class NicknameChange : VotableOperation
 			
 			case EntityTextField.SiteNickname:		
 				execution.Sites.Affect(Entity).Nickname = Nickname;	
-				PayEnergyBySite(execution, Entity);	
 				break;
 		}
 	}

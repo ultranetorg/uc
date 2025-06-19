@@ -1,6 +1,6 @@
 namespace Uccs.Fair;
 
-public class CategoryCreation : FairOperation
+public class CategoryCreation : VotableOperation
 {
 	public AutoId				Site { get; set; }
 	public AutoId				Parent { get; set; }
@@ -23,30 +23,63 @@ public class CategoryCreation : FairOperation
 		writer.WriteUtf8(Title);
 	}
 
+	public override bool Overlaps(VotableOperation other)
+	{
+		return false;
+	}
+
+ 	public override bool ValidProposal(FairExecution execution)
+ 	{
+		if(Parent == null)
+ 		{
+			if(!RequireSite(execution, Site, out var s))
+ 				return false;
+		}
+		else
+		{
+ 			if(!RequireCategory(execution, Parent, out var c))
+ 				return false;
+		}
+
+		return true;
+ 	}
+
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		Site s;
+		if(!ValidProposal(execution))
+			return;
 
+		if(!dispute)
+	 	{
+	 		if(!RequireModeratorAccess(execution, Site, out var x))
+ 				return;
+
+	 		if(x.ChangePolicies[FairOperationClass.CategoryCreation] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+			
+			PayEnergyBySite(execution, x.Id);
+		}
+
+		Site s;
+	
 		if(Parent == null)
 		{
-			if(!RequireModeratorAccess(execution, Site, out s))
-				return;
-				
+			s = execution.Sites.Affect(Site);
 			var c = execution.Categories.Create(s);
 			
 			c.Site = s.Id;
 			c.Title = Title;
 			
-			s = execution.Sites.Affect(s.Id);
 			s.Categories = [..s.Categories, c.Id];
 
-			Allocate(execution, Signer, s, execution.Net.EntityLength);
-		} 
+			Allocate(execution, s, s, execution.Net.EntityLength);
+		}
 		else
 		{
-			if(!RequireCategory(execution, Parent, out var p))
-				return;
-
+			var p = execution.Categories.Affect(Parent);
 			s = execution.Sites.Affect(p.Site);
 			var c = execution.Categories.Create(s);
 			
@@ -57,9 +90,8 @@ public class CategoryCreation : FairOperation
 			p = execution.Categories.Affect(Parent);
 			p.Categories = [..p.Categories, c.Id];
 		
-			Allocate(execution, Signer, s, execution.Net.EntityLength);
+			Allocate(execution, s, s, execution.Net.EntityLength);
 		}
 
-		PayEnergyBySite(execution, s.Id);
 	}
 }

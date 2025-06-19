@@ -1,6 +1,6 @@
 namespace Uccs.Fair;
 
-public class CategoryMovement : FairOperation
+public class CategoryMovement : VotableOperation
 {
 	public AutoId				Category { get; set; }
 	public AutoId				Parent { get; set; }
@@ -20,12 +20,45 @@ public class CategoryMovement : FairOperation
 		writer.WriteNullable(Parent);
 	}
 
+	public override bool Overlaps(VotableOperation other)
+	{
+		return other is CategoryMovement o && o.Category == Category;
+	}
+
+ 	public override bool ValidProposal(FairExecution execution)
+ 	{
+		if(!RequireCategory(execution, Category, out var _))
+	 		return false;
+
+		if(Parent != null && !RequireCategory(execution, Parent, out var _))
+	 		return false;
+
+		return true;
+ 	}
+
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(!RequireCategoryAccess(execution, Category, out var c))
+		if(!ValidProposal(execution))
 			return;
 
-		c = execution.Categories.Affect(Category);
+		if(!dispute)
+	 	{
+	 		if(!RequireCategoryAccess(execution, Category, out var x, out var s))
+ 				return;
+
+	 		if(Parent != null && !RequireCategoryAccess(execution, Parent, out var _, out var _))
+ 				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.CategoryMovement] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+	
+			PayEnergyBySite(execution, s.Id);
+		}
+
+		var c = execution.Categories.Affect(Category);
 
 		if(c.Parent != null)
 		{
@@ -56,6 +89,5 @@ public class CategoryMovement : FairOperation
 			p.Categories = [..p.Categories, c.Id];
 		}
 
-		PayEnergyBySite(execution, c.Site);
 	}
 }

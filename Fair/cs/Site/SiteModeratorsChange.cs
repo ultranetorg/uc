@@ -69,6 +69,8 @@ public class SiteModeratorsChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
+		
+			PayEnergyBySite(execution, x.Id);
 		}
 
  		var s = execution.Sites.Affect(Site);
@@ -78,6 +80,5 @@ public class SiteModeratorsChange : VotableOperation
  		foreach(var i in Removals)
  			s.Moderators = s.Moderators.Remove(i);
 
-		PayEnergyBySite(execution, s.Id);
 	}
 }

@@ -1,4 +1,4 @@
-import { TEST_PUBLICATION_SMALL_SRC } from "testConstants"
+import { TEST_PUBLICATION_SMALL_SRC } from "testConfig"
 import { PublicationExtended } from "types"
 
 export type PublicationRowProps = Omit<PublicationExtended, "id" | "authorId" | "categoryId">

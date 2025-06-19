@@ -55,6 +55,8 @@ public class PublicationProductChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
+
+			PayEnergyBySite(execution, s.Id);
 		}
 
 		var p = execution.Publications.Affect(Publication);
@@ -67,6 +69,5 @@ public class PublicationProductChange : VotableOperation
 		r = execution.Products.Affect(Product);
 		r.Publications = [..r.Publications, p.Id];
 
-		PayEnergyBySite(execution, p.Site);
 	}
 }

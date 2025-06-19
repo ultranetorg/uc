@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 using Uccs.Web.Configurations;
 using Uccs.Web.Filters;
 
@@ -52,6 +53,13 @@ public class WebServer
 											//app.UseHttpsRedirection();
 
 											WebApplication.UseCors();
+
+											WebApplication.UseFileServer(new FileServerOptions
+																		 {
+																			FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+																			EnableDefaultFiles = true,
+																			EnableDirectoryBrowsing = false
+																		 });
 
 											WebApplication.UseAuthorization();
 

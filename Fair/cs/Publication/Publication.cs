@@ -18,6 +18,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId[]							Reviews { get; set; }
 	public AutoId[]							ReviewChanges { get; set; }
 	public PublicationFlags					Flags { get; set; }
+	public byte								Rating { get; set; }
 
 	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
@@ -47,7 +48,8 @@ public class Publication : IBinarySerializable, ITableEntry
 									Fields			= Fields,
 									Reviews			= Reviews,
 									ReviewChanges	= ReviewChanges,
-									Flags			= Flags};
+									Flags			= Flags,
+									Rating			= Rating};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -75,6 +77,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		Reviews			= reader.ReadArray<AutoId>();
 		ReviewChanges	= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
+		Rating			= reader.ReadByte();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -88,5 +91,6 @@ public class Publication : IBinarySerializable, ITableEntry
 		writer.Write(Reviews);
 		writer.Write(ReviewChanges);
 		writer.Write(Flags);
+		writer.Write(Rating);
 	}
 }
