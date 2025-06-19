@@ -12,8 +12,10 @@ export const enUS = {
   },
   category: {
     empty: "This category is empty.",
+    filters: "Filters",
     grid: "Grid View",
     list: "List View",
+    resetAll: "Reset All",
   },
   searchPage: {
     searchResults: "Search Results",

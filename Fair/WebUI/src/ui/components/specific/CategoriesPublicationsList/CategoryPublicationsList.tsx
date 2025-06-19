@@ -7,7 +7,7 @@ import {
   // GamePublicationCard,
   // MovePublicationCard,
   // MusicPublicationCard,
-  PublicationsList,
+  PublicationsGrid,
   SoftwarePublicationCard,
 } from "ui/components/specific"
 
@@ -31,7 +31,7 @@ export const CategoryPublicationsList = memo(
             {seeAllLabel}
           </Link>
         </div>
-        <PublicationsList
+        <PublicationsGrid
           siteId={siteId}
           isPending={false}
           publications={publications}

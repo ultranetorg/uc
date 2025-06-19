@@ -1,7 +1,7 @@
 import { TEST_PUBLICATION_SMALL_SRC } from "testConfig"
-import { PublicationExtended } from "types"
+import { Publication, PublicationExtended } from "types"
 
-export type PublicationRowProps = Omit<PublicationExtended, "id" | "authorId" | "categoryId">
+export type PublicationRowProps = Omit<Publication, "id"> & Partial<Pick<PublicationExtended, "authorTitle">>
 
 export const PublicationRow = ({ title, authorTitle, categoryTitle }: PublicationRowProps) => {
   return (
@@ -15,7 +15,9 @@ export const PublicationRow = ({ title, authorTitle, categoryTitle }: Publicatio
         </div>
         <span className="overflow-hidden text-ellipsis whitespace-nowrap">{title}</span>
       </div>
-      <span className="w-1/4 max-w-60 overflow-hidden text-ellipsis whitespace-nowrap">{authorTitle}</span>
+      {authorTitle && (
+        <span className="w-1/4 max-w-60 overflow-hidden text-ellipsis whitespace-nowrap">{authorTitle}</span>
+      )}
       <span className="w-1/4 max-w-60 overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</span>
     </div>
   )

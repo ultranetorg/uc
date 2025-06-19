@@ -1,9 +1,9 @@
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
 export * from "./FiltersDropdownButton"
+export * from "./PublicationsGrid"
 export * from "./PublicationsList"
 export * from "./SearchPageHeader"
-export * from "./SearchPublicationsList"
 export * from "./Sidebar"
 export * from "./SiteHeader"
 

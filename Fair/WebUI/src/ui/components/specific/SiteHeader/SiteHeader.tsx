@@ -1,5 +1,5 @@
 import { KeyboardEvent, useCallback, useMemo, useState } from "react"
-import { useMatch, useNavigate, useParams } from "react-router-dom"
+import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
@@ -78,7 +78,9 @@ export const SiteHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
-      <LogoDropdownButton title={site.title} />
+      <Link to={`/${siteId}`}>
+        <LogoDropdownButton title={site.title} />
+      </Link>
       <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
       <SearchDropdown
         size="medium"
