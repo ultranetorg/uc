@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useSearchQueryContext, useSiteContext } from "app"
-import { SEARCH_DELAY } from "constants"
+import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 

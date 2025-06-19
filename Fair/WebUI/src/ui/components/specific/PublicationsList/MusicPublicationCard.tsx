@@ -1,9 +1,9 @@
-import { TEST_MUSIC_SRC } from "testConstants"
+import { TEST_MUSIC_SRC } from "testConfig"
 
 import { PublicationCardProps } from "./types"
 
 export const MusicPublicationCard = ({ title, authorTitle, categoryTitle }: PublicationCardProps) => (
-  <div className="w-67.75 h-87.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
+  <div className="h-87.75 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
     <div className="h-67.5 overflow-hidden">
       <img src={TEST_MUSIC_SRC} className="h-full w-full object-cover" />
     </div>

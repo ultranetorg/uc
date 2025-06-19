@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { PAGE_SIZES } from "constants"
+import { PAGE_SIZES } from "config"
 import { useGetModeratorDisputes } from "entities"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"

@@ -11,7 +11,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { TEST_CATEGORIES_ITEMS } from "testConstants"
+import { TEST_CATEGORIES_ITEMS } from "testConfig"
 import { DropdownButton, HeadingsMenu } from "ui/components"
 import { PropsWithClassName } from "types"
 

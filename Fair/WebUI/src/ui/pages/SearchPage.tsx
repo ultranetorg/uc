@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { useSearchQueryContext } from "app"
-import { DEFAULT_PAGE_SIZE } from "constants"
+import { DEFAULT_PAGE_SIZE } from "config"
 import { useSearchPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
