@@ -14,7 +14,7 @@ public class RdnMcv : Mcv
 
 	public RdnMcv()
 	{
-  		}
+  	}
 
 	public RdnMcv(Rdn net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
 	{

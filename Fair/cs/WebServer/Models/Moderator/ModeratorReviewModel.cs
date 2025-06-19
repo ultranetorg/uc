@@ -20,7 +20,7 @@ public class ModeratorReviewModel
 		Id = review.Id.ToString();
 		Text = review.Text;
 		TextNew = review.TextNew;
-		Rating = review.Rate;
+		Rating = review.Rating;
 		Created = review.Created.Days;
 
 		PublicationId = review.Publication.ToString();

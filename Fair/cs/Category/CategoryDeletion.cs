@@ -1,8 +1,8 @@
 namespace Uccs.Fair;
 
-public class CategoryDeletion : FairOperation
+public class CategoryDeletion : VotableOperation
 {
-	public AutoId		Category { get; set; }
+	public AutoId				Category { get; set; }
 
 	public override bool		IsValid(McvNet net) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Explanation => $"{Category}";
@@ -17,18 +17,44 @@ public class CategoryDeletion : FairOperation
 		writer.Write(Category);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!RequireCategoryAccess(execution, Category, out var c))
-			return;
+		return other is CategoryDeletion o && o.Category == Category;
+	}
+
+ 	public override bool ValidProposal(FairExecution execution)
+ 	{
+		if(!RequireCategory(execution, Category, out var c))
+	 		return false;
 
 		if(c.Publications.Any() || c.Categories.Any())
 		{
-			Error = NotEmpty;
-			return;
+			return false;
 		}
 
-		c = execution.Categories.Affect(Category);
+		return true;
+ 	}
+
+	public override void Execute(FairExecution execution, bool dispute)
+	{
+		if(!ValidProposal(execution))
+			return;
+
+		if(!dispute)
+	 	{
+	 		if(!RequireCategoryAccess(execution, Category, out var x, out var s))
+ 				return;
+
+	 		if(s.ChangePolicies[FairOperationClass.CategoryDeletion] != ChangePolicy.AnyModerator)
+	 		{
+		 		Error = Denied;
+		 		return;
+	 		}
+
+			PayEnergyBySite(execution, s.Id);
+		}
+
+		var c = execution.Categories.Affect(Category);
 
 		if(c.Parent != null)
 		{
@@ -37,6 +63,5 @@ public class CategoryDeletion : FairOperation
 			p.Categories = p.Categories.Remove(c.Id);
 		}
 
-		PayEnergyBySite(execution, c.Site);
 	}
 }

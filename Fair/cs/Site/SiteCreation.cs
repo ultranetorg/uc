@@ -45,6 +45,8 @@ public class SiteCreation : FairOperation
 		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
 
+		s.ChangePolicies[FairOperationClass.CategoryCreation]		= ChangePolicy.ElectedByModeratorsUnanimously;
+
 		s.ChangePolicies[FairOperationClass.PublicationApproval]		= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.PublicationUpdation]		= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.PublicationProductChange]	= ChangePolicy.AnyModerator;

@@ -18,7 +18,7 @@ public class ReviewModel
 	{
 		Id = review.Id.ToString();
 		Text = review.Text;
-		Rating = review.Rate;
+		Rating = review.Rating;
 		Created = review.Created.Days;
 
 		AccountId = account.Id.ToString();

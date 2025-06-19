@@ -52,12 +52,21 @@ public class ReviewStatusChange : VotableOperation
 		 		Error = Denied;
 		 		return;
 	 		}
-		}	 	
+		}
 
 		var r = execution.Reviews.Affect(Review);
 		r.Status = Status;
 
-		var p = execution.Publications.Find(r.Publication);
+		Publication p;
+
+		if(Status == ReviewStatus.Accepted)
+		{
+			p = execution.Publications.Affect(r.Publication);
+			p.Rating = (byte)((p.Rating + r.Rating)/2);
+		}
+		else
+			p = execution.Publications.Find(r.Publication);
+
 		var pr = execution.Products.Find(p.Product);
 		var a = execution.Authors.Find(pr.Author);
 	

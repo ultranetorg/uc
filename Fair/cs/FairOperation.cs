@@ -231,12 +231,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool RequireCategoryAccess(FairExecution round, AutoId id, out Category category)
+ 	public bool RequireCategoryAccess(FairExecution round, AutoId id, out Category category, out Site site)
  	{
+		site = null;
+
  		if(!RequireCategory(round, id, out category))
  			return false; 
  
- 		if(!RequireModeratorAccess(round, category.Site, out var s))
+ 		if(!RequireModeratorAccess(round, category.Site, out site))
  			return false;
  
  		return true;
