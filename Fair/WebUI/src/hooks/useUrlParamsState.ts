@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import { isEqual } from "lodash"
 
 type ParamsTypes = string | number | boolean
 
@@ -81,11 +82,13 @@ export const useUrlParamsState = <C extends ParamsConfig>(config: C) => {
 
   const setStateInternal = useCallback(
     (newState: ParamsState<C> | undefined = undefined) => {
-      const state = newState ?? getEmptyState()
-      setState(state)
-      updateSearchParams(state)
+      const stateToSet = newState ?? getEmptyState()
+      if (!isEqual(stateToSet, state)) {
+        setState(stateToSet)
+        updateSearchParams(stateToSet)
+      }
     },
-    [getEmptyState, updateSearchParams],
+    [getEmptyState, state, updateSearchParams],
   )
 
   return [state, setStateInternal] as const

@@ -24,7 +24,7 @@ export const CategoryPage = () => {
 
       {category.categories.length !== 0 || publications.items.length !== 0 ? (
         <>
-          <CategoriesList siteId={siteId!} categories={category.categories} isPending={isPending} />
+          <CategoriesList siteId={siteId!} categories={category.categories} />
           <PublicationsList isPending={isPendingPublications} publications={publications.items} siteId={siteId!} />
         </>
       ) : (

@@ -8,7 +8,6 @@ import {
   ModeratorDisputeDetails,
   ModeratorPublication,
   ModeratorReview,
-  PaginationResult,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -30,7 +29,7 @@ export type Api = {
 
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
-  searchPublications(siteId: string, query?: string, page?: number): Promise<PaginationResult<PublicationExtended>>
+  searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
 
   getAuthor(authorId: string): Promise<Author>
