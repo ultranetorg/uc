@@ -12,8 +12,8 @@ export const enUS = {
   },
   category: {
     empty: "This category is empty.",
-    grid: "Grid view",
-    list: "List view",
+    grid: "Grid View",
+    list: "List View",
   },
   searchPage: {
     searchResults: "Search Results",
