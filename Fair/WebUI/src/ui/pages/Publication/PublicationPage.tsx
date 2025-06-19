@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useDocumentTitle } from "usehooks-ts"
 
-import { PAGE_SIZES } from "constants"
+import { PAGE_SIZES } from "config"
 import { useGetPublication, useGetReviews } from "entities"
 import { Pagination, Select, SelectItem } from "ui/components"
 import { ReviewsList } from "ui/components/specific"

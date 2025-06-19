@@ -1,9 +1,9 @@
-import { TEST_GAME_SRC } from "testConstants"
+import { TEST_GAME_SRC } from "testConfig"
 
 import { PublicationCardProps } from "./types"
 
 export const GamePublicationCard = ({ title, authorTitle, categoryTitle }: PublicationCardProps) => (
-  <div className="w-67.75 h-111.5 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
+  <div className="h-111.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
     <div className="h-91.25 overflow-hidden">
       <img src={TEST_GAME_SRC} className="h-full w-full object-cover" />
     </div>

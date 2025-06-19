@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
-import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "constants"
+import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"

@@ -10,7 +10,7 @@ import {
 } from "@floating-ui/react"
 import { memo, useEffect, useState } from "react"
 
-import { TEST_LOGO_SRC } from "testConstants"
+import { TEST_LOGO_SRC } from "testConfig"
 // import { DropdownButton, SimpleMenu } from "ui/components"
 
 export type LogoDropdownButtonProps = {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 
-import { PAGE_SIZES } from "constants"
+import { PAGE_SIZES } from "config"
 import { useGetModeratorPublications } from "entities"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"

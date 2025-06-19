@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import { DEFAULT_PAGE_SIZE_2 } from "constants"
+import { DEFAULT_PAGE_SIZE_2 } from "config"
 import { isInteger } from "utils"
 
 const getSearchParams = (searchParams: URLSearchParams) => {
