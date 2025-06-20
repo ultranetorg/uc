@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.396.0</AssemblyVersion>
-    <FileVersion>1.0.396.0</FileVersion>
-    <Version>1.0.396.0</Version>
+    <AssemblyVersion>1.0.428.0</AssemblyVersion>
+    <FileVersion>1.0.428.0</FileVersion>
+    <Version>1.0.428.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
