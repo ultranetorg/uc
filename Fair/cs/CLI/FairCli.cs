@@ -8,7 +8,7 @@ public class FairCli : McvCli
 	{
 	}
 
-	public FairCli(FairNodeSettings settings, FairApiClient api, Flow workflow, IPasswordAsker passwordAsker) : base(settings, api, workflow, passwordAsker)
+	public FairCli(FairNodeSettings settings, FairApiClient api, Flow workflow) : base(settings, api, workflow)
 	{
 	}
 

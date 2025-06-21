@@ -8,7 +8,7 @@ public class RdnCli : McvCli
 	{
 	}
 
-	public RdnCli(RdnNodeSettings settings, RdnApiClient api, Flow workflow, IPasswordAsker passwordAsker) : base(settings, api, workflow, passwordAsker)
+	public RdnCli(RdnNodeSettings settings, RdnApiClient api, Flow workflow) : base(settings, api, workflow)
 	{
 	}
 
