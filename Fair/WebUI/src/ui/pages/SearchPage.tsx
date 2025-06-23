@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_SIZE } from "config"
 import { useSearchPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
-import { SearchPageHeader, SearchPublicationsList } from "ui/components/specific"
+import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { parseInteger } from "utils"
 
 export const SearchPage = () => {
@@ -53,7 +53,7 @@ export const SearchPage = () => {
   return (
     <div className="flex flex-col gap-8">
       <SearchPageHeader searchResultsCount={5} searchResultsLabel={t("searchResults")} />
-      <SearchPublicationsList
+      <PublicationsList
         publications={publications?.items}
         isLoading={isPending || !publications?.items}
         siteId={siteId!}

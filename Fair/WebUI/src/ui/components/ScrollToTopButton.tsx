@@ -13,7 +13,7 @@ export type ScrollToTopButtonProps = PropsWithClassName & ScrollToTopButtonBaseP
 export const ScrollToTopButton = memo(({ className, onClick }: ScrollToTopButtonProps) => (
   <div
     className={twMerge(
-      "flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-gray-800 hover:bg-gray-950",
+      "transition-base flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-gray-800 hover:bg-gray-950",
       className,
     )}
     onClick={onClick}

@@ -2,10 +2,10 @@ import { MouseEvent, PropsWithChildren, ReactNode, memo } from "react"
 import { twMerge } from "tailwind-merge"
 import { createPortal } from "react-dom"
 
+import { SvgX } from "assets"
 import { PropsWithClassName } from "types"
 
 import { Backdrop } from "./Backdrop"
-import { CloseButton } from "./CloseButton"
 
 type ModalBaseProps = {
   title?: string
@@ -28,16 +28,18 @@ export const Modal = memo((props: ModalProps) => {
     <Backdrop onClick={isBackdropStatic ? undefined : onClose}>
       <div
         className={twMerge(
-          "items-centner border-dark-blue-100 bg-dark-blue-200 m-auto flex max-h-[890px] min-h-[300px] max-w-[600px] flex-col justify-center gap-6 rounded-xl border p-6 shadow-[0_13px_18px_0_rgba(0,0,0,0.5)]",
+          "items-centner max-w-190 m-auto flex flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
           className,
         )}
         onClick={(e: MouseEvent) => e.stopPropagation()}
         {...rest}
       >
-        <div className="flex items-center justify-between gap-8">
-          <div className="cursor-default select-none text-2xl leading-7">{title}</div>
-          {onClose && <CloseButton onClick={onClose} />}
-        </div>
+        {(title || onClose) && (
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="cursor-default select-none text-2xl font-semibold leading-7 text-gray-800">{title}</div>
+            {onClose && <SvgX onClick={onClose} className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />}
+          </div>
+        )}
         <div className="flex-1">{children}</div>
         {footer && <div>{footer}</div>}
       </div>

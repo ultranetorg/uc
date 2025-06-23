@@ -1,5 +1,6 @@
 export const enUS = {
   common: {
+    cancel: "Cancel",
     home: "Home",
     next: "Next",
   },
@@ -12,6 +13,31 @@ export const enUS = {
   },
   category: {
     empty: "This category is empty.",
+    filters: "Filters",
+    grid: "Grid View",
+    list: "List View",
+    resetAll: "Reset All",
+  },
+  publication: {
+    activation: "Activation",
+    information: "Information",
+    lastUpdated: "Last Updated",
+    leaveReview: "Leave a Review",
+    noReviews: "No reviews yet. Be the first to share your experience",
+    officialSite: "Official site",
+    os: "OS",
+    publisher: "Publisher",
+    rating: "Rating",
+    review_one: "Review",
+    review_other: "Reviews",
+    showMore: "Show More",
+    showMoreReviews: "Show more reviews",
+    submitReview: "Submit Review",
+    thankYou: "Thank you for your feedback!",
+    version: "Version",
+    writeReview: "Write your review",
+    yourRating: "Your Rating:",
+    yourReview: "Your Review:",
   },
   searchPage: {
     searchResults: "Search Results",

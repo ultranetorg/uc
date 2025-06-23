@@ -1,23 +1,20 @@
 import { useCallback, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
-import { PAGE_SIZES } from "config"
 import { useGetPublication, useGetReviews } from "entities"
-import { Pagination, Select, SelectItem } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
-import { formatAverageRating } from "utils"
-
-const pageSizes: SelectItem[] = PAGE_SIZES.map(x => ({ label: x.toString(), value: x.toString() }))
+import { Description, ReviewModal, SiteLink, Slider, SoftwareInfo } from "ui/components/specific/Publication"
 
 export const PublicationPage = () => {
+  const { t } = useTranslation("publication")
   const { siteId, publicationId } = useParams()
-  useDocumentTitle(
-    publicationId ? `Publication - ${publicationId} | Ultranet Explorer` : "Publication | Ultranet Explorer",
-  )
+  useDocumentTitle(publicationId ? `Publication - ${publicationId} | Ultranet Fair` : "Publication | Ultranet Fair")
 
-  const [reviewsPage, setReviewsPage] = useState(0)
-  const [reviewPageSize, setReviewsPageSize] = useState(20)
+  const [isReviewModalOpen, setReviewModalOpen] = useState(false)
+  const [reviewsPage] = useState(0)
+  const [reviewPageSize] = useState(20)
 
   const { isPending, data: publication } = useGetPublication(publicationId)
   const {
@@ -26,11 +23,11 @@ export const PublicationPage = () => {
     error,
   } = useGetReviews(publicationId, reviewsPage, reviewPageSize)
 
-  const pagesCount = reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / reviewPageSize) : 0
-
-  const handlePageSizeChange = useCallback((value: string) => {
-    setReviewsPage(0)
-    setReviewsPageSize(parseInt(value))
+  const handleLeaveReviewClick = useCallback(() => setReviewModalOpen(true), [])
+  const handleReviewModalClose = useCallback(() => setReviewModalOpen(false), [])
+  const handleReviewModalSubmit = useCallback(() => {
+    console.log("handleReviewModalSubmit")
+    setReviewModalOpen(false)
   }, [])
 
   if (isPending || !publication) {
@@ -38,46 +35,55 @@ export const PublicationPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-4 text-black">
-        <div className="w-1/2 border border-black px-4 py-3 text-center text-purple-500">Logo/Screenshot</div>
-        <div className="flex w-1/2 flex-col border border-black px-4 py-3">
-          <span>Title: {publication.title}</span>
-          <span>Average Rating: {formatAverageRating(publication.averageRating)}</span>
-          <span>
-            Author: <Link to={`/${siteId}/a/${publication.authorId}`}>{publication.authorTitle}</Link>
-          </span>
-          <span>Creator: {publication.creatorId}</span>
-          <span>
-            Category: <Link to={`/${siteId}/c/${publication.categoryId}`}>{publication.categoryTitle}</Link>
-          </span>
-          <span>Creator Id: {publication.creatorId}</span>
-          <span>Product Updated: {publication.productUpdated}</span>
+    <>
+      <div className="flex gap-8">
+        <div className="flex flex-1 flex-col gap-8">
+          <Slider />
+          <Description
+            text={publication.description}
+            showMoreLabel={t("showMore")}
+            descriptionLabel={t("information")}
+          />
+          <ReviewsList
+            isPending={isPending || isPendingReviews}
+            reviews={reviews}
+            error={error}
+            onLeaveReviewClick={handleLeaveReviewClick}
+            leaveReviewLabel={t("leaveReview")}
+            noReviewsLabel={t("noReviews")}
+            reviewLabel={t("review", { count: reviews?.totalItems })}
+            showMoreReviewsLabel={t("showMoreReviews")}
+          />
+        </div>
 
-          <div className="text-purple-500">
-            <span>Publisher</span>
-            <span>Publisher website link</span>
-            <span>Category</span>
-            <ul>
-              <li>RDN Download link 1</li>
-              <li>HTTP Download link 2</li>
-              <li>Torrent Download link 3</li>
-            </ul>
-            <span>RDN Active users</span>
-          </div>
+        <div className="flex w-87.5 flex-col gap-8">
+          <SoftwareInfo
+            publication={publication}
+            siteId={siteId!}
+            publisherLabel={t("publisher")}
+            versionLabel={t("version")}
+            activationLabel={t("activation")}
+            osLabel={t("os")}
+            ratingLabel={t("rating")}
+            lastUpdatedLabel={t("lastUpdated")}
+          />
+          <SiteLink to={"google.com"} label={t("officialSite")} />
         </div>
       </div>
-      <div className="border border-black px-4 py-3 text-black">
-        <span>DESCRIPTION: {publication.description}</span>
-      </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <Select items={pageSizes} value={reviewPageSize} onChange={handlePageSizeChange} />
-          <Pagination pagesCount={pagesCount} onPageChange={setReviewsPage} page={reviewsPage} />
-        </div>
-        <div>REVIEWS: {publication.reviewsCount}</div>
-        <ReviewsList isPending={isPending || isPendingReviews} reviews={reviews} error={error} />
-      </div>
-    </div>
+      {isReviewModalOpen && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          title={t("leaveReview")}
+          onClose={handleReviewModalClose}
+          onSubmit={handleReviewModalSubmit}
+          cancelLabel={t("common:cancel")}
+          submitLabel={t("submitReview")}
+          thankYouLabel={t("thankYou")}
+          writeReviewLabel={t("writeReview")}
+          yourRatingLabel={t("yourRating")}
+          yourReviewLabel={t("yourReview")}
+        />
+      )}
+    </>
   )
 }
