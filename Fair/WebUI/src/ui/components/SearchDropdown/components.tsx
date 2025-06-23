@@ -7,7 +7,7 @@ import Select, {
   Props,
 } from "react-select"
 
-import { SearchSvg, SpinnerSvg, XSvg } from "assets"
+import { SearchSvg, SpinnerSvg, SvgX } from "assets"
 import { HighlightText } from "ui/components"
 
 import { IndicatorsContainerSelectProps, MenuSelectProps, SearchDropdownItem } from "./types"
@@ -28,7 +28,7 @@ export const IndicatorsContainer = ({
   <div className="mr-2.5 flex">
     {inputValue && (
       <div onClick={onClearInputClick} className="cursor-pointer p-1">
-        <XSvg className="stroke-gray-400 hover:stroke-gray-950" />
+        <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
       </div>
     )}
     <div onClick={onSearchClick} className="cursor-pointer p-1">
