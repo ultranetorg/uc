@@ -37,7 +37,7 @@ const TEST_SITES: SiteBase[] = [
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { t } = useTranslation("sidebar")
+  const { t } = useTranslation("sites")
 
   const nodeId = useFloatingParentNodeId()
   const { context, floatingStyles, refs } = useFloating({

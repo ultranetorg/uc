@@ -18,7 +18,7 @@ export const SiteHeader = () => {
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
 
-  const { t } = useTranslation("siteHeader")
+  const { t } = useTranslation("site")
 
   const { site } = useSiteContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()

@@ -13,7 +13,7 @@ import { parseInteger } from "utils"
 
 export const SearchPage = () => {
   const { siteId } = useParams()
-  const { t } = useTranslation("searchPage")
+  const { t } = useTranslation("search")
 
   const [state, setState] = useUrlParamsState({
     page: {
