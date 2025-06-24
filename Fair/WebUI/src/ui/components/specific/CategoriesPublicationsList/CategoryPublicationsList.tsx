@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 
 import { CategoryPublications as CategoryPublicationsType } from "types"
 import {
-  // EBookPublicationCard,
+  // BookPublicationCard,
   // GamePublicationCard,
   // MovePublicationCard,
   // MusicPublicationCard,

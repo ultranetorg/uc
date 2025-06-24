@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Router, SearchQueryProvider } from "./app"
 import "./i18n"
 
-import "./index.css"
+import "./styles/index.css"
+import "./styles/tailwind.css"
 import { FloatingTree } from "@floating-ui/react"
 
 const queryClient = new QueryClient()

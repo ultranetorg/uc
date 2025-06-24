@@ -13,7 +13,7 @@ export const PublicationRow = ({ title, authorTitle, categoryTitle }: Publicatio
         <div className="h-8 w-8 flex-none overflow-hidden rounded-lg bg-gray-500">
           <img src={TEST_PUBLICATION_SMALL_SRC} className="h-full w-full object-cover" />
         </div>
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap">{title}</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">{title}</span>
       </div>
       {authorTitle && (
         <span className="w-1/4 max-w-60 overflow-hidden text-ellipsis whitespace-nowrap">{authorTitle}</span>

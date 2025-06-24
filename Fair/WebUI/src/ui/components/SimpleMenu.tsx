@@ -24,7 +24,7 @@ export const SimpleMenu = memo(
       <div
         ref={ref}
         style={style}
-        className="flex flex-wrap rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md"
+        className="z-10 flex flex-wrap rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md"
         onClick={onClick}
       >
         {chunks.map((chunk, i) => (

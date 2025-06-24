@@ -1,4 +1,4 @@
-export * from "./EBookPublicationCard"
+export * from "./BookPublicationCard"
 export * from "./GamePublicationCard"
 export * from "./PublicationsGrid"
 export * from "./MoviePublicationCard"

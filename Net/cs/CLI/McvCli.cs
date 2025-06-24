@@ -9,7 +9,6 @@ public class McvCli : Cli
 	public McvNet			Net;
 	public TcpPeering		Node;
 	public JsonClient		ApiClient;
-	public IPasswordAsker	PasswordAsker = new ConsolePasswordAsker();
 	public McvNodeSettings	Settings;
 	public Flow				Flow = new Flow("CLI", new Log()); 
 	public ConsoleLogView	LogView = new ConsoleLogView(false, true);
@@ -57,12 +56,11 @@ public class McvCli : Cli
 		//Sun?.Stop("The End");
 	}
 
-	public McvCli(McvNodeSettings settings, McvApiClient api, Flow workflow, IPasswordAsker passwordAsker)
+	public McvCli(McvNodeSettings settings, McvApiClient api, Flow workflow)
 	{
 		Settings = settings;
 		ApiClient = api;
 		Flow = workflow;
-		PasswordAsker = passwordAsker;
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)

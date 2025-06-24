@@ -163,10 +163,12 @@ public class Uos : Cli
 
 	public McvNode RunNode(string net, IClock clock = null)
 	{
+		if(Nodes.Any(i => i.Net == net))
+			throw new NodeException(NodeError.AlreadyRunning);
+
 		var u = new Uri(Settings.Api.ListenAddress);
 		var sh = $"{u.Scheme}://{u.Host}";
-
-		
+				
 		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, (int)KnownSystem.NodeApiPoolSize).Where(i => (i - Settings.NodesApiListenPortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
 
 		var api = new ApiSettings();

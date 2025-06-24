@@ -1,6 +1,12 @@
 yarn install
 yarn dev
 
+## Assets sizes
+
+xs - 16
+sm - 20
+default - 24
+
 ## Links
 
 General:

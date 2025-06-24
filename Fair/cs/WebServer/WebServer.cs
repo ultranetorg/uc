@@ -7,8 +7,10 @@ namespace Uccs.Fair;
 
 public class WebServer
 {
-	FairNode		Node;
-	WebApplication	WebApplication;
+	FairNode			Node;
+	WebApplication		WebApplication;
+
+	public const string	Env = ".env";
 
 	// SEE: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0#middleware-order
 	public WebServer(FairNode node, string[] args)
@@ -56,7 +58,7 @@ public class WebServer
 
 											WebApplication.UseFileServer(new FileServerOptions
 																		 {
-																			FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+																			FileProvider = new PhysicalFileProvider(Path.Join(o.ContentRootPath, "wwwroot")),
 																			EnableDefaultFiles = true,
 																			EnableDirectoryBrowsing = false
 																		 });

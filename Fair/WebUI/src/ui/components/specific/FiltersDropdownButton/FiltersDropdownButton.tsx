@@ -52,7 +52,7 @@ export const FiltersDropdownButton = memo(({ label, resetAllLabel }: FiltersDrop
     <>
       <div
         ref={refs.setReference}
-        className="flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 transition-colors delay-150 duration-300 ease-in-out hover:border-gray-400"
+        className="transition-base flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 hover:border-gray-400"
         {...getReferenceProps()}
       >
         <span className="w-21 text-2xs font-medium leading-4 text-gray-800">{label}</span>
