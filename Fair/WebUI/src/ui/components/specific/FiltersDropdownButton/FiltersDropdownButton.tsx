@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from "react"
-
+import { twMerge } from "tailwind-merge"
 import {
   autoUpdate,
   FloatingPortal,
@@ -14,6 +14,7 @@ import {
 } from "@floating-ui/react"
 
 import { SvgSliders } from "assets"
+
 import { FiltersMenu } from "./FiltersMenu"
 
 export type FiltersDropdownButtonProps = {
@@ -52,7 +53,10 @@ export const FiltersDropdownButton = memo(({ label, resetAllLabel }: FiltersDrop
     <>
       <div
         ref={refs.setReference}
-        className="transition-base flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 hover:border-gray-400"
+        className={twMerge(
+          "transition-base w-35 box-border flex h-10 cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 hover:border-gray-400",
+          isExpanded && "border-gray-400",
+        )}
         {...getReferenceProps()}
       >
         <span className="w-21 text-2xs font-medium leading-4 text-gray-800">{label}</span>

@@ -1,4 +1,5 @@
 export * from "./BigCategoriesList"
+export * from "./Dropdown"
 export * from "./Modal"
 export * from "./SearchDropdown"
 
