@@ -51,7 +51,7 @@ export const SearchPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <SearchPageHeader searchResultsCount={5} searchResultsLabel={t("searchResults")} />
       <PublicationsList
         publications={publications?.items}

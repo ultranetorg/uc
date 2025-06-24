@@ -45,7 +45,9 @@ export const CategoryPage = () => {
         <span className="text-center">{t("empty")}</span>
       )}
 
-      <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={10} />
+      <div className="flex justify-end">
+        <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={10} />
+      </div>
     </div>
   )
 }

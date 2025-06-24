@@ -16,7 +16,7 @@ export const enUS = {
     filters: "Filters",
     grid: "Grid View",
     list: "List View",
-    resetAll: "Reset All",
+    resetAll: "Reset all",
   },
   publication: {
     activation: "Activation",
