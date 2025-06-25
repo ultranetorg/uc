@@ -33,6 +33,8 @@ export const enUS = {
     yourReview: "Your Review:",
   },
   search: {
+    allAuthors: "All authors",
+    allCategories: "All categories",
     searchResults: "Search Results",
   },
   site: {

@@ -52,7 +52,12 @@ export const SearchPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <SearchPageHeader searchResultsCount={5} searchResultsLabel={t("searchResults")} />
+      <SearchPageHeader
+        searchResultsCount={5}
+        searchResultsLabel={t("searchResults")}
+        allAuthorsLabel={t("allAuthors")}
+        allCategoriesLabel={t("allCategories")}
+      />
       <PublicationsList
         publications={publications?.items}
         isLoading={isPending || !publications?.items}
