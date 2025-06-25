@@ -1,3 +1,5 @@
+export * from "./components"
+
 export * from "./arrow-up"
 export * from "./box-arrow-up-right"
 export * from "./chat-x"

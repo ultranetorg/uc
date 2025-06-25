@@ -1,10 +1,9 @@
 import { forwardRef, memo } from "react"
 import { PropsWithStyle } from "types"
 
-import { Dropdown } from "ui/components"
+import { DropdownItem, DropdownSecondary } from "ui/components"
 
 import { ResetAllButton } from "./ResetAllButton"
-import { DropdownItem } from "ui/components/Dropdown/types"
 
 const TEST_ITEMS: DropdownItem[] = [
   { value: "0", label: "Business" },
@@ -28,10 +27,10 @@ export const FiltersMenu = memo(
       style={style}
       ref={ref}
     >
-      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Category" />
-      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Author" />
-      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="OS" />
-      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Sort" />
+      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Category" />
+      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Author" />
+      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="OS" />
+      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Sort" />
       <ResetAllButton onClick={onResetClick} label={resetAllLabel} />
     </div>
   )),

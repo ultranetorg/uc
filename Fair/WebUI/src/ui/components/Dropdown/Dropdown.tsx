@@ -1,12 +1,12 @@
-import { useCallback, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import { SingleValue } from "react-select"
 import { twMerge } from "tailwind-merge"
 
-import { CustomSelect } from "./components"
-import { styles } from "./styles"
+import { CustomSelect, DropdownIndicator } from "./components"
+import { dropdownStyle } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
-export const Dropdown = ({ className, items, onChange, ...rest }: DropdownProps) => {
+export const Dropdown = memo(({ className, items, styles = dropdownStyle, onChange, ...rest }: DropdownProps) => {
   const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
 
   const handleChange = useCallback(
@@ -21,6 +21,7 @@ export const Dropdown = ({ className, items, onChange, ...rest }: DropdownProps)
   return (
     <CustomSelect
       className={twMerge(className)}
+      components={{ DropdownIndicator, IndicatorSeparator: null }}
       styles={styles}
       isSearchable={false}
       onChange={handleChange}
@@ -29,4 +30,4 @@ export const Dropdown = ({ className, items, onChange, ...rest }: DropdownProps)
       {...rest}
     />
   )
-}
+})

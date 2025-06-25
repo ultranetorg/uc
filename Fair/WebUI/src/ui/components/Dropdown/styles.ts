@@ -2,7 +2,7 @@ import { CSSObjectWithLabel, StylesConfig } from "react-select"
 
 import { DropdownItem } from "./types"
 
-export const styles: StylesConfig<DropdownItem, false> = {
+export const dropdownStyle: StylesConfig<DropdownItem, false> = {
   control: (base: CSSObjectWithLabel, { menuIsOpen }) => ({
     ...base,
     backgroundColor: "#F3F4F9",
@@ -11,9 +11,10 @@ export const styles: StylesConfig<DropdownItem, false> = {
     boxShadow: "none",
     boxSizing: "border-box",
     cursor: "pointer",
-    fontSize: "0.9375rem",
+    fontSize: "0.8125rem",
+    fontWeight: "500",
     height: "2.5rem",
-    lineHeight: "1.25rem",
+    lineHeight: "1rem",
     "&:hover": {
       borderColor: "#9798A6",
     },
@@ -42,32 +43,20 @@ export const styles: StylesConfig<DropdownItem, false> = {
       backgroundColor: "#E8E9F1",
     },
   }),
-  placeholder: (base, { isFocused }) => ({
+  placeholder: base => ({
     ...base,
-    color: isFocused ? "#2A2932" : "#737582",
+    color: "#2A2932",
   }),
   singleValue: base => ({
     ...base,
     color: "#2A2932",
   }),
-
   dropdownIndicator: base => ({
     ...base,
-    display: "none",
+    padding: "8px 16px 8px 6px",
   }),
-  indicatorSeparator: base => ({
+  valueContainer: base => ({
     ...base,
-    display: "none",
+    padding: "2px 0px 2px 14px",
   }),
-
-  // // Menu.
-  // menu: base => ({
-  //   ...base,
-  //   backgroundColor: "#FCFCFD",
-  //   borderColor: "#D2D4E4",
-  //   borderWidth: "1px",
-  //   borderRadius: "8px",
-  //   boxShadow: "0px 24px 34px 0px rgba(28, 38, 58, 0.10)",
-  //   overflow: "hidden",
-  // }),
 }
