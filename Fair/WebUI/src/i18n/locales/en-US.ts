@@ -4,6 +4,9 @@ export const enUS = {
     home: "Home",
     next: "Next",
   },
+  about: {
+    about: "About",
+  },
   category: {
     empty: "This category is empty.",
     filters: "Filters",
