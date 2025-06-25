@@ -9,6 +9,7 @@ export * from "./SearchPageHeader"
 export * from "./Sidebar"
 export * from "./SiteHeader"
 
+export * from "./AboutInfo"
 export * from "./ScrollToTop"
 export * from "./SitesList"
 export * from "./ToggleViewButton"

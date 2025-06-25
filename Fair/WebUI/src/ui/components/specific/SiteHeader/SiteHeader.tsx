@@ -99,7 +99,7 @@ export const SiteHeader = () => {
       <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
         {t("moderation")}
       </LinkCounter>
-      <LinkCounter to={`/${siteId}/b`} className="w-[45px]">
+      <LinkCounter to={`/${siteId}/i`} className="w-[45px]">
         {t("about")}
       </LinkCounter>
     </div>
