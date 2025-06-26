@@ -36,7 +36,6 @@ public class RdnTypeResolver : ApiTypeResolver
  			foreach(var i in typeof(RdnOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(RdnOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-
         return ti;
     }
 }

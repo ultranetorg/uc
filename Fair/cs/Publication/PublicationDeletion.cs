@@ -5,7 +5,7 @@ public class PublicationDeletion : FairOperation
 	public AutoId				Publication { get; set; }
 
 	public override bool		IsValid(McvNet net) => Publication != null;
-	public override string		Explanation => $"{Id}";
+	public override string		Explanation => $"{Publication}";
 
 	public PublicationDeletion()
 	{

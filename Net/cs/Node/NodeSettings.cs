@@ -8,7 +8,7 @@ public class PeeringSettings : Settings
 	public IPAddress		IP { get; set; }
 	public ushort			Port { get; set; }
 	public int				PermanentMin { get; set; } = 6;
-	public int				PermanentBaseMin { get; set; } = 6;
+	public int				PermanentGraphsMin { get; set; } = 6;
 	public int				PermanentInboundMax { get; set; } = 128;
 	public int				InboundMax { get; set; } = 16 * 1024;
 	public bool				InitialRandomization { get; set; } = true;

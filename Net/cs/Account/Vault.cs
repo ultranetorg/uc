@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public enum Trust
+public enum Trust : byte
 {
 	None,
 	NonSpending,

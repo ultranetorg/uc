@@ -58,6 +58,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		UosApi = uosapi;
 
 		Register(typeof(McvPpcClass), node);
+
+		All.Add(this);
 	}
 
 	public override object Constract(Type t, byte b)
@@ -112,6 +114,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		SynchronizingThread?.Join();
 
 		base.Stop();
+
+		All.Remove(this);
 	}
 
 	public override void OnRequestException(Peer peer, NodeException ex)
@@ -128,7 +132,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(Mcv != null)
 		{
-			var needed = Settings.PermanentBaseMin - Graphs.Count();
+			var needed = Settings.PermanentGraphsMin - Graphs.Count();
 
 			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
@@ -142,7 +146,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(!MinimalPeersReached && 
 			Connections.Count(i => i.Permanent) >= Settings.PermanentMin && 
-			(Mcv == null || Graphs.Count() >= Settings.PermanentBaseMin))
+			(Mcv == null || Graphs.Count() >= Settings.PermanentGraphsMin))
 		{
 			MinimalPeersReached = true;
 			Flow.Log?.Report(this, $"Minimal peers reached");

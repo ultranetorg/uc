@@ -2,17 +2,18 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Fair;
 
 public abstract class FairApc : McvApc
 {
-	public abstract object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	public abstract object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 
-	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return Execute(mcv as FairNode, request, response, workflow);
+		return Execute(mcv as FairNode, request, response, flow);
 	}
 }
 
@@ -34,6 +35,19 @@ public class FairTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
+        else if(ti.Type == typeof(VotableOperation))
+ 		{
+            ti.PolymorphismOptions = new JsonPolymorphismOptions
+									 {
+										TypeDiscriminatorPropertyName = "$type",
+										IgnoreUnrecognizedTypeDiscriminators = true,
+										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+									 };
+									 
+			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+ 				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
+
         else if(ti.Type == typeof(Operation))
  			foreach(var i in typeof(FairOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FairOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
@@ -46,7 +60,7 @@ public class FairApiServer : McvApiServer
 {
 	FairNode Node;
 
-	public FairApiServer(FairNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, FairApiClient.CreateOptions())
+	public FairApiServer(FairNode node, ApiSettings settings, Flow flow) : base(node, settings, flow, FairApiClient.CreateOptions())
 	{
 		Node = node;
 	}
@@ -76,12 +90,12 @@ public class FairApiClient : McvApiClient
 		return o;
 	}
 
-	public FairApiClient(HttpClient http, McvNet net, string address, string accesskey) : base(http, address, accesskey)
+	public FairApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 	{
 		Options = CreateOptions();
 	}
 
-	public FairApiClient(McvNet net, string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public FairApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 	{
 		Options = CreateOptions();
 	}
@@ -104,14 +118,14 @@ public class CostApc : FairApc
 	public Unit		Rate { get; set; } = 1;
 	public byte[]	Years { get; set; }
 
-	public override object Execute(FairNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(FairNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(Rate == 0)
 		{
 			Rate = 1;
 		}
 
-		var r = rdn.Peering.Call(() => new CostRequest(), workflow);
+		var r = rdn.Peering.Call(() => new CostRequest(), flow);
 
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,
@@ -146,7 +160,7 @@ public class PublicationsSearchApc : FairApc
 	public int			Skip { get; set; }
 	public int			Take { get; set; } = 10;
 
-	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Mcv.Lock)
 			return node.Mcv.Publications.Search(Site, Query, Skip, Take);

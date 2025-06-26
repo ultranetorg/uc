@@ -5,7 +5,7 @@ public class ResourceDeletion : RdnOperation
 	public AutoId				Resource { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Explanation => $"{Id}";
+	public override string		Explanation => $"Resource={Resource}";
 
 	public ResourceDeletion()
 	{

@@ -3,11 +3,11 @@
 public class SiteModeratorsChange : VotableOperation
 {
 	public AutoId				Site { get; set; }
-	public AutoId[]			Additions { get; set; }
-	public AutoId[]			Removals { get; set; }
+	public AutoId[]				Additions { get; set; }
+	public AutoId[]				Removals { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Explanation => $"{Id}";
+	public override string		Explanation => $"Site={Site}, Additions={Additions.Length}, Removals={Removals.Length}";
 	
 	public override void Read(BinaryReader reader)
 	{

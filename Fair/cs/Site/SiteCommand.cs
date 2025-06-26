@@ -18,7 +18,7 @@ public class SiteCommand : FairCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} years={INT} title={NAME} {SignerArg}={AA}",
 						
 						Arguments =	[new ("years", "Integer number of years in [1..10] range"),
-									 new ("title", "A ttile of a site being created"),
+									 new ("title", "A title of a site being created"),
 									 new (SignerArg, "Address of account that owns or is going to register the site")],
 						
 						Examples =	[new (null, $"{Keyword} {a.Name} years=5 {SignerArg}={AA.Example}")]};

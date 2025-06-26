@@ -4,10 +4,10 @@ namespace Uccs.Fair;
 
 public class ProductUpdation : FairOperation
 {
-	public AutoId				ProductId { get; set; }
+	public AutoId				Product { get; set; }
 	public string				Name	{ get; set; }
 	public byte[]				Value	{ get; set; }
-	public override string		Explanation => $"{ProductId}, {Name}, {Value}";
+	public override string		Explanation => $"{Product}, {Name}, {Value}";
 
 	public override bool		IsValid(McvNet net) => Value.Length <= ProductField.ValueLengthMaximum;
 
@@ -17,7 +17,7 @@ public class ProductUpdation : FairOperation
 
 	public ProductUpdation(AutoId id)
 	{
-		ProductId = id;
+		Product = id;
 	}
 
 	//public void Change(string change, string data)
@@ -36,25 +36,25 @@ public class ProductUpdation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		ProductId	= reader.Read<AutoId>();
+		Product	= reader.Read<AutoId>();
 		Name		= reader.ReadUtf8();
 		Value		= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(ProductId);
+		writer.Write(Product);
 		writer.WriteUtf8(Name);
 		writer.WriteBytes(Value);
 	}
 
 	public override void Execute(FairExecution execution, bool dispute)
 	{
-		if(RequireProductAccess(execution, ProductId, out var a, out var r) == false)
+		if(RequireProductAccess(execution, Product, out var a, out var r) == false)
 			return;
 
 		a = execution.Authors.Affect(a.Id);
-		r = execution.Products.Affect(ProductId);
+		r = execution.Products.Affect(Product);
 
 		var f = r.Fields.FirstOrDefault(j => j.Name == Name);
 

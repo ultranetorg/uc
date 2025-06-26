@@ -8,7 +8,7 @@ public class DisputeCreation : FairOperation
 	public VotableOperation	        Proposal { get; set; }
 	
 	public override bool		    IsValid(McvNet net) => Proposal.IsValid(net) && Text.Length < 8192;
-	public override string		    Explanation => $"{Id}";
+	public override string		    Explanation => $"Site={Site}, Creator={Creator}, Text={Text}, Proposal={{{Proposal}}}";
 
 	public DisputeCreation()
 	{
@@ -54,12 +54,15 @@ public class DisputeCreation : FairOperation
  		}
  
  		if(s.Disputes.Any(i =>  {
-                                    var p = execution.Disputes.Find(i).Proposal;
+                                    var d = execution.Disputes.Find(i);
 
-                                    if(p.GetType() != Proposal.GetType())
+									if(d.Flags.HasFlag(DisputeFlags.Succeeded))
+										return false;
+
+                                    if(p.GetType() != d.Proposal.GetType())
                                         return false;
                                     
-                                    return p.Overlaps(Proposal);
+                                    return d.Proposal.Overlaps(Proposal);
                                 }))
  		{
  			Error = AlreadyExists;

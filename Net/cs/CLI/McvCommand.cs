@@ -94,7 +94,7 @@ public abstract class McvCommand : NetCommand
 
 			n += t.Log.Length;
 
-			Thread.Sleep(10);
+			Thread.Sleep(1);
 		}
 		while(t.Status != await);
 

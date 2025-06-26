@@ -18,7 +18,7 @@ public abstract class Rdn : McvNet
 	public static readonly Rdn		Main = null;
 	public static readonly Rdn[]	Official = [Local, Developer0, Test];
 
-	public static Rdn				ByZone(Zone name) => Official.First(i => i.Zone == name);
+	public static Rdn				ByZone(Zone zone) => Official.First(i => i.Zone == zone);
 	
 	public Rdn()
 	{

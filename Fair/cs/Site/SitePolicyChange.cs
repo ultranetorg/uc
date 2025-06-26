@@ -7,7 +7,7 @@ public class SitePolicyChange : VotableOperation
 	public ChangePolicy			Policy { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Explanation => $"{Id}";
+	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Policy}";
 	
 	public override void Read(BinaryReader reader)
 	{
