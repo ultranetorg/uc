@@ -38,7 +38,7 @@ export const SitesPage = () => {
   const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultSites(!query)
   const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-  const { isFetching, data: sites, error } = useSearchSites(query, page)
+  const { isFetching, data: sites } = useSearchSites(query, page)
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
 
   const isDefaultFetching = !query && (!defaultSites || isDefaultSitesFetching)
