@@ -1,5 +1,5 @@
 import { KeyboardEvent, useCallback, useMemo, useState } from "react"
-import { useMatch, useNavigate, useParams } from "react-router-dom"
+import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
@@ -18,7 +18,7 @@ export const SiteHeader = () => {
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
 
-  const { t } = useTranslation("siteHeader")
+  const { t } = useTranslation("site")
 
   const { site } = useSiteContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
@@ -78,7 +78,9 @@ export const SiteHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
-      <LogoDropdownButton title={site.title} />
+      <Link to={`/${siteId}`}>
+        <LogoDropdownButton title={site.title} />
+      </Link>
       <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
       <SearchDropdown
         size="medium"
@@ -97,7 +99,7 @@ export const SiteHeader = () => {
       <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
         {t("moderation")}
       </LinkCounter>
-      <LinkCounter to={`/${siteId}/b`} className="w-[45px]">
+      <LinkCounter to={`/${siteId}/i`} className="w-[45px]">
         {t("about")}
       </LinkCounter>
     </div>

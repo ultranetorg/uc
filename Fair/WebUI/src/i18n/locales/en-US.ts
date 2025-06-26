@@ -1,29 +1,60 @@
 export const enUS = {
   common: {
+    cancel: "Cancel",
     home: "Home",
     next: "Next",
   },
-  sidebar: { allSites: "All Stores", currentSite: "Current store", starredSites: "Starred" },
-  siteHeader: {
+  about: {
+    about: "About",
+  },
+  category: {
+    empty: "This category is empty.",
+    filters: "Filters",
+    grid: "Grid View",
+    list: "List View",
+    resetAll: "Reset all",
+  },
+  publication: {
+    activation: "Activation",
+    information: "Information",
+    lastUpdated: "Last Updated",
+    leaveReview: "Leave a Review",
+    noReviews: "No reviews yet. Be the first to share your experience",
+    officialSite: "Official site",
+    os: "OS",
+    publisher: "Publisher",
+    rating: "Rating",
+    review_one: "Review",
+    review_other: "Reviews",
+    showMore: "Show More",
+    showMoreReviews: "Show more reviews",
+    submitReview: "Submit Review",
+    thankYou: "Thank you for your feedback!",
+    version: "Version",
+    writeReview: "Write your review",
+    yourRating: "Your Rating:",
+    yourReview: "Your Review:",
+  },
+  search: {
+    allAuthors: "All authors",
+    allCategories: "All categories",
+    searchResults: "Search Results",
+  },
+  site: {
     about: "About",
     categories: "Categories",
     governance: "Governance",
     moderation: "Moderation",
-  },
-  category: {
-    empty: "This category is empty.",
-  },
-  searchPage: {
-    searchResults: "Search Results",
-  },
-  site: {
     seeAll: "See all",
   },
   sites: {
+    allSites: "All Stores",
+    currentSite: "Current store",
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
     notice: "Press Enter to view all search results.",
     placeholder: "Enter store name or description...",
+    starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
   votableOperations: {

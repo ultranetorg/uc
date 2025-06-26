@@ -10,8 +10,8 @@ export const createBreadcrumbs = (
 ): BreadcrumbsItemProps[] =>
   parentId
     ? [
-        { path: `/${siteId}`, title: t("home") },
+        { path: `/${siteId}`, title: t("common:home") },
         { path: `/${siteId}/c/${parentId}`, title: parentTitle },
         { title: title },
       ]
-    : [{ path: `/${siteId}`, title: t("home") }, { title: title }]
+    : [{ path: `/${siteId}`, title: t("common:home") }, { title: title }]

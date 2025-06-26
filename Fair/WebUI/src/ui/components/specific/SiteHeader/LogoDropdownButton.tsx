@@ -45,7 +45,7 @@ export const LogoDropdownButton = memo(({ title }: LogoDropdownButtonProps) => {
   return (
     <div
       ref={refs.setReference}
-      className="flex cursor-pointer items-center rounded-xl p-1 hover:bg-gray-100"
+      className="transition-base flex cursor-pointer items-center rounded-xl p-1 hover:bg-gray-100"
       title={title}
       {...getReferenceProps()}
     >

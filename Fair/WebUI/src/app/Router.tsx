@@ -2,10 +2,10 @@ import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } fr
 
 import { BaseLayout, SiteLayout } from "ui/layouts"
 import {
+  AboutPage,
   AuthorPage,
   AuthorReferendumPage,
   AuthorReferendumsPage,
-  CategoriesPage,
   CategoryPage,
   ErrorPage,
   ModerationPage,
@@ -56,10 +56,6 @@ const routes: RouteObject[] = [
             element: <AuthorPage />,
           },
           {
-            path: "/:siteId/c",
-            element: <CategoriesPage />,
-          },
-          {
             path: "/:siteId/c/:categoryId",
             element: <CategoryPage />,
           },
@@ -70,6 +66,10 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/s",
             element: <SearchPage />,
+          },
+          {
+            path: "/:siteId/i",
+            element: <AboutPage />,
           },
 
           {

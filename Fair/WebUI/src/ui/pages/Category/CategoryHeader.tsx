@@ -2,16 +2,20 @@ import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
+import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
+import { FiltersDropdownButton, ToggleViewButton, ViewType } from "ui/components/specific"
+
 import { createBreadcrumbs } from "./utils"
 
 export type CategoryHeaderProps = {
-  siteId: string
   category: Category
+  siteId: string
+  view: ViewType
+  onViewChange(view: ViewType): void
 }
 
-export const CategoryHeader = memo(({ siteId, category }: CategoryHeaderProps) => {
-  const { t } = useTranslation()
+export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: CategoryHeaderProps) => {
+  const { t } = useTranslation("category")
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[]>(
     () => createBreadcrumbs(siteId, category.parentId, category.parentTitle, category.title, t),
@@ -22,9 +26,15 @@ export const CategoryHeader = memo(({ siteId, category }: CategoryHeaderProps) =
     <div className="flex flex-col gap-2">
       <Breadcrumbs items={breadcrumbsItems} />
       <div className="flex items-center justify-between">
-        <h2>
-          {category.title} <span className="text-stone-800/50">{category.publicationsCount}</span>
-        </h2>
+        <div className="flex gap-2 text-3.5xl font-semibold leading-10">
+          <span className="text-gray-800">{category.title}</span>
+          <span className="text-gray-400">{category.publicationsCount}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <FiltersDropdownButton label={t("filters")} resetAllLabel={t("resetAll")} />
+          <ToggleViewButton onChange={onViewChange} view={view} gridTitle={t("grid")} listTitle={t("list")} />
+          <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} />
+        </div>
       </div>
     </div>
   )

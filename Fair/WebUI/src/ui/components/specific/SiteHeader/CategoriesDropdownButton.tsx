@@ -64,8 +64,8 @@ export const CategoriesDropdownButton = memo(({ className, label, items }: Categ
       {isExpanded && items && (
         <FloatingPortal>
           <SimpleMenu
-            items={items}
             ref={refs.setFloating}
+            items={items}
             style={floatingStyles}
             onClick={handleMenuClick}
             {...getFloatingProps()}

@@ -33,6 +33,11 @@ public class SitesService
 				return result;
 
 			Site site = mcv.Sites.Latest(siteId);
+			if (site == null)
+			{
+				continue;
+			}
+
 			SiteBaseModel model = new SiteBaseModel(site);
 			result.Add(model);
 		}
