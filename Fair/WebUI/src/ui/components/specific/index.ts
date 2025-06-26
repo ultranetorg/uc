@@ -1,15 +1,16 @@
+export * from "./publication"
+
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
 export * from "./FiltersDropdownButton"
-export * from "./Publication"
 export * from "./PublicationsGrid"
 export * from "./PublicationsList"
 export * from "./ReviewsList"
 export * from "./SearchPageHeader"
 export * from "./Sidebar"
 export * from "./SiteHeader"
+export * from "./SitesGrid"
 
 export * from "./AboutInfo"
 export * from "./ScrollToTop"
-export * from "./SitesList"
 export * from "./ToggleViewButton"

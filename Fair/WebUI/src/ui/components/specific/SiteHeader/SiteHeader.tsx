@@ -81,7 +81,9 @@ export const SiteHeader = () => {
       <Link to={`/${siteId}`}>
         <LogoDropdownButton title={site.title} />
       </Link>
-      <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
+      {categoriesItems && categoriesItems.length > 0 && (
+        <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
+      )}
       <SearchDropdown
         size="medium"
         className="flex-grow"
@@ -99,9 +101,11 @@ export const SiteHeader = () => {
       <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
         {t("moderation")}
       </LinkCounter>
-      <LinkCounter to={`/${siteId}/i`} className="w-[45px]">
-        {t("about")}
-      </LinkCounter>
+      {site.description && (
+        <LinkCounter to={`/${siteId}/i`} className="w-[45px]">
+          {t("about")}
+        </LinkCounter>
+      )}
     </div>
   )
 }

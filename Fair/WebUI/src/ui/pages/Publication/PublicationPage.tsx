@@ -1,11 +1,21 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
 import { useGetPublication, useGetReviews } from "entities"
+import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
-import { Description, ReviewModal, SiteLink, Slider, SoftwareInfo } from "ui/components/specific/Publication"
+import {
+  Description,
+  ReviewModal,
+  SiteLink,
+  Slider,
+  SoftwareInfo,
+  SoftwarePublicationHeader,
+} from "ui/components/specific/publication"
+import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
+import { createBreadcrumbs } from "utils"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
@@ -23,6 +33,14 @@ export const PublicationPage = () => {
     error,
   } = useGetReviews(publicationId, reviewsPage, reviewPageSize)
 
+  const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
+    () =>
+      publication
+        ? createBreadcrumbs(siteId!, publication.categoryId, publication.categoryTitle, publication.title, t)
+        : undefined,
+    [publication, siteId, t],
+  )
+
   const handleLeaveReviewClick = useCallback(() => setReviewModalOpen(true), [])
   const handleReviewModalClose = useCallback(() => setReviewModalOpen(false), [])
   const handleReviewModalSubmit = useCallback(() => {
@@ -36,38 +54,40 @@ export const PublicationPage = () => {
 
   return (
     <>
-      <div className="flex gap-8">
-        <div className="flex flex-1 flex-col gap-8">
-          <Slider />
-          <Description
-            text={publication.description}
-            showMoreLabel={t("showMore")}
-            descriptionLabel={t("information")}
-          />
-          <ReviewsList
-            isPending={isPending || isPendingReviews}
-            reviews={reviews}
-            error={error}
-            onLeaveReviewClick={handleLeaveReviewClick}
-            leaveReviewLabel={t("leaveReview")}
-            noReviewsLabel={t("noReviews")}
-            reviewLabel={t("review", { count: reviews?.totalItems })}
-            showMoreReviewsLabel={t("showMoreReviews")}
-          />
-        </div>
-
-        <div className="flex w-87.5 flex-col gap-8">
-          <SoftwareInfo
-            publication={publication}
-            siteId={siteId!}
-            publisherLabel={t("publisher")}
-            versionLabel={t("version")}
-            activationLabel={t("activation")}
-            osLabel={t("os")}
-            ratingLabel={t("rating")}
-            lastUpdatedLabel={t("lastUpdated")}
-          />
-          <SiteLink to={"google.com"} label={t("officialSite")} />
+      <div className="flex flex-col gap-6">
+        <Breadcrumbs items={breadcrumbsItems!} />
+        <SoftwarePublicationHeader title={publication.title} categories={TEST_SOFTWARE_CATEGORIES} />
+        <div className="flex gap-8">
+          <div className="flex flex-1 flex-col gap-8">
+            <Slider />
+            <Description
+              text={publication.description}
+              showMoreLabel={t("showMore")}
+              descriptionLabel={t("information")}
+            />
+            <ReviewsList
+              isPending={isPending || isPendingReviews}
+              reviews={reviews}
+              error={error}
+              onLeaveReviewClick={handleLeaveReviewClick}
+              leaveReviewLabel={t("leaveReview")}
+              noReviewsLabel={t("noReviews")}
+              reviewLabel={t("review", { count: reviews?.totalItems })}
+              showMoreReviewsLabel={t("showMoreReviews")}
+            />
+          </div>
+          <div className="flex w-87.5 flex-col gap-8">
+            <SoftwareInfo
+              publication={publication}
+              publisherLabel={t("publisher")}
+              versionLabel={t("version")}
+              activationLabel={t("activation")}
+              osLabel={t("os")}
+              ratingLabel={t("rating")}
+              lastUpdatedLabel={t("lastUpdated")}
+            />
+            <SiteLink to={"google.com"} label={t("officialSite")} />
+          </div>
         </div>
       </div>
       {isReviewModalOpen && (

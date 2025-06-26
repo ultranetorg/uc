@@ -1,4 +1,4 @@
-import { MouseEvent, PropsWithChildren, ReactNode, memo } from "react"
+import { MouseEvent, PropsWithChildren, ReactNode, memo, useEffect } from "react"
 import { twMerge } from "tailwind-merge"
 import { createPortal } from "react-dom"
 
@@ -20,6 +20,18 @@ export type ModalProps = PropsWithClassName & PropsWithChildren & ModalBaseProps
 export const Modal = memo((props: ModalProps) => {
   const { className, children, title, isOpen, isBackdropStatic, footer, onClose, ...rest } = props
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isOpen])
+
   if (!isOpen) {
     return null
   }
@@ -28,7 +40,7 @@ export const Modal = memo((props: ModalProps) => {
     <Backdrop onClick={isBackdropStatic ? undefined : onClose}>
       <div
         className={twMerge(
-          "items-centner max-w-190 m-auto flex flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
+          "items-centner m-auto flex max-w-190 flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
           className,
         )}
         onClick={(e: MouseEvent) => e.stopPropagation()}

@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
-import { SitesList } from "ui/components/specific"
+import { SitesGrid, SitesGridEmpty } from "ui/components/specific"
 import { parseInteger } from "utils"
 
 import { PageHeader } from "./PageHeader"
@@ -38,8 +38,11 @@ export const SitesPage = () => {
   const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultSites(!query)
   const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-  const { isFetching, data: sites, error } = useSearchSites(query, page)
+  const { isFetching, data: sites } = useSearchSites(query, page)
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
+
+  const isDefaultFetching = !query && (!defaultSites || isDefaultSitesFetching)
+  const isSitesFetching = query && (!sites || isFetching)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -83,6 +86,11 @@ export const SitesPage = () => {
     [query, setState],
   )
 
+  if (isDefaultFetching || isSitesFetching) {
+    // TODO: add spinner or skeleton
+    return <>🕑 LOADING</>
+  }
+
   return (
     <div className="flex flex-col items-center gap-12 py-8">
       <PageHeader title={t("title")} description={t("description")} />
@@ -101,13 +109,14 @@ export const SitesPage = () => {
           onSearchClick={handleSearchClick}
         />
       </div>
-      <SitesList
-        isFetching={isFetching ?? isDefaultSitesFetching}
-        items={sites?.items ?? defaultSites}
-        itemsCount={sites?.items.length ?? defaultSites?.length ?? 0}
-        error={error}
-      />
-      {sites && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
+      {(sites && sites!.items.length > 0) || (defaultSites && defaultSites!.length > 0) ? (
+        <>
+          <SitesGrid items={(sites?.items ?? defaultSites)!} />
+          {sites && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
+        </>
+      ) : (
+        <SitesGridEmpty message={t("noResults")} />
+      )}
     </div>
   )
 }
