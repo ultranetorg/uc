@@ -53,6 +53,7 @@ export const enUS = {
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
     notice: "Press Enter to view all search results.",
+    noResults: "We didn’t find anything. Try a different or shorter search.",
     placeholder: "Enter store name or description...",
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
