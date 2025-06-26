@@ -4,6 +4,7 @@ namespace Uccs.Fair;
 
 public class SiteTable : Table<AutoId, Site>
 {
+	public override string			Name => FairTable.Site.ToString();
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 

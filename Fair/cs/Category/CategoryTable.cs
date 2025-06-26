@@ -2,6 +2,7 @@
 
 public class CategoryTable : Table<AutoId, Category>
 {
+	public override string			Name => FairTable.Category.ToString();
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 

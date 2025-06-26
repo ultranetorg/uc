@@ -9,6 +9,11 @@ public delegate void BlockDelegate(Vote b);
 public delegate void ConsensusDelegate(Round b, bool reached);
 public delegate void RoundDelegate(Round b);
 
+public enum McvTable
+{
+	Meta, Account, _Last = Account
+}
+
 public abstract class Mcv /// Mutual chain voting
 {
 	public const int							P = 6; /// pitch

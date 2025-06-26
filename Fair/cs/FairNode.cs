@@ -30,7 +30,7 @@ public class FairNode : McvNode
 		{
 			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
 
-			if(Settings.Mcv.Generators.Any())
+			if(Settings.Web != null)
 			{
 				WebServer = new WebServer(this, null);
 			}

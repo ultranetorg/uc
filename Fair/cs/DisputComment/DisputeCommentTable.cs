@@ -2,6 +2,7 @@
 
 public class DisputeCommentTable : Table<AutoId, DisputeComment>
 {
+	public override string			Name => FairTable.DisputeComment.ToString();
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 

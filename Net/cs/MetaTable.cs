@@ -155,6 +155,8 @@ public class MetaEntity : IBinarySerializable, ITableEntry
 
 public class MetaTable : Table<MetaId, MetaEntity>
 {
+	public override string Name => McvTable.Meta.ToString();
+
 	public MetaTable(Mcv chain) : base(chain)
 	{
 	}

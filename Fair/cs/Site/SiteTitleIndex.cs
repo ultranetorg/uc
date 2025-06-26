@@ -6,6 +6,8 @@ namespace Uccs.Fair;
 
 public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 {
+	public override string			Name => FairTable.SiteTitle.ToString();
+	
 	public SiteTitleIndex(Mcv mcv, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 100, int minDiversity = 100) : base(mcv, new NeedlemanWunsch(), maxLevel, maxConnections, efConstruction, threshold, minDiversity)
 	{
 	}

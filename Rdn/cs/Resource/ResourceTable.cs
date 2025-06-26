@@ -2,6 +2,7 @@
 
 public class ResourceTable : Table<AutoId, Resource>
 {
+	public override string			Name => RdnTable.Resource.ToString();
 	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 	public new RdnMcv				Mcv => base.Mcv as RdnMcv;
 

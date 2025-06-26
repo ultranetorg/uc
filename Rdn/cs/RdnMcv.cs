@@ -3,6 +3,11 @@ using RocksDbSharp;
 
 namespace Uccs.Rdn;
 
+public enum RdnTable
+{
+	Domain = McvTable._Last + 1, Resource
+}
+
 public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;

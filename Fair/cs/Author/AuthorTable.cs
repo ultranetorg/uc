@@ -4,7 +4,8 @@ namespace Uccs.Fair;
 
 public class AuthorTable : Table<AutoId, Author>
 {
-	public new FairMcv	Mcv => base.Mcv as FairMcv;
+	public override string	Name => FairTable.Author.ToString();
+	public new FairMcv		Mcv => base.Mcv as FairMcv;
 
 	public AuthorTable(FairMcv rds) : base(rds)
 	{

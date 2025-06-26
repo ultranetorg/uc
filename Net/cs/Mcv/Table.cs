@@ -18,7 +18,7 @@ public abstract class TableBase
 	public string								EntityColumnName	=> Name + nameof(EntityColumn);
 	public string								MetaColumnName		=> Name + nameof(MetaColumn);
 	
-	public virtual string						Name => GetType().Name.Replace("Table", null);
+	public abstract string						Name { get; }
 	public int									Size => Clusters.Sum(i => i.MainLength);
 	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
 	public virtual bool							IsIndex => false;

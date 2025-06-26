@@ -103,117 +103,117 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 }
 
-public class EntityTermTable : BKTreeTable<EntityTerm>
-{
-	public EntityTermTable(FairMcv mcv) : base(mcv)
-	{
-	}
-
-	public override EntityTerm Create()
-	{
-		return new EntityTerm(Mcv);
-	}
-}
-
-public class SiteTermTable : BKTreeTable<SiteTerm>
-{
-	public class FoundEntity
-	{
-		public AutoId		Entity;
-		public SiteTerm		Term;
-		public byte			Distance;
-
-		public override string ToString()
-		{
-			return $"{Term.Word}, {Distance}, {Entity}";
-		}
-	}
-
-	public SiteTermTable(FairMcv mcv) : base(mcv)
-	{
-	}
-
-	public override SiteTerm Create()
-	{
-		return new SiteTerm(Mcv);
-	}
-
-	public List<FoundEntity> Search(AutoId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
-	{
-		var result = new List<FoundEntity>();
-
-		bool search(SiteTerm node)
-		{
-			if(node == null)
-				return false;
-
-			var dist = ComputeLevenshteinDistance(term, node.Word);
-
-			if(dist <= tolerance && node.References.TryGetValue(site, out var e))
-			{
-				foreach(var i in e)
-				{
-					if(tointersect == null || tointersect.Any(j => j.Entity == i))
-					{
-						if(skip == 0)
-						{
-							result.Add(new FoundEntity {Entity = i, Term = node, Distance = (byte)dist});
-	
-							take--;
-	
-							if(take == 0)
-								return false;
-						}
-						else
-							skip--;
-					}
-				}
-			}
-
-			//foreach(byte i in Enumerable.Range(dist - tolerance, tolerance * 2 + 1).Where(i => i >= 0).OrderBy(i => i))
-			for(int i = Math.Max(0, dist - tolerance); i <= dist + tolerance; i++)
-			{
-				if(node.Children.ContainsKey((byte)i))
-				{
-					if(!search(Latest(node.Children[(byte)i])))
-						return false;
-				}
-			}
-
-			return true;
-		}
-
-		search(Latest(Latest(new RawId([0])).Children[0]) as SiteTerm);
-
-		return result;
-	}
-
-	//public IEnumerable<TextSearchResult> Search(EntityId site, string query, int page, byte lines)
-	//{
-	//	using var r = Mcv.LuceneWriter.GetReader(applyAllDeletes: true);
-	//	var s = new IndexSearcher(r);
-	//	
-	//	var sid = "s" + site;
-	//	
-  	//	var q = new BooleanQuery();
-	//	
-	//	foreach(var i in query.Split(' '))
-	//	{
- 	//		q.Add(new FuzzyQuery(new Term("t", i)), Occur.MUST);
-	//	}
-	//	
- 	//	q.Add(new TermQuery(new Term("e", sid)), Occur.MUST);
-	//	
-	//	var docs = s.Search(q, lines);
-	//	
-	//	if(docs.TotalHits > 0)
-	//		return docs.ScoreDocs.Select(i => new TextSearchResult {Entity = EntityId.Parse(s.Doc(i.Doc).Get("e").Split('\n').Select(i => i.Split(' ')).First(i => i[0] == sid)[1]), 
-	//																Text = s.Doc(i.Doc).Get("t")}).ToArray();
-	//	else
-	//		return null;
-	//}
-
-}
+//public class EntityTermTable : BKTreeTable<EntityTerm>
+//{
+//	public EntityTermTable(FairMcv mcv) : base(mcv)
+//	{
+//	}
+//
+//	public override EntityTerm Create()
+//	{
+//		return new EntityTerm(Mcv);
+//	}
+//}
+//
+//public class SiteTermTable : BKTreeTable<SiteTerm>
+//{
+//	public class FoundEntity
+//	{
+//		public AutoId		Entity;
+//		public SiteTerm		Term;
+//		public byte			Distance;
+//
+//		public override string ToString()
+//		{
+//			return $"{Term.Word}, {Distance}, {Entity}";
+//		}
+//	}
+//
+//	public SiteTermTable(FairMcv mcv) : base(mcv)
+//	{
+//	}
+//
+//	public override SiteTerm Create()
+//	{
+//		return new SiteTerm(Mcv);
+//	}
+//
+//	public List<FoundEntity> Search(AutoId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
+//	{
+//		var result = new List<FoundEntity>();
+//
+//		bool search(SiteTerm node)
+//		{
+//			if(node == null)
+//				return false;
+//
+//			var dist = ComputeLevenshteinDistance(term, node.Word);
+//
+//			if(dist <= tolerance && node.References.TryGetValue(site, out var e))
+//			{
+//				foreach(var i in e)
+//				{
+//					if(tointersect == null || tointersect.Any(j => j.Entity == i))
+//					{
+//						if(skip == 0)
+//						{
+//							result.Add(new FoundEntity {Entity = i, Term = node, Distance = (byte)dist});
+//	
+//							take--;
+//	
+//							if(take == 0)
+//								return false;
+//						}
+//						else
+//							skip--;
+//					}
+//				}
+//			}
+//
+//			//foreach(byte i in Enumerable.Range(dist - tolerance, tolerance * 2 + 1).Where(i => i >= 0).OrderBy(i => i))
+//			for(int i = Math.Max(0, dist - tolerance); i <= dist + tolerance; i++)
+//			{
+//				if(node.Children.ContainsKey((byte)i))
+//				{
+//					if(!search(Latest(node.Children[(byte)i])))
+//						return false;
+//				}
+//			}
+//
+//			return true;
+//		}
+//
+//		search(Latest(Latest(new RawId([0])).Children[0]) as SiteTerm);
+//
+//		return result;
+//	}
+//
+//	//public IEnumerable<TextSearchResult> Search(EntityId site, string query, int page, byte lines)
+//	//{
+//	//	using var r = Mcv.LuceneWriter.GetReader(applyAllDeletes: true);
+//	//	var s = new IndexSearcher(r);
+//	//	
+//	//	var sid = "s" + site;
+//	//	
+//  	//	var q = new BooleanQuery();
+//	//	
+//	//	foreach(var i in query.Split(' '))
+//	//	{
+// 	//		q.Add(new FuzzyQuery(new Term("t", i)), Occur.MUST);
+//	//	}
+//	//	
+// 	//	q.Add(new TermQuery(new Term("e", sid)), Occur.MUST);
+//	//	
+//	//	var docs = s.Search(q, lines);
+//	//	
+//	//	if(docs.TotalHits > 0)
+//	//		return docs.ScoreDocs.Select(i => new TextSearchResult {Entity = EntityId.Parse(s.Doc(i.Doc).Get("e").Split('\n').Select(i => i.Split(' ')).First(i => i[0] == sid)[1]), 
+//	//																Text = s.Doc(i.Doc).Get("t")}).ToArray();
+//	//	else
+//	//		return null;
+//	//}
+//
+//}
 
 ///		Searchs using any part of word no matter the order of letters
 ///		

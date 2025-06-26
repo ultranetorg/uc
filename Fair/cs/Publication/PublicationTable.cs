@@ -4,6 +4,7 @@ namespace Uccs.Fair;
 
 public class PublicationTable : Table<AutoId, Publication>
 {
+	public override string			Name => FairTable.Publication.ToString();
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 

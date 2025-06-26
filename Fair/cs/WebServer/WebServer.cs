@@ -28,7 +28,7 @@ public class WebServer
 
 											var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(o);
 
-											if(!node.Settings.WebServerLogging)
+											if(!node.Settings.Web.Logging)
 											{
 												builder.Logging.ClearProviders();
 											}
@@ -67,7 +67,7 @@ public class WebServer
 
 											WebApplication.MapControllers();
 
-											WebApplication.Run(node.Settings.WebServerListenUrl);
+											WebApplication.Run(node.Settings.Web.ListenUrl);
 
 										});
 		t.Name = $"{node.Name} {GetType().Name}";

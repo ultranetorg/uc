@@ -19,19 +19,19 @@ public class SeedHubSettings : Settings
 	}
 }
 
-public class EthereumSettings : Settings
+public class WebSettings : Settings
 {
-	public string		Provider { get; set; }
+	public string		ListenUrl { get; set; }
+	public bool			Logging { get; set; }
 
-	public EthereumSettings() : base(FairXonTextValueSerializator.Default)
+	public WebSettings() : base(FairXonTextValueSerializator.Default)
 	{
 	}
 }
 
 public class FairNodeSettings : McvNodeSettings
 {
-	public string		WebServerListenUrl { get; set; }
-	public bool			WebServerLogging { get; set; }
+	public WebSettings	Web { get; set; }
 
 	public FairNodeSettings()
 	{

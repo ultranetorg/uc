@@ -2,6 +2,8 @@
 
 public class AccountTable : Table<AutoId, Account>
 {
+	public override string Name => McvTable.Account.ToString();
+
 	public int	KeyToBucket(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[2];
 
 	public AccountTable(Mcv chain) : base(chain)

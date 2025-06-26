@@ -19,6 +19,11 @@ public enum FairMetaEntityType : int
 	PublicationTitleEntryPoint,
 }
 
+public enum FairTable
+{
+	Author = McvTable._Last + 1, Product, Site, Category, Publication, Review, Dispute, DisputeComment, Word, PublicationTitle, SiteTitle
+}
+
 public class FairMcv : Mcv
 {
 	public AuthorTable					Authors;
