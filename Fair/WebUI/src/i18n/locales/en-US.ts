@@ -57,6 +57,10 @@ export const enUS = {
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
+  error: {
+    backToHome: "Back to Home",
+    refreshPage: "Refresh page",
+  },
   votableOperations: {
     "nickname-change": "Nickname Change",
     "publication-product-change": "Publication Product Change",

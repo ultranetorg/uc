@@ -13,9 +13,7 @@ export const AboutPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumbs items={[{ path: `/${siteId}`, title: t("common:home") }, { title: t("about") }]} />
-      <AboutInfo className="max-w-160" title={site?.title}>
-        {site?.description}
-      </AboutInfo>
+      <AboutInfo className="max-w-160" title={site!.title} description={site!.description!} />
     </div>
   )
 }
