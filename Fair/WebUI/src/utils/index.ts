@@ -1,4 +1,5 @@
 export * from "./arrayUtils"
+export * from "./breadcrumbsUtils"
 export * from "./categoryTreeUtils"
 export * from "./formatUtils"
 export * from "./integerUtils"

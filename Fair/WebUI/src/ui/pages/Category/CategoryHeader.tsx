@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Category } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
 import { FiltersDropdownButton, ToggleViewButton, ViewType } from "ui/components/specific"
-
-import { createBreadcrumbs } from "./utils"
+import { createBreadcrumbs } from "utils"
 
 export type CategoryHeaderProps = {
   category: Category
