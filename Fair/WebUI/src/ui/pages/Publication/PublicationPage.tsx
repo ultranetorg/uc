@@ -5,7 +5,7 @@ import { useDocumentTitle } from "usehooks-ts"
 
 import { useGetPublication, useGetReviews } from "entities"
 import { ReviewsList } from "ui/components/specific"
-import { Description, ReviewModal, SiteLink, Slider, SoftwareInfo } from "ui/components/specific/Publication"
+import { Description, ReviewModal, SiteLink, Slider, SoftwareInfo } from "ui/components/specific/publication"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
