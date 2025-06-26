@@ -10,7 +10,6 @@ const LABEL_CLASSNAME = "leading-4 text-gray-500 text-2xs"
 const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800"
 
 export type SoftwareInfoProps = {
-  siteId: string
   publication: PublicationDetails
   publisherLabel: string
   versionLabel: string
@@ -21,7 +20,6 @@ export type SoftwareInfoProps = {
 }
 
 export const SoftwareInfo = ({
-  siteId,
   publication,
   publisherLabel,
   versionLabel,
