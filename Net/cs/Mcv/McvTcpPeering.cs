@@ -569,248 +569,254 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public void Generate()
 	{
-		Statistics.Generating.Begin();
-
-		if(Mcv.Settings.Generators.Length == 0 || Synchronization != Synchronization.Synchronized)
-			return;
-
-		var votes = new List<Vote>();
-
-		foreach(var g in Mcv.Settings.Generators)
+		try
 		{
-			//if(g == Net.Father0	&& Mcv.NextVoteRound.Previous.Votes.Any(i => i.Generator == g)
-			//						&& Mcv.NextVoteRound.Previous.Previous.Votes.Any(i => i.Generator == g)
-			//						&& Mcv.NextVoteRound.Previous.Previous.Previous.Votes.Any(i => i.Generator == g)
-			//					)
-			//	votes = votes;
-
-			var m = Mcv.NextVoteRound.VotersRound.Members.Find(i => i.Address == g);
-
-			if(m == null)
+			Statistics.Generating.Begin();
+	
+			if(Mcv.Settings.Generators.Length == 0 || Synchronization != Synchronization.Synchronized)
+				return;
+	
+			var votes = new List<Vote>();
+	
+			foreach(var g in Mcv.Settings.Generators)
 			{
-				if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
-					continue;
-
-				if(!CandidacyDeclarations.Contains(g))
+				//if(g == Net.Father0	&& Mcv.NextVoteRound.Previous.Votes.Any(i => i.Generator == g)
+				//						&& Mcv.NextVoteRound.Previous.Previous.Votes.Any(i => i.Generator == g)
+				//						&& Mcv.NextVoteRound.Previous.Previous.Previous.Votes.Any(i => i.Generator == g)
+				//					)
+				//	votes = votes;
+	
+				var m = Mcv.NextVoteRound.VotersRound.Members.Find(i => i.Address == g);
+	
+				if(m == null)
 				{
-					var t = new Transaction();
-					t.Flow	 = Flow;
-					t.Net	 = Net;
-					t.Signer = g;
- 					t.__ExpectedOutcome = TransactionStatus.Confirmed;
-			
-					t.AddOperation(Mcv.CreateCandidacyDeclaration());
-
-					CandidacyDeclarations.Add(g);
-
-			 		Transact(t);
-				} 
+					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
+						continue;
+	
+					if(!CandidacyDeclarations.Contains(g))
+					{
+						var t = new Transaction();
+						t.Flow	 = Flow;
+						t.Net	 = Net;
+						t.Signer = g;
+	 					t.__ExpectedOutcome = TransactionStatus.Confirmed;
+				
+						t.AddOperation(Mcv.CreateCandidacyDeclaration());
+	
+						CandidacyDeclarations.Add(g);
+	
+				 		Transact(t);
+					} 
+					else
+					{
+						if(!OutgoingTransactions.Any(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration)))
+							CandidacyDeclarations.Remove(g);
+					}
+				}
 				else
 				{
-					if(!OutgoingTransactions.Any(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration)))
-						CandidacyDeclarations.Remove(g);
-				}
-			}
-			else
-			{
-				CandidacyDeclarations.Remove(g);
-				OutgoingTransactions.RemoveAll(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration));
-
-				var r = Mcv.NextVoteRound;
-
-				//if(r.Id < m.CastingSince)
-				//	continue;
-
-				if(r.VotesOfTry.Any(i => i.Generator == g))
-					continue;
-
-				Vote createvote(Round r)
-				{
-					//var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
-					
-					var v = Mcv.CreateVote();
-
-					v.RoundId		= r.Id;
-					v.Try			= r.Try;
-					v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
-					v.Created		= Mcv.Clock.Now;
-					v.Time			= Time.Now(Mcv.Clock);
-					v.Violators		= r.ProposeViolators().ToArray();
-					v.MemberLeavers	= r.ProposeMemberLeavers(g).ToArray();
-					v.NntBlocks		= Mcv.NtnBlocks.Select(i => i.State.Hash).ToArray();
-
-					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
-					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
-
-					Mcv.FillVote(v);
-
-					return v;
-				}
-
-				var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
-
-				var must = r.Voters.Any(i => i.Address == g) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
-
-				if(txs.Any() || must)
-				{
-					var v = createvote(r);
-					var deferred = new List<Transaction>();
-					var pp = r.Parent.Previous;
-					
-					/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
-
-					bool tryplace(Transaction t, bool ba, bool isdeferred)	{ 	
-																				if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
-																					return false;
-
-																				if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > (ba ? pp.PerVoteBandwidthAllocationLimit : pp.PerVoteOperationsLimit))
-																					return false;
-
-																				if(r.Id > t.Expiration)
-																				{
-																					t.Status = TransactionStatus.FailedOrNotFound;
-																					IncomingTransactions.Remove(t);
-																					return true;
-																				}
-
-																				var nearest = r.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address;
-
-																				if(nearest != g)
-																				{
-																					if(!Mcv.Settings.Generators.Contains(nearest))
+					CandidacyDeclarations.Remove(g);
+					OutgoingTransactions.RemoveAll(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration));
+	
+					var r = Mcv.NextVoteRound;
+	
+					//if(r.Id < m.CastingSince)
+					//	continue;
+	
+					if(r.VotesOfTry.Any(i => i.Generator == g))
+						continue;
+	
+					Vote createvote(Round r)
+					{
+						//var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
+						
+						var v = Mcv.CreateVote();
+	
+						v.RoundId		= r.Id;
+						v.Try			= r.Try;
+						v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
+						v.Created		= Mcv.Clock.Now;
+						v.Time			= Time.Now(Mcv.Clock);
+						v.Violators		= r.ProposeViolators().ToArray();
+						v.MemberLeavers	= r.ProposeMemberLeavers(g).ToArray();
+						v.NntBlocks		= Mcv.NtnBlocks.Select(i => i.State.Hash).ToArray();
+	
+						//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
+						//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
+	
+						Mcv.FillVote(v);
+	
+						return v;
+					}
+	
+					var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
+	
+					var must = r.Voters.Any(i => i.Address == g) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
+	
+					if(txs.Any() || must)
+					{
+						var v = createvote(r);
+						var deferred = new List<Transaction>();
+						var pp = r.Parent.Previous;
+						
+						/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
+	
+						bool tryplace(Transaction t, bool ba, bool isdeferred)	{ 	
+																					if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
+																						return false;
+	
+																					if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > (ba ? pp.PerVoteBandwidthAllocationLimit : pp.PerVoteOperationsLimit))
+																						return false;
+	
+																					if(r.Id > t.Expiration)
 																					{
 																						t.Status = TransactionStatus.FailedOrNotFound;
 																						IncomingTransactions.Remove(t);
-																					}
-
-																					return true;
-																				}
-
-																				if(!isdeferred)
-																				{
-																					if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
-																					{
-																						deferred.Add(t);
 																						return true;
 																					}
+	
+																					var nearest = r.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address;
+	
+																					if(nearest != g)
+																					{
+																						if(!Mcv.Settings.Generators.Contains(nearest))
+																						{
+																							t.Status = TransactionStatus.FailedOrNotFound;
+																							IncomingTransactions.Remove(t);
+																						}
+	
+																						return true;
+																					}
+	
+																					if(!isdeferred)
+																					{
+																						if(txs.Any(i => i.Signer == t.Signer && i.Nid < t.Nid)) /// any older tx left?
+																						{
+																							deferred.Add(t);
+																							return true;
+																						}
+																					}
+																					else
+																						deferred.Remove(t);
+	
+																					t.Status = TransactionStatus.Placed;
+																					v.AddTransaction(t);
+	
+																					var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
+	
+																					if(next != null)
+																					{
+																						if(tryplace(next, ba, true) == false)
+																							return false;
+																					}
+	
+																					Flow.Log?.Report(this, "Transaction Placed", t.ToString());
+	
+																					return true;
 																				}
-																				else
-																					deferred.Remove(t);
-
-																				t.Status = TransactionStatus.Placed;
-																				v.AddTransaction(t);
-
-																				var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
-
-																				if(next != null)
-																				{
-																					if(tryplace(next, ba, true) == false)
-																						return false;
-																				}
-
-																				Flow.Log?.Report(this, "Transaction Placed", t.ToString());
-
-																				return true;
-																			}
-
-					var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
-
-					foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration >= pp.ConsensusTime.Days && (	i.a.BandwidthTodayTime == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
-																											i.a.Bandwidth >= i.t.EnergyConsumed)))
-						if(false == tryplace(t.t, true, false))
-							break;
-
-					foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
-						if(false == tryplace(t.t, false, false))
-							break;
-
-					foreach(var t in stxs.Where(i => i.a == null))
-						if(false == tryplace(t.t, false, false))
-							break;
-
-					if(v.Transactions.Any() || must)
-					{
-						///v.Sign(Vault.Find(g).Key);
+	
+						var stxs = txs.Select(i => new {t = i, a = Mcv.Accounts.Find(i.Signer, pp.Id)});
+	
+						foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration >= pp.ConsensusTime.Days && (i.a.BandwidthTodayTime == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
+																															 i.a.Bandwidth >= i.t.EnergyConsumed)))
+							if(false == tryplace(t.t, true, false))
+								break;
+	
+						foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
+							if(false == tryplace(t.t, false, false))
+								break;
+	
+						foreach(var t in stxs.Where(i => i.a == null))
+							if(false == tryplace(t.t, false, false))
+								break;
+	
+						if(v.Transactions.Any() || must)
+						{
+							///v.Sign(Vault.Find(g).Key);
+							v.Generator = g;
+							v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
+																					Account	= g,
+																					Session = GetSession(g),
+																					Hash	= v.Hashify(),
+																					Trust	= Trust.None}, Flow);						
+	
+							votes.Add(v);
+						}
+					}
+	
+	 				while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+	 				{
+	 					r = r.Previous;
+	 
+	 					var v = createvote(r);
+	 						
 						v.Generator = g;
 						v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
 																				Account	= g,
 																				Session = GetSession(g),
 																				Hash	= v.Hashify(),
 																				Trust	= Trust.None}, Flow);						
-
-						votes.Add(v);
+	 					votes.Add(v);
+	 				}
+	
+					if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+						MainWakeup.Set();
+				}
+			}
+	
+			if(votes.Any())
+			{
+				try
+				{
+					foreach(var v in votes.GroupBy(i => i.RoundId).OrderBy(i => i.Key))
+					{
+						var r = Mcv.FindRound(v.Key);
+	
+						foreach(var i in v)
+						{
+							Mcv.Add(i);
+						}
+					}
+	
+					for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
+					{
+						var r = Mcv.GetRound(i);
+						
+						if(r.Hash == null)
+						{
+							r.ConsensusTime			= r.Previous.ConsensusTime;
+							r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
+							///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
+							r.Members				= r.Previous.Members;
+							r.Funds					= r.Previous.Funds;
+						}
+	
+						if(!r.Confirmed)
+						{
+							r.Execute(r.OrderedTransactions.Where(i => Mcv.Settings.Generators.Contains(i.Vote.Generator)));
+						}
 					}
 				}
-
- 				while(r.Previous != null && !r.Previous.Confirmed && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
- 				{
- 					r = r.Previous;
- 
- 					var v = createvote(r);
- 						
- 					//b.Sign(Vault.Find(g).Key);
-					v.Generator = g;
-					v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
-																			Account	= g,
-																			Session = GetSession(g),
-																			Hash	= v.Hashify(),
-																			Trust	= Trust.None}, Flow);						
-
- 					votes.Add(v);
- 				}
-
-				if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-					MainWakeup.Set();
+				catch(ConfirmationException ex)
+				{
+					ProcessConfirmationException(ex);
+				}
+	
+				foreach(var i in votes)
+				{
+					Broadcast(i);
+				}
+													
+				Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
 			}
+	
+			Statistics.Generating.End();
 		}
-
-		if(votes.Any())
+		catch(ApiCallException ex)
 		{
-			try
-			{
-				foreach(var v in votes.GroupBy(i => i.RoundId).OrderBy(i => i.Key))
-				{
-					var r = Mcv.FindRound(v.Key);
-
-					foreach(var i in v)
-					{
-						Mcv.Add(i);
-					}
-				}
-
-				for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
-				{
-					var r = Mcv.GetRound(i);
-					
-					if(r.Hash == null)
-					{
-						r.ConsensusTime			= r.Previous.ConsensusTime;
-						r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
-						///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
-						r.Members				= r.Previous.Members;
-						r.Funds					= r.Previous.Funds;
-					}
-
-					if(!r.Confirmed)
-					{
-						r.Execute(r.OrderedTransactions.Where(i => Mcv.Settings.Generators.Contains(i.Vote.Generator)));
-					}
-				}
-			}
-			catch(ConfirmationException ex)
-			{
-				ProcessConfirmationException(ex);
-			}
-
-			foreach(var i in votes)
-			{
-				Broadcast(i);
-			}
-												
-			 Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
+			Flow?.Log.ReportError(this, "Uos API call failure", ex);
+			Thread.Sleep(1000);
 		}
-
-		Statistics.Generating.End();
 	}
 
 	public abstract bool ProcessIncomingOperation(Operation o);
