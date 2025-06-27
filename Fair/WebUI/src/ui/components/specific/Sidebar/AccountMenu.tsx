@@ -90,7 +90,7 @@ export const AccountMenu = memo(
           </div>
           <div className="flex flex-col gap-4 p-6">
             <MenuButton label="Profile" />
-            <MenuButton label="Profile 2" ref={refs.setReference} {...getReferenceProps()} />
+            <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
           </div>
         </div>
         {isOpen && (
