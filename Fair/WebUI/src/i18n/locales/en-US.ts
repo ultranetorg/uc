@@ -14,6 +14,9 @@ export const enUS = {
     list: "List View",
     resetAll: "Reset all",
   },
+  profile: {
+    profile: "Profile",
+  },
   publication: {
     activation: "Activation",
     information: "Information",

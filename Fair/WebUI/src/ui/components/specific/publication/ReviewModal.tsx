@@ -35,6 +35,13 @@ export const ReviewModal = memo(
     const [step, setStep] = useState(0)
     const [reviewText, setReviewText] = useState("")
 
+    const handleSubmit = useCallback(() => {
+      setStep(1)
+      setTimeout(() => {
+        onSubmit?.()
+      }, 2000)
+    }, [onSubmit])
+
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (step == 0 && e.key === "Escape") {
@@ -48,13 +55,6 @@ export const ReviewModal = memo(
         document.removeEventListener("keydown", handleKeyDown)
       }
     }, [onClose, step])
-
-    const handleSubmit = useCallback(() => {
-      setStep(1)
-      setTimeout(() => {
-        onSubmit?.()
-      }, 2000)
-    }, [onSubmit])
 
     return (
       <Modal {...rest} className="h-97.5 w-190">

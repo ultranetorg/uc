@@ -1,6 +1,6 @@
 import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } from "react-router-dom"
 
-import { BaseLayout, SiteLayout } from "ui/layouts"
+import { AppLayout, BaseLayout, SiteLayout } from "ui/layouts"
 import {
   AboutPage,
   AuthorPage,
@@ -13,11 +13,11 @@ import {
   ModeratorDisputesPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
+  ProfilePage,
   PublicationPage,
   SearchPage,
   SitePage,
   SitesPage,
-  UserPage,
 } from "ui/pages"
 
 import { SiteProvider } from "./SiteContext"
@@ -29,9 +29,11 @@ const routes: RouteObject[] = [
     path: "/",
     element: <BaseLayout />,
     errorElement: (
-      <BaseLayout>
-        <ErrorPage />
-      </BaseLayout>
+      <AppLayout>
+        <BaseLayout>
+          <ErrorPage />
+        </BaseLayout>
+      </AppLayout>
     ),
     children: [
       {
@@ -105,8 +107,8 @@ const routes: RouteObject[] = [
       },
 
       {
-        path: "/u",
-        element: <UserPage />,
+        path: "/p/:address",
+        element: <ProfilePage />,
       },
     ],
   },

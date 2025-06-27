@@ -1,4 +1,5 @@
 import { forwardRef, memo, useState } from "react"
+import { Link, useLocation } from "react-router-dom"
 import {
   offset,
   safePolygon,
@@ -15,6 +16,7 @@ import { shortenAddress } from "utils"
 
 import fairBackgroundImg from "./fair-background.png"
 import personSquareColoredImg from "./person-square-colored.png"
+
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
 
@@ -40,6 +42,8 @@ export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id">
 export const AccountMenu = memo(
   forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {
     const [isOpen, setOpen] = useState(false)
+
+    const location = useLocation()
 
     const nodeId = useFloatingNodeId()
     const { context, floatingStyles, refs } = useFloating({
@@ -89,7 +93,9 @@ export const AccountMenu = memo(
             </span>
           </div>
           <div className="flex flex-col gap-4 p-6">
-            <MenuButton label="Profile" />
+            <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
+              <MenuButton label="Profile" />
+            </Link>
             <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
           </div>
         </div>
