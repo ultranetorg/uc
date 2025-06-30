@@ -7,7 +7,7 @@ public class ProductUpdation : FairOperation
 	public AutoId				Product { get; set; }
 	public string				Name	{ get; set; }
 	public byte[]				Value	{ get; set; }
-	public override string		Explanation => $"{Product}, {Name}, {Value}";
+	public override string		Explanation => $"{Product}, {Name}, {Value.ToHex()}";
 
 	public override bool		IsValid(McvNet net) => Value.Length <= ProductField.ValueLengthMaximum;
 

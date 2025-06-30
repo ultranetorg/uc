@@ -593,7 +593,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
 						continue;
 	
-					if(!CandidacyDeclarations.Contains(g))
+					if(!CandidacyDeclarations.Contains(g) && GetSession(g) != null)
 					{
 						var t = new Transaction();
 						t.Flow	 = Flow;

@@ -163,7 +163,7 @@ public class Wallet
 	public void Lock()
 	{
 		if(RawLoaded != null)
-			throw new VaultException(VaultError.AlreadyLocked);
+			return;
 
 		RawLoaded = Raw;
 
@@ -174,7 +174,7 @@ public class Wallet
 	public void Unlock(string password)
 	{
 		if(RawLoaded == null)
-			throw new VaultException(VaultError.AlreadyUnlocked);
+			return;
 
 		Password = password;
 
