@@ -9,5 +9,5 @@ export type TabContentProps = {
 
 export const TabContent = memo(({ when, children }: TabContentProps) => {
   const { activeKey } = useTabs()
-  return activeKey === when ? <div className="bg-red-700">{children}</div> : null
+  return activeKey === when ? <>{children}</> : null
 })

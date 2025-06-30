@@ -41,7 +41,7 @@ export const ProfilePage = () => {
           <div className="flex w-full gap-6">
             <div className="flex w-full flex-col gap-6 py-8">
               <span className="text-3.5xl font-semibold leading-10">{t("profile")}</span>
-              <ProfileTabs tabsListClassName="w-87.5" />
+              <ProfileTabs tabsListClassName="w-87.5 h-fit" />
             </div>
             <div className="pt-7.5">
               {backgroundLocation ? (
