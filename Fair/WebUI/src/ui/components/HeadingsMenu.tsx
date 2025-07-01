@@ -1,4 +1,4 @@
-import { ChevronRightSvg } from "assets"
+import { SvgChevronRight } from "assets"
 import { forwardRef, memo, useMemo } from "react"
 import { Link, To } from "react-router-dom"
 
@@ -55,7 +55,7 @@ export const HeadingsMenu = memo(
                     </Link>
                   ))}
                   <Link to="" className="flex items-center rounded-sm px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100">
-                    View All <ChevronRightSvg className="stroke-gray-500" />
+                    View All <SvgChevronRight className="stroke-gray-500" />
                   </Link>
                 </div>
               ))}

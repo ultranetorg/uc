@@ -9,7 +9,6 @@ import { Backdrop } from "./Backdrop"
 
 type ModalBaseProps = {
   title?: string
-  isOpen?: boolean
   isBackdropStatic?: boolean
   footer?: ReactNode
   onClose?: () => void
@@ -18,29 +17,20 @@ type ModalBaseProps = {
 export type ModalProps = PropsWithClassName & PropsWithChildren & ModalBaseProps
 
 export const Modal = memo((props: ModalProps) => {
-  const { className, children, title, isOpen, isBackdropStatic, footer, onClose, ...rest } = props
+  const { className, children, title, isBackdropStatic, footer, onClose, ...rest } = props
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-
+    document.body.style.overflow = "hidden"
     return () => {
       document.body.style.overflow = ""
     }
-  }, [isOpen])
-
-  if (!isOpen) {
-    return null
-  }
+  }, [])
 
   return createPortal(
     <Backdrop onClick={isBackdropStatic ? undefined : onClose}>
       <div
         className={twMerge(
-          "items-centner m-auto flex max-w-190 flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
+          "items-centner z-61 m-auto flex max-w-190 flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
           className,
         )}
         onClick={(e: MouseEvent) => e.stopPropagation()}

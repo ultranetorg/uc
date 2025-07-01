@@ -1,0 +1,1 @@
+export const EditProfileInfo = () => <>EditProfileInfo</>

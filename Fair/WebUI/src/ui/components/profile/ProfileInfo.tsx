@@ -1,8 +1,8 @@
 import { PROFILE_SRC } from "testConfig"
+import { CopyButton } from "ui/components"
 import { formatRoles } from "utils"
 
 import pngBackground from "./background.png"
-import { SvgFilesSm } from "assets"
 
 export type ProfileInfoProps = {
   nickname?: string
@@ -14,7 +14,7 @@ export type ProfileInfoProps = {
 export const ProfileInfo = ({ nickname, address, roles, registrationDay }: ProfileInfoProps) => {
   return (
     <div className="relative flex flex-col overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
-      <div className="bg-[#2A2A2A]">
+      <div className="bg-gray-500">
         <img src={pngBackground} alt="Background" className="h-full w-full rounded-lg object-cover" />
       </div>
       <div className="top-26.5 absolute left-6 h-32 w-32 rounded-full bg-white px-1 py-1">
@@ -27,7 +27,7 @@ export const ProfileInfo = ({ nickname, address, roles, registrationDay }: Profi
           <span className="text-xl font-semibold leading-6">{nickname}</span>
           <div className="flex items-center gap-1">
             <span className="text-2xs leading-4 text-gray-500">{address}</span>
-            <SvgFilesSm className="fill-gray-500" />
+            <CopyButton onClick={() => console.log("Copy")} />
           </div>
         </div>
         <span className="text-2sm leading-5">

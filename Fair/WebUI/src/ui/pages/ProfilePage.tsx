@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
 
@@ -13,12 +13,16 @@ export const ProfilePage = () => {
   const { address } = useParams()
   const { t } = useTranslation("profile")
 
+  const [titleKey, setTitleKey] = useState("profile")
+
   const state = location.state as { backgroundLocation?: Location } | undefined
   const backgroundLocation = state?.backgroundLocation
 
   const close = useCallback(() => {
     navigate(-1)
   }, [navigate])
+
+  const handleTabSelect = useCallback((tab: string) => setTitleKey(tab), [])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,8 +44,8 @@ export const ProfilePage = () => {
         <div className="flex pl-17">
           <div className="flex w-full gap-6">
             <div className="flex w-full flex-col gap-6 py-8">
-              <span className="text-3.5xl font-semibold leading-10">{t("profile")}</span>
-              <ProfileTabs tabsListClassName="w-87.5 h-fit" />
+              <span className="text-3.5xl font-semibold leading-10">{t(titleKey)}</span>
+              <ProfileTabs tabsListClassName="w-87.5 h-fit" onTabSelect={handleTabSelect} />
             </div>
             <div className="pt-7.5">
               {backgroundLocation ? (

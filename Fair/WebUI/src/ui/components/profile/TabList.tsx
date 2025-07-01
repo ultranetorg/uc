@@ -8,11 +8,12 @@ export type TabListItem = { key: string; label: string }
 
 type TabListBaseProps = {
   items: TabListItem[]
+  onTabSelect?: (tab: string) => void
 }
 
 export type TabListProps = PropsWithClassName & TabListBaseProps
 
-export const TabList = memo(({ className, items }: TabListProps) => {
+export const TabList = memo(({ className, items, onTabSelect }: TabListProps) => {
   const { activeKey, setActiveKey } = useTabs()
 
   return (
@@ -25,7 +26,10 @@ export const TabList = memo(({ className, items }: TabListProps) => {
       {items.map(x => (
         <span
           key={x.key}
-          onClick={() => setActiveKey(x.key)}
+          onClick={() => {
+            setActiveKey(x.key)
+            onTabSelect?.(x.key)
+          }}
           className={twMerge(
             "cursor-pointer select-none px-4 py-3.5 text-2sm leading-5 hover:bg-gray-300",
             activeKey === x.key && "bg-gray-300",

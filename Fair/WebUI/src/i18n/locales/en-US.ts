@@ -15,7 +15,15 @@ export const enUS = {
     resetAll: "Reset all",
   },
   profile: {
+    authors: "My authors",
+    moderation: "Moderation",
     profile: "Profile",
+    profileSettings: "Profile settings",
+    publication_one: "publication",
+    publication_other: "publications",
+    publicationType: "Publication Type",
+    publishedIn: "Published in:",
+    title: "Title",
   },
   publication: {
     activation: "Activation",

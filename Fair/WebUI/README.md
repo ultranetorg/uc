@@ -28,6 +28,12 @@ text-7xl font-size: 4.5rem; /_ 72px _/
 text-8xl font-size: 6rem; /_ 96px _/
 text-9xl font-size: 8rem; /_ 128px _/
 
+## Z-Index
+
+50 - fullscreen modal
+60 - Modal backdrop
+61 - <Modal />
+
 ## Links
 
 General:

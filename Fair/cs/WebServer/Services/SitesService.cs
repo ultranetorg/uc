@@ -61,25 +61,25 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
+			//IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
 			IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
 
 			return new SiteModel(site)
 			{
-				Moderators = moderators,
+				//Moderators = moderators,
 				Categories = categories,
 			};
 		}
 	}
 
-	IEnumerable<AccountBaseModel> LoadModerators(AutoId[] moderatorsIds)
-	{
-		return moderatorsIds.Select(id =>
-		{
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-			return new AccountBaseModel(account);
-		}).ToArray();
-	}
+	//IEnumerable<AccountBaseModel> LoadModerators(AutoId[] moderatorsIds)
+	//{
+	//	return moderatorsIds.Select(id =>
+	//	{
+	//		FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+	//		return new AccountBaseModel(account);
+	//	}).ToArray();
+	//}
 
 	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
 	{

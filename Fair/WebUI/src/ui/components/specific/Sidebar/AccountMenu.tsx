@@ -14,7 +14,7 @@ import {
 import { AccountBase, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
 
-import fairBackgroundImg from "./fair-background.png"
+import pngBackground from "./background.png"
 import personSquareColoredImg from "./person-square-colored.png"
 
 import { AccountSwitcher } from "./AccountSwitcher"
@@ -68,7 +68,7 @@ export const AccountMenu = memo(
         >
           <div className="relative h-[169px]">
             <div className="h-[120px] w-[340px] bg-[#2A2A2A]">
-              <img src={fairBackgroundImg} alt="Background" className="h-full w-full rounded-lg object-cover" />
+              <img src={pngBackground} alt="Background" className="h-full w-full rounded-lg object-cover" />
             </div>
             <div className="absolute bottom-0 left-[20px] h-[98px] w-[98px] rounded-full bg-gray-75" />
             <div
