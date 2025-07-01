@@ -12,7 +12,7 @@ public class NicknameChange : VotableOperation
 														&& Nickname.Length <= 32 
 														&& Nickname.Length >= 4 
 														&& Regex.Match(Nickname, "^[a-z0-9]+$").Success;
-	public override string		Explanation => $"{Nickname}";
+	public override string		Explanation => $"{Field}, {Entity}, {Nickname}";
 
 	public NicknameChange()
 	{

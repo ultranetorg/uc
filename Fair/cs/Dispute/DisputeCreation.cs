@@ -2,13 +2,13 @@ namespace Uccs.Fair;
 
 public class DisputeCreation : FairOperation
 {
-	public AutoId				    Site { get; set; }
-	public AutoId				    Creator { get; set; } /// Account Id for Moderators, Author Id for Author
-	public string				    Text { get; set; }
-	public VotableOperation	        Proposal { get; set; }
+	public AutoId				Site { get; set; }
+	public AutoId				Creator { get; set; } /// Account Id for Moderators, Author Id for Author
+	public string				Text { get; set; }
+	public VotableOperation	    Proposal { get; set; }
 	
-	public override bool		    IsValid(McvNet net) => Proposal.IsValid(net) && Text.Length < 8192;
-	public override string		    Explanation => $"Site={Site}, Creator={Creator}, Text={Text}, Proposal={{{Proposal}}}";
+	public override bool		IsValid(McvNet net) => Proposal.IsValid(net) && Text.Length < 8192;
+	public override string		Explanation => $"Site={Site}, Creator={Creator}, Text={Text}, Proposal={{{Proposal}}}";
 
 	public DisputeCreation()
 	{
