@@ -34,6 +34,8 @@ public class DisputeExecution : TableExecution<AutoId, Dispute>
 		a.Abs = [];
 		a.Comments = [];
 
+		Execution.LastCreatedId = a.Id;
+
 		return Affected[a.Id] = a;
 	}
 }

@@ -30,6 +30,11 @@ public class ProductFieldVersionReference  : IBinarySerializable
 		writer.WriteUtf8(Name);
 		writer.Write7BitEncodedInt(Version);
 	}
+
+	public override string ToString()
+	{
+		return $"{Name}={Version}";
+	}
 }
 
 public class ProductFieldVersion : IBinarySerializable

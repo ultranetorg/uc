@@ -9,7 +9,7 @@ public class PublicationUpdation : VotableOperation
 	public bool							Resolution { get; set; }
 
 	public override bool				IsValid(McvNet net) => true;
-	public override string				Explanation => $"{Publication}, {Change}, {Resolution}";
+	public override string				Explanation => $"{Publication}, {{{Change}}}, {Resolution}";
 
 	public PublicationUpdation()
 	{

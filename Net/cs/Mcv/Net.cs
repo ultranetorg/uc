@@ -113,7 +113,7 @@ public abstract class McvNet : Net
 	public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
 	public long				TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
 	public long				OverloadFeeFactor						= 2;
-	public int				ExecutionCyclesPerTransactionLimit		= 100;
+	public int				ExecutionCyclesPerTransactionLimit		= 200;
 	public long				ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
 	public long				ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
 	public long				ECEmission								=> ECDayEmission * 365;
