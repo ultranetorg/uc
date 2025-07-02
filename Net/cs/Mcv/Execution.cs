@@ -1,12 +1,11 @@
 ﻿namespace Uccs.Net;
 
-public class Execution
+public class Execution : ITableExecution
 {
 	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
 	public Dictionary<AutoId, Account>			AffectedAccounts = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
-	public AutoId								LastCreatedId;
 	public long[]								Spacetimes;
 	public long[]								Bandwidths;
 
@@ -17,6 +16,8 @@ public class Execution
 	public Mcv									Mcv;
 	public Round								Round;
 	public Transaction							Transaction;
+
+	public AutoId								LastCreatedId { get; set; }
 
 	public Execution(Mcv mcv, Round round, Transaction transaction)
 	{
@@ -31,6 +32,13 @@ public class Execution
 		Candidates = round.Candidates;
 		Spacetimes = round.Spacetimes;
 		Bandwidths = round.Bandwidths;
+	}
+
+	public virtual ITableExecution FindExecution(byte table)
+	{
+		if(Mcv.Accounts.Id == table) return this;
+
+		return null;
 	}
 
 	public virtual ITableEntry Affect(byte table, EntityId id)
@@ -144,6 +152,8 @@ public class Execution
 
 	public Account FindAccount(AutoId id)
 	{
+		id = id == AutoId.LastCreated ? LastCreatedId : id;
+
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 
@@ -178,6 +188,8 @@ public class Execution
 
 	public Account AffectAccount(AutoId id)
 	{
+		id = id == AutoId.LastCreated ? LastCreatedId : id;
+
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 
@@ -216,5 +228,4 @@ public class Execution
 
 		return c;
 	}
-
 }

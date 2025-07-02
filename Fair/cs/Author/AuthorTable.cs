@@ -46,7 +46,7 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		int e = Execution.GetNextEid(Table, b);
 
 		var a = Table.Create();
-		a.Id = new AutoId(b, e);
+		a.Id = LastCreatedId = new AutoId(b, e);
 		a.Products = [];
 		a.Owners = [];
 		a.Sites = [];

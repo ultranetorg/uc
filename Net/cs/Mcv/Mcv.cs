@@ -229,10 +229,10 @@ public abstract class Mcv /// Mutual chain voting
 					r.Confirm();
 					Commit(r);
 				}
-			}
 
-			if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
-				throw new IntegrityException("Genesis construction failed");
+				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
+					throw new IntegrityException("Genesis construction failed");
+			}
 		}
 	
 		Rocks.Put(GenesisKey, Net.Genesis.FromHex());

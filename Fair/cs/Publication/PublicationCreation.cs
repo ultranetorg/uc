@@ -36,7 +36,7 @@ public class PublicationCreation : FairOperation
 					
 		var p = execution.Publications.Create(s);
 		p.Site		= Site;
-		p.Product	= Product;
+		p.Product	= pr.Id;
 		p.Creator	= Signer.Id;
 	
 		s = execution.Sites.Affect(Site);
@@ -65,7 +65,7 @@ public class PublicationCreation : FairOperation
 			return;
 		}
 
-		var r = execution.Products.Affect(Product);
+		var r = execution.Products.Affect(pr.Id);
 		r.Publications = [..r.Publications, p.Id];
 
 	}

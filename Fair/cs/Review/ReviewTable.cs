@@ -29,7 +29,7 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		int e = Execution.GetNextEid(Table, publication.Id.B);
 
 		var a = Table.Create();
-		a.Id = new AutoId(publication.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(publication.Id.B, e);
 
 		return Affected[a.Id] = a;
 	}

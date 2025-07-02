@@ -49,7 +49,7 @@ public class ProductExecution : TableExecution<AutoId, Product>
 
   		var	p = new Product();
 
-		p.Id = new AutoId(author.Id.B, e);
+		p.Id = LastCreatedId = new AutoId(author.Id.B, e);
 		p.Fields = []; 
 		p.Publications = [];
 

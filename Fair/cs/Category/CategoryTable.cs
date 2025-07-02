@@ -29,7 +29,7 @@ public class CategoryExecution : TableExecution<AutoId, Category>
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();
-		a.Id = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Categories = [];
 		a.Publications = [];
 

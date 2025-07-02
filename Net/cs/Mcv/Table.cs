@@ -771,9 +771,15 @@ public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where
 	}
 }
 
-public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : EntityId, new() where E : class, ITableEntry
+public interface ITableExecution
+{
+	public AutoId		LastCreatedId { get; set; }
+}
+
+public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry
 {
 	public Execution	Execution;
+	public AutoId		LastCreatedId { get; set; }
 
 	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
 	{
@@ -782,6 +788,8 @@ public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : Entit
 	
 	public E Find(ID id)
  	{
+		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
+
  		if(Affected.TryGetValue(id, out var a))
  			return a;
  		
@@ -790,6 +798,8 @@ public abstract class TableExecution<ID, E> : TableState<ID, E> where ID : Entit
 
 	public virtual E Affect(ID id)
 	{
+		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
+		
 		if(Affected.TryGetValue(id, out var a))
 			return a;
 			

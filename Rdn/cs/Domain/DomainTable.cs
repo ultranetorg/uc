@@ -66,7 +66,9 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 			
 			int e = Execution.GetNextEid(Table, b);
 
-			d = new Domain(Execution.Mcv) {Id = new AutoId(b, e), Address = address};
+			d = new Domain(Execution.Mcv);
+			d.Id = LastCreatedId = new AutoId(b, e);
+			d.Address = address;
 
 			return Affected[d.Id] = d;
 		}

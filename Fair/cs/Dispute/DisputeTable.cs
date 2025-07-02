@@ -28,13 +28,13 @@ public class DisputeExecution : TableExecution<AutoId, Dispute>
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();
-		a.Id = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Yes = [];
 		a.No = [];
 		a.Abs = [];
 		a.Comments = [];
 
-		Execution.LastCreatedId = a.Id;
+		LastCreatedId = a.Id;
 
 		return Affected[a.Id] = a;
 	}

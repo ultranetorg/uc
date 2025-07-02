@@ -15,6 +15,14 @@ public class RdnExecution : Execution
 		Resources = new(this);
 	}
 
+	public override ITableExecution FindExecution(byte table)
+	{
+		if(table == Mcv.Domains.Id)		return Domains;
+		if(table == Mcv.Resources.Id)	return Resources;
+
+		return base.FindExecution(table);
+	}
+
 	public override ITableEntry Affect(byte table, EntityId id)
 	{
 		if(Mcv.Domains.Id == table)		return Domains.Find(id as AutoId) != null ? Domains.Affect(id as AutoId) : null;

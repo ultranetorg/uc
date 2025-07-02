@@ -29,7 +29,7 @@ public class DisputeCommentExecution : TableExecution<AutoId, DisputeComment>
 		int e = Execution.GetNextEid(Table, dispute.Id.B);
 
 		var a = Table.Create();
-		a.Id = new AutoId(dispute.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(dispute.Id.B, e);
 
 		return Affected[a.Id] = a;
 	}

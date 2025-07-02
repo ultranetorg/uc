@@ -59,13 +59,13 @@ public class UtilityTransfer : Operation
 
 	public override void Execute(Execution execution)
 	{
-		if(To == AutoId.LastCreated && execution.LastCreatedId == null)
+		if(To == AutoId.LastCreated && execution.FindExecution(ToTable).LastCreatedId == null)
 		{
 			Error = NothingLastCreated;
 			return;
 		}
 
-		var to = execution.Affect(ToTable, To == AutoId.LastCreated ? execution.LastCreatedId : To);
+		var to = execution.Affect(ToTable, To);
 
 		if(to == null)
 		{

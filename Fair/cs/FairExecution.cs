@@ -33,6 +33,21 @@ public class FairExecution : Execution
 		SiteTitles = new(this);
 	}
 
+	public override ITableExecution FindExecution(byte table)
+	{
+		if(table == Mcv.Authors.Id)				return Authors;
+		if(table == Mcv.Products.Id)			return Products;
+		if(table == Mcv.Sites.Id)				return Sites;
+		if(table == Mcv.Categories.Id)			return Categories;
+		if(table == Mcv.Publications.Id)		return Publications;
+		if(table == Mcv.Reviews.Id)				return Reviews;
+		if(table == Mcv.Disputes.Id)			return Disputes;
+		if(table == Mcv.DisputeComments	.Id)	return DisputeComments;
+		if(table == Mcv.Words.Id)				return Words;
+
+		return base.FindExecution(table);
+	}
+
 	public override ITableEntry Affect(byte table, EntityId id)
 	{
 		if(table == Mcv.Authors.Id)				return Authors.Find(id as AutoId)				!= null	? Authors.Affect(id as AutoId) : null;

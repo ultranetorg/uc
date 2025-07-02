@@ -80,9 +80,10 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
 
   		if(r == null)
   		{
-  			r = new Resource{Id = new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B)),
-							 Domain = domain.Id,
-  							 Address = new Ura(domain.Address, resource)};
+  			r = new Resource();
+			r.Id = LastCreatedId =  new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B));
+			r.Domain = domain.Id;
+  			r.Address = new Ura(domain.Address, resource);
   		} 
   		else
 			r = r.Clone() as Resource;

@@ -68,7 +68,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		int e = Execution.GetNextEid(Table, site.Id.B);
 
 		var a = Table.Create();
-		a.Id = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Fields = [];
 		a.Reviews = [];
 		a.ReviewChanges = [];

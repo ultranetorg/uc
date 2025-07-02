@@ -74,7 +74,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 
 		var a = Table.Create();
 		
-		a.Id = new AutoId(b, e);
+		a.Id = LastCreatedId = new AutoId(b, e);
 		a.Categories = [];
 		a.Moderators = [];
 		a.Authors = [];
