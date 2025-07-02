@@ -45,7 +45,7 @@ export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesLists
           />
         ))}
       </div>
-      {isModalOpen && <PublicationStoresModal items={TEST_ITEMS} />}
+      {isModalOpen && <PublicationStoresModal items={TEST_ITEMS} onClose={handleModalClose} />}
     </>
   )
 }
