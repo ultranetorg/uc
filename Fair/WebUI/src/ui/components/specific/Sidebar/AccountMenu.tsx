@@ -1,4 +1,5 @@
 import { forwardRef, memo, useState } from "react"
+import { Link, useLocation } from "react-router-dom"
 import {
   offset,
   safePolygon,
@@ -13,8 +14,9 @@ import {
 import { AccountBase, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
 
-import fairBackgroundImg from "./fair-background.png"
+import pngBackground from "./background.png"
 import personSquareColoredImg from "./person-square-colored.png"
+
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
 
@@ -41,6 +43,8 @@ export const AccountMenu = memo(
   forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {
     const [isOpen, setOpen] = useState(false)
 
+    const location = useLocation()
+
     const nodeId = useFloatingNodeId()
     const { context, floatingStyles, refs } = useFloating({
       nodeId,
@@ -58,13 +62,14 @@ export const AccountMenu = memo(
     return (
       <>
         <div
-          className="z-10 h-[392px] w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
+          // TODO: should be uncommented later h-[392px]
+          className="z-10 w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
           ref={ref}
           style={style}
         >
           <div className="relative h-[169px]">
             <div className="h-[120px] w-[340px] bg-[#2A2A2A]">
-              <img src={fairBackgroundImg} alt="Background" className="h-full w-full rounded-lg object-cover" />
+              <img src={pngBackground} alt="Background" className="h-full w-full rounded-lg object-cover" />
             </div>
             <div className="absolute bottom-0 left-[20px] h-[98px] w-[98px] rounded-full bg-gray-75" />
             <div
@@ -89,8 +94,12 @@ export const AccountMenu = memo(
             </span>
           </div>
           <div className="flex flex-col gap-4 p-6">
-            <MenuButton label="Profile" />
-            <MenuButton label="Profile 2" ref={refs.setReference} {...getReferenceProps()} />
+            {/*
+              TODO: should be uncommented later.
+              <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
+                <MenuButton label="Profile" />
+              </Link> */}
+            <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
           </div>
         </div>
         {isOpen && (

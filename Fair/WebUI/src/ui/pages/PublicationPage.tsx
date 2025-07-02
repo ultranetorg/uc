@@ -92,7 +92,6 @@ export const PublicationPage = () => {
       </div>
       {isReviewModalOpen && (
         <ReviewModal
-          isOpen={isReviewModalOpen}
           title={t("leaveReview")}
           onClose={handleReviewModalClose}
           onSubmit={handleReviewModalSubmit}

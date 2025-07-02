@@ -2,15 +2,15 @@
 
 namespace Uccs.Fair;
 
-public class UsersService
+public class AccountsService
 (
-	ILogger<UsersService> logger,
+	ILogger<AccountsService> logger,
 	FairMcv mcv
-) : IUsersService
+) : IAccountsService
 {
 	public UserModel Get(string userId)
 	{
-		logger.LogDebug($"GET {nameof(UsersService)}.{nameof(UsersService.Get)} method called with {{UserId}}", userId);
+		logger.LogDebug($"GET {nameof(AccountsService)}.{nameof(AccountsService.Get)} method called with {{UserId}}", userId);
 
 		Guard.Against.NullOrEmpty(userId);
 

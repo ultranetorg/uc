@@ -3,7 +3,7 @@ import { times } from "lodash"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
-import { ChevronLeftSvg, ChevronRightSvg } from "assets"
+import { ChevronLeftSvg, SvgChevronRight } from "assets"
 
 type PaginationItemBaseProps = {
   active?: boolean
@@ -50,7 +50,7 @@ export const Pagination = memo(({ className, page, pagesCount, onPageChange }: P
         </PaginationItem>
       ))}
       <PaginationItem disabled={page === pagesCount - 1} onClick={() => onPageChange(page + 1)}>
-        <ChevronRightSvg />
+        <SvgChevronRight />
       </PaginationItem>
     </div>
   )
