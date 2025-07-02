@@ -62,7 +62,8 @@ export const AccountMenu = memo(
     return (
       <>
         <div
-          className="z-10 h-[392px] w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
+          // TODO: should be uncommented later h-[392px]
+          className="z-10 w-[340px] overflow-hidden rounded-lg border border-gray-300 bg-gray-75 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
           ref={ref}
           style={style}
         >
@@ -93,9 +94,11 @@ export const AccountMenu = memo(
             </span>
           </div>
           <div className="flex flex-col gap-4 p-6">
-            <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
-              <MenuButton label="Profile" />
-            </Link>
+            {/*
+              TODO: should be uncommented later.
+              <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
+                <MenuButton label="Profile" />
+              </Link> */}
             <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
           </div>
         </div>
