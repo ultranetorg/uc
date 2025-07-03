@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
@@ -10,7 +10,6 @@ const CLOSE_CLASSNAME = "cursor-pointer"
 export const ProfilePage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { address } = useParams()
   const { t } = useTranslation("profile")
 
   const [titleKey, setTitleKey] = useState("profile")

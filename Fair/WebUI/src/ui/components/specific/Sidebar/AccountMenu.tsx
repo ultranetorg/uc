@@ -1,5 +1,4 @@
 import { forwardRef, memo, useState } from "react"
-import { Link, useLocation } from "react-router-dom"
 import {
   offset,
   safePolygon,
@@ -42,8 +41,6 @@ export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id">
 export const AccountMenu = memo(
   forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {
     const [isOpen, setOpen] = useState(false)
-
-    const location = useLocation()
 
     const nodeId = useFloatingNodeId()
     const { context, floatingStyles, refs } = useFloating({
