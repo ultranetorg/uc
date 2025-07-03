@@ -1,7 +1,7 @@
 import React, { memo } from "react"
 import { Link } from "react-router-dom"
 
-import { ChevronRightSvg, ThreeDotsSvg } from "assets"
+import { SvgChevronRight, ThreeDotsSvg } from "assets"
 import { formatTitle } from "utils"
 
 export type BreadcrumbsItemProps = {
@@ -39,7 +39,7 @@ export const Breadcrumbs = memo(({ items }: BreadcrumbsProps) => {
       ) : items.length === 2 ? (
         <>
           <BreadcrumbsItem {...items[0]} />
-          <ChevronRightSvg className="stroke-gray-400" />
+          <SvgChevronRight className="stroke-gray-400" />
           <BreadcrumbsItem {...items[1]} />
         </>
       ) : (
@@ -48,14 +48,14 @@ export const Breadcrumbs = memo(({ items }: BreadcrumbsProps) => {
             <BreadcrumbsItem key={i} {...x} />
           ) : i === 1 ? (
             <React.Fragment key={i}>
-              <ChevronRightSvg className="stroke-gray-400" />
+              <SvgChevronRight className="stroke-gray-400" />
               <ThreeDotsSvg className="fill-gray-400" />
-              <ChevronRightSvg className="stroke-gray-400" />
+              <SvgChevronRight className="stroke-gray-400" />
               <BreadcrumbsItem {...x} />
             </React.Fragment>
           ) : (
             <React.Fragment key={i}>
-              <ChevronRightSvg className="stroke-gray-400" />
+              <SvgChevronRight className="stroke-gray-400" />
               <BreadcrumbsItem {...x} />
             </React.Fragment>
           ),

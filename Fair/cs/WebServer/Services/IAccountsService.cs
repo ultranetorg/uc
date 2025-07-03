@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public interface IUsersService
+public interface IAccountsService
 {
 	UserModel Get([NotNull] string userId);
 }

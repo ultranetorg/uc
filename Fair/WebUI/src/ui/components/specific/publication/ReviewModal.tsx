@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
@@ -38,13 +38,26 @@ export const ReviewModal = memo(
     const handleSubmit = useCallback(() => {
       setStep(1)
       setTimeout(() => {
-        console.log("Таймер сработал после клика")
         onSubmit?.()
       }, 2000)
     }, [onSubmit])
 
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (step == 0 && e.key === "Escape") {
+          onClose?.()
+        }
+      }
+
+      document.addEventListener("keydown", handleKeyDown)
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown)
+      }
+    }, [onClose, step])
+
     return (
-      <Modal {...rest} className="w-190 h-97.5">
+      <Modal {...rest} className="h-97.5 w-190">
         {step == 0 ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between gap-2.5">

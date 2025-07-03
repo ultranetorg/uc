@@ -14,7 +14,7 @@ export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
 export const AccountSwitcher = memo(
   forwardRef<HTMLDivElement, AccountSwitcherProps>(({ style, items }: AccountSwitcherProps, ref) => (
     <div
-      className="z-10 w-65 cursor-pointer divide-y divide-[#D9D9D9] rounded-lg border border-[#D2D8E4] bg-gray-0 py-1 shadow-[0_4px_14px_0_rgba(28,38,58,0.1)]"
+      className="z-10 w-65 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
       ref={ref}
       style={style}
     >
