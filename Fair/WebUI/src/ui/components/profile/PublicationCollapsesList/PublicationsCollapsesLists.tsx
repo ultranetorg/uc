@@ -28,7 +28,7 @@ export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesLists
 
   const handleExpand = useCallback((id: string) => setActiveCollapseId(prev => (prev !== id ? id : "")), [])
 
-  const handlePublicationStoresClick = useCallback((id: string) => setModalOpen(true), [])
+  const handlePublicationStoresClick = useCallback((_id: string) => setModalOpen(true), [])
 
   const handleModalClose = useCallback(() => setModalOpen(false), [])
 

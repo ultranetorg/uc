@@ -20,8 +20,6 @@ export const AuthorPage = () => {
       <span>ID: {author.id}</span>
       <span>NICKNAME: {author.nickname}</span>
       <span>TITLE: {author.title}</span>
-      <span>EXPIRATION: {author.expiration}</span>
-      <span>SPACE RESERVED: {author.spaceReserved}</span>
       <span>OWNER ID: {JSON.stringify(author.ownersIds)}</span>
       <h1>PUBLICATIONS:</h1>
       {isPublicationsPending || !publications ? (
