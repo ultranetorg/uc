@@ -1240,7 +1240,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			}
 			catch(NodeException)
 			{
-				p.LastFailure[Role.Graph] = DateTime.UtcNow;
 			}
 			catch(ContinueException)
 			{

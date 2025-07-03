@@ -19,6 +19,7 @@ public enum FairPpcClass : byte
 	CategoryPublications,
 	CategoryCategories,
 	Publication,
+	Review,
 }
 
 public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse

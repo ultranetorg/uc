@@ -38,8 +38,6 @@ public class Peer : IPeer, IBinarySerializable
 	public int										PeerRank = 0;
 	public long										Roles;
 
-	public Dictionary<Role, DateTime>				LastFailure = new();
-
 	public TcpPeering								Peering;
 	TcpClient										Tcp;
 	NetworkStream									Stream;
