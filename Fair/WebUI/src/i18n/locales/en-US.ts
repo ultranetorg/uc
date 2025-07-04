@@ -40,6 +40,7 @@ export const enUS = {
     showMore: "Show More",
     showMoreReviews: "Show more reviews",
     submitReview: "Submit Review",
+    systemRequirements: "System Requirements",
     thankYou: "Thank you for your feedback!",
     version: "Version",
     writeReview: "Write your review",

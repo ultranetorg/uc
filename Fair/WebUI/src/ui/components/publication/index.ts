@@ -1,4 +1,5 @@
 export * from "./Slider"
+export * from "./SystemRequirementsTabs"
 
 export * from "./Description"
 export * from "./ReviewModal"

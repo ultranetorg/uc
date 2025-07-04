@@ -1,5 +1,3 @@
-export * from "./publication"
-
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
 export * from "./FiltersDropdownButton"
