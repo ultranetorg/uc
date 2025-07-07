@@ -14,10 +14,10 @@ import {
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName, SiteBase } from "types"
+import { SitesList } from "ui/components/sidebar"
 
 import { AllSitesButton, CurrentAccountButton } from "./components"
 import { AccountMenu } from "./AccountMenu"
-import { SitesList } from "./SitesList"
 
 const TEST_CURRENT_SITE: SiteBase = {
   id: "0",
@@ -59,8 +59,8 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         <Link to="/">
           <AllSitesButton title={t("allSites")} />
         </Link>
-        <SitesList title={t("currentSite")} items={[TEST_CURRENT_SITE]} />
-        <SitesList title={t("starredSites")} items={TEST_SITES} />
+        <SitesList title={t("currentSite")} items={[TEST_CURRENT_SITE]} emptyStateMessage={t("emptySitesList")} />
+        <SitesList title={t("starredSites")} items={TEST_SITES} emptyStateMessage={t("emptySitesList")} />
       </div>
       <CurrentAccountButton
         nickname="This is very very long nickname"
