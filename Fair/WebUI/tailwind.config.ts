@@ -12,6 +12,7 @@ export default {
       },
       colors: {
         favorite: "#e3a427",
+        warning: "#F8D31B66",
         dark: {
           100: "#14181f",
         },

@@ -3,8 +3,8 @@ import { memo } from "react"
 import { TotalItemsResult, Review } from "types"
 import { ButtonOutline } from "ui/components"
 
-import { NoReviews } from "./NoReviews"
 import { Review as ReviewComponent } from "./Review"
+import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
 export type ReviewsListProps = {
   isPending: boolean
@@ -41,7 +41,7 @@ export const ReviewsList = memo(
       ) : isPending || !reviews ? (
         <div>⏱️ PENDING</div>
       ) : reviews.items.length === 0 ? (
-        <NoReviews label={noReviewsLabel} />
+        <ReviewsListEmptyState label={noReviewsLabel} />
       ) : (
         <>
           {reviews.items.map(r => (
