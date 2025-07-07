@@ -54,10 +54,6 @@ const routes: RouteObject[] = [
             element: <SitePage />,
           },
           {
-            path: "/:siteId/a/:authorId",
-            element: <AuthorPage />,
-          },
-          {
             path: "/:siteId/c/:categoryId",
             element: <CategoryPage />,
           },
@@ -106,6 +102,10 @@ const routes: RouteObject[] = [
         ],
       },
 
+      {
+        path: "/:siteId/a/:authorId",
+        element: <AuthorPage />,
+      },
       {
         path: "/p/:address",
         element: <ProfilePage />,
