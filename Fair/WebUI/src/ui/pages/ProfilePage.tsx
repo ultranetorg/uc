@@ -5,8 +5,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
 
-const CLOSE_CLASSNAME = "cursor-pointer"
-
 export const ProfilePage = () => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -48,10 +46,10 @@ export const ProfilePage = () => {
             </div>
             <div className="pt-7.5">
               {backgroundLocation ? (
-                <SvgProfilePageClose className={CLOSE_CLASSNAME} onClick={close} />
+                <SvgProfilePageClose className="cursor-pointer" onClick={close} />
               ) : (
                 <Link to={`/`}>
-                  <SvgProfilePageClose className={CLOSE_CLASSNAME} />
+                  <SvgProfilePageClose className="cursor-pointer" />
                 </Link>
               )}
             </div>

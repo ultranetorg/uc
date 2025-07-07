@@ -1,15 +1,17 @@
 import { SvgStarXxs } from "assets"
 import { twMerge } from "tailwind-merge"
-import { TEST_PUBLISHER_SRC } from "testConfig"
 
 import { PublicationDetails } from "types"
-import { ButtonPrimary } from "ui/components/ButtonPrimary"
+import { ButtonPrimary, LinkFullscreen } from "ui/components"
 import { formatAverageRating } from "utils"
+
+import { AuthorImageTitle } from "./components"
 
 const LABEL_CLASSNAME = "leading-4 text-gray-500 text-2xs"
 const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800"
 
 export type SoftwareInfoProps = {
+  siteId: string
   publication: PublicationDetails
   publisherLabel: string
   versionLabel: string
@@ -20,6 +22,7 @@ export type SoftwareInfoProps = {
 }
 
 export const SoftwareInfo = ({
+  siteId,
   publication,
   publisherLabel,
   versionLabel,
@@ -31,12 +34,9 @@ export const SoftwareInfo = ({
   <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
     <div className="flex flex-col gap-2">
       <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 overflow-hidden rounded-full">
-          <img src={TEST_PUBLISHER_SRC} className="h-full w-full object-cover" />
-        </div>
-        <span className={twMerge(VALUE_CLASSNAME, "cursor-pointer hover:font-semibold")}>{publication.title}</span>
-      </div>
+      <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
+        <AuthorImageTitle title={publication.title} />
+      </LinkFullscreen>
     </div>
 
     <div className="flex flex-col gap-2">

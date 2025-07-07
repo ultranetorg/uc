@@ -3,6 +3,7 @@ export * from "./votableOperations"
 
 export * from "./AccountBase"
 export * from "./AuthorExtended"
+export * from "./AuthorLink"
 export * from "./Author"
 export * from "./AuthorPublications"
 export * from "./AuthorReferendum"

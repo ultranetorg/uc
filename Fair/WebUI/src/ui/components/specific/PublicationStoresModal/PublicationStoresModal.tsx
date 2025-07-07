@@ -1,7 +1,8 @@
-import { useEffect } from "react"
+import { memo } from "react"
 
 import { SvgX } from "assets"
 import { Modal, ModalProps } from "ui/components"
+
 import { PublicationStoreRow } from "./PublicationStoreRow"
 
 export type PublicationStoresItem = {
@@ -15,25 +16,8 @@ type PublicationStoresModalBaseProps = {
 
 export type PublicationStoresModalProps = Pick<ModalProps, "title" | "onClose"> & PublicationStoresModalBaseProps
 
-export const PublicationStoresModal = ({
-  title = "Published in: 8 stores",
-  onClose,
-  items,
-}: PublicationStoresModalProps) => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose?.()
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [onClose])
-
-  return (
+export const PublicationStoresModal = memo(
+  ({ title = "Published in: 8 stores", onClose, items }: PublicationStoresModalProps) => (
     <Modal className="max-h-142.25 w-120 border border-b border-gray-300 p-0">
       <div className="divide-y divide-gray-300">
         <div className="flex items-center justify-between gap-6 px-6 py-4">
@@ -53,5 +37,5 @@ export const PublicationStoresModal = ({
         </div>
       </div>
     </Modal>
-  )
-}
+  ),
+)

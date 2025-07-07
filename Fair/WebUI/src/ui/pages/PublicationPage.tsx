@@ -115,6 +115,7 @@ export const PublicationPage = () => {
           </div>
           <div className="flex w-87.5 flex-col gap-8">
             <SoftwareInfo
+              siteId={siteId!}
               publication={publication}
               publisherLabel={t("publisher")}
               versionLabel={t("version")}

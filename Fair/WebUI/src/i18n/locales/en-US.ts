@@ -7,6 +7,13 @@ export const enUS = {
   about: {
     about: "About",
   },
+  author: {
+    about: "About",
+    author: "Author",
+    links: "Links",
+    readLess: "Read Less",
+    readMore: "Read More",
+  },
   category: {
     empty: "This category is empty.",
     filters: "Filters",

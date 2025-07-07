@@ -1,19 +1,21 @@
 import { useTranslation } from "react-i18next"
 
-import { AuthorPublications } from "types"
+import { AuthorPublications, PropsWithClassName } from "types"
 
 import { PublicationTableRow } from "./PublicationTableRow"
 
-export type PublicationsTableProps = {
+export type PublicationsTableBaseProps = {
   items: AuthorPublications[]
   onPublicationStoresClick: (id: string) => void
 }
 
-export const PublicationsTable = ({ items, onPublicationStoresClick }: PublicationsTableProps) => {
+export type PublicationsTableProps = PropsWithClassName & PublicationsTableBaseProps
+
+export const PublicationsTable = ({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
   const { t } = useTranslation("profile")
 
   return (
-    <>
+    <div className={className}>
       <div className="flex justify-between bg-gray-200 px-4 py-2 text-2xs font-medium leading-4">
         <span className="w-[40%]">{t("title")}</span>
         <span className="w-[30%]">{t("publicationType")}</span>
@@ -24,6 +26,6 @@ export const PublicationsTable = ({ items, onPublicationStoresClick }: Publicati
           <PublicationTableRow key={x.publicationId} {...x} onPublicationStoresClick={onPublicationStoresClick} />
         ))}
       </div>
-    </>
+    </div>
   )
 }
