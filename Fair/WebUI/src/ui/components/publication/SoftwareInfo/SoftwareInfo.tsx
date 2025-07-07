@@ -1,9 +1,8 @@
 import { SvgStarXxs } from "assets"
-import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { PublicationDetails } from "types"
-import { ButtonPrimary } from "ui/components"
+import { ButtonPrimary, LinkFullscreen } from "ui/components"
 import { formatAverageRating } from "utils"
 
 import { AuthorImageTitle } from "./components"
@@ -35,9 +34,9 @@ export const SoftwareInfo = ({
   <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
     <div className="flex flex-col gap-2">
       <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-      <Link to={`/${siteId}/a/${publication.authorId}`}>
+      <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
         <AuthorImageTitle title={publication.title} />
-      </Link>
+      </LinkFullscreen>
     </div>
 
     <div className="flex flex-col gap-2">
