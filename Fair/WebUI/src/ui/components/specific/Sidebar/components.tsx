@@ -87,7 +87,7 @@ export type MenuButtonProps = {
 export const MenuButton = memo(
   forwardRef<HTMLDivElement, MenuButtonProps>(({ label, ...rest }, ref) => (
     <div
-      className="flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 text-sm leading-4.25 text-gray-950 hover:bg-gray-200"
+      className="flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 text-2sm leading-4.25 text-gray-950 hover:bg-gray-200"
       ref={ref}
       {...rest}
     >

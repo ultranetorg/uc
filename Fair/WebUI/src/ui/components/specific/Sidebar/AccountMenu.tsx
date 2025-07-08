@@ -9,6 +9,7 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
+import { useCopyToClipboard } from "usehooks-ts"
 
 import { AccountBase, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
@@ -19,7 +20,6 @@ import personSquareColoredImg from "./person-square-colored.png"
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
 import { CopyButton } from "ui/components/CopyButton"
-import { useCopyToClipboard } from "usehooks-ts"
 
 const TEST_ACCOUNTS = [
   {
@@ -94,7 +94,7 @@ export const AccountMenu = memo(
             </span>
             <div className="flex items-center gap-1">
               <span
-                className="overflow-hidden text-ellipsis text-nowrap text-xs leading-3.5 text-gray-500"
+                className="overflow-hidden text-ellipsis text-nowrap text-2xs leading-3.5 text-gray-500"
                 title={address}
               >
                 {shortenAddress(address)}
@@ -104,10 +104,11 @@ export const AccountMenu = memo(
           </div>
           <div className="flex flex-col gap-4 p-6">
             {/*
-              TODO: should be uncommented later.
+              //TODO: should be uncommented later.
               <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
                 <MenuButton label="Profile" />
-              </Link> */}
+              </Link>
+            */}
             <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
           </div>
         </div>
