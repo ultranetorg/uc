@@ -25,8 +25,8 @@ export const SystemRequirementsTabs = memo(({ label, tabs }: SystemRequirementsT
       <TabsProvider defaultKey={tabs[0].key}>
         <TabsList
           className="flex gap-6"
-          itemClassName="text-2sm leading-4.5 text-gray-500 cursor-pointer h-6"
-          activeItemClassName="text-gray-800 border-b-2  pb-2 border-box border-gray-950"
+          itemClassName="h-6 cursor-pointer text-2sm leading-4.5 text-gray-500 hover:text-gray-800"
+          activeItemClassName="border-box border-b-2 border-gray-950 pb-2 text-gray-800"
           items={tabs}
         />
         {tabs.map(tab =>

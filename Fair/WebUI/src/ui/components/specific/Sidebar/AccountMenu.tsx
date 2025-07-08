@@ -1,4 +1,4 @@
-import { forwardRef, memo, useState } from "react"
+import { forwardRef, memo, useCallback, useState } from "react"
 import {
   offset,
   safePolygon,
@@ -18,6 +18,8 @@ import personSquareColoredImg from "./person-square-colored.png"
 
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
+import { CopyButton } from "ui/components/CopyButton"
+import { useCopyToClipboard } from "usehooks-ts"
 
 const TEST_ACCOUNTS = [
   {
@@ -40,6 +42,8 @@ export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id">
 
 export const AccountMenu = memo(
   forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {
+    const [copiedText, copy] = useCopyToClipboard()
+
     const [isOpen, setOpen] = useState(false)
 
     const nodeId = useFloatingNodeId()
@@ -55,6 +59,11 @@ export const AccountMenu = memo(
     const hover = useHover(context, { handleClose: safePolygon({ requireIntent: true }) })
     const role = useRole(context)
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+
+    const handleCopyClick = useCallback(() => {
+      copy(address)
+      console.log(copiedText)
+    }, [address, copiedText, copy])
 
     return (
       <>
@@ -83,12 +92,15 @@ export const AccountMenu = memo(
             >
               {nickname}
             </span>
-            <span
-              className="overflow-hidden text-ellipsis text-nowrap text-xs leading-3.5 text-gray-500"
-              title={address}
-            >
-              {shortenAddress(address)}
-            </span>
+            <div className="flex items-center gap-1">
+              <span
+                className="overflow-hidden text-ellipsis text-nowrap text-xs leading-3.5 text-gray-500"
+                title={address}
+              >
+                {shortenAddress(address)}
+              </span>
+              <CopyButton onClick={handleCopyClick} />
+            </div>
           </div>
           <div className="flex flex-col gap-4 p-6">
             {/*
