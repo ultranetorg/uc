@@ -15,7 +15,9 @@
   height: 100%;
   width: 100%;
 
+  scrollbar-color: #d2d4e4 transparent;
   scrollbar-gutter: stable;
+  scrollbar-width: 8px;
 
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
