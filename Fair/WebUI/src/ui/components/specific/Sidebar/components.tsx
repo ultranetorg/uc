@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { CheckCircleFillSvg, PersonSquareSvg, StarSvg, StoresSvg } from "assets"
+import { CheckCircleFillSvg, PersonSquareSvg, StarSvg, StoresSvg, SvgChevronRight } from "assets"
 import { AccountBase } from "types"
 
 import personSquareColoredImg from "./person-square-colored.png"
@@ -21,14 +21,14 @@ export const Account = memo(({ nickname, address, addressShort, selected }: Acco
     <div className="flex w-39 flex-col gap-1">
       {nickname && (
         <span
-          className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium leading-4.25 text-gray-900"
+          className="overflow-hidden text-ellipsis whitespace-nowrap text-2sm leading-4.25 text-gray-800"
           title={nickname}
         >
           {nickname}
         </span>
       )}
       <span
-        className="overflow-hidden text-ellipsis whitespace-nowrap text-xs leading-3.75 text-gray-900"
+        className="overflow-hidden text-ellipsis whitespace-nowrap text-2xs leading-3.75 text-gray-500"
         title={address}
       >
         {addressShort}
@@ -87,12 +87,13 @@ export type MenuButtonProps = {
 export const MenuButton = memo(
   forwardRef<HTMLDivElement, MenuButtonProps>(({ label, ...rest }, ref) => (
     <div
-      className="flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 text-2sm leading-4.25 text-gray-950 hover:bg-gray-200"
+      className="box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 py-3 pl-4 pr-3 text-2sm leading-5 text-gray-800 hover:bg-gray-200"
       ref={ref}
       {...rest}
     >
-      <PersonSquareSvg fill="#0C0E22" />
-      {label}
+      <PersonSquareSvg className="fill-gray-800" />
+      <span className="w-full">{label}</span>
+      <SvgChevronRight className="stroke-gray-800" />
     </div>
   )),
 )
