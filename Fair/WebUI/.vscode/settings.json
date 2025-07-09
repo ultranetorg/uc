@@ -23,6 +23,12 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "tailwindCSS.experimental.classRegex": [
+    "className\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
+    "itemClassName\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
+    "activeItemClassName\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
+    "[A-Z0-9_]+_CLASSNAME\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"
+  ],
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
