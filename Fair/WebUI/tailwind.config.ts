@@ -13,6 +13,9 @@ export default {
       colors: {
         favorite: "#e3a427",
         warning: "#F8D31B66",
+        "light-green": "#44B848",
+        "light-red": "#D74C41",
+        "light-yellow": "#E1A107",
         dark: {
           100: "#14181f",
         },

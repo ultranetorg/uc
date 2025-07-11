@@ -50,7 +50,7 @@ public class DisputesService
 			}
 
 			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
-			if (disputesOrReferendums != IsProposalIsDispute(dispute))
+			if (disputesOrReferendums != IsProposalIsDispute(site, dispute))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
 			}
@@ -80,12 +80,13 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadDisputesOrReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
+			return LoadDisputesOrReferendumsPaged(site, disputesOrReferendums, page, pageSize, search, cancellationToken);
 		}
 	}
 
 	/// <param name="disputesOrReferendums">`true` for Dispute, `false` for Referendum</param>
-	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(IEnumerable<AutoId> disputesIds, bool disputesOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	TotalItemsResult<DisputeModel> LoadDisputesOrReferendumsPaged(Site site, bool disputesOrReferendums, int page, int pageSize, string search,
+		CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<DisputeModel>.Empty;
@@ -93,14 +94,14 @@ public class DisputesService
 		var disputes = new List<Dispute>(pageSize);
 		int totalItems = 0;
 
-		foreach (var disputeId in disputesIds)
+		foreach (var disputeId in site.Disputes)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(disputes, totalItems);
 
 			Dispute dispute = mcv.Disputes.Latest(disputeId);
 
-			if (disputesOrReferendums != IsProposalIsDispute(dispute))
+			if (disputesOrReferendums != IsProposalIsDispute(site, dispute))
 			{
 				continue;
 			}
@@ -156,5 +157,6 @@ public class DisputesService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
+	static bool IsProposalIsDispute(Site site, Dispute dispute) =>
+		site.ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Proposal.GetType().Name)] != ChangePolicy.ElectedByAuthorsMajority;
 }

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { useGetAuthorReferendum } from "entities"
 
-export const AuthorReferendumPage = () => {
+export const ReferendumPage = () => {
   const { siteId, referendumId } = useParams()
   const { t } = useTranslation()
 
