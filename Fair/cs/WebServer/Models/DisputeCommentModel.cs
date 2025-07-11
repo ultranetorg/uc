@@ -14,10 +14,10 @@ public class DisputeCommentModel
 
 	public int Created { get; set; }
 
-	public DisputeCommentModel(DisputeComment dispute, FairAccount account)
+	public DisputeCommentModel(ProposalComment dispute, FairAccount account)
 	{
 		Id = dispute.Id.ToString();
-		DisputeId = dispute.Dispute.ToString();
+		DisputeId = dispute.Proposal.ToString();
 		CreatorId = dispute.Creator.ToString();
 		CreatorAddress = account.Address.ToString();
 		CreatorNickname = account.Nickname;

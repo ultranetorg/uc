@@ -78,10 +78,14 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		a.Categories = [];
 		a.Moderators = [];
 		a.Authors = [];
-		a.Disputes = [];
+		a.Proposals = [];
+		a.CreationPolicies = [];
 		a.ChangePolicies = [];
-		a.PendingPublications = [];
+		a.UnpublishedPublications = [];
+		a.ChangedPublications = [];
+		a.ChangedReviews = [];
 		a.Nickname = "";
+		a.Files = [];
 		a.Description = "";
 		
 		return Affected[a.Id] = a;

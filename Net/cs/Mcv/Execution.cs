@@ -16,8 +16,14 @@ public class Execution : ITableExecution
 	public Mcv									Mcv;
 	public Round								Round;
 	public Transaction							Transaction;
+	//protected Account							AffectedSigner;
 
 	public AutoId								LastCreatedId { get; set; }
+
+	//public IEnergyHolder						EnergyFeePayer;
+	public HashSet<IEnergyHolder>				EnergySpenders;
+	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
+	public long									ECEnergyCost;
 
 	public Execution(Mcv mcv, Round round, Transaction transaction)
 	{
@@ -25,6 +31,7 @@ public class Execution : ITableExecution
 		Mcv = mcv;
 		Round = round;
 		Transaction = transaction;
+		//Signer = signer;
 		Time = round.ConsensusTime;
 
 		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
@@ -123,6 +130,110 @@ public class Execution : ITableExecution
 			a.EnergyThisPeriod	= (byte)(Time.Days/Net.ECLifetime.Days);
 		}
 	}
+
+	public void PayCycleEnergy(IEnergyHolder spender)
+	{
+		if(spender.BandwidthExpiration >= Time.Days)
+		{
+			if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
+			{	
+				spender.BandwidthTodayTime		= (short)Time.Days;
+				spender.BandwidthTodayAvailable	= spender.Bandwidth;
+			}
+
+			spender.BandwidthTodayAvailable -= ECEnergyCost;
+		}
+		else
+		{
+			spender.Energy -= ECEnergyCost;
+
+			Transaction.EnergyConsumed += ECEnergyCost;
+		}
+
+		EnergySpenders.Add(spender);
+	}
+
+	public void AllocateForever(ISpacetimeHolder payer, int length)
+	{
+		payer.Spacetime -= ToBD(length, Mcv.Forever);
+		SpacetimeSpenders.Add(payer);
+	}
+
+	public void FreeEntity()
+	{
+		Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
+	}
+
+	public static long ToBD(long length, short time)
+	{
+		return time * length;
+	}
+
+	public static long ToBD(long length, Time time)
+	{
+		return time.Days * length;
+	}
+
+	public void Allocate(ISpacetimeHolder payer, ISpaceConsumer consumer, int space)
+	{
+		if(space == 0)
+			return;
+
+		consumer.Space += space;
+
+		var n = consumer.Expiration - Time.Days;
+	
+		payer.Spacetime -= ToBD(space, (short)n);
+
+		for(int i = 0; i < n; i++)
+			Spacetimes[i] += space;
+
+		SpacetimeSpenders.Add(payer);
+	}
+
+	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
+	{	
+		var start = (short)(consumer.Expiration < Time.Days ? Time.Days : consumer.Expiration);
+
+		consumer.Expiration = (short)(start + duration.Days);
+
+		if(consumer.Space > 0)
+		{
+			payer.Spacetime -= ToBD(consumer.Space, duration);
+			SpacetimeSpenders.Add(payer);
+		}
+
+		var n = start + duration.Days - Time.Days;
+
+		if(n > Spacetimes.Length)
+			Spacetimes = [..Spacetimes, ..new long[n - Spacetimes.Length]];
+
+		for(int i = 0; i < duration.Days; i++)
+			Spacetimes[start - Time.Days + i] += consumer.Space;
+
+	}
+
+	public void Free(ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
+	{
+		if(space == 0)
+			return;
+
+		consumer.Space -= space;
+
+		if(consumer.Space < 0)
+			throw new IntegrityException();
+
+		var d = consumer.Expiration - Time.Days;
+		
+		if(d > 0)
+		{
+			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
+	
+			for(int i = 1; i < d; i++)
+				Spacetimes[i] -= space;
+		}
+	}
+
 
 	public virtual Account AffectSigner()
 	{

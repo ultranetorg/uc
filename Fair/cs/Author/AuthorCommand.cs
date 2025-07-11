@@ -52,9 +52,8 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new NicknameChange  {Entity = FirstAuthorId,
-															Field = EntityTextField.AuthorNickname,
-															Nickname = GetString(nickname)}; 
+								return new AuthorNicknameChange{Author = FirstAuthorId,
+																Nickname = GetString(nickname)}; 
 							};
 		return a;
 	}

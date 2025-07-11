@@ -61,12 +61,12 @@ public class ResourceLinkCreation : RdnOperation
 				return;
 			}
 
-			PayForForever(execution.Net.EntityLength);
+			execution.PayForForever(execution.Net.EntityLength);
 		}
 		else
 		{	
 			sd = execution.Domains.Affect(sd.Id);
-			Allocate(execution, Signer, sd, execution.Net.EntityLength);
+			execution.Allocate(Signer, sd, execution.Net.EntityLength);
 		}
 	}
 }

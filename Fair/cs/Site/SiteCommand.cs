@@ -96,9 +96,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new NicknameChange  {Entity = FirstEntityId,
-															Field = EntityTextField.SiteNickname,
-															Nickname = GetString(nickname)}; 
+								return new ProposalCreation(FirstEntityId, SecondEntityId, new SiteNicknameChange {Nickname = GetString(nickname)}); 
 							};
 		return a;
 	}

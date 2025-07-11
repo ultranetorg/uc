@@ -5,11 +5,11 @@ namespace Uccs.Fair;
 public class ProductUpdation : FairOperation
 {
 	public AutoId				Product { get; set; }
-	public string				Name	{ get; set; }
+	public ProductFieldName		Field	{ get; set; }
 	public byte[]				Value	{ get; set; }
-	public override string		Explanation => $"{Product}, {Name}, {Value.ToHex()}";
 
-	public override bool		IsValid(McvNet net) => Value.Length <= ProductField.ValueLengthMaximum;
+	public override string		Explanation => $"{Product}, {Field}={Value.ToHex()}";
+
 
 	public ProductUpdation()
 	{
@@ -19,48 +19,49 @@ public class ProductUpdation : FairOperation
 	{
 		Product = id;
 	}
+	
+	public override bool IsValid(McvNet net)
+	{
+		if(Value.Length > ProductField.ValueLengthMaximum)
+			return false;
 
-	//public void Change(string change, string data)
-	//{
-	//	Changes ??= [];
-	//
-	//	var f = Changes.FirstOrDefault(i => i.Name == change);
-	//
-	//	if(f == null)
-	//	{
-	//		Changes = [..Changes, new (change, data)];
-	//	}
-	//	else
-	//		f.Value  = data;
-	//}
+		return true;
+	}
 
 	public override void Read(BinaryReader reader)
 	{
-		Product	= reader.Read<AutoId>();
-		Name		= reader.ReadUtf8();
+		Product		= reader.Read<AutoId>();
+		Field		= reader.Read<ProductFieldName>();
 		Value		= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
-		writer.WriteUtf8(Name);
+		writer.Write(Field);
 		writer.WriteBytes(Value);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireProductAccess(execution, Product, out var a, out var r) == false)
+		if(CanAccessProduct(execution, Product, out var a, out var r, out Error) == false)
 			return;
 
 		a = execution.Authors.Affect(a.Id);
 		r = execution.Products.Affect(Product);
 
-		var f = r.Fields.FirstOrDefault(j => j.Name == Name);
+		if(Uccs.Fair.Product.IsFile(Field))
+		{
+			var x = execution.Files.Create(Product);
+			x.Data = Value;
+			Value = x.Id.Raw;
+		}
+
+		var f = r.Fields.FirstOrDefault(j => j.Name == Field);
 
 		if(f == null)
 		{	
-			f = new ProductField {Name = Name, Versions = [new ProductFieldVersion {Value = Value, Version = 0}]};
+			f = new ProductField {Name = Field, Versions = [new ProductFieldVersion {Value = Value, Version = 0}]};
 			r.Fields = [..r.Fields, f];
 		}
 		else
@@ -70,7 +71,16 @@ public class ProductUpdation : FairOperation
 
 			if(f.Versions.Last().Refs == 0)
 			{
-				Free(execution, Signer, a, f.Versions.Last().Value.Length);
+				if(Uccs.Fair.Product.IsFile(Field))
+				{
+					var fid = new AutoId();
+					fid.Read(new BinaryReader(new MemoryStream(f.Versions.Last().Value)));
+					var p = execution.Files.Affect(fid);
+
+					p.Deleted = true;
+				}
+
+				execution.Free(a, a, f.Versions.Last().Value.Length);
 
 				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Version = f.Versions.Last().Version}];
 			}
@@ -78,18 +88,18 @@ public class ProductUpdation : FairOperation
 				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Version = f.Versions.Length}];
 		}
 
-		Allocate(execution, Signer, a, Value.Length);
+		execution.Allocate(a, a, Value.Length);
 
 		foreach(var p in r.Publications)
 		{
 			var s = execution.Sites.Affect(execution.Publications.Find(p).Site);
 				
-			if(!s.PendingPublications.Contains(p))
-			{
-				s.PendingPublications = [..s.PendingPublications, p];
-			} 
+			if(!s.ChangedPublications.Contains(p))
+				s.ChangedPublications = [..s.ChangedPublications, p];
 		}
 
 		r.Updated = execution.Time;
+
+		execution.PayCycleEnergy(a);
 	}
 }

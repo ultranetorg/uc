@@ -6,7 +6,7 @@ public class DisputeDetailsModel : DisputeModel
 	public IEnumerable<string> Cons { get; set; }
 	public IEnumerable<string> Abs { get; set; }
 
-	public DisputeDetailsModel(Dispute dispute) : base(dispute)
+	public DisputeDetailsModel(Proposal dispute) : base(dispute)
 	{
 		Pros = dispute.Yes.Select(x => x.ToString());
 		Cons = dispute.No.Select(x => x.ToString());

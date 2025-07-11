@@ -76,8 +76,8 @@ public class AnalysisResultUpdation : RdnOperation
 			o.Energy	-= an.EnergyReward / c.Analyzers.Length;
 			o.Spacetime -= an.SpacetimeReward / c.Analyzers.Length;
 
-			SpacetimeSpenders.Add(o);
-			EnergySpenders.Add(o);
+			execution.SpacetimeSpenders.Add(o);
+			execution.EnergySpenders.Add(o);
 		}
  		else
 		{	

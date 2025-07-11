@@ -20,11 +20,11 @@ public class XonTextWriter : StreamWriter, IXonWriter
 
 	public void Write(Xon root)
 	{
-		string s = "";
+		var s = new StringBuilder();
 	
 		foreach(var i in root.Nodes)
 		{
-			Write(ref s, i, 0);
+			Write(s, i, 0);
 		}
 		
 		Write(s);
@@ -32,34 +32,36 @@ public class XonTextWriter : StreamWriter, IXonWriter
 
 	string Quotate(string v, bool isname)
 	{
-		string s = null;
+		var s = new StringBuilder();
 
 		var q = v.IndexOfAny(new char[]{' ', '\t', '\r', '\n', '{', '}' }) != -1 || v.IndexOf("//") != -1 || (isname && v.Contains('='));
 		var qq = v.IndexOf('\"') != -1;
 
 		if(q || qq)
 		{
-			s += '\"';
+			s.Append('\"');
 		}
 
 		if(qq)
-			s += v.Replace("\"", "\"\"");
+			s.Append(v.Replace("\"", "\"\""));
 		else
-			s += v;
+			s.Append(v);
 
 		if(q || qq)
 		{
-			s += '\"';
+			s.Append('\"');
 		}
 
-		return s;
+		return s.ToString();
 	}
 
-	public void Write(ref string s, Xon n, int d)
+	public void Write(StringBuilder s, Xon n, int d)
 	{
 		string t = new string('\t', d);
 
-		s += t + (n.IsDifferenceDeleted ? '-' : "") + Quotate(n.Name, true);
+		s.Append(t);
+		s.Append(t + (n.IsDifferenceDeleted ? '-' : ""));
+		s.Append(Quotate(n.Name, true));
 		
 		///if(IsWriteTypes && n.GetValue() != null)
 		///{
@@ -71,21 +73,25 @@ public class XonTextWriter : StreamWriter, IXonWriter
 			
 			if(!string.IsNullOrEmpty(v))
 			{
-
-				s += " = " + Quotate(v, false);
+				s.Append(" = "); 
+				s.Append(Quotate(v, false));
 			}
 		}
 
-		s += NewLine;
+		s.AppendLine();
 
 		if(n.Nodes.Count() > 0)
 		{
-			s += t + '{' + NewLine;
+			s.Append(t);
+			s.AppendLine("{");
+			
 			foreach(var i in n.Nodes)
 			{
-				Write(ref s, i, d+1);
+				Write(s, i, d+1);
 			}
-			s += t + '}' + NewLine;
+			
+			s.Append(t);
+			s.AppendLine("}");
 		}
 	}
 }

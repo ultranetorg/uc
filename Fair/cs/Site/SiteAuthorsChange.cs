@@ -2,7 +2,6 @@
 
 public class SiteAuthorsChange : VotableOperation
 {
-	public AutoId				Site { get; set; }
 	public AutoId[]				Additions { get; set; }
 	public AutoId[]				Removals { get; set; }
 
@@ -11,14 +10,12 @@ public class SiteAuthorsChange : VotableOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Site = reader.Read<AutoId>();
 		Additions = reader.ReadArray<AutoId>();
 		Removals = reader.ReadArray<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Site);
 		writer.Write(Additions);
 		writer.Write(Removals);
 	}
@@ -38,47 +35,26 @@ public class SiteAuthorsChange : VotableOperation
 		return false;
 	}
 
- 	public override bool ValidProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution)
  	{
- 		if(!RequireSite(execution, Site, out var s))
-			return false;
-
 		foreach(var i in Additions)
-			if(s.Authors.Contains(i))
+			if(Site.Authors.Contains(i))
 				return false;
 	
 		foreach(var i in Removals)
-			if(!s.Authors.Contains(i))
+			if(!Site.Authors.Contains(i))
 				return false;
 	
 		return true;
  	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(execution))
-			return;
-
-		if(!dispute)
-	 	{
-	 		if(!RequireModeratorAccess(execution, Site, out var x))
- 				return;
-
-	 		if(x.ChangePolicies[FairOperationClass.SiteAuthorsChange] != ChangePolicy.AnyModerator)
-	 		{
-		 		Error = Denied;
-		 		return;
-	 		}
-
-			PayEnergyBySite(execution, x.Id);
-		}
-
- 		var s = execution.Sites.Affect(Site);
+ 		var s = execution.Sites.Affect(Site.Id);
  
  		s.Authors = [..s.Authors, ..Additions];
  
  		foreach(var i in Removals)
  			s.Authors = s.Authors.Remove(i);
-
 	}
 }

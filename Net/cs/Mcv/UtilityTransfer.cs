@@ -110,7 +110,7 @@ public class UtilityTransfer : Operation
 					s.EnergyNext	-= EnergyNext;
 				}
 
-				EnergySpenders.Add(s);
+				execution.EnergySpenders.Add(s);
 			}
 
 			var d = to as IEnergyHolder;
@@ -140,7 +140,7 @@ public class UtilityTransfer : Operation
 				
 				s.Spacetime	-= Spacetime;
 				
-				SpacetimeSpenders.Add(s);
+				execution.SpacetimeSpenders.Add(s);
 			}
 
 			var d = to as ISpacetimeHolder;

@@ -24,13 +24,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public string						Error;
 	public Transaction					Transaction;
 	public Account						Signer;
-	public IEnergyHolder				EnergyFeePayer;
-	public HashSet<IEnergyHolder>		EnergySpenders;
-	public HashSet<ISpacetimeHolder>	SpacetimeSpenders;
 	public abstract string				Explanation { get; }
-	public long							EnergyConsumed;
 
-	public virtual bool					NonExistingSignerAllowed => false;
+	public virtual bool					Sponsored => false;
 
 	public const string					AlreadyExists = "Already exists";
 	public const string					AtLeastOneOwnerRequired = "At least one owner required";
@@ -80,121 +76,42 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
-	public Account RequireAccount(Round round, AccountAddress account)
-	{
-		var a = round.Mcv.Accounts.Find(account, round.Id);
+	//public Account RequireAccount(Round round, AccountAddress account)
+	//{
+	//	var a = round.Mcv.Accounts.Find(account, round.Id);
+	//
+	//	if(a == null || a.Deleted)
+	//	{
+	//		Error = NotFound;
+	//		return a;
+	//	}
+	//
+	//	return a;
+	//}
 
-		if(a == null || a.Deleted)
-		{
-			Error = NotFound;
-			return a;
-		}
 
-		return a;
-	}
-
-	public static long ToBD(long length, short time)
-	{
-		return time * length;
-	}
-
-	public static long ToBD(long length, Time time)
-	{
-		return time.Days * length;
-	}
-
-	public void Prolong(Execution execution, ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
-	{	
-		var start = (short)(consumer.Expiration < execution.Time.Days ? execution.Time.Days : consumer.Expiration);
-
-		consumer.Expiration = (short)(start + duration.Days);
-
-		if(consumer.Space > 0)
-		{
-			payer.Spacetime -= ToBD(consumer.Space, duration);
-			SpacetimeSpenders.Add(payer);
-		}
-
-		var n = start + duration.Days - execution.Time.Days;
-
-		if(n > execution.Spacetimes.Length)
-			execution.Spacetimes = [..execution.Spacetimes, ..new long[n - execution.Spacetimes.Length]];
-
-		for(int i = 0; i < duration.Days; i++)
-			execution.Spacetimes[start - execution.Time.Days + i] += consumer.Space;
-
-	}
-
-	public void AllocateEntity(ISpacetimeHolder payer)
-	{
-		payer.Spacetime -= ToBD(Transaction.Net.EntityLength, Mcv.Forever);
-		SpacetimeSpenders.Add(payer);
-	}
-
-	public void FreeEntity(Execution round)
-	{
-		round.Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
-	}
-
-	public void Allocate(Execution round, ISpacetimeHolder payer, ISpaceConsumer consumer, int space)
-	{
-		if(space == 0)
-			return;
-
-		consumer.Space += space;
-
-		var n = consumer.Expiration - round.Time.Days;
-	
-		payer.Spacetime -= ToBD(space, (short)n);
-
-		for(int i = 0; i < n; i++)
-			round.Spacetimes[i] += space;
-
-		SpacetimeSpenders.Add(payer);
-	}
-
-	public void Free(Execution round, ISpacetimeHolder beneficiary, ISpaceConsumer consumer, long space)
-	{
-		if(space == 0)
-			return;
-
-		consumer.Space -= space;
-
-		if(consumer.Space < 0)
-			throw new IntegrityException();
-
-		var d = consumer.Expiration - round.Time.Days;
-		
-		if(d > 0)
-		{
-			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
-	
-			for(int i = 1; i < d; i++)
-				round.Spacetimes[i] -= space;
-		}
-	}
-
-	public bool RequireAccount(Execution round, AutoId id, out Account account)
+	public bool AccountExists(Execution round, AutoId id, out Account account, out string error)
 	{
 		account = round.FindAccount(id);
 
 		if(account == null || account.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false;
 		}
 
+		error = null;
 		return true;
 	}
 
-	public bool RequireAccountAccess(Execution round, AutoId id, out Account account)
+	public bool CanAccessAccount(Execution round, AutoId id, out Account account, out string error)
 	{
-		if(!RequireAccount(round, id, out account))
+		if(!AccountExists(round, id, out account, out error))
 			return false;
 
 		if(account.Address != Signer.Address)
 		{
-			Error = Denied;
+			error = Denied;
 			return false;
 		}
 

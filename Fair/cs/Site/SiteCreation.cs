@@ -24,11 +24,11 @@ public class SiteCreation : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
-			Error = NotAllowedForFreeAccount;
+			Error = NotAllowedForSponsoredAccount;
 			return;
 		}
 
@@ -38,26 +38,49 @@ public class SiteCreation : FairOperation
 		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [Signer.Id];
 
-		s.ChangePolicies[FairOperationClass.NicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
-		s.ChangePolicies[FairOperationClass.SiteDescriptionChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
 
-		s.ChangePolicies[FairOperationClass.SitePolicyChange]		= ChangePolicy.ElectedByAuthorsMajority;
-		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]		= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]	= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.SiteDescriptionChange]		= [Role.Moderator];
 
-		s.ChangePolicies[FairOperationClass.CategoryCreation]		= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Moderator];
 
-		s.ChangePolicies[FairOperationClass.PublicationApproval]		= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.PublicationUpdation]		= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.PublicationProductChange]	= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.PublicationCategoryChange]	= ChangePolicy.AnyModerator;
+		s.CreationPolicies[FairOperationClass.CategoryCreation]				= [Role.Moderator];
 
-		s.ChangePolicies[FairOperationClass.ReviewStatusChange]			= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.ReviewTextModeration]		= ChangePolicy.AnyModerator;
+		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Moderator, Role.Author];
+		s.CreationPolicies[FairOperationClass.PublicationDeletion]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.PublicationUpdation]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.PublicationPublish]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.PublicationRemoveFromChanged]	= [Role.Moderator];
+
+		s.CreationPolicies[FairOperationClass.ReviewStatusChange]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.ReviewTextModeration]			= [Role.Moderator];
+
+
+
+		s.ChangePolicies[FairOperationClass.SiteNicknameChange]				= ChangePolicy.ElectedByAuthorsMajority;
+		s.ChangePolicies[FairOperationClass.SitePolicyChange]				= ChangePolicy.ElectedByAuthorsMajority;
+
+		s.ChangePolicies[FairOperationClass.SiteDescriptionChange]			= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]			= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.ChangePolicies[FairOperationClass.CategoryCreation]				= ChangePolicy.ElectedByModeratorsUnanimously;
+
+		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]				= ChangePolicy.AnyModerator;
+
+		s.ChangePolicies[FairOperationClass.PublicationCreation]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationDeletion]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationUpdation]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationPublish]				= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.PublicationRemoveFromChanged]	= ChangePolicy.AnyModerator;
+
+		s.ChangePolicies[FairOperationClass.ReviewStatusChange]				= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.ReviewTextModeration]			= ChangePolicy.AnyModerator;
+
 
 		Signer.Sites = [..Signer.Sites, s.Id];
 
-		Prolong(execution, Signer, s, Time.FromYears(Years));
+		execution.Prolong(Signer, s, Time.FromYears(Years));
 
 		execution.SiteTitles.Index(s.Id, Title);
 	}

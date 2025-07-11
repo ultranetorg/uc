@@ -51,14 +51,14 @@ public class DomainRenewal : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			PayForName(e.Address, Years);
+			execution.PayForName(e.Address, Years);
 		} 
 		else
 		{
-			PayForName(new string(' ', Domain.NameLengthMax), Years);
+			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		Prolong(execution, Signer, e, Time.FromYears(Years));
+		execution.Prolong(Signer, e, Time.FromYears(Years));
 	}
 }
 
@@ -108,7 +108,7 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!RequireAccount(execution, Owner, out var o))
+			if(!CanAccessAccount(execution, Owner, out var o, out Error))
 				return;
 
 			e = execution.Domains.Affect(e.Address);
@@ -138,7 +138,7 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!RequireAccount(execution, Owner, out var o))
+			if(!CanAccessAccount(execution, Owner, out var o, out Error))
 				return;
 
 			e = execution.Domains.Affect(e.Address);

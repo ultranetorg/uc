@@ -30,4 +30,32 @@ public class RdnExecution : Execution
 
 		return base.Affect(table, id);
 	}
+
+	public void PayForName(string address, int years)
+	{
+		var fee = NameFee(years, address);
+		
+		var s = AffectSigner();
+
+		s.Spacetime -= fee;
+		SpacetimeSpenders.Add(s);
+	}
+
+	public static int NameFee(int years, string address)
+	{
+		var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
+
+		l = Math.Min(l, 10);
+
+		return 10_000 * Time.FromYears(years).Days / (l * l * l * l);
+	}
+
+	public void PayForForever(int size)
+	{
+		var s = AffectSigner();
+
+		s.Spacetime -= ToBD(size, Uccs.Net.Mcv.Forever);
+		SpacetimeSpenders.Add(s);
+	}
+
 }

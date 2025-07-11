@@ -8,7 +8,7 @@ public class ReviewTextModerationModel : BaseVotableOperationModel
 
 	public bool Resolution { get; set; }
 
-	public ReviewTextModerationModel(ReviewTextModeration operation)
+	public ReviewTextModerationModel(ReviewEditModeration operation)
 	{
 		ReviewId = operation.Review.ToString();
 		Hash = operation.Hash;

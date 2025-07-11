@@ -41,7 +41,7 @@ public class Transaction : IBinarySerializable
 	public byte[]					Tag;
 	public long						Bonus;
 	
-	public long						EnergyConsumed => Operations.Sum(i => i.EnergyConsumed);
+	public long						EnergyConsumed;
 	public byte[]					Signature { get; set; }
 
 	private AccountAddress			_Signer;

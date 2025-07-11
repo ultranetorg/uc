@@ -2,7 +2,6 @@
 
 public class SitePolicyChange : VotableOperation
 {
-	public AutoId				Site { get; set; }
 	public FairOperationClass	Change { get; set; }
 	public ChangePolicy			Policy { get; set; }
 
@@ -11,14 +10,12 @@ public class SitePolicyChange : VotableOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Site	= reader.Read<AutoId>();
 		Change	= reader.Read<FairOperationClass>();
 		Policy	= reader.Read<ChangePolicy>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Site);
 		writer.Write(Change);
 		writer.Write(Policy);
 	}
@@ -30,37 +27,16 @@ public class SitePolicyChange : VotableOperation
 		return o.Change == Change;
 	}
 
- 	public override bool ValidProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution)
  	{
- 		if(!RequireSite(execution, Site, out var s))
- 			return false;
-
-		return s.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
+		return Site.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
  	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(execution))
-			return;
-
-		if(!dispute)
-	 	{
-	 		if(!RequireModeratorAccess(execution, Site, out var x))
- 				return;
-
-	 		if(x.ChangePolicies[FairOperationClass.SitePolicyChange] != ChangePolicy.AnyModerator)
-	 		{
-		 		Error = Denied;
-		 		return;
-	 		}
-		
-			PayEnergyBySite(execution, x.Id);
-		}
-
- 		var s = execution.Sites.Affect(Site);
+ 		var s = execution.Sites.Affect(Site.Id);
  
 		s.ChangePolicies = new(s.ChangePolicies);
 		s.ChangePolicies[Change] = Policy;
-
 	}
 }

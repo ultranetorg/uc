@@ -16,7 +16,6 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId							Product { get; set; }
 	public ProductFieldVersionReference[]	Fields { get; set; }
 	public AutoId[]							Reviews { get; set; }
-	public AutoId[]							ReviewChanges { get; set; }
 	public PublicationFlags					Flags { get; set; }
 	public byte								Rating { get; set; }
 
@@ -47,7 +46,6 @@ public class Publication : IBinarySerializable, ITableEntry
 									Product			= Product,
 									Fields			= Fields,
 									Reviews			= Reviews,
-									ReviewChanges	= ReviewChanges,
 									Flags			= Flags,
 									Rating			= Rating};
 	}
@@ -75,7 +73,6 @@ public class Publication : IBinarySerializable, ITableEntry
 		Product			= reader.Read<AutoId>();
 		Fields			= reader.ReadArray<ProductFieldVersionReference>();
 		Reviews			= reader.ReadArray<AutoId>();
-		ReviewChanges	= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
 		Rating			= reader.ReadByte();
 	}
@@ -89,7 +86,6 @@ public class Publication : IBinarySerializable, ITableEntry
 		writer.Write(Product);
 		writer.Write(Fields);
 		writer.Write(Reviews);
-		writer.Write(ReviewChanges);
 		writer.Write(Flags);
 		writer.Write(Rating);
 	}

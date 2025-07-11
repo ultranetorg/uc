@@ -8,9 +8,12 @@ public abstract class Fair : McvNet
 	public override	string			Address => "fair";
 	public override	string			Name => "fair";
 	public override ushort			McvPortPostfix => (ushort)KnownSystem.Fair;
+	public override int				TablesCount => Enum.GetNames<FairTable>().Count(i => i[0] != '_');
 	
-	public ushort					PostLengthMaximum = 65535;
+	public int						FileLengthMaximum = 1024*1024;
+	public const ushort				PostLengthMaximum = 65535;
 	public ushort					NicknameLengthMaximum = 32;
+	public const ushort				TitleLengthMaximum = 64;
  		
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairTest();
@@ -19,11 +22,10 @@ public abstract class Fair : McvNet
 	public static readonly Fair[]	Official = [Local, Developer0, Test];
 
 	public static Fair				ByZone(Zone name) => Official.First(i => i.Zone == name);
+
 	
 	public Fair()
 	{
-		TablesCount = 10;
-
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
 			if(Enum.TryParse<FairOperationClass>(i.Name, out var v))

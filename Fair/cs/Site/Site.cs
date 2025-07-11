@@ -5,6 +5,11 @@ public enum ChangePolicy : byte
 	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
 }
 
+public enum Role : byte
+{
+	None, Author, Moderator
+}
+
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
@@ -14,8 +19,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public string					Title { get; set; }
 	public string					Description { get; set; }
 	public int						ModerationReward { get; set; }
+	public AutoId					Avatar  { get; set; }
 	
-	public OrderedDictionary<FairOperationClass, ChangePolicy> ChangePolicies { get; set; }
+	public OrderedDictionary<FairOperationClass, Role[]>		CreationPolicies { get; set; }
+	public OrderedDictionary<FairOperationClass, ChangePolicy>	ChangePolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -24,11 +31,14 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					Authors { get; set; }
 	public AutoId[]					Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
-	public AutoId[]					Disputes { get; set; }
-	public AutoId[]					PendingPublications { get; set; }
+	public AutoId[]					Proposals { get; set; }
+	public AutoId[]					UnpublishedPublications { get; set; }
+	public AutoId[]					ChangedPublications { get; set; }
+	public AutoId[]					ChangedReviews { get; set; }
+	public AutoId[]					Files  { get; set; }
 
 	public int						PublicationsCount { get; set; }
-	public int						AuthorPublicationRequestFee { get; set; }
+	public int						AuthorRequestFee { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -69,27 +79,31 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public object Clone()
 	{
-		var a = new Site(Mcv){	Id							= Id,
-								Title						= Title,
-								Description					= Description,
-								Nickname					= Nickname,
-								ModerationReward			= ModerationReward,
-								AuthorPublicationRequestFee	= AuthorPublicationRequestFee,
+		var a = new Site(Mcv)  {Id						= Id,
+								Title					= Title,
+								Description				= Description,
+								Nickname				= Nickname,
+								ModerationReward		= ModerationReward,
+								AuthorRequestFee		= AuthorRequestFee,
+								Avatar					= Avatar,
 								
-								ChangePolicies				= ChangePolicies,
+								CreationPolicies		= CreationPolicies,
+								ChangePolicies			= ChangePolicies,
 
-								Expiration					= Expiration,
-								Space						= Space,
-								Spacetime					= Spacetime,
+								Expiration				= Expiration,
+								Space					= Space,
+								Spacetime				= Spacetime,
 
-								PublicationsCount			= PublicationsCount,
+								PublicationsCount		= PublicationsCount,
 
-								Authors						= Authors,
-								Moderators					= Moderators,
-								Categories					= Categories,
-								Disputes					= Disputes,
-								PendingPublications			= PendingPublications
-								};
+								Authors					= Authors,
+								Moderators				= Moderators,
+								Categories				= Categories,
+								Proposals				= Proposals,
+								UnpublishedPublications	= UnpublishedPublications,
+								ChangedPublications		= ChangedPublications,
+								ChangedReviews			= ChangedReviews,
+								Files					= Files};
 		
 		((IEnergyHolder)this).Clone(a);
 
@@ -118,8 +132,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Description					= reader.ReadUtf8();
 		Title						= reader.ReadUtf8();
 		ModerationReward			= reader.Read7BitEncodedInt();
-		AuthorPublicationRequestFee	= reader.Read7BitEncodedInt();
+		AuthorRequestFee			= reader.Read7BitEncodedInt();
+		Avatar						= reader.ReadNullable<AutoId>();
 		
+		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
 		ChangePolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
 
 		Expiration					= reader.ReadInt16();
@@ -131,8 +147,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Authors						= reader.ReadArray<AutoId>();
 		Moderators					= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
-		Disputes					= reader.ReadArray<AutoId>();
-		PendingPublications			= reader.ReadArray<AutoId>();
+		Proposals					= reader.ReadArray<AutoId>();
+		UnpublishedPublications		= reader.ReadArray<AutoId>();
+		ChangedPublications			= reader.ReadArray<AutoId>();
+		ChangedReviews				= reader.ReadArray<AutoId>();
+		Files						= reader.ReadArray<AutoId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -144,8 +163,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8(Description);
 		writer.WriteUtf8(Title);
 		writer.Write7BitEncodedInt(ModerationReward);
-		writer.Write7BitEncodedInt(AuthorPublicationRequestFee);
+		writer.Write7BitEncodedInt(AuthorRequestFee);
+		writer.WriteNullable(Avatar);
 		
+		writer.Write(CreationPolicies, i => { writer.Write(i.Key); writer.Write(i.Value, i => writer.Write(i)); });
 		writer.Write(ChangePolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
 
 		writer.Write(Expiration);
@@ -157,8 +178,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Authors);
 		writer.Write(Moderators);
 		writer.Write(Categories);
-		writer.Write(Disputes);
-		writer.Write(PendingPublications);
+		writer.Write(Proposals);
+		writer.Write(UnpublishedPublications);
+		writer.Write(ChangedPublications);
+		writer.Write(ChangedReviews);
+		writer.Write(Files);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}

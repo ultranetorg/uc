@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text;
+
+namespace Uccs.Fair;
 
 public class ReviewTable : Table<AutoId, Review>
 {
@@ -18,6 +20,8 @@ public class ReviewTable : Table<AutoId, Review>
 
 public class ReviewExecution : TableExecution<AutoId, Review>
 {
+	new FairExecution Execution => base.Execution as FairExecution;
+
 	public ReviewExecution(FairExecution execution) : base(execution.Mcv.Reviews, execution)
 	{
 	}
@@ -32,5 +36,21 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		a.Id = LastCreatedId = new AutoId(publication.Id.B, e);
 
 		return Affected[a.Id] = a;
+	}
+		
+	public void Delete(Site site, AutoId id)
+	{
+		var v = Execution.Reviews.Affect(id);
+		
+		v.Deleted = true;
+		
+		Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.Text));
+		
+		if(v.TextNew.Length > 0)
+		{
+			Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.TextNew));
+		}
+
+		Execution.Free(site, site, Execution.Net.EntityLength);
 	}
 }

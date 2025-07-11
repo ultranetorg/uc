@@ -11,6 +11,7 @@ public abstract class FairCommand : McvCommand
 	//
 	//public readonly ArgumentType	SITETYPE = new ArgumentType("SITETYPE",	@"Site type", [$"{SiteType.Store}"]);
 	protected AutoId				FirstEntityId => AutoId.Parse(Args[0].Name);
+	protected AutoId				SecondEntityId => AutoId.Parse(Args[1].Name);
 
 	static FairCommand()
 	{

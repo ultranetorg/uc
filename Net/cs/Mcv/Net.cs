@@ -121,11 +121,12 @@ public abstract class McvNet : Net
 	public long				DeclarationCost							=> 1000_000;
 	
 	public int				EntityLength							= 100;
-	public int				TablesCount								= 1;
 
 	public int				BandwidthDaysMaximum					=> 365;
 	public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
 	public long				BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
+
+	public abstract int		TablesCount { get; }
 
 	public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

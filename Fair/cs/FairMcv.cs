@@ -11,17 +11,18 @@ public enum FairMetaEntityType : int
 	CategoriesCount,
 	PublicationsCount,
 	ReviewsCount,
-	DisputesCount,
-	DisputeCommentsCount,
+	ProposalCount,
+	ProposalCommentsCount,
 	WordsCount,
 
 	SiteTitleEntryPoint,
 	PublicationTitleEntryPoint,
 }
 
-public enum FairTable
+public enum FairTable : byte
 {
-	Author = McvTable._Last + 1, Product, Site, Category, Publication, Review, Dispute, DisputeComment, Word, PublicationTitle, SiteTitle
+	Meta = McvTable.Meta, Account = McvTable.Account,
+	Author, Product, Site, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _PublicationTitle, _SiteTitle
 }
 
 public class FairMcv : Mcv
@@ -32,8 +33,9 @@ public class FairMcv : Mcv
 	public CategoryTable				Categories;
 	public PublicationTable				Publications;
 	public ReviewTable					Reviews;
-	public DisputeTable					Disputes;
-	public DisputeCommentTable			DisputeComments;
+	public ProposalTable				Proposals;
+	public ProposalCommentTable			ProposalComments;
+	public FileTable					Files;
 	public WordTable					Words;
 	public PublicationTitleIndex		PublicationTitles;
 	public SiteTitleIndex				SiteTitles;
@@ -99,13 +101,14 @@ public class FairMcv : Mcv
 		Categories = new (this);
 		Publications = new (this);
 		Reviews = new (this);
-		Disputes = new (this);
-		DisputeComments = new (this);
+		Proposals = new (this);
+		ProposalComments = new (this);
+		Files = new (this);
 		Words = new (this);
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Disputes, DisputeComments, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

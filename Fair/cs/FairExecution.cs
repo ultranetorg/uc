@@ -12,8 +12,9 @@ public class FairExecution : Execution
 	public CategoryExecution			Categories;
 	public PublicationExecution			Publications;
 	public ReviewExecution				Reviews;
-	public DisputeExecution				Disputes;
-	public DisputeCommentExecution		DisputeComments;
+	public ProposalExecution			Proposals;
+	public ProposalCommentExecution		ProposalComments;
+	public FileExecution				Files;
 	public WordExecution				Words;
 	public PublicationTitleExecution	PublicationTitles;
 	public SiteTitleExecution			SiteTitles;
@@ -26,8 +27,9 @@ public class FairExecution : Execution
 		Categories = new(this);
 		Publications = new(this);
 		Reviews = new(this);
-		Disputes = new(this);
-		DisputeComments = new(this);
+		Proposals = new(this);
+		ProposalComments = new(this);
+		Files = new(this);
 		Words = new(this);
 		PublicationTitles = new(this);
 		SiteTitles = new(this);
@@ -41,8 +43,9 @@ public class FairExecution : Execution
 		if(table == Mcv.Categories.Id)			return Categories;
 		if(table == Mcv.Publications.Id)		return Publications;
 		if(table == Mcv.Reviews.Id)				return Reviews;
-		if(table == Mcv.Disputes.Id)			return Disputes;
-		if(table == Mcv.DisputeComments	.Id)	return DisputeComments;
+		if(table == Mcv.Proposals.Id)			return Proposals;
+		if(table == Mcv.ProposalComments.Id)	return ProposalComments;
+		if(table == Mcv.Files.Id)				return Files;
 		if(table == Mcv.Words.Id)				return Words;
 
 		return base.FindExecution(table);
@@ -71,8 +74,9 @@ public class FairExecution : Execution
 		if(table == Mcv.Categories)			return Categories.Affected;
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
-		if(table == Mcv.Disputes)			return Disputes.Affected;
-		if(table == Mcv.DisputeComments)	return DisputeComments.Affected;
+		if(table == Mcv.Proposals)			return Proposals.Affected;
+		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
+		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
@@ -92,7 +96,7 @@ public class FairExecution : Execution
 
 	public override Account AffectSigner()
 	{
-		if(Transaction.Operations.All(i => i.NonExistingSignerAllowed))
+		if(Transaction.Operations.All(i => i.Sponsored))
 		{
 			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
 				return a;
@@ -142,15 +146,60 @@ public class FairExecution : Execution
 // 		}
 	}
 
-	 public bool IsReferendum(Dispute dispute)
-	 {
-		return Sites.Find(dispute.Site).ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Proposal.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+	public bool IsReferendum(Proposal proposal)
+	{
+		return Sites.Find(proposal.Site).ChangePolicies[Enum.Parse<FairOperationClass>(proposal.Operation.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+	}
+
+	public bool IsReferendum(ChangePolicy policy)
+	{
+		return policy == ChangePolicy.ElectedByAuthorsMajority;
+	}
+
+	public bool IsDiscussion(ChangePolicy policy)
+	{
+		return policy == ChangePolicy.ElectedByModeratorsMajority || policy == ChangePolicy.ElectedByModeratorsUnanimously;
+	}
+
+	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
+	{
+		if(current != null)
+		{
+			var p = Files.Affect(current); /// previous
+			p.Deleted = true;
+			
+			Free(holder, consumer, p.Data.Length);
+		}
+
+		File f = null;
+
+		if(data != null)
+		{
+			f = Files.Create(creator);
+			f.Data = data;
+
+			Allocate(holder, consumer, f.Data.Length);
+		}
+
+		return f;
 	 }
 
-	 public bool IsReferendum(ChangePolicy policy)
-	 {
-		return policy == ChangePolicy.ElectedByAuthorsMajority;
-	 }
+//	public void Allocate(Execution execution, int space)
+//	{
+//		if(space == 0)
+//			return;
+//
+//		SpacetimeConsumer.Space += space;
+//
+//		var n = SpacetimeConsumer.Expiration - execution.Time.Days;
+//	
+//		SpacetimePayer.Spacetime -= ToBD(space, (short)n);
+//
+//		for(int i = 0; i < n; i++)
+//			execution.Spacetimes[i] += space;
+//
+//		SpacetimeSpenders.Add(SpacetimePayer);
+//	}
 
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
 /// 	{

@@ -21,9 +21,9 @@ public class ProductDeletion : FairOperation
 		writer.Write(Product);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireProductAccess(execution, Product, out var a, out var p) == false)
+		if(CanAccessProduct(execution, Product, out var a, out var p, out Error) == false)
 			return;
 
 		a = execution.Authors.Affect(p.Author);
@@ -31,6 +31,7 @@ public class ProductDeletion : FairOperation
 
 		execution.Products.Affect(Product).Deleted = true;
 
-		Free(execution, Signer, a, execution.Net.EntityLength + p.Length);
+		execution.Free(a, a, execution.Net.EntityLength + p.Length);
+		execution.PayCycleEnergy(a);
 	}
 }

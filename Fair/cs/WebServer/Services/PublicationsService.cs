@@ -214,7 +214,8 @@ public class PublicationsService
 				Search = search,
 				Items = new List<ModeratorPublicationModel>(pageSize),
 			};
-			LoadModeratorsPendingPublications(site.PendingPublications, context, canellationToken);
+
+			LoadModeratorsPendingPublications(site.UnpublishedPublications, context, canellationToken);
 
 			return new TotalItemsResult<ModeratorPublicationModel>
 			{

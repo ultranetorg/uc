@@ -29,9 +29,15 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var o = new CategoryCreation() {Site = GetEntityId("site", null), 
-																Parent = GetEntityId("parent", null), 
-																Title = GetString("title")};
+								var o = new ProposalCreation 
+										{
+											Site = GetEntityId("site", null), 
+											Proposal =	new CategoryCreation()
+														{ 
+															Parent = GetEntityId("parent", null), 
+															Title = GetString("title")
+														}
+										};
 								
 								return o;
 							};
@@ -55,9 +61,14 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
+								var o = new ProposalCreation();
+
 								if(One("parent")?.Value is string id)
 								{	
-									return new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
+									o.Site = Ppc(new CategoryRequest()).Category.Site;
+									o.Proposal = new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
+									
+									return o;
 								}
 
 								throw new SynchronizationException("Wrong arguments");

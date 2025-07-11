@@ -788,11 +788,14 @@ public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution
 	
 	public E Find(ID id)
  	{
-		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
+		id = (id == AutoId.LastCreated) ? LastCreatedId as ID : id;
 
  		if(Affected.TryGetValue(id, out var a))
  			return a;
  		
+		if(a?.Deleted ?? false)
+			return null;
+
 		return Table.Find(id, Execution.Round.Id);
  	}
 

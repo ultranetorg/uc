@@ -14,7 +14,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public AutoId				Id { get; set; }
 	public string				Nickname { get; set; }
 	public string				Title { get; set; }
-	public AutoId[]			Owners { get; set; }
+	public AutoId[]				Owners { get; set; }
+	public AutoId				Avatar  { get; set; }
 
 	public short				Expiration { get; set; }
 	public long					Space { get; set; }
@@ -30,8 +31,9 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public short				BandwidthTodayTime { get; set; }
 	public long					BandwidthTodayAvailable { get; set; }
 	
-	public AutoId[]			Products { get; set; }
-	public AutoId[]			Sites { get; set; }
+	public AutoId[]				Products { get; set; }
+	public AutoId[]				Sites { get; set; }
+	//public AutoId[]			Files  { get; set; }
 
 	public EntityId				Key => Id;
 	Mcv							Mcv;
@@ -57,6 +59,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 								Nickname			= Nickname,
 								Title				= Title,
 								Owners				= Owners,
+								Avatar				= Avatar,
 
 								Expiration			= Expiration,
 								Space				= Space,
@@ -64,31 +67,13 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 								ModerationReward	= ModerationReward,
 
 								Products			= Products,
-								Sites				= Sites};
+								Sites				= Sites,
+								//Files				= Files
+								};
 
 		((IEnergyHolder)this).Clone(a);
 
 		return a;
-	}
-
-	public void WriteMain(BinaryWriter writer)
-	{
-		Write(writer);
-		
-		writer.Write(Products);
-		writer.Write(Sites);
-	}
-
-	public void ReadMain(BinaryReader reader)
-	{
-		Read(reader);
-		
-		Products = reader.ReadArray<AutoId>();
-		Sites = reader.ReadArray<AutoId>();
-	}
-
-	public void Cleanup(Round lastInCommit)
-	{
 	}
 
 	public static bool Valid(string name)
@@ -120,6 +105,28 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 											time.Days <= author.Expiration;
 	}
 
+	public void WriteMain(BinaryWriter writer)
+	{
+		Write(writer);
+		
+		writer.Write(Products);
+		writer.Write(Sites);
+		//writer.Write(Files);
+	}
+
+	public void ReadMain(BinaryReader reader)
+	{
+		Read(reader);
+		
+		Products= reader.ReadArray<AutoId>();
+		Sites	= reader.ReadArray<AutoId>();
+		//Files	= reader.ReadArray<AutoId>();
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
@@ -127,6 +134,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.WriteUtf8(Title);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
+		writer.WriteNullable(Avatar);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
@@ -142,6 +150,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Title				= reader.ReadUtf8();
 		Owners				= reader.ReadArray<AutoId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
+		Avatar				= reader.ReadNullable<AutoId>();
 
 		Expiration			= reader.ReadInt16();
 		Space				= reader.Read7BitEncodedInt64();

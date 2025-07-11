@@ -117,13 +117,6 @@ public static class Extentions
 		return (E)Enum.ToObject(typeof(E), reader.ReadUInt64());
 	}
 
-	public static void WriteUtf8(this BinaryWriter w, string s)
-	{
-		var a = Encoding.UTF8.GetBytes(s);
-		w.Write7BitEncodedInt(a.Length);
-		w.Write(a);
-	}
-
 // 		public static void Write(this BinaryWriter w, ProductAddress pa)
 // 		{
 // 			w.WriteUtf8(pa.Domain);
@@ -138,6 +131,25 @@ public static class Extentions
 	public static string ReadUtf8(this BinaryReader r)
 	{
 		return Encoding.UTF8.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
+	}
+
+	public static void WriteUtf8(this BinaryWriter w, string s)
+	{
+		var a = Encoding.UTF8.GetBytes(s);
+		w.Write7BitEncodedInt(a.Length);
+		w.Write(a);
+	}
+
+	public static string ReadASCII(this BinaryReader r)
+	{
+		return Encoding.ASCII.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
+	}
+
+	public static void WriteASCII(this BinaryWriter w, string s)
+	{
+		var a = Encoding.ASCII.GetBytes(s);
+		w.Write7BitEncodedInt(a.Length);
+		w.Write(a);
 	}
 
 	public static BigInteger ReadBigInteger(this BinaryReader r)

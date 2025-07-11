@@ -26,50 +26,45 @@ public class ReviewStatusChange : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return (other as ReviewTextModeration).Review == Review;
+		return (other as ReviewStatusChange).Review == Review;
 	}
 
-	public override bool ValidProposal(FairExecution execution)
+	public override bool ValidateProposal(FairExecution execution)
 	{
-		if(!RequireReview(execution, Review, out var r))
+		if(!ReviewExists(execution, Review, out var r, out _))
 			return false;
 
 		return r.Status != Status;
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(execution))
-			return;
-
-		if(!dispute)
-	 	{
-			if(!RequireReviewModertorAccess(execution, Review, Signer, out var _, out var s))
-				return;
-
-	 		if(s.ChangePolicies[FairOperationClass.ReviewStatusChange] != ChangePolicy.AnyModerator)
-	 		{
-		 		Error = Denied;
-		 		return;
-	 		}
-		}
-
-		var r = execution.Reviews.Affect(Review);
-		r.Status = Status;
+		var v = execution.Reviews.Affect(Review);
 
 		Publication p;
 
 		if(Status == ReviewStatus.Accepted)
 		{
-			p = execution.Publications.Affect(r.Publication);
-			p.Rating = (byte)((p.Rating + r.Rating)/2);
+			p = execution.Publications.Affect(v.Publication);
+			p.Rating = (byte)((p.Rating + v.Rating)/2);
 		}
 		else
-			p = execution.Publications.Find(r.Publication);
-
-		var pr = execution.Products.Find(p.Product);
-		var a = execution.Authors.Find(pr.Author);
+			p = execution.Publications.Find(v.Publication);
 	
-		PayEnergyForModeration(execution, p, a);
+		//PayEnergyForModeration(execution, a, execution.Sites.Affect(Site.Id));
+
+		if(v.Status == ReviewStatus.Pending)
+		{
+			if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+			{ 
+				var s = execution.Sites.Affect(p.Site);
+				var r = execution.Products.Find(p.Product);
+				var a = execution.Authors.Affect(r.Author);
+			
+				RewardForModeration(execution, a, s);
+			}
+		}
+
+		v.Status = Status;
 	}
 }

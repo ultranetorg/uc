@@ -32,7 +32,7 @@ public class ModeratorDisputesController
 		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{SiteId}}, {{DisputeId}}", siteId, disputeId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(disputeId, nameof(Dispute).ToLower());
+		autoIdValidator.Validate(disputeId, nameof(Proposal).ToLower());
 
 		return disputesService.GetDispute(siteId, disputeId);
 	}

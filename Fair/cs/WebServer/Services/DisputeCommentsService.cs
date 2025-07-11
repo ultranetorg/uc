@@ -23,10 +23,10 @@ public class DisputeCommentsService
 
 		lock(mcv.Lock)
 		{
-			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
+			Proposal dispute = mcv.Proposals.Latest(disputeEntityId);
 			if(dispute == null || dispute.Site != siteEntityId)
 			{
-				throw new EntityNotFoundException(nameof(Dispute).ToLower(), disputeId);
+				throw new EntityNotFoundException(nameof(Proposal).ToLower(), disputeId);
 			}
 
 			var context = new SearchContext<DisputeCommentModel>
@@ -58,7 +58,7 @@ public class DisputeCommentsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			DisputeComment comment = mcv.DisputeComments.Latest(commentId);
+			ProposalComment comment = mcv.ProposalComments.Latest(commentId);
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(comment.Creator);
 			DisputeCommentModel model = new DisputeCommentModel(comment, account);
 			context.Items.Add(model);

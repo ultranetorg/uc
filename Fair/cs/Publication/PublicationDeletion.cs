@@ -1,6 +1,8 @@
+using System.Text;
+
 namespace Uccs.Fair;
 
-public class PublicationDeletion : FairOperation
+public class PublicationDeletion : VotableOperation
 {
 	public AutoId				Publication { get; set; }
 
@@ -21,18 +23,32 @@ public class PublicationDeletion : FairOperation
 		writer.Write(Publication);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override bool Overlaps(VotableOperation other)
 	{
-		if(!RequirePublication(execution, Publication, out var p))
-			return;
+		var o = other as PublicationDeletion;
 
-		p = execution.Publications.Affect(Publication);
+		return o.Publication == Publication;
+	}
+	
+	public override bool ValidateProposal(FairExecution execution)
+	{
+		if(!PublicationExists(execution, Publication, out _, out _))
+			return false;
+
+		return true;
+	}
+
+	public override void Execute(FairExecution execution)
+	{
+		var p = execution.Publications.Affect(Publication);
 		p.Deleted = true;
-
 
  		var c = execution.Categories.Find(p.Category);
 		var s = execution.Sites.Affect(c.Site);
-		var a = execution.Authors.Find(execution.Products.Find(p.Product).Author);
+		var r = execution.Products.Affect(p.Product);
+		//var a = execution.Authors.Find(.Author);
+
+		r.Publications = r.Publications.Remove(r.Id);
 
 		if(c.Publications.Contains(p.Id))
 		{
@@ -41,36 +57,24 @@ public class PublicationDeletion : FairOperation
 
 			s.PublicationsCount--;
 		}
-
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor) && CanAccessAuthor(execution, a.Id))
-		{ 
-			a = execution.Authors.Affect(a.Id);
-
-			Free(execution, a, a, execution.Net.EntityLength);
-			PayEnergyByAuthor(execution, a.Id);
-		}
-		else if(CanAccessSite(execution, s.Id))
-		{	
-			Free(execution, s, s, execution.Net.EntityLength);
-			PayEnergyBySite(execution, s.Id);
-		}
-		else
+		
+		if(s.UnpublishedPublications.Contains(p.Id))
 		{
-			Error = Denied;
-			return;
+			s.UnpublishedPublications = s.UnpublishedPublications.Remove(p.Id);
+		}
+
+		foreach(var i in p.Reviews)
+		{
+			execution.Reviews.Delete(s, i);
 		}
 		
-		if(s.PendingPublications.Contains(p.Id))
-		{
-			s = execution.Sites.Affect(s.Id);
-			s.PendingPublications = s.PendingPublications.Remove(p.Id);
-		}
-
-		var f = p.Fields.FirstOrDefault(i => i.Name == ProductField.Title);
+		var f = p.Fields.FirstOrDefault(i => i.Field == ProductFieldName.Title);
 		
 		if(f != null)
 		{
 			execution.PublicationTitles.Deindex(c.Site, execution.Products.Find(p.Product).Get(f).AsUtf8);
 		}
+
+		execution.Free(s, s, execution.Net.EntityLength);
 	}
 }

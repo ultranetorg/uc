@@ -2,38 +2,48 @@
 
 namespace Uccs.Fair;
 
-[Flags]
-public enum ProductFlags : byte
+public enum ProductFieldName : uint
 {
 	None, 
+	Title,
+	Slogan,
+	Description,
+	Logo
 }
 
-[Flags]
-public enum ProductProperty : byte
+public enum ProductFieldType : int
 {
-	None,
+	None, 
+	Integer,
+	Float,
+	TextUtf8,
+	StringUtf8,
+
+	File, /// Must go before any file-like types
+	ImagePng,
+	ImageJpg,
 }
 
 public class ProductFieldVersionReference  : IBinarySerializable
 {
-	public string		Name { get; set; }
-	public int			Version { get; set; }
+	public ProductFieldName	Field { get; set; }
+	public int				Version { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
-		Name = reader.ReadUtf8();
+		Field = reader.Read<ProductFieldName>();
 		Version = reader.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8(Name);
+		writer.Write(Field);
 		writer.Write7BitEncodedInt(Version);
 	}
 
 	public override string ToString()
 	{
-		return $"{Name}={Version}";
+		return $"{Field}={Version}";
 	}
 }
 
@@ -73,13 +83,10 @@ public class ProductFieldVersion : IBinarySerializable
 
 public class ProductField : IBinarySerializable
 {
-	public string					Name { get; set; }
+	public ProductFieldName			Name { get; set; }
 	public ProductFieldVersion[]	Versions  { get; set; }
 
 	public int						Size =>  Versions.Sum(i => i.Value.Length);
-
-	public const string				Title = "Title";
-	public const string				Description = "Description";
 
 	public const int				ValueLengthMaximum = 1024*1024;
 	public const int				ValueNameMaximum = 256;
@@ -90,13 +97,13 @@ public class ProductField : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Name		= reader.ReadUtf8();
+		Name		= reader.Read<ProductFieldName>();
 		Versions	= reader.ReadArray<ProductFieldVersion>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8(Name);
+		writer.Write(Name);
 		writer.Write(Versions);
 	}
 }
@@ -105,16 +112,24 @@ public class Product : IBinarySerializable, ITableEntry
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
-	public ProductFlags			Flags { get; set; }
 	public ProductField[]		Fields	{ get; set; }
 	public Time					Updated { get; set; }
 	public AutoId[]				Publications { get; set; }
 
 	public int					Length => Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
+	public static Dictionary<ProductFieldName, ProductFieldType> FieldTypes =	new ()
+																				{
+																					{ProductFieldName.Title,		ProductFieldType.StringUtf8},
+																					{ProductFieldName.Slogan,		ProductFieldType.StringUtf8},
+																					{ProductFieldName.Description,	ProductFieldType.TextUtf8},
+																					{ProductFieldName.Logo,			ProductFieldType.ImagePng},
+																				};
+	public static bool			IsFile(ProductFieldName type) => FieldTypes[type] >= ProductFieldType.File;
+
 	public override string ToString()
 	{
-		return $"{Id}, [{Flags}], Fields={Fields}";
+		return $"{Id}, Fields={Fields}";
 	}
 
 	public EntityId			Key => Id;
@@ -132,14 +147,13 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public ProductFieldVersion Get(ProductFieldVersionReference reference)
 	{
-		return Fields.First(i => i.Name == reference.Name).Versions.First(i => i.Version == reference.Version);
+		return Fields.First(i => i.Name == reference.Field).Versions.First(i => i.Version == reference.Version);
 	}
 
 	public object Clone()
 	{
 		return new Product(Mcv){Id = Id,
 								Author = Author,
-								Flags = Flags,
 								Fields = Fields,
 								Updated = Updated,
 								Publications = Publications};
@@ -163,7 +177,6 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Author);
-		writer.Write(Flags);
 		writer.Write(Updated);
 		writer.Write(Fields);
 		writer.Write(Publications);
@@ -173,7 +186,6 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		Id				= reader.Read<AutoId>();
 		Author			= reader.Read<AutoId>();
-		Flags			= reader.Read<ProductFlags>();
 		Updated			= reader.Read<Time>();
 		Fields			= reader.ReadArray<ProductField>();
 		Publications	= reader.ReadArray<AutoId>();

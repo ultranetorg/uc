@@ -22,7 +22,7 @@ public static class PublicationUtils
 
 	public static string? GetTitle(Publication publication, Product product)
 	{
-		var index = Array.FindIndex(publication.Fields, x => x.Name == ProductField.Title);
+		var index = Array.FindIndex(publication.Fields, x => x.Field == ProductFieldName.Title);
 		if (index == -1)
 		{
 			return null;
@@ -30,18 +30,18 @@ public static class PublicationUtils
 
 
 		int version = publication.Fields[index].Version;
-		return product.Fields.First(x => x.Name == ProductField.Title).Versions.First(x => x.Version == version).AsUtf8;
+		return product.Fields.First(x => x.Name == ProductFieldName.Title).Versions.First(x => x.Version == version).AsUtf8;
 	}
 
 	public static string? GetDescription(Publication publication, Product product)
 	{
-		var index = Array.FindIndex(publication.Fields, x => x.Name == ProductField.Description);
+		var index = Array.FindIndex(publication.Fields, x => x.Field == ProductFieldName.Description);
 		if(index == -1)
 		{
 			return null;
 		}
 
 		int version = publication.Fields[index].Version;
-		return product.Fields.First(x => x.Name == ProductField.Description).Versions.First(x => x.Version == version).AsUtf8;
+		return product.Fields.First(x => x.Name == ProductFieldName.Description).Versions.First(x => x.Version == version).AsUtf8;
 	}
 }

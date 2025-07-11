@@ -43,13 +43,13 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			string entityName = disputesOrReferendums ? nameof(Dispute).ToLower() : ReferendumEntityName;
-			if (!site.Disputes.Any(x => x == disputeEntityId))
+			string entityName = disputesOrReferendums ? nameof(Proposal).ToLower() : ReferendumEntityName;
+			if (!site.Proposals.Any(x => x == disputeEntityId))
 			{
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
-			Dispute dispute = mcv.Disputes.Latest(disputeEntityId);
+			Proposal dispute = mcv.Proposals.Latest(disputeEntityId);
 			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
 				throw new EntityNotFoundException(entityName, disputeId);
@@ -57,7 +57,7 @@ public class DisputesService
 
 			return new DisputeDetailsModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+				Proposal = ToBaseVotableOperationModel(dispute.Operation)
 			};
 		}
 	}
@@ -80,7 +80,7 @@ public class DisputesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadDisputesOrReferendumsPaged(site.Disputes, disputesOrReferendums, page, pageSize, search, cancellationToken);
+			return LoadDisputesOrReferendumsPaged(site.Proposals, disputesOrReferendums, page, pageSize, search, cancellationToken);
 		}
 	}
 
@@ -90,7 +90,7 @@ public class DisputesService
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<DisputeModel>.Empty;
 
-		var disputes = new List<Dispute>(pageSize);
+		var disputes = new List<Proposal>(pageSize);
 		int totalItems = 0;
 
 		foreach (var disputeId in disputesIds)
@@ -98,7 +98,7 @@ public class DisputesService
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(disputes, totalItems);
 
-			Dispute dispute = mcv.Disputes.Latest(disputeId);
+			Proposal dispute = mcv.Proposals.Latest(disputeId);
 
 			if (disputesOrReferendums != IsProposalIsDispute(dispute))
 			{
@@ -121,12 +121,12 @@ public class DisputesService
 		return ToTotalItemsResult(disputes, totalItems);
 	}
 
-	static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Dispute> disputes, int totalItems)
+	static TotalItemsResult<DisputeModel> ToTotalItemsResult(IList<Proposal> disputes, int totalItems)
 	{
 		IEnumerable<DisputeModel> items = disputes.Select(dispute =>
 			new DisputeModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Proposal)
+				Proposal = ToBaseVotableOperationModel(dispute.Operation)
 			});
 
 		return new TotalItemsResult<DisputeModel>
@@ -140,13 +140,12 @@ public class DisputesService
 	{
 		return proposal switch
 		{
-			NicknameChange operation => new NicknameChangeModel(operation),
-			PublicationProductChange operation => new PublicationProductChangeModel(operation),
-			PublicationApproval operation => new PublicationApprovalModel(operation),
-			PublicationCategoryChange operation => new PublicationCategoryChangeModel(operation),
+			///TODO new NicknameChange operation => new NicknameChangeModel(operation),
+			//PublicationApproval operation => new PublicationApprovalModel(operation),
+			PublicationPublish operation => new PublicationPublishModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
-			ReviewTextModeration operation => new ReviewTextModerationModel(operation),
+			ReviewEditModeration operation => new ReviewTextModerationModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 			SiteDescriptionChange operation => new SiteDescriptionChangeModel(operation),
 			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
@@ -156,5 +155,5 @@ public class DisputesService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsProposalIsDispute(Dispute dispute) => dispute.Proposal is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
+	static bool IsProposalIsDispute(Proposal dispute) => dispute.Operation is not SitePolicyChange change || change.Policy != ChangePolicy.ElectedByAuthorsMajority;
 }

@@ -18,7 +18,7 @@ public class ModeratorDisputeCommentsController
 		logger.LogInformation($"GET {nameof(ModeratorDisputeCommentsController)}.{nameof(ModeratorDisputeCommentsController.GetDisputeComments)} method called with {{DisputeId}}, {{Pagination}}", disputeId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(disputeId, nameof(Dispute).ToLower());
+		autoIdValidator.Validate(disputeId, nameof(Proposal).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

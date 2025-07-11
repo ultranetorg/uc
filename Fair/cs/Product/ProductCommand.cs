@@ -70,7 +70,7 @@ public class ProductCommand : FairCommand
 
 								var o =	new ProductUpdation(First);
 
-								o.Name = GetString("field");
+								o.Field = GetEnum<ProductFieldName>("field");
 
 								if(Has("text"))
 									o.Value = Encoding.UTF8.GetBytes(GetString("text"));

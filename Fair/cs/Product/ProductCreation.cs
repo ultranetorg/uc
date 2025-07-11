@@ -26,9 +26,9 @@ public class ProductCreation : FairOperation
 		writer.Write(Author);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(RequireAuthorAccess(execution, Author, out var a) == false)
+		if(CanAccessAuthor(execution, Author, out var a, out Error) == false)
 			return;
 
 		a = execution.Authors.Affect(Author);
@@ -37,6 +37,7 @@ public class ProductCreation : FairOperation
 		p.Author = a.Id;
 		a.Products = [..a.Products, p.Id];
 
-		Allocate(execution, Signer, a, execution.Net.EntityLength);
+		execution.Allocate(a, a, execution.Net.EntityLength);
+		execution.PayCycleEnergy(a);
 	}
 }

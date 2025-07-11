@@ -11,7 +11,7 @@ internal class SearchUtils
 			|| site.Nickname.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
-	internal static bool IsMatch(Dispute dispute, string? search)
+	internal static bool IsMatch(Proposal dispute, string? search)
 	{
 		if (string.IsNullOrEmpty(search)) {
 			return true;

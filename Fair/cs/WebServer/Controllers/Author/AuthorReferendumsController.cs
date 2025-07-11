@@ -32,7 +32,7 @@ public class AuthorReferendumsController
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{ReferendumId}}", siteId, referendumId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(referendumId, nameof(Dispute).ToLower());
+		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
 		return disputesService.GetReferendum(siteId, referendumId);
 	}

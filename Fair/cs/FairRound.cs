@@ -10,8 +10,9 @@ public class FairRound : Round
 	public TableState<AutoId, Category>							Categories;
 	public TableState<AutoId, Publication>						Publications;
 	public TableState<AutoId, Review>							Reviews;
-	public TableState<AutoId, Dispute>							Disputes;
-	public TableState<AutoId, DisputeComment>					DisputeComments;
+	public TableState<AutoId, Proposal>							Proposals;
+	public TableState<AutoId, ProposalComment>					ProposalComments;
+	public TableState<AutoId, File>								Files;
 	public TableState<RawId, Word>								Words;
 	public HnswTableState<string, StringToDictionaryHnswEntity>	PublicationTitles;
 	public HnswTableState<string, StringToOneHnswEntity>		SiteTitles;
@@ -24,8 +25,9 @@ public class FairRound : Round
 		Categories			= new (mcv.Categories);
 		Publications		= new (mcv.Publications);
 		Reviews				= new (mcv.Reviews);
-		Disputes			= new (mcv.Disputes);
-		DisputeComments		= new (mcv.DisputeComments);
+		Proposals			= new (mcv.Proposals);
+		ProposalComments	= new (mcv.ProposalComments);
+		Files				= new (mcv.Files);
 		Words				= new (mcv.Words);
 		PublicationTitles	= new (mcv.PublicationTitles);
 		SiteTitles			= new (mcv.SiteTitles);
@@ -38,7 +40,7 @@ public class FairRound : Round
 
 	public override long AccountAllocationFee(Account account)
 	{
-		return FairOperation.ToBD(Net.EntityLength, Uccs.Net.Mcv.Forever);
+		return FairExecution.ToBD(Net.EntityLength, Uccs.Net.Mcv.Forever);
 	}
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -49,8 +51,9 @@ public class FairRound : Round
 		if(table == Mcv.Categories)			return Categories.Affected;
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
-		if(table == Mcv.Disputes)			return Disputes.Affected;
-		if(table == Mcv.DisputeComments)	return DisputeComments.Affected;
+		if(table == Mcv.Proposals)			return Proposals.Affected;
+		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
+		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
@@ -66,8 +69,9 @@ public class FairRound : Round
 		if(table == Mcv.Categories)			return Categories as S;
 		if(table == Mcv.Publications)		return Publications as S;
 		if(table == Mcv.Reviews)			return Reviews as S;
-		if(table == Mcv.Disputes)			return Disputes as S;
-		if(table == Mcv.DisputeComments)	return DisputeComments as S;
+		if(table == Mcv.Proposals)			return Proposals as S;
+		if(table == Mcv.ProposalComments)	return ProposalComments as S;
+		if(table == Mcv.Files)				return Files as S;
 		if(table == Mcv.Words)				return Words as S;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
 		if(table == Mcv.SiteTitles)			return SiteTitles as S;
@@ -87,8 +91,9 @@ public class FairRound : Round
 		Categories.Absorb(e.Categories);
 		Publications.Absorb(e.Publications);
 		Reviews.Absorb(e.Reviews);
-		Disputes.Absorb(e.Disputes);
-		DisputeComments.Absorb(e.DisputeComments);
+		Proposals.Absorb(e.Proposals);
+		ProposalComments.Absorb(e.ProposalComments);
+		Files.Absorb(e.Files);
 		Words.Absorb(e.Words);
 		PublicationTitles.Absorb(e.PublicationTitles);
 		SiteTitles.Absorb(e.SiteTitles);
