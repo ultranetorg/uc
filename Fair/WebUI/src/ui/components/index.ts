@@ -3,6 +3,7 @@ export * from "./Dropdown"
 export * from "./DropdownSecondary"
 export * from "./Modal"
 export * from "./SearchDropdown"
+export * from "./Table"
 
 export * from "./Breadcrumbs"
 export * from "./Button"

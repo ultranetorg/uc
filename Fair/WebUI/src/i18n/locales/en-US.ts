@@ -3,6 +3,9 @@ export const enUS = {
     cancel: "Cancel",
     home: "Home",
     next: "Next",
+    yesVotes: "Yes votes",
+    noVotes: "No votes",
+    absVotes: "Abstained from voting",
   },
   about: {
     about: "About",
@@ -54,6 +57,12 @@ export const enUS = {
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
   },
+  referendums: {
+    createReferendum: "Create referendum",
+    noReferendums: "No open referendums",
+    searchReferendum: "Search referendum",
+    title: "Governance",
+  },
   search: {
     allAuthors: "All authors",
     allCategories: "All categories",
@@ -82,8 +91,11 @@ export const enUS = {
     backToHome: "Back to Home",
     refreshPage: "Refresh page",
   },
-  votableOperations: {
-    "nickname-change": "Nickname Change",
+  operations: {
+    "nickname-change": "Nickname Change ({{nickname}}, {{field}}, {{entityId}})",
+    "nickname-change_sitenickname": 'Change site nickname to "{{nickname}}"',
+    "nickname-change_authortitle": "Change author title to {nickname}",
+    "nickname-change_sitetitle": "Change site title to {nickname}",
     "publication-product-change": "Publication Product Change",
     "publication-approval": "Publication Approval",
     "publication-category-change": "Publication Category Change",

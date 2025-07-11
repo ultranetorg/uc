@@ -1,2 +1,2 @@
-export * from "./AuthorReferendumPage"
-export * from "./AuthorReferendumsPage"
+export * from "./ReferendumPage"
+export * from "./ReferendumsPage"
