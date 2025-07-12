@@ -38,5 +38,7 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 		{
 			(Affected as RdnGenerator).SeedHubRdcIPs = SeedHubRdcIPs;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

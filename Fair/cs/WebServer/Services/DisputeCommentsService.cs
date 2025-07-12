@@ -7,9 +7,9 @@ public class DisputeCommentsService
 (
 	ILogger<DisputeCommentsService> logger,
 	FairMcv mcv
-) : IDisputeCommentsService
+) : IProposalCommentsService
 {
-	public TotalItemsResult<DisputeCommentModel> GetDisputeComments(string siteId, string disputeId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProposalCommentModel> GetDisputeComments(string siteId, string disputeId, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(DisputeCommentsService)}.{nameof(DisputeCommentsService.GetDisputeComments)} method called with {{SiteId}}, {{DisputeId}}, {{Page}}, {{PageSize}}", siteId, disputeId, page, pageSize);
 
@@ -29,15 +29,15 @@ public class DisputeCommentsService
 				throw new EntityNotFoundException(nameof(Proposal).ToLower(), disputeId);
 			}
 
-			var context = new SearchContext<DisputeCommentModel>
+			var context = new SearchContext<ProposalCommentModel>
 			{
 				Page = page,
 				PageSize = pageSize,
-				Items = new List<DisputeCommentModel>(pageSize)
+				Items = new List<ProposalCommentModel>(pageSize)
 			};
 			LoadDisputeComments(context, dispute.Comments, cancellationToken);
 
-			return new TotalItemsResult<DisputeCommentModel>
+			return new TotalItemsResult<ProposalCommentModel>
 			{
 				Items = context.Items,
 				TotalItems = context.TotalItems,
@@ -45,7 +45,7 @@ public class DisputeCommentsService
 		}
 	}
 
-	private void LoadDisputeComments(SearchContext<DisputeCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)
+	private void LoadDisputeComments(SearchContext<ProposalCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -60,7 +60,7 @@ public class DisputeCommentsService
 
 			ProposalComment comment = mcv.ProposalComments.Latest(commentId);
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(comment.Creator);
-			DisputeCommentModel model = new DisputeCommentModel(comment, account);
+			ProposalCommentModel model = new ProposalCommentModel(comment, account);
 			context.Items.Add(model);
 		}
 	}

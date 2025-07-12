@@ -23,7 +23,7 @@ export const AccountSwitcher = memo(
           <Account key={x.id} addressShort={shortenAddress(x.address)} {...x} />
         ))}
       </div>
-      <div className="cursor-pointer select-none px-4 py-3 text-sm font-medium leading-4.25 text-gray-900 hover:bg-gray-100">
+      <div className="cursor-pointer select-none px-4 py-3 text-2sm leading-4.25 text-gray-900 hover:bg-gray-100">
         Manage accounts
       </div>
     </div>

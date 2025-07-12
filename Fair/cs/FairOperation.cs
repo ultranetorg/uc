@@ -48,8 +48,8 @@ public enum FairOperationClass : uint
 		Review							= 103_003,
 			ReviewCreation				= 103_003_001,
 			ReviewStatusChange			= 103_003_002,
-			ReviewTextUpdation			= 103_003_003,
-			ReviewTextModeration		= 103_003_004,
+			ReviewEdit					= 103_003_003,
+			ReviewEditModeration		= 103_003_004,
 			ReviewDeletion				= 103_003_999,
 
 		Proposal						= 103_004,

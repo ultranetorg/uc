@@ -84,5 +84,7 @@ public class AnalysisResultUpdation : RdnOperation
 			an.Results = [..an.Results];
 			an.Results[j].Result = Result;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

@@ -3,9 +3,19 @@ export const enUS = {
     cancel: "Cancel",
     home: "Home",
     next: "Next",
+    yesVotes: "Yes votes",
+    noVotes: "No votes",
+    absVotes: "Abstained from voting",
   },
   about: {
     about: "About",
+  },
+  author: {
+    about: "About",
+    author: "Author",
+    links: "Links",
+    readLess: "Read Less",
+    readMore: "Read More",
   },
   category: {
     empty: "This category is empty.",
@@ -40,11 +50,18 @@ export const enUS = {
     showMore: "Show More",
     showMoreReviews: "Show more reviews",
     submitReview: "Submit Review",
+    systemRequirements: "System Requirements",
     thankYou: "Thank you for your feedback!",
     version: "Version",
     writeReview: "Write your review",
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
+  },
+  referendums: {
+    createReferendum: "Create referendum",
+    noReferendums: "No open referendums",
+    searchReferendum: "Search referendum",
+    title: "Governance",
   },
   search: {
     allAuthors: "All authors",
@@ -63,6 +80,7 @@ export const enUS = {
     currentSite: "Current store",
     description:
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
+    emptySitesList: "Stores added to Favorites will appear in this list",
     notice: "Press Enter to view all search results.",
     noResults: "We didn’t find anything. Try a different or shorter search.",
     placeholder: "Enter store name or description...",
@@ -73,8 +91,11 @@ export const enUS = {
     backToHome: "Back to Home",
     refreshPage: "Refresh page",
   },
-  votableOperations: {
-    "nickname-change": "Nickname Change",
+  operations: {
+    "nickname-change": "Nickname Change ({{nickname}}, {{field}}, {{entityId}})",
+    "nickname-change_sitenickname": 'Change site nickname to "{{nickname}}"',
+    "nickname-change_authortitle": "Change author title to {nickname}",
+    "nickname-change_sitetitle": "Change site title to {nickname}",
     "publication-product-change": "Publication Product Change",
     "publication-approval": "Publication Approval",
     "publication-category-change": "Publication Category Change",

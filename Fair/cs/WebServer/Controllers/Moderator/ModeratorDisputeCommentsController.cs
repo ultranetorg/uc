@@ -9,11 +9,11 @@ public class ModeratorDisputeCommentsController
 	ILogger<ModeratorDisputeCommentsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IDisputeCommentsService disputeCommentsService
+	IProposalCommentsService disputeCommentsService
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<DisputeCommentModel> GetDisputeComments(string siteId, string disputeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProposalCommentModel> GetDisputeComments(string siteId, string disputeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDisputeCommentsController)}.{nameof(ModeratorDisputeCommentsController.GetDisputeComments)} method called with {{DisputeId}}, {{Pagination}}", disputeId, pagination);
 
@@ -22,7 +22,7 @@ public class ModeratorDisputeCommentsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<DisputeCommentModel> reviews = disputeCommentsService.GetDisputeComments(siteId, disputeId, page, pageSize, cancellationToken);
+		TotalItemsResult<ProposalCommentModel> reviews = disputeCommentsService.GetDisputeComments(siteId, disputeId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

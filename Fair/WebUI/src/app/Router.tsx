@@ -4,8 +4,6 @@ import { AppLayout, BaseLayout, SiteLayout } from "ui/layouts"
 import {
   AboutPage,
   AuthorPage,
-  AuthorReferendumPage,
-  AuthorReferendumsPage,
   CategoryPage,
   ErrorPage,
   ModerationPage,
@@ -15,6 +13,8 @@ import {
   ModeratorReviewPage,
   ProfilePage,
   PublicationPage,
+  ReferendumPage,
+  ReferendumsPage,
   SearchPage,
   SitePage,
   SitesPage,
@@ -54,10 +54,6 @@ const routes: RouteObject[] = [
             element: <SitePage />,
           },
           {
-            path: "/:siteId/a/:authorId",
-            element: <AuthorPage />,
-          },
-          {
             path: "/:siteId/c/:categoryId",
             element: <CategoryPage />,
           },
@@ -76,11 +72,11 @@ const routes: RouteObject[] = [
 
           {
             path: "/:siteId/a-r",
-            element: <AuthorReferendumsPage />,
+            element: <ReferendumsPage />,
           },
           {
             path: "/:siteId/a-r/:referendumId",
-            element: <AuthorReferendumPage />,
+            element: <ReferendumPage />,
           },
 
           {
@@ -106,6 +102,10 @@ const routes: RouteObject[] = [
         ],
       },
 
+      {
+        path: "/:siteId/a/:authorId",
+        element: <AuthorPage />,
+      },
       {
         path: "/p/:address",
         element: <ProfilePage />,

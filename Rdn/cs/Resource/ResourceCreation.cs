@@ -71,5 +71,7 @@ public class ResourceCreation : RdnOperation
 			d = execution.Domains.Affect(d.Id);
 			execution.Allocate(Signer, d, execution.Net.EntityLength + r.Length);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

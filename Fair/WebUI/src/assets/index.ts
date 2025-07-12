@@ -1,4 +1,5 @@
 export * from "./components"
+export * from "./social"
 
 export * from "./arrow-up"
 export * from "./box-arrow-up-right"
@@ -6,6 +7,7 @@ export * from "./chat-x"
 export * from "./check-circle-fill-3xl-colored"
 export * from "./check-circle-fill"
 export * from "./chevron-down-circle"
+export * from "./chevron-down-sm"
 export * from "./chevron-down"
 export * from "./chevron-left-md"
 export * from "./chevron-left"

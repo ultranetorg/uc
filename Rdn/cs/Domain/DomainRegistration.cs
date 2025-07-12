@@ -112,5 +112,7 @@ public class DomainRegistration : RdnOperation
 
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

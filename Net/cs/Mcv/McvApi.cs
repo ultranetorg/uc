@@ -303,6 +303,9 @@ public class TransactApc : McvApc
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(!Operations.Any())
+			throw new ApiCallException("No operations");
+
 		var t = mcv.Peering.Transact(Operations, Signer, null, Await, workflow);
 	
 		return new TransactionApe(t);

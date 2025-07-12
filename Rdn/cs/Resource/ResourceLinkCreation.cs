@@ -68,5 +68,7 @@ public class ResourceLinkCreation : RdnOperation
 			sd = execution.Domains.Affect(sd.Id);
 			execution.Allocate(Signer, sd, execution.Net.EntityLength);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

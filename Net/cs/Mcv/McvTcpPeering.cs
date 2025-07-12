@@ -1148,7 +1148,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
 
-		if(operations.Any(i => !i.IsValid(Net)))
+		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))
 			throw new NodeException(NodeError.Invalid);
 
 		var t = new Transaction();

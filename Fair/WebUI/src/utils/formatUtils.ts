@@ -1,3 +1,7 @@
+import { TFunction } from "i18next"
+
+import { BaseVotableOperation, NicknameChange } from "types"
+
 const THREE_DOTS = "..."
 const OS_DIVIDER = " | "
 const SOFTWARE_DELIMITER = ", "
@@ -22,3 +26,16 @@ export const formatOSes = (oses: string[], maxItems: number = 3): string =>
 export const formatSoftwareCategories = (categories: string[]) => categories.join(SOFTWARE_DELIMITER)
 
 export const formatRoles = (categories: string[]) => categories.join(ROLES_DELIMITER)
+
+export const formatProposal = (proposal: BaseVotableOperation, t: TFunction) => {
+  switch (proposal.$type) {
+    case "nickname-change":
+      {
+        const typed = proposal as NicknameChange
+        return t(`operations:${proposal.$type}`, { context: typed.field.toLowerCase(), ...typed })
+      }
+      break
+  }
+
+  return undefined
+}

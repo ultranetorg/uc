@@ -55,7 +55,7 @@ public class SiteCreation : FairOperation
 		s.CreationPolicies[FairOperationClass.PublicationRemoveFromChanged]	= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.ReviewStatusChange]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.ReviewTextModeration]			= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.ReviewEditModeration]			= [Role.Moderator];
 
 
 
@@ -75,7 +75,7 @@ public class SiteCreation : FairOperation
 		s.ChangePolicies[FairOperationClass.PublicationRemoveFromChanged]	= ChangePolicy.AnyModerator;
 
 		s.ChangePolicies[FairOperationClass.ReviewStatusChange]				= ChangePolicy.AnyModerator;
-		s.ChangePolicies[FairOperationClass.ReviewTextModeration]			= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.ReviewEditModeration]			= ChangePolicy.AnyModerator;
 
 
 		Signer.Sites = [..Signer.Sites, s.Id];

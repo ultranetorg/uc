@@ -60,5 +60,7 @@ public class ResourceLinkDeletion : RdnOperation
 
 		dr = execution.Resources.Affect(dd, dr.Address.Resource);
 		dr.RemoveInbound(sr.Id);
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

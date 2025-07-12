@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 
-import { PublicationStoresItem, PublicationStoresModal } from "../PublicationStoresModal"
+import { PublicationStoresItem, PublicationStoresModal } from "ui/components/specific"
 
 import { PublicationsCollapse, PublicationsCollapseProps } from "./PublicationsCollapse"
 
@@ -24,11 +24,10 @@ export type PublicationsCollapsesListsProps = {
 export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesListsProps) => {
   const [activeCollapseId, setActiveCollapseId] = useState("")
   const [isModalOpen, setModalOpen] = useState(false)
-  console.log(isModalOpen)
 
   const handleExpand = useCallback((id: string) => setActiveCollapseId(prev => (prev !== id ? id : "")), [])
 
-  const handlePublicationStoresClick = useCallback((id: string) => setModalOpen(true), [])
+  const handlePublicationStoresClick = useCallback((_id: string) => setModalOpen(true), [])
 
   const handleModalClose = useCallback(() => setModalOpen(false), [])
 

@@ -5,7 +5,6 @@ import { useDocumentTitle } from "usehooks-ts"
 
 import { useGetPublication, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
-import { ReviewsList } from "ui/components/specific"
 import {
   Description,
   ReviewModal,
@@ -13,9 +12,46 @@ import {
   Slider,
   SoftwareInfo,
   SoftwarePublicationHeader,
-} from "ui/components/specific/publication"
+  SystemRequirementsTabs,
+} from "ui/components/publication"
+import { ReviewsList } from "ui/components/specific"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
+
+const TEST_TAB_ITEMS = [
+  {
+    key: "windows",
+    label: "Windows",
+    sections: [
+      {
+        key: "Minimum",
+        name: "Minimum",
+        values: {
+          CPU: "AMD Ryzen 5 1600 or Intel Core i5 6600K",
+          RAM: "8 GB",
+          "Video Card": "AMD Radeon RX 570 or Nvidia GeForce GTX 1050 Ti",
+          "Dedicated Video RAM": "4096 MB",
+          OS: "Windows 10 / 11 - 64-Bit (Latest Update)",
+          "Free Disk Space": "100 GB",
+        },
+      },
+      {
+        key: "recommended",
+        name: "Recommended",
+        values: {
+          CPU: "AMD Ryzen 7 2700X or Intel Core i7 6700",
+          RAM: "12 GB",
+          "Video Card": "AMD Radeon RX 570 or Nvidia GeForce GTX 1050 Ti",
+          "Dedicated Video RAM": "4096 MB",
+          OS: "Windows 10 / 11 - 64-Bit (Latest Update)",
+          "Free Disk Space": "100 GB",
+        },
+      },
+    ],
+  },
+  { key: "linux", label: "Linux", sections: [] },
+  { key: "macos", label: "macOS", sections: [] },
+]
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
@@ -65,6 +101,7 @@ export const PublicationPage = () => {
               showMoreLabel={t("showMore")}
               descriptionLabel={t("information")}
             />
+            <SystemRequirementsTabs label={t("systemRequirements")} tabs={TEST_TAB_ITEMS} />
             <ReviewsList
               isPending={isPending || isPendingReviews}
               reviews={reviews}
@@ -78,6 +115,7 @@ export const PublicationPage = () => {
           </div>
           <div className="flex w-87.5 flex-col gap-8">
             <SoftwareInfo
+              siteId={siteId!}
               publication={publication}
               publisherLabel={t("publisher")}
               versionLabel={t("version")}

@@ -66,8 +66,6 @@ public class ResourceUpdation : RdnOperation
 		
 		void execute(Ura resource)
 		{
-			execution.PayCycleEnergy(Signer);
-
 			var r = execution.Resources.Affect(d, resource.Resource);
 
 			if(rs.Contains(r.Id.E))
@@ -142,6 +140,8 @@ public class ResourceUpdation : RdnOperation
 					}
 				}
 			} 
+
+			execution.PayCycleEnergy(Signer);
 		}
 
 		execute(x.Address);

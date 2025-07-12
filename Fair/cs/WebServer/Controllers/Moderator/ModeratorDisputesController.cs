@@ -9,11 +9,11 @@ public class ModeratorDisputesController
 	ILogger<ModeratorDisputesController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IDisputesService disputesService
+	IProposalService disputesService
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<DisputeModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
@@ -21,19 +21,19 @@ public class ModeratorDisputesController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<DisputeModel> disputes = disputesService.GetDisputes(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ProposalModel> disputes = disputesService.GetProposals(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(disputes.Items, page, pageSize, disputes.TotalItems);
 	}
 
 	[HttpGet("{disputeId}")]
-	public DisputeDetailsModel Get(string siteId, string disputeId)
+	public ProposalDetailsModel Get(string siteId, string disputeId)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{SiteId}}, {{DisputeId}}", siteId, disputeId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(disputeId, nameof(Proposal).ToLower());
 
-		return disputesService.GetDispute(siteId, disputeId);
+		return disputesService.GetProposal(siteId, disputeId);
 	}
 }

@@ -59,6 +59,7 @@ public class DomainRenewal : RdnOperation
 		}
 
 		execution.Prolong(Signer, e, Time.FromYears(Years));
+		execution.PayCycleEnergy(Signer);
 	}
 }
 
@@ -100,6 +101,9 @@ public class DomainTransfer : RdnOperation
 			return;
 		}	
 
+		if(!AccountExists(execution, Owner, out var o, out Error))
+			return;
+
 		if(Domain.IsRoot(e.Address))
 		{
 			if(!Domain.IsOwner(e, Signer, execution.Time))
@@ -107,9 +111,6 @@ public class DomainTransfer : RdnOperation
 				Error = Denied;
 				return;
 			}
-
-			if(!CanAccessAccount(execution, Owner, out var o, out Error))
-				return;
 
 			e = execution.Domains.Affect(e.Address);
 			e.Owner = Owner;
@@ -138,12 +139,11 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!CanAccessAccount(execution, Owner, out var o, out Error))
-				return;
-
 			e = execution.Domains.Affect(e.Address);
 			e.Owner	= Owner;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }
 
@@ -212,5 +212,7 @@ public class DomainPolicyUpdation : RdnOperation
 			Error = NotAvailable;
 			return;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }
