@@ -131,7 +131,7 @@ public class ProposalVoting : FairOperation
  			s.Proposals = s.Proposals.Remove(d.Id);
 		}
  
- 		if(fail || d.Expirtaion < execution.Time)
+ 		if(fail || d.Expiration < execution.Time)
  		{
  			d.Deleted = true;
 

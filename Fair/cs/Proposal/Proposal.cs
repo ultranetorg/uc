@@ -8,11 +8,15 @@ public class Proposal : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Site { get; set; }
-	public ProposalFlags		Flags { get; set; }
+	public AutoId			Creator { get; set; }
+	public Role				As { get; set; }
+	public ProposalFlags	Flags { get; set; }
 	public AutoId[]			Yes { get; set; }
 	public AutoId[]			No { get; set; }
+	public AutoId[]			NoAndBan { get; set; }
+	public AutoId[]			NoAndBanish { get; set; }
 	public AutoId[]			Abs { get; set; }
-	public Time				Expirtaion { get; set; }
+	public Time				Expiration { get; set; }
  	public string			Text { get; set; }
 	public VotableOperation	Operation { get; set; }
 	public AutoId[]			Comments;
@@ -32,18 +36,23 @@ public class Proposal : IBinarySerializable, ITableEntry
 
 	public object Clone()
 	{
-		var a = new Proposal(Mcv){	
-									Id			= Id,	
-									Site		= Site,	
-									Flags		= Flags,
-									Yes			= Yes,
-									No			= No,
-									Abs			= Abs,
-									Expirtaion	= Expirtaion,
-									Text		= Text,
-									Operation	= Operation,
-									Comments	= Comments
-								};
+		var a = new Proposal(Mcv)
+				{	
+					Id			= Id,	
+					Site		= Site,	
+					Creator		= Creator,	
+					As = As,
+					Flags		= Flags,
+					Yes			= Yes,
+					No			= No,
+					NoAndBan	= NoAndBan,
+					NoAndBanish	= NoAndBanish,
+					Abs			= Abs,
+					Expiration	= Expiration,
+					Text		= Text,
+					Operation	= Operation,
+					Comments	= Comments
+				};
 		return a;
 	}
 
@@ -65,11 +74,15 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<AutoId>();
 		Site		= reader.Read<AutoId>();
+		Creator		= reader.Read<AutoId>();
+		As	= reader.Read<Role>();
 		Flags		= reader.Read<ProposalFlags>();
 		Yes			= reader.ReadArray<AutoId>();
 		No			= reader.ReadArray<AutoId>();
+		NoAndBan	= reader.ReadArray<AutoId>();
+		NoAndBanish	= reader.ReadArray<AutoId>();
 		Abs			= reader.ReadArray<AutoId>();
-		Expirtaion	= reader.Read<Time>();
+		Expiration	= reader.Read<Time>();
  		Text		= reader.ReadUtf8();
 		//Proposal	= reader.Read<Proposal>();
 
@@ -83,11 +96,15 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Site);
+		writer.Write(Creator);
+		writer.Write(As);
 		writer.Write(Flags);
 		writer.Write(Yes);
 		writer.Write(No);
+		writer.Write(NoAndBan);
+		writer.Write(NoAndBanish);
 		writer.Write(Abs);
-		writer.Write(Expirtaion);
+		writer.Write(Expiration);
  		writer.WriteUtf8(Text);
 		//writer.Write(Proposal);
 
