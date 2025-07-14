@@ -29,9 +29,9 @@ public class ReviewStatusChange : VotableOperation
 		return (other as ReviewStatusChange).Review == Review;
 	}
 
-	public override bool ValidateProposal(FairExecution execution)
+	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!ReviewExists(execution, Review, out var r, out _))
+		if(!ReviewExists(execution, Review, out var r, out error))
 			return false;
 
 		return r.Status != Status;

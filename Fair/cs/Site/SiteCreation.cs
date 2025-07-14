@@ -47,6 +47,7 @@ public class SiteCreation : FairOperation
 		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.CategoryCreation]				= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.CategoryDeletion]				= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Moderator, Role.Author];
 		s.CreationPolicies[FairOperationClass.PublicationDeletion]			= [Role.Moderator];
@@ -58,15 +59,14 @@ public class SiteCreation : FairOperation
 		s.CreationPolicies[FairOperationClass.ReviewEditModeration]			= [Role.Moderator];
 
 
-
 		s.ChangePolicies[FairOperationClass.SiteNicknameChange]				= ChangePolicy.ElectedByAuthorsMajority;
 		s.ChangePolicies[FairOperationClass.SitePolicyChange]				= ChangePolicy.ElectedByAuthorsMajority;
 
 		s.ChangePolicies[FairOperationClass.SiteDescriptionChange]			= ChangePolicy.ElectedByModeratorsUnanimously;
 		s.ChangePolicies[FairOperationClass.SiteModeratorsChange]			= ChangePolicy.ElectedByModeratorsUnanimously;
+		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]				= ChangePolicy.ElectedByModeratorsUnanimously;
 		s.ChangePolicies[FairOperationClass.CategoryCreation]				= ChangePolicy.ElectedByModeratorsUnanimously;
-
-		s.ChangePolicies[FairOperationClass.SiteAuthorsChange]				= ChangePolicy.AnyModerator;
+		s.ChangePolicies[FairOperationClass.CategoryDeletion]				= ChangePolicy.ElectedByModeratorsUnanimously;
 
 		s.ChangePolicies[FairOperationClass.PublicationCreation]			= ChangePolicy.AnyModerator;
 		s.ChangePolicies[FairOperationClass.PublicationDeletion]			= ChangePolicy.AnyModerator;

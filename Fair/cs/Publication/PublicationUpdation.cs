@@ -33,16 +33,16 @@ public class PublicationUpdation : VotableOperation
 		return o.Publication == Publication && o.Change.Field == Change.Field;
 	}
 	
-	public override bool ValidateProposal(FairExecution execution)
+	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!PublicationExists(execution, Publication, out var p, out _))
+		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
 		var r = execution.Products.Find(p.Product);
 
 		if(!r.Fields.Any(i => i.Name == Change.Field && i.Versions.Any(i => i.Version == Change.Version)))
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false;
 		}
 

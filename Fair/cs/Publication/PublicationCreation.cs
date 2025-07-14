@@ -33,16 +33,22 @@ public class PublicationCreation : VotableOperation
 		return o.Site == Site && o.Product == Product;
 	}
 	
-	public override bool ValidateProposal(FairExecution execution)
+	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(ProductExists(execution, Product, out var a, out var r, out _) == false)
+		if(ProductExists(execution, Product, out var a, out var r, out error) == false)
 			return false;
 
 		if(r.Publications.Any(i => execution.Publications.Find(i).Site == Site.Id))
+		{	
+			error = AlreadyExists;
 			return false;
+		}
 
 		if(Site.UnpublishedPublications.Any(i => execution.Publications.Find(i).Product == Product))
+		{	
+			error = AlreadyExists;
 			return false;
+		}
 
 		return true;
 	}

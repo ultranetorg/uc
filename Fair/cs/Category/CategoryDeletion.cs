@@ -22,13 +22,14 @@ public class CategoryDeletion : VotableOperation
 		return other is CategoryDeletion o && o.Category == Category;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(!CategoryExists(execution, Category, out var c, out _))
+		if(!CategoryExists(execution, Category, out var c, out error))
 	 		return false;
 
 		if(c.Publications.Any() || c.Categories.Any())
 		{
+			error = NotEmpty;
 			return false;
 		}
 
@@ -37,13 +38,24 @@ public class CategoryDeletion : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		var s = execution.Sites.Affect(Site.Id);
+
 		var c = execution.Categories.Affect(Category);
 
-		if(c.Parent != null)
+		if(c.Parent == null)
+		{
+			s.Categories = s.Categories.Remove(c.Id);
+		}
+		else
 		{
 			var p = execution.Categories.Affect(c.Parent);
 
 			p.Categories = p.Categories.Remove(c.Id);
 		}
+
+		c.Deleted = true;
+
+		execution.Free(s, s, execution.Net.EntityLength);
+
 	}
 }

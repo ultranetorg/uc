@@ -36,22 +36,22 @@ public class ReviewEditModeration : VotableOperation
 		return (other as ReviewEditModeration).Review == Review;
 	}
 
-	public override bool ValidateProposal(FairExecution execution)
+	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!ReviewExists(execution, Review, out var r, out _))
+		if(!ReviewExists(execution, Review, out var r, out error))
 			return false;
 
 		var p = execution.Publications.Find(r.Publication);
 
 		if(!Site.ChangedReviews.Contains(r.Id))
 		{	
-			Error = NotFound;
+			error = NotFound;
 			return false;
 		}
 
 		if(!Cryptography.Hash(TextHashLength, Encoding.UTF8.GetBytes(r.TextNew)).SequenceEqual(Hash))
 		{	
-			Error = Mismatch;
+			error = Mismatch;
 			return false;
 		}
 

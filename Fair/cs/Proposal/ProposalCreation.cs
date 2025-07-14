@@ -52,19 +52,13 @@ public class ProposalCreation : FairOperation
 		Proposal.Site = s;
 		Proposal.Signer = Signer;
 
- 		if(!Proposal.ValidateProposal(execution))
- 		{
- 			Error = InvalidProposal;
+ 		if(!Proposal.ValidateProposal(execution, out Error))
  			return;
- 		}
  
         var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
 
  		if(!s.ChangePolicies.TryGetValue(t, out var p))
- 		{
- 			Error = InvalidProposal;
- 			return;
- 		}
+ 			throw new IntegrityException();
  
  		if(s.Proposals.Any(i =>  {
                                     var d = execution.Proposals.Find(i);
@@ -116,7 +110,7 @@ public class ProposalCreation : FairOperation
 			execution.IsReferendum(s.ChangePolicies[t])			&& IsMember(execution, s.Id, Creator, out _, out _, out _) && s.Authors.Length == 1)
 		{
 			Proposal.Site = s;
- 			Proposal.Execute(execution);
+			Proposal.Execute(execution);
 		}
 		else
 		{
@@ -124,7 +118,7 @@ public class ProposalCreation : FairOperation
  
  			d.Site       = Site;
 			d.Text       = Text;
- 			d.Operation   = Proposal;
+ 			d.Operation  = Proposal;
  			d.Expirtaion = execution.Time + Time.FromDays(30);
   
  			s = execution.Sites.Affect(s.Id);

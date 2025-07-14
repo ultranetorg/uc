@@ -65,18 +65,19 @@ public abstract class VotableOperation : FairOperation
 {
 	public Site				Site;
 
-	public abstract bool	ValidateProposal(FairExecution execution);
+	public abstract bool	ValidateProposal(FairExecution execution, out string error);
  	public abstract bool	Overlaps(VotableOperation other);
 }
 
 public abstract class FairOperation : Operation
 {
 	public const string			NotAllowedForSponsoredAccount = "Not allowed for free account";
-	public const string			InvalidProposal = "Invalid proposal";
+	//public const string			InvalidProposal = "Invalid proposal";
 	public const string			CategoryNotSet = "Category not set";
 	public const string			NotEmpty = "Not empty";
 	public const string			Ended = "Ended";
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
+	public const string			DoesNotBelogToSite = "Does not belong to site";
 
 	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
 

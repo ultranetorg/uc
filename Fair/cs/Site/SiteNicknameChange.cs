@@ -30,8 +30,9 @@ public class SiteNicknameChange : VotableOperation
 		return true;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
+		error = null;
 		return true;
  	}
 

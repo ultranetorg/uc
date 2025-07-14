@@ -30,9 +30,9 @@ public class PublicationDeletion : VotableOperation
 		return o.Publication == Publication;
 	}
 	
-	public override bool ValidateProposal(FairExecution execution)
+	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!PublicationExists(execution, Publication, out _, out _))
+		if(!PublicationExists(execution, Publication, out _, out error))
 			return false;
 
 		return true;

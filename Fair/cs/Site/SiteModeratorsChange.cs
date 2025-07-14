@@ -35,16 +35,28 @@ public class SiteModeratorsChange : VotableOperation
 		return false;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	 public override bool ValidateProposal(FairExecution execution, out string error)
  	{
 		foreach(var i in Additions)
+		{
 			if(Site.Moderators.Contains(i))
+			{	
+				error = AlreadyExists;
 				return false;
+			}
+
+			if(!AccountExists(execution, i, out _, out error))
+				return false;
+		}
 	
 		foreach(var i in Removals)
 			if(!Site.Moderators.Contains(i))
+			{
+				error = NotFound;
 				return false;
+			}
 	
+		error = null;
 		return true;
  	}
 

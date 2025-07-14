@@ -27,9 +27,16 @@ public class SitePolicyChange : VotableOperation
 		return o.Change == Change;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		return Site.ChangePolicies.TryGetValue(Change, out var p) && p != Policy;
+		if(Site.ChangePolicies.TryGetValue(Change, out var p) && p == Policy)
+		{	
+			error = AlreadyExists;
+			return false;
+		}
+		
+		error = null;
+		return true;
  	}
 
 	public override void Execute(FairExecution execution)

@@ -6,7 +6,7 @@ public class SiteDescriptionChange : VotableOperation
 {
 	public string				Description { get; set; }
 
-	public override bool		IsValid(McvNet net) => Description.Length < 1024;
+	public override bool		IsValid(McvNet net) => Description.Length <= Fair.PostLengthMaximum;
 	public override string		Explanation => $"{Site}, {Description}";
 	
 	public override void Read(BinaryReader reader)
@@ -24,8 +24,9 @@ public class SiteDescriptionChange : VotableOperation
 		return false;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
+		error = null;
 		return true;
  	}
 

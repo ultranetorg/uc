@@ -35,16 +35,28 @@ public class SiteAuthorsChange : VotableOperation
 		return false;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
 		foreach(var i in Additions)
+		{
 			if(Site.Authors.Contains(i))
+			{	
+				error = AlreadyExists;
 				return false;
+			}
+
+			if(!AuthorExists(execution, i, out _, out error))
+				return false;
+		}
 	
 		foreach(var i in Removals)
 			if(!Site.Authors.Contains(i))
+			{	
+				error = NotFound;
 				return false;
+			}
 	
+		error = null;
 		return true;
  	}
 

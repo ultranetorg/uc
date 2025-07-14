@@ -25,14 +25,15 @@ public class CategoryCreation : VotableOperation
 		return false;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
 		if(Parent != null)
  		{
- 			if(!CategoryExists(execution, Parent, out var c, out _))
+ 			if(!CategoryExists(execution, Parent, out var c, out error))
  				return false;
 		}
 
+		error = null;
 		return true;
  	}
 

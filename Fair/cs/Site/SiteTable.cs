@@ -90,4 +90,14 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		
 		return Affected[a.Id] = a;
 	}
+
+	public override Site Affect(AutoId id)
+	{
+		var e = base.Affect(id);
+
+		Execution.TransferEnergyIfNeeded(e);
+
+		return e;
+	}
+
 }

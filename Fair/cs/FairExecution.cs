@@ -21,18 +21,66 @@ public class FairExecution : Execution
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
-		Authors = new(this);
-		Products = new(this);
-		Sites = new(this);
-		Categories = new(this);
-		Publications = new(this);
-		Reviews = new(this);
-		Proposals = new(this);
-		ProposalComments = new(this);
-		Files = new(this);
-		Words = new(this);
-		PublicationTitles = new(this);
-		SiteTitles = new(this);
+		Authors				= new(this);
+		Products			= new(this);
+		Sites				= new(this);
+		Categories			= new(this);
+		Publications		= new(this);
+		Reviews				= new(this);
+		Proposals			= new(this);
+		ProposalComments	= new(this);
+		Files				= new(this);
+		Words				= new(this);
+		PublicationTitles	= new(this);
+		SiteTitles			= new(this);
+	}
+
+	public FairExecution CreateChild()
+	{
+		var e = new FairExecution(Mcv, Round, Transaction);
+
+		e.Parent = this;
+
+		e.EnergySpenders	= [];
+		e.SpacetimeSpenders	= [];
+		e.ECEnergyCost		= ECEnergyCost;
+
+		e.Authors			= new(this){Parent = Authors};
+		e.Products			= new(this){Parent = Products};
+		e.Sites				= new(this){Parent = Sites};
+		e.Categories		= new(this){Parent = Categories};
+		e.Publications		= new(this){Parent = Publications};
+		e.Reviews			= new(this){Parent = Reviews};
+		e.Proposals			= new(this){Parent = Proposals};
+		e.ProposalComments	= new(this){Parent = ProposalComments};
+		e.Files				= new(this){Parent = Files};
+		e.Words				= new(this){Parent = Words};
+		e.PublicationTitles	= new(this){Parent = PublicationTitles};
+		e.SiteTitles		= new(this){Parent = SiteTitles};
+
+		return e;
+	}
+
+	public void Absorb(FairExecution execution)
+	{
+		Authors				.Absorb(execution.Authors);
+		Products			.Absorb(execution.Products);
+		Sites				.Absorb(execution.Sites);
+		Categories			.Absorb(execution.Categories);
+		Publications		.Absorb(execution.Publications);
+		Reviews				.Absorb(execution.Reviews);
+		Proposals			.Absorb(execution.Proposals);
+		ProposalComments	.Absorb(execution.ProposalComments);
+		Files				.Absorb(execution.Files);
+		Words				.Absorb(execution.Words);
+		PublicationTitles	.Absorb(execution.PublicationTitles);
+		SiteTitles			.Absorb(execution.SiteTitles);
+
+		foreach(var i in execution.EnergySpenders) /// This  may add a duplicated clone but we expect this is ok
+			EnergySpenders.Add(i);
+
+		foreach(var i in execution.SpacetimeSpenders) /// This  may add a duplicated clone but we expect this is ok
+			SpacetimeSpenders.Add(i);
 	}
 
 	public override ITableExecution FindExecution(byte table)

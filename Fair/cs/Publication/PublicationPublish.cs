@@ -29,19 +29,25 @@ public class PublicationPublish : VotableOperation
 		return (other as PublicationPublish).Publication == Publication;
 	}
 	
-	public override bool ValidateProposal(FairExecution execution)
+	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!PublicationExists(execution, Publication, out var p, out _))
+		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
-		if(!CategoryExists(execution, Category, out var c, out _))
+		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
 
 		if(c.Site != Site.Id)
+		{	
+			error = DoesNotBelogToSite;
 			return false;
+		}
 
 		if(p.Site != Site.Id)
+		{	
+			error = DoesNotBelogToSite;
 			return false;
+		}
 
 		return p.Category != Category;
 	}

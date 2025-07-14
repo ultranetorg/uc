@@ -25,6 +25,8 @@ public class Execution : ITableExecution
 	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
 	public long									ECEnergyCost;
 
+	public Execution							Parent;
+
 	public Execution(Mcv mcv, Round round, Transaction transaction)
 	{
 		Net = mcv.Net;
@@ -73,7 +75,10 @@ public class Execution : ITableExecution
 		if(AffectedMetas.TryGetValue(id, out var a))
 			return a;
 
-		a = Mcv.Metas.Find(id, Round.Id);
+		if(Parent != null)
+			Parent.AffectedMetas.TryGetValue(id, out a);
+		else
+			a = Mcv.Metas.Find(id, Round.Id);
 		
 		if(a == null)
 		{
@@ -268,6 +273,9 @@ public class Execution : ITableExecution
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 
+		if(Parent != null)
+			return Parent.FindAccount(id);
+
 		return Mcv.Accounts.Find(id, Round.Id);
 	}
 
@@ -275,6 +283,9 @@ public class Execution : ITableExecution
 	{
 		if(AffectedAccounts.Values.FirstOrDefault(i => i.Address == address) is Account a)
 			return a;
+
+		if(Parent != null)
+			return Parent.FindAccount(address);
 
 		return Mcv.Accounts.Find(address, Round.Id);
 	}
@@ -304,7 +315,10 @@ public class Execution : ITableExecution
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 
-		a = Mcv.Accounts.Find(id, Round.Id)?.Clone() as Account;
+		if(Parent != null)
+			a = Parent.FindAccount(id);
+		else
+			a = Mcv.Accounts.Find(id, Round.Id)?.Clone() as Account;
 
 		AffectedAccounts[a.Id] = a;
 

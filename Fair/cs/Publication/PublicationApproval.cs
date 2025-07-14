@@ -36,7 +36,7 @@
 //		return (other as PublicationApproval).Publication == Publication;
 //	}
 //
-//	public override bool ValidateProposal(FairExecution execution)
+//	 public override bool ValidateProposal(FairExecution execution, out string error)
 //	{
 //		if(!RequirePublication(execution, Publication, out var p))
 //			return false;

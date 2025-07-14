@@ -25,13 +25,16 @@ public class CategoryMovement : VotableOperation
 		return other is CategoryMovement o && o.Category == Category;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(!CategoryExists(execution, Category, out var _, out _))
+		if(!CategoryExists(execution, Category, out var _, out error))
 	 		return false;
 
-		if(Parent != null && !CategoryExists(execution, Parent, out var _, out _))
-	 		return false;
+		if(Parent != null && !CategoryExists(execution, Parent, out var _, out error))
+	 	{
+			error = NotFound;
+			return false;
+		}
 //
 //	 	if(Parent != null && !RequireCategoryAccess(execution, Parent, out var _, out var _))
 //	 		return false;

@@ -110,9 +110,17 @@ public class ProposalVoting : FairOperation
  		{
 			d.Operation.Site = s;
 
-			///var e = new FairExecution(execution.Mcv, execution.Round, execution.Transaction);
- 			
-			d.Operation.Execute(execution);
+			var e = execution.CreateChild();
+	 			
+			if(d.Operation.ValidateProposal(e, out _))
+			{
+				d.Operation.Execute(e);
+	
+				if(d.Operation.Error == null)
+				{
+					execution.Absorb(e);
+				}
+			}
 
 			d.Deleted = true;
 
