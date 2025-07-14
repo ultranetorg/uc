@@ -64,12 +64,8 @@ public class ResourceUpdation : RdnOperation
 
 		d = execution.Domains.Affect(d.Id);
 		
-		EnergyConsumed -= execution.Round.ConsensusECEnergyCost; /// the first is alredy paid
-
 		void execute(Ura resource)
 		{
-			EnergyConsumed += execution.Round.ConsensusECEnergyCost;
-
 			var r = execution.Resources.Affect(d, resource.Resource);
 
 			if(rs.Contains(r.Id.E))
@@ -87,14 +83,14 @@ public class ResourceUpdation : RdnOperation
 
 				if(r.Flags.HasFlag(ResourceFlags.Data))
 				{
-					Free(execution, Signer, d, r.Data.Value.Length);
+					execution.Free(Signer, d, r.Data.Value.Length);
 				}
 
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
 				r.Updated	= execution.Time;
 
-				Allocate(execution, Signer, d, r.Data.Value.Length);
+				execution.Allocate(Signer, d, r.Data.Value.Length);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
@@ -110,7 +106,7 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
-				Free(execution, Signer, d, r.Data.Value.Length);
+				execution.Free(Signer, d, r.Data.Value.Length);
 
 				r.Flags	&= ~ResourceFlags.Data;
 				r.Data = null;
@@ -126,7 +122,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForForever(execution.Net.EntityLength + r.Length);
+				execution.PayForForever(execution.Net.EntityLength + r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))
@@ -144,6 +140,8 @@ public class ResourceUpdation : RdnOperation
 					}
 				}
 			} 
+
+			execution.PayCycleEnergy(Signer);
 		}
 
 		execute(x.Address);

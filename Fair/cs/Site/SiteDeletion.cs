@@ -21,7 +21,7 @@ namespace Uccs.Fair;
 //		writer.Write(Site);
 //	}
 //
-//	public override void Execute(FairExecution execution, bool dispute)
+//	public override void Execute(FairExecution execution)
 //	{
 //		if(RequireSiteModeratorAccess(execution, Site, out var s) == false)
 //			return;

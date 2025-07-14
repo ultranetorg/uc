@@ -28,9 +28,9 @@ public class FavoriteSiteChange : FairOperation
 		writer.Write(Action);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAccountAccess(execution, Signer.Id, out var a))
+		if(!CanAccessAccount(execution, Signer.Id, out var a, out Error))
 			return;
 
 		var e = execution.AffectAccount(Signer.Id);
@@ -43,5 +43,7 @@ public class FavoriteSiteChange : FairOperation
 		{
 			Signer.FavoriteSites = Signer.FavoriteSites.Remove(Site);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

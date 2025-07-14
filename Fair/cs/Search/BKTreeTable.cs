@@ -296,7 +296,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 /// 		return results?.Skip(page * lines).Select(p =>	{
 /// 															var r = Mcv.Products.Latest(p.Product);
 /// 														
-/// 															var f = p.Fields.First(i => i.Name == ProductField.Title);
+/// 															var f = p.Fields.First(i => i.Name == ProductFieldName.Title);
 /// 
 /// 															return new TextSearchResult {Text = r.GetString(f), Entity = p.Id};
 /// 														})

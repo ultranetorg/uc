@@ -2,13 +2,13 @@
 
 public class ProductFieldVersionReferenceModel
 {
-	public string Name { get; set; }
+	public ProductFieldName Name { get; set; }
 
 	public int Version { get; set; }
 
 	public ProductFieldVersionReferenceModel(ProductFieldVersionReference reference)
 	{
-		Name = reference.Name;
+		Name = reference.Field;
 		Version = reference.Version;
 	}
 }

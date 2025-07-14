@@ -1,39 +1,38 @@
 namespace Uccs.Fair;
 
-public enum DisputeFlags : byte
+public enum ProposalFlags : byte
 {
-	Succeeded	= 0b0001,
 }
 
-public class Dispute : IBinarySerializable, ITableEntry
+public class Proposal : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Site { get; set; }
-	public DisputeFlags		Flags { get; set; }
+	public ProposalFlags		Flags { get; set; }
 	public AutoId[]			Yes { get; set; }
 	public AutoId[]			No { get; set; }
 	public AutoId[]			Abs { get; set; }
 	public Time				Expirtaion { get; set; }
  	public string			Text { get; set; }
-	public VotableOperation	Proposal { get; set; }
+	public VotableOperation	Operation { get; set; }
 	public AutoId[]			Comments;
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 		
-	public Dispute()
+	public Proposal()
 	{
 	}
 
-	public Dispute(FairMcv mcv)
+	public Proposal(FairMcv mcv)
 	{
 		Mcv = mcv;
 	}
 
 	public object Clone()
 	{
-		var a = new Dispute(Mcv){	
+		var a = new Proposal(Mcv){	
 									Id			= Id,	
 									Site		= Site,	
 									Flags		= Flags,
@@ -42,7 +41,7 @@ public class Dispute : IBinarySerializable, ITableEntry
 									Abs			= Abs,
 									Expirtaion	= Expirtaion,
 									Text		= Text,
-									Proposal	= Proposal,
+									Operation	= Operation,
 									Comments	= Comments
 								};
 		return a;
@@ -66,7 +65,7 @@ public class Dispute : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<AutoId>();
 		Site		= reader.Read<AutoId>();
-		Flags		= reader.Read<DisputeFlags>();
+		Flags		= reader.Read<ProposalFlags>();
 		Yes			= reader.ReadArray<AutoId>();
 		No			= reader.ReadArray<AutoId>();
 		Abs			= reader.ReadArray<AutoId>();
@@ -74,8 +73,8 @@ public class Dispute : IBinarySerializable, ITableEntry
  		Text		= reader.ReadUtf8();
 		//Proposal	= reader.Read<Proposal>();
 
- 		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
- 		Proposal.Read(reader); 
+ 		Operation = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
+ 		Operation.Read(reader); 
 
 		Comments	= reader.ReadArray<AutoId>();
 	}
@@ -92,8 +91,8 @@ public class Dispute : IBinarySerializable, ITableEntry
  		writer.WriteUtf8(Text);
 		//writer.Write(Proposal);
 
-		writer.Write(Enum.Parse<FairOperationClass>(Proposal.GetType().Name));
-		Proposal.Write(writer);
+		writer.Write(Enum.Parse<FairOperationClass>(Operation.GetType().Name));
+		Operation.Write(writer);
 
 		writer.Write(Comments);
 	}

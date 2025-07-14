@@ -47,7 +47,7 @@ public class FairTcpPeering : McvTcpPeering
 	}
 	public override bool ProcessIncomingOperation(Operation o)
 	{
-		return true;
+		return o is not VotableOperation;
 	}
 
 	public override void OnRequestException(Peer peer, NodeException ex)

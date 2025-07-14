@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class DisputeModel(Dispute dispute)
+public class ProposalModel(Proposal dispute)
 {
 	public string Id { get; set; } = dispute.Id.ToString();
 

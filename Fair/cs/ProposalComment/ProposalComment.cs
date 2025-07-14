@@ -1,9 +1,9 @@
 ﻿namespace Uccs.Fair;
 
-public class DisputeComment : IBinarySerializable, ITableEntry
+public class ProposalComment : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
-	public AutoId			Dispute { get; set; }
+	public AutoId			Proposal { get; set; }
     public AutoId			Creator { get; set; }
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
@@ -12,25 +12,24 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 
-	public DisputeComment()
+	public ProposalComment()
 	{
 	}
 
-	public DisputeComment(FairMcv mcv)
+	public ProposalComment(FairMcv mcv)
 	{
 		Mcv = mcv;
 	}
 
 	public object Clone()
 	{
-		return new DisputeComment(Mcv) {Id			= Id,
-										Dispute		= Dispute,
+		return new ProposalComment(Mcv) {Id			= Id,
+										Proposal	= Proposal,
 										Creator		= Creator,
 										Text		= Text,
 										Created		= Created
 										};
 	}
-		
 
 	public void ReadMain(BinaryReader reader)
 	{
@@ -49,7 +48,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<AutoId>();
-		Dispute		= reader.Read<AutoId>();
+		Proposal		= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
 		Text		= reader.ReadUtf8();
 		Created		= reader.Read<Time>();
@@ -58,7 +57,7 @@ public class DisputeComment : IBinarySerializable, ITableEntry
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(Dispute);
+		writer.Write(Proposal);
 		writer.Write(Creator);
 		writer.WriteUtf8(Text);
 		writer.Write(Created);

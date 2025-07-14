@@ -65,8 +65,8 @@ public class DomainRegistration : RdnOperation
 
 			e = execution.Domains.Affect(Address);
 			
-			PayForName(Address, Years);
-			Prolong(execution, Signer, e, Time.FromYears(Years));
+			execution.PayForName(Address, Years);
+			execution.Prolong(Signer, e, Time.FromYears(Years));
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
@@ -110,7 +110,9 @@ public class DomainRegistration : RdnOperation
 			e.ParentPolicy	= Policy;
 			e.Expiration	= (short)(start + Time.FromYears(Years).Days);
 
-			PayForName(new string(' ', Domain.NameLengthMax), Years);
+			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

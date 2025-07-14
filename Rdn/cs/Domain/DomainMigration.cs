@@ -87,6 +87,8 @@ public class DomainMigration : RdnOperation
 		{
 			Signer.Energy -= execution.Net.DomainRankCheckECFee;
 		}
+	
+		execution.PayCycleEnergy(Signer);
 	}
 
 	public void ConfirmedExecute(Execution execution)

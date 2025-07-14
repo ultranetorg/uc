@@ -14,7 +14,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 
 			if(a == null)
 			{	
-				if(Transaction.Operations.All(i => i.NonExistingSignerAllowed))
+				if(Transaction.Operations.All(i => i.Sponsored))
 					Transaction.Nid = 0;
 				else
 					throw new EntityException(EntityError.NotFound);

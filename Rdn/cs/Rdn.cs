@@ -8,6 +8,7 @@ public abstract class Rdn : McvNet
 	public override	string			Address => Root;
 	public override	string			Name => Root;
 	public override ushort			McvPortPostfix => (ushort)KnownSystem.Rdn;
+	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
  		
 	public bool						Auctions				= false;
 	public long						DomainRankCheckECFee	= 5;
@@ -22,8 +23,6 @@ public abstract class Rdn : McvNet
 	
 	public Rdn()
 	{
-		TablesCount = 4;
-
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
 			if(Enum.TryParse<RdnOperationClass>(i.Name, out var v))

@@ -12,25 +12,75 @@ public class FairExecution : Execution
 	public CategoryExecution			Categories;
 	public PublicationExecution			Publications;
 	public ReviewExecution				Reviews;
-	public DisputeExecution				Disputes;
-	public DisputeCommentExecution		DisputeComments;
+	public ProposalExecution			Proposals;
+	public ProposalCommentExecution		ProposalComments;
+	public FileExecution				Files;
 	public WordExecution				Words;
 	public PublicationTitleExecution	PublicationTitles;
 	public SiteTitleExecution			SiteTitles;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
-		Authors = new(this);
-		Products = new(this);
-		Sites = new(this);
-		Categories = new(this);
-		Publications = new(this);
-		Reviews = new(this);
-		Disputes = new(this);
-		DisputeComments = new(this);
-		Words = new(this);
-		PublicationTitles = new(this);
-		SiteTitles = new(this);
+		Authors				= new(this);
+		Products			= new(this);
+		Sites				= new(this);
+		Categories			= new(this);
+		Publications		= new(this);
+		Reviews				= new(this);
+		Proposals			= new(this);
+		ProposalComments	= new(this);
+		Files				= new(this);
+		Words				= new(this);
+		PublicationTitles	= new(this);
+		SiteTitles			= new(this);
+	}
+
+	public FairExecution CreateChild()
+	{
+		var e = new FairExecution(Mcv, Round, Transaction);
+
+		e.Parent = this;
+
+		e.EnergySpenders	= [];
+		e.SpacetimeSpenders	= [];
+		e.ECEnergyCost		= ECEnergyCost;
+
+		e.Authors			= new(this){Parent = Authors};
+		e.Products			= new(this){Parent = Products};
+		e.Sites				= new(this){Parent = Sites};
+		e.Categories		= new(this){Parent = Categories};
+		e.Publications		= new(this){Parent = Publications};
+		e.Reviews			= new(this){Parent = Reviews};
+		e.Proposals			= new(this){Parent = Proposals};
+		e.ProposalComments	= new(this){Parent = ProposalComments};
+		e.Files				= new(this){Parent = Files};
+		e.Words				= new(this){Parent = Words};
+		e.PublicationTitles	= new(this){Parent = PublicationTitles};
+		e.SiteTitles		= new(this){Parent = SiteTitles};
+
+		return e;
+	}
+
+	public void Absorb(FairExecution execution)
+	{
+		Authors				.Absorb(execution.Authors);
+		Products			.Absorb(execution.Products);
+		Sites				.Absorb(execution.Sites);
+		Categories			.Absorb(execution.Categories);
+		Publications		.Absorb(execution.Publications);
+		Reviews				.Absorb(execution.Reviews);
+		Proposals			.Absorb(execution.Proposals);
+		ProposalComments	.Absorb(execution.ProposalComments);
+		Files				.Absorb(execution.Files);
+		Words				.Absorb(execution.Words);
+		PublicationTitles	.Absorb(execution.PublicationTitles);
+		SiteTitles			.Absorb(execution.SiteTitles);
+
+		foreach(var i in execution.EnergySpenders) /// This  may add a duplicated clone but we expect this is ok
+			EnergySpenders.Add(i);
+
+		foreach(var i in execution.SpacetimeSpenders) /// This  may add a duplicated clone but we expect this is ok
+			SpacetimeSpenders.Add(i);
 	}
 
 	public override ITableExecution FindExecution(byte table)
@@ -41,8 +91,9 @@ public class FairExecution : Execution
 		if(table == Mcv.Categories.Id)			return Categories;
 		if(table == Mcv.Publications.Id)		return Publications;
 		if(table == Mcv.Reviews.Id)				return Reviews;
-		if(table == Mcv.Disputes.Id)			return Disputes;
-		if(table == Mcv.DisputeComments	.Id)	return DisputeComments;
+		if(table == Mcv.Proposals.Id)			return Proposals;
+		if(table == Mcv.ProposalComments.Id)	return ProposalComments;
+		if(table == Mcv.Files.Id)				return Files;
 		if(table == Mcv.Words.Id)				return Words;
 
 		return base.FindExecution(table);
@@ -71,8 +122,9 @@ public class FairExecution : Execution
 		if(table == Mcv.Categories)			return Categories.Affected;
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
-		if(table == Mcv.Disputes)			return Disputes.Affected;
-		if(table == Mcv.DisputeComments)	return DisputeComments.Affected;
+		if(table == Mcv.Proposals)			return Proposals.Affected;
+		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
+		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
@@ -92,7 +144,7 @@ public class FairExecution : Execution
 
 	public override Account AffectSigner()
 	{
-		if(Transaction.Operations.All(i => i.NonExistingSignerAllowed))
+		if(Transaction.Operations.All(i => i.Sponsored))
 		{
 			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
 				return a;
@@ -142,15 +194,60 @@ public class FairExecution : Execution
 // 		}
 	}
 
-	 public bool IsReferendum(Dispute dispute)
-	 {
-		return Sites.Find(dispute.Site).ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Proposal.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+	public bool IsReferendum(Proposal proposal)
+	{
+		return Sites.Find(proposal.Site).ChangePolicies[Enum.Parse<FairOperationClass>(proposal.Operation.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+	}
+
+	public bool IsReferendum(ChangePolicy policy)
+	{
+		return policy == ChangePolicy.ElectedByAuthorsMajority;
+	}
+
+	public bool IsDiscussion(ChangePolicy policy)
+	{
+		return policy == ChangePolicy.ElectedByModeratorsMajority || policy == ChangePolicy.ElectedByModeratorsUnanimously;
+	}
+
+	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
+	{
+		if(current != null)
+		{
+			var p = Files.Affect(current); /// previous
+			p.Deleted = true;
+			
+			Free(holder, consumer, p.Data.Length);
+		}
+
+		File f = null;
+
+		if(data != null)
+		{
+			f = Files.Create(creator);
+			f.Data = data;
+
+			Allocate(holder, consumer, f.Data.Length);
+		}
+
+		return f;
 	 }
 
-	 public bool IsReferendum(ChangePolicy policy)
-	 {
-		return policy == ChangePolicy.ElectedByAuthorsMajority;
-	 }
+//	public void Allocate(Execution execution, int space)
+//	{
+//		if(space == 0)
+//			return;
+//
+//		SpacetimeConsumer.Space += space;
+//
+//		var n = SpacetimeConsumer.Expiration - execution.Time.Days;
+//	
+//		SpacetimePayer.Spacetime -= ToBD(space, (short)n);
+//
+//		for(int i = 0; i < n; i++)
+//			execution.Spacetimes[i] += space;
+//
+//		SpacetimeSpenders.Add(SpacetimePayer);
+//	}
 
 /// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
 /// 	{

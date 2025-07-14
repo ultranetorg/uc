@@ -9,11 +9,11 @@ public class AuthorReferendumsController
 	ILogger<AuthorReferendumsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IDisputesService disputesService
+	IProposalService disputesService
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<DisputeModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
@@ -21,18 +21,18 @@ public class AuthorReferendumsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<DisputeModel> referendums = disputesService.GetReferendums(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ProposalModel> referendums = disputesService.GetReferendums(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(referendums.Items, page, pageSize, referendums.TotalItems);
 	}
 
 	[HttpGet("{referendumId}")]
-	public DisputeDetailsModel Get(string siteId, string referendumId)
+	public ProposalDetailsModel Get(string siteId, string referendumId)
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{ReferendumId}}", siteId, referendumId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(referendumId, nameof(Dispute).ToLower());
+		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
 		return disputesService.GetReferendum(siteId, referendumId);
 	}

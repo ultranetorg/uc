@@ -42,18 +42,15 @@ public class AccountCommand : Net.AccountCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a account to update"),
-									 new (nickname, "A new nickname"),
+						Arguments =	[new (nickname, "A new nickname"),
 									 new (SignerArg, "Address of account")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new NicknameChange  {Entity = AutoId.Parse(Args[0].Name),
-															Field = EntityTextField.AccountNickname,
-															Nickname = GetString(nickname)}; 
+								return new AccountNicknameChange {Nickname = GetString(nickname)}; 
 							};
 		return a;
 	}

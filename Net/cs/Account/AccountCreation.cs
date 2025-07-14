@@ -39,7 +39,7 @@ public class AccountCreation : Operation
 		{
 			Signer.Spacetime -= execution.Round.AccountAllocationFee(a);
 
-			SpacetimeSpenders.Add(a);
+			execution.SpacetimeSpenders.Add(a);
 		}
 	}
 }

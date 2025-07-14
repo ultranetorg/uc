@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ReviewTextModerationModel : BaseVotableOperationModel
+public class ReviewEditModerationModel : BaseVotableOperationModel
 {
 	public string ReviewId { get; set; }
 
@@ -8,7 +8,7 @@ public class ReviewTextModerationModel : BaseVotableOperationModel
 
 	public bool Resolution { get; set; }
 
-	public ReviewTextModerationModel(ReviewTextModeration operation)
+	public ReviewEditModerationModel(ReviewEditModeration operation)
 	{
 		ReviewId = operation.Review.ToString();
 		Hash = operation.Hash;

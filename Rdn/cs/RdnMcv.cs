@@ -5,7 +5,8 @@ namespace Uccs.Rdn;
 
 public enum RdnTable
 {
-	Domain = McvTable._Last + 1, Resource
+	Meta = McvTable.Meta, Account = McvTable.Account,
+	Domain, Resource
 }
 
 public class RdnMcv : Mcv

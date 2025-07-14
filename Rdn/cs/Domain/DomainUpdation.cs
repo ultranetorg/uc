@@ -51,14 +51,15 @@ public class DomainRenewal : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			PayForName(e.Address, Years);
+			execution.PayForName(e.Address, Years);
 		} 
 		else
 		{
-			PayForName(new string(' ', Domain.NameLengthMax), Years);
+			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		Prolong(execution, Signer, e, Time.FromYears(Years));
+		execution.Prolong(Signer, e, Time.FromYears(Years));
+		execution.PayCycleEnergy(Signer);
 	}
 }
 
@@ -100,6 +101,9 @@ public class DomainTransfer : RdnOperation
 			return;
 		}	
 
+		if(!AccountExists(execution, Owner, out var o, out Error))
+			return;
+
 		if(Domain.IsRoot(e.Address))
 		{
 			if(!Domain.IsOwner(e, Signer, execution.Time))
@@ -107,9 +111,6 @@ public class DomainTransfer : RdnOperation
 				Error = Denied;
 				return;
 			}
-
-			if(!RequireAccount(execution, Owner, out var o))
-				return;
 
 			e = execution.Domains.Affect(e.Address);
 			e.Owner = Owner;
@@ -138,12 +139,11 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(!RequireAccount(execution, Owner, out var o))
-				return;
-
 			e = execution.Domains.Affect(e.Address);
 			e.Owner	= Owner;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }
 
@@ -212,5 +212,7 @@ public class DomainPolicyUpdation : RdnOperation
 			Error = NotAvailable;
 			return;
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

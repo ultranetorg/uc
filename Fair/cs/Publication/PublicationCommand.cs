@@ -55,8 +55,8 @@ namespace Uccs.Fair;
 // 									 new (SignerArg, "An address of account that assumed to have permissions to make specified changes")],
 // 
 // 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {product}={EID.Examples[1]} {SignerArg}={AA.Example}"),
-// 									 new (null, $"{Keyword} {a.Name} {EID.Example} {approve}={ProductField.Title} {SignerArg}={AA.Example}"),
-// 									 new (null, $"{Keyword} {a.Name} {EID.Example} {reject}={ProductField.Title} {SignerArg}={AA.Example}")
+// 									 new (null, $"{Keyword} {a.Name} {EID.Example} {approve}={ProductFieldName.Title} {SignerArg}={AA.Example}"),
+// 									 new (null, $"{Keyword} {a.Name} {EID.Example} {reject}={ProductFieldName.Title} {SignerArg}={AA.Example}")
 // 									 ]};
 // 
 // 		a.Execute = () =>	{

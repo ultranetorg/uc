@@ -25,39 +25,25 @@ public class CategoryMovement : VotableOperation
 		return other is CategoryMovement o && o.Category == Category;
 	}
 
- 	public override bool ValidProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(!RequireCategory(execution, Category, out var _))
+		if(!CategoryExists(execution, Category, out var _, out error))
 	 		return false;
 
-		if(Parent != null && !RequireCategory(execution, Parent, out var _))
-	 		return false;
+		if(Parent != null && !CategoryExists(execution, Parent, out var _, out error))
+	 	{
+			error = NotFound;
+			return false;
+		}
+//
+//	 	if(Parent != null && !RequireCategoryAccess(execution, Parent, out var _, out var _))
+//	 		return false;
 
 		return true;
  	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(execution))
-			return;
-
-		if(!dispute)
-	 	{
-	 		if(!RequireCategoryAccess(execution, Category, out var x, out var s))
- 				return;
-
-	 		if(Parent != null && !RequireCategoryAccess(execution, Parent, out var _, out var _))
- 				return;
-
-	 		if(s.ChangePolicies[FairOperationClass.CategoryMovement] != ChangePolicy.AnyModerator)
-	 		{
-		 		Error = Denied;
-		 		return;
-	 		}
-	
-			PayEnergyBySite(execution, s.Id);
-		}
-
 		var c = execution.Categories.Affect(Category);
 
 		if(c.Parent != null)
@@ -74,7 +60,7 @@ public class CategoryMovement : VotableOperation
 		} 
 		else
 		{
-			if(!RequireCategory(execution, Parent, out var p))
+			if(!CategoryExists(execution, Parent, out var p, out Error))
 				return;
 
 			if(p.Site != c.Site)
@@ -88,6 +74,5 @@ public class CategoryMovement : VotableOperation
 			p = execution.Categories.Affect(p.Id);
 			p.Categories = [..p.Categories, c.Id];
 		}
-
 	}
 }

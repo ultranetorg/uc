@@ -2,7 +2,7 @@
 
 public class WordTable : Table<RawId, Word>
 {
-	public override string			Name => FairTable.Word.ToString();
+	public override string			Name => FairTable._Word.ToString();
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 	public override bool			IsIndex => true;

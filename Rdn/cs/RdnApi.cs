@@ -338,14 +338,14 @@ public class CostApc : RdnApc
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,
 			
-							RentAccount					= Operation.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
+							RentAccount					= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
 				
-							RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnOperation.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
+							RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 				
-							RentResource				= Years.Select(y => Operation.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceForever			= Operation.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
+							RentResource				= Years.Select(y => Execution.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceForever			= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
 			
-							RentResourceData			= Years.Select(y => Operation.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceDataForever		= Operation.ToBD(1, Mcv.Forever) * Rate};
+							RentResourceData			= Years.Select(y => Execution.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
+							RentResourceDataForever		= Execution.ToBD(1, Mcv.Forever) * Rate};
 	}
 }

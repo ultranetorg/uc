@@ -31,11 +31,11 @@ public class AuthorCreation : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
 		if(Signer.AllocationSponsor != null)
 		{
-			Error = NotAllowedForFreeAccount;
+			Error = NotAllowedForSponsoredAccount;
 			return;
 		}
 
@@ -47,6 +47,7 @@ public class AuthorCreation : FairOperation
 		e.Title		= Title;
 		e.Space		= execution.Net.EntityLength;
 
-		Prolong(execution, Signer, e, Time.FromYears(Years));
+		execution.Prolong(Signer, e, Time.FromYears(Years));
+		execution.PayCycleEnergy(Signer);
 	}
 }

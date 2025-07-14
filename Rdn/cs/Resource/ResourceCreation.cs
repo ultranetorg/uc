@@ -64,13 +64,14 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.Seal))
 		{
 			r.Flags	|= ResourceFlags.Sealed;
-
-			PayForForever(execution.Net.EntityLength + r.Length);
+			execution.PayForForever(execution.Net.EntityLength + r.Length);
 		}
 		else
 		{	
 			d = execution.Domains.Affect(d.Id);
-			Allocate(execution, Signer, d, execution.Net.EntityLength + r.Length);
+			execution.Allocate(Signer, d, execution.Net.EntityLength + r.Length);
 		}
+
+		execution.PayCycleEnergy(Signer);
 	}
 }

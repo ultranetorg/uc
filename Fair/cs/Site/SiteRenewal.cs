@@ -31,19 +31,19 @@ class SiteRenewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireModeratorAccess(execution, SiteId, out var a))
+		if(!IsModerator(execution, SiteId, out var s, out Error))
 			return;
 		
-		a = execution.Sites.Affect(SiteId);
+		s = execution.Sites.Affect(SiteId);
 
-		if(!Site.CanRenew(a, execution.Time))
+		if(!Site.CanRenew(s, execution.Time))
 		{
 			Error = NotAvailable;
 			return;
 		}
 
-		Prolong(execution, Signer, a, Time.FromYears(Years));
+		execution.Prolong(s, s, Time.FromYears(Years));
 	}
 }

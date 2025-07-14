@@ -54,5 +54,7 @@ public class ChildNetInitialization : RdnOperation
 		e = execution.Domains.Affect(Domain);
 
  		e.NtnChildNet = Net;
+	
+		execution.PayCycleEnergy(Signer);
 	}
 }

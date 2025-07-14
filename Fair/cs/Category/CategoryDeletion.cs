@@ -22,46 +22,40 @@ public class CategoryDeletion : VotableOperation
 		return other is CategoryDeletion o && o.Category == Category;
 	}
 
- 	public override bool ValidProposal(FairExecution execution)
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(!RequireCategory(execution, Category, out var c))
+		if(!CategoryExists(execution, Category, out var c, out error))
 	 		return false;
 
 		if(c.Publications.Any() || c.Categories.Any())
 		{
+			error = NotEmpty;
 			return false;
 		}
 
 		return true;
  	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!ValidProposal(execution))
-			return;
-
-		if(!dispute)
-	 	{
-	 		if(!RequireCategoryAccess(execution, Category, out var x, out var s))
- 				return;
-
-	 		if(s.ChangePolicies[FairOperationClass.CategoryDeletion] != ChangePolicy.AnyModerator)
-	 		{
-		 		Error = Denied;
-		 		return;
-	 		}
-
-			PayEnergyBySite(execution, s.Id);
-		}
+		var s = execution.Sites.Affect(Site.Id);
 
 		var c = execution.Categories.Affect(Category);
 
-		if(c.Parent != null)
+		if(c.Parent == null)
+		{
+			s.Categories = s.Categories.Remove(c.Id);
+		}
+		else
 		{
 			var p = execution.Categories.Affect(c.Parent);
 
 			p.Categories = p.Categories.Remove(c.Id);
 		}
+
+		c.Deleted = true;
+
+		execution.Free(s, s, execution.Net.EntityLength);
 
 	}
 }

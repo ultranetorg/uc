@@ -10,6 +10,7 @@ public class Category : IBinarySerializable, ITableEntry
 	public string			Title { get; set; }
 	public AutoId[]			Categories { get; set; }
 	public AutoId[]			Publications { get; set; }
+	public AutoId			Avatar  { get; set; }
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -31,7 +32,9 @@ public class Category : IBinarySerializable, ITableEntry
 									Parent		 = Parent,
 									Title		 = Title,
 									Categories	 = Categories,
-									Publications = Publications};
+									Publications = Publications,
+									Avatar		= Avatar,
+									};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -56,6 +59,7 @@ public class Category : IBinarySerializable, ITableEntry
 		Title			= reader.ReadUtf8();
 		Categories		= reader.ReadArray<AutoId>();
 		Publications	= reader.ReadArray<AutoId>();
+		Avatar			= reader.ReadNullable<AutoId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -66,5 +70,6 @@ public class Category : IBinarySerializable, ITableEntry
 		writer.WriteUtf8(Title);
 		writer.Write(Categories);
 		writer.Write(Publications);
+		writer.WriteNullable(Avatar);
 	}
 }

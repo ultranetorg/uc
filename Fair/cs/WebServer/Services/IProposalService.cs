@@ -3,18 +3,18 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-public interface IDisputesService
+public interface IProposalService
 {
 
-	public DisputeDetailsModel GetDispute([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
+	public ProposalDetailsModel GetProposal([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
 
-	public TotalItemsResult<DisputeModel> GetDisputes(
+	public TotalItemsResult<ProposalModel> GetProposals(
 		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		string? search, CancellationToken cancellationToken);
 
-	public DisputeDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
+	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
 
-	public TotalItemsResult<DisputeModel> GetReferendums(
+	public TotalItemsResult<ProposalModel> GetReferendums(
 		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		string? search, CancellationToken cancellationToken);
 }

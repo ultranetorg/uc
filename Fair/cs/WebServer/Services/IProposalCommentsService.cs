@@ -3,8 +3,8 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-public interface IDisputeCommentsService
+public interface IProposalCommentsService
 {
-	TotalItemsResult<DisputeCommentModel> GetDisputeComments([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string disputeId,
+	TotalItemsResult<ProposalCommentModel> GetDisputeComments([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string disputeId,
 		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 }

@@ -6,6 +6,7 @@ namespace Uccs.Fair;
 public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : HnswNode<D>
 {
 	public FairExecution					Execution;
+	public HnswExecution<D, E>				Parent;
 
 	//public abstract  E						Affect(HnswId id);
 	protected abstract int					DataToBucket(D data);
@@ -212,27 +213,6 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  		return Affected[id] = a;
 	}
 
-	public virtual E Affect(HnswId id)
-	{
- 		if(Affected.TryGetValue(id, out var a))
- 			return a;
- 		
- 		a = Table.Find(id, Execution.Round.Id);
- 
-		a = a.Clone() as E;
-
-		var e = EntryPoints.Find(i => i.Id == a.Id);
-			
-		if(e != null)
-		{
-			AffectEntryPoints();
-			EntryPoints.Remove(e);
-			EntryPoints.Add(a);
-		}
-
- 		return Affected[id] = a;
-	}
-
 	public E Find(D data)
  	{
 		var e = Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
@@ -242,6 +222,9 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
     			return e;
 			else
 				return null;
+
+		if(Parent != null)
+			return Parent.Find(data);
 
   		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
 		{	
@@ -264,6 +247,30 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 
 		return null;
  	}
+
+	public virtual E Affect(HnswId id)
+	{
+ 		if(Affected.TryGetValue(id, out var a))
+ 			return a;
+ 		
+		if(Parent != null)
+			a = Parent.Find(id);
+		else
+	 		a = Table.Find(id, Execution.Round.Id);
+ 
+		a = a.Clone() as E;
+
+		var e = EntryPoints.Find(i => i.Id == a.Id);
+			
+		if(e != null)
+		{
+			AffectEntryPoints();
+			EntryPoints.Remove(e);
+			EntryPoints.Add(a);
+		}
+
+ 		return Affected[id] = a;
+	}
 }
 
 public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : StringHnswEntity

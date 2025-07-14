@@ -666,8 +666,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	public virtual E Find(ID id, int ridmax)
 	{
   		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedByTable<ID, E>(this).TryGetValue(id, out var r) && !r.Deleted)
-    			return r;
+			if(i.AffectedByTable<ID, E>(this).TryGetValue(id, out var r))
+				return r.Deleted ? null : r;
 
 		return Find(id);
 	}
@@ -778,8 +778,9 @@ public interface ITableExecution
 
 public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry
 {
-	public Execution	Execution;
-	public AutoId		LastCreatedId { get; set; }
+	public Execution				Execution;
+	public AutoId					LastCreatedId { get; set; }
+	public TableExecution<ID, E>	Parent;
 
 	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
 	{
@@ -788,11 +789,20 @@ public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution
 	
 	public E Find(ID id)
  	{
-		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
+		id = (id == AutoId.LastCreated) ? LastCreatedId as ID : id;
+
+		if(id == null)
+			return null;
 
  		if(Affected.TryGetValue(id, out var a))
  			return a;
  		
+		if(a?.Deleted ?? false)
+			return null;
+
+		if(Parent != null)
+			return Parent.Find(id);
+
 		return Table.Find(id, Execution.Round.Id);
  	}
 
@@ -802,8 +812,11 @@ public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution
 		
 		if(Affected.TryGetValue(id, out var a))
 			return a;
-			
-		a = Table.Find(id, Execution.Round.Id);
+
+		if(Parent != null)
+			a = Parent.Find(id);
+		else
+			a = Table.Find(id, Execution.Round.Id);
 
 		if(a == null)
 			throw new IntegrityException();

@@ -25,7 +25,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		{
 			//var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
-			var f = i.Fields.FirstOrDefault(f => f.Name == ProductField.Title);
+			var f = i.Fields.FirstOrDefault(f => f.Field == ProductFieldName.Title);
 
 			if(f != null)
 			{
@@ -71,7 +71,6 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Fields = [];
 		a.Reviews = [];
-		a.ReviewChanges = [];
 			
 		return Affected[a.Id] = a;
 	}

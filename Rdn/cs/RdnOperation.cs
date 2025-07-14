@@ -40,29 +40,6 @@ public abstract class RdnOperation : Operation
 		Execute(execution as RdnExecution);
 	}
 
-	public void PayForName(string address, int years)
-	{
-		var fee = NameFee(years, address);
-		
-		Signer.Spacetime -= fee;
-		SpacetimeSpenders.Add(Signer);
-	}
-
-	public static int NameFee(int years, string address)
-	{
-		var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
-
-		l = Math.Min(l, 10);
-
-		return 10_000 * Time.FromYears(years).Days / (l * l * l * l);
-	}
-
-	public void PayForForever(int size)
-	{
-		Signer.Spacetime -= ToBD(size, Mcv.Forever);
-		SpacetimeSpenders.Add(Signer);
-	}
-
 	public bool RequireDomain(RdnExecution round, AutoId id, out Domain domain)
 	{
 		domain = round.Domains.Find(id);

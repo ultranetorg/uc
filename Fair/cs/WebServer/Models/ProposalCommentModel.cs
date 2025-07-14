@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class DisputeCommentModel
+public class ProposalCommentModel
 {
 	public string Id { get; set; }
 
@@ -14,10 +14,10 @@ public class DisputeCommentModel
 
 	public int Created { get; set; }
 
-	public DisputeCommentModel(DisputeComment dispute, FairAccount account)
+	public ProposalCommentModel(ProposalComment dispute, FairAccount account)
 	{
 		Id = dispute.Id.ToString();
-		DisputeId = dispute.Dispute.ToString();
+		DisputeId = dispute.Proposal.ToString();
 		CreatorId = dispute.Creator.ToString();
 		CreatorAddress = account.Address.ToString();
 		CreatorNickname = account.Nickname;

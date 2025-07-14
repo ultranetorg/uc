@@ -16,6 +16,18 @@ public interface ISpaceConsumer
 {
 	long		Space { get; set; }
 	short		Expiration { get; set; }
+
+	public void WriteSpaceConsumer(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt64(Space);
+		writer.Write(Expiration);
+	}
+
+	public void ReadSpaceConsumer(BinaryReader reader)
+	{
+		Space	 	= reader.Read7BitEncodedInt64();
+		Expiration 	= reader.ReadInt16();
+	}
 }
 
 public interface IEnergyHolder : IHolder

@@ -31,9 +31,9 @@ public class AuthorRenewal : FairOperation
 		writer.Write(Years);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+		if(!CanAccessAuthor(execution, AuthorId, out var a, out Error))
 			return;
 		
 		a = execution.Authors.Affect(AuthorId);
@@ -44,7 +44,8 @@ public class AuthorRenewal : FairOperation
 			return;
 		}
 
-		Prolong(execution, Signer, a, Time.FromYears(Years));
+		execution.Prolong(a, a, Time.FromYears(Years));
+		execution.PayCycleEnergy(a);
 	}
 }
 
@@ -76,14 +77,16 @@ public class AuthorModerationReward : FairOperation
 		writer.Write7BitEncodedInt64(Amount);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+		if(!CanAccessAuthor(execution, AuthorId, out var a, out Error))
 			return;
 		
 		a = execution.Authors.Affect(AuthorId);
 
 		a.ModerationReward = Amount;
+
+		execution.PayCycleEnergy(a);
 	}
 }
 
@@ -115,23 +118,25 @@ public class AuthorOwnerAddition : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+		if(!CanAccessAuthor(execution, AuthorId, out var a, out Error))
 			return;
 		
 		a = execution.Authors.Affect(AuthorId);
 
-		if(!RequireAccount(execution, Owner, out var x))
+		if(!AccountExists(execution, Owner, out var x, out Error))
 			return;
 
 		if(x.AllocationSponsor != null)
 		{
-			Error = NotAllowedForFreeAccount;
+			Error = NotAllowedForSponsoredAccount;
 			return;
 		}
 
 		a.Owners = [..a.Owners, x.Id];
+
+		execution.PayCycleEnergy(a);
 	}
 }
 
@@ -163,9 +168,9 @@ public class AuthorOwnerRemoval : FairOperation
 		writer.Write(Owner);
 	}
 
-	public override void Execute(FairExecution execution, bool dispute)
+	public override void Execute(FairExecution execution)
 	{
-		if(!RequireAuthorAccess(execution, AuthorId, out var a))
+		if(!CanAccessAuthor(execution, AuthorId, out var a, out Error))
 			return;
 		
 		a = execution.Authors.Affect(AuthorId);
@@ -176,9 +181,11 @@ public class AuthorOwnerRemoval : FairOperation
 			return;
 		}
 
-		if(!RequireAccount(execution, Owner, out var x))
+		if(!AccountExists(execution, Owner, out var x, out Error))
 			return;
 
 		a.Owners = a.Owners.Remove(x.Id);
+
+		execution.PayCycleEnergy(a);
 	}
 }

@@ -9,8 +9,8 @@ public class FairAccount : Account
 	public AutoId[]					FavoriteSites  { get; set; }
 	public int						Approvals  { get; set; }
 	public int						Rejections  { get; set; }
-	public AutoId					AllocationSponsor { get; set; }
-	public byte						AllocationSponsorClass  { get; set; }
+	public EntityAddress			AllocationSponsor { get; set; }
+	public byte[]					Avatar  { get; set; }
 
 	public FairAccount()
 	{
@@ -31,8 +31,8 @@ public class FairAccount : Account
 		a.Approvals				 = Approvals;
 		a.Rejections			 = Rejections;
 		a.AllocationSponsor		 = AllocationSponsor;
-		a.AllocationSponsorClass = AllocationSponsorClass;
 		a.FavoriteSites			 = FavoriteSites;
+		a.Avatar				 = Avatar;
 
 		return a;
 	}
@@ -46,15 +46,17 @@ public class FairAccount : Account
 		writer.Write(Sites);
 		writer.Write(Reviews);
 		writer.Write(FavoriteSites);
+		writer.WriteBytes(Avatar);
 
 		writer.WriteNullable(AllocationSponsor);
 		
 		if(AllocationSponsor != null)
 		{
-			writer.Write(AllocationSponsorClass);
 			writer.Write7BitEncodedInt(Approvals);
 			writer.Write7BitEncodedInt(Rejections);
 		}
+
+		//(this as ISpaceConsumer).WriteSpaceConsumer(writer);
 	}
 
 	public override void Read(BinaryReader reader)
@@ -66,14 +68,16 @@ public class FairAccount : Account
 		Sites					= reader.ReadArray<AutoId>();
 		Reviews					= reader.ReadArray<AutoId>();
 		FavoriteSites			= reader.ReadArray<AutoId>();
+		Avatar					= reader.ReadBytes();
 
-		AllocationSponsor		= reader.ReadNullable<AutoId>();
+		AllocationSponsor		= reader.ReadNullable<EntityAddress>();
 		
 		if(AllocationSponsor != null)
 		{
-			AllocationSponsorClass	= reader.ReadByte();
-			Approvals				= reader.Read7BitEncodedInt();
-			Rejections				= reader.Read7BitEncodedInt();
+			Approvals			= reader.Read7BitEncodedInt();
+			Rejections			= reader.Read7BitEncodedInt();
 		}
+
+		//(this as ISpaceConsumer).ReadSpaceConsumer(reader);
 	}
 }

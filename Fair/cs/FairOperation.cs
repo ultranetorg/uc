@@ -5,7 +5,7 @@ public enum FairOperationClass : uint
 {
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 	
-	NicknameChange					= 100_000_000,
+	AccountNicknameChange			= 100_000_000,
 	FavoriteSiteChange				= 100_000_001,
 
 	Author							= 101, 
@@ -14,6 +14,7 @@ public enum FairOperationClass : uint
 		AuthorModerationReward		= 101_000_003,
 		AuthorOwnerAddition			= 101_000_004,
 		AuthorOwnerRemoval			= 101_000_005,
+		AuthorNicknameChange		= 101_000_006,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
@@ -27,6 +28,8 @@ public enum FairOperationClass : uint
 		SiteAuthorsChange			= 103_000_004,
 		SiteModeratorsChange		= 103_000_005,
 		SiteDescriptionChange		= 103_000_006,
+		SiteAvatarChange			= 103_000_007,
+		SiteNicknameChange			= 103_000_008,
 		SiteDeletion				= 103_000_999,
 
 		Category						= 103_001,
@@ -36,382 +39,390 @@ public enum FairOperationClass : uint
 
 		Publication						= 103_002,
 			PublicationCreation			= 103_002_001,
-			PublicationApproval			= 103_002_002,
-			PublicationProductChange	= 103_002_003,
-			PublicationCategoryChange	= 103_002_004,
+			//PublicationApproval			= 103_002_002,
+			PublicationRemoveFromChanged= 103_002_003,
+			PublicationPublish			= 103_002_004,
 			PublicationUpdation			= 103_002_005,
 			PublicationDeletion			= 103_002_999,
 
 		Review							= 103_003,
 			ReviewCreation				= 103_003_001,
 			ReviewStatusChange			= 103_003_002,
-			ReviewTextUpdation			= 103_003_003,
-			ReviewTextModeration		= 103_003_004,
+			ReviewEdit					= 103_003_003,
+			ReviewEditModeration		= 103_003_004,
 			ReviewDeletion				= 103_003_999,
 
-		Dispute							= 103_004,
-			DisputeCreation				= 103_004_001,
-			DisputeVoting				= 103_004_002,
+		Proposal						= 103_004,
+			ProposalCreation			= 103_004_001,
+			ProposalVoting				= 103_004_002,
 		
-		DisputeComment					= 103_005,
-			DisputeCommentCreation		= 103_005_001,
-			DisputeCommentTextChange	= 103_005_002,
+		ProposalComment					= 103_005,
+			ProposalCommentCreation		= 103_005_001,
+			ProposalCommentEdit			= 103_005_002,
 } 
+
+public abstract class VotableOperation : FairOperation
+{
+	public Site				Site;
+
+	public abstract bool	ValidateProposal(FairExecution execution, out string error);
+ 	public abstract bool	Overlaps(VotableOperation other);
+}
 
 public abstract class FairOperation : Operation
 {
-	public const string				NotAllowedForFreeAccount = "Not allowed for free account";
-	public const string				InvalidProposal = "Invalid proposal";
-	public const string				CategoryNotSet = "Category not set";
-	public const string				NotEmpty = "Not empty";
-	public const string				Ended = "Ended";
+	public const string			NotAllowedForSponsoredAccount = "Not allowed for free account";
+	//public const string			InvalidProposal = "Invalid proposal";
+	public const string			CategoryNotSet = "Category not set";
+	public const string			NotEmpty = "Not empty";
+	public const string			Ended = "Ended";
+	public const string			InvalidOwnerAddress = "Invalid Owner Type";
+	public const string			DoesNotBelogToSite = "Does not belong to site";
 
-	public new FairAccount		Signer => base.Signer as FairAccount;
+	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
 
-	public abstract void Execute(FairExecution execution, bool voted);
+	public abstract void Execute(FairExecution execution);
 
 	public override void Execute(Execution execution)
 	{
-		Execute(execution as FairExecution, false);
+		Execute(execution as FairExecution);
 	}
 
-	public bool RequireAccount(FairExecution round, AutoId id, out FairAccount account)
+	public bool AccountExists(FairExecution execution, AutoId id, out FairAccount account, out string error)
 	{
-		var r = base.RequireAccount(round, id, out var a);
+		var r = base.AccountExists(execution, id, out var a, out error);
 		
 		account = a as FairAccount;
 
 		return r;
 	}
 
-	public bool RequireAuthor(FairExecution round, AutoId id, out Author author)
+	public bool CanAccessAccount(FairExecution execution, AutoId id, out FairAccount account, out string error)
 	{
-		author = round.Authors.Find(id);
+		var r = base.CanAccessAccount(execution, id, out var a, out error);
+		
+		account = a as FairAccount;
+
+		return r;
+	}
+
+	public bool AuthorExists(FairExecution execution, AutoId id, out Author author, out string error)
+	{
+		author = execution.Authors.Find(id);
 
 		if(author == null || author.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false;
 		}
 
-		if(Author.IsExpired(author, round.Time))
+		if(Author.IsExpired(author, execution.Time))
 		{
-			Error = Expired;
+			error = Expired;
 			return false;
 		}
 
+		error = null;
 		return true;
 	}
 
-	public bool RequireProduct(FairExecution round, AutoId id, out Author author, out Product product)
+	public bool ProductExists(FairExecution execution, AutoId id, out Author author, out Product product, out string error)
 	{
 		author = null;
-		product = round.Products.Find(id);
+		product = execution.Products.Find(id);
 		
 		if(product == null || product.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
-		if(RequireAuthor(round, product.Author, out author) == false)
+		if(AuthorExists(execution, product.Author, out author, out error) == false)
 			return false; 
 
 		return true; 
 	}
 
-	public bool CanAccessAuthor(FairExecution execution, AutoId id)
+	public bool CanAccessAuthor(FairExecution execution, AutoId id, out Author author, out string error)
 	{
-		var r = RequireAuthorAccess(execution, id, out var _);
-		Error = null;
-		return r;
-	}
-
-	public bool RequireAuthorAccess(FairExecution round, AutoId id, out Author author)
-	{
-		author = round.Authors.Find(id);
-
-		if(author == null || author.Deleted)
-		{
-			Error = NotFound;
+		if(!AuthorExists(execution, id, out author, out error))
 			return false;
-		}
-
-		if(Author.IsExpired(author, round.Time))
-		{
-			Error = Expired;
-			return false;
-		}
 
 		if(!author.Owners.Contains(Signer.Id))
 		{
-			Error = Denied;
+			error = Denied;
 			return false;
 		}
 
 		return true;
 	}
 
-	public bool RequireAuthorMembership(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author)
+	public bool IsMember(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
 	{
 		site = null;
 
-		if(!RequireAuthorAccess(execution, authorid, out author))
+		if(!CanAccessAuthor(execution, authorid, out author, out error))
 			return false;
 
 		site = execution.Sites.Find(siteid);
 
  		if(!site.Authors.Contains(authorid))
  		{
- 			Error = Denied;
+ 			error = Denied;
  			return false;
  		}
 
 		return true;
 	}
 
-	public bool RequireProductAccess(FairExecution round, AutoId id, out Author author, out Product product)
+	public bool CanAccessProduct(FairExecution execution, AutoId id, out Author author, out Product product, out string error)
 	{
-		if(!RequireProduct(round, id, out  author, out product))
+		if(!ProductExists(execution, id, out  author, out product, out error))
 			return false; 
 
-		if(!RequireAuthorAccess(round, product.Author, out author))
+		if(!CanAccessAuthor(execution, product.Author, out author, out error))
 			return false; 
 
 		return true; 
 	}
 
-	public bool CanAccessSite(FairExecution round, AutoId id)
+	public bool SiteExists(FairExecution execution, AutoId id, out Site site, out string error)
 	{
-		var r = RequireModeratorAccess(round, id, out var _);
-		Error = null;
-		return r;
-	}
-
-	public bool RequireSite(FairExecution round, AutoId id, out Site site)
-	{
-		site = round.Sites.Find(id);
+		site = execution.Sites.Find(id);
 		
 		if(site == null || site.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
+		error = null;
 		return true; 
 	}
 
-	public bool RequireModeratorAccess(FairExecution round, AutoId id, out Site site)
+	public bool IsModerator(FairExecution execution, AutoId id, out Site site, out string error)
 	{
- 		if(!RequireSite(round, id, out site))
+ 		if(!SiteExists(execution, id, out site, out error))
  			return false; 
 
 		if(!site.Moderators.Contains(Signer.Id))
 		{
-			Error = Denied;
+			error = Denied;
 			return false; 
 		}
 
 		return true; 
 	}
 
-	public bool RequireCategory(FairExecution round, AutoId id, out Category category)
+	public bool CategoryExists(FairExecution execution, AutoId id, out Category category, out string error)
 	{
-		category = round.Categories.Find(id);
+		category = execution.Categories.Find(id);
 		
 		if(category == null || category.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
+		error = null;
 		return true;
 	}
 
- 	public bool RequireCategoryAccess(FairExecution round, AutoId id, out Category category, out Site site)
+ 	public bool CanModerateCategory(FairExecution execution, AutoId id, out Category category, out Site site, out string error)
  	{
 		site = null;
 
- 		if(!RequireCategory(round, id, out category))
+ 		if(!CategoryExists(execution, id, out category, out error))
  			return false; 
  
- 		if(!RequireModeratorAccess(round, category.Site, out site))
+ 		if(!IsModerator(execution, category.Site, out site, out error))
  			return false;
  
+		error = null;
  		return true;
  	}
 
-	public bool RequirePublication(FairExecution round, AutoId id, out Publication publication)
+	public bool PublicationExists(FairExecution execution, AutoId id, out Publication publication, out string error)
 	{
-		publication = round.Publications.Find(id);
+		publication = execution.Publications.Find(id);
 		
 		if(publication == null || publication.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
+		error = null;
 		return true;
 	}
 
- 	public bool RequirePublicationModeratorAccess(FairExecution round, AutoId id, Account signer, out Publication publication, out Site site)
+ 	public bool CamModeratePublication(FairExecution execution, AutoId id, Account signer, out Publication publication, out Site site, out string error)
  	{
 		site = null;
 
- 		if(!RequirePublication(round, id, out publication))
+ 		if(!PublicationExists(execution, id, out publication, out error))
  			return false; 
  
- 		if(!RequireModeratorAccess(round, publication.Site, out site))
+ 		if(!IsModerator(execution, publication.Site, out site, out error))
  			return false;
  
+		error = null;
  		return true;
  	}
 
-	public bool RequireReview(FairExecution round, AutoId id, out Review review)
+	public bool ReviewExists(FairExecution execution, AutoId id, out Review review, out string error)
 	{
-		review = round.Reviews.Find(id);
+		review = execution.Reviews.Find(id);
 		
 		if(review == null || review.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
+		error = null;
 		return true;
 	}
 
- 	public bool RequireReviewOwnerAccess(FairExecution round, AutoId id, Account signer, out Review review)
+ 	public bool IsReviewOwner(FairExecution execution, AutoId id, Account signer, out Review review, out string error)
  	{
- 		if(!RequireReview(round, id, out review))
+ 		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
 		if(review.Creator == Signer.Id)
 			return true;
 
- 		if(!RequirePublication(round, review.Publication, out var p))
- 			return false; 
+ 		//if(!PublicationExists(execution, review.Publication, out var p, out error))
+ 		//	return false; 
  
+		error = null;
  		return true;
  	}
 
- 	public bool RequireReviewModertorAccess(FairExecution round, AutoId id, Account signer, out Review review, out Site site)
+ 	public bool CanModerateReview(FairExecution execution, AutoId id, Account signer, out Review review, out Site site, out string error)
  	{
 		site = null;
 
- 		if(!RequireReview(round, id, out review))
+ 		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
- 		if(!RequirePublicationModeratorAccess(round, review.Publication, Signer, out var p, out site))
+ 		if(!CamModeratePublication(execution, review.Publication, Signer, out var p, out site, out error))
  			return false; 
  
+		error = null;
  		return true;
  	}
 
-	public bool RequireDispute(FairExecution round, AutoId id, out Dispute review)
+	public bool ProposalExists(FairExecution execution, AutoId id, out Proposal proposal, out string error)
 	{
-		review = round.Disputes.Find(id);
+		proposal = execution.Proposals.Find(id);
 		
-		if(review == null || review.Deleted)
+		if(proposal == null || proposal.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
 
+		error = null;
 		return true;
 	}
 
- 	public bool RequireReferendumCommentAuthorAccess(FairExecution execution, AutoId commentid, out Site site, out Author author, out Dispute dispute, out DisputeComment comment)
+ 	public bool IsReferendumCommentOwner(FairExecution execution, AutoId commentid, out Site site, out Author author, out Proposal proposal, out ProposalComment comment, out string error)
  	{
 		site = null;
 		author = null;
-		dispute = null;
-		comment = execution.DisputeComments.Find(commentid);
+		proposal = null;
+		comment = execution.ProposalComments.Find(commentid);
 		
 		if(comment == null || comment.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
  
-		dispute = execution.Disputes.Find(comment.Dispute);
+		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!RequireAuthorMembership(execution, dispute.Site, comment.Creator, out site, out author))
+		if(!IsMember(execution, proposal.Site, comment.Creator, out site, out author, out error))
 			return false;
 
+		if(comment.Creator != author.Id)
+		{
+			error = Denied;
+			return false; 
+		}
+
+		error = null;
  		return true;
  	}
 
- 	public bool RequireDisputeCommentModeratorAccess(FairExecution execution, AutoId commentid, out Site site, out Dispute dispute, out DisputeComment comment)
+ 	public bool CanModerateDisputeComment(FairExecution execution, AutoId commentid, out Site site, out Proposal proposal, out ProposalComment comment, out string error)
  	{
 		site = null;
-		dispute = null;
-		comment = execution.DisputeComments.Find(commentid);
+		proposal = null;
+		comment = execution.ProposalComments.Find(commentid);
 		
 		if(comment == null || comment.Deleted)
 		{
-			Error = NotFound;
+			error = NotFound;
 			return false; 
 		}
  
-		dispute = execution.Disputes.Find(comment.Dispute);
+		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!RequireModeratorAccess(execution, dispute.Site, out site))
+		if(!IsModerator(execution, proposal.Site, out site, out error))
 			return false;
 
+		error = null;
  		return true;
  	}
 
-	protected void PayEnergyBySite(FairExecution execution, AutoId site)
+	//protected void PayEnergyBySite(FairExecution execution, AutoId site)
+	//{
+	//	var s = execution.Sites.Affect(site);
+	//		
+	//	EnergyFeePayer = s;
+	//	EnergySpenders = [s];
+	//}
+	//
+	//protected void PayEnergyByAuthor(FairExecution execution, AutoId author)
+	//{
+	//	var a = execution.Authors.Affect(author);
+	//		
+	//	EnergyFeePayer = a;
+	//	EnergySpenders = [a];
+	//}
+
+	protected void RewardForModeration(FairExecution execution, Author author, Site site)
 	{
-		var s = execution.Sites.Affect(site);
+		author.Energy -= author.ModerationReward;
+		site.Energy += author.ModerationReward;
 			
-		EnergyFeePayer = s;
-		EnergySpenders = [s];
+		execution.EnergySpenders.Add(author);
 	}
 
-	protected void PayEnergyByAuthor(FairExecution execution, AutoId author)
+	//protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
+	//{
+	//	if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+	//	{ 
+	//		PayEnergyByAuthor(execution, author?.Id ?? execution.Products.Find(publication.Product).Author);
+	//	}
+	//	else
+	//	{	
+	//		PayEnergyBySite(execution, publication.Site);
+	//	}
+	//}
+
+	public bool FileExists(FairExecution execution, AutoId id, out File file, out string error)
 	{
-		var a = execution.Authors.Affect(author);
-			
-		EnergyFeePayer = a;
-		EnergySpenders = [a];
+		file = execution.Files.Find(id);
+		
+		if(file == null || file.Deleted)
+		{
+			error = NotFound;
+			return false; 
+		}
+
+		error = null;
+		return true;
 	}
-
-	protected void PayEnergyForModeration(FairExecution execution, Publication publication, Author author = null)
-	{
-		if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			var a = execution.Authors.Affect(author?.Id ?? execution.Products.Find(publication.Product).Author);
-			var s = execution.Sites.Affect(publication.Site);
-
-			a.Energy	-= a.ModerationReward;
-			s.Energy	+= a.ModerationReward;
-			
-			EnergyFeePayer = a;
-			EnergySpenders.Add(a);
-		}
-		else
-		{	
-			PayEnergyBySite(execution, publication.Site);
-		}
-
-	}
-
-	protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
-	{
-		if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			PayEnergyByAuthor(execution, author?.Id ?? execution.Products.Find(publication.Product).Author);
-		}
-		else
-		{	
-			PayEnergyBySite(execution, publication.Site);
-		}
-	}
-}
-
-public abstract class VotableOperation : FairOperation
-{
-	public abstract bool ValidProposal(FairExecution execution);
- 	public abstract bool Overlaps(VotableOperation other);
 }
