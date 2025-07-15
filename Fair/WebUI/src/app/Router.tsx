@@ -80,7 +80,7 @@ export const routes: AppRouteObject[] = [
             element: <ReferendumsPage />,
           },
           {
-            path: "/:siteId/a-r/:referendumId",
+            path: "/:siteId/g/:referendumId",
             element: <ReferendumPage />,
           },
 
