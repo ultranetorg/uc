@@ -22,7 +22,7 @@ public class SiteAvatarChange : VotableOperation
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Image);
+		writer.WriteBytes(Image);
 	}
 
 	public override bool Overlaps(VotableOperation other)

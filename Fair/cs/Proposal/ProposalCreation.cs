@@ -6,28 +6,35 @@ public class ProposalCreation : FairOperation
 {
 	public AutoId				Site { get; set; }
 	public AutoId				Creator { get; set; } /// Account Id for Moderators, Author Id for Author
+	public Role					As { get; set; }
 	public string				Text { get; set; }
 	public VotableOperation	    Proposal { get; set; }
 	
-	public override bool		IsValid(McvNet net) => Proposal.IsValid(net) && Text.Length < Fair.PostLengthMaximum;
 	public override string		Explanation => $"Site={Site}, Creator={Creator}, Proposal={{{Proposal}}}, Text={Text}";
 
 	public ProposalCreation()
 	{
 	}
 
-	public ProposalCreation(AutoId site, AutoId creator, VotableOperation proposal, string text = "")
+	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, VotableOperation proposal, string text = "")
 	{
 		Site = site;
 		Creator = creator;
+		As = creatorrole;
 		Proposal = proposal;
 		Text = text;
+	}
+	
+	public override bool IsValid(McvNet net)
+	{
+		return Proposal.IsValid(net) && Text.Length < Fair.PostLengthMaximum;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<AutoId>();
-		Creator		= reader.ReadNullable<AutoId>();
+		Creator		= reader.Read<AutoId>();
+		As			= reader.Read<Role>();
  		Text		= reader.ReadUtf8();
 
  		Proposal = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
@@ -37,7 +44,8 @@ public class ProposalCreation : FairOperation
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
-		writer.WriteNullable(Creator);
+		writer.Write(Creator);
+		writer.Write(As);
  		writer.WriteUtf8(Text);
 
 		writer.Write(Enum.Parse<FairOperationClass>(Proposal.GetType().Name));
@@ -76,27 +84,34 @@ public class ProposalCreation : FairOperation
  			return;
  		}
 
- 		if( !(s.CreationPolicies[t].Contains(Role.Moderator)				 && IsModerator(execution, s.Id, out var _, out _) ||
-			  Creator != null												 && IsMember(execution, s.Id, Creator, out var _, out var _, out _) ||
-			  Creator != null && s.CreationPolicies[t].Contains(Role.Author) && CanAccessAuthor(execution, Creator, out var _, out _)))
-		{
- 			Error = Denied;
- 			return;
-		}
-
 		s = execution.Sites.Affect(s.Id);
 
-		if(IsModerator(execution, s.Id, out var _, out var _))
+		if(As == Role.Member)
  		{
-			execution.PayCycleEnergy(s);
- 		}
-		else if(IsMember(execution, s.Id, Creator, out var _, out var _, out var _))
- 		{
+			if(!CanAccessAuthor(execution, Creator, out _, out Error))
+				return;
+
+			if(!IsMember(execution, s.Id, Creator, out var _, out var _, out Error))
+				return;
+
 			var a = execution.Authors.Affect(Creator);
 			execution.PayCycleEnergy(a);
  		}
- 		else
+		else if(As == Role.Moderator && s.CreationPolicies[t].Contains(Role.Moderator))
  		{
+			if(!CanAccessAccount(execution, Creator, out _, out Error))
+				return;
+			
+			if(!IsModerator(execution, s.Id, Creator, out var _, out Error))
+				return;
+
+			execution.PayCycleEnergy(s);
+ 		}
+ 		else if(As == Role.Author && s.CreationPolicies[t].Contains(Role.Author))
+ 		{
+			if(!CanAccessAuthor(execution, Creator, out var _, out Error))
+				return;
+
 			var a = execution.Authors.Affect(Creator);
 
 			a.Energy -= s.AuthorRequestFee;
@@ -104,9 +119,14 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
+		else
+		{
+			Error = Denied;
+			return;
+		}
 
-		if(	s.ChangePolicies[t] == ChangePolicy.AnyModerator	&& IsModerator(execution, s.Id, out _, out _) ||
-			execution.IsDiscussion(s.ChangePolicies[t])			&& IsModerator(execution, s.Id, out _, out _) && s.Moderators.Length == 1 ||
+		if(	s.ChangePolicies[t] == ChangePolicy.AnyModerator	&& IsModerator(execution, Creator, out _, out _) ||
+			execution.IsDiscussion(s.ChangePolicies[t])			&& IsModerator(execution, Creator, out _, out _) && s.Moderators.Length == 1 ||
 			execution.IsReferendum(s.ChangePolicies[t])			&& IsMember(execution, s.Id, Creator, out _, out _, out _) && s.Authors.Length == 1)
 		{
 			Proposal.Site = s;
@@ -116,28 +136,28 @@ public class ProposalCreation : FairOperation
 		{
  			var d = execution.Proposals.Create(s);
  
- 			d.Site       = Site;
-			d.Text       = Text;
- 			d.Operation  = Proposal;
- 			d.Expirtaion = execution.Time + Time.FromDays(30);
+ 			d.Site			= Site;
+			d.Creator		= Creator;
+			d.As			= As;
+			d.Text			= Text;
+ 			d.Operation		= Proposal;
+ 			d.Expiration	= execution.Time + Time.FromDays(30);
   
  			s = execution.Sites.Affect(s.Id);
 			s.Proposals = [..s.Proposals, d.Id];
 
-			if(IsModerator(execution, s.Id, out var _, out var _))
+			if(As == Role.Moderator)
  			{
  				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
  			}
-			else if(IsMember(execution, s.Id, Creator, out var _, out var _, out var _))
+			else if(As == Role.Member)
  			{
 				var a = execution.Authors.Affect(Creator);
-
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
  			}
- 			else
+ 			else if(As == Role.Author)
  			{
 				var a = execution.Authors.Affect(Creator);
-
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
  			}
 		}

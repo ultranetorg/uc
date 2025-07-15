@@ -7,7 +7,7 @@ public enum ChangePolicy : byte
 
 public enum Role : byte
 {
-	None, Author, Moderator
+	None, Author, Moderator, Member
 }
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry

@@ -51,6 +51,6 @@ public class File : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		//writer.Write7BitEncodedInt(Refs);
-		writer.Write(Data);
+		writer.WriteBytes(Data);
 	}
 }

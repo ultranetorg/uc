@@ -6,7 +6,8 @@ public enum FairOperationClass : uint
 	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 	
 	AccountNicknameChange			= 100_000_000,
-	FavoriteSiteChange				= 100_000_001,
+	AccountAvatarChange				= 100_000_001,
+	FavoriteSiteChange				= 100_000_002,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -15,6 +16,7 @@ public enum FairOperationClass : uint
 		AuthorOwnerAddition			= 101_000_004,
 		AuthorOwnerRemoval			= 101_000_005,
 		AuthorNicknameChange		= 101_000_006,
+		AuthorAvatarChange			= 100_000_007,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
@@ -200,12 +202,26 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool IsModerator(FairExecution execution, AutoId id, out Site site, out string error)
+	public bool IsModerator(FairExecution execution, AutoId siteid, out Site site, out string error)
 	{
- 		if(!SiteExists(execution, id, out site, out error))
+ 		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
 		if(!site.Moderators.Contains(Signer.Id))
+		{
+			error = Denied;
+			return false; 
+		}
+
+		return true; 
+	}
+
+	public bool IsModerator(FairExecution execution, AutoId siteid, AutoId accountid, out Site site, out string error)
+	{
+ 		if(!SiteExists(execution, siteid, out site, out error))
+ 			return false; 
+
+		if(!site.Moderators.Contains(accountid))
 		{
 			error = Denied;
 			return false; 
