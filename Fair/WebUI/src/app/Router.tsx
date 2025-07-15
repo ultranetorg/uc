@@ -1,4 +1,4 @@
-import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, createHashRouter, RouterProvider } from "react-router-dom"
 
 import { AppLayout, BaseLayout, SiteLayout } from "ui/layouts"
 import {
@@ -21,10 +21,12 @@ import {
 } from "ui/pages"
 
 import { SiteProvider } from "./SiteContext"
+import { AppRouteObject } from "./types"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
 
-const routes: RouteObject[] = [
+// eslint-disable-next-line react-refresh/only-export-components
+export const routes: AppRouteObject[] = [
   {
     path: "/",
     element: <BaseLayout />,
@@ -43,6 +45,7 @@ const routes: RouteObject[] = [
 
       {
         path: "/:siteId",
+        breadcrumb: t => t("home"),
         element: (
           <SiteProvider>
             <SiteLayout />
@@ -67,11 +70,13 @@ const routes: RouteObject[] = [
           },
           {
             path: "/:siteId/i",
+            breadcrumb: t => t("about"),
             element: <AboutPage />,
           },
 
           {
             path: "/:siteId/a-r",
+            breadcrumb: t => t("referendums"),
             element: <ReferendumsPage />,
           },
           {
@@ -81,6 +86,7 @@ const routes: RouteObject[] = [
 
           {
             path: "/:siteId/m",
+            breadcrumb: t => t("moderation"),
             element: <ModerationPage />,
           },
           {

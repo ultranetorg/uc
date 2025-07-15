@@ -1,11 +1,13 @@
 export const enUS = {
   common: {
+    about: "About",
+    absVotes: "Abstained from voting",
     cancel: "Cancel",
     home: "Home",
     next: "Next",
-    yesVotes: "Yes votes",
     noVotes: "No votes",
-    absVotes: "Abstained from voting",
+    referendums: "Referendums",
+    yesVotes: "Yes votes",
   },
   about: {
     about: "About",
