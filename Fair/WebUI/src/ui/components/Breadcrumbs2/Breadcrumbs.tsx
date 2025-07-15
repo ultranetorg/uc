@@ -1,3 +1,5 @@
+import { Fragment } from "react/jsx-runtime"
+
 import { SvgChevronRight, ThreeDotsSvg } from "assets"
 import { useAppBreadcrumbs } from "hooks"
 
@@ -12,16 +14,20 @@ export const Breadcrumbs2 = () => {
 
   return (
     <div className="flex h-6 select-none items-center gap-1 text-2xs leading-5">
-      {breadcrumbs.map((item, index) => (
-        <>
-          {"title" in item ? (
-            <Breadcrumb2 title={item.title} path={index < breadcrumbs.length - 1 ? item.path : undefined} />
-          ) : (
-            <ThreeDotsSvg className="fill-gray-400" />
-          )}
-          {index < breadcrumbs.length - 1 && <SvgChevronRight className="stroke-gray-400" />}
-        </>
-      ))}
+      {breadcrumbs.map((item, index) => {
+        const isLast = index === breadcrumbs.length - 1
+
+        return (
+          <Fragment key={index}>
+            {"title" in item ? (
+              <Breadcrumb2 title={item.title} path={!isLast ? item.path : undefined} />
+            ) : (
+              <ThreeDotsSvg className="fill-gray-400" />
+            )}
+            {!isLast && <SvgChevronRight className="stroke-gray-400" />}
+          </Fragment>
+        )
+      })}
     </div>
   )
 }

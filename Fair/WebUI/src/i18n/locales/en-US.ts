@@ -6,7 +6,7 @@ export const enUS = {
     home: "Home",
     next: "Next",
     noVotes: "No votes",
-    referendums: "Referendums",
+    governance: "Governance",
     yesVotes: "Yes votes",
   },
   about: {

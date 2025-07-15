@@ -75,8 +75,8 @@ export const routes: AppRouteObject[] = [
           },
 
           {
-            path: "/:siteId/a-r",
-            breadcrumb: t => t("referendums"),
+            path: "/:siteId/g",
+            breadcrumb: t => t("governance"),
             element: <ReferendumsPage />,
           },
           {

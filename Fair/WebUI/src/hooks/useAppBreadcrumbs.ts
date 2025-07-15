@@ -3,7 +3,7 @@ import { matchRoutes, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { routes } from "app"
-import { BreadcrumbsItem2 } from "ui/components/Breadcrumbs2"
+import { BreadcrumbsItem2 } from "ui/components"
 
 export const useAppBreadcrumbs = (): BreadcrumbsItem2[] => {
   const location = useLocation()
@@ -11,8 +11,7 @@ export const useAppBreadcrumbs = (): BreadcrumbsItem2[] => {
 
   const breadcrumbs = useMemo(() => {
     const matchedRoutes = matchRoutes(routes, location.pathname)
-
-    return matchedRoutes
+    return matchedRoutes && matchedRoutes.length > 1
       ? matchedRoutes.slice(1).map(({ route, pathname, params }) => {
           const label = typeof route.breadcrumb === "function" ? route.breadcrumb(t, params) : t(route.breadcrumb || "")
 
