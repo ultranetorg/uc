@@ -25,7 +25,7 @@ public class AuthorAvatarChange : FairOperation
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
-		writer.Write(Image);
+		writer.WriteBytes(Image);
 	}
 
 	public override void Execute(FairExecution execution)

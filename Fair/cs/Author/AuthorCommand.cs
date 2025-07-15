@@ -145,4 +145,32 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+	
+	public CommandAction Avatar()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var path = "path";
+
+		a.Name = "avatar";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {path}={PATH} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (path, "A path to image file"),
+									 new (SignerArg, "Address of account that is author's owner")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return	new AuthorAvatarChange
+										{
+											Author = FirstAuthorId,
+											Image = System.IO.File.ReadAllBytes(GetString(path))
+										}; 
+							};
+		return a;
+	}
 }

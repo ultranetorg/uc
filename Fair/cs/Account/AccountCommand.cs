@@ -87,11 +87,8 @@ public class AccountCommand : Net.AccountCommand
 
 		a.Name = "ls";
 		a.Help = new() {Description = "Get sites of a specified account",
-
 						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-
 						Arguments = [new ("<first>", "Id of an account to get sites from")],
-
 						Examples = [new (null, $"{Keyword} l {EID.Example}")]};
 
 		a.Execute = () =>	{
@@ -105,5 +102,26 @@ public class AccountCommand : Net.AccountCommand
 							};
 		return a;
 	}
+		
+	public CommandAction Avatar()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var path = "path";
 
+		a.Name = "avatar";
+		a.Help = new() {Description = "",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {path}={PATH} {SignerArg}={AA}",
+						Arguments =	[new ("<first>", "Id of an author to update"),
+									 new (path, "A path to image file"),
+									 new (SignerArg, "Address of account to set avatar for")],
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return	new AccountAvatarChange {Image = System.IO.File.ReadAllBytes(GetString(path))}; 
+							};
+		return a;
+	}	
 }

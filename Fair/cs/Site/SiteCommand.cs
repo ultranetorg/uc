@@ -82,6 +82,7 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
 		var nickname = "nickname";
+		var @as = "as";
 
 		a.Name = "n";
 		a.Help = new() {Description = "",
@@ -89,14 +90,15 @@ public class SiteCommand : FairCommand
 
 						Arguments =	[new ("<first>", "Id of a site to update"),
 									 new (nickname, "A new nickname"),
+									 new (@as, "On behalf of"),
 									 new (SignerArg, "Address of account that owns the site")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {@as}={Role.Moderator} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new ProposalCreation(FirstEntityId, SecondEntityId, new SiteNicknameChange {Nickname = GetString(nickname)}); 
+								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@as), new SiteNicknameChange {Nickname = GetString(nickname)}); 
 							};
 		return a;
 	}
@@ -122,5 +124,4 @@ public class SiteCommand : FairCommand
 							};
 		return a;
 	}
-
 }

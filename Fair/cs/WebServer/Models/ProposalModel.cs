@@ -8,7 +8,7 @@ public class ProposalModel(Proposal dispute)
 	public int NoCount { get; set; } = dispute.No.Count();
 	public int AbsCount { get; set; } = dispute.Abs.Count();
 
-	public int Expiration { get; set; } = dispute.Expirtaion.Days;
+	public int Expiration { get; set; } = dispute.Expiration.Days;
 
 	public string Text { get; set; } = dispute.Text;
 

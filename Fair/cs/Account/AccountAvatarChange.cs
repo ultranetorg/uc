@@ -6,10 +6,10 @@ public class AccountAvatarChange : FairOperation
 	///  Both == null means delete avatar
 	/// </summary>
 
-	public byte[]				Avatar { get; set; }
-	public override string		Explanation => $"Avatar={Avatar?.Length}";
+	public byte[]				Image { get; set; }
+	public override string		Explanation => $"Avatar={Image?.Length}";
 	
-	public AccountAvatarChange ()
+	public AccountAvatarChange()
 	{
 	}
 	
@@ -20,12 +20,12 @@ public class AccountAvatarChange : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Avatar = reader.ReadBytes();
+		Image = reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Avatar);
+		writer.WriteBytes(Image);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -33,9 +33,9 @@ public class AccountAvatarChange : FairOperation
 		if(!CanAccessAccount(execution, Signer.Id, out var a, out Error))
 			return;
 
-		Signer.Avatar = Avatar;
+		Signer.Avatar = Image;
 
-		execution.AllocateForever(Signer, Avatar.Length);
+		execution.AllocateForever(Signer, Image.Length);
 		execution.PayCycleEnergy(Signer);
 	}
 }
