@@ -2,17 +2,11 @@
 
 namespace Uccs.Fair;
 
-public class CategoryBaseModel
+public class CategoryBaseModel(Category category)
 {
 	[JsonPropertyOrder(-2)]
-	public string Id { get; set; }
+	public string Id { get; set; } = category.Id.ToString();
 
 	[JsonPropertyOrder(-1)]
-	public string Title { get; set; }
-
-	public CategoryBaseModel(Category category)
-	{
-		Id = category.Id.ToString();
-		Title = category.Title;
-	}
+	public string Title { get; set; } = category.Title;
 }
