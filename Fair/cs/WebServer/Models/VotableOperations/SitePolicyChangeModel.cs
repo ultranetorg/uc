@@ -1,16 +1,7 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePolicyChangeModel : BaseVotableOperationModel
+public class SitePolicyChangeModel(SitePolicyChange operation) : BaseVotableOperationModel(operation)
 {
-	public string SiteId { get; set; }
-
-	public FairOperationClass Change { get; set; }
-	public ChangePolicy Policy { get; set; }
-
-	public SitePolicyChangeModel(SitePolicyChange operation)
-	{
-		SiteId = operation.Site.ToString();
-		Change = operation.Change;
-		Policy = operation.Policy;
-	}
+	public FairOperationClass Change { get; set; } = operation.Change;
+	public ChangePolicy Policy { get; set; } = operation.Policy;
 }
