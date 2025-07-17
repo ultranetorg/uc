@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useMemo } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useEffect, useMemo } from "react"
+import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useGetAuthorReferendums } from "entities"
-import { Input, Pagination, Select, SelectItem, Table } from "ui/components"
+import { Input, Pagination, Table } from "ui/components"
 import { GovernanceModerationHeader } from "ui/components/specific"
 import { TableEmptyState } from "ui/components/referendums"
 import { usePagePagination } from "ui/pages/hooks"
-import { getReferendumsItemRenderer as getItemRenderer } from "ui/renderers"
+import {
+  getReferendumsItemRenderer as getItemRenderer,
+  getReferendumsRowRenderer as getRowRenderer,
+} from "ui/renderers"
 
 export const ReferendumsPage = () => {
   const { page, setPage, pageSize, setPageSize, search, setSearch } = usePagePagination()
@@ -15,6 +18,7 @@ export const ReferendumsPage = () => {
   const { t } = useTranslation("referendums")
 
   const itemRenderer = useMemo(() => getItemRenderer(t), [t])
+  const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
 
   const { isPending, data: referendums } = useGetAuthorReferendums(siteId, page, pageSize, search)
   const pagesCount =
@@ -25,14 +29,6 @@ export const ReferendumsPage = () => {
       setPage(0)
     }
   }, [isPending, page, pagesCount, setPage])
-
-  const handlePageSizeChange = useCallback(
-    (value: string) => {
-      setPage(0)
-      setPageSize(parseInt(value))
-    },
-    [setPage, setPageSize],
-  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,6 +59,7 @@ export const ReferendumsPage = () => {
         ]}
         items={referendums?.items}
         itemRenderer={itemRenderer}
+        rowRenderer={rowRenderer}
         emptyState={<TableEmptyState message={t("noReferendums")} />}
       />
       <div className="flex justify-end">
@@ -70,48 +67,4 @@ export const ReferendumsPage = () => {
       </div>
     </div>
   )
-
-  // return (
-  //   <div className="my-3 flex flex-col gap-3">
-  //     <div className="flex w-80 gap-3">
-  //       <Input placeholder="Search site" value={search} onChange={setSearch} />
-  //       <Select items={pageSizes} value={pageSize} onChange={handlePageSizeChange} />
-  //       <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
-  //     </div>
-  //     <div>
-  //       <table style={{ width: "100%", borderCollapse: "collapse" }}>
-  //         <thead>
-  //           <tr>
-  //             <th>ID</th>
-  //             <th>Text</th>
-  //             <th>Expiration</th>
-  //             <th>Votes</th>
-  //             <th>Type</th>
-  //             <th>Proposal</th>
-  //           </tr>
-  //         </thead>
-  //         <tbody>
-  //           {referendums?.items?.map(r => (
-  //             <tr key={r.id}>
-  //               <td>
-  //                 <Link to={`/${siteId}/a-r/${r.id}`}>{r.id}</Link>
-  //               </td>
-  //               <td>
-  //                 <div>{r.text}</div>
-  //               </td>
-  //               <td>{r.expiration}</td>
-  //               <td>
-  //                 <span className="text-red-500">{r.yesCount}</span> /{" "}
-  //                 <span className="text-green-500">{r.noCount}</span> /{" "}
-  //                 <span className="text-gray-500">{r.absCount}</span>
-  //               </td>
-  //               <td>{t(r.proposal.$type, { ns: "votableOperations" })}</td>
-  //               <td>{JSON.stringify(r.proposal)}</td>
-  //             </tr>
-  //           ))}
-  //         </tbody>
-  //       </table>
-  //     </div>
-  //   </div>
-  // )
 }

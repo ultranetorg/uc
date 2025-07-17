@@ -29,12 +29,10 @@ export const formatRoles = (categories: string[]) => categories.join(ROLES_DELIM
 
 export const formatProposal = (proposal: BaseVotableOperation, t: TFunction) => {
   switch (proposal.$type) {
-    case "nickname-change":
-      {
-        const typed = proposal as NicknameChange
-        return t(`operations:${proposal.$type}`, { context: typed.field.toLowerCase(), ...typed })
-      }
-      break
+    case "nickname-change": {
+      const typed = proposal as NicknameChange
+      return t(`operations:${proposal.$type}`, { context: typed.field.toLowerCase(), ...typed })
+    }
   }
 
   return undefined
