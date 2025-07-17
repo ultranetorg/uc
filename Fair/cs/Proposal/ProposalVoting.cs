@@ -58,7 +58,7 @@ public class ProposalVoting : FairOperation
 
  
 		var s = execution.Sites.Find(d.Site);
-        var policy = s.ChangePolicies[Enum.Parse<FairOperationClass>(d.Operation.GetType().Name)];
+        var policy = s.ApprovalPolicies[Enum.Parse<FairOperationClass>(d.Operation.GetType().Name)];
 
  		switch(policy)
  		{

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryAvatarChange : FairOperation
+public class CategoryAvatarChange : VotableOperation
 {
 	public AutoId				Category { get; set; } 
 	public byte[]				Image { get; set; }
@@ -27,6 +27,19 @@ public class CategoryAvatarChange : FairOperation
 		writer.Write(Category);
 		writer.Write(Image);
 	}
+
+	public override bool Overlaps(VotableOperation other)
+	{
+		var o = other as CategoryAvatarChange;
+
+		return o.Category == Category;
+	}
+
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
+ 	{
+		error = null;
+		return true;
+ 	}
 
 	public override void Execute(FairExecution execution)
 	{

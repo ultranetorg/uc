@@ -65,7 +65,7 @@ public class ProposalCreation : FairOperation
  
         var t = Enum.Parse<FairOperationClass>(Proposal.GetType().Name);
 
- 		if(!s.ChangePolicies.TryGetValue(t, out var p))
+ 		if(!s.ApprovalPolicies.TryGetValue(t, out var p))
  			throw new IntegrityException();
  
  		if(s.Proposals.Any(i =>  {
@@ -119,15 +119,22 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
+		else if(As == Role.User && s.CreationPolicies[t].Contains(Role.User) && Proposal.Sponsored)
+		{
+			if(!CanAccessAccount(execution, Creator, out var _, out Error))
+				return;
+
+			execution.PayCycleEnergy(s);
+		}
 		else
 		{
 			Error = Denied;
 			return;
 		}
 
-		if(	s.ChangePolicies[t] == ChangePolicy.AnyModerator	&& IsModerator(execution, Creator, out _, out _) ||
-			execution.IsDiscussion(s.ChangePolicies[t])			&& IsModerator(execution, Creator, out _, out _) && s.Moderators.Length == 1 ||
-			execution.IsReferendum(s.ChangePolicies[t])			&& IsMember(execution, s.Id, Creator, out _, out _, out _) && s.Authors.Length == 1)
+		if(	s.ApprovalPolicies[t] == ChangePolicy.AnyModerator	&& IsModerator(execution, Creator, out _, out _) ||
+			execution.IsDiscussion(s.ApprovalPolicies[t])		&& IsModerator(execution, Creator, out _, out _) && s.Moderators.Length == 1 ||
+			execution.IsReferendum(s.ApprovalPolicies[t])		&& IsMember(execution, s.Id, Creator, out _, out _, out _) && s.Authors.Length == 1)
 		{
 			Proposal.Site = s;
 			Proposal.Execute(execution);
@@ -146,16 +153,11 @@ public class ProposalCreation : FairOperation
  			s = execution.Sites.Affect(s.Id);
 			s.Proposals = [..s.Proposals, d.Id];
 
-			if(As == Role.Moderator)
+			if(As == Role.Moderator || As == Role.User)
  			{
  				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
  			}
-			else if(As == Role.Member)
- 			{
-				var a = execution.Authors.Affect(Creator);
- 				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
- 			}
- 			else if(As == Role.Author)
+			else if(As == Role.Member || As == Role.Author)
  			{
 				var a = execution.Authors.Affect(Creator);
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));

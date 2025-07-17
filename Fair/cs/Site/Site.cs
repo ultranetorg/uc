@@ -7,7 +7,7 @@ public enum ChangePolicy : byte
 
 public enum Role : byte
 {
-	None, Author, Moderator, Member
+	None, Author, Moderator, Member, User
 }
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
@@ -22,7 +22,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId					Avatar  { get; set; }
 	
 	public OrderedDictionary<FairOperationClass, Role[]>		CreationPolicies { get; set; }
-	public OrderedDictionary<FairOperationClass, ChangePolicy>	ChangePolicies { get; set; }
+	public OrderedDictionary<FairOperationClass, ChangePolicy>	ApprovalPolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -88,7 +88,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 								Avatar					= Avatar,
 								
 								CreationPolicies		= CreationPolicies,
-								ChangePolicies			= ChangePolicies,
+								ApprovalPolicies			= ApprovalPolicies,
 
 								Expiration				= Expiration,
 								Space					= Space,
@@ -136,7 +136,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Avatar						= reader.ReadNullable<AutoId>();
 		
 		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
-		ChangePolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
+		ApprovalPolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
 
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
@@ -167,7 +167,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteNullable(Avatar);
 		
 		writer.Write(CreationPolicies, i => { writer.Write(i.Key); writer.Write(i.Value, i => writer.Write(i)); });
-		writer.Write(ChangePolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
+		writer.Write(ApprovalPolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);

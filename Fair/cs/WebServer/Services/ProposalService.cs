@@ -158,5 +158,5 @@ public class ProposalService
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static bool IsProposalIsProposal(Site site, Proposal dispute) =>
-		site.ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Operation.GetType().Name)] != ChangePolicy.ElectedByAuthorsMajority;
+		site.ApprovalPolicies[Enum.Parse<FairOperationClass>(dispute.Operation.GetType().Name)] != ChangePolicy.ElectedByAuthorsMajority;
 }

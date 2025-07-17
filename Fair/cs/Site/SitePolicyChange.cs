@@ -29,7 +29,7 @@ public class SitePolicyChange : VotableOperation
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(Site.ChangePolicies.TryGetValue(Change, out var p) && p == Policy)
+		if(Site.ApprovalPolicies.TryGetValue(Change, out var p) && p == Policy)
 		{	
 			error = AlreadyExists;
 			return false;
@@ -43,7 +43,7 @@ public class SitePolicyChange : VotableOperation
 	{
  		var s = execution.Sites.Affect(Site.Id);
  
-		s.ChangePolicies = new(s.ChangePolicies);
-		s.ChangePolicies[Change] = Policy;
+		s.ApprovalPolicies = new(s.ApprovalPolicies);
+		s.ApprovalPolicies[Change] = Policy;
 	}
 }

@@ -149,7 +149,10 @@ public class FairExecution : Execution
 			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
 				return a;
 		
-			a = Mcv.Accounts.Find(Transaction.Signer, Round.Id)?.Clone() as Account;	
+			if(Parent != null)
+				return Parent.FindAccount(Transaction.Signer);
+			else
+				a = Mcv.Accounts.Find(Transaction.Signer, Round.Id)?.Clone() as Account;	
 
 			if(a != null)
 				TransferEnergyIfNeeded(a);
@@ -196,7 +199,7 @@ public class FairExecution : Execution
 
 	public bool IsReferendum(Proposal proposal)
 	{
-		return Sites.Find(proposal.Site).ChangePolicies[Enum.Parse<FairOperationClass>(proposal.Operation.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
+		return Sites.Find(proposal.Site).ApprovalPolicies[Enum.Parse<FairOperationClass>(proposal.Operation.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
 	}
 
 	public bool IsReferendum(ChangePolicy policy)

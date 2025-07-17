@@ -80,7 +80,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		a.Authors = [];
 		a.Proposals = [];
 		a.CreationPolicies = [];
-		a.ChangePolicies = [];
+		a.ApprovalPolicies = [];
 		a.UnpublishedPublications = [];
 		a.ChangedPublications = [];
 		a.ChangedReviews = [];
