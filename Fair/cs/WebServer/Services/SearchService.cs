@@ -54,8 +54,10 @@ public class SearchService
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
-			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category);
+			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
 			result.Add(model);
 		}
 	}
@@ -118,7 +120,9 @@ public class SearchService
 				break;
 
 			Site site = mcv.Sites.Latest(search.Entity);
-			SiteBaseModel model = new SiteBaseModel(site);
+			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
+
+			SiteBaseModel model = new SiteBaseModel(site, avatar);
 			result.Add(model);
 		}
 	}

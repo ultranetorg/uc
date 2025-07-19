@@ -1,14 +1,8 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductFieldVersionReferenceModel
+public class ProductFieldVersionReferenceModel(ProductFieldVersionReference reference)
 {
-	public ProductFieldName Name { get; set; }
+	public ProductFieldName Name { get; set; } = reference.Field;
 
-	public int Version { get; set; }
-
-	public ProductFieldVersionReferenceModel(ProductFieldVersionReference reference)
-	{
-		Name = reference.Field;
-		Version = reference.Version;
-	}
+	public int Version { get; set; } = reference.Version;
 }

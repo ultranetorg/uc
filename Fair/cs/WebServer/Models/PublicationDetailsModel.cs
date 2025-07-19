@@ -1,10 +1,11 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category)
-	: PublicationExtendedModel(publication, product, author, category)
+public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo, byte[]? authorAvatar)
+	: PublicationExtendedModel(publication, product, author, category, logo)
 {
-	// TODO: fix average rating calculation.
-	public int AverageRating { get; set; } = 43;
+	public byte[] AuthorAvatar { get; set; } = authorAvatar;
+
+	public int Rating { get; set; } = publication.Rating;
 
 	public int ReviewsCount { get; set;} = publication.Reviews.Count();
 

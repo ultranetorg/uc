@@ -2,25 +2,20 @@
 
 namespace Uccs.Fair;
 
-public class SiteBaseModel
+public class SiteBaseModel(Site site, byte[]? avatar)
 {
+	[JsonPropertyOrder(-5)]
+	public string Id { get; set; } = site.Id.ToString();
+
 	[JsonPropertyOrder(-4)]
-	public string Id { get; set; }
+	public string Nickname { get; set; } = site.Nickname.ToString();
 
 	[JsonPropertyOrder(-3)]
-	public string Nickname { get; set; }
+	public string Title { get; set; } = site.Title;
 
 	[JsonPropertyOrder(-2)]
-	public string Title { get; set; }
+	public string Description { get; set; } = site.Description;
 
 	[JsonPropertyOrder(-1)]
-	public string Description { get; set; }
-
-	public SiteBaseModel(Site site)
-	{
-		Id = site.Id.ToString();
-		Nickname = site.Nickname.ToString();
-		Title = site.Title;
-		Description = site.Description;
-	}
+	public byte[]? Avatar { get; set; } = avatar;
 }

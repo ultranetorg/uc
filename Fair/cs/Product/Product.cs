@@ -65,6 +65,16 @@ public class ProductFieldVersion : IBinarySerializable
 		}
 	}
 
+	public AutoId AsAutoId
+	{
+		get
+		{
+			var a = new AutoId();
+			a.Read(new BinaryReader(new MemoryStream(Value)));
+			return a;
+		}
+	}
+
 	public ProductFieldVersion()
 	{
 	}
