@@ -25,7 +25,11 @@ const renderVoting = (t: TFunction, voting: AuthorReferendum) => (
 
 export const getReferendumsRowRenderer =
   (siteId: string): TableRowRenderer =>
-  (children: JSX.Element, item: TableItem): JSX.Element => <Link to={`/${siteId}/a-r/${item.id}`}>{children}</Link>
+  (children: JSX.Element, item: TableItem): JSX.Element => (
+    <Link to={`/${siteId}/a-r/${item.id}`} key={item.id}>
+      {children}
+    </Link>
+  )
 
 export const getReferendumsItemRenderer =
   (t: TFunction): TableItemRenderer =>

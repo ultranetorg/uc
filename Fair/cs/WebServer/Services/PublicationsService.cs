@@ -29,12 +29,11 @@ public class PublicationsService
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+			byte[]? authorAvatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
 
-			return new PublicationDetailsModel(publication, product, author, category)
-			{
-				// TODO: calculate average rating.
-				AverageRating = 31,
-			};
+			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar);
 		}
 	}
 
@@ -123,7 +122,9 @@ public class PublicationsService
 
 			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 			{
-				var resultItem = new PublicationAuthorModel(publication, product);
+				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+				byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+				var resultItem = new PublicationAuthorModel(publication, product, logo);
 				context.Items.Add(resultItem);
 			}
 
@@ -181,7 +182,10 @@ public class PublicationsService
 			{
 				Publication publication = mcv.Publications.Latest(publicationId);
 				Product product = mcv.Products.Latest(publication.Product);
-				var model = new PublicationModel(publication, product, category);
+				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+				byte[] logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+
+				var model = new PublicationModel(publication, product, category, logo);
 				context.Items.Add(model);
 			}
 
@@ -321,8 +325,9 @@ public class PublicationsService
 				return;
 
 			Category category = mcv.Categories.Latest(categoryId);
+			byte[]? avatar = category.Avatar != null ? mcv.Files.Latest(category.Avatar).Data : null;
 
-			var resultCategory = new CategoryPublicationsModel(category)
+			var resultCategory = new CategoryPublicationsModel(category, avatar)
 			{
 				Publications = new List<PublicationExtendedModel>(CategoriesPublications.DefaultPublicationsCount)
 			};
@@ -357,7 +362,10 @@ public class PublicationsService
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
-			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+
+			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
 			result.Publications.Add(model);
 
 			if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)

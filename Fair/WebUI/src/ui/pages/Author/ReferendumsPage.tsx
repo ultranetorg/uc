@@ -13,7 +13,7 @@ import {
 } from "ui/renderers"
 
 export const ReferendumsPage = () => {
-  const { page, setPage, pageSize, setPageSize, search, setSearch } = usePagePagination()
+  const { page, setPage, pageSize, search, setSearch } = usePagePagination()
   const { siteId } = useParams()
   const { t } = useTranslation("referendums")
 

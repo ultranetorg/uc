@@ -92,7 +92,11 @@ export const PublicationPage = () => {
     <>
       <div className="flex flex-col gap-6">
         <Breadcrumbs items={breadcrumbsItems!} />
-        <SoftwarePublicationHeader title={publication.title} categories={TEST_SOFTWARE_CATEGORIES} />
+        <SoftwarePublicationHeader
+          title={publication.title}
+          logo={publication.logo}
+          categories={TEST_SOFTWARE_CATEGORIES}
+        />
         <div className="flex gap-8">
           <div className="flex flex-1 flex-col gap-8">
             <Slider />

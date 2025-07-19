@@ -141,6 +141,7 @@ public class ProposalService
 	{
 		return proposal switch
 						{
+							CategoryAvatarChange operation => new CategoryAvatarChangeModel(operation),
 							CategoryCreation operation => new CategoryCreationModel(operation),
 							CategoryDeletion operation => new CategoryDeletionModel(operation),
 							CategoryMovement operation => new CategoryMovementModel(operation),

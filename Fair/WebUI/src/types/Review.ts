@@ -6,4 +6,5 @@ export type Review = {
   accountId: string
   accountAddress: string
   accountNickname: string
+  accountAvatar: string
 }

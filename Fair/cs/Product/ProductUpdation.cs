@@ -19,7 +19,7 @@ public class ProductUpdation : FairOperation
 	{
 		Product = id;
 	}
-	
+
 	public override bool IsValid(McvNet net)
 	{
 		if(Value.Length > ProductField.ValueLengthMaximum)
@@ -44,6 +44,8 @@ public class ProductUpdation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		var v = Value;
+
 		if(CanAccessProduct(execution, Product, out var a, out var r, out Error) == false)
 			return;
 
@@ -53,15 +55,15 @@ public class ProductUpdation : FairOperation
 		if(Uccs.Fair.Product.IsFile(Field))
 		{
 			var x = execution.Files.Create(Product);
-			x.Data = Value;
-			Value = x.Id.Raw;
+			x.Data = v;
+			v = x.Id.Raw;
 		}
 
 		var f = r.Fields.FirstOrDefault(j => j.Name == Field);
 
 		if(f == null)
-		{	
-			f = new ProductField {Name = Field, Versions = [new ProductFieldVersion {Value = Value, Version = 0}]};
+		{
+			f = new ProductField {Name = Field, Versions = [new ProductFieldVersion {Value = v, Version = 0}]};
 			r.Fields = [..r.Fields, f];
 		}
 		else
@@ -82,18 +84,18 @@ public class ProductUpdation : FairOperation
 
 				execution.Free(a, a, f.Versions.Last().Value.Length);
 
-				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = Value, Version = f.Versions.Last().Version}];
+				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = v, Version = f.Versions.Last().Version}];
 			}
 			else
-				f.Versions = [..f.Versions, new ProductFieldVersion {Value = Value, Version = f.Versions.Length}];
+				f.Versions = [..f.Versions, new ProductFieldVersion {Value = v, Version = f.Versions.Length}];
 		}
 
-		execution.Allocate(a, a, Value.Length);
+		execution.Allocate(a, a, v.Length);
 
 		foreach(var p in r.Publications)
 		{
 			var s = execution.Sites.Affect(execution.Publications.Find(p).Site);
-				
+
 			if(!s.ChangedPublications.Contains(p))
 				s.ChangedPublications = [..s.ChangedPublications, p];
 		}

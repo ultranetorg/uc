@@ -14,6 +14,7 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 			{
 				DerivedTypes =
 				{
+					new JsonDerivedType(typeof(CategoryAvatarChangeModel), "category-avatar-change"),
 					new JsonDerivedType(typeof(CategoryCreationModel), "category-creation"),
 					new JsonDerivedType(typeof(CategoryDeletionModel), "category-deletion"),
 					new JsonDerivedType(typeof(CategoryMovementModel), "category-movement"),
