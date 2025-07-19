@@ -41,19 +41,6 @@ public class CategoryAvatarChange : VotableOperation
 		return true;
 	}
 
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as CategoryAvatarChange;
-
-		return o.Category == Category;
-	}
-
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
-		error = null;
-		return true;
- 	}
-
 	public override void Execute(FairExecution execution)
 	{
 		if(!CanModerateCategory(execution, Category, out var c, out var s, out Error))
