@@ -41,6 +41,7 @@ public class SiteCreation : FairOperation
 
 		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.SiteDescriptionChange]		= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.SiteAvatarChange]				= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Moderator];
@@ -62,6 +63,7 @@ public class SiteCreation : FairOperation
 
 
 		s.ApprovalPolicies[FairOperationClass.SiteNicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
+		s.ApprovalPolicies[FairOperationClass.SiteAvatarChange]				= ChangePolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SitePolicyChange]				= ChangePolicy.ElectedByAuthorsMajority;
 
 		s.ApprovalPolicies[FairOperationClass.SiteDescriptionChange]		= ChangePolicy.ElectedByModeratorsUnanimously;
