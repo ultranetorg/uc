@@ -51,9 +51,9 @@ public class ProposalVoting : FairOperation
  		}
  
 		var s = execution.Sites.Affect(z.Site);
-        var policy = s.ApprovalPolicies[Enum.Parse<FairOperationClass>(z.Option.GetType().Name)];
+        var c = Enum.Parse<FairOperationClass>(z.Option.GetType().Name);
 
-		if(execution.IsReferendum(policy))
+		if(s.IsReferendum(c))
  		{
 			if(!IsPublisher(execution, s.Id, Voter, out var _, out var _, out Error))
 				return;
@@ -61,7 +61,7 @@ public class ProposalVoting : FairOperation
 			var a = execution.Authors.Affect(Voter);
 			execution.PayCycleEnergy(a);
  		}
-		else if(policy == ChangePolicy.AnyModerator || execution.IsDiscussion(policy))
+		else if(s.IsDiscussion(c))
  		{
 			if(!IsModerator(execution, s.Id, Voter, out var _, out Error))
 				return;
@@ -84,30 +84,30 @@ public class ProposalVoting : FairOperation
  			case ProposalVote.Abstained:	z.Abs	= [..z.Abs, Voter];	break;
  		}
  
- 		var success = policy switch
- 							 {
- 								ChangePolicy.AnyModerator					=> z.Yes.Length == 1,
- 								ChangePolicy.ElectedByModeratorsMajority	=> z.Yes.Length > s.Moderators.Length/2,
- 								ChangePolicy.ElectedByModeratorsUnanimously	=> z.Yes.Length == s.Moderators.Length,
- 								ChangePolicy.ElectedByAuthorsMajority		=> z.Yes.Length > s.Authors.Length/2,
- 								_ => throw new IntegrityException()
- 							 };
+ 		var success = s.ApprovalPolicies[c]	switch
+ 											{
+ 												ApprovalPolicy.AnyModerator						=> z.Yes.Length == 1,
+ 												ApprovalPolicy.ElectedByModeratorsMajority		=> z.Yes.Length > s.Moderators.Length/2,
+ 												ApprovalPolicy.ElectedByModeratorsUnanimously	=> z.Yes.Length == s.Moderators.Length,
+ 												ApprovalPolicy.ElectedByAuthorsMajority			=> z.Yes.Length > s.Authors.Length/2,
+ 												_ => throw new IntegrityException()
+ 											};
  
- 		var	fail = policy switch
- 						  {
-							 ChangePolicy.AnyModerator						=> z.No.Length == 1,
- 							 ChangePolicy.ElectedByModeratorsMajority		=> z.No.Length > s.Moderators.Length/2,
- 							 ChangePolicy.ElectedByModeratorsUnanimously	=> z.No.Length == s.Moderators.Length,
- 							 ChangePolicy.ElectedByAuthorsMajority			=> z.No.Length > s.Authors.Length/2,
- 							 _ => throw new IntegrityException()
- 						  };
+ 		var	fail = s.ApprovalPolicies[c] switch
+ 										 {
+											 ApprovalPolicy.AnyModerator					=> z.No.Length == 1,
+ 											 ApprovalPolicy.ElectedByModeratorsMajority		=> z.No.Length > s.Moderators.Length/2,
+ 											 ApprovalPolicy.ElectedByModeratorsUnanimously	=> z.No.Length == s.Moderators.Length,
+ 											 ApprovalPolicy.ElectedByAuthorsMajority		=> z.No.Length > s.Authors.Length/2,
+ 											 _ => throw new IntegrityException()
+ 										 };
  
  		if(success)
  		{
 			z.Option.Site	 = s;
 			z.Option.As		 = z.As;
-			z.Option.Creator = z.Creator;
-			z.Option.Signer	 = z.As == Role.User ? execution.AffectAccount(z.Creator) : null;
+			z.Option.By = z.By;
+			z.Option.Signer	 = z.As == Role.User ? execution.AffectAccount(z.By) : null;
 
 			var e = execution.CreateChild();
 	 			

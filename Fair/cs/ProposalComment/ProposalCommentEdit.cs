@@ -30,10 +30,11 @@ public class ProposalCommentEdit : FairOperation
 	{
 		var c = execution.ProposalComments.Affect(Comment);
 		var d = execution.Proposals.Find(c.Proposal);
+		var s = execution.Sites.Find(d.Site);
 
-		if(!execution.IsReferendum(d))
+		if(s.IsDiscussion(d.OptionClass))
  		{
- 			if(!IsModerator(execution, d.Site, out var s, out Error))
+ 			if(!IsModerator(execution, d.Site, out _, out Error))
  				return;
  
 			s = execution.Sites.Affect(s.Id);
@@ -45,7 +46,7 @@ public class ProposalCommentEdit : FairOperation
  		}
  		else
  		{
-			if(!IsReferendumCommentOwner(execution, Comment, out var s, out var a, out var _, out var _, out Error))
+			if(!IsReferendumCommentOwner(execution, Comment, out var _, out var a, out var _, out var _, out Error))
 				return;
 
 			a = execution.Authors.Affect(a.Id);

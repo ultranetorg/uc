@@ -3,7 +3,7 @@
 public class SitePolicyChange : VotableOperation
 {
 	public FairOperationClass	Change { get; set; }
-	public ChangePolicy			Policy { get; set; }
+	public ApprovalPolicy			Policy { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Policy}";
@@ -11,7 +11,7 @@ public class SitePolicyChange : VotableOperation
 	public override void Read(BinaryReader reader)
 	{
 		Change	= reader.Read<FairOperationClass>();
-		Policy	= reader.Read<ChangePolicy>();
+		Policy	= reader.Read<ApprovalPolicy>();
 	}
 
 	public override void Write(BinaryWriter writer)

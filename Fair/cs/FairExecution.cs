@@ -179,21 +179,6 @@ public class FairExecution : Execution
 // 		}
 	}
 
-	public bool IsReferendum(Proposal proposal)
-	{
-		return Sites.Find(proposal.Site).ApprovalPolicies[Enum.Parse<FairOperationClass>(proposal.Option.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
-	}
-
-	public bool IsReferendum(ChangePolicy policy)
-	{
-		return policy == ChangePolicy.ElectedByAuthorsMajority;
-	}
-
-	public bool IsDiscussion(ChangePolicy policy)
-	{
-		return policy == ChangePolicy.ElectedByModeratorsMajority || policy == ChangePolicy.ElectedByModeratorsUnanimously;
-	}
-
 	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
 	{
 		if(current != null)

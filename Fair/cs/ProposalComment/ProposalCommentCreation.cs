@@ -42,7 +42,7 @@ public class ProposalCommentCreation : FairOperation
 
 		var s = execution.Sites.Affect(d.Site);
 
-		if(d.As == Role.Moderator)
+		if(s.IsDiscussion(d.OptionClass))
  		{
  			if(!IsModerator(execution, s.Id, out var _, out Error))
  				return;
@@ -50,7 +50,7 @@ public class ProposalCommentCreation : FairOperation
 			c.Creator = Signer.Id;
 
  		}
- 		else if(d.As == Role.Publisher)
+ 		else if(s.IsReferendum(d.OptionClass))
  		{
  			if(!IsPublisher(execution, s.Id, Author, out var _, out var a, out Error))
  				return;

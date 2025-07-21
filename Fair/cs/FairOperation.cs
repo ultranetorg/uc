@@ -70,7 +70,7 @@ public abstract class VotableOperation : FairOperation
 {
 	public Site				Site;
 	public Role				As;
-	public AutoId			Creator;
+	public AutoId			By;
 
 	public abstract bool	ValidateProposal(FairExecution execution, out string error);
  	public abstract bool	Overlaps(VotableOperation other);

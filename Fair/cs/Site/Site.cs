@@ -1,6 +1,6 @@
 namespace Uccs.Fair;
 
-public enum ChangePolicy : byte
+public enum ApprovalPolicy : byte
 {
 	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
 }
@@ -22,7 +22,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId					Avatar  { get; set; }
 	
 	public OrderedDictionary<FairOperationClass, Role[]>		CreationPolicies { get; set; }
-	public OrderedDictionary<FairOperationClass, ChangePolicy>	ApprovalPolicies { get; set; }
+	public OrderedDictionary<FairOperationClass, ApprovalPolicy>	ApprovalPolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -142,7 +142,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Avatar						= reader.ReadNullable<AutoId>();
 		
 		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
-		ApprovalPolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ChangePolicy>());
+		ApprovalPolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ApprovalPolicy>());
 
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
@@ -194,4 +194,21 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}
+
+
+	//public bool IsReferendum(Proposal proposal)
+	//{
+	//	return Sites.Find(proposal.Site).ApprovalPolicies[Enum.Parse<FairOperationClass>(proposal.Option.GetType().Name)] == ApprovalPolicy.ElectedByAuthorsMajority;
+	//}
+
+	public bool IsReferendum(FairOperationClass operation)
+	{
+		return ApprovalPolicies[operation] == ApprovalPolicy.ElectedByAuthorsMajority;
+	}
+
+	public bool IsDiscussion(FairOperationClass operation)
+	{
+		return ApprovalPolicies[operation] == ApprovalPolicy.AnyModerator || ApprovalPolicies[operation] == ApprovalPolicy.ElectedByModeratorsMajority || ApprovalPolicies[operation] == ApprovalPolicy.ElectedByModeratorsUnanimously;
+	}
+
 }

@@ -5,12 +5,12 @@ namespace Uccs.Fair;
 public class ProposalCreation : FairOperation
 {
 	public AutoId				Site { get; set; }
-	public AutoId				Creator { get; set; } /// Account Id for Moderators, Author Id for Author
+	public AutoId				By { get; set; } /// Account Id for Moderators, Author Id for Author
 	public Role					As { get; set; }
 	public string				Text { get; set; }
 	public VotableOperation	    Option { get; set; }
-	
-	public override string		Explanation => $"Site={Site}, Creator={Creator}, Proposal={{{Option}}}, Text={Text}";
+
+	public override string		Explanation => $"Site={Site}, Creator={By}, Proposal={{{Option}}}, Text={Text}";
 
 	public ProposalCreation()
 	{
@@ -19,7 +19,7 @@ public class ProposalCreation : FairOperation
 	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, VotableOperation proposal, string text = "")
 	{
 		Site = site;
-		Creator = creator;
+		By = creator;
 		As = creatorrole;
 		Option = proposal;
 		Text = text;
@@ -33,7 +33,7 @@ public class ProposalCreation : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<AutoId>();
-		Creator		= reader.Read<AutoId>();
+		By		= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
  		Text		= reader.ReadUtf8();
 
@@ -44,7 +44,7 @@ public class ProposalCreation : FairOperation
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Site);
-		writer.Write(Creator);
+		writer.Write(By);
 		writer.Write(As);
  		writer.WriteUtf8(Text);
 
@@ -85,31 +85,31 @@ public class ProposalCreation : FairOperation
 
 		if(As == Role.Publisher)
  		{
-			if(!CanAccessAuthor(execution, Creator, out _, out Error))
+			if(!CanAccessAuthor(execution, By, out _, out Error))
 				return;
 
-			if(!IsPublisher(execution, s.Id, Creator, out var _, out var _, out Error))
+			if(!IsPublisher(execution, s.Id, By, out var _, out var _, out Error))
 				return;
 
-			var a = execution.Authors.Affect(Creator);
+			var a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
 		else if(As == Role.Moderator && s.CreationPolicies[t].Contains(Role.Moderator))
  		{
-			if(!CanAccessAccount(execution, Creator, out _, out Error))
+			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
 			
-			if(!IsModerator(execution, s.Id, Creator, out var _, out Error))
+			if(!IsModerator(execution, s.Id, By, out var _, out Error))
 				return;
 
 			execution.PayCycleEnergy(s);
  		}
  		else if(As == Role.Author && s.CreationPolicies[t].Contains(Role.Author))
  		{
-			if(!CanAccessAuthor(execution, Creator, out var _, out Error))
+			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
 
-			var a = execution.Authors.Affect(Creator);
+			var a = execution.Authors.Affect(By);
 
 			a.Energy -= s.AuthorRequestFee;
 			s.Energy += s.AuthorRequestFee;
@@ -118,7 +118,7 @@ public class ProposalCreation : FairOperation
  		}
 		else if(As == Role.User && s.CreationPolicies[t].Contains(Role.User))
 		{
-			if(!CanAccessAccount(execution, Creator, out var _, out Error))
+			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;
 		
 			execution.PayCycleEnergy(s);
@@ -129,13 +129,13 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(	s.ApprovalPolicies[t] == ChangePolicy.AnyModerator	&& IsModerator(execution, Creator, out _, out _) ||
-			execution.IsDiscussion(s.ApprovalPolicies[t])		&& IsModerator(execution, Creator, out _, out _) && s.Moderators.Length == 1 ||
-			execution.IsReferendum(s.ApprovalPolicies[t])		&& IsPublisher(execution, s.Id, Creator, out _, out _, out _) && s.Authors.Length == 1)
+		if(	s.ApprovalPolicies[t] == ApprovalPolicy.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
+			s.IsDiscussion(t)										&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+			s.IsReferendum(t)										&& IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1)
 		{
 			Option.Site		= s;
 			Option.As		= As;
-			Option.Creator	= As == Role.User ? Signer.Id : Creator;
+			Option.By		= As == Role.User ? Signer.Id : By;
 
 			Option.Execute(execution);
 		}
@@ -144,7 +144,7 @@ public class ProposalCreation : FairOperation
  			var z = execution.Proposals.Create(s);
  
  			z.Site			= Site;
-			z.Creator		= As == Role.User ? Signer.Id : Creator;
+			z.By			= As == Role.User ? Signer.Id : By;
 			z.As			= As;
 			z.Text			= Text;
  			z.Option		= Option;
@@ -158,7 +158,7 @@ public class ProposalCreation : FairOperation
  			}
 			else if(As == Role.Publisher || As == Role.Author)
  			{
-				var a = execution.Authors.Affect(Creator);
+				var a = execution.Authors.Affect(By);
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
  			}
 		}

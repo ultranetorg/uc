@@ -6,25 +6,27 @@ public enum ProposalFlags : byte
 
 public class Proposal : IBinarySerializable, ITableEntry
 {
-	public AutoId			Id { get; set; }
-	public AutoId			Site { get; set; }
-	public AutoId			Creator { get; set; }
-	public Role				As { get; set; }
-	public ProposalFlags	Flags { get; set; }
-	public AutoId[]			Yes { get; set; }
-	public AutoId[]			No { get; set; }
-	public AutoId[]			NoAndBan { get; set; }
-	public AutoId[]			NoAndBanish { get; set; }
-	public AutoId[]			Abs { get; set; }
-	public Time				Expiration { get; set; }
- 	public string			Text { get; set; }
-	public VotableOperation	Option { get; set; }
-	public AutoId[]			Comments;
+	public AutoId				Id { get; set; }
+	public AutoId				Site { get; set; }
+	public AutoId				By { get; set; }
+	public Role					As { get; set; }
+	public ProposalFlags		Flags { get; set; }
+	public AutoId[]				Yes { get; set; }
+	public AutoId[]				No { get; set; }
+	public AutoId[]				NoAndBan { get; set; }
+	public AutoId[]				NoAndBanish { get; set; }
+	public AutoId[]				Abs { get; set; }
+	public Time					Expiration { get; set; }
+ 	public string				Text { get; set; }
+	public VotableOperation		Option { get; set; }
+	public AutoId[]				Comments;
 
-	public EntityId			Key => Id;
-	public bool				Deleted { get; set; }
-	FairMcv					Mcv;
+	public EntityId				Key => Id;
+	public bool					Deleted { get; set; }
+	FairMcv						Mcv;
 		
+    public FairOperationClass	OptionClass => Enum.Parse<FairOperationClass>(Option.GetType().Name);
+
 	public Proposal()
 	{
 	}
@@ -40,7 +42,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 				{	
 					Id			= Id,	
 					Site		= Site,	
-					Creator		= Creator,	
+					By			= By,	
 					As			= As,
 					Flags		= Flags,
 					Yes			= Yes,
@@ -50,9 +52,10 @@ public class Proposal : IBinarySerializable, ITableEntry
 					Abs			= Abs,
 					Expiration	= Expiration,
 					Text		= Text,
-					Option	= Option,
+					Option		= Option,
 					Comments	= Comments
 				};
+
 		return a;
 	}
 
@@ -74,7 +77,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<AutoId>();
 		Site		= reader.Read<AutoId>();
-		Creator		= reader.Read<AutoId>();
+		By		= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
 		Flags		= reader.Read<ProposalFlags>();
 		Yes			= reader.ReadArray<AutoId>();
@@ -96,7 +99,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Site);
-		writer.Write(Creator);
+		writer.Write(By);
 		writer.Write(As);
 		writer.Write(Flags);
 		writer.Write(Yes);
