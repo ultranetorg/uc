@@ -55,9 +55,11 @@ public class ProposalService
 				throw new EntityNotFoundException(entityName, disputeId);
 			}
 
-			return new ProposalDetailsModel(dispute)
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(dispute.By);
+
+			return new ProposalDetailsModel(dispute, account)
 			{
-				Option = ToBaseVotableOperationModel(dispute.Operation)
+				Option = ToBaseVotableOperationModel(dispute.Option)
 			};
 		}
 	}
@@ -122,17 +124,22 @@ public class ProposalService
 		return ToTotalItemsResult(disputes, totalItems);
 	}
 
-	static TotalItemsResult<ProposalModel> ToTotalItemsResult(IList<Proposal> disputes, int totalItems)
+	TotalItemsResult<ProposalModel> ToTotalItemsResult(IList<Proposal> proposals, int totalItems)
 	{
-		IEnumerable<ProposalModel> items = disputes.Select(dispute =>
-			new ProposalModel(dispute)
+		IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
+		foreach(Proposal proposal in proposals)
+		{
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
+			ProposalModel model = new ProposalModel(proposal, account)
 			{
-				Option = ToBaseVotableOperationModel(dispute.Operation)
-			});
+				Option = ToBaseVotableOperationModel(proposal.Option)
+			};
+			result.Add(model);
+		}
 
 		return new TotalItemsResult<ProposalModel>
 		{
-			Items = items,
+			Items = result,
 			TotalItems = totalItems
 		};
 	}

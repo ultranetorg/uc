@@ -52,7 +52,7 @@ export const ReferendumsPage = () => {
       <Table
         columns={[
           { accessor: "text", label: "Text", className: "w-[26%]" },
-          { accessor: "createdBy", label: "Created By", className: "w-[18%]" },
+          { accessor: "createdBy", label: "Created By", type: "account-by", className: "w-[18%]" },
           { accessor: "expiration", label: "Days Left", className: "w-[7%]" },
           { accessor: "action", label: "Action", type: "option", className: "w-[26%]" },
           { accessor: "voting", label: "Current voting", type: "voting", className: "w-[11%]" },
