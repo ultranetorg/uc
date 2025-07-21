@@ -17,6 +17,7 @@ public enum FairOperationClass : uint
 		AuthorOwnerRemoval			= 101_000_005,
 		AuthorNicknameChange		= 101_000_006,
 		AuthorAvatarChange			= 100_000_007,
+		AuthorTextChange			= 100_000_008,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 

@@ -14,6 +14,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public AutoId				Id { get; set; }
 	public string				Nickname { get; set; }
 	public string				Title { get; set; }
+	public string				Description { get; set; }
 	public AutoId[]				Owners { get; set; }
 	public AutoId				Avatar  { get; set; }
 
@@ -33,7 +34,6 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	
 	public AutoId[]				Products { get; set; }
 	public AutoId[]				Sites { get; set; }
-	//public AutoId[]			Files  { get; set; }
 
 	public EntityId				Key => Id;
 	Mcv							Mcv;
@@ -55,21 +55,23 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public object Clone()
 	{
-		var a = new Author(Mcv){Id					= Id,
-								Nickname			= Nickname,
-								Title				= Title,
-								Owners				= Owners,
-								Avatar				= Avatar,
+		var a = new Author(Mcv)
+				{				
+					Id					= Id,
+					Nickname			= Nickname,
+					Title				= Title,
+					Description			= Description,
+					Owners				= Owners,
+					Avatar				= Avatar,
 
-								Expiration			= Expiration,
-								Space				= Space,
-								Spacetime			= Spacetime,
-								ModerationReward	= ModerationReward,
+					Expiration			= Expiration,
+					Space				= Space,
+					Spacetime			= Spacetime,
+					ModerationReward	= ModerationReward,
 
-								Products			= Products,
-								Sites				= Sites,
-								//Files				= Files
-								};
+					Products			= Products,
+					Sites				= Sites,
+				};
 
 		((IEnergyHolder)this).Clone(a);
 
@@ -132,6 +134,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.Write(Id);
 		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
+		writer.WriteUtf8Nullable(Description);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
 		writer.WriteNullable(Avatar);
@@ -148,6 +151,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Id					= reader.Read<AutoId>();
 		Nickname			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
+		Description			= reader.ReadUtf8Nullable();
 		Owners				= reader.ReadArray<AutoId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 		Avatar				= reader.ReadNullable<AutoId>();

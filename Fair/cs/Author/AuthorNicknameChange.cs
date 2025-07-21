@@ -53,6 +53,6 @@ public class AuthorNicknameChange : FairOperation
 		
 		a.Nickname = Nickname;	
 		
-		execution.PayCycleEnergy(a);	
+		execution.PayCycleEnergy(a);
 	}
 }

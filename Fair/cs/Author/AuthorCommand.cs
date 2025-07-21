@@ -173,4 +173,36 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+
+	public CommandAction Property()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var t = "title";
+		var d = "description";
+
+		a.Name = "p";
+		a.Help = new() {Description = "Changes various author descriptive properties",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {t}={TEXT} {d}={TEXT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (t, "A new title"),
+									 new (d, "A new description"),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {t}={TEXT.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new AuthorTextChange();
+
+								o.Author		= FirstAuthorId;
+								o.Title			= GetString(t, null); 
+								o.Description	= GetString(d, null); 
+
+								return o;
+							};
+		return a;
+	}
 }
