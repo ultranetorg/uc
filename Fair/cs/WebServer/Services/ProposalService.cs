@@ -57,7 +57,7 @@ public class ProposalService
 
 			return new ProposalDetailsModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Option)
+				Option = ToBaseVotableOperationModel(dispute.Operation)
 			};
 		}
 	}
@@ -127,7 +127,7 @@ public class ProposalService
 		IEnumerable<ProposalModel> items = disputes.Select(dispute =>
 			new ProposalModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Option)
+				Option = ToBaseVotableOperationModel(dispute.Operation)
 			});
 
 		return new TotalItemsResult<ProposalModel>
@@ -150,14 +150,17 @@ public class ProposalService
 							PublicationPublish operation => new PublicationPublishModel(operation),
 							PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
 							PublicationUpdation operation => new PublicationUpdationModel(operation),
+							ReviewCreation operation => new ReviewCreationModel(operation),
 							ReviewEditModeration operation => new ReviewEditModerationModel(operation),
 							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-							SiteTextChange operation => new SiteDescriptionChangeModel(operation),
 							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
 							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 							SitePolicyChange operation => new SitePolicyChangeModel(operation),
+							SiteTextChange operation => new SiteTextModel(operation),
+							UserDeletion operation => new UserDeletionModel(operation),
+							UserRegistration operation => new UserRegistrationModel(operation),
 							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 						};
 	}

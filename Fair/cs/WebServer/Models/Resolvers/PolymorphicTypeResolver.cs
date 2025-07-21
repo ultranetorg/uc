@@ -23,14 +23,17 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 					new JsonDerivedType(typeof(PublicationPublishModel), "publication-publish"),
 					new JsonDerivedType(typeof(PublicationRemoveFromChangedModel), "publication-remove-from-changed"),
 					new JsonDerivedType(typeof(PublicationUpdationModel), "publication-updation"),
+					new JsonDerivedType(typeof(ReviewCreationModel), "review-creation"),
 					new JsonDerivedType(typeof(ReviewEditModerationModel), "review-edit-moderation"),
 					new JsonDerivedType(typeof(ReviewStatusChangeModel), "review-status-change"),
 					new JsonDerivedType(typeof(SiteAuthorsChangeModel), "site-authors-change"),
 					new JsonDerivedType(typeof(SiteAvatarChangeModel), "site-avatar-change"),
-					new JsonDerivedType(typeof(SiteDescriptionChangeModel), "site-description-change"),
 					new JsonDerivedType(typeof(SiteModeratorsChangeModel), "site-moderators-change"),
 					new JsonDerivedType(typeof(SiteNicknameChangeModel), "site-nickname-change"),
 					new JsonDerivedType(typeof(SitePolicyChangeModel), "site-policy-change"),
+					new JsonDerivedType(typeof(SiteTextModel), "site-description-change"),
+					new JsonDerivedType(typeof(UserDeletionModel), "user-deletion"),
+					new JsonDerivedType(typeof(UserRegistrationModel), "user-registration"),
 				},
 			};
 		}

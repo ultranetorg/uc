@@ -50,11 +50,11 @@ export const ModeratorDisputePage = () => {
       </div>
       <div>
         <div>Type:</div>
-        <div>{t(dispute.proposal.$type, { ns: "votableOperations" })}</div>
+        <div>{t(dispute.option.$type, { ns: "votableOperations" })}</div>
       </div>
       <div>
         <div>Type:</div>
-        <div>{JSON.stringify(dispute.proposal)}</div>
+        <div>{JSON.stringify(dispute.option)}</div>
       </div>
       <h3>Comments:</h3>
       {isCommentsPending || !comments ? (
