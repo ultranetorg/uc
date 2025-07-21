@@ -92,10 +92,6 @@ export const enUS = {
     refreshPage: "Refresh page",
   },
   operations: {
-    "nickname-change": "Nickname Change ({{nickname}}, {{field}}, {{entityId}})",
-    "nickname-change_sitenickname": 'Change site nickname to "{{nickname}}"',
-    "nickname-change_authortitle": "Change author title to {nickname}",
-    "nickname-change_sitetitle": "Change site title to {nickname}",
     "publication-product-change": "Publication Product Change",
     "publication-approval": "Publication Approval",
     "publication-category-change": "Publication Category Change",
@@ -105,6 +101,7 @@ export const enUS = {
     "site-authors-change": "Site Authors Change",
     "site-description-change": "Site Description Change",
     "site-moderators-change": "Site Moderators Change",
+    "site-nickname-change": "Change Site nickname",
     "site-policy-change": "Site Policy Change",
   },
 }

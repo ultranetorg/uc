@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { TEST_REFERENDUM_AUTHOR } from "testConfig"
 import { AuthorReferendum, BaseVotableOperation } from "types"
 import { TableColumn, TableItem, TableItemRenderer, TableRowRenderer } from "ui/components/Table"
-import { formatProposal } from "utils"
+import { formatOption } from "utils"
 
 const renderVoting = (t: TFunction, voting: AuthorReferendum) => (
   <div className="flex items-center gap-1">
@@ -46,8 +46,8 @@ export const getReferendumsItemRenderer =
       )
     }
 
-    if (column.type === "proposal") {
-      return formatProposal(item["proposal"] as BaseVotableOperation, t)
+    if (column.type === "option") {
+      return formatOption(item["option"] as BaseVotableOperation, t)
     }
 
     if (column.type === "voting") {

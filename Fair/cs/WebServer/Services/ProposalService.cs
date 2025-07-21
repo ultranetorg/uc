@@ -57,7 +57,7 @@ public class ProposalService
 
 			return new ProposalDetailsModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Operation)
+				Option = ToBaseVotableOperationModel(dispute.Operation)
 			};
 		}
 	}
@@ -127,7 +127,7 @@ public class ProposalService
 		IEnumerable<ProposalModel> items = disputes.Select(dispute =>
 			new ProposalModel(dispute)
 			{
-				Proposal = ToBaseVotableOperationModel(dispute.Operation)
+				Option = ToBaseVotableOperationModel(dispute.Operation)
 			});
 
 		return new TotalItemsResult<ProposalModel>

@@ -12,7 +12,7 @@ public class ProposalModel(Proposal dispute)
 
 	public string Text { get; set; } = dispute.Text;
 
-	public BaseVotableOperationModel Proposal { get; set; }
+	public BaseVotableOperationModel Option { get; set; }
 
 	public int CommentsCount { get; set; } = dispute.Comments.Count();
 }

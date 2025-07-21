@@ -7,5 +7,5 @@ export type AuthorReferendum = {
   absCount: number
   expiration: number
   text: string
-  proposal: BaseVotableOperation
+  option: BaseVotableOperation
 }

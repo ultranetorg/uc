@@ -54,7 +54,7 @@ export const ReferendumsPage = () => {
           { accessor: "text", label: "Text", className: "w-[26%]" },
           { accessor: "createdBy", label: "Created By", className: "w-[18%]" },
           { accessor: "expiration", label: "Days Left", className: "w-[7%]" },
-          { accessor: "action", label: "Action", type: "proposal", className: "w-[26%]" },
+          { accessor: "action", label: "Action", type: "option", className: "w-[26%]" },
           { accessor: "voting", label: "Current voting", type: "voting", className: "w-[11%]" },
         ]}
         items={referendums?.items}

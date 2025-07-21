@@ -7,6 +7,6 @@ export type ModeratorDispute = {
   absCount: number
   expiration: number
   text: string
-  proposal: BaseVotableOperation
+  option: BaseVotableOperation
   commentsCount: number
 }
