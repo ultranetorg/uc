@@ -102,6 +102,7 @@ export const enUS = {
     "site-description-change": "Site Description Change",
     "site-moderators-change": "Site Moderators Change",
     "site-nickname-change": "Change Site nickname",
+    "site-text-change": "Change Site text",
     "site-policy-change": "Site Policy Change",
   },
 }
