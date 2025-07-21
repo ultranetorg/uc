@@ -28,7 +28,10 @@ public class AuthorTextChange : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var a = execution.Authors.Affect(Author);
+		if(!CanAccessAuthor(execution, Author, out var a, out Error))
+			return;
+
+		a = execution.Authors.Affect(Author);
 
 		if(Title != null)
 		{

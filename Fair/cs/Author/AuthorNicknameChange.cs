@@ -30,6 +30,9 @@ public class AuthorNicknameChange : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		if(!CanAccessAuthor(execution, Author, out var a, out Error))
+			return;
+
 		var e = execution.Words.Find(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
 
 		if(e != null)
@@ -49,7 +52,7 @@ public class AuthorNicknameChange : FairOperation
 			execution.Words.Register(Nickname, EntityTextField.AuthorNickname, Author);
 		}
 
-		var a = execution.Authors.Affect(Author);
+		a = execution.Authors.Affect(Author);
 		
 		a.Nickname = Nickname;	
 		

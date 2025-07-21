@@ -7,37 +7,43 @@ public enum AuthorFlag : byte
 	None, 
 }
 
+public enum AuthorLink : byte
+{
+	Custom, Website, Youtube, Facebook, X, Github, Linkedin, Instagram, 
+}
+
 public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
-	public AutoId				Id { get; set; }
-	public string				Nickname { get; set; }
-	public string				Title { get; set; }
-	public string				Description { get; set; }
-	public AutoId[]				Owners { get; set; }
-	public AutoId				Avatar  { get; set; }
+	public AutoId									Id { get; set; }
+	public string									Nickname { get; set; }
+	public string									Title { get; set; }
+	public string									Description { get; set; }
+	public AutoId[]									Owners { get; set; }
+	public AutoId									Avatar  { get; set; }
 
-	public short				Expiration { get; set; }
-	public long					Space { get; set; }
-	public long					Spacetime { get; set; }
-	public long					ModerationReward  { get; set; }
+	public short									Expiration { get; set; }
+	public long										Space { get; set; }
+	public long										Spacetime { get; set; }
+	public long										ModerationReward  { get; set; }
 
-	public long					Energy { get; set; }
-	public byte					EnergyThisPeriod { get; set; }
-	public long					EnergyNext { get; set; }
-	public long					Bandwidth { get; set; }
-	public short				BandwidthExpiration { get; set; } = -1;
-	public long					BandwidthToday { get; set; }
-	public short				BandwidthTodayTime { get; set; }
-	public long					BandwidthTodayAvailable { get; set; }
+	public long										Energy { get; set; }
+	public byte										EnergyThisPeriod { get; set; }
+	public long										EnergyNext { get; set; }
+	public long										Bandwidth { get; set; }
+	public short									BandwidthExpiration { get; set; } = -1;
+	public long										BandwidthToday { get; set; }
+	public short									BandwidthTodayTime { get; set; }
+	public long										BandwidthTodayAvailable { get; set; }
 	
-	public AutoId[]				Products { get; set; }
-	public AutoId[]				Sites { get; set; }
+	public AutoId[]									Products { get; set; }
+	public AutoId[]									Sites { get; set; }
+	public string[]									Links { get; set; }
 
-	public EntityId				Key => Id;
-	Mcv							Mcv;
-	public bool					Deleted { get; set; }
+	public EntityId									Key => Id;
+	Mcv												Mcv;
+	public bool										Deleted { get; set; }
 
 	public Author()
 	{
@@ -71,6 +77,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 					Products			= Products,
 					Sites				= Sites,
+					Links				= Links,
 				};
 
 		((IEnergyHolder)this).Clone(a);
@@ -113,16 +120,16 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		
 		writer.Write(Products);
 		writer.Write(Sites);
-		//writer.Write(Files);
+		writer.Write(Links);
 	}
 
 	public void ReadMain(BinaryReader reader)
 	{
 		Read(reader);
 		
-		Products= reader.ReadArray<AutoId>();
-		Sites	= reader.ReadArray<AutoId>();
-		//Files	= reader.ReadArray<AutoId>();
+		Products	= reader.ReadArray<AutoId>();
+		Sites		= reader.ReadArray<AutoId>();
+		Links		= reader.ReadStrings();
 	}
 
 	public void Cleanup(Round lastInCommit)

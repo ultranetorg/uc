@@ -311,6 +311,20 @@ public static class Extentions
 			w.Write7BitEncodedInt(0);
 	}
 
+	public static int[] ReadIntArray(this BinaryReader r)
+	{
+		var n = r.Read7BitEncodedInt();
+
+		var o = new int[n];
+
+		for(int i = 0; i < n; i++)
+		{
+			o[i] = r.Read7BitEncodedInt();
+		}
+
+		return o;
+	}
+
 	public static IEnumerable<T> Read<T>(this BinaryReader r, Func<T> read)
 	{
 		var n = r.Read7BitEncodedInt();
@@ -499,7 +513,7 @@ public static class Extentions
 			w.Write7BitEncodedInt(0);
 	}
 
-	public static string[] ReadStings(this BinaryReader r)
+	public static string[] ReadStrings(this BinaryReader r)
 	{
 		var n = r.Read7BitEncodedInt();
 		

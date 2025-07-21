@@ -40,7 +40,8 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType ST			= new ArgumentType("ST",		@"Space-time in form of byte-years(BY), byte-days(BY), eth.",			["300bd", "500by"]);
 	public readonly ArgumentType EC			= new ArgumentType("EC",		@"Execution Cycles in form of integer number",							["1000"]);
 	//public readonly ArgumentType NET		= new ArgumentType("NET",		@"Net name",															[@"PublicTest"]);
-	public readonly ArgumentType TEXT		= new ArgumentType("TEXT",		@"Arbitary text, can be multi-line",									["Hello world!"]);
+	public readonly ArgumentType TEXT		= new ArgumentType("TEXT",		@"Arbitrary text, can be multi-line",									["Hello world!"]);
+	public readonly ArgumentType URL		= new ArgumentType("URL",		@"Fully-qualified URL address",											["http://fair.net", "http://ultranet.org"]);
 
 	
 	protected NetCommand(List<Xon> args, Flow flow) : base(args, flow)

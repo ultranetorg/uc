@@ -50,6 +50,7 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		a.Products = [];
 		a.Owners = [];
 		a.Sites = [];
+		a.Links = [];
 		a.Nickname = "";			
 
 		Execution.IncrementCount((int)FairMetaEntityType.AuthorsCount);
