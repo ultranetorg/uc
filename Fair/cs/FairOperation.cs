@@ -41,6 +41,7 @@ public enum FairOperationClass : uint
 			CategoryCreation			= 103_001_001,
 			CategoryMovement			= 103_001_002,
 			CategoryAvatarChange		= 103_001_003,
+			CategoryTypeChange			= 103_001_004,
 			CategoryDeletion			= 103_001_999,
 
 		Publication						= 103_002,

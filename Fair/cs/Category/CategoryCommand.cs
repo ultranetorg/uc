@@ -44,37 +44,38 @@ public class CategoryCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Update()
-	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-
-		a.Name = "u";
-		a.Help = new() {Description = "Updates data of speciofied category",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [parent={EID}] {SignerArg}={AA}",
-
-						Arguments =	[new ("<first>", "Id of category to update"),
-									 new ("parent", "An id of a new parent"),
-									 new (SignerArg, "Address of account that assumed to have permissions to make specified changes")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} parent={EID.Example} {SignerArg}={AA.Example}")]};
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-
-								var o = new ProposalCreation();
-
-								if(One("parent")?.Value is string id)
-								{	
-									o.Site = Ppc(new CategoryRequest()).Category.Site;
-									o.Option = new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
-									
-									return o;
-								}
-
-								throw new SynchronizationException("Wrong arguments");
-							};
-		return a;
-	}
+	//public CommandAction Update()
+	//{
+	//	var a = new CommandAction(MethodBase.GetCurrentMethod());
+	//
+	//	a.Name = "u";
+	//	a.Help = new() {Description = "Updates data of specified category",
+	//					Syntax = $"{Keyword} {a.NamesSyntax} {EID} [parent={EID}] {SignerArg}={AA}",
+	//
+	//					Arguments =	[new ("<first>", "Id of category to update"),
+	//								 new ("parent", "An id of a new parent"),
+	//								 new ("type", "Type"),
+	//								 new (SignerArg, "Address of account that assumed to have permissions to make specified changes")],
+	//
+	//					Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} parent={EID.Example} {SignerArg}={AA.Example}")]};
+	//
+	//	a.Execute = () =>	{
+	//							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+	//
+	//							var o = new ProposalCreation();
+	//
+	//							o.Site = Ppc(new CategoryRequest()).Category.Site;
+	//
+	//							if(One("parent")?.Value is string id)
+	//							{	
+	//								o.Option = new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
+	//								return o;
+	//							}
+	//
+	//							throw new SynchronizationException("Wrong arguments");
+	//						};
+	//	return a;
+	//}
 
 	public CommandAction ListPublications()
 	{

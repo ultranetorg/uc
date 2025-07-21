@@ -2,11 +2,17 @@ using System.Collections.Immutable;
 
 namespace Uccs.Fair;
 
+public enum CategoryType : byte
+{
+	None, Software, Movie, Music
+}
+
 public class Category : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Site { get; set; }
 	public AutoId			Parent { get; set; }
+	public CategoryType		Type { get; set; }
 	public string			Title { get; set; }
 	public AutoId[]			Categories { get; set; }
 	public AutoId[]			Publications { get; set; }
@@ -27,14 +33,17 @@ public class Category : IBinarySerializable, ITableEntry
 
 	public object Clone()
 	{
-		return new Category(Mcv)   {Id			 = Id,
-									Site		 = Site,
-									Parent		 = Parent,
-									Title		 = Title,
-									Categories	 = Categories,
-									Publications = Publications,
-									Avatar		= Avatar,
-									};
+		return	new Category(Mcv)   
+				{
+					Id				= Id,
+					Site			= Site,
+					Parent			= Parent,
+					Type			= Type,
+					Title			= Title,
+					Categories		= Categories,
+					Publications	= Publications,
+					Avatar			= Avatar,
+				};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -56,6 +65,7 @@ public class Category : IBinarySerializable, ITableEntry
 		Id				= reader.Read<AutoId>();
 		Site			= reader.Read<AutoId>();
 		Parent			= reader.ReadNullable<AutoId>();
+		Type			= reader.Read<CategoryType>();
 		Title			= reader.ReadUtf8();
 		Categories		= reader.ReadArray<AutoId>();
 		Publications	= reader.ReadArray<AutoId>();
@@ -67,6 +77,7 @@ public class Category : IBinarySerializable, ITableEntry
 		writer.Write(Id);
 		writer.Write(Site);
 		writer.WriteNullable(Parent);
+		writer.Write(Type);
 		writer.WriteUtf8(Title);
 		writer.Write(Categories);
 		writer.Write(Publications);

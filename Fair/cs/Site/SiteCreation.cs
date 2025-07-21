@@ -54,6 +54,7 @@ public class SiteCreation : FairOperation
 
 		s.CreationPolicies[FairOperationClass.CategoryCreation]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.CategoryDeletion]				= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.CategoryTypeChange]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.CategoryAvatarChange]			= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Moderator, Role.Author];
@@ -77,8 +78,10 @@ public class SiteCreation : FairOperation
 		s.ApprovalPolicies[FairOperationClass.SiteTextChange]				= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SiteModeratorsChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SiteAuthorsChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
+		
 		s.ApprovalPolicies[FairOperationClass.CategoryCreation]				= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.CategoryDeletion]				= ApprovalPolicy.ElectedByModeratorsUnanimously;
+		s.ApprovalPolicies[FairOperationClass.CategoryTypeChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.CategoryAvatarChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
 
 		s.ApprovalPolicies[FairOperationClass.PublicationCreation]			= ApprovalPolicy.AnyModerator;
