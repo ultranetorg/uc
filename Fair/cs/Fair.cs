@@ -14,6 +14,7 @@ public abstract class Fair : McvNet
 	public const ushort				PostLengthMaximum = 65535;
 	public ushort					NicknameLengthMaximum = 32;
 	public const ushort				TitleLengthMaximum = 64;
+	public const ushort				SloganLengthMaximum = 128;
  		
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairTest();

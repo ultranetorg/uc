@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Uccs.Fair;
 
 public class SiteCreation : FairOperation
@@ -40,7 +42,7 @@ public class SiteCreation : FairOperation
 
 
 		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.SiteDescriptionChange]		= [Role.Moderator];
+		s.CreationPolicies[FairOperationClass.SiteTextChange]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.SiteAvatarChange]				= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Moderator];
@@ -72,7 +74,7 @@ public class SiteCreation : FairOperation
 		s.ApprovalPolicies[FairOperationClass.UserRegistration]				= ApprovalPolicy.AnyModerator;
 		s.ApprovalPolicies[FairOperationClass.UserDeletion]					= ApprovalPolicy.AnyModerator;
 
-		s.ApprovalPolicies[FairOperationClass.SiteDescriptionChange]		= ApprovalPolicy.ElectedByModeratorsUnanimously;
+		s.ApprovalPolicies[FairOperationClass.SiteTextChange]				= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SiteModeratorsChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SiteAuthorsChange]			= ApprovalPolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.CategoryCreation]				= ApprovalPolicy.ElectedByModeratorsUnanimously;

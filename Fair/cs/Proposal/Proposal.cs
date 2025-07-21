@@ -77,7 +77,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		Id			= reader.Read<AutoId>();
 		Site		= reader.Read<AutoId>();
-		By		= reader.Read<AutoId>();
+		By			= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
 		Flags		= reader.Read<ProposalFlags>();
 		Yes			= reader.ReadArray<AutoId>();

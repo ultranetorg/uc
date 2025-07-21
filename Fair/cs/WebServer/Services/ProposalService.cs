@@ -154,7 +154,7 @@ public class ProposalService
 							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-							SiteDescriptionChange operation => new SiteDescriptionChangeModel(operation),
+							SiteTextChange operation => new SiteDescriptionChangeModel(operation),
 							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
 							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 							SitePolicyChange operation => new SitePolicyChangeModel(operation),

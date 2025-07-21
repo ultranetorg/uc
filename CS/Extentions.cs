@@ -140,6 +140,30 @@ public static class Extentions
 		w.Write(a);
 	}
 
+	public static string ReadUtf8Nullable(this BinaryReader r)
+	{
+		var n = r.Read7BitEncodedInt();
+
+		if(n == 0)
+			return null;
+		else
+			return Encoding.UTF8.GetString(r.ReadBytes(n));
+	}
+
+	public static void WriteUtf8Nullable(this BinaryWriter w, string s)
+	{
+		if(s == null)
+		{
+			w.Write7BitEncodedInt(0);
+		} 
+		else
+		{
+			var a = Encoding.UTF8.GetBytes(s);
+			w.Write7BitEncodedInt(a.Length);
+			w.Write(a);
+		}
+	}
+
 	public static string ReadASCII(this BinaryReader r)
 	{
 		return Encoding.ASCII.GetString(r.ReadBytes(r.Read7BitEncodedInt()));

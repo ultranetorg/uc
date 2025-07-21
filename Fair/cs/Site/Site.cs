@@ -17,6 +17,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId					Id { get; set; }
 	public string					Nickname { get; set; }
 	public string					Title { get; set; }
+	public string					Slogan { get; set; }
 	public string					Description { get; set; }
 	public int						ModerationReward { get; set; }
 	public AutoId					Avatar  { get; set; }
@@ -84,6 +85,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 				{
 					Id						= Id,
 					Title					= Title,
+					Slogan					= Slogan,
 					Description				= Description,
 					Nickname				= Nickname,
 					ModerationReward		= ModerationReward,
@@ -135,14 +137,15 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		Id							= reader.Read<AutoId>();
 		Nickname					= reader.ReadUtf8();
-		Description					= reader.ReadUtf8();
 		Title						= reader.ReadUtf8();
+		Slogan						= reader.ReadUtf8Nullable();
+		Description					= reader.ReadUtf8Nullable();
 		ModerationReward			= reader.Read7BitEncodedInt();
 		AuthorRequestFee			= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
 		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
-		ApprovalPolicies				= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ApprovalPolicy>());
+		ApprovalPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ApprovalPolicy>());
 
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
@@ -167,8 +170,9 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		writer.Write(Id);
 		writer.WriteUtf8(Nickname);
-		writer.WriteUtf8(Description);
 		writer.WriteUtf8(Title);
+		writer.WriteUtf8Nullable(Slogan);
+		writer.WriteUtf8Nullable(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write7BitEncodedInt(AuthorRequestFee);
 		writer.WriteNullable(Avatar);
