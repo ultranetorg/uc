@@ -62,7 +62,7 @@ public class SiteAuthorsChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		var s = execution.Sites.Affect(Site.Id);
+ 		var s = Site;
  
  		s.Authors = [..s.Authors, ..Additions];
  

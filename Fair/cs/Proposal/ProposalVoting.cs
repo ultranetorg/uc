@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public enum ProposalVote : byte
 {
-	Abstained, Yes, No, Punish
+	Abstained, Yes, No, NoAndBan, NoAndBanish
 }
 
 public class ProposalVoting : FairOperation
@@ -41,124 +41,98 @@ public class ProposalVoting : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		if(!ProposalExists(execution, Proposal, out var d, out Error))
+ 		if(!ProposalExists(execution, Proposal, out var z, out Error))
  			return;
  
- 		if(d.Yes.Contains(Voter) || d.No.Contains(Voter) || d.Abs.Contains(Voter))
+ 		if(z.Yes.Contains(Voter) || z.No.Contains(Voter) || z.NoAndBan.Contains(Voter) || z.NoAndBanish.Contains(Voter) || z.Abs.Contains(Voter))
  		{
  			Error = AlreadyExists;
  			return;
  		}
-
-// 		if(d.Flags.HasFlag(ProposalFlags.Succeeded))
-// 		{
-// 			Error = Ended;
-// 			return;
-// 		}
-
  
-		var s = execution.Sites.Find(d.Site);
-        var policy = s.ApprovalPolicies[Enum.Parse<FairOperationClass>(d.Operation.GetType().Name)];
+		var s = execution.Sites.Affect(z.Site);
+        var policy = s.ApprovalPolicies[Enum.Parse<FairOperationClass>(z.Option.GetType().Name)];
 
- 		switch(policy)
+		if(execution.IsReferendum(policy))
  		{
- 			case ChangePolicy.AnyModerator :
- 			case ChangePolicy.ElectedByModeratorsMajority :
- 			case ChangePolicy.ElectedByModeratorsUnanimously :
- 			{
- 				if(!IsModerator(execution, s.Id, out var _, out Error))
- 					return;
- 				break;
- 			}
- 			
- 			case ChangePolicy.ElectedByAuthorsMajority :
- 			{
- 				if(!IsMember(execution, s.Id, Voter, out var _, out var a, out var Error))
- 					return;
- 				break;
- 			}
+			if(!IsPublisher(execution, s.Id, Voter, out var _, out var _, out Error))
+				return;
+
+			var a = execution.Authors.Affect(Voter);
+			execution.PayCycleEnergy(a);
  		}
+		else if(policy == ChangePolicy.AnyModerator || execution.IsDiscussion(policy))
+ 		{
+			if(!IsModerator(execution, s.Id, Voter, out var _, out Error))
+				return;
+
+			execution.PayCycleEnergy(s);
+ 		}
+		else
+		{
+			Error = Denied;
+			return;
+		}
+
  
- 		d = execution.Proposals.Affect(Proposal);
+ 		z = execution.Proposals.Affect(Proposal);
  
  		switch(Vote)
  		{
- 			case ProposalVote.Yes:			d.Yes	= [..d.Yes, Voter];	break;
- 			case ProposalVote.No:			d.No	= [..d.No,  Voter];	break;
- 			case ProposalVote.Abstained:	d.Abs	= [..d.Abs, Voter];	break;
+ 			case ProposalVote.Yes:			z.Yes	= [..z.Yes, Voter];	break;
+ 			case ProposalVote.No:			z.No	= [..z.No,  Voter];	break;
+ 			case ProposalVote.Abstained:	z.Abs	= [..z.Abs, Voter];	break;
  		}
  
  		var success = policy switch
  							 {
- 								ChangePolicy.AnyModerator					=> d.Yes.Length == 1,
- 								ChangePolicy.ElectedByModeratorsMajority	=> d.Yes.Length > s.Moderators.Length/2,
- 								ChangePolicy.ElectedByModeratorsUnanimously	=> d.Yes.Length == s.Moderators.Length,
- 								ChangePolicy.ElectedByAuthorsMajority		=> d.Yes.Length > s.Authors.Length/2,
+ 								ChangePolicy.AnyModerator					=> z.Yes.Length == 1,
+ 								ChangePolicy.ElectedByModeratorsMajority	=> z.Yes.Length > s.Moderators.Length/2,
+ 								ChangePolicy.ElectedByModeratorsUnanimously	=> z.Yes.Length == s.Moderators.Length,
+ 								ChangePolicy.ElectedByAuthorsMajority		=> z.Yes.Length > s.Authors.Length/2,
  								_ => throw new IntegrityException()
  							 };
  
  		var	fail = policy switch
  						  {
-							 ChangePolicy.AnyModerator						=> d.No.Length == 1,
- 							 ChangePolicy.ElectedByModeratorsMajority		=> d.No.Length > s.Moderators.Length/2,
- 							 ChangePolicy.ElectedByModeratorsUnanimously	=> d.No.Length == s.Moderators.Length,
- 							 ChangePolicy.ElectedByAuthorsMajority			=> d.No.Length > s.Authors.Length/2,
+							 ChangePolicy.AnyModerator						=> z.No.Length == 1,
+ 							 ChangePolicy.ElectedByModeratorsMajority		=> z.No.Length > s.Moderators.Length/2,
+ 							 ChangePolicy.ElectedByModeratorsUnanimously	=> z.No.Length == s.Moderators.Length,
+ 							 ChangePolicy.ElectedByAuthorsMajority			=> z.No.Length > s.Authors.Length/2,
  							 _ => throw new IntegrityException()
  						  };
  
  		if(success)
  		{
-			d.Operation.Site = s;
+			z.Option.Site	 = s;
+			z.Option.As		 = z.As;
+			z.Option.Creator = z.Creator;
+			z.Option.Signer	 = z.As == Role.User ? execution.AffectAccount(z.Creator) : null;
 
 			var e = execution.CreateChild();
 	 			
-			if(d.Operation.ValidateProposal(e, out _))
+			if(z.Option.ValidateProposal(e, out _))
 			{
-				d.Operation.Execute(e);
+				z.Option.Execute(e);
 	
-				if(d.Operation.Error == null)
+				if(z.Option.Error == null)
 				{
 					execution.Absorb(e);
 				}
 			}
 
-			d.Deleted = true;
 
-			foreach(var i in d.Comments)
+			foreach(var i in z.Comments)
 				execution.ProposalComments.Affect(i).Deleted = true;
 
- 			s = execution.Sites.Affect(d.Site);
- 			s.Proposals = s.Proposals.Remove(d.Id);
+			z.Deleted = true;
+ 			s.Proposals = s.Proposals.Remove(z.Id);
 		}
  
- 		if(fail || d.Expiration < execution.Time)
+ 		if(fail || z.Expiration < execution.Time)
  		{
- 			d.Deleted = true;
-
- 			s = execution.Sites.Affect(d.Site);
- 			s.Proposals = s.Proposals.Remove(d.Id);
- 		}
-
- 		switch(policy)
- 		{
- 			case ChangePolicy.ElectedByModeratorsMajority :
- 			case ChangePolicy.ElectedByModeratorsUnanimously :
- 			{
- 				if(!IsModerator(execution, s.Id, out var _, out Error))
- 					return;
-
-				execution.PayCycleEnergy(execution.Sites.Affect(s.Id));
- 				break;
- 			}
- 			
- 			case ChangePolicy.ElectedByAuthorsMajority :
- 			{
- 				if(!IsMember(execution, s.Id, Voter, out var _, out var a, out var _))
- 					return;
- 
-				execution.PayCycleEnergy(execution.Authors.Affect(a.Id));
- 				break;
- 			}
+ 			z.Deleted = true;
+ 			s.Proposals = s.Proposals.Remove(z.Id);
  		}
 	}
 }

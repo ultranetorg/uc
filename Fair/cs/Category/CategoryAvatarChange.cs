@@ -25,7 +25,7 @@ public class CategoryAvatarChange : VotableOperation
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Category);
-		writer.Write(Image);
+		writer.WriteBytes(Image);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -37,19 +37,23 @@ public class CategoryAvatarChange : VotableOperation
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		error = null;
+		if(!CategoryExists(execution, Category, out var c, out error))
+			return false;
+
+		if(c.Site != Site.Id)
+		{
+			error = DoesNotBelogToSite;
+			return false;
+		}
+
 		return true;
  	}
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!CanModerateCategory(execution, Category, out var c, out var s, out Error))
-			return;
-
-		s = execution.Sites.Affect(s.Id);
-		c = execution.Categories.Affect(Category);
+		var c = execution.Categories.Affect(Category);
 			
-		var f = execution.AllocateFile(c.Id, c.Avatar, s, s, Image);
+		var f = execution.AllocateFile(c.Id, c.Avatar, Site, Site, Image);
 
 		c.Avatar = f?.Id;
 	}

@@ -32,6 +32,8 @@ public enum FairOperationClass : uint
 		SiteDescriptionChange		= 103_000_006,
 		SiteAvatarChange			= 103_000_007,
 		SiteNicknameChange			= 103_000_008,
+		UserRegistration			= 103_000_009,
+		UserDeletion				= 103_000_010,
 		SiteDeletion				= 103_000_999,
 
 		Category						= 103_001,
@@ -67,6 +69,8 @@ public enum FairOperationClass : uint
 public abstract class VotableOperation : FairOperation
 {
 	public Site				Site;
+	public Role				As;
+	public AutoId			Creator;
 
 	public abstract bool	ValidateProposal(FairExecution execution, out string error);
  	public abstract bool	Overlaps(VotableOperation other);
@@ -160,7 +164,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool IsMember(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
+	public bool IsPublisher(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
 	{
 		site = null;
 
@@ -359,7 +363,7 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsMember(execution, proposal.Site, comment.Creator, out site, out author, out error))
+		if(!IsPublisher(execution, proposal.Site, comment.Creator, out site, out author, out error))
 			return false;
 
 		if(comment.Creator != author.Id)

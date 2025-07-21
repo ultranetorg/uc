@@ -7,7 +7,6 @@ public class PlaceTransactionsRequest : McvPpc<PlaceTransactionsResponse>
 	public override PeerResponse Execute()
 	{
 		lock(Peering.Lock)
-		{
 			lock(Mcv.Lock)
 			{	
 				RequireMember();
@@ -16,7 +15,6 @@ public class PlaceTransactionsRequest : McvPpc<PlaceTransactionsResponse>
 
 				return new PlaceTransactionsResponse {Accepted = acc};
 			}
-		}
 	}
 }
 

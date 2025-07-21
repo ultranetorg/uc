@@ -41,7 +41,7 @@ public class AccountSitesRequest : McvPpc<AccountSitesResponse>
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new AccountSitesResponse {Sites = e.Sites};
+			return new AccountSitesResponse {Sites = e.ModeratedSites};
 		}
 	}
 }

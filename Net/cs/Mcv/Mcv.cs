@@ -31,6 +31,8 @@ public abstract class Mcv /// Mutual chain voting
 	//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
 	//public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
+	public readonly static AccountKey			God = new AccountKey([1, ..new byte[31]]);
+
 	public object								Lock = new();
 	public McvSettings							Settings;
 	public McvNet								Net;
@@ -138,7 +140,7 @@ public abstract class Mcv /// Mutual chain voting
 		Clock = clock;
 	}
 
-	public virtual string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
+	public virtual string CreateGenesis(AccountKey f0, CandidacyDeclaration candidacydeclaration)
 	{
 		/// 0	- declare F0
 		/// P	- confirmed F0 membership
@@ -167,7 +169,7 @@ public abstract class Mcv /// Mutual chain voting
 			t.Member = new(0, -1);
 			t.AddOperation(new AccountCreation {Owner = f0});
 			t.AddOperation(new UtilityTransfer (Accounts.Id, AutoId.God, Accounts.Id, AutoId.LastCreated, Net.ECEmission, 0, Net.BDDayEmission));
-			t.Sign(god, Net.Cryptography.ZeroHash);
+			t.Sign(God, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 
 			t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
@@ -176,7 +178,7 @@ public abstract class Mcv /// Mutual chain voting
 			t.Sign(f0, Net.Cryptography.ZeroHash);
 			v0.AddTransaction(t);
 		
-			v0.Sign(god);
+			v0.Sign(God);
 			Add(v0);
 			///v0.FundJoiners = v0.FundJoiners.Append(Net.Father0).ToArray();
 			write(0);
@@ -189,7 +191,7 @@ public abstract class Mcv /// Mutual chain voting
 			v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
 			v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
 	
-			v.Sign(i < JoinToVote ? god : f0);
+			v.Sign(i < JoinToVote ? God : f0);
 			Add(v);
 
 			write(i);
@@ -365,7 +367,18 @@ public abstract class Mcv /// Mutual chain voting
 						#if DEBUG
 						///var x = r.Eligible.Select(i => i.ParentHash.ToHex());
 						///var a = SunGlobals.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
+						
+						
+						//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+						//lock(Mcv.Lock)
+						//	Mcv.Dump();
+						//			
+						//lock(McvTcpPeering.All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+						//	All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+								
+
 						#endif
+
 
 						throw new ConfirmationException(p, mh);
 					}
@@ -444,6 +457,36 @@ public abstract class Mcv /// Mutual chain voting
 				LoadedRounds.Remove(i.Key);
 			}
 		}
+	}
+
+	public bool Validate(Transaction transaction, out Round round)
+	{
+		if( transaction.Expiration <= LastConfirmedRound.Id ||
+			!transaction.Valid(this))
+		{
+			round = null;
+			return false;
+		}
+
+		var a = Accounts.Find(transaction.Signer, LastConfirmedRound.Id);
+
+		if(a == null)
+		{	
+			if(transaction.Sponsored)
+				transaction.Nid = 0;
+			else
+			{	
+				round = null;
+				return false;
+			}
+		}
+		else
+			transaction.Nid	= a.LastTransactionNid + 1;
+
+		round = TryExecute(transaction);
+
+		return transaction.Successful;
+
 	}
 
 	///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
@@ -549,7 +592,7 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(GraphStateKey, GraphState);
 				b.Put(__GraphHashKey, GraphHash);
 
-				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote))
+				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
 				{
 					LoadedRounds[i.Id] = i;
 				}

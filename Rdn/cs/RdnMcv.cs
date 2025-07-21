@@ -32,9 +32,9 @@ public class RdnMcv : Mcv
 		SeedHubIPs = seedhubips;
 	}
 
-	public string CreateGenesis(AccountKey god, AccountKey f0)
+	public string CreateGenesis(AccountKey f0)
 	{
-		return CreateGenesis(god, f0, new RdnCandidacyDeclaration {GraphIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
+		return CreateGenesis(f0, new RdnCandidacyDeclaration {GraphIPs = [Net.Father0IP], SeedHubRdcIPs = [Net.Father0IP]});
 	}
 
 	protected override void GenesisInitilize(Round round)

@@ -32,10 +32,8 @@ public class SiteDescriptionChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		var s = execution.Sites.Affect(Site.Id);
- 
-		s.Description = Description;
+		Site.Description = Description;
 
-		execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Description));
+		execution.Allocate(Site, Site, Encoding.UTF8.GetByteCount(Description));
 	}
 }

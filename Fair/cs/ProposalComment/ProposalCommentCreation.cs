@@ -8,7 +8,6 @@ public class ProposalCommentCreation : FairOperation
 	public AutoId				Author { get; set; }
 	public string				Text { get; set; }
 
-	public override bool		Sponsored => true;
 	public override string		Explanation => $"{GetType().Name} Author={Author}";
 
 	public override bool		IsValid(McvNet net) => Text.Length <= Fair.PostLengthMaximum;
@@ -43,7 +42,7 @@ public class ProposalCommentCreation : FairOperation
 
 		var s = execution.Sites.Affect(d.Site);
 
-		if(!execution.IsReferendum(d))
+		if(d.As == Role.Moderator)
  		{
  			if(!IsModerator(execution, s.Id, out var _, out Error))
  				return;
@@ -51,13 +50,18 @@ public class ProposalCommentCreation : FairOperation
 			c.Creator = Signer.Id;
 
  		}
- 		else
+ 		else if(d.As == Role.Publisher)
  		{
- 			if(!IsMember(execution, s.Id, Author, out var _, out var a, out Error))
+ 			if(!IsPublisher(execution, s.Id, Author, out var _, out var a, out Error))
  				return;
  
 			c.Creator = Author;
  		}
+		else
+		{
+			Error = Denied;
+			return;
+		}
 
  		execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 	}

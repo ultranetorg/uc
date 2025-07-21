@@ -45,6 +45,9 @@ public class SiteCreation : FairOperation
 		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Moderator];
+		
+		s.CreationPolicies[FairOperationClass.UserRegistration]				= [Role.User];
+		s.CreationPolicies[FairOperationClass.UserDeletion]					= [Role.Moderator];
 
 		s.CreationPolicies[FairOperationClass.CategoryCreation]				= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.CategoryDeletion]				= [Role.Moderator];
@@ -63,6 +66,9 @@ public class SiteCreation : FairOperation
 
 		s.ApprovalPolicies[FairOperationClass.SiteNicknameChange]			= ChangePolicy.ElectedByAuthorsMajority;
 		s.ApprovalPolicies[FairOperationClass.SitePolicyChange]				= ChangePolicy.ElectedByAuthorsMajority;
+		
+		s.ApprovalPolicies[FairOperationClass.UserRegistration]				= ChangePolicy.AnyModerator;
+		s.ApprovalPolicies[FairOperationClass.UserDeletion]					= ChangePolicy.AnyModerator;
 
 		s.ApprovalPolicies[FairOperationClass.SiteDescriptionChange]		= ChangePolicy.ElectedByModeratorsUnanimously;
 		s.ApprovalPolicies[FairOperationClass.SiteModeratorsChange]			= ChangePolicy.ElectedByModeratorsUnanimously;
@@ -82,7 +88,7 @@ public class SiteCreation : FairOperation
 		s.ApprovalPolicies[FairOperationClass.ReviewEditModeration]			= ChangePolicy.AnyModerator;
 
 
-		Signer.Sites = [..Signer.Sites, s.Id];
+		Signer.ModeratedSites = [..Signer.ModeratedSites, s.Id];
 
 		execution.Prolong(Signer, s, Time.FromYears(Years));
 

@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public interface IHolder
 {
-	bool		IsSpendingAuthorized(Execution round, AutoId signer);
+	bool		IsSpendingAuthorized(Execution executions, AutoId signer);
 }
 
 public interface ISpacetimeHolder : IHolder
@@ -128,7 +128,7 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 		return long.Parse(t, NumberStyles.AllowThousands);
 	}
 
-	public bool IsSpendingAuthorized(Execution round, AutoId signer)
+	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
 		return Id == signer;
 	}

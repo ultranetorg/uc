@@ -26,14 +26,14 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 	{
 	}
 
-	public Review Create(Publication publication)
+	public Review Create(AutoId publication)
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.ReviewsCount);
 
-		int e = Execution.GetNextEid(Table, publication.Id.B);
+		int e = Execution.GetNextEid(Table, publication.B);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(publication.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(publication.B, e);
 
 		return Affected[a.Id] = a;
 	}

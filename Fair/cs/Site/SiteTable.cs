@@ -72,23 +72,24 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		
 		int e = Execution.GetNextEid(Table, b);
 
-		var a = Table.Create();
+		var s = Table.Create();
 		
-		a.Id = LastCreatedId = new AutoId(b, e);
-		a.Categories = [];
-		a.Moderators = [];
-		a.Authors = [];
-		a.Proposals = [];
-		a.CreationPolicies = [];
-		a.ApprovalPolicies = [];
-		a.UnpublishedPublications = [];
-		a.ChangedPublications = [];
-		a.ChangedReviews = [];
-		a.Nickname = "";
-		a.Files = [];
-		a.Description = "";
+		s.Id = LastCreatedId = new AutoId(b, e);
+		s.Categories = [];
+		s.Moderators = [];
+		s.Authors = [];
+		s.Users = [];
+		s.Proposals = [];
+		s.CreationPolicies = [];
+		s.ApprovalPolicies = [];
+		s.UnpublishedPublications = [];
+		s.ChangedPublications = [];
+		s.ChangedReviews = [];
+		s.Nickname = "";
+		s.Files = [];
+		s.Description = "";
 		
-		return Affected[a.Id] = a;
+		return Affected[s.Id] = s;
 	}
 
 	public override Site Affect(AutoId id)

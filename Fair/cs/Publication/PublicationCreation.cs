@@ -71,9 +71,9 @@ public class PublicationCreation : VotableOperation
 //		}
 
 		var r = execution.Products.Affect(Product);
-		var s = execution.Sites.Affect(Site.Id);
+		//var s = execution.Sites.Affect(Site.Id);
 
-		var p = execution.Publications.Create(s);
+		var p = execution.Publications.Create(Site);
 
 //		var p =	execution.Publications.Affect(Publication);
 //
@@ -86,9 +86,9 @@ public class PublicationCreation : VotableOperation
 //		s = execution.Sites.Affect(p.Site);
 		
 		
-		if(CanAccessAuthor(execution, r.Author, out _, out _))
+		if(As == Role.Author)
 		{ 
-			var a = execution.Authors.Affect(r.Author);
+			//var a = execution.Authors.Affect(r.Author);
 
 			p.Flags = PublicationFlags.ApprovedByAuthor;
 
@@ -104,28 +104,28 @@ public class PublicationCreation : VotableOperation
 //			PayEnergyBySite(execution, s.Id);
 //		}
 
-		p.Site		= s.Id;
+		p.Site		= Site.Id;
 		p.Product	= r.Id;
-		p.Creator	= Signer.Id;
+		//p.Creator	= Signer.Id;
 	
 		r.Publications = [..r.Publications, p.Id];
 
-		s.PublicationsCount++;
+		Site.PublicationsCount++;
 
 		//var c = execution.Categories.Find(p.Category);
 		//var r = execution.Products.Find(p.Product);
 		//var a = execution.Authors.Find();
 
-		if(!s.Authors.Contains(r.Author))
+		if(!Site.Authors.Contains(r.Author))
 		{
 			var a = execution.Authors.Affect(r.Author);
 			//s = execution.Sites.Affect(s.Id);
 
-			s.Authors = [..s.Authors, a.Id];
-			a.Sites = [..a.Sites, s.Id];
+			Site.Authors = [..Site.Authors, a.Id];
+			a.Sites = [..a.Sites, Site.Id];
 		}
 
-		s.UnpublishedPublications = [..s.UnpublishedPublications, p.Id];
+		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 
 		//if(!c.Publications.Contains(p.Id))
 		//{
@@ -138,8 +138,8 @@ public class PublicationCreation : VotableOperation
 		var tr = p.Fields.FirstOrDefault(i => i.Field == ProductFieldName.Title);
 			
 		if(tr != null)
-			execution.PublicationTitles.Index(s.Id, p.Id, r.Get(tr).AsUtf8);
+			execution.PublicationTitles.Index(Site.Id, p.Id, r.Get(tr).AsUtf8);
 
-		execution.Allocate(s, s, execution.Net.EntityLength);
+		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}
 }

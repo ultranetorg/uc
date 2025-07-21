@@ -32,7 +32,7 @@ public class ModeratorPublicationModel
 		CategoryId = category.Id.ToString();
 		CategoryTitle = category.Title;
 
-		CreatorId = publication.Creator.ToString();
+		//CreatorId = publication.Creator.ToString();
 
 		ProductId = product.Id.ToString();
 		ProductUpdated = product.Updated.Days;

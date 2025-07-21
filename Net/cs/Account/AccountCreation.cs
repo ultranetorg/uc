@@ -35,7 +35,7 @@ public class AccountCreation : Operation
 
 		var a = execution.CreateAccount(Owner);
 
-		if(Signer.Address != execution.Net.God)
+		if(execution.Round.Id > 0)
 		{
 			Signer.Spacetime -= execution.Round.AccountAllocationFee(a);
 

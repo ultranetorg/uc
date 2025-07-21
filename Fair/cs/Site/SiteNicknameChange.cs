@@ -57,6 +57,6 @@ public class SiteNicknameChange : VotableOperation
 			execution.Words.Register(Nickname, EntityTextField.SiteNickname, Site.Id);
 		}
 
-		execution.Sites.Affect(Site.Id).Nickname = Nickname;	
+		Site.Nickname = Nickname;	
 	}
 }

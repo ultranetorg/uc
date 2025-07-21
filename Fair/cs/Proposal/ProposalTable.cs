@@ -31,6 +31,8 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Yes = [];
 		a.No = [];
+		a.NoAndBan = [];
+		a.NoAndBanish = [];
 		a.Abs = [];
 		a.Comments = [];
 

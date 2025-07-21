@@ -7,7 +7,7 @@ public enum ChangePolicy : byte
 
 public enum Role : byte
 {
-	None, Author, Moderator, Member, User
+	None, Author, Moderator, Publisher, User
 }
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
@@ -36,6 +36,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					ChangedPublications { get; set; }
 	public AutoId[]					ChangedReviews { get; set; }
 	public AutoId[]					Files  { get; set; }
+	public AutoId[]					Users  { get; set; }
 
 	public int						PublicationsCount { get; set; }
 	public int						AuthorRequestFee { get; set; }
@@ -53,7 +54,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public bool						Deleted { get; set; }
 	FairMcv							Mcv;
 
-	public bool IsSpendingAuthorized(Execution round, AutoId signer)
+	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
 		return Moderators[0] == signer; /// TODO : Owner only
 	}
@@ -79,31 +80,36 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public object Clone()
 	{
-		var a = new Site(Mcv)  {Id						= Id,
-								Title					= Title,
-								Description				= Description,
-								Nickname				= Nickname,
-								ModerationReward		= ModerationReward,
-								AuthorRequestFee		= AuthorRequestFee,
-								Avatar					= Avatar,
+		var a = new Site(Mcv)  
+				{
+					Id						= Id,
+					Title					= Title,
+					Description				= Description,
+					Nickname				= Nickname,
+					ModerationReward		= ModerationReward,
+					AuthorRequestFee		= AuthorRequestFee,
+					Avatar					= Avatar,
+					
+					CreationPolicies		= CreationPolicies,
+					ApprovalPolicies		= ApprovalPolicies,
+
+					Expiration				= Expiration,
+					Space					= Space,
+					Spacetime				= Spacetime,
+
+					PublicationsCount		= PublicationsCount,
+
+					Authors					= Authors,
+					Moderators				= Moderators,
+					Categories				= Categories,
+					Proposals				= Proposals,
+					UnpublishedPublications	= UnpublishedPublications,
+					ChangedPublications		= ChangedPublications,
+					ChangedReviews			= ChangedReviews,
+					Files					= Files,
+					Users					= Users
+				};
 								
-								CreationPolicies		= CreationPolicies,
-								ApprovalPolicies			= ApprovalPolicies,
-
-								Expiration				= Expiration,
-								Space					= Space,
-								Spacetime				= Spacetime,
-
-								PublicationsCount		= PublicationsCount,
-
-								Authors					= Authors,
-								Moderators				= Moderators,
-								Categories				= Categories,
-								Proposals				= Proposals,
-								UnpublishedPublications	= UnpublishedPublications,
-								ChangedPublications		= ChangedPublications,
-								ChangedReviews			= ChangedReviews,
-								Files					= Files};
 		
 		((IEnergyHolder)this).Clone(a);
 
@@ -146,6 +152,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 		Authors						= reader.ReadArray<AutoId>();
 		Moderators					= reader.ReadArray<AutoId>();
+		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
@@ -177,6 +184,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 		writer.Write(Authors);
 		writer.Write(Moderators);
+		writer.Write(Users);
 		writer.Write(Categories);
 		writer.Write(Proposals);
 		writer.Write(UnpublishedPublications);

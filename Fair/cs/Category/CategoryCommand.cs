@@ -32,7 +32,7 @@ public class CategoryCommand : FairCommand
 								var o = new ProposalCreation 
 										{
 											Site = GetEntityId("site", null), 
-											Proposal =	new CategoryCreation()
+											Option =	new CategoryCreation()
 														{ 
 															Parent = GetEntityId("parent", null), 
 															Title = GetString("title")
@@ -66,7 +66,7 @@ public class CategoryCommand : FairCommand
 								if(One("parent")?.Value is string id)
 								{	
 									o.Site = Ppc(new CategoryRequest()).Category.Site;
-									o.Proposal = new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
+									o.Option = new CategoryMovement {Category = FirstEntityId, Parent = AutoId.Parse(id)};
 									
 									return o;
 								}

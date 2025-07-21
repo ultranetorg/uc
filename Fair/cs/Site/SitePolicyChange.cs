@@ -41,7 +41,7 @@ public class SitePolicyChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		var s = execution.Sites.Affect(Site.Id);
+ 		var s = Site;
  
 		s.ApprovalPolicies = new(s.ApprovalPolicies);
 		s.ApprovalPolicies[Change] = Policy;

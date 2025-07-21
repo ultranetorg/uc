@@ -18,7 +18,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public AutoId[]			Abs { get; set; }
 	public Time				Expiration { get; set; }
  	public string			Text { get; set; }
-	public VotableOperation	Operation { get; set; }
+	public VotableOperation	Option { get; set; }
 	public AutoId[]			Comments;
 
 	public EntityId			Key => Id;
@@ -41,7 +41,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 					Id			= Id,	
 					Site		= Site,	
 					Creator		= Creator,	
-					As = As,
+					As			= As,
 					Flags		= Flags,
 					Yes			= Yes,
 					No			= No,
@@ -50,7 +50,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 					Abs			= Abs,
 					Expiration	= Expiration,
 					Text		= Text,
-					Operation	= Operation,
+					Option	= Option,
 					Comments	= Comments
 				};
 		return a;
@@ -75,7 +75,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		Id			= reader.Read<AutoId>();
 		Site		= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
-		As	= reader.Read<Role>();
+		As			= reader.Read<Role>();
 		Flags		= reader.Read<ProposalFlags>();
 		Yes			= reader.ReadArray<AutoId>();
 		No			= reader.ReadArray<AutoId>();
@@ -86,8 +86,8 @@ public class Proposal : IBinarySerializable, ITableEntry
  		Text		= reader.ReadUtf8();
 		//Proposal	= reader.Read<Proposal>();
 
- 		Operation = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
- 		Operation.Read(reader); 
+ 		Option = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
+ 		Option.Read(reader); 
 
 		Comments	= reader.ReadArray<AutoId>();
 	}
@@ -108,8 +108,8 @@ public class Proposal : IBinarySerializable, ITableEntry
  		writer.WriteUtf8(Text);
 		//writer.Write(Proposal);
 
-		writer.Write(Enum.Parse<FairOperationClass>(Operation.GetType().Name));
-		Operation.Write(writer);
+		writer.Write(Enum.Parse<FairOperationClass>(Option.GetType().Name));
+		Option.Write(writer);
 
 		writer.Write(Comments);
 	}
