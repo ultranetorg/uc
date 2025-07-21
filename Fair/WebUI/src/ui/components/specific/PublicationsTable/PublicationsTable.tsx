@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next"
 
-import { AuthorPublications, PropsWithClassName } from "types"
+import { PropsWithClassName, PublicationAuthor } from "types"
 
 import { PublicationTableRow } from "./PublicationTableRow"
 
 export type PublicationsTableBaseProps = {
-  items: AuthorPublications[]
+  items: PublicationAuthor[]
   onPublicationStoresClick: (id: string) => void
 }
 
@@ -23,7 +23,7 @@ export const PublicationsTable = ({ className, items, onPublicationStoresClick }
       </div>
       <div className="divide-y divide-gray-300">
         {items.map(x => (
-          <PublicationTableRow key={x.publicationId} {...x} onPublicationStoresClick={onPublicationStoresClick} />
+          <PublicationTableRow key={x.id} {...x} onPublicationStoresClick={onPublicationStoresClick} />
         ))}
       </div>
     </div>

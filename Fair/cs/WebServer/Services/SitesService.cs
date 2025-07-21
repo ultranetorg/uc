@@ -38,7 +38,9 @@ public class SitesService
 				continue;
 			}
 
-			SiteBaseModel model = new SiteBaseModel(site);
+			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
+
+			SiteBaseModel model = new SiteBaseModel(site, avatar);
 			result.Add(model);
 		}
 
@@ -62,9 +64,11 @@ public class SitesService
 			}
 
 			//IEnumerable<AccountBaseModel> moderators = site.Moderators.Length > 0 ? LoadModerators(site.Moderators) : [];
-			IEnumerable<CategoryBaseModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
+			IEnumerable<SiteCategoryModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
 
-			return new SiteModel(site)
+			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
+
+			return new SiteModel(site, avatar)
 			{
 				//Moderators = moderators,
 				Categories = categories,
@@ -72,21 +76,13 @@ public class SitesService
 		}
 	}
 
-	//IEnumerable<AccountBaseModel> LoadModerators(AutoId[] moderatorsIds)
-	//{
-	//	return moderatorsIds.Select(id =>
-	//	{
-	//		FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-	//		return new AccountBaseModel(account);
-	//	}).ToArray();
-	//}
-
-	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
+	IEnumerable<SiteCategoryModel> LoadCategories(AutoId[] categoriesIds)
 	{
 		return categoriesIds.Select(id =>
 		{
 			Category category = mcv.Categories.Latest(id);
-			return new CategoryBaseModel(category);
+			byte[]? avatar = category.Avatar != null ? mcv.Files.Latest(category.Avatar).Data : null;
+			return new SiteCategoryModel(category, avatar);
 		}).ToArray();
 	}
 }

@@ -34,7 +34,7 @@ export const SystemRequirementsTabs = memo(({ label, tabs }: SystemRequirementsT
             <div className="flex gap-8" key={tab.key}>
               <TabContent when={tab.key}>
                 {tab.sections.map(section => (
-                  <ContentSection section={section} />
+                  <ContentSection section={section} key={section.key} />
                 ))}
               </TabContent>
             </div>

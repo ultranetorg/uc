@@ -141,16 +141,22 @@ public class ProposalService
 	{
 		return proposal switch
 						{
-							//SiteNicknameChange operation => new NicknameChangeModel(operation),
-							//PublicationProductChange operation => new PublicationProductChangeModel(operation),
-							//PublicationApproval operation => new PublicationApprovalModel(operation),
-							//PublicationPublish operation => new PublicationCategoryChangeModel(operation),
+							CategoryAvatarChange operation => new CategoryAvatarChangeModel(operation),
+							CategoryCreation operation => new CategoryCreationModel(operation),
+							CategoryDeletion operation => new CategoryDeletionModel(operation),
+							CategoryMovement operation => new CategoryMovementModel(operation),
+							PublicationCreation operation => new PublicationCreationModel(operation),
+							PublicationDeletion operation => new PublicationDeletionModel(operation),
+							PublicationPublish operation => new PublicationPublishModel(operation),
+							PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
 							PublicationUpdation operation => new PublicationUpdationModel(operation),
+							ReviewEditModeration operation => new ReviewEditModerationModel(operation),
 							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
-							//ReviewTextModeration operation => new ReviewEditModerationModel(operation),
 							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
+							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
 							SiteDescriptionChange operation => new SiteDescriptionChangeModel(operation),
 							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
+							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 							SitePolicyChange operation => new SitePolicyChangeModel(operation),
 							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 						};

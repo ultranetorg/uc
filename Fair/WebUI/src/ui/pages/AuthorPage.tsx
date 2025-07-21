@@ -9,65 +9,6 @@ import { Pagination } from "ui/components"
 import { AuthorProfile } from "ui/components/author"
 import { PublicationsTable, PublicationStoresItem, PublicationStoresModal } from "ui/components/specific"
 
-const TEST_PUBLICATIONS_TABLE = [
-  {
-    categoryId: "aaa-1",
-    categoryTitle: "Software",
-    publicationId: "aaa-2",
-    publicationTitle: "Visual Studio",
-    publicationsCount: 3,
-  },
-  {
-    categoryId: "bbb-1",
-    categoryTitle: "Software",
-    publicationId: "bbb-2",
-    publicationTitle: "Principle",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "ccc-1",
-    categoryTitle: "Software",
-    publicationId: "ccc-2",
-    publicationTitle: "Software Name v1.4.5",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "ddd-1",
-    categoryTitle: "Software",
-    publicationId: "ddd-2",
-    publicationTitle: "Adobe illustrator 2025",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "eee-1",
-    categoryTitle: "Software",
-    publicationId: "eee-2",
-    publicationTitle: "Visual Studio Legacy",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "fff-1",
-    categoryTitle: "Software",
-    publicationId: "fff-2",
-    publicationTitle: "Chrome 4.5.15",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "ggg-1",
-    categoryTitle: "Software",
-    publicationId: "ggg-2",
-    publicationTitle: "3D Modeling Tool v4.5.0",
-    publicationsCount: 0,
-  },
-  {
-    categoryId: "hhh-1",
-    categoryTitle: "Software",
-    publicationId: "hhh-2",
-    publicationTitle: "Graphic Designer Pro",
-    publicationsCount: 0,
-  },
-]
-
 const TEST_ITEMS: PublicationStoresItem[] = [
   { siteTitle: "GameNest", publicationDate: 1 },
   { siteTitle: "PixelPioneers", publicationDate: 2 },
@@ -90,7 +31,7 @@ export const AuthorPage = () => {
   const [isModalOpen, setModalOpen] = useState(false)
 
   const { isPending, data: author } = useGetAuthor(authorId)
-  const { isPending: isPublicationsPending, data: publications } = useGetAuthorPublications(siteId, author?.id)
+  const { isPending: _isPublicationsPending, data: publications } = useGetAuthorPublications(siteId, author?.id)
 
   useDocumentTitle(author?.title ? `Author - ${author?.title} | Fair` : "Author | Fair")
 
@@ -137,7 +78,8 @@ export const AuthorPage = () => {
               <div className="flex w-full flex-col gap-6 py-8">
                 <AuthorProfile
                   title={author.title}
-                  nickname={"nickname"}
+                  nickname={author.nickname}
+                  avatar={author.avatar}
                   description={
                     "Electronic Arts is a cozy digital game store featuring a mix of indie gems and timeless classics. It’s easy to discover something new and exciting thanks to an active community and honest reviews. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together."
                   }
@@ -162,11 +104,13 @@ export const AuthorPage = () => {
                   <span className="text-3.5xl font-semibold leading-10">42 products</span>
                   <Pagination pagesCount={3} onPageChange={page => console.log(page)} page={2} />
                 </div>
-                <PublicationsTable
-                  className="flex flex-col rounded-lg border border-gray-300 bg-gray-100"
-                  items={TEST_PUBLICATIONS_TABLE}
-                  onPublicationStoresClick={handlePublicationStoresClick}
-                />
+                {publications?.items && (
+                  <PublicationsTable
+                    className="flex flex-col rounded-lg border border-gray-300 bg-gray-100"
+                    items={publications.items}
+                    onPublicationStoresClick={handlePublicationStoresClick}
+                  />
+                )}
               </div>
               <div className="pt-7.5">
                 {backgroundLocation ? (

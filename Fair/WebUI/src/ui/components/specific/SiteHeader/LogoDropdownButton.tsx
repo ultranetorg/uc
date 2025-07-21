@@ -11,13 +11,14 @@ import {
 import { memo, useEffect, useState } from "react"
 
 import { TEST_LOGO_SRC } from "testConfig"
-// import { DropdownButton, SimpleMenu } from "ui/components"
+import { buildSrc } from "utils"
 
 export type LogoDropdownButtonProps = {
   title: string
+  avatar?: string
 }
 
-export const LogoDropdownButton = memo(({ title }: LogoDropdownButtonProps) => {
+export const LogoDropdownButton = memo(({ title, avatar }: LogoDropdownButtonProps) => {
   const [isExpanded, setExpanded] = useState(false)
 
   const { context, /* floatingStyles,*/ refs } = useFloating({
@@ -50,8 +51,8 @@ export const LogoDropdownButton = memo(({ title }: LogoDropdownButtonProps) => {
       {...getReferenceProps()}
     >
       <div className="flex select-none items-center gap-3">
-        <div className="h-10 w-10">
-          <img src={TEST_LOGO_SRC} alt="Logo" className="h-full w-full object-contain" />
+        <div className="h-10 w-10 overflow-hidden rounded-lg">
+          <img src={buildSrc(avatar, TEST_LOGO_SRC)} alt="Logo" className="h-full w-full object-contain" />
         </div>
         <span className="w-21.5 overflow-hidden text-ellipsis whitespace-nowrap text-2base font-medium leading-5.25 text-gray-800">
           {title}

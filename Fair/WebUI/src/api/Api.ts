@@ -1,5 +1,5 @@
 import {
-  Author,
+  AuthorDetails,
   AuthorReferendum,
   AuthorReferendumDetails,
   Category,
@@ -32,7 +32,7 @@ export type Api = {
   searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
 
-  getAuthor(authorId: string): Promise<Author>
+  getAuthor(authorId: string): Promise<AuthorDetails>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>

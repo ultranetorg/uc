@@ -1,28 +1,17 @@
 ﻿namespace Uccs.Fair;
 
-public class ReviewModel
+public class ReviewModel(Review review, FairAccount account)
 {
-	public string Id { get; set; }
+	public string Id { get; set; } = review.Id.ToString();
 
-	public string Text { get; set; }
+	public string Text { get; set; } = review.Text;
 
-	public byte Rating { get; set; }
+	public byte Rating { get; set; } = review.Rating;
 
-	public int Created { get; set; }
+	public int Created { get; set; } = review.Created.Days;
 
-	public string AccountId { get; set; }
-	public string AccountAddress { get; set; }
-	public string AccountNickname { get; set; }
-
-	public ReviewModel(Review review, FairAccount account)
-	{
-		Id = review.Id.ToString();
-		Text = review.Text;
-		Rating = review.Rating;
-		Created = review.Created.Days;
-
-		AccountId = account.Id.ToString();
-		AccountAddress = account.Address.ToString();
-		AccountNickname = account.Nickname;
-	}
+	public string AccountId { get; set; } = account.Id.ToString();
+	public string AccountAddress { get; set; } = account.Address.ToString();
+	public string AccountNickname { get; set; } = account.Nickname;
+	public byte[] AccountAvatar { get; set; } = account.Avatar;
 }

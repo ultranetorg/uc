@@ -1,7 +1,8 @@
 import { PublicationExtended } from "./PublicationExtended"
 
 export type PublicationDetails = {
-  averageRating: number
+  authorAvatar: string
+  rating: number
   reviewsCount: number
   creatorId: string
   description: string

@@ -54,7 +54,7 @@ public class ProductFieldVersion : IBinarySerializable
 	public int			Refs { get; set; }
 
 	public string		AsUtf8 => Encoding.UTF8.GetString(Value);
-	
+
 	public AutoId AsAutoId
 	{
 		get
