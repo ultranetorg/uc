@@ -1,22 +1,20 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Security.Principal;
+using System.Text.Json.Serialization;
+using Uccs.Net;
 
 namespace Uccs.Fair;
 
-public class AccountBaseModel
+public class AccountBaseModel(FairAccount account)
 {
+	[JsonPropertyOrder(-4)]
+	public string Id { get; set; } = account.Id.ToString();
+
 	[JsonPropertyOrder(-3)]
-	public string Id { get; set; }
+	public string Nickname { get; set; } = account.Nickname;
 
 	[JsonPropertyOrder(-2)]
-	public string Nickname { get; set; }
+	public string Address { get; set; } = account.Address.ToString();
 
 	[JsonPropertyOrder(-1)]
-	public string Address { get; set; }
-
-	public AccountBaseModel(FairAccount account)
-	{
-		Id = account.Id.ToString();
-		Nickname = account.Nickname;
-		Address = account.Address.ToString();
-	}
+	public byte[]? Avatar { get; set; } = account.Avatar;
 }
