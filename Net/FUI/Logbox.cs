@@ -90,7 +90,7 @@ public partial class Logbox : TextBox, ILogView
   										}
  									}
 
-								AppendText(t);
+									AppendText(t);
 
   									if(Lines.Length > 100 && Lines.Length > 1100)
   									{

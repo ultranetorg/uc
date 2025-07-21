@@ -57,11 +57,10 @@ public class ReviewStatusChange : VotableOperation
 		{
 			if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 			{ 
-				var s = execution.Sites.Affect(p.Site);
 				var r = execution.Products.Find(p.Product);
 				var a = execution.Authors.Affect(r.Author);
 			
-				RewardForModeration(execution, a, s);
+				RewardForModeration(execution, a, Site);
 			}
 		}
 

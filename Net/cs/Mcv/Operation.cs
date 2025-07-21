@@ -26,8 +26,6 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public Account						Signer;
 	public abstract string				Explanation { get; }
 
-	public virtual bool					Sponsored => false;
-
 	public const string					AlreadyExists = "Already exists";
 	public const string					AtLeastOneOwnerRequired = "At least one owner required";
 	public const string					Denied = "Access denied";
@@ -90,9 +88,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	//}
 
 
-	public bool AccountExists(Execution round, AutoId id, out Account account, out string error)
+	public bool AccountExists(Execution executions, AutoId id, out Account account, out string error)
 	{
-		account = round.FindAccount(id);
+		account = executions.FindAccount(id);
 
 		if(account == null || account.Deleted)
 		{
@@ -104,9 +102,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return true;
 	}
 
-	public bool CanAccessAccount(Execution round, AutoId id, out Account account, out string error)
+	public bool CanAccessAccount(Execution executions, AutoId id, out Account account, out string error)
 	{
-		if(!AccountExists(round, id, out account, out error))
+		if(!AccountExists(executions, id, out account, out error))
 			return false;
 
 		if(account.Address != Signer.Address)

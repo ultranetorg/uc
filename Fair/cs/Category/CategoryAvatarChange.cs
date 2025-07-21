@@ -2,24 +2,24 @@
 
 public class CategoryAvatarChange : VotableOperation
 {
-	public AutoId Category { get; set; }
-	public byte[] Image { get; set; }
+	public AutoId				Category { get; set; } 
+	public byte[]				Image { get; set; }
 
-	public override string Explanation => $"Category={Category} Image={Image?.Length}";
-
-	public CategoryAvatarChange()
+	public override string		Explanation => $"Category={Category} Image={Image?.Length}";
+	
+	public CategoryAvatarChange ()
 	{
 	}
-
+	
 	public override bool IsValid(McvNet net)
-	{
+	{ 
 		return true;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
-		Category = reader.Read<AutoId>();
-		Image = reader.ReadBytes();
+		Category	= reader.Read<AutoId>();
+		Image		= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -35,21 +35,25 @@ public class CategoryAvatarChange : VotableOperation
 		return o.Category == Category;
 	}
 
-	public override bool ValidateProposal(FairExecution execution, out string error)
-	{
-		error = null;
+ 	public override bool ValidateProposal(FairExecution execution, out string error)
+ 	{
+		if(!CategoryExists(execution, Category, out var c, out error))
+			return false;
+
+		if(c.Site != Site.Id)
+		{
+			error = DoesNotBelogToSite;
+			return false;
+		}
+
 		return true;
-	}
+ 	}
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!CanModerateCategory(execution, Category, out var c, out var s, out Error))
-			return;
-
-		s = execution.Sites.Affect(s.Id);
-		c = execution.Categories.Affect(Category);
-
-		var f = execution.AllocateFile(c.Id, c.Avatar, s, s, Image);
+		var c = execution.Categories.Affect(Category);
+			
+		var f = execution.AllocateFile(c.Id, c.Avatar, Site, Site, Image);
 
 		c.Avatar = f?.Id;
 	}

@@ -63,6 +63,12 @@ public class FairExecution : Execution
 
 	public void Absorb(FairExecution execution)
 	{
+		foreach(var i in execution.AffectedAccounts)
+			AffectedAccounts[i.Key] = i.Value;
+
+		foreach(var i in execution.AffectedMetas)
+			AffectedMetas[i.Key] = i.Value;
+
 		Authors				.Absorb(execution.Authors);
 		Products			.Absorb(execution.Products);
 		Sites				.Absorb(execution.Sites);
@@ -142,35 +148,14 @@ public class FairExecution : Execution
 		return base.AffectAccount(id) as FairAccount;
 	}
 
-	public override Account AffectSigner()
-	{
-		if(Transaction.Operations.All(i => i.Sponsored))
-		{
-			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
-				return a;
-		
-			a = Mcv.Accounts.Find(Transaction.Signer, Round.Id)?.Clone() as Account;	
-
-			if(a != null)
-				TransferEnergyIfNeeded(a);
-			else
-				a = CreateAccount(Transaction.Signer);
-
-			AffectedAccounts[a.Id] = a;
-
-			return a;
-		}
-
-		return base.AffectSigner();
-	}
-
 	public override FairAccount CreateAccount(AccountAddress address)
 	{
 		var a = base.CreateAccount(address) as FairAccount;
 
 		a.Reviews = [];
-		a.Sites = [];
+		a.ModeratedSites = [];
 		a.Authors = [];
+		a.Registrations = [];
 		a.FavoriteSites = [];
 		a.Nickname = "";
 
@@ -192,21 +177,6 @@ public class FairExecution : Execution
 // 			if(i.Moderators.Length == 1)
 // 				DeleteAuthor(i);
 // 		}
-	}
-
-	public bool IsReferendum(Proposal proposal)
-	{
-		return Sites.Find(proposal.Site).ChangePolicies[Enum.Parse<FairOperationClass>(proposal.Operation.GetType().Name)] == ChangePolicy.ElectedByAuthorsMajority;
-	}
-
-	public bool IsReferendum(ChangePolicy policy)
-	{
-		return policy == ChangePolicy.ElectedByAuthorsMajority;
-	}
-
-	public bool IsDiscussion(ChangePolicy policy)
-	{
-		return policy == ChangePolicy.ElectedByModeratorsMajority || policy == ChangePolicy.ElectedByModeratorsUnanimously;
 	}
 
 	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)

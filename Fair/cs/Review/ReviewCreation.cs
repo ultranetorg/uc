@@ -2,14 +2,13 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public class ReviewCreation : FairOperation
+public class ReviewCreation : VotableOperation
 {
 	public AutoId				Publication { get; set; }
 	public string				Text { get; set; }
 	public byte					Rating { get; set; }
 
-	public override bool		Sponsored => true;
-	public override string		Explanation => $"{GetType().Name} Publication={Publication}";
+	public override string		Explanation => $"Publication={Publication} Rating={Rating} Text={Text}";
 
 	public override bool		IsValid(McvNet net) => Text.Length <= Fair.PostLengthMaximum && Rating <= 100;
 
@@ -27,14 +26,26 @@ public class ReviewCreation : FairOperation
 		writer.WriteUtf8(Text);
 	}
 
+	public override bool Overlaps(VotableOperation other)
+	{
+		var o = other as ReviewCreation;
+
+		return Publication == o.Publication && o.Signer.Id == Signer.Id;
+	}
+	
+	 public override bool ValidateProposal(FairExecution execution, out string error)
+	{
+		if(!PublicationExists(execution, Publication, out var p, out error))
+			return false;
+
+		return true;
+	}
+
 	public override void Execute(FairExecution execution)
 	{
-		if(!PublicationExists(execution, Publication, out var p, out Error))
-			return;
+		var v = execution.Reviews.Create(Publication);
 
-		var v = execution.Reviews.Create(p);
-
-		v.Publication	= p.Id;
+		v.Publication	= Publication;
 		v.Creator		= Signer.Id;
 		v.Status		= ReviewStatus.Pending;
 		v.Rating		= Rating;
@@ -42,19 +53,13 @@ public class ReviewCreation : FairOperation
 		v.TextNew		= Text;
 		v.Created		= execution.Time;
 
-		p = execution.Publications.Affect(p.Id);
+		var p = execution.Publications.Affect(Publication);
 		p.Reviews = [..p.Reviews, v.Id];
 
-		var s = execution.Sites.Affect(p.Site);
-		s.ChangedReviews = [..s.ChangedReviews, v.Id];
+		Site.ChangedReviews = [..Site.ChangedReviews, v.Id];
 
 		Signer.Reviews = [..Signer.Reviews, v.Id];
 
-		if(Signer.Id == execution.LastCreatedId)
-		{
-			Signer.AllocationSponsor = new (s.Id, FairTable.Site);
-		}
-
-		execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+		execution.Allocate(Site, Site, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 	}
 }

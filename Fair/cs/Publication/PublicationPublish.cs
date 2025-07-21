@@ -67,15 +67,14 @@ public class PublicationPublish : VotableOperation
 		var c = execution.Categories.Affect(Category);
 		c.Publications = [..c.Publications, p.Id];
 
-		var s = execution.Sites.Affect(Site.Id);
-		s.UnpublishedPublications = [..s.UnpublishedPublications, p.Id];
+		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 
 			var r = execution.Products.Find(p.Product);
 			var a = execution.Authors.Affect(r.Author);
 
-			RewardForModeration(execution, a, s);
+			RewardForModeration(execution, a, Site);
 		}
 	}
 }

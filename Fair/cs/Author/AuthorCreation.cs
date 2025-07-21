@@ -33,12 +33,6 @@ public class AuthorCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(Signer.AllocationSponsor != null)
-		{
-			Error = NotAllowedForSponsoredAccount;
-			return;
-		}
-
 		var e = execution.Authors.Create(Signer.Address);
 
 		Signer.Authors = [..Signer.Authors, e.Id];

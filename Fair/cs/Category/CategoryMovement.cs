@@ -55,8 +55,7 @@ public class CategoryMovement : VotableOperation
 
 		if(Parent == null)
 		{
-			var s = execution.Sites.Affect(c.Site);
-			s.Categories = [..s.Categories, c.Id];
+			Site.Categories = [..Site.Categories, c.Id];
 		} 
 		else
 		{

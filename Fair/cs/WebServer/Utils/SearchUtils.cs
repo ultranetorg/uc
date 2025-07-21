@@ -106,11 +106,11 @@ internal class SearchUtils
 			return true;
 		}
 
-		string creator = publication.Creator.ToString();
-		if (creator == search)
-		{
-			return true;
-		}
+		//string creator = publication.Creator.ToString();
+		//if (creator == search)
+		//{
+		//	return true;
+		//}
 
 		string product = publication.Product.ToString();
 		if (product == search)

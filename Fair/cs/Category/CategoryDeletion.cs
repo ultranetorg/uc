@@ -38,13 +38,11 @@ public class CategoryDeletion : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = execution.Sites.Affect(Site.Id);
-
 		var c = execution.Categories.Affect(Category);
 
 		if(c.Parent == null)
 		{
-			s.Categories = s.Categories.Remove(c.Id);
+			Site.Categories = Site.Categories.Remove(c.Id);
 		}
 		else
 		{
@@ -55,7 +53,6 @@ public class CategoryDeletion : VotableOperation
 
 		c.Deleted = true;
 
-		execution.Free(s, s, execution.Net.EntityLength);
-
+		execution.Free(Site, Site, execution.Net.EntityLength);
 	}
 }

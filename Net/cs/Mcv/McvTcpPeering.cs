@@ -819,35 +819,48 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
-	public abstract bool ProcessIncomingOperation(Operation o);
+	public abstract bool ValidateIncoming(Operation o);
+
+	public bool ValidateIncoming(Transaction transaction, out Round round)
+	{
+		if( IncomingTransactions.Any(j => j.Signer == transaction.Signer && j.Nid == transaction.Nid) ||
+			transaction.Expiration <= Mcv.LastConfirmedRound.Id ||
+			!transaction.Valid(Mcv) ||
+			transaction.Operations.Any(o => !ValidateIncoming(o)))
+		{
+			round = null;
+			return false;
+		}
+
+		var a = Mcv.Accounts.Find(transaction.Signer, Mcv.LastConfirmedRound.Id);
+
+		if(a == null)
+		{	
+			if(transaction.Sponsored)
+				transaction.Nid = 0;
+			else
+			{	
+				round = null;
+				return false;
+			}
+		}
+		else
+			transaction.Nid	= a.LastTransactionNid + 1;
+
+		round = Mcv.TryExecute(transaction);
+
+		return transaction.Successful;
+
+	}
 
 	public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 	{
-		foreach(var t in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-										//(
-#if IMMISION
-										i.EmissionOnly || 
-#endif
-										//i.EUFee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee
-										//) &&
-										i.Expiration > Mcv.LastConfirmedRound.Id &&
-										i.Valid(Mcv))
-							.OrderByDescending(i => i.Nid))
+		foreach(var t in txs.Where(i => ValidateIncoming(i, out _)).OrderByDescending(i => i.Nid))
 		{
-			if(t.Operations.Any(o => ! ProcessIncomingOperation(o)))
-				continue;
+			t.Status = TransactionStatus.Accepted;
+			IncomingTransactions.Add(t);
 
-			Mcv.TryExecute(t);
-			
-			if(t.Successful)
-			{
-				t.Status = TransactionStatus.Accepted;
-				IncomingTransactions.Add(t);
-
-				//Flow.Log?.Report(this, "Transaction Accepted", t.ToString());
-
-				yield return t;
-			}
+			yield return t;
 		}
 
 		MainWakeup.Set();
@@ -1140,7 +1153,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, AccountAddress signer, byte[] tag, TransactionStatus await, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, AccountAddress signer, byte[] tag, bool sponsored, TransactionStatus await, Flow flow)
  	{
 		///if(!Vault.IsUnlocked(signer))
 		///	throw new NodeException(NodeError.NotUnlocked);
@@ -1155,6 +1168,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		t.Tag		= tag ?? Guid.NewGuid().ToByteArray();
 		t.Net		= Net;
 		t.Signer	= signer;
+		t.Sponsored	= sponsored;
 		t.Flow		= flow;
 		t.Inquired	= DateTime.UtcNow;
  		t.__ExpectedOutcome	= await;

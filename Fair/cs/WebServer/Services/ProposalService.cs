@@ -154,7 +154,7 @@ public class ProposalService
 							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-							SiteDescriptionChange operation => new SiteDescriptionChangeModel(operation),
+							SiteTextChange operation => new SiteDescriptionChangeModel(operation),
 							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
 							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 							SitePolicyChange operation => new SitePolicyChangeModel(operation),
@@ -164,5 +164,5 @@ public class ProposalService
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static bool IsProposalIsProposal(Site site, Proposal dispute) =>
-		site.ChangePolicies[Enum.Parse<FairOperationClass>(dispute.Operation.GetType().Name)] != ChangePolicy.ElectedByAuthorsMajority;
+		site.ApprovalPolicies[Enum.Parse<FairOperationClass>(dispute.Option.GetType().Name)] != ApprovalPolicy.ElectedByAuthorsMajority;
 }

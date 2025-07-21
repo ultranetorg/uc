@@ -27,7 +27,7 @@ public class SiteAvatarChange : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return true;
+		return false;
 	}
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
@@ -38,10 +38,8 @@ public class SiteAvatarChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = execution.Sites.Affect(Site.Id);
-			
-		var f = execution.AllocateFile(s.Id, s.Avatar, s, s, Image);
+		var f = execution.AllocateFile(Site.Id, Site.Avatar, Site, Site, Image);
 
-		s.Avatar = f?.Id;
+		Site.Avatar = f?.Id;
 	}
 }

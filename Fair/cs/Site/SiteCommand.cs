@@ -4,6 +4,8 @@ namespace Uccs.Fair;
 
 public class SiteCommand : FairCommand
 {
+	string @as = "as";
+
 	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
@@ -82,7 +84,6 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
 		var nickname = "nickname";
-		var @as = "as";
 
 		a.Name = "n";
 		a.Help = new() {Description = "",
@@ -99,6 +100,41 @@ public class SiteCommand : FairCommand
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
 								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@as), new SiteNicknameChange {Nickname = GetString(nickname)}); 
+							};
+		return a;
+	}
+
+	public CommandAction Property()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var t = "title";
+		var s = "slogan";
+		var d = "description";
+
+		a.Name = "p";
+		a.Help = new() {Description = "Changes various site descriptive properties",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {EID} {t}={TEXT} {s}={TEXT} {d}={TEXT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a site to update"),
+									 new (t, "A new title"),
+									 new (s, "A new slogan"),
+									 new (d, "A new description"),
+									 new (@as, "On behalf of"),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {s}={TEXT.Example} {@as}={Role.Moderator} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new SiteTextChange();
+
+								o.Title			= GetString(t, null); 
+								o.Slogan		= GetString(s, null); 
+								o.Description	= GetString(d, null); 
+
+								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@as), o);
 							};
 		return a;
 	}

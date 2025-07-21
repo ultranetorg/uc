@@ -10,7 +10,7 @@ public class ModeratorPublicationModel(Publication publication, Category categor
 	public string CategoryTitle { get; set; } = category.Title;
 
 	/// Creator field on Publication.
-	public string CreatorId { get; set; } = publication.Creator.ToString();
+	//public string CreatorId { get; set; } = publication.Creator.ToString();
 
 	/// Product field on Publication.
 	public string ProductId { get; set; } = product.Id.ToString();

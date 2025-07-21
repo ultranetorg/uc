@@ -84,7 +84,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return true;
 	}
 
-	public bool IsSpendingAuthorized(Execution round, AutoId signer)
+	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
 		return Owners.Contains(signer); /// TODO : Owner only
 	}

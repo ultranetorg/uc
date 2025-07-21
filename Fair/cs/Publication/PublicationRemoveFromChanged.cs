@@ -40,7 +40,6 @@ public class PublicationRemoveFromChanged : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = execution.Sites.Affect(Site.Id);
-		s.ChangedPublications = [..s.ChangedPublications, Publication];
+		Site.ChangedPublications = [..Site.ChangedPublications, Publication];
 	}
 }

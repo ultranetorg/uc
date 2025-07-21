@@ -57,6 +57,8 @@ public class PublicationTable : Table<AutoId, Publication>
 
 public class PublicationExecution : TableExecution<AutoId, Publication>
 {
+	new FairExecution Execution => base.Execution as FairExecution;
+
 	public PublicationExecution(FairExecution execution) : base(execution.Mcv.Publications, execution)
 	{
 	}
@@ -73,5 +75,45 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		a.Reviews = [];
 			
 		return Affected[a.Id] = a;
+	}
+
+	public void Delete(AutoId id)
+	{
+		var p = Execution.Publications.Affect(id);
+		p.Deleted = true;
+
+ 		var c = Execution.Categories.Find(p.Category);
+		var s = Execution.Sites.Affect(c.Site);
+		var r = Execution.Products.Affect(p.Product);
+		//var a = execution.Authors.Find(.Author);
+
+		r.Publications = r.Publications.Remove(r.Id);
+
+		if(c.Publications.Contains(p.Id))
+		{
+			c = Execution.Categories.Affect(c.Id);
+			c.Publications = c.Publications.Remove(id);
+
+			s.PublicationsCount--;
+		}
+		
+		if(s.UnpublishedPublications.Contains(p.Id))
+		{
+			s.UnpublishedPublications = s.UnpublishedPublications.Remove(p.Id);
+		}
+
+		foreach(var i in p.Reviews)
+		{
+			Execution.Reviews.Delete(s, i);
+		}
+		
+		var f = p.Fields.FirstOrDefault(i => i.Field == ProductFieldName.Title);
+		
+		if(f != null)
+		{
+			Execution.PublicationTitles.Deindex(c.Site, Execution.Products.Find(p.Product).Get(f).AsUtf8);
+		}
+
+		Execution.Free(s, s, Execution.Net.EntityLength);
 	}
 }

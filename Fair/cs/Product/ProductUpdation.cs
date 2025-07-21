@@ -19,7 +19,7 @@ public class ProductUpdation : FairOperation
 	{
 		Product = id;
 	}
-
+	
 	public override bool IsValid(McvNet net)
 	{
 		if(Value.Length > ProductField.ValueLengthMaximum)
@@ -62,7 +62,7 @@ public class ProductUpdation : FairOperation
 		var f = r.Fields.FirstOrDefault(j => j.Name == Field);
 
 		if(f == null)
-		{
+		{	
 			f = new ProductField {Name = Field, Versions = [new ProductFieldVersion {Value = v, Version = 0}]};
 			r.Fields = [..r.Fields, f];
 		}
@@ -95,7 +95,7 @@ public class ProductUpdation : FairOperation
 		foreach(var p in r.Publications)
 		{
 			var s = execution.Sites.Affect(execution.Publications.Find(p).Site);
-
+				
 			if(!s.ChangedPublications.Contains(p))
 				s.ChangedPublications = [..s.ChangedPublications, p];
 		}
