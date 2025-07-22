@@ -14,9 +14,10 @@ export const ModeratorDiscussionsPage = () => {
 
   const { siteId } = useParams()
   const { t } = useTranslation()
-  const { isPending, data: disputes } = useGetModeratorDiscussions(siteId, page, pageSize, search)
+  const { isPending, data: discussions } = useGetModeratorDiscussions(siteId, page, pageSize, search)
 
-  const pagesCount = disputes?.totalItems && disputes.totalItems > 0 ? Math.ceil(disputes.totalItems / pageSize) : 0
+  const pagesCount =
+    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / pageSize) : 0
 
   useEffect(() => {
     if (!isPending && pagesCount > 0 && page > pagesCount) {
@@ -53,7 +54,7 @@ export const ModeratorDiscussionsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {disputes?.items?.map(d => (
+            {discussions?.items?.map(d => (
               <tr key={d.id}>
                 <td>
                   <Link to={`/${siteId}/m-d/${d.id}`}>{d.id}</Link>
