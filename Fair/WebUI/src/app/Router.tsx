@@ -88,7 +88,7 @@ const routes: RouteObject[] = [
             element: <ModeratorDiscussionsPage />,
           },
           {
-            path: "/:siteId/m-d/:disputeId",
+            path: "/:siteId/m-d/:discussionId",
             element: <ModeratorDiscussionPage />,
           },
           {

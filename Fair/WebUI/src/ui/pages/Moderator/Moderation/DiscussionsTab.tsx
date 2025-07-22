@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { useGetModeratorPublications } from "entities"
 import { usePagePagination } from "ui/pages/hooks"
 
-export const DisputesTab = () => {
+export const DiscussionsTab = () => {
   const { page, setPage, pageSize, search, resetPagination } = usePagePagination()
 
   const { siteId } = useParams()

@@ -4,19 +4,19 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetModeratorDiscussion = (siteId?: string, disputeId?: string) => {
+export const useGetModeratorDiscussion = (siteId?: string, discussionId?: string) => {
   const queryFn = () => {
-    if (!siteId || !disputeId) {
+    if (!siteId || !discussionId) {
       return
     }
 
-    return api.getModeratorDiscussion(siteId, disputeId)
+    return api.getModeratorDiscussion(siteId, discussionId)
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "disputes", disputeId],
+    queryKey: ["moderator", "sites", siteId, "discussions", discussionId],
     queryFn: queryFn,
-    enabled: !!siteId && !!disputeId,
+    enabled: !!siteId && !!discussionId,
   })
 
   return { isPending, error: error ?? undefined, data }
@@ -32,7 +32,7 @@ export const useGetModeratorDiscussions = (siteId?: string, page?: number, pageS
   }
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "disputes", { page, pageSize, search }],
+    queryKey: ["moderator", "sites", siteId, "discussions", { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!siteId,
   })

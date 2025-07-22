@@ -55,10 +55,10 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<AuthorReferendum>>
 
-  getModeratorDiscussion(siteId: string, disputeId: string): Promise<ModeratorDiscussionDetails>
+  getModeratorDiscussion(siteId: string, discussionId: string): Promise<ModeratorDiscussionDetails>
   getModeratorDiscussionComments(
     siteId: string,
-    disputeId: string,
+    discussionId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ModeratorDiscussionComment>>

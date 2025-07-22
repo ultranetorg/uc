@@ -119,12 +119,12 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = async (siteId: string, disputeId: string): Promise<ModeratorDiscussionDetails> =>
-  fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes/${disputeId}`).then(res => res.json())
+const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ModeratorDiscussionDetails> =>
+  fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
 const getModeratorDiscussionComments = async (
   siteId: string,
-  disputeId: string,
+  discussionId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<ModeratorDiscussionComment>> => {
@@ -132,7 +132,7 @@ const getModeratorDiscussionComments = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes/${disputeId}/comments` + params)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}/comments` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -146,7 +146,7 @@ const getModeratorDiscussions = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes` + params)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions` + params)
   return await toTotalItemsResult(res)
 }
 

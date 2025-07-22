@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next"
 import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
 
 export const ModeratorDiscussionPage = () => {
-  const { siteId, disputeId } = useParams()
+  const { siteId, discussionId } = useParams()
   const { t } = useTranslation()
 
-  const { isPending, data: dispute } = useGetModeratorDiscussion(siteId, disputeId)
-  const { isPending: isCommentsPending, data: comments } = useGetModeratorDiscussionComments(siteId, disputeId)
+  const { isPending, data: discussion } = useGetModeratorDiscussion(siteId, discussionId)
+  const { isPending: isCommentsPending, data: comments } = useGetModeratorDiscussionComments(siteId, discussionId)
 
-  if (isPending || !dispute) {
+  if (isPending || !discussion) {
     return "Loading..."
   }
 
@@ -18,43 +18,43 @@ export const ModeratorDiscussionPage = () => {
     <div className="flex flex-col gap-2">
       <div>
         <div>ID</div>
-        <div>{dispute.id}</div>
+        <div>{discussion.id}</div>
       </div>
       <div>
         <div>Text</div>
-        <div>{dispute.text}</div>
+        <div>{discussion.text}</div>
       </div>
       <div>
         <div>Expiration</div>
-        <div>{dispute.expiration}</div>
+        <div>{discussion.expiration}</div>
       </div>
       <div>
         <div>Votes</div>
         <div>
-          <span className="text-red-500">{dispute.yesCount}</span> /{" "}
-          <span className="text-green-500">{dispute.noCount}</span> /{" "}
-          <span className="text-gray-500">{dispute.absCount}</span>
+          <span className="text-red-500">{discussion.yesCount}</span> /{" "}
+          <span className="text-green-500">{discussion.noCount}</span> /{" "}
+          <span className="text-gray-500">{discussion.absCount}</span>
         </div>
       </div>
       <div>
         <div>Pros</div>
-        <div>{dispute.pros.join(",")}</div>
+        <div>{discussion.pros.join(",")}</div>
       </div>
       <div>
         <div>Cons</div>
-        <div>{dispute.cons.join(",")}</div>
+        <div>{discussion.cons.join(",")}</div>
       </div>
       <div>
         <div>Abs</div>
-        <div>{dispute.abs.join(",")}</div>
+        <div>{discussion.abs.join(",")}</div>
       </div>
       <div>
         <div>Type:</div>
-        <div>{t(dispute.option.$type, { ns: "votableOperations" })}</div>
+        <div>{t(discussion.option.$type, { ns: "votableOperations" })}</div>
       </div>
       <div>
         <div>Type:</div>
-        <div>{JSON.stringify(dispute.option)}</div>
+        <div>{JSON.stringify(discussion.option)}</div>
       </div>
       <h3>Comments:</h3>
       {isCommentsPending || !comments ? (
