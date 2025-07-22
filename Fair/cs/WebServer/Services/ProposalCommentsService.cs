@@ -1,32 +1,34 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-public class DisputeCommentsService
+public class ProposalCommentsService
 (
-	ILogger<DisputeCommentsService> logger,
+	ILogger<ProposalCommentsService> logger,
 	FairMcv mcv
-) : IProposalCommentsService
+)
 {
-	public TotalItemsResult<ProposalCommentModel> GetDisputeComments(string siteId, string disputeId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProposalCommentModel> GetProposalComments([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId,
+		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(DisputeCommentsService)}.{nameof(DisputeCommentsService.GetDisputeComments)} method called with {{SiteId}}, {{DisputeId}}, {{Page}}, {{PageSize}}", siteId, disputeId, page, pageSize);
+		logger.LogDebug($"GET {nameof(ProposalCommentsService)}.{nameof(ProposalCommentsService.GetProposalComments)} method called with {{SiteId}}, {{ProposalId}}, {{Page}}, {{PageSize}}", siteId, proposalId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NullOrEmpty(disputeId);
+		Guard.Against.NullOrEmpty(proposalId);
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
-		AutoId disputeEntityId = AutoId.Parse(disputeId);
+		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
 		lock(mcv.Lock)
 		{
-			Proposal dispute = mcv.Proposals.Latest(disputeEntityId);
-			if(dispute == null || dispute.Site != siteEntityId)
+			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
+			if(proposal == null || proposal.Site != siteEntityId)
 			{
-				throw new EntityNotFoundException(nameof(Proposal).ToLower(), disputeId);
+				throw new EntityNotFoundException(nameof(Proposal).ToLower(), proposalId);
 			}
 
 			var context = new SearchContext<ProposalCommentModel>
@@ -35,7 +37,7 @@ public class DisputeCommentsService
 				PageSize = pageSize,
 				Items = new List<ProposalCommentModel>(pageSize)
 			};
-			LoadDisputeComments(context, dispute.Comments, cancellationToken);
+			LoadProposalComments(context, proposal.Comments, cancellationToken);
 
 			return new TotalItemsResult<ProposalCommentModel>
 			{
@@ -45,7 +47,7 @@ public class DisputeCommentsService
 		}
 	}
 
-	private void LoadDisputeComments(SearchContext<ProposalCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)
+	private void LoadProposalComments(SearchContext<ProposalCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;

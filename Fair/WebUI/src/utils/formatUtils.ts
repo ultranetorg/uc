@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 
-import { BaseVotableOperation, SiteNicknameChange } from "types"
+import { BaseVotableOperation } from "types"
 
 const THREE_DOTS = "..."
 const OS_DIVIDER = " | "

@@ -1,6 +1,6 @@
 import { BaseVotableOperation } from "./votableOperations"
 
-export type ModeratorDispute = {
+export type ModeratorDiscussion = {
   id: string
   yesCount: number
   noCount: number

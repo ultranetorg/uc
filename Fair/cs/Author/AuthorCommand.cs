@@ -173,4 +173,68 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+
+	public CommandAction Property()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var t = "title";
+		var d = "description";
+
+		a.Name = "p";
+		a.Help = new() {Description = "Changes various author descriptive properties",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {t}={TEXT} {d}={TEXT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (t, "A new title"),
+									 new (d, "A new description"),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {t}={TEXT.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new AuthorTextChange();
+
+								o.Author		= FirstAuthorId;
+								o.Title			= GetString(t, null); 
+								o.Description	= GetString(d, null); 
+
+								return o;
+							};
+		return a;
+	}
+
+	public CommandAction Link()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var add = "add";
+		var remove = "remove";
+
+		a.Name = "link";
+		a.Help = new() {Description = "Changes author's links",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {add}={TEXT} {remove}={TEXT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a author to update"),
+									 new (add, "A links to add"),
+									 new (remove, "A links to remove"),
+									 new (SignerArg, "Address of account that owns the author")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {add}={URL.Example} {remove}={URL.Example1} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new AuthorLinksChange();
+
+								o.Author		= FirstAuthorId;
+								o.Additions		= Args.Where(i => i.Name == add).Select(i => i.Get<string>()).ToArray(); 
+								o.Removals		= Args.Where(i => i.Name == remove).Select(i => i.Get<string>()).ToArray(); 
+
+								return o;
+							};
+		return a;
+	}
 }

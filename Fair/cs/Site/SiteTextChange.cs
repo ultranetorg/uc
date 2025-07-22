@@ -55,7 +55,7 @@ public class SiteTextChange : VotableOperation
 
 		if(Description != null)
 		{
-			if(Description != null)
+			if(Site.Description != null)
 				execution.Free(Site, Site, Encoding.UTF8.GetByteCount(Site.Description));
 
 			Site.Description = Description;

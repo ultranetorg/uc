@@ -1,6 +1,6 @@
-export type ModeratorDisputeComment = {
+export type ModeratorDiscussionComment = {
   id: string
-  disputeId: string
+  discussionId: string
   creatorId: string
   creatorAddress: string
   creatorNickname: string

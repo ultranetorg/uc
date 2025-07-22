@@ -13,6 +13,10 @@ public abstract class FairCommand : McvCommand
 	protected AutoId				FirstEntityId => AutoId.Parse(Args[0].Name);
 	protected AutoId				SecondEntityId => AutoId.Parse(Args[1].Name);
 
+	protected string				As = "as";
+
+	public readonly ArgumentType	ROLE = new ArgumentType("ROLE",	@"Site role", Enum.GetNames<Uccs.Fair.Role>().ToArray());
+
 	static FairCommand()
 	{
 		try
