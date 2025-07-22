@@ -7,8 +7,8 @@ import {
   CategoryPage,
   ErrorPage,
   ModerationPage,
-  ModeratorDisputePage,
-  ModeratorDisputesPage,
+  ModeratorDiscussionPage,
+  ModeratorDiscussionsPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
   ProfilePage,
@@ -85,11 +85,11 @@ const routes: RouteObject[] = [
           },
           {
             path: "/:siteId/m-d",
-            element: <ModeratorDisputesPage />,
+            element: <ModeratorDiscussionsPage />,
           },
           {
             path: "/:siteId/m-d/:disputeId",
-            element: <ModeratorDisputePage />,
+            element: <ModeratorDiscussionPage />,
           },
           {
             path: "/:siteId/m-p/:publicationId",

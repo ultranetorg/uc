@@ -1,14 +1,14 @@
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { useGetModeratorDispute, useGetModeratorDisputeComments } from "entities"
+import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
 
-export const ModeratorDisputePage = () => {
+export const ModeratorDiscussionPage = () => {
   const { siteId, disputeId } = useParams()
   const { t } = useTranslation()
 
-  const { isPending, data: dispute } = useGetModeratorDispute(siteId, disputeId)
-  const { isPending: isCommentsPending, data: comments } = useGetModeratorDisputeComments(siteId, disputeId)
+  const { isPending, data: dispute } = useGetModeratorDiscussion(siteId, disputeId)
+  const { isPending: isCommentsPending, data: comments } = useGetModeratorDiscussionComments(siteId, disputeId)
 
   if (isPending || !dispute) {
     return "Loading..."

@@ -4,7 +4,7 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetModeratorDisputeComments = (
+export const useGetModeratorDiscussionComments = (
   siteId?: string,
   disputeId?: string,
   page?: number,
@@ -15,7 +15,7 @@ export const useGetModeratorDisputeComments = (
       return
     }
 
-    return api.getModeratorDisputeComments(siteId, disputeId, page, pageSize)
+    return api.getModeratorDiscussionComments(siteId, disputeId, page, pageSize)
   }
 
   const { isPending, error, data } = useQuery({

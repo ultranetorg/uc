@@ -9,7 +9,7 @@ public class AuthorReferendumsController
 	ILogger<AuthorReferendumsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IProposalService disputesService
+	IProposalService proposalsService
 ) : BaseController
 {
 	[HttpGet]
@@ -21,7 +21,7 @@ public class AuthorReferendumsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ProposalModel> referendums = disputesService.GetReferendums(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ProposalModel> referendums = proposalsService.GetReferendums(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(referendums.Items, page, pageSize, referendums.TotalItems);
 	}
@@ -34,6 +34,6 @@ public class AuthorReferendumsController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
-		return disputesService.GetReferendum(siteId, referendumId);
+		return proposalsService.GetReferendum(siteId, referendumId);
 	}
 }

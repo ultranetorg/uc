@@ -4,13 +4,13 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetModeratorDispute = (siteId?: string, disputeId?: string) => {
+export const useGetModeratorDiscussion = (siteId?: string, disputeId?: string) => {
   const queryFn = () => {
     if (!siteId || !disputeId) {
       return
     }
 
-    return api.getModeratorDispute(siteId, disputeId)
+    return api.getModeratorDiscussion(siteId, disputeId)
   }
 
   const { isPending, error, data } = useQuery({
@@ -22,13 +22,13 @@ export const useGetModeratorDispute = (siteId?: string, disputeId?: string) => {
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useGetModeratorDisputes = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
+export const useGetModeratorDiscussions = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => {
     if (!siteId) {
       return
     }
 
-    return api.getModeratorDisputes(siteId, page, pageSize, search)
+    return api.getModeratorDiscussions(siteId, page, pageSize, search)
   }
 
   const { isPending, error, data } = useQuery({

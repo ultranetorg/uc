@@ -4,8 +4,10 @@ import {
   AuthorReferendumDetails,
   Category,
   CategoryParentBase,
-  ModeratorDispute,
-  ModeratorDisputeDetails,
+  CategoryPublications,
+  ModeratorDiscussion,
+  ModeratorDiscussionComment,
+  ModeratorDiscussionDetails,
   ModeratorPublication,
   ModeratorReview,
   Publication,
@@ -20,8 +22,6 @@ import {
   TotalItemsResult,
   User,
 } from "types"
-import { CategoryPublications } from "types/CategoryPublications"
-import { ModeratorDisputeComment } from "types/ModeratorDisputeComment"
 
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
@@ -55,19 +55,19 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<AuthorReferendum>>
 
-  getModeratorDispute(siteId: string, disputeId: string): Promise<ModeratorDisputeDetails>
-  getModeratorDisputeComments(
+  getModeratorDiscussion(siteId: string, disputeId: string): Promise<ModeratorDiscussionDetails>
+  getModeratorDiscussionComments(
     siteId: string,
     disputeId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<ModeratorDisputeComment>>
-  getModeratorDisputes(
+  ): Promise<TotalItemsResult<ModeratorDiscussionComment>>
+  getModeratorDiscussions(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<ModeratorDispute>>
+  ): Promise<TotalItemsResult<ModeratorDiscussion>>
   getModeratorPublication(publicationId: string): Promise<ModeratorPublication>
   getModeratorPublications(
     siteId: string,

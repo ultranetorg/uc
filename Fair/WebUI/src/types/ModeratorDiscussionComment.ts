@@ -1,4 +1,4 @@
-export type ModeratorDisputeComment = {
+export type ModeratorDiscussionComment = {
   id: string
   disputeId: string
   creatorId: string

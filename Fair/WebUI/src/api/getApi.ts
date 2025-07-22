@@ -6,9 +6,9 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ModeratorDispute,
-  ModeratorDisputeComment,
-  ModeratorDisputeDetails,
+  ModeratorDiscussion,
+  ModeratorDiscussionComment,
+  ModeratorDiscussionDetails,
   ModeratorPublication,
   ModeratorReview,
   Publication,
@@ -119,15 +119,15 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDispute = async (siteId: string, disputeId: string): Promise<ModeratorDisputeDetails> =>
+const getModeratorDiscussion = async (siteId: string, disputeId: string): Promise<ModeratorDiscussionDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/disputes/${disputeId}`).then(res => res.json())
 
-const getModeratorDisputeComments = async (
+const getModeratorDiscussionComments = async (
   siteId: string,
   disputeId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<ModeratorDisputeComment>> => {
+): Promise<TotalItemsResult<ModeratorDiscussionComment>> => {
   const params = buildUrlParams(
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -136,12 +136,12 @@ const getModeratorDisputeComments = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDisputes = async (
+const getModeratorDiscussions = async (
   siteId: string,
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<ModeratorDispute>> => {
+): Promise<TotalItemsResult<ModeratorDiscussion>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -202,9 +202,9 @@ const api: Api = {
   getAuthorReferendum,
   getCategoryPublications,
   getAuthorReferendums,
-  getModeratorDispute,
-  getModeratorDisputeComments,
-  getModeratorDisputes,
+  getModeratorDiscussion,
+  getModeratorDiscussionComments,
+  getModeratorDiscussions,
   getModeratorPublication,
   getModeratorPublications,
   getModeratorReview,

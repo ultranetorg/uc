@@ -29,7 +29,7 @@ public class ModeratorPublicationsController
 	[HttpGet("~/api/moderator/publications/{publicationId}")]
 	public ModeratorPublicationModel Get(string publicationId)
 	{
-		logger.LogInformation($"GET {nameof(ModeratorDisputesController)}.{nameof(ModeratorDisputesController.Get)} method called with {{PublicationId}}", publicationId);
+		logger.LogInformation($"GET {nameof(ModeratorPublicationsController)}.{nameof(ModeratorPublicationsController.Get)} method called with {{PublicationId}}", publicationId);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
