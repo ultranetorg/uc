@@ -8,9 +8,9 @@ public class AuthorsService
 	FairMcv mcv
 ): IAuthorsService
 {
-	public AuthorDetailsModel GetAuthor(string authorId)
+	public AuthorDetailsModel GetDetails(string authorId)
 	{
-		logger.LogDebug($"GET {nameof(AuthorsService)}.{nameof(AuthorsService.GetAuthor)} method called with {{AuthorId}}", authorId);
+		logger.LogDebug($"GET {nameof(AuthorsService)}.{nameof(AuthorsService.GetDetails)} method called with {{AuthorId}}", authorId);
 
 		Guard.Against.NullOrEmpty(authorId);
 

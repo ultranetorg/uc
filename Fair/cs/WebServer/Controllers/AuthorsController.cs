@@ -16,6 +16,6 @@ public class AuthorsController
 
 		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
 
-		return authorsService.GetAuthor(authorId);
+		return authorsService.GetDetails(authorId);
 	}
 }

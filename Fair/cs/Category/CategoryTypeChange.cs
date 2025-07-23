@@ -30,7 +30,7 @@ public class CategoryTypeChange : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		var o = other as CategoryAvatarChange;
+		var o = other as CategoryTypeChange;
 
 		return o.Category == Category;
 	}

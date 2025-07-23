@@ -4,5 +4,5 @@ namespace Uccs.Fair;
 
 public interface IAuthorsService
 {
-	AuthorDetailsModel GetAuthor([NotNull][NotEmpty] string authorId);
+	AuthorDetailsModel GetDetails([NotNull][NotEmpty] string authorId);
 }

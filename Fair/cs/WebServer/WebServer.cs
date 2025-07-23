@@ -45,7 +45,7 @@ public class WebServer
 																						})
 															.AddJsonOptions(options =>	{
 																							options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
-																							options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+																							options.JsonSerializerOptions.Converters.Add(new LowerCaseEnumConverterFactory());
 																						});
 
 											WebApplication = builder.Build();
