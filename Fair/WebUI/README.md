@@ -1,6 +1,16 @@
 yarn install
 yarn dev
 
+## Pages
+
+### SitesPage
+
+### SitePage
+
+### CategoryPage
+
+### PublicationPage
+
 ## Assets sizes
 
 ?? - 14 (xxs)
@@ -8,8 +18,8 @@ xs - 16 (xs)
 sm - 20 (sm)
 md - 24 (base)
 ?? - 28 (lg)
-?? - 32
-?? - 36
+?? - 32 (xl)
+?? - 36 (2xl)
 ?? - 40
 ?? - 44
 ?? - 76x77

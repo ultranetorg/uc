@@ -11,6 +11,7 @@ public class Transaction : IBinarySerializable
 	public const int				TagLengthMax = 1024;
 
 	public int						Nid { get; set; }
+	public bool						Sponsored { get; set; }
 	TransactionId					_Id;
 	public TransactionId			Id
 									{ 
@@ -154,6 +155,7 @@ public class Transaction : IBinarySerializable
 		w.Write(Bonus);
 		w.WriteBytes(PoW);
 		w.WriteBytes(Tag);
+		w.Write(Sponsored);
 		w.Write(Operations, i => i.Write(w));
 
 		return Cryptography.Hash(s.ToArray());
@@ -166,6 +168,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
+		writer.Write(Sponsored);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Codes[i.GetType()]); 
 										i.Write(writer); 
@@ -176,11 +179,12 @@ public class Transaction : IBinarySerializable
  	{
 		Status		= TransactionStatus.Confirmed;
 
-		Member	= reader.Read<AutoId>();
+		Member		= reader.Read<AutoId>();
 		Signer		= reader.ReadAccount();
 		Nid			= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
 		Tag			= reader.ReadBytes();
+		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
  												o.Transaction = this;
@@ -201,6 +205,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(PoW);
 		writer.WriteBytes(Tag);
+		writer.Write(Sponsored);
 		writer.Write(Operations, i => {
 										writer.Write(Net.Codes[i.GetType()]); 
 										i.Write(writer); 
@@ -211,13 +216,14 @@ public class Transaction : IBinarySerializable
 	{
 		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
 
-		Member	= reader.Read<AutoId>();
+		Member		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
+		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
  												o.Transaction	= this;
@@ -234,10 +240,10 @@ public class Transaction : IBinarySerializable
 		writer.Write(Signature);
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt(Expiration);
-		//writer.Write(STFee);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(PoW);
 		writer.WriteBytes(Tag);
+		writer.Write(Sponsored);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Codes[i.GetType()]); 
 											i.Write(writer); 
@@ -255,6 +261,7 @@ public class Transaction : IBinarySerializable
 		Bonus		= reader.Read7BitEncodedInt64();
 		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
+		Sponsored	= reader.ReadBoolean();
 		Operations	= reader.ReadArray(() => {
 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
 												o.Transaction = this;

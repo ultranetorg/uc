@@ -26,7 +26,7 @@ public class AccountsService
 			}
 		}
 
-		IEnumerable<UserSiteModel> sites = account.Sites?.Length > 0 ? LoadSites(account.Sites) : [];
+		IEnumerable<UserSiteModel> sites = account.ModeratedSites?.Length > 0 ? LoadSites(account.ModeratedSites) : [];
 		IEnumerable<UserAuthorModel> authors = account.Authors.Length > 0 ? LoadAuthors(account.Authors) : [];
 
 		// IEnumerable<UserProductModel> products = null;

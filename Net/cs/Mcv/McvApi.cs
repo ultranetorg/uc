@@ -299,6 +299,8 @@ public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public AccountAddress			Signer { get; set; }
+	public byte[]					Tag { get; set; }
+	public bool						Sponsored { get; set; }
 	public TransactionStatus		Await { get; set; } = TransactionStatus.Confirmed;
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
@@ -306,7 +308,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = mcv.Peering.Transact(Operations, Signer, null, Await, workflow);
+		var t = mcv.Peering.Transact(Operations, Signer, Tag, Sponsored, Await, workflow);
 	
 		return new TransactionApe(t);
 	}

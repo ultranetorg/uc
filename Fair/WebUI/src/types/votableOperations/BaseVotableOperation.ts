@@ -1,6 +1,5 @@
 export type BaseVotableOperation = {
   $type:
-    | "nickname-change"
     | "publication-product-change"
     | "publication-status-change"
     | "publication-update-moderation"
@@ -8,5 +7,6 @@ export type BaseVotableOperation = {
     | "review-text-moderation"
     | "site-authors-change"
     | "site-moderators-change"
+    | "site-nickname-change"
     | "site-policy-change"
 }

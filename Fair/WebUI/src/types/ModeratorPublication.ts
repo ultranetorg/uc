@@ -3,7 +3,6 @@ export type ModeratorPublication = {
   flags: string
   categoryId: string
   categoryTitle: string
-  creatorId: string
   productId: string
   productUpdated: number
   authorId: string

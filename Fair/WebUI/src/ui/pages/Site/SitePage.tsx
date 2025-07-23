@@ -1,13 +1,10 @@
-import { useMemo } from "react"
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications } from "entities"
-import { BigCategoriesList } from "ui/components"
+import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList } from "ui/components/specific"
-
-import { toBigCategoriesListItems } from "./utils"
-import { useTranslation } from "react-i18next"
 
 export const SitePage = () => {
   const { siteId } = useParams()
@@ -17,18 +14,13 @@ export const SitePage = () => {
     site?.id,
   )
 
-  const categoriesItems = useMemo(
-    () => (site?.categories && site ? toBigCategoriesListItems(site.categories) : undefined),
-    [site],
-  )
-
   if (isPending || !site || !siteId) {
     return <>LOADING</>
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <BigCategoriesList isLoading={isPending} siteId={siteId} items={categoriesItems} />
+      <BigCategoriesGrid isLoading={isPending} siteId={siteId} items={site.categories} />
       <CategoriesPublicationsList
         siteId={siteId!}
         isPending={isCategoriesPublicationsPending}

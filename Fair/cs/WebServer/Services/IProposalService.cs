@@ -6,13 +6,13 @@ namespace Uccs.Fair;
 public interface IProposalService
 {
 
-	public ProposalDetailsModel GetProposal([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
+	public ProposalDetailsModel GetDiscussion([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId);
 
-	public TotalItemsResult<ProposalModel> GetProposals(
+	public TotalItemsResult<ProposalModel> GetDiscussions(
 		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,
 		string? search, CancellationToken cancellationToken);
 
-	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string disputeId);
+	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId);
 
 	public TotalItemsResult<ProposalModel> GetReferendums(
 		[NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize,

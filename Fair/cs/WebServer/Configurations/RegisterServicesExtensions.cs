@@ -20,7 +20,7 @@ public static class RegisterServicesExtensions
 	{
 		services.AddSingleton<IAuthorsService, AuthorsService>();
 		services.AddSingleton<ICategoriesService, CategoriesService>();
-		services.AddSingleton<IProposalCommentsService, DisputeCommentsService>();
+		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<IProposalService, ProposalService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();

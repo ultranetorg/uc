@@ -128,12 +128,6 @@ public class AuthorOwnerAddition : FairOperation
 		if(!AccountExists(execution, Owner, out var x, out Error))
 			return;
 
-		if(x.AllocationSponsor != null)
-		{
-			Error = NotAllowedForSponsoredAccount;
-			return;
-		}
-
 		a.Owners = [..a.Owners, x.Id];
 
 		execution.PayCycleEnergy(a);

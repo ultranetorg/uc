@@ -75,7 +75,7 @@ public class UtilityTransfer : Operation
 
 		IHolder h = null;
 
-		if(Signer.Address != execution.Net.God)
+		if(execution.Round.Id > 0)
 		{
 			h = execution.Affect(FromTable, From) as IHolder;
 
@@ -94,7 +94,7 @@ public class UtilityTransfer : Operation
 
 		if(Energy > 0 || EnergyNext > 0)
 		{
-			if(From != AutoId.God)
+			if(execution.Round.Id > 0)
 			{
 				var s = h as IEnergyHolder;
 
@@ -104,7 +104,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(Signer.Address != execution.Net.God)
+				if(Signer.Address != Mcv.God)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;
@@ -128,7 +128,7 @@ public class UtilityTransfer : Operation
 				
 		if(Spacetime > 0)
 		{	
-			if(Signer.Address != execution.Net.God)
+			if(execution.Round.Id > 0)
 			{
 				var s = h as ISpacetimeHolder;
 

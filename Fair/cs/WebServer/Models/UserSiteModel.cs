@@ -6,7 +6,7 @@ public class UserSiteModel : SiteBaseModel
 
 	public string Url { get; set; }
 
-	public UserSiteModel(Site site) : base(site)
+	public UserSiteModel(Site site) : base(site, null)
 	{
 		Id = site.Id.ToString();
 		Title = site.Title;

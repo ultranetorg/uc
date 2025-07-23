@@ -1,18 +1,23 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalModel(Proposal dispute)
+public class ProposalModel(Proposal proposal, FairAccount account)
 {
-	public string Id { get; set; } = dispute.Id.ToString();
+	public string Id { get; set; } = proposal.Id.ToString();
 
-	public int YesCount { get; set; } = dispute.Yes.Count();
-	public int NoCount { get; set; } = dispute.No.Count();
-	public int AbsCount { get; set; } = dispute.Abs.Count();
+	public string ById { get; set; } = account.Id.ToString();
+	public string ByNickname { get; set; } = account.Nickname;
+	public string ByAddress { get; set; } = account.Address.ToString();
+	public byte[]? ByAvatar { get; set; } = account.Avatar;
 
-	public int Expiration { get; set; } = dispute.Expiration.Days;
+	public int YesCount { get; set; } = proposal.Yes.Count();
+	public int NoCount { get; set; } = proposal.No.Count();
+	public int AbsCount { get; set; } = proposal.Abs.Count();
 
-	public string Text { get; set; } = dispute.Text;
+	public int Expiration { get; set; } = proposal.Expiration.Days;
 
-	public BaseVotableOperationModel Proposal { get; set; }
+	public string Text { get; set; } = proposal.Text;
 
-	public int CommentsCount { get; set; } = dispute.Comments.Count();
+	public BaseVotableOperationModel Option { get; set; }
+
+	public int CommentsCount { get; set; } = proposal.Comments.Count();
 }

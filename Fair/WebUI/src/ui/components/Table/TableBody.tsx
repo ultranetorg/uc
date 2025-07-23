@@ -26,6 +26,8 @@ export const TableBody = memo(({ columns, emptyState, items, itemRenderer, rowRe
       return rowRenderer ? rowRenderer(content, item) : content
     })
   ) : (
-    <TableRow className={twMerge(emptyState && "py-6")}>{emptyState ? emptyState : null}</TableRow>
+    <TableRow className={twMerge(emptyState && "py-6")} disableHover={true}>
+      {emptyState ? emptyState : null}
+    </TableRow>
   ),
 )

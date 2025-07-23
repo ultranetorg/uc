@@ -11,25 +11,25 @@ internal class SearchUtils
 			|| site.Nickname.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
-	internal static bool IsMatch(Proposal dispute, string? search)
+	internal static bool IsMatch(Proposal proposal, string? search)
 	{
 		if (string.IsNullOrEmpty(search)) {
 			return true;
 		}
 
-		string id = dispute.Id.ToString();
+		string id = proposal.Id.ToString();
 		if (id == search)
 		{
 			return true;
 		}
 
-		string flags = dispute.Flags.ToString();
+		string flags = proposal.Flags.ToString();
 		if (flags.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}
 
-		if (dispute.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}
@@ -106,11 +106,11 @@ internal class SearchUtils
 			return true;
 		}
 
-		string creator = publication.Creator.ToString();
-		if (creator == search)
-		{
-			return true;
-		}
+		//string creator = publication.Creator.ToString();
+		//if (creator == search)
+		//{
+		//	return true;
+		//}
 
 		string product = publication.Product.ToString();
 		if (product == search)

@@ -49,11 +49,11 @@ export const ReferendumPage = () => {
       </div>
       <div>
         <div>Type:</div>
-        <div>{t(referendum.proposal.$type, { ns: "votableOperations" })}</div>
+        <div>{t(referendum.option.$type, { ns: "votableOperations" })}</div>
       </div>
       <div>
         <div>Type:</div>
-        <div>{JSON.stringify(referendum.proposal)}</div>
+        <div>{JSON.stringify(referendum.option)}</div>
       </div>
     </div>
   )

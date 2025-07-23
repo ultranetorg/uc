@@ -56,14 +56,14 @@ public class FairMcv : Mcv
 		GraphIPs = baseips;
 	}
 
-	public string CreateGenesis(AccountKey god, AccountKey f0)
+	public string CreateGenesis(AccountKey f0)
 	{
-		return CreateGenesis(god, f0, new CandidacyDeclaration {GraphIPs = [Net.Father0IP]});
+		return CreateGenesis(f0, new CandidacyDeclaration {GraphIPs = [Net.Father0IP]});
 	}
 
-	public override string CreateGenesis(AccountKey god, AccountKey f0, CandidacyDeclaration candidacydeclaration)
+	public override string CreateGenesis(AccountKey f0, CandidacyDeclaration candidacydeclaration)
 	{
-		return base.CreateGenesis(god, f0, candidacydeclaration);
+		return base.CreateGenesis(f0, candidacydeclaration);
 	}
 
 	protected override void GenesisInitilize(Round round)

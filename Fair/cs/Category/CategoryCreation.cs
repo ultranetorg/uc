@@ -39,23 +39,19 @@ public class CategoryCreation : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = execution.Sites.Affect(Site.Id);
-
 		if(Parent == null)
 		{
-			var c = execution.Categories.Create(s);
+			var c = execution.Categories.Create(Site);
 			
-			c.Site = s.Id;
+			c.Site = Site.Id;
 			c.Title = Title;
 			
-			s.Categories = [..s.Categories, c.Id];
-
-			execution.Allocate(s, s, execution.Net.EntityLength);
+			Site.Categories = [..Site.Categories, c.Id];
 		}
 		else
 		{
 			var p = execution.Categories.Affect(Parent);
-			var c = execution.Categories.Create(s);
+			var c = execution.Categories.Create(Site);
 			
 			c.Site = p.Site;
 			c.Parent = Parent;
@@ -64,7 +60,8 @@ public class CategoryCreation : VotableOperation
 			p = execution.Categories.Affect(Parent);
 			p.Categories = [..p.Categories, c.Id];
 		
-			execution.Allocate(s, s, execution.Net.EntityLength);
 		}
+
+		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}
 }

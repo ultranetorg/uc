@@ -33,8 +33,6 @@ public class FavoriteSiteChange : FairOperation
 		if(!CanAccessAccount(execution, Signer.Id, out var a, out Error))
 			return;
 
-		var e = execution.AffectAccount(Signer.Id);
-
 		if(Action)
 		{
 			Signer.FavoriteSites = [..Signer.FavoriteSites, Site];

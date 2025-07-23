@@ -15,7 +15,7 @@ export const SitesGrid = memo(({ items }: SitesGridProps) => (
       <div className="flex h-full w-full max-w-[1248px] flex-wrap items-center justify-center gap-6">
         {items.map(x => (
           <Link key={x.id} to={`/${x.id}`}>
-            <SiteCard title={x.title} description={x.description} />
+            <SiteCard title={x.title} description={x.description} avatar={x.avatar} />
           </Link>
         ))}
       </div>

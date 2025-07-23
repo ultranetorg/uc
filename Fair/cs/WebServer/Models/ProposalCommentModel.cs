@@ -4,7 +4,7 @@ public class ProposalCommentModel
 {
 	public string Id { get; set; }
 
-	public string DisputeId { get; set; }
+	public string ProposalId { get; set; }
 
 	public string CreatorId { get; set; }
 	public string CreatorAddress { get; set; }
@@ -14,14 +14,14 @@ public class ProposalCommentModel
 
 	public int Created { get; set; }
 
-	public ProposalCommentModel(ProposalComment dispute, FairAccount account)
+	public ProposalCommentModel(ProposalComment proposal, FairAccount account)
 	{
-		Id = dispute.Id.ToString();
-		DisputeId = dispute.Proposal.ToString();
-		CreatorId = dispute.Creator.ToString();
+		Id = proposal.Id.ToString();
+		ProposalId = proposal.Proposal.ToString();
+		CreatorId = proposal.Creator.ToString();
 		CreatorAddress = account.Address.ToString();
 		CreatorNickname = account.Nickname;
-		Text = dispute.Text;
-		Created = dispute.Created.Days;
+		Text = proposal.Text;
+		Created = proposal.Created.Days;
 	}
 }

@@ -62,7 +62,7 @@ public class ReviewEditModeration : VotableOperation
 	{
 		var v = execution.Reviews.Affect(Review);
 		var p = execution.Publications.Affect(v.Publication);
-		var s = execution.Sites.Affect(p.Site);
+		var s = Site;
 
 		if(Resolution == true)
 		{

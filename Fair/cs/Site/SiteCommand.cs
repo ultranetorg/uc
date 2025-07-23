@@ -82,23 +82,22 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
 		var nickname = "nickname";
-		var @as = "as";
 
 		a.Name = "n";
 		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {EID} {As}={ROLE} {nickname}={NAME} {SignerArg}={AA}",
 
 						Arguments =	[new ("<first>", "Id of a site to update"),
 									 new (nickname, "A new nickname"),
-									 new (@as, "On behalf of"),
+									 new (As, "On behalf of"),
 									 new (SignerArg, "Address of account that owns the site")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {@as}={Role.Moderator} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {EID.Example1} {nickname}={NAME.Example} {As}={Role.Moderator} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@as), new SiteNicknameChange {Nickname = GetString(nickname)}); 
+								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@As), new SiteNicknameChange {Nickname = GetString(nickname)}); 
 							};
 		return a;
 	}
@@ -121,6 +120,42 @@ public class SiteCommand : FairCommand
 								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
+							};
+		return a;
+	}
+
+	public CommandAction Property()
+	{
+		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		
+		var t = "title";
+		var s = "slogan";
+		var d = "description";
+
+		a.Name = "p";
+		a.Help = new() {Description = "Changes various site's descriptive properties",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {EID} {As}={ROLE} {t}={TEXT} {s}={TEXT} {d}={TEXT} {SignerArg}={AA}",
+
+						Arguments =	[new ("<first>", "Id of a site to update"),
+									 new ("<second>", "Id of a actor"),
+									 new (@As, $"A role of actor, {Uccs.Fair.Role.Moderator} by default"),
+									 new (t, "A new title"),
+									 new (s, "A new slogan"),
+									 new (d, "A new description"),
+									 new (SignerArg, "Address of account that owns the site")],
+
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {EID.Example1} {@As}={ROLE.Example1} {s}={TEXT.Example} {SignerArg}={AA.Example}")]};
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								var o = new SiteTextChange();
+
+								o.Title			= GetString(t, null); 
+								o.Slogan		= GetString(s, null); 
+								o.Description	= GetString(d, null); 
+
+								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@As, Uccs.Fair.Role.Moderator), o);
 							};
 		return a;
 	}

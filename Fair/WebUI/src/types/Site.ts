@@ -1,6 +1,6 @@
-import { CategoryBase } from "./CategoryBase"
 import { SiteBase } from "./SiteBase"
+import { SiteCategory } from "./SiteCategory"
 
 export type Site = {
-  categories: CategoryBase[]
+  categories: SiteCategory[]
 } & SiteBase

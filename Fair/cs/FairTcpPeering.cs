@@ -45,7 +45,7 @@ public class FairTcpPeering : McvTcpPeering
 
 		return base.Constract(t, b);
 	}
-	public override bool ProcessIncomingOperation(Operation o)
+	public override bool ValidateIncoming(Operation o)
 	{
 		return o is not VotableOperation;
 	}

@@ -164,6 +164,11 @@ public class Execution : ITableExecution
 		SpacetimeSpenders.Add(payer);
 	}
 
+	public void FreeForever(ISpacetimeHolder payer, int length)
+	{
+		payer.Spacetime += ToBD(length, Mcv.Forever);
+	}
+
 	public void FreeEntity()
 	{
 		Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
@@ -239,31 +244,50 @@ public class Execution : ITableExecution
 		}
 	}
 
-
 	public virtual Account AffectSigner()
 	{
- 		if(Transaction.Signer == Net.God)
- 			return new Account {Address = Net.God};
-
-		var s = Mcv.Accounts.Find(Transaction.Signer, Round.Id);
-
-		if(s == null)
+		if(Transaction.Sponsored)
 		{
-			foreach(var o in Transaction.Operations)
-				o.Error = Operation.NotFound;
-					
-			return null;
+			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
+				return a;
+		
+			if(Parent != null)
+				a = Parent.FindAccount(Transaction.Signer);
+			else
+				a = Mcv.Accounts.Find(Transaction.Signer, Round.Id);	
+
+			if(a == null)
+				a = CreateAccount(Transaction.Signer);
+			else
+				a = AffectAccount(a.Id);
+
+			return a;
 		}
+		else
+		{
+ 			if(Transaction.Signer == Mcv.God)
+ 				return new Account {Address = Mcv.God};
+
+			var s = Mcv.Accounts.Find(Transaction.Signer, Round.Id);
+
+			if(s == null)
+			{
+				foreach(var o in Transaction.Operations)
+					o.Error = Operation.NotFound;
+					
+				return null;
+			}
 	
-		if(Transaction.Nid != s.LastTransactionNid + 1)
-		{
-			foreach(var o in Transaction.Operations)
-				o.Error = Operation.NotSequential;
+			if(Transaction.Nid != s.LastTransactionNid + 1)
+			{
+				foreach(var o in Transaction.Operations)
+					o.Error = Operation.NotSequential;
 					
-			return null;
-		}
+				return null;
+			}
 
-		return AffectAccount(s.Id);
+			return AffectAccount(s.Id);
+		}
 	}
 
 	public Account FindAccount(AutoId id)

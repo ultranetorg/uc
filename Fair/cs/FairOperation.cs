@@ -17,26 +17,32 @@ public enum FairOperationClass : uint
 		AuthorOwnerRemoval			= 101_000_005,
 		AuthorNicknameChange		= 101_000_006,
 		AuthorAvatarChange			= 100_000_007,
+		AuthorTextChange			= 100_000_008,
+		AuthorLinksChange			= 100_000_009,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
 		ProductUpdation				= 102_000_002, 
 		ProductDeletion				= 102_000_999,
 	
-	Store							= 103,
+	Site							= 103,
 		SiteCreation				= 103_000_001, 
 		SiteRenewal					= 103_000_002,
 		SitePolicyChange			= 103_000_003,
 		SiteAuthorsChange			= 103_000_004,
 		SiteModeratorsChange		= 103_000_005,
-		SiteDescriptionChange		= 103_000_006,
+		SiteTextChange				= 103_000_006,
 		SiteAvatarChange			= 103_000_007,
 		SiteNicknameChange			= 103_000_008,
+		UserRegistration			= 103_000_009,
+		UserDeletion				= 103_000_010,
 		SiteDeletion				= 103_000_999,
 
 		Category						= 103_001,
 			CategoryCreation			= 103_001_001,
 			CategoryMovement			= 103_001_002,
+			CategoryAvatarChange		= 103_001_003,
+			CategoryTypeChange			= 103_001_004,
 			CategoryDeletion			= 103_001_999,
 
 		Publication						= 103_002,
@@ -66,6 +72,8 @@ public enum FairOperationClass : uint
 public abstract class VotableOperation : FairOperation
 {
 	public Site				Site;
+	public Role				As;
+	public AutoId			By;
 
 	public abstract bool	ValidateProposal(FairExecution execution, out string error);
  	public abstract bool	Overlaps(VotableOperation other);
@@ -159,7 +167,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool IsMember(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
+	public bool IsPublisher(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
 	{
 		site = null;
 
@@ -358,7 +366,7 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsMember(execution, proposal.Site, comment.Creator, out site, out author, out error))
+		if(!IsPublisher(execution, proposal.Site, comment.Creator, out site, out author, out error))
 			return false;
 
 		if(comment.Creator != author.Id)

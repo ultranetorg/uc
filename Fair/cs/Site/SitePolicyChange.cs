@@ -3,7 +3,7 @@
 public class SitePolicyChange : VotableOperation
 {
 	public FairOperationClass	Change { get; set; }
-	public ChangePolicy			Policy { get; set; }
+	public ApprovalPolicy			Policy { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Policy}";
@@ -11,7 +11,7 @@ public class SitePolicyChange : VotableOperation
 	public override void Read(BinaryReader reader)
 	{
 		Change	= reader.Read<FairOperationClass>();
-		Policy	= reader.Read<ChangePolicy>();
+		Policy	= reader.Read<ApprovalPolicy>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -29,7 +29,7 @@ public class SitePolicyChange : VotableOperation
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(Site.ChangePolicies.TryGetValue(Change, out var p) && p == Policy)
+		if(Site.ApprovalPolicies.TryGetValue(Change, out var p) && p == Policy)
 		{	
 			error = AlreadyExists;
 			return false;
@@ -41,9 +41,9 @@ public class SitePolicyChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		var s = execution.Sites.Affect(Site.Id);
+ 		var s = Site;
  
-		s.ChangePolicies = new(s.ChangePolicies);
-		s.ChangePolicies[Change] = Policy;
+		s.ApprovalPolicies = new(s.ApprovalPolicies);
+		s.ApprovalPolicies[Change] = Policy;
 	}
 }

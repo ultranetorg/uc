@@ -61,7 +61,8 @@ public class ProductCommand : FairCommand
 
 						Arguments = [new ("<first>", "Id of a product to update"),
 									 new ("field", "A name of field of a product to update"),
-									 new ("text", "A new text value of a prodcut field")],
+									 new ("text", "A new text value of a product field"),
+									 new ("path", "Raw binary data from file")],
 
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} field={NAME.Example} text={TEXT.Example} {SignerArg}={AA.Example}")]};
 
@@ -74,6 +75,9 @@ public class ProductCommand : FairCommand
 
 								if(Has("text"))
 									o.Value = Encoding.UTF8.GetBytes(GetString("text"));
+
+								if(Has("path"))
+									o.Value = System.IO.File.ReadAllBytes(GetString("path"));
 
 								return o;
 							};

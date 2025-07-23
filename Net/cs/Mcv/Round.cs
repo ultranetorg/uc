@@ -415,34 +415,7 @@ public abstract class Round : IBinarySerializable
 
 				if(o.Error != null)
 					break;
-			
-				//if(e.EnergyFeePayer == null)
-				//{
-				//	e.EnergyFeePayer = s;
-				//	e.EnergySpenders.Add(s);
-				//}
 
-				//if(e.EnergyFeePayer.BandwidthExpiration >= ConsensusTime.Days)
-				//{
-				//	if(e.EnergyFeePayer.BandwidthTodayTime < ConsensusTime.Days) /// switch to this day
-				//	{	
-				//		e.EnergyFeePayer.BandwidthTodayTime		 = (short)ConsensusTime.Days;
-				//		e.EnergyFeePayer.BandwidthTodayAvailable = e.EnergyFeePayer.Bandwidth;
-				//	}
-				//
-				//	e.EnergyFeePayer.BandwidthTodayAvailable -= e.EnergyConsumed;
-				//
-				//	if(e.EnergyFeePayer.BandwidthTodayAvailable < 0)
-				//	{
-				//		o.Error = Operation.NotEnoughBandwidth;
-				//		break;
-				//	}
-				//}
-				//else
-				//{
-				//	e.EnergyFeePayer.Energy -= e.EnergyConsumed;
-				//}
-				
 				s.Energy -= t.Bonus;
 
 				if(s.Energy < 0)

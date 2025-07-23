@@ -49,8 +49,9 @@ export const ReviewsList = memo(
               key={r.id}
               text={r.text}
               rating={r.rating}
-              userId={r.accountId}
-              userName={r.accountNickname || r.accountAddress}
+              accountId={r.accountId}
+              accountName={r.accountNickname || r.accountAddress}
+              accountImage={r.accountAvatar}
               created={r.created}
             />
           ))}

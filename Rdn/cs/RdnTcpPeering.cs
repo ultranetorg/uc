@@ -49,7 +49,7 @@ public class RdnTcpPeering : McvTcpPeering
 		return base.Constract(t, b);
 	}
 
-	public override bool ProcessIncomingOperation(Operation o)
+	public override bool ValidateIncoming(Operation o)
 	{
 		#if ETHEREUM
 		if(o is Immission e && !Ethereum.IsEmissionValid(e))

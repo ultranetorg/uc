@@ -6,48 +6,39 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 
 	public override PeerResponse Execute()
 	{
-		lock(Mcv.Lock)
-		{
-			var m = RequireMemberFor(Transaction.Signer);
-
-			var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
-
-			if(a == null)
-			{	
-				if(Transaction.Operations.All(i => i.Sponsored))
-					Transaction.Nid = 0;
-				else
-					throw new EntityException(EntityError.NotFound);
-			}
-			else
-				Transaction.Nid	= a.LastTransactionNid + 1;
-
-			var r = Mcv.TryExecute(Transaction);
-			
-			if(Transaction.Successful)
+		lock(Peering.Lock)
+			lock(Mcv.Lock)
 			{
-				var b = r.AffectedAccounts.Values.First(i => i.Address == Transaction.Signer);
-				
-				var atr = new AllocateTransactionResponse  {Generator			= m.Id,
-															LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-															PowHash				= Mcv.LastConfirmedRound.Hash,
-															NextNid				= Transaction.Nid};
+				var m = RequireMemberFor(Transaction.Signer);
 
-				if(a != null)
+				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
+
+				Transaction.Expiration = Mcv.LastConfirmedRound.Id + 1;
+
+				if(Peering.ValidateIncoming(Transaction, out var r))
 				{
-					atr.SpacetimeConsumed	= a.Spacetime - b.Spacetime;
-					atr.EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed;
+					var b = r.AffectedAccounts.Values.First(i => i.Address == Transaction.Signer);
+				
+					var atr = new AllocateTransactionResponse  {Generator			= m.Id,
+																LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
+																PowHash				= Mcv.LastConfirmedRound.Hash,
+																NextNid				= Transaction.Nid};
+
+					if(a != null)
+					{
+						atr.SpacetimeConsumed	= a.Spacetime - b.Spacetime;
+						atr.EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed;
+					}
+					else
+					{
+						atr.SpacetimeConsumed	= -b.Spacetime;
+					}
+
+					return atr;
 				}
 				else
-				{
-					atr.SpacetimeConsumed	= -b.Spacetime;
-				}
-
-				return atr;
+					throw new EntityException(EntityError.ExcutionFailed);
 			}
-			else
-				throw new EntityException(EntityError.ExcutionFailed);
-		}
 	}
 }
 

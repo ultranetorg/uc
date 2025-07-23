@@ -1,4 +1,3 @@
-export * from "./BigCategoriesList"
 export * from "./Breadcrumbs2"
 export * from "./Dropdown"
 export * from "./DropdownSecondary"

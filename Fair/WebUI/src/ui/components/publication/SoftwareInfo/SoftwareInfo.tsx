@@ -35,7 +35,7 @@ export const SoftwareInfo = ({
     <div className="flex flex-col gap-2">
       <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
       <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-        <AuthorImageTitle title={publication.title} />
+        <AuthorImageTitle title={publication.authorTitle} authorAvatar={publication.authorAvatar} />
       </LinkFullscreen>
     </div>
 
@@ -57,7 +57,7 @@ export const SoftwareInfo = ({
     <div className="flex flex-col gap-2">
       <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
       <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
-        {formatAverageRating(publication.averageRating)} <SvgStarXxs className="fill-favorite" />
+        {formatAverageRating(publication.rating)} <SvgStarXxs className="fill-favorite" />
       </div>
     </div>
 

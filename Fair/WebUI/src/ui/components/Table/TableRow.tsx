@@ -3,12 +3,17 @@ import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
-export type TableRowProps = PropsWithChildren & PropsWithClassName
+type TableRowBaseProps = {
+  disableHover?: boolean
+}
 
-export const TableRow = ({ children, className }: TableRowProps) => (
+export type TableRowProps = PropsWithChildren & PropsWithClassName & TableRowBaseProps
+
+export const TableRow = ({ children, className, disableHover }: TableRowProps) => (
   <div
     className={twMerge(
-      "flex h-16 cursor-pointer items-center justify-between gap-6 px-4 py-3 hover:bg-gray-300",
+      "flex h-16 items-center justify-between gap-6 px-4 py-3",
+      disableHover !== true && "cursor-pointer hover:bg-gray-300",
       className,
     )}
   >
