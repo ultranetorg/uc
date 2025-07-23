@@ -37,7 +37,12 @@ export const CategoryPage = () => {
       {category.categories.length > 0 && <CategoriesList siteId={siteId!} categories={category.categories} />}
       {publications.items.length !== 0 ? (
         view === "grid" ? (
-          <PublicationsGrid isPending={isPendingPublications} publications={publications.items} siteId={siteId!} />
+          <PublicationsGrid
+            isPending={isPendingPublications}
+            publications={publications.items}
+            siteId={siteId!}
+            categoryType={category.type}
+          />
         ) : (
           <PublicationsList siteId={siteId!} publications={publications.items} />
         )

@@ -18,6 +18,7 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 					new JsonDerivedType(typeof(CategoryCreationModel), "category-creation"),
 					new JsonDerivedType(typeof(CategoryDeletionModel), "category-deletion"),
 					new JsonDerivedType(typeof(CategoryMovementModel), "category-movement"),
+					new JsonDerivedType(typeof(CategoryTypeChangeModel), "category-type-change-model"),
 					new JsonDerivedType(typeof(PublicationCreationModel), "publication-creation"),
 					new JsonDerivedType(typeof(PublicationDeletionModel), "publication-deletion"),
 					new JsonDerivedType(typeof(PublicationPublishModel), "publication-publish"),

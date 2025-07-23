@@ -325,9 +325,8 @@ public class PublicationsService
 				return;
 
 			Category category = mcv.Categories.Latest(categoryId);
-			byte[]? avatar = category.Avatar != null ? mcv.Files.Latest(category.Avatar).Data : null;
 
-			var resultCategory = new CategoryPublicationsModel(category, avatar)
+			var resultCategory = new CategoryPublicationsModel(category)
 			{
 				Publications = new List<PublicationExtendedModel>(CategoriesPublications.DefaultPublicationsCount)
 			};

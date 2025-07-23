@@ -152,6 +152,7 @@ public class ProposalService
 							CategoryCreation operation => new CategoryCreationModel(operation),
 							CategoryDeletion operation => new CategoryDeletionModel(operation),
 							CategoryMovement operation => new CategoryMovementModel(operation),
+							CategoryTypeChange operation => new CategoryTypeChangeModel(operation),
 							PublicationCreation operation => new PublicationCreationModel(operation),
 							PublicationDeletion operation => new PublicationDeletionModel(operation),
 							PublicationPublish operation => new PublicationPublishModel(operation),

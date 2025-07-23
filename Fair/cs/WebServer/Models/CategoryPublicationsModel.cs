@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryPublicationsModel(Category category, byte[]? avatar) : CategoryBaseModel(category)
+public class CategoryPublicationsModel(Category category) : CategoryBaseModel(category)
 {
-	public byte[]? Avatar { get; set; } = avatar;
+	public CategoryType Type { get; set; } = category.Type;
 
 	public List<PublicationExtendedModel> Publications { get; set; }
 }

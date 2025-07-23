@@ -77,28 +77,13 @@ export const AuthorPage = () => {
             <div className="flex w-full gap-6">
               <div className="flex w-full flex-col gap-6 py-8">
                 <AuthorProfile
+                  t={t}
                   title={author.title}
                   nickname={author.nickname}
                   avatar={author.avatar}
-                  description={
-                    "Electronic Arts is a cozy digital game store featuring a mix of indie gems and timeless classics. It’s easy to discover something new and exciting thanks to an active community and honest reviews. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together. At its core, GameNest is built on democratic principles: content creators choose the moderators, and key decisions are made collectively with the users. It’s a platform truly run by its community, where passionate people create and curate the content together."
-                  }
-                  links={[
-                    { link: "http://home.net", text: "Official Site" },
-                    { link: "http://chux.net/testcom1", text: "No name social network" },
-                    { link: "http://aas.com/testcom", text: "This is very very very very very very looooong name" },
-                    { link: "https://facebook.com/test", text: "Facebook" },
-                    { link: "https://www.youtube.com/testcom", text: "YouTube" },
-                    { link: "https://www.instagram.com/testcom", text: "Instagram" },
-                    { link: "https://x.com/testcom", text: "Twitter" },
-                    { link: "https://discord.com/testcom", text: "Discord" },
-                  ]}
+                  description={author.description}
+                  links={author.links}
                   registeredDate={3324}
-                  aboutLabel={t("about")}
-                  authorLabel={t("author")}
-                  linksLabel={t("links")}
-                  readLessLabel={t("readLess")}
-                  readMoreLabel={t("readMore")}
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-3.5xl font-semibold leading-10">42 products</span>
