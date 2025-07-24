@@ -625,21 +625,21 @@ public abstract class Mcv /// Mutual chain voting
 		Commited?.Invoke(round);
 	}
 
-	public Transaction FindRecentTransaction(Func<Transaction, bool> transaction_predicate)
+	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)
 	{
 		foreach(var r in Tail)
 			foreach(var t in r.Transactions)
 				if(transaction_predicate(t))
 					return t;
 
-		if(LastDissolvedRound != null)
-			for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
-			{
-				var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
-
-				if(t != null)
-					return t;
-			}
+		//if(LastDissolvedRound != null)
+		//	for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
+		//	{
+		//		var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
+		//
+		//		if(t != null)
+		//			return t;
+		//	}
 
 		return null;
 	}

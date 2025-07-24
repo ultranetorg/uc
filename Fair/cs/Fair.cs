@@ -50,6 +50,7 @@ public class FairLocal : Fair
 		PoW				= false;
 		CommitLength	= 100;
 		ECLifetime		= Time.FromYears(100);
+		//PoWComplexity	= 0;
 
 		Initials		= Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();
 	}

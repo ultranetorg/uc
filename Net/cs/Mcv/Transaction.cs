@@ -1,8 +1,13 @@
 ﻿namespace Uccs.Net;
 
-public enum TransactionStatus
+public enum TransactionStatus : byte
 {
 	None, Pending, Accepted, Placed, FailedOrNotFound, Confirmed
+}
+
+public enum ActionOnResult : byte
+{
+	DoNoCare, CancelOnFailure, RetryUntilConfirmed, ExpectFailure
 }
 
 public class Transaction : IBinarySerializable
@@ -51,7 +56,7 @@ public class Transaction : IBinarySerializable
 	public IPeer					Rdi;
 	public Flow						Flow;
 	public DateTime					Inquired;
-	public TransactionStatus		__ExpectedOutcome = TransactionStatus.None;
+	public ActionOnResult			__ExpectedOutcome = ActionOnResult.DoNoCare;
 
 	public bool Valid(Mcv mcv)
 	{
@@ -76,10 +81,9 @@ public class Transaction : IBinarySerializable
 			PoW = new byte[PowLength];
 		}
 		else
-        {
-            var r = new Random();
+		{
+			var r = new Random();
 			var h = new byte[32];
-
 			var x = new byte[32 + PowLength];
 
 			Array.Copy(powhash, x, 32);
@@ -87,14 +91,14 @@ public class Transaction : IBinarySerializable
 			do
 			{
 				r.NextBytes(new Span<byte>(x, 32, PowLength));
-				
+
 				h = Cryptography.Hash(x);
-			
+
 			}
 			while(h[0] != 0 || h[1] != 0 || h[2] != 0);
-			
+
 			PoW = x.Skip(32).ToArray();
-        }
+		}
 
 		return Hashify();
 	}
@@ -102,33 +106,7 @@ public class Transaction : IBinarySerializable
 	public void Sign(AccountKey signer, byte[] powhash)
 	{
 		Signer = signer;
-
-		if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
-		{
-			PoW = new byte[PowLength];
-		}
-		else
-        {
-            var r = new Random();
-			var h = new byte[32];
-
-			var x = new byte[32 + PowLength];
-
-			Array.Copy(powhash, x, 32);
-
-			do
-			{
-				r.NextBytes(new Span<byte>(x, 32, PowLength));
-				
-				h = Cryptography.Hash(x);
-			
-			}
-			while(h[0] != 0 || h[1] != 0 || h[2] != 0);
-			
-			PoW = x.Skip(32).ToArray();
-        }
-
-		Signature = Net.Cryptography.Sign(signer, Hashify());
+		Signature = Net.Cryptography.Sign(signer, Hashify(powhash));
 	}
 
 	public bool EqualBySignature(Transaction t)
@@ -195,7 +173,7 @@ public class Transaction : IBinarySerializable
 
 	public void	WriteForVote(BinaryWriter writer)
 	{
-		writer.Write((byte)__ExpectedOutcome);
+		writer.Write(__ExpectedOutcome);
 
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -214,7 +192,7 @@ public class Transaction : IBinarySerializable
  		
 	public void	ReadForVote(BinaryReader reader)
 	{
-		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
+		__ExpectedOutcome = reader.Read<ActionOnResult>();
 
 		Member		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
@@ -234,7 +212,7 @@ public class Transaction : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write((byte)__ExpectedOutcome);
+		writer.Write(__ExpectedOutcome);
 	
 		writer.Write(Member);
 		writer.Write(Signature);
@@ -252,7 +230,7 @@ public class Transaction : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		__ExpectedOutcome = (TransactionStatus)reader.ReadByte();
+		__ExpectedOutcome = reader.Read<ActionOnResult>();
 	
 		Member		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();

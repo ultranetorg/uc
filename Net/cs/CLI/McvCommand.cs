@@ -6,7 +6,7 @@ namespace Uccs.Net;
 
 public abstract class McvCommand : NetCommand
 {
-	public const string		AwaitArg = "await";
+	public const string		AORArg = "aor";
 	public const string		SignerArg = "signer";
 	public Action			Transacted;
 	protected McvCli		Cli;
@@ -72,11 +72,11 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, TransactionStatus await)
+	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, ActionOnResult aor)
 	{
 		var t =  Cli.ApiClient.Request<TransactionApe>(new TransactApc  {Operations = operations,
 																		 Signer = signer,
-																		 Await = await}, Flow);
+																		 ActionOnResult = aor}, Flow);
 		int n = 0;
 
 		do 
@@ -96,7 +96,9 @@ public abstract class McvCommand : NetCommand
 
 			Thread.Sleep(1);
 		}
-		while(t.Status != await);
+		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
+				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
+				aor == ActionOnResult.DoNoCare));
 
 		if(t.Status == TransactionStatus.Confirmed)
 			Flow.Log.Dump(t);
@@ -116,16 +118,16 @@ public abstract class McvCommand : NetCommand
 	//}
 
 
-	public static TransactionStatus GetAwaitStage(IEnumerable<Xon> args)
+	public static ActionOnResult GetActionOnResult(IEnumerable<Xon> args)
 	{
-		var a = args.FirstOrDefault(i => i.Name == AwaitArg);
+		var a = args.FirstOrDefault(i => i.Name == AORArg);
 
 		if(a != null)
 		{
-			return Enum.GetValues<TransactionStatus>().First(i => i.ToString().ToLower() == a.Get<string>());
+			return Enum.GetValues<ActionOnResult>().First(i => i.ToString().ToLower() == a.Get<string>());
 		}
 		else
-			return TransactionStatus.Placed;
+			return ActionOnResult.RetryUntilConfirmed;
 	}
 
 	protected AutoId GetEntityId(string paramenter)

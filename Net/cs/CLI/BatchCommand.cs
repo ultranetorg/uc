@@ -27,7 +27,7 @@ public class BatchCommand : McvCommand
 						};
 
 		a.Execute = () =>	{
-								return Args	.Where(i =>	i.Name != AwaitArg && i.Name != SignerArg)
+								return Args	.Where(i =>	i.Name != AORArg  && i.Name != SignerArg)
 											.Select(x => {
 															var op = (x.Value as Xon).Nodes;
 

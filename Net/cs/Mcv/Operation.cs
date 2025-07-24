@@ -73,20 +73,10 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
-
-	//public Account RequireAccount(Round round, AccountAddress account)
-	//{
-	//	var a = round.Mcv.Accounts.Find(account, round.Id);
-	//
-	//	if(a == null || a.Deleted)
-	//	{
-	//		Error = NotFound;
-	//		return a;
-	//	}
-	//
-	//	return a;
-	//}
-
+	
+	public virtual void PreTransact(McvNode node, bool sponsored, Flow flow)
+	{
+	}
 
 	public bool AccountExists(Execution executions, AutoId id, out Account account, out string error)
 	{

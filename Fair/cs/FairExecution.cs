@@ -19,6 +19,8 @@ public class FairExecution : Execution
 	public PublicationTitleExecution	PublicationTitles;
 	public SiteTitleExecution			SiteTitles;
 
+	public bool							LongYesVoted;
+
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
 		Authors				= new(this);

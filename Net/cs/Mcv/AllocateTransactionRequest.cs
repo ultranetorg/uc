@@ -21,7 +21,7 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 				
 					var atr = new AllocateTransactionResponse  {Generator			= m.Id,
 																LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-																PowHash				= Mcv.LastConfirmedRound.Hash,
+																PoWBase				= Mcv.GraphHash,
 																NextNid				= Transaction.Nid};
 
 					if(a != null)
@@ -46,7 +46,7 @@ public class AllocateTransactionResponse : PeerResponse
 {
 	public int			LastConfirmedRid { get; set; }
 	public int			NextNid { get; set; }
-	public byte[]		PowHash { get; set; }
+	public byte[]		PoWBase { get; set; }
 	public long			SpacetimeConsumed { get; set; }
 	public long			EnergyConsumed { get; set; }
 	public AutoId		Generator { get; set; }

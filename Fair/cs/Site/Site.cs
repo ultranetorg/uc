@@ -13,6 +13,7 @@ public enum Role : byte
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
+	public const int				PoWLength = 32;
 
 	public AutoId					Id { get; set; }
 	public string					Nickname { get; set; }
@@ -20,6 +21,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public string					Slogan { get; set; }
 	public string					Description { get; set; }
 	public int						ModerationReward { get; set; }
+	public int						PoWComplexity { get; set; }
 	public AutoId					Avatar  { get; set; }
 	
 	public OrderedDictionary<FairOperationClass, Role[]>		CreationPolicies { get; set; }
@@ -91,6 +93,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					ModerationReward		= ModerationReward,
 					AuthorRequestFee		= AuthorRequestFee,
 					Avatar					= Avatar,
+					PoWComplexity			= PoWComplexity,
 					
 					CreationPolicies		= CreationPolicies,
 					ApprovalPolicies		= ApprovalPolicies,
@@ -142,6 +145,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Description					= reader.ReadUtf8Nullable();
 		ModerationReward			= reader.Read7BitEncodedInt();
 		AuthorRequestFee			= reader.Read7BitEncodedInt();
+		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
 		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
@@ -175,6 +179,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8Nullable(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write7BitEncodedInt(AuthorRequestFee);
+		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		
 		writer.Write(CreationPolicies, i => { writer.Write(i.Key); writer.Write(i.Value, i => writer.Write(i)); });

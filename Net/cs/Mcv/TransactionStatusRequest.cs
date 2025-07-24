@@ -30,17 +30,22 @@ public class TransactionStatusRequest : McvPpc<TransactionStatusResponse>
 			{
 				RequireGraph();
 	
-				return new TransactionStatusResponse {	LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
-														Transactions = Transactions.Select(t => new{Q = t,
-																									T = Peering.IncomingTransactions.Find(i => i.Signer == t.Signer && i.Nid == t.Nid)
-																										?? 
-																										Mcv.FindRecentTransaction(i => i.Signer == t.Signer && i.Nid == t.Nid)})
-																					.Select(i => new TransactionStatusResponse.Item{Account	= i.Q.Signer,
-																																	Id		= i.T?.Id ?? default,
-																																	Nid		= i.Q.Nid,
-																																	Status	= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})
-																					.ToArray()
-													};
+				return	new TransactionStatusResponse
+						{								
+							LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
+							Transactions = Transactions.Select(t => new{Q = t,
+																		T = Peering.IncomingTransactions.Find(i => i.Signer == t.Signer && i.Nid == t.Nid)
+																			?? 
+																			//Peering.OutgoingTransactions.Find(i => i.Signer == t.Signer && i.Nid == t.Nid)
+																			//Mcv.FindTailTransaction(i => i.Signer == t.Signer && i.Nid == t.Nid)
+																			Peering.ArchivedTransactions.Find(i => i.Signer == t.Signer && i.Nid == t.Nid)
+																			})
+														.Select(i => new TransactionStatusResponse.Item{Account	= i.Q.Signer,
+																										Id		= i.T?.Id ?? default,
+																										Nid		= i.Q.Nid,
+																										Status	= i.T == null ? TransactionStatus.FailedOrNotFound : i.T.Status})
+														.ToArray()
+						};
 			}
 		}
 	}

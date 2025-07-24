@@ -1,9 +1,10 @@
-﻿namespace Uccs.Fair;
+﻿using System.Numerics;
+
+namespace Uccs.Fair;
 
 public class UserRegistration : VotableOperation
 {
-	//public AutoId				Site { get; set; }
-
+	public byte[]				Pow { get; set; }
 	public override string		Explanation => $"Site={Site}";
 	
 	public UserRegistration()
@@ -17,10 +18,12 @@ public class UserRegistration : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
+		Pow = reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
+		writer.WriteBytes(Pow);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -36,9 +39,54 @@ public class UserRegistration : VotableOperation
 			return false;
 		}
 
+		if(!execution.LongYesVoted)
+		{
+			if(Pow != null && Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < Site.PoWComplexity)
+			{
+				error = DoesNotSatisfy;
+				return false;
+			}
+		}
+
 		error = null;
 		return true;
  	}
+
+	public override void PreTransact(McvNode node, bool sponsored, Flow flow, AutoId site)
+	{
+		if(sponsored)
+		{
+			Pow = null;
+
+			var r = new Random();
+	
+			var s = node.Peering.Call(() => new PowRequest {Site = site}, flow);
+	
+			var ts =  Enumerable.Range(0, Environment.ProcessorCount)
+								.Select(i => new Thread(() =>	{ 
+																	var b = new byte[32];
+																	var a = Blake2Fast.Blake2b.CreateHashAlgorithm(32);
+	
+																	while(flow.Active && Pow == null)
+																	{
+																		r.NextBytes(b);
+																		var h = a.ComputeHash([..s.GraphHash, ..b]);
+	
+																		var f = h.Sum(i => BitOperations.PopCount(i));
+															
+																		if(f >= s.Complexity)
+																		{
+																			Pow = b;
+																		}
+																	}
+																})).ToArray();
+			foreach(var i in ts)
+				i.Start();
+					
+			foreach(var i in ts)
+				i.Join();
+		}
+	}
 
 	public override void Execute(FairExecution execution)
 	{
@@ -48,9 +96,9 @@ public class UserRegistration : VotableOperation
 
 		Signer.Registrations = [..Signer.Registrations, Site.Id];
 
-		if(execution.Transaction.Sponsored)
-		{
+		if(Pow != null)
 			execution.AllocateForever(s, execution.Net.EntityLength);
-		}
+		else
+			execution.AllocateForever(Signer, execution.Net.EntityLength);
 	}
 }

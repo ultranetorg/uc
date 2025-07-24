@@ -103,7 +103,7 @@ public class McvCli : Cli
 			}
 			else
 			{
-				var t = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(args));
+				var t = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}
@@ -117,7 +117,7 @@ public class McvCli : Cli
 			}
 			else
 			{
-				var t = c.Transact(ooo, c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetAwaitStage(args));
+				var t = c.Transact(ooo, c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

@@ -104,13 +104,15 @@ public class ProposalVoting : FairOperation
  
  		if(success)
  		{
-			z.Option.Site	 = s;
-			z.Option.As		 = z.As;
-			z.Option.By = z.By;
-			z.Option.Signer	 = z.As == Role.User ? execution.AffectAccount(z.By) : null;
+			z.Option.Site	= s;
+			z.Option.As		= z.As;
+			z.Option.By		= z.By;
+			z.Option.Signer	= z.As == Role.User ? execution.AffectAccount(z.By) : null;
 
 			var e = execution.CreateChild();
-	 			
+	 		
+			e.LongYesVoted = true;
+
 			if(z.Option.ValidateProposal(e, out _))
 			{
 				z.Option.Execute(e);
@@ -120,7 +122,6 @@ public class ProposalVoting : FairOperation
 					execution.Absorb(e);
 				}
 			}
-
 
 			foreach(var i in z.Comments)
 				execution.ProposalComments.Affect(i).Deleted = true;

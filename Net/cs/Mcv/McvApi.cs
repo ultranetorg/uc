@@ -301,14 +301,17 @@ public class TransactApc : McvApc
 	public AccountAddress			Signer { get; set; }
 	public byte[]					Tag { get; set; }
 	public bool						Sponsored { get; set; }
-	public TransactionStatus		Await { get; set; } = TransactionStatus.Confirmed;
+	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
-	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = mcv.Peering.Transact(Operations, Signer, Tag, Sponsored, Await, workflow);
+		foreach(var i in Operations)
+			i.PreTransact(node, Sponsored, flow);
+
+		var t = node.Peering.Transact(Operations, Signer, Tag, Sponsored, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -348,7 +351,7 @@ public class EstimateOperationApc : McvApc
 		t.Signature	 = node.UosApi.Request<byte[]>(new AuthorizeApc{Net		= node.Mcv.Net.Name,
 																	Account	= By,
 																	Session = node.Settings.Sessions.First(i => i.Account == By).Session,
-																	Hash	= t.Hashify(node.Mcv.Net.Cryptography.ZeroHash),
+																	Hash	= t.Hashify(),
 																	Trust	= Trust.None}, t.Flow);
 
 
@@ -365,7 +368,6 @@ public class TransactionApe
 		
 	public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
-	public byte[]					PoW { get; set; }
 	public byte[]					Tag { get; set; }
 	public long						Bonus { get; set; }
 	public byte[]					Signature { get; set; }
@@ -373,7 +375,7 @@ public class TransactionApe
 	public AccountAddress			Signer { get; set; }
 	public TransactionStatus		Status { get; set; }
 	public IPAddress				MemberEndpoint { get; set; }
-	public TransactionStatus		__ExpectedStatus { get; set; }
+	public ActionOnResult			__ExpectedStatus { get; set; }
 
 	public IEnumerable<Operation>	Operations  { get; set; }
 	public LogMessage[]				Log { get; set; }
@@ -390,7 +392,6 @@ public class TransactionApe
 		   
 		Member				= transaction.Member;
 		Expiration			= transaction.Expiration;
-		PoW					= transaction.PoW;
 		Tag					= transaction.Tag;
 		Bonus				= transaction.Bonus;
 		Signature			= transaction.Signature;

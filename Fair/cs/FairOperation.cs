@@ -71,12 +71,13 @@ public enum FairOperationClass : uint
 
 public abstract class VotableOperation : FairOperation
 {
-	public Site				Site;
-	public Role				As;
-	public AutoId			By;
+	public Site					Site;
+	public Role					As;
+	public AutoId				By;
 
-	public abstract bool	ValidateProposal(FairExecution execution, out string error);
- 	public abstract bool	Overlaps(VotableOperation other);
+	public abstract bool		ValidateProposal(FairExecution execution, out string error);
+ 	public abstract bool		Overlaps(VotableOperation other);
+	public virtual void			PreTransact(McvNode node, bool sponsored, Flow flow, AutoId site){}
 }
 
 public abstract class FairOperation : Operation
@@ -88,10 +89,11 @@ public abstract class FairOperation : Operation
 	public const string			Ended = "Ended";
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
 	public const string			DoesNotBelogToSite = "Does not belong to site";
+	public const string			DoesNotSatisfy = "Does Not Satisfy";
 
 	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
 
-	public abstract void Execute(FairExecution execution);
+	public abstract void		Execute(FairExecution execution);
 
 	public override void Execute(Execution execution)
 	{

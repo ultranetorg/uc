@@ -30,6 +30,13 @@ public class ProposalCreation : FairOperation
 		return Option.IsValid(net) && Text.Length < Fair.PostLengthMaximum;
 	}
 
+	public override void PreTransact(McvNode node, bool sponsored, Flow flow)
+	{
+		Option.PreTransact(node, sponsored, flow, Site);
+
+		base.PreTransact(node, sponsored, flow);
+	}
+
 	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<AutoId>();
