@@ -16,6 +16,9 @@ public abstract class Fair : McvNet
 	public const ushort				TitleLengthMaximum = 64;
 	public const ushort				SloganLengthMaximum = 128;
  		
+	public static Dictionary<Type, uint>								OCodes = [];
+	public static Dictionary<Type, Dictionary<uint, ConstructorInfo>>	OContructors = [];
+
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairTest();
  	public static readonly Fair		Developer0 = new FairDeveloper0();
@@ -27,12 +30,14 @@ public abstract class Fair : McvNet
 	
 	public Fair()
 	{
+		OContructors[typeof(Operation)] = [];
+
 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
 		{
 			if(Enum.TryParse<FairOperationClass>(i.Name, out var v))
 			{
-				Codes[i] = (uint)v;
-				Contructors[typeof(Operation)][(uint)v]  = i.GetConstructor([]);
+				OCodes[i] = Codes[i] = (uint)v;
+				OContructors[typeof(Operation)][(uint)v] = Contructors[typeof(Operation)][(uint)v]  = i.GetConstructor([]);
 			}
 		}
 	}

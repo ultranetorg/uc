@@ -40,11 +40,11 @@ public class ProposalCreation : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Site		= reader.Read<AutoId>();
-		By		= reader.Read<AutoId>();
+		By			= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
  		Text		= reader.ReadUtf8();
 
- 		Option = GetType().Assembly.GetType(GetType().Namespace + "." + reader.Read<FairOperationClass>()).GetConstructor([]).Invoke(null) as VotableOperation;
+		Option = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as VotableOperation;
  		Option.Read(reader); 
 	}
 
@@ -55,7 +55,7 @@ public class ProposalCreation : FairOperation
 		writer.Write(As);
  		writer.WriteUtf8(Text);
 
-		writer.Write(Enum.Parse<FairOperationClass>(Option.GetType().Name));
+		writer.Write(Fair.OCodes[Option.GetType()]);
 		Option.Write(writer);
 	}
 
