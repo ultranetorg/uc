@@ -2,37 +2,74 @@ using System.Text;
 
 namespace Uccs.Fair;
 
+public class Option : IBinarySerializable
+{
+	public string				Text { get; set; }
+	public VotableOperation	    Operation { get; set; }
+
+	public Option()
+	{
+	}
+
+	public Option(VotableOperation operation, string text = "")
+	{
+		Operation = operation;
+		Text = text;
+	}
+
+	public virtual void Read(BinaryReader reader)
+	{
+ 		Text = reader.ReadUtf8();
+
+		Operation = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as VotableOperation;
+ 		Operation.Read(reader); 
+	}
+
+	public virtual void Write(BinaryWriter writer)
+	{
+ 		writer.WriteUtf8(Text);
+
+		writer.Write(Fair.OCodes[Operation.GetType()]);
+		Operation.Write(writer);
+	}
+}
+
 public class ProposalCreation : FairOperation
 {
 	public AutoId				Site { get; set; }
 	public AutoId				By { get; set; } /// Account Id for Moderators, Author Id for Author
 	public Role					As { get; set; }
+	public string				Title { get; set; }
 	public string				Text { get; set; }
-	public VotableOperation	    Option { get; set; }
+	public Option[]				Options { get; set; }
 
-	public override string		Explanation => $"Site={Site}, Creator={By}, Proposal={{{Option}}}, Text={Text}";
+	public override string		Explanation => $"Site={Site}, By={By}, As={As}, Option={{{Options}}}, Text={Text}";
 
 	public ProposalCreation()
 	{
 	}
 
-	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, VotableOperation proposal, string text = "")
+	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, VotableOperation operation, string title = "", string text = "")
 	{
 		Site = site;
 		By = creator;
 		As = creatorrole;
-		Option = proposal;
+		Options = [new Option(operation)];
+		Title = title;
 		Text = text;
 	}
 	
 	public override bool IsValid(McvNet net)
 	{
-		return Option.IsValid(net) && Text.Length < Fair.PostLengthMaximum;
+		return	Text.Length < Fair.PostLengthMaximum &&
+				Options.Length > 0 &&
+				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Text.Length < Fair.PostLengthMaximum);
 	}
 
 	public override void PreTransact(McvNode node, bool sponsored, Flow flow)
 	{
-		Option.PreTransact(node, sponsored, flow, Site);
+		foreach(var i in Options)
+			i.Operation.PreTransact(node, sponsored, flow, Site);
 
 		base.PreTransact(node, sponsored, flow);
 	}
@@ -42,10 +79,9 @@ public class ProposalCreation : FairOperation
 		Site		= reader.Read<AutoId>();
 		By			= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
+		Title		= reader.ReadUtf8();
  		Text		= reader.ReadUtf8();
-
-		Option = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as VotableOperation;
- 		Option.Read(reader); 
+		Options		= reader.ReadArray<Option>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -53,10 +89,9 @@ public class ProposalCreation : FairOperation
 		writer.Write(Site);
 		writer.Write(By);
 		writer.Write(As);
+		writer.WriteUtf8(Title);
  		writer.WriteUtf8(Text);
-
-		writer.Write(Fair.OCodes[Option.GetType()]);
-		Option.Write(writer);
+		writer.Write(Options);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -64,25 +99,33 @@ public class ProposalCreation : FairOperation
         if(!SiteExists(execution, Site, out var s, out Error))
             return;
 
-		Option.Site = s;
-		Option.Signer = Signer;
+		foreach(var i in Options)
+		{
+			i.Operation.Site = s;
+			i.Operation.Signer = Signer;
+		}
 
- 		if(!Option.ValidateProposal(execution, out Error))
+ 		if(!Options.All(i => i.Operation.ValidateProposal(execution, out Error)))
  			return;
  
-        var t = Enum.Parse<FairOperationClass>(Option.GetType().Name);
+        var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
 
- 		if(!s.ApprovalPolicies.TryGetValue(t, out var p))
+ 		if(!s.ApprovalPolicies.TryGetValue(c, out var p))
  			throw new IntegrityException();
  
  		if(s.Proposals.Any(i =>  {
-                                    var d = execution.Proposals.Find(i);
+									var d = execution.Proposals.Find(i);
 
-                                    if(p.GetType() != d.Option.GetType())
-                                        return false;
-                                    
-                                    return d.Option.Overlaps(Option);
-                                }))
+									if(d.OptionClass != c)
+										return false;
+
+									foreach(var a in d.Options)
+										foreach(var b in Options)
+											if(a.Operation.Overlaps(b.Operation))
+												return true;
+
+									return false;
+								}))
  		{
  			Error = AlreadyExists;
  			return;
@@ -101,7 +144,7 @@ public class ProposalCreation : FairOperation
 			var a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.Moderator && s.CreationPolicies[t].Contains(Role.Moderator))
+		else if(As == Role.Moderator && s.CreationPolicies[c].Contains(Role.Moderator))
  		{
 			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
@@ -111,7 +154,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Author && s.CreationPolicies[t].Contains(Role.Author))
+ 		else if(As == Role.Author && s.CreationPolicies[c].Contains(Role.Author))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
@@ -123,7 +166,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.User && s.CreationPolicies[t].Contains(Role.User))
+		else if(As == Role.User && s.CreationPolicies[c].Contains(Role.User))
 		{
 			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;
@@ -136,15 +179,15 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(	s.ApprovalPolicies[t] == ApprovalPolicy.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
-			s.IsDiscussion(t)										&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
-			s.IsReferendum(t)										&& IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1)
+		if(	Options.Length == 1 && (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
+									s.IsDiscussion(c)										&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+									s.IsReferendum(c)										&& IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1))
 		{
-			Option.Site		= s;
-			Option.As		= As;
-			Option.By		= As == Role.User ? Signer.Id : By;
+			Options[0].Operation.Site	= s;
+			Options[0].Operation.As		= As;
+			Options[0].Operation.By		= As == Role.User ? Signer.Id : By;
 
-			Option.Execute(execution);
+			Options[0].Operation.Execute(execution);
 		}
 		else
 		{
@@ -153,8 +196,13 @@ public class ProposalCreation : FairOperation
  			z.Site			= Site;
 			z.By			= As == Role.User ? Signer.Id : By;
 			z.As			= As;
+			z.Title			= Title;
 			z.Text			= Text;
- 			z.Option		= Option;
+			z.Neither		= [];
+			z.Abs			= [];
+			z.Ban			= [];
+			z.Banish		= [];
+ 			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();
  			z.Expiration	= execution.Time + Time.FromDays(30);
   
 			s.Proposals = [..s.Proposals, z.Id];

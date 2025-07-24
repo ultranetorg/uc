@@ -1,57 +1,63 @@
 namespace Uccs.Fair;
 
-public enum ProposalVote : byte
+public enum SpecialVote : byte
 {
-	Abstained, Yes, No, NoAndBan, NoAndBanish
+	Neither = 100, Abstained = 101, NoAndBan = 102, NoAndBanish = 103
 }
 
 public class ProposalVoting : FairOperation
 {
 	public AutoId				Proposal { get; set; }
 	public AutoId				Voter { get; set; }
-	public ProposalVote			Vote { get; set; }
+	public byte					Choice { get; set; }
 
-	public override bool		IsValid(McvNet net) => Enum.IsDefined<ProposalVote>(Vote);
-	public override string		Explanation => $"Proposal={Proposal}, Voter={Voter}, Vote={Vote}";
+	public override bool		IsValid(McvNet net) => true;
+	public override string		Explanation => $"Proposal={Proposal}, Voter={Voter}, Choice={Choice}";
 
 	public ProposalVoting()
 	{
 	}
 
-	public ProposalVoting(AutoId proposal, AutoId voter, ProposalVote pro)
+	public ProposalVoting(AutoId proposal, AutoId voter, byte options)
 	{
 		Proposal = proposal;
 		Voter = voter;
-		Vote = pro;
+		Choice = options;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		Proposal	= reader.Read<AutoId>();
 		Voter		= reader.ReadNullable<AutoId>();
-		Vote		= reader.Read<ProposalVote>();
+		Choice		= reader.ReadByte();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Proposal);
 		writer.WriteNullable(Voter);
-		writer.Write(Vote);
+		writer.Write(Choice);
 	}
 
 	public override void Execute(FairExecution execution)
 	{
  		if(!ProposalExists(execution, Proposal, out var z, out Error))
  			return;
+
+		if(Choice >= z.Options.Length)
+		{
+ 			Error = OutOfBounds;
+ 			return;
+		}
  
- 		if(z.Yes.Contains(Voter) || z.No.Contains(Voter) || z.NoAndBan.Contains(Voter) || z.NoAndBanish.Contains(Voter) || z.Abs.Contains(Voter))
+ 		if(z.Options.Any(i => i.Yes.Contains(Voter)) || z.Abs.Contains(Voter) || z.Ban.Contains(Voter) || z.Banish.Contains(Voter))
  		{
  			Error = AlreadyExists;
  			return;
  		}
  
 		var s = execution.Sites.Affect(z.Site);
-        var c = Enum.Parse<FairOperationClass>(z.Option.GetType().Name);
+        var c = z.OptionClass;
 
 		if(s.IsReferendum(c))
  		{
@@ -73,67 +79,103 @@ public class ProposalVoting : FairOperation
 			Error = Denied;
 			return;
 		}
-
- 
+		 
  		z = execution.Proposals.Affect(Proposal);
- 
- 		switch(Vote)
- 		{
- 			case ProposalVote.Yes:			z.Yes	= [..z.Yes, Voter];	break;
- 			case ProposalVote.No:			z.No	= [..z.No,  Voter];	break;
- 			case ProposalVote.Abstained:	z.Abs	= [..z.Abs, Voter];	break;
- 		}
- 
- 		var success = s.ApprovalPolicies[c]	switch
- 											{
- 												ApprovalPolicy.AnyModerator						=> z.Yes.Length == 1,
- 												ApprovalPolicy.ElectedByModeratorsMajority		=> z.Yes.Length > s.Moderators.Length/2,
- 												ApprovalPolicy.ElectedByModeratorsUnanimously	=> z.Yes.Length == s.Moderators.Length,
- 												ApprovalPolicy.ElectedByAuthorsMajority			=> z.Yes.Length > s.Authors.Length/2,
- 												_ => throw new IntegrityException()
- 											};
- 
- 		var	fail = s.ApprovalPolicies[c] switch
+
+		bool approved(AutoId[] voters)
+		{
+    		return s.ApprovalPolicies[c] switch
  										 {
-											 ApprovalPolicy.AnyModerator					=> z.No.Length == 1,
- 											 ApprovalPolicy.ElectedByModeratorsMajority		=> z.No.Length > s.Moderators.Length/2,
- 											 ApprovalPolicy.ElectedByModeratorsUnanimously	=> z.No.Length == s.Moderators.Length,
- 											 ApprovalPolicy.ElectedByAuthorsMajority		=> z.No.Length > s.Authors.Length/2,
- 											 _ => throw new IntegrityException()
+											ApprovalPolicy.AnyModerator						=> voters.Length + z.Abs.Length == 1,
+ 											ApprovalPolicy.ElectedByModeratorsMajority		=> voters.Length + z.Abs.Length > s.Moderators.Length/2,
+ 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> voters.Length + z.Abs.Length == s.Moderators.Length,
+ 											ApprovalPolicy.ElectedByAuthorsMajority			=> voters.Length + z.Abs.Length > s.Authors.Length/2,
+ 											_ => throw new IntegrityException()
  										 };
- 
- 		if(success)
- 		{
-			z.Option.Site	= s;
-			z.Option.As		= z.As;
-			z.Option.By		= z.By;
-			z.Option.Signer	= z.As == Role.User ? execution.AffectAccount(z.By) : null;
-
-			var e = execution.CreateChild();
-	 		
-			e.LongYesVoted = true;
-
-			if(z.Option.ValidateProposal(e, out _))
-			{
-				z.Option.Execute(e);
-	
-				if(z.Option.Error == null)
-				{
-					execution.Absorb(e);
-				}
-			}
-
-			foreach(var i in z.Comments)
-				execution.ProposalComments.Affect(i).Deleted = true;
-
-			z.Deleted = true;
- 			s.Proposals = s.Proposals.Remove(z.Id);
 		}
- 
- 		if(fail || z.Expiration < execution.Time)
+
+ 		if(Choice >= (byte)SpecialVote.Neither)
  		{
- 			z.Deleted = true;
- 			s.Proposals = s.Proposals.Remove(z.Id);
+ 			switch((SpecialVote)Choice)
+ 			{
+ 				case SpecialVote.Neither:
+					z.Neither = [..z.Neither, Voter];	
+
+					if(approved(z.Neither))
+					{
+						execution.Proposals.Delete(s, z);
+					}
+					break;
+ 				
+				case SpecialVote.Abstained:
+					z.Abs = [..z.Abs, Voter];
+
+					//if(approved(z.Abs))
+					//{
+					//	execution.Proposals.Delete(s, z);
+					//}
+					break;
+ 				
+				case SpecialVote.NoAndBan:
+					z.Ban = [..z.Ban, Voter];
+
+					if(approved(z.Ban))
+					{
+						execution.Proposals.Delete(s, z);
+
+						/// TODO
+					}
+					break;
+ 				
+				case SpecialVote.NoAndBanish:
+					z.Banish = [..z.Banish, Voter];	
+
+					if(approved(z.Banish))
+					{
+						execution.Proposals.Delete(s, z);
+
+						/// TODO
+					}
+					break;
+ 			}
+ 
+ 			//if(fail || z.Expiration < execution.Time)
+ 			//{
+ 			//	z.Deleted = true;
+ 			//	s.Proposals = s.Proposals.Remove(z.Id);
+ 			//}
  		}
+		else
+		{
+			var o = z.Options[Choice];
+
+			z.Options = z.Options.Remove(o);
+			o = new ProposalOption {Text = o.Text, Operation = o.Operation, Yes = [..o.Yes, Voter]};
+			z.Options = [..z.Options, o];
+
+ 			if(approved(o.Yes))
+ 			{
+				o.Operation.Site	= s;
+				o.Operation.As		= z.As;
+				o.Operation.By		= z.By;
+				o.Operation.Signer	= z.As == Role.User ? execution.AffectAccount(z.By) : null;
+
+				var e = execution.CreateChild();
+	 		
+				e.LongYesVoted = true;
+
+				if(o.Operation.ValidateProposal(e, out _))
+				{
+					o.Operation.Execute(e);
+	
+					if(o.Operation.Error == null)
+					{
+						execution.Absorb(e);
+					}
+				}
+
+				execution.Proposals.Delete(s, z);
+			}
+		}
 	}
 }

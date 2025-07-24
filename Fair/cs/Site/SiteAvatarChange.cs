@@ -4,7 +4,7 @@ public class SiteAvatarChange : VotableOperation
 {
 	public byte[]				Image { get; set; }
 
-	public override string		Explanation => $"Site={Site} Image={Image?.Length}";
+	public override string		Explanation => $"Image={Image?.Length}";
 	
 	public SiteAvatarChange ()
 	{

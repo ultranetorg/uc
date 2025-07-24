@@ -17,6 +17,8 @@ public class ProposalTable : Table<AutoId, Proposal>
 }
 public class ProposalExecution : TableExecution<AutoId, Proposal>
 {
+	new FairExecution Execution => base.Execution as FairExecution;
+
 	public ProposalExecution(FairExecution execution) : base(execution.Mcv.Proposals, execution)
 	{
 	}
@@ -29,10 +31,10 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 
 		var a = Table.Create();
 		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
-		a.Yes = [];
-		a.No = [];
-		a.NoAndBan = [];
-		a.NoAndBanish = [];
+		a.Neither = [];
+		a.Abs = [];
+		a.Ban = [];
+		a.Banish = [];
 		a.Abs = [];
 		a.Comments = [];
 
@@ -40,4 +42,15 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 
 		return Affected[a.Id] = a;
 	}
+
+	public void Delete(Site site, Proposal proposal)
+	{
+ 		proposal.Deleted = true;
+ 		site.Proposals = site.Proposals.Remove(proposal.Id);
+
+		foreach(var i in proposal.Comments)
+			Execution.ProposalComments.Affect(i).Deleted = true;
+
+	}
+
 }

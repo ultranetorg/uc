@@ -32,6 +32,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
 	public const string					Expired = "Expired";
 	public const string					LimitReached = "Limit Reached";
+	public const string					OutOfBounds = "Out Of Bounds";
 	public const string					Mismatch = "Mismatch";
 	public const string					NotAvailable = "Not Available";
 	public const string					NotFound = "Not found";

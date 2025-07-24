@@ -59,7 +59,8 @@ public class ProposalService
 
 			return new ProposalDetailsModel(proposal, account)
 			{
-				Option = ToBaseVotableOperationModel(proposal.Option)
+				/// TODO
+				/// Option = ToBaseVotableOperationModel(proposal.Option)
 			};
 		}
 	}
@@ -87,8 +88,7 @@ public class ProposalService
 	}
 
 	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Site site, bool discussionsOrReferendums, int page, int pageSize, string search,
-		CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Site site, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<ProposalModel>.Empty;
@@ -132,7 +132,8 @@ public class ProposalService
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
 			ProposalModel model = new ProposalModel(proposal, account)
 			{
-				Option = ToBaseVotableOperationModel(proposal.Option)
+				/// TODO
+				/// Option = ToBaseVotableOperationModel(proposal.Option)
 			};
 			result.Add(model);
 		}
@@ -173,7 +174,9 @@ public class ProposalService
 						};
 	}
 
+	/// TODO
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[Enum.Parse<FairOperationClass>(proposal.Option.GetType().Name)] != ApprovalPolicy.ElectedByAuthorsMajority;
+		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
 }

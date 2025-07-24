@@ -9,40 +9,40 @@ public class CategoryCommand : FairCommand
 		
 	}
 
-	public CommandAction Create()
-	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-
-		a.Name = "c";
-		a.Help = new() {Description = "Creates a new category",
-						Syntax = $"{Keyword} {a.NamesSyntax} [site={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
-
-						Arguments =	[new ("<first>", "Page type"),
-									 new ("site", "An id of site to add a category to"),
-									 new ("parent", "An id of parent category to add a new category to"),
-									 new ("title", "A title of a category being created"),
-									 new (SignerArg, "Address of account that owns the site")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}"),
-									 new (null, $"{Keyword} {a.Name} parent={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}")]};
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-
-								var o = new ProposalCreation 
-										{
-											Site = GetEntityId("site", null), 
-											Option =	new CategoryCreation()
-														{ 
-															Parent = GetEntityId("parent", null), 
-															Title = GetString("title")
-														}
-										};
-								
-								return o;
-							};
-		return a;
-	}
+//	public CommandAction Create()
+//	{
+//		var a = new CommandAction(MethodBase.GetCurrentMethod());
+//
+//		a.Name = "c";
+//		a.Help = new() {Description = "Creates a new category",
+//						Syntax = $"{Keyword} {a.NamesSyntax} [site={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
+//
+//						Arguments =	[new ("<first>", "Page type"),
+//									 new ("site", "An id of site to add a category to"),
+//									 new ("parent", "An id of parent category to add a new category to"),
+//									 new ("title", "A title of a category being created"),
+//									 new (SignerArg, "Address of account that owns the site")],
+//
+//						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}"),
+//									 new (null, $"{Keyword} {a.Name} parent={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}")]};
+//
+//		a.Execute = () =>	{
+//								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+//
+//								var o = new ProposalCreation 
+//										{
+//											Site = GetEntityId("site", null), 
+//											Options = [new Option  (new CategoryCreation()
+//																	{ 
+//																		Parent = GetEntityId("parent", null), 
+//																		Title = GetString("title")
+//																	})]
+//										};
+//								
+//								return o;
+//							};
+//		return a;
+//	}
 
 	//public CommandAction Update()
 	//{

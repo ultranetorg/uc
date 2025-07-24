@@ -9,8 +9,9 @@ public class ProposalModel(Proposal proposal, FairAccount account)
 	public string ByAddress { get; set; } = account.Address.ToString();
 	public byte[]? ByAvatar { get; set; } = account.Avatar;
 
-	public int YesCount { get; set; } = proposal.Yes.Count();
-	public int NoCount { get; set; } = proposal.No.Count();
+	/// TODO
+	///public int YesCount { get; set; } = proposal.Yes.Count();
+	///public int NoCount { get; set; } = proposal.No.Count();
 	public int AbsCount { get; set; } = proposal.Abs.Count();
 
 	public int Expiration { get; set; } = proposal.Expiration.Days;
