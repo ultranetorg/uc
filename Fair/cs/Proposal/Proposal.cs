@@ -44,7 +44,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public AutoId[]				Abs { get; set; }
 	public AutoId[]				Ban { get; set; }
 	public AutoId[]				Banish { get; set; }
-	public Time					Expiration { get; set; }
+	public Time					CreationTime { get; set; }
  	public string				Title { get; set; }
  	public string				Text { get; set; }
 	public ProposalOption[]		Options { get; set; }
@@ -69,20 +69,20 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 		var a = new Proposal(Mcv)
 				{	
-					Id			= Id,	
-					Site		= Site,	
-					By			= By,	
-					As			= As,
-					Flags		= Flags,
-					Neither		= Neither,
-					Abs			= Abs,
-					Ban			= Ban,
-					Banish		= Banish,
-					Expiration	= Expiration,
-					Title		= Title,
-					Text		= Text,
-					Options		= Options,
-					Comments	= Comments
+					Id				= Id,	
+					Site			= Site,	
+					By				= By,	
+					As				= As,
+					Flags			= Flags,
+					Neither			= Neither,
+					Abs				= Abs,
+					Ban				= Ban,
+					Banish			= Banish,
+					CreationTime	= CreationTime,
+					Title			= Title,
+					Text			= Text,
+					Options			= Options,
+					Comments		= Comments
 				};
 
 		return a;
@@ -104,20 +104,20 @@ public class Proposal : IBinarySerializable, ITableEntry
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<AutoId>();
-		Site		= reader.Read<AutoId>();
-		By			= reader.Read<AutoId>();
-		As			= reader.Read<Role>();
-		Flags		= reader.Read<ProposalFlags>();
-		Neither		= reader.ReadArray<AutoId>();
-		Abs			= reader.ReadArray<AutoId>();
-		Ban			= reader.ReadArray<AutoId>();
-		Banish		= reader.ReadArray<AutoId>();
-		Expiration	= reader.Read<Time>();
- 		Title		= reader.ReadUtf8();
- 		Text		= reader.ReadUtf8();
-		Options		= reader.ReadArray<ProposalOption>();
-		Comments	= reader.ReadArray<AutoId>();
+		Id				= reader.Read<AutoId>();
+		Site			= reader.Read<AutoId>();
+		By				= reader.Read<AutoId>();
+		As				= reader.Read<Role>();
+		Flags			= reader.Read<ProposalFlags>();
+		Neither			= reader.ReadArray<AutoId>();
+		Abs				= reader.ReadArray<AutoId>();
+		Ban				= reader.ReadArray<AutoId>();
+		Banish			= reader.ReadArray<AutoId>();
+		CreationTime	= reader.Read<Time>();
+ 		Title			= reader.ReadUtf8();
+ 		Text			= reader.ReadUtf8();
+		Options			= reader.ReadArray<ProposalOption>();
+		Comments		= reader.ReadArray<AutoId>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -131,7 +131,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		writer.Write(Abs);
 		writer.Write(Ban);
 		writer.Write(Banish);
-		writer.Write(Expiration);
+		writer.Write(CreationTime);
  		writer.WriteUtf8(Title);
  		writer.WriteUtf8(Text);
 		writer.Write(Options);

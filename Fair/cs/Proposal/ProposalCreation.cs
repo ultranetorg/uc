@@ -203,7 +203,7 @@ public class ProposalCreation : FairOperation
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();
- 			z.Expiration	= execution.Time + Time.FromDays(30);
+ 			z.CreationTime	= execution.Time;
   
 			s.Proposals = [..s.Proposals, z.Id];
 

@@ -14,7 +14,7 @@ public class ProposalModel(Proposal proposal, FairAccount account)
 	///public int NoCount { get; set; } = proposal.No.Count();
 	public int AbsCount { get; set; } = proposal.Abs.Count();
 
-	public int Expiration { get; set; } = proposal.Expiration.Days;
+	public int Expiration { get; set; } = proposal.CreationTime.Days;
 
 	public string Text { get; set; } = proposal.Text;
 
