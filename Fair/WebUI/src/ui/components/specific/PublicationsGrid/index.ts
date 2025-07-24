@@ -1,4 +1,5 @@
 export * from "./BookPublicationCard"
+export * from "./DefaultPublicationCard"
 export * from "./GamePublicationCard"
 export * from "./PublicationsGrid"
 export * from "./MoviePublicationCard"

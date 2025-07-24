@@ -1,6 +1,6 @@
 export * from "./Moderation"
 
-export * from "./ModeratorDisputePage"
-export * from "./ModeratorDisputesPage"
+export * from "./ModeratorDiscussionPage"
+export * from "./ModeratorDiscussionsPage"
 export * from "./ModeratorPublicationPage"
 export * from "./ModeratorReviewPage"

@@ -12,28 +12,28 @@ public class ProposalService
 {
 	private const string ReferendumEntityName = "referendum";
 
-	public ProposalDetailsModel GetProposal(string siteId, string disputeId) =>
-		GetProposalOrReferendum(siteId, disputeId, true);
+	public ProposalDetailsModel GetDiscussion(string siteId, string proposalId) =>
+		GetProposalOrReferendum(siteId, proposalId, true);
 
-	public TotalItemsResult<ProposalModel> GetProposals(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+	public TotalItemsResult<ProposalModel> GetDiscussions(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposalsOrReferendums(siteId, true, page, pageSize, search, cancellationToken);
 
-	public ProposalDetailsModel GetReferendum(string siteId, string disputeId) =>
-		GetProposalOrReferendum(siteId, disputeId, false);
+	public ProposalDetailsModel GetReferendum(string siteId, string proposalId) =>
+		GetProposalOrReferendum(siteId, proposalId, false);
 
 	public TotalItemsResult<ProposalModel> GetReferendums(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposalsOrReferendums(siteId, false, page, pageSize, search, cancellationToken);
 
-	/// <param name="disputesOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	ProposalDetailsModel GetProposalOrReferendum(string siteId, string disputeId, bool disputesOrReferendums)
+	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>
+	ProposalDetailsModel GetProposalOrReferendum(string siteId, string proposalId, bool discussionOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalOrReferendum)} method called with {{SiteId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", siteId, disputeId, disputesOrReferendums);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalOrReferendum)} method called with {{SiteId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", siteId, proposalId, discussionOrReferendums);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NullOrEmpty(disputeId);
+		Guard.Against.NullOrEmpty(proposalId);
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
-		AutoId disputeEntityId = AutoId.Parse(disputeId);
+		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
 		lock (mcv.Lock)
 		{
@@ -43,30 +43,30 @@ public class ProposalService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			string entityName = disputesOrReferendums ? nameof(Proposal).ToLower() : ReferendumEntityName;
-			if (!site.Proposals.Any(x => x == disputeEntityId))
+			string entityName = discussionOrReferendums ? nameof(Proposal).ToLower() : ReferendumEntityName;
+			if (!site.Proposals.Any(x => x == proposalEntityId))
 			{
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
-			Proposal dispute = mcv.Proposals.Latest(disputeEntityId);
-			if (disputesOrReferendums != IsProposalIsProposal(site, dispute))
+			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
+			if (discussionOrReferendums != IsProposalIsDiscussion(site, proposal))
 			{
-				throw new EntityNotFoundException(entityName, disputeId);
+				throw new EntityNotFoundException(entityName, proposalId);
 			}
 
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(dispute.By);
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
 
-			return new ProposalDetailsModel(dispute, account)
+			return new ProposalDetailsModel(proposal, account)
 			{
-				Option = ToBaseVotableOperationModel(dispute.Option)
+				Option = ToBaseVotableOperationModel(proposal.Option)
 			};
 		}
 	}
 
-	TotalItemsResult<ProposalModel> GetProposalsOrReferendums(string siteId, bool disputesOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> GetProposalsOrReferendums(string siteId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalsOrReferendums)} method called with {{SiteId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, disputesOrReferendums, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalsOrReferendums)} method called with {{SiteId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, discussionOrReferendums, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));
@@ -82,46 +82,46 @@ public class ProposalService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadProposalsOrReferendumsPaged(site, disputesOrReferendums, page, pageSize, search, cancellationToken);
+			return LoadProposalsOrReferendumsPaged(site, discussionOrReferendums, page, pageSize, search, cancellationToken);
 		}
 	}
 
-	/// <param name="disputesOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Site site, bool disputesOrReferendums, int page, int pageSize, string search,
+	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
+	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Site site, bool discussionsOrReferendums, int page, int pageSize, string search,
 		CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<ProposalModel>.Empty;
 
-		var disputes = new List<Proposal>(pageSize);
+		var proposals = new List<Proposal>(pageSize);
 		int totalItems = 0;
 
-		foreach (var disputeId in site.Proposals)
+		foreach (var proposalId in site.Proposals)
 		{
 			if (cancellationToken.IsCancellationRequested)
-				return ToTotalItemsResult(disputes, totalItems);
+				return ToTotalItemsResult(proposals, totalItems);
 
-			Proposal dispute = mcv.Proposals.Latest(disputeId);
+			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
-			if (disputesOrReferendums != IsProposalIsProposal(site, dispute))
+			if (discussionsOrReferendums != IsProposalIsDiscussion(site, proposal))
 			{
 				continue;
 			}
 
-			if (!SearchUtils.IsMatch(dispute, search))
+			if (!SearchUtils.IsMatch(proposal, search))
 			{
 				continue;
 			}
 
 			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 			{
-				disputes.Add(dispute);
+				proposals.Add(proposal);
 			}
 
 			++totalItems;
 		}
 
-		return ToTotalItemsResult(disputes, totalItems);
+		return ToTotalItemsResult(proposals, totalItems);
 	}
 
 	TotalItemsResult<ProposalModel> ToTotalItemsResult(IList<Proposal> proposals, int totalItems)
@@ -152,6 +152,7 @@ public class ProposalService
 							CategoryCreation operation => new CategoryCreationModel(operation),
 							CategoryDeletion operation => new CategoryDeletionModel(operation),
 							CategoryMovement operation => new CategoryMovementModel(operation),
+							CategoryTypeChange operation => new CategoryTypeChangeModel(operation),
 							PublicationCreation operation => new PublicationCreationModel(operation),
 							PublicationDeletion operation => new PublicationDeletionModel(operation),
 							PublicationPublish operation => new PublicationPublishModel(operation),
@@ -173,6 +174,6 @@ public class ProposalService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsProposalIsProposal(Site site, Proposal dispute) =>
-		site.ApprovalPolicies[Enum.Parse<FairOperationClass>(dispute.Option.GetType().Name)] != ApprovalPolicy.ElectedByAuthorsMajority;
+	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>
+		site.ApprovalPolicies[Enum.Parse<FairOperationClass>(proposal.Option.GetType().Name)] != ApprovalPolicy.ElectedByAuthorsMajority;
 }

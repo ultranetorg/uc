@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public enum CategoryType : byte
 {
-	None, Software, Movie, Music
+	None, Software, Movie, Music, Book, Game
 }
 
 public class Category : IBinarySerializable, ITableEntry
