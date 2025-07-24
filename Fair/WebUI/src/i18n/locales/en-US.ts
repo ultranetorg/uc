@@ -60,6 +60,9 @@ export const enUS = {
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
   },
+  referendum: {
+    title: "Referendum {{referendumId}}",
+  },
   referendums: {
     createReferendum: "Create referendum",
     noReferendums: "No open referendums",

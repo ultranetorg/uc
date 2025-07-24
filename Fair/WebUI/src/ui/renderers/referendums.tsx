@@ -39,7 +39,11 @@ const renderAccountBy = (referendum: AuthorReferendum) => (
 
 export const getReferendumsRowRenderer =
   (siteId: string): TableRowRenderer =>
-  (children: JSX.Element, item: TableItem): JSX.Element => <Link to={`/${siteId}/g/${item.id}`}>{children}</Link>
+  (children: JSX.Element, item: TableItem): JSX.Element => (
+    <Link to={`/${siteId}/g/${item.id}`} key={item.id}>
+      {children}
+    </Link>
+  )
 
 export const getReferendumsItemRenderer =
   (t: TFunction): TableItemRenderer =>

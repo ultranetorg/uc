@@ -11,15 +11,20 @@ export const useAppBreadcrumbs = (): BreadcrumbsItem2[] => {
 
   const breadcrumbs = useMemo(() => {
     const matchedRoutes = matchRoutes(routes, location.pathname)
-    return matchedRoutes && matchedRoutes.length > 1
-      ? matchedRoutes.slice(1).map(({ route, pathname, params }) => {
-          const label = typeof route.breadcrumb === "function" ? route.breadcrumb(t, params) : t(route.breadcrumb || "")
 
-          return {
-            path: pathname,
-            title: label,
-          }
-        })
+    return matchedRoutes && matchedRoutes.length > 1
+      ? matchedRoutes
+          .slice(1)
+          .filter(({ pathname }) => !pathname.endsWith("/"))
+          .map(({ route, pathname, params }) => {
+            const label =
+              typeof route.breadcrumb === "function" ? route.breadcrumb(t, params) : t(route.breadcrumb || "")
+
+            return {
+              path: pathname,
+              title: label,
+            }
+          })
       : []
   }, [location.pathname, t])
 

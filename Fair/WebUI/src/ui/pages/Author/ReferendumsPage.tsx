@@ -33,10 +33,8 @@ export const ReferendumsPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <GovernanceModerationHeader
-        siteId={siteId!}
         title={t("title")}
         onCreateButtonClick={() => console.log("GovernanceModerationHeader")}
-        homeLabel={t("common:home")}
         createButtonLabel={t("createReferendum")}
       />
       <div className="flex flex-col justify-between gap-4 xl:flex-row">

@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
+import { Breadcrumbs, Breadcrumbs2, BreadcrumbsItemProps, Pagination } from "ui/components"
 import { FiltersDropdownButton, ToggleViewButton, ViewType } from "ui/components/specific"
 import { createBreadcrumbs } from "utils"
 
@@ -24,6 +24,7 @@ export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: Ca
   return (
     <div className="flex flex-col gap-2">
       <Breadcrumbs items={breadcrumbsItems} />
+      <Breadcrumbs2 />
       <div className="flex items-center justify-between">
         <div className="flex gap-2 text-3.5xl font-semibold leading-10">
           <span className="text-gray-800">{category.title}</span>

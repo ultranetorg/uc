@@ -1,24 +1,19 @@
-import { Breadcrumbs, Breadcrumbs2, ButtonPrimary } from "ui/components"
+import { Breadcrumbs2, ButtonPrimary } from "ui/components"
 
 export type GovernanceModerationHeaderProps = {
-  siteId: string
   title: string
   totalItems?: number
   onCreateButtonClick?: () => void
   createButtonLabel?: string
-  homeLabel: string
 }
 
 export const GovernanceModerationHeader = ({
-  siteId,
   title,
   totalItems,
   onCreateButtonClick,
   createButtonLabel,
-  homeLabel,
 }: GovernanceModerationHeaderProps) => (
   <div className="flex flex-col gap-2">
-    <Breadcrumbs items={[{ path: `/${siteId}`, title: homeLabel }, { title: title }]} />
     <Breadcrumbs2 />
     <div className="flex justify-between">
       <div className="flex gap-2 text-3.5xl font-semibold leading-10">

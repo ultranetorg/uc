@@ -2,10 +2,11 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useGetAuthorReferendum } from "entities"
+import { GovernanceModerationHeader } from "ui/components/specific"
 
 export const ReferendumPage = () => {
   const { siteId, referendumId } = useParams()
-  const { t } = useTranslation()
+  const { t } = useTranslation("referendum")
 
   const { isPending, data: referendum } = useGetAuthorReferendum(siteId, referendumId)
 
@@ -15,6 +16,11 @@ export const ReferendumPage = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      <GovernanceModerationHeader
+        title={t("title", { referendumId })}
+        onCreateButtonClick={() => console.log("GovernanceModerationHeader")}
+        createButtonLabel={t("createReferendum")}
+      />
       <div>
         <div>ID</div>
         <div>{referendum.id}</div>

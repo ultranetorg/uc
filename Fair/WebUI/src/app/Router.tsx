@@ -45,7 +45,7 @@ export const routes: AppRouteObject[] = [
 
       {
         path: "/:siteId",
-        breadcrumb: t => t("home"),
+        breadcrumb: "home",
         element: (
           <SiteProvider>
             <SiteLayout />
@@ -70,23 +70,29 @@ export const routes: AppRouteObject[] = [
           },
           {
             path: "/:siteId/i",
-            breadcrumb: t => t("about"),
+            breadcrumb: "about",
             element: <AboutPage />,
           },
 
           {
             path: "/:siteId/g",
-            breadcrumb: t => t("governance"),
-            element: <ReferendumsPage />,
-          },
-          {
-            path: "/:siteId/g/:referendumId",
-            element: <ReferendumPage />,
+            breadcrumb: "governance",
+            children: [
+              {
+                index: true,
+                element: <ReferendumsPage />,
+              },
+              {
+                path: ":referendumId",
+                breadcrumb: (t, p) => t("referendum:title", { ...p }),
+                element: <ReferendumPage />,
+              },
+            ],
           },
 
           {
             path: "/:siteId/m",
-            breadcrumb: t => t("moderation"),
+            breadcrumb: "moderation",
             element: <ModerationPage />,
           },
           {
