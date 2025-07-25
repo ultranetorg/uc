@@ -22,6 +22,7 @@ md - 24 (base)
 ?? - 36 (2xl)
 ?? - 40
 ?? - 44
+?? - 64 (9xl)
 ?? - 76x77
 
 text-xs font-size: 0.75rem; /_ 12px _/

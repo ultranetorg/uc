@@ -24,10 +24,11 @@ const BreadcrumbsItem = memo(({ title, path }: BreadcrumbsItemProps) => {
 })
 
 export type BreadcrumbsProps = {
+  fullPath?: boolean
   items: BreadcrumbsItemProps[]
 }
 
-export const Breadcrumbs = memo(({ items }: BreadcrumbsProps) => {
+export const Breadcrumbs = memo(({ fullPath = false, items }: BreadcrumbsProps) => {
   if (!items.length) {
     return null
   }
@@ -49,8 +50,12 @@ export const Breadcrumbs = memo(({ items }: BreadcrumbsProps) => {
           ) : i === 1 ? (
             <React.Fragment key={i}>
               <SvgChevronRight className="stroke-gray-400" />
-              <ThreeDotsSvg className="fill-gray-400" />
-              <SvgChevronRight className="stroke-gray-400" />
+              {fullPath !== true && (
+                <>
+                  <ThreeDotsSvg className="fill-gray-400" />
+                  <SvgChevronRight className="stroke-gray-400" />
+                </>
+              )}
               <BreadcrumbsItem {...x} />
             </React.Fragment>
           ) : (
