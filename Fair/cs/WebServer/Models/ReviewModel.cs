@@ -10,8 +10,5 @@ public class ReviewModel(Review review, FairAccount account)
 
 	public int Created { get; set; } = review.Created.Days;
 
-	public string AccountId { get; set; } = account.Id.ToString();
-	public string AccountAddress { get; set; } = account.Address.ToString();
-	public string AccountNickname { get; set; } = account.Nickname;
-	public byte[] AccountAvatar { get; set; } = account.Avatar;
+	public AccountBaseModel CreatorAccount { get; set; } = new(account);
 }
