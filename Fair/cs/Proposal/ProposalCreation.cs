@@ -180,9 +180,9 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(	Options.Length == 1 && (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
-									s.IsDiscussion(c)										&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
-									s.IsReferendum(c)										&& IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1))
+		if(Options.Length == 1 &&  (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator && IsModerator(execution, By, out _, out _) ||
+									s.IsDiscussion(c)									 && IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+									s.IsReferendum(c)									 && IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1))
 		{
 			Options[0].Operation.Site	= s;
 			Options[0].Operation.As		= As;
