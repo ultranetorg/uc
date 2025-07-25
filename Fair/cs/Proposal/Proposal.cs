@@ -14,7 +14,7 @@ public class ProposalOption : Option
 
 	public ProposalOption(Option option)
 	{
-		Text		= option.Text;
+		Title		= option.Title;
 		Operation	= option.Operation;
 		Yes			= [];
 	}

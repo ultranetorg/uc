@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class Option : IBinarySerializable
 {
-	public string				Text { get; set; }
+	public string				Title { get; set; }
 	public VotableOperation	    Operation { get; set; }
 
 	public Option()
@@ -14,12 +14,12 @@ public class Option : IBinarySerializable
 	public Option(VotableOperation operation, string text = "")
 	{
 		Operation = operation;
-		Text = text;
+		Title = text;
 	}
 
 	public virtual void Read(BinaryReader reader)
 	{
- 		Text = reader.ReadUtf8();
+ 		Title = reader.ReadUtf8();
 
 		Operation = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as VotableOperation;
  		Operation.Read(reader); 
@@ -27,7 +27,7 @@ public class Option : IBinarySerializable
 
 	public virtual void Write(BinaryWriter writer)
 	{
- 		writer.WriteUtf8(Text);
+ 		writer.WriteUtf8(Title);
 
 		writer.Write(Fair.OCodes[Operation.GetType()]);
 		Operation.Write(writer);
@@ -61,9 +61,10 @@ public class ProposalCreation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		return	Text.Length < Fair.PostLengthMaximum &&
+		return	Title.Length <= Fair.TitleLengthMaximum &&
+				Text.Length <= Fair.PostLengthMaximum &&
 				Options.Length > 0 &&
-				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Text.Length < Fair.PostLengthMaximum);
+				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
 	}
 
 	public override void PreTransact(McvNode node, bool sponsored, Flow flow)
@@ -209,12 +210,12 @@ public class ProposalCreation : FairOperation
 
 			if(As == Role.Moderator || As == Role.User)
  			{
- 				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+ 				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
  			}
 			else if(As == Role.Publisher || As == Role.Author)
  			{
 				var a = execution.Authors.Affect(By);
- 				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+ 				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
  			}
 		}
 	}

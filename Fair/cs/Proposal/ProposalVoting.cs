@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public enum SpecialVote : byte
 {
-	Neither = 100, Abstained = 101, NoAndBan = 102, NoAndBanish = 103
+	Neither = 100, Abstained = 101, Ban = 102, Banish = 103
 }
 
 public class ProposalVoting : FairOperation
@@ -116,7 +116,7 @@ public class ProposalVoting : FairOperation
 					//}
 					break;
  				
-				case SpecialVote.NoAndBan:
+				case SpecialVote.Ban:
 					z.Ban = [..z.Ban, Voter];
 
 					if(approved(z.Ban))
@@ -127,7 +127,7 @@ public class ProposalVoting : FairOperation
 					}
 					break;
  				
-				case SpecialVote.NoAndBanish:
+				case SpecialVote.Banish:
 					z.Banish = [..z.Banish, Voter];	
 
 					if(approved(z.Banish))
@@ -150,7 +150,7 @@ public class ProposalVoting : FairOperation
 			var o = z.Options[Choice];
 
 			z.Options = z.Options.Remove(o);
-			o = new ProposalOption {Text = o.Text, Operation = o.Operation, Yes = [..o.Yes, Voter]};
+			o = new ProposalOption {Title = o.Title, Operation = o.Operation, Yes = [..o.Yes, Voter]};
 			z.Options = [..z.Options, o];
 
  			if(approved(o.Yes))
