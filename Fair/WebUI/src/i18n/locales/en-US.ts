@@ -3,8 +3,11 @@ export const enUS = {
     cancel: "Cancel",
     home: "Home",
     next: "Next",
+    yes: "Yes",
     yesVotes: "Yes votes",
+    no: "No",
     noVotes: "No votes",
+    abs: "Abstained",
     absVotes: "Abstained from voting",
   },
   about: {
@@ -57,6 +60,14 @@ export const enUS = {
     writeReview: "Write your review",
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
+  },
+  referendum: {
+    daysLeft: "Days Left:",
+    createdAt: "Created At:",
+    createdBy: "Created By:",
+    notVotedYet: "No participant has voted yet.",
+    title: "Referendum {{referendumId}}",
+    votingTitle: "Current voting results",
   },
   referendums: {
     createReferendum: "Create referendum",
