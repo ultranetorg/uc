@@ -8,7 +8,7 @@ public class RdnCli : McvCli
 	{
 	}
 
-	public RdnCli(RdnNodeSettings settings, RdnApiClient api, Flow workflow) : base(settings, api, workflow)
+	public RdnCli(RdnNodeSettings settings, RdnApiClient api) : base(settings, api)
 	{
 	}
 

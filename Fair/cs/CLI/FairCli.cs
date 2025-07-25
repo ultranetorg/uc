@@ -8,7 +8,7 @@ public class FairCli : McvCli
 	{
 	}
 
-	public FairCli(FairNodeSettings settings, FairApiClient api, Flow workflow) : base(settings, api, workflow)
+	public FairCli(FairNodeSettings settings, FairApiClient api) : base(settings, api)
 	{
 	}
 

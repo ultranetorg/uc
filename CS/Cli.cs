@@ -72,13 +72,13 @@ public abstract class Cli
 
 			var r = a.Execute();
 
-			PostExecute(args, c, r);
+			PostExecute(args, c, r, flow);
 			
 			return r;
 		}
 	}
 
-	public virtual void	 PostExecute(IEnumerable<Xon> args, Command command, object result)
+	public virtual void	 PostExecute(IEnumerable<Xon> args, Command command, object result, Flow flow)
 	{
 	}
 }

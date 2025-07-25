@@ -10,11 +10,12 @@ public class McvCli : Cli
 	public TcpPeering		Node;
 	public JsonClient		ApiClient;
 	public McvNodeSettings	Settings;
-	public Flow				Flow = new Flow("CLI", new Log()); 
 	public ConsoleLogView	LogView = new ConsoleLogView(false, true);
 	
 	public McvCli()
 	{
+		var flow = new Flow("CLI", new Log()); 
+
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 	
 		var b = new Boot(ExeDirectory);
@@ -29,11 +30,11 @@ public class McvCli : Cli
 			var l = new Log();
 			LogView.StartListening(l);
 
-			Execute(b, Flow.CreateNested("Command", l));
+			Execute(b, flow.CreateNested("Command", l));
 		}
 		catch(OperationCanceledException)
 		{
-			Flow.Log.ReportError(null, "Execution aborted");
+			flow.Log.ReportError(null, "Execution aborted");
 		}
 		catch(Exception ex) when(!Debugger.IsAttached)
 		{
@@ -56,11 +57,10 @@ public class McvCli : Cli
 		//Sun?.Stop("The End");
 	}
 
-	public McvCli(McvNodeSettings settings, McvApiClient api, Flow workflow)
+	public McvCli(McvNodeSettings settings, McvApiClient api)
 	{
 		Settings = settings;
 		ApiClient = api;
-		Flow = workflow;
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
@@ -90,7 +90,7 @@ public class McvCli : Cli
 		return Execute(boot.Commnand.Nodes, flow);
 	}
 
-	public override void PostExecute(IEnumerable<Xon> args, Command command, object result)
+	public override void PostExecute(IEnumerable<Xon> args, Command command, object result, Flow flow)
 	{
 		var c = command as McvCommand;
 
@@ -99,7 +99,7 @@ public class McvCli : Cli
 			if(c.Has("estimate"))
 			{
 				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
-				Flow.Log.Dump(rp);
+				flow.Log.Dump(rp);
 			}
 			else
 			{
@@ -113,7 +113,7 @@ public class McvCli : Cli
 			if(c.Has("estimate"))
 			{
 				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
-				Flow.Log.Dump(rp);
+				flow.Log.Dump(rp);
 			}
 			else
 			{
