@@ -1,15 +1,13 @@
 import {
   AuthorDetails,
-  AuthorReferendum,
-  AuthorReferendumDetails,
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ModeratorDiscussion,
-  ModeratorDiscussionComment,
-  ModeratorDiscussionDetails,
   ModeratorPublication,
   ModeratorReview,
+  Proposal,
+  ProposalComment,
+  ProposalDetails,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -47,27 +45,27 @@ export type Api = {
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
   getUser(userId: string): Promise<User>
 
-  getAuthorReferendum(siteId: string, referendumId: string): Promise<AuthorReferendumDetails>
+  getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<AuthorReferendum>>
+  ): Promise<TotalItemsResult<Proposal>>
 
-  getModeratorDiscussion(siteId: string, discussionId: string): Promise<ModeratorDiscussionDetails>
+  getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>
   getModeratorDiscussionComments(
     siteId: string,
     discussionId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<ModeratorDiscussionComment>>
+  ): Promise<TotalItemsResult<ProposalComment>>
   getModeratorDiscussions(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<ModeratorDiscussion>>
+  ): Promise<TotalItemsResult<Proposal>>
   getModeratorPublication(publicationId: string): Promise<ModeratorPublication>
   getModeratorPublications(
     siteId: string,

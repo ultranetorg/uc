@@ -1,27 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalCommentModel
+public class ProposalCommentModel(ProposalComment proposal, FairAccount account)
 {
-	public string Id { get; set; }
+	public string Id { get; set; } = proposal.Id.ToString();
 
-	public string ProposalId { get; set; }
+	public string ProposalId { get; set; } = proposal.Proposal.ToString();
 
-	public string CreatorId { get; set; }
-	public string CreatorAddress { get; set; }
-	public string CreatorNickname { get; set; }
+	public AccountBaseModel CreatorAccount { get; set; } = new(account);
 
-	public string Text { get; set; }
+	public string Text { get; set; } = proposal.Text;
 
-	public int Created { get; set; }
-
-	public ProposalCommentModel(ProposalComment proposal, FairAccount account)
-	{
-		Id = proposal.Id.ToString();
-		ProposalId = proposal.Proposal.ToString();
-		CreatorId = proposal.Creator.ToString();
-		CreatorAddress = account.Address.ToString();
-		CreatorNickname = account.Nickname;
-		Text = proposal.Text;
-		Created = proposal.Created.Days;
-	}
+	public int Created { get; set; } = proposal.Created.Days;
 }

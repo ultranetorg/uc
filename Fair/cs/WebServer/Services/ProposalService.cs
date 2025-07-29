@@ -13,21 +13,21 @@ public class ProposalService
 	private const string ReferendumEntityName = "referendum";
 
 	public ProposalDetailsModel GetDiscussion(string siteId, string proposalId) =>
-		GetProposalOrReferendum(siteId, proposalId, true);
+		GetProposalDetails(siteId, proposalId, true);
 
 	public TotalItemsResult<ProposalModel> GetDiscussions(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
-		GetProposalsOrReferendums(siteId, true, page, pageSize, search, cancellationToken);
+		GetProposals(siteId, true, page, pageSize, search, cancellationToken);
 
 	public ProposalDetailsModel GetReferendum(string siteId, string proposalId) =>
-		GetProposalOrReferendum(siteId, proposalId, false);
+		GetProposalDetails(siteId, proposalId, false);
 
 	public TotalItemsResult<ProposalModel> GetReferendums(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
-		GetProposalsOrReferendums(siteId, false, page, pageSize, search, cancellationToken);
+		GetProposals(siteId, false, page, pageSize, search, cancellationToken);
 
 	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>
-	ProposalDetailsModel GetProposalOrReferendum(string siteId, string proposalId, bool discussionOrReferendums)
+	ProposalDetailsModel GetProposalDetails(string siteId, string proposalId, bool discussionOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalOrReferendum)} method called with {{SiteId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", siteId, proposalId, discussionOrReferendums);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalDetails)} method called with {{SiteId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", siteId, proposalId, discussionOrReferendums);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(proposalId);
@@ -57,17 +57,47 @@ public class ProposalService
 
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
 
+			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 			return new ProposalDetailsModel(proposal, account)
 			{
-				/// TODO
-				/// Option = ToBaseVotableOperationModel(proposal.Option)
+				Options = options
 			};
 		}
 	}
 
-	TotalItemsResult<ProposalModel> GetProposalsOrReferendums(string siteId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	IEnumerable<ProposalOptionModel> LoadOptions(Proposal proposal)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalsOrReferendums)} method called with {{SiteId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, discussionOrReferendums, page, pageSize, search);
+		IList<ProposalOptionModel> result = new List<ProposalOptionModel>(proposal.Options.Length);
+
+		foreach (ProposalOption option in proposal.Options)
+		{
+			ProposalOptionModel model = new(option);
+
+			IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
+			model.YesAccounts = yesAccounts;
+			model.Operation = ToBaseVotableOperationModel(option.Operation);
+
+			result.Add(model);
+		}
+
+		return result;
+	}
+
+	IEnumerable<AccountBaseModel> LoadYesAccounts(AutoId[] accountsIds)
+	{
+		lock(mcv.Lock)
+		{
+			return accountsIds.Select(id =>
+			{
+				FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+				return new AccountBaseModel(account);
+			}).ToArray();
+		}
+	}
+
+	TotalItemsResult<ProposalModel> GetProposals(string siteId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{SiteId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, discussionOrReferendums, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));
@@ -130,11 +160,7 @@ public class ProposalService
 		foreach(Proposal proposal in proposals)
 		{
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, account)
-			{
-				/// TODO
-				/// Option = ToBaseVotableOperationModel(proposal.Option)
-			};
+			ProposalModel model = new ProposalModel(proposal, account); ;
 			result.Add(model);
 		}
 
@@ -173,8 +199,6 @@ public class ProposalService
 							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 						};
 	}
-
-	/// TODO
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>

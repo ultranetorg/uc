@@ -1,11 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryParentBaseModel : CategoryBaseModel
+public class CategoryParentBaseModel(Category category) : CategoryBaseModel(category)
 {
-	public string ParentId { get; set; }
-
-	public CategoryParentBaseModel(Category category) : base(category)
-	{
-		ParentId = category.Parent?.ToString();
-	}
+	public string ParentId { get; set; } = category.Parent?.ToString();
 }

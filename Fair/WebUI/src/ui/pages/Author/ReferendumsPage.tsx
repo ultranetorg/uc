@@ -51,11 +51,14 @@ export const ReferendumsPage = () => {
       </div>
       <Table
         columns={[
-          { accessor: "text", label: "Text", className: "w-[26%]" },
-          { accessor: "createdBy", label: "Created By", type: "account-by", className: "w-[18%]" },
-          { accessor: "expiration", label: "Days Left", className: "w-[7%]" },
-          { accessor: "action", label: "Action", type: "option", className: "w-[26%]" },
-          { accessor: "voting", label: "Current voting", type: "voting", className: "w-[11%]" },
+          { accessor: "text", label: t("title"), type: "title", className: "w-[24%]" },
+          { accessor: "createdBy", label: t("createdBy"), type: "account", className: "w-[15%]" },
+          { accessor: "expirationTime", label: t("daysLeft"), className: "w-[6%] text-center" },
+          { accessor: "optionsVotesCount", label: t("options"), type: "options", className: "w-[16%] text-center" },
+          { accessor: "absCount", label: t("common:abs"), className: "w-[5%] text-center" },
+          { accessor: "neitherCount", label: t("common:neither"), className: "w-[5%] text-center" },
+          { accessor: "banCount", label: t("common:ban"), className: "w-[5%] text-center" },
+          { accessor: "banishCount", label: t("common:banish"), className: "w-[5%] text-center" },
         ]}
         items={referendums?.items}
         itemRenderer={itemRenderer}
