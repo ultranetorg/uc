@@ -45,23 +45,23 @@ public class ProposalVoting : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
- 		if(!ProposalExists(execution, Proposal, out var z, out Error))
+ 		if(!ProposalExists(execution, Proposal, out var p, out Error))
  			return;
 
-		if(Choice >= z.Options.Length && Choice != (byte)SpecialChoice.Neither && Choice != (byte)SpecialChoice.Abstained && Choice != (byte)SpecialChoice.Ban && Choice != (byte)SpecialChoice.Banish)
+		if(Choice >= p.Options.Length && Choice != (byte)SpecialChoice.Neither && Choice != (byte)SpecialChoice.Abstained && Choice != (byte)SpecialChoice.Ban && Choice != (byte)SpecialChoice.Banish)
 		{
  			Error = OutOfBounds;
  			return;
 		}
  
- 		if(z.Options.Any(i => i.Yes.Contains(Voter)) || z.Neither.Contains(Voter) || z.Abs.Contains(Voter) || z.Ban.Contains(Voter) || z.Banish.Contains(Voter))
+ 		if(p.Options.Any(i => i.Yes.Contains(Voter)) || p.Neither.Contains(Voter) || p.Abs.Contains(Voter) || p.Ban.Contains(Voter) || p.Banish.Contains(Voter))
  		{
  			Error = AlreadyExists;
  			return;
  		}
  
-		var s = execution.Sites.Affect(z.Site);
-        var c = z.OptionClass;
+		var s = execution.Sites.Affect(p.Site);
+        var c = p.OptionClass;
 
 		if(s.IsReferendum(c))
  		{
@@ -84,91 +84,90 @@ public class ProposalVoting : FairOperation
 			return;
 		}
 		 
- 		z = execution.Proposals.Affect(Proposal);
+ 		p = execution.Proposals.Affect(Proposal);
 
 		bool approved(AutoId[] votes)
 		{
     		return s.ApprovalPolicies[c] switch
  										 {
-											ApprovalPolicy.AnyModerator						=> votes.Length + z.Abs.Length == 1,
- 											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + z.Abs.Length > s.Moderators.Length/2,
- 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> votes.Length + z.Abs.Length == s.Moderators.Length,
- 											ApprovalPolicy.ElectedByAuthorsMajority			=> votes.Length + z.Abs.Length > s.Authors.Length/2,
+											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abs.Length == 1,
+ 											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abs.Length > s.Moderators.Length/2,
+ 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> votes.Length + p.Abs.Length == s.Moderators.Length,
+ 											ApprovalPolicy.ElectedByAuthorsMajority			=> votes.Length + p.Abs.Length > s.Authors.Length/2,
  											_ => throw new IntegrityException()
  										 };
 		}
 
 		byte result = (byte)SpecialChoice.None;
 
- 			switch((SpecialChoice)Choice)
- 			{
- 				case SpecialChoice.Neither:
-					z.Neither = [..z.Neither, Voter];	
+ 		switch((SpecialChoice)Choice)
+ 		{
+ 			case SpecialChoice.Neither:
+				p.Neither = [..p.Neither, Voter];	
 
-					if(approved(z.Neither))
-					{
-						result = (byte)SpecialChoice.Neither;
-					}
-					break;
- 				
-				case SpecialChoice.Abstained:
-					z.Abs = [..z.Abs, Voter];
-
-					foreach((var i, var j) in z.Options.Index())
-						if(approved(j.Yes))
-						{
-							result = (byte)i;
-						}
-
-					if(result != (byte)SpecialChoice.None)
-					{
-						if(approved(z.Neither))	result = (byte)SpecialChoice.Neither; else
-						if(approved(z.Abs))		result = (byte)SpecialChoice.Abstained; else
-						if(approved(z.Ban))		result = (byte)SpecialChoice.Ban; else
-						if(approved(z.Banish))	result = (byte)SpecialChoice.Banish;
-					}
-
-					break;
- 				
-				case SpecialChoice.Ban:
-					z.Ban = [..z.Ban, Voter];
-
-					if(approved(z.Ban))
-					{
-						result = (byte)SpecialChoice.Ban;
-					}
-					break;
- 				
-				case SpecialChoice.Banish:
-					z.Banish = [..z.Banish, Voter];	
-
-					if(approved(z.Banish))
-					{
-						result = (byte)SpecialChoice.Banish;
-					}
-					break;
-				
-				default:
+				if(approved(p.Neither))
 				{
-					var o = z.Options[Choice];
+					result = (byte)SpecialChoice.Neither;
+				}
+				break;
+ 				
+			case SpecialChoice.Abstained:
+				p.Abs = [..p.Abs, Voter];
 
-					z.Options = z.Options.Remove(o);
-					o = new ProposalOption {Title = o.Title, Operation = o.Operation, Yes = [..o.Yes, Voter]};
-					z.Options = [..z.Options, o];
-
- 					if(approved(o.Yes))
- 					{
-						result = Choice;
+				foreach((var i, var j) in p.Options.Index())
+					if(approved(j.Yes))
+					{
+						result = (byte)i;
 					}
 
-					break;
+				if(result != (byte)SpecialChoice.None)
+				{
+					if(approved(p.Neither))	result = (byte)SpecialChoice.Neither; else
+					if(approved(p.Abs))		result = (byte)SpecialChoice.Abstained; else
+					if(approved(p.Ban))		result = (byte)SpecialChoice.Ban; else
+					if(approved(p.Banish))	result = (byte)SpecialChoice.Banish;
 				}
- 			}
- 
 
+				break;
+ 				
+			case SpecialChoice.Ban:
+				p.Ban = [..p.Ban, Voter];
+
+				if(approved(p.Ban))
+				{
+					result = (byte)SpecialChoice.Ban;
+				}
+				break;
+ 				
+			case SpecialChoice.Banish:
+				p.Banish = [..p.Banish, Voter];	
+
+				if(approved(p.Banish))
+				{
+					result = (byte)SpecialChoice.Banish;
+				}
+				break;
+				
+			default:
+			{
+				var o = p.Options[Choice];
+
+				p.Options = p.Options.Remove(o);
+				o = new ProposalOption {Title = o.Title, Operation = o.Operation, Yes = [..o.Yes, Voter]};
+				p.Options = [..p.Options, o];
+
+ 				if(approved(o.Yes))
+ 				{
+					result = Choice;
+				}
+
+				break;
+			}
+ 		}
+ 
 		if(result != (byte)SpecialChoice.None)
 		{
-			execution.Proposals.Delete(s, z);
+			execution.Proposals.Delete(s, p);
 
  			switch(result)
  			{
@@ -176,11 +175,11 @@ public class ProposalVoting : FairOperation
 					if(s.IsReferendum(c))
  					{
 						var a = execution.Authors.Affect(Voter);
-						/// TODO a.BannedTill 
+						s.Authors = [..s.Authors.Where(i => i.Author != p.By), new Citizen {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)}];
  					}
 					else if(s.IsDiscussion(c))
  					{
-						s.Moderators = [..s.Moderators.Where(i => i.Account != z.By), new Moderator {Account = z.By, BannedTill = execution.Time + Time.FromDays(30)}];
+						s.Moderators = [..s.Moderators.Where(i => i.Account != p.By), new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)}];
  					}
 					break;
  				
@@ -190,12 +189,12 @@ public class ProposalVoting : FairOperation
 
 				default:
 				{
-					var o = z.Options[result];
+					var o = p.Options[result];
 
 					o.Operation.Site	= s;
-					o.Operation.As		= z.As;
-					o.Operation.By		= z.By;
-					o.Operation.Signer	= z.As == Role.User ? execution.AffectAccount(z.By) : null;
+					o.Operation.As		= p.As;
+					o.Operation.By		= p.By;
+					o.Operation.Signer	= p.As == Role.User ? execution.AffectAccount(p.By) : null;
 
 					var e = execution.CreateChild();
 	 		

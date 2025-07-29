@@ -28,6 +28,24 @@ public class Moderator : IBinarySerializable
 	}
 }
 
+public class Citizen : IBinarySerializable
+{
+	public AutoId		Author { get; set; }
+	public Time			BannedTill { get; set; }
+
+	public void Read(BinaryReader reader)
+	{
+		Author		= reader.Read<AutoId>();
+		BannedTill	= reader.Read<Time>();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Author);
+		writer.Write(BannedTill);
+	}
+}
+
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
@@ -41,15 +59,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public int						ModerationReward { get; set; }
 	public int						PoWComplexity { get; set; }
 	public AutoId					Avatar  { get; set; }
-	
-	public OrderedDictionary<FairOperationClass, Role[]>		CreationPolicies { get; set; }
-	public OrderedDictionary<FairOperationClass, ApprovalPolicy>	ApprovalPolicies { get; set; }
 
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
-	public AutoId[]					Authors { get; set; }
+	public Citizen[]				Authors { get; set; }
 	public Moderator[]				Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
 	public AutoId[]					Proposals { get; set; }
@@ -70,6 +85,9 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						BandwidthToday { get; set; }
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
+	
+	public OrderedDictionary<FairOperationClass, Role[]>			CreationPolicies { get; set; }
+	public OrderedDictionary<FairOperationClass, ApprovalPolicy>	ApprovalPolicies { get; set; }
 
 	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
@@ -175,7 +193,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Authors						= reader.ReadArray<AutoId>();
+		Authors						= reader.ReadArray<Citizen>();
 		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();

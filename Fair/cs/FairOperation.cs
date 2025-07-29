@@ -183,7 +183,9 @@ public abstract class FairOperation : Operation
 
 		site = execution.Sites.Find(siteid);
 
- 		if(!site.Authors.Contains(authorid))
+		var p = site.Authors.FirstOrDefault(i => i.Author == authorid);
+
+ 		if(p == null || p.BannedTill > execution.Time)
  		{
  			error = Denied;
  			return false;
@@ -207,7 +209,7 @@ public abstract class FairOperation : Operation
 	{
 		site = execution.Sites.Find(id);
 		
-		if(site == null || site.Deleted)
+		if(site == null)
 		{
 			error = NotFound;
 			return false; 
@@ -222,7 +224,9 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		if(!site.Moderators.Any(i => i.Account == Signer.Id))
+		var m = site.Moderators.FirstOrDefault(i => i.Account == Signer.Id);
+
+		if(m == null || m.BannedTill > execution.Time)
 		{
 			error = Denied;
 			return false; 
@@ -236,7 +240,9 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		if(!site.Moderators.Any(i => i.Account == accountid))
+		var m = site.Moderators.FirstOrDefault(i => i.Account == accountid);
+
+		if(m == null || m.BannedTill > execution.Time)
 		{
 			error = Denied;
 			return false; 
