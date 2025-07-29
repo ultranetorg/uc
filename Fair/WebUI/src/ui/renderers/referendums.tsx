@@ -2,40 +2,31 @@ import { TFunction } from "i18next"
 import { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
-import { TEST_REFERENDUM_AUTHOR } from "testConfig"
-import { AuthorReferendum, BaseVotableOperation } from "types"
+import { AccountBase, Proposal } from "types"
+import { AccountInfo } from "ui/components"
 import { TableColumn, TableItem, TableItemRenderer, TableRowRenderer } from "ui/components/Table"
-import { buildSrc, formatOption } from "utils"
 
-const renderVoting = (t: TFunction, voting: AuthorReferendum) => (
-  <div className="flex items-center gap-1">
-    <span className="text-light-green" title={t("common:yesVotes")}>
-      {voting.yesCount}
+const renderAccount = (account: AccountBase) => (
+  <AccountInfo title={account.nickname ?? account.address} avatar={account.avatar} />
+)
+
+const renderTitle = (proposal: Proposal) => (
+  <div className="flex flex-col gap-1" title={proposal.title}>
+    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-2xs leading-4 text-gray-500">
+      {proposal.title}
     </span>
-    <span className="text-gray-400">/</span>
-    <span className="text-light-red" title={t("common:noVotes")}>
-      {voting.noCount}
-    </span>
-    <span className="text-gray-400">/</span>
-    <span className="text-light-yellow" title={t("common:absVotes")}>
-      {voting.absCount}
-    </span>
+    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-2sm leading-5">{proposal.text}</span>
   </div>
 )
 
-const renderAccountBy = (referendum: AuthorReferendum) => (
-  <div className="flex items-center gap-2">
-    <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-full">
-      <img src={buildSrc(referendum.byAvatar, TEST_REFERENDUM_AUTHOR)} className="h-full w-full object-cover" />
+const renderOptions = (proposal: Proposal) => {
+  const votes = proposal.optionsVotesCount.join(" / ")
+  return (
+    <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={votes}>
+      {votes}
     </div>
-    <span
-      title={referendum.byNickname ?? referendum.byAddress}
-      className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5"
-    >
-      {referendum.byNickname ?? referendum.byAddress}
-    </span>
-  </div>
-)
+  )
+}
 
 export const getReferendumsRowRenderer =
   (siteId: string): TableRowRenderer =>
@@ -48,18 +39,19 @@ export const getReferendumsRowRenderer =
 export const getReferendumsItemRenderer =
   (t: TFunction): TableItemRenderer =>
   (item: TableItem, column: TableColumn): ReactNode => {
-    if (column.type === "account-by") {
-      const referendum = item as AuthorReferendum
-      return renderAccountBy(referendum)
-    }
+    const proposal = item as Proposal
 
-    if (column.type === "option") {
-      return formatOption(item["option"] as BaseVotableOperation, t)
-    }
+    switch (column.type) {
+      case "title": {
+        return renderTitle(proposal)
+      }
 
-    if (column.type === "voting") {
-      const referendum = item as AuthorReferendum
-      return renderVoting(t, referendum)
+      case "account": {
+        return renderAccount(proposal.byAccount)
+      }
+
+      case "options":
+        return renderOptions(proposal)
     }
 
     return undefined

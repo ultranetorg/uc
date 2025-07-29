@@ -1,9 +1,9 @@
 import { AccountBase } from "./AccountBase"
 
-export type Review = {
+export type ProposalComment = {
   id: string
-  text: string
-  rating: number
-  created: number
+  proposalId: string
   creatorAccount: AccountBase
+  text: string
+  created: number
 }

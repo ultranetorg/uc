@@ -1,16 +1,14 @@
 import { DEFAULT_PAGE_SIZE_2 } from "config"
 import {
   AuthorDetails,
-  AuthorReferendum,
-  AuthorReferendumDetails,
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ModeratorDiscussion,
-  ModeratorDiscussionComment,
-  ModeratorDiscussionDetails,
   ModeratorPublication,
   ModeratorReview,
+  Proposal,
+  ProposalComment,
+  ProposalDetails,
   Publication,
   PublicationAuthor,
   PublicationBase,
@@ -102,7 +100,7 @@ const getReviews = async (
 
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
 
-const getAuthorReferendum = (siteId: string, referendumId: string): Promise<AuthorReferendumDetails> =>
+const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
 
 const getAuthorReferendums = async (
@@ -110,7 +108,7 @@ const getAuthorReferendums = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<AuthorReferendum>> => {
+): Promise<TotalItemsResult<Proposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -119,7 +117,7 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ModeratorDiscussionDetails> =>
+const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
 const getModeratorDiscussionComments = async (
@@ -127,7 +125,7 @@ const getModeratorDiscussionComments = async (
   discussionId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<ModeratorDiscussionComment>> => {
+): Promise<TotalItemsResult<ProposalComment>> => {
   const params = buildUrlParams(
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -141,7 +139,7 @@ const getModeratorDiscussions = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<ModeratorDiscussion>> => {
+): Promise<TotalItemsResult<Proposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },

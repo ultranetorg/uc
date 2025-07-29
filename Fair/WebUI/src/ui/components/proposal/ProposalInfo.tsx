@@ -3,10 +3,7 @@ export type ProposalInfoProps = {
   text?: string
 }
 
-export const ProposalInfo = ({
-  title = "This is very very very very very very veeeeeeeeeeeeery looooooooooooooooooooooooooong teeeeeeeeeeeeeeeest title",
-  text,
-}: ProposalInfoProps) => (
+export const ProposalInfo = ({ title, text }: ProposalInfoProps) => (
   <div className="flex h-fit w-full max-w-187.5 flex-col divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-100">
     <div className="flex flex-col gap-4 p-6">
       <span

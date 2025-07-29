@@ -11,10 +11,17 @@ export type AccountInfoProps = {
 }
 
 export const AccountInfo = memo(({ title, avatar, titleClassName }: AccountInfoProps) => (
-  <div className="flex items-center gap-2">
-    <div className="h-8 w-8 overflow-hidden rounded-full">
-      <img className="h-full w-full" src={buildSrc(avatar, avatarPlaceholder)} />
+  <div className="flex items-center gap-2" title={title}>
+    <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full">
+      <img className="h-full w-full object-cover" src={buildSrc(avatar, avatarPlaceholder)} />
     </div>
-    <span className={twMerge("text-2sm font-medium leading-5", titleClassName)}>{title}</span>
+    <span
+      className={twMerge(
+        "flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5",
+        titleClassName,
+      )}
+    >
+      {title}
+    </span>
   </div>
 ))

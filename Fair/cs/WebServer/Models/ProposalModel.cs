@@ -10,6 +10,7 @@ public class ProposalModel(Proposal proposal, FairAccount account)
 	public AccountBaseModel ByAccount { get; set; } = new(account);
 
 	public int CreationTime { get; set; } = proposal.CreationTime.Days;
+	public int ExpirationTime { get; set; } = proposal.CreationTime.Days + 30; // TODO: fix.
 
 	public IEnumerable<int> OptionsVotesCount { get; set; } = proposal.Options.Select(x => x.Yes.Count());
 	public int NeitherCount { get; set; } = proposal.Neither.Count();

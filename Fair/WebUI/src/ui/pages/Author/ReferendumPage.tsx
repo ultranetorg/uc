@@ -24,7 +24,7 @@ export const ReferendumPage = () => {
         homeLabel={t("common:home")}
       />
       <div className="flex gap-8">
-        <ProposalInfo text={referendum.text} />
+        <ProposalInfo title={referendum.title} text={referendum.text} />
         <div className="flex flex-col gap-6">
           <VotingStatistics
             t={t}
