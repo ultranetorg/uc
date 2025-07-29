@@ -24,36 +24,24 @@ public enum ProductFieldType : int
 	ImageJpg,
 }
 
-public class ProductFieldVersionReference  : IBinarySerializable
+public class ProductField : IBinarySerializable
 {
-	public ProductFieldName	Field { get; set; }
-	public int				Version { get; set; }
+	public ProductFieldName			Name { get; set; }
+	public byte[]					Value { get; set; }
+	public ProductField[]			Fields { get; set; }
+	
+	public const int				ValueLengthMaximum = 1024*1024;
+	public int						Size => Value.Length + Fields.Sum(i => i.Size);
+	public string					AsUtf8 => Encoding.UTF8.GetString(Value);
 
-	public void Read(BinaryReader reader)
-	{
-		Field = reader.Read<ProductFieldName>();
-		Version = reader.Read7BitEncodedInt();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write(Field);
-		writer.Write7BitEncodedInt(Version);
-	}
-
-	public override string ToString()
-	{
-		return $"{Field}={Version}";
-	}
-}
-
-public class ProductFieldVersion : IBinarySerializable
-{
-	public int			Version { get; set; }
-	public byte[]		Value { get; set; }
-	public int			Refs { get; set; }
-
-	public string		AsUtf8 => Encoding.UTF8.GetString(Value);
+	public static readonly Dictionary<ProductFieldName, ProductFieldType> Types =	new ()
+																					{
+																						{ProductFieldName.Title,		ProductFieldType.StringUtf8},
+																						{ProductFieldName.Slogan,		ProductFieldType.StringUtf8},
+																						{ProductFieldName.Description,	ProductFieldType.TextUtf8},
+																						{ProductFieldName.Logo,			ProductFieldType.ImagePng},
+																					};
+	public static bool			IsFile(ProductFieldName type) => Types[type] >= ProductFieldType.File;
 
 	public AutoId AsAutoId
 	{
@@ -65,56 +53,118 @@ public class ProductFieldVersion : IBinarySerializable
 		}
 	}
 
-	public ProductFieldVersion()
-	{
-	}
-
-	public ProductFieldVersion(int version, byte[] value, int refs)
-	{
-		Version = version;
-		Value = value;
-		Refs = refs;
-	}
-
-	public void Read(BinaryReader reader)
-	{
-		Version = reader.Read7BitEncodedInt();
-		Value = reader.ReadBytes();
-		Refs = reader.Read7BitEncodedInt();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write7BitEncodedInt(Version);
-		writer.WriteBytes(Value);
-		writer.Write7BitEncodedInt(Refs);
-	}
-}
-
-public class ProductField : IBinarySerializable
-{
-	public ProductFieldName			Name { get; set; }
-	public ProductFieldVersion[]	Versions  { get; set; }
-
-	public int						Size =>  Versions.Sum(i => i.Value.Length);
-
-	public const int				ValueLengthMaximum = 1024*1024;
-	public const int				ValueNameMaximum = 256;
-	
 	public ProductField()
 	{
 	}
 
+	public ProductField(ProductFieldName name, byte[] value)
+	{
+		Name	= name;
+		Value	= value;
+		Fields	= [];
+	}
+	
+	public bool IsValid(McvNet net)
+	{
+		if(Value.Length > ProductField.ValueLengthMaximum)
+			return false;
+
+		return Fields.All(i => i.IsValid(net));
+	}
+
 	public void Read(BinaryReader reader)
 	{
-		Name		= reader.Read<ProductFieldName>();
-		Versions	= reader.ReadArray<ProductFieldVersion>();
+		Name	= reader.Read<ProductFieldName>();
+		Value	= reader.ReadBytes();
+		Fields	= reader.ReadArray<ProductField>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Name);
-		writer.Write(Versions);
+		writer.WriteBytes(Value);
+		writer.Write(Fields);
+	}
+
+	public static byte[] Parse(ProductFieldName name, string value)
+	{ 
+		switch(Types[name])
+		{
+			case ProductFieldType.Float : 
+			case ProductFieldType.Integer : 
+				return BitConverter.GetBytes(long.Parse(value));
+
+			case ProductFieldType.TextUtf8 : 
+			case ProductFieldType.StringUtf8 :
+				return Encoding.UTF8.GetBytes(value);
+			
+			case ProductFieldType.ImagePng : 
+			case ProductFieldType.ImageJpg : 
+				return AutoId.Parse(value).Raw;
+		}
+
+		throw new ArgumentException("Unknown ProductFieldType");
+	}
+}
+
+public class ProductVersion  : IBinarySerializable
+{
+	public ProductField[]	Fields { get; set; }
+	public int				Id { get; set; }
+	public int				Refs { get; set; }
+
+	public int				Size => Fields.Sum(i => i.Size);
+
+	public override string ToString()
+	{
+		return $"Fields={Fields.Length}, Version={Id}, Refs={Refs}";
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Fields	= reader.ReadArray<ProductField>();
+		Id = reader.Read7BitEncodedInt();
+		Refs	= reader.Read7BitEncodedInt();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Fields);
+		writer.Write7BitEncodedInt(Id);
+		writer.Write7BitEncodedInt(Refs);
+	}
+
+	public ProductField Find(Func<ProductField, bool> action)
+	{
+		ProductField go(ProductField[] fields)
+		{
+			foreach(var i in fields)
+			{
+				if(action(i))
+					return i;
+
+				go(i.Fields);
+			}
+
+			return null;
+		}
+
+		return go(Fields);
+	}
+
+	public void ForEach(Action<ProductField> action)
+	{
+		void go(ProductField[] fields)
+		{
+			foreach(var i in fields)
+			{
+				action(i);
+
+				go(i.Fields);
+			}
+		}
+
+		go(Fields);
 	}
 }
 
@@ -122,24 +172,15 @@ public class Product : IBinarySerializable, ITableEntry
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
-	public ProductField[]		Fields	{ get; set; }
+	public ProductVersion[]		Versions { get; set; }
 	public Time					Updated { get; set; }
 	public AutoId[]				Publications { get; set; }
 
-	public int					Length => Fields.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
-
-	public static Dictionary<ProductFieldName, ProductFieldType> FieldTypes =	new ()
-																				{
-																					{ProductFieldName.Title,		ProductFieldType.StringUtf8},
-																					{ProductFieldName.Slogan,		ProductFieldType.StringUtf8},
-																					{ProductFieldName.Description,	ProductFieldType.TextUtf8},
-																					{ProductFieldName.Logo,			ProductFieldType.ImagePng},
-																				};
-	public static bool			IsFile(ProductFieldName type) => FieldTypes[type] >= ProductFieldType.File;
+	public int					Length => Versions.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
-		return $"{Id}, Fields={Fields}";
+		return $"{Id}, Author={Author}, Versions={Versions.Length}";
 	}
 
 	public EntityId			Key => Id;
@@ -155,18 +196,21 @@ public class Product : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	public ProductFieldVersion Get(ProductFieldVersionReference reference)
-	{
-		return Fields.First(i => i.Name == reference.Field).Versions.First(i => i.Version == reference.Version);
-	}
+	//public byte[] Get(int version, ProductFieldName name)
+	//{
+	//	return Fields.First(i => i.Name == name).Value;
+	//}
 
 	public object Clone()
 	{
-		return new Product(Mcv){Id = Id,
-								Author = Author,
-								Fields = Fields,
-								Updated = Updated,
-								Publications = Publications};
+		return	new Product(Mcv)
+				{
+					Id = Id,
+					Author = Author,
+					Versions = Versions,
+					Updated = Updated,
+					Publications = Publications
+				};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -188,7 +232,7 @@ public class Product : IBinarySerializable, ITableEntry
 		writer.Write(Id);
 		writer.Write(Author);
 		writer.Write(Updated);
-		writer.Write(Fields);
+		writer.Write(Versions);
 		writer.Write(Publications);
 	}
 
@@ -197,7 +241,31 @@ public class Product : IBinarySerializable, ITableEntry
 		Id				= reader.Read<AutoId>();
 		Author			= reader.Read<AutoId>();
 		Updated			= reader.Read<Time>();
-		Fields			= reader.ReadArray<ProductField>();
+		Versions		= reader.ReadArray<ProductVersion>();
 		Publications	= reader.ReadArray<AutoId>();
+	}
+
+	public static ProductField[] ParseDefinition(string text)
+	{
+		var x = new Xon(text);
+
+		ProductField[] parse(List<Xon> nodes)
+		{
+			var a = new List<ProductField>();
+
+			foreach(var i in nodes)
+			{
+				var t = Enum.Parse<ProductFieldName>(i.Name);
+
+				a.Add(	new ProductField(t, ProductField.Parse(t, i.Get<string>()))
+						{
+							Fields = parse(i.Nodes) 
+						});
+			}
+
+			return a.ToArray();
+		}
+
+		return parse(x.Nodes);
 	}
 }

@@ -215,7 +215,7 @@ public class DomainCommand : RdnCommand
 								var d = Ppc(new DomainRequest(First)).Domain;
 
 								return new DomainTransfer  {Id		= d.Id,
-															Owner	= GetEntityId("to")};
+															Owner	= GetAutoId("to")};
 							};
 
 		return a;

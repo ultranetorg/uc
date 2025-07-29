@@ -11,7 +11,7 @@ public class ProductCommand : FairCommand
 	{
 	}
 
-	public CommandAction Crete()
+	public CommandAction Create()
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
@@ -55,29 +55,24 @@ public class ProductCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		string definition;	definition = nameof(definition);
+		string path;		path = nameof(path);
+
 		a.Name = "u";
 		a.Help = new() {Description = "Updates a product entity properties in the MCV database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [field={NAME}] [text={TEXT}] {SignerArg}={AA}",
-
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} definition={TEXT} {SignerArg}={AA}",
 						Arguments = [new ("<first>", "Id of a product to update"),
-									 new ("field", "A name of field of a product to update"),
-									 new ("text", "A new text value of a product field"),
-									 new ("path", "Raw binary data from file")],
-
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} field={NAME.Example} text={TEXT.Example} {SignerArg}={AA.Example}")]};
+									 new (definition, "Product definition"),
+									 new (path, "A path to XON definition file")],
+						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {definition}={TEXT.Example} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
 								var o =	new ProductUpdation(First);
 
-								o.Field = GetEnum<ProductFieldName>("field");
-
-								if(Has("text"))
-									o.Value = Encoding.UTF8.GetBytes(GetString("text"));
-
-								if(Has("path"))
-									o.Value = System.IO.File.ReadAllBytes(GetString("path"));
+								if(Has(definition))
+									o.Fields = Product.ParseDefinition(GetString(definition));
 
 								return o;
 							};
@@ -92,9 +87,7 @@ public class ProductCommand : FairCommand
 
 		a.Help = new( ){Description = "Gets product entity information from the MCV database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-
 						Arguments = [new ("<first>", "Id of a product to get information about")],
-
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{

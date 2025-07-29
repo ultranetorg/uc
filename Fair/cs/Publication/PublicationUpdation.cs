@@ -4,11 +4,11 @@ namespace Uccs.Fair;
 
 public class PublicationUpdation : VotableOperation
 {
-	public AutoId						Publication { get; set; }
-	public ProductFieldVersionReference	Change { get; set; }
+	public AutoId				Publication { get; set; }
+	public int					Version { get; set; }
 
-	public override bool				IsValid(McvNet net) => true;
-	public override string				Explanation => $"{Publication}, {{{Change}}}";
+	public override bool		IsValid(McvNet net) => true;
+	public override string		Explanation => $"Publication={Publication}, Version={Version}";
 
 	public PublicationUpdation()
 	{
@@ -17,30 +17,30 @@ public class PublicationUpdation : VotableOperation
 	public override void Read(BinaryReader reader)
 	{
 		Publication	= reader.Read<AutoId>();
-		Change		= reader.Read<ProductFieldVersionReference>();
+		Version		= reader.Read7BitEncodedInt();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Publication);
-		writer.Write(Change);
+		writer.Write7BitEncodedInt(Version);
 	}
 
 	public override bool Overlaps(VotableOperation other)
 	{
 		var o = other as PublicationUpdation;
 
-		return o.Publication == Publication && o.Change.Field == Change.Field;
+		return o.Publication == Publication;
 	}
 	
-	 public override bool ValidateProposal(FairExecution execution, out string error)
+	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
 		var r = execution.Products.Find(p.Product);
 
-		if(!r.Fields.Any(i => i.Name == Change.Field && i.Versions.Any(i => i.Version == Change.Version)))
+		if(!r.Versions.Any(i => i.Id == Version))
 		{
 			error = NotFound;
 			return false;
@@ -55,39 +55,63 @@ public class PublicationUpdation : VotableOperation
 		var a = execution.Authors.Affect(execution.Products.Find(p.Product).Author);
 		var r = execution.Products.Affect(p.Product);
 
-		var f = r.Fields.First(i => i.Name == Change.Field);
-								
-		var prev = p.Fields.FirstOrDefault(i => i.Field == Change.Field);
+		var v = r.Versions.First(i => i.Id == Version);
+		var prev = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion);
 	
 		if(prev == null)	/// new field
-			p.Fields = [..p.Fields, Change];
+			p.ProductVersion = Version;
 		else				/// replace version
 		{
-			p.Fields = [..p.Fields.Where(i => i.Field != Change.Field), Change];
+			//p.Fields = [..p.Fields.Where(i => i.Field != Change.Field), Change];
 		
 			/// decrease refs in product
-			var x = f.Versions.First(i => i.Version == prev.Version);
-	
-			f = new ProductField {Name = f.Name, 
-								  Versions = [..f.Versions.Where(i => i.Version != x.Version), new ProductFieldVersion(x.Version, x.Value, x.Refs - 1)]};
-		
-			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
+			//var x = f.Versions.First(i => i.Version == prev.Version);
 
-			if(f.Name == ProductFieldName.Title)
-				execution.PublicationTitles.Deindex(p.Site, r.Get(prev).AsUtf8);
+			prev.ForEach(i =>	{
+									if(ProductField.IsFile(i.Name))
+									{
+										var f = execution.Files.Affect(i.AsAutoId);
+										f.Refs--;
+									}
+								});
+	
+			var x = new ProductVersion
+					{
+						Id		= prev.Id, 
+						Refs	= prev.Refs - 1,
+						Fields	= prev.Fields
+					};
+		
+			r.Versions = [..r.Versions.Where(i => i.Id != prev.Id), x];
+
+			var xtitle = prev.Fields.FirstOrDefault(i => i.Name == ProductFieldName.Title);
+			
+			if(xtitle != null)
+				execution.PublicationTitles.Deindex(p.Site, xtitle.AsUtf8);
 		}
 	
 		/// increase refs in product
 					
-		var v = f.Versions.First(i => i.Version == Change.Version);
+		//var v = f.Versions.First(i => i.Version == Change.Version);
 	
-		f = new ProductField {Name = f.Name, 
-							  Versions = [..f.Versions.Where(i => i.Version != v.Version), new ProductFieldVersion(v.Version, v.Value, v.Refs + 1)]};
+		var y = new ProductVersion {Id		= v.Id, 
+									Refs	= v.Refs + 1,
+									Fields	= v.Fields};
 	
-		r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
+		r.Versions = [..r.Versions.Where(i => i.Id != v.Id), y];
 
-		if(f.Name == ProductFieldName.Title)
-			execution.PublicationTitles.Index(p.Site, p.Id, v.AsUtf8);
+		v.ForEach(i =>	{
+							if(ProductField.IsFile(i.Name))
+							{
+								var f = execution.Files.Affect(i.AsAutoId);
+								f.Refs++;
+							}
+						});
+
+		var title = prev.Fields.FirstOrDefault(i => i.Name == ProductFieldName.Title);
+
+		if(title != null)
+			execution.PublicationTitles.Index(p.Site, p.Id, title.AsUtf8);
 
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 

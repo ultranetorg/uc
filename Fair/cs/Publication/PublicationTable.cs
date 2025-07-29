@@ -25,13 +25,11 @@ public class PublicationTable : Table<AutoId, Publication>
 		{
 			//var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
-			var f = i.Fields.FirstOrDefault(f => f.Field == ProductFieldName.Title);
+			var f = r.Versions[i.ProductVersion].Fields.FirstOrDefault(f => f.Name == ProductFieldName.Title);
 
 			if(f != null)
 			{
-				var t = r.Get(f);
-
-				e.PublicationTitles.Index(i.Site, i.Id, t.AsUtf8);
+				e.PublicationTitles.Index(i.Site, i.Id, f.AsUtf8);
 			}
 		}
 			
@@ -71,7 +69,6 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 
 		var a = Table.Create();
 		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
-		a.Fields = [];
 		a.Reviews = [];
 			
 		return Affected[a.Id] = a;
@@ -107,11 +104,11 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			Execution.Reviews.Delete(s, i);
 		}
 		
-		var f = p.Fields.FirstOrDefault(i => i.Field == ProductFieldName.Title);
+		var f = r.Versions[p.ProductVersion].Fields.FirstOrDefault(f => f.Name == ProductFieldName.Title);
 		
 		if(f != null)
 		{
-			Execution.PublicationTitles.Deindex(c.Site, Execution.Products.Find(p.Product).Get(f).AsUtf8);
+			Execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);
 		}
 
 		Execution.Free(s, s, Execution.Net.EntityLength);

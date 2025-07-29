@@ -321,7 +321,7 @@ public class Peer : IPeer, IBinarySerializable
 						rq.Peering = Peering;
 
 						lock(InRequests)
- 								InRequests.Add(rq);
+ 							InRequests.Add(rq);
 
 						#if DEBUG
 						if(InRequests.Count > 100)

@@ -61,10 +61,15 @@ public class ProposalCreation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		return	Title.Length <= Fair.TitleLengthMaximum &&
+		var e =	Title.Length <= Fair.TitleLengthMaximum &&
 				Text.Length <= Fair.PostLengthMaximum &&
 				Options.Length > 0 &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
+
+		if(!e)
+			e=e;
+
+		return e;
 	}
 
 	public override void PreTransact(McvNode node, bool sponsored, Flow flow)

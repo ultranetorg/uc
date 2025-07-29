@@ -2,7 +2,7 @@
 
 public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 {
-	public AutoId		Category {get; set;}
+	public AutoId		Category { get; set; }
 
 	public CategoryPublicationsRequest()
 	{
@@ -19,7 +19,7 @@ public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 		{
 			RequireGraph();
 
-			var e = Mcv.Categories.Find(Category, Mcv.LastConfirmedRound.Id);
+			var e = Mcv.Categories.Latest(Category);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);
@@ -31,5 +31,5 @@ public class CategoryPublicationsRequest : FairPpc<CategoryPublicationsResponse>
 
 public class CategoryPublicationsResponse : PeerResponse
 {
-	public AutoId[] Publications {get; set;}
+	public AutoId[] Publications { get; set; }
 }

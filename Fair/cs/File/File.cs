@@ -3,7 +3,8 @@
 public class File : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
-    //public int				Refs { get; set; }
+	public EntityAddress	Owner { get; set; }
+    public int				Refs { get; set; }
 	public byte[]			Data { get; set; }
 
 	public EntityId			Key => Id;
@@ -21,9 +22,13 @@ public class File : IBinarySerializable, ITableEntry
 
 	public object Clone()
 	{
-		return new File(Mcv){Id		= Id,
-							 //Refs	= Refs,
-							 Data	= Data};
+		return	new File(Mcv)
+				{
+					Id		= Id,
+					Owner	= Owner,
+					Refs	= Refs,
+					Data	= Data
+				};
 	}
 
 	public void ReadMain(BinaryReader reader)
@@ -43,14 +48,16 @@ public class File : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id		= reader.Read<AutoId>();
-		//Refs	= reader.Read7BitEncodedInt();
+		Owner	= reader.Read<EntityAddress>();
+		Refs	= reader.Read7BitEncodedInt();
 		Data	= reader.ReadBytes();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		//writer.Write7BitEncodedInt(Refs);
+		writer.Write(Owner);
+		writer.Write7BitEncodedInt(Refs);
 		writer.WriteBytes(Data);
 	}
 }

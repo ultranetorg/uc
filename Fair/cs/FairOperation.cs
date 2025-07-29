@@ -47,7 +47,7 @@ public enum FairOperationClass : uint
 
 		Publication						= 103_002,
 			PublicationCreation			= 103_002_001,
-			//PublicationApproval			= 103_002_002,
+			//PublicationApproval		= 103_002_002,
 			PublicationRemoveFromChanged= 103_002_003,
 			PublicationPublish			= 103_002_004,
 			PublicationUpdation			= 103_002_005,
@@ -67,6 +67,10 @@ public enum FairOperationClass : uint
 		ProposalComment					= 103_005,
 			ProposalCommentCreation		= 103_005_001,
 			ProposalCommentEdit			= 103_005_002,
+	
+	File								= 104, 
+		FileCreation					= 104_000_001, 
+		FileDeletion					= 104_000_999,
 } 
 
 public abstract class VotableOperation : FairOperation
@@ -90,6 +94,7 @@ public abstract class FairOperation : Operation
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
 	public const string			DoesNotBelogToSite = "Does not belong to site";
 	public const string			DoesNotSatisfy = "Does Not Satisfy";
+	public const string			NotEmptyReferencies = "Not Empty Referencies";
 
 	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
 
@@ -437,6 +442,19 @@ public abstract class FairOperation : Operation
 	//		PayEnergyBySite(execution, publication.Site);
 	//	}
 	//}
+
+	public bool CanAccessFile(FairExecution execution, AutoId id, EntityAddress owner, out File file, out string error)
+	{
+		if(!FileExists(execution, id, out file, out error))
+			return false;
+
+		if(file.Owner.Table == FairTable.Author && !CanAccessAuthor(execution, file.Owner.Id, out _, out error))
+			return false;
+		else if(file.Owner.Table == FairTable.Site && !IsModerator(execution, file.Owner.Id, out _, out error))
+			return false;
+
+		return true;
+	}
 
 	public bool FileExists(FairExecution execution, AutoId id, out File file, out string error)
 	{

@@ -50,7 +50,7 @@ public class ProductExecution : TableExecution<AutoId, Product>
   		var	p = new Product();
 
 		p.Id = LastCreatedId = new AutoId(author.Id.B, e);
-		p.Fields = []; 
+		p.Versions = []; 
 		p.Publications = [];
 
   		return Affected[p.Id] = p;

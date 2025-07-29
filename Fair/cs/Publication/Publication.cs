@@ -14,7 +14,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId							Category { get; set; }
 	//public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
-	public ProductFieldVersionReference[]	Fields { get; set; }
+	public int								ProductVersion { get; set; }
 	public AutoId[]							Reviews { get; set; }
 	public PublicationFlags					Flags { get; set; }
 	public byte								Rating { get; set; }
@@ -34,7 +34,7 @@ public class Publication : IBinarySerializable, ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Id}, Product={Product}, Category={Category}, Fields={Fields.Length}, Flags={Flags}";
+		return $"{Id}, Product={Product}, Category={Category}, ProductVersion={ProductVersion}, Flags={Flags}";
 	}
 
 	public object Clone()
@@ -44,9 +44,8 @@ public class Publication : IBinarySerializable, ITableEntry
 					Id				= Id,
 					Site			= Site,
 					Category		= Category,
-					//Creator			= Creator,
 					Product			= Product,
-					Fields			= Fields,
+					ProductVersion	= ProductVersion,
 					Reviews			= Reviews,
 					Flags			= Flags,
 					Rating			= Rating
@@ -73,7 +72,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		Site			= reader.Read<AutoId>();
 		Category		= reader.ReadNullable<AutoId>();
 		Product			= reader.Read<AutoId>();
-		Fields			= reader.ReadArray<ProductFieldVersionReference>();
+		ProductVersion	= reader.Read7BitEncodedInt();
 		Reviews			= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
 		Rating			= reader.ReadByte();
@@ -85,7 +84,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		writer.Write(Site);
 		writer.WriteNullable(Category);
 		writer.Write(Product);
-		writer.Write(Fields);
+		writer.Write7BitEncodedInt(ProductVersion);
 		writer.Write(Reviews);
 		writer.Write(Flags);
 		writer.Write(Rating);
