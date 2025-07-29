@@ -222,7 +222,7 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		if(!site.Moderators.Contains(Signer.Id))
+		if(!site.Moderators.Any(i => i.Account == Signer.Id))
 		{
 			error = Denied;
 			return false; 
@@ -236,7 +236,7 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		if(!site.Moderators.Contains(accountid))
+		if(!site.Moderators.Any(i => i.Account == accountid))
 		{
 			error = Denied;
 			return false; 

@@ -180,7 +180,7 @@ public class ProposalVoting : FairOperation
  					}
 					else if(s.IsDiscussion(c))
  					{
-						/// TODO s.Moderators
+						s.Moderators = [..s.Moderators.Where(i => i.Account != z.By), new Moderator {Account = z.By, BannedTill = execution.Time + Time.FromDays(30)}];
  					}
 					break;
  				

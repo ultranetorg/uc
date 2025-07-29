@@ -39,7 +39,7 @@ public class SiteCreation : FairOperation
 		s.Title			= Title;
 		s.PoWComplexity	= 170;
 		s.Space			= execution.Net.EntityLength;
-		s.Moderators	= [Signer.Id];
+		s.Moderators	= [new Moderator {Account = Signer.Id}];
 
 
 		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Moderator];

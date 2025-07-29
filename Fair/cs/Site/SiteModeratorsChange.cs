@@ -39,7 +39,7 @@ public class SiteModeratorsChange : VotableOperation
  	{
 		foreach(var i in Additions)
 		{
-			if(Site.Moderators.Contains(i))
+			if(Site.Moderators.Any(m => m.Account == i))
 			{	
 				error = AlreadyExists;
 				return false;
@@ -50,7 +50,7 @@ public class SiteModeratorsChange : VotableOperation
 		}
 	
 		foreach(var i in Removals)
-			if(!Site.Moderators.Contains(i))
+			if(!Site.Moderators.Any(m => m.Account == i))
 			{
 				error = NotFound;
 				return false;
@@ -64,9 +64,9 @@ public class SiteModeratorsChange : VotableOperation
 	{
  		var s = Site;
  
- 		s.Moderators = [..s.Moderators, ..Additions];
+ 		s.Moderators = [..s.Moderators, ..Additions.Select(i => new Moderator {Account = i})];
  
  		foreach(var i in Removals)
- 			s.Moderators = s.Moderators.Remove(i);
+ 			s.Moderators = s.Moderators.Remove(s.Moderators.First(m => m.Account == i));
 	}
 }

@@ -10,6 +10,24 @@ public enum Role : byte
 	None, Author, Moderator, Publisher, User
 }
 
+public class Moderator : IBinarySerializable
+{
+	public AutoId		Account { get; set; }
+	public Time			BannedTill { get; set; }
+
+	public void Read(BinaryReader reader)
+	{
+		Account		= reader.Read<AutoId>();
+		BannedTill	= reader.Read<Time>();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Account);
+		writer.Write(BannedTill);
+	}
+}
+
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
@@ -32,7 +50,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Spacetime { get; set; }
 
 	public AutoId[]					Authors { get; set; }
-	public AutoId[]					Moderators { get; set; }
+	public Moderator[]				Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
 	public AutoId[]					Proposals { get; set; }
 	public AutoId[]					UnpublishedPublications { get; set; }
@@ -59,7 +77,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
-		return Moderators[0] == signer; /// TODO : Owner only
+		return  false; /// Moderators[0] == signer; /// TODO : Owner only
 	}
 
 	public static bool IsExpired(Site a, Time time) 
@@ -158,7 +176,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
 		Authors						= reader.ReadArray<AutoId>();
-		Moderators					= reader.ReadArray<AutoId>();
+		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
