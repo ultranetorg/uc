@@ -1,6 +1,6 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
-export type PublicationProductChange = {
+export type PublicationPublish = {
   publicationId: string
-  productId: string
+  categoryId: string
 } & BaseVotableOperation
