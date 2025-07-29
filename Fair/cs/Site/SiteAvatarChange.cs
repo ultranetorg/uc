@@ -50,7 +50,7 @@ public class SiteAvatarChange : VotableOperation
 	{
 		var f = execution.Files.Affect(File);
 			
-		Site.Avatar = File;
+		Site.Avatar = f.Id;
 		f.Refs++;
 	}
 }

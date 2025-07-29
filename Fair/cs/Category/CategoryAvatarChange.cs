@@ -57,7 +57,7 @@ public class CategoryAvatarChange : VotableOperation
 		var c = execution.Categories.Affect(Category);
 		var f = execution.Files.Affect(File);
 			
-		c.Avatar = File;
+		c.Avatar = f.Id;
 		f.Refs++;
 	}
 }

@@ -39,7 +39,7 @@ public class AuthorAvatarChange : FairOperation
 		a = execution.Authors.Affect(Author);
 		f = execution.Files.Affect(File);
 			
-		a.Avatar = File;
+		a.Avatar = f.Id;
 		f.Refs++;
 
 		execution.PayCycleEnergy(a);
