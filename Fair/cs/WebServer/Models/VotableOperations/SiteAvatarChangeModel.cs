@@ -2,5 +2,5 @@
 
 public class SiteAvatarChangeModel(SiteAvatarChange operation) : BaseVotableOperationModel(operation)
 {
-	public AutoId File { get; set; } = operation.File;
+	public string FileId { get; set; } = operation.File.ToString();
 }

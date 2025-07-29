@@ -193,7 +193,7 @@ public class ProposalService
 							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
 							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 							SitePolicyChange operation => new SitePolicyChangeModel(operation),
-							SiteTextChange operation => new SiteTextModel(operation),
+							SiteTextChange operation => new SiteTextChangeModel(operation),
 							UserDeletion operation => new UserDeletionModel(operation),
 							UserRegistration operation => new UserRegistrationModel(operation),
 							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")

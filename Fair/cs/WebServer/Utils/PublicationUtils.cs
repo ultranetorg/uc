@@ -29,7 +29,6 @@ public static class PublicationUtils
 	public static AutoId? GetLogo(Publication publication, Product product) =>
 		FindProductField(publication, product, ProductFieldName.Logo)?.AsAutoId;
 
-	/// TODO
 	static ProductField? FindProductField(Publication publication, Product product, ProductFieldName fieldName)
 	{
 		var version = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion);
