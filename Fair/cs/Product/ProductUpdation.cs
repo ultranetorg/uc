@@ -5,10 +5,9 @@ namespace Uccs.Fair;
 public class ProductUpdation : FairOperation
 {
 	public AutoId				Product { get; set; }
-	public ProductFieldName		Field	{ get; set; }
-	public byte[]				Value	{ get; set; }
+	public ProductField[]		Fields	{ get; set; }
 
-	public override string		Explanation => $"{Product}, {Field}={Value.ToHex()}";
+	public override string		Explanation => $"Product={Product}, Fields={Fields.Length}";
 
 
 	public ProductUpdation()
@@ -22,7 +21,7 @@ public class ProductUpdation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		if(Value.Length > ProductField.ValueLengthMaximum)
+		if(Fields.Any(i => !i.IsValid(net)))
 			return false;
 
 		return true;
@@ -30,67 +29,58 @@ public class ProductUpdation : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Product		= reader.Read<AutoId>();
-		Field		= reader.Read<ProductFieldName>();
-		Value		= reader.ReadBytes();
+		Product	= reader.Read<AutoId>();
+		Fields	= reader.ReadArray<ProductField>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Product);
-		writer.Write(Field);
-		writer.WriteBytes(Value);
+		writer.Write(Fields);
 	}
 
 	public override void Execute(FairExecution execution)
 	{
-		var v = Value;
-
 		if(CanAccessProduct(execution, Product, out var a, out var r, out Error) == false)
 			return;
 
 		a = execution.Authors.Affect(a.Id);
 		r = execution.Products.Affect(Product);
 
-		if(Uccs.Fair.Product.IsFile(Field))
+		var v = new ProductVersion {Fields = Fields};
+
+		var f = v.Find(i =>	{
+								if(ProductField.IsFile(i.Name))
+								{	
+									var x = execution.Files.Find(i.AsAutoId);
+
+									if(x == null)
+										return true;
+ 								}
+
+								return false;
+							});
+		if(f != null)
 		{
-			var x = execution.Files.Create(Product);
-			x.Data = v;
-			v = x.Id.Raw;
+			Error = NotFound;
+			return;
 		}
 
-		var f = r.Fields.FirstOrDefault(j => j.Name == Field);
+		if(r.Versions.Any() && r.Versions.Last().Refs == 0)
+		{
+			execution.Free(a, a, r.Versions.Last().Size);
 
-		if(f == null)
-		{	
-			f = new ProductField {Name = Field, Versions = [new ProductFieldVersion {Value = v, Version = 0}]};
-			r.Fields = [..r.Fields, f];
+			v.Id = r.Versions.Last().Id;
+			r.Versions = [..r.Versions[..^1], v];
 		}
 		else
-		{
-			f = new ProductField {Name = f.Name, Versions = f.Versions};
-			r.Fields = [..r.Fields.Where(i => i.Name != f.Name), f];
-
-			if(f.Versions.Last().Refs == 0)
-			{
-				if(Uccs.Fair.Product.IsFile(Field))
-				{
-					var fid = new AutoId();
-					fid.Read(new BinaryReader(new MemoryStream(f.Versions.Last().Value)));
-					var p = execution.Files.Affect(fid);
-
-					p.Deleted = true;
-				}
-
-				execution.Free(a, a, f.Versions.Last().Value.Length);
-
-				f.Versions = [..f.Versions[..^1], new ProductFieldVersion {Value = v, Version = f.Versions.Last().Version}];
-			}
-			else
-				f.Versions = [..f.Versions, new ProductFieldVersion {Value = v, Version = f.Versions.Length}];
+		{	
+			v.Id = r.Versions.Length == 0 ? 0 : r.Versions.Last().Id + 1;
+			r.Versions = [..r.Versions, v];
 		}
 
-		execution.Allocate(a, a, v.Length);
+		execution.Allocate(a, a, r.Versions.Last().Size);
+
 
 		foreach(var p in r.Publications)
 		{

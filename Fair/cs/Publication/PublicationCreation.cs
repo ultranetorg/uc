@@ -75,6 +75,7 @@ public class PublicationCreation : VotableOperation
 
 		var p = execution.Publications.Create(Site);
 
+
 //		var p =	execution.Publications.Affect(Publication);
 //
 //		if(p.Category == null)
@@ -104,11 +105,15 @@ public class PublicationCreation : VotableOperation
 //			PayEnergyBySite(execution, s.Id);
 //		}
 
-		p.Site		= Site.Id;
-		p.Product	= r.Id;
+		var v = r.Versions.Last();
+
+		p.Site				= Site.Id;
+		p.Product			= r.Id;
+		p.ProductVersion	= v.Id;
 		//p.Creator	= Signer.Id;
-	
-		r.Publications = [..r.Publications, p.Id];
+
+		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs+1}];
+		r.Publications	= [..r.Publications, p.Id];
 
 		Site.PublicationsCount++;
 
@@ -135,10 +140,10 @@ public class PublicationCreation : VotableOperation
 		//	s.PublicationsCount++;
 		//}
 
-		var tr = p.Fields.FirstOrDefault(i => i.Field == ProductFieldName.Title);
+		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == ProductFieldName.Title);
 			
 		if(tr != null)
-			execution.PublicationTitles.Index(Site.Id, p.Id, r.Get(tr).AsUtf8);
+			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
 
 		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}

@@ -5,10 +5,10 @@ public class EntityAddress : IBinarySerializable
 	public AutoId		Id { get; set; }
 	public FairTable	Table { get; set; }
 
-	public EntityAddress(AutoId id, FairTable table)
+	public EntityAddress(FairTable table, AutoId id)
 	{
-		Id = id;
 		Table = table;
+		Id = id;
 	}
 
 	public EntityAddress()
@@ -18,6 +18,12 @@ public class EntityAddress : IBinarySerializable
 	public override string ToString()
 	{
 		return $"{Table}/{Id}";
+	}
+
+	public static EntityAddress Parse(string text)
+	{
+		var i = text.IndexOf('/');
+		return new EntityAddress(Enum.Parse<FairTable>(text.Substring(0, i)), AutoId.Parse(text.Substring(i + 1)));
 	}
 
 	public void Read(BinaryReader reader)

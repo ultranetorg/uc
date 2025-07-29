@@ -220,6 +220,20 @@ public static class Extentions
 			return default;
 	}
 
+	public static void WriteNullable(this BinaryWriter w, IBinarySerializable o)
+	{
+		w.Write(o != null);
+
+		if(o != null)
+		{
+			if(o is ITypeCode c)
+				//w.Write(ITypeCode.Codes[o.GetType()]);
+				Debugger.Break();
+					
+			o.Write(w);
+		}
+	}
+
 	//public static T ReadVirtual<T>(this BinaryReader r) where T : IBinarySerializable, ITypeCode
 	//{
 	//	var o = (T)ITypeCode.Contructors[typeof(T)][r.ReadByte()].Invoke(null);
@@ -240,20 +254,6 @@ public static class Extentions
 			Debugger.Break();
 
 		o.Write(w);
-	}
-
-	public static void WriteNullable(this BinaryWriter w, IBinarySerializable o)
-	{
-		w.Write(o != null);
-
-		if(o != null)
-		{
-			if(o is ITypeCode c)
-				//w.Write(ITypeCode.Codes[o.GetType()]);
-				Debugger.Break();
-					
-			o.Write(w);
-		}
 	}
 
 	public static void Write<T>(this BinaryWriter w, IEnumerable<T> items, Action<T> a)

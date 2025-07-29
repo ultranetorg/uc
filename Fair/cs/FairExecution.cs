@@ -181,28 +181,28 @@ public class FairExecution : Execution
 // 		}
 	}
 
-	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
-	{
-		if(current != null)
-		{
-			var p = Files.Affect(current); /// previous
-			p.Deleted = true;
-			
-			Free(holder, consumer, p.Data.Length);
-		}
-
-		File f = null;
-
-		if(data != null)
-		{
-			f = Files.Create(creator);
-			f.Data = data;
-
-			Allocate(holder, consumer, f.Data.Length);
-		}
-
-		return f;
-	 }
+//	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
+//	{
+//		if(current != null)
+//		{
+//			var p = Files.Affect(current); /// previous
+//			p.Deleted = true;
+//			
+//			Free(holder, consumer, p.Data.Length);
+//		}
+//
+//		File f = null;
+//
+//		if(data != null)
+//		{
+//			f = Files.Create(creator);
+//			f.Data = data;
+//
+//			Allocate(holder, consumer, f.Data.Length);
+//		}
+//
+//		return f;
+//	 }
 
 //	public void Allocate(Execution execution, int space)
 //	{

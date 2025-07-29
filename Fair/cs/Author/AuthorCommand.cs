@@ -110,11 +110,11 @@ public class AuthorCommand : FairCommand
 								
 								if(Has(addowner))
 								{
-									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
+									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetAutoId(addowner)};
 								}
 								if(Has(removeowner))
 								{
-									return new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetEntityId(addowner)};
+									return new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetAutoId(addowner)};
 								}
 								else
 									throw new SyntaxException("Unknown parameters");
@@ -150,17 +150,17 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 		
-		var path = "path";
+		var file = "file";
 
 		a.Name = "avatar";
 		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {path}={PATH} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {file}={EID} {SignerArg}={AA}",
 
 						Arguments =	[new ("<first>", "Id of a author to update"),
-									 new (path, "A path to image file"),
+									 new (file, "A file"),
 									 new (SignerArg, "Address of account that is author's owner")],
 
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]};
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {file}={EID.Example1} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -168,7 +168,7 @@ public class AuthorCommand : FairCommand
 								return	new AuthorAvatarChange
 										{
 											Author = FirstAuthorId,
-											Image = System.IO.File.ReadAllBytes(GetString(path))
+											File = GetAutoId(file)
 										}; 
 							};
 		return a;

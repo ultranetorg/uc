@@ -29,16 +29,11 @@ public static class PublicationUtils
 	public static AutoId? GetLogo(Publication publication, Product product) =>
 		FindProductField(publication, product, ProductFieldName.Logo)?.AsAutoId;
 
-
-	static ProductFieldVersion? FindProductField(Publication publication, Product product, ProductFieldName fieldName)
+	/// TODO
+	static ProductField? FindProductField(Publication publication, Product product, ProductFieldName fieldName)
 	{
-		int index = Array.FindIndex(publication.Fields, x => x.Field == fieldName);
-		if (index == -1)
-		{
-			return null;
-		}
+		var version = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion);
 
-		int version = publication.Fields[index].Version;
-		return product.Fields.First(x => x.Name == fieldName).Versions.First(x => x.Version == version);
+		return version.Fields.FirstOrDefault(x => x.Name == fieldName);
 	}
 }

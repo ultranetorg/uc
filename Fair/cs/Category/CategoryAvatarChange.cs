@@ -3,9 +3,9 @@
 public class CategoryAvatarChange : VotableOperation
 {
 	public AutoId				Category { get; set; } 
-	public byte[]				Image { get; set; }
+	public AutoId				File { get; set; }
 
-	public override string		Explanation => $"Category={Category} Image={Image?.Length}";
+	public override string		Explanation => $"Category={Category}, File={File}";
 	
 	public CategoryAvatarChange ()
 	{
@@ -18,14 +18,14 @@ public class CategoryAvatarChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Category	= reader.Read<AutoId>();
-		Image		= reader.ReadBytes();
+		Category= reader.Read<AutoId>();
+		File	= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Category);
-		writer.WriteBytes(Image);
+		writer.Write(File);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -40,7 +40,10 @@ public class CategoryAvatarChange : VotableOperation
 		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
 
-		if(c.Site != Site.Id)
+		if(!FileExists(execution, File, out var f, out error))
+			return false;
+
+		if(f.Owner.Id != Site.Id || f.Owner.Table != FairTable.Site)
 		{
 			error = DoesNotBelogToSite;
 			return false;
@@ -52,9 +55,9 @@ public class CategoryAvatarChange : VotableOperation
 	public override void Execute(FairExecution execution)
 	{
 		var c = execution.Categories.Affect(Category);
+		var f = execution.Files.Affect(File);
 			
-		var f = execution.AllocateFile(c.Id, c.Avatar, Site, Site, Image);
-
-		c.Avatar = f?.Id;
+		c.Avatar = File;
+		f.Refs++;
 	}
 }

@@ -130,7 +130,7 @@ public abstract class McvCommand : NetCommand
 			return ActionOnResult.RetryUntilConfirmed;
 	}
 
-	protected AutoId GetEntityId(string paramenter)
+	protected AutoId GetAutoId(string paramenter)
 	{
 		var p = One(paramenter);
 

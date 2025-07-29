@@ -38,8 +38,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					UnpublishedPublications { get; set; }
 	public AutoId[]					ChangedPublications { get; set; }
 	public AutoId[]					ChangedReviews { get; set; }
-	public AutoId[]					Files  { get; set; }
-	public AutoId[]					Users  { get; set; }
+	public AutoId[]					Files { get; set; }
+	public AutoId[]					Users { get; set; }
 
 	public int						PublicationsCount { get; set; }
 	public int						AuthorRequestFee { get; set; }

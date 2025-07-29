@@ -3,9 +3,9 @@
 public class AuthorAvatarChange : FairOperation
 {
 	public AutoId				Author { get; set; } 
-	public byte[]				Image { get; set; }
+	public AutoId				File { get; set; }
 
-	public override string		Explanation => $"Image={Image?.Length}";
+	public override string		Explanation => $"Author={Author}, File={File}";
 	
 	public AuthorAvatarChange ()
 	{
@@ -19,13 +19,13 @@ public class AuthorAvatarChange : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Author	= reader.Read<AutoId>();
-		Image	= reader.ReadBytes();
+		File	= reader.Read<AutoId>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
-		writer.WriteBytes(Image);
+		writer.Write(File);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -33,11 +33,14 @@ public class AuthorAvatarChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		a = execution.Authors.Affect(Author);
-			
-		var f = execution.AllocateFile(a.Id, a.Avatar, a, a, Image);
+		if(!CanAccessFile(execution, File, new EntityAddress(FairTable.Author, Author), out var f, out Error))
+			return;
 
-		a.Avatar = f?.Id;
+		a = execution.Authors.Affect(Author);
+		f = execution.Files.Affect(File);
+			
+		a.Avatar = File;
+		f.Refs++;
 
 		execution.PayCycleEnergy(a);
 	}
