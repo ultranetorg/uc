@@ -45,12 +45,6 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		v.Deleted = true;
 		
 		Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.Text));
-		
-		if(v.TextNew.Length > 0)
-		{
-			Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.TextNew));
-		}
-
 		Execution.Free(site, site, Execution.Net.EntityLength);
 	}
 }

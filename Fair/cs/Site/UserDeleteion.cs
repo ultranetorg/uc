@@ -53,7 +53,5 @@ public class UserDeletion : VotableOperation
 		{
 			execution.FreeForever(s, execution.Net.EntityLength);
 		}
-
-		execution.PayCycleEnergy(s);
 	}
 }

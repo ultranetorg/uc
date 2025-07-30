@@ -5,7 +5,6 @@ public class ModeratorReviewModel
 	public string Id { get; set; }
 
 	public string Text { get; set; }
-	public string TextNew { get; set; }
 
 	public byte Rating { get; set; }
 
@@ -19,7 +18,6 @@ public class ModeratorReviewModel
 	{
 		Id = review.Id.ToString();
 		Text = review.Text;
-		TextNew = review.TextNew;
 		Rating = review.Rating;
 		Created = review.Created.Days;
 

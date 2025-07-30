@@ -186,7 +186,7 @@ public class ProposalService
 							PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
 							PublicationUpdation operation => new PublicationUpdationModel(operation),
 							ReviewCreation operation => new ReviewCreationModel(operation),
-							ReviewEditModeration operation => new ReviewEditModerationModel(operation),
+							//ReviewEditModeration operation => new ReviewEditModerationModel(operation),
 							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
