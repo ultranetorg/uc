@@ -84,7 +84,6 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		s.ApprovalPolicies = [];
 		s.UnpublishedPublications = [];
 		s.ChangedPublications = [];
-		s.ChangedReviews = [];
 		s.Nickname = "";
 		s.Files = [];
 		s.Description = "";

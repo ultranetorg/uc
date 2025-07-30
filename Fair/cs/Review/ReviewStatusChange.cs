@@ -41,29 +41,6 @@ public class ReviewStatusChange : VotableOperation
 	{
 		var v = execution.Reviews.Affect(Review);
 
-		Publication p;
-
-		if(Status == ReviewStatus.Accepted)
-		{
-			p = execution.Publications.Affect(v.Publication);
-			p.Rating = (byte)((p.Rating + v.Rating)/2);
-		}
-		else
-			p = execution.Publications.Find(v.Publication);
-	
-		//PayEnergyForModeration(execution, a, execution.Sites.Affect(Site.Id));
-
-		if(v.Status == ReviewStatus.Pending)
-		{
-			if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-			{ 
-				var r = execution.Products.Find(p.Product);
-				var a = execution.Authors.Affect(r.Author);
-			
-				RewardForModeration(execution, a, Site);
-			}
-		}
-
 		v.Status = Status;
 	}
 }

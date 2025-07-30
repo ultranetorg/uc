@@ -73,10 +73,10 @@ internal class SearchUtils
 			return true;
 		}
 
-		if (review.TextNew?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
-		{
-			return true;
-		}
+		//if (review.TextNew?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		//{
+		//	return true;
+		//}
 
 		string rating = review.Rating.ToString();
 		if ( rating == search)

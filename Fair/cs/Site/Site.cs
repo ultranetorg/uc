@@ -7,7 +7,7 @@ public enum ApprovalPolicy : byte
 
 public enum Role : byte
 {
-	None, Author, Moderator, Publisher, User
+	None, Author, Moderator, Citizen, User
 }
 
 public class Moderator : IBinarySerializable
@@ -70,7 +70,6 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					Proposals { get; set; }
 	public AutoId[]					UnpublishedPublications { get; set; }
 	public AutoId[]					ChangedPublications { get; set; }
-	public AutoId[]					ChangedReviews { get; set; }
 	public AutoId[]					Files { get; set; }
 	public AutoId[]					Users { get; set; }
 
@@ -146,7 +145,6 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Proposals				= Proposals,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
-					ChangedReviews			= ChangedReviews,
 					Files					= Files,
 					Users					= Users
 				};
@@ -200,7 +198,6 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Proposals					= reader.ReadArray<AutoId>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
-		ChangedReviews				= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
@@ -234,7 +231,6 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Proposals);
 		writer.Write(UnpublishedPublications);
 		writer.Write(ChangedPublications);
-		writer.Write(ChangedReviews);
 		writer.Write(Files);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);

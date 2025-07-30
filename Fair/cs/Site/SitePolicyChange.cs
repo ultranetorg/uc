@@ -3,7 +3,7 @@
 public class SitePolicyChange : VotableOperation
 {
 	public FairOperationClass	Change { get; set; }
-	public ApprovalPolicy			Policy { get; set; }
+	public ApprovalPolicy		Policy { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Policy}";

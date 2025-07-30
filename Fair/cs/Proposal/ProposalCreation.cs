@@ -66,9 +66,6 @@ public class ProposalCreation : FairOperation
 				Options.Length > 0 &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
 
-		if(!e)
-			e=e;
-
 		return e;
 	}
 
@@ -139,7 +136,7 @@ public class ProposalCreation : FairOperation
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Publisher)
+		if(As == Role.Citizen && s.CreationPolicies[c].Contains(Role.Citizen))
  		{
 			if(!CanAccessAuthor(execution, By, out _, out Error))
 				return;
@@ -217,7 +214,7 @@ public class ProposalCreation : FairOperation
  			{
  				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
  			}
-			else if(As == Role.Publisher || As == Role.Author)
+			else if(As == Role.Citizen || As == Role.Author)
  			{
 				var a = execution.Authors.Affect(By);
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));

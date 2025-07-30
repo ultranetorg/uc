@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class ReviewEdit : FairOperation
+public class ReviewEdit : VotableOperation
 {
 	public AutoId				Review { get; set; }
 	public string				Text { get; set; }
@@ -26,21 +26,38 @@ public class ReviewEdit : FairOperation
 		writer.WriteUtf8(Text);
 	}
 
+	public override bool Overlaps(VotableOperation other)
+	{
+		var o = other as ReviewEdit;
+
+		return Review == o.Review && o.Signer.Id == Signer.Id;
+	}
+	
+	 public override bool ValidateProposal(FairExecution execution, out string error)
+	{
+		if(!IsReviewOwner(execution, Review, Signer, out var _, out error))
+			return false;
+
+		return true;
+	}
+
 	public override void Execute(FairExecution execution)
 	{
-		if(!IsReviewOwner(execution, Review, Signer, out var r, out Error))
-			return;
-
-		r = execution.Reviews.Affect(Review);
+		var r = execution.Reviews.Affect(Review);
 		var p = execution.Publications.Affect(r.Publication);
 		var s = execution.Sites.Affect(p.Site);
 
-		execution.Free(s, s, Encoding.UTF8.GetByteCount(r.TextNew));
+		execution.Free(s, s, Encoding.UTF8.GetByteCount(r.Text));
 		execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
 
-		r.TextNew = Text;
+		r.Text = Text;
 
-		if(!s.ChangedReviews.Contains(r.Id))
-			s.ChangedReviews = [..s.ChangedReviews, r.Id];
+		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{ 
+			var x = execution.Products.Find(p.Product);
+			var a = execution.Authors.Affect(x.Author);
+			
+			RewardForModeration(execution, a, Site);
+		}
 	}
 }

@@ -7,7 +7,6 @@ public class ModeratorReviewModel
 	public string Id { get; set; }
 
 	public string Text { get; set; }
-	public string TextNew { get; set; }
 
 	public byte Rating { get; set; }
 
@@ -22,7 +21,6 @@ public class ModeratorReviewModel
 		Id = operation.Id.ToString();
 
 		Text = review.Text;
-		TextNew = operation.Text;
 		Rating = review.Rating;
 		Created = review.Created.Days;
 		PublicationId = review.Publication.ToString();

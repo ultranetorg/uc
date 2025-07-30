@@ -126,17 +126,16 @@ public class ReviewsService
 						return;
 
 					Review review = mcv.Reviews.Latest(reviewId);
-					if (review.Status == ReviewStatus.Pending && SearchUtils.IsMatch(review, context.Search))
-					{
-						if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-						{
-							FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
-							ModeratorReviewModel model = new(review, account);
-							context.Items.Add(model);
-						}
-
-						++context.TotalItems;
-					}
+					///if (review.Status == ReviewStatus.Pending && SearchUtils.IsMatch(review, context.Search))
+					///{
+					///	if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+					///	{
+					///		ModeratorReviewModel model = new (review);
+					///		context.Items.Add(model);
+					///	}
+					///
+					///	++context.TotalItems;
+					///}
 				}
 			}
 

@@ -8,9 +8,8 @@ public class ReviewCreation : VotableOperation
 	public string				Text { get; set; }
 	public byte					Rating { get; set; }
 
-	public override string		Explanation => $"Publication={Publication} Rating={Rating} Text={Text}";
-
 	public override bool		IsValid(McvNet net) => Text.Length <= Fair.PostLengthMaximum && Rating <= 100;
+	public override string		Explanation => $"Publication={Publication} Rating={Rating} Text={Text}";
 
 	public override void Read(BinaryReader reader)
 	{
@@ -47,19 +46,25 @@ public class ReviewCreation : VotableOperation
 
 		v.Publication	= Publication;
 		v.Creator		= Signer.Id;
-		v.Status		= ReviewStatus.Pending;
+		v.Status		= ReviewStatus.Accepted;
 		v.Rating		= Rating;
-		v.Text			= "";
-		v.TextNew		= Text;
+		v.Text			= Text;
 		v.Created		= execution.Time;
 
 		var p = execution.Publications.Affect(Publication);
 		p.Reviews = [..p.Reviews, v.Id];
-
-		Site.ChangedReviews = [..Site.ChangedReviews, v.Id];
+		p.Rating = (byte)((p.Rating + v.Rating)/2);
 
 		Signer.Reviews = [..Signer.Reviews, v.Id];
 
 		execution.Allocate(Site, Site, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+
+		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{ 
+			var x = execution.Products.Find(p.Product);
+			var a = execution.Authors.Affect(x.Author);
+			
+			RewardForModeration(execution, a, Site);
+		}
 	}
 }

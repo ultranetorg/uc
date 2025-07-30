@@ -3,7 +3,6 @@
 public enum ReviewStatus : byte
 {
 	None,
-	Pending,
 	Accepted,
 	Rejected,
 }
@@ -34,7 +33,6 @@ public class Review : IBinarySerializable, ITableEntry
 	public ReviewStatus		Status { get; set; }
 	public byte				Rating { get; set; }
     public string			Text { get; set; }
-    public string			TextNew { get; set; }
     public Time	    		Created { get; set; }
 
 	public EntityId			Key => Id;
@@ -58,7 +56,6 @@ public class Review : IBinarySerializable, ITableEntry
 								Status		= Status,
 								Rating		= Rating,
 								Text		= Text,
-								TextNew		= TextNew,
 								Created		= Created};
 	}
 		
@@ -85,7 +82,6 @@ public class Review : IBinarySerializable, ITableEntry
 		Status		= reader.Read<ReviewStatus>();
 		Rating		= reader.ReadByte();
 		Text		= reader.ReadString();
-		TextNew		= reader.ReadString();
 		Created		= reader.Read<Time>();
 	}
 
@@ -97,7 +93,6 @@ public class Review : IBinarySerializable, ITableEntry
 		writer.Write(Status);
 		writer.Write(Rating);
 		writer.Write(Text);
-		writer.Write(TextNew);
 		writer.Write(Created);
 	}
 }
