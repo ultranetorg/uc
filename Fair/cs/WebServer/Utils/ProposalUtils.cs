@@ -8,10 +8,5 @@ public static class ProposalUtils
 	public static bool IsDiscussion(Site site, Proposal proposal) =>
 		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
 
-	public static bool IsReviewOperation(Proposal proposal)
-	{
-		VotableOperation operation = proposal.Options[0].Operation;
-
-		return operation.GetType() == typeof(ReviewCreation) || operation.GetType() == typeof(ReviewEdit);
-	}
+	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
 }

@@ -9,7 +9,7 @@ public class ReviewsService
 	FairMcv mcv
 ) : IReviewsService
 {
-	public TotalItemsResult<ModeratorReviewModel> GetModeratorReviewProposalsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<ModeratorReviewModel> GetModeratorReviewProposalsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorReviewProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
@@ -27,22 +27,7 @@ public class ReviewsService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadReviewProposalsPaged(site);
-
-			//var context = new Context
-			//{
-			//	Page = page,
-			//	PageSize = pageSize,
-			//	Search = search,
-			//	Items = new List<ModeratorReviewModel>(pageSize),
-			//};
-			//LoadReviewsRecursively(site.Categories, context, canellationToken);
-
-			//return new TotalItemsResult<ModeratorReviewModel>
-			//{
-			//	Items = context.Items,
-			//	TotalItems = context.TotalItems
-			//};
+			return LoadReviewProposalsPaged(site, page, pageSize, search, cancellationToken);
 		}
 	}
 
@@ -73,8 +58,17 @@ public class ReviewsService
 			{
 				FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
 
+				ModeratorReviewModel model = null;
+				if (proposal.Options[0].Operation is ReviewCreation reviewCreation)
+				{
+					model = new ModeratorReviewModel(proposal, reviewCreation, account);
+				}
+				else if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
+				{
+					Review review = mcv.Reviews.Latest(reviewEdit.Review);
+					model = new ModeratorReviewModel(reviewEdit, review, account);
+				}
 
-				ModeratorReviewModel model = new ModeratorReviewModel()
 				items.Add(model);
 			}
 
@@ -82,65 +76,6 @@ public class ReviewsService
 		}
 
 		return new TotalItemsResult<ModeratorReviewModel> {Items = items, TotalItems = totalItems};
-	}
-
-	TotalItemsResult<ModeratorReviewModel> ToTotalItemsResult(IList<Proposal> proposals, int totalItems)
-	{
-		//IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
-		//foreach(Proposal proposal in proposals)
-		//{
-		//	FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
-		//	ProposalModel model = new ProposalModel(proposal, account); ;
-		//	result.Add(model);
-		//}
-
-		//return new TotalItemsResult<ModeratorReviewModel>
-		//{
-		//	Items = result,
-		//	TotalItems = totalItems
-		//};
-
-		return null;
-	}
-
-	private void LoadReviewsRecursively(IEnumerable<AutoId> categoriesIds, Context context, CancellationToken cancellationToken)
-	{
-		if (cancellationToken.IsCancellationRequested)
-			return;
-
-		foreach (var categoryId in categoriesIds)
-		{
-			if (cancellationToken.IsCancellationRequested)
-				return;
-
-			Category category = mcv.Categories.Latest(categoryId);
-			foreach (var publicationId in category.Publications)
-			{
-				if (cancellationToken.IsCancellationRequested)
-					return;
-
-				Publication publication = mcv.Publications.Latest(publicationId);
-				foreach (var reviewId in publication.Reviews)
-				{
-					if (cancellationToken.IsCancellationRequested)
-						return;
-
-					Review review = mcv.Reviews.Latest(reviewId);
-					///if (review.Status == ReviewStatus.Pending && SearchUtils.IsMatch(review, context.Search))
-					///{
-					///	if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-					///	{
-					///		ModeratorReviewModel model = new (review);
-					///		context.Items.Add(model);
-					///	}
-					///
-					///	++context.TotalItems;
-					///}
-				}
-			}
-
-			LoadReviewsRecursively(category.Categories, context, cancellationToken);
-		}
 	}
 
 	public ModeratorReviewDetailsModel GetModeratorReview(string reviewId)
@@ -160,7 +95,8 @@ public class ReviewsService
 			}
 
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
-			return new ModeratorReviewDetailsModel(review, account);
+			// TODO: fix.
+			return null;
 		}
 	}
 
