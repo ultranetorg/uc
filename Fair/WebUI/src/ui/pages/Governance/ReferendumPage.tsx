@@ -20,7 +20,7 @@ export const ReferendumPage = () => {
       <GovernanceModerationHeader
         siteId={siteId!}
         title={t("title", { referendumId })}
-        parentBreadcrumb={{ path: `/${siteId}/a-r`, title: t("referendums:title") }}
+        parentBreadcrumb={{ path: `/${siteId}/g`, title: t("referendums:title") }}
         homeLabel={t("common:home")}
       />
       <div className="flex gap-8">

@@ -50,7 +50,7 @@ public class ProposalService
 			}
 
 			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if (discussionOrReferendums != IsProposalIsDiscussion(site, proposal))
+			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal))
 			{
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
@@ -133,7 +133,7 @@ public class ProposalService
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
-			if (discussionsOrReferendums != IsProposalIsDiscussion(site, proposal))
+			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal))
 			{
 				continue;
 			}
@@ -199,8 +199,4 @@ public class ProposalService
 							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 						};
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
 }

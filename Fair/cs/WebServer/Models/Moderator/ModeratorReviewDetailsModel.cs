@@ -1,13 +1,5 @@
 ﻿namespace Uccs.Fair;
 
-public class ModeratorReviewDetailsModel : ModeratorReviewModel
+public class ModeratorReviewDetailsModel(Review review, FairAccount creator) : ModeratorReviewModel(review, creator)
 {
-	public string AccountAddress { get; set; }
-	public string AccountNickname { get; set; }
-
-	public ModeratorReviewDetailsModel(Review review, FairAccount account) : base(review)
-	{
-		AccountAddress = account.Address.ToString();
-		AccountNickname = account.Nickname;
-	}
 }

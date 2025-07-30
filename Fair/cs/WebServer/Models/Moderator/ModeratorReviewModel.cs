@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
+
+namespace Uccs.Fair;
 
 public class ModeratorReviewModel
 {
@@ -13,18 +15,31 @@ public class ModeratorReviewModel
 
 	public string PublicationId { get; set; }
 
-	public string AccountId { get; set; }
+	public AccountBaseModel Creator { get; set; }
 
-	public ModeratorReviewModel(Review review)
+	public ModeratorReviewModel(ReviewEdit operation, Review review, FairAccount creator)
 	{
-		Id = review.Id.ToString();
+		Id = operation.Id.ToString();
+
 		Text = review.Text;
-		TextNew = review.TextNew;
+		TextNew = operation.Text;
 		Rating = review.Rating;
 		Created = review.Created.Days;
-
 		PublicationId = review.Publication.ToString();
 
-		AccountId = review.Creator.ToString();
+		Creator = new AccountBaseModel(creator);
+	}
+
+	public ModeratorReviewModel(Proposal proposal, ReviewCreation operation, FairAccount creator)
+	{
+		Id = operation.Id.ToString();
+
+		Text = operation.Text;
+		TextNew = operation.Text;
+		Rating = operation.Rating;
+		Created = proposal.CreationTime.Days;
+		PublicationId = operation.Publication.ToString();
+
+		Creator = new AccountBaseModel(creator);
 	}
 }

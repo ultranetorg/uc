@@ -12,6 +12,10 @@ export const enUS = {
     noVotes: "No votes",
     yes: "Yes",
     yesVotes: "Yes votes",
+    daysLeft: "Days Left",
+    createdBy: "Created By",
+    options: "Options",
+    title: "Title",
   },
   about: {
     about: "About",
@@ -30,6 +34,17 @@ export const enUS = {
     grid: "Grid View",
     list: "List View",
     resetAll: "Reset all",
+  },
+  discussions: {
+    searchProposal: "Search discussion",
+    noProposals: "No open discussions",
+  },
+  moderation: {
+    discussions: "Discussions",
+    publications: "Publications",
+    reviews: "Reviews",
+    title: "Moderation",
+    userRegistrations: "User registrations",
   },
   profile: {
     authors: "My authors",
@@ -73,13 +88,10 @@ export const enUS = {
     votingTitle: "Current voting results",
   },
   referendums: {
-    createdBy: "Created By:",
-    daysLeft: "Days Left",
-    options: "Options",
     createReferendum: "Create referendum",
-    noReferendums: "No open referendums",
-    searchReferendum: "Search referendum",
-    title: "Governance",
+    searchProposal: "Search referendum",
+    noProposals: "No open referendums",
+    title: "Referendums",
   },
   search: {
     allAuthors: "All authors",

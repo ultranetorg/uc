@@ -1,1 +1,1 @@
-export * from "./referendums"
+export * from "./proposals"

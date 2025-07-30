@@ -9,9 +9,9 @@ public class ReviewsService
 	FairMcv mcv
 ) : IReviewsService
 {
-	public TotalItemsResult<ModeratorReviewModel> GetModeratorsReviewsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<ModeratorReviewModel> GetModeratorReviewProposalsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorsReviewsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorReviewProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page, nameof(page));
@@ -27,21 +27,80 @@ public class ReviewsService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var context = new Context
-			{
-				Page = page,
-				PageSize = pageSize,
-				Search = search,
-				Items = new List<ModeratorReviewModel>(pageSize),
-			};
-			LoadReviewsRecursively(site.Categories, context, canellationToken);
+			return LoadReviewProposalsPaged(site);
 
-			return new TotalItemsResult<ModeratorReviewModel>
-			{
-				Items = context.Items,
-				TotalItems = context.TotalItems
-			};
+			//var context = new Context
+			//{
+			//	Page = page,
+			//	PageSize = pageSize,
+			//	Search = search,
+			//	Items = new List<ModeratorReviewModel>(pageSize),
+			//};
+			//LoadReviewsRecursively(site.Categories, context, canellationToken);
+
+			//return new TotalItemsResult<ModeratorReviewModel>
+			//{
+			//	Items = context.Items,
+			//	TotalItems = context.TotalItems
+			//};
 		}
+	}
+
+	private TotalItemsResult<ModeratorReviewModel> LoadReviewProposalsPaged(Site site, int page, int pageSize, string? query, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<ModeratorReviewModel>.Empty;
+
+		var items = new List<ModeratorReviewModel>(pageSize);
+		int totalItems = 0;
+
+		foreach(var proposalId in site.Proposals)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return new TotalItemsResult<ModeratorReviewModel> {Items = items, TotalItems = totalItems};
+
+			Proposal proposal = mcv.Proposals.Latest(proposalId);
+			if (!ProposalUtils.IsDiscussion(site, proposal))
+			{
+				continue;
+			}
+			if (!ProposalUtils.IsReviewOperation(proposal) || !SearchUtils.IsMatch(proposal, query))
+			{
+				continue;
+			}
+
+			if(totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
+			{
+				FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
+
+
+				ModeratorReviewModel model = new ModeratorReviewModel()
+				items.Add(model);
+			}
+
+			++totalItems;
+		}
+
+		return new TotalItemsResult<ModeratorReviewModel> {Items = items, TotalItems = totalItems};
+	}
+
+	TotalItemsResult<ModeratorReviewModel> ToTotalItemsResult(IList<Proposal> proposals, int totalItems)
+	{
+		//IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
+		//foreach(Proposal proposal in proposals)
+		//{
+		//	FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
+		//	ProposalModel model = new ProposalModel(proposal, account); ;
+		//	result.Add(model);
+		//}
+
+		//return new TotalItemsResult<ModeratorReviewModel>
+		//{
+		//	Items = result,
+		//	TotalItems = totalItems
+		//};
+
+		return null;
 	}
 
 	private void LoadReviewsRecursively(IEnumerable<AutoId> categoriesIds, Context context, CancellationToken cancellationToken)
@@ -71,7 +130,8 @@ public class ReviewsService
 					{
 						if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 						{
-							ModeratorReviewModel model = new (review);
+							FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
+							ModeratorReviewModel model = new(review, account);
 							context.Items.Add(model);
 						}
 
