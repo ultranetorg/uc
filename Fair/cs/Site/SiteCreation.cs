@@ -86,8 +86,8 @@ public class SiteCreation : FairOperation
 		s.ApprovalPolicies[FairOperationClass.PublicationRemoveFromChanged]	= ApprovalPolicy.AnyModerator;
 
 		s.ApprovalPolicies[FairOperationClass.ReviewCreation]				= ApprovalPolicy.AnyModerator;
+		s.ApprovalPolicies[FairOperationClass.ReviewEdit]					= ApprovalPolicy.AnyModerator;
 		s.ApprovalPolicies[FairOperationClass.ReviewStatusChange]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.ReviewEditModeration]			= ApprovalPolicy.AnyModerator;
 
 
 		Signer.ModeratedSites = [..Signer.ModeratedSites, s.Id];
