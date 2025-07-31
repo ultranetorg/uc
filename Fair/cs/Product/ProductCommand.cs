@@ -75,7 +75,7 @@ public class ProductCommand : FairCommand
 								var	r = Ppc(new ProductRequest(First)).Product;
 
 								if(Has(definition))
-									o.Fields = Product.ParseDefinition(Field.FindDefinidion(r.Type), GetString(definition));
+									o.Fields = Product.ParseDefinition(Product.FindDefinidion(r.Type), GetString(definition));
 
 								return o;
 							};

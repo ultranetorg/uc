@@ -58,7 +58,7 @@ public class PublicationUpdation : VotableOperation
 		var v = r.Versions.First(i => i.Id == Version);
 		var prev = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion);
 
-		var d = Field.FindDefinidion(r.Type);
+		var d = Product.FindDefinidion(r.Type);
 	
 		if(prev == null)	/// new field
 			p.ProductVersion = Version;

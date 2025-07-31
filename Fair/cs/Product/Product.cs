@@ -93,81 +93,6 @@ public class Field
 	public FieldFlag		Flags { get; protected set; }
 	public Field[]			Fields { get; protected set; }
 
-	public static Field[]	FindDefinidion(ProductType type) =>	type switch
-																{
-																	ProductType.Software => Software, 
-																	_ => throw new IntegrityException()
-																};
-
-	public static readonly Field[] Software =	[
-													new (Token.Metadata, [
-																			new (Token.Version, FieldType.StringUtf8)
-																		 ]),
-													new (Token.Title,	FieldType.StringUtf8),
-													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional),
-													new (Token.URI,		FieldType.URI),
-													new (Token.Tags,	FieldType.Tags, FieldFlag.Optional),
-													new (Token.DescriptionMinimal,	[
-																						new (Token.Language,FieldType.Language),
-																						new (Token.Minimal, FieldType.TextUtf8),
-																					]),
-													new (Token.DescriptionMaximal,	[
-																						new (Token.Language,FieldType.Language),
-																						new (Token.Maximal,	FieldType.TextUtf8),
-																					]),
-													new (Token.Logo,	FieldType.FileId),
-													new (Token.License, FieldType.Licance),
-													new (Token.Price,	FieldType.Money, FieldFlag.Optional),
-													new (Token.Art, [
-																		new (Token.Screenshot,	[
-																									new (Token.Id, FieldType.FileId),
-																									new (Token.Description,	[
-																																new (Token.Language,	FieldType.Language),
-																																new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),
-																															]),
-																								]),
-																		new (Token.Video,	[
-																								new (Token.Type,	FieldType.Video),
-																								new (Token.Id,		FieldType.FileId,	FieldFlag.ThisOrAnother),
-																								new (Token.Youtube,	FieldType.URI,		FieldFlag.ThisOrAnother),
-																								new (Token.Description,	[
-																															new (Token.Language,	FieldType.Language),
-																															new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),
-																														]),
-																							]),
-																	]),
-													new (Token.Release,	[
-																			new (Token.Version),
-																			new (Token.Distributive, [
-																										new (Token.Platform,	FieldType.Platfrom),
-																										new (Token.Version,		FieldType.StringUtf8),
-																										new (Token.Date,		FieldType.Date),
-																										new (Token.Deploymwent,	FieldType.Deploymwent),
-																										new (Token.Download,[
-																																new (Token.URI),
-																																new (Token.Hash,[
-																																					new (Token.Type,	FieldType.Hash),
-																																					new (Token.Value,	FieldType.StringAnsi)
-																																				], FieldFlag.Optional),
-																															])
-																									 ]),
-																			new (Token.Requirements,[
-																										new (Token.Hardware,[
-																																new (Token.CPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.GPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.NPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.RAM, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.HDD, FieldType.StringAnsi, FieldFlag.Optional),
-																															]),
-																										new (Token.Software,[
-																																new (Token.OS,				FieldType.OS),
-																																new (Token.Architecture,	FieldType.CPUArchitecture,	FieldFlag.Optional),
-																																new (Token.Version,			FieldType.StringAnsi,		FieldFlag.Optional),
-																															])
-																									]),
-																		])
-												];
-
 	public Field(Token name, Field[] fields = null, FieldFlag flags = FieldFlag.None)
 	{
 		Name = name;
@@ -462,4 +387,81 @@ public class Product : IBinarySerializable, ITableEntry
 
 		return parse(definition, x.Nodes);
 	}
+
+
+	public static Field[] FindDefinidion(ProductType type) =>	type switch
+																{
+																	ProductType.Software => Software, 
+																	_ => throw new IntegrityException()
+																};
+
+	public static readonly Field[] Software =	[
+													new (Token.Metadata, [
+																			new (Token.Version, FieldType.StringUtf8)
+																		 ]),
+													new (Token.Title,	FieldType.StringUtf8),
+													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional),
+													new (Token.URI,		FieldType.URI),
+													new (Token.Tags,	FieldType.Tags, FieldFlag.Optional),
+													new (Token.DescriptionMinimal,	[
+																						new (Token.Language,FieldType.Language),
+																						new (Token.Minimal, FieldType.TextUtf8),
+																					]),
+													new (Token.DescriptionMaximal,	[
+																						new (Token.Language,FieldType.Language),
+																						new (Token.Maximal,	FieldType.TextUtf8),
+																					]),
+													new (Token.Logo,	FieldType.FileId),
+													new (Token.License, FieldType.Licance),
+													new (Token.Price,	FieldType.Money, FieldFlag.Optional),
+													new (Token.Art, [
+																		new (Token.Screenshot,	[
+																									new (Token.Id, FieldType.FileId),
+																									new (Token.Description,	[
+																																new (Token.Language,	FieldType.Language),
+																																new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),
+																															]),
+																								]),
+																		new (Token.Video,	[
+																								new (Token.Type,	FieldType.Video),
+																								new (Token.Id,		FieldType.FileId,	FieldFlag.ThisOrAnother),
+																								new (Token.Youtube,	FieldType.URI,		FieldFlag.ThisOrAnother),
+																								new (Token.Description,	[
+																															new (Token.Language,	FieldType.Language),
+																															new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),
+																														]),
+																							]),
+																	]),
+													new (Token.Release,	[
+																			new (Token.Version),
+																			new (Token.Distributive, [
+																										new (Token.Platform,	FieldType.Platfrom),
+																										new (Token.Version,		FieldType.StringUtf8),
+																										new (Token.Date,		FieldType.Date),
+																										new (Token.Deploymwent,	FieldType.Deploymwent),
+																										new (Token.Download,[
+																																new (Token.URI),
+																																new (Token.Hash,[
+																																					new (Token.Type,	FieldType.Hash),
+																																					new (Token.Value,	FieldType.StringAnsi)
+																																				], FieldFlag.Optional),
+																															])
+																									 ]),
+																			new (Token.Requirements,[
+																										new (Token.Hardware,[
+																																new (Token.CPU, FieldType.StringAnsi, FieldFlag.Optional),
+																																new (Token.GPU, FieldType.StringAnsi, FieldFlag.Optional),
+																																new (Token.NPU, FieldType.StringAnsi, FieldFlag.Optional),
+																																new (Token.RAM, FieldType.StringAnsi, FieldFlag.Optional),
+																																new (Token.HDD, FieldType.StringAnsi, FieldFlag.Optional),
+																															]),
+																										new (Token.Software,[
+																																new (Token.OS,				FieldType.OS),
+																																new (Token.Architecture,	FieldType.CPUArchitecture,	FieldFlag.Optional),
+																																new (Token.Version,			FieldType.StringAnsi,		FieldFlag.Optional),
+																															])
+																									]),
+																		])
+												];
+
 }
