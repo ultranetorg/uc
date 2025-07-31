@@ -40,7 +40,7 @@ public class AccountCommand : McvCommand
 		a.Help = new() {Description = "Get account entity information from Ultranet distributed database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {AA}",
 
-						Arguments = [new ("<first>", "Address of an account to get information about")],
+						Arguments = [new (FirstArg, "Address of an account to get information about")],
 
 						Examples = [new (null, $"{Keyword} {a.Name} {AA.Example}")]};
 

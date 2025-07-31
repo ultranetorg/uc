@@ -57,6 +57,8 @@ public class PublicationUpdation : VotableOperation
 
 		var v = r.Versions.First(i => i.Id == Version);
 		var prev = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion);
+
+		var d = Field.FindDefinidion(r.Type);
 	
 		if(prev == null)	/// new field
 			p.ProductVersion = Version;
@@ -67,13 +69,13 @@ public class PublicationUpdation : VotableOperation
 			/// decrease refs in product
 			//var x = f.Versions.First(i => i.Version == prev.Version);
 
-			prev.ForEach(i =>	{
-									if(ProductField.IsFile(i.Name))
-									{
-										var f = execution.Files.Affect(i.AsAutoId);
-										f.Refs--;
-									}
-								});
+			v.ForEach(d, (f, i) =>	{
+										if(f.Type == FieldType.FileId)
+										{
+											var x = execution.Files.Affect(i.AsAutoId);
+											x.Refs--;
+										}
+									});
 	
 			var x = new ProductVersion
 					{
@@ -84,7 +86,7 @@ public class PublicationUpdation : VotableOperation
 		
 			r.Versions = [..r.Versions.Where(i => i.Id != prev.Id), x];
 
-			var xtitle = prev.Fields.FirstOrDefault(i => i.Name == ProductFieldName.Title);
+			var xtitle = prev.Fields.FirstOrDefault(i => i.Name == Token.Title);
 			
 			if(xtitle != null)
 				execution.PublicationTitles.Deindex(p.Site, xtitle.AsUtf8);
@@ -100,15 +102,15 @@ public class PublicationUpdation : VotableOperation
 	
 		r.Versions = [..r.Versions.Where(i => i.Id != v.Id), y];
 
-		v.ForEach(i =>	{
-							if(ProductField.IsFile(i.Name))
-							{
-								var f = execution.Files.Affect(i.AsAutoId);
-								f.Refs++;
-							}
-						});
+		v.ForEach(d, (f, i) =>	{
+									if(f.Type == FieldType.FileId)
+									{
+										var x = execution.Files.Affect(i.AsAutoId);
+										x.Refs++;
+									}
+								});
 
-		var title = prev.Fields.FirstOrDefault(i => i.Name == ProductFieldName.Title);
+		var title = prev.Fields.FirstOrDefault(i => i.Name == Token.Title);
 
 		if(title != null)
 			execution.PublicationTitles.Index(p.Site, p.Id, title.AsUtf8);

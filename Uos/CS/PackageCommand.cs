@@ -22,7 +22,7 @@ public class PackageCommand : UosCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {PA} [sources={PATH},{PATH}...{PATH}] dependencies={FILEPATH} previous={PA}",
 
 						Arguments =	[
-										new ("<first>", "Resource address of package to create"),
+										new (FirstArg, "Resource address of package to create"),
 										new ("sources", "A list of paths to files separated by comma"),
 										new ("dependencies", "A path to version manifest file where complete dependencies are defined"),
 										new ("previous", "Address of previous release")
@@ -56,7 +56,7 @@ public class PackageCommand : UosCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {PA}",
 
 						Arguments =	[
-										new ("<first>", "Address of local package to get information about")
+										new (FirstArg, "Address of local package to get information about")
 									],
 
 						Examples =	[
@@ -82,7 +82,7 @@ public class PackageCommand : UosCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {PA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a package to download")
+										new (FirstArg, "Address of a package to download")
 									],
 
 						Examples =	[
@@ -135,7 +135,7 @@ public class PackageCommand : UosCommand
 			Syntax = $"{Keyword} {a.NamesSyntax} {PA} destination={DIRPATH}",
 
 			Arguments =	[
-							new ("<first>", "Address of a package to install"),
+							new (FirstArg, "Address of a package to install"),
 							new ("destination", "Packages destination path")
 						],
 

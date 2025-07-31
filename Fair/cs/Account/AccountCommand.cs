@@ -16,7 +16,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Help = new() {Description = "Get account entity information from Ultranet distributed database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {AA}",
 
-						Arguments = [new ("<first>", "Address of an account to get information about")],
+						Arguments = [new (FirstArg, "Address of an account to get information about")],
 
 						Examples = [new (null, $"{Keyword} {a.Name} {AA.Example}")]};
 
@@ -64,7 +64,7 @@ public class AccountCommand : Net.AccountCommand
 
 						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
 					
-						Arguments = [new ("<first>", "Id of an account to get authors from")],
+						Arguments = [new (FirstArg, "Id of an account to get authors from")],
 						
 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}"),
 									 new (null, $"{Keyword} {a.Name} {AA.Example}")]};
@@ -88,7 +88,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Name = "ls";
 		a.Help = new() {Description = "Get sites of a specified account",
 						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-						Arguments = [new ("<first>", "Id of an account to get sites from")],
+						Arguments = [new (FirstArg, "Id of an account to get sites from")],
 						Examples = [new (null, $"{Keyword} l {EID.Example}")]};
 
 		a.Execute = () =>	{
@@ -112,7 +112,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Name = "avatar";
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {path}={PATH} {SignerArg}={AA}",
-						Arguments =	[new ("<first>", "Id of an author to update"),
+						Arguments =	[new (FirstArg, "Id of an author to update"),
 									 new (path, "A path to image file"),
 									 new (SignerArg, "Address of account to set avatar for")],
 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]};

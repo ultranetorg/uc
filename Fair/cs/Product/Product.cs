@@ -2,46 +2,188 @@
 
 namespace Uccs.Fair;
 
-public enum ProductFieldName : uint
+public enum Token : uint
 {
 	None, 
-	Title,
+	Metadata,
+	CPU,
+	Date,
+	Distributive,
+	Download,
+	DescriptionMinimal,
+	DescriptionMaximal,
+	Minimal,
+	Maximal,
+	GPU,
+	Hardware,
+	License,
+	Logo,
+	NPU,
+	Platform,
+	RAM,
+	Release,
+	Requirements,
 	Slogan,
+	Software,
+	HDD,
+	Title,
+	Type,
+	Version,
+	OS,
+	Architecture,
+	Hash,
+	HashType,
+	HashValue,
+	URI,
+	Screenshot,
+	Art,
+	Id,
+	Video,
+	VideoType,
+	Language,
+	Youtube,
+	Tags,
+	Price,
 	Description,
-	Logo
+	Deploymwent,
+	Value
 }
 
-public enum ProductFieldType : int
+public enum FieldType : int
 {
 	None, 
 	Integer,
 	Float,
-	TextUtf8,
-	StringUtf8,
 
-	File, /// Must go before any file-like types
-	ImagePng,
-	ImageJpg,
+	TextUtf8, /// Multi-line
+	StringUtf8, /// Single-line
+	StringAnsi, /// Single-line
+	Tags, /// Single-line
+	URI,
+	Language,
+	Licance,
+	Video,
+	Deploymwent,
+	Money,
+	Date,
+	Platfrom,
+	OS,
+	CPUArchitecture,
+	Hash,
+
+
+	FileId, /// Must go before any file-like types
+	//Image,
+	//ImagePng,
+	//ImageJpg,
 }
 
-public class ProductField : IBinarySerializable
+public class Field
 {
-	public ProductFieldName			Name { get; set; }
-	public byte[]					Value { get; set; }
-	public ProductField[]			Fields { get; set; }
-	
-	public const int				ValueLengthMaximum = 1024*1024;
-	public int						Size => Value.Length + Fields.Sum(i => i.Size);
-	public string					AsUtf8 => Encoding.UTF8.GetString(Value);
+	public Token		Name { get; protected set; }
+	public FieldType	Type { get; protected set; }
+	public Field[]		Fields { get; protected set; }
 
-	public static readonly Dictionary<ProductFieldName, ProductFieldType> Types =	new ()
-																					{
-																						{ProductFieldName.Title,		ProductFieldType.StringUtf8},
-																						{ProductFieldName.Slogan,		ProductFieldType.StringUtf8},
-																						{ProductFieldName.Description,	ProductFieldType.TextUtf8},
-																						{ProductFieldName.Logo,			ProductFieldType.ImagePng},
-																					};
-	public static bool			IsFile(ProductFieldName type) => Types[type] >= ProductFieldType.File;
+	public static Field[]	FindDefinidion(ProductType type) => type switch
+																 {
+																	ProductType.Software => Software, 
+																	_ => throw new IntegrityException()
+																 };
+
+	public static readonly Field[] Software =	[
+													new (Token.Metadata, [
+																			new (Token.Version, FieldType.StringUtf8)
+																		 ]),
+													new (Token.Title,	FieldType.StringUtf8),
+													new (Token.Slogan,	FieldType.StringUtf8),
+													new (Token.URI,		FieldType.URI),
+													new (Token.Tags,	FieldType.Tags),
+													new (Token.DescriptionMinimal,	[
+																						new (Token.Language,FieldType.Language),
+																						new (Token.Minimal, FieldType.TextUtf8),
+																					]),
+													new (Token.DescriptionMaximal,	[
+																						new (Token.Language,FieldType.Language),
+																						new (Token.Maximal,	FieldType.TextUtf8),
+																					]),
+													new (Token.Logo,	FieldType.FileId),
+													new (Token.License, FieldType.Licance),
+													new (Token.Price,	FieldType.Money),
+													new (Token.Art, [
+																		new (Token.Screenshot,	[
+																									new (Token.Id, FieldType.FileId),
+																									new (Token.Description,	[
+																																new (Token.Language,FieldType.Language),
+																																new (Token.Minimal,	FieldType.TextUtf8),
+																															]),
+																								]),
+																		new (Token.Video,	[
+																								new (Token.Type,	FieldType.Video),
+																								new (Token.Id,		FieldType.FileId),
+																								new (Token.Youtube,	FieldType.URI),
+																								new (Token.Description,	[
+																															new (Token.Language,FieldType.Language),
+																															new (Token.Minimal,	FieldType.TextUtf8),
+																														]),
+																							]),
+																	]),
+													new (Token.Release,	[
+																			new (Token.Version),
+																			new (Token.Distributive, [
+																										new (Token.Platform,	FieldType.Platfrom),
+																										new (Token.Version,		FieldType.StringUtf8),
+																										new (Token.Date,		FieldType.Date),
+																										new (Token.Deploymwent,	FieldType.Deploymwent),
+																										new (Token.Download,[
+																																new (Token.URI),
+																																new (Token.Hash,[
+																																					new (Token.Type,	FieldType.Hash),
+																																					new (Token.Value,	FieldType.StringAnsi)
+																																				]),
+																															])
+																									 ]),
+																			new (Token.Requirements,[
+																											new (Token.Hardware,[
+																																	new (Token.CPU, FieldType.StringAnsi),
+																																	new (Token.GPU, FieldType.StringAnsi),
+																																	new (Token.NPU, FieldType.StringAnsi),
+																																	new (Token.RAM, FieldType.StringAnsi),
+																																	new (Token.HDD, FieldType.StringAnsi),
+																																]),
+																											new (Token.Software,[
+																																	new (Token.OS,				FieldType.OS),
+																																	new (Token.Architecture,	FieldType.CPUArchitecture),
+																																	new (Token.Version,			FieldType.StringAnsi),
+																																])
+																										]),
+																		])
+												];
+
+	public Field(Token name, Field[] fields = null)
+	{
+		Name = name;
+		Fields = fields;
+	}
+
+	public Field(Token name, FieldType type)
+	{
+		Name = name;
+		Type = type;
+	}
+}
+
+public class FieldValue : IBinarySerializable
+{
+	public Token				Name { get; set; }
+	public byte[]				Value { get; set; }
+	public FieldValue[]			Fields { get; set; }
+	
+	public const int			ValueLengthMaximum = 1024*1024;
+	public int					Size => Value.Length + Fields.Sum(i => i.Size);
+	public string				AsUtf8 => Encoding.UTF8.GetString(Value);
+
+
+	//public static bool			IsFile(Token type) => Types[type] >= FieldType.File;
 
 	public AutoId AsAutoId
 	{
@@ -53,11 +195,11 @@ public class ProductField : IBinarySerializable
 		}
 	}
 
-	public ProductField()
+	public FieldValue()
 	{
 	}
 
-	public ProductField(ProductFieldName name, byte[] value)
+	public FieldValue(Token name, byte[] value)
 	{
 		Name	= name;
 		Value	= value;
@@ -66,7 +208,7 @@ public class ProductField : IBinarySerializable
 	
 	public bool IsValid(McvNet net)
 	{
-		if(Value.Length > ProductField.ValueLengthMaximum)
+		if(Value.Length > FieldValue.ValueLengthMaximum)
 			return false;
 
 		return Fields.All(i => i.IsValid(net));
@@ -74,9 +216,9 @@ public class ProductField : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Name	= reader.Read<ProductFieldName>();
+		Name	= reader.Read<Token>();
 		Value	= reader.ReadBytes();
-		Fields	= reader.ReadArray<ProductField>();
+		Fields	= reader.ReadArray<FieldValue>();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -86,20 +228,19 @@ public class ProductField : IBinarySerializable
 		writer.Write(Fields);
 	}
 
-	public static byte[] Parse(ProductFieldName name, string value)
+	public static byte[] Parse(FieldType type, string value)
 	{ 
-		switch(Types[name])
+		switch(type)
 		{
-			case ProductFieldType.Float : 
-			case ProductFieldType.Integer : 
+			case FieldType.Float : 
+			case FieldType.Integer : 
 				return BitConverter.GetBytes(long.Parse(value));
 
-			case ProductFieldType.TextUtf8 : 
-			case ProductFieldType.StringUtf8 :
+			case FieldType.TextUtf8 : 
+			case FieldType.StringUtf8 :
 				return Encoding.UTF8.GetBytes(value);
 			
-			case ProductFieldType.ImagePng : 
-			case ProductFieldType.ImageJpg : 
+			case FieldType.FileId : 
 				return AutoId.Parse(value).Raw;
 		}
 
@@ -109,7 +250,7 @@ public class ProductField : IBinarySerializable
 
 public class ProductVersion  : IBinarySerializable
 {
-	public ProductField[]	Fields { get; set; }
+	public FieldValue[]		Fields { get; set; }
 	public int				Id { get; set; }
 	public int				Refs { get; set; }
 
@@ -122,8 +263,8 @@ public class ProductVersion  : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		Fields	= reader.ReadArray<ProductField>();
-		Id = reader.Read7BitEncodedInt();
+		Fields	= reader.ReadArray<FieldValue>();
+		Id		= reader.Read7BitEncodedInt();
 		Refs	= reader.Read7BitEncodedInt();
 	}
 
@@ -134,9 +275,9 @@ public class ProductVersion  : IBinarySerializable
 		writer.Write7BitEncodedInt(Refs);
 	}
 
-	public ProductField Find(Func<ProductField, bool> action)
+	public FieldValue Find(Func<FieldValue, bool> action)
 	{
-		ProductField go(ProductField[] fields)
+		FieldValue go(FieldValue[] fields)
 		{
 			foreach(var i in fields)
 			{
@@ -152,9 +293,29 @@ public class ProductVersion  : IBinarySerializable
 		return go(Fields);
 	}
 
-	public void ForEach(Action<ProductField> action)
+	public FieldValue Find(Field[] definition, Func<Field, FieldValue, bool> action)
 	{
-		void go(ProductField[] fields)
+		FieldValue go(Field[] defs, FieldValue[] fields)
+		{
+			foreach(var i in fields)
+			{
+				var d = defs.First(i => i.Name == i.Name);
+
+				if(action(d, i))
+					return i;
+
+				go(d.Fields, i.Fields);
+			}
+
+			return null;
+		}
+
+		return go(definition, Fields);
+	}
+
+	public void ForEach(Action<FieldValue> action)
+	{
+		void go(FieldValue[] fields)
 		{
 			foreach(var i in fields)
 			{
@@ -166,12 +327,30 @@ public class ProductVersion  : IBinarySerializable
 
 		go(Fields);
 	}
+
+	public void ForEach(Field[] definition, Action<Field, FieldValue> action)
+	{
+		void go(Field[] defs, FieldValue[] fields)
+		{
+			foreach(var i in fields)
+			{
+				var d = defs.First(i => i.Name == i.Name);
+
+				action(d, i);
+
+				go(d.Fields, i.Fields);
+			}
+		}
+
+		go(definition, Fields);
+	}
 }
 
 public class Product : IBinarySerializable, ITableEntry
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
+	public ProductType			Type { get; set; }
 	public ProductVersion[]		Versions { get; set; }
 	public Time					Updated { get; set; }
 	public AutoId[]				Publications { get; set; }
@@ -207,6 +386,7 @@ public class Product : IBinarySerializable, ITableEntry
 				{
 					Id = Id,
 					Author = Author,
+					Type = Type,
 					Versions = Versions,
 					Updated = Updated,
 					Publications = Publications
@@ -231,6 +411,7 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Author);
+		writer.Write(Type);
 		writer.Write(Updated);
 		writer.Write(Versions);
 		writer.Write(Publications);
@@ -240,32 +421,34 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 		Id				= reader.Read<AutoId>();
 		Author			= reader.Read<AutoId>();
+		Type			= reader.Read<ProductType>();
 		Updated			= reader.Read<Time>();
 		Versions		= reader.ReadArray<ProductVersion>();
 		Publications	= reader.ReadArray<AutoId>();
 	}
 
-	public static ProductField[] ParseDefinition(string text)
+	public static FieldValue[] ParseDefinition(Field[] definition, string text)
 	{
 		var x = new Xon(text);
 
-		ProductField[] parse(List<Xon> nodes)
+		FieldValue[] parse(Field[] definition, List<Xon> nodes)
 		{
-			var a = new List<ProductField>();
+			var a = new List<FieldValue>();
 
 			foreach(var i in nodes)
 			{
-				var t = Enum.Parse<ProductFieldName>(i.Name);
+				var t = Enum.Parse<Token>(i.Name);
+				var d = definition.First(j => j.Name.ToString() == i.Name);
 
-				a.Add(	new ProductField(t, ProductField.Parse(t, i.Get<string>()))
+				a.Add(	new FieldValue(t, FieldValue.Parse(d.Type, i.Get<string>()))
 						{
-							Fields = parse(i.Nodes) 
+							Fields = parse(d.Fields, i.Nodes) 
 						});
 			}
 
 			return a.ToArray();
 		}
 
-		return parse(x.Nodes);
+		return parse(definition, x.Nodes);
 	}
 }

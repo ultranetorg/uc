@@ -3,7 +3,7 @@
 public class CategoryTypeChange : VotableOperation
 {
 	public AutoId				Category { get; set; } 
-	public CategoryType			Type { get; set; }
+	public ProductType			Type { get; set; }
 
 	public override string		Explanation => $"Category={Category} Type={Type}";
 	
@@ -19,7 +19,7 @@ public class CategoryTypeChange : VotableOperation
 	public override void Read(BinaryReader reader)
 	{
 		Category	= reader.Read<AutoId>();
-		Type		= reader.Read<CategoryType>();
+		Type		= reader.Read<ProductType>();
 	}
 
 	public override void Write(BinaryWriter writer)

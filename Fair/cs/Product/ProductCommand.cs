@@ -15,18 +15,19 @@ public class ProductCommand : FairCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		var type = "type";
+
 		a.Name = "c";
 		a.Help = new() {Description = "Creates a product entity in the MCV database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {SignerArg}={AA}",
-
-						Arguments = [new ("data", "A data associated with the product")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {SignerArg}={AA.Example}")]};
+						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {type}={PRODUCTTYPE} {SignerArg}={AA}",
+						Arguments = [new (FirstArg, "Entity id of author to create a product for"),
+									 new (type, "A type of product"),],
+						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {type}={PRODUCTTYPE.Example} {SignerArg}={AA.Example}")]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new ProductCreation(AutoId.Parse(Args[0].Name));
+								return new ProductCreation {Type = GetEnum<ProductType>(type), Author = AutoId.Parse(Args[0].Name)};
 							};
 		return a;
 	}
@@ -39,7 +40,7 @@ public class ProductCommand : FairCommand
 		a.Help = new() {Description = "Destroys existing product and all its associated data",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {SignerArg}={AA}",
 
-						Arguments = [new ("<first>", "Id of a product to delete")],
+						Arguments = [new (FirstArg, "Id of a product to delete")],
 
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {SignerArg}={AA.Example}")]};
 
@@ -61,7 +62,7 @@ public class ProductCommand : FairCommand
 		a.Name = "u";
 		a.Help = new() {Description = "Updates a product entity properties in the MCV database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} definition={TEXT} {SignerArg}={AA}",
-						Arguments = [new ("<first>", "Id of a product to update"),
+						Arguments = [new (FirstArg, "Id of a product to update"),
 									 new (definition, "Product definition"),
 									 new (path, "A path to XON definition file")],
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {definition}={TEXT.Example} {SignerArg}={AA.Example}")]};
@@ -71,8 +72,10 @@ public class ProductCommand : FairCommand
 
 								var o =	new ProductUpdation(First);
 
+								var	r = Ppc(new ProductRequest(First)).Product;
+
 								if(Has(definition))
-									o.Fields = Product.ParseDefinition(GetString(definition));
+									o.Fields = Product.ParseDefinition(Field.FindDefinidion(r.Type), GetString(definition));
 
 								return o;
 							};
@@ -87,7 +90,7 @@ public class ProductCommand : FairCommand
 
 		a.Help = new( ){Description = "Gets product entity information from the MCV database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new ("<first>", "Id of a product to get information about")],
+						Arguments = [new (FirstArg, "Id of a product to get information about")],
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{

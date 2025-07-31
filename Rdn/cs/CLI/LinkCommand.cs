@@ -79,7 +79,7 @@ public class LinkCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource which outbound links are be listed of")
+										new (FirstArg, "Address of a resource which outbound links are be listed of")
 									],
 
 						Examples =	[
@@ -110,7 +110,7 @@ public class LinkCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource which inbound links are be listed of")
+										new (FirstArg, "Address of a resource which inbound links are be listed of")
 									],
 
 						Examples =	[
