@@ -1173,7 +1173,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public PeerResponse Call(Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
-		var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+		HashSet<Peer> tried;
+		
+		void init()
+		{
+			tried = exclusions != null ? [..exclusions] : [];
+		}
+
+		init();
 
 		Peer p;
 
@@ -1195,7 +1202,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 				if(p == null)
 				{
-					tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+					init();
 					continue;
 				}
 			}
