@@ -58,6 +58,16 @@ public class ProposalCreation : FairOperation
 		Title = title;
 		Text = text;
 	}
+
+	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, Option[] options, string title = "", string text = "")
+	{
+		Site = site;
+		By = creator;
+		As = creatorrole;
+		Options = options;
+		Title = title;
+		Text = text;
+	}
 	
 	public override bool IsValid(McvNet net)
 	{

@@ -8,7 +8,7 @@ public class SiteNicknameChange : VotableOperation
 
 	public override bool		IsValid(McvNet net) =>	Nickname.Length <= 32 
 														&& Nickname.Length >= 4 
-														&& Regex.Match(Nickname, "^[a-z0-9]+$").Success;
+														&& Regex.Match(Nickname, "^[a-z0-9_]+$").Success;
 	public override string		Explanation => $"{Nickname}";
 
 	public SiteNicknameChange()

@@ -389,7 +389,7 @@ public class Product : IBinarySerializable, ITableEntry
 	}
 
 
-	public static Field[] FindDefinidion(ProductType type) =>	type switch
+	public static Field[] FindDeclaration(ProductType type) =>	type switch
 																{
 																	ProductType.Software => Software, 
 																	_ => throw new IntegrityException()

@@ -49,7 +49,7 @@ public class ProductUpdation : FairOperation
 
 		var v = new ProductVersion {Fields = Fields};
 
-		var d = Uccs.Fair.Product.FindDefinidion(r.Type);
+		var d = Uccs.Fair.Product.FindDeclaration(r.Type);
 
 		var f = v.Find(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
