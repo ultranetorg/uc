@@ -9,97 +9,6 @@ public class ReviewsService
 	FairMcv mcv
 ) : IReviewsService
 {
-	public TotalItemsResult<ModeratorReviewModel> GetModeratorReviewProposalsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken cancellationToken)
-	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorReviewProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
-
-		AutoId siteEntityId = AutoId.Parse(siteId);
-
-		lock (mcv.Lock)
-		{
-			Site site = mcv.Sites.Find(siteEntityId, mcv.LastConfirmedRound.Id);
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return LoadReviewProposalsPaged(site, page, pageSize, search, cancellationToken);
-		}
-	}
-
-	private TotalItemsResult<ModeratorReviewModel> LoadReviewProposalsPaged(Site site, int page, int pageSize, string? query, CancellationToken cancellationToken)
-	{
-		if (cancellationToken.IsCancellationRequested)
-			return TotalItemsResult<ModeratorReviewModel>.Empty;
-
-		var items = new List<ModeratorReviewModel>(pageSize);
-		int totalItems = 0;
-
-		foreach(var proposalId in site.Proposals)
-		{
-			if(cancellationToken.IsCancellationRequested)
-				return new TotalItemsResult<ModeratorReviewModel> {Items = items, TotalItems = totalItems};
-
-			Proposal proposal = mcv.Proposals.Latest(proposalId);
-			if (!ProposalUtils.IsDiscussion(site, proposal))
-			{
-				continue;
-			}
-			if (!ProposalUtils.IsReviewOperation(proposal) || !SearchUtils.IsMatch(proposal, query))
-			{
-				continue;
-			}
-
-			if(totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
-			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
-
-				ModeratorReviewModel model = null;
-				if (proposal.Options[0].Operation is ReviewCreation reviewCreation)
-				{
-					model = new ModeratorReviewModel(proposal, reviewCreation, account);
-				}
-				else if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
-				{
-					Review review = mcv.Reviews.Latest(reviewEdit.Review);
-					model = new ModeratorReviewModel(reviewEdit, review, account);
-				}
-
-				items.Add(model);
-			}
-
-			++totalItems;
-		}
-
-		return new TotalItemsResult<ModeratorReviewModel> {Items = items, TotalItems = totalItems};
-	}
-
-	public ModeratorReviewDetailsModel GetModeratorReview(string reviewId)
-	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetModeratorReview)} method called with {{ReviewId}}", reviewId);
-
-		Guard.Against.NullOrEmpty(reviewId);
-
-		AutoId reviewEntityId = AutoId.Parse(reviewId);
-
-		lock (mcv.Lock)
-		{
-			Review review = mcv.Reviews.Find(reviewEntityId, mcv.LastConfirmedRound.Id);
-			if (review == null)
-			{
-				throw new EntityNotFoundException(nameof(Review).ToLower(), reviewId);
-			}
-
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
-			// TODO: fix.
-			return null;
-		}
-	}
-
 	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
@@ -161,7 +70,7 @@ public class ReviewsService
 		}
 	}
 
-	private class Context : SearchContext<ModeratorReviewModel>
+	private class Context : SearchContext<ReviewProposalModel>
 	{
 		public string? Search { get; set; }
 	}

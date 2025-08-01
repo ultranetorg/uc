@@ -3,8 +3,6 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ModeratorPublication,
-  ModeratorReview,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -13,12 +11,15 @@ import {
   PublicationBase,
   PublicationDetails,
   PublicationExtended,
+  PublicationProposal,
   Review,
+  ReviewProposal,
   Site,
   SiteBase,
   SiteLiteSearch,
   TotalItemsResult,
   User,
+  UserProposal,
 } from "types"
 
 export type Api = {
@@ -45,6 +46,7 @@ export type Api = {
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
   getUser(userId: string): Promise<User>
 
+  // Author
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     siteId: string,
@@ -53,31 +55,43 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<Proposal>>
 
+  // Moderator
   getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>
-  getModeratorDiscussionComments(
-    siteId: string,
-    discussionId: string,
-    page?: number,
-    pageSize?: number,
-  ): Promise<TotalItemsResult<ProposalComment>>
   getModeratorDiscussions(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<Proposal>>
-  getModeratorPublication(publicationId: string): Promise<ModeratorPublication>
-  getModeratorPublications(
+
+  getModeratorDiscussionComments(
+    siteId: string,
+    discussionId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<ProposalComment>>
+
+  getPublicationProposal(proposalId: string): Promise<PublicationProposal>
+  getPublicationProposals(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<ModeratorPublication>>
-  getModeratorReview(reviewId: string): Promise<ModeratorReview>
-  getModeratorReviews(
+  ): Promise<TotalItemsResult<PublicationProposal>>
+
+  getReviewProposal(siteId: string, reviewId: string): Promise<ReviewProposal>
+  getReviewProposals(
     siteId: string,
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<ModeratorReview>>
+  ): Promise<TotalItemsResult<ReviewProposal>>
+
+  getUserProposal(siteId: string, proposalId: string): Promise<UserProposal>
+  getUserProposals(
+    siteId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<UserProposal>>
 }

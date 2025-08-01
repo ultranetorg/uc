@@ -193,7 +193,7 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<ModeratorPublicationModel> GetModeratorPublicationsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
+	public TotalItemsResult<PublicationProposalModel> GetModeratorPublicationsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
@@ -211,17 +211,17 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var context = new FilteredContext<ModeratorPublicationModel>
+			var context = new FilteredContext<PublicationProposalModel>
 			{
 				Page = page,
 				PageSize = pageSize,
 				Search = search,
-				Items = new List<ModeratorPublicationModel>(pageSize),
+				Items = new List<PublicationProposalModel>(pageSize),
 			};
 
 			LoadModeratorsPendingPublications(site.UnpublishedPublications, context, canellationToken);
 
-			return new TotalItemsResult<ModeratorPublicationModel>
+			return new TotalItemsResult<PublicationProposalModel>
 			{
 				Items = context.Items,
 				TotalItems = context.TotalItems
@@ -229,7 +229,7 @@ public class PublicationsService
 		}
 	}
 
-	void LoadModeratorsPendingPublications(IEnumerable<AutoId> pendingPublicationsIds, FilteredContext<ModeratorPublicationModel> context, CancellationToken cancellationToken)
+	void LoadModeratorsPendingPublications(IEnumerable<AutoId> pendingPublicationsIds, FilteredContext<PublicationProposalModel> context, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -252,7 +252,7 @@ public class PublicationsService
 				Product product = mcv.Products.Latest(publication.Product);
 				Author author = mcv.Authors.Latest(product.Author);
 				Category category = mcv.Categories.Latest(publication.Category);
-				var model = new ModeratorPublicationModel(publication, category, product, author);
+				var model = new PublicationProposalModel(publication, category, product, author);
 				context.Items.Add(model);
 			}
 
@@ -260,7 +260,7 @@ public class PublicationsService
 		}
 	}
 
-	public ModeratorPublicationModel GetModeratorPublication(string publicationId)
+	public PublicationProposalModel GetModeratorPublication(string publicationId)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublication)} method called with {{PublicationId}}", publicationId);
 
@@ -280,7 +280,7 @@ public class PublicationsService
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 
-			return new ModeratorPublicationModel(publication, category, product, author);
+			return new PublicationProposalModel(publication, category, product, author);
 		}
 	}
 

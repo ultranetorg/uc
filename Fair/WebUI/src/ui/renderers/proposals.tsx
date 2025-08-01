@@ -1,13 +1,9 @@
 import { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
-import { AccountBase, Proposal } from "types"
-import { AccountInfo } from "ui/components"
+import { Proposal } from "types"
 import { TableColumn, TableItem, TableRowRenderer } from "ui/components/Table"
-
-const renderAccount = (account: AccountBase) => (
-  <AccountInfo title={account.nickname ?? account.address} avatar={account.avatar} />
-)
+import { renderAccount } from "./common"
 
 const renderTitle = (proposal: Proposal) => (
   <div className="flex flex-col gap-1" title={proposal.title}>

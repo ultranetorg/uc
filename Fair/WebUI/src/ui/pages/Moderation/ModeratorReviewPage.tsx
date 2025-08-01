@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom"
 
-import { useGetModeratorReview } from "entities"
+import { useGetReviewProposal } from "entities"
 
 export const ModeratorReviewPage = () => {
-  const { reviewId } = useParams()
+  const { siteId, reviewId } = useParams()
 
-  const { isPending, data: review } = useGetModeratorReview(reviewId)
+  const { isPending, data: review } = useGetReviewProposal(siteId, reviewId)
 
   if (isPending || !review) {
     return <div>Loading...</div>
@@ -30,13 +30,13 @@ export const ModeratorReviewPage = () => {
           <tbody>
             <tr key={review.id}>
               <td>{review.id}</td>
-              <td>{review.publicationId}</td>
+              {/* <td>{review.publicationId}</td> */}
               <td></td>
               <td></td>
-              <td>{review.text}</td>
+              {/* <td>{review.text}</td>
               <td>{review.textNew}</td>
               <td>{review.rating}</td>
-              <td>{review.created}</td>
+              <td>{review.created}</td> */}
             </tr>
           </tbody>
         </table>

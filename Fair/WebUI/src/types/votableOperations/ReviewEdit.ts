@@ -1,7 +1,6 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
-export type ReviewEditModeration = {
+export type ReviewEdit = {
   reviewId: string
-  hash: string
-  resolution: boolean
+  text: string
 } & BaseVotableOperation

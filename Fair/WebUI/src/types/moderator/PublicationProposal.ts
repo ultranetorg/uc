@@ -1,4 +1,4 @@
-export type ModeratorPublication = {
+export type PublicationProposal = {
   id: string
   flags: string
   categoryId: string

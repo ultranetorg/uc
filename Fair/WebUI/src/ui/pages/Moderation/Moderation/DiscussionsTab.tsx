@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next"
 import { useGetModeratorDiscussions } from "entities"
 import { usePagePagination } from "ui/pages/hooks"
 import { getDiscussionsRowRowRenderer as getRowRenderer } from "ui/renderers"
-import { ProposalsView } from "ui/views"
+import { ProposalsTemplate } from "ui/templates"
 
 export const DiscussionsTab = () => {
   const { page, setPage, pageSize, search, resetPagination, setSearch } = usePagePagination()
 
   const { siteId } = useParams()
-  const { t } = useTranslation("discussions")
+  const { t } = useTranslation("tabDiscussions")
   const { isPending, data: discussions } = useGetModeratorDiscussions(siteId, page, pageSize, search)
 
   const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
@@ -33,7 +33,7 @@ export const DiscussionsTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProposalsView
+      <ProposalsTemplate
         t={t}
         proposals={discussions}
         search={search}

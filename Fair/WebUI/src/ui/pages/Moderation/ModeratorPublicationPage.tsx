@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom"
 
-import { useGetModeratorPublication } from "entities"
+import { useGetPublicationProposal } from "entities"
 
 export const ModeratorPublicationPage = () => {
   const { publicationId } = useParams()
 
-  const { isPending, data: publication } = useGetModeratorPublication(publicationId)
+  const { isPending, data: publication } = useGetPublicationProposal(publicationId)
 
   if (isPending || !publication) {
     return <div>Loading...</div>

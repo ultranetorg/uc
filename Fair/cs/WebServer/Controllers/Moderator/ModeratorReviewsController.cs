@@ -9,11 +9,11 @@ public class ModeratorReviewsController
 	ILogger<ModeratorReviewsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IReviewsService reviewsService
+	ModeratorProposalsService moderatorProposalsService
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ModeratorReviewModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ReviewProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
@@ -21,18 +21,19 @@ public class ModeratorReviewsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ModeratorReviewModel> reviews = reviewsService.GetModeratorReviewProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ReviewProposalModel> reviews = moderatorProposalsService.GetReviewProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
 
-	[HttpGet("~/api/moderator/reviews/{reviewId}")]
-	public ModeratorReviewModel Get(string reviewId)
+	[HttpGet("~/api/moderator/sites/{siteId}/reviews/{proposalId}")]
+	public ReviewProposalModel Get(string siteId, string proposalId)
 	{
-		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{ReviewId}}", reviewId);
+		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
 
-		autoIdValidator.Validate(reviewId, nameof(Review).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(proposalId, nameof(Review).ToLower());
 
-		return reviewsService.GetModeratorReview(reviewId);
+		return moderatorProposalsService.GetReviewProposal(siteId, proposalId);
 	}
 }

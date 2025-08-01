@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { PAGE_SIZES } from "config"
-import { useGetModeratorPublications } from "entities"
+import { useGetPublicationProposals } from "entities"
 import { Input, Pagination, Select, SelectItem } from "ui/components"
 import { usePagePagination } from "ui/pages/hooks"
 
@@ -12,7 +12,7 @@ export const PublicationsTab = () => {
   const { page, setPage, pageSize, setPageSize, search, setSearch, resetPagination } = usePagePagination()
 
   const { siteId } = useParams()
-  const { isPending, isError, data: publications } = useGetModeratorPublications(siteId, page, pageSize, search)
+  const { isPending, isError, data: publications } = useGetPublicationProposals(siteId, page, pageSize, search)
 
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0 ? Math.ceil(publications.totalItems / pageSize) : 0

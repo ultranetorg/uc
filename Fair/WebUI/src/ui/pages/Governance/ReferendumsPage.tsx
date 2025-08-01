@@ -6,7 +6,7 @@ import { useGetAuthorReferendums } from "entities"
 import { GovernanceModerationHeader } from "ui/components/specific"
 import { usePagePagination } from "ui/pages/hooks"
 import { getReferendumsRowRenderer as getRowRenderer } from "ui/renderers"
-import { ProposalsView } from "ui/views"
+import { ProposalsTemplate } from "ui/templates"
 
 export const ReferendumsPage = () => {
   const { page, setPage, pageSize, search, setSearch } = usePagePagination()
@@ -34,7 +34,7 @@ export const ReferendumsPage = () => {
         homeLabel={t("common:home")}
         createButtonLabel={t("createReferendum")}
       />
-      <ProposalsView
+      <ProposalsTemplate
         t={t}
         proposals={referendums}
         search={search}

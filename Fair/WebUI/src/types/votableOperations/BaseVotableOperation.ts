@@ -11,7 +11,7 @@ export type BaseVotableOperation = {
     | "publication-remove-from-changed"
     | "publication-updation"
     | "review-creation"
-    | "review-edit-moderation"
+    | "review-edit"
     | "review-status-change"
     | "site-authors-change"
     | "site-avatar-change"

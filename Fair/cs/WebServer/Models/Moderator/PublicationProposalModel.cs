@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ModeratorPublicationModel(Publication publication, Category category, Product product, Author author)
+public class PublicationProposalModel(Publication publication, Category category, Product product, Author author)
 {
 	public string Id { get; set; } = publication.Id.ToString();
 

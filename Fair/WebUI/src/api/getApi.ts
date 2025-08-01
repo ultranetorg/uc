@@ -4,8 +4,6 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ModeratorPublication,
-  ModeratorReview,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -14,12 +12,15 @@ import {
   PublicationBase,
   PublicationDetails,
   PublicationExtended,
+  PublicationProposal,
   Review,
+  ReviewProposal,
   Site,
   SiteBase,
   SiteLiteSearch,
   TotalItemsResult,
   User,
+  UserProposal,
 } from "types"
 
 import { Api } from "./Api"
@@ -148,15 +149,15 @@ const getModeratorDiscussions = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorPublication = (publicationId: string): Promise<ModeratorPublication> =>
-  fetch(`${BASE_URL}/moderator/publications/${publicationId}`).then(res => res.json())
+const getPublicationProposal = (proposalId: string): Promise<PublicationProposal> =>
+  fetch(`${BASE_URL}/moderator/publications/${proposalId}`).then(res => res.json())
 
-const getModeratorPublications = async (
+const getPublicationProposals = async (
   siteId: string,
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<ModeratorPublication>> => {
+): Promise<TotalItemsResult<PublicationProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -165,15 +166,32 @@ const getModeratorPublications = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorReview = (reviewId: string): Promise<ModeratorReview> =>
-  fetch(`${BASE_URL}/moderator/reviews/${reviewId}`).then(res => res.json())
+const getReviewProposal = (siteId: string, proposalId: string): Promise<ReviewProposal> =>
+  fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews/${proposalId}`).then(res => res.json())
 
-const getModeratorReviews = async (
+const getReviewProposals = async (
   siteId: string,
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<ModeratorReview>> => {
+): Promise<TotalItemsResult<ReviewProposal>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getUserProposal = (siteId: string, reviewId: string): Promise<UserProposal> =>
+  fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews/${reviewId}`).then(res => res.json())
+
+const getUserProposals = async (
+  siteId: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+): Promise<TotalItemsResult<UserProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
@@ -203,10 +221,12 @@ const api: Api = {
   getModeratorDiscussion,
   getModeratorDiscussionComments,
   getModeratorDiscussions,
-  getModeratorPublication,
-  getModeratorPublications,
-  getModeratorReview,
-  getModeratorReviews,
+  getPublicationProposal,
+  getPublicationProposals,
+  getReviewProposal,
+  getReviewProposals,
+  getUserProposal,
+  getUserProposals,
 }
 
 export const getApi = () => api

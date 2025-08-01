@@ -4,31 +4,25 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetModeratorReview = (reviewId?: string) => {
-  const queryFn = () => {
-    if (!reviewId) {
-      return
-    }
-
-    return api.getModeratorReview(reviewId)
-  }
+export const useGetReviewProposal = (siteId?: string, reviewId?: string) => {
+  const queryFn = () => api.getReviewProposal(siteId!, reviewId!)
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "reviews", reviewId],
+    queryKey: ["moderator", "sites", siteId, "reviews", reviewId],
     queryFn: queryFn,
-    enabled: !!reviewId,
+    enabled: !!siteId && !!reviewId,
   })
 
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useGetModeratorReviews = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
+export const useGetReviewProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => {
     if (!siteId) {
       return
     }
 
-    return api.getModeratorReviews(siteId, page, pageSize, search)
+    return api.getReviewProposals(siteId, page, pageSize, search)
   }
 
   const { isPending, isError, data } = useQuery({
