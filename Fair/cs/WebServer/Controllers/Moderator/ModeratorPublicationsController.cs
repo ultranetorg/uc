@@ -9,7 +9,7 @@ public class ModeratorPublicationsController
 	ILogger<ModeratorPublicationsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IPublicationsService publicationsService
+	ModeratorProposalsService moderatorProposalService
 ) : BaseController
 {
 	[HttpGet]
@@ -21,18 +21,19 @@ public class ModeratorPublicationsController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationProposalModel> result = publicationsService.GetModeratorPublicationsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<PublicationProposalModel> result = moderatorProposalService.GetPublicationsProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}
 
-	[HttpGet("~/api/moderator/publications/{publicationId}")]
-	public PublicationProposalModel Get(string publicationId)
+	[HttpGet("{publicationId}")]
+	public PublicationProposalModel Get(string siteId, string publicationId)
 	{
-		logger.LogInformation($"GET {nameof(ModeratorPublicationsController)}.{nameof(ModeratorPublicationsController.Get)} method called with {{PublicationId}}", publicationId);
+		logger.LogInformation($"GET {nameof(ModeratorPublicationsController)}.{nameof(ModeratorPublicationsController.Get)} method called with {{SiteId}}, {{PublicationId}}", siteId, publicationId);
 
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return publicationsService.GetModeratorPublication(publicationId);
+		return moderatorProposalService.GetPublicationProposal(siteId, publicationId);
 	}
 }

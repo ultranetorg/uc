@@ -183,8 +183,8 @@ const getReviewProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getUserProposal = (siteId: string, reviewId: string): Promise<UserProposal> =>
-  fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews/${reviewId}`).then(res => res.json())
+const getUserProposal = (siteId: string, proposalId: string): Promise<UserProposal> =>
+  fetch(`${BASE_URL}/moderator/sites/${siteId}/users/${proposalId}`).then(res => res.json())
 
 const getUserProposals = async (
   siteId: string,
@@ -196,7 +196,7 @@ const getUserProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/users` + params)
   return await toTotalItemsResult(res)
 }
 

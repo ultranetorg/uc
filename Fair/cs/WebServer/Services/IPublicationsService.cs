@@ -11,10 +11,5 @@ public interface IPublicationsService
 
 	TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 
-	TotalItemsResult<PublicationProposalModel> GetModeratorPublicationsNotOptimized(
-		[NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken canellationToken);
-
-	PublicationProposalModel GetModeratorPublication(string publicationId);
-
 	IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotEmpty] string siteId, CancellationToken cancellationToken);
 }

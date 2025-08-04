@@ -8,7 +8,7 @@ import { GovernanceModerationHeader } from "ui/components/specific"
 import { ReviewsTab } from "./ReviewsTab"
 import { PublicationsTab } from "./PublicationsTab"
 import { DiscussionsTab } from "./DiscussionsTab"
-import { UserRegistrationsTab } from "./UserRegistrationsTab"
+import { UsersTab } from "./UsersTab"
 
 export const ModerationPage = () => {
   const { siteId } = useParams()
@@ -38,7 +38,7 @@ export const ModerationPage = () => {
             <PublicationsTab />
           </TabContent>
           <TabContent when="user-registrations">
-            <UserRegistrationsTab />
+            <UsersTab />
           </TabContent>
           <TabContent when="discussions">
             <DiscussionsTab />

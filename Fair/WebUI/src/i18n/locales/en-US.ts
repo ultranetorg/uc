@@ -117,10 +117,20 @@ export const enUS = {
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
-  tabReviews: { reviewer: "Review user", text: "Review text" },
   tabDiscussions: {
     searchProposal: "Search discussion",
     noProposals: "No open discussions",
+  },
+  tabPublications: {
+    noPublications: "No publications",
+  },
+  tabReviews: {
+    noReviews: "No reviews",
+    reviewer: "Review user",
+    text: "Review text",
+  },
+  tabUsers: {
+    noUsers: "No users",
   },
   error: {
     backToHome: "Back to Home",

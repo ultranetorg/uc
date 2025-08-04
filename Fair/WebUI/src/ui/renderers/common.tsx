@@ -25,7 +25,9 @@ export const renderPublication = (publication: PublicationImageBase) => (
 )
 
 export const renderText = (text: string) => (
-  <span className="leading-4.75 line-clamp-2 break-words text-sm">{text}</span>
+  <span className="line-clamp-2 break-words text-sm leading-4.75" title={text}>
+    {text}
+  </span>
 )
 
 export const renderRating = (rating: number) => (

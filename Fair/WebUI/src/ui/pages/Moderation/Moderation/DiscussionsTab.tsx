@@ -1,44 +1,65 @@
-import { useEffect, useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { isNumber } from "lodash"
 
+import { DEFAULT_PAGE_SIZE_2 } from "config"
 import { useGetModeratorDiscussions } from "entities"
-import { usePagePagination } from "ui/pages/hooks"
+import { useUrlParamsState } from "hooks"
 import { getDiscussionsRowRowRenderer as getRowRenderer } from "ui/renderers"
 import { ProposalsTemplate } from "ui/templates"
+import { parseInteger } from "utils"
 
 export const DiscussionsTab = () => {
-  const { page, setPage, pageSize, search, resetPagination, setSearch } = usePagePagination()
-
   const { siteId } = useParams()
   const { t } = useTranslation("tabDiscussions")
-  const { isPending, data: discussions } = useGetModeratorDiscussions(siteId, page, pageSize, search)
+
+  const [state, setState] = useUrlParamsState({
+    page: {
+      defaultValue: 0,
+      parse: v => parseInteger(v),
+      validate: v => isNumber(v) && v >= 0,
+    },
+    query: {
+      defaultValue: "",
+      validate: v => v !== "",
+    },
+  })
+  const [page, setPage] = useState(state.page)
+
+  const { isPending, data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const pagesCount =
+    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 
   const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
 
-  const pagesCount =
-    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / pageSize) : 0
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setState({ query: state.query, page })
+      setPage(page)
+    },
+    [setState, state.query],
+  )
 
-  useEffect(() => {
-    return () => {
-      resetPagination()
-    }
-  }, [resetPagination])
-
-  useEffect(() => {
-    if (!isPending && pagesCount > 0 && page > pagesCount) {
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setState({ query, page: 0 })
       setPage(0)
-    }
-  }, [isPending, page, pagesCount, setPage])
+    },
+    [setState],
+  )
 
   return (
     <div className="flex flex-col gap-6">
       <ProposalsTemplate
         t={t}
         proposals={discussions}
-        search={search}
+        page={page}
+        pagesCount={pagesCount}
+        search={state.query}
         tableRowRenderer={rowRenderer}
-        onSearchChange={setSearch}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
       />
     </div>
   )

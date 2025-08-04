@@ -8,13 +8,25 @@ import { proposalsItemRenderer } from "ui/renderers"
 export type ProposalsTemplateProps = {
   t: TFunction
   proposals?: TotalItemsResult<Proposal>
+  page: number
+  pagesCount: number
   search: string
   tableRowRenderer: TableRowRenderer
   onSearchChange: (search: string) => void
+  onPageChange: (page: number) => void
 }
 
 export const ProposalsTemplate = memo(
-  ({ t, proposals, search, tableRowRenderer, onSearchChange }: ProposalsTemplateProps) => {
+  ({
+    t,
+    proposals,
+    page,
+    pagesCount,
+    search,
+    tableRowRenderer,
+    onSearchChange,
+    onPageChange,
+  }: ProposalsTemplateProps) => {
     const columns = useMemo(
       () => [
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
@@ -44,7 +56,7 @@ export const ProposalsTemplate = memo(
             id="referendums-search-input"
             className="w-full max-w-120"
           />
-          <Pagination onPageChange={() => console.log("onPageChange")} page={2} pagesCount={10} />
+          <Pagination onPageChange={onPageChange} page={page} pagesCount={pagesCount} />
         </div>
         <Table
           columns={columns}
@@ -54,7 +66,7 @@ export const ProposalsTemplate = memo(
           emptyState={<TableEmptyState message={t("noProposals")} />}
         />
         <div className="flex justify-end">
-          <Pagination onPageChange={() => console.log("onPageChange")} page={2} pagesCount={10} />
+          <Pagination onPageChange={onPageChange} page={page} pagesCount={pagesCount} />
         </div>
       </>
     )

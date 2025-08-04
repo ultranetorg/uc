@@ -1,29 +1,54 @@
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { isNumber } from "lodash"
 
 import { useGetAuthorReferendums } from "entities"
+import { useUrlParamsState } from "hooks"
 import { GovernanceModerationHeader } from "ui/components/specific"
-import { usePagePagination } from "ui/pages/hooks"
 import { getReferendumsRowRenderer as getRowRenderer } from "ui/renderers"
 import { ProposalsTemplate } from "ui/templates"
+import { parseInteger } from "utils"
+import { DEFAULT_PAGE_SIZE_2 } from "config"
 
 export const ReferendumsPage = () => {
-  const { page, setPage, pageSize, search, setSearch } = usePagePagination()
   const { siteId } = useParams()
   const { t } = useTranslation("referendums")
 
+  const [state, setState] = useUrlParamsState({
+    page: {
+      defaultValue: 0,
+      parse: v => parseInteger(v),
+      validate: v => isNumber(v) && v >= 0,
+    },
+    query: {
+      defaultValue: "",
+      validate: v => v !== "",
+    },
+  })
+  const [page, setPage] = useState(state.page)
+
+  const { isPending, data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const pagesCount =
+    referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+
   const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
 
-  const { isPending, data: referendums } = useGetAuthorReferendums(siteId, page, pageSize, search)
-  const pagesCount =
-    referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / pageSize) : 0
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setState({ query: state.query, page })
+      setPage(page)
+    },
+    [setState, state.query],
+  )
 
-  useEffect(() => {
-    if (!isPending && pagesCount > 0 && page > pagesCount) {
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setState({ query, page: 0 })
       setPage(0)
-    }
-  }, [isPending, page, pagesCount, setPage])
+    },
+    [setState],
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,9 +62,12 @@ export const ReferendumsPage = () => {
       <ProposalsTemplate
         t={t}
         proposals={referendums}
-        search={search}
+        page={page}
+        pagesCount={pagesCount}
+        search={state.query}
         tableRowRenderer={rowRenderer}
-        onSearchChange={setSearch}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
       />
     </div>
   )

@@ -173,12 +173,12 @@ public class PublicationsService
 
 	void LoadPublications(Category category, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
 	{
-		foreach (AutoId publicationId in category.Publications)
+		foreach(AutoId publicationId in category.Publications)
 		{
-			if (cancellationToken.IsCancellationRequested)
+			if(cancellationToken.IsCancellationRequested)
 				return;
 
-			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+			if(context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 			{
 				Publication publication = mcv.Publications.Latest(publicationId);
 				Product product = mcv.Products.Latest(publication.Product);
@@ -190,97 +190,6 @@ public class PublicationsService
 			}
 
 			++context.TotalItems;
-		}
-	}
-
-	public TotalItemsResult<PublicationProposalModel> GetModeratorPublicationsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
-	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
-
-		AutoId id = AutoId.Parse(siteId);
-
-		lock (mcv.Lock)
-		{
-			Site site = mcv.Sites.Latest(id);
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			var context = new FilteredContext<PublicationProposalModel>
-			{
-				Page = page,
-				PageSize = pageSize,
-				Search = search,
-				Items = new List<PublicationProposalModel>(pageSize),
-			};
-
-			LoadModeratorsPendingPublications(site.UnpublishedPublications, context, canellationToken);
-
-			return new TotalItemsResult<PublicationProposalModel>
-			{
-				Items = context.Items,
-				TotalItems = context.TotalItems
-			};
-		}
-	}
-
-	void LoadModeratorsPendingPublications(IEnumerable<AutoId> pendingPublicationsIds, FilteredContext<PublicationProposalModel> context, CancellationToken cancellationToken)
-	{
-		if (cancellationToken.IsCancellationRequested)
-			return;
-
-		foreach (var publicationId in pendingPublicationsIds)
-		{
-			if (cancellationToken.IsCancellationRequested)
-				return;
-
-
-			Publication publication = mcv.Publications.Latest(publicationId);
-
-			if (!SearchUtils.IsMatch(publication, context.Search))
-			{
-				continue;
-			}
-
-			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-			{
-				Product product = mcv.Products.Latest(publication.Product);
-				Author author = mcv.Authors.Latest(product.Author);
-				Category category = mcv.Categories.Latest(publication.Category);
-				var model = new PublicationProposalModel(publication, category, product, author);
-				context.Items.Add(model);
-			}
-
-			++context.TotalItems;
-		}
-	}
-
-	public PublicationProposalModel GetModeratorPublication(string publicationId)
-	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublication)} method called with {{PublicationId}}", publicationId);
-
-		Guard.Against.NullOrEmpty(publicationId);
-
-		AutoId id = AutoId.Parse(publicationId);
-
-		lock (mcv.Lock)
-		{
-			Publication publication = mcv.Publications.Latest(id);
-			if (publication == null)
-			{
-				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
-			}
-
-			Category category = mcv.Categories.Latest(publication.Category);
-			Product product = mcv.Products.Latest(publication.Product);
-			Author author = mcv.Authors.Latest(product.Author);
-
-			return new PublicationProposalModel(publication, category, product, author);
 		}
 	}
 

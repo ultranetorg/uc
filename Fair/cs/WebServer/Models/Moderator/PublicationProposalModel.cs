@@ -1,21 +1,13 @@
-﻿namespace Uccs.Fair;
+﻿using Uccs.Fair;
 
-public class PublicationProposalModel(Publication publication, Category category, Product product, Author author)
+namespace Uccs.Fair;
+
+public class PublicationProposalModel(Proposal proposal, Product product, FairAccount publisher, PublicationImageBaseModel? publication = null) : BaseProposal(proposal)
 {
-	public string Id { get; set; } = publication.Id.ToString();
+	public int UpdationTime { get; } = product.Updated.Days;
 
-	public PublicationFlags Flags { get; set; } = publication.Flags;
+	public PublicationImageBaseModel Publication { get; } = publication;
+	public AccountBaseModel Author { get; } = new(publisher);
 
-	public string CategoryId { get; set; } = category.Id.ToString();
-	public string CategoryTitle { get; set; } = category.Title;
-
-	/// Creator field on Publication.
-	//public string CreatorId { get; set; } = publication.Creator.ToString();
-
-	/// Product field on Publication.
-	public string ProductId { get; set; } = product.Id.ToString();
-	public int ProductUpdated { get; set; } = product.Updated.Days;
-
-	public string AuthorId { get; set; } = author.Id.ToString();
-	public string AuthorTitle { get; set; } = author.Title;
+	public IEnumerable<ProposalOptionModel> Options { get; set; } = null!;
 }

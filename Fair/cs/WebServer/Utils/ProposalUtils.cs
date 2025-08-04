@@ -8,7 +8,7 @@ public static class ProposalUtils
 	public static bool IsDiscussion(Site site, Proposal proposal) =>
 		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
 
-	public static bool IsProductOperation(Proposal proposal) => proposal.Options[0].Operation
+	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationRemoveFromChanged or PublicationUpdation;
 
 	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;

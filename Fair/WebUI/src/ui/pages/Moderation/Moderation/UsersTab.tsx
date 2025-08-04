@@ -1,17 +1,16 @@
 import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
-import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
+import { useTranslation } from "react-i18next"
 
 import { DEFAULT_PAGE_SIZE_2 } from "config"
-import { useGetReviewProposals } from "entities"
+import { useGetUserProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { itemRenderer } from "ui/renderers/reviewProposals"
 import { parseInteger } from "utils"
 
-export const ReviewsTab = () => {
-  const { t } = useTranslation("tabReviews")
+export const UsersTab = () => {
+  const { t } = useTranslation("tabUsers")
   const { siteId } = useParams()
 
   const [state, setState] = useUrlParamsState({
@@ -21,12 +20,11 @@ export const ReviewsTab = () => {
       validate: v => isNumber(v) && v >= 0,
     },
   })
-
   const [page, setPage] = useState(state.page)
 
-  const { _isPending, _isError, data: reviews } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
-  const pagesCount =
-    reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+  const { isLoading, data: users } = useGetUserProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
+  console.log(users)
+  const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 
   const columns = useMemo(
     () => [
@@ -52,9 +50,9 @@ export const ReviewsTab = () => {
     <div className="flex flex-col gap-6">
       <Table
         columns={columns}
-        items={reviews?.items}
-        itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noReviews")} />}
+        items={users?.items}
+        //itemRenderer={itemRenderer}
+        emptyState={<TableEmptyState message={t("noUsers")} />}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

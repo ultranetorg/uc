@@ -17,13 +17,7 @@ export const useGetPublicationProposal = (siteId?: string, proposalId?: string) 
 }
 
 export const useGetPublicationProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
-  const queryFn = () => {
-    if (!siteId) {
-      return
-    }
-
-    return api.getPublicationProposals(siteId, page, pageSize, search)
-  }
+  const queryFn = () => api.getPublicationProposals(siteId!, page, pageSize, search)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["moderator", "sites", siteId, "publications", { page, pageSize, search }],

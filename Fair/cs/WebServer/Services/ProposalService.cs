@@ -50,7 +50,7 @@ public class ProposalService
 
 			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
 			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsProductOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
+				ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
 			{
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
@@ -134,7 +134,7 @@ public class ProposalService
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
 			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsProductOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
+				ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
 			{
 				continue;
 			}
