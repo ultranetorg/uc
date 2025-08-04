@@ -152,11 +152,10 @@ public class ProposalVoting : FairOperation
 			{
 				var o = p.Options[Choice];
 
-				p.Options = p.Options.Remove(o);
-				o = new ProposalOption {Title = o.Title, Operation = o.Operation, Yes = [..o.Yes, Voter]};
-				p.Options = [..p.Options, o];
+				p.Options = [..p.Options];
+				p.Options[Choice] = new ProposalOption {Title = o.Title, Operation = o.Operation, Yes = [..o.Yes, Voter]};
 
- 				if(approved(o.Yes))
+ 				if(approved(p.Options[Choice].Yes))
  				{
 					result = Choice;
 				}
