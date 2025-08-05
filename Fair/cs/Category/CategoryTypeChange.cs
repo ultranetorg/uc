@@ -46,6 +46,21 @@ public class CategoryTypeChange : VotableOperation
 			return false;
 		}
 
+		var p = c.Parent;
+
+		while(p != null)
+		{
+			var x = execution.Categories.Find(p);
+
+			if(x.Type != ProductType.None)
+			{
+				error = TypeAlreadyDefined;
+				return false;
+			}
+
+			p = x.Parent;
+		}
+
 		return true;
  	}
 

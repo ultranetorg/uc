@@ -94,6 +94,7 @@ public abstract class FairOperation : Operation
 	public const string			DoesNotBelogToSite = "Does not belong to site";
 	public const string			DoesNotSatisfy = "Does Not Satisfy";
 	public const string			NotEmptyReferencies = "Not Empty Referencies";
+	public const string			TypeAlreadyDefined = "Type already defined";
 
 	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
 
