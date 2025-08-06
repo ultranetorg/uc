@@ -23,7 +23,7 @@ public class FileCommand : FairCommand
 					Description = "Creates a file entity in the MCV database",
 					Syntax = $"{Keyword} {a.NamesSyntax} {EA} {path}={PATH} {SignerArg}={AA}",
 					Arguments = [
-									new ("<first>", "An entity address of file owner"),
+									new (FirstArg, "An entity address of file owner"),
 									new (path, "A data associated with the file")
 								],
 					Examples =	[new (null, $"{Keyword} {a.Name} {EA.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]
@@ -50,7 +50,7 @@ public class FileCommand : FairCommand
 				 {
 					Description = "Destroys existing file and all its associated data",
 					Syntax = $"{Keyword} {a.NamesSyntax} {EID} {SignerArg}={AA}",
-					Arguments = [new ("<first>", "Id of a file to delete")],
+					Arguments = [new (FirstArg, "Id of a file to delete")],
 					Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {SignerArg}={AA.Example}")]
 				 };
 
@@ -71,7 +71,7 @@ public class FileCommand : FairCommand
 				 {
 					Description = "Gets file entity information from the MCV database",
 					Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-					Arguments = [new ("<first>", "Id of a file to get information about")],
+					Arguments = [new (FirstArg, "Id of a file to get information about")],
 					Examples = [new (null, $"{Keyword} {a.Name} {SignerArg}={EID.Example}")]
 				 };
 

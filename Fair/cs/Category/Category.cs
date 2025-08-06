@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace Uccs.Fair;
 
-public enum CategoryType : byte
+public enum ProductType : byte
 {
 	None, Software, Movie, Music, Book, Game
 }
@@ -12,7 +12,7 @@ public class Category : IBinarySerializable, ITableEntry
 	public AutoId			Id { get; set; }
 	public AutoId			Site { get; set; }
 	public AutoId			Parent { get; set; }
-	public CategoryType		Type { get; set; }
+	public ProductType		Type { get; set; }
 	public string			Title { get; set; }
 	public AutoId[]			Categories { get; set; }
 	public AutoId[]			Publications { get; set; }
@@ -65,7 +65,7 @@ public class Category : IBinarySerializable, ITableEntry
 		Id				= reader.Read<AutoId>();
 		Site			= reader.Read<AutoId>();
 		Parent			= reader.ReadNullable<AutoId>();
-		Type			= reader.Read<CategoryType>();
+		Type			= reader.Read<ProductType>();
 		Title			= reader.ReadUtf8();
 		Categories		= reader.ReadArray<AutoId>();
 		Publications	= reader.ReadArray<AutoId>();

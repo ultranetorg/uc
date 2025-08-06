@@ -21,15 +21,15 @@ public static class PublicationUtils
 	}
 
 	public static string? GetTitle(Publication publication, Product product) =>
-		FindProductField(publication, product, ProductFieldName.Title)?.AsUtf8;
+		FindProductField(publication, product, Token.Title)?.AsUtf8;
 
 	public static string? GetDescription(Publication publication, Product product) =>
-		FindProductField(publication, product, ProductFieldName.Description)?.AsUtf8;
+		FindProductField(publication, product, Token.Description)?.AsUtf8;
 
 	public static AutoId? GetLogo(Publication publication, Product product) =>
-		FindProductField(publication, product, ProductFieldName.Logo)?.AsAutoId;
+		FindProductField(publication, product, Token.Logo)?.AsAutoId;
 
-	static ProductField? FindProductField(Publication publication, Product product, ProductFieldName fieldName)
+	static FieldValue? FindProductField(Publication publication, Product product, Token fieldName)
 	{
 		var version = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion);
 

@@ -38,7 +38,7 @@ public class SiteCommand : FairCommand
 		a.Name = "e";
 		a.Help = new() {Description = "Get site entity information from MCV database",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments =	[new ("<first>", "Id of an site to get information about")],
+						Arguments =	[new (FirstArg, "Id of an site to get information about")],
 						Examples =[new (null, $"{Keyword} e {EID.Example}")]};
 
 		a.Execute = () =>	{
@@ -63,7 +63,7 @@ public class SiteCommand : FairCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {years}={INT} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a site to update"),
+						Arguments =	[new (FirstArg, "Id of a site to update"),
 									 new (years, "A number of years to renew site for. Allowed during the last year of current period only."),
 									 new (SignerArg, "Address of account that owns the site")],
 
@@ -87,7 +87,7 @@ public class SiteCommand : FairCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {EID} {As}={ROLE} {nickname}={NAME} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a site to update"),
+						Arguments =	[new (FirstArg, "Id of a site to update"),
 									 new (nickname, "A new nickname"),
 									 new (As, "On behalf of"),
 									 new (SignerArg, "Address of account that owns the site")],
@@ -109,7 +109,7 @@ public class SiteCommand : FairCommand
 		a.Name = "lc";
 		a.Help = new() {Description = "Get categories of a specified site",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new ("<first>", "Id of a site to get categories from")],
+						Arguments = [new (FirstArg, "Id of a site to get categories from")],
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{
@@ -136,7 +136,7 @@ public class SiteCommand : FairCommand
 		a.Help = new() {Description = "Changes various site's descriptive properties",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {EID} {As}={ROLE} {t}={TEXT} {s}={TEXT} {d}={TEXT} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a site to update"),
+						Arguments =	[new (FirstArg, "Id of a site to update"),
 									 new ("<second>", "Id of a actor"),
 									 new (@As, $"A role of actor, {Uccs.Fair.Role.Moderator} by default"),
 									 new (t, "A new title"),

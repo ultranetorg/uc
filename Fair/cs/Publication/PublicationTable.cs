@@ -25,7 +25,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		{
 			//var c = e.Categories.Find(i.Category);
 			var r = Mcv.Products.Find(i.Product);
-			var f = r.Versions[i.ProductVersion].Fields.FirstOrDefault(f => f.Name == ProductFieldName.Title);
+			var f = r.Versions[i.ProductVersion].Fields.FirstOrDefault(f => f.Name == Token.Title);
 
 			if(f != null)
 			{
@@ -104,7 +104,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			Execution.Reviews.Delete(s, i);
 		}
 		
-		var f = r.Versions[p.ProductVersion].Fields.FirstOrDefault(f => f.Name == ProductFieldName.Title);
+		var f = r.Versions[p.ProductVersion].Fields.FirstOrDefault(f => f.Name == Token.Title);
 		
 		if(f != null)
 		{

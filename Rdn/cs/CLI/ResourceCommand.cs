@@ -24,7 +24,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA} [flags] [data={HEX}]",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource to create"),
+										new (FirstArg, "Address of a resource to create"),
 										new ("data", "A data associated with the resource"),
 										new ("seal", "If set, resource data cannot be changed anymore")
 									],
@@ -58,7 +58,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource to delete")
+										new (FirstArg, "Address of a resource to delete")
 									],
 
 						Examples =	[
@@ -85,7 +85,7 @@ public class ResourceCommand : RdnCommand
 
 						Arguments =
 									[
-										new ("<first>", "Address of a resource to update"),
+										new (FirstArg, "Address of a resource to update"),
 										new ("data", "A data associated with the resource"),
 										new ("seal", "If set, resource data cannot be changed anymore"),
 										new ("recursive", "Update all descendants")
@@ -126,7 +126,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource to get information about")
+										new (FirstArg, "Address of a resource to get information about")
 									],
 
 						Examples =	[
@@ -154,7 +154,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a resource to get information about")
+										new (FirstArg, "Address of a resource to get information about")
 									],
 
 						Examples =	[
@@ -223,7 +223,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"r{Keyword} {a.NamesSyntax} {RA} [localpath={DIRPATH}]",
 
 						Arguments =	[
-										new ("<first>",		"Address of a resource the latest release to download of"),
+										new (FirstArg,		"Address of a resource the latest release to download of"),
 										new ("localpath",	"Destination path on the local system to download the release to"),
 										new ("nowait",		"Wait downlonad to finish")
 									],
@@ -269,7 +269,7 @@ public class ResourceCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RZA}",
 
 						Arguments =	[
-										new ("<first>",	  "Address of a release to cancel downloading of"),
+										new (FirstArg,	  "Address of a release to cancel downloading of"),
 									],
 
 						Examples =	[

@@ -7,6 +7,8 @@ namespace Uccs;
 
 public abstract class Command
 {
+	public const string		FirstArg = "<first>";
+
 	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
 	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(Command.CommandAction)).Select(i => i.Invoke(this, null)).Cast<Command.CommandAction>().ToArray();
 

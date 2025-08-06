@@ -22,7 +22,7 @@ public class StartCommand : UosCommand
 						Syntax = $"{Keyword} {Rdn.CLI.RdnCommand.RA}",
 
 						Arguments =	[
-										new ("<first>", "Address of resource to execute"),
+										new (FirstArg, "Address of resource to execute"),
 									],
 
 						Examples =	[

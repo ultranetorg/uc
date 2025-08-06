@@ -17,7 +17,7 @@ public class CategoryCommand : FairCommand
 //		a.Help = new() {Description = "Creates a new category",
 //						Syntax = $"{Keyword} {a.NamesSyntax} [site={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
 //
-//						Arguments =	[new ("<first>", "Page type"),
+//						Arguments =	[new (FirstArg, "Page type"),
 //									 new ("site", "An id of site to add a category to"),
 //									 new ("parent", "An id of parent category to add a new category to"),
 //									 new ("title", "A title of a category being created"),
@@ -52,7 +52,7 @@ public class CategoryCommand : FairCommand
 	//	a.Help = new() {Description = "Updates data of specified category",
 	//					Syntax = $"{Keyword} {a.NamesSyntax} {EID} [parent={EID}] {SignerArg}={AA}",
 	//
-	//					Arguments =	[new ("<first>", "Id of category to update"),
+	//					Arguments =	[new (FirstArg, "Id of category to update"),
 	//								 new ("parent", "An id of a new parent"),
 	//								 new ("type", "Type"),
 	//								 new (SignerArg, "Address of account that assumed to have permissions to make specified changes")],
@@ -84,7 +84,7 @@ public class CategoryCommand : FairCommand
 		a.Name = "lp";
 		a.Help = new() {Description = "Get publications of a specified category",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new ("<first>", "Id of a category to get publications of")],
+						Arguments = [new (FirstArg, "Id of a category to get publications of")],
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{
@@ -106,7 +106,7 @@ public class CategoryCommand : FairCommand
 		a.Name = "lc";
 		a.Help = new() {Description = "Get subcategories of a specified category",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new ("<first>", "Id of a site to get subcategories from")],
+						Arguments = [new (FirstArg, "Id of a site to get subcategories from")],
 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
 		a.Execute = () =>	{

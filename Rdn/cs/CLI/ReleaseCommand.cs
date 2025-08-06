@@ -59,7 +59,7 @@ public class ReleaseCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RZA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a release to get information about")
+										new (FirstArg, "Address of a release to get information about")
 									],
 
 						Examples =	[

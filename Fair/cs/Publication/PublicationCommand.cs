@@ -48,7 +48,7 @@ namespace Uccs.Fair;
 // 		a.Help = new() {Description = "Updates data of speciofied publication",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{product}={EID}] [{approve}={NAME} id={INT}] [{reject}={NAME} id={INT}] {SignerArg}={AA}",
 // 
-// 						Arguments =	[new ("<first>", "Id of publication to update"),
+// 						Arguments =	[new (FirstArg, "Id of publication to update"),
 // 									 new (product, "A new  product id"),
 // 									 new (approve, "Approve a field change"),
 // 									 new (reject, "Reject a field change"),
@@ -96,7 +96,7 @@ namespace Uccs.Fair;
 // 		a.Name = "x";
 // 		a.Help = new() {Description = "Destroys existing publication and all its associated data",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-// 						Arguments = [new ("<first>", "Id of a publication to delete")],
+// 						Arguments = [new (FirstArg, "Id of a publication to delete")],
 // 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 // 
 // 		a.Execute = () =>	{
@@ -114,7 +114,7 @@ namespace Uccs.Fair;
 // 		a.Name = "e";
 // 		a.Help = new() {Description = "Get publication entity information from MCV database",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-// 						Arguments =	[new ("<first>", "Id of a publication to get information about")],
+// 						Arguments =	[new (FirstArg, "Id of a publication to get information about")],
 // 						Examples =[new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 // 
 // 		a.Execute = () =>	{

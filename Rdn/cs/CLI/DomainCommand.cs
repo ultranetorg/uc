@@ -21,7 +21,7 @@ public class DomainCommand : RdnCommand
 // 
 // 								Arguments = 
 // 								[
-// 									new ("<first>", "Address of a root domain to bid on"), // "<first>" placeholder replaced by actual usage context
+// 									new (FirstArg, "Address of a root domain to bid on"), // "<first>" placeholder replaced by actual usage context
 // 									new ("amount", "Amount of bid in UNT"),
 // 									new (SignerArg, "Address of account that makes a bid and will own the domain if wins")
 // 								],
@@ -51,7 +51,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RDA} years={YEARS} signer={AA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a root domain to be acquired"),
+										new (FirstArg, "Address of a root domain to be acquired"),
 										new ("years", "Integer number of years in [1..10] range"),
 										new (SignerArg, "Address of account that owns or is going to register the domain")
 									],
@@ -82,7 +82,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RDA} wtld={TLD} [rank] {SignerArg}={AA}",
 
 						Arguments =	[
-										new ("<first>", "Ultranet address of a root domain to migrate"),
+										new (FirstArg, "Ultranet address of a root domain to migrate"),
 										new ("wtld", "Web top-level domain (com, org, net)"),
 										new ("checkrank", "Request position verification in Google search results"),
 										new (SignerArg, "Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
@@ -110,7 +110,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {DA} years={YEARS} {SignerArg}={AA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a domain to be renewed"),
+										new (FirstArg, "Address of a domain to be renewed"),
 										new ("years", "Integer number of years in [1..10] range"),
 										new (SignerArg, "Address of account that owns the domain")
 									],
@@ -140,7 +140,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {SDA} policy=POLICY years={YEARS} for={AA} {SignerArg}={AA}",
 
 						Arguments =	[
-										new ("<first>", "Subdomain address to create"),
+										new (FirstArg, "Subdomain address to create"),
 										new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
 										new ("years", "Number of years in [1..10] range"),
 										new ("for", "Address of account that will own the subdomain"),
@@ -171,7 +171,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {SDA} policy=POLICY signer={AA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a domain to change policy for"),
+										new (FirstArg, "Address of a domain to change policy for"),
 										new ("policy", "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
 										new (SignerArg, "Address of account that owns a subdomain")
 									],
@@ -200,7 +200,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"domain t|transfer {DA} to={EID} signer={AA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a domain to transfer"),
+										new (FirstArg, "Address of a domain to transfer"),
 										new ("to", "Address of account of a new owner"),
 										new (SignerArg, "Address of account of the current owner")
 									],
@@ -230,7 +230,7 @@ public class DomainCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {DA}",
 
 						Arguments =	[
-										new ("<first>", "Address of a domain to get information about")
+										new (FirstArg, "Address of a domain to get information about")
 									],
 
 						Examples =	[
