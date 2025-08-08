@@ -115,7 +115,7 @@ public class ProposalVoting : FairOperation
 				if(result == (byte)SpecialChoice.None)
 				{
 					if(approved(p.Neither))		result = (byte)SpecialChoice.Neither; else
-					if(approved(p.Abstained))	result = (byte)SpecialChoice.Abstained; else
+					//if(approved(p.Abstained))	result = (byte)SpecialChoice.Abstained; else
 					if(approved(p.Ban))			result = (byte)SpecialChoice.Ban; else
 					if(approved(p.Banish))		result = (byte)SpecialChoice.Banish;
 				}
@@ -185,6 +185,10 @@ public class ProposalVoting : FairOperation
  				
 				case (byte)SpecialChoice.Banish:
 					/// TODO
+					break;
+
+
+				case (byte)SpecialChoice.Neither:
 					break;
 
 				default:
