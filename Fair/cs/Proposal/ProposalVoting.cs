@@ -22,11 +22,11 @@ public class ProposalVoting : FairOperation
 	{
 	}
 
-	public ProposalVoting(AutoId proposal, AutoId voter, byte options)
+	public ProposalVoting(AutoId proposal, AutoId voter, byte choice)
 	{
 		Proposal = proposal;
 		Voter = voter;
-		Choice = options;
+		Choice = choice;
 	}
 
 	public override void Read(BinaryReader reader)
@@ -54,7 +54,7 @@ public class ProposalVoting : FairOperation
  			return;
 		}
  
- 		if(p.Options.Any(i => i.Yes.Contains(Voter)) || p.Neither.Contains(Voter) || p.Abs.Contains(Voter) || p.Ban.Contains(Voter) || p.Banish.Contains(Voter))
+ 		if(p.Options.Any(i => i.Yes.Contains(Voter)) || p.Neither.Contains(Voter) || p.Abstained.Contains(Voter) || p.Ban.Contains(Voter) || p.Banish.Contains(Voter))
  		{
  			Error = AlreadyExists;
  			return;
@@ -90,10 +90,10 @@ public class ProposalVoting : FairOperation
 		{
     		return s.ApprovalPolicies[c] switch
  										 {
-											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abs.Length == 1,
- 											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abs.Length > s.Moderators.Length/2,
- 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> votes.Length + p.Abs.Length == s.Moderators.Length,
- 											ApprovalPolicy.ElectedByAuthorsMajority			=> votes.Length + p.Abs.Length > s.Authors.Length/2,
+											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abstained.Length == 1,
+ 											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abstained.Length > s.Moderators.Length/2,
+ 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> votes.Length + p.Abstained.Length == s.Moderators.Length,
+ 											ApprovalPolicy.ElectedByAuthorsMajority			=> votes.Length + p.Abstained.Length > s.Authors.Length/2,
  											_ => throw new IntegrityException()
  										 };
 		}
@@ -102,6 +102,26 @@ public class ProposalVoting : FairOperation
 
  		switch((SpecialChoice)Choice)
  		{
+			case SpecialChoice.Abstained:
+				p.Abstained = [..p.Abstained, Voter];
+
+				foreach((var i, var j) in p.Options.Index())
+					if(approved(j.Yes))
+					{
+						result = (byte)i;
+						break;
+					}
+
+				if(result == (byte)SpecialChoice.None)
+				{
+					if(approved(p.Neither))		result = (byte)SpecialChoice.Neither; else
+					if(approved(p.Abstained))	result = (byte)SpecialChoice.Abstained; else
+					if(approved(p.Ban))			result = (byte)SpecialChoice.Ban; else
+					if(approved(p.Banish))		result = (byte)SpecialChoice.Banish;
+				}
+
+				break;
+ 				
  			case SpecialChoice.Neither:
 				p.Neither = [..p.Neither, Voter];	
 
@@ -109,25 +129,6 @@ public class ProposalVoting : FairOperation
 				{
 					result = (byte)SpecialChoice.Neither;
 				}
-				break;
- 				
-			case SpecialChoice.Abstained:
-				p.Abs = [..p.Abs, Voter];
-
-				foreach((var i, var j) in p.Options.Index())
-					if(approved(j.Yes))
-					{
-						result = (byte)i;
-					}
-
-				if(result != (byte)SpecialChoice.None)
-				{
-					if(approved(p.Neither))	result = (byte)SpecialChoice.Neither; else
-					if(approved(p.Abs))		result = (byte)SpecialChoice.Abstained; else
-					if(approved(p.Ban))		result = (byte)SpecialChoice.Ban; else
-					if(approved(p.Banish))	result = (byte)SpecialChoice.Banish;
-				}
-
 				break;
  				
 			case SpecialChoice.Ban:

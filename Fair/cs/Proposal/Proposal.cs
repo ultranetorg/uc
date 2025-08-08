@@ -41,7 +41,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public Role					As { get; set; }
 	public ProposalFlags		Flags { get; set; }
 	public AutoId[]				Neither { get; set; }
-	public AutoId[]				Abs { get; set; }
+	public AutoId[]				Abstained { get; set; }
 	public AutoId[]				Ban { get; set; }
 	public AutoId[]				Banish { get; set; }
 	public Time					CreationTime { get; set; }
@@ -75,7 +75,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 					As				= As,
 					Flags			= Flags,
 					Neither			= Neither,
-					Abs				= Abs,
+					Abstained				= Abstained,
 					Ban				= Ban,
 					Banish			= Banish,
 					CreationTime	= CreationTime,
@@ -110,7 +110,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		As				= reader.Read<Role>();
 		Flags			= reader.Read<ProposalFlags>();
 		Neither			= reader.ReadArray<AutoId>();
-		Abs				= reader.ReadArray<AutoId>();
+		Abstained				= reader.ReadArray<AutoId>();
 		Ban				= reader.ReadArray<AutoId>();
 		Banish			= reader.ReadArray<AutoId>();
 		CreationTime	= reader.Read<Time>();
@@ -128,7 +128,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		writer.Write(As);
 		writer.Write(Flags);
 		writer.Write(Neither);
-		writer.Write(Abs);
+		writer.Write(Abstained);
 		writer.Write(Ban);
 		writer.Write(Banish);
 		writer.Write(CreationTime);
