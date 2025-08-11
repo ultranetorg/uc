@@ -69,9 +69,4 @@ public class ReviewsService
 			++context.TotalItems;
 		}
 	}
-
-	private class Context : SearchContext<ReviewProposalModel>
-	{
-		public string? Search { get; set; }
-	}
 }

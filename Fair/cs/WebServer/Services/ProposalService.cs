@@ -134,7 +134,7 @@ public class ProposalService
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
 			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
+				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
 			{
 				continue;
 			}
