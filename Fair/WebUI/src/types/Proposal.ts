@@ -13,7 +13,7 @@ export type Proposal = {
 
   optionsVotesCount: number[]
   neitherCount: number
-  absCount: number
+  abstainedCount: number
   banCount: number
   banishCount: number
 

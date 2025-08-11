@@ -85,7 +85,7 @@ public class NodeCommand : McvCommand
 
 								Arguments =
 								[
-									new ("<first>", "URL address of node to connect to"),
+									new (FirstArg, "URL address of node to connect to"),
 									new (Apc.AccessKey, "API access key")
 								],
 
@@ -252,7 +252,7 @@ public class NodeCommand : McvCommand
 
 						Arguments = [],
 
-						Examples = [new ("<first>", "node property Mcv.Size")]};
+						Examples = [new (FirstArg, "node property Mcv.Size")]};
 		return a;
 	}
 	

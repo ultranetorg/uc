@@ -58,6 +58,16 @@ public class ProposalCreation : FairOperation
 		Title = title;
 		Text = text;
 	}
+
+	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, Option[] options, string title = "", string text = "")
+	{
+		Site = site;
+		By = creator;
+		As = creatorrole;
+		Options = options;
+		Title = title;
+		Text = text;
+	}
 	
 	public override bool IsValid(McvNet net)
 	{
@@ -116,23 +126,23 @@ public class ProposalCreation : FairOperation
  		if(!s.ApprovalPolicies.TryGetValue(c, out var p))
  			throw new IntegrityException();
  
- 		if(s.Proposals.Any(i =>  {
-									var d = execution.Proposals.Find(i);
-
-									if(d.OptionClass != c)
-										return false;
-
-									foreach(var a in d.Options)
-										foreach(var b in Options)
-											if(a.Operation.Overlaps(b.Operation))
-												return true;
-
-									return false;
-								}))
- 		{
- 			Error = AlreadyExists;
- 			return;
- 		}
+// 		if(s.Proposals.Any(i =>  {
+//									var d = execution.Proposals.Find(i);
+//
+//									if(d.OptionClass != c)
+//										return false;
+//
+//									foreach(var a in d.Options)
+//										foreach(var b in Options)
+//											if(a.Operation.Overlaps(b.Operation))
+//												return true;
+//
+//									return false;
+//								}))
+// 		{
+// 			Error = AlreadyExists;
+// 			return;
+// 		}
 
 		s = execution.Sites.Affect(s.Id);
 
@@ -202,7 +212,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Abs			= [];
+			z.Abstained			= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();

@@ -5,7 +5,7 @@ public class ReviewStatusChange : VotableOperation
 	public AutoId				Review { get; set; }
 	public ReviewStatus			Status { get; set; }
 
-	public override bool		IsValid(McvNet net) => Review != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
+	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Explanation => $"{Status}";
 
 	public ReviewStatusChange()

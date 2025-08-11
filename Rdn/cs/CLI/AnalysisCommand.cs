@@ -21,7 +21,7 @@ public class AnalysisCommand : RdnCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {RA} result=RESULT",
 
 						Arguments =	[
-										new ("<first>", "Address of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
+										new (FirstArg, "Address of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
 										new ("result", "Negative, Positive, Vulnerable")
 									],
 

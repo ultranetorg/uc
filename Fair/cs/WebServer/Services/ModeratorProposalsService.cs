@@ -37,7 +37,7 @@ public class ModeratorProposalsService
 
 	T CreateReviewProposalModel<T>(Proposal proposal) where T : ReviewProposalModel
 	{
-		FairAccount reviewer = (FairAccount)mcv.Accounts.Latest(proposal.By);
+		FairAccount reviewer = (FairAccount) mcv.Accounts.Latest(proposal.By);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{

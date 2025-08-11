@@ -43,7 +43,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a author to update"),
+						Arguments =	[new (FirstArg, "Id of a author to update"),
 									 new (nickname, "A new nickname"),
 									 new (SignerArg, "Address of account that is author's owner")],
 
@@ -66,7 +66,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "Get author entity information from MCV database",
 						Syntax = $"{Keyword} {a.NamesSyntax}{EID}",
 						
-						Arguments =	[new ("<first>", "Id of an author to get information about")],
+						Arguments =	[new (FirstArg, "Id of an author to get information about")],
 						
 						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}")]};
 
@@ -94,7 +94,7 @@ public class AuthorCommand : FairCommand
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {addowner}={AA} {removeowner}={AA} {SignerArg}={AA}",
 
 						Arguments =	[
-										new ("<first>", "Id of an author to be renewed"),
+										new (FirstArg, "Id of an author to be renewed"),
 										new (addowner, "Account Id of a new owner to add"),
 										new (removeowner, "Account Id of a existing owner to remove"),
 										new (SignerArg, "Address of account that owns the author")
@@ -132,7 +132,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {years}={INT} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a author to update"),
+						Arguments =	[new (FirstArg, "Id of a author to update"),
 									 new (years, "A number of years to renew author for. Allowed during the last year of current period only."),
 									 new (SignerArg, "Address of account that owns the author")],
 
@@ -156,7 +156,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {file}={EID} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a author to update"),
+						Arguments =	[new (FirstArg, "Id of a author to update"),
 									 new (file, "A file"),
 									 new (SignerArg, "Address of account that is author's owner")],
 
@@ -185,7 +185,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "Changes various author descriptive properties",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {t}={TEXT} {d}={TEXT} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a author to update"),
+						Arguments =	[new (FirstArg, "Id of a author to update"),
 									 new (t, "A new title"),
 									 new (d, "A new description"),
 									 new (SignerArg, "Address of account that owns the site")],
@@ -217,7 +217,7 @@ public class AuthorCommand : FairCommand
 		a.Help = new() {Description = "Changes author's links",
 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {add}={TEXT} {remove}={TEXT} {SignerArg}={AA}",
 
-						Arguments =	[new ("<first>", "Id of a author to update"),
+						Arguments =	[new (FirstArg, "Id of a author to update"),
 									 new (add, "A links to add"),
 									 new (remove, "A links to remove"),
 									 new (SignerArg, "Address of account that owns the author")],

@@ -34,7 +34,6 @@ export const ModeratorReviewPage = () => {
               <td></td>
               <td></td>
               {/* <td>{review.text}</td>
-              <td>{review.textNew}</td>
               <td>{review.rating}</td>
               <td>{review.created}</td> */}
             </tr>

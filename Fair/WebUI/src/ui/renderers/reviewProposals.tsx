@@ -29,9 +29,11 @@ export const itemRenderer = (item: TableItem, column: TableColumn): ReactNode =>
       return renderPublication(proposal.publication)
 
     case "rating":
+      // @ts-expect-error rating
       return renderRating(proposal.options[0].operation?.rating)
 
     case "text":
+      // @ts-expect-error text
       return renderText(proposal.options[0].operation?.text)
   }
 

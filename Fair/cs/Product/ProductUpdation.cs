@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class ProductUpdation : FairOperation
 {
 	public AutoId				Product { get; set; }
-	public ProductField[]		Fields	{ get; set; }
+	public FieldValue[]			Fields	{ get; set; }
 
 	public override string		Explanation => $"Product={Product}, Fields={Fields.Length}";
 
@@ -30,7 +30,7 @@ public class ProductUpdation : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Product	= reader.Read<AutoId>();
-		Fields	= reader.ReadArray<ProductField>();
+		Fields	= reader.ReadArray<FieldValue>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -49,17 +49,19 @@ public class ProductUpdation : FairOperation
 
 		var v = new ProductVersion {Fields = Fields};
 
-		var f = v.Find(i =>	{
-								if(ProductField.IsFile(i.Name))
-								{	
-									var x = execution.Files.Find(i.AsAutoId);
+		var d = Uccs.Fair.Product.FindDeclaration(r.Type);
 
-									if(x == null)
-										return true;
- 								}
+		var f = v.Find(d, (f, i) =>	{
+										if(f.Type == FieldType.FileId)
+										{	
+											var x = execution.Files.Find(i.AsAutoId);
 
-								return false;
-							});
+											if(x == null)
+												return true;
+ 										}
+
+										return false;
+									});
 		if(f != null)
 		{
 			Error = NotFound;

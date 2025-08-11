@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
@@ -23,7 +23,7 @@ export const PublicationsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { isPending, isError, data: publications } = useGetPublicationProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
+  const { data: publications } = useGetPublicationProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
       ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_2)

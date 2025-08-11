@@ -294,6 +294,9 @@ public class Execution : ITableExecution
 	{
 		id = id == AutoId.LastCreated ? LastCreatedId : id;
 
+		if(id == null)
+			return null;
+
 		if(AffectedAccounts.TryGetValue(id, out var a))
 			return a;
 

@@ -2,7 +2,7 @@
 
 public class CategoryModel(Category category, string parentTitle) : CategoryParentBaseModel(category)
 {
-	public CategoryType Type { get; set; } = category.Type;
+	public ProductType Type { get; set; } = category.Type;
 
 	public string ParentTitle { get; set; } = parentTitle;
 

@@ -27,7 +27,7 @@ export const DiscussionsTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { isPending, data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const { data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
   const pagesCount =
     discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 

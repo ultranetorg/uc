@@ -1,8 +1,8 @@
 import { CategoryBase } from "./CategoryBase"
-import { CategoryType } from "./CategoryType"
+import { ProductType } from "./ProductType"
 
 export type Category = {
-  type: CategoryType
+  type: ProductType
   parentId: string
   parentTitle: string
   categories: CategoryBase[]

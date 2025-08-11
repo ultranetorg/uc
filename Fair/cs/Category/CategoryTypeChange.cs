@@ -3,7 +3,7 @@
 public class CategoryTypeChange : VotableOperation
 {
 	public AutoId				Category { get; set; } 
-	public CategoryType			Type { get; set; }
+	public ProductType			Type { get; set; }
 
 	public override string		Explanation => $"Category={Category} Type={Type}";
 	
@@ -19,7 +19,7 @@ public class CategoryTypeChange : VotableOperation
 	public override void Read(BinaryReader reader)
 	{
 		Category	= reader.Read<AutoId>();
-		Type		= reader.Read<CategoryType>();
+		Type		= reader.Read<ProductType>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -44,6 +44,21 @@ public class CategoryTypeChange : VotableOperation
 		{
 			error = DoesNotBelogToSite;
 			return false;
+		}
+
+		var p = c.Parent;
+
+		while(p != null)
+		{
+			var x = execution.Categories.Find(p);
+
+			if(x.Type != ProductType.None)
+			{
+				error = TypeAlreadyDefined;
+				return false;
+			}
+
+			p = x.Parent;
 		}
 
 		return true;
