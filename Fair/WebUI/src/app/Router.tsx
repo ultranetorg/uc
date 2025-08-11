@@ -79,7 +79,7 @@ const routes: RouteObject[] = [
           },
 
           {
-            path: "/:siteId/m",
+            path: "/:siteId/m/:tabKey?",
             element: <ModerationPage />,
           },
           {
