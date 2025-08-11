@@ -38,7 +38,7 @@ export const ProposalsTemplate = memo(
           type: "options",
           className: "w-[16%] text-center",
         },
-        { accessor: "absCount", label: t("common:abs"), className: "w-[5%] text-center" },
+        { accessor: "abstainedCount", label: t("common:abs"), className: "w-[5%] text-center" },
         { accessor: "neitherCount", label: t("common:neither"), className: "w-[5%] text-center" },
         { accessor: "banCount", label: t("common:ban"), className: "w-[5%] text-center" },
         { accessor: "banishCount", label: t("common:banish"), className: "w-[5%] text-center" },

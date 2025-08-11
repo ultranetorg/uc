@@ -1,7 +1,7 @@
 export const enUS = {
   common: {
-    abs: "Abstained",
-    absVotes: "Abstained from voting",
+    abstained: "Abstained",
+    abstainedVotes: "Abstained from voting",
     action: "Action",
     ban: "Ban",
     banish: "Banish",

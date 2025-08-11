@@ -14,7 +14,7 @@ public class ProposalModel(Proposal proposal, FairAccount account)
 
 	public IEnumerable<int> OptionsVotesCount { get; set; } = proposal.Options.Select(x => x.Yes.Count());
 	public int NeitherCount { get; set; } = proposal.Neither.Count();
-	public int AbsCount { get; set; } = proposal.Abstained.Count();
+	public int AbstainedCount { get; set; } = proposal.Abstained.Count();
 	public int BanCount { get; set; } = proposal.Ban.Count();
 	public int BanishCount { get; set; } = proposal.Banish.Count();
 

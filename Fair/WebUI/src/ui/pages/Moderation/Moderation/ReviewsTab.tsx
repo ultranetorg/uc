@@ -24,7 +24,7 @@ export const ReviewsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { _isPending, _isError, data: reviews } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
+  const { data: reviews } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 

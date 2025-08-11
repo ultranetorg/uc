@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
@@ -28,7 +28,7 @@ export const ReferendumsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { isPending, data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const { data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
   const pagesCount =
     referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 

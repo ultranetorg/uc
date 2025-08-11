@@ -1,13 +1,9 @@
 import { useParams } from "react-router-dom"
-import { useTranslation } from "react-i18next"
 
 import { useGetAuthorReferendum } from "entities"
-import { ProposalInfo, Voting, VotingStatistics } from "ui/components/proposal"
-import { GovernanceModerationHeader } from "ui/components/specific"
 
 export const ReferendumPage = () => {
   const { siteId, referendumId } = useParams()
-  const { t } = useTranslation("referendum")
 
   const { isPending, data: referendum } = useGetAuthorReferendum(siteId, referendumId)
 
@@ -17,7 +13,8 @@ export const ReferendumPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <GovernanceModerationHeader
+      {JSON.stringify(referendum)}
+      {/* <GovernanceModerationHeader
         siteId={siteId!}
         title={t("title", { referendumId })}
         parentBreadcrumb={{ path: `/${siteId}/g`, title: t("referendums:title") }}
@@ -30,7 +27,7 @@ export const ReferendumPage = () => {
             t={t}
             yesCount={referendum.yesCount}
             noCount={referendum.noCount}
-            absCount={referendum.absCount}
+            abstainedCount={referendum.abstainedCount}
           />
           <Voting
             t={t}
@@ -42,7 +39,7 @@ export const ReferendumPage = () => {
             createdByAvatar={referendum.byAvatar}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
@@ -65,7 +62,7 @@ export const ReferendumPage = () => {
         <div>
           <span className="text-red-500">{referendum.yesCount}</span> /{" "}
           <span className="text-green-500">{referendum.noCount}</span> /{" "}
-          <span className="text-gray-500">{referendum.absCount}</span>
+          <span className="text-gray-500">{referendum.abstainedCount}</span>
         </div>
       </div>
       <div>

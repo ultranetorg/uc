@@ -8,11 +8,11 @@ export type VotingStatisticsProps = {
   t: TFunction
   yesCount: number
   noCount: number
-  absCount: number
+  abstainedCount: number
 }
 
-export const VotingStatistics = ({ t, yesCount, noCount, absCount }: VotingStatisticsProps) => {
-  const total = yesCount + noCount + absCount
+export const VotingStatistics = ({ t, yesCount, noCount, abstainedCount }: VotingStatisticsProps) => {
+  const total = yesCount + noCount + abstainedCount
   const yesValue = total !== 0 ? (yesCount / total) * 100 : 33
   const noValue = total !== 0 ? (noCount / total) * 100 : 33
   const absValue = 100 - yesValue - noValue
@@ -27,7 +27,7 @@ export const VotingStatistics = ({ t, yesCount, noCount, absCount }: VotingStati
   const data: Data<BaseDataEntry> = [
     { title: t("common:yesVotes"), value: yesValue, color: "#E1A107" },
     { title: t("common:noVotes"), value: noValue, color: "#D74C41" },
-    { title: t("common:absVotes"), value: absValue, color: "#44B848" },
+    { title: t("common:abstainedVotes"), value: absValue, color: "#44B848" },
   ]
 
   return (
@@ -60,10 +60,10 @@ export const VotingStatistics = ({ t, yesCount, noCount, absCount }: VotingStati
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bullet className="bg-light-yellow" />
-            {t("common:abs")}
+            {t("common:abstained")}
           </div>
           <div className="flex items-center gap-2">
-            <span>{absCount}</span>
+            <span>{abstainedCount}</span>
             {total !== 0 && <span className="text-gray-500">{absValue}%</span>}
           </div>
         </div>

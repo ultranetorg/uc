@@ -22,7 +22,7 @@ export const UsersTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { isLoading, data: users } = useGetUserProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
+  const { data: users } = useGetUserProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
   console.log(users)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_2) : 0
 
