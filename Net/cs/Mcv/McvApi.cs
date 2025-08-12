@@ -399,7 +399,7 @@ public class TransactionApe
 		MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
 		Signer				= transaction.Signer;
 		Status				= transaction.Status;
-		__ExpectedStatus	= transaction.__ExpectedOutcome;
+		__ExpectedStatus	= transaction.ActionOnResult;
 
 		Log					= transaction.Flow.Log.Messages.ToArray();
 	}

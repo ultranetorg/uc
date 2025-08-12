@@ -172,14 +172,17 @@ public class ProposalVoting : FairOperation
  			switch(result)
  			{
 				case (byte)SpecialChoice.Ban:
-					if(s.IsReferendum(c))
+					if(p.As == Role.Sitezen)
  					{
-						var a = execution.Authors.Affect(Voter);
-						s.Authors = [..s.Authors.Where(i => i.Author != p.By), new Citizen {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)}];
+						var i = Array.FindIndex(s.Authors, i => i.Author != p.By);
+						s.Authors = [..s.Authors];
+						s.Authors[i] = new Citizen {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
-					else if(s.IsDiscussion(c))
+					else if(p.As == Role.Moderator)
  					{
-						s.Moderators = [..s.Moderators.Where(i => i.Account != p.By), new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)}];
+						var i = Array.FindIndex(s.Moderators, i => i.Account != p.By);
+						s.Moderators = [..s.Moderators];
+						s.Moderators[i] = new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					break;
  				

@@ -7,7 +7,7 @@ public enum ApprovalPolicy : byte
 
 public enum Role : byte
 {
-	None, Author, Moderator, Citizen, User
+	None, Candidate, Moderator, Sitezen, User
 }
 
 public class Moderator : IBinarySerializable
@@ -74,7 +74,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					Users { get; set; }
 
 	public int						PublicationsCount { get; set; }
-	public int						AuthorRequestFee { get; set; }
+	public int						CandidateRequestFee { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -126,7 +126,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Description				= Description,
 					Nickname				= Nickname,
 					ModerationReward		= ModerationReward,
-					AuthorRequestFee		= AuthorRequestFee,
+					CandidateRequestFee		= CandidateRequestFee,
 					Avatar					= Avatar,
 					PoWComplexity			= PoWComplexity,
 					
@@ -178,7 +178,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Slogan						= reader.ReadUtf8Nullable();
 		Description					= reader.ReadUtf8Nullable();
 		ModerationReward			= reader.Read7BitEncodedInt();
-		AuthorRequestFee			= reader.Read7BitEncodedInt();
+		CandidateRequestFee			= reader.Read7BitEncodedInt();
 		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
@@ -211,7 +211,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8Nullable(Slogan);
 		writer.WriteUtf8Nullable(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
-		writer.Write7BitEncodedInt(AuthorRequestFee);
+		writer.Write7BitEncodedInt(CandidateRequestFee);
 		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		

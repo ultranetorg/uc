@@ -87,7 +87,7 @@ public class PublicationCreation : VotableOperation
 //		s = execution.Sites.Affect(p.Site);
 		
 		
-		if(As == Role.Author)
+		if(As == Role.Candidate)
 		{ 
 			//var a = execution.Authors.Affect(r.Author);
 

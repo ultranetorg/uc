@@ -146,7 +146,7 @@ public class ProposalCreation : FairOperation
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Citizen && s.CreationPolicies[c].Contains(Role.Citizen))
+		if(As == Role.Sitezen && s.CreationPolicies[c].Contains(Role.Sitezen))
  		{
 			if(!CanAccessAuthor(execution, By, out _, out Error))
 				return;
@@ -167,15 +167,15 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Author && s.CreationPolicies[c].Contains(Role.Author))
+ 		else if(As == Role.Candidate && s.CreationPolicies[c].Contains(Role.Candidate))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
 
 			var a = execution.Authors.Affect(By);
 
-			a.Energy -= s.AuthorRequestFee;
-			s.Energy += s.AuthorRequestFee;
+			a.Energy -= s.CandidateRequestFee;
+			s.Energy += s.CandidateRequestFee;
 
 			execution.PayCycleEnergy(a);
  		}
@@ -212,7 +212,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Abstained			= [];
+			z.Abstained		= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();
@@ -224,7 +224,7 @@ public class ProposalCreation : FairOperation
  			{
  				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
  			}
-			else if(As == Role.Citizen || As == Role.Author)
+			else if(As == Role.Sitezen || As == Role.Candidate)
  			{
 				var a = execution.Authors.Affect(By);
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));

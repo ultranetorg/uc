@@ -603,7 +603,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Flow	 = Flow;
 						t.Net	 = Net;
 						t.Signer = g;
-	 					t.__ExpectedOutcome = ActionOnResult.RetryUntilConfirmed;
+	 					t.ActionOnResult = ActionOnResult.RetryUntilConfirmed;
 				
 						t.AddOperation(Mcv.CreateCandidacyDeclaration());
 	
@@ -996,7 +996,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						Flow.Log?.ReportError(this, "Transaction allocation", ex);
 
-						if(t.__ExpectedOutcome != ActionOnResult.RetryUntilConfirmed)
+						if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
 						{
 							lock(Lock)
 								t.Status = TransactionStatus.FailedOrNotFound;
@@ -1042,7 +1042,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							{
 								t.Flow.Log?.Report(this, $"Rejected: Member={{{m}}}");
 
-								if(t.__ExpectedOutcome == ActionOnResult.RetryUntilConfirmed)
+								if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 									t.Status = TransactionStatus.None;
 								else
 									t.Status = TransactionStatus.FailedOrNotFound;
@@ -1088,12 +1088,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 								if(t.Status == TransactionStatus.FailedOrNotFound)
 								{
-									if(t.__ExpectedOutcome == ActionOnResult.RetryUntilConfirmed)
+									if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 										t.Status = TransactionStatus.None;
 								}
 								else if(t.Status == TransactionStatus.Confirmed)
 								{
-									if(t.__ExpectedOutcome == ActionOnResult.ExpectFailure)
+									if(t.ActionOnResult == ActionOnResult.ExpectFailure)
 										Debugger.Break();
 									else
 										t.Id = i.Id; 
@@ -1151,7 +1151,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		t.Sponsored			= sponsored;
 		t.Flow				= flow;
 		t.Inquired			= DateTime.UtcNow;
- 		t.__ExpectedOutcome	= aor;
+ 		t.ActionOnResult	= aor;
 		
 		foreach(var i in operations)
 		{
