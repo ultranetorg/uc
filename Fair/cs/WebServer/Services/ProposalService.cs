@@ -202,5 +202,5 @@ public class ProposalService
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
+		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.AuthorsMajority;
 }

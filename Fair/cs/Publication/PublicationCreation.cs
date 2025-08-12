@@ -140,11 +140,6 @@ public class PublicationCreation : VotableOperation
 		//	s.PublicationsCount++;
 		//}
 
-		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
-			
-		if(tr != null)
-			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
-
 		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}
 }

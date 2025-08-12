@@ -92,8 +92,8 @@ public class ProposalVoting : FairOperation
  										 {
 											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abstained.Length == 1,
  											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abstained.Length > s.Moderators.Length/2,
- 											ApprovalPolicy.ElectedByModeratorsUnanimously	=> votes.Length + p.Abstained.Length == s.Moderators.Length,
- 											ApprovalPolicy.ElectedByAuthorsMajority			=> votes.Length + p.Abstained.Length > s.Authors.Length/2,
+ 											ApprovalPolicy.AllModerators	=> votes.Length + p.Abstained.Length == s.Moderators.Length,
+ 											ApprovalPolicy.AuthorsMajority			=> votes.Length + p.Abstained.Length > s.Authors.Length/2,
  											_ => throw new IntegrityException()
  										 };
 		}
