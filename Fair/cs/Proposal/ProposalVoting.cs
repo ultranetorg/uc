@@ -65,7 +65,7 @@ public class ProposalVoting : FairOperation
 
 		if(s.IsReferendum(c))
  		{
-			if(!IsPublisher(execution, s.Id, Voter, out var _, out var _, out Error))
+			if(!IsPublisher(execution, s, Voter, out var x, out Error))
 				return;
 
 			var a = execution.Authors.Affect(Voter);
@@ -73,7 +73,7 @@ public class ProposalVoting : FairOperation
  		}
 		else if(s.IsDiscussion(c))
  		{
-			if(!IsModerator(execution, s.Id, Voter, out var _, out Error))
+			if(!IsModerator(execution, s, Voter, out var _, out Error))
 				return;
 
 			execution.PayCycleEnergy(s);
@@ -93,7 +93,7 @@ public class ProposalVoting : FairOperation
 											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abstained.Length == 1,
  											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abstained.Length > s.Moderators.Length/2,
  											ApprovalPolicy.AllModerators	=> votes.Length + p.Abstained.Length == s.Moderators.Length,
- 											ApprovalPolicy.AuthorsMajority			=> votes.Length + p.Abstained.Length > s.Authors.Length/2,
+ 											ApprovalPolicy.AuthorsMajority			=> votes.Length + p.Abstained.Length > s.Publishers.Length/2,
  											_ => throw new IntegrityException()
  										 };
 		}
@@ -172,11 +172,11 @@ public class ProposalVoting : FairOperation
  			switch(result)
  			{
 				case (byte)SpecialChoice.Ban:
-					if(p.As == Role.Sitezen)
+					if(p.As == Role.Publisher)
  					{
-						var i = Array.FindIndex(s.Authors, i => i.Author != p.By);
-						s.Authors = [..s.Authors];
-						s.Authors[i] = new Citizen {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)};
+						var i = Array.FindIndex(s.Publishers, i => i.Author != p.By);
+						s.Publishers = [..s.Publishers];
+						s.Publishers[i] = new Publisher {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					else if(p.As == Role.Moderator)
  					{

@@ -36,12 +36,12 @@ public class SiteCreation : FairOperation
 		s.Moderators	= [new Moderator {Account = Signer.Id}];
 
 
-		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Sitezen];
-		s.CreationPolicies[FairOperationClass.SiteTextChange]				= [Role.Sitezen];
-		s.CreationPolicies[FairOperationClass.SiteAvatarChange]				= [Role.Sitezen];
-		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Sitezen];
-		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Sitezen];
-		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Sitezen];
+		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Publisher];
+		s.CreationPolicies[FairOperationClass.SiteTextChange]				= [Role.Publisher];
+		s.CreationPolicies[FairOperationClass.SiteAvatarChange]				= [Role.Publisher];
+		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Publisher];
+		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Publisher];
+		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Publisher];
 		
 		s.CreationPolicies[FairOperationClass.UserRegistration]				= [Role.User];
 		s.CreationPolicies[FairOperationClass.UserDeletion]					= [Role.Moderator];
@@ -51,7 +51,7 @@ public class SiteCreation : FairOperation
 		s.CreationPolicies[FairOperationClass.CategoryTypeChange]			= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.CategoryAvatarChange]			= [Role.Moderator];
 
-		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Sitezen, Role.Moderator, Role.Candidate];
+		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Publisher, Role.Moderator, Role.Candidate];
 		s.CreationPolicies[FairOperationClass.PublicationDeletion]			= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.PublicationUpdation]			= [Role.Moderator];
 		s.CreationPolicies[FairOperationClass.PublicationPublish]			= [Role.Moderator];

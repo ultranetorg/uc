@@ -7,7 +7,7 @@ public enum ApprovalPolicy : byte
 
 public enum Role : byte
 {
-	None, Candidate, Moderator, Sitezen, User
+	None, Candidate, Moderator, Publisher, User
 }
 
 public class Moderator : IBinarySerializable
@@ -28,7 +28,7 @@ public class Moderator : IBinarySerializable
 	}
 }
 
-public class Citizen : IBinarySerializable
+public class Publisher : IBinarySerializable
 {
 	public AutoId		Author { get; set; }
 	public Time			BannedTill { get; set; }
@@ -64,7 +64,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
-	public Citizen[]				Authors { get; set; }
+	public Publisher[]				Publishers { get; set; }
 	public Moderator[]				Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
 	public AutoId[]					Proposals { get; set; }
@@ -139,7 +139,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 					PublicationsCount		= PublicationsCount,
 
-					Authors					= Authors,
+					Publishers					= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
@@ -191,7 +191,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Authors						= reader.ReadArray<Citizen>();
+		Publishers						= reader.ReadArray<Publisher>();
 		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
@@ -224,7 +224,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 		writer.Write7BitEncodedInt(PublicationsCount);
 
-		writer.Write(Authors);
+		writer.Write(Publishers);
 		writer.Write(Moderators);
 		writer.Write(Users);
 		writer.Write(Categories);

@@ -121,12 +121,12 @@ public class PublicationCreation : VotableOperation
 		//var r = execution.Products.Find(p.Product);
 		//var a = execution.Authors.Find();
 
-		if(!Site.Authors.Any(i => i.Author == r.Author))
+		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
 			var a = execution.Authors.Affect(r.Author);
 			//s = execution.Sites.Affect(s.Id);
 
-			Site.Authors = [..Site.Authors, new Citizen {Author = a.Id}];
+			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id}];
 			a.Sites = [..a.Sites, Site.Id];
 		}
 
