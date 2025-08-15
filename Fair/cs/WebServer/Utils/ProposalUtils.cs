@@ -43,4 +43,19 @@ public static class ProposalUtils
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 		};
 	}
+
+	public static IEnumerable<ProposalOptionModel> MapOptions(ProposalOption[] options)
+	{
+		IList<ProposalOptionModel> result = new List<ProposalOptionModel>(options.Length);
+
+		foreach(ProposalOption option in options)
+		{
+			ProposalOptionModel model = new(option);
+			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
+
+			result.Add(model);
+		}
+
+		return result;
+	}
 }

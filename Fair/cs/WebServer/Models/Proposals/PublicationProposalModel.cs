@@ -8,6 +8,4 @@ public class PublicationProposalModel(Proposal proposal, Product product, FairAc
 
 	public PublicationImageBaseModel Publication { get; } = publication;
 	public AccountBaseModel Author { get; } = new(publisher);
-
-	public IEnumerable<ProposalOptionModel> Options { get; set; } = null!;
 }

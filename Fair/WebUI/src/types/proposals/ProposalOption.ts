@@ -1,5 +1,4 @@
-import { AccountBase } from "./AccountBase"
-import { BaseVotableOperation } from "./votableOperations"
+import { AccountBase, BaseVotableOperation } from "types"
 
 export type ProposalOption = {
   title: string

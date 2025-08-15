@@ -5,6 +5,7 @@ type TableBaseColumn = {
   accessor: string
   label?: string
   type?: string
+  title?: string
 }
 
 export type TableColumn = PropsWithClassName & TableBaseColumn
@@ -22,6 +23,7 @@ export type TableProps = {
   columns: TableColumn[]
   emptyState?: ReactNode
   items?: TableItem[]
+  tableBodyClassName?: string
   itemRenderer?: TableItemRenderer
   rowRenderer?: TableRowRenderer
 }

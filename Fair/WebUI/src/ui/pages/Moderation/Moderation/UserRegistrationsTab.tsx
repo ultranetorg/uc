@@ -3,13 +3,15 @@ import { useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 import { useTranslation } from "react-i18next"
 
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 as PAGE_SIZE_20 } from "config"
 import { useGetUserProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
+import { getUsersItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
+import { getCommonColumns } from "./constants"
 
-export const UsersTab = () => {
+export const UserRegistrationsTab = () => {
   const { t } = useTranslation("tabUsers")
   const { siteId } = useParams()
 
@@ -22,21 +24,18 @@ export const UsersTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: users } = useGetUserProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
-  console.log(users)
-  const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+  const { data: users } = useGetUserProposals(siteId, page, PAGE_SIZE_20)
+  const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / PAGE_SIZE_20) : 0
 
   const columns = useMemo(
     () => [
-      { accessor: "creator", label: t("reviewer"), type: "account", className: "w-[15%]" },
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("text"), type: "text", className: "w-[23%]" },
-      { accessor: "rating", label: t("common:rating"), type: "rating", className: "w-[5%]" },
-      { accessor: "creationTime", label: t("common:date"), type: "date", className: "w-[8%]" },
-      { accessor: "action", label: t("common:action"), type: "approve-reject-action", className: "w-[17%]" },
+      { accessor: "title", label: t("common:title"), type: "title", className: "w-[23%]" },
+      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[15%]" },
+      ...getCommonColumns(t),
     ],
     [t],
   )
+  const itemRenderer = useMemo(() => getUsersItemRenderer(t), [t])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -51,7 +50,8 @@ export const UsersTab = () => {
       <Table
         columns={columns}
         items={users?.items}
-        //itemRenderer={itemRenderer}
+        tableBodyClassName="text-2sm leading-5"
+        itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noUsers")} />}
       />
       <div className="flex w-full justify-end">

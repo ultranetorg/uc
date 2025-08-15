@@ -6,6 +6,4 @@ public class ReviewProposalModel(Proposal proposal, FairAccount reviewer, Public
 {
 	public AccountBaseModel Reviewer { get; } = new(reviewer);
 	public PublicationImageBaseModel Publication { get; } = publication;
-
-	public IEnumerable<ProposalOptionModel> Options { get; set; } = null!;
 }

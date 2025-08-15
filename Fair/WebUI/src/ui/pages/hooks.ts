@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { isInteger } from "utils"
 
 const getSearchParams = (searchParams: URLSearchParams) => {
@@ -9,7 +9,7 @@ const getSearchParams = (searchParams: URLSearchParams) => {
   const sizeParam = searchParams.get("pageSize") ?? searchParams.get("s")
 
   const page = isInteger(pageParam) ? parseInt(pageParam!) : 0
-  const pageSize = isInteger(sizeParam) ? parseInt(sizeParam!) : DEFAULT_PAGE_SIZE_2
+  const pageSize = isInteger(sizeParam) ? parseInt(sizeParam!) : DEFAULT_PAGE_SIZE_20
   const search = searchParams.get("search") ?? searchParams.get("q") ?? ""
 
   return { page, pageSize, search }
@@ -18,7 +18,7 @@ const getSearchParams = (searchParams: URLSearchParams) => {
 // TODO: refactor this hook.
 export const usePagePagination = () => {
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE_2)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE_20)
   const [search, setSearch] = useState("")
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -42,7 +42,7 @@ export const usePagePagination = () => {
     } else {
       searchParams.delete("page")
     }
-    if (pageSize !== DEFAULT_PAGE_SIZE_2) {
+    if (pageSize !== DEFAULT_PAGE_SIZE_20) {
       searchParams.set("pageSize", pageSize.toString())
     } else {
       searchParams.delete("pageSize")
@@ -57,7 +57,7 @@ export const usePagePagination = () => {
 
   const resetPagination = useCallback(() => {
     setPage(0)
-    setPageSize(DEFAULT_PAGE_SIZE_2)
+    setPageSize(DEFAULT_PAGE_SIZE_20)
     setSearch("")
   }, [])
 

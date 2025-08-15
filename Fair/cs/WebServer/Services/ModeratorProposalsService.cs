@@ -64,7 +64,7 @@ public class ModeratorProposalsService
 		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, image);
 
 		T instance = (T) Activator.CreateInstance(typeof(T), proposal, reviewer, model);
-		instance.Options = MapOptions(proposal.Options);
+		instance.Options = ProposalUtils.MapOptions(proposal.Options);
 		return instance;
 	}
 
@@ -77,7 +77,7 @@ public class ModeratorProposalsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		return GetProposalByType<UserProposalModel>(siteId, proposalId, UserEntityName, ProposalUtils.IsUserOperation, (p) => new UserProposalModel(p));
+		return GetProposalByType<UserProposalModel>(siteId, proposalId, UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
 	}
 
 	public TotalItemsResult<UserProposalModel> GetUserProposalsNotOptimized
@@ -94,8 +94,9 @@ public class ModeratorProposalsService
 
 	UserProposalModel CreateUserProposalModel(Proposal proposal)
 	{
-		UserProposalModel model = new(proposal);
-		model.Options = MapOptions(proposal.Options);
+		FairAccount? signer = proposal.Options.Length > 0 ? proposal.Options[0].Operation.Signer : null;
+		var model = new UserProposalModel(proposal, signer);
+		model.Options = ProposalUtils.MapOptions(proposal.Options);
 		return model;
 	}
 
@@ -163,18 +164,22 @@ public class ModeratorProposalsService
 
 		return new PublicationProposalModel(proposal, product, author, publicationImage)
 		{
-			Options = MapOptions(proposal.Options)
+			Options = ProposalUtils.MapOptions(proposal.Options)
 		};
 	}
 
 	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
 	{
 		Product product = mcv.Products.Latest(productId);
-		FairAccount author = (FairAccount)mcv.Accounts.Latest(product.Author);
+		FairAccount author = (FairAccount) mcv.Accounts.Latest(product.Author);
+		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
+		byte[]? image = fileId != null ? mcv.Files.Latest(fileId)?.Data : null;
 
-		return new PublicationProposalModel(proposal, product, author)
+		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, image);
+
+		return new PublicationProposalModel(proposal, product, author, publicationImage)
 		{
-			Options = MapOptions(proposal.Options)
+			Options = ProposalUtils.MapOptions(proposal.Options)
 		};
 	}
 
@@ -257,21 +262,6 @@ public class ModeratorProposalsService
 		}
 
 		return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
-	}
-
-	IEnumerable<ProposalOptionModel> MapOptions(ProposalOption[] options)
-	{
-		IList<ProposalOptionModel> result = new List<ProposalOptionModel>(options.Length);
-
-		foreach(ProposalOption option in options)
-		{
-			ProposalOptionModel model = new(option);
-			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
-
-			result.Add(model);
-		}
-
-		return result;
 	}
 }
 

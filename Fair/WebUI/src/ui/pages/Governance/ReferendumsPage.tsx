@@ -9,7 +9,7 @@ import { GovernanceModerationHeader } from "ui/components/specific"
 import { getReferendumsRowRenderer as getRowRenderer } from "ui/renderers"
 import { ProposalsTemplate } from "ui/templates"
 import { parseInteger } from "utils"
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 
 export const ReferendumsPage = () => {
   const { siteId } = useParams()
@@ -28,9 +28,9 @@ export const ReferendumsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const { data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
-    referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+    referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
 

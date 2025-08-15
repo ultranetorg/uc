@@ -3,7 +3,8 @@ import { TFunction } from "i18next"
 
 import { Proposal, TotalItemsResult } from "types"
 import { Input, Pagination, Table, TableEmptyState, TableRowRenderer } from "ui/components"
-import { proposalsItemRenderer } from "ui/renderers"
+import { getProposalsItemRenderer } from "ui/renderers"
+import { getCommonColumns } from "ui/pages/Moderation/Moderation/constants"
 
 export type ProposalsTemplateProps = {
   t: TFunction
@@ -31,20 +32,13 @@ export const ProposalsTemplate = memo(
       () => [
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
         { accessor: "createdBy", label: t("common:createdBy"), type: "account", className: "w-[15%]" },
-        { accessor: "expirationTime", label: t("common:daysLeft"), className: "w-[6%] text-center" },
-        {
-          accessor: "optionsVotesCount",
-          label: t("common:options"),
-          type: "options",
-          className: "w-[16%] text-center",
-        },
-        { accessor: "abstainedCount", label: t("common:abs"), className: "w-[5%] text-center" },
-        { accessor: "neitherCount", label: t("common:neither"), className: "w-[5%] text-center" },
-        { accessor: "banCount", label: t("common:ban"), className: "w-[5%] text-center" },
-        { accessor: "banishCount", label: t("common:banish"), className: "w-[5%] text-center" },
+        { accessor: "action", label: t("common:action"), type: "action", className: "w-[6%]" },
+        ...getCommonColumns(t),
       ],
       [t],
     )
+
+    const itemRenderer = useMemo(() => getProposalsItemRenderer(t), [t])
 
     return (
       <>
@@ -61,7 +55,7 @@ export const ProposalsTemplate = memo(
         <Table
           columns={columns}
           items={proposals?.items}
-          itemRenderer={proposalsItemRenderer}
+          itemRenderer={itemRenderer}
           rowRenderer={tableRowRenderer}
           emptyState={<TableEmptyState message={t("noProposals")} />}
         />

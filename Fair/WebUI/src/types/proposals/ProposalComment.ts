@@ -1,4 +1,4 @@
-import { AccountBase } from "./AccountBase"
+import { AccountBase } from "types"
 
 export type ProposalComment = {
   id: string

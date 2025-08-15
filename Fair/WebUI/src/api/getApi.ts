@@ -1,4 +1,4 @@
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import {
   AuthorDetails,
   Category,
@@ -112,7 +112,7 @@ const getAuthorReferendums = async (
 ): Promise<TotalItemsResult<Proposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums` + params)
   return await toTotalItemsResult(res)
@@ -129,7 +129,7 @@ const getModeratorDiscussionComments = async (
 ): Promise<TotalItemsResult<ProposalComment>> => {
   const params = buildUrlParams(
     { page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}/comments` + params)
   return await toTotalItemsResult(res)
@@ -143,7 +143,7 @@ const getModeratorDiscussions = async (
 ): Promise<TotalItemsResult<Proposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions` + params)
   return await toTotalItemsResult(res)
@@ -160,7 +160,7 @@ const getPublicationProposals = async (
 ): Promise<TotalItemsResult<PublicationProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/publications` + params)
   return await toTotalItemsResult(res)
@@ -177,7 +177,7 @@ const getReviewProposals = async (
 ): Promise<TotalItemsResult<ReviewProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
   return await toTotalItemsResult(res)
@@ -194,7 +194,7 @@ const getUserProposals = async (
 ): Promise<TotalItemsResult<UserProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_2, page: x => !!x && x > 0 },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/users` + params)
   return await toTotalItemsResult(res)

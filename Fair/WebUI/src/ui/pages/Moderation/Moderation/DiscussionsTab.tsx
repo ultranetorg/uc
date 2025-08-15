@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
 import { useUrlParamsState } from "hooks"
 import { getDiscussionsRowRowRenderer as getRowRenderer } from "ui/renderers"
@@ -27,9 +27,9 @@ export const DiscussionsTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_2, state.query)
+  const { data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
-    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
 

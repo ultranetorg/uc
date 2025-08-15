@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { DEFAULT_PAGE_SIZE_2 } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { itemRenderer } from "ui/renderers/reviewProposals"
+import { getReviewsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
+
+import { getCommonColumns } from "./constants"
 
 export const ReviewsTab = () => {
   const { t } = useTranslation("tabReviews")
@@ -24,21 +26,21 @@ export const ReviewsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: reviews } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_2)
+  const { data: reviews } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
-    reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_2) : 0
+    reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const columns = useMemo(
     () => [
-      { accessor: "creator", label: t("reviewer"), type: "account", className: "w-[15%]" },
+      { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("text"), type: "text", className: "w-[23%]" },
-      { accessor: "rating", label: t("common:rating"), type: "rating", className: "w-[5%]" },
-      { accessor: "creationTime", label: t("common:date"), type: "date", className: "w-[8%]" },
-      { accessor: "action", label: t("common:action"), type: "approve-reject-action", className: "w-[17%]" },
+      { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
+      { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[17%]" },
+      ...getCommonColumns(t),
     ],
     [t],
   )
+  const itemRenderer = useMemo(() => getReviewsItemRenderer(t), [t])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -54,6 +56,7 @@ export const ReviewsTab = () => {
         columns={columns}
         items={reviews?.items}
         itemRenderer={itemRenderer}
+        tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noReviews")} />}
       />
       <div className="flex w-full justify-end">

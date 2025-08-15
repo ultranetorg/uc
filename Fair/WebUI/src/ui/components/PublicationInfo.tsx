@@ -5,7 +5,7 @@ import { buildSrc } from "utils"
 
 export type PublicationInfoProps = {
   avatar?: string
-  categoryTitle: string
+  categoryTitle?: string
   title: string
 }
 
@@ -16,7 +16,7 @@ export const PublicationInfo = memo(({ avatar, categoryTitle, title }: Publicati
     </div>
     <div className="flex flex-col font-medium">
       <span className="text-sm leading-4.25">{title}</span>
-      <span className="text-xs leading-3.75 text-gray-500">{categoryTitle}</span>
+      {categoryTitle && <span className="text-xs leading-3.75 text-gray-500">{categoryTitle}</span>}
     </div>
   </div>
 ))

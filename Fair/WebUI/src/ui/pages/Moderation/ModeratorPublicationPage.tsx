@@ -26,9 +26,9 @@ export const ModeratorPublicationPage = () => {
         <tbody>
           <tr key={publication.id}>
             <td>{publication.id}</td>
-            <td>{publication.categoryId}</td>
+            {/* <td>{publication.categoryId}</td>
             <td>{publication.authorId}</td>
-            <td>{publication.productId}</td>
+            <td>{publication.productId}</td> */}
             <td></td>
           </tr>
         </tbody>

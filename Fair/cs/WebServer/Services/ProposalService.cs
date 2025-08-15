@@ -161,7 +161,10 @@ public class ProposalService
 		foreach(Proposal proposal in proposals)
 		{
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, account); ;
+			ProposalModel model = new ProposalModel(proposal, account)
+			{
+				Options = ProposalUtils.MapOptions(proposal.Options)
+			};
 			result.Add(model);
 		}
 
