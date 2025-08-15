@@ -17,13 +17,11 @@ export type TableItem = {
 
 export type TableItemRenderer = (item: TableItem, column: TableColumn) => ReactNode
 
-export type TableRowRenderer = (children: JSX.Element, item: TableItem) => JSX.Element
-
 export type TableProps = {
   columns: TableColumn[]
   emptyState?: ReactNode
   items?: TableItem[]
   tableBodyClassName?: string
   itemRenderer?: TableItemRenderer
-  rowRenderer?: TableRowRenderer
+  onRowClick?: (id: string) => void
 }

@@ -1,18 +1,18 @@
-import { useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useCallback, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
 import { useUrlParamsState } from "hooks"
-import { getDiscussionsRowRowRenderer as getRowRenderer } from "ui/renderers"
 import { ProposalsTemplate } from "ui/templates"
 import { parseInteger } from "utils"
 
 export const DiscussionsTab = () => {
   const { siteId } = useParams()
   const { t } = useTranslation("tabDiscussions")
+  const navigate = useNavigate()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -31,8 +31,6 @@ export const DiscussionsTab = () => {
   const pagesCount =
     discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const rowRenderer = useMemo(() => getRowRenderer(siteId!), [siteId])
-
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ query: state.query, page })
@@ -40,6 +38,8 @@ export const DiscussionsTab = () => {
     },
     [setState, state.query],
   )
+
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m-d/${id}`), [navigate, siteId])
 
   const handleSearchChange = useCallback(
     (query: string) => {
@@ -57,9 +57,9 @@ export const DiscussionsTab = () => {
         page={page}
         pagesCount={pagesCount}
         search={state.query}
-        tableRowRenderer={rowRenderer}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onTableRowClick={handleTableRowClick}
       />
     </div>
   )

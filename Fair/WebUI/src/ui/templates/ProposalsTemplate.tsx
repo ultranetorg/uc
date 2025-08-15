@@ -2,9 +2,9 @@ import { memo, useMemo } from "react"
 import { TFunction } from "i18next"
 
 import { Proposal, TotalItemsResult } from "types"
-import { Input, Pagination, Table, TableEmptyState, TableRowRenderer } from "ui/components"
-import { getProposalsItemRenderer } from "ui/renderers"
+import { Input, Pagination, Table, TableEmptyState, TableProps } from "ui/components"
 import { getCommonColumns } from "ui/pages/Moderation/Moderation/constants"
+import { getProposalsItemRenderer } from "ui/renderers"
 
 export type ProposalsTemplateProps = {
   t: TFunction
@@ -12,9 +12,9 @@ export type ProposalsTemplateProps = {
   page: number
   pagesCount: number
   search: string
-  tableRowRenderer: TableRowRenderer
-  onSearchChange: (search: string) => void
   onPageChange: (page: number) => void
+  onTableRowClick: (id: string) => void
+  onSearchChange: (search: string) => void
 }
 
 export const ProposalsTemplate = memo(
@@ -24,9 +24,9 @@ export const ProposalsTemplate = memo(
     page,
     pagesCount,
     search,
-    tableRowRenderer,
-    onSearchChange,
     onPageChange,
+    onTableRowClick,
+    onSearchChange,
   }: ProposalsTemplateProps) => {
     const columns = useMemo(
       () => [
@@ -56,8 +56,8 @@ export const ProposalsTemplate = memo(
           columns={columns}
           items={proposals?.items}
           itemRenderer={itemRenderer}
-          rowRenderer={tableRowRenderer}
           emptyState={<TableEmptyState message={t("noProposals")} />}
+          onRowClick={onTableRowClick}
         />
         <div className="flex justify-end">
           <Pagination onPageChange={onPageChange} page={page} pagesCount={pagesCount} />
