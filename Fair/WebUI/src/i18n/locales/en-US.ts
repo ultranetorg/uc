@@ -18,6 +18,7 @@ export const enUS = {
     no: "No",
     noVotes: "No votes",
     options: "Options",
+    product: "Product",
     publication: "Publication",
     rating: "Rating",
     reviewer: "Reviewer",

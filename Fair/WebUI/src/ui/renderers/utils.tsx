@@ -63,7 +63,14 @@ export const renderTitle = (title: string, text: string) => (
   </div>
 )
 
-export const renderVotes = (votes: number[]): string => formatVotes(votes)
+export const renderVotes = (votes: number[]) => {
+  const formatted = formatVotes(votes)
+  return (
+    <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={formatted}>
+      {formatted}
+    </div>
+  )
+}
 
 export const renderCommon = (t: TFunction, column: TableColumn, proposal: BaseProposal): ReactNode => {
   switch (column.type) {
