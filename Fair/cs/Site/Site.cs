@@ -2,12 +2,12 @@ namespace Uccs.Fair;
 
 public enum ApprovalPolicy : byte
 {
-	None, AnyModerator, ElectedByModeratorsMajority, ElectedByModeratorsUnanimously, ElectedByAuthorsMajority
+	None, AnyModerator, ElectedByModeratorsMajority, AllModerators, AuthorsMajority
 }
 
 public enum Role : byte
 {
-	None, Author, Moderator, Citizen, User
+	None, Candidate, Moderator, Publisher, User
 }
 
 public class Moderator : IBinarySerializable
@@ -28,7 +28,7 @@ public class Moderator : IBinarySerializable
 	}
 }
 
-public class Citizen : IBinarySerializable
+public class Publisher : IBinarySerializable
 {
 	public AutoId		Author { get; set; }
 	public Time			BannedTill { get; set; }
@@ -64,7 +64,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 
-	public Citizen[]				Authors { get; set; }
+	public Publisher[]				Publishers { get; set; }
 	public Moderator[]				Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
 	public AutoId[]					Proposals { get; set; }
@@ -74,7 +74,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public AutoId[]					Users { get; set; }
 
 	public int						PublicationsCount { get; set; }
-	public int						AuthorRequestFee { get; set; }
+	public int						CandidateRequestFee { get; set; }
 
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
@@ -126,7 +126,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Description				= Description,
 					Nickname				= Nickname,
 					ModerationReward		= ModerationReward,
-					AuthorRequestFee		= AuthorRequestFee,
+					CandidateRequestFee		= CandidateRequestFee,
 					Avatar					= Avatar,
 					PoWComplexity			= PoWComplexity,
 					
@@ -139,7 +139,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 					PublicationsCount		= PublicationsCount,
 
-					Authors					= Authors,
+					Publishers					= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
@@ -178,7 +178,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Slogan						= reader.ReadUtf8Nullable();
 		Description					= reader.ReadUtf8Nullable();
 		ModerationReward			= reader.Read7BitEncodedInt();
-		AuthorRequestFee			= reader.Read7BitEncodedInt();
+		CandidateRequestFee			= reader.Read7BitEncodedInt();
 		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
@@ -191,7 +191,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Authors						= reader.ReadArray<Citizen>();
+		Publishers						= reader.ReadArray<Publisher>();
 		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
@@ -211,7 +211,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.WriteUtf8Nullable(Slogan);
 		writer.WriteUtf8Nullable(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
-		writer.Write7BitEncodedInt(AuthorRequestFee);
+		writer.Write7BitEncodedInt(CandidateRequestFee);
 		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		
@@ -224,7 +224,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 		writer.Write7BitEncodedInt(PublicationsCount);
 
-		writer.Write(Authors);
+		writer.Write(Publishers);
 		writer.Write(Moderators);
 		writer.Write(Users);
 		writer.Write(Categories);
@@ -244,12 +244,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsReferendum(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.ElectedByAuthorsMajority;
+		return ApprovalPolicies[operation] == ApprovalPolicy.AuthorsMajority;
 	}
 
 	public bool IsDiscussion(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.AnyModerator || ApprovalPolicies[operation] == ApprovalPolicy.ElectedByModeratorsMajority || ApprovalPolicies[operation] == ApprovalPolicy.ElectedByModeratorsUnanimously;
+		return ApprovalPolicies[operation] == ApprovalPolicy.AnyModerator || ApprovalPolicies[operation] == ApprovalPolicy.ElectedByModeratorsMajority || ApprovalPolicies[operation] == ApprovalPolicy.AllModerators;
 	}
 
 }

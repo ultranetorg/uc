@@ -46,10 +46,10 @@ public class ProposalCommentEdit : FairOperation
  		}
  		else
  		{
-			if(!IsReferendumCommentOwner(execution, Comment, out var _, out var a, out var _, out var _, out Error))
+			if(!IsReferendumCommentOwner(execution, s, Comment, out var m, out var _, out var _, out Error))
 				return;
 
-			a = execution.Authors.Affect(a.Id);
+			var a = execution.Authors.Affect(m.Author);
 
 			execution.Free(a, a, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(a, a, Encoding.UTF8.GetByteCount(Text));

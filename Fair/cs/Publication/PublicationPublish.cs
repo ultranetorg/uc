@@ -55,6 +55,7 @@ public class PublicationPublish : VotableOperation
 	public override void Execute(FairExecution execution)
 	{
 		var p = execution.Publications.Affect(Publication);
+		var r = execution.Products.Find(p.Product);
 
 		if(p.Category != Category && p.Category != null)
 		{
@@ -71,10 +72,14 @@ public class PublicationPublish : VotableOperation
 
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 
-			var r = execution.Products.Find(p.Product);
 			var a = execution.Authors.Affect(r.Author);
 
 			RewardForModeration(execution, a, Site);
 		}
+
+		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
+			
+		if(tr != null)
+			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
 	}
 }

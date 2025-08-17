@@ -77,7 +77,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		s.Id = LastCreatedId = new AutoId(b, e);
 		s.Categories = [];
 		s.Moderators = [];
-		s.Authors = [];
+		s.Publishers = [];
 		s.Users = [];
 		s.Proposals = [];
 		s.CreationPolicies = [];

@@ -146,15 +146,21 @@ public class ProposalCreation : FairOperation
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Citizen && s.CreationPolicies[c].Contains(Role.Citizen))
+		if(As == Role.Publisher && s.CreationPolicies[c].Contains(Role.Publisher))
  		{
-			if(!CanAccessAuthor(execution, By, out _, out Error))
+			if(!CanAccessAuthor(execution, By, out var a, out Error))
 				return;
 
-			if(!IsPublisher(execution, s.Id, By, out var _, out var _, out Error))
+			if(!IsPublisher(execution, s, By, out var x, out Error))
 				return;
 
-			var a = execution.Authors.Affect(By);
+			if(x.BannedTill > execution.Time)
+			{
+				Error = Denied;
+				return;
+			}
+
+			a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
 		else if(As == Role.Moderator && s.CreationPolicies[c].Contains(Role.Moderator))
@@ -162,20 +168,26 @@ public class ProposalCreation : FairOperation
 			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
 			
-			if(!IsModerator(execution, s.Id, By, out var _, out Error))
+			if(!IsModerator(execution, s, By, out var m, out Error))
 				return;
+
+			if(m.BannedTill > execution.Time)
+			{
+				Error = Denied;
+				return;
+			}
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Author && s.CreationPolicies[c].Contains(Role.Author))
+ 		else if(As == Role.Candidate && s.CreationPolicies[c].Contains(Role.Candidate))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
 
 			var a = execution.Authors.Affect(By);
 
-			a.Energy -= s.AuthorRequestFee;
-			s.Energy += s.AuthorRequestFee;
+			a.Energy -= s.CandidateRequestFee;
+			s.Energy += s.CandidateRequestFee;
 
 			execution.PayCycleEnergy(a);
  		}
@@ -194,7 +206,7 @@ public class ProposalCreation : FairOperation
 
 		if(Options.Length == 1 &&  (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator && IsModerator(execution, By, out _, out _) ||
 									s.IsDiscussion(c)									 && IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
-									s.IsReferendum(c)									 && IsPublisher(execution, s.Id, By, out _, out _, out _) && s.Authors.Length == 1))
+									s.IsReferendum(c)									 && IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
 		{
 			Options[0].Operation.Site	= s;
 			Options[0].Operation.As		= As;
@@ -212,7 +224,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Abstained			= [];
+			z.Abstained		= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();
@@ -224,7 +236,7 @@ public class ProposalCreation : FairOperation
  			{
  				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
  			}
-			else if(As == Role.Citizen || As == Role.Author)
+			else if(As == Role.Publisher || As == Role.Candidate)
  			{
 				var a = execution.Authors.Affect(By);
  				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));

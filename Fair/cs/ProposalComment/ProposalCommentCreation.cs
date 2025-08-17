@@ -52,7 +52,7 @@ public class ProposalCommentCreation : FairOperation
  		}
  		else if(s.IsReferendum(d.OptionClass))
  		{
- 			if(!IsPublisher(execution, s.Id, Author, out var _, out var a, out Error))
+ 			if(!IsPublisher(execution, s, Author, out _, out Error))
  				return;
  
 			c.Creator = Author;

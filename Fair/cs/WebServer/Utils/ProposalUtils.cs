@@ -6,7 +6,7 @@ public static class ProposalUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.ElectedByAuthorsMajority;
+		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.AuthorsMajority;
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationRemoveFromChanged or PublicationUpdation;
@@ -30,7 +30,7 @@ public static class ProposalUtils
 			PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
-			ReviewEdit operation => new ReviewEditModel(operation),
+			//ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),

@@ -39,7 +39,7 @@ public class SiteAuthorsChange : VotableOperation
  	{
 		foreach(var i in Additions)
 		{
-			if(Site.Authors.Any(a => a.Author == i))
+			if(Site.Publishers.Any(a => a.Author == i))
 			{	
 				error = AlreadyExists;
 				return false;
@@ -50,7 +50,7 @@ public class SiteAuthorsChange : VotableOperation
 		}
 	
 		foreach(var i in Removals)
-			if(!Site.Authors.Any(a => a.Author == i))
+			if(!Site.Publishers.Any(a => a.Author == i))
 			{	
 				error = NotFound;
 				return false;
@@ -64,9 +64,9 @@ public class SiteAuthorsChange : VotableOperation
 	{
  		var s = Site;
  
- 		s.Authors = [..s.Authors, ..Additions.Select(i => new Citizen {Author = i})];
+ 		s.Publishers = [..s.Publishers, ..Additions.Select(i => new Publisher {Author = i})];
  
  		foreach(var i in Removals)
- 			s.Authors = s.Authors.Remove(s.Authors.First(m => m.Author == i));
+ 			s.Publishers = s.Publishers.Remove(s.Publishers.First(m => m.Author == i));
 	}
 }
