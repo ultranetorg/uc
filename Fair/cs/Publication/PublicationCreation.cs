@@ -87,7 +87,7 @@ public class PublicationCreation : VotableOperation
 //		s = execution.Sites.Affect(p.Site);
 		
 		
-		if(As == Role.Author)
+		if(As == Role.Candidate)
 		{ 
 			//var a = execution.Authors.Affect(r.Author);
 
@@ -121,12 +121,12 @@ public class PublicationCreation : VotableOperation
 		//var r = execution.Products.Find(p.Product);
 		//var a = execution.Authors.Find();
 
-		if(!Site.Authors.Any(i => i.Author == r.Author))
+		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
 			var a = execution.Authors.Affect(r.Author);
 			//s = execution.Sites.Affect(s.Id);
 
-			Site.Authors = [..Site.Authors, new Citizen {Author = a.Id}];
+			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id}];
 			a.Sites = [..a.Sites, Site.Id];
 		}
 
@@ -139,11 +139,6 @@ public class PublicationCreation : VotableOperation
 		//
 		//	s.PublicationsCount++;
 		//}
-
-		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
-			
-		if(tr != null)
-			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
 
 		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}

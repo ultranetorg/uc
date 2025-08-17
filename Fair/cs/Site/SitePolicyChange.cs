@@ -3,21 +3,24 @@
 public class SitePolicyChange : VotableOperation
 {
 	public FairOperationClass	Change { get; set; }
-	public ApprovalPolicy		Policy { get; set; }
+	public Role[]				Creators { get; set; }
+	public ApprovalPolicy		Approval { get; set; }
 
 	public override bool		IsValid(McvNet net) => true;
-	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Policy}";
+	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Approval}";
 	
 	public override void Read(BinaryReader reader)
 	{
-		Change	= reader.Read<FairOperationClass>();
-		Policy	= reader.Read<ApprovalPolicy>();
+		Change		= reader.Read<FairOperationClass>();
+		Creators	= reader.ReadArray(() => reader.Read<Role>());
+		Approval	= reader.Read<ApprovalPolicy>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Change);
-		writer.Write(Policy);
+		writer.Write(Creators, i => writer.Write(i));
+		writer.Write(Approval);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -29,9 +32,16 @@ public class SitePolicyChange : VotableOperation
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(Site.ApprovalPolicies.TryGetValue(Change, out var p) && p == Policy)
+		if(Site.CreationPolicies.TryGetValue(Change, out var c) && c.SequenceEqual(Creators) &&
+			Site.ApprovalPolicies.TryGetValue(Change, out var a) && a == Approval)
 		{	
 			error = AlreadyExists;
+			return false;
+		}
+
+		if(Change == FairOperationClass.SitePolicyChange)
+		{
+			error = NotAvailable;
 			return false;
 		}
 		
@@ -42,8 +52,11 @@ public class SitePolicyChange : VotableOperation
 	public override void Execute(FairExecution execution)
 	{
  		var s = Site;
+
+		s.CreationPolicies = new(s.CreationPolicies);
+		s.CreationPolicies[Change] = Creators;
  
 		s.ApprovalPolicies = new(s.ApprovalPolicies);
-		s.ApprovalPolicies[Change] = Policy;
+		s.ApprovalPolicies[Change] = Approval;
 	}
 }

@@ -174,18 +174,17 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool IsPublisher(FairExecution execution, AutoId siteid, AutoId authorid, out Site site, out Author author, out string error)
+	public bool IsPublisher(FairExecution execution, Site site, AutoId authorid, out Publisher citizen, out string error)
 	{
-		site = null;
-
-		if(!CanAccessAuthor(execution, authorid, out author, out error))
+		if(!CanAccessAuthor(execution, authorid, out _, out error))
+		{	
+			citizen = null;
 			return false;
+		}
 
-		site = execution.Sites.Find(siteid);
+		citizen = site.Publishers.FirstOrDefault(i => i.Author == authorid);
 
-		var p = site.Authors.FirstOrDefault(i => i.Author == authorid);
-
- 		if(p == null || p.BannedTill > execution.Time)
+ 		if(citizen == null)
  		{
  			error = Denied;
  			return false;
@@ -235,19 +234,17 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool IsModerator(FairExecution execution, AutoId siteid, AutoId accountid, out Site site, out string error)
+	public bool IsModerator(FairExecution execution, Site site, AutoId accountid, out Moderator moderator, out string error)
 	{
- 		if(!SiteExists(execution, siteid, out site, out error))
- 			return false; 
+		moderator = site.Moderators.FirstOrDefault(i => i.Account == accountid);
 
-		var m = site.Moderators.FirstOrDefault(i => i.Account == accountid);
-
-		if(m == null || m.BannedTill > execution.Time)
+		if(moderator == null)
 		{
 			error = Denied;
 			return false; 
 		}
 
+		error = null;
 		return true; 
 	}
 
@@ -364,10 +361,10 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool IsReferendumCommentOwner(FairExecution execution, AutoId commentid, out Site site, out Author author, out Proposal proposal, out ProposalComment comment, out string error)
+ 	public bool IsReferendumCommentOwner(FairExecution execution, Site site, AutoId commentid, out Publisher citizen, out Proposal proposal, out ProposalComment comment, out string error)
  	{
 		site = null;
-		author = null;
+		citizen = null;
 		proposal = null;
 		comment = execution.ProposalComments.Find(commentid);
 		
@@ -379,10 +376,10 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsPublisher(execution, proposal.Site, comment.Creator, out site, out author, out error))
+		if(!IsPublisher(execution, site, comment.Creator, out citizen, out error))
 			return false;
 
-		if(comment.Creator != author.Id)
+		if(comment.Creator != citizen.Author)
 		{
 			error = Denied;
 			return false; 
