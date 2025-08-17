@@ -29,8 +29,8 @@ export const UserRegistrationsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "title", label: t("common:title"), type: "title", className: "w-[23%]" },
-      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[15%]" },
+      { accessor: "title", label: t("common:title"), type: "title", className: "w-[40%]" },
+      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[20%]" },
       ...getCommonColumns(t),
     ],
     [t],

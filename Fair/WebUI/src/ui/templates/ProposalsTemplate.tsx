@@ -32,7 +32,7 @@ export const ProposalsTemplate = memo(
       () => [
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
         { accessor: "createdBy", label: t("common:createdBy"), type: "account", className: "w-[15%]" },
-        { accessor: "action", label: t("common:action"), type: "action", className: "w-[6%]" },
+        { accessor: "action", label: t("common:action"), type: "action", className: "w-[20%]" },
         ...getCommonColumns(t),
       ],
       [t],

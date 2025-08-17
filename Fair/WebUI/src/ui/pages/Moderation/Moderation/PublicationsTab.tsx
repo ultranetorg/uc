@@ -36,7 +36,7 @@ export const PublicationsTab = () => {
       { accessor: "title", label: t("common:title"), type: "title", className: "w-[23%]" },
       { accessor: "publication", label: t("common:product"), type: "publication", className: "w-[18%]" },
       { accessor: "author", label: t("common:author"), type: "account", className: "w-[15%]" },
-      { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[17%]" },
+      { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[13%]" },
       ...getCommonColumns(t),
     ],
     [t],
