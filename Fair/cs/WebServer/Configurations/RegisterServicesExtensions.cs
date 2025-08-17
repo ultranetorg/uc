@@ -20,13 +20,14 @@ public static class RegisterServicesExtensions
 	{
 		services.AddSingleton<IAuthorsService, AuthorsService>();
 		services.AddSingleton<ICategoriesService, CategoriesService>();
-		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<IProposalService, ProposalService>();
 		services.AddSingleton<IPublicationsService, PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();
 		services.AddSingleton<ISearchService, SearchService>();
 		services.AddSingleton<ISitesService, SitesService>();
 		services.AddSingleton<IAccountsService, AccountsService>();
+		services.AddSingleton<ModeratorProposalsService>();
+		services.AddSingleton<ProposalCommentsService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)

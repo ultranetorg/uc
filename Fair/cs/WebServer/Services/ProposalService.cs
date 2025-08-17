@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -50,7 +49,8 @@ public class ProposalService
 			}
 
 			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if (discussionOrReferendums != IsProposalIsDiscussion(site, proposal))
+			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
+				ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
 			{
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
@@ -75,7 +75,7 @@ public class ProposalService
 
 			IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
 			model.YesAccounts = yesAccounts;
-			model.Operation = ToBaseVotableOperationModel(option.Operation);
+			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
 
 			result.Add(model);
 		}
@@ -133,7 +133,8 @@ public class ProposalService
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
-			if (discussionsOrReferendums != IsProposalIsDiscussion(site, proposal))
+			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
+				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
 			{
 				continue;
 			}
@@ -160,7 +161,10 @@ public class ProposalService
 		foreach(Proposal proposal in proposals)
 		{
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, account); ;
+			ProposalModel model = new ProposalModel(proposal, account)
+			{
+				Options = ProposalUtils.MapOptions(proposal.Options)
+			};
 			result.Add(model);
 		}
 
@@ -170,37 +174,4 @@ public class ProposalService
 			TotalItems = totalItems
 		};
 	}
-
-	static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
-	{
-		return proposal switch
-						{
-							CategoryAvatarChange operation => new CategoryAvatarChangeModel(operation),
-							CategoryCreation operation => new CategoryCreationModel(operation),
-							CategoryDeletion operation => new CategoryDeletionModel(operation),
-							CategoryMovement operation => new CategoryMovementModel(operation),
-							CategoryTypeChange operation => new CategoryTypeChangeModel(operation),
-							PublicationCreation operation => new PublicationCreationModel(operation),
-							PublicationDeletion operation => new PublicationDeletionModel(operation),
-							PublicationPublish operation => new PublicationPublishModel(operation),
-							PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
-							PublicationUpdation operation => new PublicationUpdationModel(operation),
-							ReviewCreation operation => new ReviewCreationModel(operation),
-							//ReviewEditModeration operation => new ReviewEditModerationModel(operation),
-							ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
-							SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
-							SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-							SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
-							SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
-							SitePolicyChange operation => new SitePolicyChangeModel(operation),
-							SiteTextChange operation => new SiteTextChangeModel(operation),
-							UserDeletion operation => new UserDeletionModel(operation),
-							UserRegistration operation => new UserRegistrationModel(operation),
-							_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
-						};
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool IsProposalIsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.AuthorsMajority;
 }

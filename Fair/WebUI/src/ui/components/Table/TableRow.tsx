@@ -1,22 +1,19 @@
-import { PropsWithChildren } from "react"
+import { MouseEvent, PropsWithChildren } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
 type TableRowBaseProps = {
-  disableHover?: boolean
+  onClick?: (e: MouseEvent<HTMLTableRowElement>) => void
 }
 
 export type TableRowProps = PropsWithChildren & PropsWithClassName & TableRowBaseProps
 
-export const TableRow = ({ children, className, disableHover }: TableRowProps) => (
-  <div
-    className={twMerge(
-      "flex h-16 items-center justify-between gap-6 px-4 py-3",
-      disableHover !== true && "cursor-pointer hover:bg-gray-300",
-      className,
-    )}
+export const TableRow = ({ children, className, onClick }: TableRowProps) => (
+  <tr
+    className={twMerge("h-16 border-b border-b-gray-300", onClick && "cursor-pointer hover:bg-gray-300", className)}
+    onClick={onClick}
   >
     {children}
-  </div>
+  </tr>
 )

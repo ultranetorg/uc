@@ -20,14 +20,15 @@ public static class PublicationUtils
 		return ["Windows 3.11", "Windows 95", "Windows 98", "macOS Sierra", "Ubuntu", "Xubuntu", "Android 11", "Android 12", "Android 13", "Android 14"];
 	}
 
-	public static string? GetTitle(Publication publication, Product product) =>
-		FindProductField(publication, product, Token.Title)?.AsUtf8;
+	public static string? GetTitle(Publication publication, Product product) => FindProductField(publication, product, Token.Title)?.AsUtf8;
 
-	public static string? GetDescription(Publication publication, Product product) =>
-		FindProductField(publication, product, Token.Description)?.AsUtf8;
+	public static string? GetLatestTitle(Product product) => FindLatestField(product, Token.Title)?.AsUtf8;
 
-	public static AutoId? GetLogo(Publication publication, Product product) =>
-		FindProductField(publication, product, Token.Logo)?.AsAutoId;
+	public static string? GetDescription(Publication publication, Product product) => FindProductField(publication, product, Token.Description)?.AsUtf8;
+
+	public static AutoId? GetLogo(Publication publication, Product product) => FindProductField(publication, product, Token.Logo)?.AsAutoId;
+
+	public static AutoId? GetLatestLogo(Product product) => FindLatestField(product, Token.Logo)?.AsAutoId;
 
 	static FieldValue? FindProductField(Publication publication, Product product, Token fieldName)
 	{
@@ -35,4 +36,6 @@ public static class PublicationUtils
 
 		return version.Fields.FirstOrDefault(x => x.Name == fieldName);
 	}
+
+	static FieldValue? FindLatestField(Product product, Token fieldName) => product.Versions.Last()?.Fields.FirstOrDefault(x => x.Name == fieldName);
 }

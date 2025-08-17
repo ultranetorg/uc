@@ -95,7 +95,7 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
-      <LinkCounter to={`/${siteId}/a-r`} className="w-[115px]">
+      <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
         {t("governance")}
       </LinkCounter>
       <LinkCounter to={`/${siteId}/m`} className="w-[110px]">

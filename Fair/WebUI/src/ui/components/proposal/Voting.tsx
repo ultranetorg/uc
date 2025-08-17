@@ -34,7 +34,12 @@ export const Voting = ({
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">{t("createdBy")}</span>
         <LinkFullscreen className="w-fit" to={`/${siteId}/a/${createdById}`}>
-          <AccountInfo title={createdByTitle} avatar={createdByAvatar} titleClassName="hover:font-semibold" />
+          <AccountInfo
+            title={createdByTitle}
+            fullTitle={createdByTitle}
+            avatar={createdByAvatar}
+            titleClassName="hover:font-semibold"
+          />
         </LinkFullscreen>
       </div>
     </div>

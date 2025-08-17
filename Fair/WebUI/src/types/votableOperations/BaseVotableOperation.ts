@@ -1,24 +1,5 @@
+import { OperationType } from "./OperationType"
+
 export type BaseVotableOperation = {
-  $type:
-    | "category-avatar-change"
-    | "category-creation"
-    | "category-deletion"
-    | "category-movement"
-    | "category-type-change"
-    | "publication-creation"
-    | "publication-deletion"
-    | "publication-publish"
-    | "publication-remove-from-changed"
-    | "publication-updation"
-    | "review-creation"
-    | "review-edit-moderation"
-    | "review-status-change"
-    | "site-authors-change"
-    | "site-avatar-change"
-    | "site-moderators-change"
-    | "site-nickname-change"
-    | "site-policy-change"
-    | "site-text-change"
-    | "user-deletion"
-    | "user-registration"
+  $type: OperationType
 }
