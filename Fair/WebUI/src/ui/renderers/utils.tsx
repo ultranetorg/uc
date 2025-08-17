@@ -3,7 +3,15 @@ import { ReactNode } from "react"
 
 import { AccountBase, BaseProposal, OperationType, PublicationImageBase } from "types"
 import { AccountInfo, PublicationInfo, TableColumn } from "ui/components"
-import { formatDate, formatDuration, formatVotes, getDaysPassedFromStart, shortenAddress } from "utils"
+import {
+  formatAnbb,
+  formatAnbbShort,
+  formatDate,
+  formatDuration,
+  formatVotes,
+  getDaysPassedFromStart,
+  shortenAddress,
+} from "utils"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
@@ -15,35 +23,40 @@ export const renderAccount = (account: AccountBase) => (
   />
 )
 
-export const renderAction = (t: TFunction, operationType: OperationType) => t(`operations:${operationType}`)
+export const renderAction = (t: TFunction, operationType: OperationType) => {
+  const value = t(`operations:${operationType}`)
+  return (
+    <div title={value} className="truncate">
+      {value}
+    </div>
+  )
+}
 
 export const renderActionShort = (t: TFunction, operationType: OperationType) => (
   <span title={t(`operations:${operationType}`)}>{t(`operationsShort:${operationType}`)}</span>
 )
 
-export const renderAnbb = (t: TFunction, proposal: BaseProposal) => (
-  <div className="flex items-center gap-1">
-    <span title={t("common:abstained")}>{proposal.abstainedCount}</span>
-    {" / "}
-    <span title={t("common:neither")}>{proposal.neitherCount}</span>
-    {" / "}
-    <span title={t("common:ban")}>{proposal.banCount}</span>
-    {" / "}
-    <span title={t("common:banish")}>{proposal.banishCount}</span>
-  </div>
-)
+export const renderAnbb = (t: TFunction, proposal: BaseProposal) => {
+  const title = formatAnbb(t, proposal.abstainedCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
+  const value = formatAnbbShort(proposal.abstainedCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
+  return (
+    <div className="truncate" title={title}>
+      {value}
+    </div>
+  )
+}
 
 export const renderDate = (date: number) => <span className={FONT_SM_CLASSNAME}>{formatDate(date)}</span>
-
-export const renderDaysLeft = (creationTime: number, expirationTime: number) => (
-  <span className={FONT_SM_CLASSNAME}>{expirationTime - creationTime}</span>
-)
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {
   const passed = getDaysPassedFromStart()
   const duration = passed - creationTime + 1
   const formatted = formatDuration(t, duration)
-  return <span className={FONT_SM_CLASSNAME}>{formatted}</span>
+  return (
+    <span className={FONT_SM_CLASSNAME} title={formatted}>
+      {formatted}
+    </span>
+  )
 }
 
 export const renderPublication = (publication: PublicationImageBase) => (

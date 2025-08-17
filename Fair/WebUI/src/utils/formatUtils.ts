@@ -10,6 +10,12 @@ const SOFTWARE_DELIMITER = ", "
 const THREE_DOTS = "..."
 const VOTES_DELIMITER = " / "
 
+export const formatAnbb = (t: TFunction, abstained: number, neither: number, ban: number, banish: number) =>
+  `${t("common:abstained")}: ${abstained} / ${t("common:neither")}: ${neither} / ${t("common:ban")}: ${ban} / ${t("common:banish")}: ${banish}`
+
+export const formatAnbbShort = (abstained: number, neither: number, ban: number, banish: number) =>
+  `${abstained} / ${neither} / ${ban} / ${banish}`
+
 export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
 
 export const formatDate = (days: number): string => {
