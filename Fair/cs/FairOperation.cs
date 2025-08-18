@@ -363,7 +363,6 @@ public abstract class FairOperation : Operation
 
  	public bool IsReferendumCommentOwner(FairExecution execution, Site site, AutoId commentid, out Publisher citizen, out Proposal proposal, out ProposalComment comment, out string error)
  	{
-		site = null;
 		citizen = null;
 		proposal = null;
 		comment = execution.ProposalComments.Find(commentid);
