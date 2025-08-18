@@ -23,13 +23,8 @@ internal class SearchUtils
 			return true;
 		}
 
-		string flags = proposal.Flags.ToString();
-		if (flags.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
-		{
-			return true;
-		}
-
-		if (proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (proposal.Title?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1 ||
+			proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}

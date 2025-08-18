@@ -6,12 +6,13 @@ import { twMerge } from "tailwind-merge"
 
 export type AccountInfoProps = {
   title: string
+  fullTitle: string
   avatar?: string
   titleClassName?: string
 }
 
-export const AccountInfo = memo(({ title, avatar, titleClassName }: AccountInfoProps) => (
-  <div className="flex items-center gap-2" title={title}>
+export const AccountInfo = memo(({ title, fullTitle, avatar, titleClassName }: AccountInfoProps) => (
+  <div className="flex items-center gap-2" title={fullTitle}>
     <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full">
       <img className="h-full w-full object-cover" src={buildSrc(avatar, avatarPlaceholder)} />
     </div>

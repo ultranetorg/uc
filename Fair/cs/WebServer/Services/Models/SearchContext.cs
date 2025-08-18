@@ -1,5 +1,6 @@
 ﻿namespace Uccs.Fair;
 
+// TODO: should be removed.
 internal class SearchContext<T> where T : class
 {
 	public int Page { get; set; }

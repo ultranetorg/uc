@@ -8,7 +8,6 @@ import {
   ErrorPage,
   ModerationPage,
   ModeratorDiscussionPage,
-  ModeratorDiscussionsPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
   ProfilePage,
@@ -71,21 +70,17 @@ const routes: RouteObject[] = [
           },
 
           {
-            path: "/:siteId/a-r",
+            path: "/:siteId/g",
             element: <ReferendumsPage />,
           },
           {
-            path: "/:siteId/a-r/:referendumId",
+            path: "/:siteId/g/:referendumId",
             element: <ReferendumPage />,
           },
 
           {
-            path: "/:siteId/m",
+            path: "/:siteId/m/:tabKey?",
             element: <ModerationPage />,
-          },
-          {
-            path: "/:siteId/m-d",
-            element: <ModeratorDiscussionsPage />,
           },
           {
             path: "/:siteId/m-d/:discussionId",

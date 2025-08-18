@@ -41,7 +41,7 @@ export const CategoryPage = () => {
             isPending={isPendingPublications}
             publications={publications.items}
             siteId={siteId!}
-            categoryType={category.type}
+            productType={category.type}
           />
         ) : (
           <PublicationsList siteId={siteId!} publications={publications.items} />

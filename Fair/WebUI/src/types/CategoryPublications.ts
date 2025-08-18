@@ -1,8 +1,8 @@
 import { CategoryBase } from "./CategoryBase"
-import { CategoryType } from "./CategoryType"
+import { ProductType } from "./ProductType"
 import { PublicationExtended } from "./PublicationExtended"
 
 export type CategoryPublications = {
-  type: CategoryType
+  type: ProductType
   publications: PublicationExtended[]
 } & CategoryBase

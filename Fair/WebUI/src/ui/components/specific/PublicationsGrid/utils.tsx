@@ -1,6 +1,6 @@
 import { ComponentType } from "react"
 
-import { CategoryType, Publication, PublicationExtended } from "types"
+import { ProductType, Publication, PublicationExtended } from "types"
 import {
   DefaultPublicationCard,
   BookPublicationCard,
@@ -11,9 +11,9 @@ import {
 } from "ui/components/specific"
 
 export const getCardComponentForCategory = (
-  categoryType: CategoryType,
+  productType: ProductType,
 ): ComponentType<{ siteId: string } & (Publication | PublicationExtended)> => {
-  switch (categoryType) {
+  switch (productType) {
     case "book":
       return BookPublicationCard
     case "game":
