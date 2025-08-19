@@ -90,10 +90,10 @@ public class ProposalVoting : FairOperation
 		{
     		return s.ApprovalPolicies[c] switch
  										 {
-											ApprovalPolicy.AnyModerator						=> votes.Length + p.Abstained.Length == 1,
- 											ApprovalPolicy.ElectedByModeratorsMajority		=> votes.Length + p.Abstained.Length > s.Moderators.Length/2,
- 											ApprovalPolicy.AllModerators	=> votes.Length + p.Abstained.Length == s.Moderators.Length,
- 											ApprovalPolicy.AuthorsMajority			=> votes.Length + p.Abstained.Length > s.Publishers.Length/2,
+											ApprovalPolicy.AnyModerator			=> votes.Length + p.Abstained.Length == 1,
+ 											ApprovalPolicy.ModeratorsMajority	=> votes.Length + p.Abstained.Length >= s.Moderators.Length/2,
+ 											ApprovalPolicy.AllModerators		=> votes.Length + p.Abstained.Length == s.Moderators.Length,
+ 											ApprovalPolicy.AuthorsMajority		=> votes.Length + p.Abstained.Length >= s.Publishers.Length/2,
  											_ => throw new IntegrityException()
  										 };
 		}
