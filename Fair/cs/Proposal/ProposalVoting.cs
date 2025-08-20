@@ -129,6 +129,10 @@ public class ProposalVoting : FairOperation
 				{
 					result = (byte)SpecialChoice.Neither;
 				}
+				else if(s.ApprovalPolicies[c] == ApprovalPolicy.AllModerators)
+				{
+					result = (byte)SpecialChoice.Neither;
+				}
 				break;
  				
 			case SpecialChoice.Ban:
