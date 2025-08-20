@@ -88,14 +88,14 @@ public class ProposalVoting : FairOperation
 
 		bool approved(AutoId[] votes)
 		{
-			var x = (votes.Length + p.Abstained.Length) % 2 == 0;
+			var even = p.Abstained.Length % 2 == 0;
 
     		return s.ApprovalPolicies[c] switch
  										 {
 											ApprovalPolicy.AnyModerator			=> votes.Length + p.Abstained.Length == 1,
- 											ApprovalPolicy.ModeratorsMajority	=> votes.Length + p.Abstained.Length >= s.Moderators.Length/2 + (!x ? 1 : 0),
+ 											ApprovalPolicy.ModeratorsMajority	=> votes.Length + p.Abstained.Length >= s.Moderators.Length/2 + (!even ? 1 : 0),
  											ApprovalPolicy.AllModerators		=> votes.Length + p.Abstained.Length == s.Moderators.Length,
- 											ApprovalPolicy.AuthorsMajority		=> votes.Length + p.Abstained.Length >= s.Publishers.Length/2 + (!x ? 1 : 0),
+ 											ApprovalPolicy.AuthorsMajority		=> votes.Length + p.Abstained.Length >= s.Publishers.Length/2 + (!even ? 1 : 0),
  											_ => throw new IntegrityException()
  										 };
 		}
