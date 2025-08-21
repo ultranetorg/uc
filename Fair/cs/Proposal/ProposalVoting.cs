@@ -93,7 +93,7 @@ public class ProposalVoting : FairOperation
 											ApprovalPolicy.AnyModerator			=> votes.Length + p.Abstained.Length == 1,
  											ApprovalPolicy.ModeratorsMajority	=> votes.Length + p.Abstained.Length >= s.Moderators.Length/2 + (s.Moderators.Length & 1),
  											ApprovalPolicy.AllModerators		=> votes.Length + p.Abstained.Length == s.Moderators.Length,
- 											ApprovalPolicy.AuthorsMajority		=> votes.Length + p.Abstained.Length >= s.Publishers.Length/2 + (s.Moderators.Length & 1),
+ 											ApprovalPolicy.AuthorsMajority		=> votes.Length + p.Abstained.Length >= s.Publishers.Length/2 + (s.Publishers.Length & 1),
  											_ => throw new IntegrityException()
  										 };
 		}
