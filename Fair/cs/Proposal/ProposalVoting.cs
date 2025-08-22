@@ -178,13 +178,13 @@ public class ProposalVoting : FairOperation
 				case (byte)SpecialChoice.Ban:
 					if(p.As == Role.Publisher)
  					{
-						var i = Array.FindIndex(s.Publishers, i => i.Author != p.By);
+						var i = Array.FindIndex(s.Publishers, i => i.Author == p.By);
 						s.Publishers = [..s.Publishers];
 						s.Publishers[i] = new Publisher {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					else if(p.As == Role.Moderator)
  					{
-						var i = Array.FindIndex(s.Moderators, i => i.Account != p.By);
+						var i = Array.FindIndex(s.Moderators, i => i.Account == p.By);
 						s.Moderators = [..s.Moderators];
 						s.Moderators[i] = new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
