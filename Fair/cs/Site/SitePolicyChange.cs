@@ -6,7 +6,7 @@ public class SitePolicyChange : VotableOperation
 	public Role[]				Creators { get; set; }
 	public ApprovalPolicy		Approval { get; set; }
 
-	public override bool		IsValid(McvNet net) => true;
+	public override bool		IsValid(McvNet net) => Creators.Distinct().Count() == Creators.Length;
 	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Approval}";
 	
 	public override void Read(BinaryReader reader)

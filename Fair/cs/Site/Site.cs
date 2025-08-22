@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public enum ApprovalPolicy : byte
 {
-	None, AnyModerator, ModeratorsMajority, AllModerators, AuthorsMajority
+	None, AnyModerator, ModeratorsMajority, AllModerators, PublishersMajority
 }
 
 public enum Role : byte
@@ -244,7 +244,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsReferendum(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.AuthorsMajority;
+		return ApprovalPolicies[operation] == ApprovalPolicy.PublishersMajority;
 	}
 
 	public bool IsDiscussion(FairOperationClass operation)
