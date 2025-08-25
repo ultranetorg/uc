@@ -70,7 +70,7 @@ public partial class MembersPanel : MainPanel
 		{
 			//lock(Node.Lock)
 			{
-				foreach(var i in (e.Item.Tag as Generator).BaseRdcIPs)
+				foreach(var i in (e.Item.Tag as Generator).GraphPpcIPs)
 				{
 					var bli = BaseRdcIPs.Items.Add(i.ToString());
 				}

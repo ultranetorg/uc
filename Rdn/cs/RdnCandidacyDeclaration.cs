@@ -34,11 +34,9 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 	{
 		base.Execute(execution);
 
-		if(Affected != null)
+		if(Error == null)
 		{
-			(Affected as RdnGenerator).SeedHubRdcIPs = SeedHubRdcIPs;
+			(execution.AffectCandidate(Signer.Id) as RdnGenerator).SeedHubPpcIPs = SeedHubRdcIPs;
 		}
-
-		execution.PayCycleEnergy(Signer);
 	}
 }

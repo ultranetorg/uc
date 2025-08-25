@@ -7,8 +7,6 @@ public class CandidacyDeclaration : Operation
 	public IPAddress[]		GraphIPs  { get; set; }
 
 	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
-			
-	protected Generator		Affected;
 
 	public CandidacyDeclaration()
 	{
@@ -44,11 +42,11 @@ public class CandidacyDeclaration : Operation
 
 		Signer.Energy -= execution.Net.DeclarationCost;
 
-		Affected = execution.AffectCandidate(Signer.Id);
+		c = execution.AffectCandidate(Signer.Id);
 		
-		Affected.Id			= Signer.Id;
-		Affected.Address	= Signer.Address;
-		Affected.BaseRdcIPs	= GraphIPs;
-		Affected.Registered	= execution.Round.Id;
+		c.Id			= Signer.Id;
+		c.Address		= Signer.Address;
+		c.GraphPpcIPs	= GraphIPs;
+		c.Registered	= execution.Round.Id;
 	}
 }

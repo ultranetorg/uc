@@ -110,7 +110,7 @@ public class SeedSeeker
 														
 												 				if(m != null)
 																{
-																	hlast = new Hub(this, address, m.Address, m.SeedHubRdcIPs);
+																	hlast = new Hub(this, address, m.Address, m.SeedHubPpcIPs);
 																	Hubs.Add(hlast);
 																}
 																else

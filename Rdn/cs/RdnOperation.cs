@@ -2,6 +2,7 @@
 
 public enum RdnOperationClass : uint
 {
+	RdnGenesis					= OperationClass.Genesis, 
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
 	Domain							= 100,

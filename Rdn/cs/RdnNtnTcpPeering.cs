@@ -16,7 +16,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 
 													b.Net	= node.Net.Name;
 													b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
-																	 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.BaseRdcIPs[0], Port = 0}).ToArray()};
+																	 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
 													Broadcast(b);
 												}
 											}

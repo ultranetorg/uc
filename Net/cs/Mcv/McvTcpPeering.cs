@@ -905,7 +905,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 			var cr = Call(() => new MembersRequest(), Flow);
 
-			if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any()))
+			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
 				continue;
 
 			var members = cr.Members;
@@ -914,10 +914,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				var m = members.NearestBy(i => i.Address, account);
 
-				if(m.BaseRdcIPs.Contains(Settings.IP))
+				if(m.GraphPpcIPs.Contains(Settings.IP))
 					return this;
 
-				var p = GetPeer(m.BaseRdcIPs.Random());
+				var p = GetPeer(m.GraphPpcIPs.Random());
 				Connect(p, Flow);
 
 				return p;

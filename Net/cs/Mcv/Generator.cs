@@ -7,21 +7,21 @@ public class Generator
 	public AccountAddress	Address { get; set; }
 	public AutoId			Id { get; set; }
 	public int				Registered { get; set; }
-	public IPAddress[]		BaseRdcIPs { get; set; } = [];
+	public IPAddress[]		GraphPpcIPs { get; set; } = [];
 	public int				CastingSince { get; set; }
 	
 	public Peer         	Proxy;
 
 	public override string ToString()
 	{
-		return $"Address={Address}, JoinedAt={CastingSince}, BaseRdcIPs={{{BaseRdcIPs.Length}}}";
+		return $"Address={Address}, JoinedAt={CastingSince}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
 	}
 
   	public virtual void WriteMember(BinaryWriter writer)
  	{
  		writer.Write(Id);
  		writer.Write(Address);
-		writer.Write(BaseRdcIPs, i => writer.Write(i));
+		writer.Write(GraphPpcIPs, i => writer.Write(i));
 		writer.Write7BitEncodedInt(CastingSince);
  	}
  
@@ -29,7 +29,7 @@ public class Generator
  	{
 		Id				= reader.Read<AutoId>();
 		Address			= reader.Read<AccountAddress>();
-		BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
+		GraphPpcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
  		CastingSince	= reader.Read7BitEncodedInt();
 	}
 
@@ -37,14 +37,14 @@ public class Generator
  	{
  		writer.Write(Id);
  		writer.Write7BitEncodedInt(Registered);
-		writer.Write(BaseRdcIPs, i => writer.Write(i));
+		writer.Write(GraphPpcIPs, i => writer.Write(i));
  	}
  
  	public virtual void ReadCandidate(BinaryReader reader)
  	{
 		Id			= reader.Read<AutoId>();
 		Registered	= reader.Read7BitEncodedInt();
-		BaseRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+		GraphPpcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 	}
 
 	public virtual Generator Clone()
@@ -61,7 +61,7 @@ public class Generator
 		generator.Address		= Address;
 		generator.Id			= Id;
 		generator.Registered	= Registered;
-		generator.BaseRdcIPs	= BaseRdcIPs;
+		generator.GraphPpcIPs	= GraphPpcIPs;
 		generator.CastingSince	= CastingSince;
 	}
 }
