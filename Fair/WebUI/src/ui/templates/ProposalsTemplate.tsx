@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { TFunction } from "i18next"
 
 import { Proposal, TotalItemsResult } from "types"
-import { Input, Pagination, Table, TableEmptyState, TableProps } from "ui/components"
+import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { getCommonColumns } from "ui/pages/Moderation/Moderation/constants"
 import { getProposalsItemRenderer } from "ui/renderers"
 
