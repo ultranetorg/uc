@@ -58,12 +58,7 @@ public class FairMcv : Mcv
 
 	public string CreateGenesis(AccountKey f0)
 	{
-		return CreateGenesis(f0, new CandidacyDeclaration {GraphIPs = [Net.Father0IP]});
-	}
-
-	public override string CreateGenesis(AccountKey f0, CandidacyDeclaration candidacydeclaration)
-	{
-		return base.CreateGenesis(f0, candidacydeclaration);
+		return CreateGenesis(f0, new Genesis());
 	}
 
 	protected override void GenesisInitilize(Round round)

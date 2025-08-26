@@ -140,7 +140,7 @@ public abstract class Mcv /// Mutual chain voting
 		Clock = clock;
 	}
 
-	public virtual string CreateGenesis(AccountKey f0, CandidacyDeclaration candidacydeclaration)
+	public virtual string CreateGenesis(AccountKey f0, Genesis genesis)
 	{
 		/// 0	- declare F0
 		/// P	- confirmed F0 membership
@@ -165,18 +165,11 @@ public abstract class Mcv /// Mutual chain voting
 			v0.Time = Time.Zero;
 			v0.ParentHash = Net.Cryptography.ZeroHash;
 
-			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-			t.Member = new(0, -1);
-			t.AddOperation(new AccountCreation {Owner = f0});
-			t.AddOperation(new UtilityTransfer (Accounts.Id, AutoId.God, Accounts.Id, AutoId.LastCreated, Net.ECEmission, 0, Net.BDDayEmission));
-			t.Sign(God, Net.Cryptography.ZeroHash);
-			v0.AddTransaction(t);
-
-			t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
-			t.Member = new(0, -1);
-			t.AddOperation(candidacydeclaration);
-			t.Sign(f0, Net.Cryptography.ZeroHash);
-			v0.AddTransaction(t);
+ 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+ 			t.Member = new(0, -1);
+			t.AddOperation(genesis);
+ 			t.Sign(God, Net.Cryptography.ZeroHash);
+ 			v0.AddTransaction(t);
 		
 			v0.Sign(God);
 			Add(v0);
@@ -239,7 +232,47 @@ public abstract class Mcv /// Mutual chain voting
 	
 		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
 	}
+		
+	public void Initialize1()
+	{
+		if(Settings.Chain != null)
+		{
+			Tail.Clear();
+
+ 			var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
+					
+			for(int i = 0; i <= LastGenesisRound; i++)
+			{
+				var r = CreateRound();
+				r.Read(rd);
 	
+				Tail.Insert(0, r);
+
+				if(i < JoinToVote)
+				{
+					if(i > 0)
+						r.ConsensusECEnergyCost = 1;
+
+					if(i == 0)
+						r.ConsensusFundJoiners = [Net.Father0];
+					
+					r.ConsensusTransactions = r.OrderedTransactions.ToArray();
+
+					GenesisInitilize(r);
+
+					r.Hashify();
+					r.Confirm();
+					Commit(r);
+				}
+
+				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
+					throw new IntegrityException("Genesis construction failed");
+			}
+		}
+	
+		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
+	}
+
 	public void Load()
 	{
 		GraphState = Rocks.Get(GraphStateKey);

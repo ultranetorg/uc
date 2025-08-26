@@ -9,10 +9,11 @@ public struct Portion
 public enum OperationClass
 {
 	None = 0, 
-	AccountCreation				= 000_000_001, 
-	CandidacyDeclaration		= 000_000_002, 
-	UtilityTransfer				= 000_000_003,
-	BandwidthAllocation			= 000_000_004,
+	Genesis						= 000_000_001, 
+	AccountCreation				= 000_000_002, 
+	CandidacyDeclaration		= 000_000_003, 
+	UtilityTransfer				= 000_000_004,
+	BandwidthAllocation			= 000_000_005,
 
 	ChildNet					= 001, 
 		ChildNetInitialization	= 001_000_001,

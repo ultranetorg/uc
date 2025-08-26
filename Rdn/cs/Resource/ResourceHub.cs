@@ -373,7 +373,7 @@ public class ResourceHub
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubRdcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
+													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
 																																																	Release = rs.Value.Address, 
 																																																	Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
 												}
