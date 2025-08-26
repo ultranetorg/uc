@@ -1,3 +1,4 @@
+export * from "./OptionsCollapsesList"
+
+export * from "./AlternativeOptions"
 export * from "./ProposalInfo"
-export * from "./Voting"
-export * from "./VotingStatistics"

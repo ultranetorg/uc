@@ -19,6 +19,6 @@ export const ButtonPrimary = ({ className, icon, label, onClick }: ButtonPrimary
     )}
     onClick={onClick}
   >
-    {icon} {label}
+    {label} {icon}
   </span>
 )

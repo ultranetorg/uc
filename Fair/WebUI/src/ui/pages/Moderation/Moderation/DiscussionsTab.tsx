@@ -6,7 +6,7 @@ import { isNumber } from "lodash"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
 import { useUrlParamsState } from "hooks"
-import { ProposalsTemplate } from "ui/templates"
+import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
 
 export const DiscussionsTab = () => {
@@ -51,7 +51,7 @@ export const DiscussionsTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProposalsTemplate
+      <ProposalsView
         t={t}
         proposals={discussions}
         page={page}
