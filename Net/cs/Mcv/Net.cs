@@ -6,10 +6,10 @@ namespace Uccs.Net;
 public enum Zone
 {
 	None, 
-	Local		= 0_0000, 
 	Main		= 1_0000,
 	Test		= 2_0000,
 	Developer0	= 3_0000,
+	Local		= 5_0000, 
 }
 
 public enum KnownSystem

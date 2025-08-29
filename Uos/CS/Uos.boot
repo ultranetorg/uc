@@ -1,4 +1,4 @@
 // RELEASE
 
-Zone = PublicTest
+Zone = Test
 

@@ -289,7 +289,8 @@ public class ResourceHub
 				{
 					if(r.Id == null)
 					{
-						us.Add(r);
+						if(!r.Resolving)
+							us.Add(r);
 					} 
 					else
 					{
@@ -332,7 +333,9 @@ public class ResourceHub
 			{
 				foreach(var r in us)
 				{
-					var t = Task.Run(() =>	{
+					r.Resolving = true;
+
+					var t = new Task(() =>	{
 												try
 												{
 													var cr = Node.Peering.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
@@ -352,8 +355,13 @@ public class ResourceHub
 												{
 													return;
 												}
+
+												lock(Lock)
+													r.Resolving = false;
 											});
 					tasks[r] = t;
+
+					t.Start();
 				}
 
 				foreach(var i in ds)
