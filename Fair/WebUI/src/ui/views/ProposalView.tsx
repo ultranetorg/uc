@@ -29,7 +29,6 @@ export const ProposalView = ({ t, proposal }: ProposalViewProps) => {
         <div className="flex flex-col gap-6">
           <ProposalInfo
             className="w-87.5"
-            t={t}
             createdBy={proposal.byAccount}
             createdAt={proposal.creationTime}
             daysLeft={7}

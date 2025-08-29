@@ -22,10 +22,10 @@ export const RadioCard = ({ className, title, description, checked, onClick }: R
     )}
     onClick={onClick}
   >
-    <Radio className="h-5 w-5" type="radio" checked={checked} />
+    <Radio checked={checked} />
     <div className="flex flex-col gap-1">
-      <span className="text-2sm leading-5 text-gray-800">{title}</span>
-      <span className="text-2xs leading-4 text-gray-500">{description}</span>
+      <span className="select-none text-2sm leading-5 text-gray-800">{title}</span>
+      <span className="select-none text-2xs leading-4 text-gray-500">{description}</span>
     </div>
   </div>
 )
