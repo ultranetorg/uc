@@ -2,9 +2,9 @@
 
 namespace Uccs.Uos;
 
-internal class NodeCommand : UosCommand
+internal class ProcessCommand : UosCommand
 {
-	public NodeCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
+	public ProcessCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{
 	}
 

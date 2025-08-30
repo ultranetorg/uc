@@ -241,12 +241,6 @@ public class Uos : Cli
 		return ct.GetConstructor([typeof(Uos), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as UosCommand;
 	}
 
-  
-  		//public Ura DeploymentToAddress(string path)
-  		//{
-  		//	return Ura.Parse(ResourceHub.Unescape(path.Substring(Settings.Packages.Length)));
-  		//}
-
 	public VersionManifest GetCurrentManifest(ApvAddress address)
 	{
 		var h = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, address), "." + VersionManifest.Extension);
@@ -254,49 +248,58 @@ public class Uos : Cli
 		return File.Exists(h) ? VersionManifest.FromXon(new Xon(File.ReadAllText(h))) : null;
 	}
 
-	public void Start(Ura address, Flow flow)
+	public void Start(Unea address, Flow flow)
 	{
-		var d = RdnApi.FindLocalResource(address, flow)?.Last
-				?? 
-				RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (address)}}, flow)?.Resource?.Data;
-
-		if(d == null)
-			throw new UosException("Incorrect resource type");
-
-		//Ura apr = null;
-		Ura aprv = null;
-
-		if(d.Type.Content == ContentType.Rdn_ProductManifest)
+		if(address.Entity == null)
 		{
-			var lrr = RdnApi.Download(address, flow);
-
-			var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
-
-			aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
-		}
-		else if(d.Type.Content == ContentType.Rdn_VersionManifest)
-		{
-			aprv = address;
-		}
+			
+		} 
 		else
-			throw new UosException("Incorrect resource type");
+		{
+			var ura = Ura.Parse(address.ToString());
 
-		RdnApi.DeployPackage(aprv, Settings.Packages, flow);
-
- 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
- 
- 		var vm = VersionManifest.Load(vmpath);
- 
-		var exe = vm.MatchExecution(Platform.Current);
-
-		SetupApplicationEnvironemnt(aprv);
-
- 		var ps = new Process();
- 		ps.StartInfo.UseShellExecute = true;
- 		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
- 		ps.StartInfo.Arguments = exe.Arguments;
-
- 		ps.Start();
+			var d = RdnApi.FindLocalResource(ura, flow)?.Last
+					?? 
+					RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (ura)}}, flow)?.Resource?.Data;
+	
+			if(d == null)
+				throw new UosException("Incorrect resource type");
+	
+			//Ura apr = null;
+			Ura aprv = null;
+	
+			if(d.Type.Content == ContentType.Rdn_ProductManifest)
+			{
+				var lrr = RdnApi.Download(ura, flow);
+	
+				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
+	
+				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
+			}
+			else if(d.Type.Content == ContentType.Rdn_VersionManifest)
+			{
+				aprv = ura;
+			}
+			else
+				throw new UosException("Incorrect resource type");
+	
+			RdnApi.DeployPackage(aprv, Settings.Packages, flow);
+	
+	 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
+	 
+	 		var vm = VersionManifest.Load(vmpath);
+	 
+			var exe = vm.MatchExecution(Platform.Current);
+	
+			SetupApplicationEnvironemnt(aprv);
+	
+	 		var ps = new Process();
+	 		ps.StartInfo.UseShellExecute = true;
+	 		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
+	 		ps.StartInfo.Arguments = exe.Arguments;
+	
+	 		ps.Start();
+		}
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)

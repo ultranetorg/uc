@@ -13,7 +13,7 @@ public class StartCommand : UosCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Execute = () =>	{
-								Uos.Start(Ura.Parse(Args[0].Name), Flow);
+								Uos.Start(Unea.Parse(Args[0].Name), Flow);
 
 								return null;
 							};
