@@ -8,7 +8,7 @@ internal class UosApiServer : JsonServer
 {
 	Uos Uos;
 
-	public UosApiServer(Uos uos, Flow flow) : base(uos.Settings.Api, ApiClient.CreateOptions(), flow)
+	public UosApiServer(Uos uos, Flow flow) : base(uos.Settings.Api.ToApiSettings(uos.Settings.Rdn.Zone), ApiClient.CreateOptions(), flow)
 	{
 		Uos = uos;
 	}
@@ -62,7 +62,7 @@ internal class RunNodeApc : Net.RunNodeApc, IUosApc
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			uos.RunNode(Net);
+			uos.ConnectNetwork(Net);
 
 		return null;
 	}

@@ -1,9 +1,31 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using RocksDbSharp;
 
 namespace Uccs.Net;
 
 public delegate void NodeDelegate(Node node);
+
+public class UosApiSettings : Settings
+{
+	//public string			ListenAddress { get; set; }
+	public string			AccessKey { get; set; }
+	public IPAddress		IP { get; set; }
+	public ushort			PortPostfix  { get; set; }
+	public bool				Ssl  { get; set; }
+
+	public static ushort	MapPort(Zone zone, ushort postfix) => (ushort)((ushort)zone + KnownSystem.UosApi + postfix);
+	public static string	MapAddress(Zone zone, IPAddress ip, ushort portpostfix, bool ssl) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(zone, portpostfix)}";
+
+	public ushort			MapPort(Zone zone) => MapPort(zone, PortPostfix);
+	public string			MapAddress(Zone zone) => MapAddress(zone, IP, PortPostfix, Ssl);
+
+	public ApiSettings		ToApiSettings(Zone zone) => new ApiSettings {AccessKey = AccessKey, ListenAddress = MapAddress(zone)};
+
+	public UosApiSettings() : base(XonTextValueSerializator.Default)
+	{
+	}
+}
 
 public class Node
 {

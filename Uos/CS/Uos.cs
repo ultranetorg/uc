@@ -51,6 +51,17 @@ public class Uos : Cli
 
 	public NodeDelegate			NodeStarted;
 
+	//public string			AccessKey { get; set; }
+	//public IPAddress		IP { get; set; }
+	//public ushort			PortPostfix  { get; set; }
+	//public bool				Ssl  { get; set; }
+
+	//public static ushort	MapPort(Zone zone, KnownSystem system, ushort postfix) => (ushort)((ushort)zone + system + postfix);
+	//public static string	MapAddress(IPAddress ip, ushort port, bool ssl) => $@"http{(ssl ? "s" : "")}://{ip}:{port}";
+
+	//public ushort			MapPort(Zone zone) => MapPort(zone, KnownSystem.UosApi, PortPostfix);
+	//public string			MapAddress(Zone zone) => MapAddress(IP, MapPort(zone, KnownSystem.UosApi, PortPostfix), Ssl);
+
 	static Uos()
 	{
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -77,7 +88,7 @@ public class Uos : Cli
 
 		Boot = new Boot(ExeDirectory);
 		var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
-		
+
 		var u = new Uos(s, new Flow(nameof(Uos), new Log()), new RealClock());
 
 		try
@@ -161,22 +172,24 @@ public class Uos : Cli
 		//ApiStarted?.Invoke(this);
 	}
 
-	public McvNode RunNode(string net, IClock clock = null)
+	public McvNode ConnectNetwork(string net, IClock clock = null)
 	{
 		if(Nodes.Any(i => i.Net == net))
 			throw new NodeException(NodeError.AlreadyRunning);
 
-		var u = new Uri(Settings.Api.ListenAddress);
-		var sh = $"{u.Scheme}://{u.Host}";
+		//var u = new Uri(Settings.Api.ListenAddress);
+		//var sh = $"{u.Scheme}://{u.Host}";
 				
-		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, (int)KnownSystem.NodeApiPoolSize).Where(i => (i - Settings.NodesApiListenPortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
+		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, (int)KnownSystem.NodeApiPoolSize).Where(i => (i - Settings.Api.PortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
 
-		var api = new ApiSettings();
+		var nodeapi = new ApiSettings();
 		
-		api.ListenAddress = $"{sh}:{port}";
-		api.AccessKey = Guid.NewGuid().ToString();
+		nodeapi.ListenAddress = $"http://{Settings.Api.IP}:{port}";
+		nodeapi.AccessKey = Guid.NewGuid().ToString();
 
 		McvNode n = null;
+
+		var uosapi = new ApiSettings {AccessKey = Settings.Api.AccessKey, ListenAddress = Settings.Api.MapAddress(Settings.Rdn.Zone)};
 
 		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.Rdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
 		{
@@ -184,7 +197,7 @@ public class Uos : Cli
 
 			f.WorkDirectory = Path.Join(Settings.Profile, rdn.Address);
 
-			n = new RdnNode(Settings.Name, rdn, f.WorkDirectory, null, Settings.Packages, Settings.Api, api, clock, f);
+			n = new RdnNode(Settings.Name, rdn, f.WorkDirectory, null, Settings.Packages, uosapi, nodeapi, clock, f);
 		}
 		else
 		{
@@ -203,7 +216,7 @@ public class Uos : Cli
 
 					f.WorkDirectory = Path.Join(Settings.Profile, Net.Net.Escape(net));
 	
-					n = c.Invoke([Settings.Name, Settings.Rdn.Zone, f.WorkDirectory, null, Settings.Api, api, clock, f]) as McvNode;
+					n = c.Invoke([Settings.Name, Settings.Rdn.Zone, f.WorkDirectory, null, uosapi, nodeapi, clock, f]) as McvNode;
 				}
 			}
 		}
@@ -211,7 +224,7 @@ public class Uos : Cli
 		if(n != null)
 		{
 			Nodes.Add(new NodeInstance {Net = net,
-										ApiSettings = api,
+										ApiSettings = nodeapi,
 										ApiPort = port,
 										Node = n});
 		
@@ -250,11 +263,7 @@ public class Uos : Cli
 
 	public void Start(Unea address, Flow flow)
 	{
-		if(address.Entity == null)
-		{
-			
-		} 
-		else
+		if(address.Net == Settings.Rdn.Address || address.Net is null)
 		{
 			var ura = Ura.Parse(address.ToString());
 
@@ -300,11 +309,20 @@ public class Uos : Cli
 	
 	 		ps.Start();
 		}
+		else
+		{
+			if(Find(address.Net) == null)
+			{
+				ConnectNetwork(address.Net);
+			}
+
+			GetMcvNodeApi(address.Net).Send(new StartApc {Entity = address.Entity}, flow);
+		}
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)
 	{
-		Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.ListenAddress);
+		Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.MapAddress(Settings.Rdn.Zone));
 		Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
 		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
 		Environment.SetEnvironmentVariable(Application.PackagesPathKey,		Settings.Packages);

@@ -18,7 +18,6 @@ internal class ProcessCommand : UosCommand
 
 						Arguments =	[
 										new ("profile", "Path to local profile directory"),
-										new ("net", "Network net to connect")
 									],
 
 						Examples =	[
