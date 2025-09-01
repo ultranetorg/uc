@@ -43,45 +43,45 @@ public class RdnNode : McvNode
 		{
 			base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
-			Mcv.Commited += r => {
-									if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
-									{
-										var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
-												
-										foreach(var o in ops)
+			Mcv.Confirmed += r =>	{
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
 										{
-											if(o is DomainMigration am)
+											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
+												
+											foreach(var o in ops)
 											{
-	 											if(!NodeGlobals.SkipMigrationVerification)
-	 											{
-													Task.Run(() =>	{
-																		var approved = IsDnsValid(am);
+												if(o is DomainMigration am)
+												{
+	 												if(!NodeGlobals.SkipMigrationVerification)
+	 												{
+														Task.Run(() =>	{
+																			var approved = IsDnsValid(am);
 
-																		lock(Mcv.Lock)
-																			Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
-																	});
-	 											}
-												else
-													Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
-											}
+																			lock(Mcv.Lock)
+																				Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
+																		});
+	 												}
+													else
+														Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
+												}
 	
-											#if IMMISION
-											if(o is Immission e)
-											{
-												Task.Run(() =>	{
-																	var v = Ethereum.IsEmissionValid(e);
+												#if IMMISION
+												if(o is Immission e)
+												{
+													Task.Run(() =>	{
+																		var v = Ethereum.IsEmissionValid(e);
 
-																	lock(Lock)
-																		Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-																});
+																		lock(Lock)
+																			Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
+																	});
+												}
+												#endif
 											}
-											#endif
 										}
-									}
 
-									//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-									Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-								};
+										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+									};
 
 
 			if(Settings.Mcv.Generators.Any())

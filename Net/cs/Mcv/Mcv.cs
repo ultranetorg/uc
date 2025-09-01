@@ -6,7 +6,6 @@ using RocksDbSharp;
 namespace Uccs.Net;
 
 public delegate void BlockDelegate(Vote b);
-public delegate void ConsensusDelegate(Round b, bool reached);
 public delegate void RoundDelegate(Round b);
 
 public enum McvTable
@@ -52,8 +51,8 @@ public abstract class Mcv /// Mutual chain voting
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
-	public ConsensusDelegate					ConsensusConcluded;
-	public RoundDelegate						Commited;
+	public RoundDelegate						ConsensusFailed;
+	public RoundDelegate						Confirmed;
 
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
@@ -222,7 +221,7 @@ public abstract class Mcv /// Mutual chain voting
 
 					r.Hashify();
 					r.Confirm();
-					Commit(r);
+					Save(r);
 				}
 
 				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
@@ -262,7 +261,7 @@ public abstract class Mcv /// Mutual chain voting
 
 					r.Hashify();
 					r.Confirm();
-					Commit(r);
+					Save(r);
 				}
 
 				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
@@ -418,19 +417,18 @@ public abstract class Mcv /// Mutual chain voting
 				}
 
 				p.Confirm();
-				Commit(p);
+				Save(p);
 
-				ConsensusConcluded(r, true);
 				return true;
 
 			}
 			else if(r.ConsensusFailed)
 			{
-				r.Parent.Hash = null;
+				p.Hash = null;
 				r.FirstArrivalTime = DateTime.MaxValue;
 				r.Try++;
 
-				ConsensusConcluded(r, false);
+				ConsensusFailed(r);
 			}
 		}
 
@@ -602,7 +600,7 @@ public abstract class Mcv /// Mutual chain voting
 		return r;
 	}
 	
-	public void Commit(Round round)
+	public void Save(Round round)
 	{
 		using(var b = new WriteBatch())
 		{
@@ -654,8 +652,6 @@ public abstract class Mcv /// Mutual chain voting
 
 			Rocks.Write(b);
 		}
-
-		Commited?.Invoke(round);
 	}
 
 	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)

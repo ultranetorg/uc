@@ -573,6 +573,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
+		Mcv.Confirmed?.Invoke(this);
 	}
 
 	public void Hashify()
