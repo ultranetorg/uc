@@ -43,7 +43,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	Thread									TransactingThread;
 	public List<Transaction>				OutgoingTransactions = new();
 	public List<Transaction>				IncomingTransactions = new();
-	public List<Transaction>				ArchivedTransactions = new();
+	public List<Transaction>				ConfirmedTransactions = new();
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
@@ -83,32 +83,24 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		{
 			Mcv.VoteAdded += b => MainWakeup.Set();
 
-			Mcv.ConsensusConcluded += (r, reached) =>	{
-															if(reached)
-															{
-																///// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
-																//var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
-																//
-																//foreach(var v in notcomebacks)
-																//	Broadcast(v);
-															}
-															else
-															{
-																foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
-																{
-																	i.Vote = null;
-																	i.Status = TransactionStatus.Accepted;
-																}
-															}
-														};
+			Mcv.ConsensusFailed += r =>	{
+											foreach(var i in r.OrderedTransactions.Where(j => Mcv.Settings.Generators.Contains(j.Vote.Generator)))
+											{
+												i.Vote = null;
+												i.Status = TransactionStatus.Accepted;
+											}
+										};
 
-			Mcv.Commited += r => {
-									bool old(Transaction t) => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id;
-
-									ArchivedTransactions.AddRange(IncomingTransactions.Where(old));
-									IncomingTransactions.RemoveAll(old);
-									ArchivedTransactions.RemoveAll(t => t.Expiration < Mcv.LastConfirmedRound.Id - Net.CommitLength);
-								 };
+			Mcv.Confirmed += r =>	{
+										if(Synchronization == Synchronization.Synchronized)
+										{
+											bool old(Transaction t) => t.Vote?.Round.Id == r.Id || t.Expiration <= r.Id;
+	
+											ConfirmedTransactions.AddRange(r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Contains(j.Vote.Generator)));
+											IncomingTransactions.RemoveAll(old);
+											ConfirmedTransactions.RemoveAll(t => t.Expiration < r.Id - Net.CommitLength);
+										}
+									};
 		}
 	}
 
@@ -178,7 +170,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public void Synchronize()
 	{
-		if(Settings.IP != null && Settings.IP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Contains(Net.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || NodeGlobals.SkipSynchronization)
+		if(Settings.IP != null && Settings.IP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Contains(Net.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 		{
 			Synchronization = Synchronization.Synchronized;
 			return;
@@ -186,6 +178,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(Synchronization != Synchronization.Downloading)
 		{
+			SyncTail.Clear();
+			IncomingTransactions.Clear();
+
 			Flow.Log?.Report(this, $"Synchronization Started");
 
 			SynchronizingThread = Node.CreateThread(Synchronizing);
@@ -202,9 +197,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		StampResponse stamp = null;
 		Peer peer = null;
-
-		lock(Lock)
-			SyncTail.Clear();
 
 		while(Flow.Active)
 		{
@@ -404,7 +396,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(r.Members.Count == 0)
 								throw new SynchronizationException("Incorrect round (Members.Count == 0)");
 
-							Mcv.Commit(r);
+							Mcv.Save(r);
 							
 							foreach(var i in SyncTail.Keys)
 								if(i <= r.Id)
@@ -496,7 +488,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 		else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 		{
-			if(v.RoundId < Mcv.LastConfirmedRound.Id + 1 || Mcv.LastConfirmedRound.Id + Mcv.P + 1 < v.RoundId)
+			if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < v.RoundId)
 				return false;
 			
 			var r = Mcv.GetRound(v.RoundId);
@@ -674,7 +666,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 																					if(r.Id > t.Expiration)
 																					{
-																						t.Status = TransactionStatus.FailedOrNotFound;
+																						//t.Status = TransactionStatus.FailedOrNotFound;
 																						IncomingTransactions.Remove(t);
 																						return true;
 																					}
@@ -685,7 +677,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																					{
 																						if(!Mcv.Settings.Generators.Contains(nearest))
 																						{
-																							t.Status = TransactionStatus.FailedOrNotFound;
+																							//t.Status = TransactionStatus.FailedOrNotFound;
 																							IncomingTransactions.Remove(t);
 																						}
 	
@@ -790,7 +782,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							r.ConsensusTime			= r.Previous.ConsensusTime;
 							r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
-							///r.RentPerBytePerDay		= r.Previous.RentPerBytePerDay;
+							///r.RentPerBytePerDay	= r.Previous.RentPerBytePerDay;
 							r.Members				= r.Previous.Members;
 							r.Funds					= r.Previous.Funds;
 						}
@@ -1066,7 +1058,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						ts = Call(g.Key, new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Signer = i.Signer, Nid = i.Nid}).ToArray()});
+						ts = Call(g.Key, new TransactionStatusRequest {Signatures = [..g.Select(i => i.Signature)]});
 					}
 					catch(NodeException ex)
 					{
@@ -1078,7 +1070,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					lock(Lock)
 						foreach(var i in ts.Transactions)
 						{
-							var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
+							var t = accepted.First(a => a.Signature.SequenceEqual(i.Signature));
 																	
 							if(t.Status != i.Status)
 							{
@@ -1095,8 +1087,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								{
 									if(t.ActionOnResult == ActionOnResult.ExpectFailure)
 										Debugger.Break();
-									else
-										t.Id = i.Id; 
+									//else
+									//	t.Id = i.Id; 
 								}
 							}
 						}
