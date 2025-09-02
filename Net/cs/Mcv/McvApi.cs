@@ -333,8 +333,17 @@ public class OutgoingTransactionApc : McvApc
 				return new TransactionApe(t);
 			} 
 			else
-				return null;
+				return new TransactionApe {Tag = Tag, Status = TransactionStatus.FailedOrNotFound};
 		}
+	}
+}
+
+public class OutgoingTransactionsApc : McvApc
+{
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(node.Peering.Lock)
+			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
 
@@ -388,7 +397,7 @@ public class TransactionApe
 	{
 		Nid					= transaction.Nid;
 		Id					= transaction.Id;
-		Operations			= transaction.Operations.ToArray();
+		Operations			= [..transaction.Operations];
 		   
 		Member				= transaction.Member;
 		Expiration			= transaction.Expiration;
@@ -401,7 +410,7 @@ public class TransactionApe
 		Status				= transaction.Status;
 		__ExpectedStatus	= transaction.ActionOnResult;
 
-		Log					= transaction.Flow.Log.Messages.ToArray();
+		Log					= [..transaction.Flow.Log.Messages];
 	}
 }
 
@@ -411,15 +420,6 @@ public class IncomingTransactionsApc : McvApc
 	{
 		lock(node.Peering.Lock)
 			return node.Peering.IncomingTransactions.Select(i => new TransactionApe(i)).ToArray();
-	}
-}
-
-public class OutgoingTransactionsApc : McvApc
-{
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(node.Peering.Lock)
-			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
 

@@ -74,25 +74,28 @@ public abstract class McvCommand : NetCommand
 
 	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, ActionOnResult aor)
 	{
-		var t =  Cli.ApiClient.Request<TransactionApe>(new TransactApc  {Operations = operations,
-																		 Signer = signer,
-																		 ActionOnResult = aor}, Flow);
+		var t = Cli.ApiClient.Request<TransactionApe>(	new TransactApc
+														{
+															Operations = operations,
+															Signer = signer,
+															ActionOnResult = aor
+														}, Flow);
 		int n = 0;
 
 		do 
 		{
 			t = Cli.ApiClient.Request<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
 
-			if(t == null)
-				throw new NodeException(NodeError.TransactionRejected);
-
-			foreach(var i in t.Log.Skip(n))
+			if(t.Status != TransactionStatus.FailedOrNotFound)
 			{
-				foreach(var j in i.Text)
-					Report(j);
+				foreach(var i in t.Log.Skip(n))
+				{
+					foreach(var j in i.Text)
+						Report(j);
+				}
+	
+				n += t.Log.Length;
 			}
-
-			n += t.Log.Length;
 
 			Thread.Sleep(1);
 		}

@@ -890,7 +890,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			bool nothing;
 
 			lock(Lock)
-				nothing = OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed || i.Status == TransactionStatus.FailedOrNotFound);
+				nothing = OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed);
 			
 			if(nothing)		
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
@@ -950,11 +950,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Nid		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
-						t.Signature	 = UosApi.Request<byte[]>(new AuthorizeApc {Net		= Net.Name,
-																				Account	= t.Signer,
-																				Session = GetSession(t.Signer),
-																				Hash	= t.Hashify(Net.Cryptography.ZeroHash),
-																				Trust	= Trust.None}, t.Flow);
+						t.Signature	 = UosApi.Request<byte[]>(	new AuthorizeApc
+																{
+																	Net		= Net.Name,
+																	Account	= t.Signer,
+																	Session = GetSession(t.Signer),
+																	Hash	= t.Hashify(Net.Cryptography.ZeroHash),
+																	Trust	= Trust.None
+																}, t.Flow);
 
 						var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
 							
@@ -967,11 +970,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Bonus		 = 0;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
-						t.Signature	 = UosApi.Request<byte[]>(new AuthorizeApc {Net		= Net.Name,
-																				Account	= t.Signer,
-																				Session = GetSession(t.Signer),
-																				Hash	= t.Hashify(at.PoWBase),
-																				Trust	= Trust.None}, t.Flow);
+						t.Signature	 = UosApi.Request<byte[]>(	new AuthorizeApc
+																{
+																	Net		= Net.Name,
+																	Account	= t.Signer,
+																	Session = GetSession(t.Signer),
+																	Hash	= t.Hashify(at.PoWBase),
+																	Trust	= Trust.None
+																}, t.Flow);
 
 						txs.Add(t);
 
@@ -991,7 +997,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
 						{
 							lock(Lock)
-								t.Status = TransactionStatus.FailedOrNotFound;
+								//t.Status = TransactionStatus.FailedOrNotFound;
+								OutgoingTransactions.Remove(t);
 						} 
 
 						continue;
@@ -1000,9 +1007,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						Flow.Log?.ReportError(this, "Transaction allocation", ex);
 
-						//lock(Lock)
-						//	t.Status = TransactionStatus.FailedOrNotFound;
-
+						Thread.Sleep(1000);
 						continue;
 					}
 				}
@@ -1013,7 +1018,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = txs.ToArray()}).Accepted;
+						atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = [..txs]}).Accepted;
 					}
 					catch(NodeException ex)
 					{
@@ -1037,7 +1042,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 									t.Status = TransactionStatus.None;
 								else
-									t.Status = TransactionStatus.FailedOrNotFound;
+									//t.Status = TransactionStatus.FailedOrNotFound;
+									OutgoingTransactions.Remove(t);
 							}
 						}
 				}
@@ -1082,6 +1088,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								{
 									if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 										t.Status = TransactionStatus.None;
+									else
+										OutgoingTransactions.Remove(t);
 								}
 								else if(t.Status == TransactionStatus.Confirmed)
 								{
