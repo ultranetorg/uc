@@ -2,8 +2,8 @@ import { memo } from "react"
 
 import { TotalItemsResult, Review } from "types"
 import { ButtonOutline } from "ui/components"
+import { Comment } from "ui/components/comments/Comment"
 
-import { Review as ReviewComponent } from "./Review"
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
 export type ReviewsListProps = {
@@ -45,15 +45,7 @@ export const ReviewsList = memo(
       ) : (
         <>
           {reviews.items.map(r => (
-            <ReviewComponent
-              key={r.id}
-              text={r.text}
-              rating={r.rating}
-              accountId={r.creatorAccount.id}
-              accountName={r.creatorAccount.nickname || r.creatorAccount.address}
-              accountImage={r.creatorAccount.avatar}
-              created={r.created}
-            />
+            <Comment key={r.id} text={r.text} rating={r.rating} account={r.creatorAccount} created={r.created} />
           ))}
           <ButtonOutline className="mx-auto" label={showMoreReviewsLabel} />
         </>

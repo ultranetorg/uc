@@ -9,8 +9,10 @@ export const enUS = {
     ban: "Ban",
     banish: "Banish",
     cancel: "Cancel",
+    comments: "comments",
     createdBy: "Created By",
     date: "Date",
+    governance: "governance",
     home: "Home",
     lastsFor: "Lasts for",
     neither: "Neither",
@@ -28,7 +30,7 @@ export const enUS = {
     yesVotes: "Yes votes",
     updationTime: "Updation Time",
     user: "User",
-    votes: "Votes",
+    votes: "votes",
   },
   date: {
     day_one: "{{count}} day",
@@ -133,6 +135,11 @@ export const enUS = {
     placeholder: "Enter store name or description...",
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
+  },
+  proposal: {
+    addComment: "Add your comment",
+    noComments: "No comments",
+    showMore: "Show more comments",
   },
   tabDiscussions: {
     searchProposal: "Search discussion",

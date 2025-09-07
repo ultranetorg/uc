@@ -1,8 +1,11 @@
+export * from "./comments"
+
 export * from "./AccountInfo"
 export * from "./Breadcrumbs"
 export * from "./Bullet"
 export * from "./Button"
 export * from "./ButtonGhost"
+export * from "./ButtonIcon"
 export * from "./ButtonOutline"
 export * from "./ButtonPrimary"
 export * from "./CopyButton"

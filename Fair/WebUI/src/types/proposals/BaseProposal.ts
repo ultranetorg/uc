@@ -4,7 +4,7 @@ export type BaseProposal = {
   id: string
 
   title: string
-  text: string
+  text?: string
 
   creationTime: number
 

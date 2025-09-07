@@ -1,6 +1,6 @@
 import { SvgCheckSquareSmSvg } from "assets"
 import { useCallback, useState } from "react"
-import { useTranslation } from "react-i18next"
+
 import { ButtonPrimary, RadioCard } from "ui/components"
 
 const ALTERNATIVE_OPTION_ITEMS = [
@@ -11,14 +11,12 @@ const ALTERNATIVE_OPTION_ITEMS = [
 ]
 
 export const AlternativeOptions = () => {
-  const { t } = useTranslation()
-
   const [checkedIndex, setCheckedIndex] = useState(-1)
 
   const handleClick = useCallback((index: number) => setCheckedIndex(p => (p !== index ? index : -1)), [])
 
   return (
-    <div className="bg-ivory flex flex-col gap-6 rounded-lg border border-gray-300 p-4 text-gray-800">
+    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-ivory p-4 text-gray-800">
       <div className="flex flex-col gap-2">
         <span className="text-2base font-semibold leading-5.25">Альтернативные варианты</span>
         <span className="text-2xs font-medium leading-4 text-gray-500">
@@ -40,7 +38,7 @@ export const AlternativeOptions = () => {
       <ButtonPrimary
         className="h-11 w-37.5 self-end"
         label="Vote"
-        icon={<SvgCheckSquareSmSvg className="fill-white" />}
+        iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
       />
     </div>
   )

@@ -17,13 +17,7 @@ export const useGetReviewProposal = (siteId?: string, reviewId?: string) => {
 }
 
 export const useGetReviewProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
-  const queryFn = () => {
-    if (!siteId) {
-      return
-    }
-
-    return api.getReviewProposals(siteId, page, pageSize, search)
-  }
+  const queryFn = () => api.getReviewProposals(siteId!, page, pageSize, search)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["moderator", "sites", siteId, "reviews", { page, pageSize, search }],

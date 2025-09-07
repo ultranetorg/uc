@@ -1,9 +1,5 @@
-import { AccountBase } from "./AccountBase"
+import { CommentBase } from "./CommentBase"
 
-export type Review = {
-  id: string
-  text: string
+export type Review = CommentBase & {
   rating: number
-  created: number
-  creatorAccount: AccountBase
 }

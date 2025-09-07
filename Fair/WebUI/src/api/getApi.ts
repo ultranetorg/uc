@@ -104,6 +104,20 @@ const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${us
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
 
+const getAuthorReferendumComments = async (
+  siteId: string,
+  referendumId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ProposalComment>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}/comments` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getAuthorReferendums = async (
   siteId: string,
   page?: number,
@@ -218,6 +232,7 @@ const api: Api = {
   getAuthorReferendum,
   getCategoryPublications,
   getAuthorReferendums,
+  getAuthorReferendumComments,
   getModeratorDiscussion,
   getModeratorDiscussionComments,
   getModeratorDiscussions,

@@ -13,7 +13,7 @@ export type ButtonOutlineProps = PropsWithClassName & ButtonOutlineBaseProps
 export const ButtonOutline = ({ className, disabled, label, onClick }: ButtonOutlineProps) => (
   <span
     className={twMerge(
-      "flex w-fit select-none items-center justify-center rounded border px-4 py-2 text-2sm leading-5",
+      "box-border flex w-fit select-none items-center justify-center rounded border px-4 py-2 text-2sm leading-5",
       className,
       disabled !== true
         ? "transition-base cursor-pointer border-gray-400 text-gray-800 hover:border-gray-950"
