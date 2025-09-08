@@ -59,6 +59,7 @@ export const enUS = {
     resetAll: "Reset all",
   },
   moderation: {
+    createDiscussion: "Create discussion",
     discussions: "Discussions",
     publications: "Publications",
     reviews: "Reviews",
