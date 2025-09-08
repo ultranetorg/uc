@@ -7,12 +7,12 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorReferendums } from "entities"
 import { useUrlParamsState } from "hooks"
 import { GovernanceModerationHeader } from "ui/components/specific"
-import { ProposalsTemplate } from "ui/templates"
+import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
 
 export const ReferendumsPage = () => {
   const { siteId } = useParams()
-  const { t } = useTranslation("referendums")
+  const { t } = useTranslation("governance")
   const navigate = useNavigate()
 
   const [state, setState] = useUrlParamsState({
@@ -59,7 +59,7 @@ export const ReferendumsPage = () => {
         homeLabel={t("common:home")}
         createButtonLabel={t("createReferendum")}
       />
-      <ProposalsTemplate
+      <ProposalsView
         t={t}
         proposals={referendums}
         page={page}

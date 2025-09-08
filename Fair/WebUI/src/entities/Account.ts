@@ -5,13 +5,7 @@ import { getApi } from "api"
 const api = getApi()
 
 export const useGetUser = (userId?: string) => {
-  const queryFn = () => {
-    if (!userId) {
-      return
-    }
-
-    return api.getUser(userId)
-  }
+  const queryFn = () => api.getUser(userId!)
 
   const { isPending, error, data } = useQuery({
     queryKey: ["users", userId],

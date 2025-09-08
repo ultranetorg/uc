@@ -6,7 +6,7 @@ import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { getCommonColumns } from "ui/pages/Moderation/Moderation/constants"
 import { getProposalsItemRenderer } from "ui/renderers"
 
-export type ProposalsTemplateProps = {
+export type ProposalsViewProps = {
   t: TFunction
   proposals?: TotalItemsResult<Proposal>
   page: number
@@ -17,17 +17,8 @@ export type ProposalsTemplateProps = {
   onSearchChange: (search: string) => void
 }
 
-export const ProposalsTemplate = memo(
-  ({
-    t,
-    proposals,
-    page,
-    pagesCount,
-    search,
-    onPageChange,
-    onTableRowClick,
-    onSearchChange,
-  }: ProposalsTemplateProps) => {
+export const ProposalsView = memo(
+  ({ t, proposals, page, pagesCount, search, onPageChange, onTableRowClick, onSearchChange }: ProposalsViewProps) => {
     const columns = useMemo(
       () => [
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },

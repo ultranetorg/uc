@@ -12,8 +12,6 @@ public class ModeratorProposalsService
 	FairMcv mcv
 )
 {
-	private const string UserEntityName = "user";
-
 	public ReviewProposalDetailsModel GetReviewProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
 		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetReviewProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
@@ -77,7 +75,7 @@ public class ModeratorProposalsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		return GetProposalByType<UserProposalModel>(siteId, proposalId, UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
+		return GetProposalByType<UserProposalModel>(siteId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
 	}
 
 	public TotalItemsResult<UserProposalModel> GetUserProposalsNotOptimized
@@ -109,7 +107,7 @@ public class ModeratorProposalsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		return GetProposalByType<PublicationProposalModel>(siteId, proposalId, UserEntityName, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel);
+		return GetProposalByType<PublicationProposalModel>(siteId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel);
 	}
 
 	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
@@ -264,95 +262,3 @@ public class ModeratorProposalsService
 		return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
 	}
 }
-
-
-//public TotalItemsResult<PublicationProposalModel> GetModeratorPublicationsNotOptimized(string siteId, int page, int pageSize, string? search, CancellationToken canellationToken)
-//{
-//	logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublicationsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
-
-//	Guard.Against.NullOrEmpty(siteId);
-//	Guard.Against.Negative(page);
-//	Guard.Against.NegativeOrZero(pageSize);
-
-//	AutoId id = AutoId.Parse(siteId);
-
-//	lock (mcv.Lock)
-//	{
-//		Site site = mcv.Sites.Latest(id);
-//		if (site == null)
-//		{
-//			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-//		}
-
-//		var context = new FilteredContext<PublicationProposalModel>
-//		{
-//			Page = page,
-//			PageSize = pageSize,
-//			Search = search,
-//			Items = new List<PublicationProposalModel>(pageSize),
-//		};
-
-//		LoadModeratorsPendingPublications(site.UnpublishedPublications, context, canellationToken);
-
-//		return new TotalItemsResult<PublicationProposalModel>
-//		{
-//			Items = context.Items,
-//			TotalItems = context.TotalItems
-//		};
-//	}
-//}
-
-//void LoadModeratorsPendingPublications(IEnumerable<AutoId> pendingPublicationsIds, FilteredContext<PublicationProposalModel> context, CancellationToken cancellationToken)
-//{
-//	if (cancellationToken.IsCancellationRequested)
-//		return;
-
-//	foreach (var publicationId in pendingPublicationsIds)
-//	{
-//		if (cancellationToken.IsCancellationRequested)
-//			return;
-
-
-//		Publication publication = mcv.Publications.Latest(publicationId);
-
-//		if (!SearchUtils.IsMatch(publication, context.Search))
-//		{
-//			continue;
-//		}
-
-//		if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-//		{
-//			Product product = mcv.Products.Latest(publication.Product);
-//			Author author = mcv.Authors.Latest(product.Author);
-//			Category category = mcv.Categories.Latest(publication.Category);
-//			var model = new PublicationProposalModel(publication, category, product, author);
-//			context.Items.Add(model);
-//		}
-
-//		++context.TotalItems;
-//	}
-//}
-
-//public PublicationProposalModel GetModeratorPublication(string publicationId)
-//{
-//	logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetModeratorPublication)} method called with {{PublicationId}}", publicationId);
-
-//	Guard.Against.NullOrEmpty(publicationId);
-
-//	AutoId id = AutoId.Parse(publicationId);
-
-//	lock (mcv.Lock)
-//	{
-//		Publication publication = mcv.Publications.Latest(id);
-//		if (publication == null)
-//		{
-//			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
-//		}
-
-//		Category category = mcv.Categories.Latest(publication.Category);
-//		Product product = mcv.Products.Latest(publication.Product);
-//		Author author = mcv.Authors.Latest(product.Author);
-
-//		return new PublicationProposalModel(publication, category, product, author);
-//	}
-//}

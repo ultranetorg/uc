@@ -4,18 +4,6 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetPublicationProposal = (siteId?: string, proposalId?: string) => {
-  const queryFn = () => api.getPublicationProposal(proposalId!)
-
-  const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "publications", proposalId],
-    queryFn: queryFn,
-    enabled: !!siteId && !!proposalId,
-  })
-
-  return { isPending, error: error ?? undefined, data }
-}
-
 export const useGetPublicationProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => api.getPublicationProposals(siteId!, page, pageSize, search)
 

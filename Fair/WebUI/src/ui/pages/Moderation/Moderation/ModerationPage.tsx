@@ -36,7 +36,13 @@ export const ModerationPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <GovernanceModerationHeader siteId={siteId!} title={t("title")} homeLabel={t("common:home")} />
+      <GovernanceModerationHeader
+        siteId={siteId!}
+        title={t("title")}
+        onCreateButtonClick={() => console.log("GovernanceModerationHeader")}
+        homeLabel={t("common:home")}
+        createButtonLabel={t("createDiscussion")}
+      />
       <TabsProvider defaultKey={key || "reviews"}>
         <div className="flex flex-col gap-6">
           <TabsList

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
@@ -9,10 +9,12 @@ import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
+
 import { getCommonColumns } from "./constants"
 
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")
+  const navigate = useNavigate()
   const { siteId } = useParams()
 
   const [state, setState] = useUrlParamsState({
@@ -43,6 +45,8 @@ export const PublicationsTab = () => {
   )
   const itemRenderer = useMemo(() => getPublicationsItemRenderer(t), [t])
 
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/p/${id}`), [navigate, siteId])
+
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ page: page })
@@ -59,6 +63,7 @@ export const PublicationsTab = () => {
         tableBodyClassName="text-2sm leading-5"
         itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noPublications")} />}
+        onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

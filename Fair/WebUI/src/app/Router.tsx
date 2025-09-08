@@ -10,6 +10,7 @@ import {
   ModeratorDiscussionPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
+  ModeratorUserRegistrationPage,
   ProfilePage,
   PublicationPage,
   ReferendumPage,
@@ -83,16 +84,20 @@ const routes: RouteObject[] = [
             element: <ModerationPage />,
           },
           {
-            path: "/:siteId/m-d/:discussionId",
+            path: "/:siteId/m/d/:discussionId",
             element: <ModeratorDiscussionPage />,
           },
           {
-            path: "/:siteId/m-p/:publicationId",
+            path: "/:siteId/m/p/:discussionId",
             element: <ModeratorPublicationPage />,
           },
           {
-            path: "/:siteId/m-r/:reviewId",
+            path: "/:siteId/m/r/:discussionId",
             element: <ModeratorReviewPage />,
+          },
+          {
+            path: "/:siteId/m/u/:discussionId",
+            element: <ModeratorUserRegistrationPage />,
           },
         ],
       },

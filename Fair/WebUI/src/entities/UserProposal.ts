@@ -4,18 +4,6 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetUserProposal = (siteId?: string, proposalId?: string) => {
-  const queryFn = () => api.getUserProposal(siteId!, proposalId!)
-
-  const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "users", proposalId],
-    queryFn: queryFn,
-    enabled: !!siteId && !!proposalId,
-  })
-
-  return { isPending, error: error ?? undefined, data }
-}
-
 export const useGetUserProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => api.getUserProposals(siteId!, page, pageSize, search)
 

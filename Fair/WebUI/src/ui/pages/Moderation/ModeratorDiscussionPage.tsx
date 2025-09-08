@@ -1,23 +1,23 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
+import { ProposalView } from "ui/views"
 
 export const ModeratorDiscussionPage = () => {
+  const { t } = useTranslation()
   const { siteId, discussionId } = useParams()
 
-  const { isPending, data: discussion } = useGetModeratorDiscussion(siteId, discussionId)
-  const { isPending: isCommentsPending, data: comments } = useGetModeratorDiscussionComments(siteId, discussionId)
-
-  if (isPending || !discussion || isCommentsPending) {
-    return "Loading..."
-  }
+  const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, discussionId)
+  const { isFetching: isCommentsFetching, data: comments } = useGetModeratorDiscussionComments(siteId, proposal?.id)
 
   return (
-    <div className="flex flex-col gap-2">
-      DISCUSSION
-      <div>{JSON.stringify(discussion)}</div>
-      COMMENTS:
-      <div>{JSON.stringify(comments)}</div>
-    </div>
+    <ProposalView
+      parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/d/` }}
+      isFetching={isFetching}
+      proposal={proposal}
+      isCommentsFetching={isCommentsFetching}
+      comments={comments}
+    />
   )
 }

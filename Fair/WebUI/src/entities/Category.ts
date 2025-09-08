@@ -5,13 +5,7 @@ import { getApi } from "api"
 const api = getApi()
 
 export const useGetCategories = (siteId?: string, depth?: number) => {
-  const queryFn = () => {
-    if (!siteId) {
-      return
-    }
-
-    return api.getCategories(siteId, depth)
-  }
+  const queryFn = () => api.getCategories(siteId!, depth)
 
   const { isPending, error, data } = useQuery({
     queryKey: ["sites", siteId, "categories", { depth }],
@@ -23,13 +17,7 @@ export const useGetCategories = (siteId?: string, depth?: number) => {
 }
 
 export const useGetCategory = (categoryId?: string) => {
-  const queryFn = () => {
-    if (!categoryId) {
-      return
-    }
-
-    return api.getCategory(categoryId)
-  }
+  const queryFn = () => api.getCategory(categoryId!)
 
   const { isPending, error, data } = useQuery({
     queryKey: ["categories", categoryId],

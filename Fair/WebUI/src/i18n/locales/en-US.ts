@@ -9,8 +9,10 @@ export const enUS = {
     ban: "Ban",
     banish: "Banish",
     cancel: "Cancel",
+    comments: "comments",
     createdBy: "Created By",
     date: "Date",
+    governance: "governance",
     home: "Home",
     lastsFor: "Lasts for",
     neither: "Neither",
@@ -28,7 +30,7 @@ export const enUS = {
     yesVotes: "Yes votes",
     updationTime: "Updation Time",
     user: "User",
-    votes: "Votes",
+    votes: "votes",
   },
   date: {
     day_one: "{{count}} day",
@@ -57,6 +59,7 @@ export const enUS = {
     resetAll: "Reset all",
   },
   moderation: {
+    createDiscussion: "Create discussion",
     discussions: "Discussions",
     publications: "Publications",
     reviews: "Reviews",
@@ -104,11 +107,11 @@ export const enUS = {
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
   },
-  referendums: {
+  governance: {
     createReferendum: "Create referendum",
     searchProposal: "Search referendum",
     noProposals: "No open referendums",
-    title: "Referendums",
+    title: "Governance",
   },
   search: {
     allAuthors: "All authors",
@@ -133,6 +136,11 @@ export const enUS = {
     placeholder: "Enter store name or description...",
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
+  },
+  proposal: {
+    addComment: "Add your comment",
+    noComments: "No comments",
+    showMore: "Show more comments",
   },
   tabDiscussions: {
     searchProposal: "Search discussion",

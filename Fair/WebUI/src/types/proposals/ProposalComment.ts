@@ -1,9 +1,3 @@
-import { AccountBase } from "types"
+import { CommentBase } from "types"
 
-export type ProposalComment = {
-  id: string
-  proposalId: string
-  creatorAccount: AccountBase
-  text: string
-  created: number
-}
+export type ProposalComment = CommentBase
