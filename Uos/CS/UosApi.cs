@@ -8,7 +8,14 @@ internal class UosApiServer : JsonServer
 {
 	Uos Uos;
 
-	public UosApiServer(Uos uos, Flow flow) : base(uos.Settings.Api.ToApiSettings(uos.Settings.Rdn.Zone), ApiClient.CreateOptions(), flow)
+	public UosApiServer(Uos uos, Flow flow) : base(	new ApiSettings
+													{
+														LocalAddress = UosApiSettings.GetAddress(uos.Settings.Rdn.Zone, uos.Settings.Api.LocalIP, false),
+														PublicAddress = uos.Settings.Api.PublicIP == null ? null : UosApiSettings.GetAddress(uos.Settings.Rdn.Zone, uos.Settings.Api.PublicIP, uos.Settings.Api.Ssl),
+														PublicAccessKey = uos.Settings.Api.PublicAccessKey,
+													},
+													ApiClient.CreateOptions(),
+													flow)
 	{
 		Uos = uos;
 	}
@@ -54,17 +61,6 @@ public class UosPropertyApc : Net.UosPropertyApc, IUosApc
 			default:
 				return o?.ToString();
 		}
-	}
-}
-
-internal class RunNodeApc : Net.RunNodeApc, IUosApc
-{
-	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(uos)
-			uos.ConnectNetwork(Net);
-
-		return null;
 	}
 }
 

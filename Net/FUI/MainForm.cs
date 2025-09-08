@@ -6,36 +6,30 @@ namespace Uccs.Net.FUI;
 
 public partial class MainForm : Form
 {
-	public readonly Uos.Uos		Uos;
+	public readonly McvNode		Node;
 	readonly Timer				Timer = new Timer();
 
 	DashboardPanel				Dashboard;
 
-	public MainForm(Uos.Uos uos)
+	public MainForm(McvNode uos)
 	{
-		Uos = uos;
+		Node = uos;
 		AutoScaleMode = AutoScaleMode.Inherit;
 
 		InitializeComponent();
 
 		MinimumSize = Size;
 
-		var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Uos)};
+		var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Node)};
 		Navigator.Nodes.Add(dashboard);
 
-		var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Uos)};
+		var accs = new TreeNode("Accounts"){Tag = new AccountsPanel(Node)};
 		Navigator.Nodes.Add(accs);
 
 		Navigator.SelectedNode = dashboard;
 		Navigator.ExpandAll();
 		
-		Uos.NodeStarted += c =>	{ 	
-									BeginInvoke(() =>	{ 
-															LoadMcv(c as McvNode);
-														});
-								};
-		foreach(var i in Uos.Nodes)
-			LoadMcv(i.Node);
+		LoadNode(Node);
 	}
 
 	public void BeginClose()
@@ -43,7 +37,7 @@ public partial class MainForm : Form
 		BeginInvoke(Close);
 	}
 
-	void LoadMcv(McvNode node)
+	void LoadNode(McvNode node)
 	{
 		Dashboard.Monitor.Mcv = node.Mcv;
 
@@ -111,7 +105,7 @@ public partial class MainForm : Form
 	{
 		//lock(Uos.Lock)
 		{
-			Text = $"Uos - {Uos}";
+			Text = $"Uos - {Node}";
 		}
 
 		foreach(var i in Controls)

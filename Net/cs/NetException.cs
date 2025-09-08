@@ -23,6 +23,7 @@ public enum NodeError : byte
 	NoMcv,
 	NoNodeForNet,
 	NoNtn,
+	NoPeering,
 	NotChain,
 	NotGraph,
 	NotFound,
@@ -64,34 +65,7 @@ public enum VaultError : byte
     NetNotFound,
 }
 
-public abstract class NetException : Exception, ITypeCode, IBinarySerializable 
-{
-	public abstract int		ErrorCode { get; set; }
-
-	static NetException()
-	{
-	}
-
-	public NetException()
-	{
-	}
-
-	public NetException(string message) : base(message)
-	{
-	}
-
-	public void Read(BinaryReader reader)
-	{
-		ErrorCode = reader.Read7BitEncodedInt();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write7BitEncodedInt(ErrorCode);
-	}
-}
-
-public class NodeException : NetException
+public class NodeException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (NodeError)value; }
 	public NodeError				Error { get; protected set; }
@@ -108,7 +82,7 @@ public class NodeException : NetException
 
 }
 
-public class RequestException : NetException
+public class RequestException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (RequestError)value; }
 	public RequestError				Error { get; protected set; }
@@ -124,7 +98,7 @@ public class RequestException : NetException
 	}
 }
 
-public class EntityException : NetException
+public class EntityException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (EntityError)value; }
 	public EntityError				Error { get; protected set; }
@@ -140,7 +114,7 @@ public class EntityException : NetException
 	}
 }
 
-public class VaultException : NetException
+public class VaultException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (VaultError)value; }
 	public VaultError				Error { get; protected set; }

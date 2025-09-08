@@ -94,7 +94,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			Mcv.Confirmed += r =>	{
 										if(Synchronization == Synchronization.Synchronized)
 										{
-											bool old(Transaction t) => t.Vote?.Round.Id == r.Id || t.Expiration <= r.Id;
+											bool old(Transaction t) => t.Vote?.Round?.Id == r.Id || t.Expiration <= r.Id;
 	
 											ConfirmedTransactions.AddRange(r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Contains(j.Vote.Generator)));
 											IncomingTransactions.RemoveAll(old);

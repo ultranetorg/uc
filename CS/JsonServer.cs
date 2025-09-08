@@ -15,10 +15,40 @@ public abstract class Apc
 	public int				Timeout {get; set;} = System.Threading.Timeout.Infinite;
 }
 
+public abstract class CodeException : Exception, ITypeCode, IBinarySerializable 
+{
+	public abstract int		ErrorCode { get; set; }
+
+	static CodeException()
+	{
+	}
+
+	public CodeException()
+	{
+	}
+
+	public CodeException(string message) : base(message)
+	{
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		ErrorCode = reader.Read7BitEncodedInt();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(ErrorCode);
+	}
+}
+
 public class ApiSettings : Settings
 {
-	public string	ListenAddress { get; set; }
-	public string	AccessKey { get; set; }
+	public string			LocalAddress { get; set; }
+	public string			PublicAddress { get; set; }
+	public string			PublicAccessKey { get; set; }
+
+	public static string	ToAddress(IPAddress ip, ushort port, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{port}";
 
 	public ApiSettings() : base(XonTextValueSerializator.Default)
 	{
@@ -79,10 +109,16 @@ public abstract class JsonServer
 										try
 										{
 											Listener = new HttpListener();
-											Listener.Prefixes.Add(settings.ListenAddress + "/");
+
+											Listener.Prefixes.Add(settings.LocalAddress + "/");
+											if(settings.PublicAddress != null)
+												Listener.Prefixes.Add(settings.PublicAddress + "/");
+
 											Listener.Start();
 
-											Flow.Log?.Report(this, "Listening started", settings.ListenAddress);
+											Flow.Log?.Report(this, "Listening started", settings.LocalAddress);
+											if(settings.PublicAddress != null)
+												Flow.Log?.Report(this, "Listening started", settings.PublicAddress);
 					
 											while(Flow.Active)
 											{
@@ -106,7 +142,7 @@ public abstract class JsonServer
 										}
 									});
 
-		Thread.Name = $"{settings.ListenAddress} Aping";
+		Thread.Name = $"{settings.LocalAddress + (settings.PublicAddress != null ? ("/" + settings.PublicAddress) : null)} Aping";
 		Thread.Start();
 	}
 
@@ -171,7 +207,7 @@ public abstract class JsonServer
 		
 		try
 		{
-			if(!string.IsNullOrWhiteSpace(Settings.AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.AccessKey)
+			if(!rq.Url.IsLoopback && !string.IsNullOrWhiteSpace(Settings.PublicAccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.PublicAccessKey)
 			{
 				RespondError(rp, HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
 				rp.Close();
@@ -237,6 +273,10 @@ public abstract class JsonServer
 		}
 		catch(ObjectDisposedException)
 		{ 
+		}
+		catch(CodeException ex)
+		{
+			RespondError(rp, JsonSerializer.Serialize(ex, Options), HttpStatusCode.UnprocessableEntity);
 		}
 		catch(JsonException ex)
 		{

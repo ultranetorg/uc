@@ -8,59 +8,44 @@ namespace Uccs.Uos;
 
 public class NodeInstance
 {
-	public ApiSettings	ApiSettings { get; set; }
-	public int			ApiPort { get; set; }
-	public McvNode		Node;
+	public string		ApiLocalAddress { get; set; }
+	//public int			ApiPort { get; set; }
+	//public McvNode		Node;
 	public string		Net;
 
 	public override string ToString()
 	{
-		return Node.ToString();
+		return Net;
 	}
 }
 
 public class Uos : Cli
 {
-	public delegate void		Delegate(Uos d);
- 	public delegate void		McvDelegate(Mcv d);
+	public delegate void			Delegate(Uos d);
+ 	public delegate void			McvDelegate(Mcv d);
 
 	public Func<string, AccountAddress, AuthenticationChioce>	AuthenticationRequested;
 	public Action<AccountAddress>								UnlockRequested;
 	public Func<string, AccountAddress, bool>					AuthorizationRequested;
 
-	public static bool			ConsoleAvailable { get; protected set; }
-	public IPasswordAsker		PasswordAsker = new ConsolePasswordAsker();
-	public Flow					Flow = new Flow("uos", new Log()); 
-	public static string		ExeDirectory;
-	public UosSettings			Settings;
-	public List<NodeInstance>	Nodes = [];
-	internal UosApiServer		ApiServer;
-	public IClock				Clock;
-	public Delegate				Stopped;
-	public Vault				Vault;
-	static Boot					Boot;
-	public static				ConsoleLogView	LogView = new ConsoleLogView(false, false);
-	public static HttpClient	ApiHttpClient;
+	public static bool				ConsoleAvailable { get; protected set; }
+	public IPasswordAsker			PasswordAsker = new ConsolePasswordAsker();
+	public Flow						Flow = new Flow("uos", new Log()); 
+	public static string			ExeDirectory;
+	public UosSettings				Settings;
+	public List<NodeInstance>		Nodes = [];
+	internal UosApiServer			ApiServer;
+	public IClock					Clock;
+	public Delegate					Stopped;
+	public Vault					Vault;
+	static Boot						Boot;
+	public static ConsoleLogView	LogView = new ConsoleLogView(false, false);
+	public static HttpClient		ApiHttpClient;
 
-	public NodeInstance			Find(string net) => Nodes.Find(i => i.Net == net);
-	public N					Find<N>() where N : class => Nodes.Find(i => i.Node is N)?.Node as N;
+	public NodeInstance				Find(string net) => Nodes.Find(i => i.Net == net);
 
-	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Nodes.Find(i => i.Net == Settings.Rdn.Address).ApiSettings.ListenAddress, Nodes.Find(i => i.Net == Settings.Rdn.Address).ApiSettings.AccessKey);
-	//public McvApiClient			GetMcvApi(string net) => new McvApiClient(ApiHttpClient, Nodes.Find(i => i.Net == net).ApiSettings.ListenAddress, Nodes.Find(i => i.Net == net).ApiSettings.AccessKey);
-
-	public NodeDelegate			NodeStarted;
-
-	//public string			AccessKey { get; set; }
-	//public IPAddress		IP { get; set; }
-	//public ushort			PortPostfix  { get; set; }
-	//public bool				Ssl  { get; set; }
-
-	//public static ushort	MapPort(Zone zone, KnownSystem system, ushort postfix) => (ushort)((ushort)zone + system + postfix);
-	//public static string	MapAddress(IPAddress ip, ushort port, bool ssl) => $@"http{(ssl ? "s" : "")}://{ip}:{port}";
-
-	//public ushort			MapPort(Zone zone) => MapPort(zone, KnownSystem.UosApi, PortPostfix);
-	//public string			MapAddress(Zone zone) => MapAddress(IP, MapPort(zone, KnownSystem.UosApi, PortPostfix), Ssl);
+	RdnApiClient					_Rdn;
+	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, ApiSettings.ToAddress(Settings.Api.LocalIP, Settings.Rdn.ApiPort));
 
 	static Uos()
 	{
@@ -95,7 +80,7 @@ public class Uos : Cli
 		{
 			u.Execute(Boot.Commnand.Nodes, u.Flow);
 		}
-		catch(NetException ex) when (!Debugger.IsAttached)
+		catch(CodeException ex) when (!Debugger.IsAttached)
 		{
 			u.Flow?.Log.ReportError(ex.Message);
 		}
@@ -116,13 +101,6 @@ public class Uos : Cli
 
 		Vault = new Vault(Settings.Profile, settings.EncryptVault);
 
-		//Environment.SetEnvironmentVariable(BootProductsPath,productspath);
-		//Environment.SetEnvironmentVariable(BootSunAddress,	sunaddress);
-		//Environment.SetEnvironmentVariable(BootSunApiKey,	sunapikey);
-		//Environment.SetEnvironmentVariable(BootNet,		net.Name);
-
-		//ReportPreambule();
-		//ReportNetwork();
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Node.FailureExt))
 				File.Delete(i);
@@ -151,7 +129,7 @@ public class Uos : Cli
 
 		foreach(var i in Nodes.ToArray())
 		{	
-			i.Node.Stop();
+			//i.Node.Stop();
 			Nodes.Remove(i);
 		}
 	}
@@ -172,83 +150,17 @@ public class Uos : Cli
 		//ApiStarted?.Invoke(this);
 	}
 
-	public McvNode ConnectNetwork(string net, IClock clock = null)
-	{
-		if(Nodes.Any(i => i.Net == net))
-			throw new NodeException(NodeError.AlreadyRunning);
-
-		//var u = new Uri(Settings.Api.ListenAddress);
-		//var sh = $"{u.Scheme}://{u.Host}";
-				
-		var port = Enumerable.Range((int)Settings.Rdn.Zone + (int)KnownSystem.NodeApiPool, (int)KnownSystem.NodeApiPoolSize).Where(i => (i - Settings.Api.PortPostfix) % 10 == 0).First(i => Nodes.All(j => j.ApiPort != i));
-
-		var nodeapi = new ApiSettings();
-		
-		nodeapi.ListenAddress = $"http://{Settings.Api.IP}:{port}";
-		nodeapi.AccessKey = Guid.NewGuid().ToString();
-
-		McvNode n = null;
-
-		var uosapi = new ApiSettings {AccessKey = Settings.Api.AccessKey, ListenAddress = Settings.Api.MapAddress(Settings.Rdn.Zone)};
-
-		if(Rdn.Rdn.Official.FirstOrDefault(i => i.Zone == Settings.Rdn.Zone) is Rdn.Rdn rdn && rdn.Name == net)
-		{
-			var f = Flow.CreateNested(net, new Log());
-
-			f.WorkDirectory = Path.Join(Settings.Profile, rdn.Address);
-
-			n = new RdnNode(Settings.Name, rdn, f.WorkDirectory, null, Settings.Packages, uosapi, nodeapi, clock, f);
-		}
-		else
-		{
-			var p = Path.Join(Path.GetDirectoryName(GetType().Assembly.Location), net + ".dll");
-		
-			if(p != null)
-			{
-				var a = Assembly.LoadFrom(p);
-
-				var c = a.GetTypes().FirstOrDefault(i => i.IsSubclassOf(typeof(Node)))?
-						 .GetConstructor([typeof(string), typeof(Zone), typeof(string), typeof(Settings), typeof(ApiSettings), typeof(ApiSettings), typeof(IClock), typeof(Flow)]);
-
-				if(c != null)
-				{
-					var f = Flow.CreateNested(net, new Log());
-
-					f.WorkDirectory = Path.Join(Settings.Profile, Net.Net.Escape(net));
-	
-					n = c.Invoke([Settings.Name, Settings.Rdn.Zone, f.WorkDirectory, null, uosapi, nodeapi, clock, f]) as McvNode;
-				}
-			}
-		}
-
-		if(n != null)
-		{
-			Nodes.Add(new NodeInstance {Net = net,
-										ApiSettings = nodeapi,
-										ApiPort = port,
-										Node = n});
-		
-			NodeStarted?.Invoke(n);
-		
-			return n;
-		} 
-		else
-			throw new NodeException(NodeError.NoNodeForNet);
-	}
-
 	public McvApiClient GetMcvNodeApi(string net)
 	{
 		var ni = Find(net);
 
-		return new McvApiClient(ApiHttpClient, ni.ApiSettings.ListenAddress, ni.ApiSettings.AccessKey);
+		return new McvApiClient(ApiHttpClient, ni.ApiLocalAddress, null);
 	}
 
 	public override UosCommand Create(IEnumerable<Xon> commnad, Flow flow)
 	{
 		var t = commnad.First().Name;
-
 		var args = commnad.Skip(1).ToList();
-
 		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
 		return ct.GetConstructor([typeof(Uos), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as UosCommand;
@@ -311,19 +223,19 @@ public class Uos : Cli
 		}
 		else
 		{
-			if(Find(address.Net) == null)
-			{
-				ConnectNetwork(address.Net);
-			}
-
-			GetMcvNodeApi(address.Net).Send(new StartApc {Entity = address.Entity}, flow);
+			///if(Find(address.Net) == null)
+			///{
+			///	ConnectNetwork(address.Net);
+			///}
+			///
+			///GetMcvNodeApi(address.Net).Send(new StartApc {Entity = address.Entity}, flow);
 		}
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)
 	{
-		Environment.SetEnvironmentVariable(Application.ApiAddressEnvKey,	Settings.Api.MapAddress(Settings.Rdn.Zone));
-		Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
+		Environment.SetEnvironmentVariable(Application.UosApiIPEnvKey,		Settings.Api.LocalIP.ToString());
+		//Environment.SetEnvironmentVariable(Application.ApiKeyEnvKey,		Settings.Api.AccessKey);
 		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
 		Environment.SetEnvironmentVariable(Application.PackagesPathKey,		Settings.Packages);
 

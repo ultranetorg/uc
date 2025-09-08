@@ -348,7 +348,7 @@ public class ResourceHub
 														tasks.Remove(r);
 													}
 												}
-												catch(NetException) ///when(!Debugger.IsAttached)
+												catch(CodeException) ///when(!Debugger.IsAttached)
 												{
 												}
 												catch(OperationCanceledException)

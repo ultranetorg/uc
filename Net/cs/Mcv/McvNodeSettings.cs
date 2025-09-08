@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 namespace Uccs.Net;
 
@@ -10,6 +11,8 @@ public class AccountSessionSettings
 
 public class McvNodeSettings : SavableSettings
 {
+	public IPAddress				UosIP { get; set; } = new IPAddress([127, 0, 0, 100]);
+	public ApiSettings				Api { get; set; }
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
 	public PeeringSettings			NtnPeering { get; set; }

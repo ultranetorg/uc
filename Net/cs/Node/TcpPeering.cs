@@ -95,14 +95,14 @@ public abstract class TcpPeering : IPeer
 		Contructors[typeof(ProcPeerRequest)] = [];
 		Contructors[typeof(FuncPeerRequest)] = [];
 		Contructors[typeof(PeerResponse)] = [];
-		Contructors[typeof(NetException)] = [];
+		Contructors[typeof(CodeException)] = [];
  
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException))))
+		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException))))
 		{
 			var n = i.Name.Remove(i.Name.IndexOf("Exception"));
 			Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
 			var x = i.GetConstructor([]);
-			Contructors[typeof(NetException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
+			Contructors[typeof(CodeException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
 		}
 	}
 

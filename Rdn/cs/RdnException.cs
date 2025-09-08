@@ -17,7 +17,7 @@ public enum ResourceError : byte
 	//DownloadFailed
 }
 
-public class ResourceException : NetException
+public class ResourceException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (ResourceError)value; }
 	public ResourceError			Error { get; protected set; }

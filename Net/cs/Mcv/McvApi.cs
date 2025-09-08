@@ -78,12 +78,12 @@ public class McvApiClient : ApiClient
 		return o;
 	}
 
-	public McvApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+	public McvApiClient(HttpClient http, string address, string accesskey = null) : base(http, address, accesskey)
 	{
 		Options = CreateOptions();
 	}
 
-	public McvApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public McvApiClient(string address, string accesskey = null, int timeout = 30) : base(address, accesskey, timeout)
 	{
 		Options = CreateOptions();
 	}
@@ -429,17 +429,10 @@ public class PpcApc : McvApc
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		try
-		{
-			return node.Peering.Call(() => Request, workflow);
-		}
-		catch(NetException ex)
-		{
-			var rp = node.Peering.Constract(typeof(PeerResponse), node.Peering.TypeToCode(Request.GetType())) as PeerResponse;
-			rp.Error = ex;
-			
-			return rp;
-		}
+		if(node.Peering == null)
+			throw new NodeException(NodeError.NoPeering);
+
+		return node.Peering.Call(() => Request, workflow);
 	}
 }
 

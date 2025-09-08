@@ -6,7 +6,21 @@ namespace Uccs.Net;
 
 public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 {
-    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
+	public ApiTypeResolver()
+	{
+		Modifiers.Add(	ti =>
+						{
+							if (ti.Type.IsSubclassOf(typeof(CodeException)))
+							{
+								foreach(var i in ti.Properties.Where(i => i.Name != nameof(CodeException.ErrorCode)))
+								{
+									i.ShouldSerialize = (p, v) => false;
+								}
+							}
+						});
+	}
+
+	public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
     {
         var ti = base.GetTypeInfo(type, options);
 
@@ -40,7 +54,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 			}
         }
 
-        if(ti.Type == typeof(NetException))
+        if(ti.Type == typeof(CodeException))
         {
             ti.PolymorphismOptions = new JsonPolymorphismOptions
 									 {
@@ -49,7 +63,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -78,10 +92,10 @@ public class ApiClient : JsonClient
 {
 	public static JsonSerializerOptions CreateOptions()
 	{
-		var o = new JsonSerializerOptions{};
+		var o = new JsonSerializerOptions {};
 		
 		o.IgnoreReadOnlyProperties = true;
-		
+
 		o.Converters.Add(new UnitJsonConverter());
 		o.Converters.Add(new AccountJsonConverter());
 		o.Converters.Add(new EntityIdJsonConverter());

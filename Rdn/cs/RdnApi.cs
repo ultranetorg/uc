@@ -28,8 +28,8 @@ public class RdnTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        if(ti.Type == typeof(NetException))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(NetException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+        if(ti.Type == typeof(CodeException))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
          if(ti.Type == typeof(Operation))
@@ -78,13 +78,13 @@ public class RdnApiClient : McvApiClient
 		return o;
 	}
 
-	public RdnApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+	public RdnApiClient(HttpClient http, string address, string accesskey = null) : base(http, address, accesskey)
 	{
 		Options = CreateOptions();
 		
 	}
 
-	public RdnApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public RdnApiClient(string address, string accesskey = null, int timeout = 30) : base(address, accesskey, timeout)
 	{
 		Options = CreateOptions();
 	}

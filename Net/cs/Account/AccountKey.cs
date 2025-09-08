@@ -85,8 +85,6 @@ public class AccountKey : AccountAddress
 		var keyPair = Generator.GenerateKeyPair();
 		var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
 
-Console.WriteLine(privateBytes.ToHex());
-
 		if (privateBytes.Length != 32)
 			return Create();
 

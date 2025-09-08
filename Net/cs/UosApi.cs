@@ -20,11 +20,6 @@ public class UosPropertyApc : Apc
 	public string Path { get; set; }
 }
 
-public class RunNodeApc : Apc
-{
-	public string	Net { get; set; }
-}
-
 public class NodeInfoApc : Apc
 {
 	public string	Net { get; set; }

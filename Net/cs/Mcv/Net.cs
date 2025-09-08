@@ -14,12 +14,14 @@ public enum Zone
 
 public enum KnownSystem
 {
-	Rdn			= 0001,
-	Fair		= 0003,
+	UosApi		= 0001,
 
-	UosApi			= 9000,
-	NodeApiPool		= 9100,
-	NodeApiPoolSize	= 900,
+	Rdn			= 0010,
+	Fair		= 0020,
+	
+	Ptp			= 0,
+	Ntn			= 1,
+	Api			= 4,
 }
 
 public abstract class Net
@@ -29,9 +31,10 @@ public abstract class Net
 	public abstract string		Address { get; }
 	public abstract string		Name { get; }
 	public abstract	Zone		Zone { get; }
-	public abstract ushort		McvPortPostfix { get; }
-	public ushort				Port => (ushort)((ushort)Zone + McvPortPostfix);
-	public ushort				NtnPort => (ushort)(Port + 1);
+	public abstract ushort		PortBase { get; }
+	public ushort				Port	=> (ushort)((ushort)Zone + PortBase + KnownSystem.Ptp);
+	public ushort				NtnPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Ntn);
+	public ushort				ApiPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Api);
 
 	public IPAddress[]			Initials;
 	public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();

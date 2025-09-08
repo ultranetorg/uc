@@ -43,7 +43,7 @@ public class McvNode : Node
 	public McvTcpPeering	Peering;
 	public McvNodeSettings	Settings;
 
-	public McvNode(string name, McvNet net, string profile, ApiSettings uosapisettings, ApiSettings apisettings, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
+	public McvNode(string name, McvNet net, string profile, Flow flow) : base(name, net, profile, flow)
 	{
 	}
 

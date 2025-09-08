@@ -16,6 +16,7 @@ public class RdnNode : McvNode
 {
 	new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;
 	new public RdnMcv				Mcv => base.Mcv as RdnMcv;
+	public new Rdn					Net => base.Net as Rdn;
 	public new RdnNodeSettings		Settings => base.Settings as RdnNodeSettings;
 
 	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
@@ -27,21 +28,30 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
+	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, string deploymentpath, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-		{
-			new FileLog(Flow.Log, net.Address, Settings.Profile);
-		}
+			new FileLog(Flow.Log, Net.Address, Settings.Profile);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
+		InitializeUosApi(Settings.UosIP);
+		
+		ApiServer = new RdnApiServer(	this,	
+										new ApiSettings
+										{
+											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
+											PublicAddress	= Settings.Api?.PublicAddress,
+											PublicAccessKey	= Settings.Api?.PublicAccessKey
+										}, 
+										Flow);
+
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
 			Mcv.Confirmed += r =>	{
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
@@ -115,11 +125,6 @@ public class RdnNode : McvNode
 			PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
 
 			ResourceHub.RunDeclaring();
-		}
-
-		if(apisettings != null)
-		{
-			ApiServer = new RdnApiServer(this, apisettings, Flow);
 		}
 	}
 
