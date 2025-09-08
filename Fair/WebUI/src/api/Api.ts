@@ -78,7 +78,6 @@ export type Api = {
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
 
-  getPublicationProposal(proposalId: string): Promise<PublicationProposal>
   getPublicationProposals(
     siteId: string,
     page?: number,
@@ -86,7 +85,6 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getReviewProposal(siteId: string, reviewId: string): Promise<ReviewProposal>
   getReviewProposals(
     siteId: string,
     page?: number,
@@ -94,7 +92,6 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<ReviewProposal>>
 
-  getUserProposal(siteId: string, proposalId: string): Promise<UserProposal>
   getUserProposals(
     siteId: string,
     page?: number,

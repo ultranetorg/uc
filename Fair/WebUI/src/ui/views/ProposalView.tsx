@@ -37,7 +37,7 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
           items={[
             { path: `/${siteId}`, title: t("home") },
             ...(parentBreadcrumb ? [parentBreadcrumb] : []),
-            { title: proposal.title },
+            { title: proposal.title || proposal.id },
           ]}
         />
         <div className="flex flex-col gap-4">

@@ -10,9 +10,9 @@ import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
 
 export const DiscussionsTab = () => {
-  const { siteId } = useParams()
   const { t } = useTranslation("tabDiscussions")
   const navigate = useNavigate()
+  const { siteId } = useParams()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -39,7 +39,7 @@ export const DiscussionsTab = () => {
     [setState, state.query],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m-d/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/d/${id}`), [navigate, siteId])
 
   const handleSearchChange = useCallback(
     (query: string) => {

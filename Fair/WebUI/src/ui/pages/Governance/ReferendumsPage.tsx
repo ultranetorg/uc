@@ -12,7 +12,7 @@ import { parseInteger } from "utils"
 
 export const ReferendumsPage = () => {
   const { siteId } = useParams()
-  const { t } = useTranslation("referendums")
+  const { t } = useTranslation("governance")
   const navigate = useNavigate()
 
   const [state, setState] = useUrlParamsState({

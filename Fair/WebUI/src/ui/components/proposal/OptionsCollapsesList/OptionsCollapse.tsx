@@ -1,8 +1,8 @@
+import { useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { CheckCircleFillSvg, SvgCheckSquareSmSvg, SvgChevronDown2Sm } from "assets"
 import { ButtonPrimary } from "ui/components"
-import { useState } from "react"
 
 export type OptionsCollapseProps = {
   description: string
@@ -77,6 +77,7 @@ export const OptionsCollapse = ({
           <div className={`absolute left-0 top-0 h-full bg-gray-300`} style={{ width: `${votePercents}%` }} />
         )}
       </div>
+
       {isExpanded && (
         <div className="flex flex-col gap-4 p-4">
           <span className="text-2sm leading-5">{description}</span>

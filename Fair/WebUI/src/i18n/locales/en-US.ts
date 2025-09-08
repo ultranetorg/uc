@@ -106,11 +106,11 @@ export const enUS = {
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
   },
-  referendums: {
+  governance: {
     createReferendum: "Create referendum",
     searchProposal: "Search referendum",
     noProposals: "No open referendums",
-    title: "Referendums",
+    title: "Governance",
   },
   search: {
     allAuthors: "All authors",
