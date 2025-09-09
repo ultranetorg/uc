@@ -267,13 +267,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							Mcv.GraphState = stamp.GraphState;
 							Mcv.LastConfirmedRound = r;
-							Mcv.LastDissolvedRound = r;
+							Mcv.LastCommitedRound = r;
 			
 							Mcv.Hashify();
 			
 							if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
 	 						{	
-								Mcv.LoadedRounds[r.Id] = r;
+								Mcv.OldRounds[r.Id] = r;
 
 								using(var w = new WriteBatch())
 								{

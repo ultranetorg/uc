@@ -66,9 +66,9 @@ public abstract class Mcv /// Mutual chain voting
 														return _Tail;
 													}
 												}
-	public Dictionary<int, Round>				LoadedRounds = new();
+	public Dictionary<int, Round>				OldRounds = new();
 	public Round								LastConfirmedRound;
-	public Round								LastDissolvedRound;
+	public Round								LastCommitedRound;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 	public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
@@ -280,10 +280,10 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			var r = new BinaryReader(new MemoryStream(GraphState));
 	
-			LastDissolvedRound = CreateRound();
-			LastDissolvedRound.ReadGraphState(r);
+			LastCommitedRound = CreateRound();
+			LastCommitedRound.ReadGraphState(r);
 
-			LoadedRounds.Add(LastDissolvedRound.Id, LastDissolvedRound);
+			OldRounds.Add(LastCommitedRound.Id, LastCommitedRound);
 
 			Hashify();
 
@@ -334,10 +334,10 @@ public abstract class Mcv /// Mutual chain voting
 		GraphState = null;
 		GraphHash = Net.Cryptography.ZeroHash;
 
-		LastDissolvedRound = null;
+		LastCommitedRound = null;
 		LastConfirmedRound = null;
 
-		LoadedRounds.Clear();
+		OldRounds.Clear();
 		//Accounts.Clear();
 
 		foreach(var i in Tables)
@@ -456,7 +456,7 @@ public abstract class Mcv /// Mutual chain voting
 			if(i.Id == rid)
 				return i;
 
-		if(LoadedRounds.TryGetValue(rid, out var r))
+		if(OldRounds.TryGetValue(rid, out var r))
 			return r;
 
 		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
@@ -470,7 +470,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			r.Load(new BinaryReader(new MemoryStream(d)));
 
-			LoadedRounds[r.Id] = r;
+			OldRounds[r.Id] = r;
 			//Recycle();
 			
 			return r;
@@ -481,11 +481,11 @@ public abstract class Mcv /// Mutual chain voting
 
 	void Recycle()
 	{
-		if(LoadedRounds.Count > Net.CommitLength)
+		if(OldRounds.Count > Net.CommitLength)
 		{
-			foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
+			foreach(var i in OldRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
 			{
-				LoadedRounds.Remove(i.Key);
+				OldRounds.Remove(i.Key);
 			}
 		}
 	}
@@ -609,12 +609,12 @@ public abstract class Mcv /// Mutual chain voting
 				foreach(var t in Tables)
 					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>).DistinctBy(i => i.Key), round.FindState<TableStateBase>(t), round);
 
-				LastDissolvedRound = round;
+				LastCommitedRound = round;
 					
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 	
-				LastDissolvedRound.WriteGraphState(w);
+				LastCommitedRound.WriteGraphState(w);
 	
 				GraphState = s.ToArray();
 
@@ -623,9 +623,11 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(GraphStateKey, GraphState);
 				b.Put(__GraphHashKey, GraphHash);
 
+				OldRounds.Clear();
+
 				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
 				{
-					LoadedRounds[i.Id] = i;
+					OldRounds[i.Id] = i;
 				}
 
 				Tail.RemoveAll(i => i.Id <= round.Id);

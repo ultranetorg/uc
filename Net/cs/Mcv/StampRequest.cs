@@ -13,7 +13,7 @@ public class StampRequest : McvPpc<StampResponse>
 
 			var r = new StampResponse  {GraphState				= Mcv.GraphState,
 										GraphHash				= Mcv.GraphHash,
-										LastCommitedRoundHash	= Mcv.LastDissolvedRound.Hash,
+										LastCommitedRoundHash	= Mcv.LastCommitedRound.Hash,
 										FirstTailRound			= Mcv.Tail.Last().Id,
 										LastTailRound			= Mcv.Tail.First().Id,
 										Tables					= Mcv.Tables.Select(i => new StampResponse.Table {Id = i.Id, 
