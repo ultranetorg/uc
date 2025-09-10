@@ -7,7 +7,7 @@ public enum TransactionStatus : byte
 
 public enum ActionOnResult : byte
 {
-	DoNoCare, CancelOnFailure, RetryUntilConfirmed, ExpectFailure
+	DoNotCare, CancelOnFailure, RetryUntilConfirmed, ExpectFailure
 }
 
 public class Transaction : IBinarySerializable
@@ -56,7 +56,7 @@ public class Transaction : IBinarySerializable
 	public IPeer					Rdi;
 	public Flow						Flow;
 	public DateTime					Inquired;
-	public ActionOnResult			ActionOnResult = ActionOnResult.DoNoCare;
+	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
 	public bool Valid(Mcv mcv)
 	{

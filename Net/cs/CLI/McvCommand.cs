@@ -101,7 +101,8 @@ public abstract class McvCommand : NetCommand
 		}
 		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
 				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
-				aor == ActionOnResult.DoNoCare));
+				aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed) ||
+				aor == ActionOnResult.DoNotCare));
 
 		if(t.Status == TransactionStatus.Confirmed)
 			Flow.Log.Dump(t);
