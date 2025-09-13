@@ -418,6 +418,9 @@ public class IncomingTransactionsApc : McvApc
 {
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(node.Peering == null)
+			throw new NodeException(NodeError.NoPeering);
+
 		lock(node.Peering.Lock)
 			return node.Peering.IncomingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
@@ -442,6 +445,9 @@ public class SetGeneratorApc : McvApc
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(node.Mcv == null)
+			throw new NodeException(NodeError.NoMcv);
+
 		lock(node.Mcv.Lock)
 			node.Mcv.Settings.Generators = Generators.ToArray();
 
@@ -455,6 +461,9 @@ public class EnforceSessionsApc : McvApc
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(node.Peering == null)
+			throw new NodeException(NodeError.NoPeering);
+
 		lock(node.Peering.Lock)
 			node.Peering.GetSession(Account);
 

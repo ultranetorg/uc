@@ -32,7 +32,7 @@ public class AddWalletApc : Apc
 
 public class WalletsApc : Apc
 {
-	public class WalletApe
+	public class Wallet
 	{
  		public string			Name { get; set; }
 		public bool				Locked  { get; set; }

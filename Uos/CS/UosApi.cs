@@ -89,9 +89,9 @@ internal class WalletsApc : Net.WalletsApc, IUosApc
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			 return uos.Vault.Wallets.Select(i => new WalletApe {Name = i.Name,
-																 Locked = i.Locked,
-																 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
+			 return uos.Vault.Wallets.Select(i => new Wallet{Name = i.Name,
+															 Locked = i.Locked,
+															 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
 	}
 }
 

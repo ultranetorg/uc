@@ -28,7 +28,7 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, string deploymentpath, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
+	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
@@ -39,15 +39,6 @@ public class RdnNode : McvNode
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
 		InitializeUosApi(Settings.UosIP);
-		
-		ApiServer = new RdnApiServer(	this,	
-										new ApiSettings
-										{
-											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
-											PublicAddress	= Settings.Api?.PublicAddress,
-											PublicAccessKey	= Settings.Api?.PublicAccessKey
-										}, 
-										Flow);
 
 		if(Settings.Mcv != null)
 		{
@@ -122,10 +113,19 @@ public class RdnNode : McvNode
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
-			PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
+			PackageHub = new PackageHub(this, Settings.Seed, Settings.Packages);
 
 			ResourceHub.RunDeclaring();
 		}
+		
+		ApiServer = new RdnApiServer(	this,	
+										new ApiSettings
+										{
+											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
+											PublicAddress	= Settings.Api?.PublicAddress,
+											PublicAccessKey	= Settings.Api?.PublicAccessKey
+										}, 
+										Flow);
 	}
 
 	public override string ToString()

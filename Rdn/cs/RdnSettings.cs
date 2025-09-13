@@ -41,6 +41,7 @@ public class RdnNodeSettings : McvNodeSettings
 
 	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
+	public string					Packages { get; set; }
 
 	public RdnNodeSettings()
 	{

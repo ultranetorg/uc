@@ -20,7 +20,7 @@ public class Boot
 		if(Commnand.Has("zone"))
 			Zone = Enum.Parse<Zone>(Commnand.Get<string>("zone"));
 		else
-			Zone = Enum.Parse<Zone>(b.Get<string>("zone"));
+			Zone = Enum.Parse<Zone>(b.Get<string>("Zone"));
 
 		if(Commnand.Has("profile"))
 			Profile = Commnand.Get<string>("profile");
