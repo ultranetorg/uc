@@ -5,7 +5,7 @@ namespace Uccs.Rdn;
 public class SeedSettings : Settings
 {
 	public string	Releases { get; set; }
-	public int		CollectRefreshInterval { get; set; } = 60000;
+	public int		RefreshInterval { get; set; } = 60000;
 
 	public SeedSettings() : base(RdnXonTextValueSerializator.Default)
 	{

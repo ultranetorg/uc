@@ -240,7 +240,7 @@ public class ResourceHub
  			
 		var r = Add(a);
 
- 			r.AddCompleted("", path, null);
+ 		r.AddCompleted("", path, null);
 		r.Complete(Availability.Full);
 
 		return r;
@@ -381,9 +381,15 @@ public class ResourceHub
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
-																																																	Release = rs.Value.Address, 
-																																																	Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleaseRequest
+																												{
+																													Resources = i.Value.Select(rs => new ResourceDeclaration
+																																					 {
+																																						Resource = rs.Key.Id, 
+																																						Release = rs.Value.Address, 
+																																						Availability = rs.Value.Availability
+																																					 }).ToArray()
+																												}, Node.Flow);
 												}
 												catch(NodeException)/// when(!Debugger.IsAttached)
 												{

@@ -57,7 +57,7 @@ public class SeedSeeker
 															{
 															}
 
-															WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], seeker.Node.Settings.Seed.CollectRefreshInterval);
+															WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], seeker.Node.Settings.Seed.RefreshInterval);
 														}
 													});
 
