@@ -29,7 +29,9 @@ export const TableBody = memo(
         ))
       ) : (
         <TableRow className={twMerge(emptyState && "py-6")}>
-          <td colSpan={columns.length}>{emptyState ? emptyState : null}</td>
+          <td className="px-6" colSpan={columns.length}>
+            {emptyState ? emptyState : null}
+          </td>
         </TableRow>
       )}
     </tbody>

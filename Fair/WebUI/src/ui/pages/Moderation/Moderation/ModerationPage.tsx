@@ -19,6 +19,8 @@ export const ModerationPage = () => {
   const { t } = useTranslation("moderation")
   const navigate = useNavigate()
 
+  const handleCreateButtonClick = useCallback(() => navigate(`/${siteId}/m/new`), [navigate, siteId])
+
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) => navigate(item.route ? `/${siteId}/m/${item.route}` : `/${siteId}/m`),
     [navigate, siteId],
@@ -39,7 +41,7 @@ export const ModerationPage = () => {
       <GovernanceModerationHeader
         siteId={siteId!}
         title={t("title")}
-        onCreateButtonClick={() => console.log("GovernanceModerationHeader")}
+        onCreateButtonClick={handleCreateButtonClick}
         homeLabel={t("common:home")}
         createButtonLabel={t("createDiscussion")}
       />

@@ -5,6 +5,8 @@ import {
   AboutPage,
   AuthorPage,
   CategoryPage,
+  CreateDiscussionPage,
+  CreateReferendumPage,
   ErrorPage,
   ModerationPage,
   ModeratorDiscussionPage,
@@ -71,6 +73,10 @@ const routes: RouteObject[] = [
           },
 
           {
+            path: "/:siteId/g/new",
+            element: <CreateReferendumPage />,
+          },
+          {
             path: "/:siteId/g",
             element: <ReferendumsPage />,
           },
@@ -79,6 +85,10 @@ const routes: RouteObject[] = [
             element: <ReferendumPage />,
           },
 
+          {
+            path: "/:siteId/m/new",
+            element: <CreateDiscussionPage />,
+          },
           {
             path: "/:siteId/m/:tabKey?",
             element: <ModerationPage />,

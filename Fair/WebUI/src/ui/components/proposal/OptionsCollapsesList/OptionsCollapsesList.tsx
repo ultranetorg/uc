@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
-import { OptionsCollapse } from "./OptionsCollapse"
+import { OptionCollapse } from "./OptionCollapse"
 
 const TEST_ITEMS: { title: string; description: string; votePercents: number; voted?: boolean; votesCount: number }[] =
   [
@@ -73,7 +73,7 @@ export const OptionsCollapsesList = ({
   return (
     <div className={twMerge("flex flex-col gap-3", className)}>
       {items.map((x, index) => (
-        <OptionsCollapse
+        <OptionCollapse
           {...x}
           expanded={items.length === 1 ? true : undefined}
           key={index}

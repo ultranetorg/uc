@@ -6,28 +6,33 @@ import { CustomSelect, DropdownIndicator } from "./components"
 import { dropdownStyle } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
-export const Dropdown = memo(({ className, items, styles = dropdownStyle, onChange, ...rest }: DropdownProps) => {
-  const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
+export const Dropdown = memo(
+  ({ className, items, styles = dropdownStyle, defaultValue, onChange, ...rest }: DropdownProps) => {
+    const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
 
-  const handleChange = useCallback(
-    (item: SingleValue<DropdownItem>) => {
-      const selected = item as DropdownItem
-      setSelectedItem(selected)
-      onChange?.(selected)
-    },
-    [onChange],
-  )
+    const defaultItem = defaultValue !== undefined ? items?.filter(x => x.value === defaultValue) : undefined
 
-  return (
-    <CustomSelect
-      className={twMerge(className)}
-      components={{ DropdownIndicator, IndicatorSeparator: null }}
-      styles={styles}
-      isSearchable={false}
-      onChange={handleChange}
-      options={items}
-      value={selectedItem}
-      {...rest}
-    />
-  )
-})
+    const handleChange = useCallback(
+      (item: SingleValue<DropdownItem>) => {
+        const selected = item as DropdownItem
+        setSelectedItem(selected)
+        onChange?.(selected)
+      },
+      [onChange],
+    )
+
+    return (
+      <CustomSelect
+        className={twMerge(className)}
+        components={{ DropdownIndicator, IndicatorSeparator: null }}
+        defaultValue={defaultItem}
+        styles={styles}
+        isSearchable={false}
+        onChange={handleChange}
+        options={items}
+        value={selectedItem}
+        {...rest}
+      />
+    )
+  },
+)

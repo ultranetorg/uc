@@ -8,7 +8,7 @@ export type CommentInputProps = {
 export const CommentInput = ({ placeholder = "" }: CommentInputProps) => (
   <div className="rounded-lg border border-gray-300 bg-gray-100 p-6">
     <div className="flex flex-col gap-4">
-      <input type="text" placeholder={placeholder} className="bg-gray-100" />
+      <input type="text" placeholder={placeholder} className="bg-gray-100 outline-none" />
       <div className="flex items-center justify-between">
         <ButtonIcon icon={<SvgEmojiLaughing className="stroke-gray-500" />} />
         <ButtonPrimary

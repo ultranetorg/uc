@@ -11,6 +11,7 @@ type DropdownBaseProps = {
   items?: DropdownItem[]
   styles?: StylesConfig<DropdownItem, false>
   placeholder?: string
+  defaultValue?: string
   onChange?: (item: DropdownItem) => void
 }
 
