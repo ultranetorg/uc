@@ -8,10 +8,10 @@ public class RdnMembersRequest : McvPpc<RdnMembersResponse>
 		{
 			RequireGraph();
 		
-			if(Mcv.NextVoteRound.VotersRound.Members.Count == 0)
+			if(Mcv.NextVotingRound.VotersRound.Members.Count == 0)
 				throw new EntityException(EntityError.NoMembers);
 
-			return new RdnMembersResponse {Members = Mcv.NextVoteRound.VotersRound.Members.Cast<RdnGenerator>().ToArray()};
+			return new RdnMembersResponse {Members = Mcv.NextVotingRound.VotersRound.Members.Cast<RdnGenerator>().ToArray()};
 		}
 	}
 }

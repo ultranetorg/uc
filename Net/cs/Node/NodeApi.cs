@@ -104,8 +104,6 @@ public class StartApc : NodeApc
 
 public class LogReportApc : NodeApc
 {
-	public int		Limit  { get; set; }
-
 	public override object Execute(Node node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Flow.Log.Messages)

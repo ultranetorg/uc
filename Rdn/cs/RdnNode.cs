@@ -135,7 +135,7 @@ public class RdnNode : McvNode
 													(ApiServer != null ? "A" : null) +
 													(Settings.Mcv != null ? "B" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
-													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

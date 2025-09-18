@@ -70,6 +70,11 @@ public class JsonClient
 		Key = accesskey;
 	}
 
+	public override string ToString()
+	{
+		return Address;
+	}
+
 	public HttpResponseMessage Send(Apc request, Flow flow)
 	{
 		var c = JsonSerializer.Serialize(request, request.GetType(), Options);

@@ -111,18 +111,20 @@ public class McvPropertyApc : McvApc
 
 public class PeersReportApc : McvApc
 {
-	public int		Limit { get; set; }
+	public bool?		Permanent { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Peering.Lock)
-			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i => new Return.Peer   {IP			= i.IP,			
-																																					Status		= i.StatusDescription,
-																																					PeerRank	= i.PeerRank,
-																																					Roles		= i.Roles,
-																																					LastSeen	= i.LastSeen,
-																																					LastTry		= i.LastTry,
-																																					Retries		= i.Retries}).ToArray()}; 
+			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK && (Permanent is null || i.Permanent == Permanent))
+														.TakeLast(Limit)
+														.Select(i => new Return.Peer   {IP			= i.IP,			
+																						Status		= i.StatusDescription,
+																						PeerRank	= i.PeerRank,
+																						Roles		= i.Roles,
+																						LastSeen	= i.LastSeen,
+																						LastTry		= i.LastTry,
+																						Retries		= i.Retries}).ToArray()}; 
 	}
 
 	public class Return
@@ -144,8 +146,6 @@ public class PeersReportApc : McvApc
 
 public class McvSummaryApc : McvApc
 {
-	public int		Limit  { get; set; }
-
  	public class Return
  	{
  		public IEnumerable<string[]> Summary {get; set;}
@@ -211,8 +211,6 @@ public class McvSummaryApc : McvApc
 
 public class ChainReportApc : McvApc
 {
-	public int		Limit  { get; set; }
-
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Mcv.Lock)
@@ -263,7 +261,6 @@ public class ChainReportApc : McvApc
 public class VotesReportApc : McvApc
 {
 	public int		RoundId  { get; set; }
-	public int		Limit  { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -405,7 +402,7 @@ public class TransactionApe
 		Bonus				= transaction.Bonus;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Rdi as Peer)?.IP ?? (transaction.Rdi as HomoTcpPeering)?.IP;
+		MemberEndpoint		= (transaction.Ppi as Peer)?.IP ?? (transaction.Ppi as HomoTcpPeering)?.IP;
 		Signer				= transaction.Signer;
 		Status				= transaction.Status;
 		__ExpectedStatus	= transaction.ActionOnResult;

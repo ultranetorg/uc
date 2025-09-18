@@ -17,8 +17,8 @@ public abstract class Mcv /// Mutual chain voting
 {
 	public const int							P = 6; /// pitch
 	public const int							RequiredVotersMaximum = 21; 
-	//public int									VotesRequired => Net.MembersLimit; /// 1000/8
-	public const int							JoinToVote = P + 1;
+	//public int								VotesRequired => Net.MembersLimit; /// 1000/8
+	public const int							JoinToVote = P + P;
 	public const int							LastGenesisRound = JoinToVote + P - 1;
 	public const int							TransactionPlacingLifetime = P*2;
 	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
@@ -71,7 +71,7 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								LastCommitedRound;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
-	public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
+	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + P);
 	//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
@@ -167,7 +167,7 @@ public abstract class Mcv /// Mutual chain voting
  			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
  			t.Member = new(0, -1);
 			t.AddOperation(genesis);
- 			t.Sign(God, Net.Cryptography.ZeroHash);
+ 			t.Sign(God);
  			v0.AddTransaction(t);
 		
 			v0.Sign(God);
@@ -193,46 +193,6 @@ public abstract class Mcv /// Mutual chain voting
 	}
 
 	public void Initialize()
-	{
-		if(Settings.Chain != null)
-		{
-			Tail.Clear();
-
- 			var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
-					
-			for(int i = 0; i <= LastGenesisRound; i++)
-			{
-				var r = CreateRound();
-				r.Read(rd);
-	
-				Tail.Insert(0, r);
-
-				if(i < JoinToVote)
-				{
-					if(i > 0)
-						r.ConsensusECEnergyCost = 1;
-
-					if(i == 0)
-						r.ConsensusFundJoiners = [Net.Father0];
-					
-					r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-
-					GenesisInitilize(r);
-
-					r.Hashify();
-					r.Confirm();
-					Save(r);
-				}
-
-				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
-					throw new IntegrityException("Genesis construction failed");
-			}
-		}
-	
-		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
-	}
-		
-	public void Initialize1()
 	{
 		if(Settings.Chain != null)
 		{
@@ -424,10 +384,6 @@ public abstract class Mcv /// Mutual chain voting
 			}
 			else if(r.ConsensusFailed)
 			{
-				p.Hash = null;
-				r.FirstArrivalTime = DateTime.MaxValue;
-				r.Try++;
-
 				ConsensusFailed(r);
 			}
 		}
@@ -490,35 +446,34 @@ public abstract class Mcv /// Mutual chain voting
 		}
 	}
 
-	public bool Validate(Transaction transaction, out Round round)
+	public Round Examine(Transaction transaction, bool preserve)
 	{
-		if( transaction.Expiration <= LastConfirmedRound.Id ||
-			!transaction.Valid(this))
-		{
-			round = null;
-			return false;
-		}
+		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
+			return null;
 
 		var a = Accounts.Find(transaction.Signer, LastConfirmedRound.Id);
+
+		var nid = transaction.Nid;
 
 		if(a == null)
 		{	
 			if(transaction.Sponsored)
 				transaction.Nid = 0;
 			else
-			{	
-				round = null;
-				return false;
-			}
+				return null;
 		}
 		else
 			transaction.Nid	= a.LastTransactionNid + 1;
 
-		round = TryExecute(transaction);
+		var round = TryExecute(transaction);
 
-		return transaction.Successful;
+		if(preserve)
+			transaction.Nid = nid;
+
+		return round;
 
 	}
+
 
 	///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
 	///{
@@ -582,7 +537,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Round TryExecute(Transaction transaction)
 	{
-		var m = NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
+		var m = NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
 
 		if(!Settings.Generators.Contains(m))
 			return null;

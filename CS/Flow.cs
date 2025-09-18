@@ -5,7 +5,7 @@ namespace Uccs;
 public class Flow : IDisposable
 {
 	CancellationTokenSource			CancellationSource;
-	public CancellationToken		Cancellation => CancellationSource.Token;
+	public CancellationToken		Cancellation;
 	public Log						Log { get; set; }
 	public bool						Aborted => Cancellation.IsCancellationRequested;
 	public bool						Active => !Aborted;
@@ -19,18 +19,25 @@ public class Flow : IDisposable
 		CancellationSource = new CancellationTokenSource();
 	}
 
+	public Flow(CancellationToken cancellationToken)
+	{
+		Cancellation = cancellationToken;
+	}
+
 	public Flow(string name, Log log)
 	{
 		Name = name;
-		CancellationSource = new CancellationTokenSource();
 		Log = log;
+		CancellationSource = new CancellationTokenSource();
+		Cancellation = CancellationSource.Token;
 	}
 
 	Flow(string name, Log log, CancellationTokenSource cancellation)
 	{
 		Name = name;
-		CancellationSource = cancellation;
 		Log = log;
+		CancellationSource = cancellation;
+		Cancellation = CancellationSource.Token;
 	}
 
 	public override string ToString()
@@ -76,6 +83,6 @@ public class Flow : IDisposable
 
 	public void Dispose()
 	{
-		CancellationSource.Dispose();
+		CancellationSource?.Dispose();
 	}
 }

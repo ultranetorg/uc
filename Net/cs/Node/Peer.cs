@@ -206,7 +206,7 @@ public class Peer : IPeer, IBinarySerializable
 		Tcp = client;
 		
 		Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-		Tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : HomoTcpPeering.Timeout;
+		Tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : HomoTcpPeering.Timeout;
 
 		PeerRank++;
 		Name		= h.Name;
@@ -412,7 +412,7 @@ public class Peer : IPeer, IBinarySerializable
 
 		try
 		{
-			i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.DisableTimeouts ? Timeout.Infinite : 60 * 1000);
+			i = WaitHandle.WaitAny([rq.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{

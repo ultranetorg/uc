@@ -461,7 +461,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	public bool ProcessIncoming(Vote v, bool fromsynchronization)
 	{
 		if(!v.Valid)
+		{	
+			Flow.Log.ReportWarning(this, $"Vote rejected !Valid : {v}");
 			return false;
+		}
 
 		if(!fromsynchronization && Synchronization == Synchronization.Downloading)
 		{
@@ -488,16 +491,19 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 		else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 		{
-			if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < v.RoundId)
-				return false;
+			///if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < v.RoundId)
+			///{	
+			///	Flow.Log.ReportWarning(this, $"Vote rejected v.RoundId={v.RoundId} LastConfirmedRound={Mcv.LastConfirmedRound.Id}");
+			///	return false;
+			///}
 			
 			var r = Mcv.GetRound(v.RoundId);
 
 			if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 				return false;
 								
-			if(!r.VotersRound.Members.Any(i => i.Address == v.Generator))
-				return false;
+			///if(r.VotersRound.Members.Any() && !r.VotersRound.Members.Any(i => i.Address == v.Generator))
+			///	return false;
 
 			if(r.Forkers.Contains(v.Generator))
 				return false;
@@ -506,6 +512,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			
 			if(e != null) /// FORK
 			{
+				Flow.Log.ReportWarning(this, $"Vote rejected FORK : {v}");
+
 				r.Votes.Remove(e);
 				r.Forkers.Add(e.Generator);
 
@@ -514,23 +522,35 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 			v.Restore();
 							
-			if(r.Parent != null && r.Parent.Members.Count > 0)
+			//if(r.VotersRound.Confirmed)
 			{
-				if(v.Transactions.Length > r.Parent.PerVoteTransactionsLimit)
+				if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
+				{	
+					Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+					
 					return false;
+				}
 
-				if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit)
+				if(v.Transactions.Sum(i => i.Operations.Length) > r.VotersRound.PerVoteOperationsLimit)
+				{	
+					Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
+					
 					return false;
+				}
 
 				if(v.Transactions.Any(t => r.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address != v.Generator))
+				{	
+					Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {v}");
+
 					return false;
+				}
 			}
 
-			if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
-			{
-				//r.Votes.Remove(v);
-				return false;
-			}
+			//if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
+			//{
+			//	Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Any(i => !i.Valid(Mcv)): {v}");
+			//	return false;
+			//}
 
 // 				for(int i = r.Id - 1; i > Mcv.LastConfirmedRound.Id; i--)
 // 				{
@@ -582,7 +602,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				//					)
 				//	votes = votes;
 	
-				var m = Mcv.NextVoteRound.VotersRound.Members.Find(i => i.Address == g);
+				var m = Mcv.NextVotingRound.VotersRound.Members.Find(i => i.Address == g);
 	
 				if(m == null)
 				{
@@ -614,13 +634,21 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					CandidacyDeclarations.Remove(g);
 					OutgoingTransactions.RemoveAll(i => i.Signer == g && i.Operations.Any(o => o is CandidacyDeclaration));
 	
-					var r = Mcv.NextVoteRound;
+					var r = Mcv.NextVotingRound;
 	
 					//if(r.Id < m.CastingSince)
 					//	continue;
 	
-					if(r.VotesOfTry.Any(i => i.Generator == g))
+					if(!r.ConsensusFailed && r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
+
+					if(r.ConsensusFailed)
+					{
+						var s = r.Parent.Summarize();
+
+						if(r.Parent.Hash.SequenceEqual(s))
+							continue;
+					}
 	
 					Vote createvote(Round r)
 					{
@@ -628,9 +656,21 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						
 						var v = Mcv.CreateVote();
 	
+						if(!r.ConsensusFailed)
+						{
+							v.Try			= r.Try;
+							v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
+						} 
+						else
+						{
+							r.Try++;
+							r.FirstArrivalTime	= DateTime.MaxValue;
+
+							v.Try			= r.Try;
+							v.ParentHash	= r.Parent.Summarize();
+						}
+
 						v.RoundId		= r.Id;
-						v.Try			= r.Try;
-						v.ParentHash	= r.Parent.Hash ?? r.Parent.Summarize();
 						v.Created		= Mcv.Clock.Now;
 						v.Time			= Time.Now(Mcv.Clock);
 						v.Violators		= r.ProposeViolators().ToArray();
@@ -666,7 +706,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 																					if(r.Id > t.Expiration)
 																					{
-																						//t.Status = TransactionStatus.FailedOrNotFound;
 																						IncomingTransactions.Remove(t);
 																						return true;
 																					}
@@ -676,10 +715,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																					if(nearest != g)
 																					{
 																						if(!Mcv.Settings.Generators.Contains(nearest))
-																						{
-																							//t.Status = TransactionStatus.FailedOrNotFound;
 																							IncomingTransactions.Remove(t);
-																						}
 	
 																						return true;
 																					}
@@ -718,7 +754,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							if(false == tryplace(t.t, true, false))
 								break;
 	
-						foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then fee-transactions
+						foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then paid transactions
 							if(false == tryplace(t.t, false, false))
 								break;
 	
@@ -798,12 +834,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					ProcessConfirmationException(ex);
 				}
 	
-				foreach(var i in votes)
+				foreach(var v in votes)
 				{
-					Broadcast(i);
+					Flow.Log?.Report(this, $"{nameof(Vote)} generated : {v}");
+					
+					Broadcast(v);
 				}
 													
-				Flow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
 			}
 	
 			Statistics.Generating.End();
@@ -817,41 +854,24 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public abstract bool ValidateIncoming(Operation o);
 
-	public bool ValidateIncoming(Transaction transaction, out Round round)
+	public bool ValidateIncoming(Transaction transaction, bool preserve, out Round round)
 	{
 		if( IncomingTransactions.Any(j => j.Signer == transaction.Signer && j.Nid == transaction.Nid) ||
-			transaction.Expiration <= Mcv.LastConfirmedRound.Id ||
-			!transaction.Valid(Mcv) ||
 			transaction.Operations.Any(o => !ValidateIncoming(o)))
 		{
 			round = null;
 			return false;
 		}
 
-		var a = Mcv.Accounts.Find(transaction.Signer, Mcv.LastConfirmedRound.Id);
+		round = Mcv.Examine(transaction, preserve);
 
-		if(a == null)
-		{	
-			if(transaction.Sponsored)
-				transaction.Nid = 0;
-			else
-			{	
-				round = null;
-				return false;
-			}
-		}
-		else
-			transaction.Nid	= a.LastTransactionNid + 1;
-
-		round = Mcv.TryExecute(transaction);
-
-		return transaction.Successful;
+		return round != null && transaction.Successful;
 
 	}
 
 	public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 	{
-		foreach(var t in txs.Where(i => ValidateIncoming(i, out _)).OrderByDescending(i => i.Nid))
+		foreach(var t in txs.Where(i => ValidateIncoming(i, true, out _)).OrderByDescending(i => i.Nid))
 		{
 			t.Status = TransactionStatus.Accepted;
 			IncomingTransactions.Add(t);
@@ -926,11 +946,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				var m = members.NearestBy(i => i.Address, g.Key);
 
-				IPeer rdi; 
+				IPeer ppi; 
 
 				try
 				{
-					rdi = getrdi(g.Key);
+					ppi = getrdi(g.Key);
 				}
 				catch(NodeException)
 				{
@@ -945,7 +965,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				{
 					try
 					{
-						t.Rdi		 = rdi;
+						t.Ppi		 = ppi;
 						t.Bonus		 = 0;
 						t.Nid		 = 0;
 						t.Expiration = 0;
@@ -955,11 +975,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																	Net		= Net.Name,
 																	Account	= t.Signer,
 																	Session = GetSession(t.Signer),
-																	Hash	= t.Hashify(Net.Cryptography.ZeroHash),
+																	Hash	= t.Hashify(),
 																	Trust	= Trust.None
 																}, t.Flow);
 
-						var at = Call(rdi, new AllocateTransactionRequest {Transaction = t});
+						var at = Call(ppi, new AllocateTransactionRequest {Transaction = t});
 							
 						if(nid == -1)
 							nid = at.NextNid;
@@ -975,13 +995,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																	Net		= Net.Name,
 																	Account	= t.Signer,
 																	Session = GetSession(t.Signer),
-																	Hash	= t.Hashify(at.PoWBase),
+																	Hash	= t.Hashify(),
 																	Trust	= Trust.None
 																}, t.Flow);
 
 						txs.Add(t);
 
-						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Signature={t.Signature.ToHex()}");
+						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Hash={t.Hashify()}, Signature={t.Signature.ToHex()}");
 					}
 					catch(NodeException ex)
 					{
@@ -1018,7 +1038,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						atxs = Call(rdi, new PlaceTransactionsRequest {Transactions = [..txs]}).Accepted;
+						atxs = Call(ppi, new PlaceTransactionsRequest {Transactions = [..txs]}).Accepted;
 					}
 					catch(NodeException ex)
 					{
@@ -1037,7 +1057,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							}
 							else
 							{
-								t.Flow.Log?.Report(this, $"Rejected: Member={{{m}}}");
+								t.Flow.Log?.Report(this, $"Transaction Rejected by {m}");
 
 								if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 									t.Status = TransactionStatus.None;
@@ -1054,11 +1074,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			lock(Lock)
 				accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
 
-			Flow.Log?.Report(this, $"accepted : {accepted.Count()}" );
+			///Flow.Log?.Report(this, $"accepted : {accepted.Count()}" );
 
 			if(accepted.Any())
 			{
-				foreach(var g in accepted.GroupBy(i => i.Rdi))
+				foreach(var g in accepted.GroupBy(i => i.Ppi))
 				{
 					TransactionStatusResponse ts;
 
@@ -1117,7 +1137,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(OutgoingTransactions.Count <= Mcv.TransactionQueueLimit)
 		{
 			if(GetSession(t.Signer) == null)
-				throw new NodeException(NodeError.Locked);
+				throw new NodeException(NodeError.NoSession);
 
 			if(TransactingThread == null)
 			{
@@ -1218,7 +1238,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 				return p.Send(c);
 			}
-			catch(NodeException)
+			catch(NodeException ex)
 			{
 			}
 			catch(ContinueException)

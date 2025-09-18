@@ -10,9 +10,9 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>uos</AssemblyName>
-    <AssemblyVersion>1.0.620.0</AssemblyVersion>
-    <FileVersion>1.0.620.0</FileVersion>
-    <Version>1.0.620.0</Version>
+    <AssemblyVersion>1.0.647.0</AssemblyVersion>
+    <FileVersion>1.0.647.0</FileVersion>
+    <Version>1.0.647.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject></StartupObject>
   </PropertyGroup>

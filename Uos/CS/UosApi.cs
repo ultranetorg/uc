@@ -232,6 +232,6 @@ internal class AuthorizeApc : Net.AuthorizeApc, IUosApc
 			uos.AuthorizationRequested(Net, Account);
 		}
 
-		return uos.Vault.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
+		return uos.Vault.Cryptography.Sign(acc.Key, Hash);
 	}
 }

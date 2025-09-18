@@ -8,7 +8,7 @@ public class SiteCreation : FairOperation
 	public byte					Years {get; set;}
 
 	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
-	public override string		Explanation => $"{GetType().Name}";
+	public override string		Explanation => $"{Title}, Years{Years}";
 
 	public SiteCreation()
 	{

@@ -263,7 +263,7 @@ public abstract class TcpPeering : IPeer
 			{
 				tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
 
-				tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
+				tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 				//client.ReceiveTimeout = Timeout;
 				tcp.Connect(peer.IP, peer.Port);
 			}
@@ -277,8 +277,8 @@ public abstract class TcpPeering : IPeer
 								
 			try
 			{
-				tcp.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
-				tcp.ReceiveTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
+				tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+				tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
 				Peer.SendHello(tcp, CreateOutboundHello(peer, permanent));
 				h = Peer.WaitHello(tcp);
@@ -391,8 +391,8 @@ public abstract class TcpPeering : IPeer
 
 			try
 			{
-				client.SendTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
-				client.ReceiveTimeout = NodeGlobals.DisableTimeouts ? 0 : Timeout;
+				client.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+				client.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
 				h = Peer.WaitHello(client);
 			}
@@ -517,7 +517,7 @@ public abstract class TcpPeering : IPeer
 				else if(peer.Status == ConnectionStatus.Disconnecting || peer.Status == ConnectionStatus.Disconnected)
 					throw new NodeException(NodeError.Connectivity);
 
-			if(!NodeGlobals.DisableTimeouts)
+			if(!NodeGlobals.InfiniteTimeouts)
 				if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 					throw new NodeException(NodeError.Timeout);
 			

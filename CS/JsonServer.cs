@@ -13,6 +13,7 @@ public abstract class Apc
 	public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
 
 	public int				Timeout {get; set;} = System.Threading.Timeout.Infinite;
+	public int				Limit { get; set; }
 }
 
 public abstract class CodeException : Exception, ITypeCode, IBinarySerializable 

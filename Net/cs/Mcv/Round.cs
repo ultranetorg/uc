@@ -496,8 +496,8 @@ public abstract class Round : IBinarySerializable
 
 		Execute(ConsensusTransactions);
 
-		Members	= Members.ToList();
-		Funds	= Funds.ToList();
+		//Members	= Members.ToList();
+		//Funds	= Funds.ToList();
 
 		CopyConfirmed();
 		
@@ -513,17 +513,10 @@ public abstract class Round : IBinarySerializable
 
 		ConfirmForeign(e);
 
-		foreach(var t in OrderedTransactions)
-		{
-			t.Status = ConsensusTransactions.Contains(t) ? TransactionStatus.Confirmed : TransactionStatus.FailedOrNotFound;
+		foreach(var t in OrderedTransactions)	t.Status = TransactionStatus.FailedOrNotFound;
+		foreach(var t in ConsensusTransactions)	t.Status = TransactionStatus.Confirmed;
 
-			#if DEBUG
-			//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
-			//{
-			//	Debugger.Break();
-			//}
-			#endif
-		}
+		Members = [..Members];
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
@@ -549,8 +542,9 @@ public abstract class Round : IBinarySerializable
 			Members.Add(c);
 		}
 
-		Members = Members.OrderBy(i => i.Address).ToList();
+		//Members.Sort((a, b) => a.Address.CompareTo(b.Address));
 
+		Funds = [..Funds];
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
 

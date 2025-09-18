@@ -15,13 +15,12 @@ public class AllocateTransactionRequest : McvPpc<AllocateTransactionResponse>
 
 				Transaction.Expiration = Mcv.LastConfirmedRound.Id + 1;
 
-				if(Peering.ValidateIncoming(Transaction, out var r))
+				if(Peering.ValidateIncoming(Transaction, false, out var r))
 				{
 					var b = r.AffectedAccounts.Values.First(i => i.Address == Transaction.Signer);
 				
 					var atr = new AllocateTransactionResponse  {Generator			= m.Id,
 																LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-																PoWBase				= Mcv.GraphHash,
 																NextNid				= Transaction.Nid};
 
 					if(a != null)
@@ -46,7 +45,6 @@ public class AllocateTransactionResponse : PeerResponse
 {
 	public int			LastConfirmedRid { get; set; }
 	public int			NextNid { get; set; }
-	public byte[]		PoWBase { get; set; }
 	public long			SpacetimeConsumed { get; set; }
 	public long			EnergyConsumed { get; set; }
 	public AutoId		Generator { get; set; }
