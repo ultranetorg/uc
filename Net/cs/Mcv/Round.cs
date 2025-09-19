@@ -347,12 +347,14 @@ public abstract class Round : IBinarySerializable
 
 	public IEnumerable<AutoId> ProposeMemberLeavers(AccountAddress generator)
 	{
+		if(Id < Mcv.JoinToVote + Mcv.JoinToVote - 1)
+			return [];
+
 		var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
-		var l = Parent.Voters.Where(i => 
-										!Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
-										!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
-							.Select(i => i.Id);
+		var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
+										 !prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
+							 .Select(i => i.Id);
 
 		return l;
 	}

@@ -22,19 +22,10 @@ public class RdnMcv : Mcv
 	{
   	}
 
-	public RdnMcv(Rdn net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
-	{
-	}
-
-	public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, clock)
+	public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, new RdnGenesis(), clock)
 	{
 		GraphIPs = baseips;
 		SeedHubIPs = seedhubips;
-	}
-
-	public string CreateGenesis(AccountKey f0)
-	{
-		return CreateGenesis(f0, new RdnGenesis());
 	}
 
 	protected override void GenesisInitilize(Round round)
