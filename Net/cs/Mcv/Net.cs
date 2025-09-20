@@ -37,7 +37,7 @@ public abstract class Net
 	public ushort				ApiPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Api);
 
 	public IPAddress[]			Initials;
-	public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();
+	public IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 	public IPAddress[]			UOInitials = @" 78.47.204.100	
 												 185.208.159.160	
 												 5.42.221.102	

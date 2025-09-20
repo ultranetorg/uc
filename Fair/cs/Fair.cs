@@ -49,13 +49,13 @@ public class FairLocal : Fair
 	
 	public FairLocal()
 	{
-		Father0IP		= new IPAddress([127, 0, 0, 100]);
+		Father0IP		= new IPAddress([127, 1, 0, 0]);
 		Cryptography	= Cryptography.No;
 		CommitLength	= 100;
 		ECLifetime		= Time.FromYears(100);
 		//PoWComplexity	= 0;
 
-		Initials		= Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();
+		Initials		= LocalInitials;
 	}
 }
 

@@ -9,7 +9,7 @@ public delegate void NodeDelegate(Node node);
 public class UosApiSettings : Settings
 {
 	//public string			ListenAddress { get; set; }
-	public IPAddress		LocalIP { get; set; } = new IPAddress([127, 0, 0, 100]);
+	public IPAddress		LocalIP { get; set; } = new IPAddress([127, 1, 0, 0]);
 	public IPAddress		PublicIP { get; set; }
 	public string			PublicAccessKey { get; set; }
 	public bool				Ssl { get; set; }

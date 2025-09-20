@@ -83,16 +83,14 @@ public class NodeCommand : McvCommand
 		attach.Help = new()	{	Description = "Connects to existing node instance via JSON RPC protocol",
 								Syntax = $"{Keyword} {attach.NamesSyntax} HOST {Apc.AccessKey}={PASSWORD}",
 
-								Arguments =
-								[
-									new (FirstArg, "URL address of node to connect to"),
-									new (Apc.AccessKey, "API access key")
-								],
+								Arguments =[
+												new (FirstArg, "URL address of node to connect to"),
+												new (Apc.AccessKey, "API access key")
+											],
 
-								Examples =
-								[
-									new (null, $"{Keyword} {attach.Names[0]} 127.0.0.1:3901 asscesskey=ApiServerSecret")
-								]};
+								Examples =	[
+												new (null, $"{Keyword} {attach.Names[0]} 127.0.0.1:3901 asscesskey=ApiServerSecret")
+											]};
 
 		return attach;
 	}

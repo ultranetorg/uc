@@ -1,4 +1,4 @@
-@Uccs.Fair.WebApi_HostAddress = http://127.0.0.101:1080
+@Uccs.Fair.WebApi_HostAddress = http://127.1.0.1:1080
 
 ### GET User
 
