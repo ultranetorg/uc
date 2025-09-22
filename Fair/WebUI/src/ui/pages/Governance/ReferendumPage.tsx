@@ -1,88 +1,23 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
-import { useGetAuthorReferendum } from "entities"
+import { useGetAuthorReferendum, useGetAuthorReferendumComment } from "entities"
+import { ProposalView } from "ui/views"
 
 export const ReferendumPage = () => {
+  const { t } = useTranslation()
   const { siteId, referendumId } = useParams()
 
-  const { isPending, data: referendum } = useGetAuthorReferendum(siteId, referendumId)
-
-  if (isPending || !referendum) {
-    return "Loading..."
-  }
+  const { isFetching, data: proposal } = useGetAuthorReferendum(siteId, referendumId)
+  const { isFetching: isCommentsFetching, data: comments } = useGetAuthorReferendumComment(siteId, proposal?.id)
 
   return (
-    <div className="flex flex-col gap-6">
-      {JSON.stringify(referendum)}
-      {/* <GovernanceModerationHeader
-        siteId={siteId!}
-        title={t("title", { referendumId })}
-        parentBreadcrumb={{ path: `/${siteId}/g`, title: t("referendums:title") }}
-        homeLabel={t("common:home")}
-      />
-      <div className="flex gap-8">
-        <ProposalInfo title={referendum.title} text={referendum.text} />
-        <div className="flex flex-col gap-6">
-          <VotingStatistics
-            t={t}
-            yesCount={referendum.yesCount}
-            noCount={referendum.noCount}
-            abstainedCount={referendum.abstainedCount}
-          />
-          <Voting
-            t={t}
-            siteId={siteId!}
-            daysLeft={referendum.expiration}
-            createdAt={referendum.expiration}
-            createdById={referendum.byId}
-            createdByTitle={referendum.byNickname ?? referendum.byAddress}
-            createdByAvatar={referendum.byAvatar}
-          />
-        </div>
-      </div> */}
-    </div>
+    <ProposalView
+      parentBreadcrumb={{ title: t("common:governance"), path: `/${siteId}/g` }}
+      isFetching={isFetching}
+      proposal={proposal}
+      isCommentsFetching={isCommentsFetching}
+      comments={comments}
+    />
   )
 }
-
-/*
-      <div>
-        <div>ID</div>
-        <div>{referendum.id}</div>
-      </div>
-      <div>
-        <div>Text</div>
-        <div>{referendum.text}</div>
-      </div>
-      <div>
-        <div>Expiration</div>
-        <div>{referendum.expiration}</div>
-      </div>
-      <div>
-        <div>Votes</div>
-        <div>
-          <span className="text-red-500">{referendum.yesCount}</span> /{" "}
-          <span className="text-green-500">{referendum.noCount}</span> /{" "}
-          <span className="text-gray-500">{referendum.abstainedCount}</span>
-        </div>
-      </div>
-      <div>
-        <div>Pros</div>
-        <div>{referendum.pros.join(",")}</div>
-      </div>
-      <div>
-        <div>Cons</div>
-        <div>{referendum.cons.join(",")}</div>
-      </div>
-      <div>
-        <div>Abs</div>
-        <div>{referendum.abs.join(",")}</div>
-      </div>
-      <div>
-        <div>Type:</div>
-        <div>{t(referendum.option.$type, { ns: "votableOperations" })}</div>
-      </div>
-      <div>
-        <div>Type:</div>
-        <div>{JSON.stringify(referendum.option)}</div>
-      </div>
-*/

@@ -79,10 +79,7 @@ export const PublicationPage = () => {
 
   const handleLeaveReviewClick = useCallback(() => setReviewModalOpen(true), [])
   const handleReviewModalClose = useCallback(() => setReviewModalOpen(false), [])
-  const handleReviewModalSubmit = useCallback(() => {
-    console.log("handleReviewModalSubmit")
-    setReviewModalOpen(false)
-  }, [])
+  const handleReviewModalSubmit = useCallback(() => setReviewModalOpen(false), [])
 
   if (isPending || !publication) {
     return <div>Loading</div>

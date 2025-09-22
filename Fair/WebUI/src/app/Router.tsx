@@ -5,11 +5,15 @@ import {
   AboutPage,
   AuthorPage,
   CategoryPage,
+  CreateDiscussionPage,
+  CreateReferendumPage,
+  DevelopPage,
   ErrorPage,
   ModerationPage,
   ModeratorDiscussionPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
+  ModeratorUserRegistrationPage,
   ProfilePage,
   PublicationPage,
   ReferendumPage,
@@ -19,6 +23,7 @@ import {
   SitesPage,
 } from "ui/pages"
 
+import { ModeratorProvider } from "./ModeratorContext"
 import { SiteProvider } from "./SiteContext"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -70,6 +75,14 @@ const routes: RouteObject[] = [
           },
 
           {
+            path: "/:siteId/g/new",
+            element: (
+              <ModeratorProvider>
+                <CreateReferendumPage />
+              </ModeratorProvider>
+            ),
+          },
+          {
             path: "/:siteId/g",
             element: <ReferendumsPage />,
           },
@@ -79,21 +92,42 @@ const routes: RouteObject[] = [
           },
 
           {
+            path: "/:siteId/m/new",
+            element: (
+              <ModeratorProvider>
+                <CreateDiscussionPage />
+              </ModeratorProvider>
+            ),
+          },
+          {
             path: "/:siteId/m/:tabKey?",
             element: <ModerationPage />,
           },
           {
-            path: "/:siteId/m-d/:discussionId",
+            path: "/:siteId/m/d/:discussionId",
             element: <ModeratorDiscussionPage />,
           },
           {
-            path: "/:siteId/m-p/:publicationId",
+            path: "/:siteId/m/p/:discussionId",
             element: <ModeratorPublicationPage />,
           },
           {
-            path: "/:siteId/m-r/:reviewId",
+            path: "/:siteId/m/r/:discussionId",
             element: <ModeratorReviewPage />,
           },
+          {
+            path: "/:siteId/m/u/:discussionId",
+            element: <ModeratorUserRegistrationPage />,
+          },
+
+          ...(import.meta.env.DEV
+            ? [
+                {
+                  path: "/:siteId/dev",
+                  element: <DevelopPage />,
+                },
+              ]
+            : []),
         ],
       },
 

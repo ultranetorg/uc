@@ -5,13 +5,7 @@ import { getApi } from "api"
 const api = getApi()
 
 export const useGetPublication = (publicationId?: string) => {
-  const queryFn = () => {
-    if (!publicationId) {
-      return
-    }
-
-    return api.getPublication(publicationId)
-  }
+  const queryFn = () => api.getPublication(publicationId!)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["publications", publicationId],
@@ -23,13 +17,7 @@ export const useGetPublication = (publicationId?: string) => {
 }
 
 export const useGetCategoriesPublications = (siteId?: string) => {
-  const queryFn = () => {
-    if (!siteId) {
-      return
-    }
-
-    return api.getCategoriesPublications(siteId)
-  }
+  const queryFn = () => api.getCategoriesPublications(siteId!)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["sites", siteId, "categories", "publications"],
@@ -41,13 +29,7 @@ export const useGetCategoriesPublications = (siteId?: string) => {
 }
 
 export const useGetAuthorPublications = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => {
-    if (!siteId || !authorId) {
-      return
-    }
-
-    return api.getAuthorPublications(siteId, authorId, page, pageSize)
-  }
+  const queryFn = () => api.getAuthorPublications(siteId!, authorId!, page, pageSize)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["sites", siteId, "authors", authorId, "publications", { page, pageSize }],
@@ -59,13 +41,7 @@ export const useGetAuthorPublications = (siteId?: string, authorId?: string, pag
 }
 
 export const useGetCategoryPublications = (categoryId?: string, page?: number) => {
-  const queryFn = () => {
-    if (!categoryId) {
-      return
-    }
-
-    return api.getCategoryPublications(categoryId, page)
-  }
+  const queryFn = () => api.getCategoryPublications(categoryId!, page)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ["categories", categoryId, "publications", { page }],

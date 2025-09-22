@@ -19,6 +19,8 @@ export const ModerationPage = () => {
   const { t } = useTranslation("moderation")
   const navigate = useNavigate()
 
+  const handleCreateButtonClick = useCallback(() => navigate(`/${siteId}/m/new`), [navigate, siteId])
+
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) => navigate(item.route ? `/${siteId}/m/${item.route}` : `/${siteId}/m`),
     [navigate, siteId],
@@ -36,7 +38,13 @@ export const ModerationPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <GovernanceModerationHeader siteId={siteId!} title={t("title")} homeLabel={t("common:home")} />
+      <GovernanceModerationHeader
+        siteId={siteId!}
+        title={t("title")}
+        onCreateButtonClick={handleCreateButtonClick}
+        homeLabel={t("common:home")}
+        createButtonLabel={t("createDiscussion")}
+      />
       <TabsProvider defaultKey={key || "reviews"}>
         <div className="flex flex-col gap-6">
           <TabsList

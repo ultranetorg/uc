@@ -5,31 +5,19 @@ import { getApi } from "api"
 const api = getApi()
 
 export const useGetCategories = (siteId?: string, depth?: number) => {
-  const queryFn = () => {
-    if (!siteId) {
-      return
-    }
+  const queryFn = () => api.getCategories(siteId!, depth)
 
-    return api.getCategories(siteId, depth)
-  }
-
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, isFetching, refetch } = useQuery({
     queryKey: ["sites", siteId, "categories", { depth }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!siteId && depth !== undefined,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isPending, error: error ?? undefined, data, isFetching, refetch }
 }
 
 export const useGetCategory = (categoryId?: string) => {
-  const queryFn = () => {
-    if (!categoryId) {
-      return
-    }
-
-    return api.getCategory(categoryId)
-  }
+  const queryFn = () => api.getCategory(categoryId!)
 
   const { isPending, error, data } = useQuery({
     queryKey: ["categories", categoryId],

@@ -9,8 +9,6 @@ public class ProposalService
 	FairMcv mcv
 ) : IProposalService
 {
-	private const string ReferendumEntityName = "referendum";
-
 	public ProposalDetailsModel GetDiscussion(string siteId, string proposalId) =>
 		GetProposalDetails(siteId, proposalId, true);
 
@@ -42,15 +40,15 @@ public class ProposalService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			string entityName = discussionOrReferendums ? nameof(Proposal).ToLower() : ReferendumEntityName;
+			string entityName = discussionOrReferendums ? EntityNames.DiscussionEntityName : EntityNames.ReferendumEntityName;
 			if (!site.Proposals.Any(x => x == proposalEntityId))
 			{
 				throw new EntityNotFoundException(entityName, siteId);
 			}
 
 			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
+			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal)
+				/* || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal) */)
 			{
 				throw new EntityNotFoundException(entityName, proposalId);
 			}

@@ -1,5 +1,6 @@
 export * from "./Account"
 export * from "./Author"
+export * from "./AuthorReferendumComment"
 export * from "./Category"
 export * from "./ModeratorDiscussion"
 export * from "./ModeratorDiscussionComment"

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
@@ -14,6 +14,7 @@ import { getCommonColumns } from "./constants"
 
 export const ReviewsTab = () => {
   const { t } = useTranslation("tabReviews")
+  const navigate = useNavigate()
   const { siteId } = useParams()
 
   const [state, setState] = useUrlParamsState({
@@ -42,6 +43,8 @@ export const ReviewsTab = () => {
   )
   const itemRenderer = useMemo(() => getReviewsItemRenderer(t), [t])
 
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/r/${id}`), [navigate, siteId])
+
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ page: page })
@@ -58,6 +61,7 @@ export const ReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noReviews")} />}
+        onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

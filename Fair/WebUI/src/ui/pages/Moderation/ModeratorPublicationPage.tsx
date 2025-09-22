@@ -1,38 +1,23 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
-import { useGetPublicationProposal } from "entities"
+import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
+import { ProposalView } from "ui/views"
 
 export const ModeratorPublicationPage = () => {
-  const { publicationId } = useParams()
+  const { t } = useTranslation()
+  const { siteId, discussionId } = useParams()
 
-  const { isPending, data: publication } = useGetPublicationProposal(publicationId)
-
-  if (isPending || !publication) {
-    return <div>Loading...</div>
-  }
+  const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, discussionId)
+  const { isFetching: isCommentsFetching, data: comments } = useGetModeratorDiscussionComments(siteId, proposal?.id)
 
   return (
-    <div className="flex flex-col">
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Category</th>
-            <th>Author</th>
-            <th>Product</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr key={publication.id}>
-            <td>{publication.id}</td>
-            {/* <td>{publication.categoryId}</td>
-            <td>{publication.authorId}</td>
-            <td>{publication.productId}</td> */}
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ProposalView
+      parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/p/` }}
+      isFetching={isFetching}
+      proposal={proposal}
+      isCommentsFetching={isCommentsFetching}
+      comments={comments}
+    />
   )
 }

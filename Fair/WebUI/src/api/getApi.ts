@@ -104,6 +104,20 @@ const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${us
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
 
+const getAuthorReferendumComments = async (
+  siteId: string,
+  referendumId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ProposalComment>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}/comments` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getAuthorReferendums = async (
   siteId: string,
   page?: number,
@@ -149,9 +163,6 @@ const getModeratorDiscussions = async (
   return await toTotalItemsResult(res)
 }
 
-const getPublicationProposal = (proposalId: string): Promise<PublicationProposal> =>
-  fetch(`${BASE_URL}/moderator/publications/${proposalId}`).then(res => res.json())
-
 const getPublicationProposals = async (
   siteId: string,
   page?: number,
@@ -166,9 +177,6 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getReviewProposal = (siteId: string, proposalId: string): Promise<ReviewProposal> =>
-  fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews/${proposalId}`).then(res => res.json())
-
 const getReviewProposals = async (
   siteId: string,
   page?: number,
@@ -182,9 +190,6 @@ const getReviewProposals = async (
   const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
   return await toTotalItemsResult(res)
 }
-
-const getUserProposal = (siteId: string, proposalId: string): Promise<UserProposal> =>
-  fetch(`${BASE_URL}/moderator/sites/${siteId}/users/${proposalId}`).then(res => res.json())
 
 const getUserProposals = async (
   siteId: string,
@@ -201,31 +206,31 @@ const getUserProposals = async (
 }
 
 const api: Api = {
-  getDefaultSites,
   getAuthor,
-  getCategories,
-  getCategory,
-  getCategoriesPublications,
-  getPublication,
   getAuthorPublications,
+  getCategories,
+  getCategoriesPublications,
+  getCategory,
+  getCategoryPublications,
+  getDefaultSites,
+  getPublication,
   getReviews,
   getSite,
-  searchSites,
-  searchLiteSites,
   getUser,
-  searchPublications,
   searchLitePublication,
+  searchLiteSites,
+  searchPublications,
+  searchSites,
+
   getAuthorReferendum,
-  getCategoryPublications,
   getAuthorReferendums,
+  getAuthorReferendumComments,
+
   getModeratorDiscussion,
-  getModeratorDiscussionComments,
   getModeratorDiscussions,
-  getPublicationProposal,
+  getModeratorDiscussionComments,
   getPublicationProposals,
-  getReviewProposal,
   getReviewProposals,
-  getUserProposal,
   getUserProposals,
 }
 

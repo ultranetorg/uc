@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 import { useTranslation } from "react-i18next"
 
@@ -9,10 +9,12 @@ import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getUsersItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
+
 import { getCommonColumns } from "./constants"
 
 export const UserRegistrationsTab = () => {
   const { t } = useTranslation("tabUsers")
+  const navigate = useNavigate()
   const { siteId } = useParams()
 
   const [state, setState] = useUrlParamsState({
@@ -37,6 +39,8 @@ export const UserRegistrationsTab = () => {
   )
   const itemRenderer = useMemo(() => getUsersItemRenderer(t), [t])
 
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/u/${id}`), [navigate, siteId])
+
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ page: page })
@@ -53,6 +57,7 @@ export const UserRegistrationsTab = () => {
         tableBodyClassName="text-2sm leading-5"
         itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noUsers")} />}
+        onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

@@ -26,14 +26,14 @@ public class ModeratorUsersController
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
 
-	[HttpGet("~/api/moderator/sites/{siteId}/users/{proposalId}")]
-	public UserProposalModel Get(string siteId, string proposalId)
-	{
-		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+	//[HttpGet("~/api/moderator/sites/{siteId}/users/{proposalId}")]
+	//public UserProposalModel Get(string siteId, string proposalId)
+	//{
+	//	logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(proposalId, nameof(User).ToLower());
+	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+	//	autoIdValidator.Validate(proposalId, nameof(User).ToLower());
 
-		return moderatorProposalsService.GetUserProposal(siteId, proposalId);
-	}
+	//	return moderatorProposalsService.GetUserProposal(siteId, proposalId);
+	//}
 }
