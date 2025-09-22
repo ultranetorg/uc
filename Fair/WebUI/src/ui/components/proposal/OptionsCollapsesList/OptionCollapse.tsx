@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { CheckCircleFillSvg, SvgCheckSquareSmSvg, SvgChevronDown2Sm } from "assets"
 import { ButtonPrimary } from "ui/components"
 
-export type OptionsCollapseProps = {
+export type OptionCollapseProps = {
   description: string
   expanded?: boolean
   showResults?: boolean
@@ -17,7 +17,7 @@ export type OptionsCollapseProps = {
   votesText: string
 }
 
-export const OptionsCollapse = ({
+export const OptionCollapse = ({
   description,
   expanded = false,
   showResults,
@@ -28,7 +28,7 @@ export const OptionsCollapse = ({
   onExpand,
   onVoteClick,
   votesText,
-}: OptionsCollapseProps) => {
+}: OptionCollapseProps) => {
   const [isExpanded, setExpanded] = useState<boolean>(expanded)
 
   const handleExpand = () => {

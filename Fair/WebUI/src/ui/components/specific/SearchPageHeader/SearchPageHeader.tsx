@@ -1,4 +1,4 @@
-import { Dropdown, DropdownItem } from "ui/components"
+import { DropdownSecondary, DropdownItem } from "ui/components"
 
 const TEST_ITEMS: DropdownItem[] = [
   { value: "0", label: "Business" },
@@ -28,8 +28,8 @@ export const SearchPageHeader = ({
         <span className="text-gray-400">{searchResultsCount}</span>
       </div>
       <div className="flex items-center gap-4">
-        <Dropdown items={TEST_ITEMS} className="w-37.5" placeholder={allAuthorsLabel} />
-        <Dropdown items={TEST_ITEMS} className="w-37.5" placeholder={allCategoriesLabel} />
+        <DropdownSecondary items={TEST_ITEMS} className="w-37.5" placeholder={allAuthorsLabel} />
+        <DropdownSecondary items={TEST_ITEMS} className="w-37.5" placeholder={allCategoriesLabel} />
       </div>
     </div>
   )

@@ -16,6 +16,7 @@ export default defineConfig({
       api: path.resolve(__dirname, "src/api"),
       app: path.resolve(__dirname, "src/app"),
       assets: path.resolve(__dirname, "src/assets"),
+      constants: path.resolve(__dirname, "src/constants"),
       entities: path.resolve(__dirname, "src/entities"),
       hooks: path.resolve(__dirname, "src/hooks"),
       ui: path.resolve(__dirname, "src/ui"),

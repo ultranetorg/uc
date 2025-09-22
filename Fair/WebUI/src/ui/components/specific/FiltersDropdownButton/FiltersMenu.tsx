@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react"
 import { PropsWithStyle } from "types"
 
-import { DropdownItem, DropdownSecondary } from "ui/components"
+import { DropdownItem, Dropdown } from "ui/components"
 
 import { ResetAllButton } from "./ResetAllButton"
 
@@ -27,10 +27,10 @@ export const FiltersMenu = memo(
       style={style}
       ref={ref}
     >
-      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Category" />
-      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Author" />
-      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="OS" />
-      <DropdownSecondary className="w-72" items={TEST_ITEMS} placeholder="Sort" />
+      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Category" />
+      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Author" />
+      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="OS" />
+      <Dropdown className="w-72" items={TEST_ITEMS} placeholder="Sort" />
       <ResetAllButton onClick={onResetClick} label={resetAllLabel} />
     </div>
   )),

@@ -7,6 +7,7 @@ export * from "./hooks"
 
 export * from "./AboutPage"
 export * from "./AuthorPage"
+export * from "./DevelopPage"
 export * from "./ErrorPage"
 export * from "./ProfilePage"
 export * from "./PublicationPage"

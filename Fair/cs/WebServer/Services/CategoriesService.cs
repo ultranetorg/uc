@@ -49,12 +49,12 @@ public class CategoriesService
 		}).ToArray();
 	}
 
-	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, int depth, CancellationToken cancellationToken)
+	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, int? depth, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategories)} method called with {{SiteId}}, {{Depth}}", siteId, depth);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NegativeOrZero(depth);
+		Guard.Against.DepthValid(depth);
 
 		AutoId id = AutoId.Parse(siteId);
 
@@ -78,7 +78,7 @@ public class CategoriesService
 		}
 	}
 
-	void LoadCategoriesRecursively(AutoId[] categories, int currentDepth, ref List<CategoryParentBaseModel> result, CancellationToken cancellationToken)
+	void LoadCategoriesRecursively(AutoId[] categories, int? currentDepth, ref List<CategoryParentBaseModel> result, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return;
@@ -93,7 +93,7 @@ public class CategoriesService
 			CategoryParentBaseModel model = new CategoryParentBaseModel(category);
 			result.Add(model);
 
-			if (category.Categories.Length > 0 && currentDepth > 1)
+			if(category.Categories.Length > 0 && (!currentDepth.HasValue || currentDepth > 1))
 			{
 				result.Capacity += category.Categories.Length;
 				LoadCategoriesRecursively(category.Categories, currentDepth - 1, ref result, cancellationToken);

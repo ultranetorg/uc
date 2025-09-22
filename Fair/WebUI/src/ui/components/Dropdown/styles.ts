@@ -1,9 +1,9 @@
-import { CSSObjectWithLabel, StylesConfig } from "react-select"
+import { StylesConfig } from "react-select"
 
 import { DropdownItem } from "./types"
 
 export const dropdownStyle: StylesConfig<DropdownItem, false> = {
-  control: (base: CSSObjectWithLabel, { menuIsOpen }) => ({
+  control: (base, { menuIsOpen }) => ({
     ...base,
     backgroundColor: "#F3F4F9",
     borderColor: !menuIsOpen ? "#D2D4E4" : "#9798A6",
@@ -11,10 +11,10 @@ export const dropdownStyle: StylesConfig<DropdownItem, false> = {
     boxShadow: "none",
     boxSizing: "border-box",
     cursor: "pointer",
-    fontSize: "0.8125rem",
-    fontWeight: "500",
+    fontSize: "0.9375rem",
+    fontWeight: "400",
     height: "2.5rem",
-    lineHeight: "1rem",
+    lineHeight: "1.25rem",
     "&:hover": {
       borderColor: "#9798A6",
     },
@@ -45,11 +45,12 @@ export const dropdownStyle: StylesConfig<DropdownItem, false> = {
   }),
   placeholder: base => ({
     ...base,
-    color: "#2A2932",
+    // color: props.isFocused ? "#2A2932" : "#737582",
+    color: "#737582",
   }),
-  singleValue: base => ({
+  singleValue: (base, props) => ({
     ...base,
-    color: "#2A2932",
+    color: !props.isDisabled ? "#2A2932" : "#9798A6",
   }),
   dropdownIndicator: base => ({
     ...base,
@@ -57,6 +58,28 @@ export const dropdownStyle: StylesConfig<DropdownItem, false> = {
   }),
   valueContainer: base => ({
     ...base,
-    padding: "2px 0px 2px 14px",
+    padding: "2px 0px 2px 10px",
+  }),
+}
+
+export const dropdownStyleLarge: StylesConfig<DropdownItem, false> = {
+  ...dropdownStyle,
+  control: (base, props) => ({
+    ...dropdownStyle.control?.(base, props),
+    fontSize: "0.9375rem",
+    fontWeight: "400",
+    lineHeight: "1.25rem",
+    height: "2.875rem",
+  }),
+  menu: (base, props) => ({ ...dropdownStyle.menu?.(base, props), marginTop: "4px" }),
+  option: (base, props) => ({
+    ...dropdownStyle.option?.(base, props),
+    fontSize: "0.9375rem",
+    lineHeight: "1.25rem",
+    padding: "12px 8px",
+  }),
+  valueContainer: (base, props) => ({
+    ...dropdownStyle.valueContainer?.(base, props),
+    padding: "2px 0px 2px 10px",
   }),
 }

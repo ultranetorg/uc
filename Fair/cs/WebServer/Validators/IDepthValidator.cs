@@ -2,5 +2,5 @@
 
 public interface IDepthValidator
 {
-	void Validate(int depth);
+	void Validate(int? depth);
 }

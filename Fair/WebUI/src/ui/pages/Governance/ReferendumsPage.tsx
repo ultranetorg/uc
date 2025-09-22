@@ -32,6 +32,8 @@ export const ReferendumsPage = () => {
   const pagesCount =
     referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
+  const handleCreateButtonClick = useCallback(() => navigate(`/${siteId}/g/new`), [navigate, siteId])
+
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ query: state.query, page })
@@ -55,7 +57,7 @@ export const ReferendumsPage = () => {
       <GovernanceModerationHeader
         siteId={siteId!}
         title={t("title")}
-        onCreateButtonClick={() => console.log("GovernanceModerationHeader")}
+        onCreateButtonClick={handleCreateButtonClick}
         homeLabel={t("common:home")}
         createButtonLabel={t("createReferendum")}
       />

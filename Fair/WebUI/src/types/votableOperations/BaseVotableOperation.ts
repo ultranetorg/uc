@@ -1,4 +1,4 @@
-import { OperationType } from "./OperationType"
+import { OperationType } from "types"
 
 export type BaseVotableOperation = {
   $type: OperationType

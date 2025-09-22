@@ -3,31 +3,59 @@ import { SingleValue } from "react-select"
 import { twMerge } from "tailwind-merge"
 
 import { CustomSelect, DropdownIndicator } from "./components"
-import { dropdownStyle } from "./styles"
+import { dropdownStyle, dropdownStyleLarge } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
-export const Dropdown = memo(({ className, items, styles = dropdownStyle, onChange, ...rest }: DropdownProps) => {
-  const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
+export const Dropdown = memo(
+  ({
+    className,
+    controlled = false,
+    isDisabled = false,
+    isLoading = false,
+    isSearchable = false,
+    items,
+    styles,
+    defaultValue,
+    size = "medium",
+    value,
+    formatOptionLabel,
+    onChange,
+    ...rest
+  }: DropdownProps) => {
+    const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
 
-  const handleChange = useCallback(
-    (item: SingleValue<DropdownItem>) => {
-      const selected = item as DropdownItem
-      setSelectedItem(selected)
-      onChange?.(selected)
-    },
-    [onChange],
-  )
+    const defaultItem = items?.find(x => x.value === defaultValue)
 
-  return (
-    <CustomSelect
-      className={twMerge(className)}
-      components={{ DropdownIndicator, IndicatorSeparator: null }}
-      styles={styles}
-      isSearchable={false}
-      onChange={handleChange}
-      options={items}
-      value={selectedItem}
-      {...rest}
-    />
-  )
-})
+    const currentValue = controlled ? items?.find(x => x.value === value) : selectedItem
+
+    const handleChange = useCallback(
+      (item: SingleValue<DropdownItem>) => {
+        const selected = item as DropdownItem
+
+        if (!controlled) {
+          setSelectedItem(selected)
+        }
+
+        onChange?.(selected)
+      },
+      [controlled, onChange],
+    )
+
+    return (
+      <CustomSelect
+        className={twMerge(className)}
+        components={{ DropdownIndicator, IndicatorSeparator: null }}
+        defaultValue={defaultItem}
+        styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
+        isDisabled={isDisabled}
+        isLoading={isLoading}
+        isSearchable={isSearchable}
+        onChange={handleChange}
+        options={items}
+        value={controlled ? (currentValue ?? null) : currentValue}
+        formatOptionLabel={formatOptionLabel}
+        {...rest}
+      />
+    )
+  },
+)
