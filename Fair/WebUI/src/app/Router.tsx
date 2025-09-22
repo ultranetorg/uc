@@ -7,6 +7,7 @@ import {
   CategoryPage,
   CreateDiscussionPage,
   CreateReferendumPage,
+  DevelopPage,
   ErrorPage,
   ModerationPage,
   ModeratorDiscussionPage,
@@ -22,6 +23,7 @@ import {
   SitesPage,
 } from "ui/pages"
 
+import { ModeratorProvider } from "./ModeratorContext"
 import { SiteProvider } from "./SiteContext"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -74,7 +76,11 @@ const routes: RouteObject[] = [
 
           {
             path: "/:siteId/g/new",
-            element: <CreateReferendumPage />,
+            element: (
+              <ModeratorProvider>
+                <CreateReferendumPage />
+              </ModeratorProvider>
+            ),
           },
           {
             path: "/:siteId/g",
@@ -87,7 +93,11 @@ const routes: RouteObject[] = [
 
           {
             path: "/:siteId/m/new",
-            element: <CreateDiscussionPage />,
+            element: (
+              <ModeratorProvider>
+                <CreateDiscussionPage />
+              </ModeratorProvider>
+            ),
           },
           {
             path: "/:siteId/m/:tabKey?",
@@ -109,6 +119,15 @@ const routes: RouteObject[] = [
             path: "/:siteId/m/u/:discussionId",
             element: <ModeratorUserRegistrationPage />,
           },
+
+          ...(import.meta.env.DEV
+            ? [
+                {
+                  path: "/:siteId/dev",
+                  element: <DevelopPage />,
+                },
+              ]
+            : []),
         ],
       },
 

@@ -1,6 +1,8 @@
+import { ApprovalPolicy } from "types/ApprovalPolicy"
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type SitePolicyChange = {
   change: string
-  policy: string
+  creators: string[]
+  approval: ApprovalPolicy
 } & BaseVotableOperation

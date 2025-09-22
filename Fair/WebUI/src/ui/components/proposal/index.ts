@@ -1,5 +1,5 @@
 export * from "./OptionsCollapsesList"
-export * from "./OptionsEditorList"
+export * from "./OptionsEditor"
 
 export * from "./AlternativeOptions"
 export * from "./CommentsSection"

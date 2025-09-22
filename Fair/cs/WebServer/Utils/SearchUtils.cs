@@ -82,6 +82,11 @@ internal class SearchUtils
 		return false;
 	}
 
+	internal static bool IsMath(Category category, string? query)
+	{
+		return string.IsNullOrEmpty(query) || category.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1;
+	}
+
 	internal static bool IsMatch(Publication publication, string? search)
 	{
 		if (string.IsNullOrEmpty(search))

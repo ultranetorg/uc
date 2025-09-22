@@ -8,11 +8,11 @@ export type InputBaseProps = {
   onChange: (value: string) => void
 }
 
-export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "placeholder"> &
+export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "placeholder" | "readOnly"> &
   PropsWithClassName &
   InputBaseProps
 
-export const Input = memo(({ id, placeholder, value, className, onChange }: InputProps) => {
+export const Input = memo(({ id, placeholder, value, className, onChange, ...rest }: InputProps) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value)
 
   return (
@@ -26,6 +26,7 @@ export const Input = memo(({ id, placeholder, value, className, onChange }: Inpu
       value={value ?? ""}
       id={id}
       placeholder={placeholder}
+      {...rest}
     />
   )
 })

@@ -6,16 +6,16 @@ export const dropdownSecondaryStyle: StylesConfig<DropdownItem, false> = {
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),
-    fontSize: "0.9375rem",
-    fontWeight: "400",
-    lineHeight: "1.25rem",
+    fontSize: "0.8125rem",
+    fontWeight: "500",
+    lineHeight: "1rem",
   }),
   placeholder: (base, props) => ({
     ...dropdownStyle.placeholder?.(base, props),
-    color: props.isFocused ? "#2A2932" : "#737582",
+    color: "#2A2932",
   }),
   valueContainer: (base, props) => ({
     ...dropdownStyle.valueContainer?.(base, props),
-    padding: "2px 0px 2px 10px",
+    padding: "2px 0px 2px 14px",
   }),
 }

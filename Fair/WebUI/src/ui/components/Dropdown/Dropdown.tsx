@@ -3,22 +3,42 @@ import { SingleValue } from "react-select"
 import { twMerge } from "tailwind-merge"
 
 import { CustomSelect, DropdownIndicator } from "./components"
-import { dropdownStyle } from "./styles"
+import { dropdownStyle, dropdownStyleLarge } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
 export const Dropdown = memo(
-  ({ className, items, styles = dropdownStyle, defaultValue, onChange, ...rest }: DropdownProps) => {
+  ({
+    className,
+    controlled = false,
+    isDisabled = false,
+    isLoading = false,
+    isSearchable = false,
+    items,
+    styles,
+    defaultValue,
+    size = "medium",
+    value,
+    formatOptionLabel,
+    onChange,
+    ...rest
+  }: DropdownProps) => {
     const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
 
-    const defaultItem = defaultValue !== undefined ? items?.filter(x => x.value === defaultValue) : undefined
+    const defaultItem = items?.find(x => x.value === defaultValue)
+
+    const currentValue = controlled ? items?.find(x => x.value === value) : selectedItem
 
     const handleChange = useCallback(
       (item: SingleValue<DropdownItem>) => {
         const selected = item as DropdownItem
-        setSelectedItem(selected)
+
+        if (!controlled) {
+          setSelectedItem(selected)
+        }
+
         onChange?.(selected)
       },
-      [onChange],
+      [controlled, onChange],
     )
 
     return (
@@ -26,11 +46,14 @@ export const Dropdown = memo(
         className={twMerge(className)}
         components={{ DropdownIndicator, IndicatorSeparator: null }}
         defaultValue={defaultItem}
-        styles={styles}
-        isSearchable={false}
+        styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
+        isDisabled={isDisabled}
+        isLoading={isLoading}
+        isSearchable={isSearchable}
         onChange={handleChange}
         options={items}
-        value={selectedItem}
+        value={controlled ? (currentValue ?? null) : currentValue}
+        formatOptionLabel={formatOptionLabel}
         {...rest}
       />
     )
