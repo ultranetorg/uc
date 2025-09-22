@@ -15,7 +15,7 @@ public enum ProductError : byte
 	//DownloadFailed
 }
 
-public class ProductException : NetException
+public class ProductException : CodeException
 {
 	public override int				ErrorCode { get => (int)Error; set => Error = (ProductError)value; }
 	public ProductError				Error { get; protected set; }

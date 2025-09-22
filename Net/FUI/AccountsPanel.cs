@@ -8,14 +8,13 @@ public partial class AccountsPanel : MainPanel
 {
 	public AccountAddress CurrentAccout => Accounts.SelectedItems[0]?.Tag as AccountAddress;
 
-	Uos.Uos Uos;
 	McvNode Node;
 
-	public AccountsPanel(Uos.Uos d)
+	public AccountsPanel(McvNode d)
 	{
 		InitializeComponent();
 
-		Uos = d;
+		Node = d;
 	}
 
 	public override void Open(bool first)
@@ -23,11 +22,6 @@ public partial class AccountsPanel : MainPanel
 		if(first)
 		{
 			Accounts.Items.Clear();
-
-			foreach(var i in Uos.Vault.Wallets)
-			{
-				//AddRow(i.Address);
-			}
 		}
 	}
 	
@@ -96,19 +90,19 @@ public partial class AccountsPanel : MainPanel
 
 	private void showprivate_Click(object sender, EventArgs e)
 	{
-		try
-		{
-			var a = GetPrivate(Uos, CurrentAccout);
-
-			if(a != null)
-			{
-				TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.PrivateKey.ToHex());
-			}
-		}
-		catch(Exception ex)
-		{
-			ShowException("Can't access private key", ex);
-		}
+		//try
+		//{
+		//	var a = GetPrivate(Node, CurrentAccout);
+		//
+		//	if(a != null)
+		//	{
+		//		TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.PrivateKey.ToHex());
+		//	}
+		//}
+		//catch(Exception ex)
+		//{
+		//	ShowException("Can't access private key", ex);
+		//}
 	}
 
 	private void backup_Click(object sender, EventArgs e)

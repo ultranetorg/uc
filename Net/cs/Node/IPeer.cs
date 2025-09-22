@@ -36,7 +36,7 @@ public abstract class ProcPeerRequest : PeerRequest
 		{
 			Execute();
 		}
-		catch(Exception ex) when(!Debugger.IsAttached || ex is NetException)
+		catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
 		{
 		}
 	}
@@ -57,7 +57,7 @@ public abstract class FuncPeerRequest : PeerRequest
 		{
 			rp = Execute();
 		}
-		catch(NetException ex)
+		catch(CodeException ex)
 		{
 			rp = Peering.Constract(typeof(PeerResponse), Peering.TypeToCode(GetType())) as PeerResponse;
 			rp.Error = ex;
@@ -76,8 +76,8 @@ public abstract class FuncPeerRequest : PeerRequest
 
 public abstract class PeerResponse : Packet
 {
-	public PpcClass		Class => Enum.Parse<PpcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
-	public NetException		Error { get; set; }
+	public PpcClass			Class => Enum.Parse<PpcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+	public CodeException	Error { get; set; }
 
 	static PeerResponse()
 	{

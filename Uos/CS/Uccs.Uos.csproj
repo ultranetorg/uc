@@ -10,9 +10,9 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>uos</AssemblyName>
-    <AssemblyVersion>1.0.529.0</AssemblyVersion>
-    <FileVersion>1.0.529.0</FileVersion>
-    <Version>1.0.529.0</Version>
+    <AssemblyVersion>1.0.647.0</AssemblyVersion>
+    <FileVersion>1.0.647.0</FileVersion>
+    <Version>1.0.647.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject></StartupObject>
   </PropertyGroup>
@@ -25,7 +25,6 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Fair\cs\Uccs.Fair.csproj" />
     <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -6,10 +6,10 @@ namespace Uccs.Net;
 public class McvCli : Cli
 {
 	public string			ExeDirectory;
-	public McvNet			Net;
-	public TcpPeering		Node;
-	public JsonClient		ApiClient;
 	public McvNodeSettings	Settings;
+	public McvNet			Net;
+	public McvNode			Node;
+	public JsonClient		ApiClient;
 	public ConsoleLogView	LogView = new ConsoleLogView(false, true);
 	
 	public McvCli()

@@ -20,11 +20,6 @@ public class UosPropertyApc : Apc
 	public string Path { get; set; }
 }
 
-public class RunNodeApc : Apc
-{
-	public string	Net { get; set; }
-}
-
 public class NodeInfoApc : Apc
 {
 	public string	Net { get; set; }
@@ -37,7 +32,7 @@ public class AddWalletApc : Apc
 
 public class WalletsApc : Apc
 {
-	public class WalletApe
+	public class Wallet
 	{
  		public string			Name { get; set; }
 		public bool				Locked  { get; set; }

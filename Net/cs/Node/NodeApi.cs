@@ -76,6 +76,16 @@ public class ExitApc : NodeApc
 	}
 }
 
+public class StartApc : NodeApc
+{
+	public string Entity { get; set; }
+
+	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return null;
+	}
+}
+
 //public class SettingsApc : NodeApc
 //{
 //	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
@@ -94,8 +104,6 @@ public class ExitApc : NodeApc
 
 public class LogReportApc : NodeApc
 {
-	public int		Limit  { get; set; }
-
 	public override object Execute(Node node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(node.Flow.Log.Messages)

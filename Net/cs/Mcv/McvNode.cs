@@ -19,7 +19,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 	{
 		RequireGraph();
 
-		if(!Node.Mcv.NextVoteRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Contains(i.Address))) 
+		if(!Node.Mcv.NextVotingRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Contains(i.Address))) 
 			throw new NodeException(NodeError.NotMember);
 	}
 
@@ -27,7 +27,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 	{
 		RequireGraph();
 
-		var m = Node.Mcv.NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, signer);
+		var m = Node.Mcv.NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, signer);
 
 		if(!Node.Mcv.Settings.Generators.Contains(m.Address)) 
 			throw new NodeException(NodeError.NotMember);
@@ -43,7 +43,7 @@ public class McvNode : Node
 	public McvTcpPeering	Peering;
 	public McvNodeSettings	Settings;
 
-	public McvNode(string name, McvNet net, string profile, ApiSettings uosapisettings, ApiSettings apisettings, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
+	public McvNode(string name, McvNet net, string profile, Flow flow) : base(name, net, profile, flow)
 	{
 	}
 

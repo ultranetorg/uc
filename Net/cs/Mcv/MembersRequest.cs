@@ -8,10 +8,10 @@ public class MembersRequest : McvPpc<MembersResponse>
 		{
 			RequireGraph();
 		
-			if(Mcv.NextVoteRound.VotersRound.Members.Count == 0)
+			if(Mcv.NextVotingRound.VotersRound.Members.Count == 0)
 				throw new EntityException(EntityError.NoMembers);
 
-			return new MembersResponse {Members = Mcv.NextVoteRound.VotersRound.Members.ToArray()};
+			return new MembersResponse {Members = Mcv.NextVotingRound.VotersRound.Members.ToArray()};
 		}
 	}
 }

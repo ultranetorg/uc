@@ -5,7 +5,7 @@ public enum NtnError : byte
 	None,
 }
 
-public class NtnException : NetException
+public class NtnException : CodeException
 {
 	public override int		ErrorCode { get => (int)Error; set => Error = (NtnError)value; }
 	public NtnError			Error { get; protected set; }

@@ -7,12 +7,11 @@ public enum TransactionStatus : byte
 
 public enum ActionOnResult : byte
 {
-	DoNoCare, CancelOnFailure, RetryUntilConfirmed, ExpectFailure
+	DoNotCare, CancelOnFailure, RetryUntilConfirmed, ExpectFailure
 }
 
 public class Transaction : IBinarySerializable
 {
-	public const int				PowLength = 16;
 	public const int				TagLengthMax = 1024;
 
 	public int						Nid { get; set; }
@@ -43,7 +42,6 @@ public class Transaction : IBinarySerializable
 	public Round					Round;
 	public AutoId					Member;
 	public int						Expiration { get; set; }
-	public byte[]					PoW;
 	public byte[]					Tag;
 	public long						Bonus;
 	
@@ -53,16 +51,15 @@ public class Transaction : IBinarySerializable
 	private AccountAddress			_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 	public TransactionStatus		Status;
-	public IPeer					Rdi;
+	public IPeer					Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
-	public ActionOnResult			ActionOnResult = ActionOnResult.DoNoCare;
+	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
 	public bool Valid(Mcv mcv)
 	{
 		return	(Tag == null || Tag.Length <= TagLengthMax) &&
-				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit &&
-				(!mcv.Net.PoW || PoW.Length == PowLength && Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(3).All(i => i == 0));
+				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit;
 	}
 
  	public Transaction()
@@ -74,39 +71,10 @@ public class Transaction : IBinarySerializable
 		return $"Id={Id}, Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
-	public byte[] Hashify(byte[] powhash)
-	{
-		if(!Net.PoW || powhash.SequenceEqual(Net.Cryptography.ZeroHash))
-		{
-			PoW = new byte[PowLength];
-		}
-		else
-		{
-			var r = new Random();
-			var h = new byte[32];
-			var x = new byte[32 + PowLength];
-
-			Array.Copy(powhash, x, 32);
-
-			do
-			{
-				r.NextBytes(new Span<byte>(x, 32, PowLength));
-
-				h = Cryptography.Hash(x);
-
-			}
-			while(h[0] != 0 || h[1] != 0 || h[2] != 0);
-
-			PoW = x.Skip(32).ToArray();
-		}
-
-		return Hashify();
-	}
-
-	public void Sign(AccountKey signer, byte[] powhash)
+	public void Sign(AccountKey signer)
 	{
 		Signer = signer;
-		Signature = Net.Cryptography.Sign(signer, Hashify(powhash));
+		Signature = Net.Cryptography.Sign(signer, Hashify());
 	}
 
 	public bool EqualBySignature(Transaction t)
@@ -131,7 +99,6 @@ public class Transaction : IBinarySerializable
 		w.Write7BitEncodedInt(Nid);
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Bonus);
-		w.WriteBytes(PoW);
 		w.WriteBytes(Tag);
 		w.Write(Sponsored);
 		w.Write(Operations, i => i.Write(w));
@@ -179,9 +146,7 @@ public class Transaction : IBinarySerializable
 		writer.Write(Signature);
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt(Expiration);
-		//writer.Write(STFee);
 		writer.Write7BitEncodedInt64(Bonus);
-		writer.Write(PoW);
 		writer.WriteBytes(Tag);
 		writer.Write(Sponsored);
 		writer.Write(Operations, i => {
@@ -199,7 +164,6 @@ public class Transaction : IBinarySerializable
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
-		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
 		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
@@ -219,7 +183,6 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Nid);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Bonus);
-		writer.Write(PoW);
 		writer.WriteBytes(Tag);
 		writer.Write(Sponsored);
 		writer.Write(Operations, i =>	{
@@ -237,7 +200,6 @@ public class Transaction : IBinarySerializable
 		Nid			= reader.Read7BitEncodedInt();
 		Expiration	= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
-		PoW			= reader.ReadBytes(PowLength);
 		Tag			= reader.ReadBytes();
 		Sponsored	= reader.ReadBoolean();
 		Operations	= reader.ReadArray(() => {

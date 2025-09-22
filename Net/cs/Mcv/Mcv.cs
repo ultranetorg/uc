@@ -6,7 +6,6 @@ using RocksDbSharp;
 namespace Uccs.Net;
 
 public delegate void BlockDelegate(Vote b);
-public delegate void ConsensusDelegate(Round b, bool reached);
 public delegate void RoundDelegate(Round b);
 
 public enum McvTable
@@ -18,9 +17,9 @@ public abstract class Mcv /// Mutual chain voting
 {
 	public const int							P = 6; /// pitch
 	public const int							RequiredVotersMaximum = 21; 
-	//public int									VotesRequired => Net.MembersLimit; /// 1000/8
+	//public int								VotesRequired => Net.MembersLimit; /// 1000/8
 	public const int							JoinToVote = P + 1;
-	public const int							LastGenesisRound = JoinToVote + P - 1;
+	public const int							LastGenesisRound = JoinToVote - 1;
 	public const int							TransactionPlacingLifetime = P*2;
 	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
 	//public const int							EntityLength = 100;
@@ -52,8 +51,8 @@ public abstract class Mcv /// Mutual chain voting
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
-	public ConsensusDelegate					ConsensusConcluded;
-	public RoundDelegate						Commited;
+	public RoundDelegate						ConsensusFailed;
+	public RoundDelegate						Confirmed;
 
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
@@ -67,12 +66,12 @@ public abstract class Mcv /// Mutual chain voting
 														return _Tail;
 													}
 												}
-	public Dictionary<int, Round>				LoadedRounds = new();
+	public Dictionary<int, Round>				OldRounds = new();
 	public Round								LastConfirmedRound;
-	public Round								LastDissolvedRound;
+	public Round								LastCommitedRound;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
-	public Round								NextVoteRound => GetRound(LastConfirmedRound.Id + 1 + P);
+	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + P);
 	//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
@@ -91,12 +90,17 @@ public abstract class Mcv /// Mutual chain voting
 	public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
 	public abstract void						FillVote(Vote vote);
 
+	Genesis Genesis;
+
 	public Mcv()
 	{
 	}
 
-	protected Mcv(McvNet net, McvSettings settings, string databasepath, bool skipinitload = false)
+	protected Mcv(McvNet net, McvSettings settings, string databasepath, Genesis genesis, IClock clock)
 	{
+		Genesis = genesis;
+		Clock = clock;
+
 		lock(Lock)
 		{
 			///Settings = new RdnSettings {Roles = Role.Chain};
@@ -111,7 +115,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			GraphHash = Net.Cryptography.ZeroHash;
 	
-			if(!skipinitload)
+			//if(!skipinitload)
 			{
 				var g = Rocks.Get(GenesisKey);
 	
@@ -121,7 +125,7 @@ public abstract class Mcv /// Mutual chain voting
 				}
 				else
 				{
-					if(g.SequenceEqual(Net.Genesis.FromHex()))
+					if(g.SequenceEqual((new Genesis() as IBinarySerializable).Raw))
 					{
 						Load();
 					}
@@ -135,142 +139,49 @@ public abstract class Mcv /// Mutual chain voting
 		}
 	}
 
-	public Mcv(McvNet net, McvSettings settings, string databasepath, IClock clock) : this(net, settings, databasepath)
-	{
-		Clock = clock;
-	}
-
-	public virtual string CreateGenesis(AccountKey f0, Genesis genesis)
-	{
-		/// 0	- declare F0
-		/// P	- confirmed F0 membership
-		/// P+P	- F0 start voting for P+P-P-1 = P-1
-
-		Clear();
-
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-
-		void write(int rid)
-		{
-			var r = GetRound(rid);
-			r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-			r.Hashify();
-			r.Write(w);
-		}
-
-		var v0 = CreateVote(); 
-		{
-			v0.RoundId = 0;
-			v0.Time = Time.Zero;
-			v0.ParentHash = Net.Cryptography.ZeroHash;
-
- 			var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
- 			t.Member = new(0, -1);
-			t.AddOperation(genesis);
- 			t.Sign(God, Net.Cryptography.ZeroHash);
- 			v0.AddTransaction(t);
-		
-			v0.Sign(God);
-			Add(v0);
-			///v0.FundJoiners = v0.FundJoiners.Append(Net.Father0).ToArray();
-			write(0);
-		}
-
-		for(int i = 1; i <= LastGenesisRound; i++)
-		{
-			var v = CreateVote();
-			v.RoundId	 = i;
-			v.Time		 = Time.Zero;  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-			v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
-	
-			v.Sign(i < JoinToVote ? God : f0);
-			Add(v);
-
-			write(i);
-		}
-					
-		return s.ToArray().ToHex();
-	}
-
 	public void Initialize()
 	{
 		if(Settings.Chain != null)
 		{
-			Tail.Clear();
-
- 			var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
-					
 			for(int i = 0; i <= LastGenesisRound; i++)
 			{
-				var r = CreateRound();
-				r.Read(rd);
-	
-				Tail.Insert(0, r);
+				var v = CreateVote(); 
 
-				if(i < JoinToVote)
+				v.RoundId	 = i;
+				v.Time		 = Time.Zero;
+				v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
+
+				if(i == 0)
 				{
-					if(i > 0)
-						r.ConsensusECEnergyCost = 1;
+ 					var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+ 					t.Member = new(0, -1);
+					t.AddOperation(Genesis);
+ 					t.Sign(God);
+ 					v.AddTransaction(t);
 
-					if(i == 0)
-						r.ConsensusFundJoiners = [Net.Father0];
-					
-					r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-
-					GenesisInitilize(r);
-
-					r.Hashify();
-					r.Confirm();
-					Commit(r);
 				}
-
-				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
-					throw new IntegrityException("Genesis construction failed");
-			}
-		}
-	
-		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
-	}
 		
-	public void Initialize1()
-	{
-		if(Settings.Chain != null)
-		{
-			Tail.Clear();
-
- 			var rd = new BinaryReader(new MemoryStream(Net.Genesis.FromHex()));
-					
-			for(int i = 0; i <= LastGenesisRound; i++)
-			{
-				var r = CreateRound();
-				r.Read(rd);
-	
-				Tail.Insert(0, r);
-
-				if(i < JoinToVote)
-				{
-					if(i > 0)
-						r.ConsensusECEnergyCost = 1;
-
-					if(i == 0)
-						r.ConsensusFundJoiners = [Net.Father0];
-					
-					r.ConsensusTransactions = r.OrderedTransactions.ToArray();
-
-					GenesisInitilize(r);
-
-					r.Hashify();
-					r.Confirm();
-					Commit(r);
-				}
-
-				if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
-					throw new IntegrityException("Genesis construction failed");
+				v.Sign(God);
+				Add(v);
+				
+				GenesisInitilize(v.Round);
 			}
+
+			var r = GetRound(0);
+
+			r.ConsensusECEnergyCost = 1; ///1
+			r.ConsensusFundJoiners = [Net.Father0];
+			r.ConsensusTransactions = r.OrderedTransactions.ToArray();
+
+			r.Hashify();
+			r.Confirm();
+			Save(r);
+
+			if(r.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null))))
+				throw new IntegrityException("Genesis construction failed");
 		}
 	
-		Rocks.Put(GenesisKey, Net.Genesis.FromHex());
+		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).Raw);
 	}
 
 	public void Load()
@@ -281,10 +192,10 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			var r = new BinaryReader(new MemoryStream(GraphState));
 	
-			LastDissolvedRound = CreateRound();
-			LastDissolvedRound.ReadGraphState(r);
+			LastCommitedRound = CreateRound();
+			LastCommitedRound.ReadGraphState(r);
 
-			LoadedRounds.Add(LastDissolvedRound.Id, LastDissolvedRound);
+			OldRounds.Add(LastCommitedRound.Id, LastCommitedRound);
 
 			Hashify();
 
@@ -335,10 +246,10 @@ public abstract class Mcv /// Mutual chain voting
 		GraphState = null;
 		GraphHash = Net.Cryptography.ZeroHash;
 
-		LastDissolvedRound = null;
+		LastCommitedRound = null;
 		LastConfirmedRound = null;
 
-		LoadedRounds.Clear();
+		OldRounds.Clear();
 		//Accounts.Clear();
 
 		foreach(var i in Tables)
@@ -418,19 +329,14 @@ public abstract class Mcv /// Mutual chain voting
 				}
 
 				p.Confirm();
-				Commit(p);
+				Save(p);
 
-				ConsensusConcluded(r, true);
 				return true;
 
 			}
 			else if(r.ConsensusFailed)
 			{
-				r.Parent.Hash = null;
-				r.FirstArrivalTime = DateTime.MaxValue;
-				r.Try++;
-
-				ConsensusConcluded(r, false);
+				ConsensusFailed(r);
 			}
 		}
 
@@ -458,7 +364,7 @@ public abstract class Mcv /// Mutual chain voting
 			if(i.Id == rid)
 				return i;
 
-		if(LoadedRounds.TryGetValue(rid, out var r))
+		if(OldRounds.TryGetValue(rid, out var r))
 			return r;
 
 		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
@@ -472,7 +378,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			r.Load(new BinaryReader(new MemoryStream(d)));
 
-			LoadedRounds[r.Id] = r;
+			OldRounds[r.Id] = r;
 			//Recycle();
 			
 			return r;
@@ -483,44 +389,43 @@ public abstract class Mcv /// Mutual chain voting
 
 	void Recycle()
 	{
-		if(LoadedRounds.Count > Net.CommitLength)
+		if(OldRounds.Count > Net.CommitLength)
 		{
-			foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
+			foreach(var i in OldRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
 			{
-				LoadedRounds.Remove(i.Key);
+				OldRounds.Remove(i.Key);
 			}
 		}
 	}
 
-	public bool Validate(Transaction transaction, out Round round)
+	public Round Examine(Transaction transaction, bool preserve)
 	{
-		if( transaction.Expiration <= LastConfirmedRound.Id ||
-			!transaction.Valid(this))
-		{
-			round = null;
-			return false;
-		}
+		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
+			return null;
 
 		var a = Accounts.Find(transaction.Signer, LastConfirmedRound.Id);
+
+		var nid = transaction.Nid;
 
 		if(a == null)
 		{	
 			if(transaction.Sponsored)
 				transaction.Nid = 0;
 			else
-			{	
-				round = null;
-				return false;
-			}
+				return null;
 		}
 		else
 			transaction.Nid	= a.LastTransactionNid + 1;
 
-		round = TryExecute(transaction);
+		var round = TryExecute(transaction);
 
-		return transaction.Successful;
+		if(preserve)
+			transaction.Nid = nid;
+
+		return round;
 
 	}
+
 
 	///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
 	///{
@@ -584,7 +489,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Round TryExecute(Transaction transaction)
 	{
-		var m = NextVoteRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
+		var m = NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
 
 		if(!Settings.Generators.Contains(m))
 			return null;
@@ -602,7 +507,7 @@ public abstract class Mcv /// Mutual chain voting
 		return r;
 	}
 	
-	public void Commit(Round round)
+	public void Save(Round round)
 	{
 		using(var b = new WriteBatch())
 		{
@@ -611,12 +516,12 @@ public abstract class Mcv /// Mutual chain voting
 				foreach(var t in Tables)
 					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>).DistinctBy(i => i.Key), round.FindState<TableStateBase>(t), round);
 
-				LastDissolvedRound = round;
+				LastCommitedRound = round;
 					
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 	
-				LastDissolvedRound.WriteGraphState(w);
+				LastCommitedRound.WriteGraphState(w);
 	
 				GraphState = s.ToArray();
 
@@ -625,9 +530,11 @@ public abstract class Mcv /// Mutual chain voting
 				b.Put(GraphStateKey, GraphState);
 				b.Put(__GraphHashKey, GraphHash);
 
+				OldRounds.Clear();
+
 				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
 				{
-					LoadedRounds[i.Id] = i;
+					OldRounds[i.Id] = i;
 				}
 
 				Tail.RemoveAll(i => i.Id <= round.Id);
@@ -654,8 +561,6 @@ public abstract class Mcv /// Mutual chain voting
 
 			Rocks.Write(b);
 		}
-
-		Commited?.Invoke(round);
 	}
 
 	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)
