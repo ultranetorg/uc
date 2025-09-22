@@ -73,9 +73,8 @@ public class SecretSettings
 public class NodeGlobals
 {
 	public static bool				UI;
-	public static bool				DisableTimeouts;
+	public static bool				InfiniteTimeouts;
 	public static bool				ThrowOnCorrupted;
-	public static bool				SkipSynchronization;
 	public static bool				SkipMigrationVerification;
 
 	public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));

@@ -9,22 +9,17 @@ public class FairNode : McvNode
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
 
-	public FairNode(string name, Zone zone, string profile, Settings settings, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, uosapisettings, apisettings, flow)
+	public FairNode(string name, Zone zone, string profile, FairNodeSettings settings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow)
 	{
-		base.Settings = settings as FairNodeSettings ?? new FairNodeSettings(profile);
+		base.Settings = settings ?? new FairNodeSettings(profile);
 
 		if(Flow.Log != null)
-		{
 			new FileLog(Flow.Log, Uccs.Net.Net.Escape(Net.Address), Settings.Profile);
-		}
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		if(apisettings != null)
-		{
-			ApiServer = new FairApiServer(this, apisettings, Flow);
-		}
+		InitializeUosApi(Settings.UosIP);
 
 		if(Settings.Mcv != null)
 		{
@@ -42,6 +37,15 @@ public class FairNode : McvNode
 		}
 
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
+		
+		ApiServer = new FairApiServer(	this,	
+										new ApiSettings
+										{
+											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
+											PublicAddress	= Settings.Api?.PublicAddress,
+											PublicAccessKey	= Settings.Api?.PublicAccessKey
+										}, 
+										Flow);
 	}
 
 	public override string ToString()

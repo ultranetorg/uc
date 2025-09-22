@@ -6,7 +6,7 @@
     },
     "Profile 1": {
       "commandName": "Project",
-      "commandLineArgs": "node run profile=A:\\1"
+      "commandLineArgs": "process run profile=A:\\1"
     }
   }
 }

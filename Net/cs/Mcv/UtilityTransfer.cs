@@ -9,9 +9,10 @@ public class UtilityTransfer : Operation
 	public long				Spacetime { get; set; }
 	public long				Energy { get; set; }
 	public long				EnergyNext { get; set; }
-	public override string	Explanation => $"{Signer} -> {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
-																						  (EnergyNext > 0 ? EnergyNext + " EC" : null), 
-																						  (Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
+	public override string	Explanation => $"{FromTable}/{From} -> {ToTable}/{To}, {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
+																													(EnergyNext > 0 ? EnergyNext + " EC" : null), 
+																													(Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
+
 	public override bool	IsValid(McvNet net) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0 && ToTable < net.TablesCount && FromTable < net.TablesCount;
 
 	public UtilityTransfer()

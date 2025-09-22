@@ -2,11 +2,11 @@
 
 public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network Entity Address
 {
-	public string			Scheme { get; set; }
-	public string			Net { get; set; }
-	public string			Entity{ get; set; }
+	public string Scheme { get; set; }
+	public string Net { get; set; }
+	public string Entity { get; set; }
 
-	public bool				Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
+	public bool Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 
 	public Unea()
 	{
@@ -48,18 +48,18 @@ public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network 
 		}
 		else
 			scheme = null;
-						
+
 		i = v.IndexOf('/', s);
-		
+
 		if(i != -1)
 		{
 			if(i != s)
-			{	
+			{
 				net = v.Substring(s, i - s);
 			}
 			else
 				net = null;
-			
+
 			s = i + 1;
 		}
 		else
@@ -81,10 +81,10 @@ public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network 
 		return Scheme == o.Scheme && Net == o.Net && Entity == o.Entity;
 	}
 
- 		public override int GetHashCode()
- 		{
- 			return Entity.GetHashCode();
- 		}
+	public override int GetHashCode()
+	{
+		return Entity.GetHashCode();
+	}
 
 	public int CompareTo(object obj)
 	{
@@ -108,12 +108,12 @@ public class Unea : IBinarySerializable, IEquatable<Unea>  /// Univeral Network 
 		return 0;
 	}
 
-	public static bool operator == (Unea a, Unea b)
+	public static bool operator ==(Unea a, Unea b)
 	{
 		return a is null && b is null || a is not null && a.Equals(b);
 	}
 
-	public static bool operator != (Unea left, Unea right)
+	public static bool operator !=(Unea left, Unea right)
 	{
 		return !(left == right);
 	}

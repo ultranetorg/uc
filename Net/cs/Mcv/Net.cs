@@ -6,20 +6,22 @@ namespace Uccs.Net;
 public enum Zone
 {
 	None, 
-	Local		= 0_0000, 
 	Main		= 1_0000,
 	Test		= 2_0000,
 	Developer0	= 3_0000,
+	Local		= 5_0000, 
 }
 
 public enum KnownSystem
 {
-	Rdn			= 0001,
-	Fair		= 0003,
+	UosApi		= 0001,
 
-	UosApi			= 9000,
-	NodeApiPool		= 9100,
-	NodeApiPoolSize	= 900,
+	Rdn			= 0010,
+	Fair		= 0020,
+	
+	Ptp			= 0,
+	Ntn			= 1,
+	Api			= 4,
 }
 
 public abstract class Net
@@ -29,13 +31,24 @@ public abstract class Net
 	public abstract string		Address { get; }
 	public abstract string		Name { get; }
 	public abstract	Zone		Zone { get; }
-	public abstract ushort		McvPortPostfix { get; }
-	public ushort				Port => (ushort)((ushort)Zone + McvPortPostfix);
-	public ushort				NtnPort => (ushort)(Port + 1);
+	public abstract ushort		PortBase { get; }
+	public ushort				Port	=> (ushort)((ushort)Zone + PortBase + KnownSystem.Ptp);
+	public ushort				NtnPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Ntn);
+	public ushort				ApiPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Api);
 
 	public IPAddress[]			Initials;
-	public IPAddress[]			LocalInitials = Enumerable.Range(100, 16).Select(i => new IPAddress([127, 0, 0, (byte)i])).ToArray();
-	public IPAddress[]			UOInitials = "78.47.204.100 78.47.198.218 78.47.205.229 78.47.214.161 78.47.214.166 78.47.214.170 78.47.214.171 185.208.159.160 185.208.159.161 185.208.159.162 185.208.159.163 185.208.159.164 5.42.221.102 5.42.221.110 5.42.221.111 5.42.221.113 5.42.221.114 5.42.221.118 15.235.153.179 139.99.94.185 139.99.94.187 139.99.50.7 139.99.50.8 139.99.50.9 216.73.158.45 216.73.158.46 216.73.158.47 37.235.49.245 151.236.24.51 192.71.218.23 151.236.24.177 89.31.120.33 91.132.93.211 89.31.120.113 89.31.120.224 88.119.169.77 88.119.170.163 88.119.169.94 88.119.169.97 41.77.143.118 41.77.143.119 41.77.143.120 41.77.143.121 74.119.194.104 80.92.205.10 94.131.101.7 94.131.101.147 138.124.180.13 138.124.180.164 138.124.180.239"
+	public IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
+	public IPAddress[]			UOInitials = @" 78.47.204.100	
+												 185.208.159.160	
+												 5.42.221.102	
+												 139.99.94.185	
+												 216.73.158.45	
+												 37.235.49.245	
+												 89.31.120.33	
+												 88.119.169.77	
+												 41.77.143.118	
+												74.119.194.104	
+												 138.124.180.13	"
 											.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
 											.Select(i => IPAddress.Parse(i))
 											.ToArray();
@@ -107,7 +120,6 @@ public abstract class McvNet : Net
  	public Cryptography		Cryptography							= Cryptography.Normal;
 	public int				CommitLength							= 1000;
 	public int				ExternalVerificationRoundDurationLimit	= 1000;
-	public bool				PoW										= false;
 	public int				MembersLimit							= 1000;
 	public long				CandidatesMaximum						= 1000 * 10;
 	public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
@@ -131,7 +143,6 @@ public abstract class McvNet : Net
 	//public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 	public IPAddress		Father0IP;
-	public string			Genesis;	
 
 	public McvNet()
 	{

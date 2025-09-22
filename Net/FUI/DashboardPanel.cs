@@ -2,32 +2,30 @@
 
 public partial class DashboardPanel : MainPanel
 {
-	Uos.Uos Uos;
+	McvNode Node;
 
 	public DashboardPanel()
 	{
 		InitializeComponent();
 	}
 
-	public DashboardPanel(Uos.Uos uos)
+	public DashboardPanel(McvNode uos)
 	{
 		InitializeComponent();
 
-		Uos = uos;
+		Node = uos;
 	}
 
 	public override void Open(bool first)
 	{
 		if(first)
 		{
-			Logbox.Log = Uos.Flow.Log;
+			Logbox.Log = Node.Flow.Log;
 
-			var m = Uos.Nodes.Select(i => i.Node).OfType<McvTcpPeering>().FirstOrDefault();
-			
-			if(m?.Mcv != null)
+			if(Node?.Mcv != null)
 			{
-				Monitor.Mcv = m.Mcv;
-				m.Mcv.VoteAdded += (b) => BeginInvoke(Monitor.Invalidate);
+				Monitor.Mcv = Node.Mcv;
+				Node.Mcv.VoteAdded += (b) => BeginInvoke(Monitor.Invalidate);
 			}
 		}
 	}
@@ -42,14 +40,10 @@ public partial class DashboardPanel : MainPanel
 		fields.Text = "";
 		values.Text = "";
 	
-		foreach(var i in Uos.Nodes.Select(i => i.Node).OfType<McvNode>())
-		{
-			//(new SummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Uos., null, null, null) as SummaryApc.Return).Summary
-			var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(i, null, null, null) as McvSummaryApc.Return).Summary;
+		var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Node, null, null, null) as McvSummaryApc.Return).Summary;
 
-			fields.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[0]));
-			values.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[1]));
-		}
+		fields.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[0]));
+		values.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[1]));
 
 		Monitor.Invalidate();
 	}

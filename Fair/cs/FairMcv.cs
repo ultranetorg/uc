@@ -47,18 +47,9 @@ public class FairMcv : Mcv
 	{
   	}
 
-	public FairMcv(Fair net, McvSettings settings, string databasepath, bool skipinitload = false) : base(net, settings, databasepath, skipinitload)
-	{
-	}
-
-	public FairMcv(Fair net, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(net, settings, databasepath, clock)
+	public FairMcv(Fair net, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(net, settings, databasepath, new Genesis(), clock)
 	{
 		GraphIPs = baseips;
-	}
-
-	public string CreateGenesis(AccountKey f0)
-	{
-		return CreateGenesis(f0, new Genesis());
 	}
 
 	protected override void GenesisInitilize(Round round)

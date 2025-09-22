@@ -16,6 +16,7 @@ public class RdnNode : McvNode
 {
 	new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;
 	new public RdnMcv				Mcv => base.Mcv as RdnMcv;
+	public new Rdn					Net => base.Net as Rdn;
 	public new RdnNodeSettings		Settings => base.Settings as RdnNodeSettings;
 
 	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
@@ -27,61 +28,61 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public RdnNode(string name, Rdn net, string profile, RdnNodeSettings settings, string deploymentpath, ApiSettings uosapisettings, ApiSettings apisettings, IClock clock, Flow flow) : base(name, net, profile, uosapisettings, apisettings, flow)
+	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-		{
-			new FileLog(Flow.Log, net.Address, Settings.Profile);
-		}
+			new FileLog(Flow.Log, Net.Address, Settings.Profile);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
+		InitializeUosApi(Settings.UosIP);
+
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
-			Mcv.Commited += r => {
-									if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
-									{
-										var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
-												
-										foreach(var o in ops)
+			Mcv.Confirmed += r =>	{
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
 										{
-											if(o is DomainMigration am)
+											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
+												
+											foreach(var o in ops)
 											{
-	 											if(!NodeGlobals.SkipMigrationVerification)
-	 											{
-													Task.Run(() =>	{
-																		var approved = IsDnsValid(am);
+												if(o is DomainMigration am)
+												{
+	 												if(!NodeGlobals.SkipMigrationVerification)
+	 												{
+														Task.Run(() =>	{
+																			var approved = IsDnsValid(am);
 
-																		lock(Mcv.Lock)
-																			Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
-																	});
-	 											}
-												else
-													Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
-											}
+																			lock(Mcv.Lock)
+																				Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
+																		});
+	 												}
+													else
+														Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
+												}
 	
-											#if IMMISION
-											if(o is Immission e)
-											{
-												Task.Run(() =>	{
-																	var v = Ethereum.IsEmissionValid(e);
+												#if IMMISION
+												if(o is Immission e)
+												{
+													Task.Run(() =>	{
+																		var v = Ethereum.IsEmissionValid(e);
 
-																	lock(Lock)
-																		Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-																});
+																		lock(Lock)
+																			Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
+																	});
+												}
+												#endif
 											}
-											#endif
 										}
-									}
 
-									//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-									Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-								};
+										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+									};
 
 
 			if(Settings.Mcv.Generators.Any())
@@ -112,15 +113,19 @@ public class RdnNode : McvNode
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
-			PackageHub = new PackageHub(this, Settings.Seed, deploymentpath);
+			PackageHub = new PackageHub(this, Settings.Seed, Settings.Packages);
 
 			ResourceHub.RunDeclaring();
 		}
-
-		if(apisettings != null)
-		{
-			ApiServer = new RdnApiServer(this, apisettings, Flow);
-		}
+		
+		ApiServer = new RdnApiServer(	this,	
+										new ApiSettings
+										{
+											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
+											PublicAddress	= Settings.Api?.PublicAddress,
+											PublicAccessKey	= Settings.Api?.PublicAccessKey
+										}, 
+										Flow);
 	}
 
 	public override string ToString()
@@ -130,7 +135,7 @@ public class RdnNode : McvNode
 													(ApiServer != null ? "A" : null) +
 													(Settings.Mcv != null ? "B" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
-													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVoteRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)) ? "G" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

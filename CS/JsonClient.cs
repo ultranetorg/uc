@@ -70,17 +70,25 @@ public class JsonClient
 		Key = accesskey;
 	}
 
+	public override string ToString()
+	{
+		return Address;
+	}
+
 	public HttpResponseMessage Send(Apc request, Flow flow)
 	{
 		var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?{Apc.AccessKey}={Key}"))
+		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}" + (Key == null ? null : $"?{Apc.AccessKey}={Key}")))
 		{
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
 			try
 			{
 				var rp = Http.Send(m, flow.Cancellation);
+
+				if(rp.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+					throw JsonSerializer.Deserialize<CodeException>(rp.Content.ReadAsStringAsync().Result, Options);
 
 				if(rp.StatusCode != System.Net.HttpStatusCode.OK)
 					throw new ApiCallException(rp, rp.Content.ReadAsStringAsync().Result);

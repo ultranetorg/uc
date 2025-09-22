@@ -8,7 +8,14 @@ internal class UosApiServer : JsonServer
 {
 	Uos Uos;
 
-	public UosApiServer(Uos uos, Flow flow) : base(uos.Settings.Api, ApiClient.CreateOptions(), flow)
+	public UosApiServer(Uos uos, Flow flow) : base(	new ApiSettings
+													{
+														LocalAddress = UosApiSettings.GetAddress(uos.Settings.Rdn.Zone, uos.Settings.Api.LocalIP, false),
+														PublicAddress = uos.Settings.Api.PublicIP == null ? null : UosApiSettings.GetAddress(uos.Settings.Rdn.Zone, uos.Settings.Api.PublicIP, uos.Settings.Api.Ssl),
+														PublicAccessKey = uos.Settings.Api.PublicAccessKey,
+													},
+													ApiClient.CreateOptions(),
+													flow)
 	{
 		Uos = uos;
 	}
@@ -57,17 +64,6 @@ public class UosPropertyApc : Net.UosPropertyApc, IUosApc
 	}
 }
 
-internal class RunNodeApc : Net.RunNodeApc, IUosApc
-{
-	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(uos)
-			uos.RunNode(Net);
-
-		return null;
-	}
-}
-
 internal class NodeInfoApc : Net.NodeInfoApc, IUosApc
 {
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -93,9 +89,9 @@ internal class WalletsApc : Net.WalletsApc, IUosApc
 	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			 return uos.Vault.Wallets.Select(i => new WalletApe {Name = i.Name,
-																 Locked = i.Locked,
-																 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
+			 return uos.Vault.Wallets.Select(i => new Wallet{Name = i.Name,
+															 Locked = i.Locked,
+															 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
 	}
 }
 
@@ -236,6 +232,6 @@ internal class AuthorizeApc : Net.AuthorizeApc, IUosApc
 			uos.AuthorizationRequested(Net, Account);
 		}
 
-		return uos.Vault.Cryptography.Sign(acc.Key, Hash); ///TODO: CALL THE NET CLINENT ITSELF
+		return uos.Vault.Cryptography.Sign(acc.Key, Hash);
 	}
 }

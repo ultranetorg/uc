@@ -2,7 +2,7 @@
 
 public class Genesis : Operation
 {
-	public override string		Explanation => GetType().Name;
+	public override string		Explanation => "";
 	
 	public Genesis()
 	{

@@ -347,12 +347,14 @@ public abstract class Round : IBinarySerializable
 
 	public IEnumerable<AutoId> ProposeMemberLeavers(AccountAddress generator)
 	{
+		if(Id < Mcv.JoinToVote + Mcv.JoinToVote - 1)
+			return [];
+
 		var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
-		var l = Parent.Voters.Where(i => 
-										!Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
-										!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
-							.Select(i => i.Id);
+		var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
+										 !prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
+							 .Select(i => i.Id);
 
 		return l;
 	}
@@ -496,8 +498,8 @@ public abstract class Round : IBinarySerializable
 
 		Execute(ConsensusTransactions);
 
-		Members	= Members.ToList();
-		Funds	= Funds.ToList();
+		//Members	= Members.ToList();
+		//Funds	= Funds.ToList();
 
 		CopyConfirmed();
 		
@@ -513,17 +515,10 @@ public abstract class Round : IBinarySerializable
 
 		ConfirmForeign(e);
 
-		foreach(var t in OrderedTransactions)
-		{
-			t.Status = ConsensusTransactions.Contains(t) ? TransactionStatus.Confirmed : TransactionStatus.FailedOrNotFound;
+		foreach(var t in OrderedTransactions)	t.Status = TransactionStatus.FailedOrNotFound;
+		foreach(var t in ConsensusTransactions)	t.Status = TransactionStatus.Confirmed;
 
-			#if DEBUG
-			//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
-			//{
-			//	Debugger.Break();
-			//}
-			#endif
-		}
+		Members = [..Members];
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
@@ -549,8 +544,9 @@ public abstract class Round : IBinarySerializable
 			Members.Add(c);
 		}
 
-		Members = Members.OrderBy(i => i.Address).ToList();
+		//Members.Sort((a, b) => a.Address.CompareTo(b.Address));
 
+		Funds = [..Funds];
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
 
@@ -573,6 +569,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
+		Mcv.Confirmed?.Invoke(this);
 	}
 
 	public void Hashify()

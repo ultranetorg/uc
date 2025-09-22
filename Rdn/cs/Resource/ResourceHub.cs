@@ -240,7 +240,7 @@ public class ResourceHub
  			
 		var r = Add(a);
 
- 			r.AddCompleted("", path, null);
+ 		r.AddCompleted("", path, null);
 		r.Complete(Availability.Full);
 
 		return r;
@@ -289,7 +289,8 @@ public class ResourceHub
 				{
 					if(r.Id == null)
 					{
-						us.Add(r);
+						if(!r.Resolving)
+							us.Add(r);
 					} 
 					else
 					{
@@ -332,7 +333,9 @@ public class ResourceHub
 			{
 				foreach(var r in us)
 				{
-					var t = Task.Run(() =>	{
+					r.Resolving = true;
+
+					var t = new Task(() =>	{
 												try
 												{
 													var cr = Node.Peering.Call(() => new ResourceRequest {Identifier = new(r.Address)}, Node.Flow);
@@ -345,15 +348,20 @@ public class ResourceHub
 														tasks.Remove(r);
 													}
 												}
-												catch(NetException) ///when(!Debugger.IsAttached)
+												catch(CodeException) ///when(!Debugger.IsAttached)
 												{
 												}
 												catch(OperationCanceledException)
 												{
 													return;
 												}
+
+												lock(Lock)
+													r.Resolving = false;
 											});
 					tasks[r] = t;
+
+					t.Start();
 				}
 
 				foreach(var i in ds)
@@ -373,9 +381,15 @@ public class ResourceHub
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key.Id, 
-																																																	Release = rs.Value.Address, 
-																																																	Availability = rs.Value.Availability }).ToArray()}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleaseRequest
+																												{
+																													Resources = i.Value.Select(rs => new ResourceDeclaration
+																																					 {
+																																						Resource = rs.Key.Id, 
+																																						Release = rs.Value.Address, 
+																																						Availability = rs.Value.Availability
+																																					 }).ToArray()
+																												}, Node.Flow);
 												}
 												catch(NodeException)/// when(!Debugger.IsAttached)
 												{

@@ -36,7 +36,7 @@ public class RdnTcpPeering : McvTcpPeering
  		}
 
 		Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
-		Contructors[typeof(NetException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);
+		Contructors[typeof(CodeException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);
 
 		Run();
 	}

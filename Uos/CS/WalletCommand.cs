@@ -61,7 +61,7 @@ public class WalletCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-								var r = Api<WalletsApc.WalletApe[]>(new WalletsApc {});
+								var r = Api<WalletsApc.Wallet[]>(new WalletsApc {});
 
 								Flow.Log.Dump(r, ["Name", "State", "Accounts"], [i => i.Name, i => i.Locked ? "Locked" : "Unlocked", i => string.Join(", ", (object[])i.Accounts)]);
 

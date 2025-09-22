@@ -5,7 +5,7 @@ namespace Uccs.Rdn;
 public class SeedSettings : Settings
 {
 	public string	Releases { get; set; }
-	public int		CollectRefreshInterval { get; set; } = 60000;
+	public int		RefreshInterval { get; set; } = 60000;
 
 	public SeedSettings() : base(RdnXonTextValueSerializator.Default)
 	{
@@ -41,6 +41,7 @@ public class RdnNodeSettings : McvNodeSettings
 
 	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
+	public string					Packages { get; set; }
 
 	public RdnNodeSettings()
 	{

@@ -8,7 +8,7 @@ public class LocalResource
 	public AutoId				Id  { get; set; }
 	public Ura					Address { get; set; }
 	public List<ResourceData>	Datas { get; set; }
-
+	public bool					Resolving;
 	public ResourceData			Last => Datas.LastOrDefault();
 
 	ResourceHub					Hub;

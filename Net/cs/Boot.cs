@@ -17,8 +17,8 @@ public class Boot
 		var b = new Xon(File.ReadAllText(Path.Combine(exedir, FileName)));
 		Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 
-		if(Commnand.Has("nexus"))
-			Zone = Enum.Parse<Zone>(Commnand.Get<string>("nexus"));
+		if(Commnand.Has("zone"))
+			Zone = Enum.Parse<Zone>(Commnand.Get<string>("zone"));
 		else
 			Zone = Enum.Parse<Zone>(b.Get<string>("Zone"));
 
