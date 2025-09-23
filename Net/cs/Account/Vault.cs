@@ -67,6 +67,11 @@ public class WalletAccount : IBinarySerializable
 		Key = key;
 	}
 
+	public override string ToString()
+	{
+		return $"{Address} Authentications={Authentications.Count}";
+	}
+
 	public Authentication GetAuthentication(string net, Trust trust)
 	{
 		var a = Authentications.Find(i => i.Net == net);
