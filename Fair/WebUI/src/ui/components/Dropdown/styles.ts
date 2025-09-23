@@ -2,7 +2,7 @@ import { StylesConfig } from "react-select"
 
 import { DropdownItem } from "./types"
 
-export const dropdownStyle: StylesConfig<DropdownItem, false> = {
+export const dropdownStyle: StylesConfig<DropdownItem, boolean> = {
   control: (base, { menuIsOpen }) => ({
     ...base,
     backgroundColor: "#F3F4F9",
@@ -62,7 +62,7 @@ export const dropdownStyle: StylesConfig<DropdownItem, false> = {
   }),
 }
 
-export const dropdownStyleLarge: StylesConfig<DropdownItem, false> = {
+export const dropdownStyleLarge: StylesConfig<DropdownItem, boolean> = {
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),

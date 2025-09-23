@@ -289,6 +289,13 @@ export const enUS = {
     accepted: "Accepted",
     rejected: "Rejected",
   },
+  roles: {
+    none: "None",
+    candidate: "Candidate",
+    moderator: "Moderator",
+    publisher: "Publisher",
+    user: "User",
+  },
   placeholders: {
     enterCategoryTitle: "Enter category title",
     enterDescription: "Enter description",

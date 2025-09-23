@@ -9,21 +9,26 @@ type DropdownWithTranslationBaseProps = {
   items: string[]
 }
 
-export type DropdownWithTranslationProps = PropsWithClassName &
+export type DropdownWithTranslationProps<IsMulti extends boolean> = PropsWithClassName &
   DropdownWithTranslationBaseProps &
-  Pick<DropdownProps, "placeholder" | "onChange">
+  Pick<DropdownProps<IsMulti>, "isMulti" | "placeholder" | "onChange">
 
-export const DropdownWithTranslation = ({
+export const DropdownWithTranslationInner = <IsMulti extends boolean>({
+  isMulti,
   className,
   t,
   translationKey,
   items,
   ...rest
-}: DropdownWithTranslationProps) => {
+}: DropdownWithTranslationProps<IsMulti>) => {
   const dropdownItems = useMemo(
     () => items.map(x => ({ value: x, label: t(`${translationKey}:${x}`) })),
     [items, t, translationKey],
   )
 
-  return <Dropdown items={dropdownItems} className={className} {...rest} />
+  return <Dropdown isMulti={isMulti} items={dropdownItems} className={className} {...rest} />
 }
+
+export const DropdownWithTranslation = DropdownWithTranslationInner as <IsMulti extends boolean>(
+  props: DropdownWithTranslationProps<IsMulti>,
+) => JSX.Element

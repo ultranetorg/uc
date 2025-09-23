@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 
-import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus } from "types"
+import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus, Role } from "types"
 
 import { EditorOperationFields } from "./types"
 
@@ -74,6 +74,8 @@ export const OPERATION_CLASSES: OperationClass[] = [
 ] as const
 
 export const REVIEW_STATUSES: ReviewStatus[] = ["none", "accepted", "rejected"] as const
+
+export const ROLES: Role[] = ["none", "candidate", "moderator", "publisher", "user"] as const
 
 export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[] =>
   [

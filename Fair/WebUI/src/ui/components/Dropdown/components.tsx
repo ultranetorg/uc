@@ -4,11 +4,11 @@ import { SvgDropdownIndicator } from "assets"
 
 import { DropdownItem } from "./types"
 
-export type CustomSelectProps = Props<DropdownItem, false>
+export type CustomSelectProps<IsMulti extends boolean> = Props<DropdownItem, IsMulti>
 
-export const CustomSelect = (props: CustomSelectProps) => <Select {...props} />
+export const CustomSelect = <IsMulti extends boolean>(props: CustomSelectProps<IsMulti>) => <Select {...props} />
 
-export const DropdownIndicator = (props: DropdownIndicatorProps<DropdownItem, false>) => (
+export const DropdownIndicator = (props: DropdownIndicatorProps<DropdownItem, boolean>) => (
   <components.DropdownIndicator {...props}>
     <SvgDropdownIndicator className="stroke-gray-500" />
   </components.DropdownIndicator>

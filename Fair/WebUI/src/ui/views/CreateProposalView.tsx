@@ -83,6 +83,7 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{t("howManyDays")}:</span>
             <Dropdown
+              isMulti={false}
               items={durationItems}
               defaultValue={CREATE_PROPOSAL_DURATION_DEFAULT.toString()}
               size="large"

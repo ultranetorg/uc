@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 import { Dropdown, Input, Textarea } from "ui/components"
 
 import { DropdownSearchCategory, DropdownWithTranslation } from "./components"
-import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES } from "./constants"
+import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
 import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 const DEBUG_USER_ITEMS = [
@@ -62,6 +62,7 @@ export const renderByParameterValueType: Record<
   ),
   user: (field, _, onDataChange) => (
     <Dropdown
+      isMulti={false}
       key={field.parameterName}
       items={DEBUG_USER_ITEMS}
       size="large"
@@ -82,6 +83,7 @@ export const renderByValueType: Record<
 > = {
   "approval-policy": (t, field, _, onDataChange) => (
     <DropdownWithTranslation
+      isMulti={false}
       key={field.name}
       t={t}
       translationKey="approvalPolicies"
@@ -101,6 +103,7 @@ export const renderByValueType: Record<
   ),
   "category-type": (t, field, _, onDataChange) => (
     <DropdownWithTranslation
+      isMulti={false}
       key={field.name}
       t={t}
       translationKey="categoryTypes"
@@ -113,6 +116,7 @@ export const renderByValueType: Record<
   file: field => <div key={field.name}>file</div>,
   "operation-class": (t, field, _, onDataChange) => (
     <DropdownWithTranslation
+      isMulti={false}
       key={field.name}
       t={t}
       translationKey="operationClasses"
@@ -124,6 +128,7 @@ export const renderByValueType: Record<
   ),
   "review-status": (t, field, _value, onDataChange) => (
     <DropdownWithTranslation
+      isMulti={false}
       key={field.name}
       t={t}
       translationKey="reviewStatuses"
@@ -133,12 +138,16 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
-  roles: (_, field, _value, onDataChange) => (
-    <Dropdown
+  roles: (t, field, _, onDataChange) => (
+    <DropdownWithTranslation
+      isMulti={true}
       key={field.name}
+      t={t}
+      translationKey="roles"
       className="placeholder-gray-500"
+      items={ROLES}
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={items => onDataChange(field.name, items.map(x => x.value).join(","))}
     />
   ),
   string: (_t, field, value, onDataChange) => (
