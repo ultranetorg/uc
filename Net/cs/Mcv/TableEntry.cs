@@ -31,7 +31,7 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 
 	public static int BytesToBucket(byte[] id)
 	{
-		if(id.Length >= 3) return id[2] << 16 | id[1] << 8 | id[0];
+		if(id.Length >= 3) return id[2] << 16 | id[1] << 8 | id[0]; /// for 20 bit bucket
 		if(id.Length == 2) return				id[1] << 8 | id[0];
  		
 		return id[0];

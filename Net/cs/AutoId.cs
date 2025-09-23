@@ -63,7 +63,14 @@ public class AutoId : EntityId
 	{
 		var i = t.IndexOf('-');
 
-		return new AutoId(int.Parse(t.Substring(0, i)), int.Parse(t.Substring(i + 1)));
+		return new AutoId(int.Parse(t.AsSpan(0, i)), int.Parse(t.AsSpan(i + 1)));
+	}
+
+	public static AutoId Parse(ReadOnlySpan<char> t)
+	{
+		var i = t.IndexOf('-');
+
+		return new AutoId(int.Parse(t.Slice(0, i)), int.Parse(t.Slice(i + 1)));
 	}
 
 	public override void Read(BinaryReader reader)

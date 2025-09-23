@@ -39,11 +39,9 @@ public abstract class TableBase
 		public const int							Length = 20;
 
 		public int									Id;
-		public short								SuperId => (short)(Id >> Length);
 		public int									Size;
  		public int									NextE { get; set; }
 		public byte[]								Hash { get; set; }
-		//public abstract byte[]						Main { get; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
 
 		public abstract void						Commit(WriteBatch batch);
@@ -88,7 +86,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 
 		Table<ID, E>					Table;
-		public override IEnumerable<E>	Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
+		public override IEnumerable<E>	Entries =>  _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
 		SortedDictionary<ID, Item>		_Entries = new SortedDictionary<ID, Item>();
 
 		public Bucket(Table<ID, E> table, int id)
