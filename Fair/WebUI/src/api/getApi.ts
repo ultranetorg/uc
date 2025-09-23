@@ -13,6 +13,7 @@ import {
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationVersionInfo,
   Review,
   ReviewProposal,
   Site,
@@ -70,6 +71,9 @@ const getCategoriesPublications = (siteId: string): Promise<CategoryPublications
 
 const getPublication = (publicationId: string): Promise<PublicationDetails> =>
   fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
+
+const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
+  fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
 const getAuthorPublications = async (
   siteId: string,
@@ -214,6 +218,7 @@ const api: Api = {
   getCategoryPublications,
   getDefaultSites,
   getPublication,
+  getPublicationVersions,
   getReviews,
   getSite,
   getUser,

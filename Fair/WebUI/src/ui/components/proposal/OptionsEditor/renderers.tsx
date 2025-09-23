@@ -1,8 +1,6 @@
-import { TFunction } from "i18next"
-
 import { Dropdown, Input, Textarea } from "ui/components"
 
-import { DropdownSearchCategory, DropdownWithTranslation } from "./components"
+import { DropdownSearchCategory, DropdownWithTranslation, ProductVersionSelector } from "./components"
 import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
 import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
@@ -75,17 +73,15 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<
   FieldValueType,
   (
-    t: TFunction,
     field: EditorField,
     value: string | string[],
     onDataChange: (name: string, value: string | string[]) => void,
   ) => JSX.Element
 > = {
-  "approval-policy": (t, field, _, onDataChange) => (
+  "approval-policy": (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
-      t={t}
       translationKey="approvalPolicies"
       items={APPROVAL_POLICIES}
       className="placeholder-gray-500"
@@ -93,7 +89,7 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
-  category: (_, field, _value, onDataChange) => (
+  category: (field, _, onDataChange) => (
     <DropdownSearchCategory
       key={field.name}
       className="placeholder-gray-500"
@@ -101,11 +97,10 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
-  "category-type": (t, field, _, onDataChange) => (
+  "category-type": (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
-      t={t}
       translationKey="categoryTypes"
       items={CATEGORY_TYPES}
       className="placeholder-gray-500"
@@ -114,11 +109,10 @@ export const renderByValueType: Record<
     />
   ),
   file: field => <div key={field.name}>file</div>,
-  "operation-class": (t, field, _, onDataChange) => (
+  "operation-class": (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
-      t={t}
       translationKey="operationClasses"
       items={OPERATION_CLASSES}
       className="placeholder-gray-500"
@@ -126,11 +120,10 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
-  "review-status": (t, field, _value, onDataChange) => (
+  "review-status": (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
-      t={t}
       translationKey="reviewStatuses"
       items={REVIEW_STATUSES}
       className="placeholder-gray-500"
@@ -138,11 +131,10 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
-  roles: (t, field, _, onDataChange) => (
+  roles: (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={true}
       key={field.name}
-      t={t}
       translationKey="roles"
       className="placeholder-gray-500"
       items={ROLES}
@@ -150,7 +142,7 @@ export const renderByValueType: Record<
       onChange={items => onDataChange(field.name, items.map(x => x.value).join(","))}
     />
   ),
-  string: (_t, field, value, onDataChange) => (
+  string: (field, value, onDataChange) => (
     <Input
       key={field.name}
       id={field.name}
@@ -160,7 +152,7 @@ export const renderByValueType: Record<
       onChange={value => onDataChange(field.name, value)}
     />
   ),
-  "string-multiline": (_t, field, value, onDataChange) => (
+  "string-multiline": (field, value, onDataChange) => (
     <Textarea
       key={field.name}
       placeholder={field.placeholder}
@@ -170,5 +162,7 @@ export const renderByValueType: Record<
     />
   ),
   "user-array": field => <div key={field.name}>user-array</div>,
-  version: field => <div key={field.name}>version</div>,
+  version: (field, _, onDataChange) => (
+    <ProductVersionSelector key={field.name} onChange={item => onDataChange(field.name!, item.toString())} />
+  ),
 }

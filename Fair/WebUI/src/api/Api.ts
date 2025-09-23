@@ -12,6 +12,7 @@ import {
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationVersionInfo,
   Review,
   ReviewProposal,
   Site,
@@ -36,6 +37,7 @@ export type Api = {
   getCategory(categoryId: string): Promise<Category>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
   getPublication(publicationId: string): Promise<PublicationDetails>
+  getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
   getAuthorPublications(
     siteId: string,
     authorId: string,

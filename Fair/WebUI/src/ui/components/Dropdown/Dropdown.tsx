@@ -22,18 +22,20 @@ const DropdownInner = <IsMulti extends boolean>({
   onChange,
   ...rest
 }: DropdownProps<IsMulti>) => {
-  const [selectedItem, setSelectedItem] = useState<(IsMulti extends true ? DropdownItem[] : DropdownItem) | undefined>()
+  const [selectedItems, setSelectedItems] = useState<
+    (IsMulti extends true ? DropdownItem[] : DropdownItem) | undefined
+  >()
 
   const defaultItem = items?.find(x => x.value === defaultValue)
 
-  const currentValue = controlled ? items?.find(x => x.value === value) : selectedItem
+  const currentValue = controlled ? items?.find(x => x.value === value) : selectedItems
 
   const handleChange = useCallback(
     (item: SingleValue<DropdownItem> | MultiValue<DropdownItem>) => {
       const selected = item as IsMulti extends true ? DropdownItem[] : DropdownItem
 
       if (!controlled) {
-        setSelectedItem(selected)
+        setSelectedItems(selected)
       }
 
       onChange?.(selected)

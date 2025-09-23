@@ -1,10 +1,10 @@
-import { TFunction } from "i18next"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
 import { PropsWithClassName } from "types"
 import { Dropdown, DropdownProps } from "ui/components"
 
 type DropdownWithTranslationBaseProps = {
-  t: TFunction
   translationKey: string
   items: string[]
 }
@@ -16,11 +16,12 @@ export type DropdownWithTranslationProps<IsMulti extends boolean> = PropsWithCla
 export const DropdownWithTranslationInner = <IsMulti extends boolean>({
   isMulti,
   className,
-  t,
   translationKey,
   items,
   ...rest
 }: DropdownWithTranslationProps<IsMulti>) => {
+  const { t } = useTranslation()
+
   const dropdownItems = useMemo(
     () => items.map(x => ({ value: x, label: t(`${translationKey}:${x}`) })),
     [items, t, translationKey],

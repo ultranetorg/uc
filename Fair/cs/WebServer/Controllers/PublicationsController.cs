@@ -23,6 +23,16 @@ public class PublicationsController
 		return publicationsService.GetPublication(publicationId);
 	}
 
+	[HttpGet("{publicationId}/versions")]
+	public PublicationVersionInfo GetVersionLatest(string publicationId)
+	{
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetVersionLatest)} method called with {{PublicationId}}", publicationId);
+
+		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+
+		return publicationsService.GetVersions(publicationId);
+	}
+
 	[HttpGet("~/api/sites/{siteId}/categories/publications")]
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublications(string siteId, CancellationToken cancellationToken)
 	{
