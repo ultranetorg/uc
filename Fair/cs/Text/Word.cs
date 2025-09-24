@@ -35,7 +35,7 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 
 	public override string ToString()
 	{
-		return $"{Entity}/{(byte)Field}";
+		return $"{Entity}/{Field}";
 	}
 
 	public static EntityFieldAddress Parse(string t)
@@ -44,8 +44,8 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 		
 		var i = t.IndexOf('/');
 		
-		e.Entity = AutoId.Parse(t.Substring(0, i));
-		e.Field = (EntityTextField)byte.Parse(t.Substring(i + 1));
+		e.Entity = AutoId.Parse(t.AsSpan(0, i));
+		e.Field = Enum.Parse<EntityTextField>(t.AsSpan(i + 1));
 
 		return e;
 	}
