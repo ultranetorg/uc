@@ -37,6 +37,7 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
     ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
     ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
     ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
+    ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
   })
 
   const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")

@@ -309,6 +309,5 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterValueType: "user",
       parameterName: "userId",
       parameterLabel: t("common:user"),
-      parameterPlaceholder: t("placeholders:selectUser"),
     },
   ] as const

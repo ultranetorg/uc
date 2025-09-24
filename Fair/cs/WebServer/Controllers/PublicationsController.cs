@@ -66,7 +66,7 @@ public class PublicationsController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SEARCH_LITE_PAGE_SIZE, cancellationToken);
+		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]

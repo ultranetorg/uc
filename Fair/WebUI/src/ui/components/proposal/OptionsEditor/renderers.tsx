@@ -58,14 +58,14 @@ export const renderByParameterValueType: Record<
       onChange={value => onDataChange(field.parameterName!, value)}
     />
   ),
-  user: (field, _, onDataChange) => (
-    <Dropdown
-      isMulti={false}
+  user: (field, value, onDataChange) => (
+    <Input
       key={field.parameterName}
-      items={DEBUG_USER_ITEMS}
-      size="large"
+      id={field.parameterName}
       placeholder={field.parameterPlaceholder}
-      onChange={item => onDataChange(field.parameterName!, item.value)}
+      readOnly={true}
+      value={value}
+      onChange={value => onDataChange(field.parameterName!, value)}
     />
   ),
 }

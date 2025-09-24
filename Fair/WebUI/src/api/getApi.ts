@@ -1,5 +1,6 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import {
+  AccountSearchLite,
   AuthorDetails,
   Category,
   CategoryParentBase,
@@ -54,6 +55,9 @@ const searchPublications = async (
 
 const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
+
+const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
+  fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
@@ -226,6 +230,7 @@ const api: Api = {
   searchLiteSites,
   searchPublications,
   searchSites,
+  searchLiteAccounts,
 
   getAuthorReferendum,
   getAuthorReferendums,

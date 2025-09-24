@@ -17,8 +17,8 @@ public class SitesService
 
 		lock (mcv.Lock)
 		{
-			var result = new List<SiteBaseModel>(SiteConstants.DEFAULT_SITES_IDS.Length);
-			return LoadSites(SiteConstants.DEFAULT_SITES_IDS, result, cancellationToken);
+			var result = new List<SiteBaseModel>(SiteConstants.DefaultSitesIds.Length);
+			return LoadSites(SiteConstants.DefaultSitesIds, result, cancellationToken);
 		}
 	}
 

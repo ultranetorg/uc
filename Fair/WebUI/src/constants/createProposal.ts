@@ -16,7 +16,6 @@ export const CREATE_PROPOSAL_OPERATION_TYPES: OperationType[] = [
   "site-nickname-change",
   "site-policy-change",
   "site-text-change",
-  "user-deletion",
 ] as const
 
 export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
@@ -26,6 +25,7 @@ export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "publication-remove-from-changed",
   "publication-updation",
   "review-status-change",
+  "user-deletion",
 ]
 
 export const CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = [

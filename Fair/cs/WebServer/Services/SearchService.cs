@@ -88,7 +88,7 @@ public class SearchService
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<SiteBaseModel>.Empty;
 
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with{{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
@@ -132,7 +132,7 @@ public class SearchService
 		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<SiteSearchLiteModel>();
 
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with{{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
@@ -143,5 +143,44 @@ public class SearchService
 			SearchResult[] result = mcv.Sites.Search(query, page * pageSize, pageSize);
 			return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 		}
+	}
+
+	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return Enumerable.Empty<AccountSearchLiteModel>();
+
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteAccounts)} method called with {{Query}}, {{Limit}}", query, limit);
+
+		Guard.Against.NullOrEmpty(query);
+
+		lock(mcv.Lock)
+		{
+			string lowercase = query.ToLower();
+
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AccountNickname, lowercase, limit);
+
+			var result = new List<AccountSearchLiteModel>(limit);
+			return LoadAccounts(searchResult, result, cancellationToken);
+		}
+	}
+
+	IList<AccountSearchLiteModel> LoadAccounts(IEnumerable<AutoId> accounts, IList<AccountSearchLiteModel> result, CancellationToken cancellationToken)
+	{
+		foreach(AutoId accountId in accounts)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				break;
+
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(accountId);
+			AccountSearchLiteModel model = new AccountSearchLiteModel
+			{
+				Id = account.Id.ToString(),
+				Nickname = account.Nickname
+			};
+			result.Add(model);
+		}
+
+		return result;
 	}
 }
