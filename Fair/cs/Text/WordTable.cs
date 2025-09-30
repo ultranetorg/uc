@@ -50,16 +50,64 @@ public class WordTable : Table<RawId, Word>
 			foreach(var i in b.Entries.Where(i => i.References.Any(j => j.Field == field) && i.Id.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)))
 			{
 				var r = i.References.First(j => j.Field == field);
-
+	
 				if(!found.Contains(r.Entity))
 				{
 					found.Add(r.Entity);
 					yield return r.Entity;
-
-					n++;
 	
+					n++;
+		
 					if(n > count)
 						yield break;
+				}
+			}
+		}
+
+		if(id.Bytes.Length <= 2)
+		{
+			var c = FindCluster((short)(id.B >> 2 & 0x3ff));
+			
+			if(c != null)
+				foreach(var i in c.Buckets.Where(b => (b.Id >> 8 & 0b11) == (id.B & 0b11)))
+				{
+					foreach(var j in i.Entries)
+					{
+						var r = j.References.FirstOrDefault(i => i.Field == field);
+						
+						if(r != null && !found.Contains(r.Entity))
+						{
+							found.Add(r.Entity);
+							yield return r.Entity;
+	
+							n++;
+	
+							if(n > count)
+								yield break;
+						}
+					}
+				}
+		}
+
+		/// MAY BE TOO SLOW
+		if(id.Bytes.Length == 1)
+		{
+			foreach(var c in Clusters.Where(c => (c.Id >> 6) == (id.B & 0xf)).SelectMany(j => j.Buckets))
+			{
+				foreach(var j in c.Entries.Where(i => i.Id.Bytes[0] == id.Bytes[0]))
+				{
+					var r = j.References.FirstOrDefault(i => i.Field == field);
+						
+					if(r != null && !found.Contains(r.Entity))
+					{
+						found.Add(r.Entity);
+						yield return r.Entity;
+	
+						n++;
+	
+						if(n > count)
+							yield break;
+					}
 				}
 			}
 		}

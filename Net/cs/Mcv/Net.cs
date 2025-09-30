@@ -3,24 +3,25 @@ using System.Reflection;
 
 namespace Uccs.Net;
 
-public enum Zone
+public enum Zone : ushort
 {
 	None, 
-	Main		= 1_0000,
-	Test		= 2_0000,
-	Developer0	= 3_0000,
-	Local		= 5_0000, 
+	Local		= 02_00_0, 
+	TA			= 03_00_0,
+	Main		= 10_00_0,
+	Test		= 11_00_0,
+	Developer0	= 12_00_0,
 }
 
-public enum KnownSystem
+public enum KnownSystem : ushort
 {
 	UosApi		= 0001,
 
 	Rdn			= 0010,
 	Fair		= 0020,
 	
-	Ptp			= 0,
-	Ntn			= 1,
+	Ppi			= 0,
+	Nni			= 1,
 	Api			= 4,
 }
 
@@ -32,23 +33,23 @@ public abstract class Net
 	public abstract string		Name { get; }
 	public abstract	Zone		Zone { get; }
 	public abstract ushort		PortBase { get; }
-	public ushort				Port	=> (ushort)((ushort)Zone + PortBase + KnownSystem.Ptp);
-	public ushort				NtnPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Ntn);
-	public ushort				ApiPort => (ushort)((ushort)Zone + PortBase + KnownSystem.Api);
+	public ushort				Port	=> (ushort)(Zone + PortBase + (ushort)KnownSystem.Ppi);
+	public ushort				NniPort => (ushort)(Zone + PortBase + (ushort)KnownSystem.Nni);
+	public ushort				ApiPort => (ushort)(Zone + PortBase + (ushort)KnownSystem.Api);
 
 	public IPAddress[]			Initials;
 	public IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 	public IPAddress[]			UOInitials = @" 78.47.204.100	
-												 185.208.159.160	
-												 5.42.221.102	
-												 139.99.94.185	
-												 216.73.158.45	
-												 37.235.49.245	
-												 89.31.120.33	
-												 88.119.169.77	
-												 41.77.143.118	
+												185.208.159.160	
+												5.42.221.102	
+												139.99.94.185	
+												216.73.158.45	
+												37.235.49.245	
+												89.31.120.33	
+												88.119.169.77	
+												41.77.143.118	
 												74.119.194.104	
-												 138.124.180.13	"
+												138.124.180.13	"
 											.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
 											.Select(i => IPAddress.Parse(i))
 											.ToArray();

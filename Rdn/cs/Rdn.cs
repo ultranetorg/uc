@@ -73,3 +73,14 @@ public class RdnTest : Rdn
 		Initials	= UOInitials;
 	}
 }
+
+public class RdnTA : Rdn
+{	
+	public override	Zone	Zone => Zone.TA;
+	
+	public RdnTA()
+	{
+		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Initials		= LocalInitials;
+	}
+}

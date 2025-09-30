@@ -82,3 +82,14 @@ public class FairTest : Fair
 		Initials	= UOInitials;
 	}
 }
+
+public class FairTA : Fair
+{	
+	public override	Zone	Zone => Zone.TA;
+	
+	public FairTA()
+	{
+		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Initials		= LocalInitials;
+	}
+}
