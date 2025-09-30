@@ -37,6 +37,31 @@ public class PublicationsService
 		}
 	}
 
+	public PublicationVersionInfo GetVersions(string publicationId)
+	{
+		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetVersions)} method called with {{PublicationId}}", publicationId);
+
+		Guard.Against.NullOrEmpty(publicationId);
+
+		AutoId id = AutoId.Parse(publicationId);
+
+		lock(mcv.Lock)
+		{
+			Publication publication = mcv.Publications.Latest(id);
+			if(publication == null)
+			{
+				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
+			}
+
+			Product product = mcv.Products.Latest(publication.Product);
+			return new PublicationVersionInfo
+			{
+				Version = publication.ProductVersion,
+				LatestVersion = product.Versions.Length - 1
+			};
+		}
+	}
+
 	public TotalItemsResult<PublicationAuthorModel> GetAuthorPublicationsNotOptimized(string siteId, string authorId, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetAuthorPublicationsNotOptimized)} method called with {{SiteId}}, {{AuthorId}}, {{Page}}, {{PageSize}}", siteId, authorId, page, pageSize);

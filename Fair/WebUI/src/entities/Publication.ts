@@ -16,6 +16,17 @@ export const useGetPublication = (publicationId?: string) => {
   return { isPending, isError, data }
 }
 
+export const useGetPublicationVersions = (publicationId?: string) => {
+  const queryFn = () => api.getPublicationVersions(publicationId!)
+
+  const { isFetching, isError, data } = useQuery({
+    queryKey: ["publications", publicationId, "versions", "latest"],
+    queryFn: queryFn,
+    enabled: !!publicationId,
+  })
+  return { isFetching, isError, data }
+}
+
 export const useGetCategoriesPublications = (siteId?: string) => {
   const queryFn = () => api.getCategoriesPublications(siteId!)
 

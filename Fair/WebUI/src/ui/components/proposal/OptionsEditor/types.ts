@@ -2,15 +2,16 @@ import { OperationType } from "types"
 
 export type FieldValueType =
   | "approval-policy"
+  | "authors-array"
   | "category"
   | "category-type"
   | "file"
   | "operation-class"
+  | "moderators-array"
   | "review-status"
   | "roles"
   | "string"
   | "string-multiline"
-  | "user-array"
   | "version"
 
 export type ParameterValueType = "category" | "product" | "publication" | "review" | "user"

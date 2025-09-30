@@ -30,6 +30,11 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/authors/65793-0
 Accept: application/json
 
+### Search Lite Accounts
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/accounts/search?query=pixel
+Accept: application/json
+
 ### GET Site Categories
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67073-0/categories
@@ -57,7 +62,12 @@ Accept: application/json
 
 ### GET Publication
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65793-2
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65576-0
+Accept: application/json
+
+### GET Publication versions
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65576-0/versions
 Accept: application/json
 
 ### Search Publications
@@ -65,7 +75,7 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications?title=a
 Accept: application/json
 
-### SEARCH Publications Lite
+### Search Publications Lite
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications/search
 Accept: application/json

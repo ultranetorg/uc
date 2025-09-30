@@ -37,6 +37,7 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
     ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
     ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
     ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
+    ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
   })
 
   const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")
@@ -83,6 +84,7 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{t("howManyDays")}:</span>
             <Dropdown
+              isMulti={false}
               items={durationItems}
               defaultValue={CREATE_PROPOSAL_DURATION_DEFAULT.toString()}
               size="large"

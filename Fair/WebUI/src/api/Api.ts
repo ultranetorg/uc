@@ -1,4 +1,5 @@
 import {
+  AccountSearchLite,
   AuthorDetails,
   Category,
   CategoryParentBase,
@@ -12,6 +13,7 @@ import {
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationVersionInfo,
   Review,
   ReviewProposal,
   Site,
@@ -30,12 +32,14 @@ export type Api = {
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
+  searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
 
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
   getPublication(publicationId: string): Promise<PublicationDetails>
+  getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
   getAuthorPublications(
     siteId: string,
     authorId: string,

@@ -23,6 +23,16 @@ public class PublicationsController
 		return publicationsService.GetPublication(publicationId);
 	}
 
+	[HttpGet("{publicationId}/versions")]
+	public PublicationVersionInfo GetVersionLatest(string publicationId)
+	{
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetVersionLatest)} method called with {{PublicationId}}", publicationId);
+
+		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+
+		return publicationsService.GetVersions(publicationId);
+	}
+
 	[HttpGet("~/api/sites/{siteId}/categories/publications")]
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublications(string siteId, CancellationToken cancellationToken)
 	{
@@ -56,7 +66,7 @@ public class PublicationsController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SEARCH_LITE_PAGE_SIZE, cancellationToken);
+		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]
