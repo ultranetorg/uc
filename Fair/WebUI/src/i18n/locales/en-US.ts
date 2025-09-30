@@ -148,17 +148,20 @@ export const enUS = {
     showMore: "Show more comments",
   },
   createProposal: {
-    addOption: "Add option",
     addCount_one: "You can add {{count}} more answer option.",
     addCount_other: "You can add {{count}} more answer options.",
     addDisabled: "You cannot add more options, please remove previous ones.",
     addedAnswers:
       "The following answers will be added to your default answer options: ‘Abstained’, ‘Neither’, ‘Ban’, ‘Banish’.",
+    addOption: "Add option",
+    changeModerators: "Change Moderators",
     createDiscussion: "Create Discussion",
     createReferendum: "Create Referendum",
     description: "Description (optional)",
-    optionEditorTitle: "Option #{{number}}",
     howManyDays: "how many days",
+    optionEditorTitle: "Option #{{number}}",
+    selectAuthors: "Select Authors",
+    selectModerators: "Select Moderators",
   },
   tabDiscussions: {
     searchProposal: "Search discussion",
@@ -295,6 +298,7 @@ export const enUS = {
     moderator: "Moderator",
     publisher: "Publisher",
     user: "User",
+    __clear_all__: "Clear All",
   },
   placeholders: {
     enterCategoryTitle: "Enter category title",
@@ -316,7 +320,6 @@ export const enUS = {
     selectReviewStatus: "Select review status",
     selectRoles: "Select roles",
     selectUser: "Select user",
-    selectUsersAdd: "Select users to add",
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
   },

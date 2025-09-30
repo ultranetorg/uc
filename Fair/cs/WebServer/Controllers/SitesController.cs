@@ -10,7 +10,7 @@ public class SitesController
 	IPaginationValidator paginationValidator,
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
-	ISitesService sitesService,
+	SitesService sitesService,
 	ISearchService searchService
 ) : BaseController
 {
@@ -20,6 +20,26 @@ public class SitesController
 		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Default)} method called without parameters");
 
 		return sitesService.GetDefaultSites(cancellationToken);
+	}
+
+	[HttpGet("{siteId}/authors")]
+	public IEnumerable<AccountBaseModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetPublishers)} method called with {{SiteId}}", siteId);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+
+		return sitesService.GetPublishers(siteId, cancellationToken);
+	}
+
+	[HttpGet("{siteId}/moderators")]
+	public IEnumerable<AccountBaseModel> GetModerators(string siteId, CancellationToken cancellationToken)
+	{
+		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetModerators)} method called with {{SiteId}}", siteId);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+
+		return sitesService.GetModerators(siteId, cancellationToken);
 	}
 
 	[HttpGet]

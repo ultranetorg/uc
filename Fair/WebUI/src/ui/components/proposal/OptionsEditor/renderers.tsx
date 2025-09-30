@@ -1,14 +1,13 @@
-import { Dropdown, Input, Textarea } from "ui/components"
+import { Input, Textarea } from "ui/components"
 
-import { DropdownSearchCategory, DropdownWithTranslation, ProductVersionSelector } from "./components"
+import {
+  ButtonMembersChange,
+  DropdownSearchCategory,
+  DropdownWithTranslation,
+  ProductVersionSelector,
+} from "./components"
 import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
 import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
-
-const DEBUG_USER_ITEMS = [
-  { label: "User 1", value: "debug-user-1" },
-  { label: "User 2", value: "debug-user-2" },
-  { label: "User 3", value: "debug-user-3" },
-]
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
@@ -89,6 +88,9 @@ export const renderByValueType: Record<
       onChange={item => onDataChange(field.name, item.value)}
     />
   ),
+  "authors-array": (field, _, onDataChange) => (
+    <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onDataChange} />
+  ),
   category: (field, _, onDataChange) => (
     <DropdownSearchCategory
       key={field.name}
@@ -109,6 +111,14 @@ export const renderByValueType: Record<
     />
   ),
   file: field => <div key={field.name}>file</div>,
+  "moderators-array": (field, _, onDataChange) => (
+    <ButtonMembersChange
+      key={field.name}
+      memberType="moderator"
+      label={field.placeholder!}
+      onDataChange={onDataChange}
+    />
+  ),
   "operation-class": (field, _, onDataChange) => (
     <DropdownWithTranslation
       isMulti={false}
@@ -161,7 +171,6 @@ export const renderByValueType: Record<
       onChange={value => onDataChange(field.name, value)}
     />
   ),
-  "user-array": field => <div key={field.name}>user-array</div>,
   version: (field, _, onDataChange) => (
     <ProductVersionSelector key={field.name} onChange={item => onDataChange(field.name!, item.toString())} />
   ),

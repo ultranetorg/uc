@@ -1,8 +1,15 @@
 import { memo, useCallback, useState } from "react"
-import { MultiValue, SingleValue } from "react-select"
+import { MultiValue, SingleValue, components } from "react-select"
 import { twMerge } from "tailwind-merge"
 
-import { CustomSelect, DropdownIndicator } from "./components"
+import {
+  CustomSelect,
+  DropdownIndicator,
+  MultiValue as MultiValueComponent,
+  MultiValueContainer,
+  MultiValueRemove,
+  Option,
+} from "./components"
 import { dropdownStyle, dropdownStyleLarge } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
@@ -45,18 +52,28 @@ const DropdownInner = <IsMulti extends boolean>({
 
   return (
     <CustomSelect
-      isMulti={isMulti}
       className={twMerge(className)}
-      components={{ DropdownIndicator, IndicatorSeparator: null }}
+      classNames={{ multiValue: () => "group" }}
+      components={{
+        ClearIndicator: () => null,
+        DropdownIndicator,
+        IndicatorSeparator: null,
+        MultiValue: MultiValueComponent,
+        MultiValueContainer,
+        MultiValueRemove,
+        Option: !isMulti ? components.Option : Option,
+      }}
       defaultValue={defaultItem}
-      styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
+      hideSelectedOptions={false}
       isDisabled={isDisabled}
       isLoading={isLoading}
+      isMulti={isMulti}
       isSearchable={isSearchable}
-      onChange={handleChange}
       options={items}
+      styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
       value={controlled ? (currentValue ?? null) : currentValue}
       formatOptionLabel={formatOptionLabel}
+      onChange={handleChange}
       {...rest}
     />
   )

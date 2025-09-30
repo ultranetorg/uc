@@ -11,7 +11,7 @@ type DropdownWithTranslationBaseProps = {
 
 export type DropdownWithTranslationProps<IsMulti extends boolean> = PropsWithClassName &
   DropdownWithTranslationBaseProps &
-  Pick<DropdownProps<IsMulti>, "isMulti" | "placeholder" | "onChange">
+  Pick<DropdownProps<IsMulti>, "isMulti" | "placeholder" | "size" | "onChange">
 
 export const DropdownWithTranslationInner = <IsMulti extends boolean>({
   isMulti,

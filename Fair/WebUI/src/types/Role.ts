@@ -1,1 +1,1 @@
-export type Role = "none" | "candidate" | "moderator" | "publisher" | "user"
+export type Role = "candidate" | "moderator" | "publisher" | "user"
