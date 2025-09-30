@@ -6,20 +6,20 @@ import { CategoryParentBaseWithChildren } from "types"
 import { MembersChangeModal } from "ui/components/proposal"
 import { buildCategoryTree } from "utils"
 
-type ModeratorContextType = {
+type ModerationContextType = {
   isCategoriesPending: boolean
   refetchCategories?: () => void
   categories?: CategoryParentBaseWithChildren[]
   openMembersChangeModal?: () => void
 }
 
-const ModeratorContext = createContext<ModeratorContextType>({
+const ModerationContext = createContext<ModerationContextType>({
   isCategoriesPending: false,
 })
 
-export const useModeratorContext = () => useContext(ModeratorContext)
+export const useModerationContext = () => useContext(ModerationContext)
 
-export const ModeratorProvider = ({ children }: PropsWithChildren) => {
+export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
 
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
@@ -41,9 +41,9 @@ export const ModeratorProvider = ({ children }: PropsWithChildren) => {
   const handleMembersChangeModalClose = useCallback(() => setMembersChangeModalOpen(false), [])
 
   return (
-    <ModeratorContext.Provider value={value}>
+    <ModerationContext.Provider value={value}>
       {children}
       {isMembersChangeModalOpen && <MembersChangeModal onClose={handleMembersChangeModalClose} />}
-    </ModeratorContext.Provider>
+    </ModerationContext.Provider>
   )
 }

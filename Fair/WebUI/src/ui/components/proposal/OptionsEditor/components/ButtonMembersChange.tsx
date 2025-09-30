@@ -1,5 +1,6 @@
-import { useModeratorContext } from "app"
 import { useCallback } from "react"
+
+import { useModerationContext } from "app"
 import { ButtonOutline } from "ui/components"
 
 export type ButtonMembersChangeProps = {
@@ -9,7 +10,7 @@ export type ButtonMembersChangeProps = {
 }
 
 export const ButtonMembersChange = ({ label }: ButtonMembersChangeProps) => {
-  const { openMembersChangeModal } = useModeratorContext()
+  const { openMembersChangeModal } = useModerationContext()
 
   const handleClick = useCallback(() => openMembersChangeModal!(), [openMembersChangeModal])
 

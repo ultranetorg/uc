@@ -1,5 +1,6 @@
-import { useModeratorContext } from "app"
 import { useEffect, useMemo } from "react"
+
+import { useModerationContext } from "app"
 import { Dropdown, DropdownProps } from "ui/components"
 
 import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
@@ -10,7 +11,7 @@ export type DropdownSearchCategoryProps = Pick<
 >
 
 export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }: DropdownSearchCategoryProps) => {
-  const { refetchCategories, categories } = useModeratorContext()
+  const { refetchCategories, categories } = useModerationContext()
 
   const items = useMemo(() => categoriesToDropdownItems(categories), [categories])
 
