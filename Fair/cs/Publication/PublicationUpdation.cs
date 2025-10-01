@@ -64,10 +64,7 @@ public class PublicationUpdation : VotableOperation
 			p.ProductVersion = Version;
 		else				/// replace version
 		{
-			//p.Fields = [..p.Fields.Where(i => i.Field != Change.Field), Change];
-		
 			/// decrease refs in product
-			//var x = f.Versions.First(i => i.Version == prev.Version);
 
 			v.ForEach(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
@@ -93,8 +90,6 @@ public class PublicationUpdation : VotableOperation
 		}
 	
 		/// increase refs in product
-					
-		//var v = f.Versions.First(i => i.Version == Change.Version);
 	
 		var y = new ProductVersion {Id		= v.Id, 
 									Refs	= v.Refs + 1,
