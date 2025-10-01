@@ -1,11 +1,11 @@
-import { memo, useCallback, useMemo, useState } from "react"
-import { useParams, useSearchParams } from "react-router-dom"
+import { memo, useMemo } from "react"
+import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
-import { pick } from "lodash"
 
+import { useModerationContext } from "app"
 import { CREATE_PROPOSAL_DURATIONS, CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
-import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
+import { ProposalType } from "types"
 import {
   ButtonOutline,
   ButtonPrimary,
@@ -28,36 +28,12 @@ export type CreateProposalViewProps = {
 export const CreateProposalView = memo(({ proposalType, requiresVoting = true }: CreateProposalViewProps) => {
   const { t } = useTranslation("createProposal")
   const { siteId } = useParams()
-  const [searchParams] = useSearchParams()
 
-  const [data, setData] = useState<CreateProposalData>({
-    title: "",
-    duration: CREATE_PROPOSAL_DURATION_DEFAULT,
-    ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
-    ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
-    ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
-    ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
-    ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
-  })
+  const { data, setData } = useModerationContext()
 
   const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")
 
   const durationItems = useMemo<DropdownItem[]>(() => CREATE_PROPOSAL_DURATIONS.map(x => ({ label: x, value: x })), [])
-
-  const handleDataChange = useCallback(
-    (name: string, value: string | CreateProposalDataOption[] | undefined) =>
-      setData(p => {
-        const base = name === "type" ? pick(p, ["title", "description", "duration"]) : p
-        return { ...base, [name]: value }
-      }),
-    [],
-  )
-
-  const handleDataOptionChange = useCallback(
-    (index: number, name: string, value: string | string[]) =>
-      setData(p => ({ ...p, options: p.options!.map((x, i) => (i !== index ? x : { ...x, [name]: value })) })),
-    [],
-  )
 
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
@@ -75,11 +51,11 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
         <>
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{t("common:title")}:</span>
-            <Input onChange={value => handleDataChange("title", value)} value={data.title} />
+            <Input onChange={value => setData(p => ({ ...p, title: value }))} value={data.title} />
           </div>
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{t("description")}:</span>
-            <Textarea onChange={value => handleDataChange("description", value)} value={data.description} />
+            <Textarea onChange={value => setData(p => ({ ...p, description: value }))} value={data.description} />
           </div>
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{t("howManyDays")}:</span>
@@ -88,7 +64,7 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
               items={durationItems}
               defaultValue={CREATE_PROPOSAL_DURATION_DEFAULT.toString()}
               size="large"
-              onChange={item => handleDataChange("duration", item.value)}
+              onChange={item => setData(p => ({ ...p, duration: item.value }))}
             />
           </div>
         </>
@@ -99,9 +75,6 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
         proposalType={proposalType}
         labelClassName={LABEL_CLASSNAME}
         requiresVoting={requiresVoting}
-        data={data}
-        onDataChange={handleDataChange}
-        onDataOptionChange={handleDataOptionChange}
       />
       <DebugPanel data={data} />
 
