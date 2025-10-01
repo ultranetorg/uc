@@ -23,7 +23,7 @@ import {
   SitesPage,
 } from "ui/pages"
 
-import { ModeratorProvider } from "./ModeratorContext"
+import { ModerationProvider } from "./ModerationContext"
 import { SiteProvider } from "./SiteContext"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -77,9 +77,9 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/g/new",
             element: (
-              <ModeratorProvider>
+              <ModerationProvider>
                 <CreateReferendumPage />
-              </ModeratorProvider>
+              </ModerationProvider>
             ),
           },
           {
@@ -94,9 +94,9 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/m/new",
             element: (
-              <ModeratorProvider>
+              <ModerationProvider>
                 <CreateDiscussionPage />
-              </ModeratorProvider>
+              </ModerationProvider>
             ),
           },
           {

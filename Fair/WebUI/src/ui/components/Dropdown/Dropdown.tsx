@@ -1,61 +1,82 @@
 import { memo, useCallback, useState } from "react"
-import { SingleValue } from "react-select"
+import { MultiValue, SingleValue, components } from "react-select"
 import { twMerge } from "tailwind-merge"
 
-import { CustomSelect, DropdownIndicator } from "./components"
+import {
+  CustomSelect,
+  DropdownIndicator,
+  MultiValue as MultiValueComponent,
+  MultiValueContainer,
+  MultiValueRemove,
+  Option,
+} from "./components"
 import { dropdownStyle, dropdownStyleLarge } from "./styles"
 import { DropdownItem, DropdownProps } from "./types"
 
-export const Dropdown = memo(
-  ({
-    className,
-    controlled = false,
-    isDisabled = false,
-    isLoading = false,
-    isSearchable = false,
-    items,
-    styles,
-    defaultValue,
-    size = "medium",
-    value,
-    formatOptionLabel,
-    onChange,
-    ...rest
-  }: DropdownProps) => {
-    const [selectedItem, setSelectedItem] = useState<DropdownItem | undefined>()
+const DropdownInner = <IsMulti extends boolean>({
+  isMulti,
+  className,
+  controlled = false,
+  isDisabled = false,
+  isLoading = false,
+  isSearchable = false,
+  items,
+  styles,
+  defaultValue,
+  size = "medium",
+  value,
+  formatOptionLabel,
+  onChange,
+  ...rest
+}: DropdownProps<IsMulti>) => {
+  const [selectedItems, setSelectedItems] = useState<
+    (IsMulti extends true ? DropdownItem[] : DropdownItem) | undefined
+  >()
 
-    const defaultItem = items?.find(x => x.value === defaultValue)
+  const defaultItem = items?.find(x => x.value === defaultValue)
 
-    const currentValue = controlled ? items?.find(x => x.value === value) : selectedItem
+  const currentValue = controlled ? items?.find(x => x.value === value) : selectedItems
 
-    const handleChange = useCallback(
-      (item: SingleValue<DropdownItem>) => {
-        const selected = item as DropdownItem
+  const handleChange = useCallback(
+    (item: SingleValue<DropdownItem> | MultiValue<DropdownItem>) => {
+      const selected = item as IsMulti extends true ? DropdownItem[] : DropdownItem
 
-        if (!controlled) {
-          setSelectedItem(selected)
-        }
+      if (!controlled) {
+        setSelectedItems(selected)
+      }
 
-        onChange?.(selected)
-      },
-      [controlled, onChange],
-    )
+      onChange?.(selected)
+    },
+    [controlled, onChange],
+  )
 
-    return (
-      <CustomSelect
-        className={twMerge(className)}
-        components={{ DropdownIndicator, IndicatorSeparator: null }}
-        defaultValue={defaultItem}
-        styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
-        isDisabled={isDisabled}
-        isLoading={isLoading}
-        isSearchable={isSearchable}
-        onChange={handleChange}
-        options={items}
-        value={controlled ? (currentValue ?? null) : currentValue}
-        formatOptionLabel={formatOptionLabel}
-        {...rest}
-      />
-    )
-  },
-)
+  return (
+    <CustomSelect
+      className={twMerge(className)}
+      classNames={{ multiValue: () => "group" }}
+      components={{
+        ClearIndicator: () => null,
+        DropdownIndicator,
+        IndicatorSeparator: null,
+        MultiValue: MultiValueComponent,
+        MultiValueContainer,
+        MultiValueRemove,
+        Option: !isMulti ? components.Option : Option,
+      }}
+      defaultValue={defaultItem}
+      hideSelectedOptions={false}
+      isDisabled={isDisabled}
+      isLoading={isLoading}
+      isMulti={isMulti}
+      isSearchable={isSearchable}
+      options={items}
+      styles={styles ?? (size === "medium" ? dropdownStyle : dropdownStyleLarge)}
+      value={controlled ? (currentValue ?? null) : currentValue}
+      formatOptionLabel={formatOptionLabel}
+      onChange={handleChange}
+      {...rest}
+    />
+  )
+}
+
+export const Dropdown = memo(DropdownInner) as <IsMulti extends boolean>(props: DropdownProps<IsMulti>) => JSX.Element

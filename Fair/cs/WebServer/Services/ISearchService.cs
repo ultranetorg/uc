@@ -16,4 +16,6 @@ public interface ISearchService
 
 	IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotNull][NotEmpty] string query, [NonNegativeValue] int page,
 		[NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
+
+	IEnumerable<AccountSearchLiteModel> SearchLiteAccounts([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken);
 }

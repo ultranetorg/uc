@@ -7,6 +7,8 @@ public interface IPublicationsService
 {
 	PublicationDetailsModel GetPublication([NotEmpty] string publicationId);
 
+	PublicationVersionInfo GetVersions([NotEmpty] string publicationId);
+
 	TotalItemsResult<PublicationAuthorModel> GetAuthorPublicationsNotOptimized([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);
 
 	TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken);

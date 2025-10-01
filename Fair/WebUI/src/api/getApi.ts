@@ -1,5 +1,6 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import {
+  AccountSearchLite,
   AuthorDetails,
   Category,
   CategoryParentBase,
@@ -13,6 +14,7 @@ import {
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationVersionInfo,
   Review,
   ReviewProposal,
   Site,
@@ -54,6 +56,9 @@ const searchPublications = async (
 const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
 
+const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
+  fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
+
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
 
@@ -70,6 +75,9 @@ const getCategoriesPublications = (siteId: string): Promise<CategoryPublications
 
 const getPublication = (publicationId: string): Promise<PublicationDetails> =>
   fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
+
+const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
+  fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
 const getAuthorPublications = async (
   siteId: string,
@@ -214,6 +222,7 @@ const api: Api = {
   getCategoryPublications,
   getDefaultSites,
   getPublication,
+  getPublicationVersions,
   getReviews,
   getSite,
   getUser,
@@ -221,6 +230,7 @@ const api: Api = {
   searchLiteSites,
   searchPublications,
   searchSites,
+  searchLiteAccounts,
 
   getAuthorReferendum,
   getAuthorReferendums,

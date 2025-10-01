@@ -1,16 +1,17 @@
-import { useModeratorContext } from "app"
 import { useEffect, useMemo } from "react"
+
+import { useModerationContext } from "app"
 import { Dropdown, DropdownProps } from "ui/components"
 
 import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
 
 export type DropdownSearchCategoryProps = Pick<
-  DropdownProps,
+  DropdownProps<false>,
   "className" | "controlled" | "placeholder" | "size" | "onChange" | "value"
 >
 
 export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }: DropdownSearchCategoryProps) => {
-  const { refetchCategories, categories } = useModeratorContext()
+  const { refetchCategories, categories } = useModerationContext()
 
   const items = useMemo(() => categoriesToDropdownItems(categories), [categories])
 
@@ -22,6 +23,7 @@ export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }
 
   return (
     <Dropdown
+      isMulti={false}
       isSearchable={true}
       items={items}
       placeholder={placeholder}

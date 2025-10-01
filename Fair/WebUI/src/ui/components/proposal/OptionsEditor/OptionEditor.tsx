@@ -1,6 +1,6 @@
 import { memo } from "react"
-import { TFunction } from "i18next"
 import { twMerge } from "tailwind-merge"
+import { TFunction } from "i18next"
 
 import { SvgX } from "assets"
 import { CreateProposalDataOption } from "types"
@@ -39,7 +39,7 @@ export const OptionEditor = memo(
         />
         {editorFields?.fields?.map(x => {
           const value = data[x.name]
-          return renderByValueType[x.valueType!](t, x, value, onDataChange)
+          return renderByValueType[x.valueType!](x, value, onDataChange)
         })}
       </div>
     </div>

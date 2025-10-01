@@ -74,6 +74,7 @@ export const OptionsEditor = memo(
         <div className="flex flex-col gap-2">
           <span className={labelClassName}>{t("common:type")}:</span>
           <Dropdown
+            isMulti={false}
             isDisabled={isHiddenType}
             controlled={true}
             items={!isHiddenType ? typesItems : hiddenTypeItem}

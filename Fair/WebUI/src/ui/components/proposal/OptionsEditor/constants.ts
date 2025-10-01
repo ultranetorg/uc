@@ -1,6 +1,7 @@
 import { TFunction } from "i18next"
 
-import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus } from "types"
+import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus, Role } from "types"
+import { CLEAR_ALL_VALUE } from "ui/components"
 
 import { EditorOperationFields } from "./types"
 
@@ -74,6 +75,8 @@ export const OPERATION_CLASSES: OperationClass[] = [
 ] as const
 
 export const REVIEW_STATUSES: ReviewStatus[] = ["none", "accepted", "rejected"] as const
+
+export const ROLES: (Role | string)[] = ["candidate", "moderator", "publisher", "user", CLEAR_ALL_VALUE] as const
 
 export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[] =>
   [
@@ -214,14 +217,9 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-authors-change",
       fields: [
         {
-          valueType: "user-array",
-          name: "additions",
-          placeholder: t("placeholders:selectUsersAdd"),
-        },
-        {
-          valueType: "user-array",
-          name: "removals",
-          placeholder: t("placeholders:selectUsersRemove"),
+          valueType: "authors-array",
+          name: "additions,removals",
+          placeholder: t("selectAuthors"),
         },
       ],
     },
@@ -239,14 +237,9 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-moderators-change",
       fields: [
         {
-          valueType: "user-array",
-          name: "additions",
-          placeholder: t("placeholders:selectUsersAdd"),
-        },
-        {
-          valueType: "user-array",
-          name: "removals",
-          placeholder: t("placeholders:selectUsersRemove"),
+          valueType: "moderators-array",
+          name: "additions,removals",
+          placeholder: t("selectModerators"),
         },
       ],
     },
@@ -307,6 +300,5 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterValueType: "user",
       parameterName: "userId",
       parameterLabel: t("common:user"),
-      parameterPlaceholder: t("placeholders:selectUser"),
     },
   ] as const

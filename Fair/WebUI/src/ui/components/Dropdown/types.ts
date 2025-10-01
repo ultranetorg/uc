@@ -13,18 +13,21 @@ export type DropdownItem = {
   label: string
 }
 
-type DropdownBaseProps = {
+type DropdownBaseProps<IsMulti extends boolean> = {
+  isMulti?: IsMulti
   controlled?: boolean
   isLoading?: boolean
   isDisabled?: boolean
   isSearchable?: boolean
   items?: DropdownItem[]
-  styles?: StylesConfig<DropdownItem, false>
+  styles?: StylesConfig<DropdownItem, boolean>
   placeholder?: string
   defaultValue?: string
   size?: DropdownSize
-  value?: string | undefined
-  onChange?: (item: DropdownItem) => void
+  value?: (IsMulti extends true ? string[] : string) | undefined
+  onChange?: (item: IsMulti extends true ? DropdownItem[] : DropdownItem) => void
 }
 
-export type DropdownProps = PropsWithClassName & Pick<CustomSelectProps, "formatOptionLabel"> & DropdownBaseProps
+export type DropdownProps<IsMulti extends boolean> = PropsWithClassName &
+  Pick<CustomSelectProps<IsMulti>, "formatOptionLabel"> &
+  DropdownBaseProps<IsMulti>

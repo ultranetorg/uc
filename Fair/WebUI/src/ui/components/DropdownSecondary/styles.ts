@@ -2,7 +2,7 @@ import { StylesConfig } from "react-select"
 
 import { DropdownItem, dropdownStyle } from "ui/components"
 
-export const dropdownSecondaryStyle: StylesConfig<DropdownItem, false> = {
+export const dropdownSecondaryStyle: StylesConfig<DropdownItem, boolean> = {
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),
