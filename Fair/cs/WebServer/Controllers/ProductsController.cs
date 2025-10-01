@@ -2,18 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
-public class ProductsController(
+public class ProductsController
+(
 	ILogger<ProductsController> logger,
 	IAutoIdValidator autoIdValidator,
-	ProductsService productsService) : BaseController
+	ProductsService productsService
+) : BaseController
 {
-	[HttpGet("{id}/fields")]
-	public IActionResult Get(string id)
+	[HttpGet("{productId}/fields")]
+	public IActionResult Get(string productId)
 	{
-		logger.LogInformation(
-			$"GET {nameof(ProductsController)}.{nameof(Get)} method called with {{id}}", id);
+		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Get)} method called with {{productId}}", productId);
 
-		autoIdValidator.Validate(id, nameof(Product).ToLower());
-		return Ok(productsService.GetFields(id));
+		autoIdValidator.Validate(productId, nameof(Product).ToLower());
+		return Ok(productsService.GetFields(productId));
 	}
 }

@@ -1,15 +1,18 @@
+using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
-public class ProductsService(
+public class ProductsService
+(
 	ILogger<CategoriesService> logger,
-	FairMcv mcv)
+	FairMcv mcv
+)
 {
-	public IEnumerable<ProductFieldValue> GetFields(string productId)
+	public IEnumerable<ProductFieldValueModel> GetFields([NotNull] [NotEmpty] string productId)
 	{
 		logger.LogDebug($"{nameof(ProductsService)}.{nameof(GetFields)} method called with {{productId}}", productId);
-		
+
 		Guard.Against.NullOrEmpty(productId);
 		AutoId id = AutoId.Parse(productId);
 
@@ -30,14 +33,14 @@ public class ProductsService(
 		}
 	}
 
-	private IEnumerable<ProductFieldValue> MapValues(FieldValue[] values)
+	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values)
 	{
 		return from value in values
 			let valueFields = Product.Software.FirstOrDefault(d => d.Name == value.Name)
-			select new ProductFieldValue
+			select new ProductFieldValueModel
 			{
 				Type = valueFields?.Type,
-				Metadata = valueFields?.Fields.Select(field => new ProductFieldValueMetadata
+				Metadata = valueFields?.Fields.Select(field => new ProductFieldValueMetadataModel
 				{
 					Name = field.Name, Type = field.Type
 				}),
