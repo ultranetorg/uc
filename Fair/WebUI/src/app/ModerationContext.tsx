@@ -21,11 +21,12 @@ type ModerationContextType = {
   setData: Dispatch<SetStateAction<CreateProposalData>>
   setDataOption: (index: number, setState: (prevState: CreateProposalDataOption) => CreateProposalDataOption) => void
   isCategoriesPending: boolean
-  refetchCategories?: () => void
+  refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
-  openMembersChangeModal?: () => void
+  openMembersChangeModal: () => void
 }
 
+// @ts-expect-error createContext with default value
 const ModerationContext = createContext<ModerationContextType>({
   data: { title: "", duration: CREATE_PROPOSAL_DURATION_DEFAULT },
   setData: () => {},
