@@ -276,6 +276,7 @@ public abstract class Mcv /// Mutual chain voting
 		vote.Round = r;
 
 		r.Votes.Add(vote);
+		r.Update();
 	
 		if(vote.Transactions.Any())
 		{

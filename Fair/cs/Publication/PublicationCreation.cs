@@ -38,6 +38,12 @@ public class PublicationCreation : VotableOperation
 		if(ProductExists(execution, Product, out var a, out var r, out error) == false)
 			return false;
 
+		if(r.Versions == null)
+		{
+			error = NotReady;
+			return false;
+		}
+
 		if(r.Publications.Any(i => execution.Publications.Find(i).Site == Site.Id))
 		{	
 			error = AlreadyExists;
@@ -55,90 +61,34 @@ public class PublicationCreation : VotableOperation
 	
 	public override void Execute(FairExecution execution)
 	{
-//		if(!ValidateProposal(execution))
-//			return;
-//
-//		if(!dispute)
-//	 	{
-//			if(!CanModerate(execution, Site, out var x))
-//				return;
-//
-//	 		if(x.ChangePolicies[FairOperationClass.PublicationCreation] != ChangePolicy.AnyModerator)
-//	 		{
-//		 		Error = Denied;
-//		 		return;
-//	 		}
-//		}
-
 		var r = execution.Products.Affect(Product);
-		//var s = execution.Sites.Affect(Site.Id);
-
 		var p = execution.Publications.Create(Site);
-
-
-//		var p =	execution.Publications.Affect(Publication);
-//
-//		if(p.Category == null)
-//		{
-//			Error = CategoryNotSet;
-//			return;
-//		}
-
-//		s = execution.Sites.Affect(p.Site);
-		
 		
 		if(As == Role.Candidate)
 		{ 
-			//var a = execution.Authors.Affect(r.Author);
-
 			p.Flags = PublicationFlags.ApprovedByAuthor;
-
-			//a.Energy	-= s.ExetranalRequestFee;
-			//s.Energy	+= s.ExetranalRequestFee;
-			//
-			//Allocate(execution, a, s, execution.Net.EntityLength); /// author-spender , site-consumer
-			//PayEnergyByAuthor(execution, a.Id);
 		}
-//		else if(CanAccessSite(execution, s.Id))
-//		{	
-//			Allocate(execution, s, s, execution.Net.EntityLength);
-//			PayEnergyBySite(execution, s.Id);
-//		}
 
 		var v = r.Versions.Last();
 
 		p.Site				= Site.Id;
 		p.Product			= r.Id;
 		p.ProductVersion	= v.Id;
-		//p.Creator	= Signer.Id;
 
-		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs+1}];
+		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs + 1}];
 		r.Publications	= [..r.Publications, p.Id];
 
 		Site.PublicationsCount++;
 
-		//var c = execution.Categories.Find(p.Category);
-		//var r = execution.Products.Find(p.Product);
-		//var a = execution.Authors.Find();
-
 		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
 			var a = execution.Authors.Affect(r.Author);
-			//s = execution.Sites.Affect(s.Id);
 
 			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id}];
 			a.Sites = [..a.Sites, Site.Id];
 		}
 
 		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
-
-		//if(!c.Publications.Contains(p.Id))
-		//{
-		//	c = execution.Categories.Affect(c.Id);
-		//	c.Publications = [..c.Publications, p.Id];
-		//
-		//	s.PublicationsCount++;
-		//}
 
 		execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}

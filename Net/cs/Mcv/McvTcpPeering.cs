@@ -659,6 +659,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						else
 						{
 							r.Try++;
+							r.Update();
 							r.FirstArrivalTime	= DateTime.MaxValue;
 
 							v.Try			= r.Try;
