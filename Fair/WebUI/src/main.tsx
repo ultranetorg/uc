@@ -6,7 +6,6 @@ import { FloatingTree } from "@floating-ui/react"
 import { Router, SearchQueryProvider } from "./app"
 import "./i18n"
 
-import "./styles/tailwind.css"
 import "./styles/index.css"
 
 const queryClient = new QueryClient()

@@ -1,13 +1,13 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { TFunction } from "i18next"
+import { Controller, useFieldArray, useFormContext } from "react-hook-form"
 
-import { useModerationContext } from "app"
 import {
   CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
   CREATE_PROPOSAL_OPERATION_TYPES,
   CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
 } from "constants/"
-import { OperationType, ProposalType } from "types"
+import { CreateProposalData, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox } from "ui/components"
 
 import { getEditorOperationsFields } from "./constants"
@@ -23,14 +23,15 @@ export type OptionsEditorProps = {
 }
 
 export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVoting }: OptionsEditorProps) => {
-  const { data, setData } = useModerationContext()
+  const { control, unregister, watch } = useFormContext<CreateProposalData>()
+  const { fields, append, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
+  const type = watch("type")
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
 
   const singleOption =
-    !requiresVoting ||
-    (!!data.type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(data.type as OperationType))
-  const isHiddenType = CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(data.type as OperationType)
+    !requiresVoting || (!!type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType))
+  const isHiddenType = CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
 
   const typesItems = useMemo<DropdownItem[]>(
     () => CREATE_PROPOSAL_OPERATION_TYPES.map(x => ({ label: t(`operations:${x}`), value: x as string })),
@@ -38,72 +39,82 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
   )
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
-    () => (isHiddenType ? [{ label: t(`operations:${data.type}`), value: data.type! }] : undefined),
-    [data.type, isHiddenType, t],
+    () => (isHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
+    [type, isHiddenType, t],
   )
 
-  const fields = useMemo(() => getEditorOperationsFields(t), [t])
-
-  const handleDataChange = useCallback(
-    (name: string, value: string) => setData(p => ({ ...p, [name]: value })),
-    [setData],
-  )
-
-  const handleTypeChange = useCallback(
-    (item: DropdownItem) => {
-      const type = item.value as OperationType
-
-      const field = fields?.find(x => x.operationType === type)
-
-      const options = field?.fields?.length ? [{ title: "" }] : undefined
-      setData(p => ({
-        ...p,
-        ...{ type: type, title: p.title, duration: p.duration, description: p.description!, options: options! },
-      }))
-      setOperationField(field)
-    },
-    [fields, setData],
-  )
+  const operationFields = useMemo(() => getEditorOperationsFields(t), [t])
 
   useEffect(() => {
-    if (isHiddenType) {
-      const field = fields?.find(x => x.operationType === data.type)
-      setOperationField(field)
+    const field = operationFields?.find(x => x.operationType === type)
 
-      const options = field?.fields?.length ? [{ title: "" }] : undefined
-      setData(p => ({
-        ...p,
-        ...{ options: options! },
-      }))
+    unregister("categoryId")
+
+    if (field?.fields?.length) {
+      console.log("replace")
+      replace([])
+      append({ title: "" })
+    } else {
+      console.log("replace empty")
+      replace([])
     }
-  }, [data.type, fields, isHiddenType, setData])
+
+    setOperationField(field)
+  }, [append, operationFields, replace, type, unregister])
+
+  // useEffect(() => {
+  //   if (isHiddenType) {
+  //     const field = operationFields?.find(x => x.operationType === type)
+  //     setOperationField(field)
+
+  //     const options = field?.fields?.length ? [{ title: "" }] : undefined
+  //     setData(p => ({
+  //       ...p,
+  //       ...{ options: options! },
+  //     }))
+  //   }
+  // }, [type, operationFields, isHiddenType, setData])
 
   return (
     <>
       <div className="flex flex-col gap-2">
         <span className={labelClassName}>{t("common:type")}:</span>
-        <Dropdown
-          isMulti={false}
-          isDisabled={isHiddenType}
-          controlled={true}
-          items={!isHiddenType ? typesItems : hiddenTypeItem}
-          onChange={handleTypeChange}
-          size="large"
-          value={data.type}
-          placeholder={t("placeholders:selectProposalType", { proposalType })}
+        <Controller
+          control={control}
+          name="type"
+          rules={{ required: t("validation:requiredType") }}
+          render={({ field }) => (
+            <Dropdown
+              isMulti={false}
+              isDisabled={isHiddenType}
+              controlled={true}
+              items={!isHiddenType ? typesItems : hiddenTypeItem}
+              onChange={item => field.onChange(item.value)}
+              size="large"
+              value={field.value}
+              placeholder={t("placeholders:selectProposalType", { proposalType })}
+            />
+          )}
         />
       </div>
       {operationField?.parameterValueType && (
         <div className="flex flex-col gap-2">
           <span className={labelClassName}>{operationField.parameterLabel}:</span>
-          {renderByParameterValueType[operationField.parameterValueType](
-            operationField,
-            data[operationField.parameterName!] as string | undefined,
-            handleDataChange,
-          )}
+          <Controller
+            control={control}
+            name={operationField.parameterName!}
+            rules={{ required: true }}
+            render={({ field }) =>
+              renderByParameterValueType[operationField!.parameterValueType!](
+                operationField,
+                field.value as string | undefined,
+                field.onChange,
+              )
+            }
+          />
         </div>
       )}
-      {data.options && (
+      {fields.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
             {!singleOption && (
@@ -113,7 +124,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
           </div>
         </>
       )}
-      {data.type && requiresVoting && <MessageBox message={t("addedAnswers")} type="warning" />}
+      {type && requiresVoting && <MessageBox message={t("addedAnswers")} type="warning" />}
     </>
   )
 })

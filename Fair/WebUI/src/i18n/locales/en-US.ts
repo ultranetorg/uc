@@ -336,4 +336,10 @@ export const enUS = {
     x: "X / Twitter",
     youtube: "YouTube",
   },
+  validation: {
+    requiredCategory: "Category is required",
+    requiredTitle: "Title is required",
+    requiredType: "Type is required",
+    uniqueTitle: "Title must be unique",
+  },
 }

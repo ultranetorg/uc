@@ -10,7 +10,7 @@ export type InputBaseProps = {
   onChange: (value: string) => void
 }
 
-export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "placeholder" | "readOnly"> &
+export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "placeholder" | "readOnly" | "onBlur"> &
   PropsWithClassName &
   InputBaseProps
 
@@ -23,7 +23,7 @@ export const Input = memo(({ className, error, id, placeholder, value, onChange,
         type="text"
         className={twMerge(
           "box-border block h-11 w-full rounded border border-gray-300 bg-gray-100 p-3 text-2sm leading-5 outline-none hover:border-gray-400 focus:border-gray-400",
-          error && "border-error hover:border-1.5 focus:border-1.5 hover:border-error focus:border-error",
+          error && "border-error hover:border-1.5 hover:border-error focus:border-1.5 focus:border-error",
           className,
         )}
         onChange={handleChange}

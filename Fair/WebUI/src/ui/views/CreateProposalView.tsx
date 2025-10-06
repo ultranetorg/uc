@@ -2,10 +2,10 @@ import { memo, useMemo } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
+import { Controller, useFormContext } from "react-hook-form"
 
-import { useModerationContext } from "app"
-import { CREATE_PROPOSAL_DURATIONS, CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
-import { ProposalType } from "types"
+import { CREATE_PROPOSAL_DURATIONS } from "constants/"
+import { CreateProposalData, ProposalType } from "types"
 import {
   ButtonOutline,
   ButtonPrimary,
@@ -29,11 +29,22 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
   const { t } = useTranslation("createProposal")
   const { siteId } = useParams()
 
-  const { data, setData } = useModerationContext()
+  const {
+    control,
+    formState: { isValid },
+    handleSubmit,
+    watch,
+  } = useFormContext<CreateProposalData>()
+  const formData: CreateProposalData = watch() // TODO: should be removed.
+  console.log(formData) // TODO: should be removed.
 
   const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")
 
   const durationItems = useMemo<DropdownItem[]>(() => CREATE_PROPOSAL_DURATIONS.map(x => ({ label: x, value: x })), [])
+
+  const handleFormSubmit = (data: CreateProposalData) => {
+    alert("Form submitted:" + JSON.stringify(data))
+  }
 
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
@@ -47,44 +58,71 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
         }}
       />
 
-      {requiresVoting && (
-        <>
-          <div className="flex flex-col gap-2">
-            <span className={LABEL_CLASSNAME}>{t("common:title")}:</span>
-            <Input onChange={value => setData(p => ({ ...p, title: value }))} value={data.title} />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className={LABEL_CLASSNAME}>{t("description")}:</span>
-            <Textarea onChange={value => setData(p => ({ ...p, description: value }))} value={data.description} />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className={LABEL_CLASSNAME}>{t("howManyDays")}:</span>
-            <Dropdown
-              isMulti={false}
-              items={durationItems}
-              defaultValue={CREATE_PROPOSAL_DURATION_DEFAULT.toString()}
-              size="large"
-              onChange={item => setData(p => ({ ...p, duration: item.value }))}
-            />
-          </div>
-        </>
-      )}
+      <form className="flex flex-col gap-6" onSubmit={handleSubmit(handleFormSubmit)}>
+        {requiresVoting && (
+          <>
+            <div className="flex flex-col gap-2">
+              <span className={LABEL_CLASSNAME}>{t("common:title")}:</span>
+              <Controller
+                control={control}
+                name="title"
+                rules={{ required: t("validation:requiredTitle") }}
+                render={({ field, fieldState }) => (
+                  <Input
+                    value={field.value}
+                    error={fieldState.error?.message}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className={LABEL_CLASSNAME}>{t("description")}:</span>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => <Textarea onChange={field.onChange} value={field.value} />}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className={LABEL_CLASSNAME}>{t("howManyDays")}:</span>
+              <Controller
+                control={control}
+                name="duration"
+                render={({ field }) => (
+                  <Dropdown
+                    isMulti={false}
+                    controlled={true}
+                    items={durationItems}
+                    size="large"
+                    value={field.value}
+                    onChange={item => field.onChange(item.value)}
+                  />
+                )}
+              />
+            </div>
+          </>
+        )}
 
-      <OptionsEditor
-        t={t}
-        proposalType={proposalType}
-        labelClassName={LABEL_CLASSNAME}
-        requiresVoting={requiresVoting}
-      />
-      <DebugPanel data={data} />
-
-      <div className="flex items-center justify-end gap-6">
-        <ButtonOutline label={t("common:cancel")} className="h-11 w-25" />
-        <ButtonPrimary
-          label={requiresVoting ? title : t("common:ok")}
-          className={twMerge("h-11 w-42.5", !requiresVoting && "uppercase")}
+        <OptionsEditor
+          t={t}
+          proposalType={proposalType}
+          labelClassName={LABEL_CLASSNAME}
+          requiresVoting={requiresVoting}
         />
-      </div>
+        <DebugPanel data={formData} />
+
+        <div className="flex items-center justify-end gap-6">
+          <ButtonOutline label={t("common:cancel")} className="h-11 w-25" />
+          <ButtonPrimary
+            label={requiresVoting ? title : t("common:ok")}
+            className={twMerge("h-11 w-42.5", !requiresVoting && "uppercase")}
+            disabled={!isValid}
+            type="submit"
+          />
+        </div>
+      </form>
     </div>
   )
 })

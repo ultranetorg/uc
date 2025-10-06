@@ -9,6 +9,7 @@ import {
   useState,
 } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
+import { FormProvider, useForm } from "react-hook-form"
 
 import { CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
 import { useGetCategories } from "entities"
@@ -39,6 +40,20 @@ export const useModerationContext = () => useContext(ModerationContext)
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
   const [searchParams] = useSearchParams()
+
+  const methods = useForm<CreateProposalData>({
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      duration: CREATE_PROPOSAL_DURATION_DEFAULT,
+      ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
+      ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
+      ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
+      ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
+      ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
+    },
+    shouldUnregister: false,
+  })
 
   const [data, setData] = useState<CreateProposalData>({
     title: "",
@@ -78,8 +93,10 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <ModerationContext.Provider value={value}>
-      {children}
-      {isMembersChangeModalOpen && <MembersChangeModal onClose={handleMembersChangeModalClose} />}
+      <FormProvider {...methods}>
+        {children}
+        {isMembersChangeModalOpen && <MembersChangeModal onClose={handleMembersChangeModalClose} />}
+      </FormProvider>
     </ModerationContext.Provider>
   )
 }

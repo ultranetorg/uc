@@ -1,25 +1,28 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
+import { Controller, useFormContext } from "react-hook-form"
 
 import { SvgX } from "assets"
-import { CreateProposalDataOption } from "types"
+import { CreateProposalData } from "types"
 import { Input } from "ui/components"
 
 import { renderByValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
+import { validateUniqueTitle } from "./validations"
 
 export type OptionEditorProps = {
+  index: number
   t: TFunction
   editorTitle?: string
   editorFields?: EditorOperationFields
-  data: CreateProposalDataOption
-  onDataChange: (name: string, value: string | string[]) => void
   onRemoveClick?: () => void
 }
 
-export const OptionEditor = memo(
-  ({ t, editorTitle, editorFields, data, onDataChange, onRemoveClick }: OptionEditorProps) => (
+export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemoveClick }: OptionEditorProps) => {
+  const { control } = useFormContext<CreateProposalData>()
+
+  return (
     <div className={twMerge("flex flex-col gap-4 rounded-lg border border-gray-300 p-4")}>
       {(editorTitle || onRemoveClick) && (
         <div className="flex items-center justify-between">
@@ -31,17 +34,29 @@ export const OptionEditor = memo(
       )}
 
       <div className="flex flex-col gap-2.5">
-        <Input
-          onChange={value => onDataChange("title", value)}
-          value={data.title}
-          className="h-10 placeholder-gray-500"
-          placeholder={t("placeholders:enterOptionTitle")}
+        <Controller
+          control={control}
+          name={`options.${index}.title`}
+          rules={{ required: t("validation:requiredTitle"), validate: validateUniqueTitle(t) }}
+          render={({ field, fieldState }) => (
+            <Input
+              onChange={field.onChange}
+              value={field.value}
+              className="h-10 placeholder-gray-500"
+              placeholder={t("placeholders:enterOptionTitle")}
+              error={fieldState.error?.message}
+            />
+          )}
         />
-        {editorFields?.fields?.map(x => {
-          const value = data[x.name]
-          return renderByValueType[x.valueType!](x, value, onDataChange)
-        })}
+        {editorFields?.fields?.map(x => (
+          <Controller
+            key={x.name}
+            control={control}
+            name={`options.${index}.${x.name}`}
+            render={({ field }) => renderByValueType[x.valueType!](x, field.value, field.onChange)}
+          />
+        ))}
       </div>
     </div>
-  ),
-)
+  )
+})

@@ -11,73 +11,65 @@ import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType 
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
-  (
-    field: EditorOperationFields,
-    value: string | undefined,
-    onDataChange: (name: string, value: string) => void,
-  ) => JSX.Element
+  (field: EditorOperationFields, value: string | undefined, onChange: (value: string) => void) => JSX.Element
 > = {
-  category: (field, value, onDataChange) => (
+  category: (field, value, onChange) => (
     <DropdownSearchCategory
       key={field.parameterName}
       controlled={true}
       size="large"
       placeholder={field.parameterPlaceholder}
       value={value}
-      onChange={item => onDataChange(field.parameterName!, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  product: (field, value, onDataChange) => (
+  product: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  publication: (field, value, onDataChange) => (
+  publication: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  review: (field, value, onDataChange) => (
+  review: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  user: (field, value, onDataChange) => (
+  user: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
 }
 
 export const renderByValueType: Record<
   FieldValueType,
-  (
-    field: EditorField,
-    value: string | string[],
-    onDataChange: (name: string, value: string | string[]) => void,
-  ) => JSX.Element
+  (field: EditorField, value: string | string[], onChange: (value: string | string[]) => void) => JSX.Element
 > = {
-  "approval-policy": (field, _, onDataChange) => (
+  "approval-policy": (field, _, onChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -85,21 +77,21 @@ export const renderByValueType: Record<
       items={APPROVAL_POLICIES}
       className="placeholder-gray-500"
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
   "authors-array": (field, _, onDataChange) => (
     <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onDataChange} />
   ),
-  category: (field, _, onDataChange) => (
+  category: (field, _, onChange) => (
     <DropdownSearchCategory
       key={field.name}
       className="placeholder-gray-500"
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  "category-type": (field, _, onDataChange) => (
+  "category-type": (field, _, onChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -107,19 +99,14 @@ export const renderByValueType: Record<
       items={CATEGORY_TYPES}
       className="placeholder-gray-500"
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
   file: field => <div key={field.name}>file</div>,
-  "moderators-array": (field, _, onDataChange) => (
-    <ButtonMembersChange
-      key={field.name}
-      memberType="moderator"
-      label={field.placeholder!}
-      onDataChange={onDataChange}
-    />
+  "moderators-array": (field, _, onChange) => (
+    <ButtonMembersChange key={field.name} memberType="moderator" label={field.placeholder!} onDataChange={onChange} />
   ),
-  "operation-class": (field, _, onDataChange) => (
+  "operation-class": (field, _, onChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -127,10 +114,10 @@ export const renderByValueType: Record<
       items={OPERATION_CLASSES}
       className="placeholder-gray-500"
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  "review-status": (field, _, onDataChange) => (
+  "review-status": (field, _, onChange) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -138,10 +125,10 @@ export const renderByValueType: Record<
       items={REVIEW_STATUSES}
       className="placeholder-gray-500"
       placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  roles: (field, _, onDataChange) => (
+  roles: (field, _, onChange) => (
     <DropdownWithTranslation
       isMulti={true}
       key={field.name}
@@ -149,29 +136,29 @@ export const renderByValueType: Record<
       className="placeholder-gray-500"
       items={ROLES}
       placeholder={field.placeholder}
-      onChange={items => onDataChange(field.name, items.map(x => x.value).join(","))}
+      onChange={items => onChange(items.map(x => x.value).join(","))}
     />
   ),
-  string: (field, value, onDataChange) => (
+  string: (field, value, onChange) => (
     <Input
       key={field.name}
       id={field.name}
       className="h-10 placeholder-gray-500"
       placeholder={field.placeholder}
       value={value as string}
-      onChange={value => onDataChange(field.name, value)}
+      onChange={value => onChange(value)}
     />
   ),
-  "string-multiline": (field, value, onDataChange) => (
+  "string-multiline": (field, value, onChange) => (
     <Textarea
       key={field.name}
       placeholder={field.placeholder}
       className="text-2sm leading-5 placeholder-gray-500"
       value={value as string}
-      onChange={value => onDataChange(field.name, value)}
+      onChange={value => onChange(value)}
     />
   ),
-  version: (field, _, onDataChange) => (
-    <ProductVersionSelector key={field.name} onChange={item => onDataChange(field.name!, item.toString())} />
+  version: (field, _, onChange) => (
+    <ProductVersionSelector key={field.name} onChange={item => onChange(item.toString())} />
   ),
 }
