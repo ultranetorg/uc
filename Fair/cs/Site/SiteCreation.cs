@@ -31,7 +31,7 @@ public class SiteCreation : FairOperation
 		var s = execution.Sites.Create(Signer);
 
 		s.Title			= Title;
-		s.PoWComplexity	= 170;
+		s.PoWComplexity	= 172;
 		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [new Moderator {Account = Signer.Id}];
 

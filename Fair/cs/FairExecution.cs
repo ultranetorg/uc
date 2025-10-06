@@ -63,6 +63,25 @@ public class FairExecution : Execution
 		return e;
 	}
 
+
+	public void Allocate(Author author, Publisher publisher, int space, out string error)
+	{
+		error = null;
+
+		if(publisher.SpacetimeLimit != Publisher.Unlimit)
+		{
+			publisher.SpacetimeLimit -= space;
+
+			if(publisher.SpacetimeLimit < 0)
+			{
+				error = Operation.LimitReached;
+				return;
+			}
+		}
+		
+		Allocate(author, author, space);
+	}
+
 	public void Absorb(FairExecution execution)
 	{
 		foreach(var i in execution.AffectedAccounts)

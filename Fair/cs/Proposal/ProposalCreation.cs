@@ -74,6 +74,7 @@ public class ProposalCreation : FairOperation
 		var e =	Title.Length <= Fair.TitleLengthMaximum &&
 				Text.Length <= Fair.PostLengthMaximum &&
 				Options.Length > 0 &&
+				Enum.IsDefined<Role>(As) &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
 
 		return e;
@@ -232,14 +233,22 @@ public class ProposalCreation : FairOperation
   
 			s.Proposals = [..s.Proposals, z.Id];
 
+			var l = execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title));
+
 			if(As == Role.Moderator || As == Role.User)
  			{
- 				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
+ 				execution.Allocate(s, s, l);
  			}
-			else if(As == Role.Publisher || As == Role.Candidate)
+			else if(As == Role.Publisher)
  			{
 				var a = execution.Authors.Affect(By);
- 				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
+				var pb = s.Publishers.First(i => i.Author == By);
+ 				execution.Allocate(a, pb, l, out Error);
+ 			}
+			else if(As == Role.Candidate)
+ 			{
+				var a = execution.Authors.Affect(By);
+ 				execution.Allocate(a, a, l);
  			}
 		}
 	}

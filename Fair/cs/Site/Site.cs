@@ -32,17 +32,25 @@ public class Publisher : IBinarySerializable
 {
 	public AutoId		Author { get; set; }
 	public Time			BannedTill { get; set; }
+	public long			EnergyLimit { get; set; }
+	public long			SpacetimeLimit { get; set; }
+
+	public const long	Unlimit = -1;
 
 	public void Read(BinaryReader reader)
 	{
-		Author		= reader.Read<AutoId>();
-		BannedTill	= reader.Read<Time>();
+		Author			= reader.Read<AutoId>();
+		BannedTill		= reader.Read<Time>();
+		EnergyLimit		= reader.Read7BitEncodedInt64();
+		SpacetimeLimit	= reader.Read7BitEncodedInt64();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
 		writer.Write(BannedTill);
+		writer.Write7BitEncodedInt64(EnergyLimit);
+		writer.Write7BitEncodedInt64(SpacetimeLimit);
 	}
 }
 
@@ -139,7 +147,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 					PublicationsCount		= PublicationsCount,
 
-					Publishers					= Publishers,
+					Publishers				= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
@@ -191,7 +199,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Publishers						= reader.ReadArray<Publisher>();
+		Publishers					= reader.ReadArray<Publisher>();
 		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
