@@ -1,4 +1,4 @@
-import { Input, Textarea } from "ui/components"
+import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
   ButtonMembersChange,
@@ -67,7 +67,12 @@ export const renderByParameterValueType: Record<
 
 export const renderByValueType: Record<
   FieldValueType,
-  (field: EditorField, value: string | string[], onChange: (value: string | string[]) => void) => JSX.Element
+  (
+    field: EditorField,
+    value: string | string[],
+    onChange: (value: string | string[]) => void,
+    errorMessage?: string,
+  ) => JSX.Element
 > = {
   "approval-policy": (field, _, onChange) => (
     <DropdownWithTranslation
@@ -139,15 +144,18 @@ export const renderByValueType: Record<
       onChange={items => onChange(items.map(x => x.value).join(","))}
     />
   ),
-  string: (field, value, onChange) => (
-    <Input
-      key={field.name}
-      id={field.name}
-      className="h-10 placeholder-gray-500"
-      placeholder={field.placeholder}
-      value={value as string}
-      onChange={value => onChange(value)}
-    />
+  string: (field, value, onChange, errorMessage) => (
+    <ValidationWrapper message={errorMessage}>
+      <Input
+        key={field.name}
+        id={field.name}
+        className="h-10 placeholder-gray-500"
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={value => onChange(value)}
+        error={!!errorMessage}
+      />
+    </ValidationWrapper>
   ),
   "string-multiline": (field, value, onChange) => (
     <Textarea

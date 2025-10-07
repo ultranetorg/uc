@@ -4,6 +4,7 @@ import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus, Role } from 
 import { CLEAR_ALL_VALUE } from "ui/components"
 
 import { EditorOperationFields } from "./types"
+import { validateUniqueCategoryTitle, validateUniqueCategoryType } from "./validations"
 
 export const APPROVAL_POLICIES: ApprovalPolicy[] = [
   "none",
@@ -106,6 +107,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "categoryTitle",
           placeholder: t("placeholders:enterCategoryTitle"),
+          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueCategoryTitle(t) },
         },
       ],
     },
@@ -134,6 +136,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "category-type",
           name: "type",
           placeholder: t("placeholders:selectCategoryType"),
+          rules: { required: true, validate: validateUniqueCategoryType(t) },
         },
       ],
     },

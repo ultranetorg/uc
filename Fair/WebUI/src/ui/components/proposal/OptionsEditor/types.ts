@@ -1,4 +1,6 @@
-import { OperationType } from "types"
+import { UseControllerProps } from "react-hook-form"
+
+import { CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
   | "approval-policy"
@@ -20,6 +22,7 @@ export type EditorField = {
   valueType?: FieldValueType
   name: string
   placeholder?: string
+  rules?: UseControllerProps<CreateProposalData>["rules"]
 }
 
 export type EditorOperationFields = {

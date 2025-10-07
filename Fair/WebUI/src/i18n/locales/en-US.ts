@@ -338,8 +338,11 @@ export const enUS = {
   },
   validation: {
     requiredCategory: "Category is required",
+    requiredCategoryTittle: "Category title is required",
     requiredTitle: "Title is required",
     requiredType: "Type is required",
+    uniqueCategoryTitle: "Category title must be unique",
+    uniqueCategoryType: "Category type must be unique",
     uniqueTitle: "Title must be unique",
   },
 }

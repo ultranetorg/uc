@@ -5,7 +5,7 @@ import { Controller, useFormContext } from "react-hook-form"
 
 import { SvgX } from "assets"
 import { CreateProposalData } from "types"
-import { Input } from "ui/components"
+import { Input, ValidationWrapper } from "ui/components"
 
 import { renderByValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
@@ -39,21 +39,26 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
           name={`options.${index}.title`}
           rules={{ required: t("validation:requiredTitle"), validate: validateUniqueTitle(t) }}
           render={({ field, fieldState }) => (
-            <Input
-              onChange={field.onChange}
-              value={field.value}
-              className="h-10 placeholder-gray-500"
-              placeholder={t("placeholders:enterOptionTitle")}
-              error={fieldState.error?.message}
-            />
+            <ValidationWrapper message={fieldState.error?.message}>
+              <Input
+                onChange={field.onChange}
+                value={field.value}
+                className="h-10 placeholder-gray-500"
+                placeholder={t("placeholders:enterOptionTitle")}
+                error={!!fieldState.error?.message}
+              />
+            </ValidationWrapper>
           )}
         />
         {editorFields?.fields?.map(x => (
-          <Controller
+          <Controller<CreateProposalData>
             key={x.name}
             control={control}
             name={`options.${index}.${x.name}`}
-            render={({ field }) => renderByValueType[x.valueType!](x, field.value, field.onChange)}
+            rules={x.rules}
+            render={({ field, fieldState }) =>
+              renderByValueType[x.valueType!](x, field.value as string, field.onChange, fieldState.error?.message)
+            }
           />
         ))}
       </div>

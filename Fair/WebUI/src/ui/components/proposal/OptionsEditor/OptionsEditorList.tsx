@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react"
 import { TFunction } from "i18next"
-import { useFieldArray, useFormContext } from "react-hook-form"
+import { UseFieldArrayAppend, UseFieldArrayRemove } from "react-hook-form"
 
 import { SvgPlusSm } from "assets"
 import { ButtonOutline } from "ui/components"
@@ -15,46 +15,47 @@ export type OptionsEditorListProps = {
   t: TFunction
   singleOption: boolean
   operationFields: EditorOperationFields
+  fields: never[]
+  append: UseFieldArrayAppend<CreateProposalData>
+  remove: UseFieldArrayRemove
 }
 
-export const OptionsEditorList = memo(({ t, singleOption, operationFields }: OptionsEditorListProps) => {
-  const { control } = useFormContext<CreateProposalData>()
-  const { fields, append, remove } = useFieldArray<CreateProposalData>({ name: "options", control })
-  console.log("fields", fields)
+export const OptionsEditorList = memo(
+  ({ t, singleOption, operationFields, fields, append, remove }: OptionsEditorListProps) => {
+    const addDisabled = fields.length >= MAX_OPTIONS_COUNT
 
-  const addDisabled = fields.length >= MAX_OPTIONS_COUNT
+    const onAddClick = useCallback(() => append({ title: "" }), [append])
 
-  const onAddClick = useCallback(() => append({ title: "" }), [append])
+    const onRemoveClick = useCallback((index: number) => remove(index), [remove])
 
-  const onRemoveClick = useCallback((index: number) => remove(index), [remove])
-
-  return (
-    <div className="flex flex-col gap-4">
-      {fields.map((field, i) => (
-        <OptionEditor
-          key={field.id}
-          index={i}
-          t={t}
-          editorTitle={!singleOption ? t("optionEditorTitle", { number: i + 1 }) : undefined}
-          editorFields={operationFields}
-          onRemoveClick={i > 0 ? () => onRemoveClick(i) : undefined}
-        />
-      ))}
-
-      {!singleOption && (
-        <>
-          <ButtonOutline
-            className="h-11 w-full"
-            disabled={addDisabled}
-            label={t("addOption")}
-            iconBefore={<SvgPlusSm className={!addDisabled ? "fill-gray-800" : "fill-gray-400"} />}
-            onClick={onAddClick}
+    return (
+      <div className="flex flex-col gap-4">
+        {fields.map((field, i) => (
+          <OptionEditor
+            key={field.id}
+            index={i}
+            t={t}
+            editorTitle={!singleOption ? t("optionEditorTitle", { number: i + 1 }) : undefined}
+            editorFields={operationFields}
+            onRemoveClick={i > 0 ? () => onRemoveClick(i) : undefined}
           />
-          <span className="w-full text-center text-2xs font-medium leading-4">
-            {!addDisabled ? t("addCount", { count: MAX_OPTIONS_COUNT - fields.length }) : t("addDisabled")}
-          </span>
-        </>
-      )}
-    </div>
-  )
-})
+        ))}
+
+        {!singleOption && (
+          <>
+            <ButtonOutline
+              className="h-11 w-full"
+              disabled={addDisabled}
+              label={t("addOption")}
+              iconBefore={<SvgPlusSm className={!addDisabled ? "fill-gray-800" : "fill-gray-400"} />}
+              onClick={onAddClick}
+            />
+            <span className="w-full text-center text-2xs font-medium leading-4">
+              {!addDisabled ? t("addCount", { count: MAX_OPTIONS_COUNT - fields.length }) : t("addDisabled")}
+            </span>
+          </>
+        )}
+      </div>
+    )
+  },
+)

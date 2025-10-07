@@ -24,7 +24,7 @@ export type OptionsEditorProps = {
 
 export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVoting }: OptionsEditorProps) => {
   const { control, unregister, watch } = useFormContext<CreateProposalData>()
-  const { fields, append, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
+  const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
   const type = watch("type")
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
@@ -51,16 +51,14 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
     unregister("categoryId")
 
     if (field?.fields?.length) {
-      console.log("replace")
-      replace([])
-      append({ title: "" })
+      replace([{ title: "" }])
     } else {
-      console.log("replace empty")
-      replace([])
+      unregister("options")
+      remove()
     }
 
     setOperationField(field)
-  }, [append, operationFields, replace, type, unregister])
+  }, [operationFields, remove, replace, type, unregister])
 
   // useEffect(() => {
   //   if (isHiddenType) {
@@ -120,7 +118,14 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
             {!singleOption && (
               <span className="text-xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}:</span>
             )}
-            <OptionsEditorList t={t} singleOption={singleOption} operationFields={operationField!} />
+            <OptionsEditorList
+              t={t}
+              singleOption={singleOption}
+              operationFields={operationField!}
+              fields={fields}
+              append={append}
+              remove={remove}
+            />
           </div>
         </>
       )}

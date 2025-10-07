@@ -15,6 +15,7 @@ import {
   Input,
   PageHeader,
   Textarea,
+  ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
 
@@ -36,7 +37,6 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
     watch,
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
-  console.log(formData) // TODO: should be removed.
 
   const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")
 
@@ -68,12 +68,14 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
                 name="title"
                 rules={{ required: t("validation:requiredTitle") }}
                 render={({ field, fieldState }) => (
-                  <Input
-                    value={field.value}
-                    error={fieldState.error?.message}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  />
+                  <ValidationWrapper message={fieldState.error?.message}>
+                    <Input
+                      value={field.value}
+                      error={!!fieldState.error?.message}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  </ValidationWrapper>
                 )}
               />
             </div>
