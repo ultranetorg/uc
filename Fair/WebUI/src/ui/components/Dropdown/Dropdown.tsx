@@ -17,6 +17,7 @@ const DropdownInner = <IsMulti extends boolean>({
   isMulti,
   className,
   controlled = false,
+  error = false,
   isDisabled = false,
   isLoading = false,
   isSearchable = false,
@@ -53,7 +54,11 @@ const DropdownInner = <IsMulti extends boolean>({
   return (
     <CustomSelect
       className={twMerge(className)}
-      classNames={{ multiValue: () => "group" }}
+      classNames={{
+        multiValue: () => "group",
+        control: () =>
+          error ? "!border-error !hover:border-1.5 !hover:border-error !focus:border-1.5 !focus:border-error" : "",
+      }}
       components={{
         ClearIndicator: () => null,
         DropdownIndicator,

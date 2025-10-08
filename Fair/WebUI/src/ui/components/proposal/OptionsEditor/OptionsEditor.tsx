@@ -1,7 +1,8 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import { TFunction } from "i18next"
-import { Controller, useFieldArray, useFormContext } from "react-hook-form"
+import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form"
 
+import { useModerationContext } from "app"
 import {
   CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
   CREATE_PROPOSAL_OPERATION_TYPES,
@@ -14,6 +15,7 @@ import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
+import { validateSitePolicyChange, validateSiteTextChange } from "./validations"
 
 export type OptionsEditorProps = {
   t: TFunction
@@ -23,9 +25,11 @@ export type OptionsEditorProps = {
 }
 
 export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVoting }: OptionsEditorProps) => {
-  const { control, unregister, watch } = useFormContext<CreateProposalData>()
+  const { lastEditedOptionIndex } = useModerationContext()
+  const { control, clearErrors, setError, unregister, watch } = useFormContext<CreateProposalData>()
   const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
   const type = watch("type")
+  const options = useWatch({ control, name: "options" })
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
 
@@ -59,6 +63,18 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
     setOperationField(field)
   }, [operationFields, remove, replace, type, unregister])
+
+  useEffect(() => {
+    if (lastEditedOptionIndex === undefined) {
+      return
+    }
+
+    if (type === "site-policy-change") {
+      validateSitePolicyChange(t, options!, clearErrors, setError, lastEditedOptionIndex)
+    } else if (type === "site-text-change") {
+      validateSiteTextChange(t, options!, clearErrors, setError, lastEditedOptionIndex)
+    }
+  }, [clearErrors, lastEditedOptionIndex, options, setError, t, type, watch])
 
   // useEffect(() => {
   //   if (isHiddenType) {

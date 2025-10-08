@@ -4,7 +4,12 @@ import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus, Role } from 
 import { CLEAR_ALL_VALUE } from "ui/components"
 
 import { EditorOperationFields } from "./types"
-import { validateUniqueCategoryTitle, validateUniqueCategoryType } from "./validations"
+import {
+  validateUniqueCategoryTitle,
+  validateUniqueCategoryType,
+  validateUniqueParentCategory,
+  validateUniqueSiteNickname,
+} from "./validations"
 
 export const APPROVAL_POLICIES: ApprovalPolicy[] = [
   "none",
@@ -14,7 +19,7 @@ export const APPROVAL_POLICIES: ApprovalPolicy[] = [
   "publishers-majority",
 ] as const
 
-export const CATEGORY_TYPES: ProductType[] = ["none", "book", "game", "movie", "music", "software"] as const
+export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", "software"] as const
 
 export const OPERATION_CLASSES: OperationClass[] = [
   "fair-candidacy-declaration",
@@ -122,6 +127,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "category",
           name: "parentCategoryId",
           placeholder: t("placeholders:selectParentCategory"),
+          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueParentCategory(t) },
         },
       ],
     },
@@ -253,6 +259,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "nickname",
           placeholder: t("placeholders:enterNickname"),
+          rules: { required: true, validate: validateUniqueSiteNickname(t) },
         },
       ],
     },

@@ -80,7 +80,6 @@ export const renderByValueType: Record<
       key={field.name}
       translationKey="approvalPolicies"
       items={APPROVAL_POLICIES}
-      className="placeholder-gray-500"
       placeholder={field.placeholder}
       onChange={item => onChange(item.value)}
     />
@@ -88,24 +87,29 @@ export const renderByValueType: Record<
   "authors-array": (field, _, onDataChange) => (
     <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onDataChange} />
   ),
-  category: (field, _, onChange) => (
-    <DropdownSearchCategory
-      key={field.name}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onChange(item.value)}
-    />
+  category: (field, _, onChange, errorMessage) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownSearchCategory
+        key={field.name}
+        className="placeholder-gray-500"
+        error={!!errorMessage}
+        placeholder={field.placeholder}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
   ),
-  "category-type": (field, _, onChange) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      key={field.name}
-      translationKey="categoryTypes"
-      items={CATEGORY_TYPES}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onChange(item.value)}
-    />
+  "category-type": (field, _, onChange, errorMessage) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownWithTranslation
+        isMulti={false}
+        key={field.name}
+        error={!!errorMessage}
+        translationKey="categoryTypes"
+        items={CATEGORY_TYPES}
+        placeholder={field.placeholder}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
   ),
   file: field => <div key={field.name}>file</div>,
   "moderators-array": (field, _, onChange) => (
@@ -117,7 +121,6 @@ export const renderByValueType: Record<
       key={field.name}
       translationKey="operationClasses"
       items={OPERATION_CLASSES}
-      className="placeholder-gray-500"
       placeholder={field.placeholder}
       onChange={item => onChange(item.value)}
     />
@@ -128,7 +131,6 @@ export const renderByValueType: Record<
       key={field.name}
       translationKey="reviewStatuses"
       items={REVIEW_STATUSES}
-      className="placeholder-gray-500"
       placeholder={field.placeholder}
       onChange={item => onChange(item.value)}
     />
@@ -138,10 +140,16 @@ export const renderByValueType: Record<
       isMulti={true}
       key={field.name}
       translationKey="roles"
-      className="placeholder-gray-500"
       items={ROLES}
       placeholder={field.placeholder}
-      onChange={items => onChange(items.map(x => x.value).join(","))}
+      onChange={items =>
+        onChange(
+          items
+            .map(x => x.value)
+            .sort()
+            .join(","),
+        )
+      }
     />
   ),
   string: (field, value, onChange, errorMessage) => (

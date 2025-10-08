@@ -9,6 +9,8 @@ import { MembersChangeModal } from "ui/components/proposal"
 import { buildCategoryTree } from "utils"
 
 type ModerationContextType = {
+  lastEditedOptionIndex?: number
+  setLastEditedOptionIndex: (index: number) => void
   isCategoriesPending: boolean
   refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
@@ -42,6 +44,7 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   })
 
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
+  const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
 
@@ -49,12 +52,14 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo(
     () => ({
+      lastEditedOptionIndex,
+      setLastEditedOptionIndex,
       isCategoriesPending,
       refetchCategories,
       categories: categories && buildCategoryTree(categories),
       openMembersChangeModal,
     }),
-    [isCategoriesPending, refetchCategories, categories, openMembersChangeModal],
+    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, openMembersChangeModal],
   )
 
   const handleMembersChangeModalClose = useCallback(() => setMembersChangeModalOpen(false), [])

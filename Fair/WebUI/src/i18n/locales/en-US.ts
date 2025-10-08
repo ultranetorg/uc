@@ -337,12 +337,17 @@ export const enUS = {
     youtube: "YouTube",
   },
   validation: {
+    differentCategory: "Destination category must be different from one of the selected parent categories",
+    differentParentCategory: "Parent category must be different from destination category",
     requiredCategory: "Category is required",
     requiredCategoryTittle: "Category title is required",
     requiredTitle: "Title is required",
     requiredType: "Type is required",
     uniqueCategoryTitle: "Category title must be unique",
     uniqueCategoryType: "Category type must be unique",
+    uniqueParentCategory: "Parent category must be unique",
+    uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
+    uniqueOptions: "Some options are identical. Each must differ by at least one field.",
   },
 }

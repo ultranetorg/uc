@@ -10,6 +10,7 @@ import { Input, ValidationWrapper } from "ui/components"
 import { renderByValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
 import { validateUniqueTitle } from "./validations"
+import { useModerationContext } from "app"
 
 export type OptionEditorProps = {
   index: number
@@ -20,7 +21,11 @@ export type OptionEditorProps = {
 }
 
 export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemoveClick }: OptionEditorProps) => {
-  const { control } = useFormContext<CreateProposalData>()
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<CreateProposalData>()
+  const { setLastEditedOptionIndex } = useModerationContext()
 
   return (
     <div className={twMerge("flex flex-col gap-4 rounded-lg border border-gray-300 p-4")}>
@@ -50,17 +55,30 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
             </ValidationWrapper>
           )}
         />
-        {editorFields?.fields?.map(x => (
-          <Controller<CreateProposalData>
-            key={x.name}
-            control={control}
-            name={`options.${index}.${x.name}`}
-            rules={x.rules}
-            render={({ field, fieldState }) =>
-              renderByValueType[x.valueType!](x, field.value as string, field.onChange, fieldState.error?.message)
-            }
-          />
-        ))}
+        <ValidationWrapper
+          className="flex flex-col gap-2.5"
+          message={errors?.options?.[index]?.message as string | undefined}
+        >
+          {editorFields?.fields?.map(x => (
+            <Controller<CreateProposalData>
+              key={x.name}
+              control={control}
+              name={`options.${index}.${x.name}`}
+              rules={x.rules}
+              render={({ field, fieldState }) =>
+                renderByValueType[x.valueType!](
+                  x,
+                  field.value as string,
+                  value => {
+                    field.onChange(value)
+                    setLastEditedOptionIndex(index)
+                  },
+                  fieldState.error?.message,
+                )
+              }
+            />
+          ))}
+        </ValidationWrapper>
       </div>
     </div>
   )

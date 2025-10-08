@@ -13,7 +13,7 @@ export const ValidationWrapper = memo(({ children, className, message }: Validat
   !message ? (
     children
   ) : (
-    <div>
+    <div className={className}>
       {children}
       <span className={twMerge("mt-1 text-2xs font-medium leading-4 text-error", className)}>{message}</span>
     </div>

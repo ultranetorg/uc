@@ -7,7 +7,7 @@ import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
 
 export type DropdownSearchCategoryProps = Pick<
   DropdownProps<false>,
-  "className" | "controlled" | "placeholder" | "size" | "onChange" | "value"
+  "className" | "controlled" | "error" | "placeholder" | "size" | "onChange" | "value"
 >
 
 export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }: DropdownSearchCategoryProps) => {
