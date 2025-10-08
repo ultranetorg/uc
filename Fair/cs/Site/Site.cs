@@ -54,7 +54,7 @@ public class Publisher : IBinarySerializable
 	}
 }
 
-public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
+public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 	public const int				PoWLength = 32;
@@ -105,14 +105,9 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		return  false; /// Moderators[0] == signer; /// TODO : Owner only
 	}
 
-	public static bool IsExpired(Site a, Time time) 
+	public bool IsExpired(Site a, Time time) 
 	{
 		return time.Days > a.Expiration;
-	}
-
-	public static bool CanRenew(Site author, Time time)
-	{
-		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
 	}
 
 	public Site()

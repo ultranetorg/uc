@@ -41,9 +41,9 @@ public abstract class RdnOperation : Operation
 		Execute(execution as RdnExecution);
 	}
 
-	public bool RequireDomain(RdnExecution round, AutoId id, out Domain domain)
+	public bool RequireDomain(RdnExecution execution, AutoId id, out Domain domain)
 	{
-		domain = round.Domains.Find(id);
+		domain = execution.Domains.Find(id);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -51,7 +51,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
+		if(domain.IsExpired(execution.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -60,9 +60,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomain(RdnExecution round, string name, out Domain domain)
+	public bool RequireDomain(RdnExecution execution, string name, out Domain domain)
 	{
-		domain = round.Domains.Find(name);
+		domain = execution.Domains.Find(name);
 
 		if(domain == null || domain.Deleted)
 		{
@@ -70,7 +70,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(Domain.IsExpired(domain, round.Round.ConsensusTime))
+		if(domain.IsExpired(execution.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -79,9 +79,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireDomainAccess(RdnExecution round, string name, out Domain domain)
+	public bool RequireDomainAccess(RdnExecution execution, string name, out Domain domain)
 	{
-		if(!RequireDomain(round, name, out domain))
+		if(!RequireDomain(execution, name, out domain))
 			return false;
 
 		if(domain.Owner != Signer.Id)
@@ -93,9 +93,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnExecution round, AutoId id, out Domain domain)
+	public bool RequireSignerDomain(RdnExecution execution, AutoId id, out Domain domain)
 	{
-		if(!RequireDomain(round, id, out domain))
+		if(!RequireDomain(execution, id, out domain))
 			return false;
 
 		if(domain.Owner != Signer.Id)
@@ -107,9 +107,9 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireResource(RdnExecution round, AutoId id, out Domain domain, out Resource resource)
+	public bool RequireResource(RdnExecution execution, AutoId id, out Domain domain, out Resource resource)
 	{
-		resource = round.Resources.Find(id);
+		resource = execution.Resources.Find(id);
 
 		if(resource == null || resource.Deleted)
 		{
@@ -118,18 +118,18 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(!RequireDomain(round, resource.Domain, out domain))
+		if(!RequireDomain(execution, resource.Domain, out domain))
 			return false; 
 
 		return true;
 	}
 
-	public bool RequireSignerResource(RdnExecution round, AutoId id, out Domain domain, out Resource resource)
+	public bool RequireSignerResource(RdnExecution execution, AutoId id, out Domain domain, out Resource resource)
 	{
-		if(!RequireResource(round, id, out domain, out resource))
+		if(!RequireResource(execution, id, out domain, out resource))
 			return false; 
 
-		if(!RequireSignerDomain(round, resource.Domain, out _))
+		if(!RequireSignerDomain(execution, resource.Domain, out _))
 			return false; 
 
 		return true; 

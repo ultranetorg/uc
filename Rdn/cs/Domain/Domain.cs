@@ -29,7 +29,7 @@ public enum NtnStatus
 	BlockSent
 }
 
-public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
+public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable
 {
 	//public const int				ExclusiveLengthMax = 12;
 	public const int				NameLengthMin = 1;
@@ -141,20 +141,18 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 
 	public static bool IsOwner(Domain domain, Account account, Time time)
 	{
-		return domain.Owner == account.Id && !IsExpired(domain, time);
+		return domain.Owner == account.Id && !domain.IsExpired(time);
 	}
 
-	public static bool IsExpired(Domain a, Time time) 
+	public bool IsExpired(Time time)
 	{
-		return	a.LastWinner != null && a.Owner == null &&	time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
-															a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
+		return	LastWinner != null && Owner == null && time > AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
+									  Owner != null && time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Domain domain, Account owner, Time time, Time duration)
+	public bool CanRenew(Account owner, Time time, Time duration)
 	{
-		return  domain.Owner == owner.Id && 
-				time.Days <= domain.Expiration &&
-				domain.Expiration + duration.Days - time.Days < Time.FromYears(10).Days;
+		return  Owner == owner.Id && ((IExpirable)this).CanRenew(time, duration);
 	}
 
 	public static bool CanRegister(string name, Domain domain, Time time, Account by)
@@ -170,7 +168,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 
 	public static bool CanBid(Domain domain, Time time)
 	{
- 		if(!IsExpired(domain, time))
+ 		if(!domain.IsExpired(time))
  		{
 			if(domain.LastWinner == null) /// first bid
 			{

@@ -133,7 +133,7 @@ public abstract class FairOperation : Operation
 			return false;
 		}
 
-		if(Author.IsExpired(author, execution.Time))
+		if(author.IsExpired(execution.Time))
 		{
 			error = Expired;
 			return false;

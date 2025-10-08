@@ -38,7 +38,7 @@ class SiteRenewal : FairOperation
 		
 		s = execution.Sites.Affect(SiteId);
 
-		if(!Site.CanRenew(s, execution.Time))
+		if(!(s as IExpirable).CanRenew(execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;

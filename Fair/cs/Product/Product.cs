@@ -235,12 +235,15 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				if(action(d, i))
-					return i;
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					if(action(d, i))
+						return i;
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 
 			return null;
@@ -270,11 +273,14 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				action(d, i);
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					action(d, i);
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 		}
 
