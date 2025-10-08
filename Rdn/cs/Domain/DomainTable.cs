@@ -37,10 +37,20 @@ public class DomainTable : Table<AutoId, Domain>
 
 public class DomainExecution : TableExecution<AutoId, Domain>
 {
-	new DomainTable Table => base.Table as DomainTable;
+	new DomainTable					Table => base.Table as DomainTable;
+	public static HashSet<string>	Popular = [];
 		
 	public DomainExecution(RdnExecution execution) : base(execution.Mcv.Domains, execution)
 	{
+		lock(Popular)
+			if(Popular.Count == 0)
+			{
+				using var f = File.OpenRead(Path.Join(execution.Mcv.Datapath, RdnNode.Populars));
+				using var r = new BinaryReader(f);
+
+				while(f.Position < f.Length)
+					Popular.Add(r.ReadASCII());
+			}
 	}
 
 	public Domain Find(string name)

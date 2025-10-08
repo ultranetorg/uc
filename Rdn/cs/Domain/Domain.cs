@@ -7,9 +7,6 @@ public enum DomainFlag : byte
 	None, 
 	Owned		= 0b_______1, 
 	Auction		= 0b______10, 
-	ComOwned	= 0b_____100, 
-	OrgOwned	= 0b____1000, 
-	NetOwned	= 0b___10000, 
 	ChildNet	= 0b__100000, 
 }
 
@@ -47,9 +44,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
-	public AutoId					ComOwner { get; set; }
-	public AutoId					OrgOwner { get; set; }
-	public AutoId					NetOwner { get; set; }
 	public Time						FirstBidTime { get; set; } = Time.Empty;
 	public AutoId					LastWinner { get; set; }
 	public long						LastBid { get; set; }
@@ -96,9 +90,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 								LastWinner = LastWinner,
 								LastBid = LastBid,
 								LastBidTime = LastBidTime,
-								ComOwner = ComOwner,
-								OrgOwner = OrgOwner,
-								NetOwner = NetOwner,
 								Space = Space,
 								NtnChildNet = NtnChildNet,
 								NtnSelfHash = NtnSelfHash};
@@ -196,9 +187,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		
 		if(LastWinner != null)	f |= DomainFlag.Auction;
 		if(Owner != null)		f |= DomainFlag.Owned;
-		if(ComOwner != null)	f |= DomainFlag.ComOwned;
-		if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
-		if(NetOwner != null)	f |= DomainFlag.NetOwned;
 		if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
 
 		writer.Write((byte)f);
@@ -214,10 +202,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 				writer.Write(LastBidTime);
 				writer.Write7BitEncodedInt64(LastBid);
 			}
-
-			if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
-			if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
-			if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
 		}
 
 		if(f.HasFlag(DomainFlag.Owned))
@@ -254,10 +238,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 				LastBidTime		= reader.Read<Time>();
 				LastBid			= reader.Read7BitEncodedInt64();
 			}
-
-			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AutoId>();
-			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AutoId>();
-			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AutoId>();
 		}
 
 		if(f.HasFlag(DomainFlag.Owned))

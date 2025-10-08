@@ -439,7 +439,7 @@ public class Product : IBinarySerializable, ITableEntry
 																							]),
 																	]),
 													new (Token.Release,	[
-																			new (Token.Version),
+																			new (Token.Version,	FieldType.StringUtf8),
 																			new (Token.Distributive, [
 																										new (Token.Platform,	FieldType.Platfrom),
 																										new (Token.Version,		FieldType.StringUtf8),

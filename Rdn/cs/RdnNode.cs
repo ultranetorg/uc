@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using DnsClient;
 
 namespace Uccs.Rdn;
@@ -20,13 +18,14 @@ public class RdnNode : McvNode
 	public new RdnNodeSettings		Settings => base.Settings as RdnNodeSettings;
 
 	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-	HttpClient						Http = new HttpClient();
 
 	public ResourceHub				ResourceHub;
 	public PackageHub				PackageHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
+
+	public const string 			Populars = "populars";
 
 	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{
@@ -42,7 +41,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
 
 			Mcv.Confirmed += r =>	{
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
@@ -184,22 +183,22 @@ public class RdnNode : McvNode
 				return true;
 			}
 
-			if(am.RankCheck)
-			{
-				using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
-				{
-					var cr = Http.Send(m, Flow.Cancellation);
-
-					if(cr.StatusCode == HttpStatusCode.OK)
-					{
-						JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
-
-						var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
-
-						return domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
-					}
-				}
-			}
+			//if(am.RankCheck)
+			//{
+			//	using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
+			//	{
+			//		var cr = Http.Send(m, Flow.Cancellation);
+			//
+			//		if(cr.StatusCode == HttpStatusCode.OK)
+			//		{
+			//			JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
+			//
+			//			var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
+			//
+			//			return domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
+			//		}
+			//	}
+			//}
 		}
 		catch(Exception)
 		{

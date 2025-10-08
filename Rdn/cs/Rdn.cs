@@ -11,7 +11,6 @@ public abstract class Rdn : McvNet
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
  		
 	public bool						Auctions				= false;
-	public long						DomainRankCheckECFee	= 5;
 
  	public static readonly Rdn		Local = new RdnLocal();
  	public static readonly Rdn		Test = new RdnTest();
