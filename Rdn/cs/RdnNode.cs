@@ -25,7 +25,7 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
 
-	public const string 			Populars = "populars";
+	public static readonly string[] Tlds = ["com", "org", "net", "info", "biz"];
 
 	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{

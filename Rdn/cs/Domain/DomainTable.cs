@@ -45,11 +45,11 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 		lock(Popular)
 			if(Popular.Count == 0)
 			{
-				using var f = File.OpenRead(Path.Join(execution.Mcv.Datapath, RdnNode.Populars));
-				using var r = new BinaryReader(f);
-
-				while(f.Position < f.Length)
-					Popular.Add(r.ReadASCII());
+				foreach(var tld in RdnNode.Tlds)
+				{
+					foreach(var i in File.ReadLines(Path.Join(execution.Mcv.Datapath, tld)))
+						Popular.Add($"{i}.{tld}");
+				}
 			}
 	}
 
