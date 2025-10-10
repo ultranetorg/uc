@@ -76,9 +76,11 @@ public class DomainMigration : RdnOperation
 			return;
 		}
 
-		if(!DomainExecution.Popular.Contains($"{Name}.{Tld}"))
+		var existing = DomainExecution.Priority.FirstOrDefault(i => i.Value.Contains(Name));
+
+		if(existing.Key != null && existing.Key != Tld)
 		{
-			Error = NotPopularWebDomain;
+			Error = ReservedForOwner;
 			return;
 		}
 	

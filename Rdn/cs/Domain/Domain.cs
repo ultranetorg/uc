@@ -35,6 +35,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public const char				National = '~';
 	public const char				Subdomain = '~';
 
+	public static readonly string[] ExclusiveTlds = ["com", "org", "net", "info", "biz"];
+
 	public static readonly Time		AuctionMinimalDuration = Time.FromDays(365);
 	public static readonly Time		Prolongation = Time.FromDays(30);
 	public static readonly Time		WinnerRegistrationPeriod = Time.FromDays(30);

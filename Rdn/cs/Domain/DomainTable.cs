@@ -37,18 +37,18 @@ public class DomainTable : Table<AutoId, Domain>
 
 public class DomainExecution : TableExecution<AutoId, Domain>
 {
-	new DomainTable					Table => base.Table as DomainTable;
-	public static HashSet<string>	Popular = [];
+	new DomainTable										Table => base.Table as DomainTable;
+	public static Dictionary<string, HashSet<string>>	Priority = [];
 		
 	public DomainExecution(RdnExecution execution) : base(execution.Mcv.Domains, execution)
 	{
-		lock(Popular)
-			if(Popular.Count == 0)
+		lock(Priority)
+			if(Priority.Count == 0)
 			{
-				foreach(var tld in RdnNode.Tlds)
+				foreach(var tld in Domain.ExclusiveTlds)
 				{
 					foreach(var i in File.ReadLines(Path.Join(execution.Mcv.Datapath, tld)))
-						Popular.Add($"{i}.{tld}");
+						(Priority.ContainsKey(tld) ? Priority[tld] : (Priority[tld] = [])).Add(i);
 				}
 			}
 	}
