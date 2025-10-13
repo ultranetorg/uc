@@ -17,15 +17,15 @@ public class SitesController
 	[HttpGet("default")]
 	public IEnumerable<SiteBaseModel> Default(CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Default)} method called without parameters");
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
 
 		return sitesService.GetDefaultSites(cancellationToken);
 	}
 
 	[HttpGet("{siteId}/authors")]
-	public IEnumerable<AccountBaseModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<AccountBaseModel> GetAuthors(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetPublishers)} method called with {{SiteId}}", siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetAuthors), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -35,7 +35,7 @@ public class SitesController
 	[HttpGet("{siteId}/moderators")]
 	public IEnumerable<AccountBaseModel> GetModerators(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.GetModerators)} method called with {{SiteId}}", siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {{SiteId}}", nameof(SitesController), nameof(SitesController.GetModerators), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 

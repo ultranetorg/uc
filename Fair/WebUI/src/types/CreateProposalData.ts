@@ -5,7 +5,7 @@ export type CreateProposalData = Record<string, CreateProposalDataOption[] | str
   description?: string
   duration: string
   type?: OperationType
-  options?: CreateProposalDataOption[]
+  options: CreateProposalDataOption[]
 }
 
 export type CreateProposalDataOption = Record<string, string | string[]> & {

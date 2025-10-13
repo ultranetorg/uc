@@ -1,6 +1,6 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { CreateProposalData, OperationType } from "types"
+import { CreateProposalData, OperationType, ProposalType } from "types"
 
 export type FieldValueType =
   | "approval-policy"
@@ -24,6 +24,15 @@ export type EditorField = {
   placeholder?: string
   rules?: UseControllerProps<CreateProposalData>["rules"]
 }
+
+export type EditorFieldRendererParams = {
+  errorMessage?: string
+  field: EditorField
+  value: string
+  onChange: (value: string | string[]) => void
+}
+
+export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element
 
 export type EditorOperationFields = {
   operationType: OperationType

@@ -3,16 +3,18 @@ import { useCallback } from "react"
 import { useModerationContext } from "app"
 import { ButtonOutline } from "ui/components"
 
+import { MemberType } from "../../types"
+
 export type ButtonMembersChangeProps = {
-  memberType: "author" | "moderator"
+  memberType: MemberType
   label: string
   onDataChange: (name: string, value: string) => void
 }
 
-export const ButtonMembersChange = ({ label }: ButtonMembersChangeProps) => {
+export const ButtonMembersChange = ({ memberType, label }: ButtonMembersChangeProps) => {
   const { openMembersChangeModal } = useModerationContext()
 
-  const handleClick = useCallback(() => openMembersChangeModal!(), [openMembersChangeModal])
+  const handleClick = useCallback(() => openMembersChangeModal!(memberType), [memberType, openMembersChangeModal])
 
   return <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
 }

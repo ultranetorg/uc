@@ -4,32 +4,32 @@ import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 import { CreateProposalData, CreateProposalDataOption } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options!.filter(opt => opt.categoryTitle === value)
+  const duplicates = data.options.filter(opt => opt.categoryTitle === value)
   return duplicates.length <= 1 || t("validation:uniqueCategoryTitle")
 }
 
 export const validateUniqueCategoryType = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options!.filter(opt => opt.type === value)
+  const duplicates = data.options.filter(opt => opt.type === value)
   return duplicates.length <= 1 || t("validation:uniqueCategoryType")
 }
 
 export const validateUniqueParentCategory = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options!.filter(opt => opt.parentCategoryId === value)
+  const duplicates = data.options.filter(opt => opt.parentCategoryId === value)
   if (duplicates.length > 1) {
     return t("validation:uniqueParentCategory")
   }
 
-  const sameAsCategory = data.options!.filter(opt => opt.parentCategoryId === data.categoryId)
+  const sameAsCategory = data.options.filter(opt => opt.parentCategoryId === data.categoryId)
   return sameAsCategory.length == 0 || t("validation:differentParentCategory")
 }
 
 export const validateUniqueSiteNickname = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options!.filter(opt => opt.nickname === value)
+  const duplicates = data.options.filter(opt => opt.nickname === value)
   return duplicates.length <= 1 || t("validation:uniqueSiteNickname")
 }
 
 export const validateUniqueTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options!.filter(opt => opt.title === value)
+  const duplicates = data.options.filter(opt => opt.title === value)
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 

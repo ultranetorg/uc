@@ -66,15 +66,15 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
               name={`options.${index}.${x.name}`}
               rules={x.rules}
               render={({ field, fieldState }) =>
-                renderByValueType[x.valueType!](
-                  x,
-                  field.value as string,
-                  value => {
+                renderByValueType[x.valueType!]({
+                  errorMessage: fieldState.error?.message,
+                  field: x,
+                  value: field.value as string,
+                  onChange: value => {
                     field.onChange(value)
                     setLastEditedOptionIndex(index)
                   },
-                  fieldState.error?.message,
-                )
+                })
               }
             />
           ))}

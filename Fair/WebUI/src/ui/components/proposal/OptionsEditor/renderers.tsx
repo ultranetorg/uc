@@ -7,7 +7,7 @@ import {
   ProductVersionSelector,
 } from "./components"
 import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
-import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
+import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
@@ -65,16 +65,8 @@ export const renderByParameterValueType: Record<
   ),
 }
 
-export const renderByValueType: Record<
-  FieldValueType,
-  (
-    field: EditorField,
-    value: string | string[],
-    onChange: (value: string | string[]) => void,
-    errorMessage?: string,
-  ) => JSX.Element
-> = {
-  "approval-policy": (field, _, onChange) => (
+export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
+  "approval-policy": ({ field, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -84,10 +76,10 @@ export const renderByValueType: Record<
       onChange={item => onChange(item.value)}
     />
   ),
-  "authors-array": (field, _, onDataChange) => (
-    <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onDataChange} />
+  "authors-array": ({ field, onChange }) => (
+    <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onChange} />
   ),
-  category: (field, _, onChange, errorMessage) => (
+  category: ({ field, onChange, errorMessage }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
         key={field.name}
@@ -98,7 +90,7 @@ export const renderByValueType: Record<
       />
     </ValidationWrapper>
   ),
-  "category-type": (field, _, onChange, errorMessage) => (
+  "category-type": ({ errorMessage, field, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownWithTranslation
         isMulti={false}
@@ -111,11 +103,11 @@ export const renderByValueType: Record<
       />
     </ValidationWrapper>
   ),
-  file: field => <div key={field.name}>file</div>,
-  "moderators-array": (field, _, onChange) => (
+  file: ({ field }) => <div key={field.name}>file</div>,
+  "moderators-array": ({ field, onChange }) => (
     <ButtonMembersChange key={field.name} memberType="moderator" label={field.placeholder!} onDataChange={onChange} />
   ),
-  "operation-class": (field, _, onChange) => (
+  "operation-class": ({ field, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -125,7 +117,7 @@ export const renderByValueType: Record<
       onChange={item => onChange(item.value)}
     />
   ),
-  "review-status": (field, _, onChange) => (
+  "review-status": ({ field, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
@@ -135,7 +127,7 @@ export const renderByValueType: Record<
       onChange={item => onChange(item.value)}
     />
   ),
-  roles: (field, _, onChange) => (
+  roles: ({ field, onChange }) => (
     <DropdownWithTranslation
       isMulti={true}
       key={field.name}
@@ -152,7 +144,7 @@ export const renderByValueType: Record<
       }
     />
   ),
-  string: (field, value, onChange, errorMessage) => (
+  string: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <Input
         key={field.name}
@@ -165,7 +157,7 @@ export const renderByValueType: Record<
       />
     </ValidationWrapper>
   ),
-  "string-multiline": (field, value, onChange) => (
+  "string-multiline": ({ field, value, onChange }) => (
     <Textarea
       key={field.name}
       placeholder={field.placeholder}
@@ -174,7 +166,7 @@ export const renderByValueType: Record<
       onChange={value => onChange(value)}
     />
   ),
-  version: (field, _, onChange) => (
+  version: ({ field, onChange }) => (
     <ProductVersionSelector key={field.name} onChange={item => onChange(item.toString())} />
   ),
 }

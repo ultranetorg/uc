@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form"
 
 import { CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
 import { useGetCategories } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
+import { CategoryParentBaseWithChildren, CreateProposalData, MembersChangeType, OperationType } from "types"
 import { MembersChangeModal } from "ui/components/proposal"
 import { buildCategoryTree } from "utils"
 
@@ -14,7 +14,7 @@ type ModerationContextType = {
   isCategoriesPending: boolean
   refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
-  openMembersChangeModal: () => void
+  openMembersChangeModal: (memberType: MembersChangeType) => void
 }
 
 // @ts-expect-error createContext with default value
@@ -44,11 +44,17 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   })
 
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
+  const [membersChangeType, setMembersChangeType] = useState<MembersChangeType | undefined>()
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
 
-  const openMembersChangeModal = useCallback(() => setMembersChangeModalOpen(true), [])
+  const openMembersChangeModal = useCallback((type: MembersChangeType) => {
+    setMembersChangeType(type)
+    setMembersChangeModalOpen(true)
+  }, [])
+
+  const handleMembersChangeModalClose = useCallback(() => setMembersChangeModalOpen(false), [])
 
   const value = useMemo(
     () => ({
@@ -62,13 +68,13 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, openMembersChangeModal],
   )
 
-  const handleMembersChangeModalClose = useCallback(() => setMembersChangeModalOpen(false), [])
-
   return (
     <ModerationContext.Provider value={value}>
       <FormProvider {...methods}>
         {children}
-        {isMembersChangeModalOpen && <MembersChangeModal onClose={handleMembersChangeModalClose} />}
+        {isMembersChangeModalOpen && (
+          <MembersChangeModal memberType={membersChangeType!} onClose={handleMembersChangeModalClose} />
+        )}
       </FormProvider>
     </ModerationContext.Provider>
   )

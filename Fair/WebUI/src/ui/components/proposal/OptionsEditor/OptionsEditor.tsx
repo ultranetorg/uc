@@ -70,9 +70,9 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
     }
 
     if (type === "site-policy-change") {
-      validateSitePolicyChange(t, options!, clearErrors, setError, lastEditedOptionIndex)
+      validateSitePolicyChange(t, options, clearErrors, setError, lastEditedOptionIndex)
     } else if (type === "site-text-change") {
-      validateSiteTextChange(t, options!, clearErrors, setError, lastEditedOptionIndex)
+      validateSiteTextChange(t, options, clearErrors, setError, lastEditedOptionIndex)
     }
   }, [clearErrors, lastEditedOptionIndex, options, setError, t, type, watch])
 
@@ -84,7 +84,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
   //     const options = field?.fields?.length ? [{ title: "" }] : undefined
   //     setData(p => ({
   //       ...p,
-  //       ...{ options: options! },
+  //       ...{ options: options },
   //     }))
   //   }
   // }, [type, operationFields, isHiddenType, setData])

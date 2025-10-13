@@ -1,8 +1,10 @@
 export const enUS = {
+  /* Common */
   common: {
     abstained: "Abstained",
     abstainedVotes: "Abstained from voting",
     action: "Action",
+    add: "add",
     anbb: "A / N / B / B",
     anbbFull: "Abstained / Neither / Ban / Banish",
     answers: "answers",
@@ -26,6 +28,7 @@ export const enUS = {
     product: "Product",
     publication: "Publication",
     rating: "Rating",
+    remove: "remove",
     review: "review",
     reviewer: "Reviewer",
     text: "Text",
@@ -37,14 +40,8 @@ export const enUS = {
     yes: "Yes",
     yesVotes: "Yes votes",
   },
-  date: {
-    day_one: "{{count}} day",
-    day_other: "{{count}} days",
-    month_one: "{{count}} month",
-    month_other: "{{count}} months",
-    year_one: "{{count}} year",
-    year_other: "{{count}} years",
-  },
+
+  /* Pages */
   about: {
     about: "About",
   },
@@ -62,6 +59,16 @@ export const enUS = {
     grid: "Grid View",
     list: "List View",
     resetAll: "Reset all",
+  },
+  error: {
+    backToHome: "Back to Home",
+    refreshPage: "Refresh page",
+  },
+  governance: {
+    createReferendum: "Create Referendum",
+    searchProposal: "Search referendum",
+    noProposals: "No open referendums",
+    title: "Governance",
   },
   moderation: {
     createDiscussion: "Create discussion",
@@ -112,12 +119,6 @@ export const enUS = {
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
   },
-  governance: {
-    createReferendum: "Create Referendum",
-    searchProposal: "Search referendum",
-    noProposals: "No open referendums",
-    title: "Governance",
-  },
   search: {
     allAuthors: "All authors",
     allCategories: "All categories",
@@ -142,6 +143,8 @@ export const enUS = {
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
+
+  /* Views */
   proposal: {
     addComment: "Add your comment",
     noComments: "No comments",
@@ -163,6 +166,16 @@ export const enUS = {
     selectAuthors: "Select Authors",
     selectModerators: "Select Moderators",
   },
+
+  /* Modals */
+  membersChangeModal: {
+    title: "Change {{memberType}}s",
+    addMembers: "Add new {{memberType}}s",
+    addMembersTitle: "Add new {{memberType}}s",
+    currentMembersTitle: "Currently {{memberType}}s ({{count}})",
+  },
+
+  /* Tabs */
   tabDiscussions: {
     searchProposal: "Search discussion",
     noProposals: "No open discussions",
@@ -178,10 +191,8 @@ export const enUS = {
   tabUsers: {
     noUsers: "No user registrations",
   },
-  error: {
-    backToHome: "Back to Home",
-    refreshPage: "Refresh page",
-  },
+
+  /* Type literals names */
   approvalPolicies: {
     none: "None",
     "all-moderators": "All moderators",
@@ -300,6 +311,8 @@ export const enUS = {
     user: "User",
     __clear_all__: "Clear All",
   },
+
+  /* Placeholders */
   placeholders: {
     enterCategoryTitle: "Enter category title",
     enterDescription: "Enter description",
@@ -323,19 +336,8 @@ export const enUS = {
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
   },
-  social: {
-    discord: "Discord",
-    facebook: "Facebook",
-    github: "Github",
-    instagram: "Instagram",
-    linkedin: "LinkedIn",
-    medium: "Medium",
-    reddit: "Reddit",
-    telegram: "Telegram",
-    twitch: "Twitch",
-    x: "X / Twitter",
-    youtube: "YouTube",
-  },
+
+  /* Validation messages */
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
@@ -349,5 +351,28 @@ export const enUS = {
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
     uniqueOptions: "Some options are identical. Each must differ by at least one field.",
+  },
+
+  /* Misc */
+  date: {
+    day_one: "{{count}} day",
+    day_other: "{{count}} days",
+    month_one: "{{count}} month",
+    month_other: "{{count}} months",
+    year_one: "{{count}} year",
+    year_other: "{{count}} years",
+  },
+  social: {
+    discord: "Discord",
+    facebook: "Facebook",
+    github: "Github",
+    instagram: "Instagram",
+    linkedin: "LinkedIn",
+    medium: "Medium",
+    reddit: "Reddit",
+    telegram: "Telegram",
+    twitch: "Twitch",
+    x: "X / Twitter",
+    youtube: "YouTube",
   },
 }
