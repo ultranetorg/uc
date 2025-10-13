@@ -33,20 +33,22 @@ public class ProductsService
 		}
 	}
 
-	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values)
+	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields = null)
 	{
+		metaFields ??= Product.Software;
 		return from value in values
-			let valueFields = Product.Software.FirstOrDefault(d => d.Name == value.Name)
+			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
 			select new ProductFieldValueModel
 			{
-				Type = valueFields?.Type,
-				Metadata = valueFields?.Fields.Select(field => new ProductFieldValueMetadataModel
+				Name = value.Name,
+				Type = valueField?.Type,
+				Metadata = valueField?.Fields?.Select(field => new ProductFieldValueMetadataModel
 				{
 					Name = field.Name, Type = field.Type
 				}),
 				Value = value.Value,
 				Children = value.Fields?.Length > 0
-					? MapValues(value.Fields)
+					? MapValues(value.Fields, valueField?.Fields)
 					: null
 			};
 	}

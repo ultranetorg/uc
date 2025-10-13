@@ -336,4 +336,10 @@ export const enUS = {
     x: "X / Twitter",
     youtube: "YouTube",
   },
+  productFields: {
+    loading: "loading..",
+    noData: "Нет данных по полям",
+    loadError: "Не удалось загрузить поля продукта",
+    selectField: "Выберите элемент дерева слева",
+  },
 }

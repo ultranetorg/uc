@@ -9,6 +9,7 @@ public class ProductFieldValueMetadataModel
 
 public class ProductFieldValueModel
 {
+	public					Token Name { get; set; }
 	public					FieldType? Type { get; set; }
 	public					IEnumerable<ProductFieldValueMetadataModel>? Metadata { get; set; }
 	public byte[]			Value { get; set; }

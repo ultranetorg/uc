@@ -6,6 +6,7 @@ import { Proposal, ProposalComment, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, OptionsCollapsesList, ProposalInfo } from "ui/components/proposal"
 import { useParams } from "react-router-dom"
+import { ProductFields } from "../components/proposal/ProductsFields"
 
 type PageState = "voting" | "results"
 
@@ -97,6 +98,7 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
           {proposal.text && <span className="text-2sm leading-5">{proposal.text}</span>}
         </div>
       </div>
+      <ProductFields proposalOptions={proposal.options} />
       <div className="flex gap-8">
         <div className="flex flex-col gap-8">
           <OptionsCollapsesList

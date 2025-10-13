@@ -235,7 +235,7 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.First(d => d.Name == i.Name);
 
 				if(action(d, i))
 					return i;
@@ -400,6 +400,7 @@ public class Product : IBinarySerializable, ITableEntry
 																			new (Token.Version, FieldType.StringUtf8)
 																		 ]),
 													new (Token.Title,	FieldType.StringUtf8),
+													new (Token.Description,	FieldType.StringUtf8),
 													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional),
 													new (Token.URI,		FieldType.URI),
 													new (Token.Tags,	FieldType.Tags, FieldFlag.Optional),
