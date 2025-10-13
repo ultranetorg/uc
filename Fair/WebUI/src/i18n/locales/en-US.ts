@@ -338,8 +338,8 @@ export const enUS = {
   },
   productFields: {
     loading: "loading..",
-    noData: "Нет данных по полям",
-    loadError: "Не удалось загрузить поля продукта",
-    selectField: "Выберите элемент дерева слева",
+    noData: "No fields data",
+    loadError: "Error loading field data",
+    selectField: "Select a tree item on the left",
   },
 }
