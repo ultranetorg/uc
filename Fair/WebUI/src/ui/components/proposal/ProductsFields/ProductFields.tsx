@@ -1,26 +1,26 @@
 import { useState } from "react"
-import { ProposalOption, ProductFieldViewModel } from "types"
+import { ProductFieldViewModel } from "types"
 import { ProductFieldsTree } from "./ProductFieldsTree.tsx"
 import { ProductFieldInfo } from "./ProductFieldInfo.tsx"
 import { useTranslation } from "react-i18next"
 
 export type ProductsFieldsTreeProps = {
-  proposalOptions: ProposalOption[]
+  productIds: string[]
 }
 
-export const ProductFields = ({ proposalOptions }: ProductsFieldsTreeProps) => {
+export const ProductFields = ({ productIds }: ProductsFieldsTreeProps) => {
   const { t } = useTranslation("productFields")
 
-  const [selected, setSelected] = useState<ProductFieldViewModel |null>(null)
+  const [selected, setSelected] = useState<ProductFieldViewModel | null>(null)
 
   return (
     <div className="flex max-h-screen gap-6">
-      <div className="w-1/4 overflow-auto border-r pr-4">
+      <div className="w-1/5 overflow-auto border-r pr-4">
         <div className="w-fit">
-          {proposalOptions.map(option => (
+          {productIds.map(productId => (
             <ProductFieldsTree
-              key={option.operation.productId}
-              proposalOption={option}
+              key={productId}
+              productId={productId}
               selected={selected}
               onSelect={node => setSelected(node)}
             />

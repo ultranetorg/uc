@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState, memo } from "react"
-import { ProposalOption, ProductFieldModel, ProductFieldViewModel } from "types"
+import { ProductFieldModel, ProductFieldViewModel } from "types"
 import { useGetProductFields } from "entities"
 import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 import { useTranslation } from "react-i18next"
 
 export interface ProductFieldsTreeProps {
-  proposalOption: ProposalOption
+  productId: string
   onSelect: (node: ProductFieldViewModel) => void
   selected?: ProductFieldViewModel | null
 }
@@ -97,9 +97,8 @@ const Loader = (locale: string) => (
 const NoData = (locale: string) => <div className="flex items-center gap-2 text-slate-500">{locale}</div>
 const Error = (locale: string) => <div className="text-red-700">{locale}</div>
 
-export const ProductFieldsTree = ({ proposalOption, onSelect, selected }: ProductFieldsTreeProps) => {
+export const ProductFieldsTree = ({ productId, onSelect, selected }: ProductFieldsTreeProps) => {
   const { t } = useTranslation("productFields")
-  const productId = proposalOption.operation.productId
   const { error, data, isPending } = useGetProductFields(productId)
 
   const roots = useMemo(() => (data?.items ? mapItems(data.items) : []), [data])
