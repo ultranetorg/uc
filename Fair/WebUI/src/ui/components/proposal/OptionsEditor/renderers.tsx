@@ -76,10 +76,12 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       onChange={item => onChange(item.value)}
     />
   ),
-  "authors-array": ({ field, onChange }) => (
-    <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onChange} />
+  "authors-array": ({ errorMessage, field, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onChange={onChange} />
+    </ValidationWrapper>
   ),
-  category: ({ field, onChange, errorMessage }) => (
+  category: ({ errorMessage, field, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
         key={field.name}

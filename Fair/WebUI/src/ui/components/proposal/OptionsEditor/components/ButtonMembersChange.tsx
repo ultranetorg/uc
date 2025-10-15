@@ -1,20 +1,26 @@
-import { useCallback } from "react"
+import { useCallback, useState } from "react"
 
-import { useModerationContext } from "app"
 import { ButtonOutline } from "ui/components"
+import { MembersChangeModal } from "ui/components/proposal"
 
 import { MemberType } from "../../types"
 
 export type ButtonMembersChangeProps = {
   memberType: MemberType
   label: string
-  onDataChange: (name: string, value: string) => void
+  onChange: (value: string | string[]) => void
 }
 
 export const ButtonMembersChange = ({ memberType, label }: ButtonMembersChangeProps) => {
-  const { openMembersChangeModal } = useModerationContext()
+  const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
 
-  const handleClick = useCallback(() => openMembersChangeModal!(memberType), [memberType, openMembersChangeModal])
+  const handleClick = useCallback(() => setMembersChangeModalOpen(true), [])
+  const handleModalClose = useCallback(() => setMembersChangeModalOpen(false), [])
 
-  return <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
+  return (
+    <>
+      <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
+      {isMembersChangeModalOpen && <MembersChangeModal memberType={memberType} onClose={handleModalClose} />}
+    </>
+  )
 }

@@ -1,11 +1,10 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from "react"
+import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
 import { useGetCategories } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, MembersChangeType, OperationType } from "types"
-import { MembersChangeModal } from "ui/components/proposal"
+import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
 import { buildCategoryTree } from "utils"
 
 type ModerationContextType = {
@@ -14,7 +13,6 @@ type ModerationContextType = {
   isCategoriesPending: boolean
   refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
-  openMembersChangeModal: (memberType: MembersChangeType) => void
 }
 
 // @ts-expect-error createContext with default value
@@ -43,18 +41,9 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     shouldUnregister: false,
   })
 
-  const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
-  const [membersChangeType, setMembersChangeType] = useState<MembersChangeType | undefined>()
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
-
-  const openMembersChangeModal = useCallback((type: MembersChangeType) => {
-    setMembersChangeType(type)
-    setMembersChangeModalOpen(true)
-  }, [])
-
-  const handleMembersChangeModalClose = useCallback(() => setMembersChangeModalOpen(false), [])
 
   const value = useMemo(
     () => ({
@@ -63,19 +52,13 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       isCategoriesPending,
       refetchCategories,
       categories: categories && buildCategoryTree(categories),
-      openMembersChangeModal,
     }),
-    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, openMembersChangeModal],
+    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories],
   )
 
   return (
     <ModerationContext.Provider value={value}>
-      <FormProvider {...methods}>
-        {children}
-        {isMembersChangeModalOpen && (
-          <MembersChangeModal memberType={membersChangeType!} onClose={handleMembersChangeModalClose} />
-        )}
-      </FormProvider>
+      <FormProvider {...methods}>{children}</FormProvider>
     </ModerationContext.Provider>
   )
 }
