@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 
 public class ProductsService
 (
-	ILogger<CategoriesService> logger,
+	ILogger<ProductsService> logger,
 	FairMcv mcv
 )
 {
@@ -29,7 +29,7 @@ public class ProductsService
 				.FirstOrDefault()
 				?.Fields;
 
-			return fields == null ? null : MapValues(fields);
+			return fields == null ? [] : MapValues(fields);
 		}
 	}
 
