@@ -4,9 +4,10 @@ import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-
 
 import { useModerationContext } from "app"
 import {
-  CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
-  CREATE_PROPOSAL_OPERATION_TYPES,
-  CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
+  CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES,
+  CREATE_DISCUSSION_OPERATION_TYPES,
+  CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES,
+  CREATE_REFERENDUM_OPERATION_TYPES,
 } from "constants/"
 import { CreateProposalData, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox } from "ui/components"
@@ -33,18 +34,21 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
 
-  const singleOption =
-    !requiresVoting || (!!type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType))
-  const isHiddenType = CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
+  const discussionSingleOption =
+    proposalType === "discussion" &&
+    (!requiresVoting || (!!type && CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)))
 
-  const typesItems = useMemo<DropdownItem[]>(
-    () => CREATE_PROPOSAL_OPERATION_TYPES.map(x => ({ label: t(`operations:${x}`), value: x as string })),
-    [t],
-  )
+  const discussionHiddenType =
+    proposalType === "discussion" && CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
+
+  const typesItems = useMemo<DropdownItem[]>(() => {
+    const types = proposalType === "discussion" ? CREATE_DISCUSSION_OPERATION_TYPES : CREATE_REFERENDUM_OPERATION_TYPES
+    return types.map(x => ({ label: t(`operations:${x}`), value: x as string }))
+  }, [proposalType, t])
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
-    () => (isHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
-    [type, isHiddenType, t],
+    () => (discussionHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
+    [type, discussionHiddenType, t],
   )
 
   const operationFields = useMemo(() => getEditorOperationsFields(t), [t])
@@ -100,9 +104,9 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
           render={({ field }) => (
             <Dropdown
               isMulti={false}
-              isDisabled={isHiddenType}
+              isDisabled={discussionHiddenType}
               controlled={true}
-              items={!isHiddenType ? typesItems : hiddenTypeItem}
+              items={!discussionHiddenType ? typesItems : hiddenTypeItem}
               onChange={item => field.onChange(item.value)}
               size="large"
               value={field.value}
@@ -131,12 +135,12 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
       {fields.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
-            {!singleOption && (
+            {!discussionSingleOption && (
               <span className="text-xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}:</span>
             )}
             <OptionsEditorList
               t={t}
-              singleOption={singleOption}
+              singleOption={discussionSingleOption}
               operationFields={operationField!}
               fields={fields}
               append={append}

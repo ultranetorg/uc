@@ -1,6 +1,6 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { CreateProposalData, OperationType, ProposalType } from "types"
+import { CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
   | "approval-policy"
