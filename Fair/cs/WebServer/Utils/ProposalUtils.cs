@@ -5,8 +5,7 @@ namespace Uccs.Fair;
 public static class ProposalUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.PublishersMajority;
+	public static bool IsDiscussion(Site site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationRemoveFromChanged or PublicationUpdation;

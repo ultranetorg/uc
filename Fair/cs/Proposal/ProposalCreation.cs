@@ -124,7 +124,8 @@ public class ProposalCreation : FairOperation
  
         var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
 
- 		if(!s.ApprovalPolicies.TryGetValue(c, out var p))
+		var p = s.Policies.FirstOrDefault(i => i.Operation == c);
+ 		if(p == null)
  			throw new IntegrityException();
  
 // 		if(s.Proposals.Any(i =>  {
@@ -147,7 +148,7 @@ public class ProposalCreation : FairOperation
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Publisher && s.CreationPolicies[c].Contains(Role.Publisher))
+		if(As == Role.Publisher && p.Creators.Contains(Role.Publisher))
  		{
 			if(!CanAccessAuthor(execution, By, out var a, out Error))
 				return;
@@ -164,7 +165,7 @@ public class ProposalCreation : FairOperation
 			a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.Moderator && s.CreationPolicies[c].Contains(Role.Moderator))
+		else if(As == Role.Moderator && p.Creators.Contains(Role.Moderator))
  		{
 			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
@@ -180,7 +181,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Candidate && s.CreationPolicies[c].Contains(Role.Candidate))
+ 		else if(As == Role.Candidate && p.Creators.Contains(Role.Candidate))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
@@ -192,7 +193,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.User && s.CreationPolicies[c].Contains(Role.User))
+		else if(As == Role.User && p.Creators.Contains(Role.User))
 		{
 			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;
@@ -205,9 +206,9 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(Options.Length == 1 &&  (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator && IsModerator(execution, By, out _, out _) ||
-									s.IsDiscussion(c)									 && IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
-									s.IsReferendum(c)									 && IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
+		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
+									s.IsDiscussion(c)								&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+									s.IsReferendum(c)								&& IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
 		{
 			Options[0].Operation.Site	= s;
 			Options[0].Operation.As		= As;
@@ -225,7 +226,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Any		= [];
+			z.Any			= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();

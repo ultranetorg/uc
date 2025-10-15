@@ -1,6 +1,6 @@
 namespace Uccs.Fair;
 
-public enum ApprovalPolicy : byte
+public enum ApprovalRequirement : byte
 {
 	None, AnyModerator, ModeratorsMajority, AllModerators, PublishersMajority
 }
@@ -54,6 +54,39 @@ public class Publisher : IBinarySerializable
 	}
 }
 
+public class Policy : IBinarySerializable
+{
+	public FairOperationClass	Operation;
+	public Role[]				Creators;
+	public ApprovalRequirement	Approval;
+
+	public Policy()
+	{
+	}
+
+	public Policy(FairOperationClass operation, Role[] creators, ApprovalRequirement approval)
+	{
+		Operation = operation;
+		Creators = creators;
+		Approval = approval;
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Operation	= reader.Read<FairOperationClass>();
+		Creators	= reader.ReadArray(() => reader.Read<Role>());
+		Approval	= reader.Read<ApprovalRequirement>();
+		
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Operation);
+		writer.Write(Creators, i => writer.Write(i));
+		writer.Write(Approval);
+	}
+}
+
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
 {
 	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
@@ -94,15 +127,14 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short					BandwidthTodayTime { get; set; }
 	public long						BandwidthTodayAvailable { get; set; }
 	
-	public OrderedDictionary<FairOperationClass, Role[]>			CreationPolicies { get; set; }
-	public OrderedDictionary<FairOperationClass, ApprovalPolicy>	ApprovalPolicies { get; set; }
+	public Policy[]					Policies { get; set; }
 
 	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	FairMcv							Mcv;
 
-	public PerpetualSurvey			FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SitePolicyChange o && o.Change == operation);
-	public sbyte					FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SitePolicyChange o && o.Change == operation);
+	public PerpetualSurvey			FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
+	public sbyte					FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
@@ -137,8 +169,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Avatar					= Avatar,
 					PoWComplexity			= PoWComplexity,
 					
-					CreationPolicies		= CreationPolicies,
-					ApprovalPolicies		= ApprovalPolicies,
+					Policies				= Policies,
 
 					Expiration				= Expiration,
 					Space					= Space,
@@ -150,7 +181,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
-					PerpetualSurveys			= PerpetualSurveys,
+					PerpetualSurveys		= PerpetualSurveys,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
 					Files					= Files,
@@ -190,8 +221,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
-		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
-		ApprovalPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ApprovalPolicy>());
+		Policies					= reader.ReadArray<Policy>();
 
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
@@ -204,7 +234,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
-		PerpetualSurveys		= reader.ReadArray<PerpetualSurvey>();
+		PerpetualSurveys			= reader.ReadArray<PerpetualSurvey>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
@@ -224,8 +254,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		
-		writer.Write(CreationPolicies, i => { writer.Write(i.Key); writer.Write(i.Value, i => writer.Write(i)); });
-		writer.Write(ApprovalPolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
+		writer.Write(Policies);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
@@ -254,12 +283,14 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsReferendum(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.PublishersMajority;
+		return Policies.First(i => i.Operation == operation).Approval == ApprovalRequirement.PublishersMajority;
 	}
 
 	public bool IsDiscussion(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.AnyModerator || ApprovalPolicies[operation] == ApprovalPolicy.ModeratorsMajority || ApprovalPolicies[operation] == ApprovalPolicy.AllModerators;
+		var a = Policies.First(i => i.Operation == operation).Approval;
+
+		return a == ApprovalRequirement.AnyModerator || a == ApprovalRequirement.ModeratorsMajority || a == ApprovalRequirement.AllModerators;
 	}
 
 }

@@ -2,23 +2,26 @@
 
 public class SitePolicyChange : SiteOperation
 {
-	public FairOperationClass	Change { get; set; }
+	public FairOperationClass	Operation { get; set; }
 	public Role[]				Creators { get; set; }
-	public ApprovalPolicy		Approval { get; set; }
+	public ApprovalRequirement	Approval { get; set; }
 
-	public override bool		IsValid(McvNet net) => Creators.Distinct().Count() == Creators.Length;
-	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Approval}";
+	public override bool		IsValid(McvNet net) =>	Enum.IsDefined<FairOperationClass>(Operation) && 
+														Creators.All(i => Enum.IsDefined<Role>(i)) && Creators.Distinct().Count() == Creators.Length &&
+														Enum.IsDefined<ApprovalRequirement>(Approval);
+
+	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Approval={Approval}";
 	
 	public override void Read(BinaryReader reader)
 	{
-		Change		= reader.Read<FairOperationClass>();
+		Operation	= reader.Read<FairOperationClass>();
 		Creators	= reader.ReadArray(() => reader.Read<Role>());
-		Approval	= reader.Read<ApprovalPolicy>();
+		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Change);
+		writer.Write(Operation);
 		writer.Write(Creators, i => writer.Write(i));
 		writer.Write(Approval);
 	}
@@ -46,10 +49,10 @@ public class SitePolicyChange : SiteOperation
 	{
  		var s = Site;
 
-		s.CreationPolicies = new(s.CreationPolicies);
-		s.CreationPolicies[Change] = Creators;
- 
-		s.ApprovalPolicies = new(s.ApprovalPolicies);
-		s.ApprovalPolicies[Change] = Approval;
+		s.Policies = [..s.Policies];
+		
+		var i = Array.FindIndex(s.Policies, i => i.Operation == Operation);
+
+		s.Policies[i] = new Policy(Operation, Creators, Approval);
 	}
 }

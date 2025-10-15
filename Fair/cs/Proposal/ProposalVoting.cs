@@ -77,16 +77,18 @@ public class ProposalVoting : FairOperation
 		 
  		p = execution.Proposals.Affect(Proposal);
 
+		var policy = s.Policies.FirstOrDefault(i => i.Operation == c);
+
 		bool won(AutoId[] votes)
 		{
-    		return s.ApprovalPolicies[c] switch
- 										 {
-											ApprovalPolicy.AnyModerator			=> votes.Length + p.Any.Length == 1,
- 											ApprovalPolicy.ModeratorsMajority	=> votes.Length + p.Any.Length >= s.Moderators.Length/2 + (s.Moderators.Length & 1),
- 											ApprovalPolicy.AllModerators		=> votes.Length + p.Any.Length == s.Moderators.Length,
- 											ApprovalPolicy.PublishersMajority	=> votes.Length + p.Any.Length >= s.Publishers.Length/2 + (s.Publishers.Length & 1),
- 											_ => throw new IntegrityException()
- 										 };
+    		return policy.Approval	switch
+ 									{
+										ApprovalRequirement.AnyModerator		=> votes.Length + p.Any.Length == 1,
+ 										ApprovalRequirement.ModeratorsMajority	=> votes.Length + p.Any.Length >= s.Moderators.Length/2 + (s.Moderators.Length & 1),
+ 										ApprovalRequirement.AllModerators		=> votes.Length + p.Any.Length == s.Moderators.Length,
+ 										ApprovalRequirement.PublishersMajority	=> votes.Length + p.Any.Length >= s.Publishers.Length/2 + (s.Publishers.Length & 1),
+ 										_ => throw new IntegrityException()
+ 									};
 		}
 
 		var result = (sbyte)SpecialChoice.None;
@@ -120,7 +122,7 @@ public class ProposalVoting : FairOperation
 				{
 					result = (sbyte)SpecialChoice.Neither;
 				}
-				else if(s.ApprovalPolicies[c] == ApprovalPolicy.AllModerators)
+				else if(policy.Approval == ApprovalRequirement.AllModerators)
 				{
 					result = (sbyte)SpecialChoice.Neither;
 				}
