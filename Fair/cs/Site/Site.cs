@@ -75,6 +75,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public Publisher[]				Publishers { get; set; }
 	public Moderator[]				Moderators { get; set; }
 	public AutoId[]					Categories { get; set; }
+	public PerpetualSurvey[]		PerpetualSurveys { get; set; }
 	public AutoId[]					Proposals { get; set; }
 	public AutoId[]					UnpublishedPublications { get; set; }
 	public AutoId[]					ChangedPublications { get; set; }
@@ -99,6 +100,9 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	FairMcv							Mcv;
+
+	public PerpetualSurvey			FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SitePolicyChange o && o.Change == operation);
+	public sbyte					FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SitePolicyChange o && o.Change == operation);
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
@@ -146,6 +150,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
+					PerpetualSurveys			= PerpetualSurveys,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
 					Files					= Files,
@@ -199,6 +204,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
+		PerpetualSurveys		= reader.ReadArray<PerpetualSurvey>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
@@ -232,6 +238,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Users);
 		writer.Write(Categories);
 		writer.Write(Proposals);
+		writer.Write(PerpetualSurveys);
 		writer.Write(UnpublishedPublications);
 		writer.Write(ChangedPublications);
 		writer.Write(Files);

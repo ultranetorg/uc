@@ -225,7 +225,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Abstained		= [];
+			z.Any		= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();

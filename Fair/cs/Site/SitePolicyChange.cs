@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePolicyChange : VotableOperation
+public class SitePolicyChange : SiteOperation
 {
 	public FairOperationClass	Change { get; set; }
 	public Role[]				Creators { get; set; }
@@ -23,31 +23,24 @@ public class SitePolicyChange : VotableOperation
 		writer.Write(Approval);
 	}
 
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as SitePolicyChange;
-		
-		return o.Change == Change;
-	}
-
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
-		if(Site.CreationPolicies.TryGetValue(Change, out var c) && c.SequenceEqual(Creators) &&
-			Site.ApprovalPolicies.TryGetValue(Change, out var a) && a == Approval)
-		{	
-			error = AlreadyExists;
-			return false;
-		}
-
-		if(Change == FairOperationClass.SitePolicyChange)
-		{
-			error = NotAvailable;
-			return false;
-		}
-		
-		error = null;
-		return true;
- 	}
+// 	public override bool ValidateProposal(FairExecution execution, out string error)
+// 	{
+//		if(Site.CreationPolicies.TryGetValue(Change, out var c) && c.SequenceEqual(Creators) &&
+//			Site.ApprovalPolicies.TryGetValue(Change, out var a) && a == Approval)
+//		{	
+//			error = AlreadyExists;
+//			return false;
+//		}
+//
+//		if(Change == FairOperationClass.SitePolicyChange)
+//		{
+//			error = NotAvailable;
+//			return false;
+//		}
+//		
+//		error = null;
+//		return true;
+// 	}
 
 	public override void Execute(FairExecution execution)
 	{

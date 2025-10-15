@@ -45,7 +45,7 @@ public enum Token : uint
 	Tags,
 	Price,
 	Description,
-	Deploymwent,
+	Deployment,
 	Value
 }
 
@@ -61,12 +61,12 @@ public enum FieldType : int
 	Tags, /// Single-line
 	URI,
 	Language,
-	Licance,
+	License,
 	Video,
-	Deploymwent,
+	Deployment,
 	Money,
 	Date,
-	Platfrom,
+	Platform,
 	OS,
 	CPUArchitecture,
 	Hash,
@@ -418,7 +418,7 @@ public class Product : IBinarySerializable, ITableEntry
 																						new (Token.Maximal,	FieldType.TextUtf8),
 																					]),
 													new (Token.Logo,	FieldType.FileId),
-													new (Token.License, FieldType.Licance),
+													new (Token.License, FieldType.License),
 													new (Token.Price,	FieldType.Money, FieldFlag.Optional),
 													new (Token.Art, [
 																		new (Token.Screenshot,	[
@@ -441,10 +441,10 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Release,	[
 																			new (Token.Version,	FieldType.StringUtf8),
 																			new (Token.Distributive, [
-																										new (Token.Platform,	FieldType.Platfrom),
+																										new (Token.Platform,	FieldType.Platform),
 																										new (Token.Version,		FieldType.StringUtf8),
 																										new (Token.Date,		FieldType.Date),
-																										new (Token.Deploymwent,	FieldType.Deploymwent),
+																										new (Token.Deployment,	FieldType.Deployment),
 																										new (Token.Download,[
 																																new (Token.URI),
 																																new (Token.Hash,[

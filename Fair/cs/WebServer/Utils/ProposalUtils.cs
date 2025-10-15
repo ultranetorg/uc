@@ -15,7 +15,7 @@ public static class ProposalUtils
 
 	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserDeletion or UserRegistration;
 
-	public static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
+	public static BaseVotableOperationModel ToBaseVotableOperationModel(SiteOperation proposal)
 	{
 		return proposal switch
 		{
@@ -34,7 +34,8 @@ public static class ProposalUtils
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
+			SiteModeratorAddition operation => new SiteModeratorAdditionModel(operation),
+			SiteModeratorRemoval operation => new SiteModeratorRemovalModel(operation),
 			SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
 			SitePolicyChange operation => new SitePolicyChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),

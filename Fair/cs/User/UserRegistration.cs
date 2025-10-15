@@ -39,7 +39,7 @@ public class UserRegistration : VotableOperation
 			return false;
 		}
 
-		if(!execution.LongYesVoted)
+		if(!execution.SkipPowCheck)
 		{
 			if(Pow != null && Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < Site.PoWComplexity)
 			{

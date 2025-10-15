@@ -35,7 +35,7 @@ public class FairTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        else if(ti.Type == typeof(VotableOperation))
+        else if(ti.Type == typeof(SiteOperation))
  		{
             ti.PolymorphismOptions = new JsonPolymorphismOptions
 									 {
@@ -44,7 +44,7 @@ public class FairTypeResolver : ApiTypeResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 									 
-			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+			foreach(var i in typeof(SiteOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(SiteOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
 

@@ -29,52 +29,53 @@ public enum FairOperationClass : uint
 		SiteCreation				= 103_000_001, 
 		SiteRenewal					= 103_000_002,
 		SitePolicyChange			= 103_000_003,
-		SiteAuthorsChange			= 103_000_004,
-		SiteModeratorsChange		= 103_000_005,
-		SiteTextChange				= 103_000_006,
-		SiteAvatarChange			= 103_000_007,
-		SiteNicknameChange			= 103_000_008,
-		UserRegistration			= 103_000_009,
-		UserDeletion				= 103_000_010,
+		SiteModeratorAddition		= 103_000_004,
+		SiteModeratorRemoval		= 103_000_005,
+		SiteAuthorsChange			= 103_000_006,
+		SiteTextChange				= 103_000_007,
+		SiteAvatarChange			= 103_000_008,
+		SiteNicknameChange			= 103_000_009,
+		UserRegistration			= 103_000_010,
+		UserDeletion				= 103_000_011,
 		SiteDeletion				= 103_000_999,
 
-		Category						= 103_001,
-			CategoryCreation			= 103_001_001,
-			CategoryMovement			= 103_001_002,
-			CategoryAvatarChange		= 103_001_003,
-			CategoryTypeChange			= 103_001_004,
-			CategoryDeletion			= 103_001_999,
+		Proposal						= 103_001,
+			ProposalCreation			= 103_001_001,
+			ProposalVoting				= 103_001_002,
+			PerpetualVoting				= 103_001_003,
 
-		Publication						= 103_002,
-			PublicationCreation			= 103_002_001,
-			//PublicationApproval		= 103_002_002,
-			PublicationRemoveFromChanged= 103_002_003,
-			PublicationPublish			= 103_002_004,
-			PublicationUpdation			= 103_002_005,
-			PublicationDeletion			= 103_002_999,
+		Category						= 103_002,
+			CategoryCreation			= 103_002_001,
+			CategoryMovement			= 103_002_002,
+			CategoryAvatarChange		= 103_002_003,
+			CategoryTypeChange			= 103_002_004,
+			CategoryDeletion			= 103_002_999,
 
-		Review							= 103_003,
-			ReviewCreation				= 103_003_001,
-			ReviewStatusChange			= 103_003_002,
-			ReviewEdit					= 103_003_003,
-			ReviewDeletion				= 103_003_999,
+		Publication						= 103_003,
+			PublicationCreation			= 103_003_001,
+			//PublicationApproval		= 103_003_002,
+			PublicationRemoveFromChanged= 103_003_003,
+			PublicationPublish			= 103_003_004,
+			PublicationUpdation			= 103_003_005,
+			PublicationDeletion			= 103_003_999,
 
-		Proposal						= 103_004,
-			ProposalCreation			= 103_004_001,
-			ProposalVoting				= 103_004_002,
+		Review							= 103_004,
+			ReviewCreation				= 103_004_001,
+			ReviewStatusChange			= 103_004_002,
+			ReviewEdit					= 103_004_003,
+			ReviewDeletion				= 103_004_999,
 		
-		ProposalComment					= 103_005,
-			ProposalCommentCreation		= 103_005_001,
-			ProposalCommentEdit			= 103_005_002,
+		ProposalComment					= 103_006,
+			ProposalCommentCreation		= 103_006_001,
+			ProposalCommentEdit			= 103_006_002,
 	
 	File								= 104, 
 		FileCreation					= 104_000_001, 
 		FileDeletion					= 104_000_999,
 } 
 
-public abstract class VotableOperation : FairOperation
+public abstract class VotableOperation : SiteOperation
 {
-	public Site					Site;
 	public Role					As;
 	public AutoId				By;
 
@@ -174,17 +175,17 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool IsPublisher(FairExecution execution, Site site, AutoId authorid, out Publisher citizen, out string error)
+	public bool IsPublisher(FairExecution execution, Site site, AutoId authorid, out Publisher publisher, out string error)
 	{
 		if(!CanAccessAuthor(execution, authorid, out _, out error))
 		{	
-			citizen = null;
+			publisher = null;
 			return false;
 		}
 
-		citizen = site.Publishers.FirstOrDefault(i => i.Author == authorid);
+		publisher = site.Publishers.FirstOrDefault(i => i.Author == authorid);
 
- 		if(citizen == null)
+ 		if(publisher == null)
  		{
  			error = Denied;
  			return false;

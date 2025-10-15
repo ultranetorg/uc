@@ -22,7 +22,7 @@ public abstract class Round : IBinarySerializable
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God}] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AccountAddress>							Forkers = [];
@@ -316,7 +316,7 @@ public abstract class Round : IBinarySerializable
 		
 		if(Id > 0)
 		{
-			var t = all.GroupBy(x => x.Time).MaxBy(i => i.Count());
+			var t = SelectedArrived.GroupBy(x => x.Time).MaxBy(i => i.Count());
 
 			if(t.Count() >= min && t.Key > Previous.ConsensusTime)
 				ConsensusTime = t.Key;
