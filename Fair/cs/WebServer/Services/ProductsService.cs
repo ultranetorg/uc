@@ -25,7 +25,6 @@ public class ProductsService
 			}
 
 			var fields = product.Versions
-				.OrderByDescending(x => x.Id)
 				.FirstOrDefault()
 				?.Fields;
 
