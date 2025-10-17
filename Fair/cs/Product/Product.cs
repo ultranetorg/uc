@@ -43,7 +43,7 @@ public enum Token : uint
 	Tags,
 	Price,
 	Description,
-	Deploymwent,
+	Deployment,
 	Value
 }
 
@@ -58,10 +58,12 @@ public enum FieldType : int
 	StringAnsi, /// Single-line
 	URI,
 	Language,
+	License,
 	Video,
-	Deploymwent,
+	Deployment,
 	Money,
 	Date,
+	Platform,
 	OS,
 	CPUArchitecture,
 	Hash,
@@ -234,12 +236,15 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(d => d.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				if(action(d, i))
-					return i;
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					if(action(d, i))
+						return i;
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 
 			return null;
@@ -269,11 +274,14 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				action(d, i);
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					action(d, i);
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 		}
 

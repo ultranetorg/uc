@@ -32,10 +32,10 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 		var a = Table.Create();
 		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
 		a.Neither = [];
-		a.Abstained = [];
+		a.Any = [];
 		a.Ban = [];
 		a.Banish = [];
-		a.Abstained = [];
+		a.Any = [];
 		a.Comments = [];
 
 		LastCreatedId = a.Id;

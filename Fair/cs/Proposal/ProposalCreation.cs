@@ -74,6 +74,7 @@ public class ProposalCreation : FairOperation
 		var e =	Title.Length <= Fair.TitleLengthMaximum &&
 				Text.Length <= Fair.PostLengthMaximum &&
 				Options.Length > 0 &&
+				Enum.IsDefined<Role>(As) &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
 
 		return e;
@@ -123,7 +124,8 @@ public class ProposalCreation : FairOperation
  
         var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
 
- 		if(!s.ApprovalPolicies.TryGetValue(c, out var p))
+		var p = s.Policies.FirstOrDefault(i => i.Operation == c);
+ 		if(p == null)
  			throw new IntegrityException();
  
 // 		if(s.Proposals.Any(i =>  {
@@ -146,7 +148,7 @@ public class ProposalCreation : FairOperation
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Publisher && s.CreationPolicies[c].Contains(Role.Publisher))
+		if(As == Role.Publisher && p.Creators.Contains(Role.Publisher))
  		{
 			if(!CanAccessAuthor(execution, By, out var a, out Error))
 				return;
@@ -163,7 +165,7 @@ public class ProposalCreation : FairOperation
 			a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.Moderator && s.CreationPolicies[c].Contains(Role.Moderator))
+		else if(As == Role.Moderator && p.Creators.Contains(Role.Moderator))
  		{
 			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
@@ -179,7 +181,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Candidate && s.CreationPolicies[c].Contains(Role.Candidate))
+ 		else if(As == Role.Candidate && p.Creators.Contains(Role.Candidate))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
@@ -191,7 +193,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.User && s.CreationPolicies[c].Contains(Role.User))
+		else if(As == Role.User && p.Creators.Contains(Role.User))
 		{
 			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;
@@ -204,9 +206,9 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(Options.Length == 1 &&  (s.ApprovalPolicies[c] == ApprovalPolicy.AnyModerator && IsModerator(execution, By, out _, out _) ||
-									s.IsDiscussion(c)									 && IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
-									s.IsReferendum(c)									 && IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
+		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
+									s.IsDiscussion(c)								&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+									s.IsReferendum(c)								&& IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
 		{
 			Options[0].Operation.Site	= s;
 			Options[0].Operation.As		= As;
@@ -224,7 +226,7 @@ public class ProposalCreation : FairOperation
 			z.Title			= Title;
 			z.Text			= Text;
 			z.Neither		= [];
-			z.Abstained		= [];
+			z.Any			= [];
 			z.Ban			= [];
 			z.Banish		= [];
  			z.Options		= Options.Select(i => new ProposalOption(i)).ToArray();
@@ -232,14 +234,22 @@ public class ProposalCreation : FairOperation
   
 			s.Proposals = [..s.Proposals, z.Id];
 
+			var l = execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title));
+
 			if(As == Role.Moderator || As == Role.User)
  			{
- 				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
+ 				execution.Allocate(s, s, l);
  			}
-			else if(As == Role.Publisher || As == Role.Candidate)
+			else if(As == Role.Publisher)
  			{
 				var a = execution.Authors.Affect(By);
- 				execution.Allocate(a, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title)));
+				var pb = s.Publishers.First(i => i.Author == By);
+ 				execution.Allocate(a, pb, l, out Error);
+ 			}
+			else if(As == Role.Candidate)
+ 			{
+				var a = execution.Authors.Affect(By);
+ 				execution.Allocate(a, a, l);
  			}
 		}
 	}

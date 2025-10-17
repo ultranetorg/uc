@@ -31,61 +31,54 @@ public class SiteCreation : FairOperation
 		var s = execution.Sites.Create(Signer);
 
 		s.Title			= Title;
-		s.PoWComplexity	= 170;
+		s.PoWComplexity	= 172;
 		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [new Moderator {Account = Signer.Id}];
 
 
-		s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Publisher]; /// Can not be changed
-		s.CreationPolicies[FairOperationClass.SiteNicknameChange]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.SiteTextChange]				= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.SiteAvatarChange]				= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.SiteAuthorsChange]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.SiteModeratorsChange]			= [Role.Moderator];
+		//s.CreationPolicies[FairOperationClass.SitePolicyChange]				= [Role.Publisher]; /// Can not be changed
+		s.Policies =   [new (FairOperationClass.SiteModeratorAddition,			[Role.Moderator, Role.Publisher],					ApprovalRequirement.PublishersMajority),	
+						new (FairOperationClass.SiteModeratorRemoval,			[Role.Moderator, Role.Publisher],					ApprovalRequirement.PublishersMajority),
+						new (FairOperationClass.SiteNicknameChange,				[Role.Moderator, Role.Publisher],					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteTextChange,					[Role.Moderator, Role.Publisher], 					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteAvatarChange,				[Role.Moderator, Role.Publisher], 					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteAuthorsChange,				[Role.Moderator, Role.Publisher], 					ApprovalRequirement.AnyModerator),
+																																									 
+						new (FairOperationClass.UserRegistration,				[Role.User], 										ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.UserDeletion,					[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+																																									 
+						new (FairOperationClass.CategoryCreation,				[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.CategoryDeletion,				[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.CategoryTypeChange,				[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.CategoryAvatarChange,			[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+																																									 
+						new (FairOperationClass.PublicationCreation,			[Role.Moderator, Role.Publisher, Role.Candidate], 	ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationDeletion,			[Role.Moderator, Role.Publisher], 					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationUpdation,			[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationPublish,				[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationRemoveFromChanged,	[Role.Moderator], 									ApprovalRequirement.AnyModerator),
+																																									 
+						new (FairOperationClass.ReviewCreation,					[Role.User], 										ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.ReviewEdit,						[Role.User], 										ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.ReviewStatusChange,				[Role.Moderator], 									ApprovalRequirement.AnyModerator)];
+
+		s.PerpetualSurveys = [];
 		
-		s.CreationPolicies[FairOperationClass.UserRegistration]				= [Role.User];
-		s.CreationPolicies[FairOperationClass.UserDeletion]					= [Role.Moderator];
-
-		s.CreationPolicies[FairOperationClass.CategoryCreation]				= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.CategoryDeletion]				= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.CategoryTypeChange]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.CategoryAvatarChange]			= [Role.Moderator];
-
-		s.CreationPolicies[FairOperationClass.PublicationCreation]			= [Role.Moderator, Role.Publisher, Role.Candidate];
-		s.CreationPolicies[FairOperationClass.PublicationDeletion]			= [Role.Moderator, Role.Publisher];
-		s.CreationPolicies[FairOperationClass.PublicationUpdation]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.PublicationPublish]			= [Role.Moderator];
-		s.CreationPolicies[FairOperationClass.PublicationRemoveFromChanged]	= [Role.Moderator];
-
-		s.CreationPolicies[FairOperationClass.ReviewCreation]				= [Role.User];
-		s.CreationPolicies[FairOperationClass.ReviewEdit]					= [Role.User];
-		s.CreationPolicies[FairOperationClass.ReviewStatusChange]			= [Role.Moderator];
-
-
-		s.ApprovalPolicies[FairOperationClass.SitePolicyChange]				= ApprovalPolicy.PublishersMajority; /// Can not be changed
-		s.ApprovalPolicies[FairOperationClass.SiteNicknameChange]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.SiteTextChange]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.SiteAvatarChange]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.SiteAuthorsChange]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.SiteModeratorsChange]			= ApprovalPolicy.AnyModerator;
-		
-		s.ApprovalPolicies[FairOperationClass.UserRegistration]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.UserDeletion]					= ApprovalPolicy.AnyModerator;
-		
-		s.ApprovalPolicies[FairOperationClass.CategoryCreation]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.CategoryDeletion]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.CategoryTypeChange]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.CategoryAvatarChange]			= ApprovalPolicy.AnyModerator;
-
-		s.ApprovalPolicies[FairOperationClass.PublicationCreation]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.PublicationDeletion]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.PublicationUpdation]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.PublicationPublish]			= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.PublicationRemoveFromChanged]	= ApprovalPolicy.AnyModerator;
-
-		s.ApprovalPolicies[FairOperationClass.ReviewCreation]				= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.ReviewEdit]					= ApprovalPolicy.AnyModerator;
-		s.ApprovalPolicies[FairOperationClass.ReviewStatusChange]			= ApprovalPolicy.AnyModerator;
+		foreach(var i in s.Policies.Index())
+		{
+ 			var z = new PerpetualSurvey();
+ 
+			z.LastWin = -1;
+ 			z.Options = Enum.GetValues<ApprovalRequirement>().Where(i => i != ApprovalRequirement.None)
+															 .Select(a => new SurveyOption( new SitePolicyChange
+																							{
+																								Operation = i.Item.Operation, 
+																								Creators = i.Item.Creators,
+																								Approval = a
+																							}))
+															 .ToArray();
+			s.PerpetualSurveys = [..s.PerpetualSurveys, z];
+		}
 
 
 		Signer.ModeratedSites = [..Signer.ModeratedSites, s.Id];

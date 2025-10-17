@@ -2,8 +2,12 @@
 
 namespace Uccs.Fair;
 
-public class SiteModeratorsChangeModel(SiteModeratorsChange operation) : BaseVotableOperationModel(operation)
+public class SiteModeratorAdditionModel(SiteModeratorAddition operation) : BaseVotableOperationModel(operation)
 {
-	public IEnumerable<string> AdditionsIds { get; set; } = operation.Additions.Select(x => x.ToString());
-	public IEnumerable<string> RemovalsIds { get; set; } = operation.Removals.Select(x => x.ToString());
+	public IEnumerable<string> CandidatesIds { get; set; } = operation.Candidates.Select(x => x.ToString());
+}
+
+public class SiteModeratorRemovalModel(SiteModeratorRemoval operation) : BaseVotableOperationModel(operation)
+{
+	public string ModeratorId { get; set; } = operation.Moderator.ToString();
 }

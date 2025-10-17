@@ -41,7 +41,7 @@ public class DomainRenewal : RdnOperation
 			return;
 		}	
 
-		if(!Domain.CanRenew(e, Signer, execution.Time, Time.FromYears(Years)))
+		if(!e.CanRenew(Signer, execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;
@@ -132,8 +132,7 @@ public class DomainTransfer : RdnOperation
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsOwner(e, Signer, execution.Time) && 
-																  !(Domain.IsOwner(p, Signer, execution.Time) && Domain.IsExpired(e, execution.Time)))
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && (!Domain.IsOwner(e, Signer, execution.Time) || e.IsExpired(execution.Time)))
 			{
 				Error = Denied;
 				return;
@@ -198,7 +197,7 @@ public class DomainPolicyUpdation : RdnOperation
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !Domain.IsExpired(e, execution.Time))
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !e.IsExpired(execution.Time))
 			{
 				Error = NotAvailable;
 				return;

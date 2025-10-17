@@ -64,11 +64,6 @@ public class PublicationCreation : VotableOperation
 		var r = execution.Products.Affect(Product);
 		var p = execution.Publications.Create(Site);
 		
-		if(As == Role.Candidate)
-		{ 
-			p.Flags = PublicationFlags.ApprovedByAuthor;
-		}
-
 		var v = r.Versions.Last();
 
 		p.Site				= Site.Id;
@@ -80,16 +75,23 @@ public class PublicationCreation : VotableOperation
 
 		Site.PublicationsCount++;
 
+		var a = execution.Authors.Affect(r.Author);
+		
 		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
-			var a = execution.Authors.Affect(r.Author);
 
-			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id}];
+			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id, EnergyLimit = Publisher.Unlimit, SpacetimeLimit = Publisher.Unlimit}];
 			a.Sites = [..a.Sites, Site.Id];
 		}
 
 		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 
-		execution.Allocate(Site, Site, execution.Net.EntityLength);
+		if(As == Role.Candidate)
+		{ 
+			p.Flags = PublicationFlags.ApprovedByAuthor;
+			execution.Allocate(a, a, execution.Net.EntityLength);
+		}
+		else
+			execution.Allocate(Site, Site, execution.Net.EntityLength);
 	}
 }

@@ -64,8 +64,7 @@ public class PublicationUpdation : VotableOperation
 			p.ProductVersion = Version;
 		else				/// replace version
 		{
-			/// decrease refs in product
-
+			/// decrease file refs
 			v.ForEach(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
 										{
