@@ -7,8 +7,6 @@ export type TToken =
   | "download"
   | "description-minimal"
   | "description-maximal"
-  | "minimal"
-  | "maximal"
   | "gpu"
   | "hardware"
   | "license"

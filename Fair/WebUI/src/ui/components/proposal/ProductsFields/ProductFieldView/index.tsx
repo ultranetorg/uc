@@ -2,6 +2,8 @@ import { ProductFieldModel } from "types"
 import { ProductFieldViewString } from "./ProductFieldViewString.tsx"
 import { JSX } from "react"
 import { ProductFieldViewUri } from "./ProductFieldViewUri.tsx"
+import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt.tsx"
+import { ProductFieldViewDate } from "./ProductFieldViewDate.tsx"
 
 export const ProductFieldView = ({ node: { type, value } }: { node: ProductFieldModel }) => {
   let component: JSX.Element;
@@ -9,6 +11,14 @@ export const ProductFieldView = ({ node: { type, value } }: { node: ProductField
   switch (type) {
     case 'uri': {
       component = <ProductFieldViewUri value={value} />
+      break;
+    }
+    case 'money': {
+      component = <ProductFieldViewBigInt value={value} />
+      break;
+    }
+    case 'date': {
+      component = <ProductFieldViewDate value={value} />
       break;
     }
     default: {
