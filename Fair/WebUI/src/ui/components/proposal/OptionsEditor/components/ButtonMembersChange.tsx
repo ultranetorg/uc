@@ -1,17 +1,21 @@
 import { useCallback, useState } from "react"
 
 import { ButtonOutline } from "ui/components"
-import { MembersChangeModal } from "ui/components/proposal"
+import { MembersAddModal, MembersRemoveModal } from "ui/components/proposal"
 
 import { MemberType } from "../../types"
 
+export type ChangeAction = "add" | "remove"
+
 export type ButtonMembersChangeProps = {
+  changeAction: ChangeAction
   memberType: MemberType
   label: string
+  value?: string | string[]
   onChange: (value: string | string[]) => void
 }
 
-export const ButtonMembersChange = ({ memberType, label }: ButtonMembersChangeProps) => {
+export const ButtonMembersChange = ({ changeAction, memberType, label, value, onChange }: ButtonMembersChangeProps) => {
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
 
   const handleClick = useCallback(() => setMembersChangeModalOpen(true), [])
@@ -20,7 +24,22 @@ export const ButtonMembersChange = ({ memberType, label }: ButtonMembersChangePr
   return (
     <>
       <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
-      {isMembersChangeModalOpen && <MembersChangeModal memberType={memberType} onClose={handleModalClose} />}
+      {isMembersChangeModalOpen &&
+        (changeAction === "add" ? (
+          <MembersAddModal
+            memberType={memberType}
+            changedIds={value as string[]}
+            onClose={handleModalClose}
+            onChange={onChange}
+          />
+        ) : (
+          <MembersRemoveModal
+            memberType={memberType}
+            changedIds={value as string[]}
+            onClose={handleModalClose}
+            onChange={onChange}
+          />
+        ))}
     </>
   )
 }

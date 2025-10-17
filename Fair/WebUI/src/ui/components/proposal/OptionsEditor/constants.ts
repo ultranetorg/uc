@@ -226,9 +226,14 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-authors-change",
       fields: [
         {
-          valueType: "authors-array",
-          name: "additions,removals",
-          placeholder: t("selectAuthors"),
+          valueType: "authors-additions",
+          name: "additionsIds",
+          placeholder: t("selectAuthorsToAdd"),
+        },
+        {
+          valueType: "authors-removals",
+          name: "removalsIds",
+          placeholder: t("selectAuthorsToRemove"),
         },
       ],
     },
@@ -246,9 +251,14 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-moderators-change",
       fields: [
         {
-          valueType: "moderators-array",
-          name: "additions,removals",
-          placeholder: t("selectModerators"),
+          valueType: "moderators-additions",
+          name: "additionsIds",
+          placeholder: t("selectModeratorsToAdd"),
+        },
+        {
+          valueType: "moderators-removals",
+          name: "removalsIds",
+          placeholder: t("selectModeratorsToRemove"),
         },
       ],
     },

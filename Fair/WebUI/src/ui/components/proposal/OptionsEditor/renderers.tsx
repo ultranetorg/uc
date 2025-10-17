@@ -76,18 +76,37 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       onChange={item => onChange(item.value)}
     />
   ),
-  "authors-array": ({ errorMessage, field, onChange }) => (
+  "authors-additions": ({ errorMessage, field, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onChange={onChange} />
+      <ButtonMembersChange
+        key={field.name}
+        changeAction="add"
+        memberType="author"
+        label={field.placeholder!}
+        onChange={onChange}
+      />
     </ValidationWrapper>
   ),
-  category: ({ errorMessage, field, onChange }) => (
+  "authors-removals": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <ButtonMembersChange
+        key={field.name}
+        changeAction="remove"
+        memberType="author"
+        label={field.placeholder!}
+        value={value}
+        onChange={onChange}
+      />
+    </ValidationWrapper>
+  ),
+  category: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
         key={field.name}
         className="placeholder-gray-500"
         error={!!errorMessage}
         placeholder={field.placeholder}
+        value={value}
         onChange={item => onChange(item.value)}
       />
     </ValidationWrapper>
@@ -106,8 +125,25 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
     </ValidationWrapper>
   ),
   file: ({ field }) => <div key={field.name}>file</div>,
-  "moderators-array": ({ field, onChange }) => (
-    <ButtonMembersChange key={field.name} memberType="moderator" label={field.placeholder!} onDataChange={onChange} />
+  "moderators-additions": ({ field, value, onChange }) => (
+    <ButtonMembersChange
+      key={field.name}
+      changeAction="add"
+      memberType="moderator"
+      label={field.placeholder!}
+      value={value}
+      onChange={onChange}
+    />
+  ),
+  "moderators-removals": ({ field, value, onChange }) => (
+    <ButtonMembersChange
+      key={field.name}
+      changeAction="remove"
+      memberType="moderator"
+      label={field.placeholder!}
+      value={value}
+      onChange={onChange}
+    />
   ),
   "operation-class": ({ field, onChange }) => (
     <DropdownWithTranslation
