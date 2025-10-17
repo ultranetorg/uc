@@ -408,7 +408,7 @@ public class Product : IBinarySerializable, ITableEntry
 																		 ]),
 													new (Token.Title,	FieldType.StringUtf8, length: 128),
 													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional, length: 256),
-													new (Token.URI,	FieldType.URI, length: 1024),
+													new (Token.URI,		FieldType.URI, length: 1024),
 													new (Token.Tags,	FieldType.StringUtf8, FieldFlag.Optional, length: 128),
 													new (Token.DescriptionMinimal,	[
 																						new (Token.Language,FieldType.Language, length: 8),
@@ -442,10 +442,10 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Release,	[
 																			new (Token.Version, FieldType.StringUtf8, length: 16),
 																			new (Token.Distributive, [
-																										new (Token.Platform,		FieldType.StringUtf8, length: 16),
+																										new (Token.Platform,	FieldType.StringUtf8, length: 16),
 																										new (Token.Version,		FieldType.StringUtf8, length: 16),
-																										new (Token.Date,			FieldType.Date),
-																										new (Token.Deploymwent,	FieldType.Deploymwent),
+																										new (Token.Date,		FieldType.Date),
+																										new (Token.Deployment,	FieldType.Deployment),
 																										new (Token.Download,[
 																																new (Token.URI,	FieldType.URI),
 																																new (Token.Hash,[
@@ -464,7 +464,7 @@ public class Product : IBinarySerializable, ITableEntry
 																															]),
 																										new (Token.Software,[
 																																new (Token.OS,				FieldType.OS),
-																																new (Token.Architecture,		FieldType.CPUArchitecture,	FieldFlag.Optional),
+																																new (Token.Architecture,	FieldType.CPUArchitecture,	FieldFlag.Optional),
 																																new (Token.Version,			FieldType.StringAnsi,		FieldFlag.Optional),
 																															])
 																									]),
