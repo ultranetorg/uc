@@ -27,3 +27,14 @@ export const useGetModeratorDiscussions = (siteId?: string, page?: number, pageS
 
   return { isPending, error: error ?? undefined, data }
 }
+
+export const useGetProductFields = (productId: string) => {
+  const queryFn = () => api.getProductFields(productId)
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["products", productId, "fields"],
+    queryFn: queryFn,
+  })
+
+  return { isPending, error: error ?? undefined, data }
+}
