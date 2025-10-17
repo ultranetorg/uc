@@ -27,7 +27,7 @@ public class SiteNicknameChange : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return true;
+		return false;
 	}
 
 	public override bool ValidateProposal(FairExecution execution, out string error)

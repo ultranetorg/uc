@@ -1,9 +1,5 @@
 namespace Uccs.Fair;
 
-public enum ProposalFlags : byte
-{
-}
-
 public enum SpecialChoice : sbyte
 {
 	Neither = -1, 
@@ -49,7 +45,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public AutoId				Site { get; set; }
 	public AutoId				By { get; set; }
 	public Role					As { get; set; }
-	public ProposalFlags		Flags { get; set; }
+	public PolicyFlag		Flags { get; set; }
 	public AutoId[]				Neither { get; set; }
 	public AutoId[]				Any { get; set; }
 	public AutoId[]				Ban { get; set; }
@@ -118,7 +114,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		Site			= reader.Read<AutoId>();
 		By				= reader.Read<AutoId>();
 		As				= reader.Read<Role>();
-		Flags			= reader.Read<ProposalFlags>();
+		Flags			= reader.Read<PolicyFlag>();
 		Neither			= reader.ReadArray<AutoId>();
 		Any				= reader.ReadArray<AutoId>();
 		Ban				= reader.ReadArray<AutoId>();

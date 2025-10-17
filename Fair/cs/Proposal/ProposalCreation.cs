@@ -128,27 +128,27 @@ public class ProposalCreation : FairOperation
  		if(p == null)
  			throw new IntegrityException();
  
-// 		if(s.Proposals.Any(i =>  {
-//									var d = execution.Proposals.Find(i);
-//
-//									if(d.OptionClass != c)
-//										return false;
-//
-//									foreach(var a in d.Options)
-//										foreach(var b in Options)
-//											if(a.Operation.Overlaps(b.Operation))
-//												return true;
-//
-//									return false;
-//								}))
-// 		{
-// 			Error = AlreadyExists;
-// 			return;
-// 		}
+ 		if(s.Proposals.Any(i =>  {
+									var d = execution.Proposals.Find(i);
+
+									if(d.OptionClass != c)
+										return false;
+
+									foreach(var a in d.Options)
+										foreach(var b in Options)
+											if(a.Operation.Overlaps(b.Operation))
+												return true;
+
+									return false;
+								}))
+ 		{
+ 			Error = AlreadyExists;
+ 			return;
+ 		}
 
 		s = execution.Sites.Affect(s.Id);
 
-		if(As == Role.Publisher && p.Creators.Contains(Role.Publisher))
+		if(As == Role.Publisher && p.Creators.HasFlag(Role.Publisher))
  		{
 			if(!CanAccessAuthor(execution, By, out var a, out Error))
 				return;
@@ -165,7 +165,7 @@ public class ProposalCreation : FairOperation
 			a = execution.Authors.Affect(By);
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.Moderator && p.Creators.Contains(Role.Moderator))
+		else if(As == Role.Moderator && p.Creators.HasFlag(Role.Moderator))
  		{
 			if(!CanAccessAccount(execution, By, out _, out Error))
 				return;
@@ -181,7 +181,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(s);
  		}
- 		else if(As == Role.Candidate && p.Creators.Contains(Role.Candidate))
+ 		else if(As == Role.Candidate && p.Creators.HasFlag(Role.Candidate))
  		{
 			if(!CanAccessAuthor(execution, By, out var _, out Error))
 				return;
@@ -193,7 +193,7 @@ public class ProposalCreation : FairOperation
 
 			execution.PayCycleEnergy(a);
  		}
-		else if(As == Role.User && p.Creators.Contains(Role.User))
+		else if(As == Role.User && p.Creators.HasFlag(Role.User))
 		{
 			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;

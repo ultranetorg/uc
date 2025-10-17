@@ -3,26 +3,26 @@
 public class SitePolicyChange : SiteOperation
 {
 	public FairOperationClass	Operation { get; set; }
-	public Role[]				Creators { get; set; }
+	public Role					Creators { get; set; }
 	public ApprovalRequirement	Approval { get; set; }
 
 	public override bool		IsValid(McvNet net) =>	Enum.IsDefined<FairOperationClass>(Operation) && 
-														Creators.All(i => Enum.IsDefined<Role>(i)) && Creators.Distinct().Count() == Creators.Length &&
+														Enum.IsDefined<Role>(Creators)&&
 														Enum.IsDefined<ApprovalRequirement>(Approval);
 
-	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Approval={Approval}";
+	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Creators={Creators}, Approval={Approval}";
 	
 	public override void Read(BinaryReader reader)
 	{
 		Operation	= reader.Read<FairOperationClass>();
-		Creators	= reader.ReadArray(() => reader.Read<Role>());
+		Creators	= reader.Read<Role>();
 		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Operation);
-		writer.Write(Creators, i => writer.Write(i));
+		writer.Write(Creators);
 		writer.Write(Approval);
 	}
 
@@ -47,6 +47,18 @@ public class SitePolicyChange : SiteOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		if(!Site.Restrictions.First(i => i.Operation == Operation).Flags.HasFlag(PolicyFlag.ChangableApproval))
+		{
+			Error = Denied;
+			return;
+		}
+
+		if(!Site.Restrictions.First(i => i.Operation == Operation).Creators.HasFlag(Creators))
+		{
+			Error = Denied;
+			return;
+		}
+
  		var s = Site;
 
 		s.Policies = [..s.Policies];
