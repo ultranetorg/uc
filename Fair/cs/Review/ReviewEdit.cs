@@ -44,11 +44,7 @@ public class ReviewEdit : VotableOperation
 	public override void Execute(FairExecution execution)
 	{
 		var r = execution.Reviews.Affect(Review);
-		var p = execution.Publications.Affect(r.Publication);
-		var s = execution.Sites.Affect(p.Site);
-
-		execution.Free(s, s, Encoding.UTF8.GetByteCount(r.Text));
-		execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
+		var p = execution.Publications.Find(r.Publication);
 
 		r.Text = Text;
 
@@ -56,8 +52,16 @@ public class ReviewEdit : VotableOperation
 		{ 
 			var x = execution.Products.Find(p.Product);
 			var a = execution.Authors.Affect(x.Author);
-			
+			var pb = Site.Publishers.First(i => i.Author == a.Id);
+
 			RewardForModeration(execution, a, Site);
+			execution.Free(a, a, Encoding.UTF8.GetByteCount(r.Text));
+			execution.Allocate(a, pb, Encoding.UTF8.GetByteCount(Text), out Error);
+		}
+		else
+		{
+			execution.Free(Site, Site, Encoding.UTF8.GetByteCount(r.Text));
+			execution.Allocate(Site, Site, Encoding.UTF8.GetByteCount(Text));
 		}
 	}
 }

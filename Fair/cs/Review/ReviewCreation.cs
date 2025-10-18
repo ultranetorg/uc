@@ -57,14 +57,16 @@ public class ReviewCreation : VotableOperation
 
 		Signer.Reviews = [..Signer.Reviews, v.Id];
 
-		execution.Allocate(Site, Site, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
-
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 
 			var x = execution.Products.Find(p.Product);
 			var a = execution.Authors.Affect(x.Author);
+			var pb = Site.Publishers.First(i => i.Author == a.Id);
 			
 			RewardForModeration(execution, a, Site);
+			execution.Allocate(a, pb, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text), out Error);
 		}
+		else
+			execution.Allocate(Site, Site, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 	}
 }

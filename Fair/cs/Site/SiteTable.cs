@@ -80,8 +80,6 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		s.Publishers = [];
 		s.Users = [];
 		s.Proposals = [];
-		s.CreationPolicies = [];
-		s.ApprovalPolicies = [];
 		s.UnpublishedPublications = [];
 		s.ChangedPublications = [];
 		s.Nickname = "";

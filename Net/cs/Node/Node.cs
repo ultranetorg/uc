@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using RocksDbSharp;
 
 namespace Uccs.Net;
@@ -37,6 +38,7 @@ public class Node
 	public UosApiClient			UosApi;
 	public HttpClient			HttpClient;
 	public Delegate				Stopped;
+	public string				ExeDirectory;
 
 	public const string			FailureExt = "failure";
 
@@ -54,6 +56,7 @@ public class Node
 		Net = net;
 		Profile = profile;
 		Flow = flow;
+		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 		var cf = new ColumnFamilies();
 

@@ -4,6 +4,16 @@ public enum ProposalFlags : byte
 {
 }
 
+public enum SpecialChoice : sbyte
+{
+	Neither = -1, 
+	Any = -2, 
+	Ban = -3, 
+	Banish = -4, 
+	_First = Banish, 
+	None = -127
+}
+
 public class ProposalOption : Option
 {
 	public AutoId[]	Yes { get; set; }
@@ -41,7 +51,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public Role					As { get; set; }
 	public ProposalFlags		Flags { get; set; }
 	public AutoId[]				Neither { get; set; }
-	public AutoId[]				Abstained { get; set; }
+	public AutoId[]				Any { get; set; }
 	public AutoId[]				Ban { get; set; }
 	public AutoId[]				Banish { get; set; }
 	public Time					CreationTime { get; set; }
@@ -75,7 +85,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 					As				= As,
 					Flags			= Flags,
 					Neither			= Neither,
-					Abstained				= Abstained,
+					Any				= Any,
 					Ban				= Ban,
 					Banish			= Banish,
 					CreationTime	= CreationTime,
@@ -110,7 +120,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		As				= reader.Read<Role>();
 		Flags			= reader.Read<ProposalFlags>();
 		Neither			= reader.ReadArray<AutoId>();
-		Abstained				= reader.ReadArray<AutoId>();
+		Any				= reader.ReadArray<AutoId>();
 		Ban				= reader.ReadArray<AutoId>();
 		Banish			= reader.ReadArray<AutoId>();
 		CreationTime	= reader.Read<Time>();
@@ -128,7 +138,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		writer.Write(As);
 		writer.Write(Flags);
 		writer.Write(Neither);
-		writer.Write(Abstained);
+		writer.Write(Any);
 		writer.Write(Ban);
 		writer.Write(Banish);
 		writer.Write(CreationTime);
@@ -138,3 +148,5 @@ public class Proposal : IBinarySerializable, ITableEntry
 		writer.Write(Comments);
 	}
 }
+
+

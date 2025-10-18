@@ -19,7 +19,7 @@ public class FairExecution : Execution
 	public PublicationTitleExecution	PublicationTitles;
 	public SiteTitleExecution			SiteTitles;
 
-	public bool							LongYesVoted;
+	public bool							SkipPowCheck;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -61,6 +61,25 @@ public class FairExecution : Execution
 		e.SiteTitles		= new(this){Parent = SiteTitles};
 
 		return e;
+	}
+
+
+	public void Allocate(Author author, Publisher publisher, int space, out string error)
+	{
+		error = null;
+
+		if(publisher.SpacetimeLimit != Publisher.Unlimit)
+		{
+			publisher.SpacetimeLimit -= space;
+
+			if(publisher.SpacetimeLimit < 0)
+			{
+				error = Operation.LimitReached;
+				return;
+			}
+		}
+		
+		Allocate(author, author, space);
 	}
 
 	public void Absorb(FairExecution execution)

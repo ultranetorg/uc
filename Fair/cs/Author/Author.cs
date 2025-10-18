@@ -12,9 +12,9 @@ public enum AuthorLink : byte
 	Custom, Website, Youtube, Facebook, X, Github, Linkedin, Instagram, 
 }
 
-public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
+public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
 {
-	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
+	//public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public AutoId					Id { get; set; }
 	public string					Nickname { get; set; }
@@ -102,18 +102,12 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public static bool IsOwner(Author author, Account account, Time time)
 	{
-		return author.Owners.Contains(account.Id) && !IsExpired(author, time);
+		return author.Owners.Contains(account.Id) && !author.IsExpired(time);
 	}
 
-	public static bool IsExpired(Author a, Time time) 
+	public bool IsExpired(Time time) 
 	{
-		return	time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
-	}
-
-	public static bool CanRenew(Author author, Account by, Time time)	
-	{
-		return IsOwner(author, by, time) && time.Days > author.Expiration - RenewalPeriod && /// renewal by owner: renewal is allowed during last year olny
-											time.Days <= author.Expiration;
+		return	time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
 	public void WriteMain(BinaryWriter writer)
