@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgArrowLeft } from "assets"
-import { Proposal, ProposalComment, TotalItemsResult } from "types"
+import { Proposal, ProposalComment, PublicationCreation, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, OptionsCollapsesList, ProposalInfo } from "ui/components/proposal"
 import { useParams } from "react-router-dom"
@@ -80,8 +80,9 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
   const productIds = useMemo(
     () =>
       proposal?.options
-        ?.filter(option => option.operation.$type === "publication-creation")
-        .map(option => option.operation.productId),
+        ?.map(option => option.operation)
+        .filter((operation): operation is PublicationCreation => operation.$type === "publication-creation")
+        .map(operation => operation.productId),
     [proposal],
   )
 
