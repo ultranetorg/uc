@@ -316,12 +316,28 @@ public abstract class Round : IBinarySerializable
 		
 		if(Id > 0)
 		{
-			var t = SelectedArrived.GroupBy(x => x.Time).MaxBy(i => i.Count());
+			ConsensusTime = Previous.ConsensusTime;
 
-			if(t.Count() >= min && t.Key > Previous.ConsensusTime)
-				ConsensusTime = t.Key;
-			else
-				ConsensusTime = Previous.ConsensusTime;
+			for(int n = 0; n < 31; n++)
+			{
+				var g = SelectedArrived.GroupBy(i => i.Time.Seconds >> n).MaxBy(i => i.Count());
+	
+				if(g.Max(i => i.Time.Seconds) - g.Min(i => i.Time.Seconds) > 10 * TimeSpan.SecondsPerMinute)
+				{
+					break;
+				}
+
+				if(g.Count() >= min)
+				{	
+					var t = new Time((int)(g.Sum(i => (long)i.Time.Seconds)/g.Count()));
+
+					if(t > Previous.ConsensusTime)
+					{
+						ConsensusTime = t;
+						break;
+					}
+				}
+			}
 		}
 
 		var txs = all.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
