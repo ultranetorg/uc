@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 import { ButtonPrimary, RadioCard } from "ui/components"
 
 const ALTERNATIVE_OPTION_ITEMS = [
-  { title: "Abstained", description: "Не могу определиться с выбором" },
+  { title: "Any", description: "Подходит любой вариант" },
   { title: "Neither", description: "Ни один из вариантов не подходит" },
   { title: "Ban", description: "Против проведения референдума" },
   { title: "Banish", description: "Бан автора данного референдума" },
