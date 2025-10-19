@@ -68,6 +68,8 @@ public class SitesService
 
 			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.Account.ToString());
 			IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
+			(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) =
+				GetReferendumDiscussionOperations(site.Policies);
 
 			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
 
@@ -75,9 +77,32 @@ public class SitesService
 			{
 				Categories = categories,
 				ModeratorsIds = moderatorsIds,
-				AuthorsIds = authorsIds
+				AuthorsIds = authorsIds,
+				ReferendumOperations = referendumOperations,
+				DiscussionOperations = discussionOperations
 			};
 		}
+	}
+
+	(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations)
+		GetReferendumDiscussionOperations(Policy[] policies)
+	{
+		List<FairOperationClass> referendumsResult = new (policies.Length);
+		List<FairOperationClass> discussionsResult = new (policies.Length);
+
+		foreach (var policy in policies)
+		{
+			if (policy.Approval == ApprovalRequirement.PublishersMajority)
+			{
+				referendumsResult.Add(policy.Operation);
+			}
+			else
+			{
+				discussionsResult.Add(policy.Operation);
+			}
+		}
+
+		return (referendumsResult, discussionsResult);
 	}
 
 	IEnumerable<SiteCategoryModel> LoadCategories(AutoId[] categoriesIds)

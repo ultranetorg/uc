@@ -6,8 +6,3 @@ public class SiteModeratorAdditionModel(SiteModeratorAddition operation) : BaseV
 {
 	public IEnumerable<string> CandidatesIds { get; set; } = operation.Candidates.Select(x => x.ToString());
 }
-
-public class SiteModeratorRemovalModel(SiteModeratorRemoval operation) : BaseVotableOperationModel(operation)
-{
-	public string ModeratorId { get; set; } = operation.Moderator.ToString();
-}

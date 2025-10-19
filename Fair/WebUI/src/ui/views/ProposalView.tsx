@@ -77,6 +77,7 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
   const [pageState, setPageState] = useState<PageState>("voting")
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
+
   const productIds = useMemo(
     () =>
       proposal?.options
@@ -130,6 +131,12 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
           <CommentsSection isFetching={isCommentsFetching} comments={comments} />
         </div>
         <div className="flex flex-col gap-6">
+          <ProposalInfo
+            className="w-87.5"
+            createdBy={proposal?.byAccount}
+            createdAt={proposal?.creationTime}
+            daysLeft={7}
+          />
           {pageState == "voting" ? (
             <ButtonOutline className="h-11 w-full" label="Show results" onClick={togglePageState} />
           ) : (
