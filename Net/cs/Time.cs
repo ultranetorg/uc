@@ -6,26 +6,27 @@ namespace Uccs.Net;
 
 public struct Time : IBinarySerializable
 {
-	public int					Days;
-	public const string			DateFormat = "yyyy-MM-dd";
+	public int						Seconds;
+	public short					Days => (short)(Seconds/TimeSpan.SecondsPerDay);
+	public const string				DateFormat = "yyyy-MM-dd HH:mm:ss";
 
-	public static readonly Time	Zero = new Time(0);
-	public static readonly Time	Empty = new Time(-1);
-	public static DateTime		Start = new DateTime(2025, 1, 1);
-	public static Time			Now(IClock clock) => new Time(clock.Now - Start);
+	public static readonly Time		Zero = new Time(0);
+	public static readonly Time		Empty = new Time(-1);
+	public static DateTime			Start = new DateTime(2025, 1, 1);
 
-	public static Time			operator-  (Time a, Time b) => new Time(a.Days - b.Days);
-	public static Time			operator+  (Time a, Time b) => new Time(a.Days + b.Days);
-	public static bool			operator<  (Time a, Time b) => a.Days < b.Days;
-	public static bool			operator>  (Time a, Time b) => a.Days > b.Days;
-	public static bool			operator<= (Time a, Time b) => a.Days <= b.Days;
-	public static bool			operator>= (Time a, Time b) => a.Days >= b.Days;
-	public static bool			operator== (Time a, Time b) => a.Days == b.Days;
-	public static bool			operator!= (Time a, Time b) => a.Days != b.Days;
+	public static Time				operator -  (Time a, Time b) => new Time(a.Seconds - b.Seconds);
+	public static Time				operator +  (Time a, Time b) => new Time(a.Seconds + b.Seconds);
+	public static bool				operator <  (Time a, Time b) => a.Seconds < b.Seconds;
+	public static bool				operator >  (Time a, Time b) => a.Seconds > b.Seconds;
+	public static bool				operator <= (Time a, Time b) => a.Seconds <= b.Seconds;
+	public static bool				operator >= (Time a, Time b) => a.Seconds >= b.Seconds;
+	public static bool				operator == (Time a, Time b) => a.Seconds == b.Seconds;
+	public static bool				operator != (Time a, Time b) => a.Seconds != b.Seconds;
 
-	public string				ToString(string format) => (Start + TimeSpan.FromDays(Days)).ToString(format);
-	public static Time			Max(Time a, Time b) => a > b ? a : b;
-	public TimeSpan				ToTimeSpan() => TimeSpan.FromDays(Days);
+	public static Time				Now(IClock clock) => new Time(clock.Now - Start);
+	public string					ToString(string format) => (Start + TimeSpan.FromSeconds(Seconds)).ToString(format);
+	public TimeSpan					ToTimeSpan() => TimeSpan.FromSeconds(Seconds);
+	public static Time				Max(Time a, Time b) => a > b ? a : b;
 
 	public Time()
 	{
@@ -33,12 +34,12 @@ public struct Time : IBinarySerializable
 
 	public Time(int t)
 	{
-		Days = t;
+		Seconds = t;
 	}
-
+	
 	public Time(TimeSpan time)
 	{
-		Days = (int)(time.Ticks/10_000_000/60/60/24);
+		Seconds = (int)(time.Ticks/TimeSpan.TicksPerSecond);
 	}
 
 	public override string ToString()
@@ -53,32 +54,32 @@ public struct Time : IBinarySerializable
 
 	public override bool Equals(object o)
 	{
-		return o != null && o is Time t && t.Days == Days;
+		return o != null && o is Time t && t.Seconds == Seconds;
 	}
 
 	public override int GetHashCode()
 	{
-		return Days.GetHashCode();
+		return Seconds.GetHashCode();
 	}
 
 	public static Time FromYears(int years)
 	{
-		return new Time(365 * years);
+		return new Time(365 * 60 * 60 * 24 * years);
 	}
 
 	public static Time FromDays(int days)
 	{
-		return new Time(days);
+		return new Time(days * (int)TimeSpan.SecondsPerDay);
 	}
 
 	public void Read(BinaryReader r)
 	{
-		Days = r.Read7BitEncodedInt();
+		Seconds = r.Read7BitEncodedInt();
 	}
 
 	public void Write(BinaryWriter w)
 	{
-		w.Write7BitEncodedInt(Days);
+		w.Write7BitEncodedInt(Seconds);
 	}
 }
 
@@ -91,6 +92,6 @@ public class TimeJsonConverter : JsonConverter<Time>
 
 	public override void Write(Utf8JsonWriter writer, Time value, JsonSerializerOptions options)
 	{
-		writer.WriteNumberValue(value.Days);
+		writer.WriteNumberValue(value.Seconds);
 	}
 }

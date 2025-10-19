@@ -37,8 +37,8 @@ export const renderActionShort = (t: TFunction, operationType: OperationType) =>
 )
 
 export const renderAnbb = (t: TFunction, proposal: BaseProposal) => {
-  const title = formatAnbb(t, proposal.abstainedCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
-  const value = formatAnbbShort(proposal.abstainedCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
+  const title = formatAnbb(t, proposal.anyCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
+  const value = formatAnbbShort(proposal.anyCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
   return (
     <div className="truncate" title={title}>
       {value}

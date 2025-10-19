@@ -25,7 +25,7 @@ public class ProductsService
 			}
 
 			var fields = product.Versions
-				.FirstOrDefault()
+				.LastOrDefault()
 				?.Fields;
 
 			return fields == null ? [] : MapValues(fields);

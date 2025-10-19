@@ -183,7 +183,7 @@ public struct EC : IBinarySerializable, IEquatable<EC>
 
 	public override int GetHashCode()
 	{
-		return Expiration.Days.GetHashCode();
+		return Expiration.Seconds.GetHashCode();
 	}
 
 	public override bool Equals(object obj)

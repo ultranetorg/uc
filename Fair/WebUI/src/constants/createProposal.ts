@@ -12,9 +12,8 @@ export const CREATE_PROPOSAL_OPERATION_TYPES: OperationType[] = [
   "category-type-change",
   "site-authors-change",
   "site-avatar-change",
-  "site-moderators-change",
+  "site-moderator-addition",
   "site-nickname-change",
-  "site-policy-change",
   "site-text-change",
 ] as const
 

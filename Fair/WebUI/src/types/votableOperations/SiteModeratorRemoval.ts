@@ -1,6 +1,5 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
-export type SiteModeratorsChange = {
-  additionsIds: string[]
-  removalsIds: string[]
+export type SiteModeratorRemoval = {
+  moderatorId: string[]
 } & BaseVotableOperation

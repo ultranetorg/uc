@@ -43,8 +43,20 @@ public class FairTypeResolver : ApiTypeResolver
 										IgnoreUnrecognizedTypeDiscriminators = true,
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
-									 
 			foreach(var i in typeof(SiteOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(SiteOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+ 				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
+
+        else if(ti.Type == typeof(VotableOperation))
+ 		{
+            ti.PolymorphismOptions = new JsonPolymorphismOptions
+									 {
+										TypeDiscriminatorPropertyName = "$type",
+										IgnoreUnrecognizedTypeDiscriminators = true,
+										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+									 };
+
+			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
 
