@@ -86,7 +86,7 @@ export const enUS = {
     tags: "Tags",
     price: "Price",
     description: "Description",
-    deploymwent: "Deploymwent",
+    deployment: "Deployment",
     value: "Value",
   },
   about: {

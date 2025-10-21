@@ -4,6 +4,7 @@ import { JSX } from "react"
 import { ProductFieldViewUri } from "./ProductFieldViewUri.tsx"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt.tsx"
 import { ProductFieldViewDate } from "./ProductFieldViewDate.tsx"
+import { ProductFieldViewFile } from "./ProductFieldViewFile.tsx"
 
 export const ProductFieldView = ({ node: { type, value } }: { node: ProductFieldModel }) => {
   let component: JSX.Element;
@@ -21,6 +22,11 @@ export const ProductFieldView = ({ node: { type, value } }: { node: ProductField
       component = <ProductFieldViewDate value={value} />
       break;
     }
+    case 'file-id': {
+      component = <ProductFieldViewFile value={value} />
+      break;
+    }
+
     default: {
       component = <ProductFieldViewString value={value} />
     }
