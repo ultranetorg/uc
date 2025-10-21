@@ -60,6 +60,11 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-2
 Accept: application/json
 
+### GET Product Fields
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/products/67753-0/fields
+Accept: application/json
+
 ### GET Publication
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/publications/65576-0
