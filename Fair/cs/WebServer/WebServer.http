@@ -62,7 +62,7 @@ Accept: application/json
 
 ### GET Product Fields
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/products/67753-0/fields
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/products/67753-3/fields
 Accept: application/json
 
 ### GET Publication
