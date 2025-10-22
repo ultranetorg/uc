@@ -39,7 +39,6 @@ public enum Token : uint
 	Video,
 	VideoType,
 	Language,
-	Youtube,
 	Tags,
 	Price,
 	Description,
@@ -59,7 +58,6 @@ public enum FieldType : int
 	URI,
 	Language,
 	License,
-	Video,
 	Deployment,
 	Money,
 	Date,
@@ -437,9 +435,7 @@ public class Product : IBinarySerializable, ITableEntry
 																															]),
 																								]),
 																		new (Token.Video,	[
-																								new (Token.Type,	FieldType.Video),
-																								new (Token.Id,		FieldType.FileId,	FieldFlag.ThisOrAnother),
-																								new (Token.Youtube,	FieldType.URI,		FieldFlag.ThisOrAnother),
+																								new (Token.URI,	FieldType.URI,		FieldFlag.ThisOrAnother),
 																								new (Token.Description,	[
 																															new (Token.Language,		FieldType.Language),
 																															new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),

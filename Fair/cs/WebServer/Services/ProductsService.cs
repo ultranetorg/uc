@@ -43,7 +43,7 @@ public class ProductsService
 				{
 					Name = field.Name, Type = field.Type
 				}),
-				Value = value.Value,
+				Value = valueField?.Type == FieldType.FileId ? value.AsAutoId.ToString() : value.Value,
 				Children = value.Fields?.Length > 0
 					? MapValues(value.Fields, valueField?.Fields)
 					: null

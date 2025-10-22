@@ -8,7 +8,7 @@ export const useGetFile = (id: string) => {
   const queryFn = () => api.getFile(id)
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["users", id],
+    queryKey: ["files", id],
     queryFn: queryFn,
   })
 

@@ -68,8 +68,6 @@ export type Api = {
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
 
-  getFile(id: string): Promise<string>
-
   // Moderator
   getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>
   getModeratorDiscussions(

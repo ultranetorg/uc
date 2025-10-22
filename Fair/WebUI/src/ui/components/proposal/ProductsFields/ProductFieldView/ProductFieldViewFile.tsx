@@ -1,12 +1,10 @@
 import { memo } from "react"
-import { AutoId, useGetFile } from "entities"
+import { useGetFile } from "entities"
 import { buildSrc } from "utils"
 import { SpinnerRowSvg } from "assets"
 
 export const ProductFieldViewFile = memo(({ value }: { value: string }) => {
-  const id = AutoId.fromBase64(value).toString()
-
-  const { error, data, isPending } = useGetFile(id)
+  const { error, data, isPending } = useGetFile(value)
   if (isPending) {
     return <SpinnerRowSvg />
   }

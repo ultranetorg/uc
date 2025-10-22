@@ -9,12 +9,12 @@ public class FilesController
 	FileService fileService
 ) : BaseController
 {
-	[HttpGet("{id}")]
-	public IActionResult Get(string id)
+	[HttpGet("{fileId}")]
+	public IActionResult Get(string fileId)
 	{
-		logger.LogInformation($"GET {nameof(FilesController)}.{nameof(Get)} method called with {{id}}", id);
-		autoIdValidator.Validate(id, nameof(Product).ToLower());
+		logger.LogInformation($"GET {nameof(FilesController)}.{nameof(Get)} method called with {{fileId}}", fileId);
+		autoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
 		
-		return Ok(fileService.GetFileData(id));
+		return Ok(fileService.GetFileData(fileId));
 	}
 }

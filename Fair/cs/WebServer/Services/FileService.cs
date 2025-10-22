@@ -1,15 +1,17 @@
+using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
-public class FileService(
+public class FileService
+(
 	ILogger<FileService> logger,
-	FairMcv mcv)
+	FairMcv mcv
+)
 {
-	public byte[] GetFileData(string fileId)
+	public byte[] GetFileData([NotNull][NotEmpty] string fileId)
 	{
-		logger.LogDebug($"GET {nameof(FileService)}.{nameof(FileService.GetFileData)} method called with {{fileId}}",
-			fileId);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {FileId}", nameof(FileService), nameof(GetFileData), fileId);
 
 		Guard.Against.NullOrEmpty(fileId);
 
