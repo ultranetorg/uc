@@ -13,7 +13,6 @@ public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
-	//public List<ForeignResult>	ApprovedEmissions = new();
 	public List<ForeignResult>		ApprovedMigrations = new();
 	IPAddress[]						GraphIPs;
 	IPAddress[]						SeedHubIPs;
@@ -22,7 +21,7 @@ public class RdnMcv : Mcv
 	{
   	}
 
-	public RdnMcv(Rdn sun, McvSettings settings, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, databasepath, new RdnGenesis(), clock)
+	public RdnMcv(Rdn sun, McvSettings settings, string datapath, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, datapath, databasepath, new RdnGenesis(), clock)
 	{
 		GraphIPs = baseips;
 		SeedHubIPs = seedhubips;

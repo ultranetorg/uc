@@ -100,6 +100,7 @@ public static class Extentions
 		var t = Enum.GetUnderlyingType(typeof(E));
 
 		if(t == typeof(byte))	writer.Write((byte)(object)a); else
+		if(t == typeof(sbyte))	writer.Write((sbyte)(object)a); else
 		if(t == typeof(ushort))	writer.Write((ushort)(object)a); else
 		if(t == typeof(uint))	writer.Write((uint)(object)a); else
 		
@@ -111,6 +112,7 @@ public static class Extentions
 		var t = Enum.GetUnderlyingType(typeof(E));
 
 		if(t == typeof(byte))	return (E)Enum.ToObject(typeof(E), reader.ReadByte());
+		if(t == typeof(sbyte))	return (E)Enum.ToObject(typeof(E), reader.ReadSByte());
 		if(t == typeof(ushort))	return (E)Enum.ToObject(typeof(E), reader.ReadUInt16());
 		if(t == typeof(uint))	return (E)Enum.ToObject(typeof(E), reader.ReadUInt32());
 		

@@ -5,8 +5,7 @@ namespace Uccs.Fair;
 public static class ProposalUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsDiscussion(Site site, Proposal proposal) =>
-		site.ApprovalPolicies[proposal.OptionClass] != ApprovalPolicy.PublishersMajority;
+	public static bool IsDiscussion(Site site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationRemoveFromChanged or PublicationUpdation;
@@ -15,7 +14,7 @@ public static class ProposalUtils
 
 	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserDeletion or UserRegistration;
 
-	public static BaseVotableOperationModel ToBaseVotableOperationModel(VotableOperation proposal)
+	public static BaseVotableOperationModel ToBaseVotableOperationModel(SiteOperation proposal)
 	{
 		return proposal switch
 		{
@@ -30,13 +29,12 @@ public static class ProposalUtils
 			PublicationRemoveFromChanged operation => new PublicationRemoveFromChangedModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
-			//ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-			SiteModeratorsChange operation => new SiteModeratorsChangeModel(operation),
+			SiteModeratorAddition operation => new SiteModeratorAdditionModel(operation),
+			SiteModeratorRemoval operation => new SiteModeratorRemovalModel(operation),
 			SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
-			SitePolicyChange operation => new SitePolicyChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
 			UserDeletion operation => new UserDeletionModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),

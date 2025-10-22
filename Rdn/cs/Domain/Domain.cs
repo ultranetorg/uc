@@ -7,9 +7,6 @@ public enum DomainFlag : byte
 	None, 
 	Owned		= 0b_______1, 
 	Auction		= 0b______10, 
-	ComOwned	= 0b_____100, 
-	OrgOwned	= 0b____1000, 
-	NetOwned	= 0b___10000, 
 	ChildNet	= 0b__100000, 
 }
 
@@ -29,7 +26,7 @@ public enum NtnStatus
 	BlockSent
 }
 
-public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
+public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable
 {
 	//public const int				ExclusiveLengthMax = 12;
 	public const int				NameLengthMin = 1;
@@ -37,6 +34,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 	public const char				NormalPrefix = '_';
 	public const char				National = '~';
 	public const char				Subdomain = '~';
+
+	public static readonly string[] ExclusiveTlds = ["com", "org", "net", "info", "biz"];
 
 	public static readonly Time		AuctionMinimalDuration = Time.FromDays(365);
 	public static readonly Time		Prolongation = Time.FromDays(30);
@@ -47,9 +46,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
-	public AutoId					ComOwner { get; set; }
-	public AutoId					OrgOwner { get; set; }
-	public AutoId					NetOwner { get; set; }
 	public Time						FirstBidTime { get; set; } = Time.Empty;
 	public AutoId					LastWinner { get; set; }
 	public long						LastBid { get; set; }
@@ -96,9 +92,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 								LastWinner = LastWinner,
 								LastBid = LastBid,
 								LastBidTime = LastBidTime,
-								ComOwner = ComOwner,
-								OrgOwner = OrgOwner,
-								NetOwner = NetOwner,
 								Space = Space,
 								NtnChildNet = NtnChildNet,
 								NtnSelfHash = NtnSelfHash};
@@ -141,20 +134,18 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 
 	public static bool IsOwner(Domain domain, Account account, Time time)
 	{
-		return domain.Owner == account.Id && !IsExpired(domain, time);
+		return domain.Owner == account.Id && !domain.IsExpired(time);
 	}
 
-	public static bool IsExpired(Domain a, Time time) 
+	public bool IsExpired(Time time)
 	{
-		return	a.LastWinner != null && a.Owner == null &&	time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
-															a.Owner != null && time.Days > a.Expiration;	 /// owner has not renewed, restart the auction
+		return	LastWinner != null && Owner == null && time > AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
+									  Owner != null && time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public static bool CanRenew(Domain domain, Account owner, Time time, Time duration)
+	public bool CanRenew(Account owner, Time time, Time duration)
 	{
-		return  domain.Owner == owner.Id && 
-				time.Days <= domain.Expiration &&
-				domain.Expiration + duration.Days - time.Days < Time.FromYears(10).Days;
+		return  Owner == owner.Id && ((IExpirable)this).CanRenew(time, duration);
 	}
 
 	public static bool CanRegister(string name, Domain domain, Time time, Account by)
@@ -170,7 +161,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 
 	public static bool CanBid(Domain domain, Time time)
 	{
- 		if(!IsExpired(domain, time))
+ 		if(!domain.IsExpired(time))
  		{
 			if(domain.LastWinner == null) /// first bid
 			{
@@ -198,9 +189,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 		
 		if(LastWinner != null)	f |= DomainFlag.Auction;
 		if(Owner != null)		f |= DomainFlag.Owned;
-		if(ComOwner != null)	f |= DomainFlag.ComOwned;
-		if(OrgOwner != null)	f |= DomainFlag.OrgOwned;
-		if(NetOwner != null)	f |= DomainFlag.NetOwned;
 		if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
 
 		writer.Write((byte)f);
@@ -216,10 +204,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 				writer.Write(LastBidTime);
 				writer.Write7BitEncodedInt64(LastBid);
 			}
-
-			if(f.HasFlag(DomainFlag.ComOwned))	writer.Write(ComOwner);
-			if(f.HasFlag(DomainFlag.OrgOwned))	writer.Write(OrgOwner);
-			if(f.HasFlag(DomainFlag.NetOwned))	writer.Write(NetOwner);
 		}
 
 		if(f.HasFlag(DomainFlag.Owned))
@@ -256,10 +240,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry
 				LastBidTime		= reader.Read<Time>();
 				LastBid			= reader.Read7BitEncodedInt64();
 			}
-
-			if(f.HasFlag(DomainFlag.ComOwned))	ComOwner = reader.Read<AutoId>();
-			if(f.HasFlag(DomainFlag.OrgOwned))	OrgOwner = reader.Read<AutoId>();
-			if(f.HasFlag(DomainFlag.NetOwned))	NetOwner = reader.Read<AutoId>();
 		}
 
 		if(f.HasFlag(DomainFlag.Owned))

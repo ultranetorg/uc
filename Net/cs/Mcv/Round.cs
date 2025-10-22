@@ -18,18 +18,18 @@ public abstract class Round : IBinarySerializable
 
 	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
 
-	public int											Try = 0;
+	public int											Try;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God}] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
-	public List<Vote>									Votes = new();
-	public List<AccountAddress>							Forkers = new();
-	public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
-	public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-	public IEnumerable<Vote>							SelectedArrived => VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator));
-	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash => SelectedArrived.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+	public List<Vote>									Votes = [];
+	public List<AccountAddress>							Forkers = [];
+	public List<Vote>									VotesOfTry = [];
+	public List<Vote>									Payloads = [];
+	public List<Vote>									SelectedArrived = [];
+	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash;
 
 	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
@@ -115,6 +115,18 @@ public abstract class Round : IBinarySerializable
 	public override string ToString()
 	{
 		return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConsensusTime}, {(Confirmed ? "Confirmed, " : "")}Hash={Hash?.ToHex()}";
+	}
+
+	public void Update()
+	{
+		VotesOfTry.Clear();	
+		Payloads.Clear();
+		SelectedArrived.Clear();
+	
+ 		VotesOfTry.AddRange(Votes.Where(i => i.Try == Try));
+		Payloads.AddRange(VotesOfTry.Where(i => i.Transactions.Any()));
+		SelectedArrived.AddRange(VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator)));
+		MajorityOfRequiredByParentHash	= SelectedArrived.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 	}
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -304,12 +316,28 @@ public abstract class Round : IBinarySerializable
 		
 		if(Id > 0)
 		{
-			var t = all.GroupBy(x => x.Time).MaxBy(i => i.Count());
+			ConsensusTime = Previous.ConsensusTime;
 
-			if(t.Count() >= min && t.Key > Previous.ConsensusTime)
-				ConsensusTime = t.Key;
-			else
-				ConsensusTime = Previous.ConsensusTime;
+			for(int n = 0; n < 8; n++) /// 8 means 256 seconds ~= 4 min maximum deviation
+			{
+				var g = SelectedArrived.GroupBy(i => i.Time.Seconds >> n).MaxBy(i => i.Count());
+	
+			//if(g.Max(i => i.Time.Seconds) - g.Min(i => i.Time.Seconds) > 10 * TimeSpan.SecondsPerMinute)
+			//{
+			//	break;
+			//}
+
+				if(g.Count() >= min)
+				{	
+					var t = new Time((int)(g.Sum(i => (long)i.Time.Seconds)/g.Count()));
+
+					if(t > Previous.ConsensusTime)
+					{
+						ConsensusTime = t;
+						break;
+					}
+				}
+			}
 		}
 
 		var txs = all.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();

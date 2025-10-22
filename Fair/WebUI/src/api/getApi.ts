@@ -7,6 +7,7 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
+  ProductFieldModel,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -196,6 +197,13 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
+const getProductFields = async (
+  productId: string,
+): Promise<TotalItemsResult<ProductFieldModel>> => {
+  const res = await fetch(`${BASE_URL}/products/${productId}/fields`)
+  return await toTotalItemsResult(res)
+}
+
 const getReviewProposals = async (
   siteId: string,
   page?: number,
@@ -254,6 +262,7 @@ const api: Api = {
   getModeratorDiscussions,
   getModeratorDiscussionComments,
   getPublicationProposals,
+  getProductFields,
   getReviewProposals,
   getUserProposals,
 }

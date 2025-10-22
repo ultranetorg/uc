@@ -23,9 +23,11 @@ export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", 
 
 export const OPERATION_CLASSES: OperationClass[] = [
   "fair-candidacy-declaration",
+
   "account-nickname-change",
   "account-avatar-change",
   "favorite-site-change",
+
   "author",
   "author-creation",
   "author-renewal",
@@ -36,45 +38,55 @@ export const OPERATION_CLASSES: OperationClass[] = [
   "author-avatar-change",
   "author-text-change",
   "author-links-change",
+
   "product",
   "product-creation",
   "product-updation",
   "product-deletion",
+
   "site",
   "site-creation",
   "site-renewal",
   "site-policy-change",
+  "site-moderator-addition",
+  "site-moderator-removal",
   "site-authors-change",
-  "site-moderators-change",
   "site-text-change",
   "site-avatar-change",
   "site-nickname-change",
   "user-registration",
   "user-deletion",
   "site-deletion",
+
+  "proposal",
+  "proposal-creation",
+  "proposal-voting",
+  "perpetual-voting",
+
   "category",
   "category-creation",
   "category-movement",
   "category-avatar-change",
   "category-type-change",
   "category-deletion",
+
   "publication",
   "publication-creation",
   "publication-remove-from-changed",
   "publication-publish",
   "publication-updation",
   "publication-deletion",
+
   "review",
   "review-creation",
   "review-status-change",
   "review-edit",
   "review-deletion",
-  "proposal",
-  "proposal-creation",
-  "proposal-voting",
+
   "proposal-comment",
   "proposal-comment-creation",
   "proposal-comment-edit",
+
   "file",
   "file-creation",
   "file-deletion",
@@ -248,7 +260,17 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-moderators-change",
+      operationType: "site-moderator-addition",
+      fields: [
+        {
+          valueType: "moderators-array",
+          name: "additions,removals",
+          placeholder: t("selectModerators"),
+        },
+      ],
+    },
+    {
+      operationType: "site-moderator-removal",
       fields: [
         {
           valueType: "moderators-additions",
@@ -270,26 +292,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           name: "nickname",
           placeholder: t("placeholders:enterNickname"),
           rules: { required: true, validate: validateUniqueSiteNickname(t) },
-        },
-      ],
-    },
-    {
-      operationType: "site-policy-change",
-      fields: [
-        {
-          valueType: "operation-class",
-          name: "change",
-          placeholder: t("placeholders:selectOperationClass"),
-        },
-        {
-          valueType: "roles",
-          name: "creators",
-          placeholder: t("placeholders:selectRoles"),
-        },
-        {
-          valueType: "approval-policy",
-          name: "approval",
-          placeholder: t("placeholders:selectApprovalPolicy"),
         },
       ],
     },

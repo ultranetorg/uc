@@ -1,62 +1,70 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePolicyChange : VotableOperation
+public class SitePolicyChange : SiteOperation
 {
-	public FairOperationClass	Change { get; set; }
-	public Role[]				Creators { get; set; }
-	public ApprovalPolicy		Approval { get; set; }
+	public FairOperationClass	Operation { get; set; }
+	public Role					Creators { get; set; }
+	public ApprovalRequirement	Approval { get; set; }
 
-	public override bool		IsValid(McvNet net) => Creators.Distinct().Count() == Creators.Length;
-	public override string		Explanation => $"Site={Site}, Change+{Change}, Policy={Approval}";
+	public override bool		IsValid(McvNet net) =>	Enum.IsDefined<FairOperationClass>(Operation) && 
+														Enum.IsDefined<Role>(Creators)&&
+														Enum.IsDefined<ApprovalRequirement>(Approval);
+
+	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Creators={Creators}, Approval={Approval}";
 	
 	public override void Read(BinaryReader reader)
 	{
-		Change		= reader.Read<FairOperationClass>();
-		Creators	= reader.ReadArray(() => reader.Read<Role>());
-		Approval	= reader.Read<ApprovalPolicy>();
+		Operation	= reader.Read<FairOperationClass>();
+		Creators	= reader.Read<Role>();
+		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(Change);
-		writer.Write(Creators, i => writer.Write(i));
+		writer.Write(Operation);
+		writer.Write(Creators);
 		writer.Write(Approval);
 	}
 
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as SitePolicyChange;
-		
-		return o.Change == Change;
-	}
-
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
-		if(Site.CreationPolicies.TryGetValue(Change, out var c) && c.SequenceEqual(Creators) &&
-			Site.ApprovalPolicies.TryGetValue(Change, out var a) && a == Approval)
-		{	
-			error = AlreadyExists;
-			return false;
-		}
-
-		if(Change == FairOperationClass.SitePolicyChange)
-		{
-			error = NotAvailable;
-			return false;
-		}
-		
-		error = null;
-		return true;
- 	}
+// 	public override bool ValidateProposal(FairExecution execution, out string error)
+// 	{
+//		if(Site.CreationPolicies.TryGetValue(Change, out var c) && c.SequenceEqual(Creators) &&
+//			Site.ApprovalPolicies.TryGetValue(Change, out var a) && a == Approval)
+//		{	
+//			error = AlreadyExists;
+//			return false;
+//		}
+//
+//		if(Change == FairOperationClass.SitePolicyChange)
+//		{
+//			error = NotAvailable;
+//			return false;
+//		}
+//		
+//		error = null;
+//		return true;
+// 	}
 
 	public override void Execute(FairExecution execution)
 	{
+		if(!Site.Restrictions.First(i => i.Operation == Operation).Flags.HasFlag(PolicyFlag.ChangableApproval))
+		{
+			Error = Denied;
+			return;
+		}
+
+		if(!Site.Restrictions.First(i => i.Operation == Operation).Creators.HasFlag(Creators))
+		{
+			Error = Denied;
+			return;
+		}
+
  		var s = Site;
 
-		s.CreationPolicies = new(s.CreationPolicies);
-		s.CreationPolicies[Change] = Creators;
- 
-		s.ApprovalPolicies = new(s.ApprovalPolicies);
-		s.ApprovalPolicies[Change] = Approval;
+		s.Policies = [..s.Policies];
+		
+		var i = Array.FindIndex(s.Policies, i => i.Operation == Operation);
+
+		s.Policies[i] = new Policy(Operation, Creators, Approval);
 	}
 }

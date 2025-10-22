@@ -1,13 +1,17 @@
 namespace Uccs.Fair;
 
-public enum ApprovalPolicy : byte
+public enum ApprovalRequirement : byte
 {
 	None, AnyModerator, ModeratorsMajority, AllModerators, PublishersMajority
 }
 
 public enum Role : byte
 {
-	None, Candidate, Moderator, Publisher, User
+	None, 
+	Moderator	= 0b0001,
+	Candidate	= 0b0010,
+	Publisher	= 0b0100,
+	User		= 0b1000,
 }
 
 public class Moderator : IBinarySerializable
@@ -32,80 +36,174 @@ public class Publisher : IBinarySerializable
 {
 	public AutoId		Author { get; set; }
 	public Time			BannedTill { get; set; }
+	public long			EnergyLimit { get; set; }
+	public long			SpacetimeLimit { get; set; }
+
+	public const long	Unlimit = -1;
 
 	public void Read(BinaryReader reader)
 	{
-		Author		= reader.Read<AutoId>();
-		BannedTill	= reader.Read<Time>();
+		Author			= reader.Read<AutoId>();
+		BannedTill		= reader.Read<Time>();
+		EnergyLimit		= reader.Read7BitEncodedInt64();
+		SpacetimeLimit	= reader.Read7BitEncodedInt64();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
 		writer.Write(BannedTill);
+		writer.Write7BitEncodedInt64(EnergyLimit);
+		writer.Write7BitEncodedInt64(SpacetimeLimit);
 	}
 }
 
-public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry
+
+public enum PolicyFlag : byte
 {
-	public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
-	public const int				PoWLength = 32;
+	None, 
+	ChangableCreators	= 0b0000_0001,
+	ChangableApproval	= 0b0000_0010,
+	Infinite			= 0b0000_0100,
+}
 
-	public AutoId					Id { get; set; }
-	public string					Nickname { get; set; }
-	public string					Title { get; set; }
-	public string					Slogan { get; set; }
-	public string					Description { get; set; }
-	public int						ModerationReward { get; set; }
-	public int						PoWComplexity { get; set; }
-	public AutoId					Avatar  { get; set; }
+public class Policy : IBinarySerializable
+{
+	public FairOperationClass	Operation { get ; set; }
+	public Role					Creators { get ; set; }
+	public ApprovalRequirement	Approval { get ; set; }
 
-	public short					Expiration { get; set; }
-	public long						Space { get; set; }
-	public long						Spacetime { get; set; }
+	public Policy()
+	{
+	}
 
-	public Publisher[]				Publishers { get; set; }
-	public Moderator[]				Moderators { get; set; }
-	public AutoId[]					Categories { get; set; }
-	public AutoId[]					Proposals { get; set; }
-	public AutoId[]					UnpublishedPublications { get; set; }
-	public AutoId[]					ChangedPublications { get; set; }
-	public AutoId[]					Files { get; set; }
-	public AutoId[]					Users { get; set; }
+	public Policy(FairOperationClass operation, Role creators, ApprovalRequirement approval)
+	{
+		Operation = operation;
+		Creators = creators;
+		Approval = approval;
+	}
 
-	public int						PublicationsCount { get; set; }
-	public int						CandidateRequestFee { get; set; }
+	public void Read(BinaryReader reader)
+	{
+		Operation	= reader.Read<FairOperationClass>();
+		Creators	= reader.Read<Role>();
+		Approval	= reader.Read<ApprovalRequirement>();
+	}
 
-	public long						Energy { get; set; }
-	public byte						EnergyThisPeriod { get; set; }
-	public long						EnergyNext { get; set; }
-	public long						Bandwidth { get; set; }
-	public short					BandwidthExpiration { get; set; } = -1;
-	public long						BandwidthToday { get; set; }
-	public short					BandwidthTodayTime { get; set; }
-	public long						BandwidthTodayAvailable { get; set; }
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write(Operation);
+		writer.Write(Creators);
+		writer.Write(Approval);
+	}
+}
+
+public class Restiction
+{
+	public FairOperationClass	Operation { get ; set; }
+	public Role					Creators { get ; set; }
+	public PolicyFlag			Flags { get ; set; }
+
+	public Restiction()
+	{
+	}
+
+	public Restiction(FairOperationClass operation, Role creators, PolicyFlag flags)
+	{
+		Operation = operation;
+		Creators = creators;
+		Flags = flags;
+	}
+}
+
+public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
+{
+	public const int							PoWLength = 32;
+
+	public AutoId								Id { get; set; }
+	public string								Nickname { get; set; }
+	public string								Title { get; set; }
+	public string								Slogan { get; set; }
+	public string								Description { get; set; }
+	public int									ModerationReward { get; set; }
+	public int									PoWComplexity { get; set; }
+	public AutoId								Avatar  { get; set; }
+
+	public short								Expiration { get; set; }
+	public long									Space { get; set; }
+	public long									Spacetime { get; set; }
+
+	public Publisher[]							Publishers { get; set; }
+	public Moderator[]							Moderators { get; set; }
+	public AutoId[]								Categories { get; set; }
+	public PerpetualSurvey[]					PerpetualSurveys { get; set; }
+	public AutoId[]								Proposals { get; set; }
+	public AutoId[]								UnpublishedPublications { get; set; }
+	public AutoId[]								ChangedPublications { get; set; }
+	public AutoId[]								Files { get; set; }
+	public AutoId[]								Users { get; set; }
+
+	public int									PublicationsCount { get; set; }
+	public int									CandidateRequestFee { get; set; }
+
+	public long									Energy { get; set; }
+	public byte									EnergyThisPeriod { get; set; }
+	public long									EnergyNext { get; set; }
+	public long									Bandwidth { get; set; }
+	public short								BandwidthExpiration { get; set; } = -1;
+	public long									BandwidthToday { get; set; }
+	public short								BandwidthTodayTime { get; set; }
+	public long									BandwidthTodayAvailable { get; set; }
 	
-	public OrderedDictionary<FairOperationClass, Role[]>			CreationPolicies { get; set; }
-	public OrderedDictionary<FairOperationClass, ApprovalPolicy>	ApprovalPolicies { get; set; }
+	public Policy[]								Policies { get; set; }
 
-	public EntityId					Key => Id;
-	public bool						Deleted { get; set; }
-	FairMcv							Mcv;
+	public EntityId								Key => Id;
+	public bool									Deleted { get; set; }
+	FairMcv										Mcv;
+
+	public static readonly Restiction[]			Restrictions;
+
+	public PerpetualSurvey						FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
+	public sbyte								FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
 		return  false; /// Moderators[0] == signer; /// TODO : Owner only
 	}
 
-	public static bool IsExpired(Site a, Time time) 
+	public bool IsExpired(Site a, Time time) 
 	{
 		return time.Days > a.Expiration;
 	}
 
-	public static bool CanRenew(Site author, Time time)
+	static Site()
 	{
-		return !IsExpired(author, time) && time.Days > author.Expiration - RenewalPeriod; /// renewal by owner: renewal is allowed during last year olny
-	}
+		Restrictions = [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 ),	
+						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 |PolicyFlag.Infinite),
+						new (FairOperationClass.SiteNicknameChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.SiteTextChange,					Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.SiteAvatarChange,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.SiteAuthorsChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						//																																								 
+						new (FairOperationClass.CategoryCreation,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.CategoryDeletion,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.CategoryTypeChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.CategoryAvatarChange,			Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						//																																								 
+						new (FairOperationClass.PublicationCreation,			Role.Moderator|Role.Publisher|Role.Candidate, 	PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.PublicationDeletion,			Role.Moderator|Role.Publisher,												 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.PublicationUpdation,			Role.Moderator, 															 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.PublicationPublish,				Role.Moderator, 															 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.PublicationRemoveFromChanged,	Role.Moderator, 															 PolicyFlag.ChangableApproval),
+						//																																								 
+						new (FairOperationClass.UserRegistration,				Role.User, 																	 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.UserDeletion,					Role.Moderator, 															 PolicyFlag.ChangableApproval),
+						//																																	  							
+						new (FairOperationClass.ReviewCreation,					Role.User, 																	 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.ReviewEdit,						Role.User, 																	 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.ReviewStatusChange,				Role.Moderator, 															 PolicyFlag.ChangableApproval)];
+	}																															
 
 	public Site()
 	{
@@ -130,8 +228,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Avatar					= Avatar,
 					PoWComplexity			= PoWComplexity,
 					
-					CreationPolicies		= CreationPolicies,
-					ApprovalPolicies		= ApprovalPolicies,
+					Policies				= Policies,
 
 					Expiration				= Expiration,
 					Space					= Space,
@@ -139,10 +236,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 					PublicationsCount		= PublicationsCount,
 
-					Publishers					= Publishers,
+					Publishers				= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
 					Proposals				= Proposals,
+					PerpetualSurveys		= PerpetualSurveys,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
 					Files					= Files,
@@ -182,8 +280,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
-		CreationPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.ReadArray(() => reader.Read<Role>()));
-		ApprovalPolicies			= reader.ReadOrderedDictionary(() => reader.Read<FairOperationClass>(), () => reader.Read<ApprovalPolicy>());
+		Policies					= reader.ReadArray<Policy>();
 
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
@@ -191,11 +288,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		
 		PublicationsCount			= reader.Read7BitEncodedInt();
 
-		Publishers						= reader.ReadArray<Publisher>();
+		Publishers					= reader.ReadArray<Publisher>();
 		Moderators					= reader.ReadArray<Moderator>();
 		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
+		PerpetualSurveys			= reader.ReadArray<PerpetualSurvey>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
@@ -215,8 +313,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		
-		writer.Write(CreationPolicies, i => { writer.Write(i.Key); writer.Write(i.Value, i => writer.Write(i)); });
-		writer.Write(ApprovalPolicies, i => { writer.Write(i.Key); writer.Write(i.Value); });
+		writer.Write(Policies);
 
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
@@ -229,6 +326,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Users);
 		writer.Write(Categories);
 		writer.Write(Proposals);
+		writer.Write(PerpetualSurveys);
 		writer.Write(UnpublishedPublications);
 		writer.Write(ChangedPublications);
 		writer.Write(Files);
@@ -244,12 +342,14 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsReferendum(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.PublishersMajority;
+		return Policies.First(i => i.Operation == operation).Approval == ApprovalRequirement.PublishersMajority;
 	}
 
 	public bool IsDiscussion(FairOperationClass operation)
 	{
-		return ApprovalPolicies[operation] == ApprovalPolicy.AnyModerator || ApprovalPolicies[operation] == ApprovalPolicy.ModeratorsMajority || ApprovalPolicies[operation] == ApprovalPolicy.AllModerators;
+		var a = Policies.First(i => i.Operation == operation).Approval;
+
+		return a == ApprovalRequirement.AnyModerator || a == ApprovalRequirement.ModeratorsMajority || a == ApprovalRequirement.AllModerators;
 	}
 
 }

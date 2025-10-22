@@ -142,7 +142,7 @@ public class Execution : ITableExecution
 		{
 			if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
 			{	
-				spender.BandwidthTodayTime		= (short)Time.Days;
+				spender.BandwidthTodayTime		= Time.Days;
 				spender.BandwidthTodayAvailable	= spender.Bandwidth;
 			}
 
@@ -203,7 +203,7 @@ public class Execution : ITableExecution
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
 	{	
-		var start = (short)(consumer.Expiration < Time.Days ? Time.Days : consumer.Expiration);
+		var start = consumer.Expiration < Time.Days ? Time.Days : consumer.Expiration;
 
 		consumer.Expiration = (short)(start + duration.Days);
 

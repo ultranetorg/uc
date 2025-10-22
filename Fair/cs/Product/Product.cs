@@ -12,8 +12,6 @@ public enum Token : uint
 	Download,
 	DescriptionMinimal,
 	DescriptionMaximal,
-	Minimal,
-	Maximal,
 	GPU,
 	Hardware,
 	License,
@@ -45,7 +43,7 @@ public enum Token : uint
 	Tags,
 	Price,
 	Description,
-	Deploymwent,
+	Deployment,
 	Value
 }
 
@@ -58,15 +56,14 @@ public enum FieldType : int
 	TextUtf8, /// Multi-line
 	StringUtf8, /// Single-line
 	StringAnsi, /// Single-line
-	Tags, /// Single-line
 	URI,
 	Language,
-	Licance,
+	License,
 	Video,
-	Deploymwent,
+	Deployment,
 	Money,
 	Date,
-	Platfrom,
+	Platform,
 	OS,
 	CPUArchitecture,
 	Hash,
@@ -92,19 +89,25 @@ public class Field
 	public FieldType		Type { get; protected set; }
 	public FieldFlag		Flags { get; protected set; }
 	public Field[]			Fields { get; protected set; }
+	public long?			Length { get; protected set; }
 
-	public Field(Token name, Field[] fields = null, FieldFlag flags = FieldFlag.None)
+	public Field(Token name, Field[] fields = null, FieldFlag flags = FieldFlag.None, long? length = null)
+		: this(name, FieldType.None, fields, flags, length)
 	{
-		Name = name;
-		Fields = fields;
-		Flags = flags;
 	}
 
-	public Field(Token name, FieldType type, FieldFlag flags = FieldFlag.None)
+	public Field(Token name, FieldType type, FieldFlag flags = FieldFlag.None, long? length = null)
+		: this(name, type, null, flags, length)
+	{
+	}
+
+	public Field(Token name, FieldType type, Field[] fields, FieldFlag flags, long? length = null)
 	{
 		Name = name;
 		Type = type;
+		Fields = fields;
 		Flags = flags;
+		Length = length;
 	}
 }
 
@@ -115,7 +118,7 @@ public class FieldValue : IBinarySerializable
 	public FieldValue[]			Fields { get; set; }
 	
 	public const int			ValueLengthMaximum = 1024*1024;
-	public int					Size => Value.Length + Fields.Sum(i => i.Size);
+	public int					Size => (Value?.Length ?? 0) + Fields.Sum(i => i.Size);
 	public string				AsUtf8 => Encoding.UTF8.GetString(Value);
 
 
@@ -135,7 +138,12 @@ public class FieldValue : IBinarySerializable
 	{
 	}
 
-	public FieldValue(Token name, byte[] value)
+	public FieldValue(Token name)
+	{
+		Name = name;
+	}
+
+	public FieldValue(Token name, byte[] value) : this(name)
 	{
 		Name	= name;
 		Value	= value;
@@ -144,7 +152,7 @@ public class FieldValue : IBinarySerializable
 	
 	public bool IsValid(McvNet net)
 	{
-		if(Value.Length > FieldValue.ValueLengthMaximum)
+		if(Value != null && Value.Length > FieldValue.ValueLengthMaximum)
 			return false;
 
 		return Fields.All(i => i.IsValid(net));
@@ -235,12 +243,15 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				if(action(d, i))
-					return i;
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					if(action(d, i))
+						return i;
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 
 			return null;
@@ -270,11 +281,14 @@ public class ProductVersion  : IBinarySerializable
 		{
 			foreach(var i in fields)
 			{
-				var d = defs.First(i => i.Name == i.Name);
+				var d = defs.FirstOrDefault(j => j.Name == i.Name);
 
-				action(d, i);
-
-				go(d.Fields, i.Fields);
+				if(d != null)
+				{
+					action(d, i);
+	
+					go(d.Fields, i.Fields);
+				}
 			}
 		}
 
@@ -397,22 +411,22 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public static readonly Field[] Software =	[
 													new (Token.Metadata, [
-																			new (Token.Version, FieldType.StringUtf8)
+																			new (Token.Version, FieldType.StringUtf8, length: 16)
 																		 ]),
-													new (Token.Title,	FieldType.StringUtf8),
-													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional),
-													new (Token.URI,		FieldType.URI),
-													new (Token.Tags,	FieldType.Tags, FieldFlag.Optional),
+													new (Token.Title,	FieldType.StringUtf8, length: 128),
+													new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional, length: 256),
+													new (Token.URI,		FieldType.URI, length: 1024),
+													new (Token.Tags,	FieldType.StringUtf8, FieldFlag.Optional, length: 128),
 													new (Token.DescriptionMinimal,	[
-																						new (Token.Language,FieldType.Language),
-																						new (Token.Minimal, FieldType.TextUtf8),
+																						new (Token.Language,FieldType.Language, length: 8),
+																						new (Token.Value, FieldType.TextUtf8, length: 1024),
 																					]),
 													new (Token.DescriptionMaximal,	[
-																						new (Token.Language,FieldType.Language),
-																						new (Token.Maximal,	FieldType.TextUtf8),
+																						new (Token.Language,FieldType.Language, length: 8),
+																						new (Token.Value,	FieldType.TextUtf8, length: int.MaxValue),
 																					]),
 													new (Token.Logo,	FieldType.FileId),
-													new (Token.License, FieldType.Licance),
+													new (Token.License, FieldType.StringUtf8, length: 256),
 													new (Token.Price,	FieldType.Money, FieldFlag.Optional),
 													new (Token.Art, [
 																		new (Token.Screenshot,	[
@@ -427,20 +441,20 @@ public class Product : IBinarySerializable, ITableEntry
 																								new (Token.Id,		FieldType.FileId,	FieldFlag.ThisOrAnother),
 																								new (Token.Youtube,	FieldType.URI,		FieldFlag.ThisOrAnother),
 																								new (Token.Description,	[
-																															new (Token.Language,	FieldType.Language),
+																															new (Token.Language,		FieldType.Language),
 																															new (Token.Description,	FieldType.TextUtf8, FieldFlag.Optional),
 																														]),
 																							]),
 																	]),
 													new (Token.Release,	[
-																			new (Token.Version),
+																			new (Token.Version, FieldType.StringUtf8, length: 16),
 																			new (Token.Distributive, [
-																										new (Token.Platform,	FieldType.Platfrom),
-																										new (Token.Version,		FieldType.StringUtf8),
+																										new (Token.Platform,	FieldType.StringUtf8, length: 16),
+																										new (Token.Version,		FieldType.StringUtf8, length: 16),
 																										new (Token.Date,		FieldType.Date),
-																										new (Token.Deploymwent,	FieldType.Deploymwent),
+																										new (Token.Deployment,	FieldType.Deployment),
 																										new (Token.Download,[
-																																new (Token.URI),
+																																new (Token.URI,	FieldType.URI),
 																																new (Token.Hash,[
 																																					new (Token.Type,	FieldType.Hash),
 																																					new (Token.Value,	FieldType.StringAnsi)
@@ -449,11 +463,11 @@ public class Product : IBinarySerializable, ITableEntry
 																									 ]),
 																			new (Token.Requirements,[
 																										new (Token.Hardware,[
-																																new (Token.CPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.GPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.NPU, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.RAM, FieldType.StringAnsi, FieldFlag.Optional),
-																																new (Token.HDD, FieldType.StringAnsi, FieldFlag.Optional),
+																																new (Token.CPU,				FieldType.StringAnsi,		FieldFlag.Optional),
+																																new (Token.GPU,				FieldType.StringAnsi,		FieldFlag.Optional),
+																																new (Token.NPU,				FieldType.StringAnsi,		FieldFlag.Optional),
+																																new (Token.RAM,				FieldType.StringAnsi,		FieldFlag.Optional),
+																																new (Token.HDD,				FieldType.StringAnsi,		FieldFlag.Optional),
 																															]),
 																										new (Token.Software,[
 																																new (Token.OS,				FieldType.OS),

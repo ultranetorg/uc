@@ -4,11 +4,9 @@ public class DomainMigration : RdnOperation
 {
 	public string			Name  { get; set; }
 	public string			Tld  { get; set; }
-	public bool				RankCheck  { get; set; }
 
-	public override string	Explanation => $"{Name}.{Tld}{(RankCheck ? $", RankCheck" : null)}";
+	public override string	Explanation => $"{Name}.{Tld}";
 	public bool				DnsApproved;
-	public bool				RankApproved;
 	public AutoId			Generator;
 
 	public DomainMigration()
@@ -19,7 +17,6 @@ public class DomainMigration : RdnOperation
 	{
 		Name = name;
 		Tld = tld;
-		RankCheck = checkrank;
 	}
 
 	public override bool IsValid(McvNet net)
@@ -40,14 +37,12 @@ public class DomainMigration : RdnOperation
 	{
 		Name		= reader.ReadUtf8();
 		Tld			= reader.ReadUtf8();
-		RankCheck	= reader.ReadBoolean();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Tld);
-		writer.Write(RankCheck);
 	}
 
 	public void WriteBaseState(BinaryWriter writer)
@@ -56,7 +51,6 @@ public class DomainMigration : RdnOperation
 		writer.Write(Signer);
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Tld);
-		writer.Write(RankCheck);
 		writer.Write(Generator);
 	}
 
@@ -69,7 +63,6 @@ public class DomainMigration : RdnOperation
 		Transaction.Signer	= reader.ReadAccount();
 		Name				= reader.ReadUtf8();
 		Tld					= reader.ReadUtf8();
-		RankCheck			= reader.ReadBoolean();
 		Generator			= reader.Read<AutoId>();
 	}
 
@@ -83,9 +76,12 @@ public class DomainMigration : RdnOperation
 			return;
 		}
 
-		if(RankCheck)
+		var existing = DomainExecution.Priority.FirstOrDefault(i => i.Value.Contains(Name));
+
+		if(existing.Key != null && existing.Key != Tld)
 		{
-			Signer.Energy -= execution.Net.DomainRankCheckECFee;
+			Error = ReservedForOwner;
+			return;
 		}
 	
 		execution.PayCycleEnergy(Signer);
@@ -96,16 +92,6 @@ public class DomainMigration : RdnOperation
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);
 
-		switch(Tld)
-		{
-			case "com" : a.ComOwner = Signer.Id; break;
-			case "org" : a.OrgOwner = Signer.Id; break;
-			case "net" : a.NetOwner = Signer.Id; break;
-		}
-
-		if((a.ComOwner == Signer.Id && a.OrgOwner == Signer.Id && a.NetOwner == Signer.Id) || RankApproved)
-		{
-			a.Owner = Signer.Id;
-		}
+		a.Owner = Signer.Id;
 	}
 }

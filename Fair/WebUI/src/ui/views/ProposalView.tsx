@@ -1,11 +1,12 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgArrowLeft } from "assets"
-import { Proposal, ProposalComment, TotalItemsResult } from "types"
+import { Proposal, ProposalComment, PublicationCreation, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, OptionsCollapsesList, ProposalInfo } from "ui/components/proposal"
 import { useParams } from "react-router-dom"
+import { ProductFields } from "../components/proposal/ProductsFields"
 
 type PageState = "voting" | "results"
 
@@ -77,6 +78,15 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
 
+  const productIds = useMemo(
+    () =>
+      proposal?.options
+        ?.map(option => option.operation)
+        .filter((operation): operation is PublicationCreation => operation.$type === "publication-creation")
+        .map(operation => operation.productId),
+    [proposal],
+  )
+
   if (!proposal || !comments) {
     return <>LOADING</>
   }
@@ -94,9 +104,20 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
         />
         <div className="flex flex-col gap-4">
           <span className="text-3.5xl font-semibold leading-10">{proposal.title}</span>
-          {proposal.text && <span className="text-2sm leading-5">{proposal.text}</span>}
         </div>
       </div>
+      {productIds?.length ? (
+        <div className="grid grid-cols-[auto_200px] gap-6">
+          <div>
+            <ProductFields productIds={productIds} />
+          </div>
+          <div>
+            <ProposalInfo createdBy={proposal?.byAccount} createdAt={proposal?.creationTime} daysLeft={7} />
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
       <div className="flex gap-8">
         <div className="flex flex-col gap-8">
           <OptionsCollapsesList

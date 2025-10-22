@@ -33,15 +33,13 @@ public class RdnNodeSettings : McvNodeSettings
 	public List<AccountAddress>		ProposedFundJoiners = new();
 	public List<AccountAddress>		ProposedFundLeavers = new();
 
-	public string					GoogleSearchEngineID { get; set; }
-	public string					GoogleApiKey { get; set; }
-
 	public SeedSettings				Seed { get; set; }
 	public SeedHubSettings			SeedHub { get; set; } = new ();
 
 	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 	public string					Packages { get; set; }
+	public string					DataPath { get; set; }
 
 	public RdnNodeSettings()
 	{

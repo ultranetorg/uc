@@ -38,6 +38,7 @@ public abstract class Mcv /// Mutual chain voting
 	public IClock								Clock;
 	public Log									Log;
 	public string								Databasepath;
+	public string								Datapath;
 
 	public RocksDb								Rocks;
 	public byte[]								GraphState;
@@ -96,7 +97,7 @@ public abstract class Mcv /// Mutual chain voting
 	{
 	}
 
-	protected Mcv(McvNet net, McvSettings settings, string databasepath, Genesis genesis, IClock clock)
+	protected Mcv(McvNet net, McvSettings settings, string datapath, string databasepath, Genesis genesis, IClock clock)
 	{
 		Genesis = genesis;
 		Clock = clock;
@@ -106,6 +107,7 @@ public abstract class Mcv /// Mutual chain voting
 			///Settings = new RdnSettings {Roles = Role.Chain};
 			Net = net;
 			Settings = settings;
+			Datapath = datapath;
 			Databasepath = databasepath;
 	
 			CreateTables(databasepath);
@@ -276,6 +278,7 @@ public abstract class Mcv /// Mutual chain voting
 		vote.Round = r;
 
 		r.Votes.Add(vote);
+		r.Update();
 	
 		if(vote.Transactions.Any())
 		{

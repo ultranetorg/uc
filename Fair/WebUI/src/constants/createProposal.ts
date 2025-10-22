@@ -6,9 +6,9 @@ export const CREATE_PROPOSAL_DURATION_DEFAULT = CREATE_PROPOSAL_DURATIONS[1]
 
 export const CREATE_REFERENDUM_OPERATION_TYPES: OperationType[] = [
   "site-avatar-change",
-  "site-moderators-change",
+  "site-moderator-addition",
+  "site-moderator-removal",
   "site-nickname-change",
-  "site-policy-change",
   "site-text-change",
 ]
 
