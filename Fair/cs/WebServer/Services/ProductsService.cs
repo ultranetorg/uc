@@ -9,11 +9,12 @@ public class ProductsService
 	FairMcv mcv
 )
 {
-	public IEnumerable<ProductFieldValueModel> GetFields([NotNull] [NotEmpty] string productId)
+	public IEnumerable<ProductFieldValueModel> GetFields([NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug($"{nameof(ProductsService)}.{nameof(GetFields)} method called with {{productId}}", productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
 
 		Guard.Against.NullOrEmpty(productId);
+
 		AutoId id = AutoId.Parse(productId);
 
 		lock(mcv.Lock)
@@ -24,17 +25,14 @@ public class ProductsService
 				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 			}
 
-			var fields = product.Versions
-				.LastOrDefault()
-				?.Fields;
+			var fields = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
 
-			return fields == null ? [] : MapValues(fields);
+			return fields != null ? MapValues(fields, Product.Software) : [];
 		}
 	}
 
-	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields = null)
+	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
-		metaFields ??= Product.Software;
 		return from value in values
 			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
 			select new ProductFieldValueModel

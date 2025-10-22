@@ -93,11 +93,13 @@ public class Field
 
 	public Field(Token name, Field[] fields = null, FieldFlag flags = FieldFlag.None, long? length = null)
 		: this(name, FieldType.None, fields, flags, length)
-	{ }
+	{
+	}
 
 	public Field(Token name, FieldType type, FieldFlag flags = FieldFlag.None, long? length = null)
 		: this(name, type, null, flags, length)
-	{ }
+	{
+	}
 
 	public Field(Token name, FieldType type, Field[] fields, FieldFlag flags, long? length = null)
 	{
@@ -116,7 +118,7 @@ public class FieldValue : IBinarySerializable
 	public FieldValue[]			Fields { get; set; }
 	
 	public const int			ValueLengthMaximum = 1024*1024;
-	public int					Size => Value.Length + Fields.Sum(i => i.Size);
+	public int					Size => (Value?.Length ?? 0) + Fields.Sum(i => i.Size);
 	public string				AsUtf8 => Encoding.UTF8.GetString(Value);
 
 
@@ -136,7 +138,12 @@ public class FieldValue : IBinarySerializable
 	{
 	}
 
-	public FieldValue(Token name, byte[] value)
+	public FieldValue(Token name)
+	{
+		Name = name;
+	}
+
+	public FieldValue(Token name, byte[] value) : this(name)
 	{
 		Name	= name;
 		Value	= value;
@@ -145,7 +152,7 @@ public class FieldValue : IBinarySerializable
 	
 	public bool IsValid(McvNet net)
 	{
-		if(Value.Length > FieldValue.ValueLengthMaximum)
+		if(Value != null && Value.Length > FieldValue.ValueLengthMaximum)
 			return false;
 
 		return Fields.All(i => i.IsValid(net));
