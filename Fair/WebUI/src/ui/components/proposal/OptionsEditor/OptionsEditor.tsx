@@ -136,7 +136,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
             // @ts-expect-error fix
             rules={{ required: true, ...operationField?.parameterRules }}
             render={({ field, fieldState }) => (
-              <ValidationWrapper message={fieldState.error?.message}>
+              <ValidationWrapper message={operationField?.parameterRules && fieldState.error?.message}>
                 {renderByParameterValueType[operationField!.parameterValueType!](
                   operationField,
                   field.value as string | undefined,
