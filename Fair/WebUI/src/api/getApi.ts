@@ -141,6 +141,8 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
+const getFile = (id: string): Promise<string> => fetch(`${BASE_URL}/files/${id}`).then(res => res.json())
+
 const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
@@ -234,6 +236,7 @@ const api: Api = {
   getReviews,
   getSite,
   getUser,
+  getFile,
   searchLitePublication,
   searchLiteSites,
   searchPublications,

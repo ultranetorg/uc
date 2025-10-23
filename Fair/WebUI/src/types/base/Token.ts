@@ -38,5 +38,5 @@ export type TToken =
   | "tags"
   | "price"
   | "description"
-  | "deploymwent"
+  | "deployment"
   | "value"

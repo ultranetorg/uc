@@ -39,6 +39,7 @@ export type Api = {
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
+  getFile(id: string): Promise<string>
   getPublication(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
   getAuthorPublications(
