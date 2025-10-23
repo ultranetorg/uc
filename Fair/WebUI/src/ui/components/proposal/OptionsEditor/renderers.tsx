@@ -1,3 +1,4 @@
+import { AccountBase } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
@@ -6,7 +7,7 @@ import {
   DropdownWithTranslation,
   ProductVersionSelector,
 } from "./components"
-import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
+import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
@@ -66,16 +67,6 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "approval-policy": ({ field, onChange }) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      key={field.name}
-      translationKey="approvalPolicies"
-      items={APPROVAL_POLICIES}
-      placeholder={field.placeholder}
-      onChange={item => onChange(item.value)}
-    />
-  ),
   "authors-additions": ({ errorMessage, field, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <ButtonMembersChange
@@ -94,7 +85,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
         changeAction="remove"
         memberType="author"
         label={field.placeholder!}
-        value={value}
+        value={value as string[]}
         onChange={onChange}
       />
     </ValidationWrapper>
@@ -106,7 +97,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
         className="placeholder-gray-500"
         error={!!errorMessage}
         placeholder={field.placeholder}
-        value={value}
+        value={value as string}
         onChange={item => onChange(item.value)}
       />
     </ValidationWrapper>
@@ -131,7 +122,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       changeAction="add"
       memberType="moderator"
       label={field.placeholder!}
-      value={value}
+      value={value as AccountBase[]}
       onChange={onChange}
     />
   ),
@@ -141,18 +132,8 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       changeAction="remove"
       memberType="moderator"
       label={field.placeholder!}
-      value={value}
+      value={value as string[]}
       onChange={onChange}
-    />
-  ),
-  "operation-class": ({ field, onChange }) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      key={field.name}
-      translationKey="operationClasses"
-      items={OPERATION_CLASSES}
-      placeholder={field.placeholder}
-      onChange={item => onChange(item.value)}
     />
   ),
   "review-status": ({ field, onChange }) => (
@@ -163,23 +144,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       items={REVIEW_STATUSES}
       placeholder={field.placeholder}
       onChange={item => onChange(item.value)}
-    />
-  ),
-  roles: ({ field, onChange }) => (
-    <DropdownWithTranslation
-      isMulti={true}
-      key={field.name}
-      translationKey="roles"
-      items={ROLES}
-      placeholder={field.placeholder}
-      onChange={items =>
-        onChange(
-          items
-            .map(x => x.value)
-            .sort()
-            .join(","),
-        )
-      }
     />
   ),
   string: ({ errorMessage, field, value, onChange }) => (

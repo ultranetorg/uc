@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react"
 
+import { AccountBase } from "types"
 import { ButtonOutline } from "ui/components"
 import { MembersAddModal, MembersRemoveModal } from "ui/components/proposal"
 
@@ -11,8 +12,8 @@ export type ButtonMembersChangeProps = {
   changeAction: ChangeAction
   memberType: MemberType
   label: string
-  value?: string | string[]
-  onChange: (value: string | string[]) => void
+  value?: string[] | AccountBase[]
+  onChange: (value: string[] | AccountBase[]) => void
 }
 
 export const ButtonMembersChange = ({ changeAction, memberType, label, value, onChange }: ButtonMembersChangeProps) => {
@@ -28,14 +29,14 @@ export const ButtonMembersChange = ({ changeAction, memberType, label, value, on
         (changeAction === "add" ? (
           <MembersAddModal
             memberType={memberType}
-            changedIds={value as string[]}
+            candidates={value as AccountBase[]}
             onClose={handleModalClose}
             onChange={onChange}
           />
         ) : (
           <MembersRemoveModal
             memberType={memberType}
-            changedIds={value as string[]}
+            membersIds={value as string[]}
             onClose={handleModalClose}
             onChange={onChange}
           />

@@ -13,14 +13,14 @@ import { MemberType } from "../types"
 
 type MembersRemoveModalBaseProps = {
   memberType: MemberType
-  changedIds?: string[]
-  onChange: (value: string | string[]) => void
+  membersIds?: string[]
+  onChange: (value: string[]) => void
 }
 
 export type MembersRemoveModalProps = ModalProps & MembersRemoveModalBaseProps
 
 export const MembersRemoveModal = memo(
-  ({ memberType, changedIds, onClose, onChange, ...rest }: MembersRemoveModalProps) => {
+  ({ memberType, membersIds, onClose, onChange, ...rest }: MembersRemoveModalProps) => {
     const { siteId } = useParams()
     const { t } = useTranslation("membersChangeModal")
     useEscapeKey(onClose)
@@ -83,10 +83,10 @@ export const MembersRemoveModal = memo(
     useEffect(() => {
       if (!currentMembers) return
 
-      const idSet = new Set(changedIds ?? [])
+      const idSet = new Set(membersIds ?? [])
       setSelected(currentMembers.filter(x => idSet.has(x.id)))
       setAvailable(currentMembers.filter(x => !idSet.has(x.id)))
-    }, [changedIds, currentMembers])
+    }, [membersIds, currentMembers])
 
     return (
       <Modal

@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react"
 import { TFunction } from "i18next"
-import { UseFieldArrayAppend, UseFieldArrayRemove } from "react-hook-form"
+import { FieldArrayWithId, UseFieldArrayAppend, UseFieldArrayRemove } from "react-hook-form"
 
 import { SvgPlusSm } from "assets"
 import { ButtonOutline } from "ui/components"
@@ -15,7 +15,7 @@ export type OptionsEditorListProps = {
   t: TFunction
   singleOption: boolean
   operationFields: EditorOperationFields
-  fields: never[]
+  fields: FieldArrayWithId<CreateProposalData, "options" | `options.${number}.candidatesIds`, "id">[]
   append: UseFieldArrayAppend<CreateProposalData>
   remove: UseFieldArrayRemove
 }

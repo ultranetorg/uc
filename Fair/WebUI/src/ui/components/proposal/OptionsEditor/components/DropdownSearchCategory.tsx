@@ -23,6 +23,7 @@ export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }
 
   return (
     <Dropdown
+      controlled={true}
       isMulti={false}
       isSearchable={true}
       items={items}

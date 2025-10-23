@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
+import { useModerationContext } from "app"
 import { SvgX } from "assets"
 import { CreateProposalData } from "types"
 import { Input, ValidationWrapper } from "ui/components"
@@ -10,7 +11,6 @@ import { Input, ValidationWrapper } from "ui/components"
 import { renderByValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
 import { validateUniqueTitle } from "./validations"
-import { useModerationContext } from "app"
 
 export type OptionEditorProps = {
   index: number
@@ -63,6 +63,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
             <Controller<CreateProposalData>
               key={x.name}
               control={control}
+              // @ts-expect-error fix
               name={`options.${index}.${x.name}`}
               rules={x.rules}
               render={({ field, fieldState }) =>

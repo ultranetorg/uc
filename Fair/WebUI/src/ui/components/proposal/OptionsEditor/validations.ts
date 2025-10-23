@@ -33,17 +33,76 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-export const validateSitePolicyChange = (
+export const validateSiteAuthorsChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
   setError: UseFormSetError<CreateProposalData>,
-  lastEditedIndex?: number,
+  lastEditedIndex: number,
 ) => {
   const hasDuplicates = options.some((opt, i) =>
     options.some(
       (other, j) =>
-        i !== j && other.change == opt.change && other.creators === opt.creators && other.approval === opt.approval,
+        i !== j &&
+        (other.candidatesIds ?? [])
+          .map(x => x.id)
+          .sort()
+          .join("") ==
+          (opt.candidatesIds ?? [])
+            .map(x => x.id)
+            .sort()
+            .join(""),
+    ),
+  )
+
+  if (hasDuplicates) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
+  } else {
+    clearErrors(`options.${lastEditedIndex}`)
+  }
+}
+
+export const validateSiteModeratorAddition = (
+  t: TFunction,
+  options: CreateProposalDataOption[],
+  clearErrors: UseFormClearErrors<CreateProposalData>,
+  setError: UseFormSetError<CreateProposalData>,
+  lastEditedIndex: number,
+) => {
+  const hasDuplicates = options.some((opt, i) =>
+    options.some(
+      (other, j) =>
+        i !== j &&
+        (other.candidatesIds ?? [])
+          .map(x => x.id)
+          .sort()
+          .join("") ===
+          (opt.candidatesIds ?? [])
+            .map(x => x.id)
+            .sort()
+            .join("") &&
+        (other.moderatorsIds ?? []).sort().join("") === (opt.moderatorsIds ?? []).sort().join(""),
+    ),
+  )
+
+  if (hasDuplicates) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
+  } else {
+    clearErrors(`options.${lastEditedIndex}`)
+  }
+}
+
+export const validateSiteModeratorRemoval = (
+  t: TFunction,
+  options: CreateProposalDataOption[],
+  clearErrors: UseFormClearErrors<CreateProposalData>,
+  setError: UseFormSetError<CreateProposalData>,
+  lastEditedIndex: number,
+) => {
+  const hasDuplicates = options.some((opt, i) =>
+    options.some(
+      (other, j) =>
+        i !== j && (other.moderatorsIds ?? []).sort().join("") === (opt.moderatorsIds ?? []).sort().join(""),
     ),
   )
 
@@ -59,7 +118,7 @@ export const validateSiteTextChange = (
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
   setError: UseFormSetError<CreateProposalData>,
-  lastEditedIndex?: number,
+  lastEditedIndex: number,
 ) => {
   const hasDuplicates = options.some((opt, i) =>
     options.some(

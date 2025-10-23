@@ -10,13 +10,18 @@ import {
   CREATE_REFERENDUM_OPERATION_TYPES,
 } from "constants/"
 import { CreateProposalData, OperationType, ProposalType } from "types"
-import { Dropdown, DropdownItem, MessageBox } from "ui/components"
+import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
 
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
-import { validateSitePolicyChange, validateSiteTextChange } from "./validations"
+import {
+  validateSiteAuthorsChange,
+  validateSiteModeratorAddition,
+  validateSiteModeratorRemoval,
+  validateSiteTextChange,
+} from "./validations"
 
 export type OptionsEditorProps = {
   t: TFunction
@@ -57,6 +62,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
     const field = operationFields?.find(x => x.operationType === type)
 
     unregister("categoryId")
+    unregister("options")
 
     if (field?.fields?.length) {
       replace([{ title: "" }])
@@ -73,8 +79,14 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
       return
     }
 
-    if (type === "site-policy-change") {
-      validateSitePolicyChange(t, options, clearErrors, setError, lastEditedOptionIndex)
+    clearErrors()
+
+    if (type === "site-authors-change") {
+      validateSiteAuthorsChange(t, options, clearErrors, setError, lastEditedOptionIndex)
+    } else if (type === "site-moderator-addition") {
+      validateSiteModeratorAddition(t, options, clearErrors, setError, lastEditedOptionIndex)
+    } else if (type === "site-moderator-removal") {
+      validateSiteModeratorRemoval(t, options, clearErrors, setError, lastEditedOptionIndex)
     } else if (type === "site-text-change") {
       validateSiteTextChange(t, options, clearErrors, setError, lastEditedOptionIndex)
     }
@@ -121,14 +133,17 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
           <Controller
             control={control}
             name={operationField.parameterName!}
-            rules={{ required: true }}
-            render={({ field }) =>
-              renderByParameterValueType[operationField!.parameterValueType!](
-                operationField,
-                field.value as string | undefined,
-                field.onChange,
-              )
-            }
+            // @ts-expect-error fix
+            rules={{ required: true, ...operationField?.parameterRules }}
+            render={({ field, fieldState }) => (
+              <ValidationWrapper message={fieldState.error?.message}>
+                {renderByParameterValueType[operationField!.parameterValueType!](
+                  operationField,
+                  field.value as string | undefined,
+                  field.onChange,
+                )}
+              </ValidationWrapper>
+            )}
           />
         </div>
       )}
