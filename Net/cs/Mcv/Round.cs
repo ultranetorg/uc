@@ -318,14 +318,9 @@ public abstract class Round : IBinarySerializable
 		{
 			ConsensusTime = Previous.ConsensusTime;
 
-			for(int n = 0; n < 8; n++) /// 8 means 256 seconds ~= 4 min maximum deviation
+			for(int n = 0; n < 8; n++) /// 8 means 256 seconds ~= 4 min maximal deviation
 			{
 				var g = SelectedArrived.GroupBy(i => i.Time.Seconds >> n).MaxBy(i => i.Count());
-	
-			//if(g.Max(i => i.Time.Seconds) - g.Min(i => i.Time.Seconds) > 10 * TimeSpan.SecondsPerMinute)
-			//{
-			//	break;
-			//}
 
 				if(g.Count() >= min)
 				{	
