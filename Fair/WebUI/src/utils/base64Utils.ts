@@ -1,16 +1,11 @@
 function base64ToBytes(base64: string): Uint8Array {
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
+  const binary = atob(base64)
+  return Uint8Array.from(binary, c => c.charCodeAt(0))
 }
 
 let decoder: TextDecoder
 export function base64ToUtf8String(base64: string): string {
-  const binary = atob(base64)
-  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
+  const bytes = base64ToBytes(base64);
 
   if (!decoder) {
     decoder = new TextDecoder("utf-8")
