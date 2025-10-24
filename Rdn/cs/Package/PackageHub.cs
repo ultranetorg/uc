@@ -16,6 +16,9 @@ public class PackageHub
 		Node = sun;
 		Settings = settings;
 		DeploymentPath = deploymentpath;
+
+		Directory.CreateDirectory(deploymentpath);
+
 	}
 
  	public static string AddressToDeployment(string packagespath, Ura resource)

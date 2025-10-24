@@ -24,43 +24,20 @@ public class Uos : Cli
 	public delegate void			Delegate(Uos d);
  	public delegate void			McvDelegate(Mcv d);
 
-	public Func<string, AccountAddress, AuthenticationChioce>	AuthenticationRequested;
-	public Action<AccountAddress>								UnlockRequested;
-	public Func<string, AccountAddress, bool>					AuthorizationRequested;
-
-	public static bool				ConsoleAvailable { get; protected set; }
-	public IPasswordAsker			PasswordAsker = new ConsolePasswordAsker();
-	public Flow						Flow = new Flow("uos", new Log()); 
-	public static string			ExeDirectory;
 	public UosSettings				Settings;
 	public List<NodeInstance>		Nodes = [];
 	internal UosApiServer			ApiServer;
 	public IClock					Clock;
 	public Delegate					Stopped;
-	public Vault					Vault;
-	static Boot						Boot;
-	public static ConsoleLogView	LogView = new ConsoleLogView(false, false);
 	public static HttpClient		ApiHttpClient;
 
 	public NodeInstance				Find(string net) => Nodes.Find(i => i.Net == net);
 
 	RdnApiClient					_Rdn;
-	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, ApiSettings.ToAddress(Settings.Api.LocalIP, Settings.Rdn.ApiPort));
+	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)));
 
 	static Uos()
 	{
-		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-	
-		try
-		{
-			var p = Console.KeyAvailable;
-			ConsoleAvailable = true;
-		}
-		catch(Exception)
-		{
-			ConsoleAvailable = false;
-		}
-
   	  	var h = new HttpClientHandler();
 		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
@@ -68,22 +45,11 @@ public class Uos : Cli
 
 	static void Main(string[] args)
 	{
-		Thread.CurrentThread.CurrentCulture = 
-		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
-		Boot = new Boot(ExeDirectory);
-		var s = new UosSettings(Boot.Profile, Guid.NewGuid().ToString(), Rdn.Rdn.ByZone(Boot.Zone));
-
+		var boot = new NetBoot(ExeDirectory);
+		var s = new UosSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);
 		var u = new Uos(s, new Flow(nameof(Uos), new Log()), new RealClock());
 
-		try
-		{
-			u.Execute(Boot.Commnand.Nodes, u.Flow);
-		}
-		catch(CodeException ex) when (!Debugger.IsAttached)
-		{
-			u.Flow?.Log.ReportError(ex.Message);
-		}
+		u.Execute(boot);
 
 		u.Stop();
 	}
@@ -96,13 +62,8 @@ public class Uos : Cli
 
 		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
 
-		Settings.Packages ??= Path.Join(Settings.Profile, nameof(Settings.Packages));
-		Directory.CreateDirectory(Settings.Packages);
-
-		Vault = new Vault(Settings.Profile, settings.EncryptVault);
-
 		if(Directory.Exists(Settings.Profile))
-			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Node.FailureExt))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + FailureExt))
 				File.Delete(i);
 			
 		if(Settings.Api != null)
@@ -175,7 +136,7 @@ public class Uos : Cli
 
 	public void Start(Unea address, Flow flow)
 	{
-		if(address.Net == Settings.Rdn.Address || address.Net is null)
+		if(address.Net == Net.Net.Root || address.Net is null)
 		{
 			var ura = Ura.Parse(address.ToString());
 

@@ -1,16 +1,42 @@
 ﻿using System.Net;
-using System.Reflection;
-using Uccs.Net;
 
 namespace Uccs.Net;
 
+public enum Trust : byte
+{
+	None,
+	NonSpending,
+	Spending
+}
+
+public class AccountSession
+{
+	public AccountAddress	Account { get; set; }
+	public byte[]			Session { get; set; }
+}
+
 public class UosApiClient : ApiClient
 {
+	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.UosApi);
+
 	public UosApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
 	{
 	}
 
 	public UosApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	{
+	}
+}
+
+public class VaultApiClient : ApiClient
+{
+	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.VaultApi);
+
+	public VaultApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+	{
+	}
+
+	public VaultApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
 	{
 	}
 }
@@ -67,7 +93,6 @@ public class IsAuthenticatedApc : Apc
 public class EnforceAuthenticationApc : Apc
 {
 	public bool				Active { get; set; }
-	//public AccountAddress	Account { get; set; }
 }
 
 public class AuthenticateApc : Apc

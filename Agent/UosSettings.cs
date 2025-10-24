@@ -6,18 +6,17 @@ namespace Uccs.Uos;
 public class UosSettings : SavableSettings
 {
 	public string			Name;
-	public Rdn.Rdn			Rdn;
-	public bool				EncryptVault { get; set; }
-	public UosApiSettings	Api { get; set; }
+	public Zone				Zone;
+	public IpApiSettings	Api { get; set; }
 	public string			Packages { get; set; }
 
 	public UosSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}
 
-	public UosSettings(string profile, string name, Rdn.Rdn root) : base(profile, NetXonTextValueSerializator.Default)
+	public UosSettings(string profile, string name, Zone zone) : base(profile, NetXonTextValueSerializator.Default)
 	{
 		Name = name;
-		Rdn = root;
+		Zone = zone;
 	}
 }

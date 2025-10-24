@@ -5,7 +5,7 @@ namespace Uccs.Uos;
 public class Application
 {
 	public const string			UosApiIPEnvKey	= "UosApiAddress";
-	//public const string			ApiKeyEnvKey	 	= "UosApiKey";
+	//public const string		ApiKeyEnvKey	 	= "UosApiKey";
 	public const string			PackageAddressKey	= "PackageKey";
 	public const string			PackagesPathKey		= "PackagesPathKey";
 

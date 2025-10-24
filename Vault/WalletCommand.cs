@@ -1,12 +1,36 @@
 ﻿using System.Reflection;
-using Uccs.Net;
 
-namespace Uccs.Uos;
+namespace Uccs.Vault;
 
-public class WalletCommand : UosCommand
+public class WalletCommand : VaultCommand
 {
-	public WalletCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
+	public WalletCommand(Vault vault, List<Xon> args, Flow flow) : base(vault, args, flow)
 	{
+	}
+
+	public void Api(Apc call)
+	{
+		if(Has("apitimeout"))
+			call.Timeout = GetInt("apitimeout") * 1000;
+			
+		if(call is IVaultApc u)
+		{
+			u.Execute(Vault, null, null, Flow);
+			return;
+		}
+
+		throw new Exception();
+	}
+
+	public Rp Api<Rp>(Apc call)
+	{
+		if(Has("apitimeout"))
+			call.Timeout = GetInt("apitimeout") * 1000;
+
+		if(call is IVaultApc u)	
+			return (Rp)u.Execute(Vault, null, null, Flow);
+
+		throw new Exception();
 	}
 
 	public CommandAction Create()
@@ -30,11 +54,11 @@ public class WalletCommand : UosCommand
 
 								if(p == null)
 								{
-									Uos.PasswordAsker.Create(Vault.PasswordWarning);
-									p = Uos.PasswordAsker.Password;
+									Vault.PasswordAsker.Create(Vault.PasswordWarning);
+									p = Vault.PasswordAsker.Password;
 								}
 
-								var w = Uos.Vault.CreateWallet(p);
+								var w = Vault.CreateWallet(p);
 
 								Report("Public Address - " + w.Accounts.First().Address); 
 								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());

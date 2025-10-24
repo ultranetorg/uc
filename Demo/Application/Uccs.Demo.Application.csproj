@@ -31,7 +31,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
+    <ProjectReference Include="..\..\Agent\Uccs.Agent.csproj" />
     <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
       <Private>True</Private>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>

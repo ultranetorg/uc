@@ -38,7 +38,8 @@ public class RdnNodeSettings : McvNodeSettings
 
 	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
-	public string					Packages { get; set; }
+	string							_Packages;
+	public string					Packages { get => _Packages ?? System.IO.Path.Join(Profile, nameof(Packages)) ; set => _Packages = value; }
 	public string					DataPath { get; set; }
 
 	public RdnNodeSettings()

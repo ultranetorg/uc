@@ -35,7 +35,7 @@ public class RdnNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeUosApi(Settings.UosIP);
+		InitializeUosApi(Settings.Host);
 
 		if(Settings.Mcv != null)
 		{
@@ -105,7 +105,7 @@ public class RdnNode : McvNode
 			}
 		}
 
-		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
+		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 
 		if(Settings.Seed != null)
 		{
@@ -115,14 +115,7 @@ public class RdnNode : McvNode
 			ResourceHub.RunDeclaring();
 		}
 		
-		ApiServer = new RdnApiServer(	this,	
-										new ApiSettings
-										{
-											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
-											PublicAddress	= Settings.Api?.PublicAddress,
-											PublicAccessKey	= Settings.Api?.PublicAccessKey
-										}, 
-										Flow);
+		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
 	}
 
 	public override string ToString()

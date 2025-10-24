@@ -7,25 +7,6 @@ namespace Uccs.Net;
 
 public delegate void NodeDelegate(Node node);
 
-public class UosApiSettings : Settings
-{
-	//public string			ListenAddress { get; set; }
-	public IPAddress		LocalIP { get; set; } = new IPAddress([127, 1, 0, 0]);
-	public IPAddress		PublicIP { get; set; }
-	public string			PublicAccessKey { get; set; }
-	public bool				Ssl { get; set; }
-
-	public static ushort	MapPort(Zone zone) => (ushort)((ushort)zone + KnownSystem.UosApi);
-	public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(zone)}";
-	//public string			MapAddress(Zone zone) => MapAddress(zone, IP, Ssl);
-
-	//public ApiSettings		ToApiSettings(Zone zone) => new ApiSettings {AccessKey = AccessKey, ListenAddress = MapAddress(zone)};
-
-	public UosApiSettings() : base(XonTextValueSerializator.Default)
-	{
-	}
-}
-
 public class Node
 {
 	//public abstract long						Roles { get; }
@@ -35,12 +16,10 @@ public class Node
 	public Net					Net;
 	public string				Profile;
 	public Flow					Flow;
-	public UosApiClient			UosApi;
+	public VaultApiClient		VaultApi;
 	public HttpClient			HttpClient;
 	public Delegate				Stopped;
 	public string				ExeDirectory;
-
-	public const string			FailureExt = "failure";
 
 	public RocksDb				Database;
 	readonly DbOptions			DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
@@ -71,7 +50,7 @@ public class Node
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 	}
 
-	protected void InitializeUosApi(IPAddress uoslocalip)
+	protected void InitializeUosApi(IPAddress host)
 	{
 		var h = new HttpClientHandler()
 				{
@@ -83,7 +62,7 @@ public class Node
 		if(Debugger.IsAttached)
 			HttpClient.Timeout = Timeout.InfiniteTimeSpan;
 	
-		UosApi = new UosApiClient(HttpClient, UosApiSettings.GetAddress(Net.Zone, uoslocalip, false), null);
+		VaultApi = new VaultApiClient(HttpClient, ApiClient.GetAddress(Net.Zone, host, false, KnownSystem.VaultApi), null);
 	}
 
 	public virtual void Stop()
@@ -115,7 +94,7 @@ public class Node
 
 	public void Abort(Exception ex)
 	{
-		File.WriteAllText(Path.Join(Profile, "Abort." + FailureExt), ex.ToString());
+		File.WriteAllText(Path.Join(Profile, "Abort." + Cli.FailureExt), ex.ToString());
 		Flow.Log?.ReportError(this, "Abort", ex);
 
 		Stop();

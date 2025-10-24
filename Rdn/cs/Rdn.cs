@@ -39,7 +39,7 @@ public class RdnLocal : Rdn
 	
 	public RdnLocal()
 	{
-		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Father0IP		= DefaultHost;
 		Cryptography	= Cryptography.No;
 		Auctions		= false;
 		CommitLength	= 100;
@@ -79,7 +79,7 @@ public class RdnTA : Rdn
 	
 	public RdnTA()
 	{
-		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Father0IP		= DefaultHost;
 		Initials		= LocalInitials;
 	}
 }

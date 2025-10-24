@@ -32,7 +32,7 @@ public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse
 
 public class FairTcpPeering : McvTcpPeering
 {
-	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, UosApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
+	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
 		Register(typeof(FairPpcClass), node);
 

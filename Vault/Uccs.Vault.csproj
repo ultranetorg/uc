@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Company>uo</Company>
+    <Product>Vault</Product>
+    <Authors>uo</Authors>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <AnalysisLevel>none</AnalysisLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>vault</AssemblyName>
+    <AssemblyVersion>1.0.648.0</AssemblyVersion>
+    <FileVersion>1.0.648.0</FileVersion>
+    <Version>1.0.648.0</Version>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\_Release\uos.dotnet\0.0.0</OutputPath>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Net\cs\Uccs.Net.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Uccs.Net" />
+  </ItemGroup>
+</Project>

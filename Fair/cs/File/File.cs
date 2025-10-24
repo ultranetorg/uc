@@ -1,9 +1,15 @@
 ﻿namespace Uccs.Fair;
 
+public enum MimeType : byte
+{
+	None, ImageJpg, ImagePng
+}
+
 public class File : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public EntityAddress	Owner { get; set; }
+	public MimeType			Mime { get; set; }
     public int				Refs { get; set; }
 	public byte[]			Data { get; set; }
 
@@ -26,8 +32,9 @@ public class File : IBinarySerializable, ITableEntry
 				{
 					Id		= Id,
 					Owner	= Owner,
+					Mime	= Mime,
 					Refs	= Refs,
-					Data	= Data
+					Data	= Data,
 				};
 	}
 
@@ -49,6 +56,7 @@ public class File : IBinarySerializable, ITableEntry
 	{
 		Id		= reader.Read<AutoId>();
 		Owner	= reader.Read<EntityAddress>();
+		Mime	= reader.Read<MimeType>();
 		Refs	= reader.Read7BitEncodedInt();
 		Data	= reader.ReadBytes();
 	}
@@ -57,6 +65,7 @@ public class File : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write(Owner);
+		writer.Write(Mime);
 		writer.Write7BitEncodedInt(Refs);
 		writer.WriteBytes(Data);
 	}

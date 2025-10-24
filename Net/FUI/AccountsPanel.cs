@@ -110,7 +110,7 @@ public partial class AccountsPanel : MainPanel
 		var f = new SaveFileDialog();
 
 		f.FileName = CurrentAccout.ToString();
-		f.DefaultExt = Vault.WalletExt(Node.Net.Cryptography);
+		//f.DefaultExt = Vault.WalletExt(Node.Net.Cryptography);
 
 		if(f.ShowDialog(this) == DialogResult.OK)
 		{

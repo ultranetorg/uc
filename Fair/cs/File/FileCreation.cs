@@ -6,36 +6,41 @@ public class FileCreation : FairOperation
 {
 	public EntityAddress		Owner { get; set; }
 	public byte[]				Data { get; set; }
+	public MimeType				Mime { get; set; }
 
 	public override string		Explanation => $"Owner={Owner}, Data={Data.Length}";
-	public override bool		IsValid(McvNet net) => Data.Length <= (net as Fair).FileLengthMaximum;
+	public override bool		IsValid(McvNet net) => Data.Length <= (net as Fair).FileLengthMaximum && Mime != null;
 
 	public FileCreation()
 	{
 	}
 
-	public FileCreation(EntityAddress owner, byte[] data)
+	public FileCreation(EntityAddress owner, byte[] data, MimeType mime)
 	{
 		Owner = owner;
 		Data = data;
+		Mime = mime;
 	}
 
-	public FileCreation(FairTable table, AutoId id, byte[] data)
+	public FileCreation(FairTable table, AutoId id, byte[] data, MimeType mime)
 	{
 		Owner = new EntityAddress(table, id);
 		Data = data;
+		Mime = mime;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		Owner	= reader.Read<EntityAddress>();
 		Data	= reader.ReadBytes();
+		Mime	= reader.Read<MimeType>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Owner);
 		writer.WriteBytes(Data);
+		writer.Write(Mime);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -45,6 +50,7 @@ public class FileCreation : FairOperation
 		f.Owner		= Owner;
 		f.Refs		= 0;
 		f.Data		= Data;
+		f.Mime		= Mime;
 
 		switch(Owner.Table)
 		{
