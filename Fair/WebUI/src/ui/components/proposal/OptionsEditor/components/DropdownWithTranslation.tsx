@@ -12,7 +12,7 @@ type DropdownWithTranslationBaseProps = {
 
 export type DropdownWithTranslationProps<IsMulti extends boolean> = PropsWithClassName &
   DropdownWithTranslationBaseProps &
-  Pick<DropdownProps<IsMulti>, "isMulti" | "error" | "placeholder" | "size" | "onChange">
+  Pick<DropdownProps<IsMulti>, "isMulti" | "error" | "placeholder" | "size" | "value" | "onChange">
 
 export const DropdownWithTranslationInner = <IsMulti extends boolean>({
   isMulti,
@@ -30,6 +30,7 @@ export const DropdownWithTranslationInner = <IsMulti extends boolean>({
 
   return (
     <Dropdown
+      controlled={true}
       isMulti={isMulti}
       items={dropdownItems}
       className={twMerge("placeholder-gray-500", className)}

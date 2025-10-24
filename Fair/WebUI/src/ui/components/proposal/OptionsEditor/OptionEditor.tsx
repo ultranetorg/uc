@@ -65,7 +65,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
               control={control}
               // @ts-expect-error fix
               name={`options.${index}.${x.name}`}
-              rules={x.rules}
+              rules={{ required: true, ...x.rules }}
               render={({ field, fieldState }) =>
                 renderByValueType[x.valueType!]({
                   errorMessage: fieldState.error?.message,

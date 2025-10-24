@@ -316,8 +316,9 @@ export const enUS = {
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
+    requiredAddOrRemoveMembers: "Add or remove members is required",
     requiredCategory: "Category is required",
-    requiredCategoryTittle: "Category title is required",
+    requiredCategoryTitle: "Category title is required",
     requiredTitle: "Title is required",
     requiredType: "Type is required",
     uniqueCategoryTitle: "Category title must be unique",

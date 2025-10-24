@@ -77,7 +77,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           name: "type",
           placeholder: t("placeholders:selectCategoryType"),
           // @ts-expect-error incompatible param.
-          rules: { required: true, validate: validateUniqueCategoryType(t) },
+          rules: { validate: validateUniqueCategoryType(t) },
         },
       ],
     },
@@ -210,7 +210,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           name: "nickname",
           placeholder: t("placeholders:enterNickname"),
           // @ts-expect-error incompatible param.
-          rules: { required: true, validate: validateUniqueSiteNickname(t) },
+          rules: { validate: validateUniqueSiteNickname(t) },
         },
       ],
     },

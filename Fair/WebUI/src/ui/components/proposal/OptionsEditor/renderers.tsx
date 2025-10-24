@@ -67,13 +67,14 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-additions": ({ errorMessage, field, onChange }) => (
+  "authors-additions": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <ButtonMembersChange
         key={field.name}
         changeAction="add"
         memberType="author"
         label={field.placeholder!}
+        value={value as AccountBase[]}
         onChange={onChange}
       />
     </ValidationWrapper>
@@ -102,7 +103,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       />
     </ValidationWrapper>
   ),
-  "category-type": ({ errorMessage, field, onChange }) => (
+  "category-type": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownWithTranslation
         isMulti={false}
@@ -111,6 +112,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
         translationKey="categoryTypes"
         items={CATEGORY_TYPES}
         placeholder={field.placeholder}
+        value={value as string}
         onChange={item => onChange(item.value)}
       />
     </ValidationWrapper>
@@ -136,13 +138,14 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       onChange={onChange}
     />
   ),
-  "review-status": ({ field, onChange }) => (
+  "review-status": ({ field, value, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
       translationKey="reviewStatuses"
       items={REVIEW_STATUSES}
       placeholder={field.placeholder}
+      value={value as string}
       onChange={item => onChange(item.value)}
     />
   ),

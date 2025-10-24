@@ -17,6 +17,7 @@ export type CreateProposalData = {
 
 export type CreateProposalDataOption = {
   title: string
+  authorsIds?: string[]
   candidatesIds?: AccountBase[]
   categoryTitle?: string
   description?: string

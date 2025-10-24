@@ -73,8 +73,8 @@ export const MembersAddModal = memo(({ memberType, candidates, onClose, onChange
 
     const withoutCurrent = searchAccounts.filter(item => !currentMembers?.some(member => member.id === item.id))
     setAll(withoutCurrent)
-    const withoutChanged = withoutCurrent.filter(item => !selected.some(changed => changed.id === item.id))
-    setAvailable(withoutChanged)
+    const withoutSelected = withoutCurrent.filter(item => !selected.some(changed => changed.id === item.id))
+    setAvailable(withoutSelected)
   }, [selected, currentMembers, searchAccounts])
 
   return (
@@ -104,7 +104,7 @@ export const MembersAddModal = memo(({ memberType, candidates, onClose, onChange
             className="w-25 capitalize"
             label={t("common:confirm")}
             onClick={handleConfirmClick}
-            disabled={selected.length <= 0}
+            //disabled={selected.length <= 0}
           />
         </div>
       </div>

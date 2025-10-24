@@ -1,6 +1,13 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import { TFunction } from "i18next"
-import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form"
+import {
+  Controller,
+  useFieldArray,
+  UseFormClearErrors,
+  useFormContext,
+  UseFormSetError,
+  useWatch,
+} from "react-hook-form"
 
 import { useModerationContext } from "app"
 import {
@@ -9,7 +16,7 @@ import {
   CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES,
   CREATE_REFERENDUM_OPERATION_TYPES,
 } from "constants/"
-import { CreateProposalData, OperationType, ProposalType } from "types"
+import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
 
 import { getEditorOperationsFields } from "./constants"
@@ -23,6 +30,22 @@ import {
   validateSiteTextChange,
 } from "./validations"
 
+const validationMap: Record<
+  string,
+  (
+    t: TFunction,
+    options: CreateProposalDataOption[],
+    clearErrors: UseFormClearErrors<CreateProposalData>,
+    setError: UseFormSetError<CreateProposalData>,
+    lastEditedIndex: number,
+  ) => void
+> = {
+  "site-authors-change": validateSiteAuthorsChange,
+  "site-moderator-addition": validateSiteModeratorAddition,
+  "site-moderator-removal": validateSiteModeratorRemoval,
+  "site-text-change": validateSiteTextChange,
+}
+
 export type OptionsEditorProps = {
   t: TFunction
   proposalType: ProposalType
@@ -32,9 +55,9 @@ export type OptionsEditorProps = {
 
 export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVoting }: OptionsEditorProps) => {
   const { lastEditedOptionIndex } = useModerationContext()
-  const { control, clearErrors, setError, unregister, watch } = useFormContext<CreateProposalData>()
+  const { control, clearErrors, setError, unregister } = useFormContext<CreateProposalData>()
   const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
-  const type = watch("type")
+  const type = useWatch({ control, name: "type" })
   const options = useWatch({ control, name: "options" })
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
@@ -60,37 +83,23 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
   useEffect(() => {
     const field = operationFields?.find(x => x.operationType === type)
+    setOperationField(field)
 
     unregister("categoryId")
-    unregister("options")
 
     if (field?.fields?.length) {
       replace([{ title: "" }])
     } else {
-      unregister("options")
       remove()
     }
-
-    setOperationField(field)
   }, [operationFields, remove, replace, type, unregister])
 
   useEffect(() => {
-    if (lastEditedOptionIndex === undefined) {
-      return
-    }
+    if (lastEditedOptionIndex === undefined || type === undefined) return
 
     clearErrors()
-
-    if (type === "site-authors-change") {
-      validateSiteAuthorsChange(t, options, clearErrors, setError, lastEditedOptionIndex)
-    } else if (type === "site-moderator-addition") {
-      validateSiteModeratorAddition(t, options, clearErrors, setError, lastEditedOptionIndex)
-    } else if (type === "site-moderator-removal") {
-      validateSiteModeratorRemoval(t, options, clearErrors, setError, lastEditedOptionIndex)
-    } else if (type === "site-text-change") {
-      validateSiteTextChange(t, options, clearErrors, setError, lastEditedOptionIndex)
-    }
-  }, [clearErrors, lastEditedOptionIndex, options, setError, t, type, watch])
+    validationMap[type]?.(t, options, clearErrors, setError, lastEditedOptionIndex)
+  }, [clearErrors, lastEditedOptionIndex, options, setError, t, type])
 
   // useEffect(() => {
   //   if (isHiddenType) {
