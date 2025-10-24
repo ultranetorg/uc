@@ -5,7 +5,7 @@ import { ProductFieldViewUri } from "./ProductFieldViewUri.tsx"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt.tsx"
 import { ProductFieldViewDate } from "./ProductFieldViewDate.tsx"
 import { ProductFieldViewFile } from "./ProductFieldViewFile.tsx"
-import { ProductFieldViewVideo } from "./ProductFieldViewVideo.tsx"
+import { ProductFieldViewVideo } from "./ProductFieldViewVideo"
 
 export const ProductFieldView = ({ node: { type, value, parent } }: { node: ProductFieldViewModel }) => {
   let component: JSX.Element
@@ -37,5 +37,5 @@ export const ProductFieldView = ({ node: { type, value, parent } }: { node: Prod
     }
   }
 
-  return <div className="px-4 py-2 text-sm">{component}</div>
+  return <div className="px-4 py-2 text-sm h-full">{component}</div>
 }

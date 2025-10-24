@@ -70,7 +70,7 @@ const FieldsList = ({ node, onSelect }: ProductFieldInfoProps) => {
 
 export const ProductFieldInfo = memo(({ node, onSelect }: ProductFieldInfoProps) => {
   return (
-    <div className="overflow-hidden rounded-md border">
+    <div className="overflow-hidden rounded-md border h-full">
       <FieldBreadcrumbs node={node} onSelect={onSelect} />
       {node.children?.length ? <FieldsList node={node} onSelect={onSelect} /> : <ProductFieldView node={node} />}
     </div>
