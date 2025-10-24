@@ -34,13 +34,14 @@ export const ProposalsView = memo(
     return (
       <>
         <div className="flex flex-col justify-between gap-4 xl:flex-row">
-          <Input
-            placeholder={t("searchProposal")}
-            value={search}
-            onChange={onSearchChange}
-            id="referendums-search-input"
-            className="w-full max-w-120"
-          />
+          <div className="w-full max-w-120">
+            <Input
+              placeholder={t("searchProposal")}
+              value={search}
+              onChange={onSearchChange}
+              id="referendums-search-input"
+            />
+          </div>
           <Pagination onPageChange={onPageChange} page={page} pagesCount={pagesCount} />
         </div>
         <Table

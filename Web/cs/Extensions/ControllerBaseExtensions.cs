@@ -4,7 +4,7 @@ namespace Microsoft.AspNetCore.Mvc;
 
 public static class ControllerBaseExtensions
 {
-	public static T OkPaged<T>(this ControllerBase controller, T response, int page, int pageSize, int totalItems)
+	public static T? OkPaged<T>(this ControllerBase controller, T? response, int page, int pageSize, int totalItems)
 		where T : class
 	{
 		Guard.Against.Null(controller);

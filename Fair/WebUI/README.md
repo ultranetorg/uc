@@ -13,17 +13,19 @@ yarn dev
 
 ## Assets sizes
 
-?? - 14 (xxs)
-xs - 16 (xs)
-sm - 20 (sm)
-md - 24 (base)
-?? - 28 (lg)
-?? - 32 (xl)
-?? - 36 (2xl)
-?? - 40
-?? - 44
-?? - 64 (9xl)
-?? - 76x77
+| Tailwind size (px): | Tailwind postfix: | Asset postfix: |
+| ------------------- | ----------------- | -------------- |
+| 14                  | xxs               | 2xs            |
+| 16                  | xs                | xs             |
+| 20                  | sm                | sm             |
+| **24**              | **base**          | **md**         |
+| 28                  | lg                |                |
+| 32                  | xl                |                |
+| 36                  | 2xl               |                |
+| 40                  |                   |                |
+| 44                  |                   |                |
+| 64                  | 9xl               | 9xl            |
+| 76                  |                   |                |
 
 text-xs font-size: 0.75rem; /_ 12px _/
 text-sm font-size: 0.875rem; /_ 14px _/

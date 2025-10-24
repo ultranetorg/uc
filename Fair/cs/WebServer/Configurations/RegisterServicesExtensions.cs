@@ -35,6 +35,7 @@ public static class RegisterServicesExtensions
 	{
 		services.AddSingleton<IDepthValidator, DepthValidator>();
 		services.AddSingleton<IAutoIdValidator, AutoIdValidator>();
+		services.AddSingleton<LimitValidator>();
 		services.AddSingleton<IPaginationValidator, PaginationValidator>();
 		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
 		services.AddSingleton<ISiteSearchQueryValidator, SiteSearchQueryValidator>();

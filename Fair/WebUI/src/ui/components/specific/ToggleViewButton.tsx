@@ -22,7 +22,7 @@ export const ToggleViewButton = memo(({ view, onChange, gridTitle, listTitle }: 
 
   return (
     <div
-      className="transition-base h-10.5 box-border flex w-20 cursor-pointer select-none items-center gap-1 rounded border border-gray-300 bg-gray-100 p-1 hover:bg-gray-200"
+      className="box-border flex h-10.5 w-20 cursor-pointer select-none items-center gap-1 rounded border border-gray-300 bg-gray-100 p-1 hover:bg-gray-200"
       onClick={handleClick}
     >
       <div className={twMerge("rounded-sm p-0.4375", viewName === "grid" && "bg-gray-950")} title={gridTitle}>

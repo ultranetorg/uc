@@ -1,4 +1,5 @@
-import { Input, Textarea } from "ui/components"
+import { AccountBase } from "types"
+import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
   ButtonMembersChange,
@@ -6,172 +7,171 @@ import {
   DropdownWithTranslation,
   ProductVersionSelector,
 } from "./components"
-import { APPROVAL_POLICIES, CATEGORY_TYPES, OPERATION_CLASSES, REVIEW_STATUSES, ROLES } from "./constants"
-import { EditorField, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
+import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
+import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
-  (
-    field: EditorOperationFields,
-    value: string | undefined,
-    onDataChange: (name: string, value: string) => void,
-  ) => JSX.Element
+  (field: EditorOperationFields, value: string | undefined, onChange: (value: string) => void) => JSX.Element
 > = {
-  category: (field, value, onDataChange) => (
+  category: (field, value, onChange) => (
     <DropdownSearchCategory
       key={field.parameterName}
       controlled={true}
       size="large"
       placeholder={field.parameterPlaceholder}
       value={value}
-      onChange={item => onDataChange(field.parameterName!, item.value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  product: (field, value, onDataChange) => (
+  product: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  publication: (field, value, onDataChange) => (
+  publication: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  review: (field, value, onDataChange) => (
+  review: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
-  user: (field, value, onDataChange) => (
+  user: (field, value, onChange) => (
     <Input
       key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
       value={value}
-      onChange={value => onDataChange(field.parameterName!, value)}
+      onChange={onChange}
     />
   ),
 }
 
-export const renderByValueType: Record<
-  FieldValueType,
-  (
-    field: EditorField,
-    value: string | string[],
-    onDataChange: (name: string, value: string | string[]) => void,
-  ) => JSX.Element
-> = {
-  "approval-policy": (field, _, onDataChange) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      key={field.name}
-      translationKey="approvalPolicies"
-      items={APPROVAL_POLICIES}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
-    />
+export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
+  "authors-additions": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <ButtonMembersChange
+        key={field.name}
+        changeAction="add"
+        memberType="author"
+        label={field.placeholder!}
+        value={value as AccountBase[]}
+        onChange={onChange}
+      />
+    </ValidationWrapper>
   ),
-  "authors-array": (field, _, onDataChange) => (
-    <ButtonMembersChange key={field.name} memberType="author" label={field.placeholder!} onDataChange={onDataChange} />
+  "authors-removals": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <ButtonMembersChange
+        key={field.name}
+        changeAction="remove"
+        memberType="author"
+        label={field.placeholder!}
+        value={value as string[]}
+        onChange={onChange}
+      />
+    </ValidationWrapper>
   ),
-  category: (field, _, onDataChange) => (
-    <DropdownSearchCategory
-      key={field.name}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
-    />
+  category: ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownSearchCategory
+        key={field.name}
+        className="placeholder-gray-500"
+        error={!!errorMessage}
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
   ),
-  "category-type": (field, _, onDataChange) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      key={field.name}
-      translationKey="categoryTypes"
-      items={CATEGORY_TYPES}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
-    />
+  "category-type": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownWithTranslation
+        isMulti={false}
+        key={field.name}
+        error={!!errorMessage}
+        translationKey="categoryTypes"
+        items={CATEGORY_TYPES}
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
   ),
-  file: field => <div key={field.name}>file</div>,
-  "moderators-array": (field, _, onDataChange) => (
+  file: ({ field }) => <div key={field.name}>file</div>,
+  "moderators-additions": ({ field, value, onChange }) => (
     <ButtonMembersChange
       key={field.name}
+      changeAction="add"
       memberType="moderator"
       label={field.placeholder!}
-      onDataChange={onDataChange}
+      value={value as AccountBase[]}
+      onChange={onChange}
     />
   ),
-  "operation-class": (field, _, onDataChange) => (
-    <DropdownWithTranslation
-      isMulti={false}
+  "moderators-removals": ({ field, value, onChange }) => (
+    <ButtonMembersChange
       key={field.name}
-      translationKey="operationClasses"
-      items={OPERATION_CLASSES}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
+      changeAction="remove"
+      memberType="moderator"
+      label={field.placeholder!}
+      value={value as string[]}
+      onChange={onChange}
     />
   ),
-  "review-status": (field, _, onDataChange) => (
+  "review-status": ({ field, value, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
       key={field.name}
       translationKey="reviewStatuses"
       items={REVIEW_STATUSES}
-      className="placeholder-gray-500"
-      placeholder={field.placeholder}
-      onChange={item => onDataChange(field.name, item.value)}
-    />
-  ),
-  roles: (field, _, onDataChange) => (
-    <DropdownWithTranslation
-      isMulti={true}
-      key={field.name}
-      translationKey="roles"
-      className="placeholder-gray-500"
-      items={ROLES}
-      placeholder={field.placeholder}
-      onChange={items => onDataChange(field.name, items.map(x => x.value).join(","))}
-    />
-  ),
-  string: (field, value, onDataChange) => (
-    <Input
-      key={field.name}
-      id={field.name}
-      className="h-10 placeholder-gray-500"
       placeholder={field.placeholder}
       value={value as string}
-      onChange={value => onDataChange(field.name, value)}
+      onChange={item => onChange(item.value)}
     />
   ),
-  "string-multiline": (field, value, onDataChange) => (
+  string: ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <Input
+        key={field.name}
+        id={field.name}
+        className="h-10 placeholder-gray-500"
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={value => onChange(value)}
+        error={!!errorMessage}
+      />
+    </ValidationWrapper>
+  ),
+  "string-multiline": ({ field, value, onChange }) => (
     <Textarea
       key={field.name}
       placeholder={field.placeholder}
       className="text-2sm leading-5 placeholder-gray-500"
       value={value as string}
-      onChange={value => onDataChange(field.name, value)}
+      onChange={value => onChange(value)}
     />
   ),
-  version: (field, _, onDataChange) => (
-    <ProductVersionSelector key={field.name} onChange={item => onDataChange(field.name!, item.toString())} />
+  version: ({ field, onChange }) => (
+    <ProductVersionSelector key={field.name} onChange={item => onChange(item.toString())} />
   ),
 }

@@ -8,10 +8,22 @@ export const useGetUser = (userId?: string) => {
   const queryFn = () => api.getUser(userId!)
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["users", userId],
+    queryKey: ["accounts", userId],
     queryFn: queryFn,
     enabled: !!userId,
   })
 
   return { isPending, error: error ?? undefined, data }
+}
+
+export const useSearchAccounts = (query?: string, limit?: number) => {
+  const queryFn = async () => api.searchAccounts(query, limit)
+
+  const { isPending, isFetching, error, data } = useQuery({
+    queryKey: ["accounts", { query, limit }],
+    queryFn: queryFn,
+    enabled: !!query,
+  })
+
+  return { isPending, isFetching, error: error ?? undefined, data }
 }
