@@ -1,3 +1,4 @@
+export * from "./OptionsCollapsesList"
 export * from "./OptionsEditor"
 
 export * from "./AlternativeOptions"
