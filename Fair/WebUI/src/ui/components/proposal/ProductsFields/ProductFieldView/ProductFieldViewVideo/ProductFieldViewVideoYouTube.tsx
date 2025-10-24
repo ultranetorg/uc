@@ -1,9 +1,9 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { VideoFrame } from "ui/components/common"
+import { VideoFrame } from "ui/components"
 
 export const ProductFieldViewVideoYouTube = memo(({ url, regex }: { url: string; regex: RegExp }) => {
-  const { t } = useTranslation("common")
+  const { t } = useTranslation("productToken")
 
   const videoIdMatch = url.match(regex)
   const videoId = videoIdMatch ? videoIdMatch[1] : null

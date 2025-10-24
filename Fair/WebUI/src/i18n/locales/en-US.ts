@@ -35,8 +35,6 @@ export const enUS = {
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
-    invalidUrl: "Invalid URL",
-    unsupportedTag: "Your browser does not support the tag."
   },
   date: {
     day_one: "{{count}} day",
@@ -90,6 +88,8 @@ export const enUS = {
     description: "Description",
     deployment: "Deployment",
     value: "Value",
+    invalidUrl: "Invalid URL",
+    unsupportedTag: "Your browser does not support the tag."
   },
   about: {
     about: "About",

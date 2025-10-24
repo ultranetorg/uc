@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { VideoFrame } from "ui/components/common"
+import { VideoFrame } from "ui/components"
 
 function buildEmbedUrl(raw: string): string | null {
   try {
@@ -43,7 +43,7 @@ function buildEmbedUrl(raw: string): string | null {
 }
 
 export const ProductFieldViewVideoVkVideo = memo(({ url }: { url: string }) => {
-  const { t } = useTranslation("common")
+  const { t } = useTranslation("productToken")
 
   const embedUrl = buildEmbedUrl(url)
 
