@@ -52,11 +52,11 @@ export const validateSiteAuthorsChange = (
 ) => {
   if (!options) return
 
-  const emptyIndex = options.findIndex(
-    opt => normalizeAuthors(opt.authorsIds) === "" && normalizeCandidates(opt.candidatesIds) === "",
-  )
-  if (emptyIndex !== -1) {
-    setError(`options.${emptyIndex}`, { type: "manual", message: t("validation:requiredAddOrRemoveMembers") })
+  const hasEmpty =
+    normalizeAuthors(options[lastEditedIndex].authorsIds) === "" &&
+    normalizeCandidates(options[lastEditedIndex].candidatesIds) === ""
+  if (hasEmpty) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:requiredAddOrRemoveMembers") })
     return
   }
 
