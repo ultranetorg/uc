@@ -16,6 +16,7 @@ export type DropdownItem = {
 type DropdownBaseProps<IsMulti extends boolean> = {
   isMulti?: IsMulti
   controlled?: boolean
+  error?: boolean
   isLoading?: boolean
   isDisabled?: boolean
   isSearchable?: boolean

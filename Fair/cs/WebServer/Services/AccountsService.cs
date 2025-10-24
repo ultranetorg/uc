@@ -69,7 +69,7 @@ public class AccountsService
 		{
 			return authorsIds.Select(id =>
 			{
-				Author author = mcv.Authors.Find(id, mcv.LastConfirmedRound.Id);
+				Author author = mcv.Authors.Latest(id);
 				return new UserAuthorModel(author);
 			}).ToArray();
 		}

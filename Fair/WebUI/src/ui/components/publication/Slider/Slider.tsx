@@ -27,10 +27,10 @@ export const Slider = () => {
         <SwiperSlide />
         <SwiperSlide />
 
-        <div className="swiper-button-prev transition-base ml-1 h-11 w-11 rounded-full px-3 hover:bg-white/10">
+        <div className="swiper-button-prev ml-1 h-11 w-11 rounded-full px-3 hover:bg-white/10">
           <SvgChevronLeftMd className="stroke-white" />
         </div>
-        <div className="swiper-button-next transition-base mr-1 h-11 w-11 rounded-full px-3 hover:bg-white/10">
+        <div className="swiper-button-next mr-1 h-11 w-11 rounded-full px-3 hover:bg-white/10">
           <SvgChevronRightMd className="stroke-white" />
         </div>
       </Swiper>

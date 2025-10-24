@@ -1,94 +1,18 @@
 import { TFunction } from "i18next"
 
-import { ApprovalPolicy, OperationClass, ProductType, ReviewStatus, Role } from "types"
-import { CLEAR_ALL_VALUE } from "ui/components"
+import { ProductType, ReviewStatus } from "types"
 
 import { EditorOperationFields } from "./types"
+import {
+  validateUniqueCategoryTitle,
+  validateUniqueCategoryType,
+  validateUniqueParentCategory,
+  validateUniqueSiteNickname,
+} from "./validations"
 
-export const APPROVAL_POLICIES: ApprovalPolicy[] = [
-  "none",
-  "all-moderators",
-  "any-moderator",
-  "moderators-majority",
-  "publishers-majority",
-] as const
-
-export const CATEGORY_TYPES: ProductType[] = ["none", "book", "game", "movie", "music", "software"] as const
-
-export const OPERATION_CLASSES: OperationClass[] = [
-  "fair-candidacy-declaration",
-
-  "account-nickname-change",
-  "account-avatar-change",
-  "favorite-site-change",
-
-  "author",
-  "author-creation",
-  "author-renewal",
-  "author-moderation-reward",
-  "author-owner-addition",
-  "author-owner-removal",
-  "author-nickname-change",
-  "author-avatar-change",
-  "author-text-change",
-  "author-links-change",
-
-  "product",
-  "product-creation",
-  "product-updation",
-  "product-deletion",
-
-  "site",
-  "site-creation",
-  "site-renewal",
-  "site-policy-change",
-  "site-moderator-addition",
-  "site-moderator-removal",
-  "site-authors-change",
-  "site-text-change",
-  "site-avatar-change",
-  "site-nickname-change",
-  "user-registration",
-  "user-deletion",
-  "site-deletion",
-
-  "proposal",
-  "proposal-creation",
-  "proposal-voting",
-  "perpetual-voting",
-
-  "category",
-  "category-creation",
-  "category-movement",
-  "category-avatar-change",
-  "category-type-change",
-  "category-deletion",
-
-  "publication",
-  "publication-creation",
-  "publication-remove-from-changed",
-  "publication-publish",
-  "publication-updation",
-  "publication-deletion",
-
-  "review",
-  "review-creation",
-  "review-status-change",
-  "review-edit",
-  "review-deletion",
-
-  "proposal-comment",
-  "proposal-comment-creation",
-  "proposal-comment-edit",
-
-  "file",
-  "file-creation",
-  "file-deletion",
-] as const
+export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", "software"] as const
 
 export const REVIEW_STATUSES: ReviewStatus[] = ["none", "accepted", "rejected"] as const
-
-export const ROLES: (Role | string)[] = ["candidate", "moderator", "publisher", "user", CLEAR_ALL_VALUE] as const
 
 export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[] =>
   [
@@ -118,6 +42,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "categoryTitle",
           placeholder: t("placeholders:enterCategoryTitle"),
+          // @ts-expect-error incompatible param.
+          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueCategoryTitle(t) },
         },
       ],
     },
@@ -127,11 +53,15 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterName: "categoryId",
       parameterLabel: t("common:category"),
       parameterPlaceholder: t("placeholders:selectCategory"),
+      // @ts-expect-error incompatible param.
+      parameterRules: { validate: validateUniqueParentCategory(t) },
       fields: [
         {
           valueType: "category",
           name: "parentCategoryId",
           placeholder: t("placeholders:selectParentCategory"),
+          // @ts-expect-error incompatible param.
+          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueParentCategory(t) },
         },
       ],
     },
@@ -146,6 +76,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "category-type",
           name: "type",
           placeholder: t("placeholders:selectCategoryType"),
+          // @ts-expect-error incompatible param.
+          rules: { validate: validateUniqueCategoryType(t) },
         },
       ],
     },
@@ -229,9 +161,14 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-authors-change",
       fields: [
         {
-          valueType: "authors-array",
-          name: "additions,removals",
-          placeholder: t("selectAuthors"),
+          valueType: "authors-additions",
+          name: "candidatesIds",
+          placeholder: t("selectAuthorsToAdd"),
+        },
+        {
+          valueType: "authors-removals",
+          name: "authorsIds",
+          placeholder: t("selectAuthorsToRemove"),
         },
       ],
     },
@@ -249,9 +186,9 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-moderator-addition",
       fields: [
         {
-          valueType: "moderators-array",
-          name: "additions,removals",
-          placeholder: t("selectModerators"),
+          valueType: "moderators-additions",
+          name: "candidatesIds",
+          placeholder: t("selectModeratorsToAdd"),
         },
       ],
     },
@@ -259,9 +196,9 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-moderator-removal",
       fields: [
         {
-          valueType: "moderators-array",
-          name: "additions,removals",
-          placeholder: t("selectModerators"),
+          valueType: "moderators-removals",
+          name: "moderatorsIds",
+          placeholder: t("selectModeratorsToRemove"),
         },
       ],
     },
@@ -272,6 +209,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "nickname",
           placeholder: t("placeholders:enterNickname"),
+          // @ts-expect-error incompatible param.
+          rules: { validate: validateUniqueSiteNickname(t) },
         },
       ],
     },

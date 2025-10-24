@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
+import { useEscapeKey } from "hooks"
 
 export const ProfilePage = () => {
   const location = useLocation()
@@ -19,21 +20,9 @@ export const ProfilePage = () => {
     navigate(-1)
   }, [navigate])
 
+  useEscapeKey(close)
+
   const handleTabSelect = useCallback((tab: string) => setTitleKey(tab), [])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        close()
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [close])
 
   return (
     <div className="fixed inset-0 z-50 bg-white">

@@ -21,7 +21,7 @@ export const ButtonOutline = memo(
         "box-border flex w-fit select-none items-center justify-center gap-2 rounded border px-4 py-2 text-2sm leading-5",
         className,
         disabled !== true
-          ? "transition-base cursor-pointer border-gray-400 text-gray-800 hover:border-gray-950"
+          ? "cursor-pointer border-gray-400 text-gray-800 hover:border-gray-950"
           : "cursor-default border-gray-200 text-gray-400",
       )}
       onClick={disabled !== true ? onClick : undefined}

@@ -14,11 +14,11 @@ public class AuthorsService
 
 		Guard.Against.NullOrEmpty(authorId);
 
-		AutoId authorEntitiId = AutoId.Parse(authorId);
+		AutoId authorEntityId = AutoId.Parse(authorId);
 
 		lock (mcv.Lock)
 		{
-			Author author = mcv.Authors.Find(authorEntitiId, mcv.LastConfirmedRound.Id);
+			Author author = mcv.Authors.Find(authorEntityId, mcv.LastConfirmedRound.Id);
 			if (author == null)
 			{
 				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);

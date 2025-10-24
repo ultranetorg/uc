@@ -7,7 +7,7 @@ import Select, {
   Props,
 } from "react-select"
 
-import { SearchSvg, SpinnerSvg, SvgX } from "assets"
+import { SvgSearchMd, SpinnerSvg, SvgX } from "assets"
 import { HighlightText } from "ui/components"
 
 import { IndicatorsContainerSelectProps, MenuSelectProps, SearchDropdownItem } from "./types"
@@ -32,7 +32,7 @@ export const IndicatorsContainer = ({
       </div>
     )}
     <div onClick={onSearchClick} className="cursor-pointer p-1">
-      <SearchSvg className="stroke-gray-500 hover:stroke-gray-950" />
+      <SvgSearchMd className="stroke-gray-500 hover:stroke-gray-950" />
     </div>
   </div>
 )
@@ -65,7 +65,7 @@ export const Menu = (props: MenuProps<SearchDropdownItem, false> & MenuBaseProps
 export const Option = (props: OptionProps<SearchDropdownItem>) => {
   return (
     <components.Option {...props}>
-      <SearchSvg className="h-4 w-4 stroke-gray-500" />
+      <SvgSearchMd className="h-4 w-4 stroke-gray-500" />
       <span>
         <HighlightText highlightText={props.selectProps.inputValue} className="font-bold text-dark-100">
           {props.data.label}
