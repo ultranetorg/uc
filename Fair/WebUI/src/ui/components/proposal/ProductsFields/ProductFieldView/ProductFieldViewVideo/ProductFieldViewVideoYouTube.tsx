@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { VideoFrame } from "ui/components"
 
 export const ProductFieldViewVideoYouTube = memo(({ url, regex }: { url: string; regex: RegExp }) => {
-  const { t } = useTranslation("productToken")
+  const { t } = useTranslation("productFields")
 
   const videoIdMatch = url.match(regex)
   const videoId = videoIdMatch ? videoIdMatch[1] : null

@@ -87,9 +87,7 @@ export const enUS = {
     price: "Price",
     description: "Description",
     deployment: "Deployment",
-    value: "Value",
-    invalidUrl: "Invalid URL",
-    unsupportedTag: "Your browser does not support the tag."
+    value: "Value"
   },
   about: {
     about: "About",
@@ -388,5 +386,7 @@ export const enUS = {
     noData: "No fields data",
     loadError: "Error loading field data",
     selectField: "Select a tree item on the left",
+    invalidUrl: "Invalid URL",
+    unsupportedTag: "Your browser does not support the tag.",
   },
 }

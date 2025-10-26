@@ -43,7 +43,7 @@ function buildEmbedUrl(raw: string): string | null {
 }
 
 export const ProductFieldViewVideoVkVideo = memo(({ url }: { url: string }) => {
-  const { t } = useTranslation("productToken")
+  const { t } = useTranslation("productFields")
 
   const embedUrl = buildEmbedUrl(url)
 
