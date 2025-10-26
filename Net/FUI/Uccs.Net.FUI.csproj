@@ -25,7 +25,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Agent\Uccs.Agent.csproj" />
+    <ProjectReference Include="..\cs\Uccs.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="MembershipPanel.cs" />

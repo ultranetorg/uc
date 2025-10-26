@@ -1,6 +1,4 @@
 ﻿using System.Windows.Forms;
-using Uccs.Rdn;
-using Timer = System.Windows.Forms.Timer;
 
 namespace Uccs.Net.FUI;
 
@@ -59,23 +57,23 @@ public partial class MainForm : Form
 			root.Nodes.Add(c);
 		}
 
-		if(node is RdnNode rdn)
-		{
-			var d = new TreeNode("Domains"){ Tag = new DomainPanel(rdn)};
-			root.Nodes.Add(d);
-	
-			var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rdn)};
-			root.Nodes.Add(r);
-
-			//var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
-			//root.Nodes.Add(e);
-
-			if(rdn.SeedHub != null)
-			{
-				var s = new TreeNode("Seed Hub"){ Tag = new HubPanel(rdn)};
-				root.Nodes.Add(s);
-			}
-		}
+//		if(node is RdnNode rdn)
+//		{
+//			var d = new TreeNode("Domains"){ Tag = new DomainPanel(rdn)};
+//			root.Nodes.Add(d);
+//	
+//			var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rdn)};
+//			root.Nodes.Add(r);
+//
+//			//var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
+//			//root.Nodes.Add(e);
+//
+//			if(rdn.SeedHub != null)
+//			{
+//				var s = new TreeNode("Seed Hub"){ Tag = new HubPanel(rdn)};
+//				root.Nodes.Add(s);
+//			}
+//		}
 
 		root.ExpandAll();
 	}

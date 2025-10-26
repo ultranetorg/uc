@@ -35,11 +35,11 @@ namespace Uccs.Demo.Application
  			
 								///if(p == null || !p.Available)
 								{
-									p = Application.Nexus.Rdn.DeployPackage(d.Address, Application.PackagesPath, flow);
+									p = Application.Nexus.Rdn.DeployPackage(d.Address, Application.Nexus.Settings.Packages, flow);
 								}
 
  								f.BeginInvoke(() =>	{
- 														var a = Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(Application.PackagesPath, new (d.Address)), "Uccs.Demo.Component.dll"));
+ 														var a = Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(Application.Nexus.Settings.Packages, new (d.Address)), "Uccs.Demo.Component.dll"));
  														var cc = a.GetType("Uccs.Demo.Component.ComponentControl");
  														var c = cc.GetConstructor([]).Invoke(null) as UserControl;
  														

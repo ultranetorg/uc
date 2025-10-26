@@ -34,7 +34,7 @@
     <PackageReference Include="DnsClient" Version="1.8.0" />
     <PackageReference Include="NBitcoin.Secp256k1" Version="3.1.6" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="RocksDB" Version="10.2.1.58549" />
+    <PackageReference Include="RocksDB" Version="10.4.2.62171" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>

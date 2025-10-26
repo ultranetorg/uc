@@ -5,23 +5,16 @@ namespace Uccs.Uos;
 
 public class NexusClient
 {
-	public string			ProductsPath;	
-	public string			SunAddress; 		
-	public string			SunApiKey;
-	//public McvNet			Net;
-	//
-	//public ResourceHub		ResourceHub;
-	//public PackageHub		PackageHub;
+	public HostSettings		Settings;
 	public UosApiClient		Uos;
 	public RdnApiClient		Rdn;
 	HttpClient				Http = new HttpClient();
-
 
 	public NexusClient()
 	{
 		var hch = new HttpClientHandler();
 		hch.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-		var http = new HttpClient(hch) {Timeout = Timeout.InfiniteTimeSpan};
+		Http = new HttpClient(hch) {Timeout = Timeout.InfiniteTimeSpan};
 
 		//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 		//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
@@ -39,9 +32,7 @@ public class NexusClient
 		//
 		//var s = Uos.Request<NodeInstance>(new NodeInfoApc {Net = Uccs.Rdn.Rdn.Local.Address}, new Flow(GetType().Name));
 
-		var ip = IPAddress.Parse(Environment.GetEnvironmentVariable(Application.UosApiIPEnvKey));
-
-		Rdn = new RdnApiClient(http, ApiSettings.ToAddress(ip, Uccs.Rdn.Rdn.Local.ApiPort));
+		Rdn = new RdnApiClient(Http, ApiSettings.ToAddress(Settings.Api.LocalIP,  Uccs.Rdn.Rdn.ByZone(Settings.Zone).ApiPort));
 	}
 
 //	public PackageInfo GetPackage(Ura package, Flow flow)

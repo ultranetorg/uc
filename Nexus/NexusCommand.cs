@@ -2,11 +2,11 @@
 
 namespace Uccs.Uos;
 
-public class UosCommand : NetCommand
+public class NexusCommand : NetCommand
 {
-	public Uos					Uos;
+	public Nexus					Uos;
 
-	public UosCommand(Uos uos, List<Xon> args, Flow flow) : base(args, flow)
+	public NexusCommand(Nexus uos, List<Xon> args, Flow flow) : base(args, flow)
 	{
 		Uos = uos;
 	}

@@ -4,18 +4,18 @@ using Uccs.Net;
 
 namespace Uccs.Uos;
 
-internal class UosApiServer : JsonServer
+internal class NexusApiServer : JsonServer
 {
-	Uos Uos;
+	Nexus Uos;
 
-	public UosApiServer(Uos uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.UosApi), ApiClient.CreateOptions(), flow)
+	public NexusApiServer(Nexus uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.UosApi), ApiClient.CreateOptions(), flow)
 	{
 		Uos = uos;
 	}
 
 	protected override Type Create(string call)
 	{
-		return Type.GetType(typeof(UosApiServer).Namespace + '.' + call) ?? Assembly.GetAssembly(typeof(NodeApc)).GetType(typeof(McvApc).Namespace + '.' + call);
+		return Type.GetType(typeof(NexusApiServer).Namespace + '.' + call) ?? Assembly.GetAssembly(typeof(NodeApc)).GetType(typeof(McvApc).Namespace + '.' + call);
 	}
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -29,12 +29,12 @@ internal class UosApiServer : JsonServer
 
 internal interface IUosApc
 {
-	public abstract object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
+	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
-public class UosPropertyApc : Net.UosPropertyApc, IUosApc
+public class NexusPropertyApc : Net.UosPropertyApc, IUosApc
 {
-	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		object o = uos;
 
@@ -59,7 +59,7 @@ public class UosPropertyApc : Net.UosPropertyApc, IUosApc
 
 internal class NodeInfoApc : Net.NodeInfoApc, IUosApc
 {
-	public object Execute(Uos uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
 			return uos.Nodes.Find(i => i.Net == Net);
