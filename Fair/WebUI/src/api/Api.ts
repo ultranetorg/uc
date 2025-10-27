@@ -56,6 +56,8 @@ export type Api = {
   getUser(userId: string): Promise<User>
 
   // Author
+  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     siteId: string,
@@ -94,9 +96,7 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(
-    productId: string
-  ): Promise<TotalItemsResult<ProductFieldModel>>
+  getProductFields(productId: string): Promise<TotalItemsResult<ProductFieldModel>>
 
   getReviewProposals(
     siteId: string,

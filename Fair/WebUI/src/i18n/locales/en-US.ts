@@ -87,6 +87,14 @@ export const enUS = {
     value: "Value",
   },
 
+  /* Components */
+  productFields: {
+    loading: "loading..",
+    noData: "No fields data",
+    loadError: "Error loading field data",
+    selectField: "Select a tree item on the left",
+  },
+
   /* Pages */
   about: {
     about: "About",
@@ -222,6 +230,9 @@ export const enUS = {
     addMembersTitle: "Add new {{memberType}}s",
     currentMembersTitle: "Currently {{memberType}}s ({{count}})",
   },
+  memberFilesModal: {
+    title: "Select file",
+  },
 
   /* Tabs */
   tabDiscussions: {
@@ -350,11 +361,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  },
-  productFields: {
-    loading: "loading..",
-    noData: "No fields data",
-    loadError: "Error loading field data",
-    selectField: "Select a tree item on the left",
   },
 }

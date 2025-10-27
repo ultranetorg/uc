@@ -1,5 +1,7 @@
+export * from "./MemberFilesModal"
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
+export * from "./FilesList"
 export * from "./FiltersDropdownButton"
 export * from "./PublicationsGrid"
 export * from "./PublicationsList"
