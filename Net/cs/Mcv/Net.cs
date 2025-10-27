@@ -16,6 +16,7 @@ public enum Zone : ushort
 public enum KnownSystem : ushort
 {
 	UosApi		= 0001,
+	VaultApi	= 0002,
 
 	Rdn			= 0010,
 	Fair		= 0020,
@@ -27,37 +28,40 @@ public enum KnownSystem : ushort
 
 public abstract class Net
 {
-	public const string			Root = "rdn";
+	public const string					Root = "rdn";
+	public readonly static IPAddress	DefaultHost = new IPAddress([127, 1, 0, 0]);
 
-	public abstract string		Address { get; }
-	public abstract string		Name { get; }
-	public abstract	Zone		Zone { get; }
-	public abstract ushort		PortBase { get; }
-	public ushort				Port	=> (ushort)(Zone + PortBase + (ushort)KnownSystem.Ppi);
-	public ushort				NniPort => (ushort)(Zone + PortBase + (ushort)KnownSystem.Nni);
-	public ushort				ApiPort => (ushort)(Zone + PortBase + (ushort)KnownSystem.Api);
+	public abstract string				Address { get; }
+	public abstract string				Name { get; }
+	public abstract	Zone				Zone { get; }
+	public abstract ushort				PortBase { get; }
+	public ushort						Port	=> MapPort(this, KnownSystem.Ppi);
+	public ushort						NniPort => MapPort(this, KnownSystem.Nni);
+	public ushort						ApiPort => MapPort(this, KnownSystem.Api);
 
-	public IPAddress[]			Initials;
-	public IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
-	public IPAddress[]			UOInitials = @" 78.47.204.100	
-												185.208.159.160	
-												5.42.221.102	
-												139.99.94.185	
-												216.73.158.45	
-												37.235.49.245	
-												89.31.120.33	
-												88.119.169.77	
-												41.77.143.118	
-												74.119.194.104	
-												138.124.180.13	"
-											.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
-											.Select(i => IPAddress.Parse(i))
-											.ToArray();
+	public IPAddress[]					Initials;
+	public IPAddress[]					LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
+	public IPAddress[]					UOInitials = @" 78.47.204.100	
+														185.208.159.160	
+														5.42.221.102	
+														139.99.94.185	
+														216.73.158.45	
+														37.235.49.245	
+														89.31.120.33	
+														88.119.169.77	
+														41.77.143.118	
+														74.119.194.104	
+														138.124.180.13	"
+													.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
+													.Select(i => IPAddress.Parse(i))
+													.ToArray();
 
 	public Dictionary<Type, uint>								Codes = [];
 	public Dictionary<Type, Dictionary<uint, ConstructorInfo>>	Contructors = [];
 
-	public T					Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
+	public T							Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
+	public static ushort				MapPort(Net net, KnownSystem system) => (ushort)(net.Zone + net.PortBase + (ushort)system);
+	public static ushort				MapPort(Zone zone, KnownSystem system) => (ushort)(zone + (ushort)system);
 
 	public override string ToString()
 	{

@@ -1,11 +1,10 @@
 ﻿using System.Windows.Forms;
-using Uccs.Rdn;
 
 namespace Uccs.Net.FUI;
 
 public partial class DomainPanel : MainPanel
 {
-	public DomainPanel(RdnNode mcv)
+	public DomainPanel()
 	{
 		InitializeComponent();
 

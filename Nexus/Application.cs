@@ -1,17 +1,14 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
 public class Application
 {
-	public const string			UosApiIPEnvKey	= "UosApiAddress";
-	//public const string			ApiKeyEnvKey	 	= "UosApiKey";
-	public const string			PackageAddressKey	= "PackageKey";
-	public const string			PackagesPathKey		= "PackagesPathKey";
+	public const string			ProfileKey			= "UC_Profile";
+	public const string			PackageAddressKey	= "UC_PackageAddress";
 
 	public NexusClient			Nexus;
 	public ApvAddress			Address => ApvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
-	public string				PackagesPath => Environment.GetEnvironmentVariable(PackagesPathKey);
 
 	public Application()
 	{
@@ -27,7 +24,7 @@ public class Application
 			return null;
 		}
 
-		return Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(PackagesPath, Address), new AssemblyName(args.Name).Name + ".dll"));
+		return Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(Nexus.Settings.Packages, Address), new AssemblyName(args.Name).Name + ".dll"));
 
 //  			var rp = Nexus.PackageHub.DeploymentToAddress(args.RequestingAssembly.Location);
 //  

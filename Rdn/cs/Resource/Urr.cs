@@ -262,14 +262,13 @@ public class ReleaseAddressCreator
 	public AccountAddress	Owner { get; set; }
 	public Ura				Resource { get; set; }
 
-	public Urr Create(Vault vault, byte[] hash)
+	public Urr Create(VaultApiClient vault, byte[] hash)
 	{
 		return Type	switch
 					{
 						UrrScheme.Urrh => new Urrh {Hash = hash},
-						UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
+						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};
-
 	}
 }

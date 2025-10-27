@@ -11,7 +11,7 @@ public partial class CreatePasswordForm : Form
 	{
 		InitializeComponent();
 
-		suggestions.Text = string.Join(Environment.NewLine + Environment.NewLine, Vault.PasswordWarning.Select(i => "      " + i));
+		//suggestions.Text = string.Join(Environment.NewLine + Environment.NewLine, Vault.PasswordWarning.Select(i => "      " + i));
 	}
 
 	private void cancel_Click(object sender, EventArgs e)

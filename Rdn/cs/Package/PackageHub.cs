@@ -16,6 +16,9 @@ public class PackageHub
 		Node = sun;
 		Settings = settings;
 		DeploymentPath = deploymentpath;
+
+		Directory.CreateDirectory(deploymentpath);
+
 	}
 
  	public static string AddressToDeployment(string packagespath, Ura resource)
@@ -76,31 +79,31 @@ public class PackageHub
 		return p;
 	}
 
- 		public LocalPackage Find(Ura resource)
+ 	public LocalPackage Find(Ura resource)
+ 	{
+ 		var p = Packages.Find(i => i.Resource.Address == resource);
+ 
+ 		if(p != null)
+ 			return p;
+ 
+ 		LocalResource r;
+ 
+ 		lock(Node.ResourceHub.Lock)
  		{
- 			var p = Packages.Find(i => i.Resource.Address == resource);
+ 			r = Node.ResourceHub.Find(resource);
  
- 			if(p != null)
- 				return p;
- 
- 			LocalResource r;
- 
- 			lock(Node.ResourceHub.Lock)
+ 			if(r != null)
  			{
- 				r = Node.ResourceHub.Find(resource);
- 
- 				if(r != null)
- 				{
- 					p = new LocalPackage(this, r);
+ 				p = new LocalPackage(this, r);
  	
- 					Packages.Add(p);
+ 				Packages.Add(p);
  	
- 					return p;
- 				}
+ 				return p;
  			}
- 
- 			return null;
  		}
+ 
+ 		return null;
+ 	}
 
 // 		public LocalPackage Find(PackageAddress package)
 // 		{

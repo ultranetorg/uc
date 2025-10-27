@@ -76,7 +76,9 @@ public class PerpetualVoting : FairOperation
 
 		if(old != -1)
 		{
-			s.PerpetualSurveys[Referendum].Options[old] = new SurveyOption {Operation = o.Operation, Yes = o.Yes.Remove(Publisher)};
+			var oo = s.PerpetualSurveys[Referendum].Options[old];
+
+			s.PerpetualSurveys[Referendum].Options[old] = new SurveyOption {Operation = oo.Operation, Yes = oo.Yes.Remove(Publisher)};
 		}
 
 		s.PerpetualSurveys[Referendum].Options[Choice]	= o = new SurveyOption {Operation = o.Operation, Yes = [..o.Yes, Publisher]};

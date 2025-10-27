@@ -1,15 +1,15 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Uos;
+namespace Uccs.Rdn.CLI;
 
-public class PackageCommand : UosCommand
+public class PackageCommand : RdnCommand
 {
 	Ura	Package => Ura.Parse(Args[0].Name);
 
 	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
-	public readonly ArgumentType REALA 	= new ArgumentType("RLSTA", "Realizattion address", [@"company/application/windows"]);
+	public readonly ArgumentType REALA 	= new ArgumentType("RLSTA", "Realization address", [@"company/application/windows"]);
 
-	public PackageCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
+	public PackageCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
 
@@ -33,13 +33,13 @@ public class PackageCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-								var r = RdnRequest<LocalReleaseApe>(new PackageBuildApc{Resource		 = Ura.Parse(Args[0].Name), 
-																						Sources			 = GetString("sources").Split(','), 
-																						DependenciesPath = GetString("dependencies", false),
-																						Previous		 = GetResourceAddress("previous", false),
-																						AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
-																													Owner = GetAccountAddress("owner", false),
-																													Resource = Ura.Parse(Args[0].Name)} });
+								var r = Api<LocalReleaseApe>(new PackageBuildApc   {Resource		 = Ura.Parse(Args[0].Name), 
+																					Sources			 = GetString("sources").Split(','), 
+																					DependenciesPath = GetString("dependencies", false),
+																					Previous		 = GetResourceAddress("previous", false),
+																					AddressCreator	 = new(){	Type = GetEnum("addresstype", UrrScheme.Urrh),
+																												Owner = GetAccountAddress("owner", false),
+																												Resource = Ura.Parse(Args[0].Name)} });
 								Flow.Log.Dump($"Address : {r}");
 
 								return r;
@@ -64,7 +64,7 @@ public class PackageCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-							var r = RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package});
+							var r = Api<PackageInfo>(new LocalPackageApc {Address = Package});
 				
 							Flow.Log.Dump(r);
 
@@ -90,17 +90,17 @@ public class PackageCommand : UosCommand
 									]};
 
 		a.Execute = () =>	{
-								RdnSend(new PackageDownloadApc {Package = Package});
+								Api(new PackageDownloadApc {Package = Package});
 
 								try
 								{
 									do
 									{
-										var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+										var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
 										if(d is null)
 										{	
-											if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+											if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
 											{
 												Flow.Log?.ReportError(this, "Failed");
 											}
@@ -145,47 +145,36 @@ public class PackageCommand : UosCommand
 		};
 
 		a.Execute = () =>	{
-							RdnSend(new PackageDeployApc {Address = ApvAddress.Parse(Args[0].Name),
-														  DeploymentPath = GetString("destination", null)});
+								Api(new PackageDeployApc {Address = ApvAddress.Parse(Args[0].Name),
+															  DeploymentPath = GetString("destination", null)});
 
-							try
-							{
-								do
+								try
 								{
-									var d = RdnRequest<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+									do
+									{
+										var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
-									if(d is null)
-									{	
-										if(!RdnRequest<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
-										{
-											Flow.Log?.ReportError(this, "Failed");
+										if(d is null)
+										{	
+											if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+											{
+												Flow.Log?.ReportError(this, "Failed");
+											}
+
+											break;
 										}
 
-										break;
+										Report(d.ToString());
+
+										Thread.Sleep(500);
 									}
-
-									Report(d.ToString());
-
-									Thread.Sleep(500);
+									while(Flow.Active);
 								}
-								while(Flow.Active);
-							}
-							catch(OperationCanceledException)
-							{
-							}
-							return null;
-						};
+								catch(OperationCanceledException)
+								{
+								}
+								return null;
+							};
 		return a;
-	}
-
-	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
-	{
-		if(Has(paramenter))
-			return Ura.Parse(GetString(paramenter));
-		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
 	}
 }

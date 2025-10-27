@@ -158,8 +158,8 @@ public class BaseControl : UserControl
 		MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
- 	public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
- 	{
+// 	public AccountKey GetPrivate(Uos.Uos uos, AccountAddress account)
+//
 //  		if(!uos.Vault.IsUnlocked(account))
 //  		{
 //  			var pa = new EnterPasswordForm(NodeGlobals.Secrets.Password);
@@ -177,8 +177,8 @@ public class BaseControl : UserControl
 //  			}
 //  		}
  
- 		return uos.Vault.Find(account).Key;
- 	}
+// 		return uos.Vault.Find(account).Key;
+ //	}
 
 	public static string Dump(Xon doc)
 	{

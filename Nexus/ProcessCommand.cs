@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
-internal class ProcessCommand : UosCommand
+internal class ProcessCommand : NexusCommand
 {
-	public ProcessCommand(Uos uos, List<Xon> args, Flow flow) : base(uos, args, flow)
+	public ProcessCommand(Nexus uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{
 	}
 
@@ -13,16 +13,19 @@ internal class ProcessCommand : UosCommand
  		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Name = "r";
-		a.Help = new() {Description = "Runs a new instance with command-line interface",
-						Syntax = $"{Keyword} {a.NamesSyntax} flags [profile={DIRPATH}]",
+		a.Help = new()
+				 {
+					Description = "Runs a new instance with command-line interface",
+					Syntax = $"{Keyword} {a.NamesSyntax} flags [profile={DIRPATH}]",
 
-						Arguments =	[
-										new ("profile", "Path to local profile directory"),
-									],
+					Arguments =	[
+									new ("profile", "Path to local profile directory"),
+								],
 
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} profile=C:\\NodeProfile")
-									]};
+					Examples =	[
+									new (null, $"{Keyword} {a.Name} profile=C:\\NodeProfile")
+								]
+				 };
 
 		a.Execute = () =>	{
 								if(ConsoleAvailable)
@@ -53,11 +56,13 @@ internal class ProcessCommand : UosCommand
 									Uos.LogView.StopListening();
 								}
 								else
-									WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
+									Flow.Cancellation.WaitHandle.WaitOne();
 
 								return null;
 							};
 		
+		
+
 		return a;
 	}
 }

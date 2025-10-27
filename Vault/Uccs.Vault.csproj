@@ -4,35 +4,29 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
-    <Product>UOS</Product>
+    <Product>Vault</Product>
     <Authors>uo</Authors>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>uos</AssemblyName>
+    <AssemblyName>vault</AssemblyName>
     <AssemblyVersion>1.0.648.0</AssemblyVersion>
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject></StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uos.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uos.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\_Release\uos.dotnet\0.0.0</OutputPath>
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Rdn\cs\Uccs.Rdn.csproj" />
+    <ProjectReference Include="..\Net\cs\Uccs.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Uccs.Rdn" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Uos.boot">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Using Include="Uccs.Net" />
   </ItemGroup>
 </Project>

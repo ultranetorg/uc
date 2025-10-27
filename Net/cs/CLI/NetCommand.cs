@@ -91,4 +91,39 @@ public abstract class NetCommand : Command
 			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
 		}
 	}
+
+	protected void Run(Cli cli, CommandAction action)
+	{
+ 		if(ConsoleAvailable)
+		{
+			var logview = new ConsoleLogView(false, false);
+
+			logview.StartListening(Flow.Log);
+
+			while(Flow.Active)
+			{
+				Console.Write($"{Flow.Name} >");
+
+				try
+				{
+					var x = new Xon(Console.ReadLine());
+
+					if(x.Nodes[0].Name == Keyword && (
+														action.Names.Contains(x.Nodes[1].Name) 
+													))
+						throw new Exception("Not available");
+
+					cli.Execute(x.Nodes, Flow);
+				}
+				catch(Exception ex)
+				{
+					Flow.Log.ReportError(this, "Error", ex);
+				}
+			}
+
+			logview.StopListening();
+		}
+		else
+			WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
+	}
 }

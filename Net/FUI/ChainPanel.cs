@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Windows.Forms;
 using Org.BouncyCastle.Utilities.Encoders;
-using Uccs.Rdn;
+//using Uccs.Rdn;
 
 namespace Uccs.Net.FUI;
 
@@ -120,10 +120,10 @@ public partial class ChainPanel : MainPanel
 
 			//Emissions.Items.AddRange((r as RdnRound)?.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
 			
-			if(r is RdnRound rr)
-			{
-				Migrations.Items.AddRange(rr.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
-			}
+			//if(r is RdnRound rr)
+			//{
+			//	Migrations.Items.AddRange(rr.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
+			//}
 		}
 	}
 

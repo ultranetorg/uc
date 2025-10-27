@@ -11,8 +11,8 @@ public class AccountSessionSettings
 
 public class McvNodeSettings : SavableSettings
 {
-	public IPAddress				UosIP { get; set; } = new IPAddress([127, 1, 0, 0]);
-	public ApiSettings				Api { get; set; }
+	public IPAddress				Host { get; set; } = Net.DefaultHost;
+	public IpApiSettings			Api { get; set; }
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
 	public PeeringSettings			NtnPeering { get; set; }

@@ -34,7 +34,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	new public McvNode						Node => base.Node as McvNode;
 	public McvNet							Net => Node.Net;
 	public Mcv								Mcv => Node.Mcv; 
-	public UosApiClient						UosApi; 
+	public VaultApiClient						UosApi; 
 
 	public IEnumerable<Peer>				Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
@@ -53,9 +53,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 	public static List<McvTcpPeering>		All = new();
 
-	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, UosApiClient uosapi, Flow flow) : base(node, node.Net, settings, roles, flow)
+	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Net, settings, roles, flow)
 	{
-		UosApi = uosapi;
+		UosApi = vaultapi;
 
 		Register(typeof(McvPpcClass), node);
 

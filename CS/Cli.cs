@@ -1,8 +1,78 @@
-﻿namespace Uccs.Net;
+﻿using System.Diagnostics;
+using System.Reflection;
+
+namespace Uccs;
 
 public abstract class Cli
 {
+	public const string			FailureExt = "failure";
+
+	public static string		ExeDirectory;
+	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
+	public Flow					Flow; 
+
 	public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
+
+	public static bool			ConsoleAvailable { get; protected set; }
+
+	static Cli()
+	{
+		Thread.CurrentThread.CurrentCulture = 
+		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+
+		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+		try
+		{
+			var p = Console.KeyAvailable;
+			ConsoleAvailable = true;
+		}
+		catch(Exception)
+		{
+			ConsoleAvailable = false;
+		}
+	}
+
+	protected Cli()
+	{
+	}
+
+	protected void Execute(Boot boot)
+	{
+		if(!boot.Commnand.Nodes.Any())
+			return;
+
+		Flow = new Flow(GetType().Name, new Log()); 
+			
+		try
+		{
+			var l = new Log();
+			LogView.StartListening(l);
+
+			Execute(boot.Commnand.Nodes, Flow.CreateNested("Command", l));
+		}
+		catch(OperationCanceledException)
+		{
+			Flow.Log.ReportError(null, "Execution aborted");
+		}
+		catch(Exception ex) when(!Debugger.IsAttached)
+		{
+			if(Command.ConsoleAvailable)
+			{
+				Console.WriteLine(ex.ToString());
+
+				if(ex is ApiCallException ace)
+				{
+					Console.WriteLine(ace.Response.Content.ReadAsStringAsync().Result);
+				}
+			}
+
+			Directory.CreateDirectory(boot.Profile);
+			File.WriteAllText(Path.Join(boot.Profile, $"{Flow.Name}.{FailureExt}"), ex.ToString());
+		}
+
+		LogView.StopListening();
+	}
 
 	public object Execute(IEnumerable<Xon> args, Flow flow)
 	{

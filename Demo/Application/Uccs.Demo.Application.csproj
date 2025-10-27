@@ -31,7 +31,9 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
+    <ProjectReference Include="..\..\Nexus\Uccs.Nexus.csproj">
+      <ReferenceOutputAssembly></ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
       <Private>True</Private>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
