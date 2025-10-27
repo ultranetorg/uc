@@ -1,6 +1,6 @@
 ﻿using Uccs.Net;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
 public class NexusCommand : NetCommand
 {

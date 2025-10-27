@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+	<TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
     <Product>Nexus</Product>
     <Authors>uo</Authors>
@@ -14,7 +14,6 @@
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject></StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>

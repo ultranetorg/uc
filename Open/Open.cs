@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Uccs.Net;
-using Uccs.Uos;
+using Uccs.Nexus;
 
 namespace Uccs.Open;
 

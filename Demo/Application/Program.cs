@@ -8,7 +8,7 @@ namespace Uccs.Demo.Application
 {
 	public static class Program
 	{
-		static Uccs.Uos.Application Application;
+		static Uccs.Nexus.Application Application;
 
 		/// <summary>
 		///  The main entry point for the application.
@@ -18,12 +18,12 @@ namespace Uccs.Demo.Application
 		{
 			ApplicationConfiguration.Initialize();
 
-			Application = new Uccs.Uos.Application();
+			Application = new Uccs.Nexus.Application();
 
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
 
- 			Application = new Uccs.Uos.Application();
+ 			Application = new Uccs.Nexus.Application();
  			
  			var f = new Form1();
  			

@@ -2,7 +2,7 @@
 using System.Reflection;
 using Uccs.Net;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
 public class NodeInstance
 {
@@ -37,7 +37,7 @@ public class Nexus : Cli
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
 
-	static void Main(string[] args)
+	public static void Main(string[] args)
 	{
 		var boot = new NetBoot(ExeDirectory);
 		var s = new HostSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);

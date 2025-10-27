@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Uccs.Net;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
 public class NexusClient
 {

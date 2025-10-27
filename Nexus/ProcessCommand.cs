@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Uos;
+namespace Uccs.Nexus;
 
 internal class ProcessCommand : NexusCommand
 {

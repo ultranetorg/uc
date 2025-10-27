@@ -9,7 +9,7 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>opener</AssemblyName>
+    <AssemblyName>open</AssemblyName>
     <AssemblyVersion>1.0.648.0</AssemblyVersion>
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>
