@@ -1,12 +1,8 @@
-﻿using System.Net;
-
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public enum Trust : byte
 {
-	None,
-	NonSpending,
-	Spending
+	None, NonSpending, Spending
 }
 
 public class AccountSession
@@ -15,40 +11,11 @@ public class AccountSession
 	public byte[]			Session { get; set; }
 }
 
-public class UosApiClient : ApiClient
-{
-	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.UosApi);
-
-	public UosApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
-	{
-	}
-
-	public UosApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
-	{
-	}
-}
-
 public class VaultApiClient : ApiClient
 {
-	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.VaultApi);
-
-	public VaultApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
+	public VaultApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 	}
-
-	public VaultApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
-	{
-	}
-}
-
-public class UosPropertyApc : Apc
-{
-	public string Path { get; set; }
-}
-
-public class NodeInfoApc : Apc
-{
-	public string	Net { get; set; }
 }
 
 public class AddWalletApc : Apc

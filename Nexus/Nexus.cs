@@ -24,7 +24,7 @@ public class Nexus : Cli
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
 	RdnApiClient					_Rdn;
-	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)));
+	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
 
 	public Delegate					Stopped;
 
@@ -108,7 +108,7 @@ public class Nexus : Cli
 	{
 		var ni = Find(net);
 
-		return new McvApiClient(ApiHttpClient, ni.ApiLocalAddress, null);
+		return new McvApiClient(ni.ApiLocalAddress, null, ApiHttpClient);
 	}
 
 	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)

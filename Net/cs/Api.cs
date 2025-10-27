@@ -151,12 +151,7 @@ public class ApiClient : JsonClient
 	}
 
 
-	public ApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
-	{
-		Options = CreateOptions();
-	}
-
-	public ApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public ApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
 	}

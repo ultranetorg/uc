@@ -78,15 +78,10 @@ public class RdnApiClient : McvApiClient
 		return o;
 	}
 
-	public RdnApiClient(HttpClient http, string address, string accesskey = null) : base(http, address, accesskey)
+	public RdnApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
 		
-	}
-
-	public RdnApiClient(string address, string accesskey = null, int timeout = 30) : base(address, accesskey, timeout)
-	{
-		Options = CreateOptions();
 	}
 	
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);

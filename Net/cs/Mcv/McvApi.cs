@@ -78,12 +78,7 @@ public class McvApiClient : ApiClient
 		return o;
 	}
 
-	public McvApiClient(HttpClient http, string address, string accesskey = null) : base(http, address, accesskey)
-	{
-		Options = CreateOptions();
-	}
-
-	public McvApiClient(string address, string accesskey = null, int timeout = 30) : base(address, accesskey, timeout)
+	public McvApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
 	}

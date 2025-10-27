@@ -27,13 +27,34 @@ internal class NexusApiServer : JsonServer
 	}
 }
 
+public class NexusApiClient : ApiClient
+{
+	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.UosApi);
+
+	public NexusApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	{
+	}
+}
+
 internal interface IUosApc
 {
 	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
-public class NexusPropertyApc : Net.UosPropertyApc, IUosApc
+//public class UosPropertyApc : Apc
+//{
+//	public string Path { get; set; }
+//}
+//
+//public class NodeInfoApc : Apc
+//{
+//	public string Net { get; set; }
+//}
+
+public class NexusPropertyApc : Apc, IUosApc
 {
+	public string Path { get; set; }
+
 	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		object o = uos;
@@ -57,8 +78,11 @@ public class NexusPropertyApc : Net.UosPropertyApc, IUosApc
 	}
 }
 
-internal class NodeInfoApc : Net.NodeInfoApc, IUosApc
+
+internal class NodeInfoApc : Apc, IUosApc
 {
+	public string Net { get; set; }
+
 	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
