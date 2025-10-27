@@ -1,15 +1,15 @@
 ﻿using System.Reflection;
 using Uccs.Net;
 
-namespace Uccs.Opener;
+namespace Uccs.Open;
 
-public class OpenerCommand : NetCommand
+public class OpenCommand : NetCommand
 {
-	Opener Opener;
+	Open Open;
 
-	public OpenerCommand(Opener opener, List<Xon> args, Flow flow) : base(args, flow)
+	public OpenCommand(Open opener, List<Xon> args, Flow flow) : base(args, flow)
 	{
-		Opener = opener;
+		Open = opener;
 	}
 
 	public CommandAction Default()
@@ -17,7 +17,7 @@ public class OpenerCommand : NetCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Execute = () =>	{
-								Opener.Start(Unea.Parse(Args[0].Name), Flow);
+								Open.Start(Unea.Parse(Args[0].Name), Flow);
 
 								return null;
 							};

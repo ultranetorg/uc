@@ -3,9 +3,9 @@ using System.Text;
 using Uccs.Net;
 using Uccs.Uos;
 
-namespace Uccs.Opener;
+namespace Uccs.Open;
 
-public class Opener : Cli
+public class Open : Cli
 {
 	public static HttpClient	ApiHttpClient;
 	public HostSettings			Settings;
@@ -13,7 +13,7 @@ public class Opener : Cli
 	RdnApiClient				_Rdn;
 	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)));
 
-	static Opener()
+	static Open()
 	{
   	  	var h = new HttpClientHandler();
 		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
@@ -24,14 +24,14 @@ public class Opener : Cli
 	{
 		var boot = new NetBoot(ExeDirectory);
 		var s = new HostSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);
-		var u = new Opener(s, new Flow(nameof(Opener), new Log()));
+		var u = new Open(s, new Flow(nameof(Open), new Log()));
 
 		u.Execute(boot);
 
 		u.Flow.Abort();
 	}
 
-	public Opener(HostSettings settings, Flow flow)
+	public Open(HostSettings settings, Flow flow)
 	{
 		Settings = settings;
 		Flow = flow;
@@ -40,11 +40,11 @@ public class Opener : Cli
 			File.Delete(i);
 	}
 
-	public override OpenerCommand Create(IEnumerable<Xon> commnad, Flow flow)
+	public override OpenCommand Create(IEnumerable<Xon> commnad, Flow flow)
 	{
 		var args = commnad.ToList();
 
-		return new OpenerCommand(this, args, flow);
+		return new OpenCommand(this, args, flow);
 	}
 
 	public void Start(Unea address, Flow flow)
@@ -58,7 +58,7 @@ public class Opener : Cli
 					RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (ura)}}, flow)?.Resource?.Data;
 	
 			if(d == null)
-				throw new OpenerException("Incorrect resource type");
+				throw new OpenException("Incorrect resource type");
 	
 			//Ura apr = null;
 			Ura aprv = null;
@@ -76,7 +76,7 @@ public class Opener : Cli
 				aprv = ura;
 			}
 			else
-				throw new OpenerException("Incorrect resource type");
+				throw new OpenException("Incorrect resource type");
 	
 			RdnApi.DeployPackage(aprv, Settings.Packages, flow);
 	
