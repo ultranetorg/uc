@@ -19,7 +19,7 @@ public class FairNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeUosApi(Settings.Host);
+		InitializeVaultApi(Settings.Host);
 
 		if(Settings.Mcv != null)
 		{

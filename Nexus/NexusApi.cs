@@ -6,11 +6,11 @@ namespace Uccs.Nexus;
 
 internal class NexusApiServer : JsonServer
 {
-	Nexus Uos;
+	Nexus Nexus;
 
 	public NexusApiServer(Nexus uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.UosApi), ApiClient.CreateOptions(), flow)
 	{
-		Uos = uos;
+		Nexus = uos;
 	}
 
 	protected override Type Create(string call)
@@ -20,8 +20,8 @@ internal class NexusApiServer : JsonServer
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(call is IUosApc u) 
-			return u.Execute(Uos, request, response, flow);
+		if(call is INexusApc u) 
+			return u.Execute(Nexus, request, response, flow);
 
 		throw new ApiCallException("Unknown call");
 	}
@@ -36,7 +36,7 @@ public class NexusApiClient : ApiClient
 	}
 }
 
-internal interface IUosApc
+internal interface INexusApc
 {
 	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
@@ -51,7 +51,7 @@ internal interface IUosApc
 //	public string Net { get; set; }
 //}
 
-public class NexusPropertyApc : Apc, IUosApc
+public class NexusPropertyApc : Apc, INexusApc
 {
 	public string Path { get; set; }
 
@@ -79,7 +79,7 @@ public class NexusPropertyApc : Apc, IUosApc
 }
 
 
-internal class NodeInfoApc : Apc, IUosApc
+internal class NodeInfoApc : Apc, INexusApc
 {
 	public string Net { get; set; }
 

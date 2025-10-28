@@ -30,7 +30,7 @@ internal class ProcessCommand : NexusCommand
 		a.Execute = () =>	{
 								if(ConsoleAvailable)
 								{
-									Uos.LogView.StartListening(Flow.Log);
+									Nexus.LogView.StartListening(Flow.Log);
 
 									while(Flow.Active)
 									{
@@ -45,7 +45,7 @@ internal class ProcessCommand : NexusCommand
 																			 ))
 												throw new Exception("Not available");
 
-											Uos.Execute(x.Nodes, Flow);
+											Nexus.Execute(x.Nodes, Flow);
 										}
 										catch(Exception ex)
 										{
@@ -53,7 +53,7 @@ internal class ProcessCommand : NexusCommand
 										}
 									}
 
-									Uos.LogView.StopListening();
+									Nexus.LogView.StopListening();
 								}
 								else
 									Flow.Cancellation.WaitHandle.WaitOne();

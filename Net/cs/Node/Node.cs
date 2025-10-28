@@ -50,7 +50,7 @@ public class Node
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 	}
 
-	protected void InitializeUosApi(IPAddress host)
+	protected void InitializeVaultApi(IPAddress host)
 	{
 		var h = new HttpClientHandler()
 				{

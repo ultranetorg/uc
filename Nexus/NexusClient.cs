@@ -6,7 +6,7 @@ namespace Uccs.Nexus;
 public class NexusClient
 {
 	public HostSettings		Settings;
-	public NexusApiClient		Uos;
+	public NexusApiClient	Nexus;
 	public RdnApiClient		Rdn;
 	HttpClient				Http = new HttpClient();
 

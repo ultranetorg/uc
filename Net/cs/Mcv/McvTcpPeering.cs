@@ -34,7 +34,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	new public McvNode						Node => base.Node as McvNode;
 	public McvNet							Net => Node.Net;
 	public Mcv								Mcv => Node.Mcv; 
-	public VaultApiClient						UosApi; 
+	public VaultApiClient					VaultApi; 
 
 	public IEnumerable<Peer>				Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
@@ -55,7 +55,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Net, settings, roles, flow)
 	{
-		UosApi = vaultapi;
+		VaultApi = vaultapi;
 
 		Register(typeof(McvPpcClass), node);
 
@@ -762,12 +762,13 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							///v.Sign(Vault.Find(g).Key);
 							v.Generator = g;
-							v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
-																					Account	= g,
-																					Session = GetSession(g),
-																					Hash	= v.Hashify(),
-																					Trust	= Trust.None}, Flow);						
-	
+							v.Signature	= Net.Cryptography.Sign(g, v.Hashify());
+										//VaultApi.Request<byte[]>(new AuthorizeApc{Net		= Net.Name,
+										//											Account	= g,
+										//											Session = GetSession(g),
+										//											Hash	= v.Hashify(),
+										//											Trust	= Trust.None}, Flow);						
+										//
 							votes.Add(v);
 						}
 					}
@@ -779,11 +780,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	 					var v = createvote(r);
 	 						
 						v.Generator = g;
-						v.Signature	= UosApi.Request<byte[]>(new AuthorizeApc  {Net		= Net.Name,
-																				Account	= g,
-																				Session = GetSession(g),
-																				Hash	= v.Hashify(),
-																				Trust	= Trust.None}, Flow);						
+						v.Signature	= Net.Cryptography.Sign(g, v.Hashify());
+									//VaultApi.Request<byte[]>(new AuthorizeApc{Net		= Net.Name,
+									//											Account	= g,
+									//											Session = GetSession(g),
+									//											Hash	= v.Hashify(),
+									//											Trust	= Trust.None}, Flow);						
 	 					votes.Add(v);
 	 				}
 	
@@ -885,7 +887,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(s != null)
 			return s.Session;
 
-		var a = UosApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
+		var a = VaultApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
 
 		if(a == null)
 			return null;
@@ -966,14 +968,16 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Nid		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
-						t.Signature	 = UosApi.Request<byte[]>(	new AuthorizeApc
-																{
-																	Net		= Net.Name,
-																	Account	= t.Signer,
-																	Session = GetSession(t.Signer),
-																	Hash	= t.Hashify(),
-																	Trust	= Trust.None
-																}, t.Flow);
+						t.Signature	 = Mcv?.Settings.Generators != null && Mcv.Settings.Generators.Contains(g.Key) ?Net.Cryptography.Sign(Mcv.Settings.Generators.First(k => k == g.Key), t.Hashify())
+																													:
+																													VaultApi.Request<byte[]>(new AuthorizeApc
+																																			{
+																																				Net		= Net.Name,
+																																				Account	= t.Signer,
+																																				Session = GetSession(t.Signer),
+																																				Hash	= t.Hashify(),
+																																				Trust	= Trust.None
+																																			}, t.Flow);
 
 						var at = Call(ppi, new AllocateTransactionRequest {Transaction = t});
 							
@@ -986,14 +990,16 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Bonus		 = 0;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
-						t.Signature	 = UosApi.Request<byte[]>(	new AuthorizeApc
-																{
-																	Net		= Net.Name,
-																	Account	= t.Signer,
-																	Session = GetSession(t.Signer),
-																	Hash	= t.Hashify(),
-																	Trust	= Trust.None
-																}, t.Flow);
+						t.Signature  = Mcv?.Settings.Generators != null && Mcv.Settings.Generators.Contains(g.Key) ?Net.Cryptography.Sign(Mcv.Settings.Generators.First(k => k == g.Key), t.Hashify())
+																													:
+																													VaultApi.Request<byte[]>(new AuthorizeApc
+																																			{
+																																				Net = Net.Name,
+																																				Account = t.Signer,
+																																				Session = GetSession(t.Signer),
+																																				Hash = t.Hashify(),
+																																				Trust = Trust.None
+																																			}, t.Flow);
 
 						txs.Add(t);
 
