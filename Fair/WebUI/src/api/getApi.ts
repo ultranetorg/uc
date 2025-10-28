@@ -40,6 +40,12 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
 
+const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
@@ -254,6 +260,7 @@ const api: Api = {
   getReviews,
   getSite,
   getSiteAuthors,
+  getSiteFiles,
   getSiteModerators,
   getUser,
   searchLitePublication,

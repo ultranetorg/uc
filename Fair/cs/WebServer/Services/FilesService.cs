@@ -38,34 +38,29 @@ public class FilesService
 				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
 			}
 
-			lock (mcv.Lock)
-			{
-				return LoadFilesNotOptimized(author.Files, page, pageSize, cancellationToken);
-			}
+			return LoadFilesNotOptimized(author.Files, page, pageSize, cancellationToken);
 		}
 	}
 
-	public TotalItemsResult<string> GetModeratorFiles([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<string> GetSiteFiles([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetModeratorFiles), siteId, authorId, page, pageSize);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetSiteFiles), siteId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NullOrEmpty(authorId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId siteAutoId = AutoId.Parse(siteId);
-		AutoId moderatorAutoId = AutoId.Parse(authorId);
+		AutoId id = AutoId.Parse(siteId);
 
 		lock(mcv.Lock)
 		{
-			Site site = mcv.Sites.Latest(siteAutoId);
+			Site site = mcv.Sites.Latest(id);
 			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return new TotalItemsResult<string> {Items = new List<string>(), TotalItems = 0};
+			return LoadFilesNotOptimized(site.Files, page, pageSize, cancellationToken);
 		}
 	}
 
@@ -89,7 +84,6 @@ public class FilesService
 
 			if(totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 			{
-				// TODO: use actual mime type instead of Png.
 				result.Add(file.Id.ToString());
 			}
 
@@ -114,8 +108,18 @@ public class FilesService
 		lock(mcv.Lock)
 		{
 			File file = mcv.Files.Latest(id);
-			// TODO: use actual mime type instead of Png.
-			return new FileContentResult(file.Data, MediaTypeNames.Image.Png);
+			string mimeType = GetMimeType(file.Mime);
+			return new FileContentResult(file.Data, mimeType);
+		}
+	}
+
+	string GetMimeType(MimeType mimeType)
+	{
+		switch (mimeType)
+		{
+			case MimeType.ImageJpg: return MediaTypeNames.Image.Jpeg;
+			case MimeType.ImagePng: return MediaTypeNames.Image.Png;
+			default: return MediaTypeNames.Application.Octet;
 		}
 	}
 }

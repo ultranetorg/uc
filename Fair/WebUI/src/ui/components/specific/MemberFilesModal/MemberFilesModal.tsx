@@ -1,28 +1,47 @@
-import { memo, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorFiles } from "entities"
 import { useEscapeKey } from "hooks"
 import { Modal, ModalProps, Pagination } from "ui/components"
-import { FilesList } from "ui/components/specific"
+import { FilesGrid } from "ui/components/specific"
 
-export type MemberFilesModalProps = ModalProps
+const { VITE_APP_USER_ID: USER_ID } = import.meta.env
 
-export const MemberFilesModal = memo(({ onClose }: MemberFilesModalProps) => {
+type MemberFilesModalBaseProps = {
+  onSelect: (id: string) => void
+}
+
+export type MemberFilesModalProps = MemberFilesModalBaseProps & ModalProps
+
+export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalProps) => {
   const { siteId } = useParams()
   const { t } = useTranslation("memberFilesModal")
   useEscapeKey(onClose)
 
   const [page, setPage] = useState(0)
 
-  const { data: files } = useGetAuthorFiles(siteId, "67465-0", page)
-  console.log(files)
+  const { data: files, isFetching } = useGetAuthorFiles(siteId, USER_ID ?? "", page)
+  const pagesCount = files?.totalItems && files.totalItems > 0 ? Math.ceil(files.totalItems / DEFAULT_PAGE_SIZE_20) : 0
+
+  const handleSelect = useCallback(
+    (id: string) => {
+      onSelect?.(id)
+      onClose?.()
+    },
+    [onClose, onSelect],
+  )
 
   return (
-    <Modal title={t("title")} onClose={onClose}>
-      <Pagination onPageChange={setPage} page={page} pagesCount={10} />
-      <FilesList />
+    <Modal title={t("title")} onClose={onClose} className="flex h-170 w-190">
+      <div className="flex h-full flex-col gap-3">
+        <Pagination className="self-end" onPageChange={setPage} page={page} pagesCount={pagesCount} />
+        <div className="flex-1 overflow-y-scroll">
+          <FilesGrid isLoading={isFetching} filesIds={files?.items} onSelect={handleSelect} />
+        </div>
+      </div>
     </Modal>
   )
 })

@@ -30,6 +30,7 @@ export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
