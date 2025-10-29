@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetAuthorFiles } from "entities"
+import { useGetFiles } from "entities"
 import { useEscapeKey } from "hooks"
 import { Modal, ModalProps, Pagination } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
@@ -23,7 +23,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
 
   const [page, setPage] = useState(0)
 
-  const { data: files, isFetching } = useGetAuthorFiles(siteId, USER_ID ?? "", page)
+  const { data: files, isFetching } = useGetFiles(siteId, USER_ID ?? "", page)
   const pagesCount = files?.totalItems && files.totalItems > 0 ? Math.ceil(files.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const handleSelect = useCallback(

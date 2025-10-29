@@ -21,7 +21,7 @@ export const FilesGrid = memo(({ className, isLoading, filesIds, onSelect }: Fil
   ) : (
     <div className={twMerge("grid w-full grid-cols-5 gap-6", className)}>
       {filesIds?.map(id => (
-        <FileCard key={id} fileId={id} onClick={() => onSelect(id)} />
+        <FileCard key={id} fileId={id} onClick={() => onSelect?.(id)} />
       ))}
     </div>
   ),

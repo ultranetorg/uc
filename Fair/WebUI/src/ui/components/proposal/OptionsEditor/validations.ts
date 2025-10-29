@@ -13,6 +13,13 @@ export const validateUniqueCategoryType = (t: TFunction) => (value: string, data
   return duplicates.length <= 1 || t("validation:uniqueCategoryType")
 }
 
+export const validateUniqueFileId = (t: TFunction) => (value: string, data: CreateProposalData) => {
+  const duplicates = data.options.filter(opt => opt.fileId === value)
+  const r = duplicates.length <= 1 || t("validation:uniqueFile")
+  console.log(r)
+  return r
+}
+
 export const validateUniqueParentCategory = (t: TFunction) => (value: string, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.parentCategoryId === value)
   if (duplicates.length > 1) {

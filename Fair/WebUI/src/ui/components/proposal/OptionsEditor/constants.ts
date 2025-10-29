@@ -6,6 +6,7 @@ import { EditorOperationFields } from "./types"
 import {
   validateUniqueCategoryTitle,
   validateUniqueCategoryType,
+  validateUniqueFileId,
   validateUniqueParentCategory,
   validateUniqueSiteNickname,
 } from "./validations"
@@ -28,6 +29,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "file",
           name: "fileId",
           placeholder: t("placeholders:selectFile"),
+          // @ts-expect-error incompatible param.
+          rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },
       ],
     },
@@ -179,6 +182,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "file",
           name: "fileId",
           placeholder: t("placeholders:selectFile"),
+          rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },
       ],
     },
