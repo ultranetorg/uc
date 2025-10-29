@@ -50,7 +50,7 @@ public class Node
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 	}
 
-	protected void InitializeUosApi(IPAddress host)
+	protected void InitializeVaultApi(IPAddress host)
 	{
 		var h = new HttpClientHandler()
 				{
@@ -62,7 +62,7 @@ public class Node
 		if(Debugger.IsAttached)
 			HttpClient.Timeout = Timeout.InfiniteTimeSpan;
 	
-		VaultApi = new VaultApiClient(HttpClient, ApiClient.GetAddress(Net.Zone, host, false, KnownSystem.VaultApi), null);
+		VaultApi = new VaultApiClient(ApiClient.GetAddress(Net.Zone, host, false, KnownSystem.VaultApi), null, HttpClient);
 	}
 
 	public virtual void Stop()

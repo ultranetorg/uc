@@ -78,12 +78,7 @@ public class McvApiClient : ApiClient
 		return o;
 	}
 
-	public McvApiClient(HttpClient http, string address, string accesskey = null) : base(http, address, accesskey)
-	{
-		Options = CreateOptions();
-	}
-
-	public McvApiClient(string address, string accesskey = null, int timeout = 30) : base(address, accesskey, timeout)
+	public McvApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
 	}
@@ -438,7 +433,7 @@ public class PpcApc : McvApc
 
 public class SetGeneratorApc : McvApc
 {
-	public IEnumerable<AccountAddress>	 Generators {get; set;}
+	public IEnumerable<byte[]>	 Generators {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -446,7 +441,7 @@ public class SetGeneratorApc : McvApc
 			throw new NodeException(NodeError.NoMcv);
 
 		lock(node.Mcv.Lock)
-			node.Mcv.Settings.Generators = Generators.ToArray();
+			node.Mcv.Settings.Generators = Generators.Select(i => new AccountKey(i)).ToArray();
 
 		return null;
 	}

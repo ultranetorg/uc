@@ -4,11 +4,11 @@ namespace Uccs.Vault;
 
 public class VaultCommand : NetCommand
 {
-	public Vault					Vault;
+	public Vault	Vault;
 
-	public VaultCommand(Vault uos, List<Xon> args, Flow flow) : base(args, flow)
+	public VaultCommand(Vault vault, List<Xon> args, Flow flow) : base(args, flow)
 	{
-		Vault = uos;
+		Vault = vault;
 	}
 
 	public CommandAction Run()

@@ -102,12 +102,7 @@ public class FairApiClient : McvApiClient
 		return o;
 	}
 
-	public FairApiClient(HttpClient http, string address, string accesskey) : base(http, address, accesskey)
-	{
-		Options = CreateOptions();
-	}
-
-	public FairApiClient(string address, string accesskey, int timeout = 30) : base(address, accesskey, timeout)
+	public FairApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
 	}

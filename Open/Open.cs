@@ -11,7 +11,7 @@ public class Open : Cli
 	public HostSettings			Settings;
 
 	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(ApiHttpClient, Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)));
+	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
 
 	static Open()
 	{

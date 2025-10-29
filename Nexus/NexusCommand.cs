@@ -4,11 +4,11 @@ namespace Uccs.Nexus;
 
 public class NexusCommand : NetCommand
 {
-	public Nexus					Uos;
+	public Nexus	Nexus;
 
 	public NexusCommand(Nexus uos, List<Xon> args, Flow flow) : base(args, flow)
 	{
-		Uos = uos;
+		Nexus = uos;
 	}
 
 	public void Api(Apc call)
@@ -16,9 +16,9 @@ public class NexusCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 			
-		if(call is IUosApc u)
+		if(call is INexusApc u)
 		{
-			u.Execute(Uos, null, null, Flow);
+			u.Execute(Nexus, null, null, Flow);
 			return;
 		}
 
@@ -30,7 +30,7 @@ public class NexusCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		if(call is IUosApc u)	return (Rp)u.Execute(Uos, null, null, Flow);
+		if(call is INexusApc u)	return (Rp)u.Execute(Nexus, null, null, Flow);
 
 		throw new Exception();
 	}
@@ -40,7 +40,7 @@ public class NexusCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		return Uos.RdnApi.Request<Rp>(call, Flow);
+		return Nexus.RdnApi.Request<Rp>(call, Flow);
 	}
 
 	public void RdnSend(Apc call)
@@ -48,6 +48,6 @@ public class NexusCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		Uos.RdnApi.Send(call, Flow);
+		Nexus.RdnApi.Send(call, Flow);
 	}
 }

@@ -14,8 +14,6 @@
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject></StartupObject>
-    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>

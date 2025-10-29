@@ -6,7 +6,7 @@ namespace Uccs.Nexus;
 public class NexusClient
 {
 	public HostSettings		Settings;
-	public UosApiClient		Uos;
+	public NexusApiClient	Nexus;
 	public RdnApiClient		Rdn;
 	HttpClient				Http = new HttpClient();
 
@@ -32,7 +32,7 @@ public class NexusClient
 		//
 		//var s = Uos.Request<NodeInstance>(new NodeInfoApc {Net = Uccs.Rdn.Rdn.Local.Address}, new Flow(GetType().Name));
 
-		Rdn = new RdnApiClient(Http, ApiSettings.ToAddress(Settings.Api.LocalIP,  Uccs.Rdn.Rdn.ByZone(Settings.Zone).ApiPort));
+		Rdn = new RdnApiClient(ApiSettings.ToAddress(Settings.Api.LocalIP,  Uccs.Rdn.Rdn.ByZone(Settings.Zone).ApiPort), null, Http);
 	}
 
 //	public PackageInfo GetPackage(Ura package, Flow flow)

@@ -54,20 +54,21 @@ public class JsonClient
 	public int						Failures;
 	public JsonSerializerOptions	Options;
 
-	public JsonClient(HttpClient http, string address, string accesskey)
+	public JsonClient(string address, string accesskey, HttpClient http = null, int timeout = 30)
 	{
 		Http = http;
 		Address = address;
 		Key = accesskey;
-	}
 
-	public JsonClient(string address, string accesskey, int timeout = 30)
-	{
-		Http = new HttpClient();
-		Http.Timeout = Debugger.IsAttached ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
-
-		Address = address;
-		Key = accesskey;
+		if(http == null)
+		{
+			Http = new HttpClient();
+			Http.Timeout = Debugger.IsAttached ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
+		} 
+		else
+		{
+			Http = http;
+		}
 	}
 
 	public override string ToString()

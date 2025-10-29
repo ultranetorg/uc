@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
+	<PropertyGroup>
+    <OutputType>Library</OutputType>
 	<TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
     <Product>Nexus</Product>
@@ -14,6 +14,7 @@
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>
