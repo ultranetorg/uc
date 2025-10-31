@@ -4,7 +4,7 @@ namespace Uccs.Nexus;
 
 internal class ProcessCommand : NexusCommand
 {
-	public ProcessCommand(Nexus uos, List<Xon> args, Flow flow) : base(uos, args, flow)
+	public ProcessCommand(NexusCli uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{
 	}
 
@@ -30,7 +30,7 @@ internal class ProcessCommand : NexusCommand
 		a.Execute = () =>	{
 								if(ConsoleAvailable)
 								{
-									Nexus.LogView.StartListening(Flow.Log);
+									Cli.LogView.StartListening(Flow.Log);
 
 									while(Flow.Active)
 									{
@@ -45,7 +45,7 @@ internal class ProcessCommand : NexusCommand
 																			 ))
 												throw new Exception("Not available");
 
-											Nexus.Execute(x.Nodes, Flow);
+											Cli.Execute(x.Nodes, Flow);
 										}
 										catch(Exception ex)
 										{
@@ -53,7 +53,7 @@ internal class ProcessCommand : NexusCommand
 										}
 									}
 
-									Nexus.LogView.StopListening();
+									Cli.LogView.StopListening();
 								}
 								else
 									Flow.Cancellation.WaitHandle.WaitOne();

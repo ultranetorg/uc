@@ -5,11 +5,11 @@ namespace Uccs.Nexus;
 
 public class NexusCommand : NetCommand
 {
-	public Nexus	Nexus;
+	public NexusCli	Cli;
 
-	public NexusCommand(Nexus uos, List<Xon> args, Flow flow) : base(args, flow)
+	public NexusCommand(NexusCli uos, List<Xon> args, Flow flow) : base(args, flow)
 	{
-		Nexus = uos;
+		Cli = uos;
 
 		Flow.Log?.TypesForExpanding.AddRange(  [typeof(IEnumerable<Dependency>), 
 												typeof(IEnumerable<AnalyzerResult>), 
@@ -24,7 +24,7 @@ public class NexusCommand : NetCommand
 			
 		if(call is INexusApc u)
 		{
-			u.Execute(Nexus, null, null, Flow);
+			u.Execute(Cli.Nexus, null, null, Flow);
 			return;
 		}
 
@@ -36,7 +36,7 @@ public class NexusCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		if(call is INexusApc u)	return (Rp)u.Execute(Nexus, null, null, Flow);
+		if(call is INexusApc u)	return (Rp)u.Execute(Cli.Nexus, null, null, Flow);
 
 		throw new Exception();
 	}

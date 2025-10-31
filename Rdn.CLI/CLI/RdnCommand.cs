@@ -12,19 +12,6 @@ public abstract class RdnCommand : McvCommand
 
 	protected RdnCli			Program;
 
-	static RdnCommand()
-	{
-		try
-		{
-			var p = Console.KeyAvailable;
-			ConsoleAvailable = true;
-		}
-		catch(Exception)
-		{
-			ConsoleAvailable = false;
-		}
-	}
-
 	protected RdnCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Program = program;

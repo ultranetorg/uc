@@ -27,7 +27,7 @@ internal class NexusApiServer : JsonServer
 	}
 }
 
-internal interface INexusApc
+public interface INexusApc
 {
 	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }

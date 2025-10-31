@@ -10,7 +10,7 @@ public class PackageCommand : NexusCommand
 	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
 	public readonly ArgumentType REALA 	= new ArgumentType("RLSTA", "Realization address", [@"company/application/windows"]);
 
-	public PackageCommand(Nexus program, List<Xon> args, Flow flow) : base(program, args, flow)
+	public PackageCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}
 

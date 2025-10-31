@@ -14,19 +14,6 @@ public abstract class McvCommand : NetCommand
 	public readonly ArgumentType ET		= new ArgumentType("ET",	@"Entity Type",	[@"Account", @"Domain"]);
 	public readonly ArgumentType EID	= new ArgumentType("EID",	@"Entity Id",	[@"1111-22", @"123456-789", @"22222-333"]);
 
-	static McvCommand()
-	{
-		try
-		{
-			var p = Console.KeyAvailable;
-			ConsoleAvailable = true;
-		}
-		catch(Exception)
-		{
-			ConsoleAvailable = false;
-		}
-	}
-
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
 		Cli = cli;

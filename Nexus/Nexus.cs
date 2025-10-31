@@ -16,10 +16,11 @@ public class NodeInstance
 	}
 }
 
-public class Nexus : Cli
+public class Nexus
 {
 	public delegate void			Delegate(Nexus d);
 
+	Flow							Flow;
 	public NexusSettings			Settings;
 	public List<NodeInstance>		Nodes = [];
 	internal NexusApiServer			ApiServer;
@@ -40,19 +41,6 @@ public class Nexus : Cli
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
 
-	public static void Main(string[] args)
-	{
-		var b = new NetBoot(ExeDirectory);
-		var ns = new NexusSettings(b) {Name = Guid.NewGuid().ToString()};
-		var rs = new RdnNodeSettings(b.Profile);
-		
-		var u = new Nexus(b, ns, rs, new RealClock(), new Flow(nameof(Nexus), new Log()));
-
-		u.Execute(b);
-
-		u.Stop();
-	}
-
 	public Nexus(NetBoot boot, NexusSettings settings, RdnNodeSettings rdnsettings, IClock clock, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot);
@@ -62,7 +50,7 @@ public class Nexus : Cli
 		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
 
 		if(Directory.Exists(Settings.Profile))
-			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{FailureExt}"))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
 				File.Delete(i);
 		
 		RdnNode = new RdnNode(Settings.Name, Settings.Zone, boot.Profile, rdnsettings, clock, flow);
@@ -120,15 +108,6 @@ public class Nexus : Cli
 		var ni = Find(net);
 
 		return new McvApiClient(ni.ApiLocalAddress, null, ApiHttpClient);
-	}
-
-	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)
-	{
-		var t = commnad.First().Name;
-		var args = commnad.Skip(1).ToList();
-		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
-
-		return ct.GetConstructor([typeof(Nexus), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as NexusCommand;
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)
