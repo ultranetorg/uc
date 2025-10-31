@@ -24,7 +24,7 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Net\cs\Uccs.Net.csproj" />
+    <ProjectReference Include="..\Net\Uccs.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Net" />

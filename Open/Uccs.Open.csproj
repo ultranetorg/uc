@@ -25,7 +25,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
-    <ProjectReference Include="..\Rdn\cs\Uccs.Rdn.csproj" />
+    <ProjectReference Include="..\Rdn.CLI\Uccs.Rdn.CLI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Rdn" />

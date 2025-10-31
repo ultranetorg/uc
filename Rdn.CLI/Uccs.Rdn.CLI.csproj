@@ -23,7 +23,7 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Nexus\Uccs.Nexus.csproj" />
+    <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Net" />
