@@ -15,7 +15,7 @@ public enum Zone : ushort
 
 public enum KnownSystem : ushort
 {
-	UosApi		= 0001,
+	NexusApi	= 0001,
 	VaultApi	= 0002,
 
 	Rdn			= 0010,

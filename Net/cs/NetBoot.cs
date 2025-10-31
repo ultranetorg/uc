@@ -19,6 +19,6 @@ public class NetBoot : Boot
 			Profile = Commnand.Get<string>("profile");
 		else
 			Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone.ToString());
+
 	}
 }
- 

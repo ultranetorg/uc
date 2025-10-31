@@ -17,7 +17,7 @@ public class OpenCommand : NetCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Execute = () =>	{
-								Open.Start(Unea.Parse(Args[0].Name), Flow);
+								Open.Start(Unel.Parse(Args[0].Name), Flow);
 
 								return null;
 							};

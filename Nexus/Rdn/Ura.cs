@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Uccs.Net;
 
 namespace Uccs.Rdn;
 
 /// <summary>
-///		/domain/resource
+///		net/domain/resource
 /// </summary>
 
 // 	public enum ResourceType
@@ -51,7 +52,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return Unea.ToString(Scheme, Net, $"{Domain}/{Resource}");
+		return Unel.ToString(Scheme, Net, $"{Domain}/{Resource}");
 	}
 
 	public override bool Equals(object o)
@@ -112,7 +113,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	{
 		int i;
 		
-		Unea.Parse(v, out scheme, out net, out string o);
+		Unel.Parse(v, out scheme, out net, out string o);
 
 		var e = o.IndexOf('/');
 			

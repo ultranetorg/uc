@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
 public class Application
 {
-	public const string			ProfileKey			= "UC_Profile";
-	public const string			PackageAddressKey	= "UC_PackageAddress";
+	public const string ProfileKey = "UC_Profile";
+	public const string PackageAddressKey = "UC_PackageAddress";
 
 	public NexusClient			Nexus;
 	public ApvAddress			Address => ApvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
@@ -15,6 +16,12 @@ public class Application
 		Nexus = new NexusClient();
 
 		AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
+		//var hch = new HttpClientHandler();
+		//hch.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+		//var http = new HttpClient(hch) { Timeout = Timeout.InfiniteTimeSpan };
+		//
+		//Nexus = new RdnApiClient(ApiSettings.ToAddress(Nexus.Settings.Api.LocalIP, Rdn.Rdn.ByZone(Nexus.Settings.Zone).ApiPort), null, http);
 	}
 
 	Assembly AssemblyResolve(object sender, ResolveEventArgs args)
@@ -24,7 +31,7 @@ public class Application
 			return null;
 		}
 
-		return Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(Nexus.Settings.Packages, Address), new AssemblyName(args.Name).Name + ".dll"));
+		return Assembly.LoadFile(Path.Join(Nexus.AddressToDeployment(Nexus.Settings.Packages, Address), new AssemblyName(args.Name).Name + ".dll"));
 
 //  			var rp = Nexus.PackageHub.DeploymentToAddress(args.RequestingAssembly.Location);
 //  

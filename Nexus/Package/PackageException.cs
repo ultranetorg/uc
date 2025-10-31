@@ -1,4 +1,4 @@
-﻿namespace Uccs.Rdn;
+﻿namespace Uccs.Nexus;
 
 public class PackageException : Exception
 {

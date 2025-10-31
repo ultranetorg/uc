@@ -4,10 +4,8 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Rdn;
 
-[JsonDerivedType(typeof(FileDownloadProgress),		typeDiscriminator: "FileDownloadProgress")]
+[JsonDerivedType(typeof(FileDownloadProgress),	 	typeDiscriminator: "FileDownloadProgress")]
 [JsonDerivedType(typeof(ReleaseDownloadProgress),	typeDiscriminator: "ReleaseDownloadProgress")]
-[JsonDerivedType(typeof(PackageDownloadProgress),	typeDiscriminator: "PackageDownloadProgress")]
-[JsonDerivedType(typeof(DeploymentProgress),		typeDiscriminator: "DeploymentProgress")]
 public class ResourceActivityProgress
 {
 }
@@ -292,7 +290,7 @@ public class LocalResourceApc : RdnApc
 public class LocalReleaseApe
 {
 	public Urr				Address { get; set; }
-	public Generator[]			DeclaredOn { get; set; }
+	public Generator[]		DeclaredOn { get; set; }
 	public Availability		Availability { get; set; }
 	//public File[]			Files { get; set; }
 

@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn.CLI;
+namespace Uccs.Nexus;
 
-public class PackageCommand : RdnCommand
+public class PackageCommand : NexusCommand
 {
 	Ura	Package => Ura.Parse(Args[0].Name);
 
 	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
 	public readonly ArgumentType REALA 	= new ArgumentType("RLSTA", "Realization address", [@"company/application/windows"]);
 
-	public PackageCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	public PackageCommand(Nexus program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
 
@@ -145,8 +146,8 @@ public class PackageCommand : RdnCommand
 		};
 
 		a.Execute = () =>	{
-								Api(new PackageDeployApc {Address = ApvAddress.Parse(Args[0].Name),
-															  DeploymentPath = GetString("destination", null)});
+								Api(new PackageDeployApc{Address = ApvAddress.Parse(Args[0].Name),
+														 DeploymentPath = GetString("destination", null)});
 
 								try
 								{

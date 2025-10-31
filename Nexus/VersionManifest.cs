@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
+using Uccs.Net;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn;
+namespace Uccs.Nexus;
 
 public enum DependencyNeed
 {
@@ -206,7 +208,7 @@ public class VersionManifest
   			{
  	 			var s = new MemoryStream();
  	 	
-			ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+				ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
 	
  	 			return s.ToArray();
   			}
@@ -228,7 +230,7 @@ public class VersionManifest
 
 	public void Save(string filepath)
 	{
-		ToXon(new RdnXonTextValueSerializator()).Save(filepath);
+		ToXon(new NetXonTextValueSerializator()).Save(filepath);
 	}
 
 	public static VersionManifest FromXon(Xon xon)

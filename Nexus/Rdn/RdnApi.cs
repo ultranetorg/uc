@@ -65,12 +65,15 @@ public class RdnApiServer : McvApiServer
 
 public class RdnApiClient : McvApiClient
 {
+	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
+	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
+
 	new public static JsonSerializerOptions CreateOptions()
 	{
 		var o = McvApiClient.CreateOptions();
 
 		o.TypeInfoResolver = new RdnTypeResolver();
-		
+
 		o.Converters.Add(new UraJsonConverter());
 		o.Converters.Add(new UrrJsonConverter());
 		o.Converters.Add(new ResourceDataJsonConverter());
@@ -81,62 +84,28 @@ public class RdnApiClient : McvApiClient
 	public RdnApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = CreateOptions();
-		
-	}
-	
-	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-	public PackageInfo		FindLocalPackage(Ura address, Flow flow) => Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
-	
-	public PackageInfo DeployPackage(Ura address, string desination, Flow flow)
-	{
-		Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
-
-		do
-		{
-			var d = Request<ResourceActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
-		
-			if(d is null)
-			{
-				return Request<PackageInfo>(new LocalPackageApc {Address = address}, flow);
-					
-				//if(lrr.Availability == Availability.Full)
-				//{
-				//	return lrr;
-				//}
- 					//else
- 					//{
- 					//	throw new ResourceException(ResourceError.);
- 					//}
-			}
-
-			Thread.Sleep(100);
-		}
-		while(flow.Active);
-
-		throw new OperationCanceledException();
 	}
 
 	public LocalReleaseApe Download(Ura address, Flow flow)
 	{
-  			var r = Request<Resource>(new ResourceDownloadApc {Identifier = new (address)}, flow);
+		var r = Request<Resource>(new ResourceDownloadApc {Identifier = new(address)}, flow);
 
 		do
 		{
 			var d = Request<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
-		
+
 			if(d is null)
 			{
 				return Request<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
-					
+
 				//if(lrr.Availability == Availability.Full)
 				//{
 				//	return lrr;
 				//}
- 					//else
- 					//{
- 					//	throw new ResourceException(ResourceError.);
- 					//}
+				//else
+				//{
+				//	throw new ResourceException(ResourceError.);
+				//}
 			}
 
 			Thread.Sleep(100);

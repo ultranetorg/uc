@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using Uccs.Net;
+
+namespace Uccs.Rdn;
 
 public class RdnXonTextValueSerializator : NetXonTextValueSerializator
 {
@@ -11,8 +13,8 @@ public class RdnXonTextValueSerializator : NetXonTextValueSerializator
 			return null;
 		}
 
-		if(val is Ura)		return val.ToString();
-		if(val is Unit c)	return c.ToString();
+		if(val is Ura) return val.ToString();
+		if(val is Unit c) return c.ToString();
 
 		return base.Set(node, val);
 	}
@@ -21,7 +23,7 @@ public class RdnXonTextValueSerializator : NetXonTextValueSerializator
 	{
 		var v = value as string;
 
-		if(type == typeof(Ura))					return Ura.Parse(v);
+		if(type == typeof(Ura)) return Ura.Parse(v);
 
 		return base.Get(node, value, type);
 	}

@@ -1,24 +1,22 @@
 ﻿using System.IO.Compression;
 using System.Text;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn;
+namespace Uccs.Nexus;
 
 public class PackageHub
 {
-	public SeedSettings			Settings;
 	public List<LocalPackage>	Packages = new();
 	public RdnNode				Node;
 	public object				Lock = new object();
 	public string				DeploymentPath;
 
-	public PackageHub(RdnNode sun, SeedSettings settings, string deploymentpath)
+	public PackageHub(RdnNode node, string deploymentpath)
 	{
-		Node = sun;
-		Settings = settings;
+		Node = node;
 		DeploymentPath = deploymentpath;
 
 		Directory.CreateDirectory(deploymentpath);
-
 	}
 
  	public static string AddressToDeployment(string packagespath, Ura resource)
@@ -28,7 +26,7 @@ public class PackageHub
 
  	public string AddressToReleases(Urr release)
  	{
- 		return Path.Join(Settings.Releases, Net.Net.Escape(release.ToString()));
+ 		return Path.Join(Node.Settings.Seed.Releases, Net.Net.Escape(release.ToString()));
  	}
 
 	IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
@@ -551,7 +549,7 @@ public class PackageHub
 		else if(p.Activity != null)
 			throw new ResourceException(ResourceError.Busy);
 			
-		d = new PackageDownload(Node, p, workflow);
+		d = new PackageDownload(this, p, workflow);
 
 		return d;
 	}

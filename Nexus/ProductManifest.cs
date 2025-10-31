@@ -1,43 +1,45 @@
 ﻿using System.Text;
+using Uccs.Net;
+using Uccs.Rdn;
 
-namespace Uccs.Rdn;
+namespace Uccs.Nexus;
 
 public class PlatformExpression
 {
-	public string				Operator;
-	public PlatformExpression[]	Operands;
-	
-	const string				Greater			= ">";
-	const string				GreaterOrEqual	= ">=";
-	const string				Less			= "<";
-	const string				LessOrEqual		= "<=";
-	const string				Equal			= "==";
-	const string				Not				= "NOT";
-	const string				Or				= "OR";
-	const string				And				= "AND";
+	public string Operator;
+	public PlatformExpression[] Operands;
 
-	static bool 				IsOperation(string name) =>	name == Greater			||
-															name == GreaterOrEqual	||
-															name == Less			||
-															name == LessOrEqual		||
-															name == Equal			||
-															name == Not				||
-															name == Or				||
-															name == And;
+	const string Greater = ">";
+	const string GreaterOrEqual = ">=";
+	const string Less = "<";
+	const string LessOrEqual = "<=";
+	const string Equal = "==";
+	const string Not = "NOT";
+	const string Or = "OR";
+	const string And = "AND";
 
-	public bool					Match(Platform platform) => (bool)Evaluate(new (){	{"F", platform.Family},
-																					{"B", platform.Brand},
-																					{"V", platform.Version},
-																					{"A", platform.Architecture}}); 
+	static bool IsOperation(string name) => name == Greater ||
+											name == GreaterOrEqual ||
+											name == Less ||
+											name == LessOrEqual ||
+											name == Equal ||
+											name == Not ||
+											name == Or ||
+											name == And;
+
+	public bool Match(Platform platform) => (bool)Evaluate(new(){   {"F", platform.Family},
+																	{"B", platform.Brand},
+																	{"V", platform.Version},
+																	{"A", platform.Architecture}});
 
 	public PlatformExpression()
 	{
 	}
 
 	public Xon ToXon(IXonValueSerializator serializator)
-	{					
-		var o = new Xon{Name = Operator};
-		
+	{
+		var o = new Xon { Name = Operator };
+
 		if(IsOperation(Operator))
 			o.Nodes.AddRange(Operands.Select(i => i.ToXon(serializator)));
 
@@ -80,7 +82,7 @@ public class PlatformExpression
 				return Operands.Any(i => (bool)i.Evaluate(consts));
 
 			case Equal:
-			{	
+			{
 				var a = Operands[0].Evaluate(consts);
 				return Operands.Skip(1).All(i => a.Equals(i.Evaluate(consts)));
 			}
@@ -105,10 +107,10 @@ public class PlatformExpression
 
 public class Realization
 {
-	public Ura					Latest;
-	public string				Name;
-	public PlatformExpression	Condition;
-	public string				Channel;
+	public Ura Latest;
+	public string Name;
+	public PlatformExpression Condition;
+	public string Channel;
 
 	public Realization()
 	{
@@ -129,7 +131,7 @@ public class Realization
 	public Xon ToXon(IXonValueSerializator serializator)
 	{
 		var x = new Xon(serializator);
-		
+
 		x.Name = "Realization";
 		x.Value = Name;
 		x.Add("Latest").Value = Latest;
@@ -142,24 +144,24 @@ public class Realization
 
 public class ProductManifest
 {
-	public const string		Extension = "rdnpm";
+	public const string Extension = "rdnpm";
 
-	public Realization[]	Realizations;
-	public string			Title;
+	public Realization[] Realizations;
+	public string Title;
 
-	public Realization		MatchRealization(Platform platform) => Realizations.FirstOrDefault(i => i.Condition.Match(platform)); 
+	public Realization MatchRealization(Platform platform) => Realizations.FirstOrDefault(i => i.Condition.Match(platform));
 
-  		public byte[] Raw
-  		{
-  			get
-  			{
- 	 			var s = new MemoryStream();
- 	 	
-			ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
-	
- 	 			return s.ToArray();
-  			}
-  		}
+	public byte[] Raw
+	{
+		get
+		{
+			var s = new MemoryStream();
+
+			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+
+			return s.ToArray();
+		}
+	}
 
 	public ProductManifest()
 	{
@@ -179,8 +181,8 @@ public class ProductManifest
 	{
 		var m = new ProductManifest();
 
-		m.Title			= xon.Get<string>("Title");
-		m.Realizations	= xon.Many("Realization").Select(Realization.FromXon).ToArray();
+		m.Title = xon.Get<string>("Title");
+		m.Realizations = xon.Many("Realization").Select(Realization.FromXon).ToArray();
 
 		return m;
 	}
@@ -188,7 +190,7 @@ public class ProductManifest
 	public Xon ToXon(IXonValueSerializator serializator)
 	{
 		var x = new Xon(serializator);
-		
+
 		x.Add("Title").Value = Title;
 		x.Nodes.AddRange(Realizations.Select(i => i.ToXon(serializator)));
 

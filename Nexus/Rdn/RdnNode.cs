@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using DnsClient;
+using Uccs.Nexus;
 
 namespace Uccs.Rdn;
 
@@ -20,7 +21,6 @@ public class RdnNode : McvNode
 	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 
 	public ResourceHub				ResourceHub;
-	public PackageHub				PackageHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	public RdnNtnTcpPeering			NtnPeering;
@@ -110,7 +110,6 @@ public class RdnNode : McvNode
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
-			PackageHub = new PackageHub(this, Settings.Seed, Settings.Packages);
 
 			ResourceHub.RunDeclaring();
 		}

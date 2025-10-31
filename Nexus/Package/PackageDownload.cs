@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using Uccs.Rdn;
+
+namespace Uccs.Nexus;
 
 public class PackageDownloadProgress : ResourceActivityProgress
 {
@@ -50,13 +52,15 @@ public class PackageDownload
 	public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 	public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-	public PackageDownload(RdnNode node, LocalPackage package, Flow workflow)
+	public PackageDownload(PackageHub hub, LocalPackage package, Flow workflow)
 	{
 		Package = package;
 
-		lock(node.PackageHub.Lock)
+		var node = hub.Node;
+
+		lock(hub.Lock)
 		{
-			if(node.PackageHub.IsAvailable(package.Resource.Address))
+			if(hub.IsAvailable(package.Resource.Address))
 			{
 				IsDownloaded = true;
 				return;
@@ -113,19 +117,19 @@ public class PackageDownload
 
 										Seeker = new SeedSeeker(node, package.Release.Address, workflow);
 
-										node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, workflow);
+										node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, workflow);
 
 										bool incrementable;
 
-										lock(node.PackageHub.Lock)
+										lock(hub.Lock)
 										{
-											node.PackageHub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
+											hub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
 								
 											foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
 											{
-												if(!node.PackageHub.ExistsRecursively(i.Address))
+												if(!hub.ExistsRecursively(i.Address))
 												{
-													var dd = node.PackageHub.Download(i.Address, workflow);
+													var dd = hub.Download(i.Address, workflow);
 													Dependencies.Add(dd);
 												}
 											}
@@ -135,7 +139,7 @@ public class PackageDownload
  											FileDownload = node.ResourceHub.DownloadFile(Package.Release, 
 																						false,
 																						incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
-																						Path.Join(node.PackageHub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
+																						Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																						new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																						Seeker,
 																						workflow);
@@ -156,7 +160,7 @@ public class PackageDownload
 												a |= Availability.Incremental;
 										}
 
-										lock(node.PackageHub.Lock)
+										lock(hub.Lock)
 										{
 											Package.Release.Complete(a);
 											IsDownloaded = true;
@@ -167,7 +171,7 @@ public class PackageDownload
 									}
 									finally
 									{
-										lock(node.PackageHub.Lock)
+										lock(hub.Lock)
 											Package.Activity = null;
 									}
 								},

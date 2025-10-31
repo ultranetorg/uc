@@ -1,7 +1,10 @@
-﻿namespace Uccs.Rdn;
+﻿using Uccs.Net;
+using Uccs.Rdn;
+
+namespace Uccs.Nexus;
 
 /// <summary>
-///  scheme:net/uo/app/dotnet/1.23.456
+///  scheme:net/uo/app/1.23.456
 /// </summary>
 
 public class ApvAddress : IBinarySerializable, IComparable, IComparable<ApvAddress>, IEquatable<ApvAddress>

@@ -9,9 +9,9 @@ static class Program
 	[STAThread]
 	static void Main()
 	{
-		Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
-		Application.EnableVisualStyles();
-		Application.SetCompatibleTextRenderingDefault(false);
+		System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
+		System.Windows.Forms.Application.EnableVisualStyles();
+		System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
 		Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 

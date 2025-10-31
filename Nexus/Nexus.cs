@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using Uccs.Net;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
@@ -19,12 +20,14 @@ public class Nexus : Cli
 {
 	public delegate void			Delegate(Nexus d);
 
-	public HostSettings				Settings;
+	public NexusSettings			Settings;
 	public List<NodeInstance>		Nodes = [];
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
-	RdnApiClient					_Rdn;
-	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+	public RdnNode					RdnNode;
+	//RdnApiClient					_Rdn;
+	//public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+	public PackageHub				PackageHub;
 
 	public Delegate					Stopped;
 
@@ -39,18 +42,21 @@ public class Nexus : Cli
 
 	public static void Main(string[] args)
 	{
-		var boot = new NetBoot(ExeDirectory);
-		var s = new HostSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);
-		var u = new Nexus(s, new Flow(nameof(Nexus), new Log()));
+		var b = new NetBoot(ExeDirectory);
+		var ns = new NexusSettings(b) {Name = Guid.NewGuid().ToString()};
+		var rs = new RdnNodeSettings(b.Profile);
+		
+		var u = new Nexus(b, ns, rs, new RealClock(), new Flow(nameof(Nexus), new Log()));
 
-		u.Execute(boot);
+		u.Execute(b);
 
 		u.Stop();
 	}
 
-	public Nexus(HostSettings settings, Flow flow)
+	public Nexus(NetBoot boot, NexusSettings settings, RdnNodeSettings rdnsettings, IClock clock, Flow flow)
 	{
-		Settings = settings;
+		Settings = settings ?? new NexusSettings(boot);
+		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
 
 		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
@@ -58,7 +64,12 @@ public class Nexus : Cli
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{FailureExt}"))
 				File.Delete(i);
-			
+		
+		RdnNode = new RdnNode(Settings.Name, Settings.Zone, boot.Profile, rdnsettings, clock, flow);
+		PackageHub = new PackageHub(RdnNode, Settings.Packages);
+
+		Nodes = [new NodeInstance {Net = Rdn.Rdn.Root}];
+
 		if(Settings.Api != null)
 		{
 			RunApi();

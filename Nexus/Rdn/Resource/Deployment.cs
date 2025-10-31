@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using Uccs.Rdn;
+
+namespace Uccs.Nexus;
 
 public class DeploymentMerge
 {

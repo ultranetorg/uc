@@ -28,14 +28,9 @@ public abstract class RdnCommand : McvCommand
 	protected RdnCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		Program = program;
-
-		if(flow != null)
-		{
-			Flow.Log.TypesForExpanding.AddRange([typeof(IEnumerable<Dependency>), 
-												 typeof(IEnumerable<AnalyzerResult>), 
-												 typeof(Resource), 
-												 typeof(VersionManifest)]);
-		}
+	
+		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerResult>), 
+											 typeof(Resource)]);
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
