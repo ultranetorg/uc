@@ -33,13 +33,13 @@ public class NexusCli : Cli
 
 		cli.Nexus.Stop();
 	}
-
-	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)
-	{
-		var t = commnad.First().Name;
-		var args = commnad.Skip(1).ToList();
-		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
-
-		return ct.GetConstructor([typeof(NexusCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as NexusCommand;
-	}
+//
+//	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)
+//	{
+//		var t = commnad.First().Name;
+//		var args = commnad.Skip(1).ToList();
+//		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+//
+//		return ct.GetConstructor([typeof(NexusCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as NexusCommand;
+//	}
 }	

@@ -11,7 +11,7 @@ public abstract class Cli
 	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
 	public Flow					Flow; 
 
-	public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
+	//public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
 
 	public static bool			ConsoleAvailable { get; protected set; }
 
@@ -35,6 +35,15 @@ public abstract class Cli
 
 	protected Cli()
 	{
+	}
+
+	public virtual Command Create(IEnumerable<Xon> commnad, Flow flow)
+	{
+		var t = commnad.First().Name;
+		var args = commnad.Skip(1).ToList();
+		var ct = GetType().Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+
+		return ct.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}
 
 	protected void Execute(Boot boot)
