@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Fair;
+namespace Uccs.Rdn;
 
-public class NodeCommand : Uccs.Net.NodeCommand
+public class NodeCommand : Net.NodeCommand
 {
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
@@ -21,8 +21,8 @@ public class NodeCommand : Uccs.Net.NodeCommand
 									]};
 
 		a.Execute = () =>	{
-								Cli.Node = new FairNode(GetString("name", null), GetEnum("zone", Cli.Net.Zone), GetString("profile", Cli.Settings.Profile), Cli.Settings as FairNodeSettings, new RealClock(), Flow);
-								
+								Cli.Node = new RdnNode(GetString("name", null), GetEnum("zone", Cli.Net.Zone), GetString("profile", Cli.Settings.Profile), Cli.Settings as RdnNodeSettings, new RealClock(), Flow);
+
 								Cli.Run(this, a);
 
 								Cli.Node.Stop();

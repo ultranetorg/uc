@@ -19,6 +19,10 @@ public class NexusCli : Cli
 {
 	public Nexus Nexus;
 
+	public NexusCli()
+	{
+	}
+
 	public static void Main(string[] args)
 	{
 		var b = new NetBoot(ExeDirectory);

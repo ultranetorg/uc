@@ -83,6 +83,39 @@ public abstract class Cli
 		LogView.StopListening();
 	}
 
+	public void Run(Command command, Command.CommandAction action)
+	{
+		if(ConsoleAvailable)
+		{
+			while(Flow.Active)
+			{
+				Console.Write($"> ");
+
+				try
+				{
+					var x = new Xon(Console.ReadLine());
+
+					if(x.Nodes[0].Name == command.Keyword && (
+																action.Names.Contains(x.Nodes[1].Name) 
+															 ))
+						throw new Exception("Not available");
+
+					LogView.StartListening(Flow.Log);
+					Execute(x.Nodes, Flow);
+					LogView.StopListening();
+				}
+				catch(Exception ex)
+				{
+					Flow.Log.ReportError(this, "Error", ex);
+				}
+			}
+
+		}
+		else
+			Flow.Cancellation.WaitHandle.WaitOne();
+
+	}
+
 	public object Execute(IEnumerable<Xon> args, Flow flow)
 	{
 		if(flow.Aborted)

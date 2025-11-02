@@ -81,16 +81,11 @@ public class NodeCommand : McvCommand
 								};
 
 		attach.Help = new()	{	Description = "Connects to existing node instance via JSON RPC protocol",
-								Syntax = $"{Keyword} {attach.NamesSyntax} HOST {Apc.AccessKey}={PASSWORD}",
-
 								Arguments =[
-												new (FirstArg, "URL address of node to connect to"),
-												new (Apc.AccessKey, "API access key")
-											],
-
-								Examples =	[
-												new (null, $"{Keyword} {attach.Names[0]} 127.0.0.1:3901 asscesskey=ApiServerSecret")
-											]};
+												new (null, URL, "URL address of node to connect to"),
+												new (Apc.AccessKey, PASSWORD, "API access key")
+											]
+							};
 
 		return attach;
 	}
@@ -123,24 +118,18 @@ public class NodeCommand : McvCommand
 
 								if(Has("_confirmation"))
 								{
-									Console.WriteLine("_confirmation reqested. Press any key...");
+									Console.WriteLine("_confirmation requested. Press any key...");
 									Console.ReadKey();
 								}
 
 								return null;
 							};
 
-		send.Help = new()  {Description = "Send spicified command to existing running node",
-							Syntax = $"{Keyword} {send.NamesSyntax} HOST {Apc.AccessKey}={PASSWORD} command",
-
+		send.Help = new()  {Description = "Send specified command to existing running node",
 							Arguments =	[
-											new ("HOST", "URL address of node to send a command to"),
-											new (Apc.AccessKey, "API access key"),
-											new ("command", "A command to send for execution")
-										],
-
-							Examples =	[
-											new (null,$"{Keyword} {send.Names[0]} {IP.Example}:3901 asscesskey=MyApiServerSecret node peers")
+											new (null,			URL, "HOST address of node to send a command to", Flag.First),
+											new (Apc.AccessKey, PASSWORD, "API access key"),
+											new ("command",		COMMAND, "A command to send for execution")
 										]};
 
 		return send;
@@ -260,14 +249,8 @@ public class NodeCommand : McvCommand
 		
 		a.Name = "m";
 		a.Help = new() {Description = "Get information about membership status of specified account",
-						Syntax = $"nexus m|membership {AA}",
-
 						Arguments =	[
-										new ("<first>>", "Ultranet account public address to check the membership status")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} m {AA.Example}")
+										new (null, AA, "Ultranet account public address to check the membership status", Flag.First)
 									]};
 
 		a.Execute = () =>	{

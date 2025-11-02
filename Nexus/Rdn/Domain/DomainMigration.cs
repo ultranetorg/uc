@@ -13,7 +13,7 @@ public class DomainMigration : RdnOperation
 	{
 	}
 
-	public DomainMigration(string name, string tld, bool checkrank)
+	public DomainMigration(string name, string tld)
 	{
 		Name = name;
 		Tld = tld;

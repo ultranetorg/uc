@@ -6,18 +6,22 @@ namespace Uccs.Net;
 
 public abstract class McvCommand : NetCommand
 {
-	public const string		AORArg = "aor";
-	public const string		SignerArg = "signer";
-	public Action			Transacted;
-	protected McvCli		Cli;
+	public const string					AORArg = "aor";
+	public const string					SignerArg = "signer";
+	public Action						Transacted;
+	protected McvCli					Cli;
 
-	public readonly ArgumentType ET		= new ArgumentType("ET",	@"Entity Type",	[@"Account", @"Domain"]);
-	public readonly ArgumentType EID	= new ArgumentType("EID",	@"Entity Id",	[@"1111-22", @"123456-789", @"22222-333"]);
+	public readonly ArgumentType	ET	= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
+	public readonly ArgumentType	EID	= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
+	public readonly ArgumentType	EA	= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
+
+	protected Argument				SignerArgument(string description = "Signer account address") => new (SignerArg, AA, description);
 
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
 		Cli = cli;
 	}
+
 
 	protected void ReportPreambule()
 	{

@@ -22,16 +22,10 @@ public class ResourceCommand : RdnCommand
 		a.Name = "c";
 
 		a.Help = new() {Description = "Creates a resource entity in the distributed database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RA} [flags] [data={HEX}]",
-
 						Arguments =	[
-										new (FirstArg, "Address of a resource to create"),
-										new ("data", "A data associated with the resource"),
-										new ("seal", "If set, resource data cannot be changed anymore")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {RA.Example} data={HEX.Example}")
+										new (null, RA, "Address of a resource to create", Flag.First),
+										new ("data", HEX, "A data associated with the resource"),
+										SignerArgument()
 									]};
 
 		a.Execute = () =>	{
@@ -56,14 +50,9 @@ public class ResourceCommand : RdnCommand
 		a.Name = "x";
 
 		a.Help = new() {Description = "Destroys existing resource and all its associated links",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
-
 						Arguments =	[
-										new (FirstArg, "Address of a resource to delete")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} company/application")
+										new (null, RA, "Address of a resource to delete", Flag.First),
+										SignerArgument()
 									]};
 
 		a.Execute = () =>	{
@@ -82,19 +71,12 @@ public class ResourceCommand : RdnCommand
 
 		a.Name = "u";
 		a.Help = new() {Description = "Updates a resource entity properties in the distributed database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RA} [flags] [data] [recursive]",
-
-						Arguments =
-									[
-										new (FirstArg, "Address of a resource to update"),
-										new ("data", "A data associated with the resource"),
-										new ("seal", "If set, resource data cannot be changed anymore"),
-										new ("recursive", "Update all descendants")
-									],
-
-						Examples =
-									[
-										new (null, $"{Keyword} {a.Name} {RA.Example} data=Package{{address={RZA.Example}}}")
+						Arguments =	[
+										new (null, RA, "Address of a resource to update", Flag.First),
+										new ("data", HEX, "A data associated with the resource", Flag.Optional),
+										new ("seal", null, "If set, resource data cannot be changed anymore", Flag.Optional),
+										new ("recursive", null, "Update all descendants", Flag.Optional),
+										SignerArgument()
 									]};
 
 		a.Execute = () =>	{
@@ -124,14 +106,8 @@ public class ResourceCommand : RdnCommand
 
 		a.Name = "e";
 		a.Help = new() {Description = "Gets resource entity information from the MCV database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
-
 						Arguments =	[
-										new (FirstArg, "Address of a resource to get information about")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {RA.Example}")
+										new (null, RA, "Address of a resource to get information about", Flag.First)
 									]};
 
 		a.Execute = () =>	{
@@ -152,14 +128,8 @@ public class ResourceCommand : RdnCommand
 
 		a.Name = "l";
 		a.Help = new() {Description = "Gets information about locally available releases of a specified resource",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RA}",
-
 						Arguments =	[
-										new (FirstArg, "Address of a resource to get information about")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {RA.Example}")
+										new (null, RA, "Address of a resource to get information about", Flag.First)
 									]};
 
 		a.Execute = () =>	{
@@ -168,8 +138,8 @@ public class ResourceCommand : RdnCommand
 								if(r != null)
 								{
 									Flow.Log.Dump(	r.Datas, 
-											["Type", "Data", "Length"], 
-											[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
+													["Type", "Data", "Length"], 
+													[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
 
 									return r;
 								}
@@ -185,16 +155,8 @@ public class ResourceCommand : RdnCommand
 
 		a.Name = "ls";
 		a.Help = new() {Description = "Search local resources using a specified query",
-						Syntax = $"{Keyword} {a.NamesSyntax} <query>",
-
-						Arguments =
-									[
-										new ("<query>", $"A {TEXT} to look for in resource addresses (includes domain name)")
-									],
-
-						Examples =
-									[
-										new (null, $"{Keyword} {a.Name} appli")
+						Arguments =	[
+										new (null, RA, $"A text to look for in resource addresses (includes domain name)", Flag.First)
 									]};
 
 		a.Execute = () =>	{
@@ -221,16 +183,10 @@ public class ResourceCommand : RdnCommand
 		a.Name = "d";
 
 		a.Help = new() {Description = "Downloads the latest release of a specified resource",
-						Syntax = $"r{Keyword} {a.NamesSyntax} {RA} [localpath={DIRPATH}]",
-
 						Arguments =	[
-										new (FirstArg,		"Address of a resource the latest release to download of"),
-										new ("localpath",	"Destination path on the local system to download the release to"),
-										new ("nowait",		"Wait downlonad to finish")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {RA.Example}")
+										new (null, RA, "Address of a resource the latest release to download of", Flag.First),
+										new ("localpath", DIRPATH,	"Destination path on the local system to download the release to", Flag.Optional),
+										new ("nowait", null, "Wait download to finish", Flag.Optional)
 									]};
 
 		a.Execute = () =>	{
@@ -267,14 +223,8 @@ public class ResourceCommand : RdnCommand
 		a.Name = "dx";
 
 		a.Help = new() {Description = "Cancels current downloading of specified release",
-						Syntax = $"{Keyword} {a.NamesSyntax} {RZA}",
-
 						Arguments =	[
-										new (FirstArg,	  "Address of a release to cancel downloading of"),
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {RA.Example}")
+										new (null, RZA,  "Address of a release to cancel downloading of", Flag.First),
 									]};
 
 		a.Execute = () =>	{

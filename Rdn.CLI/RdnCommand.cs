@@ -5,6 +5,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType DA		= new ArgumentType("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
 	public static readonly ArgumentType RDA		= new ArgumentType("RDA",	@"Root domain address",														[@"ultranet123"]);
 	public static readonly ArgumentType SDA		= new ArgumentType("SDA",	@"Subdoman address",														[@"application.company"]);
+	public static readonly ArgumentType DCP		= new ArgumentType("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
 	public static readonly ArgumentType RA		= new ArgumentType("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"/company/application (short form)"]);
 	public static readonly ArgumentType YEARS	= new ArgumentType("YEARS",	@"Number of years",															[@"5"]);
 	public static readonly ArgumentType TLD		= new ArgumentType("TLD",	@"Web top-level domain",													[@"com"]);

@@ -8,7 +8,7 @@ namespace Uccs.Open;
 public class Open : Cli
 {
 	public static HttpClient	ApiHttpClient;
-	public NexusSettings			Settings;
+	public NexusSettings		Settings;
 
 	RdnApiClient				_Rdn;
 	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);

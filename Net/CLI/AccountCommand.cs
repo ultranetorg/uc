@@ -18,11 +18,7 @@ public class AccountCommand : McvCommand
 
 		a.Name = "c";
 		a.Help = new() {Description = "Create a new account entity",
-						Syntax = $"{Keyword} {a.NamesSyntax} {owner}={AA}",
-
-						Arguments = [new ("owner", "Account public address of the assigned account owner")],
-
-						Examples = [new (null, $"{Keyword} {a.Name} {owner}={AA.Example}")]};
+						Arguments = [new (owner, AA, "Account public address of the assigned account owner", Flag.First)]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -37,12 +33,11 @@ public class AccountCommand : McvCommand
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new() {Description = "Get account entity information from Ultranet distributed database",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AA}",
-
-						Arguments = [new (FirstArg, "Address of an account to get information about")],
-
-						Examples = [new (null, $"{Keyword} {a.Name} {AA.Example}")]};
+		a.Help = new()
+				 {
+					Description = "Get account entity information from MCV database",
+					Arguments = [new (null, AA,  "Address of an account to get information about", Flag.First)],
+				 };
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

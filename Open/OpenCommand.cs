@@ -16,25 +16,19 @@ public class OpenCommand : NetCommand
 	{
 		var a = new CommandAction(MethodBase.GetCurrentMethod());
 
+		a.Help = new()
+				 {
+					Description = "Handles entity by its Unel address",
+					Arguments =	[
+									new (null, UNEL, "Address to open"),
+								]
+				};
+
 		a.Execute = () =>	{
 								Open.Start(Unel.Parse(Args[0].Name), Flow);
 
 								return null;
 							};
-
-		a.Help = new()
-				 {
-					Description = "",
-					Syntax = $"{Keyword} {Rdn.CLI.RdnCommand.RA}",
-
-					Arguments =	[
-									new (FirstArg, "Address to open"),
-								],
-
-					Examples =	[
-									new (null, $"{Keyword} {Rdn.CLI.RdnCommand.RA.Example}")
-								]
-				 };
 		return a;
 	}
 }

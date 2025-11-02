@@ -15,16 +15,11 @@ public class BandwidthCommand : McvCommand
 		a.Name = "a";
 		a.Help = new Help	{ 
 								Description = "Allocate execution bandwidth",
-								Syntax = $"{Keyword} {a.NamesSyntax} bandwidth={EC} days={INT} {SignerArg}={AA}",
-
 								Arguments =	[
-												new ("bandwidth", "Amount of EC allocated per day"),
-												new ("days", "Number of days to allocate bandwidth for"),
+												new ("bandwidth", EC, "Amount of EC allocated per day"),
+												new ("days", INT, "Number of days to allocate bandwidth for"),
+												SignerArgument()
 											],
-
-								Examples =	[
-												new (null, $"{Keyword} {a.Name} bandwidth=100 days=2 {SignerArg}={AA.Example}")
-											]
 							};
 
 		a.Execute = () =>	{

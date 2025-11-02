@@ -108,20 +108,17 @@ public class CancelResourceDownloadApc : RdnApc
 public class LocalReleaseBuildApc : RdnApc
 {
 	public IEnumerable<string>		Sources { get; set; }
-	public string					Source { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
 	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		lock(sun.ResourceHub.Lock)
 		{
-			if(Source != null)
-				return new LocalReleaseApe(sun.ResourceHub.Add(Source, AddressCreator, workflow));
-			else if(Sources != null && Sources.Any())
+			if(Sources.Count() == 1 && File.Exists(Sources.First()))
+				return new LocalReleaseApe(sun.ResourceHub.Add(Sources.First(), AddressCreator, workflow));
+			else
 				return new LocalReleaseApe(sun.ResourceHub.Add(Sources, AddressCreator, workflow));
 		}
-
-		return null;
 	}
 }
 

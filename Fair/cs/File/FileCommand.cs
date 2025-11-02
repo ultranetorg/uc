@@ -21,12 +21,11 @@ public class FileCommand : FairCommand
 		a.Help = new()
 				 {
 					Description = "Creates a file entity in the MCV database",
-					Syntax = $"{Keyword} {a.NamesSyntax} {EA} {path}={PATH} {SignerArg}={AA}",
 					Arguments = [
-									new (FirstArg, "An entity address of file owner"),
-									new (path, "A data associated with the file")
+									new (null, EA, "An entity address of file owner", Flag.First),
+									new (path, PATH, "A data associated with the file"),
+									SignerArgument()
 								],
-					Examples =	[new (null, $"{Keyword} {a.Name} {EA.Example} {path}={PATH.Example} {SignerArg}={AA.Example}")]
 				 };
 
 		a.Execute = () =>	{
@@ -49,9 +48,7 @@ public class FileCommand : FairCommand
 		a.Help = new()
 				 {
 					Description = "Destroys existing file and all its associated data",
-					Syntax = $"{Keyword} {a.NamesSyntax} {EID} {SignerArg}={AA}",
-					Arguments = [new (FirstArg, "Id of a file to delete")],
-					Examples = [new (null, $"{Keyword} {a.Name} {EID.Example} {SignerArg}={AA.Example}")]
+					Arguments = [new (null, EID, "Id of a file to delete", Flag.First)],
 				 };
 
 		a.Execute = () =>	{
@@ -70,9 +67,7 @@ public class FileCommand : FairCommand
 		a.Help = new()
 				 {
 					Description = "Gets file entity information from the MCV database",
-					Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-					Arguments = [new (FirstArg, "Id of a file to get information about")],
-					Examples = [new (null, $"{Keyword} {a.Name} {SignerArg}={EID.Example}")]
+					Arguments = [new (null, EID, "Id of a file to get information about", Flag.First)],
 				 };
 
 		a.Execute = () =>	{

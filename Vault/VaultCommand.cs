@@ -17,14 +17,8 @@ public class VaultCommand : NetCommand
 
 		a.Name = "r";
 		a.Help = new() {Description = "Runs a new instance with command-line interface",
-						Syntax = $"{Keyword} {a.NamesSyntax} flags [profile={DIRPATH}]",
-
 						Arguments =	[
-										new ("profile", "Path to local profile directory"),
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} profile=C:\\NodeProfile")
+										new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
 									]};
 
 		a.Execute = () =>	{

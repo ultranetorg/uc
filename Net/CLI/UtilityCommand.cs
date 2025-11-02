@@ -18,16 +18,15 @@ public class UtilityCommand : McvCommand
 		a.Name = "t";
 
 		a.Help = new() {Description = "Send utility from one account to another.",
-						Syntax = $"{Keyword} {a.NamesSyntax} {from}={ET}/{EID} {to}={ET}/{EID} st={ST}|e={EC}|en={EC} {SignerArg}={AA}",
+						Syntax = $"{Keyword} {a.NamesSyntax} {from}={EA} {to}={EA} st={ST}|e={EC}|en={EC} {SignerArg}={AA}",
 
-						Arguments =	[new (from, "Entity type and id where funds are credited from"),
-									 new (to, "Entity type and id where funds are credited to"),
-									 new ("st", "Amount of space-time to be transferred"),
-									 new ("ec", "Amount of Execution Cycles of the currect year to be transferred"),
-									 new ("ecnext", "Amount of Execution Cycles of next year to be transferred"),
-									 new (SignerArg, "Account public address where funds are debited from")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {from}={ET.Example}/{EID.Example[1]} {to}={ET.Example1}/{EID.Example[2]} e=1.5 {SignerArg}={AA.Example}")]};
+						Arguments =	[new (from, EA, "Entity type and id where funds are credited from"),
+									 new (to, EA, "Entity type and id where funds are credited to"),
+									 new ("st", ST, "Amount of space-time to be transferred", Flag.Optional),
+									 new ("ec", EC, "Amount of Execution Cycles of the current year to be transferred", Flag.Optional),
+									 new ("ecnext", EC, "Amount of Execution Cycles of next year to be transferred", Flag.Optional),
+									 new (SignerArg, AA, "Account public address where funds are debited from")]
+						};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

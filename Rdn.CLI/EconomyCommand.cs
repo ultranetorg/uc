@@ -6,21 +6,21 @@ public class EconomyCommand : RdnCommand
 {
 	public EconomyCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-
-		var fromA =	new Help.Argument("from (A)", "Using wallet file")
-					{
-						Arguments =	[
-										new ("wallet", "Keystore file of Ethereum account where funds are debited from"),
-										new ("password", "A password to access wallet file"),
-									]
-					};
-
-		var fromB =	new Help.Argument("from (B)", "Using private key")
-					{
-						Arguments =	[
-										new ("key", "Private key of Ethereum account where funds are debited from"),
-									]
-					};
+	//
+	//	var fromA =	new Argument("from (A)", "Using wallet file")
+	//				{
+	//					Arguments =	[
+	//									new ("wallet", "Keystore file of Ethereum account where funds are debited from"),
+	//									new ("password", "A password to access wallet file"),
+	//								]
+	//				};
+	//
+	//	var fromB =	new Help.Argument("from (B)", "Using private key")
+	//				{
+	//					Arguments =	[
+	//									new ("key", "Private key of Ethereum account where funds are debited from"),
+	//								]
+	//				};
 
 
 #if ETHEREUM

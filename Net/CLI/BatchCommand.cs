@@ -16,9 +16,9 @@ public class BatchCommand : McvCommand
 							Description = "Sends multiple operations as a single transaction",
 							Syntax = $"{Keyword} name0={{OPERATION}} name1={{OPERATION}} ... nameN={{OPERATION}} {SignerArg}={AA}",
 
-							Arguments = [new ("name(n)", "Arbitrary name of operation, not used during processing"),
-										 new ("OPERATION", "Operation arguments"),
-										 new (SignerArg, "Public address of account a transaction is sent on behalf of")],
+							Arguments = [new ("name(n)", NAME, "Arbitrary name of operation, not used during processing"),
+										 new ("command", COMMAND, "Operation command arguments"),
+										 SignerArgument()],
 
 							Examples = [new (null,  $"{Keyword} a={{account ut to={AA.Examples[0]} ec={EC.Example}}}" +
 													$"			b={{account ut to={AA.Examples[1]} ec={EC.Example}}}" +

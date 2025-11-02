@@ -83,9 +83,7 @@ public class CategoryCommand : FairCommand
 
 		a.Name = "lp";
 		a.Help = new() {Description = "Get publications of a specified category",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new (FirstArg, "Id of a category to get publications of")],
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+						Arguments = [new (null, EID, "Id of a category to get publications of", Flag.First)]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -105,9 +103,7 @@ public class CategoryCommand : FairCommand
 
 		a.Name = "lc";
 		a.Help = new() {Description = "Get subcategories of a specified category",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new (FirstArg, "Id of a site to get subcategories from")],
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+						Arguments = [new (null, EID, "Id of a site to get subcategories from", Flag.First)]};
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
