@@ -10,13 +10,11 @@ public class AccountCommand : Net.AccountCommand
 
 	public override CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new()	{
-							Description = "Get account entity information from Ultranet distributed database",
-							Arguments = [new (null, AA, "Address of an account to get information about", Flag.First)]
-						};
+		a.Description = "Get account entity information from Ultranet distributed database";
+		a.Arguments = [new (null, AA, "Address of an account to get information about", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -32,15 +30,15 @@ public class AccountCommand : Net.AccountCommand
 	
 	public CommandAction Nickname()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var nickname = "nickname";
 
 		a.Name = "n";
-		a.Help = new() {Description = "",
-						Arguments =	[new (null, EID,  "Id of account", Flag.First),
-									 new (nickname, NAME,  "A new nickname"),
-									 SignerArgument()]};
+		a.Description = "Sets a nickname for a specified account";
+		a.Arguments =  [new (null, EID,  "Id of account", Flag.First),
+						new (nickname, NAME,  "A new nickname"),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -52,11 +50,11 @@ public class AccountCommand : Net.AccountCommand
 
 	public CommandAction ListAuthors()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "la";
-		a.Help = new() {Description = "Get authors that specified account owns",
-						Arguments = [new (null, AAID, "Id of an account to get authors from", Flag.First)]};
+		a.Description = "Get authors that specified account owns";
+		a.Arguments = [new (null, AAID, "Id of an account to get authors from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -72,12 +70,11 @@ public class AccountCommand : Net.AccountCommand
 
 	public CommandAction ListSites()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "ls";
-		a.Help = new() {Description = "Get sites of a specified account",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AAID}",
-						Arguments = [new (null, AAID, "Id of an account to get sites from", Flag.First)]};
+		a.Description = "Get sites of a specified account";
+		a.Arguments = [new (null, AAID, "Id of an account to get sites from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -93,15 +90,15 @@ public class AccountCommand : Net.AccountCommand
 		
 	public CommandAction Avatar()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var path = "path";
 
 		a.Name = "avatar";
-		a.Help = new() {Description = "Sets avatar for a specified account",
-						Arguments =	[new (null, EID, "Id of an author to update"),
-									 new (path, PATH, "A path to image file"),
-									 SignerArgument()]};
+		a.Description = "Sets an avatar for a specified account";
+		a.Arguments =  [new (null, EID, "Id of an author to update"),
+						new (path, PATH, "A path to image file"),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

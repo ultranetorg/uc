@@ -13,15 +13,15 @@ public class ProductCommand : FairCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		var type = "type";
 
 		a.Name = "c";
-		a.Help = new() {Description = "Creates a product entity in the MCV database",
-						Arguments = [new (null, EID, "Entity id of author to create a product for", Flag.First),
-									 new (type, PRODUCTTYPE, "A type of product"),
-									 SignerArgument()]};
+		a.Description = "Creates a product entity in the MCV database";
+		a.Arguments =  [new (null, EID, "Entity id of author to create a product for", Flag.First),
+						new (type, PRODUCTTYPE, "A type of product"),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -33,12 +33,12 @@ public class ProductCommand : FairCommand
 		
 	public CommandAction Destroy()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "x";
-		a.Help = new() {Description = "Destroys existing product and all its associated data",
-						Arguments = [new (null, EID, "Id of a product to delete", Flag.First),
-									 SignerArgument()]};
+		a.Description = "Destroys existing product and all its associated data";
+		a.Arguments =  [new (null, EID, "Id of a product to delete", Flag.First),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -50,15 +50,15 @@ public class ProductCommand : FairCommand
 
 	public CommandAction Update()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		string definition;	definition = nameof(definition);
 
 		a.Name = "u";
-		a.Help = new() {Description = "Updates a product entity properties in the MCV database",
-						Arguments = [new (null, EID, "Id of a product to update", Flag.First),
-									 new (definition, TEXT, "Product definition"),
-									 SignerArgument()]};
+		a.Description = "Updates a product entity properties in the MCV database";
+		a.Arguments =  [new (null, EID, "Id of a product to update", Flag.First),
+						new (definition, TEXT, "Product definition"),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -77,12 +77,12 @@ public class ProductCommand : FairCommand
 
 	public CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new() {Description = "Gets product entity information from the MCV database",
-						Arguments = [new (null, EID, "Id of a product to get information about", Flag.First), 
-									 SignerArgument()]};
+		a.Description = "Gets product entity information from the MCV database";
+		a.Arguments =  [new (null, EID, "Id of a product to get information about", Flag.First), 
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

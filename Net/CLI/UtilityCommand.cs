@@ -13,20 +13,17 @@ public class UtilityCommand : McvCommand
 		var from = "from";
 		var to = "to";
 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "t";
 
-		a.Help = new() {Description = "Send utility from one account to another.",
-						Syntax = $"{Keyword} {a.NamesSyntax} {from}={EA} {to}={EA} st={ST}|e={EC}|en={EC} {SignerArg}={AA}",
-
-						Arguments =	[new (from, EA, "Entity type and id where funds are credited from"),
-									 new (to, EA, "Entity type and id where funds are credited to"),
-									 new ("st", ST, "Amount of space-time to be transferred", Flag.Optional),
-									 new ("ec", EC, "Amount of Execution Cycles of the current year to be transferred", Flag.Optional),
-									 new ("ecnext", EC, "Amount of Execution Cycles of next year to be transferred", Flag.Optional),
-									 new (SignerArg, AA, "Account public address where funds are debited from")]
-						};
+		a.Description = "Send utility from one account to another.";
+		a.Arguments =  [new (from, EA, "Entity type and id where funds are credited from"),
+						new (to, EA, "Entity type and id where funds are credited to"),
+						new ("st", ST, "Amount of space-time to be transferred", Flag.Optional),
+						new ("ec", EC, "Amount of Execution Cycles of the current year to be transferred", Flag.Optional),
+						new ("ecnext", EC, "Amount of Execution Cycles of next year to be transferred", Flag.Optional),
+						SignerArgument("Account public address where funds are debited from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

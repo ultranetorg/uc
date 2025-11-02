@@ -14,14 +14,14 @@ public class LinkCommand : RdnCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Creates a link from one resource to another",
-						Arguments =	[
-										new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-										new ("to", RA, "Address of a destination resource")
-									]};
+		a.Description = "Creates a link from one resource to another";
+		a.Arguments =	[
+							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
+							new ("to", RA, "Address of a destination resource")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -36,14 +36,14 @@ public class LinkCommand : RdnCommand
 
 	public CommandAction Destroy()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "x";
-		a.Help = new() {Description = "Destroys existing link",
-						Arguments =	[
-										new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-										new ("to", RA, "Address of a destination resource")
-									]};
+		a.Description = "Destroys existing link";
+		a.Arguments =	[
+							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
+							new ("to", RA, "Address of a destination resource")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -58,14 +58,14 @@ public class LinkCommand : RdnCommand
 
 	public CommandAction List_Outbounds()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lo";
 
-		a.Help = new() {Description = "Lists outbound links of a specified resource",
-						Arguments =	[
-										new (null, RA, "Address of a resource which outbound links are be listed of", Flag.First)
-									]};
+		a.Description = "Lists outbound links of a specified resource";
+		a.Arguments =	[
+							new (null, RA, "Address of a resource which outbound links are be listed of", Flag.First)
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -83,14 +83,14 @@ public class LinkCommand : RdnCommand
 
 	public CommandAction List_Inbounds()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "li";
 
-		a.Help = new() {Description = "Lists inbound links of a specified resource",
-						Arguments =	[
-										new (null, RA, "Address of a resource which inbound links are be listed of", Flag.First)
-									]};
+		a.Description = "Lists inbound links of a specified resource";
+		a.Arguments =	[
+							new (null, RA, "Address of a resource which inbound links are be listed of", Flag.First)
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

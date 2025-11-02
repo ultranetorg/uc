@@ -10,21 +10,11 @@ public class BatchCommand : McvCommand
 
 	public CommandAction Batch()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Help = new () { 
-							Description = "Sends multiple operations as a single transaction",
-							Syntax = $"{Keyword} name0={{OPERATION}} name1={{OPERATION}} ... nameN={{OPERATION}} {SignerArg}={AA}",
-
-							Arguments = [new ("name(n)", NAME, "Arbitrary name of operation, not used during processing"),
-										 new ("command", COMMAND, "Operation command arguments"),
-										 SignerArgument()],
-
-							Examples = [new (null,  $"{Keyword} a={{account ut to={AA.Examples[0]} ec={EC.Example}}}" +
-													$"			b={{account ut to={AA.Examples[1]} ec={EC.Example}}}" +
-													$"			c={{account ut to={AA.Examples[2]} ec={EC.Example}}}" +
-													$"			{SignerArg}={AA.Example}")]
-						};
+		a.Description = "Sends multiple operations as a single transaction";
+		a.Arguments = [new ("command", COMMAND, "Operation command arguments", Flag.Multi),
+						SignerArgument()];
 
 		a.Execute = () =>	{
 								return Args	.Where(i =>	i.Name != AORArg  && i.Name != SignerArg)

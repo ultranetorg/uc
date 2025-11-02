@@ -14,11 +14,11 @@ public class AccountCommand : McvCommand
 	{
 		var owner = "owner";
 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Create a new account entity",
-						Arguments = [new (owner, AA, "Account public address of the assigned account owner", Flag.First)]};
+		a.Description = "Create a new account entity";
+		a.Arguments = [new (owner, AA, "Account public address of the assigned account owner", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -30,14 +30,11 @@ public class AccountCommand : McvCommand
 
 	public virtual CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new()
-				 {
-					Description = "Get account entity information from MCV database",
-					Arguments = [new (null, AA,  "Address of an account to get information about", Flag.First)],
-				 };
+		a.Description = "Get account entity information from MCV database";
+		a.Arguments = [new (null, AA,  "Address of an account to get information about", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

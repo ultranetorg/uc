@@ -8,7 +8,8 @@ public class PackageCommand : NexusCommand
 	Ura	Package => Ura.Parse(Args[0].Name);
 
 	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
-	public readonly ArgumentType RZA 	= new ArgumentType("RLSTA", "Realization address", [@"company/application/windows"]);
+	public readonly ArgumentType APR 	= new ArgumentType("APR", "Realization address", [@"company/application/windows"]);
+	public readonly ArgumentType APRV 	= new ArgumentType("APRV", "Release address", [@"company/application/windows/1.2.3", @"company/application/windows/4.5.6"]);
 
 	public PackageCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
@@ -16,20 +17,20 @@ public class PackageCommand : NexusCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new (){Description = "Builds and deploys a package to a node filebase for distribution via RDN",
-						Arguments =	[
-										new (null, PA, "Resource address of package to create", Flag.First),
-										new ("source", PATH, "A list of paths to files separated by comma", Flag.Multi),
-										new ("dependencies", FILEPATH, "A path to version manifest file where complete dependencies are defined", Flag.Optional),
-										new ("previous", PA, "Address of previous release", Flag.Optional)
-									],
+		a.Description = "Builds and deploys a package to a node filebase for distribution via RDN";
+		a.Arguments =	[
+							new (null,			 APRV,		"Resource address of package to create", Flag.First),
+							new ("previous",	 APRV,		"Address of previous release", Flag.Optional),
+							new ("source",		 PATH,		"A list of paths to files separated by comma", Flag.Multi),
+							new ("dependencies", FILEPATH,	"A path to version manifest file where complete dependencies are defined", Flag.Optional),
+						];
 
-						Examples =	[
-										new (null, @$"{Keyword} {a.Name} {RZA}/0.0.2 previous={RZA}/0.0.1 source={FILEPATH.Example[0]} source{FILEPATH.Example[1]} dependencies={DIRPATH}\1.2.3.{VersionManifest.Extension}")
-									]};
+		a.Examples =	() =>	[
+								new (null, @$"{Keyword} {a.Name} {APRV.Example} previous={APRV.Example1} source={FILEPATH.Example} source{FILEPATH.Example1} dependencies={DIRPATH}\1.2.3.{VersionManifest.Extension}")
+							];
 
 		a.Execute = () =>	{
 								var r = Api<LocalReleaseApe>(new PackageBuildApc   {Resource		 = Ura.Parse(Args[0].Name), 
@@ -51,13 +52,13 @@ public class PackageCommand : NexusCommand
 
 	public CommandAction Local()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
-		a.Help = new() {Description = "Gets information about local copy of a specified package",
-						Arguments =	[
-										new (null, PA, "Address of local package to get information about", Flag.First)
-									]};
+		a.Description = "Gets information about local copy of a specified package";
+		a.Arguments =	[
+							new (null, PA, "Address of local package to get information about", Flag.First)
+						];
 
 		a.Execute = () =>	{
 							var r = Api<PackageInfo>(new LocalPackageApc {Address = Package});
@@ -71,13 +72,13 @@ public class PackageCommand : NexusCommand
 
 	public CommandAction Download()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "d";
-		a.Help = new() {Description = "Downloads a specified package by its address",
-						Arguments =	[
-										new (null, PA, "Address of a package to download", Flag.First)
-									]};
+		a.Description = "Downloads a specified package by its address";
+		a.Arguments =	[
+							new (null, PA, "Address of a package to download", Flag.First)
+						];
 
 		a.Execute = () =>	{
 								Api(new PackageDownloadApc {Package = Package});
@@ -115,17 +116,14 @@ public class PackageCommand : NexusCommand
 
 	public CommandAction Deploy()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "dp";
-		a.Help = new ()
-				 { 
-					Description = "If needed, downloads specified package and its dependencies recursively and deploys its content to the 'Packages' directory",
-					Arguments =	[
-									new (null, PA, "Address of a package to install", Flag.First),
-									new ("destination", DIRPATH, "Packages destination path", Flag.Optional)
-								],
-				 };
+		a.Description = "If needed, downloads specified package and its dependencies recursively and deploys its content to the 'Packages' directory";
+		a.Arguments =	[
+							new (null, PA, "Address of a package to install", Flag.First),
+							new ("destination", DIRPATH, "Packages destination path", Flag.Optional)
+						];
 
 		a.Execute = () =>	{
 								Api(new PackageDeployApc{Address = ApvAddress.Parse(Args[0].Name),

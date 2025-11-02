@@ -12,7 +12,7 @@ public class DevCommand : RdnCommand
 
 	public CommandAction Ping()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "ping";
 		a.Execute = () =>	{
@@ -47,7 +47,7 @@ public class DevCommand : RdnCommand
 
 	public CommandAction Listen()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "listen";
 		a.Execute = () =>	{
@@ -68,7 +68,7 @@ public class DevCommand : RdnCommand
 
 	public CommandAction Keypair()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "keypair";
 		a.Execute = () =>	{

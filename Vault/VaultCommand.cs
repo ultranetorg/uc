@@ -13,13 +13,13 @@ public class VaultCommand : NetCommand
 
 	public CommandAction Run()
 	{
- 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+ 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "r";
-		a.Help = new() {Description = "Runs a new instance with command-line interface",
-						Arguments =	[
-										new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
-									]};
+		a.Description = "Runs a new instance with command-line interface";
+		a.Arguments =	[
+							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
+						];
 
 		a.Execute = () =>	{
 								Run(Vault, a);

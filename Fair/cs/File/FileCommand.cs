@@ -13,20 +13,17 @@ public class FileCommand : FairCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		var path = "path";
 
 		a.Name = "c";
-		a.Help = new()
-				 {
-					Description = "Creates a file entity in the MCV database",
-					Arguments = [
-									new (null, EA, "An entity address of file owner", Flag.First),
-									new (path, PATH, "A data associated with the file"),
-									SignerArgument()
-								],
-				 };
+		a.Description = "Creates a file entity in the MCV database";
+		a.Arguments =	[
+							new (null, EA, "An entity address of file owner", Flag.First),
+							new (path, PATH, "A data associated with the file"),
+							SignerArgument()
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -42,14 +39,11 @@ public class FileCommand : FairCommand
 		
 	public CommandAction Destroy()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "x";
-		a.Help = new()
-				 {
-					Description = "Destroys existing file and all its associated data",
-					Arguments = [new (null, EID, "Id of a file to delete", Flag.First)],
-				 };
+		a.Description = "Destroys existing file and all its associated data";
+		a.Arguments = [new (null, EID, "Id of a file to delete", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -61,14 +55,11 @@ public class FileCommand : FairCommand
 
 	public CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new()
-				 {
-					Description = "Gets file entity information from the MCV database",
-					Arguments = [new (null, EID, "Id of a file to get information about", Flag.First)],
-				 };
+		a.Description = "Gets file entity information from the MCV database";
+		a.Arguments = [new (null, EID, "Id of a file to get information about", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

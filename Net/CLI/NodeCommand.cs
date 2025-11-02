@@ -34,7 +34,7 @@ public class NodeCommand : McvCommand
 
 	public CommandAction Attach()
 	{
-		attach = new CommandAction(MethodBase.GetCurrentMethod());
+		attach = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		attach.Name = "a";
 		attach.Execute = () =>	{
@@ -80,12 +80,11 @@ public class NodeCommand : McvCommand
 									return null;
 								};
 
-		attach.Help = new()	{	Description = "Connects to existing node instance via JSON RPC protocol",
-								Arguments =[
-												new (null, URL, "URL address of node to connect to"),
-												new (Apc.AccessKey, PASSWORD, "API access key")
-											]
-							};
+		attach.Description = "Connects to existing node instance via JSON RPC protocol";
+		attach.Arguments =	[
+								new (null, URL, "URL address of node to connect to"),
+								new (Apc.AccessKey, PASSWORD, "API access key")
+							];
 
 		return attach;
 	}
@@ -93,7 +92,7 @@ public class NodeCommand : McvCommand
 
 	public CommandAction Send()
 	{
-		send = new CommandAction(MethodBase.GetCurrentMethod());
+		send = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		send.Name = "s";
 		send.Execute = () => {
@@ -125,19 +124,19 @@ public class NodeCommand : McvCommand
 								return null;
 							};
 
-		send.Help = new()  {Description = "Send specified command to existing running node",
-							Arguments =	[
-											new (null,			URL, "HOST address of node to send a command to", Flag.First),
-											new (Apc.AccessKey, PASSWORD, "API access key"),
-											new ("command",		COMMAND, "A command to send for execution")
-										]};
+		send.Description = "Send specified command to existing running node";
+		send.Arguments =	[
+								new (null,			URL, "HOST address of node to send a command to", Flag.First),
+								new (Apc.AccessKey, PASSWORD, "API access key"),
+								new ("command",		COMMAND, "A command to send for execution")
+							];
 
 		return send;
 	}
 
 	public CommandAction Peers()
 	{ 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "peers";
 		a.Execute = () =>	{
@@ -150,21 +149,17 @@ public class NodeCommand : McvCommand
 								return r;
 							};
 
-		a.Help = new () {Description = "Gets a list of existing connections",
-						 Syntax = $"{Keyword} {a.NamesSyntax}",
-
-						 Arguments = [],
-
-						 Examples = [new (null, $"{a.Names[0]} peers")]};
+		a.Description = "Gets a list of existing connections";
 
 		return a;
 	}
 
 	public CommandAction Incoming_Transactions()
 	{ 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "it";
+		a.Description = "Gets current list of incomming transactions";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new IncomingTransactionsApc{});
 			
@@ -179,21 +174,16 @@ public class NodeCommand : McvCommand
 								return r;
 							};
 
-		a.Help = new Help  {Description = "Gets current list of incomming transactions",
-							Syntax = $"{Keyword} {a.NamesSyntax}",
-
-							Arguments = [],
-
-							Examples = [new (null, $"{Keyword} {a.Names[0]}")]};
 
 		return a;
 	}
 
 	public CommandAction Outgoing_Transactions()
 	{ 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "ot";
+		a.Description = "Gets current list of outgoing transactions";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new OutgoingTransactionsApc{});
 			
@@ -208,50 +198,40 @@ public class NodeCommand : McvCommand
 								return r;
 							};
 
-		a.Help = new Help  {Description = "Gets current list of outgoing transactions",
-							Syntax = $"{Keyword} {a.NamesSyntax}",
-
-							Arguments = [],
-
-							Examples =	[
-											new (null, $"{Keyword} {a.Names[0]}")
-										]};
 
 		return a;
 	}
 
-	public CommandAction Property()
-	{ 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
-		
-		a.Name = "property";
-		a.Execute = () =>	{
-								var r = Api<string>(new PropertyApc {Path = Args[0].Name});
-			
-								Report(r);
-					
-								return r;
-							};
-
-
-		a.Help = new() {Description = "Displays a value of node internal state",
-						Syntax = $"{Keyword} {a.NamesSyntax} {TEXT}",
-
-						Arguments = [],
-
-						Examples = [new (FirstArg, "node property Mcv.Size")]};
-		return a;
-	}
+	//public CommandAction Property()
+	//{ 
+	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+	//	
+	//	a.Name = "property";
+	//	a.Description = "Displays a value of node internal state",
+	//					Syntax = $"{Keyword} {a.NamesSyntax} {TEXT}",
+	//
+	//					a.Arguments = [new (null, PROPER )],
+	//					};
+	//
+	//	a.Execute = () =>	{
+	//							var r = Api<string>(new PropertyApc {Path = Args[0].Name});
+	//		
+	//							Report(r);
+	//				
+	//							return r;
+	//						};
+	//	return a;
+	//}
 	
 	public CommandAction Membership()
 	{ 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "m";
-		a.Help = new() {Description = "Get information about membership status of specified account",
-						Arguments =	[
-										new (null, AA, "Ultranet account public address to check the membership status", Flag.First)
-									]};
+		a.Description = "Get information about membership status of specified account";
+		a.Arguments =	[
+							new (null, AA, "Ultranet account public address to check the membership status", Flag.First)
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

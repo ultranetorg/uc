@@ -14,10 +14,10 @@
 //
 //	public CommandAction Analysis_Update()
 //	{
-//		var a = new CommandAction(MethodBase.GetCurrentMethod());
+//		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 //		
 //		a.Name = "u";
-//		a.Help = new() {Description = "Register an analysis result in Ultranet distributed database",
+//		a.Description = "Register an analysis result in Ultranet distributed database",
 //						Arguments =	[
 //										new (null, RA, "Address of analysis resource"), // Assuming "<first>" is a placeholder and needs a correct identifier.
 //										new ("result", ANRESULT, "Negative, Positive, Vulnerable")

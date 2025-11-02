@@ -44,15 +44,15 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Acquire()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "a";
-		a.Help = new() {Description = "Obtain ownership of a domain name for a specified period",
-						Arguments =	[
-										new (null, RDA, "Address of a root domain to be acquired", Flag.First),
-										new ("years", YEARS, "Integer number of years in [1..10] range"),
-										SignerArgument("Address of account that owns or is going to register the domain")
-									]};
+		a.Description = "Obtain ownership of a domain name for a specified period";
+		a.Arguments =	[
+							new (null, RDA, "Address of a root domain to be acquired", Flag.First),
+							new ("years", YEARS, "Integer number of years in [1..10] range"),
+							SignerArgument("Address of account that owns or is going to register the domain")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -69,15 +69,15 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Migrate()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "m";
-		a.Help = new() {Description = "Request web domain migration",
-						Arguments =	[
-										new (null, RDA, "Ultranet address of a root domain to migrate", Flag.First),
-										new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
-										SignerArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
-									]};
+		a.Description = "Request web domain migration";
+		a.Arguments =	[
+							new (null, RDA, "Ultranet address of a root domain to migrate", Flag.First),
+							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
+							SignerArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -89,16 +89,16 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Renew()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "r";
 
-		a.Help = new() {Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.",
-						Arguments =	[
-										new (null, DA, "Address of a domain to be renewed", Flag.First),
-										new ("years", YEARS, "Integer number of years in [1..10] range"),
-										SignerArgument("Address of account that owns the domain")
-									]};
+		a.Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.";
+		a.Arguments =	[
+							new (null, DA, "Address of a domain to be renewed", Flag.First),
+							new ("years", YEARS, "Integer number of years in [1..10] range"),
+							SignerArgument("Address of account that owns the domain")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -114,17 +114,17 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Create_Subdomain()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "cs";
-		a.Help = new() {Description = "Create a subdomain",
-						Arguments =	[
-										new (null, SDA, "Subdomain address to create", Flag.First),
-										new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
-										new ("years", YEARS, "Number of years in [1..10] range"),
-										new ("for", AA, "Address of account that will own the subdomain"),
-										SignerArgument("Address of account that owns the parent domain")
-									]};
+		a.Description = "Create a subdomain";
+		a.Arguments =	[
+							new (null, SDA, "Subdomain address to create", Flag.First),
+							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
+							new ("years", YEARS, "Number of years in [1..10] range"),
+							new ("for", AA, "Address of account that will own the subdomain"),
+							SignerArgument("Address of account that owns the parent domain")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -139,15 +139,15 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Update_Policy()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "up";
-		a.Help = new(){	Description = "Changes current policy of subdomain",
-						Arguments =	[
-										new (null, SDA, "Address of a domain to change policy for", Flag.First),
-										new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
-										SignerArgument("Address of account that owns a subdomain")
-									]};
+		a.Description = "Changes current policy of subdomain";
+		a.Arguments =	[
+							new (null, SDA, "Address of a domain to change policy for", Flag.First),
+							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
+							SignerArgument("Address of account that owns a subdomain")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -162,15 +162,15 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Transfer()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "t";
-		a.Help = new() {Description = "Changes an owner of domain",
-						Arguments =	[
-										new (null, DA, "Address of a domain to transfer", Flag.First),
-										new ("to", EID, "Address of account of a new owner"),
-										SignerArgument("Address of account of the current owner")
-									]};
+		a.Description = "Changes an owner of domain";
+		a.Arguments =	[
+							new (null, DA, "Address of a domain to transfer", Flag.First),
+							new ("to", EID, "Address of account of a new owner"),
+							SignerArgument("Address of account of the current owner")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -186,13 +186,13 @@ public class DomainCommand : RdnCommand
 
 	public CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new() {Description = "Get domain entity information from MCV database",
-						Arguments =	[
-										new (null, DA, "Address of a domain to get information about", Flag.First)
-									]};
+		a.Description = "Get domain entity information from MCV database";
+		a.Arguments =	[
+							new (null, DA, "Address of a domain to get information about", Flag.First)
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

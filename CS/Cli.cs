@@ -135,8 +135,8 @@ public abstract class Cli
 			{
 				c.Report(string.Join(", ", i.Names));
 				c.Report("");
-				c.Report("   Syntax      : " + i.Help?.Syntax);
-				c.Report("   Description : " + i.Help?.Description);
+				c.Report("   Syntax      : " + i.Syntax);
+				c.Report("   Description : " + i.Description);
 				c.Report("");
 			}
 
@@ -152,21 +152,21 @@ public abstract class Cli
 
 			c.Report("Syntax :");
 			c.Report("");
-			c.Report("   " + a.Help.Syntax);
+			c.Report("   " + a.Syntax);
 
 			c.Report("");
 
 			c.Report("Description :");
 			c.Report("");
-			c.Report("   " + a.Help.Description);
+			c.Report("   " + a.Description);
 
-			if(a.Help.Arguments.Any())
+			if(a.Arguments.Any())
 			{ 
 				c.Report("");
 
 				c.Report("Arguments :");
 				c.Report("");
-				c.Flow.Log?.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
+				c.Flow.Log?.Dump(a.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
 			}
 								
 			return c;

@@ -242,17 +242,10 @@ public class EconomyCommand : RdnCommand
 
 	public CommandAction Cost()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Gets information about current cost of various ULTRANET resources.",
-						Syntax = $"{Keyword} c|cost",
-
-						Arguments = [],
-
-						Examples =	[
-										new (null, $"{Keyword} cost")
-									]};
+		a.Description = "Gets information about current cost of various ULTRANET resources.";
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

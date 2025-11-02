@@ -11,11 +11,12 @@ public abstract class McvCommand : NetCommand
 	public Action						Transacted;
 	protected McvCli					Cli;
 
-	public readonly ArgumentType	ET	= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
-	public readonly ArgumentType	EID	= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
-	public readonly ArgumentType	EA	= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
+	public static readonly ArgumentType YEARS	= new ArgumentType("YEARS",	@"Number of years",															[@"5"]);
+	public static readonly ArgumentType	ET	= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
+	public static readonly ArgumentType	EID	= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
+	public static readonly ArgumentType	EA	= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
 
-	protected Argument				SignerArgument(string description = "Signer account address") => new (SignerArg, AA, description);
+	protected Argument					SignerArgument(string description = "Signer account address") => new (SignerArg, AA, description);
 
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{

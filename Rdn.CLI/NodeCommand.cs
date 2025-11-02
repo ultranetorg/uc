@@ -10,15 +10,15 @@ public class NodeCommand : Net.NodeCommand
 
 	public CommandAction Run()
 	{
- 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+ 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "r";
-		a.Help = new() {Description = "Runs a new instance with command-line interface",
-						Arguments =	[
-										new ("name", NAME, "An arbitrary name of a node"),
-										new ("zone", ZONE, "Zone name"),
-										new ("profile", DIRPATH, "Path to local profile directory"),
-									]};
+		a.Description = "Runs a new instance with command-line interface";
+		a.Arguments =	[
+							new ("name", NAME, "An arbitrary name of a node"),
+							new ("zone", ZONE, "Zone name"),
+							new ("profile", DIRPATH, "Path to local profile directory"),
+						];
 
 		a.Execute = () =>	{
 								Cli.Node = new RdnNode(GetString("name", null), GetEnum("zone", Cli.Net.Zone), GetString("profile", Cli.Settings.Profile), Cli.Settings as RdnNodeSettings, new RealClock(), Flow);

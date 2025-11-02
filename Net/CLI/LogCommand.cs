@@ -10,12 +10,9 @@ public class LogCommand : McvCommand
 
 	public CommandAction Log()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Help = new Help	{ 
-								Description = "Applicable in \"node run\" mode only. Start monitoring the log.",
-								Syntax = $"{Keyword}",
-							};
+		a.Description = "Applicable in \"node run\" mode only. Start monitoring the log.";
 
 		a.Execute = () =>	{
 								if(Cli.Node == null)

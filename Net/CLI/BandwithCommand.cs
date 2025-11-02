@@ -10,17 +10,15 @@ public class BandwidthCommand : McvCommand
 
 	public CommandAction Allocate()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "a";
-		a.Help = new Help	{ 
-								Description = "Allocate execution bandwidth",
-								Arguments =	[
-												new ("bandwidth", EC, "Amount of EC allocated per day"),
-												new ("days", INT, "Number of days to allocate bandwidth for"),
-												SignerArgument()
-											],
-							};
+		a.Description = "Allocate execution bandwidth";
+		a.Arguments =	[
+						new ("bandwidth", EC, "Amount of EC allocated per day"),
+						new ("days", INT, "Number of days to allocate bandwidth for"),
+						SignerArgument()
+					];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

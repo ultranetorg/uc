@@ -16,13 +16,13 @@ public class ReleaseCommand : RdnCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Deploys a file or files for P2P distribution",
-						Arguments =	[
-										new ("source", PATH, "A path to a file to build", Flag.Multi),
-									]};
+		a.Description = "Deploys a file or files for P2P distribution";
+		a.Arguments =	[
+							new ("source", PATH, "A path to a file to build", Flag.Multi),
+						];
 
 		a.Execute = () =>	{
 								var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc
@@ -44,13 +44,13 @@ public class ReleaseCommand : RdnCommand
 
 	public CommandAction Local()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
-		a.Help = new() {Description = "Get information about local copy of a specified release",
-						Arguments =	[
-										new (null, RZA, "Address of a release to get information about")
-									]};
+		a.Description = "Get information about local copy of a specified release";
+		a.Arguments =	[
+							new (null, RZA, "Address of a release to get information about")
+						];
 
 		a.Execute = () =>	{
 								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});

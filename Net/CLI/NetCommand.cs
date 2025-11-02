@@ -5,7 +5,7 @@ public abstract class NetCommand : Command
 
 	public readonly ArgumentType AA			= new ArgumentType("AA",		@"Account address, in hexadecimal form prepended with '0x'",			["0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68", "0x0001D9867473B229B5F13BF594E0DF9D4F61F8ED", "0x0002C6C15D653236A811A1115A6F08F0BC54D2B7", "0x0003924B07CE25C18667899EFFF15CBF5C75C1EE"]);
 	public readonly ArgumentType AAID		= new ArgumentType("AAID",		@"Account address or Id",												["0x0000fffb3f90771533b1739480987cee9f08d754", "123456-789"]);
-	public readonly ArgumentType COMMAND	= new ArgumentType("COMMAND",	@"Arbitrary command",													["..."]);
+	public readonly ArgumentType COMMAND	= new ArgumentType("COMMAND",	@"Arbitrary command",													["{...}"]);
 	public readonly ArgumentType IP			= new ArgumentType("IP",		@"IP Address",															["12.34.56.78"]);
 	public readonly ArgumentType INT		= new ArgumentType("INT",		@"Positive integer number",												["324552"]);
 	public readonly ArgumentType HEX		= new ArgumentType("HEX",		@"Array od bytes in form of hexadecimal string",						["0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37"]);

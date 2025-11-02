@@ -10,16 +10,13 @@ internal class RunCommand : NexusCommand
 
 	public CommandAction Default()
 	{
- 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+ 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Help = new()
-				 {
-					Description = "Runs a new instance with command-line interface",
-					Arguments =	[
-									new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
-									new ("zone", ZONE, "Zone name", Flag.Optional),
-								],
-				 };
+		a.Description = "Runs a new instance with command-line interface";
+		a.Arguments =	[
+							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
+							new ("zone", ZONE, "Zone name", Flag.Optional),
+						];
 
 		a.Execute = () =>	{
 								Cli.Run(this, a);
