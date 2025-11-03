@@ -55,7 +55,7 @@ export const validateSiteAuthorsChange = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options || options.length >= lastEditedIndex) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasEmpty =
     normalizeAuthors(options[lastEditedIndex].authorsIds) === "" &&
@@ -90,7 +90,7 @@ export const validateSiteModeratorAddition = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options || options.length >= lastEditedIndex) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
@@ -112,7 +112,7 @@ export const validateSiteModeratorRemoval = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options || options.length >= lastEditedIndex) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
@@ -135,7 +135,7 @@ export const validateSiteTextChange = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options || options.length >= lastEditedIndex) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
