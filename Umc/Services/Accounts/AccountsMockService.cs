@@ -11,7 +11,7 @@ public class AccountsMockService : IAccountsService
 
     public List<AccountViewModel> ListAllAccounts() => new(_service.Accounts);
 
-    public Task<List<AccountViewModel>> ListAccountsAsync(string filter = null, bool addAllOptions = false)
+    public async Task<List<AccountViewModel>> ListAccountsAsync(string filter = null, bool addAllOptions = false)
     {
 		var accounts = _service.Accounts;
 		if (addAllOptions)
@@ -25,7 +25,7 @@ public class AccountsMockService : IAccountsService
 				x.Address.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 		}
-        return Task.FromResult(accounts.ToList());
+        return await Task.FromResult(accounts.ToList());
     }
 
 	public Task<string> GetPrivateKeyAsync(string address)
@@ -43,7 +43,7 @@ public class AccountsMockService : IAccountsService
 		throw new NotImplementedException();
 	}
 
-    public Task UpdateAsync([NotNull] AccountViewModel account)
+    public async Task UpdateAsync([NotNull] AccountViewModel account)
     {
         Guard.IsNotNull(account, nameof(account));
 
@@ -53,7 +53,7 @@ public class AccountsMockService : IAccountsService
         Guard.IsNotNull(accountForUpdate);
         UpdateAccount(accountForUpdate, account);
 
-        return Task.CompletedTask;
+        await Task.Delay(10);
     }
 
     private void UpdateAccount(AccountViewModel destination, AccountViewModel source)
@@ -64,7 +64,7 @@ public class AccountsMockService : IAccountsService
         destination.HideOnDashboard = source.HideOnDashboard;
     }
 
-    public Task DeleteByAddressAsync([NotEmpty, NotNull] string address)
+    public async Task DeleteByAddressAsync([NotEmpty, NotNull] string address)
     {
         Guard.IsNotNullOrEmpty(address, nameof(address));
 
@@ -74,6 +74,6 @@ public class AccountsMockService : IAccountsService
 
         _service.Accounts.Remove(account);
 
-        return Task.CompletedTask;
+        await Task.Delay(10);
     }
 }

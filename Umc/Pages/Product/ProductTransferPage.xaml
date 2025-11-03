@@ -4,18 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:Class="UC.Umc.Pages.ProductTransferPage"
     x:DataType="vm:ProductTransferViewModel"
-    Title="Transfer Product">
+    Title="{x:Static resx:Product_Strings.Transfer_Title}">
     
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -25,7 +26,7 @@
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
                 <CarouselView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="View">
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
@@ -34,14 +35,14 @@
                         <!--Step #1-->
                         <StackLayout Spacing="24">
                             <StackLayout>
-                                <Label FontSize="18" Text="Choose your Product and destination account" />
+                                <Label FontSize="18" Text="{x:Static resx:Product_Strings.Transfer_Specify}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="You need to specify your product and destination account to transfer." />
+                                    Text="{x:Static resx:Product_Strings.Transfer_Specify2}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Transfer Product" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Product_Strings.Transfer_Product}" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <Border
                                         BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Product}"
@@ -63,7 +64,7 @@
                                 </Grid>
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Author" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Product_Strings.Transfer_Author}" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <Border
                                         BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Author}"
@@ -99,32 +100,40 @@
                                         VerticalOptions="Center" />
                                 </Grid>
                             </StackLayout>
-                            
                             <controls:LabelPair
-                                Text1="Estimated commission"
+                                Text1="{x:Static resx:Product_Strings.Transfer_Comission}"
                                 Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Commission}" />
                         </StackLayout>
                         
                         <!--Step #2-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
-                                <Label FontSize="18" Text="Do you confirm the transfer of this Product?" />
+                                <Label FontSize="18" Text="{x:Static resx:Product_Strings.Transfer_Confirm}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Clicking 'Confirm' button, transfer will start" />
+                                    Text="{x:Static resx:Product_Strings.Transfer_Confirm2}" />
                             </StackLayout>
                             <StackLayout Spacing="20">
-                                <controls:LabelPair Text1="Transfering Product:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Product.Name}" />
-                                <controls:LabelPair Text1="With comission:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Commission}" />
-                                <controls:LabelPair Text1="To Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Author.Name}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Product_Strings.Transfer_Summary}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Product.Name}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Product_Strings.Transfer_Summary2}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Commission}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Product_Strings.Transfer_Summary3}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Author.Name}" />
                             </StackLayout>
                         </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+            <controls:NextCancelButton
+				Grid.Row="2"
+				NextCommand="{Binding NextWorkaroundCommand}"
+				CancelCommand="{Binding PrevCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 

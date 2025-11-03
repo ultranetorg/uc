@@ -1,7 +1,9 @@
 ﻿namespace UC.Umc.Pages;
 
-public partial class EnterPinPage : CustomPage
+public partial class EnterPinPage : ContentPage
 {
+	EnterPinViewModel Vm => BindingContext as EnterPinViewModel;
+
     public EnterPinPage()
     {
         InitializeComponent();
@@ -12,5 +14,12 @@ public partial class EnterPinPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+    
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        await Vm.InitializeAsync();
     }
 }

@@ -1,9 +1,11 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class TransferCompleteViewModel : BaseViewModel
+public partial class TransferCompleteViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AccountViewModel _account;
+	[ObservableProperty]
+    private string _sourceAccount;
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntComission))]
@@ -14,7 +16,8 @@ public partial class TransferCompleteViewModel : BaseViewModel
 	public decimal EthComission => (UntAmount + 1) / 100;
 	public string TransactionDate => "10/15/2021 19:24";
 
-    public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
+    public TransferCompleteViewModel(INotificationsService notificationService,
+		ILogger<TransferCompleteViewModel> logger) : base(notificationService, logger)
     {
     }
 
@@ -26,6 +29,7 @@ public partial class TransferCompleteViewModel : BaseViewModel
 			
             Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
             UntAmount = (decimal)query[QueryKeys.UNT_AMOUNT];
+            SourceAccount = (string)query[QueryKeys.SOURCE_ACCOUNT];
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
             _logger.LogDebug("ApplyQueryAttributes UntAmount: {UntAmount}", UntAmount);
@@ -47,7 +51,7 @@ public partial class TransferCompleteViewModel : BaseViewModel
     {
 		try
 		{
-			await Navigation.GoToUpwardsAsync(Routes.TRANSACTIONS);
+			await Navigation.GoToTransactionsAsync();
 		}
 		catch (Exception ex)
 		{

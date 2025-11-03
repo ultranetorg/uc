@@ -12,7 +12,7 @@ public class ServicesMockData : IServicesMockData
     public IList<Emission> Emissions { get; private set; } = new List<Emission>();
     public IList<Notification> Notifications { get; private set; } = new List<Notification>();
     public IList<Bid> BidsHistory { get; private set; } = new List<Bid>();
-    public IList<string> HelpQuestions  { get; private set; } = new List<string>();
+    public IList<HelpInfo> HelpQuestions  { get; private set; } = new List<HelpInfo>();
 
     public ServicesMockData(ILogger<ServicesMockData> logger)
 	{
@@ -54,19 +54,19 @@ public class ServicesMockData : IServicesMockData
 
 			#region Transactions
 			
-			Transactions.Add(DefaultDataMock.CreateTransaction(account10, TransactionStatus.None, 1100, "Test"));
-			Transactions.Add(DefaultDataMock.CreateTransaction(account11, TransactionStatus.None, 1100, "Test"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account3, TransactionStatus.Sent, 10, "UNT Transfer"));
-			Transactions.Add(DefaultDataMock.CreateTransaction(account3, TransactionStatus.Sent, 10, "UNT Transfer"));
-			Transactions.Add(DefaultDataMock.CreateTransaction(account4, TransactionStatus.Sent, 10, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account9, TransactionStatus.Failed, 1100, "Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account4, TransactionStatus.Received, 10, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account3, TransactionStatus.Sent, 10, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account11, TransactionStatus.None, 1100, "Test"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account10, TransactionStatus.None, 1100, "Test"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account4, TransactionStatus.Sent, 10, "UNT Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Sent, 10, "Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Received, 50, "Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account6, TransactionStatus.Received, 100, "Transfer", new DateTime(2021, 10, 11)));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account6, TransactionStatus.Failed, 500, "Transfer", new DateTime(2020, 1, 5)));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account7, TransactionStatus.Pending, 200, "Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account8, TransactionStatus.Pending, 1100, "Transfer"));
-			Transactions.Add(DefaultDataMock.CreateTransaction(account9, TransactionStatus.Failed, 1100, "Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account1, TransactionStatus.Failed, 234, "UNT Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account2, TransactionStatus.Sent, 10, "UNT Transfer"));
 			Transactions.Add(DefaultDataMock.CreateTransaction(account2, TransactionStatus.Pending, 5290, "UNT Transfer"));
@@ -77,15 +77,16 @@ public class ServicesMockData : IServicesMockData
 
 			#region Products
 
-			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor(), "1.0.1");
-			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor(), "1.0.2");
-			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor(), "1.0.3");
-			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor(), "4.4 (LTS)");
-			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor(), "0.7-preview");
-			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor(), "2.0.1");
-			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor(), "12.2.0 beta");
-			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor(), "0.1-alpha");
-			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor(), "1.0.9");
+			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor(), "1.0.1", account1);
+			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor(), "1.0.2", account1);
+			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor(), "1.0.3", account2);
+			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor(), "4.4 (LTS)", account2);
+			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor(), "0.7-preview", account3);
+			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor(), "2.0.1", account3);
+			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor(), "12.2.0 beta", account4);
+			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor(), "0.1-alpha", account5);
+			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor(), "1.0.9", account6);
+			ProductViewModel product10 = new("Pate 4", "Pate 520", ColorHelper.GetRandomColor(), "2.0.9", account7);
 
 			Products.Add(product1);
 			Products.Add(product2);
@@ -96,46 +97,9 @@ public class ServicesMockData : IServicesMockData
 			Products.Add(product7);
 			Products.Add(product8);
 			Products.Add(product9);
+			Products.Add(product10);
 
 			#endregion Products
-
-			#region Bids History
-
-			BidsHistory = new List<Bid>()
-			{
-				new()
-				{
-					Amount = 599,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 399,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 199,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 99,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 9,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				}
-			};
-
-			#endregion Bids History
 
 			#region Authors
 
@@ -195,6 +159,10 @@ public class ServicesMockData : IServicesMockData
 				Owner = "0x71C7656EC7ab88b098defB751B7401B5f6d76F",
 				Status = AuthorStatus.Owned,
 				ExpirationDate = new DateTime(2024, 9, 1),
+				Products = new List<ProductViewModel>
+				{
+					product9,
+				},
 			};
 
 			AuthorViewModel author5 = new()
@@ -207,31 +175,34 @@ public class ServicesMockData : IServicesMockData
 				Status = AuthorStatus.Reserved,
 				Products = new List<ProductViewModel>
 				{
-					product9,
+					product10,
 				},
 			};
 
 			AuthorViewModel author6 = new()
 			{
 				Name = "Test",
+				Account = account7,
 				Status = AuthorStatus.Free,
 			};
 
 			AuthorViewModel author7 = new()
 			{
 				Name = "Test Own",
+				Account = account8,
 				Status = AuthorStatus.Owned,
 			};
 
 			product1.Author = author1;
 			product2.Author = author1;
-			product3.Author = author1;
-			product4.Author = author7;
-			product5.Author = author2;
-			product6.Author = author2;
-			product7.Author = author3;
+			product3.Author = author2;
+			product4.Author = author2;
+			product5.Author = author3;
+			product6.Author = author3;
+			product7.Author = author4;
 			product8.Author = author4;
 			product9.Author = author5;
+			product10.Author = author5;
 
 			Authors.Add(author1);
 			Authors.Add(author2);
@@ -242,6 +213,46 @@ public class ServicesMockData : IServicesMockData
 			Authors.Add(author7);
 
 			#endregion Authors
+
+			#region Bids History
+
+			BidsHistory = new List<Bid>()
+			{
+				new()
+				{
+					Amount = 599,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 399,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 199,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 99,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 9,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				}
+			};
+
+			#endregion Bids History
+
+			#region Account Colors
 
 			AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
@@ -255,10 +266,18 @@ public class ServicesMockData : IServicesMockData
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 
+			#endregion Account Colors
+
+			#region Emission
+
 			Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
 			Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
 			Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
 			Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
+
+			#endregion Emission
+
+			#region Notifications
 
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.ProductOperations));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.SystemEvent));
@@ -267,20 +286,17 @@ public class ServicesMockData : IServicesMockData
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.Server));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Mid, NotificationType.Wallet));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.Server));
-			
-			HelpQuestions.Add(Properties.Resources.HelpLine1);
-			HelpQuestions.Add(Properties.Resources.HelpLine2);
-			HelpQuestions.Add(Properties.Resources.HelpLine3);
-			HelpQuestions.Add(Properties.Resources.HelpLine4);
-			HelpQuestions.Add(Properties.Resources.HelpLine5);
-			HelpQuestions.Add(Properties.Resources.HelpLine6);
-			HelpQuestions.Add(Properties.Resources.HelpLine7);
-			HelpQuestions.Add(Properties.Resources.HelpLine8);
-			HelpQuestions.Add(Properties.Resources.HelpLine9);
-			HelpQuestions.Add(Properties.Resources.HelpLine10);
-			HelpQuestions.Add(Properties.Resources.HelpLine11);
-			HelpQuestions.Add(Properties.Resources.HelpLine12);
-			HelpQuestions.Add(Properties.Resources.HelpLine13);
+
+			#endregion Notifications
+
+			#region Help Questions
+
+			for(int i = 1; i <= 13; i++)
+			{
+				HelpQuestions.Add(ResourceHelper.GetHelpInfo(i));
+			}
+
+			#endregion Help Questions
 		}
 		catch(Exception ex)
 		{

@@ -1,21 +1,17 @@
-﻿using UC.Net;
+﻿namespace UC.Umc.ViewModels;
 
-namespace UC.Umc.ViewModels;
-
-public partial class HelpViewModel : BaseViewModel
+public partial class HelpViewModel : BasePageViewModel
 {
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private Transaction _selectedItem ;
-
-	[ObservableProperty]
-    private CustomCollection<string> _helps = new();
+    private CustomCollection<HelpInfo> _helps = new();
 
 	[ObservableProperty]
     private string _filter;
 
-    public HelpViewModel(IServicesMockData service, ILogger<HelpViewModel> logger) : base(logger)
+    public HelpViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<HelpViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 		LoadData();
@@ -25,10 +21,13 @@ public partial class HelpViewModel : BaseViewModel
     private async Task CancelAsync() => await Navigation.BackToDashboardAsync();
 
 	[RelayCommand]
-    private async Task OpenDetailsAsync()
+    private async Task OpenDetailsAsync(HelpInfo info)
     {
-		// need to pass question id through the query
-        await Navigation.GoToAsync(Routes.HELP_DETAILS);
+        await Navigation.GoToAsync(Routes.HELP_DETAILS,
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.HELP_INFO, info }
+		});
     }
 	
 	[RelayCommand]
@@ -41,7 +40,7 @@ public partial class HelpViewModel : BaseViewModel
 			InitializeLoading();
 
 			// Search help questions
-			var helps = _service.HelpQuestions.Where(x => x.Contains(Filter));
+			var helps = _service.HelpQuestions.Where(x => x.Question.Contains(Filter));
 
 			await Task.Delay(10);
 			
@@ -51,7 +50,7 @@ public partial class HelpViewModel : BaseViewModel
 		}
 		catch (Exception ex)
 		{
-			ToastHelper.ShowErrorMessage(_logger);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
 			_logger.LogError("SearchHelpsAsync Error: {Message}", ex.Message);
 		}
     }

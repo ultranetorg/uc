@@ -4,13 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:classes="clr-namespace:UC.Umc.Data.Classes"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AuthorsViewModel"
-    Title="Authors"
+    Title="{x:Static resx:Author_Strings.Authors_Title}"
     x:Name="page">
     
     <controls:CustomPage.Resources>
@@ -20,13 +22,11 @@
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="48,40,*" RowSpacing="4" Margin="16,0,16,4">       
             <Grid
-                Grid.Row="0"
                 ColumnDefinitions="4*,*"
                 Margin="8,4">
                 <AbsoluteLayout
                     HeightRequest="60"
-                    WidthRequest="290"
-                    Grid.Row="0">
+                    WidthRequest="296">
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
@@ -55,14 +55,14 @@
                 </AbsoluteLayout>
             </Grid>
             <CollectionView
-                ItemSizingStrategy="MeasureAllItems"
                 Grid.Row="1"
-                ItemsSource="{Binding AuthorsFilter}">
+                ItemsSource="{Binding AuthorsFilter}"
+                ItemSizingStrategy="MeasureAllItems">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                    <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="classes:AuthorFilter">
                         <Border
                             HeightRequest="32"
                             HorizontalOptions="Start"
@@ -71,12 +71,12 @@
                             <Label
                                 FontSize="12"
                                 Style="{StaticResource ButtonLabel}"
-                                Text="{Binding .}"
+                                Text="{Binding Filter}"
                                 VerticalOptions="Center" />
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
                                     Command="{Binding FilterAuthorsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                    CommandParameter="{Binding .}" />
+                                    CommandParameter="{Binding Filter}" />
                             </Border.GestureRecognizers>
                         </Border>
                     </DataTemplate>
@@ -96,7 +96,7 @@
                                 <DataTrigger
                                     Binding="{Binding BidStatus}"
                                     TargetType="Border"
-                                    Value="{Static models:BidStatus.Higher}">
+                                    Value="{Static enums:BidStatus.Higher}">
                                     <Setter Property="Background">
                                         <Setter.Value>
                                             <LinearGradientBrush EndPoint="1,0">
@@ -109,7 +109,7 @@
                                 <DataTrigger
                                     Binding="{Binding BidStatus}"
                                     TargetType="Border"
-                                    Value="{Static models:BidStatus.Lower}">
+                                    Value="{Static enums:BidStatus.Lower}">
                                     <Setter Property="Background">
                                         <Setter.Value>
                                             <LinearGradientBrush EndPoint="1,0">
@@ -124,12 +124,11 @@
                             <Border Style="{StaticResource AccountCardBorder}">
                                 <Grid
                                     Padding="14"
-                                    ColumnDefinitions="*,2*,2*,30"
-                                    ColumnSpacing="10"
+                                    ColumnDefinitions="*,2*,2*,32"
+                                    ColumnSpacing="8"
                                     RowDefinitions="*,*"
                                     Style="{StaticResource AccountGrid}">
                                     <Image
-                                        Grid.Column="0"
                                         Grid.RowSpan="2"
                                         Source="{Binding Status, Converter={StaticResource AuthorToImageConverter}}">
                                         <Image.Behaviors>
@@ -137,12 +136,10 @@
                                         </Image.Behaviors>
                                     </Image>
                                     <Label
-                                        Grid.Row="0"
                                         Grid.Column="1"
                                         FontSize="13"
                                         Text="{Binding Name}" />
                                     <Label
-                                        Grid.Row="0"
                                         Grid.Column="2"
                                         FontSize="10"
                                         Text="{Binding DisplayLine1}"
@@ -151,13 +148,13 @@
                                             <DataTrigger
                                                 Binding="{Binding BidStatus}"
                                                 TargetType="Label"
-                                                Value="{Static models:BidStatus.Higher}">
+                                                Value="{Static enums:BidStatus.Higher}">
                                                 <Setter Property="TextColor" Value="{StaticResource HigherColor}" />
                                             </DataTrigger>
                                             <DataTrigger
                                                 Binding="{Binding BidStatus}"
                                                 TargetType="Label"
-                                                Value="{Static models:BidStatus.Lower}">
+                                                Value="{Static enums:BidStatus.Lower}">
                                                 <Setter Property="TextColor" Value="{StaticResource LowerColor}" />
                                             </DataTrigger>
                                         </Label.Triggers>
@@ -171,7 +168,7 @@
                                     <ImageButton
                                         Grid.RowSpan="2"
                                         Grid.Column="3"
-                                        Padding="1"
+                                        Padding="2"
                                         Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"

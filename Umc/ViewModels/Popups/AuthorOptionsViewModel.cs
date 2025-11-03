@@ -2,7 +2,16 @@
 
 public partial class AuthorOptionsViewModel : BaseAuthorViewModel
 {
-	public AuthorOptionsViewModel(ILogger<AuthorOptionsViewModel> logger) : base(logger)
+	public bool WatchState { get; set; }
+
+	public AuthorOptionsViewModel(INotificationsService notificationService, ILogger<AuthorOptionsViewModel> logger) : base(notificationService, logger)
 	{
+	}
+	
+	
+	[RelayCommand]
+    private void WatchAuthor()
+	{
+		WatchState = !WatchState;
 	}
 }

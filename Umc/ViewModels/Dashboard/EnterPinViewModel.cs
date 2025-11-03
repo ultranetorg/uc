@@ -1,29 +1,115 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class EnterPinViewModel : BaseViewModel
+public partial class EnterPinViewModel : BasePageViewModel
 {
-	[ObservableProperty]
-    private AccountViewModel _account;
+	private readonly AuthService _authService;
 
-    public EnterPinViewModel(ILogger<EnterPinViewModel> logger) : base(logger)
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(ShowBiometric))]
+	[NotifyPropertyChangedFor(nameof(ShowLogin))]
+	[NotifyPropertyChangedFor(nameof(Logo))]
+	private string _pincode = string.Empty;
+
+	public string Logo => $"logo{Pincode.Length}_dark.png";
+	public bool ShowBiometric => !(Pincode.Length > 0);
+    public bool ShowLogin => Pincode.Length > 0;
+
+    public EnterPinViewModel(AuthService authService, INotificationsService notificationService, ILogger<EnterPinViewModel> logger) : base(notificationService, logger)
     {
-		LoadData();
+		_authService = authService;
     }
 
-	private void LoadData()
+	// If pin not set opens CreatePinPage
+	public async Task InitializeAsync()
 	{
-		Account = DefaultDataMock.CreateAccount();
+		try
+		{
+			// DEBUG
+			// await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+
+			var pin = await _authService.CheckIfPincodeIsSetAsync();
+
+			if (!pin)
+			{
+				await Navigation.GoToAsync(Routes.CREATE_PINCODE);
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "InitializeAsync Exception: {Ex}", ex.Message);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+		}
 	}
 
 	[RelayCommand]
-    private async Task DeleteAsync()
+    private void EnterPincode(string number)
 	{
-		await ShowPopup(new DeleteAccountPopup(Account));
+		try
+		{
+			if (Pincode.Length < 4)
+			{
+				Pincode+=number;
+			}
+		}
+        catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("EnterPincode Error: {Message}", ex.Message);
+		}
 	}
 
 	[RelayCommand]
-    private async Task TransactionsAsync()
+    private async Task LoginAsync()
+	{
+		try
+		{
+			if (Pincode.Length == 4)
+			{
+				// log in
+				var result = await _authService.LoginAsync(Pincode);
+
+				if (result)
+				{
+					await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+				}
+				else
+				{
+					ToastHelper.ShowErrorMessage(_logger, Properties.Additional_Strings.Error_PinCode);
+				}
+			}
+		}
+        catch (Exception ex)
+		{
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+		}
+	}
+
+	[RelayCommand]
+    private void RemoveNumber()
     {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
+		if (Pincode.Length != 0)
+		{
+			Pincode = Pincode.Remove(Pincode.Length - 1);
+		}
+    }
+
+	[RelayCommand]
+    private async Task BiometricLoginAsync()
+    {
+		try
+		{
+			var biometric = await _authService.CheckBiometricsAsync();
+
+			if (biometric == CheckBiometricsResult.Authenticated)
+			{
+				await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+			}
+		}
+        catch (Exception ex)
+		{
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+		}
     }
 }

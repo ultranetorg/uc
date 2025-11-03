@@ -6,13 +6,27 @@ namespace UC.Umc.Controls;
 // Obsolete
 public class BorderEntry : Entry
 {
-    public BorderEntry() : base()
-	{
-	}
-
-	#region Bindable Properties
-
 	public static readonly BindableProperty AutoFocusProperty = BindableProperty.Create(nameof(AutoFocus), typeof(bool), typeof(BorderEntry), true);
+
+	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(BorderEntry), null);
+
+	public static BindableProperty BorderColorProperty = BindableProperty.Create(nameof(BorderColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
+
+	public static BindableProperty FillColorProperty = BindableProperty.Create(nameof(FillColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
+
+	public static BindableProperty BorderWidthProperty = BindableProperty.Create(nameof(BorderWidth), typeof(float), typeof(BorderEntry), 1f);
+
+	public static BindableProperty BorderRadiusProperty = BindableProperty.Create(nameof(BorderRadius), typeof(float), typeof(BorderEntry), 1f);
+
+	public static BindableProperty LeftPaddingProperty = BindableProperty.Create(nameof(LeftPadding), typeof(int), typeof(BorderEntry), 5);
+
+	public static BindableProperty RightPaddingProperty = BindableProperty.Create(nameof(RightPadding), typeof(int), typeof(BorderEntry), 5);
+
+	public static readonly BindableProperty NextEntryProperty = BindableProperty.Create(nameof(NextEntry), typeof(View), typeof(BorderEntry));
+
+	public static readonly BindableProperty ImageProperty = BindableProperty.Create(nameof(Image), typeof(string), typeof(BorderEntry), string.Empty);
+
+	public static readonly BindableProperty LineColorProperty = BindableProperty.Create(nameof(LineColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
 
 	public bool AutoFocus
 	{
@@ -20,22 +34,17 @@ public class BorderEntry : Entry
 		set { SetValue(AutoFocusProperty, value); }
 	}
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(BorderEntry), null);
-
 	public ICommand Command
 	{
 		get { return (ICommand)GetValue(CommandProperty); }
 		set { SetValue(CommandProperty, value); }
 	}
 
-	public static BindableProperty BorderColorProperty = BindableProperty.Create(nameof(BorderColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
-
 	public Color BorderColor
 	{
 		get { return (Color)GetValue(BorderColorProperty); }
 		set { SetValue(BorderColorProperty, value); }
 	}
-	public static BindableProperty FillColorProperty = BindableProperty.Create(nameof(FillColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
 
 	public Color FillColor
 	{
@@ -43,15 +52,11 @@ public class BorderEntry : Entry
 		set { SetValue(FillColorProperty, value); }
 	}
 
-	public static BindableProperty BorderWidthProperty = BindableProperty.Create(nameof(BorderWidth), typeof(float), typeof(BorderEntry), 1f);
-
 	public float BorderWidth
 	{
 		get { return (float)GetValue(BorderWidthProperty); }
 		set { SetValue(BorderWidthProperty, value); }
 	}
-
-	public static BindableProperty BorderRadiusProperty = BindableProperty.Create(nameof(BorderRadius), typeof(float), typeof(BorderEntry), 1f);
 
 	public float BorderRadius
 	{
@@ -59,22 +64,17 @@ public class BorderEntry : Entry
 		set { SetValue(BorderRadiusProperty, value); }
 	}
 
-	public static BindableProperty LeftPaddingProperty = BindableProperty.Create(nameof(LeftPadding), typeof(int), typeof(BorderEntry), 5);
-
 	public int LeftPadding
 	{
 		get { return (int)GetValue(LeftPaddingProperty); }
 		set { SetValue(LeftPaddingProperty, value); }
 	}
 
-	public static BindableProperty RightPaddingProperty = BindableProperty.Create(nameof(RightPadding), typeof(int), typeof(BorderEntry), 5);
-
 	public int RightPadding
 	{
 		get { return (int)GetValue(RightPaddingProperty); }
 		set { SetValue(RightPaddingProperty, value); }
 	}
-	public static readonly BindableProperty NextEntryProperty = BindableProperty.Create(nameof(NextEntry), typeof(View), typeof(BorderEntry));
 
 	public View NextEntry
 	{
@@ -82,19 +82,15 @@ public class BorderEntry : Entry
 		set => SetValue(NextEntryProperty, value);
 	}
 
-	public static readonly BindableProperty ImageProperty =
-		BindableProperty.Create(nameof(Image), typeof(string), typeof(BorderEntry), string.Empty);
-
-	public static readonly BindableProperty LineColorProperty =
-		BindableProperty.Create(nameof(LineColor), typeof(Color), typeof(BorderEntry), Colors.Transparent);
-
 	public Color LineColor
 	{
 		get { return (Color)GetValue(LineColorProperty); }
 		set { SetValue(LineColorProperty, value); }
 	}
 
-	#endregion Bindable Properties
+    public BorderEntry() : base()
+	{
+	}
 
 	protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {

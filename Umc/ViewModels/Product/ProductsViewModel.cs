@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductsViewModel : BaseViewModel
+public partial class ProductsViewModel : BasePageViewModel
 {
 	private readonly IProductsService _service;
 
@@ -13,7 +13,8 @@ public partial class ProductsViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
-    public ProductsViewModel(IProductsService service, ILogger<ProductsViewModel> logger) : base(logger)
+    public ProductsViewModel(INotificationsService notificationService, IProductsService service,
+		ILogger<ProductsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 	}
@@ -40,7 +41,11 @@ public partial class ProductsViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task RegisterProductAsync(ProductViewModel product) =>
 		await Navigation.GoToAsync(nameof(ProductRegistrationPage),
-			new Dictionary<string, object>() { { QueryKeys.PRODUCT, product } });
+			new Dictionary<string, object>() {
+				{
+					QueryKeys.PRODUCT, product
+				}
+			});
 
 	internal async Task InitializeAsync()
 	{

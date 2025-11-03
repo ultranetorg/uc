@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductRegistrationViewModel : BaseViewModel
+public partial class ProductRegistrationViewModel : BasePageViewModel
 {
 	[ObservableProperty]
 	private string _name = string.Empty;
@@ -14,7 +14,7 @@ public partial class ProductRegistrationViewModel : BaseViewModel
 	[ObservableProperty]
     private int _position;
 
-    public ProductRegistrationViewModel(ILogger<ProductRegistrationViewModel> logger) : base(logger)
+    public ProductRegistrationViewModel(INotificationsService notificationService, ILogger<ProductRegistrationViewModel> logger) : base(notificationService, logger)
     {
     }
 
@@ -39,26 +39,34 @@ public partial class ProductRegistrationViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
-		if (Position == 0)
+		var isValid = Account != null
+			&& !string.IsNullOrEmpty(Name)
+			&& !string.IsNullOrEmpty(Commission);
+
+		if (Position == 0 && isValid)
 		{
 			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 			Position = 1;
 			Position = 0;
 			Position = 1;
 		}
-		else
+		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully registered!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Registered);
 		}
 	}
 
 	[RelayCommand]
-	protected void Prev()
+	protected async Task PrevAsync()
 	{
 		if (Position > 0)
 		{
 			Position -= 1;
+		}
+		else
+		{
+			await Navigation.PopAsync();
 		}
 	}
 }

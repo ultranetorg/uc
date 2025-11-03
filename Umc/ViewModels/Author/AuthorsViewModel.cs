@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class AuthorsViewModel : BaseViewModel
+public partial class AuthorsViewModel : BasePageViewModel
 {
 	private readonly IAuthorsService _service;
 
@@ -14,9 +14,10 @@ public partial class AuthorsViewModel : BaseViewModel
     private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
-    private CustomCollection<string> _authorsFilter = new();
+    private CustomCollection<AuthorFilter> _authorsFilter = new();
 
-    public AuthorsViewModel(IAuthorsService service, ILogger<AuthorsViewModel> logger) : base(logger)
+    public AuthorsViewModel(INotificationsService notificationService, IAuthorsService service,
+		ILogger<AuthorsViewModel> logger) : base(notificationService,logger)
     {
 		_service = service;
     }
@@ -63,7 +64,7 @@ public partial class AuthorsViewModel : BaseViewModel
 			}
 			else
 			{
-				authors = await _service.GetAccountAuthorsAsync();
+				authors = await _service.GetAuthorsAsync();
 			}
 			
 			Authors.Clear();
@@ -87,7 +88,9 @@ public partial class AuthorsViewModel : BaseViewModel
 
 			if (author.Status != AuthorStatus.Reserved)
 			{
-				await ShowPopup(new AuthorOptionsPopup(author));
+				var popup = new AuthorOptionsPopup(author);
+				popup.Vm.WatchState = author.Status == AuthorStatus.Watched;
+				await ShowPopup(popup);
 			}
 		}
 		catch(ArgumentException ex)
@@ -103,7 +106,7 @@ public partial class AuthorsViewModel : BaseViewModel
 	[RelayCommand]
     private async Task OpenAuthorDetailsAsync(AuthorViewModel author) =>
 		await Navigation.GoToAsync(nameof(AuthorDetailsPage),
-			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
+			new Dictionary<string, object>() {{ QueryKeys.AUTHOR, author }});
 
 	[RelayCommand]
 	private async Task SortAuthorsAsync()
@@ -118,7 +121,7 @@ public partial class AuthorsViewModel : BaseViewModel
 		InitializeLoading();
 		
 		Authors.Clear();
-		var authors = await _service.GetAccountAuthorsAsync();
+		var authors = await _service.GetAuthorsAsync();
 		Authors.AddRange(authors);
 		
 		FinishLoading();

@@ -1,15 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <controls:CustomPage
     x:Class="UC.Umc.Pages.CreateAccountPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:sharedViews="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccountPageViewModel"
-    Title="Create Account"
+    Title="{x:Static resx:Account_Strings.Create_Title}"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
@@ -24,13 +26,62 @@
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
                 <CarouselView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="View">
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:CreateAccount1View />
+						<!--Step #1-->
+                        <StackLayout Padding="4" Spacing="32">
+                            <StackLayout>
+                                <Label FontSize="18" Text="{x:Static resx:Account_Strings.Create_Password}" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="{x:Static resx:Account_Strings.Create_Password2}" />
+                            </StackLayout>
+                            <controls:FormEntryControl
+								IsPassword="True"
+                                MaxLength="16"
+								Value="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=Password}"
+								TextChanged="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=TextChangedCommand}">
+                                <controls:FormEntryControl.Behaviors>
+                                    <toolkit:MultiValidationBehavior>
+                                        <toolkit:TextValidationBehavior MinimumLength="8" />
+                                        <toolkit:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
+                                        <toolkit:CharactersValidationBehavior CharacterType="LowercaseLetter" MinimumCharacterTypeCount="1" />
+                                        <toolkit:CharactersValidationBehavior CharacterType="UppercaseLetter" MinimumCharacterTypeCount="1" />
+                                        <toolkit:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
+                                        <toolkit:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
+                                    </toolkit:MultiValidationBehavior>
+                                </controls:FormEntryControl.Behaviors>
+                            </controls:FormEntryControl>
+                            <Button
+                                Margin="0,-8,0,0"
+                                Style="{StaticResource RandomizeButton}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=RandomizeCommand}" />
+                            <Label
+                                FontSize="13"
+                                Style="{StaticResource Regular}"
+                                Text="{x:Static resx:Account_Strings.Create_Requirements}" />
+                            <StackLayout>
+                                <controls:ImageTextColumn
+									Text="{x:Static resx:Account_Strings.Create_Requirement1}"
+									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=CharCountDone}"/>
+                                <controls:ImageTextColumn
+									Text="{x:Static resx:Account_Strings.Create_Requirement2}"
+									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=BothCasesDone}"/>
+                                <controls:ImageTextColumn
+									Text="{x:Static resx:Account_Strings.Create_Requirement3}"
+									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=NumbersIncluded}"/>
+                                <controls:ImageTextColumn
+									Text="{x:Static resx:Account_Strings.Create_Requirement4}"
+									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=SpecialCharacterIncluded}"/>
+                            </StackLayout>
+                        </StackLayout>
+
+						<!--Step #2-->
                         <views:CreateAccount2View />
                     </x:Array>
                 </CarouselView.ItemsSource>

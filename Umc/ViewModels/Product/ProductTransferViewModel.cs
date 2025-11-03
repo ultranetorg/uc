@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductTransferViewModel : BaseViewModel
+public partial class ProductTransferViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AuthorViewModel _author;
@@ -14,7 +14,7 @@ public partial class ProductTransferViewModel : BaseViewModel
 	[ObservableProperty]
     private int _position;
 
-    public ProductTransferViewModel(ILogger<ProductTransferViewModel> logger) : base(logger)
+    public ProductTransferViewModel(INotificationsService notificationService, ILogger<ProductTransferViewModel> logger) : base(notificationService, logger)
     {
     }
 
@@ -61,26 +61,32 @@ public partial class ProductTransferViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
-		if (Position == 0)
+		var isValid = Author != null && Product != null && !string.IsNullOrEmpty(Commission);
+
+		if (Position == 0 && isValid)
 		{
 			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 			Position = 1;
 			Position = 0;
 			Position = 1;
 		}
-		else
+		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully transfered!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Transfered);
 		}
 	}
 
 	[RelayCommand]
-	protected void Prev()
+	protected async Task PrevAsync()
 	{
 		if (Position > 0)
 		{
 			Position -= 1;
+		}
+		else
+		{
+			await Navigation.PopAsync();
 		}
 	}
 }

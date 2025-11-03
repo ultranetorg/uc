@@ -10,5 +10,5 @@ public interface IServicesMockData
     public IList<Emission> Emissions { get; }
     public IList<Notification> Notifications { get; }
     public IList<Bid> BidsHistory { get; }
-    public IList<string> HelpQuestions { get; }
+    public IList<HelpInfo> HelpQuestions { get; }
 }

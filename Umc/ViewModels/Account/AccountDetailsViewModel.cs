@@ -17,7 +17,8 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[ObservableProperty]
     public GradientBrush _background;
 
-    public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
+    public AccountDetailsViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<AccountDetailsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 		LoadData();
@@ -50,6 +51,12 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
+    private void SetAccountColor(AccountColor accountColor) =>
+		Background = accountColor != null 
+			? ColorHelper.CreateGradientColor(accountColor.Color)
+			: ColorHelper.CreateRandomGradientColor();
+
+	[RelayCommand]
     private async Task SendAsync() =>
 		await Navigation.GoToAsync(nameof(SendPage),
 			new Dictionary<string, object>()
@@ -68,6 +75,21 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		});
 
 	[RelayCommand]
+    private async Task HideFromDashboardAsync()
+    {
+		try
+		{
+			Account.HideOnDashboard = Account.HideOnDashboard;
+			await Task.Delay(1);
+		}
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "HideFromDashboardAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+    }
+
+	[RelayCommand]
     private async Task ShowPrivateKeyAsync() =>
 		await Navigation.GoToAsync(nameof(PrivateKeyPage),
 			new Dictionary<string, object>()
@@ -76,32 +98,27 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		});
 
 	[RelayCommand]
+    private async Task BackupAsync()
+    {
+		try
+		{
+			// TODO: backup
+			await Task.Delay(1);
+		}
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BackupAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+    }
+
+	[RelayCommand]
     private async Task DeleteAsync() =>
 		await Navigation.GoToAsync(nameof(DeleteAccountPage),
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.ACCOUNT, Account }
 		});
-
-	[RelayCommand]
-    private void SetAccountColor(AccountColor accountColor) =>
-		Background = accountColor != null 
-			? ColorHelper.CreateGradientColor(accountColor.Color)
-			: ColorHelper.CreateRandomGradientColor();
-
-	[RelayCommand]
-    private async Task BackupAsync()
-    {
-		// TODO
-		await Task.Delay(1);
-    }
-
-	[RelayCommand]
-    private async Task HideFromDashboardAsync()
-    {
-		// TODO
-		await Task.Delay(1);
-    }
 
 	private void LoadData()
 	{

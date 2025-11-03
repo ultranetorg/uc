@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="All_Accounts" xml:space="preserve">
+    <value>All Accounts</value>
+  </data>
+  <data name="Create_AccountName" xml:space="preserve">
+    <value>Account name</value>
+  </data>
+  <data name="Create_Password" xml:space="preserve">
+    <value>Choose account password</value>
+  </data>
+  <data name="Create_Password2" xml:space="preserve">
+    <value>Use strong password for account</value>
+  </data>
+  <data name="Create_Requirement1" xml:space="preserve">
+    <value>At least 8 characters - the more characters the better</value>
+  </data>
+  <data name="Create_Requirement2" xml:space="preserve">
+    <value>A mixture of both uppercase and lowercase</value>
+  </data>
+  <data name="Create_Requirement3" xml:space="preserve">
+    <value>A mixture of letters and numbers</value>
+  </data>
+  <data name="Create_Requirement4" xml:space="preserve">
+    <value>Inclusion of at least one special character e.g !@#</value>
+  </data>
+  <data name="Create_Requirements" xml:space="preserve">
+    <value>Characteristics of strong passwords</value>
+  </data>
+  <data name="Create_Specify" xml:space="preserve">
+    <value>Choose account name and color</value>
+  </data>
+  <data name="Create_Specify2" xml:space="preserve">
+    <value>Choose desired Account name and color</value>
+  </data>
+  <data name="Create_Specify3" xml:space="preserve">
+    <value>Please specify account name, for example: payment account, auction account, verification account etc.</value>
+  </data>
+  <data name="Create_Title" xml:space="preserve">
+    <value>Create Account</value>
+  </data>
+  <data name="Delete_AndMore" xml:space="preserve">
+    <value>and more</value>
+  </data>
+  <data name="Delete_Authors" xml:space="preserve">
+    <value>Authors</value>
+  </data>
+  <data name="Delete_Caution" xml:space="preserve">
+    <value>This account has non zero balance. Do you wish to delete it?</value>
+  </data>
+  <data name="Delete_Caution2" xml:space="preserve">
+    <value>If you have not backuped it or not exported, all moneys, domains and programs will be lost</value>
+  </data>
+  <data name="Delete_Confirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Delete_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Delete_Title" xml:space="preserve">
+    <value>Delete Account</value>
+  </data>
+  <data name="Details_Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Details_AccountColor" xml:space="preserve">
+    <value>Account color</value>
+  </data>
+  <data name="Details_AccountName" xml:space="preserve">
+    <value>Account Name</value>
+  </data>
+  <data name="Details_AndMore" xml:space="preserve">
+    <value>and more</value>
+  </data>
+  <data name="Details_Authors" xml:space="preserve">
+    <value>Authors</value>
+  </data>
+  <data name="Details_Backup" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Details_Balance" xml:space="preserve">
+    <value>Balance</value>
+  </data>
+  <data name="Details_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Details_Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Details_Hide2" xml:space="preserve">
+    <value>Account from Dashboard</value>
+  </data>
+  <data name="Details_PrivateKey" xml:space="preserve">
+    <value>Show private key</value>
+  </data>
+  <data name="Details_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Details_Random" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Details_Receive" xml:space="preserve">
+    <value>Receive</value>
+  </data>
+  <data name="Details_Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Details_Title" xml:space="preserve">
+    <value>Account Details</value>
+  </data>
+  <data name="Main_Account" xml:space="preserve">
+    <value>Main Ultranet Account</value>
+  </data>
+  <data name="Manage_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Manage_Restore" xml:space="preserve">
+    <value>Restore account</value>
+  </data>
+  <data name="Manage_Title" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="PrivateKey_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="PrivateKey_Caution" xml:space="preserve">
+    <value>Never show and share your private key with other person!</value>
+  </data>
+  <data name="PrivateKey_Caution2" xml:space="preserve">
+    <value>This can lead to the loss of funds, domains and applications on the account</value>
+  </data>
+  <data name="PrivateKey_Copy" xml:space="preserve">
+    <value>Copy to clipboard</value>
+  </data>
+  <data name="PrivateKey_Title" xml:space="preserve">
+    <value>Private Key</value>
+  </data>
+  <data name="Restore_FilePassword" xml:space="preserve">
+    <value>Please specify a file password</value>
+  </data>
+  <data name="Restore_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Restore_PrivateKey" xml:space="preserve">
+    <value>Choose private key</value>
+  </data>
+  <data name="Restore_PrivateKey2" xml:space="preserve">
+    <value>Choose private key for account</value>
+  </data>
+  <data name="Restore_PrivateKey3" xml:space="preserve">
+    <value>Private key</value>
+  </data>
+  <data name="Restore_PrivateKey4" xml:space="preserve">
+    <value>Please specify Ultranet account private key</value>
+  </data>
+  <data name="Restore_PublicKey" xml:space="preserve">
+    <value>Public key</value>
+  </data>
+  <data name="Restore_PublicKey2" xml:space="preserve">
+    <value>Please specify Ultranet account public key</value>
+  </data>
+  <data name="Restore_Title" xml:space="preserve">
+    <value>Restore Account</value>
+  </data>
+  <data name="Restore_WalletFile" xml:space="preserve">
+    <value>Wallet file</value>
+  </data>
+  <data name="Restore_WalletFile2" xml:space="preserve">
+    <value>Please specify Ultranet account wallet file key</value>
+  </data>
+</root>

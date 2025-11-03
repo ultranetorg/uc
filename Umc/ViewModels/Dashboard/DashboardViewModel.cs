@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class DashboardViewModel : BaseViewModel
+public partial class DashboardViewModel : BasePageViewModel
 {
 	private readonly IAccountsService _accountsService;
 	private readonly IAuthorsService _authorsService;
@@ -23,15 +23,16 @@ public partial class DashboardViewModel : BaseViewModel
     private CustomCollection<ProductViewModel> _products = new();
 	
 	[ObservableProperty]
-	public int _numberOfAccounts = 0;
+	private int _numberOfAccounts = 0;
 
 	public int NumberOfProducts => Products?.Count ?? 0;
 	public string AuctionsOutbidded => $"{Authors?.Where(x => x.Status == AuthorStatus.Auction).Count() ?? 0} " +
 		$"({Authors?.Where(x => x.Status == AuthorStatus.Auction && x.BidStatus == BidStatus.Higher).Count() ?? 0})";
 	public string AuthorsRenewal => $"{Authors?.Count ?? 0} ({Authors?.Where(x => x.ExpiresSoon).Count() ?? 0})";
 
-    public DashboardViewModel(IAccountsService accountsService, IAuthorsService authorsService, IProductsService productService,
-		ITransactionsService transactionsService, ILogger<DashboardViewModel> logger) : base(logger)
+    public DashboardViewModel(INotificationsService notificationsService, ITransactionsService transactionsService,
+		IAccountsService accountsService, IAuthorsService authorsService, IProductsService productService,
+		ILogger<DashboardViewModel> logger) : base(notificationsService, logger)
     {
 		_accountsService = accountsService;
 		_authorsService = authorsService;
@@ -71,11 +72,14 @@ public partial class DashboardViewModel : BaseViewModel
 	
 	[RelayCommand]
     public async Task WhatsNewExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.WHATS_NEW);
+	
+	[RelayCommand]
+    public async Task LockOutAsync() => await Navigation.GoToUpwardsAsync(Routes.ENTER_PINCODE);
 
 	internal async Task InitializeAsync()
 	{
 		var accounts = await _accountsService.ListAccountsAsync();
-		var authors = await _authorsService.GetAccountAuthorsAsync();
+		var authors = await _authorsService.GetAuthorsAsync();
 		var products = await _productService.GetAllProductsAsync();
 		var transactions = await _transactionsService.ListTransactionsAsync(null, null, 3);
 

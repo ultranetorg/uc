@@ -8,20 +8,21 @@
     HorizontalOptions="Center"
     SizeChanged="OnSizeChangedAsync"
     BindingContext="{x:Reference instance}">
-    <Frame
-        x:Name="frame"
+    <Border
+        x:Name="border"
         Padding="4"
         BackgroundColor="Transparent"
-        BorderColor="{Binding CurrentColor}"
-        CornerRadius="{Binding CornerRadius}"
-        HasShadow="False">
+        Stroke="{Binding CurrentColor}"
+        StrokeShape="RoundRectangle 4">
         <BoxView
             x:Name="thumb"
             BackgroundColor="{Binding CurrentColor}"
             CornerRadius="{Binding CornerRadius}"
             VerticalOptions="FillAndExpand" />
-        <Frame.GestureRecognizers>
-            <TapGestureRecognizer Tapped="OnSwitchedAsync" Command="{Binding SwitchCommand}" />
-        </Frame.GestureRecognizers>
-    </Frame>
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer
+                Tapped="OnSwitchedAsync"
+                Command="{Binding SwitchCommand}" />
+        </Border.GestureRecognizers>
+    </Border>
 </ContentView>

@@ -2,7 +2,7 @@
 
 namespace UC.Umc.ViewModels;
 
-public partial class SendViewModel : BaseViewModel
+public partial class SendViewModel : BasePageViewModel
 {
 	[ObservableProperty]
 	private AccountViewModel _source;
@@ -38,7 +38,8 @@ public partial class SendViewModel : BaseViewModel
 
 	public bool SecondStep => Position == 1;
 
-	public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
+	public SendViewModel(INotificationsService notificationService,
+		ILogger<SendViewModel> logger) : base(notificationService, logger)
     {
     }
 
@@ -70,7 +71,7 @@ public partial class SendViewModel : BaseViewModel
 	{
         try
         {
-			if(Position == 1)
+			if (Position == 1)
 			{
 				Position = 0;
 			}
@@ -89,7 +90,11 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private async Task ConfirmAsync()
     {
-        await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS);
+        await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
+		{
+			{QueryKeys.ACCOUNT, Recipient},
+			{QueryKeys.UNT_AMOUNT, decimal.Parse(Amount) }
+		});
     }
     
 	[RelayCommand]
@@ -117,7 +122,9 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private void Transfer()
     {
-        if (Position == 0) 
+		var isValid = Source != null && Recipient != null && !string.IsNullOrEmpty(Amount);
+
+        if (Position == 0 && isValid) 
 		{
 			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 			Position = 1;

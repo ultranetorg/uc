@@ -4,14 +4,11 @@ namespace UC.Umc.Controls;
 
 public partial class SelectPrivateKey : ContentView
 {
-    public static readonly BindableProperty SelectionChangedCommandProperty =
-        BindableProperty.Create(nameof(SelectionChangedCommand), typeof(ICommand), typeof(SelectPrivateKey));
+    public static readonly BindableProperty SelectionChangedCommandProperty = BindableProperty.Create(nameof(SelectionChangedCommand), typeof(ICommand), typeof(SelectPrivateKey));
 
-	public static readonly BindableProperty IsPrivateKeyProperty =
-        BindableProperty.Create(nameof(IsPrivateKey), typeof(bool), typeof(SelectPrivateKey));
+	public static readonly BindableProperty IsPrivateKeyProperty = BindableProperty.Create(nameof(IsPrivateKey), typeof(bool), typeof(SelectPrivateKey));
 
-	public static readonly BindableProperty IsWalletPathProperty =
-        BindableProperty.Create(nameof(IsWalletPath), typeof(bool), typeof(SelectPrivateKey));
+	public static readonly BindableProperty IsWalletPathProperty = BindableProperty.Create(nameof(IsWalletPath), typeof(bool), typeof(SelectPrivateKey));
 
     public ICommand SelectionChangedCommand
     {

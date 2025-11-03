@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="UC.Umc.Pages.CreatePinPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:CreatePinViewModel"
+    x:Name="page">
+
+	<ContentPage.Resources>
+        <Style TargetType="Label" BasedOn="{StaticResource NumberLabel}">
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+        </Style>
+    </ContentPage.Resources>
+	
+    <StackLayout Padding="{StaticResource PagePadding}" Spacing="64">
+		<Label
+			FontSize="18"
+            HorizontalOptions="Center"
+			Text="{x:Static resx:Dashboard_Strings.Ultranet_App_Name}" />
+		<Image
+			HorizontalOptions="Center"
+			Style="{StaticResource Logo}"
+			Source="{Binding Logo}" />
+        <Label
+            Grid.Row="1"
+            FontSize="18"
+            HorizontalOptions="Center"
+            Text="{x:Static resx:Dashboard_Strings.CreatePin_Heading}" />
+        <Grid
+            ColumnDefinitions="*,*,*"
+            RowDefinitions="*,*,*,*"
+            RowSpacing="40"
+            VerticalOptions="EndAndExpand">
+			<Border BackgroundColor="Transparent" Grid.Column="0">
+				<Label Text="1" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="1" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Column="1">
+				<Label Text="2" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="2" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Column="2">
+				<Label Text="3" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="3" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="0">
+				<Label Text="4" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="4" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="1">
+				<Label Text="5" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="5" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="2">
+				<Label Text="6" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="6" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="0">
+				<Label Text="7" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="7" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="1">
+				<Label Text="8" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="8" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="2">
+				<Label Text="9" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="9" />
+				</Border.GestureRecognizers>
+			</Border>
+			<Border BackgroundColor="Transparent" Grid.Row="3" Grid.Column="1">
+				<Label Text="0" />
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="0" />
+				</Border.GestureRecognizers>
+			</Border>
+				
+            <ImageButton
+                Grid.Row="3"
+                Grid.Column="0"
+                Padding="1"
+                HeightRequest="32"
+                WidthRequest="32"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Style="{StaticResource Backspace}"
+				Command="{Binding RemoveNumberCommand}" />
+            <ImageButton
+                Grid.Row="3"
+                Grid.Column="2"
+                Padding="1"
+                HeightRequest="32"
+                WidthRequest="32"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Style="{StaticResource LogOut}"
+				Command="{Binding SubmitCommand}" />
+        </Grid>
+    </StackLayout>
+</ContentPage>

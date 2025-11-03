@@ -1,18 +1,20 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductSearchViewModel : BaseViewModel
+public partial class ProductSearchViewModel : BasePageViewModel
 {
 	private readonly IProductsService _service;
+
 	[ObservableProperty]
     private CustomCollection<ProductViewModel> _products = new();
     
 	[ObservableProperty]
-    private CustomCollection<string> _productsFilter = new();
+    private CustomCollection<FilterOption> _productsFilter = new();
 
 	[ObservableProperty]
     private string _filter;
 
-    public ProductSearchViewModel(IProductsService service, ILogger<ProductSearchViewModel> logger) : base(logger)
+    public ProductSearchViewModel(INotificationsService notificationService, IProductsService service,
+		ILogger<ProductSearchViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
     }
@@ -50,6 +52,9 @@ public partial class ProductSearchViewModel : BaseViewModel
 
 			InitializeLoading();
 
+			ProductsFilter.ToList().ForEach(x => x.IsSelected = false);
+			ProductsFilter.First(x => x.Name == sortBy).IsSelected = true;
+
 			// Sort products
 			var products = await _service.GetAllProductsAsync();
 			var ordered = products.AsQueryable().OrderBy(x => sortBy == "Author"
@@ -78,7 +83,8 @@ public partial class ProductSearchViewModel : BaseViewModel
 			var products = await _service.GetAllProductsAsync();
 			Products.Clear();
 			Products.AddRange(products);
-			ProductsFilter = DefaultDataMock.ProductsFilter;
+			ProductsFilter = new CustomCollection<FilterOption>(
+				DefaultDataMock.ProductsFilter.Select(f => new FilterOption { Name = f, IsSelected = false }));
 
 			FinishLoading();
 		}
