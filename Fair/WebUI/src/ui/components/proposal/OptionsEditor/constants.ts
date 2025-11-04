@@ -122,13 +122,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "publication-remove-from-changed",
-      parameterValueType: "publication",
-      parameterName: "publicationId",
-      parameterLabel: t("common:publication"),
-      parameterPlaceholder: t("placeholders:selectPublication"),
-    },
-    {
       operationType: "publication-updation",
       parameterValueType: "publication",
       parameterName: "publicationId",

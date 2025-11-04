@@ -25,7 +25,6 @@ export const CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "publication-creation",
   "publication-deletion",
   "publication-publish",
-  "publication-remove-from-changed",
   "publication-updation",
   "review-status-change",
   "user-deletion",
@@ -36,7 +35,6 @@ export const CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = 
   "publication-creation",
   "publication-deletion",
   "publication-publish",
-  "publication-remove-from-changed",
   "review-status-change",
   "user-deletion",
 ] as const
