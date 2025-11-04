@@ -68,7 +68,8 @@ public class PublicationPublish : VotableOperation
 		var c = execution.Categories.Affect(Category);
 		c.Publications = [..c.Publications, p.Id];
 
-		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
+		Site.UnpublishedPublications = Site.UnpublishedPublications.Remove(p.Id);
+		Site.ChangedPublications = Site.ChangedPublications.Remove(p.Id);
 
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 

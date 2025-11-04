@@ -94,10 +94,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			s.PublicationsCount--;
 		}
 		
-		if(s.UnpublishedPublications.Contains(p.Id))
-		{
-			s.UnpublishedPublications = s.UnpublishedPublications.Remove(p.Id);
-		}
+		s.UnpublishedPublications = s.UnpublishedPublications.Remove(p.Id);
 
 		foreach(var i in p.Reviews)
 		{
