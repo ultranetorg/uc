@@ -4,9 +4,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:HelpDetailsViewModel"
-    Title="Help">
+    Title="{x:Static resx:Dashboard_Strings.Help_Title}">
+    
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <StackLayout Grid.Row="0" Padding="16" Spacing="16">
@@ -15,17 +17,19 @@
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
                         Text="{Binding HelpDetails.Question}" />
-                    <Label Margin="0,4" Text="{Binding HelpDetails.Answer}" />
-                    <Label Text="{Binding HelpDetails.Prompt}" />
+                    <Label
+                        Margin="0,4"
+                        Text="{Binding HelpDetails.Answer}" />
+                    <Label
+                        Text="{Binding HelpDetails.Answer}" />
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand" Spacing="12">
                     <Label
                         Style="{StaticResource DashLabel}"
-                        Text="Related resources:" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_Related}" />
                     <Label FontSize="12" Text="How to add apps, shortcuts and widgets to your home screen" />
                     <Label FontSize="12" Text="How to add, move or remove a home screen" />
                     <Label FontSize="12" Text="An introduction to navigating an Android phone" />
-                    <Label FontSize="12" Text="How to find, open and close apps on an Android device" />
                     <Label FontSize="12" Text="How to find, open and close apps on an Android device" />
                 </StackLayout>
             </StackLayout>
@@ -48,15 +52,15 @@
                         Grid.ColumnSpan="2"
                         FontSize="18"
                         HorizontalOptions="Center"
-                        Text="Was this information useful?" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_WasUseful}" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="0"
-                        Text="Yes" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_Yes}" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="1"
-                        Text="No" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_No}" />
                 </Grid>
             </Border>
         </Grid>

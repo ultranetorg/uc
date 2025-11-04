@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
+using Uccs.Net;
+using Uccs.Nexus;
 using Uccs.Rdn;
 
 //using Uccs.Rdn;
@@ -18,28 +20,24 @@ namespace Uccs.Demo.Application
 		{
 			ApplicationConfiguration.Initialize();
 
-			Application = new Uccs.Nexus.Application();
-
-			// To customize application configuration such as set high DPI settings or default font,
-			// see https://aka.ms/applicationconfiguration.
-
- 			Application = new Uccs.Nexus.Application();
+			Application = new ();
  			
  			var f = new Form1();
  			
             var flow = new Flow("SimulateMain");
 
+			
  			Task.Run(() =>	{
-                                var d = Application.Nexus.Rdn.FindLocalPackage(Application.Address, flow).Manifest.CompleteDependencies.FirstOrDefault(i => new ApvAddress(i.Address).Product == "demo.component/dotnet");
-                                var p = Application.Nexus.Rdn.FindLocalPackage(d.Address, flow);
+                                var d = Application.Nexus.Nexus.FindLocalPackage(Application.Address, flow).Manifest.CompleteDependencies.FirstOrDefault(i => new ApvAddress(i.Address).Product == "demo.component/dotnet");
+                                var p = Application.Nexus.Nexus.FindLocalPackage(d.Address, flow);
  			
 								///if(p == null || !p.Available)
 								{
-									p = Application.Nexus.Rdn.DeployPackage(d.Address, Application.Nexus.Settings.Packages, flow);
+									p = Application.Nexus.Nexus.DeployPackage(d.Address, Application.Nexus.Settings.Packages, flow);
 								}
 
  								f.BeginInvoke(() =>	{
- 														var a = Assembly.LoadFile(Path.Join(PackageHub.AddressToDeployment(Application.Nexus.Settings.Packages, new (d.Address)), "Uccs.Demo.Component.dll"));
+ 														var a = Assembly.LoadFile(Path.Join(Application.Nexus.AddressToDeployment(Application.Nexus.Settings.Packages, new (d.Address)), "Uccs.Demo.Component.dll"));
  														var cc = a.GetType("Uccs.Demo.Component.ComponentControl");
  														var c = cc.GetConstructor([]).Invoke(null) as UserControl;
  														

@@ -4,12 +4,14 @@ internal static class Routes
 {
     public const string DASHBOARD = nameof(DashboardPage);
     public const string ENTER_PINCODE = nameof(EnterPinPage);
+    public const string CREATE_PINCODE = nameof(CreatePinPage);
     public const string NETWORK = nameof(NetworkPage);
     public const string HELP = nameof(HelpPage);
     public const string HELP_DETAILS = nameof(HelpDetailsPage);
     public const string ABOUT = nameof(AboutPage);
     public const string WHATS_NEW = nameof(WhatsNewPage);
     public const string SETTINGS = nameof(SettingsPage);
+    public const string NOTIFICATIONS = nameof(NotificationsPage);
 	
     public const string ACCOUNTS = nameof(ManageAccountsPage);
     public const string ACCOUNT_DETAILS = nameof(AccountDetailsPage);

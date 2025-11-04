@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class TransactionsViewModel : BaseViewModel
+public partial class TransactionsViewModel : BasePageViewModel
 {
 	private readonly ITransactionsService _service;
 
@@ -13,7 +13,8 @@ public partial class TransactionsViewModel : BaseViewModel
 	[ObservableProperty]
     private AccountViewModel _account;
 
-    public TransactionsViewModel(ITransactionsService service, ILogger<TransactionsViewModel> logger) : base(logger)
+    public TransactionsViewModel(INotificationsService notificationService, ITransactionsService service,
+		ILogger<TransactionsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
     }

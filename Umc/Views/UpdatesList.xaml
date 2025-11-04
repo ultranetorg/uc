@@ -2,16 +2,17 @@
 <ContentView
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Name="Page"
-    x:Class="UC.Umc.Views.UpdatesList">
-    <StackLayout BindingContext="{x:Reference Page}" Spacing="16">
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    x:Class="UC.Umc.Views.UpdatesList"
+    x:Name="instance">
+    <StackLayout BindingContext="{x:Reference instance}" Spacing="16">
         <Grid
             ColumnDefinitions="*,Auto"
             VerticalOptions="Center">
             <Label
                 Grid.Column="0"
                 FontSize="14"
-                Text="UUC version 1.23.4567"
+                Text="UUC version 4.1.13"
                 VerticalOptions="Center" />
             <Label
                 Grid.Column="1"
@@ -30,7 +31,7 @@
                 WidthRequest="72">
                 <Label
                     HorizontalOptions="Center"
-                    Text="Added"
+                    Text="{x:Static resx:Dashboard_Strings.WhatsNew_Added}"
                     TextColor="White"
                     VerticalOptions="Center" />
             </Border>
@@ -38,8 +39,16 @@
                 <BindableLayout.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                            <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
+                            <Label
+                                VerticalOptions="Start"
+                                Grid.Column="0"
+                                FontSize="15"
+                                Text="."/>
+                            <Label
+                                Grid.Column="1"
+                                Padding="0,4"
+                                FontSize="13"
+                                Text="{Binding .}"/>
                         </Grid>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
@@ -54,7 +63,7 @@
                 WidthRequest="72">
                 <Label
                     HorizontalOptions="Center"
-                    Text="Fixed"
+                    Text="{x:Static resx:Dashboard_Strings.WhatsNew_Fixed}"
                     TextColor="White"
                     VerticalOptions="Center" />
             </Border>
@@ -62,8 +71,16 @@
                 <BindableLayout.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                            <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
+                            <Label
+                                VerticalOptions="Start"
+                                Grid.Column="0"
+                                FontSize="15"
+                                Text="."/>
+                            <Label
+                                Grid.Column="1"
+                                Padding="0,4"
+                                FontSize="13"
+                                Text="{Binding .}"/>
                         </Grid>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>

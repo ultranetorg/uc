@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using Uccs.Net;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
@@ -15,16 +16,19 @@ public class NodeInstance
 	}
 }
 
-public class Nexus : Cli
+public class Nexus
 {
 	public delegate void			Delegate(Nexus d);
 
-	public HostSettings				Settings;
+	Flow							Flow;
+	public NexusSettings			Settings;
 	public List<NodeInstance>		Nodes = [];
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
-	RdnApiClient					_Rdn;
-	public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+	public RdnNode					RdnNode;
+	//RdnApiClient					_Rdn;
+	//public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+	public PackageHub				PackageHub;
 
 	public Delegate					Stopped;
 
@@ -37,28 +41,23 @@ public class Nexus : Cli
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
 
-	public static void Main(string[] args)
+	public Nexus(NetBoot boot, NexusSettings settings, RdnNodeSettings rdnsettings, IClock clock, Flow flow)
 	{
-		var boot = new NetBoot(ExeDirectory);
-		var s = new HostSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);
-		var u = new Nexus(s, new Flow(nameof(Nexus), new Log()));
-
-		u.Execute(boot);
-
-		u.Stop();
-	}
-
-	public Nexus(HostSettings settings, Flow flow)
-	{
-		Settings = settings;
+		Settings = settings ?? new NexusSettings(boot);
+		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
 
 		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
 
 		if(Directory.Exists(Settings.Profile))
-			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{FailureExt}"))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
 				File.Delete(i);
-			
+		
+		RdnNode = new RdnNode(Settings.Name, Settings.Zone, boot.Profile, rdnsettings, clock, flow);
+		PackageHub = new PackageHub(RdnNode, Settings.Packages);
+
+		Nodes = [new NodeInstance {Net = Rdn.Rdn.Root}];
+
 		if(Settings.Api != null)
 		{
 			RunApi();
@@ -109,15 +108,6 @@ public class Nexus : Cli
 		var ni = Find(net);
 
 		return new McvApiClient(ni.ApiLocalAddress, null, ApiHttpClient);
-	}
-
-	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)
-	{
-		var t = commnad.First().Name;
-		var args = commnad.Skip(1).ToList();
-		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
-
-		return ct.GetConstructor([typeof(Nexus), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as NexusCommand;
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)

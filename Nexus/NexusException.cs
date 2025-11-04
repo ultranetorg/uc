@@ -1,4 +1,4 @@
-﻿namespace Uccs.Net;
+﻿namespace Uccs.Nexus;
 
 public class NexusException : Exception
 {

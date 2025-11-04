@@ -2,7 +2,17 @@
 
 public class NotificationsService : INotificationsService
 {
-    public Task<int> GetNotificationsCountAsync()
+	public int GetCount()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Severity GetMaxSeverity()
+	{
+		throw new NotImplementedException();
+	}
+
+    public Task<int> GetCountAsync()
     {
         throw new NotImplementedException();
     }
@@ -11,4 +21,9 @@ public class NotificationsService : INotificationsService
     {
         throw new NotImplementedException();
     }
+
+	public CustomCollection<Notification> GetAll()
+	{
+		throw new NotImplementedException();
+	}
 }

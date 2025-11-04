@@ -2,7 +2,9 @@
 
 public interface IAuthorsService
 {
-    Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync();
+    Task<ObservableCollection<AuthorViewModel>> GetAuthorsAsync();
+
+	CustomCollection<AuthorViewModel> GetAccountAuthors(string account);
 
     Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync(string search);
 

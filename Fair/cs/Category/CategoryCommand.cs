@@ -11,10 +11,10 @@ public class CategoryCommand : FairCommand
 
 //	public CommandAction Create()
 //	{
-//		var a = new CommandAction(MethodBase.GetCurrentMethod());
+//		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 //
 //		a.Name = "c";
-//		a.Help = new() {Description = "Creates a new category",
+//		a.Description = "Creates a new category",
 //						Syntax = $"{Keyword} {a.NamesSyntax} [site={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
 //
 //						Arguments =	[new (FirstArg, "Page type"),
@@ -24,7 +24,7 @@ public class CategoryCommand : FairCommand
 //									 new (SignerArg, "Address of account that owns the site")],
 //
 //						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}"),
-//									 new (null, $"{Keyword} {a.Name} parent={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}")]};
+//									 new (null, $"{Keyword} {a.Name} parent={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}")];
 //
 //		a.Execute = () =>	{
 //								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -46,10 +46,10 @@ public class CategoryCommand : FairCommand
 
 	//public CommandAction Update()
 	//{
-	//	var a = new CommandAction(MethodBase.GetCurrentMethod());
+	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 	//
 	//	a.Name = "u";
-	//	a.Help = new() {Description = "Updates data of specified category",
+	//	a.Description = "Updates data of specified category",
 	//					Syntax = $"{Keyword} {a.NamesSyntax} {EID} [parent={EID}] {SignerArg}={AA}",
 	//
 	//					Arguments =	[new (FirstArg, "Id of category to update"),
@@ -57,7 +57,7 @@ public class CategoryCommand : FairCommand
 	//								 new ("type", "Type"),
 	//								 new (SignerArg, "Address of account that assumed to have permissions to make specified changes")],
 	//
-	//					Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} parent={EID.Example} {SignerArg}={AA.Example}")]};
+	//					Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} parent={EID.Example} {SignerArg}={AA.Example}")];
 	//
 	//	a.Execute = () =>	{
 	//							Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -79,13 +79,11 @@ public class CategoryCommand : FairCommand
 
 	public CommandAction ListPublications()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lp";
-		a.Help = new() {Description = "Get publications of a specified category",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new (FirstArg, "Id of a category to get publications of")],
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+		a.Description = "Get publications of a specified category";
+		a.Arguments = [new (null, EID, "Id of a category to get publications of", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -101,13 +99,11 @@ public class CategoryCommand : FairCommand
 
 	public CommandAction ListCategories()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lc";
-		a.Help = new() {Description = "Get subcategories of a specified category",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-						Arguments = [new (FirstArg, "Id of a site to get subcategories from")],
-						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+		a.Description = "Get subcategories of a specified category";
+		a.Arguments = [new (null, EID, "Id of a site to get subcategories from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

@@ -1,5 +1,4 @@
-﻿using CreateAccount2ViewModel = UC.Umc.ViewModels.Views.CreateAccount2ViewModel;
-namespace UC.Umc.Views;
+﻿namespace UC.Umc.Views;
 
 public partial class CreateAccount2View : ContentView
 {

@@ -6,6 +6,7 @@
     xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
@@ -17,7 +18,7 @@
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             HorizontalOptions="FillAndExpand"
-            RowDefinitions="Auto,Auto,Auto"
+            RowDefinitions="Auto,Auto"
             RowSpacing="12">
             <Grid
                 Grid.Row="0"
@@ -32,7 +33,7 @@
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
-                    Text="Select author to transfer" />
+                    Text="{x:Static resx:Additional_Strings.SelectAuthor_Title}" />
             </Grid>
             
             <ListView
@@ -82,12 +83,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            
-            <Button
-                Grid.Row="2"
-                Margin="16,8"
-                Command="{Binding CloseCommand}"
-                Text="Confirm" />
         </Grid>
     </Border>
 </toolkit:Popup>

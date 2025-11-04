@@ -8,10 +8,13 @@ namespace Uccs.Open;
 public class Open : Cli
 {
 	public static HttpClient	ApiHttpClient;
-	public HostSettings			Settings;
+	public NexusSettings		Settings;
 
 	RdnApiClient				_Rdn;
 	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+
+	NexusApiClient				_Nexus;
+	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalAddress(Settings.Zone, KnownSystem.NexusApi), null, ApiHttpClient);
 
 	static Open()
 	{
@@ -23,7 +26,7 @@ public class Open : Cli
 	static void Main(string[] args)
 	{
 		var boot = new NetBoot(ExeDirectory);
-		var s = new HostSettings(boot.Profile, Guid.NewGuid().ToString(), boot.Zone);
+		var s = new NexusSettings(boot) {Name = Guid.NewGuid().ToString()};
 		var u = new Open(s, new Flow(nameof(Open), new Log()));
 
 		u.Execute(boot);
@@ -31,7 +34,7 @@ public class Open : Cli
 		u.Flow.Abort();
 	}
 
-	public Open(HostSettings settings, Flow flow)
+	public Open(NexusSettings settings, Flow flow)
 	{
 		Settings = settings;
 		Flow = flow;
@@ -47,7 +50,7 @@ public class Open : Cli
 		return new OpenCommand(this, args, flow);
 	}
 
-	public void Start(Unea address, Flow flow)
+	public void Start(Unel address, Flow flow)
 	{
 		if(address.Net == Net.Net.Root || address.Net is null)
 		{
@@ -78,7 +81,7 @@ public class Open : Cli
 			else
 				throw new OpenException("Incorrect resource type");
 	
-			RdnApi.DeployPackage(aprv, Settings.Packages, flow);
+			NexusApi.DeployPackage(aprv, Settings.Packages, flow);
 	
 	 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + VersionManifest.Extension).First();
 	 

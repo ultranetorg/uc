@@ -9,9 +9,9 @@ global using CommunityToolkit.Diagnostics;
 
 // Project usings
 global using UC.Umc.Models;
+global using UC.Umc.Enums;
 global using UC.Umc.ViewModels;
 global using UC.Umc.ViewModels.Popups;
-global using UC.Umc.ViewModels.Views;
 global using UC.Umc.Helpers;
 global using UC.Umc.Popups;
 global using UC.Umc.Controls;
@@ -19,3 +19,6 @@ global using UC.Umc.Pages;
 global using UC.Umc.Exceptions;
 global using UC.Umc.Constants;
 global using UC.Umc.Services;
+global using UC.Umc.Common.Constants;
+global using UC.Umc.Common.Helpers;
+global using UC.Umc.Data.Classes;

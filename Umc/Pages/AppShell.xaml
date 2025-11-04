@@ -10,6 +10,11 @@
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"
     BackgroundColor="{StaticResource Secondary}">
+    
+    <!--Other routes-->
+    <ShellItem FlyoutItemIsVisible="False" Route="EnterPinPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:EnterPinPage}" />
+    </ShellItem>
 
     <FlyoutItem
         Title="{Binding Dashboard.Title}"
@@ -117,9 +122,4 @@
             Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
             ContentTemplate="{DataTemplate pages:AboutPage}" />
     </FlyoutItem>
-    
-    <!--All other routes-->
-    <ShellItem FlyoutItemIsVisible="False" Route="LoginPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
 </Shell>

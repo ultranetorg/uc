@@ -4,9 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:UC.Umc.Models"
-    x:Name="Page">
+    x:Name="page">
     <Border
-        BindingContext="{x:Reference Page}"
+        BindingContext="{x:Reference page}"
         Style="{Binding BorderStyle}">
         <Grid
             BindingContext="{Binding Account}"

@@ -63,6 +63,8 @@ public partial class SourceAccountViewModel : BaseViewModel
 			}
 			account.IsSelected = true;
 			Account = account;
+
+			ClosePopup();
 		}
 		catch (Exception ex)
 		{
@@ -70,9 +72,6 @@ public partial class SourceAccountViewModel : BaseViewModel
 			_logger.LogError("ItemTapped Error: {Message}", ex.Message);
 		}
 	}
-
-	[RelayCommand]
-    private void Close() => ClosePopup();
 	
 	private void LoadData()
 	{

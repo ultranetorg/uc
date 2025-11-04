@@ -3,7 +3,6 @@ using Uccs.Net;
 using Uccs.Rdn;
 using Xunit;
 
-
 namespace Uccs.Tests;
 
 public static class UraTests
@@ -20,7 +19,7 @@ public static class UraTests
  		{
 		void check(string a)
 		{
-			Assert.True(Unea.Parse(a).ToString() == a);
+			Assert.True(Unel.Parse(a).ToString() == a);
 		}
 
 		check($"n");

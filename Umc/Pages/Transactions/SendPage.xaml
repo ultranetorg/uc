@@ -5,11 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:Name="page"
     x:DataType="vm:SendViewModel"
-    Title="Send">
+    Title="{x:Static resx:Transaction_Strings.Send_Title}"
+    x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <ScrollView>
             <Grid 
@@ -24,17 +26,19 @@
                     PeekAreaInsets="0"
                     Position="{Binding Position}">
                     <CarouselView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="View">
                             <ContentView Content="{Binding .}" />
                         </DataTemplate>
                     </CarouselView.ItemTemplate>
                     <CarouselView.ItemsSource>
                         <x:Array Type="{x:Type View}">
+                            <!--Step #1-->
                             <views:Send1View
                                 SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
                                 RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
                                 SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
                                 SelectRecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=RecipientTappedCommand}" />
+                            <!--Step #2-->
                             <views:Send2View
                                 Amount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Amount, Mode=TwoWay}"
                                 Comission="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Comission}"
@@ -45,14 +49,16 @@
                 </CarouselView>
 
                 <StackLayout Grid.Row="1" IsVisible="{Binding FirstStep}">
-                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                    <Label
+                        Style="{StaticResource DashLabel}"
+                        Text="{x:Static resx:Transaction_Strings.Send_AmountToTransfer}" />
                     <AbsoluteLayout Margin="0,0,0,4">
                         <controls:FormEntryControl
                             AbsoluteLayout.LayoutBounds="0,1,1,1"
                             AbsoluteLayout.LayoutFlags="All"
                             Value="{Binding Amount}"
                             ErrorMessage="{Binding AmountError}"
-                            Placeholder="Amount"
+                            Placeholder="{x:Static resx:Transaction_Strings.Send_Amount}"
                             MaxLength="8"
                             Margin="0,0,8,0" />
                         <Label
@@ -64,12 +70,11 @@
                     </AbsoluteLayout>
                 </StackLayout>
 
-                <!-- Will be visible when #9749 issue is fixed -->
-                <IndicatorView Grid.Row="2" x:Name="indicator" IsVisible="False" />
+                <IndicatorView Grid.Row="2" x:Name="indicator" />
             
                 <StackLayout Grid.Row="3">
                     <Button
-                        Text="Transfer"
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Confirm}"
                         IsVisible="{Binding FirstStep}"
                         Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}" />
 
@@ -81,7 +86,7 @@
                     <Button
                         Command="{Binding CancelCommand}"
                         Style="{DynamicResource LabelButton}"
-                        Text="Cancel" />
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Cancel}" />
                 </StackLayout>
             </Grid>
         </ScrollView>

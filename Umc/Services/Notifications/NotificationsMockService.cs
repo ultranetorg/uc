@@ -9,15 +9,30 @@ public class NotificationsMockService : INotificationsService
         _data = mockServiceData;
     }
 
-    public Task<int> GetNotificationsCountAsync()
+    public int GetCount()
     {
-        int result = _data.Authors.Count;
-        return Task.FromResult(result);
+        return _data.Notifications.Count;
     }
 
-    public Task<CustomCollection<Notification>> GetAllAsync()
+    public Severity GetMaxSeverity()
+    {
+        return _data.Notifications.Select(x => x.Severity).Max();
+    }
+
+    public CustomCollection<Notification> GetAll()
+    {
+        return new CustomCollection<Notification>(_data.Notifications);
+    }
+
+    public async Task<int> GetCountAsync()
+    {
+        int result = _data.Authors.Count;
+        return await Task.FromResult(result);
+    }
+
+    public async  Task<CustomCollection<Notification>> GetAllAsync()
     {
         CustomCollection<Notification> result = new(_data.Notifications);
-        return Task.FromResult(result);
+        return await Task.FromResult(result);
     }
 }

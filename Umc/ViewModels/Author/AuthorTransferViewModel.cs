@@ -5,7 +5,7 @@ public partial class AuthorTransferViewModel : BaseAuthorViewModel
 	[ObservableProperty]
 	private string _commission = "10 UNT ($15)"; // todo: commission calculation
 
-    public AuthorTransferViewModel(ILogger<AuthorTransferViewModel> logger) : base(logger)
+    public AuthorTransferViewModel(INotificationsService notificationService, ILogger<AuthorTransferViewModel> logger) : base(notificationService, logger)
     {
     }
 

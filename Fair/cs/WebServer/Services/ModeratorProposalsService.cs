@@ -136,10 +136,6 @@ public class ModeratorProposalsService
 		{
 			return CreatePublicationModel(proposal, publicationPublish.Publication);
 		}
-		else if(proposal.Options[0].Operation is PublicationRemoveFromChanged publicationRemoveFromChanged)
-		{
-			return CreatePublicationModel(proposal, publicationRemoveFromChanged.Publication);
-		}
 		else if(proposal.Options[0].Operation is PublicationUpdation publicationUpdation)
 		{
 			return CreatePublicationModel(proposal, publicationUpdation.Publication);

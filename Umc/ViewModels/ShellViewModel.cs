@@ -1,6 +1,4 @@
-﻿
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class ShellViewModel : ObservableObject
 {
@@ -21,7 +19,7 @@ public partial class ShellViewModel : ObservableObject
 	{
 		Dashboard = new AppSection()
 		{
-			Title = nameof(Dashboard),
+			Title = Properties.Dashboard_Strings.Dashboard_Title,
 			Icon = "dashboard_outline.png",
 			IconDark = string.Empty,
 			TargetType = typeof(DashboardPage),
@@ -29,7 +27,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Accounts = new AppSection()
 		{
-			Title = nameof(Accounts),
+			Title = Properties.Dashboard_Strings.Accounts_Title,
 			Icon = "accounts_light.png",
 			IconDark = "accounts_dark.png",
 			TargetType = typeof(ManageAccountsPage),
@@ -37,7 +35,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Authors = new AppSection()
 		{
-			Title = nameof(Authors),
+			Title = Properties.Dashboard_Strings.Authors_Title,
 			Icon = "authors_light.png",
 			IconDark = "authors_dark.png",
 			TargetType = typeof(AuthorsPage),
@@ -45,7 +43,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Products = new AppSection()
 		{
-			Title = nameof(Products),
+			Title = Properties.Dashboard_Strings.Products_Title,
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductsPage),
@@ -53,7 +51,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		ProductsSearch = new AppSection()
 		{
-			Title = "Products Search",
+			Title = Properties.Dashboard_Strings.Dashboard_Search,
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductSearchPage),
@@ -61,7 +59,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Transactions = new AppSection()
 		{
-			Title = nameof(Transactions),
+			Title = Properties.Dashboard_Strings.Transactions_Title,
 			Icon = "transactions_light.png",
 			IconDark = "transactions_dark.png",
 			TargetType = typeof(TransactionsPage),
@@ -69,7 +67,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Transfer = new AppSection()
 		{
-			Title = nameof(Transfer),
+			Title = Properties.Dashboard_Strings.Transfers_Title,
 			Icon = "transfer_light.png",
 			IconDark = "transfer_dark.png",
 			TargetType = typeof(ETHTransferPage),
@@ -77,7 +75,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Network = new AppSection()
 		{
-			Title = nameof(Network),
+			Title = Properties.Dashboard_Strings.Network_Title,
 			Icon = "network_light.png",
 			IconDark = "network_dark.png",
 			TargetType = typeof(NetworkPage),
@@ -85,7 +83,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Settings = new AppSection()
 		{
-			Title = nameof(Settings),
+			Title = Properties.Dashboard_Strings.Settings_Title,
 			Icon = "settings.png",
 			IconDark = "settings.png",
 			TargetType = typeof(SettingsPage),
@@ -93,7 +91,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		Help = new AppSection()
 		{
-			Title = nameof(Help),
+			Title = Properties.Dashboard_Strings.Help_Title,
 			Icon = "help_light.png",
 			IconDark = "help_dark.png",
 			TargetType = typeof(HelpPage),
@@ -101,7 +99,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		About = new AppSection()
 		{
-			Title = nameof(About),
+			Title = Properties.Dashboard_Strings.About_Title,
 			Icon = "info_light.png",
 			IconDark = "info_dark.png",
 			TargetType = typeof(AboutPage),
@@ -109,7 +107,7 @@ public partial class ShellViewModel : ObservableObject
 		};
 		WhatsNew = new AppSection()
 		{
-			Title = "Whats New",
+			Title = Properties.Dashboard_Strings.WhatsNew_Title,
 			Icon = "info_light.png",
 			IconDark = "info_dark.png",
 			TargetType = typeof(WhatsNewPage),

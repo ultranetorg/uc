@@ -9,16 +9,19 @@ public class ProductsMockService : IProductsService
         _service = data;
     }
 
-	public Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync() =>
-		Task.FromResult(new ObservableCollection<ProductViewModel>(_service.Products.ToList()));
+    public CustomCollection<ProductViewModel> GetAccountProducts(string account)
+	{
+		var products = _service.Products.Where(x => x.Author.Account.Address == account).ToList();
+		return new CustomCollection<ProductViewModel>(products);
+	}
 
-	public Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName) =>
-		Task.FromResult(new ObservableCollection<ProductViewModel>(_service.Products.Where(x => x.Author.Name == authorName)));
+	public async Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync() =>
+		await Task.FromResult(new ObservableCollection<ProductViewModel>(_service.Products.ToList()));
 
-    public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
+    public async Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
     {
 		var items = _service.Products.Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
         var result = new ObservableCollection<ProductViewModel>(items);
-        return Task.FromResult(result);
+        return await Task.FromResult(result);
     }
 }

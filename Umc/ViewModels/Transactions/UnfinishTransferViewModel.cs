@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class UnfinishTransferViewModel : BaseViewModel
+public partial class UnfinishTransferViewModel : BasePageViewModel
 {
 	private readonly IServicesMockData _service;
 
@@ -16,7 +16,8 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 
 	public decimal UntAmount => EthAmount * 10;
 
-    public UnfinishTransferViewModel(IServicesMockData service, ILogger<UnfinishTransferViewModel> logger) : base(logger)
+    public UnfinishTransferViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<UnfinishTransferViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 		Initialize();
@@ -40,8 +41,7 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 
 	private void Initialize()
 	{
-		Emissions.Clear();
-		Emissions.AddRange(_service.Emissions);
+		Emissions = new(_service.Emissions);
 		Account = DefaultDataMock.CreateAccount();
 		EthAmount = new Random().Next(1, 100);
 	}

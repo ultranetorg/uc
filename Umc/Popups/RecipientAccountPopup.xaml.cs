@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.Popups;
+﻿using ZXing.Net.Maui;
+
+namespace UC.Umc.Popups;
 
 public partial class RecipientAccountPopup : Popup
 {
@@ -11,8 +13,8 @@ public partial class RecipientAccountPopup : Popup
 		Vm.Popup = this;
     }
 
-	private void cameraBarcodeReaderView_BarcodesDetected(object sender, ZXing.Net.Maui.BarcodeDetectionEventArgs e)
+	private async void cameraBarcodeReaderView_BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
 	{
-		//
+		await Vm.BarcodeDetectedCommand.ExecuteAsync(null);
 	}
 }

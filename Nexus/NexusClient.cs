@@ -1,13 +1,14 @@
 ﻿using System.Net;
 using Uccs.Net;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
 public class NexusClient
 {
-	public HostSettings		Settings;
+	public NexusSettings		Settings;
 	public NexusApiClient	Nexus;
-	public RdnApiClient		Rdn;
+	//public ApiClient		Rdn;
 	HttpClient				Http = new HttpClient();
 
 	public NexusClient()
@@ -32,22 +33,27 @@ public class NexusClient
 		//
 		//var s = Uos.Request<NodeInstance>(new NodeInfoApc {Net = Uccs.Rdn.Rdn.Local.Address}, new Flow(GetType().Name));
 
-		Rdn = new RdnApiClient(ApiSettings.ToAddress(Settings.Api.LocalIP,  Uccs.Rdn.Rdn.ByZone(Settings.Zone).ApiPort), null, Http);
+		///Rdn = new RdnApiClient(ApiSettings.ToAddress(Settings.Api.LocalIP,  Uccs.Rdn.Rdn.ByZone(Settings.Zone).ApiPort), null, Http);
 	}
 
-//	public PackageInfo GetPackage(Ura package, Flow flow)
-//	{
-//		var p = Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
-//
-//		if(p == null)
-//		{
-//			Uos.Send(new PackageDeployApc {Address = package}, flow);
-//
-//			return Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
-//		}
-//
-//		return p;
-//	}
+	public string AddressToDeployment(string packagespath, Ura resource)
+	{
+		return Path.Join(Settings.Packages, Net.Net.Escape(resource.Domain), Net.Net.Escape(resource.Resource));
+	}
+
+	//	public PackageInfo GetPackage(Ura package, Flow flow)
+	//	{
+	//		var p = Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
+	//
+	//		if(p == null)
+	//		{
+	//			Uos.Send(new PackageDeployApc {Address = package}, flow);
+	//
+	//			return Rdn.Request<PackageInfo>(new LocalPackageApc {Address = package}, flow);
+	//		}
+	//
+	//		return p;
+	//	}
 
 	public void Start(Uri address, Flow flow)
 	{

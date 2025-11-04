@@ -13,17 +13,13 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Creates a new author for a specified period",
-						Syntax = $"{Keyword} {a.NamesSyntax} years={INT} title={NAME} {SignerArg}={AA}",
-						
-						Arguments =	[new ("years", "Number of years in [1..10] range"),
-									 new ("title", "A ttile of a author being created"),
-									 new (SignerArg, "Address of account that owns or is going to register the author")],
-						
-						Examples =	[new (null, $"{Keyword} {a.Name} years=5 {SignerArg}={AA.Example}")]};
+		a.Description = "Creates a new author for a specified period";
+		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
+						new ("title", NAME, "A title of a author being created"),
+						SignerArgument("Address of account that owns or is going to register the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -35,19 +31,15 @@ public class AuthorCommand : FairCommand
 	
 	public CommandAction Nickname()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var nickname = "nickname";
 
 		a.Name = "n";
-		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {nickname}={NAME} {SignerArg}={AA}",
-
-						Arguments =	[new (FirstArg, "Id of a author to update"),
-									 new (nickname, "A new nickname"),
-									 new (SignerArg, "Address of account that is author's owner")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {nickname}={NAME.Example} {SignerArg}={AA.Example}")]};
+		a.Description = "Sets an nickname for a specified author";
+		a.Arguments =	[new (null, EID, "Id of a author to update", Flag.First),
+						new (nickname, NAME, "A new nickname"),
+						SignerArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -60,15 +52,11 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Entity()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Help = new() {Description = "Get author entity information from MCV database",
-						Syntax = $"{Keyword} {a.NamesSyntax}{EID}",
-						
-						Arguments =	[new (FirstArg, "Id of an author to get information about")],
-						
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+		a.Description = "Get author entity information from MCV database";
+		a.Arguments =	[new (null, EID, "Id of an author to get information about", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
@@ -84,30 +72,23 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Update()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var addowner = "addowner";
 		var removeowner = "removeowner";
 
 		a.Name = "u";
-		a.Help = new() {Description = "Extend author rent for a specified period. Allowed during the last year of current period only.",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {addowner}={AA} {removeowner}={AA} {SignerArg}={AA}",
-
-						Arguments =	[
-										new (FirstArg, "Id of an author to be renewed"),
-										new (addowner, "Account Id of a new owner to add"),
-										new (removeowner, "Account Id of a existing owner to remove"),
-										new (SignerArg, "Address of account that owns the author")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {EID.Example} {addowner}={AA.Example1} {SignerArg}={AA.Example}")
-									]};
+		a.Description = "Extend author rent for a specified period. Allowed during the last year of current period only.";
+		a.Arguments =	[
+							new (null, EID, "Id of an author to be renewed", Flag.First),
+							new (addowner, AA, "Account Id of a new owner to add"),
+							new (removeowner, AA, "Account Id of a existing owner to remove"),
+							SignerArgument("Address of account that owns the author")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-
-								
+											
 								if(Has(addowner))
 								{
 									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetAutoId(addowner)};
@@ -124,19 +105,15 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Renew()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var years = "years";
 
 		a.Name = "r";
-		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {years}={INT} {SignerArg}={AA}",
-
-						Arguments =	[new (FirstArg, "Id of a author to update"),
-									 new (years, "A number of years to renew author for. Allowed during the last year of current period only."),
-									 new (SignerArg, "Address of account that owns the author")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {years}=5 {SignerArg}={AA.Example}")]};
+		a.Description = "Prolongs current expiration date of an author for a specified number of years";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (years, YEARS, "A number of years to renew author for. Allowed during the last year of current period only."),
+						SignerArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -148,19 +125,15 @@ public class AuthorCommand : FairCommand
 	
 	public CommandAction Avatar()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var file = "file";
 
 		a.Name = "avatar";
-		a.Help = new() {Description = "",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {file}={EID} {SignerArg}={AA}",
-
-						Arguments =	[new (FirstArg, "Id of a author to update"),
-									 new (file, "A file"),
-									 new (SignerArg, "Address of account that is author's owner")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {file}={EID.Example1} {SignerArg}={AA.Example}")]};
+		a.Description = "Sets an avatar for a specified author";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (file, EID, "A file"),
+						SignerArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -176,21 +149,17 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Property()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var t = "title";
 		var d = "description";
 
 		a.Name = "p";
-		a.Help = new() {Description = "Changes various author descriptive properties",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {t}={TEXT} {d}={TEXT} {SignerArg}={AA}",
-
-						Arguments =	[new (FirstArg, "Id of a author to update"),
-									 new (t, "A new title"),
-									 new (d, "A new description"),
-									 new (SignerArg, "Address of account that owns the site")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {t}={TEXT.Example} {SignerArg}={AA.Example}")]};
+		a.Description = "Changes various author descriptive properties";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (t, TEXT, "A new title"),
+						new (d, TEXT,  "A new description"),
+						SignerArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -208,21 +177,17 @@ public class AuthorCommand : FairCommand
 
 	public CommandAction Link()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		var add = "add";
 		var remove = "remove";
 
 		a.Name = "link";
-		a.Help = new() {Description = "Changes author's links",
-						Syntax = $"{Keyword} {a.NamesSyntax} {EID} {add}={TEXT} {remove}={TEXT} {SignerArg}={AA}",
-
-						Arguments =	[new (FirstArg, "Id of a author to update"),
-									 new (add, "A links to add"),
-									 new (remove, "A links to remove"),
-									 new (SignerArg, "Address of account that owns the author")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} {EID.Example} {add}={URL.Example} {remove}={URL.Example1} {SignerArg}={AA.Example}")]};
+		a.Description = "Changes author's links";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (add, TEXT, "A links to add", Flag.Optional|Flag.Multi),
+						new (remove, TEXT, "A links to remove", Flag.Optional|Flag.Multi),
+						SignerArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

@@ -16,15 +16,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\_Debug\uos.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\_Debug\net</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\_Release\uos.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\_Release\net</OutputPath>
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
+    <ProjectReference Include="..\Rdn.CLI\Uccs.Rdn.CLI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Rdn" />

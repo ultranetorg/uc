@@ -4,23 +4,17 @@ namespace UC.Umc.Views;
 
 public partial class Send1View : ContentView
 {
-    public static readonly BindableProperty SourceAccountProperty =
-		BindableProperty.Create(nameof(SourceAccount), typeof(AccountViewModel), typeof(Send1View));
+    public static readonly BindableProperty SourceAccountProperty = BindableProperty.Create(nameof(SourceAccount), typeof(AccountViewModel), typeof(Send1View));
 
-    public static readonly BindableProperty RecipientAccountProperty =
-		BindableProperty.Create(nameof(RecipientAccount), typeof(AccountViewModel), typeof(Send1View));
+    public static readonly BindableProperty RecipientAccountProperty = BindableProperty.Create(nameof(RecipientAccount), typeof(AccountViewModel), typeof(Send1View));
 
-    public static readonly BindableProperty SelectSourceAccountProperty =
-		BindableProperty.Create(nameof(SelectSourceAccount), typeof(ICommand), typeof(Send1View));
+    public static readonly BindableProperty SelectSourceAccountProperty = BindableProperty.Create(nameof(SelectSourceAccount), typeof(ICommand), typeof(Send1View));
 
-    public static readonly BindableProperty SelectRecipientAccountProperty =
-		BindableProperty.Create(nameof(SelectRecipientAccount), typeof(ICommand), typeof(Send1View));
+    public static readonly BindableProperty SelectRecipientAccountProperty = BindableProperty.Create(nameof(SelectRecipientAccount), typeof(ICommand), typeof(Send1View));
 
-    public static readonly BindableProperty AmountProperty =
-		BindableProperty.Create(nameof(Amount), typeof(decimal), typeof(Send1View));
+    public static readonly BindableProperty AmountProperty = BindableProperty.Create(nameof(Amount), typeof(decimal), typeof(Send1View));
 
-    public static readonly BindableProperty AmountErrorProperty =
-		BindableProperty.Create(nameof(AmountError), typeof(string), typeof(Send1View));
+    public static readonly BindableProperty AmountErrorProperty = BindableProperty.Create(nameof(AmountError), typeof(string), typeof(Send1View));
 
     public AccountViewModel SourceAccount
     {

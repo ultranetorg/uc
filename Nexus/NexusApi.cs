@@ -8,7 +8,7 @@ internal class NexusApiServer : JsonServer
 {
 	Nexus Nexus;
 
-	public NexusApiServer(Nexus uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.UosApi), ApiClient.CreateOptions(), flow)
+	public NexusApiServer(Nexus uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.NexusApi), ApiClient.CreateOptions(), flow)
 	{
 		Nexus = uos;
 	}
@@ -27,29 +27,10 @@ internal class NexusApiServer : JsonServer
 	}
 }
 
-public class NexusApiClient : ApiClient
-{
-	//public static string	GetAddress(Zone zone, IPAddress ip, bool ssl) => GetAddress(zone, ip, ssl, KnownSystem.UosApi);
-
-	public NexusApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
-	{
-	}
-}
-
-internal interface INexusApc
+public interface INexusApc
 {
 	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
-
-//public class UosPropertyApc : Apc
-//{
-//	public string Path { get; set; }
-//}
-//
-//public class NodeInfoApc : Apc
-//{
-//	public string Net { get; set; }
-//}
 
 public class NexusPropertyApc : Apc, INexusApc
 {
@@ -77,7 +58,6 @@ public class NexusPropertyApc : Apc, INexusApc
 		}
 	}
 }
-
 
 internal class NodeInfoApc : Apc, INexusApc
 {

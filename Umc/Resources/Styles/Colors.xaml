@@ -41,7 +41,6 @@
     <Color x:Key="PrimaryLight">#F0F7F9</Color>
     <Color x:Key="PrimaryLighter">#F4F9FB</Color>
     <Color x:Key="Secondary">#18181B</Color>
-    <Color x:Key="Tertiary">#18181B</Color>
     <Color x:Key="LightBackground">#FBFEFF</Color>
     <Color x:Key="DarkBackground">#202222</Color>
     <Color x:Key="Red">#c44242</Color>
@@ -52,19 +51,14 @@
     <Color x:Key="SelectedColorLight">#4DA0B9</Color>
     <Color x:Key="SubTextColorLight">#738A93</Color>
     <Color x:Key="SubTextColorDark">#C2C2C2</Color>
-    <Color x:Key="LightRed">#E6D7D7</Color>
-    
     <Color x:Key="Error">#c44242</Color>
     <Color x:Key="ErrorLight">#fdafaf</Color>
-
     <Color x:Key="DarkThemeText">#F0F7F9</Color>
     <Color x:Key="LightThemeText">#1A2328</Color>
     <Color x:Key="LightGray">#ACACAC</Color>
     
-    
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
     <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
@@ -75,9 +69,4 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
-    
-    <LinearGradientBrush x:Key="PartialWhite" StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0.1" Color="Transparent" />
-        <GradientStop Offset="1.0" Color="{StaticResource Black}" />
-    </LinearGradientBrush>
 </ResourceDictionary>

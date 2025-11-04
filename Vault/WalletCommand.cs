@@ -35,19 +35,13 @@ public class WalletCommand : VaultCommand
 
 	public CommandAction Create()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Help = new() {Description = "Used to create a new account and its wallet.",
-						Syntax = $"{Keyword} {a.NamesSyntax} [password={PASSWORD}]",
-
-						Arguments =	[
-										new ("password", "A password that is used to encrypt the newly created wallet")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} password={PASSWORD.Example}")
-									]};
+		a.Description = "Used to create a new account and its wallet.";
+		a.Arguments =	[
+							new ("password", PASSWORD, "A password that is used to encrypt the newly created wallet", Flag.Optional)
+						];
 
 		a.Execute = () =>	{
 								string p = GetString("password", null);
@@ -72,17 +66,10 @@ public class WalletCommand : VaultCommand
 
 	public CommandAction List()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
-		a.Help = new() {Description = "Lists all existing wallets",
-						Syntax = $"{Keyword} {a.NamesSyntax}",
-
-						Arguments =	[],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name}")
-									]};
+		a.Description = "Lists all existing wallets";
 
 		a.Execute = () =>	{
 								var r = Api<WalletsApc.Wallet[]>(new WalletsApc {});
@@ -96,21 +83,15 @@ public class WalletCommand : VaultCommand
 
 	public CommandAction Unlock()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "u";
 
-		a.Help = new() {Description = "Unlocks an existing wallet making it available for signing transactions",
-						Syntax = $"{Keyword} {a.NamesSyntax} password={PASSWORD} [name={NAME}]",
-
-						Arguments =	[
-										new ("password", "A password of a wallet to be unlocked"),
-										new ("name", "Name of wallet")
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} name={NAME.Example} password={PASSWORD.Example}")
-									]};
+		a.Description = "Unlocks an existing wallet making it available for signing transactions";
+		a.Arguments =	[
+							new ("password", PASSWORD, "A password of a wallet to be unlocked"),
+							new ("name", NAME, "Name of wallet", Flag.Optional)
+						];
 
 		a.Execute = () =>	{
 								Api(new UnlockWalletApc{Name = GetString("name", null), 
@@ -122,15 +103,12 @@ public class WalletCommand : VaultCommand
 
 	public CommandAction Lock()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
 
-		a.Help = new() {Description = "Locks an existing wallet",
-						Syntax = $"{Keyword} {a.NamesSyntax} {AA} [name={NAME}]",
-
-						Arguments =	[new ("name", "Name of wallet")],
-						Examples =	[new (null, $"{Keyword} {a.Name} {AA.Example} password={PASSWORD.Example}")]};
+		a.Description = "Locks an existing wallet";
+		a.Arguments =	[new ("name", NAME, "Name of wallet", Flag.Optional)];
 
 		a.Execute = () =>	{
 								Api(new LockWalletApc {Name = GetString("name", null)});
@@ -141,16 +119,12 @@ public class WalletCommand : VaultCommand
 
 	public CommandAction AddAccount()
 	{
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "aa";
-		a.Help = new() {Description = "Cerates a new or import existing account to a wallet",
-						Syntax = $"{Keyword} {a.NamesSyntax} [name={NAME}] [key={PRIVATEKEY}]",
-
-						Arguments =	[new ("name", "Name of wallet"),
-									 new ("key", "Private key of account to import")],
-
-						Examples =	[new (null, $"{Keyword} {a.Name} name={NAME.Example} key={PRIVATEKEY.Example}")]};
+		a.Description = "Creates a new or import existing account to a wallet";
+		a.Arguments =  [new ("name", NAME, "Name of wallet", Flag.Optional),
+						new ("key", PRIVATEKEY, "Private key of account to import")];
 
 		a.Execute = () =>	{
 								var pk = Api<byte[]>(new AddAccountToWalletApc {Name = GetString("name", null), Key = GetBytes("key", false) });
@@ -169,20 +143,13 @@ public class WalletCommand : VaultCommand
 	{
 		var p = "path";
 
-		var a = new CommandAction(MethodBase.GetCurrentMethod());
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "i";
-
-		a.Help = new() {Description = "Imports existing wallet",
-						Syntax = $"{Keyword} {a.NamesSyntax} {p}={FILEPATH}",
-
-						Arguments =	[
-										new (p, "A path to a source wallet file"),
-									],
-
-						Examples =	[
-										new (null, $"{Keyword} {a.Name} {p}={DIRPATH}\\wallet.{Vault.WalletExtention}")
-									]};
+		a.Description = "Imports existing wallet";
+		a.Arguments =	[
+							new (p, FILEPATH, "A path to a source wallet file"),
+						];
 
 		a.Execute = () =>	{
 								var	b = File.ReadAllBytes(GetString(p));

@@ -4,8 +4,6 @@ namespace UC.Umc.Controls;
 
 public sealed partial class FormEntryControl : BaseTextFormControl<FormEntryControl>
 {
-    private const int DEFAULT_MAX_LENGTH = 100;
-
     public static readonly BindableProperty ClearButtonVisibilityProperty =
         BindableProperty.Create(nameof(ClearButtonVisibility), typeof(ClearButtonVisibility), typeof(FormEntryControl),
             ClearButtonVisibility.Never);
@@ -14,7 +12,7 @@ public sealed partial class FormEntryControl : BaseTextFormControl<FormEntryCont
         BindableProperty.Create(nameof(EntryMask), typeof(string), typeof(FormEntryControl));
 
     public static readonly BindableProperty MaxLengthProperty =
-        BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(FormEntryControl), DEFAULT_MAX_LENGTH);
+        BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(FormEntryControl), CommonConstants.DEFAULT_MAX_LENGTH);
 
     public static readonly BindableProperty IsPasswordProperty =
         BindableProperty.Create(nameof(IsPassword), typeof(bool), typeof(FormEntryControl));

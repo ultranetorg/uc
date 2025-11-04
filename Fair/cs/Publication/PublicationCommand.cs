@@ -11,20 +11,20 @@ namespace Uccs.Fair;
 // 
 // 	public CommandAction Create()
 // 	{
-// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 // 
 // 		const string p = "product";
 // 		const string c = "category";
 // 
 // 		a.Name = "c";
-// 		a.Help = new() {Description = "Creates a new product publication",
+// 		a.Description = "Creates a new product publication",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {p}={EID} {c}={EID} {SignerArg}={AA}",
 // 
 // 						Arguments =	[new (p, "An id of a product to add a publication of"),
 // 									 new (c, "An id of category to publicate product under"),
 // 									 new (SignerArg, "Address of account with corresponding permissions")],
 // 
-// 						Examples =	[new (null, $"{Keyword} {a.Name} {p}={EID.Example} {c}={EID.Examples[1]} {SignerArg}={AA.Example}")]};
+// 						Examples =	[new (null, $"{Keyword} {a.Name} {p}={EID.Example} {c}={EID.Examples[1]} {SignerArg}={AA.Example}")];
 // 
 // 		a.Execute = () =>	{
 // 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -38,14 +38,14 @@ namespace Uccs.Fair;
 // 
 // 	public CommandAction Update()
 // 	{
-// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 // 
 // 		const string product = "product";
 // 		const string approve = "approve";
 // 		const string reject = "reject";
 // 
 // 		a.Name = "u";
-// 		a.Help = new() {Description = "Updates data of speciofied publication",
+// 		a.Description = "Updates data of speciofied publication",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{product}={EID}] [{approve}={NAME} id={INT}] [{reject}={NAME} id={INT}] {SignerArg}={AA}",
 // 
 // 						Arguments =	[new (FirstArg, "Id of publication to update"),
@@ -91,13 +91,13 @@ namespace Uccs.Fair;
 // 
 // 	public CommandAction Delete()
 // 	{
-// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 // 
 // 		a.Name = "x";
-// 		a.Help = new() {Description = "Destroys existing publication and all its associated data",
+// 		a.Description = "Destroys existing publication and all its associated data",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-// 						Arguments = [new (FirstArg, "Id of a publication to delete")],
-// 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+// 						a.Arguments = [new (FirstArg, "Id of a publication to delete")],
+// 						Examples = [new (null, $"{Keyword} {a.Name} {EID.Example}")];
 // 
 // 		a.Execute = () =>	{
 // 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -109,13 +109,13 @@ namespace Uccs.Fair;
 // 
 // 	public CommandAction Entity()
 // 	{
-// 		var a = new CommandAction(MethodBase.GetCurrentMethod());
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 // 
 // 		a.Name = "e";
-// 		a.Help = new() {Description = "Get publication entity information from MCV database",
+// 		a.Description = "Get publication entity information from MCV database",
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
 // 						Arguments =	[new (FirstArg, "Id of a publication to get information about")],
-// 						Examples =[new (null, $"{Keyword} {a.Name} {EID.Example}")]};
+// 						Examples =[new (null, $"{Keyword} {a.Name} {EID.Example}")];
 // 
 // 		a.Execute = () =>	{
 // 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

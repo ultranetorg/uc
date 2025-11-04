@@ -2,22 +2,13 @@
 
 public partial class NotificationPopup : Popup
 {
-    private static NotificationPopup popup;
+	NotificationViewModel Vm => BindingContext as NotificationViewModel;
 
-    public NotificationPopup()
+    public NotificationPopup(Notification item)
     {
         InitializeComponent();
         BindingContext = Ioc.Default.GetService<NotificationViewModel>();
+		Vm.Notification = item;
+		Vm.Popup = this;
     }
-
-    public void Hide()
-    {
-        Close();
-    }
-
-	public static async Task Show()
-	{
-		popup = new NotificationPopup();
-		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
-	}
 }

@@ -1,35 +1,97 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
-<shared:BasePageTitleView
-    x:Class="UC.Umc.Views.Shared.PageTitleActionView"
+<views:BasePageTitleView
+    x:Class="UC.Umc.Views.PageTitleActionView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:shared="clr-namespace:UC.Umc.Views.Shared"
-    x:TypeArguments="shared:PageTitleActionView"
-    x:Name="This">
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    x:TypeArguments="views:PageTitleActionView"
+    x:Name="this">
+    
+    <ContentView.Resources>
+        <converters:ConnectionToImageConverter x:Key="ConnectionToImageConverter" />
+		<toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
+    </ContentView.Resources>
+    
     <FlexLayout
         AlignItems="Center"
-        BindingContext="{x:Reference This}"
+        BindingContext="{x:Reference this}"
         Direction="Row"
-        JustifyContent="SpaceBetween"
-        Margin="12,2">
+        JustifyContent="SpaceBetween">
         <Label
-            FontFamily="SemiBold"
-            Style="{Binding TitleStyle}"
+            FontSize="14"
+            Style="{StaticResource TitleLabel}"
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />
-        <AbsoluteLayout
-            IsVisible="{Binding IconSource}"
-            HeightRequest="40"
-            WidthRequest="40">
-            <ImageButton
-                AbsoluteLayout.LayoutBounds="0,1,1,1"
-                AbsoluteLayout.LayoutFlags="All"
-                Aspect="AspectFill"
-                HeightRequest="44"
-                Style="{Binding IconStyle}"
-                Source="{Binding IconSource}"
-                Command="{Binding TapCommand}"/>
-        </AbsoluteLayout>
+        <HorizontalStackLayout Margin="0,2,10,0">
+            <AbsoluteLayout
+                IsVisible="{Binding IconSource}"
+                HeightRequest="40"
+                WidthRequest="40">
+                <ImageButton
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Aspect="AspectFill"
+                    HeightRequest="44"
+                    Style="{Binding IconStyle}"
+                    Source="{Binding IconSource}"
+                    Command="{Binding TapCommand}">
+                    <ImageButton.Behaviors>
+                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
+            </AbsoluteLayout>
+            <AbsoluteLayout HeightRequest="36" WidthRequest="36">
+                <ImageButton
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Aspect="AspectFill"
+                    HeightRequest="44"
+                    Source="bell_dark.png"
+                    Command="{Binding NotificationsCommand}" />
+                <Border
+                    AbsoluteLayout.LayoutBounds="1,0,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    IsVisible="{Binding Text, Source={x:Reference badgeValueLabel}, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                    Style="{StaticResource BadgeBorder}">
+                    <Label
+                        x:Name="badgeValueLabel"
+                        Padding="0"
+                        HorizontalOptions="CenterAndExpand"
+                        VerticalOptions="CenterAndExpand"
+                        Text="{Binding NotificationsCount}"
+                        TextColor="White"
+                        FontSize="12"
+                        FontAttributes="Bold" />
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Low}">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Mid}">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Yellow200Accent}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.High}">
+                            <Setter Property="BackgroundColor" Value="{StaticResource LowerColor}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                </Border>
+            </AbsoluteLayout> 
+            <AbsoluteLayout HeightRequest="36" WidthRequest="36">
+                <ImageButton
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Aspect="AspectFill"
+                    HeightRequest="40"
+                    Margin="2"
+                    Source="{Binding ConnectionState, Converter={StaticResource ConnectionToImageConverter}}">
+                    <ImageButton.Behaviors>
+                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
+            </AbsoluteLayout>
+        </HorizontalStackLayout>
     </FlexLayout>
-</shared:BasePageTitleView>
+</views:BasePageTitleView>

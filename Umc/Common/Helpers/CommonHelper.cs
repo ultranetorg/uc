@@ -4,9 +4,14 @@ namespace UC.Umc.Helpers;
 
 public static class CommonHelper
 {
+	public static string GetTodayDate => GetFormattedDate(DateTime.UtcNow);
+	public static string GetFormattedDate(DateTime date) => date.ToString("dd MMM yyyy HH:mm");
+
 	public static int GetDaysLeft(DateTime date) =>
 		date == default ? 0
 		: (int)(new TimeSpan(date.Ticks - DateTime.Now.Ticks).TotalDays);
+
+    public static NetworkAccess CheckConnectivity() => Connectivity.Current.NetworkAccess;
 
 	// WBD
     public static string GenerateUniqueId(int length)
@@ -31,7 +36,8 @@ public static class CommonHelper
         }
         catch(Exception ex)
         {
-            await ToastHelper.ShowMessageAsync("Loading error");
+            await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Error_LoadingFile);
+
 			ThrowHelper.ThrowInvalidOperationException("PathToBytes: Loading error", ex);
         }
         return result;
@@ -43,7 +49,7 @@ public static class CommonHelper
 		{
 			var result = await FilePicker.Default.PickAsync(new()
 			{
-				PickerTitle = "Please select a wallet file"
+				PickerTitle = Properties.Additional_Strings.WalletFile_Select
 			});
 
 			if (result == null)
@@ -55,7 +61,8 @@ public static class CommonHelper
 		}
 		catch (Exception ex)
 		{
-            await ToastHelper.ShowMessageAsync("Something went error");
+            await ToastHelper.ShowDefaultErrorMessageAsync();
+
 			ThrowHelper.ThrowInvalidOperationException("GetPathToWalletAsync: Loading error", ex);
 		}
 

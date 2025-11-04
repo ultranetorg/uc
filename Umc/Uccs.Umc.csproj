@@ -1,10 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0-maccatalyst;net7.0-ios;net7.0-android</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
-		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
+		<TargetFrameworks>net7.0-ios;net7.0-android</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>UC.Umc</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -19,15 +16,10 @@
 		<ApplicationIdGuid>E55F8A4B-9BC6-4389-9A27-2291AA155730</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
-
+		<ApplicationDisplayVersion>5.0</ApplicationDisplayVersion>
+		<ApplicationVersion>5</ApplicationVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-ios'">14.3</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-android'">31.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<BaseOutputPath>..\</BaseOutputPath>
 	</PropertyGroup>
 
@@ -40,6 +32,11 @@
 		
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Include="Resources\Images\account\*" />
+		<MauiImage Include="Resources\Images\author\*" />
+		<MauiImage Include="Resources\Images\dashboard\*" />
+		<MauiImage Include="Resources\Images\notifications\*" />
+		<MauiImage Include="Resources\Images\logo\*" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -58,6 +55,63 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Update="Properties\Dashboard_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Dashboard_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Dashboard_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Dashboard_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Additional_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Additional_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Additional_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Additional_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Account_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Account_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Account_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Account_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Author_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Author_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Author_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Author_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Product_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Product_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Product_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Product_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Transaction_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Transaction_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Transaction_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Transaction_Strings.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
@@ -72,39 +126,132 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Pages\Author\AuthorTransferPage.xaml">
+	<MauiXaml Update="Pages\Account\AccountDetailsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Account\CreateAccountPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Account\DeleteAccountPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Account\ManageAccountsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Account\PrivateKeyPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Account\RestoreAccountPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\AuthorDetailsPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\AuthorRegistrationPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\AuthorRenewalPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\AuthorsPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\AuthorTransferPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Author\MakeBidPage.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Product\ProductRegistrationPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Product\ProductSearchPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Product\ProductsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Product\ProductTransferPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Transactions\ETHTransferPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Transactions\SendPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Transactions\TransactionsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Transactions\TransferCompletePage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Transactions\UnfinishTransferPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\DashboardPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\HelpDetailsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\HelpPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\NetworkPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\NotificationsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\SettingsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Pages\Dashboard\WhatsNewPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	  <MauiXaml Update="Pages\Dashboard\CreatePinPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductRegistrationPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductTransferPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\AccountColorPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\TransferOptionsPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\ProductOptionsPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\AuthorOptionsPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+	<MauiXaml Update="Popups\AuthorOptionsPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\DeleteAccountPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\NotificationPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\ProductOptionsPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\RecipientAccountPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\SelectAuthorPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\SourceAccountPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Popups\TransactionPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\PageTitleActionView.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormDatePickerControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormEntryControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
 	  <MauiXaml Update="Views\CustomPage.xaml">
 	    <SubType>Designer</SubType>
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormDatePickerControl.xaml">
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormEntryControl.xaml">
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
-	    <Generator></Generator>
+	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>
@@ -116,182 +263,14 @@
 	  <MauiXaml Update="Views\LabelPair.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\MainPageButton.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator></Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\NextCancelButton.xaml">
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\RattingBar.xaml">
-	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\SwitchView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\AboutPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\AccountDetailsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorRegistrationPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorRenewalPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorDetailsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\CreateAccountPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\DashboardPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\DeleteAccountPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\EnterPinBPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Pages\Dashboard\EnterPinPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\ETHTransferPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\HelpDetailsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\HelpPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\MakeBidPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\ManageAccountsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\NetworkPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\PrivateKeyPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductSearchPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsListPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Account\RestoreAccountPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\SendPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\SettingsBPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\SettingsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\TransactionsPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\TransferCompletePage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\UnfinishTransferPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Dashboard\WhatsNewPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\AccountOptionsPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\AlertPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\CreatePinPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\DeleteAccountPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\NoNetworkPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\NotificationPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\NotificationsPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\RecipientAccountPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\SelectAuthorPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\SourceAccountPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\TransactionPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\WhatsNewPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -311,14 +290,10 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+	<MauiXaml Update="Views\CreateAccount2View.xaml">
+		<SubType>Designer</SubType>
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
 	  <MauiXaml Update="Views\Send1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
@@ -327,55 +302,12 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\PageTitleActionView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\PageTitleNotificationsView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\SelectPrivateKey.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\UpdatesList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Include="Resources\Images\account\random.svg" />
-	  <MauiImage Include="Resources\Images\account\account_send.svg" />
-	  <MauiImage Include="Resources\Images\account\account_receive.svg" />
-	  <MauiImage Include="Resources\Images\account\account_sort.svg" />
-	  <MauiImage Include="Resources\Images\author\author_free.svg" />
-	  <MauiImage Include="Resources\Images\author\author_personal.svg" />
-	  <MauiImage Include="Resources\Images\author\author_reserved.svg" />
-	  <MauiImage Include="Resources\Images\author\author_watch.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\accounts.svg" />
-	  <MauiImage Include="Resources\Images\author\author_auction.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\authors.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\dashboard_outline.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\help.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\info.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\network.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\products.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\search.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\settings.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\transactions.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\transfer.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_done_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_done_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_failed_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\updates.svg" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
@@ -388,4 +320,28 @@
 			<UserProperties XamarinHotReloadDebuggerTimeoutExceptionHideInfoBar="True" XamarinHotReloadEntryPointExceptionHideInfoBar="True" />
 		</VisualStudio>
 	</ProjectExtensions>
+	
+	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
+		<AndroidKeyStore>True</AndroidKeyStore>
+		<AndroidSigningKeyStore>myapp.keystore</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>MyAppkey</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>P@ssw0rd</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>P@ssw0rd</AndroidSigningStorePass>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
 </Project>

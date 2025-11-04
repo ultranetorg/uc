@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
@@ -27,7 +28,7 @@
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
-                    Text="Transaction" />
+                    Text="{x:Static resx:Additional_Strings.Transaction_Title}" />
                 <Label
                     Grid.Row="2"
                     FontSize="12"
@@ -39,15 +40,30 @@
                 Account="{Binding Account}"
                 BorderStyle="{StaticResource AccountCardBorderDark}" />
             <StackLayout>
-                <Label Style="{StaticResource DashLabel}" Text="Hash" />
-                <Label Style="{StaticResource DashLabelValue}" Text="{Binding Transaction.Hash}" FontSize="11" />
+                <Label
+                    Style="{StaticResource DashLabel}"
+                    Text="{x:Static resx:Additional_Strings.Transaction_Hash}" />
+                <Label
+                    Style="{StaticResource DashLabelValue}"
+                    Text="{Binding Transaction.Hash}" FontSize="11" />
             </StackLayout>
-            <controls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0:MM/dd/yyyy hh:mm}'}" />
-            <controls:LabelPair Text1="Status" Text2="{Binding Transaction.DisplayStatus}" />
-            <controls:LabelPair Text1="Size" Text2="{Binding Transaction.Size}" />
-            <controls:LabelPair Text1="Confirmations" Text2="{Binding Transaction.Confirmations}" />
+            <controls:LabelPair
+                Text1="{x:Static resx:Additional_Strings.Transaction_DateAndTime}"
+                Text2="{Binding Transaction.Date, StringFormat='{0:MM/dd/yyyy hh:mm}'}" />
+            <controls:LabelPair
+                Text1="{x:Static resx:Additional_Strings.Transaction_Status}"
+                Text2="{Binding Transaction.DisplayStatus}" />
+            <controls:LabelPair
+                Text1="{x:Static resx:Additional_Strings.Transaction_Size}"
+                Text2="{Binding Transaction.Size}" />
+            <controls:LabelPair
+                Text1="{x:Static resx:Additional_Strings.Transaction_Confirmations}"
+                Text2="{Binding Transaction.Confirmations}" />
             
-            <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" Command="{Binding CopyHashCommand}"/>
+            <Button
+                Style="{StaticResource CopyHashButton}"
+                Text="{x:Static resx:Additional_Strings.Transaction_CopyHash}"
+                Command="{Binding CopyHashCommand}"/>
         </StackLayout>
     </Border>
 </toolkit:Popup>

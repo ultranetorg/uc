@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public abstract partial class BaseAccountViewModel : BaseViewModel
+public abstract partial class BaseAccountViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private CustomCollection<AccountColor> _colorsCollection = new();
@@ -17,7 +17,7 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private int _position;
 
-	protected BaseAccountViewModel(ILogger logger): base(logger)
+	protected BaseAccountViewModel(INotificationsService notificationService, ILogger logger): base(notificationService, logger)
 	{
 	}
 
