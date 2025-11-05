@@ -55,6 +55,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
             </ValidationWrapper>
           )}
         />
+
         <ValidationWrapper
           className="flex flex-col gap-2.5"
           message={errors?.options?.[index]?.message as string | undefined}

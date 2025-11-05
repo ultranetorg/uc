@@ -87,6 +87,14 @@ export const enUS = {
     value: "Value",
   },
 
+  /* Components */
+  productFields: {
+    loading: "loading..",
+    noData: "No fields data",
+    loadError: "Error loading field data",
+    selectField: "Select a tree item on the left",
+  },
+
   /* Pages */
   about: {
     about: "About",
@@ -222,6 +230,9 @@ export const enUS = {
     addMembersTitle: "Add new {{memberType}}s",
     currentMembersTitle: "Currently {{memberType}}s ({{count}})",
   },
+  memberFilesModal: {
+    title: "Select file",
+  },
 
   /* Tabs */
   tabDiscussions: {
@@ -258,7 +269,6 @@ export const enUS = {
     "publication-creation": "Publication creation",
     "publication-deletion": "Publication deletion",
     "publication-publish": "Publication publish",
-    "publication-remove-from-changed": "Publication remove from changed",
     "publication-updation": "Publication updation",
     "review-creation": "Review creation",
     "review-edit": "Review edit",
@@ -276,7 +286,6 @@ export const enUS = {
     "publication-creation": "Creation",
     "publication-deletion": "Deletion",
     "publication-publish": "Publish",
-    "publication-remove-from-changed": "Publication remove from changed",
     "publication-updation": "Updation",
     "review-creation": "Creation",
     "review-edit": "Edit",
@@ -319,10 +328,12 @@ export const enUS = {
     requiredAddOrRemoveMembers: "Add or remove members is required",
     requiredCategory: "Category is required",
     requiredCategoryTitle: "Category title is required",
+    requiredFile: "File is required",
     requiredTitle: "Title is required",
     requiredType: "Type is required",
     uniqueCategoryTitle: "Category title must be unique",
     uniqueCategoryType: "Category type must be unique",
+    uniqueFile: "File must be unique",
     uniqueParentCategory: "Parent category must be unique",
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
@@ -350,11 +361,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  },
-  productFields: {
-    loading: "loading..",
-    noData: "No fields data",
-    loadError: "Error loading field data",
-    selectField: "Select a tree item on the left",
   },
 }

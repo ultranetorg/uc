@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
-import { MembersChangeType } from "types"
 
 const api = getApi()
 
@@ -46,18 +45,6 @@ export const useGetSiteModerators = (siteId?: string) => {
 
   const { isFetching, error, data } = useQuery({
     queryKey: ["sites", siteId, "moderators"],
-    queryFn: queryFn,
-    enabled: !!siteId,
-  })
-
-  return { isFetching, error: error ?? undefined, data }
-}
-
-export const useGetSiteMembers = (memberType: MembersChangeType, siteId?: string) => {
-  const queryFn = () => (memberType === "author" ? api.getSiteAuthors(siteId!) : api.getSiteModerators(siteId!))
-
-  const { isFetching, error, data } = useQuery({
-    queryKey: ["sites", siteId, `${memberType}s`],
     queryFn: queryFn,
     enabled: !!siteId,
   })

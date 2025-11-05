@@ -19,6 +19,8 @@ import {
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
 
+import { prepareRequest } from "./utils"
+
 const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 
 export type CreateProposalViewProps = {
@@ -43,7 +45,8 @@ export const CreateProposalView = memo(({ proposalType, requiresVoting = true }:
   const durationItems = useMemo<DropdownItem[]>(() => CREATE_PROPOSAL_DURATIONS.map(x => ({ label: x, value: x })), [])
 
   const handleFormSubmit = (data: CreateProposalData) => {
-    alert("Form submitted:" + JSON.stringify(data))
+    const prepared = prepareRequest(data)
+    alert("Form submitted:" + JSON.stringify(prepared))
   }
 
   return (

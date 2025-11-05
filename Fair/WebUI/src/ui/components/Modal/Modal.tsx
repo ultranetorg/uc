@@ -42,7 +42,7 @@ export const Modal = memo((props: ModalProps) => {
             {onClose && <SvgX onClick={onClose} className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />}
           </div>
         )}
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-hidden">{children}</div>
         {footer && <div>{footer}</div>}
       </div>
     </Backdrop>,

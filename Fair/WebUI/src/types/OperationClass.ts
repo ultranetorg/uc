@@ -42,7 +42,6 @@ export type OperationClass =
   | "category-deletion"
   | "publication"
   | "publication-creation"
-  | "publication-remove-from-changed"
   | "publication-publish"
   | "publication-updation"
   | "publication-deletion"
