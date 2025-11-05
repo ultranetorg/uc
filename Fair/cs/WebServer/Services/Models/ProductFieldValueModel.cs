@@ -16,3 +16,9 @@ public class ProductFieldValueModel
 	
 	public IEnumerable<ProductFieldValueModel> Children { get; set; }
 }
+
+public class ProductFieldCompareModel
+{
+	public					IEnumerable<ProductFieldValueModel> From { get; set; }
+	public					IEnumerable<ProductFieldValueModel> To { get; set; }
+}

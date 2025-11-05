@@ -1,14 +1,14 @@
 import { ProductFieldViewModel } from "types"
 import { HomeSvg } from "assets/home.tsx"
-import { ProductFieldView } from "./ProductFieldView"
+import { ProductFieldView } from "../ProductFieldView"
 import { memo } from "react"
-import { SvgChevronRight } from "../../../../assets"
+import { SvgChevronRight } from "../../../../../assets"
 import { useTranslation } from "react-i18next"
-import { kebabToCamel } from "../../../../utils"
+import { kebabToCamel } from "../../../../../utils"
+import { SelectedProps } from "../selected-props.ts"
 
-export type ProductFieldInfoProps = {
+export interface ProductFieldInfoProps extends SelectedProps {
   node: ProductFieldViewModel
-  onSelect: (node: ProductFieldViewModel | null) => void
 }
 
 const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
@@ -36,7 +36,7 @@ const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
 const FieldBreadcrumbs = ({ node, onSelect }: ProductFieldInfoProps) => {
   return (
     <div className="flex items-center border-b bg-gray-200 px-4 py-1 text-sm">
-      <HomeSvg className="h-4 w-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900" />
+      <HomeSvg className="h-4 w-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900" onClick={() => onSelect(null)} />
       <SvgChevronRight className="stroke-gray-400" />
       <BreadcrumbNode node={node} onSelect={onSelect} />
     </div>
@@ -69,6 +69,7 @@ const FieldsList = ({ node, onSelect }: ProductFieldInfoProps) => {
 }
 
 export const ProductFieldInfo = memo(({ node, onSelect }: ProductFieldInfoProps) => {
+  console.log('node', node)
   return (
     <div className="overflow-hidden rounded-md border h-full">
       <FieldBreadcrumbs node={node} onSelect={onSelect} />

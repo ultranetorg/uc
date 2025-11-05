@@ -2,11 +2,12 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgArrowLeft } from "assets"
-import { Proposal, ProposalComment, PublicationCreation, TotalItemsResult } from "types"
+import { Proposal, ProposalComment, PublicationCreation, PublicationUpdation, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, OptionsCollapsesList, ProposalInfo } from "ui/components/proposal"
 import { useParams } from "react-router-dom"
 import { ProductFields } from "../components/proposal/ProductsFields"
+import { ProductCompareFields } from "../components/proposal/ProductsFields/ProductCompareFields.tsx"
 
 type PageState = "voting" | "results"
 
@@ -87,6 +88,15 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
     [proposal],
   )
 
+  const publicationIds = useMemo(
+    () =>
+      proposal?.options
+        ?.map(option => option.operation)
+        .filter((operation): operation is PublicationUpdation => operation.$type === "publication-updation")
+        .map(operation => operation.publicationId),
+    [proposal],
+  )
+
   if (!proposal || !comments) {
     return <>LOADING</>
   }
@@ -110,6 +120,18 @@ export const ProposalView = ({ parentBreadcrumb, proposal, isCommentsFetching, c
         <div className="grid grid-cols-[auto_200px] gap-6">
           <div>
             <ProductFields productIds={productIds} />
+          </div>
+          <div>
+            <ProposalInfo createdBy={proposal?.byAccount} createdAt={proposal?.creationTime} daysLeft={7} />
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
+      {publicationIds?.length ? (
+        <div className="grid grid-cols-[auto_200px] gap-6">
+          <div>
+            <ProductCompareFields publicationIds={publicationIds} />
           </div>
           <div>
             <ProposalInfo createdBy={proposal?.byAccount} createdAt={proposal?.creationTime} daysLeft={7} />

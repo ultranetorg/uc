@@ -14,8 +14,20 @@ export interface ProductFieldModel {
   children?: ProductFieldModel[]
 }
 
+export interface ProductFieldCompareModel {
+  from: ProductFieldModel[];
+  to: ProductFieldModel[];
+}
+
 export interface ProductFieldViewModel extends ProductFieldModel {
   id: string
   parent?: ProductFieldViewModel
   children?: ProductFieldViewModel[]
+}
+
+export interface ProductFieldCompareViewModel extends ProductFieldViewModel {
+  isRemoved?: true
+  isAdded?: true
+  isChanged?: true
+  oldValue?: string
 }

@@ -10,7 +10,8 @@ public class PublicationsController
 	IPaginationValidator paginationValidator,
 	ISearchQueryValidator searchQueryValidator,
 	IPublicationsService publicationsService,
-	ISearchService searchService
+	ISearchService searchService,
+	ProductsService productsService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
@@ -31,6 +32,16 @@ public class PublicationsController
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return publicationsService.GetVersions(publicationId);
+	}
+
+	[HttpGet("{publicationId}/updated-fields")]
+	public ProductFieldCompareModel GetUpdatedFields(string publicationId)
+	{
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetUpdatedFields)} method called with {{PublicationId}}", publicationId);
+
+		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+
+		return productsService.GetUpdatedFieldsByPublication(publicationId);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/categories/publications")]

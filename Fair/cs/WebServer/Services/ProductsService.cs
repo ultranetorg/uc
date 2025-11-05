@@ -3,15 +3,15 @@ using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
-public class ProductsService
-(
+public class ProductsService(
 	ILogger<ProductsService> logger,
 	FairMcv mcv
 )
 {
-	public IEnumerable<ProductFieldValueModel> GetFields([NotNull][NotEmpty] string productId)
+	public IEnumerable<ProductFieldValueModel> GetFields([NotNull] [NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService),
+			nameof(GetFields), productId);
 
 		Guard.Against.NullOrEmpty(productId);
 
@@ -31,6 +31,41 @@ public class ProductsService
 		}
 	}
 
+	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull] [NotEmpty] string publicationId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService),
+			nameof(GetUpdatedFieldsByPublication), publicationId);
+
+		Guard.Against.NullOrEmpty(publicationId);
+
+		AutoId id = AutoId.Parse(publicationId);
+
+		lock(mcv.Lock)
+		{
+			id = mcv.Publications.Latest(id).Product;
+
+			Product product = mcv.Products.Latest(id);
+			if(product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), id.ToString());
+			}
+
+			if(product.Versions.Length < 2)
+			{
+				throw new InvalidAutoIdException(nameof(Product).ToLower(), id.ToString());
+			}
+
+			var (from, to) = product.Versions
+				.OrderBy(x => x.Id)
+				.Take(2)
+				.Select(x => x.Fields)
+				.Select(fields => MapValues(fields, Product.Software))
+				.ToArray();
+
+			return new ProductFieldCompareModel { From = from, To = to, };
+		}
+	}
+
 	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
 		return from value in values
@@ -39,10 +74,9 @@ public class ProductsService
 			{
 				Name = value.Name,
 				Type = valueField?.Type,
-				Metadata = valueField?.Fields?.Select(field => new ProductFieldValueMetadataModel
-				{
-					Name = field.Name, Type = field.Type
-				}),
+				Metadata =
+					valueField?.Fields?.Select(field =>
+						new ProductFieldValueMetadataModel { Name = field.Name, Type = field.Type }),
 				Value = valueField?.Type == FieldType.FileId ? value.AsAutoId.ToString() : value.Value,
 				Children = value.Fields?.Length > 0
 					? MapValues(value.Fields, valueField?.Fields)
