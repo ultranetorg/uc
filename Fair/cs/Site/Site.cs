@@ -195,7 +195,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 						new (FairOperationClass.PublicationDeletion,			Role.Moderator|Role.Publisher,												 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationUpdation,			Role.Moderator, 															 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationPublish,				Role.Moderator, 															 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.PublicationRemoveFromChanged,	Role.Moderator, 															 PolicyFlag.ChangableApproval),
+						new (FairOperationClass.PublicationUnpublish,			Role.Moderator, 															 PolicyFlag.ChangableApproval),
 						//																																								 
 						new (FairOperationClass.UserRegistration,				Role.User, 																	 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.UserDeletion,					Role.Moderator, 															 PolicyFlag.ChangableApproval),

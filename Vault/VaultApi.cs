@@ -109,7 +109,7 @@ internal class EnforceAuthenticationApc : Net.EnforceAuthenticationApc, IVaultAp
 		{
 			if(Active)
 			{
-				vault.AuthenticationRequested = (net, account) => new AuthenticationChioce {Account = account, Trust = Trust.Spending};
+				vault.AuthenticationRequested = (net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Spending};
 			} 
 			else
 			{

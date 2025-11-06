@@ -8,7 +8,7 @@ public class NetBoot : Boot
 	{
 	}
 
-	public NetBoot(string exedir)
+	public NetBoot(string exedir) : base(exedir)
 	{
 		if(Commnand.Has("zone"))
 			Zone = Enum.Parse<Zone>(Commnand.Get<string>("zone"));
@@ -18,7 +18,7 @@ public class NetBoot : Boot
 		if(Commnand.Has("profile"))
 			Profile = Commnand.Get<string>("profile");
 		else
-			Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Uos", Zone.ToString());
+			Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.System", Zone.ToString());
 
 	}
 }

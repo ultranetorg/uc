@@ -1,16 +1,32 @@
-namespace Iam.FUI;
+using System.Reflection;
+using Uccs.Net;
+using Uccs.Nexus;
 
-internal static class Program
+namespace Uccs.Iam.FUI;
+
+public class Iam
 {
-	/// <summary>
-	///  The main entry point for the application.
-	/// </summary>
+	public static string		ExeDirectory;
+	public NexusApiClient		Nexus;
+	public VaultApiClient		Vault;
+
 	[STAThread]
 	static void Main()
 	{
-		// To customize application configuration such as set high DPI settings or default font,
-		// see https://aka.ms/applicationconfiguration.
 		ApplicationConfiguration.Initialize();
-		Application.Run(new Form1());
+		//Application.SetColorMode(SystemColorMode.Dark);
+		
+		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+				
+		var b = new NetBoot(ExeDirectory);
+		var s = new NexusSettings(b);
+		
+		System.Windows.Forms.Application.Run(new IamForm(new Iam(s)));
+	}
+
+	public Iam(NexusSettings settings)
+	{
+		Nexus = new NexusApiClient(ApiClient.GetAddress(settings.Zone, settings.Api.LocalIP, false, KnownSystem.NexusApi), null);
+		Vault = new VaultApiClient(ApiClient.GetAddress(settings.Zone, settings.Api.LocalIP, false, KnownSystem.VaultApi), null);
 	}
 }
