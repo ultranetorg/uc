@@ -40,6 +40,12 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
 
+const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
@@ -121,6 +127,17 @@ const getReviews = async (
 
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
 
+const getAuthorFiles = async (
+  siteId: string,
+  authorId?: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<string>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/files` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
 
@@ -197,9 +214,7 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProductFields = async (
-  productId: string,
-): Promise<TotalItemsResult<ProductFieldModel>> => {
+const getProductFields = async (productId: string): Promise<TotalItemsResult<ProductFieldModel>> => {
   const res = await fetch(`${BASE_URL}/products/${productId}/fields`)
   return await toTotalItemsResult(res)
 }
@@ -245,6 +260,7 @@ const api: Api = {
   getReviews,
   getSite,
   getSiteAuthors,
+  getSiteFiles,
   getSiteModerators,
   getUser,
   searchLitePublication,
@@ -254,6 +270,7 @@ const api: Api = {
   searchSites,
   searchLiteAccounts,
 
+  getAuthorFiles,
   getAuthorReferendum,
   getAuthorReferendums,
   getAuthorReferendumComments,

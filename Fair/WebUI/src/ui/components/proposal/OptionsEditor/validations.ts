@@ -13,6 +13,11 @@ export const validateUniqueCategoryType = (t: TFunction) => (value: string, data
   return duplicates.length <= 1 || t("validation:uniqueCategoryType")
 }
 
+export const validateUniqueFileId = (t: TFunction) => (value: string, data: CreateProposalData) => {
+  const duplicates = data.options.filter(opt => opt.fileId === value)
+  return duplicates.length <= 1 || t("validation:uniqueFile")
+}
+
 export const validateUniqueParentCategory = (t: TFunction) => (value: string, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.parentCategoryId === value)
   if (duplicates.length > 1) {
@@ -50,7 +55,7 @@ export const validateSiteAuthorsChange = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasEmpty =
     normalizeAuthors(options[lastEditedIndex].authorsIds) === "" &&
@@ -85,7 +90,7 @@ export const validateSiteModeratorAddition = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
@@ -107,7 +112,7 @@ export const validateSiteModeratorRemoval = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
@@ -130,7 +135,7 @@ export const validateSiteTextChange = (
   setError: UseFormSetError<CreateProposalData>,
   lastEditedIndex: number,
 ) => {
-  if (!options) return
+  if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(

@@ -5,6 +5,7 @@ import {
   ButtonMembersChange,
   DropdownSearchCategory,
   DropdownWithTranslation,
+  FileSelect,
   ProductVersionSelector,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
@@ -16,7 +17,6 @@ export const renderByParameterValueType: Record<
 > = {
   category: (field, value, onChange) => (
     <DropdownSearchCategory
-      key={field.parameterName}
       controlled={true}
       size="large"
       placeholder={field.parameterPlaceholder}
@@ -26,7 +26,6 @@ export const renderByParameterValueType: Record<
   ),
   product: (field, value, onChange) => (
     <Input
-      key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
@@ -36,7 +35,6 @@ export const renderByParameterValueType: Record<
   ),
   publication: (field, value, onChange) => (
     <Input
-      key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
@@ -46,7 +44,6 @@ export const renderByParameterValueType: Record<
   ),
   review: (field, value, onChange) => (
     <Input
-      key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
@@ -56,7 +53,6 @@ export const renderByParameterValueType: Record<
   ),
   user: (field, value, onChange) => (
     <Input
-      key={field.parameterName}
       id={field.parameterName}
       placeholder={field.parameterPlaceholder}
       readOnly={true}
@@ -70,7 +66,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <ButtonMembersChange
-        key={field.name}
         changeAction="add"
         memberType="author"
         label={field.placeholder!}
@@ -82,7 +77,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-removals": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <ButtonMembersChange
-        key={field.name}
         changeAction="remove"
         memberType="author"
         label={field.placeholder!}
@@ -94,7 +88,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   category: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
-        key={field.name}
         className="placeholder-gray-500"
         error={!!errorMessage}
         placeholder={field.placeholder}
@@ -107,7 +100,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
     <ValidationWrapper message={errorMessage}>
       <DropdownWithTranslation
         isMulti={false}
-        key={field.name}
         error={!!errorMessage}
         translationKey="categoryTypes"
         items={CATEGORY_TYPES}
@@ -117,10 +109,13 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       />
     </ValidationWrapper>
   ),
-  file: ({ field }) => <div key={field.name}>file</div>,
+  file: ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <FileSelect label={field.placeholder!} value={value as string} onChange={onChange} />
+    </ValidationWrapper>
+  ),
   "moderators-additions": ({ field, value, onChange }) => (
     <ButtonMembersChange
-      key={field.name}
       changeAction="add"
       memberType="moderator"
       label={field.placeholder!}
@@ -130,7 +125,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "moderators-removals": ({ field, value, onChange }) => (
     <ButtonMembersChange
-      key={field.name}
       changeAction="remove"
       memberType="moderator"
       label={field.placeholder!}
@@ -141,7 +135,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "review-status": ({ field, value, onChange }) => (
     <DropdownWithTranslation
       isMulti={false}
-      key={field.name}
       translationKey="reviewStatuses"
       items={REVIEW_STATUSES}
       placeholder={field.placeholder}
@@ -152,7 +145,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   string: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <Input
-        key={field.name}
         id={field.name}
         className="h-10 placeholder-gray-500"
         placeholder={field.placeholder}
@@ -164,14 +156,11 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "string-multiline": ({ field, value, onChange }) => (
     <Textarea
-      key={field.name}
       placeholder={field.placeholder}
       className="text-2sm leading-5 placeholder-gray-500"
       value={value as string}
       onChange={value => onChange(value)}
     />
   ),
-  version: ({ field, onChange }) => (
-    <ProductVersionSelector key={field.name} onChange={item => onChange(item.toString())} />
-  ),
+  version: ({ onChange }) => <ProductVersionSelector onChange={item => onChange(item.toString())} />,
 }

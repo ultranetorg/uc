@@ -30,6 +30,7 @@ export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
@@ -56,6 +57,8 @@ export type Api = {
   getUser(userId: string): Promise<User>
 
   // Author
+  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     siteId: string,
@@ -94,9 +97,7 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(
-    productId: string
-  ): Promise<TotalItemsResult<ProductFieldModel>>
+  getProductFields(productId: string): Promise<TotalItemsResult<ProductFieldModel>>
 
   getReviewProposals(
     siteId: string,
