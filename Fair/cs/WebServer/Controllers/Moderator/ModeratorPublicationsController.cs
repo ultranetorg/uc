@@ -25,15 +25,4 @@ public class ModeratorPublicationsController
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}
-
-	//[HttpGet("{publicationId}")]
-	//public PublicationProposalModel Get(string siteId, string publicationId)
-	//{
-	//	logger.LogInformation($"GET {nameof(ModeratorPublicationsController)}.{nameof(ModeratorPublicationsController.Get)} method called with {{SiteId}}, {{PublicationId}}", siteId, publicationId);
-
-	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-	//	autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
-
-	//	return moderatorProposalService.GetPublicationProposal(siteId, publicationId);
-	//}
 }

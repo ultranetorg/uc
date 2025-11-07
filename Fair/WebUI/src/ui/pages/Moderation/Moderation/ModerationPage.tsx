@@ -6,12 +6,20 @@ import { TabsProvider } from "app"
 import { TabContent, TabsList, TabsListItem } from "ui/components"
 import { GovernanceModerationHeader } from "ui/components/specific"
 
+import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
 import { DiscussionsTab } from "./DiscussionsTab"
 import { PublicationsTab } from "./PublicationsTab"
 import { ReviewsTab } from "./ReviewsTab"
+import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 import { UserRegistrationsTab } from "./UserRegistrationsTab"
 
-const routeToTabKey: Record<string, string> = { p: "publications", u: "user-registrations", d: "discussions" }
+const routeToTabKey: Record<string, string> = {
+  p: "publications",
+  u: "user-registrations",
+  r: "reviews",
+  n: "unpublished-publications",
+  c: "changed-publications",
+}
 
 export const ModerationPage = () => {
   const { siteId, tabKey } = useParams()
@@ -28,10 +36,12 @@ export const ModerationPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "reviews", label: t("reviews") },
+      { key: "discussions", label: t("discussions") },
+      { key: "changed-publications", label: t("changedPublications"), route: "c" },
+      { key: "unpublished-publications", label: t("unpublishedPublications"), route: "n" },
       { key: "publications", label: t("publications"), route: "p" },
+      { key: "reviews", label: t("reviews"), route: "r" },
       { key: "user-registrations", label: t("userRegistrations"), route: "u" },
-      { key: "discussions", label: t("discussions"), route: "d" },
     ],
     [t],
   )
@@ -45,7 +55,7 @@ export const ModerationPage = () => {
         homeLabel={t("common:home")}
         createButtonLabel={t("createDiscussion")}
       />
-      <TabsProvider defaultKey={key || "reviews"}>
+      <TabsProvider defaultKey={key || "discussions"}>
         <div className="flex flex-col gap-6">
           <TabsList
             className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -55,17 +65,23 @@ export const ModerationPage = () => {
             items={tabsItems}
           />
 
-          <TabContent when="reviews">
-            <ReviewsTab />
+          <TabContent when="changed-publications">
+            <ChangedPublicationsTab />
+          </TabContent>
+          <TabContent when="discussions">
+            <DiscussionsTab />
           </TabContent>
           <TabContent when="publications">
             <PublicationsTab />
           </TabContent>
+          <TabContent when="reviews">
+            <ReviewsTab />
+          </TabContent>
+          <TabContent when="unpublished-publications">
+            <UnpublishedPublicationsTab />
+          </TabContent>
           <TabContent when="user-registrations">
             <UserRegistrationsTab />
-          </TabContent>
-          <TabContent when="discussions">
-            <DiscussionsTab />
           </TabContent>
         </div>
       </TabsProvider>
