@@ -58,7 +58,7 @@ public class SiteCreation : FairOperation
 						new (FairOperationClass.PublicationDeletion,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationUpdation,			Role.Moderator, 								ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationPublish,				Role.Moderator, 								ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.PublicationRemoveFromChanged,	Role.Moderator, 								ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationUnpublish,			Role.Moderator, 								ApprovalRequirement.AnyModerator),
 																																								
 						new (FairOperationClass.UserRegistration,				Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.UserDeletion,					Role.Moderator, 								ApprovalRequirement.AnyModerator),

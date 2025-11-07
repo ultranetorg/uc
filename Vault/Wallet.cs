@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Vault;
 
-public class AuthenticationChioce
+public class AuthenticationChoice
 {
 	public AccountAddress	Account { get; set; }
 	public Trust			Trust { get; set; }

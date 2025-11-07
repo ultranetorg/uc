@@ -17,7 +17,7 @@ public class Vault : Cli
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
-	public Func<string, AccountAddress, AuthenticationChioce>	AuthenticationRequested;
+	public Func<string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
 	public Action<AccountAddress>								UnlockRequested;
 	public Func<string, AccountAddress, bool>					AuthorizationRequested;
 
