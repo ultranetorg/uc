@@ -13,9 +13,11 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
+  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -48,6 +50,17 @@ export type Api = {
   getFile(id: string): Promise<string>
   getPublication(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
+  getChangedPublications(
+    siteId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<PublicationChanged>>
+  getUnpublishedPublications(
+    siteId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<PublicationBaseSite>>
+
   getAuthorPublications(
     siteId: string,
     authorId: string,

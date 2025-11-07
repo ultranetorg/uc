@@ -16,10 +16,12 @@ export const enUS = {
     comments: "comments",
     confirm: "confirm",
     createdBy: "Created By",
+    currentVersion: "current version",
     date: "Date",
     governance: "governance",
     home: "Home",
     lastsFor: "Lasts for",
+    latestVersion: "latest version",
     neither: "Neither",
     next: "Next",
     no: "No",
@@ -125,11 +127,13 @@ export const enUS = {
     title: "Governance",
   },
   moderation: {
+    changedPublications: "Changed publications",
     createDiscussion: "Create discussion",
     discussions: "Discussions",
     publications: "Publications",
     reviews: "Reviews",
     title: "Moderation",
+    unpublishedPublications: "Unpublished publications",
     userRegistrations: "User registrations",
   },
   profile: {
@@ -235,6 +239,9 @@ export const enUS = {
   },
 
   /* Tabs */
+  tabChangedPublications: {
+    noPublications: "No changed publications",
+  },
   tabDiscussions: {
     searchProposal: "Search discussion",
     noProposals: "No open discussions",
@@ -246,6 +253,9 @@ export const enUS = {
     noReviews: "No reviews",
     reviewer: "Review user",
     text: "Text",
+  },
+  tabUnpublishedPublications: {
+    noPublications: "No unpublished publications",
   },
   tabUsers: {
     noUsers: "No user registrations",

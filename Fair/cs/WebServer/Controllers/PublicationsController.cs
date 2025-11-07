@@ -10,8 +10,8 @@ public class PublicationsController
 	IPaginationValidator paginationValidator,
 	ISearchQueryValidator searchQueryValidator,
 	IPublicationsService publicationsService,
-	ISearchService searchService,
-	ProductsService productsService
+	ProductsService productsService,
+	ISearchService searchService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
@@ -107,5 +107,33 @@ public class PublicationsController
 		TotalItemsResult<PublicationModel> publications = publicationsService.GetCategoryPublicationsNotOptimized(categoryId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(publications.Items, pageValue, pageSizeValue, publications.TotalItems);
+	}
+
+	[HttpGet("~/api/sites/{siteId}/changed-publications")]
+	public IEnumerable<PublicationChangedModel> GetChangedPublications(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(PublicationsController), nameof(GetChangedPublications), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<PublicationChangedModel> products = publicationsService.GetChangedPublications(siteId, pageValue, pageSizeValue, cancellationToken);
+
+		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
+	}
+
+	[HttpGet("~/api/sites/{siteId}/unpublished-publications")]
+	public IEnumerable<PublicationBaseSiteModel> GetUnpublishedPublications(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(PublicationsController), nameof(GetUnpublishedPublications), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<PublicationBaseSiteModel> products = publicationsService.GetUnpublishedPublications(siteId, pageValue, pageSizeValue, cancellationToken);
+
+		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}
 }
