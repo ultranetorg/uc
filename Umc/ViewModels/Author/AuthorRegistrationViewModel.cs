@@ -13,7 +13,8 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 		? string.Empty
 		: string.Join("", Title.ToLower().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
 
-    public AuthorRegistrationViewModel(ILogger<AuthorRegistrationViewModel> logger) : base(logger)
+    public AuthorRegistrationViewModel(INotificationsService notificationService,
+		ILogger<AuthorRegistrationViewModel> logger) : base(notificationService, logger)
     {
     }
 
@@ -37,5 +38,36 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
         {
             FinishLoading();
         }
+	}
+
+	[RelayCommand]
+	private async Task NextWorkaroundNewAsync()
+	{
+		var isValid = Account != null && !string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Commission);
+		if (Position == 0 && isValid)
+		{
+			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
+			Position = 1;
+			Position = 0;
+			Position = 1;
+		}
+		else if (Position == 1)
+		{
+			await Navigation.PopAsync();
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Success);
+		}
+	}
+
+	[RelayCommand]
+	protected async Task CancelAsync()
+	{
+		if (Position > 0)
+		{
+			Position -= 1;
+		}
+		else
+		{
+			await Navigation.PopAsync();
+		}
 	}
 }

@@ -4,9 +4,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AboutViewModel"
-    Title="About">
+    Title="{x:Static resx:Dashboard_Strings.About_Title}">
+    
     <controls:CustomPage.Resources>
         <Style x:Key="DetailsGrid" TargetType="Grid">
             <Setter Property="ColumnDefinitions" Value="*,24" />
@@ -19,7 +21,7 @@
             <StackLayout Spacing="16">
                 <Border
                     Grid.ColumnSpan="2"
-                    HeightRequest="74"
+                    HeightRequest="72"
                     Style="{StaticResource AccountCardBorderDark}">
                     <Grid
                         Padding="20,4"
@@ -31,22 +33,21 @@
                             Grid.RowSpan="2"
                             Grid.Column="0"
                             HeightRequest="32"
-                            Style="{StaticResource Logo3}"
-                            Source="logo3_dark.png"
+                            Style="{StaticResource Logo2}"
                             VerticalOptions="Center"
                             WidthRequest="32" />
                         <Label
                             Grid.Row="0"
                             Grid.Column="1"
                             FontSize="14"
-                            Text="Ultranet User Center"
+                            Text="{x:Static resx:Dashboard_Strings.Ultranet_App_Name}"
                             VerticalOptions="Center" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="1"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="1.0.1 build 6941"
+                            Text="{Binding AppVersion, StringFormat='{0} build'}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Border>
@@ -65,7 +66,7 @@
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Ultranet homepage"
+                                Text="{x:Static resx:Dashboard_Strings.About_HomePage}"
                                 VerticalOptions="Start" />
                             <Image
                                 Grid.RowSpan="2"
@@ -75,7 +76,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -83,14 +85,14 @@
                                 Grid.Column="0"
                                 FontSize="14"
                                 Style="{StaticResource DashLabel}"
-                                Text="Rate the application"
+                                Text="{x:Static resx:Dashboard_Strings.About_RateApp}"
                                 VerticalOptions="End" />
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Rate our application in App Store"
+                                Text="{x:Static resx:Dashboard_Strings.About_RateApp2}"
                                 VerticalOptions="Start" />
                             <Image
                                 Grid.RowSpan="2"
@@ -100,7 +102,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -108,14 +111,14 @@
                                 Grid.Column="0"
                                 FontSize="14"
                                 Style="{StaticResource DashLabel}"
-                                Text="Send feedback"
+                                Text="{x:Static resx:Dashboard_Strings.About_SendFeedback}"
                                 VerticalOptions="End" />
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Share your feedback with us"
+                                Text="{x:Static resx:Dashboard_Strings.About_SendFeedback2}"
                                 VerticalOptions="Start" />
                             <Image
                                 Grid.RowSpan="2"
@@ -125,7 +128,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -133,14 +137,14 @@
                                 Grid.Column="0"
                                 FontSize="14"
                                 Style="{StaticResource DashLabel}"
-                                Text="Ultranet on Telegram"
+                                Text="{x:Static resx:Dashboard_Strings.About_Telegram}"
                                 VerticalOptions="End" />
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Join us in Telegram"
+                                Text="{x:Static resx:Dashboard_Strings.About_Telegram2}"
                                 VerticalOptions="Start" />
                             <Image
                                 Grid.RowSpan="2"
@@ -150,7 +154,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -158,14 +163,14 @@
                                 Grid.Column="0"
                                 FontSize="14"
                                 Style="{StaticResource DashLabel}"
-                                Text="Ultranet on Twitter"
+                                Text="{x:Static resx:Dashboard_Strings.About_Twitter}"
                                 VerticalOptions="End" />
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Join us in Twitter"
+                                Text="{x:Static resx:Dashboard_Strings.About_Twitter2}"
                                 VerticalOptions="Start" />
                             <Image
                                 Grid.RowSpan="2"
@@ -175,7 +180,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}" RowSpacing="8">
                             <Label
@@ -183,27 +189,28 @@
                                 Grid.Column="0"
                                 FontSize="14"
                                 Style="{StaticResource DashLabel}"
-                                Text="Bug bounty program"
+                                Text="{x:Static resx:Dashboard_Strings.About_BugBounty}"
                                 VerticalOptions="End" />
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 FontSize="12"
                                 Opacity="0.6"
-                                Text="Read about our Bug Bounty program"
+                                Text="{x:Static resx:Dashboard_Strings.About_BugBounty2}"
                                 VerticalOptions="Start" />
                             <StackLayout
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,4,0,0" />
                         </Grid>
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
                             FontSize="14"
                             Style="{StaticResource DashLabel}"
-                            Text="Privacy and terms"
+                            Text="{x:Static resx:Dashboard_Strings.About_PrivacyTerms}"
                             VerticalOptions="End" />
                     </StackLayout>
                 </StackLayout>
@@ -212,7 +219,7 @@
             <Button
                 Grid.Row="1"
                 Command="{Binding CancelCommand}"
-                Text="Close" />
+                Text="{x:Static resx:Dashboard_Strings.About_Close}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

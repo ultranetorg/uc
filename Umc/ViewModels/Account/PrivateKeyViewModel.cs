@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class PrivateKeyViewModel : BaseViewModel
+public partial class PrivateKeyViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private CustomCollection<AuthorViewModel> _authors = new();
@@ -11,7 +11,8 @@ public partial class PrivateKeyViewModel : BaseViewModel
 	[ObservableProperty]
     private AccountViewModel _account;
 
-    public PrivateKeyViewModel(ILogger<PrivateKeyViewModel> logger) : base(logger)
+    public PrivateKeyViewModel(INotificationsService notificationService,
+		ILogger<PrivateKeyViewModel> logger) : base(notificationService, logger)
     { 
     }
 
@@ -43,7 +44,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
         try
         {
 			await Clipboard.SetTextAsync(Account.Address);
-            await ToastHelper.ShowMessageAsync("Copied to clipboard");
+            await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Copied);
 #if DEBUG
             _logger.LogDebug("CopyAsync Address: {Address}", Account.Address);
 #endif

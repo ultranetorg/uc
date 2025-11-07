@@ -2,8 +2,8 @@
 
 public partial class DeleteAccountViewModel : BaseAccountViewModel
 {
-	// will be splitted into 3 services
-	private readonly IServicesMockData _service;
+	private readonly IAuthorsService _authorsService;
+	private readonly IProductsService _productsService;
 
 	[ObservableProperty]
     private CustomCollection<AuthorViewModel> _authors = new();
@@ -11,10 +11,11 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 	[ObservableProperty]
     private CustomCollection<ProductViewModel> _products = new();
 
-    public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
+    public DeleteAccountViewModel(INotificationsService notificationService, IAuthorsService authorsService,
+		IProductsService productsService, ILogger<DeleteAccountViewModel> logger) : base(notificationService, logger)
     {
-		_service = service;
-		LoadData();
+		_authorsService = authorsService;
+		_productsService = productsService;
     }
 
     public override void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -27,6 +28,8 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
 #endif
+			Authors = _authorsService.GetAccountAuthors(Account.Address);
+			Products = _productsService.GetAccountProducts(Account.Address);
         }
         catch (Exception ex)
         {
@@ -46,21 +49,12 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 		{
 			await ShowPopup(new DeleteAccountPopup(Account));
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully deleted!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Deleted);
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "DeleteAsync Exception: {Ex}", ex.Message);
 			await ToastHelper.ShowDefaultErrorMessageAsync();
 		}
-	}
-
-	private void LoadData()
-	{
-		Authors.Clear();
-		Products.Clear();
-
-		Authors.AddRange(_service.Authors);
-		Products.AddRange(_service.Products);
 	}
 }

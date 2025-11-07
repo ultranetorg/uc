@@ -7,11 +7,18 @@ public class SiteCreation : FairOperation
 	public string				Title { get; set; }
 	public byte					Years {get; set;}
 
-	public override bool		IsValid(McvNet net) => true; // !Changes.HasFlag(SiteChanges.Description) || (Data.Length <= Site.DescriptionLengthMax);
 	public override string		Explanation => $"{Title}, Years{Years}";
 
 	public SiteCreation()
 	{
+	}
+
+	public override bool IsValid(McvNet net)
+	{
+		if((Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax))
+			return false;
+
+		return true;
 	}
 
 	public override void Read(BinaryReader reader)
@@ -51,7 +58,7 @@ public class SiteCreation : FairOperation
 						new (FairOperationClass.PublicationDeletion,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationUpdation,			Role.Moderator, 								ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationPublish,				Role.Moderator, 								ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.PublicationRemoveFromChanged,	Role.Moderator, 								ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.PublicationUnpublish,			Role.Moderator, 								ApprovalRequirement.AnyModerator),
 																																								
 						new (FairOperationClass.UserRegistration,				Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.UserDeletion,					Role.Moderator, 								ApprovalRequirement.AnyModerator),

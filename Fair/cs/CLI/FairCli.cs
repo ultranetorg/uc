@@ -41,7 +41,7 @@ public class FairCli : McvCli
 		return base.Create(commnad, flow);
 	}
 
-	public override object Execute(Boot boot, Flow flow)
+	public override object Execute(NetBoot boot, Flow flow)
 	{
 		Settings = new FairNodeSettings(boot.Profile);
 		Net = Fair.ByZone(boot.Zone);

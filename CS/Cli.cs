@@ -1,8 +1,120 @@
-﻿namespace Uccs.Net;
+﻿using System.Diagnostics;
+using System.Reflection;
+
+namespace Uccs;
 
 public abstract class Cli
 {
-	public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
+	public const string			FailureExt = "failure";
+
+	public static string		ExeDirectory;
+	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
+	public Flow					Flow; 
+
+	//public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
+
+	public static bool			ConsoleAvailable { get; protected set; }
+
+	static Cli()
+	{
+		Thread.CurrentThread.CurrentCulture = 
+		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+
+		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+		try
+		{
+			var p = Console.KeyAvailable;
+			ConsoleAvailable = true;
+		}
+		catch(Exception)
+		{
+			ConsoleAvailable = false;
+		}
+	}
+
+	protected Cli()
+	{
+	}
+
+	public virtual Command Create(IEnumerable<Xon> commnad, Flow flow)
+	{
+		var t = commnad.First().Name;
+		var args = commnad.Skip(1).ToList();
+		var ct = GetType().Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+
+		return ct.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
+	}
+
+	protected void Execute(Boot boot)
+	{
+		if(!boot.Commnand.Nodes.Any())
+			return;
+
+		Flow = new Flow(GetType().Name, new Log()); 
+			
+		try
+		{
+			var l = new Log();
+			LogView.StartListening(l);
+
+			Execute(boot.Commnand.Nodes, Flow.CreateNested("Command", l));
+		}
+		catch(OperationCanceledException)
+		{
+			Flow.Log.ReportError(null, "Execution aborted");
+		}
+		catch(Exception ex) when(!Debugger.IsAttached)
+		{
+			if(Command.ConsoleAvailable)
+			{
+				Console.WriteLine(ex.ToString());
+
+				if(ex is ApiCallException ace)
+				{
+					Console.WriteLine(ace.Response.Content.ReadAsStringAsync().Result);
+				}
+			}
+
+			Directory.CreateDirectory(boot.Profile);
+			File.WriteAllText(Path.Join(boot.Profile, $"{Flow.Name}.{FailureExt}"), ex.ToString());
+		}
+
+		LogView.StopListening();
+	}
+
+	public void Run(Command command, Command.CommandAction action)
+	{
+		if(ConsoleAvailable)
+		{
+			while(Flow.Active)
+			{
+				Console.Write($"> ");
+
+				try
+				{
+					var x = new Xon(Console.ReadLine());
+
+					if(x.Nodes[0].Name == command.Keyword && (
+																action.Names.Contains(x.Nodes[1].Name) 
+															 ))
+						throw new Exception("Not available");
+
+					LogView.StartListening(Flow.Log);
+					Execute(x.Nodes, Flow);
+					LogView.StopListening();
+				}
+				catch(Exception ex)
+				{
+					Flow.Log.ReportError(this, "Error", ex);
+				}
+			}
+
+		}
+		else
+			Flow.Cancellation.WaitHandle.WaitOne();
+
+	}
 
 	public object Execute(IEnumerable<Xon> args, Flow flow)
 	{
@@ -23,8 +135,8 @@ public abstract class Cli
 			{
 				c.Report(string.Join(", ", i.Names));
 				c.Report("");
-				c.Report("   Syntax      : " + i.Help?.Syntax);
-				c.Report("   Description : " + i.Help?.Description);
+				c.Report("   Syntax      : " + i.Syntax);
+				c.Report("   Description : " + i.Description);
 				c.Report("");
 			}
 
@@ -40,21 +152,21 @@ public abstract class Cli
 
 			c.Report("Syntax :");
 			c.Report("");
-			c.Report("   " + a.Help.Syntax);
+			c.Report("   " + a.Syntax);
 
 			c.Report("");
 
 			c.Report("Description :");
 			c.Report("");
-			c.Report("   " + a.Help.Description);
+			c.Report("   " + a.Description);
 
-			if(a.Help.Arguments.Any())
+			if(a.Arguments.Any())
 			{ 
 				c.Report("");
 
 				c.Report("Arguments :");
 				c.Report("");
-				c.Flow.Log?.Dump(a.Help.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
+				c.Flow.Log?.Dump(a.Arguments, ["Name", "Description"], [i => i.Name, i => i.Description], 1);
 			}
 								
 			return c;

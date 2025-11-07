@@ -4,6 +4,7 @@ public partial class WhatsNewPopupViewModel : BaseViewModel
 {
 	[ObservableProperty]
     private List<string> _addedList = DefaultDataMock.AddedList;
+
 	[ObservableProperty]
     private List<string> _fixedList = DefaultDataMock.FixedList;
 

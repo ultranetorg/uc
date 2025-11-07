@@ -7,70 +7,149 @@ namespace Uccs;
 
 public abstract class Command
 {
-	public const string		FirstArg = "<first>";
-
-	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
-	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(Command.CommandAction)).Select(i => i.Invoke(this, null)).Cast<Command.CommandAction>().ToArray();
-
-	public class Help
-	{
-		public class Argument
-		{
-			public string	Name {get; set; }
-			public string	Description {get; set; }
-
-			public Argument[]	Arguments  {get; set; }
-
-			public Argument(string name, string description)
-			{
-				Name = name;
-				Description = description;
-			}
-		}
-
-		public class Example
-		{
-			public string Description  {get; set; }
-			public string Code  {get; set; }
-
-			public Example(string description, string code)
-			{
-				Description = description;
-				Code = code;
-			}
-		}
-
-		//public string		Title {get; set; }
-		public string		Description {get; set; }
-		public string		Syntax {get; set; }
-		public Argument[]	Arguments {get; set; }
-		public Example[]	Examples {get; set; } 
-	}
-
 	public class CommandAction
 	{
+		Command					Command;
 		public string			Name;
 		public string			LongName => Method.Name.Replace("_", null).ToLower();
 		public string			Title => Method.Name.Replace("_", " ");
 		public string[]			Names => [Name, LongName];
-		public Help				Help;
+		public string			Description {get; set; }
+		public Argument[]		Arguments {get; set; }
 		public Func<object>		Execute;
 
 		public string			NamesSyntax => string.Join('|', Names);
+		public Argument			this[int argument] => Arguments[argument];
 
 		MethodBase				Method;
-
-		public CommandAction(MethodBase method)
+		public Func<Example[]>	Examples;
+		
+		public string Syntax
 		{
+			get
+			{
+				var s = Command.Keyword;
+	
+				var used = new Dictionary<ArgumentType, int>();
+	
+				foreach(var i in Arguments)
+					if(i.Name == null)
+						s += $" {i.Type.Name}";
+	
+				foreach(var i in Arguments)
+					if(i.Name != null)
+						s += $" {i.Name}={i.Type.Name}";
+	
+				return s;
+			}
+		}
+		
+	
+		public CommandAction(Command command, MethodBase method)
+		{
+			Command = command;
 			Method = method;
+
+			Examples = () =>	{
+								var c = Command.Keyword;
+	
+								var used = new Dictionary<ArgumentType, int>();
+	
+								string nextexample(ArgumentType t)
+								{
+									if(!used.ContainsKey(t))
+										used[t] = 0;
+									else
+										used[t]++;
+	
+									return t.Examples[used[t]];
+								}
+	
+								foreach(var i in Arguments)
+									if(i.Name == null)
+										c += $" {nextexample(i.Type)}";
+	
+								foreach(var i in Arguments)
+									if(i.Name != null)
+										c += $" {i.Name}={nextexample(i.Type)}";
+	
+								return [new Example(null, c)];
+							};
 		}
 	}
 
-	public List<Xon>			Args;
-	public static bool			ConsoleAvailable { get; protected set; }
-	public Flow					Flow;
+	public class ArgumentType
+	{
+		public string	Name;
+		public string	Description;
+		public string[] Examples;
 
-	public void					Report(string message) => Flow.Log?.Report(this, "   " + message);
+		public string	Example => Examples[0];
+		public string	Example1 => Examples[1];
+		public string	Example2 => Examples[2];
+
+		public ArgumentType(string name, string description, string[] example)
+		{
+			Name = name;
+			Description = description;
+			Examples = example;
+		}
+
+		public override string ToString()
+		{
+			return Name;
+		}
+	}
+
+	public enum Flag
+	{
+		None,
+		First = 1,
+		Second = 2,
+		Optional = 4,
+		Multi = 8
+	}
+
+	public class Argument
+	{
+		public string		Name {get; set; }
+		public ArgumentType	Type {get; set; }
+		public string		Description {get; set; }
+		public Flag			Flags {get; set; }
+
+		public Argument[]	Arguments  {get; set; }
+
+		public Argument(string name, ArgumentType type, string description, Flag flags = Flag.None)
+		{
+			Type = type;
+			Name = name;
+			Description = description;
+			Flags = flags;
+		}
+	}
+
+	public class Example
+	{
+		public string Description  {get; set; }
+		public string Code  {get; set; }
+
+		public Example(string description, string code)
+		{
+			Description = description;
+			Code = code;
+		}
+	}
+
+	public const string		FirstArg = "<first>";
+
+	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
+	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction)).Select(i => i.Invoke(this, null)).Cast<CommandAction>().ToArray();
+
+	public List<Xon>		Args;
+	public static bool		ConsoleAvailable { get; protected set; }
+	public Flow				Flow;
+
+	public void				Report(string message) => Flow.Log?.Report(this, "   " + message);
 
 	static Command()
 	{

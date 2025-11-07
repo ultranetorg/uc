@@ -2,10 +2,9 @@
 
 public partial class UpdatesList : ContentView
 {
-	public static readonly BindableProperty AddedListProperty =
-		BindableProperty.Create(nameof(AddedList), typeof(List<string>), typeof(UpdatesList));
-	public static readonly BindableProperty FixedListProperty =
-		BindableProperty.Create(nameof(FixedList), typeof(List<string>), typeof(UpdatesList));
+	public static readonly BindableProperty AddedListProperty = BindableProperty.Create(nameof(AddedList), typeof(List<string>), typeof(UpdatesList));
+
+	public static readonly BindableProperty FixedListProperty = BindableProperty.Create(nameof(FixedList), typeof(List<string>), typeof(UpdatesList));
 
 	public List<string> AddedList
     {
@@ -17,7 +16,6 @@ public partial class UpdatesList : ContentView
         get { return (List<string>)GetValue(FixedListProperty); }
         set { SetValue(FixedListProperty, value); }
 	}
-
 	public UpdatesList()
 	{
         InitializeComponent();

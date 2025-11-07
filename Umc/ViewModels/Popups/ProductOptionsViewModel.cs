@@ -15,7 +15,10 @@ public partial class ProductOptionsViewModel : BaseViewModel
 		try
 		{
 			await Navigation.GoToAsync(nameof(ProductTransferPage),
-				new Dictionary<string, object>() { { QueryKeys.PRODUCT, Product } });
+				new Dictionary<string, object>() {
+					{
+						QueryKeys.PRODUCT, Product }
+					});
 			ClosePopup();
 		}
 		catch (Exception ex)

@@ -12,7 +12,7 @@ export type ButtonGhostProps = PropsWithClassName & ButtonGhostBaseProps
 export const ButtonGhost = ({ className, label, onClick }: ButtonGhostProps) => (
   <span
     className={twMerge(
-      "transition-base disabled:gray-400 w-fit cursor-pointer rounded text-2xs leading-4 text-gray-800 hover:font-medium",
+      "disabled:gray-400 w-fit cursor-pointer rounded text-2xs leading-4 text-gray-800 hover:font-medium",
       className,
     )}
     onClick={onClick}

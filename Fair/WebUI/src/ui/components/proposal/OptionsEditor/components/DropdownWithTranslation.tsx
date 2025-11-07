@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 import { Dropdown, DropdownProps } from "ui/components"
@@ -11,7 +12,7 @@ type DropdownWithTranslationBaseProps = {
 
 export type DropdownWithTranslationProps<IsMulti extends boolean> = PropsWithClassName &
   DropdownWithTranslationBaseProps &
-  Pick<DropdownProps<IsMulti>, "isMulti" | "placeholder" | "size" | "onChange">
+  Pick<DropdownProps<IsMulti>, "isMulti" | "error" | "placeholder" | "size" | "value" | "onChange">
 
 export const DropdownWithTranslationInner = <IsMulti extends boolean>({
   isMulti,
@@ -27,7 +28,15 @@ export const DropdownWithTranslationInner = <IsMulti extends boolean>({
     [items, t, translationKey],
   )
 
-  return <Dropdown isMulti={isMulti} items={dropdownItems} className={className} {...rest} />
+  return (
+    <Dropdown
+      controlled={true}
+      isMulti={isMulti}
+      items={dropdownItems}
+      className={twMerge("placeholder-gray-500", className)}
+      {...rest}
+    />
+  )
 }
 
 export const DropdownWithTranslation = DropdownWithTranslationInner as <IsMulti extends boolean>(

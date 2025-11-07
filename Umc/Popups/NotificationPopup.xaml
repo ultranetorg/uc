@@ -3,115 +3,129 @@
     x:Class="UC.Umc.Popups.NotificationPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    x:DataType="vm:NotificationViewModel"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:SizeConstants.Medium}"
+    VerticalOptions="End"
     x:Name="page">
-    
-    <!--HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}"
-    <pages:PopupPage.Animation>
-        <pages:ScaleAnimation
-            DurationIn="400"
-            DurationOut="300"
-            EasingIn="SinOut"
-            EasingOut="SinIn"
-            HasBackgroundAnimation="False"
-            PositionIn="Bottom"
-            PositionOut="Bottom"
-            ScaleIn="1.2"
-            ScaleOut="0.8" />
-    </pages:PopupPage.Animation>-->
-    <Frame
-        Margin="0,0,0,-20"
-        Padding="20,8,20,50"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                          Light={StaticResource LightBackground}}"
-        CornerRadius="20"
-        HasShadow="True"
-        HorizontalOptions="FillAndExpand"
-        VerticalOptions="EndAndExpand">
-        <StackLayout HorizontalOptions="FillAndExpand" Spacing="15">
-            <Grid RowDefinitions="20,Auto,*" RowSpacing="15">
-                <Frame
+    <Border Style="{StaticResource AccountCardBorder}">
+        <StackLayout
+            Padding="24,16"
+            HorizontalOptions="Fill"
+            Spacing="16">
+            <Grid RowDefinitions="24,24,*" RowSpacing="16">
+                <Border
                     Grid.Row="0"
-                    HorizontalOptions="CenterAndExpand"
-                    Style="{StaticResource PopupHandle}"
-                    VerticalOptions="Center" />
-                <Grid
+                    VerticalOptions="Center"
+                    Margin="0,0,0,8"
+                    Style="{StaticResource PopupHandleBorder}" />
+                <Label
                     Grid.Row="1"
-                    ColumnDefinitions="*,*,*"
-                    VerticalOptions="Center">
-                    <Label
-                        Grid.Column="1"
-                        FontSize="18"
-                        Text="Notification"
-                        VerticalOptions="Center" />
-                    <ImageButton
-                        Grid.Column="0"
-                        HeightRequest="28"
-                        HorizontalOptions="Start"
-                        Opacity="0.4"
-                        Style="{StaticResource ArrowLeft}"
-                        VerticalOptions="Center"
-                        WidthRequest="28" />
-                </Grid>
+                    FontSize="18"
+                    Text="{x:Static resx:Additional_Strings.Notification_Title}"
+                    VerticalOptions="Center" />
                 <StackLayout Grid.Row="2" Spacing="10">
                     <Image
-                        Grid.Row="0"
                         Grid.RowSpan="2"
-                        Grid.Column="0"
                         Aspect="AspectFill"
-                        HeightRequest="35"
+                        HeightRequest="40"
+                        WidthRequest="40"
                         HorizontalOptions="Center"
-                        Source="{Binding Notification.Type, Converter={StaticResource NotificationTypeConverter}}"
-                        WidthRequest="35" />
+                        VerticalOptions="Center">
+                        <Image.Triggers>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.AuthorOperations}">
+                                <Setter Property="Source" Value="notif_author_operations.png" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.SystemEvent}">
+                                <Setter Property="Source" Value="notif_system_event.png" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.ProductOperations}">
+                                <Setter Property="Source" Value="notif_product_operations.png" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.TokenOperations}">
+                                <Setter Property="Source" Value="notif_token_operations.png" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.Server}">
+                                <Setter Property="Source" Value="notif_server.png" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding Notification.Type}"
+                                TargetType="Image"
+                                Value="{Static enums:NotificationType.Wallet}">
+                                <Setter Property="Source" Value="notif_wallet.png" />
+                            </DataTrigger>
+                        </Image.Triggers>
+                    </Image>
                     
-                    <controls:LabelPair Text1="Date" Text2="Today" />
+                    <controls:LabelPair
+                        Text1="{x:Static resx:Additional_Strings.Notification_Date}"
+                        Text2="{Binding Notification.DateString}" />
                     
                     <Grid ColumnDefinitions="*,*">
                         <Label
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Severity" />
+                            Text="{x:Static resx:Additional_Strings.Notification_Severity}" />
                         <StackLayout
                             Grid.Column="1"
                             HorizontalOptions="EndAndExpand"
                             Orientation="Horizontal"
-                            Spacing="5">
+                            Spacing="4">
                             <Label
                                 FontSize="13"
                                 Text="{Binding Notification.Severity}"
                                 VerticalOptions="Center" />
-                            <Frame HorizontalOptions="End" VerticalOptions="Center">
-                                <Frame.Triggers>
+                            <Border HorizontalOptions="End" VerticalOptions="Center">
+                                <Border.Triggers>
                                     <DataTrigger
                                         Binding="{Binding Notification.Severity}"
-                                        TargetType="Frame"
-                                        Value="{Static models:Severity.High}">
+                                        TargetType="Border"
+                                        Value="{Static enums:Severity.High}">
                                         <Setter Property="Style" Value="{StaticResource RedDot}" />
                                     </DataTrigger>
                                     <DataTrigger
-                                        Binding="{Binding Severity}"
-                                        TargetType="Frame"
-                                        Value="{Static models:Severity.Mid}">
+                                        Binding="{Binding Notification.Severity}"
+                                        TargetType="Border"
+                                        Value="{Static enums:Severity.Mid}">
                                         <Setter Property="Style" Value="{StaticResource OrangeDot}" />
                                     </DataTrigger>
                                     <DataTrigger
-                                        Binding="{Binding Severity}"
-                                        TargetType="Frame"
-                                        Value="{Static models:Severity.Low}">
+                                        Binding="{Binding Notification.Severity}"
+                                        TargetType="Border"
+                                        Value="{Static enums:Severity.Low}">
                                         <Setter Property="Style" Value="{StaticResource GreenDot}" />
                                     </DataTrigger>
-                                </Frame.Triggers>
-                            </Frame>
+                                </Border.Triggers>
+                            </Border>
                         </StackLayout>
                     </Grid>
-                    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
                         <Label
                             Grid.Row="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Notification" />
+                            Text="{x:Static resx:Additional_Strings.Notification_Title}" />
                         <Label
                             Grid.Row="1"
                             HorizontalOptions="Start"
@@ -120,7 +134,10 @@
                     </Grid>
                 </StackLayout>
             </Grid>
-            <Button Text="Mark as read" />
+            
+            <Button
+                Text="{x:Static resx:Additional_Strings.Notification_MarkAsRead}"
+                Command="{Binding MarkAsReadCommand}" />
         </StackLayout>
-    </Frame>
+    </Border>
 </toolkit:Popup>

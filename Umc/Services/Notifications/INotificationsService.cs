@@ -2,6 +2,9 @@
 
 public interface INotificationsService
 {
-    Task<int> GetNotificationsCountAsync();
+	int GetCount();
+	Severity GetMaxSeverity();
+    CustomCollection<Notification> GetAll();
+    Task<int> GetCountAsync();
     Task<CustomCollection<Notification>> GetAllAsync();
 }

@@ -1,4 +1,5 @@
 import {
+  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -29,7 +30,11 @@ import {
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
+  getSiteAuthors(siteId: string): Promise<AccountBase[]>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+  getSiteModerators(siteId: string): Promise<AccountBase[]>
 
+  searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
@@ -54,6 +59,8 @@ export type Api = {
   getUser(userId: string): Promise<User>
 
   // Author
+  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     siteId: string,
@@ -92,9 +99,7 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(
-    productId: string
-  ): Promise<TotalItemsResult<ProductFieldModel>>
+  getProductFields(productId: string): Promise<TotalItemsResult<ProductFieldModel>>
 
   getProductCompareFields(
     publicationId: string

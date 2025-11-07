@@ -117,7 +117,7 @@ public class SitesService
 
 	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetPublishers)} method called with {{SiteId}}", siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {{SiteId}}", nameof(SitesService), nameof(GetPublishers), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -131,15 +131,14 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var publisherIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
+			AutoId[] authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
+			return McvUtils.LoadAccounts(mcv, authorsIds, cancellationToken);
 		}
-
-		return null;
 	}
 
 	public IEnumerable<AccountBaseModel> GetModerators([NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetModerators)} method called with {{SiteId}}", siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {{SiteId}}", nameof(SitesService), nameof(GetModerators), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -153,10 +152,8 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			var moderatorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
-
+			AutoId[] moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(p => p.Account).ToArray();
+			return McvUtils.LoadAccounts(mcv, moderatorsIds, cancellationToken);
 		}
-
-		return null;
 	}
 }

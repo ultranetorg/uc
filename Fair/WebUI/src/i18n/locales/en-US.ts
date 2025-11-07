@@ -1,16 +1,20 @@
 export const enUS = {
+  /* Common */
   common: {
     any: "Any",
     action: "Action",
+    add: "add",
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
     author: "Author",
+    back: "back",
     ban: "Ban",
     banish: "Banish",
     category: "category",
     cancel: "Cancel",
     comments: "comments",
+    confirm: "confirm",
     createdBy: "Created By",
     date: "Date",
     governance: "governance",
@@ -25,6 +29,7 @@ export const enUS = {
     product: "Product",
     publication: "Publication",
     rating: "Rating",
+    remove: "remove",
     review: "review",
     reviewer: "Reviewer",
     text: "Text",
@@ -35,14 +40,6 @@ export const enUS = {
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
-  },
-  date: {
-    day_one: "{{count}} day",
-    day_other: "{{count}} days",
-    month_one: "{{count}} month",
-    month_other: "{{count}} months",
-    year_one: "{{count}} year",
-    year_other: "{{count}} years",
   },
   productToken: {
     none: "None",
@@ -87,8 +84,18 @@ export const enUS = {
     price: "Price",
     description: "Description",
     deployment: "Deployment",
-    value: "Value"
+    value: "Value",
   },
+
+  /* Components */
+  productFields: {
+    loading: "loading..",
+    noData: "No fields data",
+    loadError: "Error loading field data",
+    selectField: "Select a tree item on the left",
+  },
+
+  /* Pages */
   about: {
     about: "About",
   },
@@ -106,6 +113,16 @@ export const enUS = {
     grid: "Grid View",
     list: "List View",
     resetAll: "Reset all",
+  },
+  error: {
+    backToHome: "Back to Home",
+    refreshPage: "Refresh page",
+  },
+  governance: {
+    createReferendum: "Create Referendum",
+    searchProposal: "Search referendum",
+    noProposals: "No open referendums",
+    title: "Governance",
   },
   moderation: {
     createDiscussion: "Create discussion",
@@ -156,12 +173,6 @@ export const enUS = {
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
   },
-  governance: {
-    createReferendum: "Create Referendum",
-    searchProposal: "Search referendum",
-    noProposals: "No open referendums",
-    title: "Governance",
-  },
   search: {
     allAuthors: "All authors",
     allCategories: "All categories",
@@ -186,6 +197,8 @@ export const enUS = {
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
+
+  /* Views */
   proposal: {
     addComment: "Add your comment",
     noComments: "No comments",
@@ -204,9 +217,24 @@ export const enUS = {
     description: "Description (optional)",
     howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
-    selectAuthors: "Select Authors",
-    selectModerators: "Select Moderators",
+    selectAuthorsToAdd: "Select Authors to Add",
+    selectAuthorsToRemove: "Select Authors to Remove",
+    selectModeratorsToAdd: "Select Moderators to Add",
+    selectModeratorsToRemove: "Select Moderators to Remove",
   },
+
+  /* Modals */
+  membersChangeModal: {
+    title: "Change {{memberType}}s",
+    addMembers: "Add new {{memberType}}s",
+    addMembersTitle: "Add new {{memberType}}s",
+    currentMembersTitle: "Currently {{memberType}}s ({{count}})",
+  },
+  memberFilesModal: {
+    title: "Select file",
+  },
+
+  /* Tabs */
   tabDiscussions: {
     searchProposal: "Search discussion",
     noProposals: "No open discussions",
@@ -222,17 +250,8 @@ export const enUS = {
   tabUsers: {
     noUsers: "No user registrations",
   },
-  error: {
-    backToHome: "Back to Home",
-    refreshPage: "Refresh page",
-  },
-  approvalPolicies: {
-    none: "None",
-    "all-moderators": "All moderators",
-    "any-moderator": "Any moderator",
-    "moderators-majority": "Moderators majority",
-    "publishers-majority": "Publishers majority",
-  },
+
+  /* Type literals names */
   categoryTypes: {
     none: "None",
     book: "Book",
@@ -240,65 +259,6 @@ export const enUS = {
     movie: "Movie",
     music: "Music",
     software: "Software",
-  },
-  operationClasses: {
-    "fair-candidacy-declaration": "Fair candidacy declaration",
-    "account-nickname-change": "Account nickname change",
-    "account-avatar-change": "Account avatar change",
-    "favorite-site-change": "Favorite site change",
-    author: "Author",
-    "author-creation": "Author creation",
-    "author-renewal": "Author renewal",
-    "author-moderation-reward": "Author moderation reward",
-    "author-owner-addition": "Author owner addition",
-    "author-owner-removal": "Author owner removal",
-    "author-nickname-change": "Author nickname change",
-    "author-avatar-change": "Author avatar change",
-    "author-text-change": "Author text change",
-    "author-links-change": "Author links change",
-    product: "Product",
-    "product-creation": "Product creation",
-    "product-updation": "Product updation",
-    "product-deletion": "Product deletion",
-    site: "Site",
-    "site-creation": "Site creation",
-    "site-renewal": "Site renewal",
-    "site-authors-change": "Site authors change",
-    "site-moderator-addition": "Site moderator addition",
-    "site-moderator-removal": "Site moderator removal",
-    "site-text-change": "Site text change",
-    "site-avatar-change": "Site avatar change",
-    "site-nickname-change": "Site nickname change",
-    "user-registration": "User registration",
-    "user-deletion": "User deletion",
-    "site-deletion": "Site deletion",
-    category: "Category",
-    "category-creation": "Category creation",
-    "category-movement": "Category movement",
-    "category-avatar-change": "Category avatar change",
-    "category-type-change": "Category type change",
-    "category-deletion": "Category deletion",
-    publication: "Publication",
-    "publication-creation": "Publication creation",
-    "publication-remove-from-changed": "Publication remove from changed",
-    "publication-publish": "Publication publish",
-    "publication-updation": "Publication updation",
-    "publication-deletion": "Publication deletion",
-    review: "Review",
-    "review-creation": "Review creation",
-    "review-status-change": "Review status change",
-    "review-edit": "Review edit",
-    "review-deletion": "Review deletion",
-    proposal: "Proposal",
-    "proposal-creation": "Proposal creation",
-    "proposal-voting": "Proposal voting",
-    "perpetual-voting": "Perpetual voting",
-    "proposal-comment": "Proposal comment",
-    "proposal-comment-creation": "Proposal comment creation",
-    "proposal-comment-edit": "Proposal comment edit",
-    file: "File",
-    "file-creation": "File creation",
-    "file-deletion": "File deletion",
   },
   operations: {
     "category-avatar-change": "Category avatar change",
@@ -309,7 +269,6 @@ export const enUS = {
     "publication-creation": "Publication creation",
     "publication-deletion": "Publication deletion",
     "publication-publish": "Publication publish",
-    "publication-remove-from-changed": "Publication remove from changed",
     "publication-updation": "Publication updation",
     "review-creation": "Review creation",
     "review-edit": "Review edit",
@@ -327,7 +286,6 @@ export const enUS = {
     "publication-creation": "Creation",
     "publication-deletion": "Deletion",
     "publication-publish": "Publish",
-    "publication-remove-from-changed": "Publication remove from changed",
     "publication-updation": "Updation",
     "review-creation": "Creation",
     "review-edit": "Edit",
@@ -337,14 +295,8 @@ export const enUS = {
     accepted: "Accepted",
     rejected: "Rejected",
   },
-  roles: {
-    none: "None",
-    candidate: "Candidate",
-    moderator: "Moderator",
-    publisher: "Publisher",
-    user: "User",
-    __clear_all__: "Clear All",
-  },
+
+  /* Placeholders */
   placeholders: {
     enterCategoryTitle: "Enter category title",
     enterDescription: "Enter description",
@@ -367,6 +319,35 @@ export const enUS = {
     selectUser: "Select user",
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
+  },
+
+  /* Validation messages */
+  validation: {
+    differentCategory: "Destination category must be different from one of the selected parent categories",
+    differentParentCategory: "Parent category must be different from destination category",
+    requiredAddOrRemoveMembers: "Add or remove members is required",
+    requiredCategory: "Category is required",
+    requiredCategoryTitle: "Category title is required",
+    requiredFile: "File is required",
+    requiredTitle: "Title is required",
+    requiredType: "Type is required",
+    uniqueCategoryTitle: "Category title must be unique",
+    uniqueCategoryType: "Category type must be unique",
+    uniqueFile: "File must be unique",
+    uniqueParentCategory: "Parent category must be unique",
+    uniqueSiteNickname: "Site nickname must be unique",
+    uniqueTitle: "Title must be unique",
+    uniqueOptions: "Some options are identical. Each must differ by at least one field.",
+  },
+
+  /* Misc */
+  date: {
+    day_one: "{{count}} day",
+    day_other: "{{count}} days",
+    month_one: "{{count}} month",
+    month_other: "{{count}} months",
+    year_one: "{{count}} year",
+    year_other: "{{count}} years",
   },
   social: {
     discord: "Discord",

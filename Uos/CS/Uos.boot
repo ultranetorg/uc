@@ -1,4 +1,0 @@
-// RELEASE
-
-Zone = Test
-

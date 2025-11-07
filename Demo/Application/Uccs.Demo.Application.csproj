@@ -14,6 +14,7 @@
     <FileVersion>1.0.1475.0</FileVersion>
     <Version>1.0.1475.0</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+    <AnalysisLevel>none</AnalysisLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\demo.application.dotnet\0.0.0</OutputPath>
@@ -31,7 +32,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
+    <ProjectReference Include="..\..\Nexus\Uccs.Nexus.csproj" />
     <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
       <Private>True</Private>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>

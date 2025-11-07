@@ -1,5 +1,4 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
-using Microsoft.Maui.Handlers;
 
 namespace UC.Umc;
 
@@ -15,21 +14,16 @@ public partial class App : Application
 		
 		SetTheme();
 
+		// uncomment to test create pincode popup
+		// UserSecureStore.RemoveData(TextConstants.PINCODE_KEY);
+
 		InitializeRouting();
-			
-		// Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
-		WindowHandler.Mapper.ModifyMapping(nameof(IWindow.Content), OnWorkaround);
 	}
 
 	private static void SetTheme()
 	{
 		GlobalAppTheme.Theme = AppTheme.Dark;
 		GlobalAppTheme.SetTheme();
-	}
-
-	private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
-	{
-		WindowHandler.MapContent(arg1, arg2);
 	}
 
 	private static void InitializeRouting()
@@ -50,7 +44,8 @@ public partial class App : Application
 		Routing.RegisterRoute(Routes.SEND, typeof(SendPage));
 		Routing.RegisterRoute(Routes.COMPLETED_TRANSFERS, typeof(TransferCompletePage));
 		Routing.RegisterRoute(Routes.UNFINISHED_TRANSFERS, typeof(UnfinishTransferPage));
-		Routing.RegisterRoute(Routes.ABOUT, typeof(AboutPage));
 		Routing.RegisterRoute(Routes.HELP_DETAILS, typeof(HelpDetailsPage));
+		Routing.RegisterRoute(Routes.NOTIFICATIONS, typeof(NotificationsPage));
+		Routing.RegisterRoute(Routes.CREATE_PINCODE, typeof(CreatePinPage));
 	}
 }

@@ -145,12 +145,38 @@ public class SearchService
 		}
 	}
 
+	public IEnumerable<AccountBaseModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAccount), query, limit);
+
+		Guard.Against.NullOrEmpty(query);
+
+		lock(mcv.Lock)
+		{
+			if (AutoId.TryParse(query, out AutoId entityId))
+			{
+				FairAccount account = (FairAccount) mcv.Accounts.Latest(entityId);
+				return [new AccountBaseModel(account)];
+			}
+
+			string lowercase = query.ToLower();
+
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AccountNickname, lowercase, limit);
+			AutoId[] accountsIds = searchResult.ToArray();
+
+			return McvUtils.LoadAccounts(mcv, accountsIds, cancellationToken);
+		}
+	}
+
 	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
-			return Enumerable.Empty<AccountSearchLiteModel>();
+			return [];
 
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteAccounts)} method called with {{Query}}, {{Limit}}", query, limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteAccounts), query, limit);
 
 		Guard.Against.NullOrEmpty(query);
 

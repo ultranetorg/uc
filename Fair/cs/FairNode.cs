@@ -19,7 +19,7 @@ public class FairNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeUosApi(Settings.UosIP);
+		InitializeVaultApi(Settings.Host);
 
 		if(Settings.Mcv != null)
 		{
@@ -36,16 +36,9 @@ public class FairNode : McvNode
 			///NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
 		}
 
-		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, UosApi, flow, clock);
+		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
-		ApiServer = new FairApiServer(	this,	
-										new ApiSettings
-										{
-											LocalAddress	= Settings.Api?.LocalAddress ?? $"http://{Settings.UosIP}:{Net.ApiPort}", 
-											PublicAddress	= Settings.Api?.PublicAddress,
-											PublicAccessKey	= Settings.Api?.PublicAccessKey
-										}, 
-										Flow);
+		ApiServer = new FairApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
 	}
 
 	public override string ToString()

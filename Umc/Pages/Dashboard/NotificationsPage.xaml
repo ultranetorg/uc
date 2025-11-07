@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.NotificationsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:NotificationsViewModel"
+    Title="{x:Static resx:Dashboard_Strings.Notifications_Title}"
+    x:Name="page">
+    
+    <controls:CustomPage.MainContent>
+        <Grid
+            Padding="24,16"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
+            <CollectionView
+                Grid.Row="1"
+                ItemsSource="{Binding Notifications}"
+                VerticalScrollBarVisibility="Always"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Notification">
+                        <StackLayout>
+                            <SwipeView BackgroundColor="Transparent">
+                                <SwipeView.LeftItems>
+                                    <SwipeItems>
+                                        <SwipeItemView BackgroundColor="Transparent" WidthRequest="80">
+                                            <ImageButton
+                                                Source="notif_read.png"
+                                                Command="{Binding BindingContext.MarkAsReadCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}"/>
+                                        </SwipeItemView>
+                                    </SwipeItems>
+                                </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItemView BackgroundColor="Transparent" WidthRequest="80">
+                                            <ImageButton
+                                                Source="notif_read.png"
+                                                Command="{Binding BindingContext.MarkAsReadCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}"/>
+                                        </SwipeItemView>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                <Grid
+                                    Padding="0,4"
+                                    ColumnDefinitions="56,*,32"
+                                    ColumnSpacing="8"
+                                    RowDefinitions="24,24"
+                                    RowSpacing="0">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                    <Image
+                                        Grid.RowSpan="2"
+                                        Aspect="AspectFill"
+                                        HeightRequest="32"
+                                        WidthRequest="32"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Image.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.AuthorOperations}">
+                                                <Setter Property="Source" Value="notif_author_operations.png" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.SystemEvent}">
+                                                <Setter Property="Source" Value="notif_system_event.png" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.ProductOperations}">
+                                                <Setter Property="Source" Value="notif_product_operations.png" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.TokenOperations}">
+                                                <Setter Property="Source" Value="notif_token_operations.png" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.Server}">
+                                                <Setter Property="Source" Value="notif_server.png" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding Type}"
+                                                TargetType="Image"
+                                                Value="{Static enums:NotificationType.Wallet}">
+                                                <Setter Property="Source" Value="notif_wallet.png" />
+                                            </DataTrigger>
+                                        </Image.Triggers>
+                                    </Image>
+                                    <StackLayout
+                                        Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Spacing="4">
+                                        <Label
+                                            FontSize="13"
+                                            Text="{Binding Title}"
+                                            VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsRead}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="Opacity" Value="0.4" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsRead}"
+                                                    TargetType="Label"
+                                                    Value="False">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Border HorizontalOptions="Start" VerticalOptions="Center">
+                                            <Border.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding Severity}"
+                                                    TargetType="Border"
+                                                    Value="{Static enums:Severity.High}">
+                                                    <Setter Property="Style" Value="{StaticResource RedDot}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding Severity}"
+                                                    TargetType="Border"
+                                                    Value="{Static enums:Severity.Mid}">
+                                                    <Setter Property="Style" Value="{StaticResource OrangeDot}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding Severity}"
+                                                    TargetType="Border"
+                                                    Value="{Static enums:Severity.Low}">
+                                                    <Setter Property="Style" Value="{StaticResource GreenDot}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                        </Border>
+                                    </StackLayout>
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        FontSize="10"
+                                        Text="{Binding Body}"
+                                        VerticalOptions="Start">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsRead}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsRead}"
+                                                TargetType="Label"
+                                                Value="False">
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <ImageButton
+                                        Grid.RowSpan="2"
+                                        Grid.Column="2"
+                                        Command="{Binding BindingContext.OptionsCommand, Source={x:Reference page}}"
+                                        CommandParameter="{Binding .}"
+                                        Style="{StaticResource Dots}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </SwipeView>
+                            <StackLayout Style="{StaticResource StackSperator}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

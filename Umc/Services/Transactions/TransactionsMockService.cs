@@ -9,7 +9,7 @@ public class TransactionsMockService : ITransactionsService
         _service = data;
     }
 
-    public Task<CustomCollection<TransactionViewModel>> ListTransactionsAsync(string accountAddress, string search, int count)
+    public async Task<CustomCollection<TransactionViewModel>> ListTransactionsAsync(string accountAddress, string search, int count)
     {
 		var transactions = _service.Transactions;
 
@@ -22,7 +22,7 @@ public class TransactionsMockService : ITransactionsService
 			transactions = transactions.Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
 		}
 
-        return Task.FromResult(new CustomCollection<TransactionViewModel>(
+        return await Task.FromResult(new CustomCollection<TransactionViewModel>(
 			transactions.OrderByDescending(x => x.Date).Take(count > 1 ? count : SizeConstants.SizePerPageMed)));
     }
 }

@@ -20,106 +20,38 @@
     <Style x:Key="StackSperator" TargetType="StackLayout">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark=White, Light={StaticResource Secondary}}" />
         <Setter Property="HeightRequest" Value="0.4" />
-        <Setter Property="Opacity" Value="0.3" />
+        <Setter Property="Opacity" Value="0.2" />
+        <Setter Property="Margin" Value="0,12" />
     </Style>
-    <Style x:Key="stacklayoutStyle" TargetType="StackLayout">
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Selected">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Normal">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="Transparent" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
+    <Style x:Key="AccountGrid" TargetType="Grid">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
 
-    <Style ApplyToDerivedTypes="True" TargetType="Frame">
-        <Setter Property="CornerRadius" Value="20" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}" />
-        <Setter Property="Visual" Value="Material" />
-    </Style>
-    <Style x:Key="RedDot" TargetType="Frame">
+    <Style x:Key="RedDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Red}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
-    </Style>
-    <Style x:Key="GreenDot" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
-        <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
-    </Style>
-    <Style x:Key="OranegDot" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
-        <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
-    </Style>
-    <Style x:Key="Container" TargetType="Frame">
-        <Setter Property="Padding" Value="2" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
-        <Setter Property="HasShadow" Value="False" />
-    </Style>
-    <Style x:Key="ComboBox" TargetType="Frame">
-        <Setter Property="Padding" Value="2" />
-        <Setter Property="CornerRadius" Value="1" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="HasShadow" Value="False" />
-    </Style>
-    <Style x:Key="PopupHandle" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Opacity" Value="0.3" />
-        <Setter Property="CornerRadius" Value="4" />
         <Setter Property="HeightRequest" Value="4" />
-        <Setter Property="WidthRequest" Value="40" />
-        <Setter Property="BackgroundColor" Value="#E9E9E9" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
-    <Style x:Key="AccountColor" TargetType="Frame">
+    <Style x:Key="GreenDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="HeightRequest" Value="60" />
-        <Setter Property="WidthRequest" Value="60" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
-    <Style x:Key="ButtonFrame" TargetType="Frame">
-        <Setter Property="Padding" Value="8,0,8,0" />
-        <Setter Property="CornerRadius" Value="6" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="IsClippedToBounds" Value="True" />
-    </Style>
-    <Style x:Key="SquareFrame" TargetType="Frame">
-        <Setter Property="CornerRadius" Value="0" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="Padding" Value="10" />
-    </Style>
-    <Style x:Key="AccountCard" TargetType="Frame">
+    <Style x:Key="OrangeDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="IsClippedToBounds" Value="True" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
     <Style x:Key="TransactionCard" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 6" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-    </Style>
-    <Style x:Key="AccountGrid" TargetType="Grid">
-        <Setter Property="Padding" Value="0" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="BadgeBorder" TargetType="Border">
@@ -154,16 +86,8 @@
         <Setter Property="HeightRequest" Value="60" />
         <Setter Property="WidthRequest" Value="60" />
     </Style>
-    <Style x:Key="PopupBorder" TargetType="Border">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="48" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-    </Style>
     <Style x:Key="KeyBorder" TargetType="Border">
-        <Setter Property="Padding" Value="15,10" />
+        <Setter Property="Padding" Value="16,8" />
         <Setter Property="StrokeShape" Value="RoundRectangle 6" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarker}, Light={StaticResource PrimaryLight}}" />
     </Style>
@@ -176,8 +100,14 @@
         <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
     </Style>
     <Style x:Key="ContainerBorder" TargetType="Border">
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource LightBackground}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource LightBackground}}" />
+    </Style>
+    <Style x:Key="ComboBox" TargetType="Border">
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />
     </Style>
 </ResourceDictionary>

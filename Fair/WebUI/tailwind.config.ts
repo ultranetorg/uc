@@ -7,11 +7,15 @@ export default {
       animation: {
         "spin-slow": "spin 3s linear infinite",
       },
+      borderWidth: {
+        1.5: "1.5px",
+      },
       boxShadow: {
         md: "0 4px 14px 0 rgba(28, 38, 58, 0.1)",
       },
       colors: {
         favorite: "#e3a427",
+        error: "#EE505A",
         "light-green": "#44B848",
         "light-red": "#D74C41",
         "light-yellow": "#E1A107",
@@ -95,6 +99,7 @@ export default {
         "91.25": "22.8125rem", // 365
         "97.5": "24.375rem", // 390
         100: "25rem", // 400
+        102.5: "25.625rem", // 410
         "106.5": "26.625rem", // 426
         "111.5": "27.875rem", // 446
         120: "30rem", // 480

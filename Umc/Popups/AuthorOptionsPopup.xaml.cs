@@ -2,7 +2,7 @@
 
 public partial class AuthorOptionsPopup : Popup
 {
-	AuthorOptionsViewModel Vm => BindingContext as AuthorOptionsViewModel;
+	public AuthorOptionsViewModel Vm => BindingContext as AuthorOptionsViewModel;
 
     public AuthorOptionsPopup(AuthorViewModel author)
     {

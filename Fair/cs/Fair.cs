@@ -49,7 +49,7 @@ public class FairLocal : Fair
 	
 	public FairLocal()
 	{
-		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Father0IP		= DefaultHost;
 		Cryptography	= Cryptography.No;
 		CommitLength	= 100;
 		ECLifetime		= Time.FromYears(100);
@@ -89,7 +89,7 @@ public class FairTA : Fair
 	
 	public FairTA()
 	{
-		Father0IP		= new IPAddress([127, 1, 0, 0]);
+		Father0IP		= DefaultHost;
 		Initials		= LocalInitials;
 	}
 }

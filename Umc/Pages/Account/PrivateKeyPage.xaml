@@ -5,22 +5,24 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:constants="clr-namespace:UC.Umc.Common.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Title="Private Key"
+    Title="{x:Static resx:Account_Strings.PrivateKey_Title}"
     x:DataType="vm:PrivateKeyViewModel"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <ScrollView Padding="{StaticResource PagePadding}">
             <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="24">
                 <StackLayout Grid.Row="0">
                     <Label
                         FontSize="18"
-                        Text="Never show and share your private key with other person!" />
+                        Text="{x:Static resx:Account_Strings.PrivateKey_Caution}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="This can lead to the loss of funds, domains and applications on the account" />
+                        Text="{x:Static resx:Account_Strings.PrivateKey_Caution2}" />
                 </StackLayout>
                 
                 <views:AccountView
@@ -31,7 +33,7 @@
                 <StackLayout Grid.Row="2">
                     <Label
                         Style="{StaticResource DashLabel}"
-                        Text="Private key" />
+                        Text="{x:Static resx:Account_Strings.PrivateKey_Title}" />
                     <Border Style="{StaticResource KeyBorder}">
                         <Label
                             FontSize="12"
@@ -47,11 +49,11 @@
                 <StackLayout Grid.Row="3" VerticalOptions="EndAndExpand">
                     <Button
                         Command="{Binding CopyCommand}"
-                        Text="Copy to clipboard" />
+                        Text="{x:Static resx:Account_Strings.PrivateKey_Copy}" />
                     <Button
                         Command="{Binding CancelCommand}"
                         Style="{DynamicResource LabelButton}"
-                        Text="Cancel" />
+                        Text="{x:Static resx:Account_Strings.PrivateKey_Cancel}" />
                 </StackLayout>
             </Grid>
         </ScrollView>

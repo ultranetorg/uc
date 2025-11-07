@@ -4,43 +4,64 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:fi="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:TransferCompleteViewModel"
-    Title="Transfer Сompleted"
+    Title="{x:Static resx:Transaction_Strings.Completed_Title}"
+	EnableBackButton="False"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
-            <StackLayout>
-                <Label Style="{StaticResource DashLabel}" Text="Transfering from Ethereum account" />
-                <Label
-                    FontSize="13"
-                    Style="{StaticResource Regular}"
-                    Text="{Binding Account.Address}" />
-            </StackLayout>
-            <StackLayout>
-                <Label Style="{StaticResource DashLabel}" Text="To Ultranet Account" />
-                <views:AccountView
-                    Account="{Binding Account}"
-                    BorderStyle="{StaticResource AccountCardBorderDark}" />
-            </StackLayout>
+            <Label
+                FontSize="17"
+                Margin="0,16"
+                HorizontalTextAlignment="Center"
+                Text="{x:Static resx:Transaction_Strings.Completed_Success}" />
             <Image
                 HeightRequest="64"
                 Margin="0,32"
                 HorizontalOptions="Center"
-                Source="{FontImage Size=304, Color={StaticResource Primary}, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Done}}"
-                VerticalOptions="Center" />
+                VerticalOptions="Center"
+                Source="{FontImage Size=304, Color={StaticResource Primary}, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Done}}" />
+            <StackLayout>
+                <Label
+                    Style="{StaticResource DashLabel}"
+                    Text="{x:Static resx:Transaction_Strings.Completed_From}" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="{Binding SourceAccount}" />
+            </StackLayout>
+            <StackLayout>
+                <Label
+                    Style="{StaticResource DashLabel}"
+                    Text="{x:Static resx:Transaction_Strings.Completed_To}" />
+                <views:AccountView
+                    Account="{Binding Account}"
+                    BorderStyle="{StaticResource AccountCardBorderDark}" />
+            </StackLayout>
             <StackLayout Spacing="8">
-                <controls:LabelPair Text1="You will receive" Text2="{Binding UntAmount}" />
-                <controls:LabelPair Text1="You have paid ETH comission" Text2="{Binding EthComission, StringFormat='{0} ETH'}" />
-                <controls:LabelPair Text1="You have paid UNT comission" Text2="{Binding UntComission, StringFormat='{0} UNT'}" />
-                <controls:LabelPair Text1="Transaction date and time" Text2="{Binding TransactionDate}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Transaction_Strings.Completed_Title}"
+                    Text2="{Binding UntAmount, StringFormat='{0} UNT'}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Transaction_Strings.Completed_Comission}"
+                    Text2="{Binding EthComission, StringFormat='{0} ETH'}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Transaction_Strings.Completed_Comission2}"
+                    Text2="{Binding UntComission, StringFormat='{0} UNT'}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Transaction_Strings.Completed_DateTime}"
+                    Text2="{Binding TransactionDate}" />
             </StackLayout>
-
-            <StackLayout VerticalOptions="EndAndExpand">
-                <Button Command="{Binding TransactionsCommand}" Text="Transactions" />
-            </StackLayout>
+            <Button
+                Margin="8"
+                VerticalOptions="EndAndExpand"
+                Command="{Binding TransactionsCommand}"
+                Text="{x:Static resx:Transaction_Strings.Completed_Transactions}" />
         </StackLayout>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

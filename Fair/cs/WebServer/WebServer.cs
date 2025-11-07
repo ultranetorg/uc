@@ -56,9 +56,13 @@ public class WebServer
 
 											WebApplication.UseCors();
 
+											var root = Path.Join(o.ContentRootPath, "wwwroot");
+
+											Directory.CreateDirectory(root);
+
 											WebApplication.UseFileServer(new FileServerOptions
 																		 {
-																			FileProvider = new PhysicalFileProvider(Path.Join(o.ContentRootPath, "wwwroot")),
+																			FileProvider = new PhysicalFileProvider(root),
 																			EnableDefaultFiles = true,
 																			EnableDirectoryBrowsing = false
 																		 });

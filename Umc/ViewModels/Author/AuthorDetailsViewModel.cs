@@ -3,6 +3,7 @@
 public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 {
 	private readonly IServicesMockData _service;
+	private readonly IProductsService _productsService;
 	
 	[ObservableProperty]
     private CustomCollection<ProductViewModel> _products = new();
@@ -10,10 +11,11 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 	[ObservableProperty]
     private CustomCollection<Bid> _bidsHistory = new();
 
-    public AuthorDetailsViewModel(IServicesMockData service, ILogger<AuthorDetailsViewModel> logger) : base(logger)
+    public AuthorDetailsViewModel(INotificationsService notificationService, IProductsService productsService, IServicesMockData service,
+		ILogger<AuthorDetailsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
-		LoadData();
+		_productsService = productsService;
     }
 
     public override void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -26,6 +28,9 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Author: {Author}", Author);
 #endif
+			Products = _productsService.GetAccountProducts(Author.Account.Address);
+
+			BidsHistory = new(_service.BidsHistory);
         }
         catch (Exception ex)
         {
@@ -36,17 +41,6 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
         {
             FinishLoading();
         }
-	}
-
-	private void LoadData()
-	{
-		Products.Clear();
-		BidsHistory.Clear();
-
-		Products.AddRange(_service.Products);
-		BidsHistory.AddRange(_service.BidsHistory);
-		
-		// TODO: add form object, the account is coming from api
 	}
 
 	[RelayCommand]

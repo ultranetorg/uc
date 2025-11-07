@@ -2,6 +2,11 @@
 
 public class ProductsService : IProductsService
 {
+	public CustomCollection<ProductViewModel> GetAccountProducts(string account)
+	{
+		throw new NotImplementedException();
+	}
+
 	public Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync()
 	{
 		throw new NotImplementedException();

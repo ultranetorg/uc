@@ -1,5 +1,7 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
+import { LIMIT_DEFAULT } from "constants/"
 import {
+  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -35,6 +37,21 @@ const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/default`).then(res => res.json())
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
+
+const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
+
+const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
+
+const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
+  fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
 const searchSites = async (query?: string, page?: number): Promise<TotalItemsResult<SiteBase>> => {
   const params = buildUrlParams({ query, page })
@@ -110,6 +127,17 @@ const getReviews = async (
 }
 
 const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
+
+const getAuthorFiles = async (
+  siteId: string,
+  authorId?: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<string>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/files` + params)
+  return await toTotalItemsResult(res)
+}
 
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
@@ -189,9 +217,7 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProductFields = async (
-  productId: string,
-): Promise<TotalItemsResult<ProductFieldModel>> => {
+const getProductFields = async (productId: string): Promise<TotalItemsResult<ProductFieldModel>> => {
   const res = await fetch(`${BASE_URL}/products/${productId}/fields`)
   return await toTotalItemsResult(res)
 }
@@ -243,14 +269,19 @@ const api: Api = {
   getPublicationVersions,
   getReviews,
   getSite,
+  getSiteAuthors,
+  getSiteFiles,
+  getSiteModerators,
   getUser,
   getFile,
   searchLitePublication,
   searchLiteSites,
   searchPublications,
+  searchAccounts,
   searchSites,
   searchLiteAccounts,
 
+  getAuthorFiles,
   getAuthorReferendum,
   getAuthorReferendums,
   getAuthorReferendumComments,

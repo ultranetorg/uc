@@ -24,14 +24,14 @@ public partial class SelectAuthorViewModel : BaseViewModel
 		}
 		author.IsSelected = true;
 		SelectedAuthor = author;
-    }
 
-	[RelayCommand]
-    private void Close() => ClosePopup();
+		ClosePopup();
+    }
 	
 	public void LoadData()
 	{
 		Authors.Clear();
+		SelectedAuthor = null;
 		var ownAuthors = _service.Authors.Where(x => x.Status == AuthorStatus.Owned).ToList();
 		Authors.AddRange(ownAuthors);
 	}

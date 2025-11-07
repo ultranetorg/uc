@@ -11,4 +11,6 @@ public static class Pagination
 	public static int[] AllowedPageSizes = [ 5, 10, 20, 50 ];
 
 	public const int PublicationsSearchPageSize = 30;
+
+	public static int[] AllowedLimits = [5, 10, 20];
 }

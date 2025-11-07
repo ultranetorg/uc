@@ -1,12 +1,8 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public abstract partial class BaseViewModel : ObservableValidator, IQueryAttributable
+public abstract partial class BaseViewModel : ObservableValidator
 {
-	internal Popup Popup { get; set; }
-
 	protected readonly ILogger _logger;
-
-    protected bool IsModalOpen { get; set; }
 
 	[ObservableProperty]
     private bool _isLoading = false;
@@ -16,18 +12,13 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 
     [ObservableProperty]
     private bool _isRefreshing;
-		
-	[ObservableProperty]
-    private string _title = string.Empty;
+
+	internal Popup Popup { get; set; }
 
 	protected BaseViewModel(ILogger logger)
 	{
 		_logger = logger;
 	}
-
-    public virtual void ApplyQueryAttributes(IDictionary<string, object> query)
-    {
-    }
 
 	public virtual async Task ShowPopup(Popup popup)
 	{

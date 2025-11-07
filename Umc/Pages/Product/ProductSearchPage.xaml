@@ -5,10 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ProductSearchViewModel"
-    Title="Product Search"
+    Title="{x:Static resx:Product_Strings.Search_Title}"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
@@ -36,22 +38,51 @@
                         <LinearItemsLayout ItemSpacing="12" Orientation="Horizontal" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:FilterOption">
                             <Border
                                 HeightRequest="32"
                                 HorizontalOptions="Start"
                                 Style="{StaticResource ButtonBorder}"
                                 VerticalOptions="Center">
-                                <Label
+								<Label
                                     FontSize="11"
                                     Style="{StaticResource ButtonLabel}"
-                                    Text="{Binding .}"
-                                    VerticalOptions="Center" />
+                                    Text="{Binding Name}"
+                                    VerticalOptions="Center">
+									<Label.Triggers>
+										<DataTrigger
+											Binding="{Binding IsSelected}"
+											TargetType="Label"
+											Value="True">
+											<Setter Property="TextColor" Value="{StaticResource PrimaryLight}" />
+										</DataTrigger>
+										<DataTrigger
+											Binding="{Binding IsSelected}"
+											TargetType="Label"
+											Value="False">
+											<Setter Property="TextColor" Value="{StaticResource Primary}" />
+										</DataTrigger>
+									</Label.Triggers>
+								</Label>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{Binding SortProductsCommand, Source={RelativeSource AncestorType={x:Type vm:ProductSearchViewModel}}}"
-                                        CommandParameter="{Binding .}" />
+                                        CommandParameter="{Binding Name}" />
                                 </Border.GestureRecognizers>
+								<Border.Triggers>
+									<DataTrigger
+										Binding="{Binding IsSelected}"
+										TargetType="Border"
+										Value="True">
+										<Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+									</DataTrigger>
+									<DataTrigger
+										Binding="{Binding IsSelected}"
+										TargetType="Border"
+										Value="False">
+										<Setter Property="BackgroundColor" Value="{StaticResource PrimaryDarkLighten}" />
+									</DataTrigger>
+								</Border.Triggers>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -62,7 +93,7 @@
                     <Label
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
-                        Text="Product">
+                        Text="{x:Static resx:Product_Strings.Search_Product}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"
@@ -73,7 +104,7 @@
                         Grid.Column="1"
                         HorizontalOptions="Start"
                         Style="{StaticResource DashLabel}"
-                        Text="Author">
+                        Text="{x:Static resx:Product_Strings.Search_Author}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"
@@ -84,7 +115,7 @@
                         Grid.Column="2"
                         HorizontalOptions="End"
                         Style="{StaticResource DashLabel}"
-                        Text="Version">
+                        Text="{x:Static resx:Product_Strings.Search_Version}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"
