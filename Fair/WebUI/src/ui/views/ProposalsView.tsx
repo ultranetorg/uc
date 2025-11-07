@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 
 import { Proposal, TotalItemsResult } from "types"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { getCommonColumns } from "ui/pages/Moderation/Moderation/constants"
+import { getVotingColumns } from "ui/pages/Moderation/Moderation/constants"
 import { getProposalsItemRenderer } from "ui/renderers"
 
 export type ProposalsViewProps = {
@@ -24,7 +24,7 @@ export const ProposalsView = memo(
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
         { accessor: "createdBy", label: t("common:createdBy"), type: "account", className: "w-[15%]" },
         { accessor: "action", label: t("common:action"), type: "action", className: "w-[20%]" },
-        ...getCommonColumns(t),
+        ...getVotingColumns(t),
       ],
       [t],
     )

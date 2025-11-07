@@ -10,9 +10,11 @@ import {
   DevelopPage,
   ErrorPage,
   ModerationPage,
+  ModeratorChangedPublicationPage,
   ModeratorDiscussionPage,
   ModeratorPublicationPage,
   ModeratorReviewPage,
+  ModeratorUnpublishedPublicationPage,
   ModeratorUserRegistrationPage,
   ProfilePage,
   PublicationPage,
@@ -106,6 +108,14 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/m/d/:discussionId",
             element: <ModeratorDiscussionPage />,
+          },
+          {
+            path: "/:siteId/m/c/:publicationId",
+            element: <ModeratorChangedPublicationPage />,
+          },
+          {
+            path: "/:siteId/m/n/:publicationId",
+            element: <ModeratorUnpublishedPublicationPage />,
           },
           {
             path: "/:siteId/m/p/:discussionId",

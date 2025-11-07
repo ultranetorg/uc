@@ -8,9 +8,9 @@ public class PublicationsService
 (
 	ILogger<PublicationsService> logger,
 	FairMcv mcv
-) : IPublicationsService
+)
 {
-	public PublicationDetailsModel GetPublication(string publicationId)
+	public PublicationDetailsModel GetPublication([NotEmpty][NotNull] string publicationId)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetPublication)} method called with {{PublicationId}}", publicationId);
 
@@ -37,7 +37,7 @@ public class PublicationsService
 		}
 	}
 
-	public PublicationVersionInfo GetVersions(string publicationId)
+	public PublicationVersionInfo GetVersions([NotEmpty][NotNull] string publicationId)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetVersions)} method called with {{PublicationId}}", publicationId);
 
@@ -62,7 +62,7 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<PublicationAuthorModel> GetAuthorPublicationsNotOptimized(string siteId, string authorId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationAuthorModel> GetAuthorPublicationsNotOptimized([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetAuthorPublicationsNotOptimized)} method called with {{SiteId}}, {{AuthorId}}, {{Page}}, {{PageSize}}", siteId, authorId, page, pageSize);
 
@@ -157,7 +157,7 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized(string categoryId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoryPublicationsNotOptimized)} method called with {{CategoryId}}", categoryId);
 
@@ -218,7 +218,7 @@ public class PublicationsService
 		}
 	}
 
-	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotEmpty] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotNull][NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoriesPublicationsNotOptimized)} method called with {{SiteId}}", siteId);
 
@@ -317,9 +317,179 @@ public class PublicationsService
 		}
 	}
 
-	private class FilteredContext<T> : SearchContext<T> where T : class
+
+
+	public TotalItemsResult<PublicationChangedModel> GetChangedPublications([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		public string? Search { get; set; }
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetChangedPublications), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+			if(site.ChangedPublications.Length == 0)
+			{
+				return TotalItemsResult<PublicationChangedModel>.Empty;
+			}
+
+			IEnumerable<AutoId> publicationsIds = site.ChangedPublications.Skip(page * pageSize).Take(pageSize);
+			List<PublicationChangedModel> result = LoadChangedPublications(publicationsIds, pageSize, cancellationToken);
+
+			return new TotalItemsResult<PublicationChangedModel>
+			{
+				Items = result,
+				TotalItems = site.UnpublishedPublications.Length
+			};
+		}
+	}
+
+	List<PublicationChangedModel> LoadChangedPublications(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<PublicationChangedModel> result = new(pageSize);
+		foreach(var publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Product product = mcv.Products.Latest(publication.Product);
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(product.Author);
+			Category category = mcv.Categories.Latest(publication.Category);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			byte[] logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+
+			PublicationChangedModel model = new PublicationChangedModel(product, publication.ProductVersion, account, category, logo);
+			result.Add(model);
+		}
+
+		return result;
+	}
+
+	public TotalItemsResult<PublicationBaseSiteModel> GetUnpublishedPublications([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetUnpublishedPublications), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+			if(site.UnpublishedPublications.Length == 0)
+			{
+				return TotalItemsResult<PublicationBaseSiteModel>.Empty;
+			}
+
+			IEnumerable<AutoId> publicationsIds = site.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
+			List<PublicationBaseSiteModel> result = LoadUnpublishedPublications(publicationsIds, pageSize, cancellationToken);
+
+			return new TotalItemsResult<PublicationBaseSiteModel>
+			{
+				Items = result,
+				TotalItems = site.UnpublishedPublications.Length
+			};
+		}
+	}
+
+	List<PublicationBaseSiteModel> LoadUnpublishedPublications(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<PublicationBaseSiteModel> result = new(pageSize);
+		foreach(var publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Product product = mcv.Products.Latest(publication.Product);
+			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+
+			PublicationBaseSiteModel model = new PublicationBaseSiteModel(product, account, logo);
+			result.Add(model);
+		}
+
+		return result;
+	}
+
+	TotalItemsResult<T> GetSitePublications<T>(string siteId, Func<Site, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
+		where T: PublicationBaseModel
+	{
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetSitePublications), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
+			AutoId[] publications = GetPublications(site);
+
+			if(publications.Length == 0)
+			{
+				return TotalItemsResult<T>.Empty;
+			}
+
+			IEnumerable<AutoId> publicationsIds = publications.Skip(page * pageSize).Take(pageSize);
+			List<T> result = LoadPublications(CreatePublication, publicationsIds, pageSize, cancellationToken);
+
+			return new TotalItemsResult<T>
+			{
+				Items = result,
+				TotalItems = publications.Length
+			};
+		}
+	}
+
+	List<T> LoadPublications<T>(Func<Product, Publication, T> CreatePublication, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+		where T : PublicationBaseModel
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<T> result = new List<T>(pageSize);
+		foreach (var publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Product product = mcv.Products.Latest(publication.Product);
+			T model = CreatePublication(product, publication);
+			result.Add(model);
+		}
+
+		return result;
 	}
 
 	private class PublicationsContext : SearchContext<PublicationAuthorModel>

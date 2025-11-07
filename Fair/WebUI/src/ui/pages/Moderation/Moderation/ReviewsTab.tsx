@@ -10,7 +10,7 @@ import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getReviewsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-import { getCommonColumns } from "./constants"
+import { getVotingColumns } from "./constants"
 
 export const ReviewsTab = () => {
   const { t } = useTranslation("tabReviews")
@@ -37,7 +37,7 @@ export const ReviewsTab = () => {
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
       { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[13%]" },
-      ...getCommonColumns(t),
+      ...getVotingColumns(t),
     ],
     [t],
   )

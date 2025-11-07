@@ -14,9 +14,11 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
+  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
+  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -96,6 +98,26 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
+
+const getChangedPublications = async (
+  siteId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<PublicationChanged>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/changed-publications` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getUnpublishedPublications = async (
+  siteId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<PublicationBaseSite>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/unpublished-publications` + params)
+  return await toTotalItemsResult(res)
+}
 
 const getAuthorPublications = async (
   siteId: string,
@@ -257,6 +279,8 @@ const api: Api = {
   getDefaultSites,
   getPublication,
   getPublicationVersions,
+  getChangedPublications,
+  getUnpublishedPublications,
   getReviews,
   getSite,
   getSiteAuthors,
