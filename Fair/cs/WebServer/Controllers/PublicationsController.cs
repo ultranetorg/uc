@@ -9,7 +9,7 @@ public class PublicationsController
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	ISearchQueryValidator searchQueryValidator,
-	IPublicationsService publicationsService,
+	PublicationsService publicationsService,
 	ProductsService productsService,
 	ISearchService searchService
 ) : BaseController
