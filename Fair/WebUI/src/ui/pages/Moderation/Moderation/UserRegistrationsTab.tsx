@@ -10,7 +10,7 @@ import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getUsersItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-import { getCommonColumns } from "./constants"
+import { getVotingColumns } from "./constants"
 
 export const UserRegistrationsTab = () => {
   const { t } = useTranslation("tabUsers")
@@ -33,7 +33,7 @@ export const UserRegistrationsTab = () => {
     () => [
       { accessor: "title", label: t("common:title"), type: "title", className: "w-[40%]" },
       { accessor: "signer", label: t("common:user"), type: "account", className: "w-[20%]" },
-      ...getCommonColumns(t),
+      ...getVotingColumns(t),
     ],
     [t],
   )

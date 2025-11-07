@@ -46,6 +46,12 @@ export const renderAnbb = (t: TFunction, proposal: BaseProposal) => {
   )
 }
 
+export const renderCategory = (title: string) => (
+  <div className="truncate" title={title}>
+    {title}
+  </div>
+)
+
 export const renderDate = (date: number) => <span className={FONT_SM_CLASSNAME}>{formatDate(date)}</span>
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {

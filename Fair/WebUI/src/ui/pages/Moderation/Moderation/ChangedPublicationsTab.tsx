@@ -4,16 +4,14 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetPublicationProposals } from "entities"
+import { useGetChangedPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { getPublicationsItemRenderer } from "ui/renderers"
+import { changedPublicationItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-import { getVotingColumns } from "./constants"
-
-export const PublicationsTab = () => {
-  const { t } = useTranslation("tabPublications")
+export const ChangedPublicationsTab = () => {
+  const { t } = useTranslation("tabChangedPublications")
   const navigate = useNavigate()
   const { siteId } = useParams()
 
@@ -27,7 +25,7 @@ export const PublicationsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: publications } = useGetPublicationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: publications } = useGetChangedPublications(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
       ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_20)
@@ -35,17 +33,35 @@ export const PublicationsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "title", label: t("common:title"), type: "title", className: "w-[23%]" },
-      { accessor: "publication", label: t("common:product"), type: "publication", className: "w-[18%]" },
-      { accessor: "author", label: t("common:author"), type: "account", className: "w-[15%]" },
-      { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[13%]" },
-      ...getVotingColumns(t),
+      {
+        accessor: "publication",
+        label: t("common:product"),
+        type: "publication",
+        className: "w-[18%] first-letter:uppercase",
+      },
+      { accessor: "author", label: t("common:author"), type: "account", className: "w-[15%] first-letter:uppercase" },
+      {
+        accessor: "category",
+        label: t("common:category"),
+        type: "category",
+        className: "w-[13%] first-letter:uppercase",
+      },
+      {
+        accessor: "currentVersion",
+        label: t("common:currentVersion"),
+        type: "version",
+        className: "w-[10%] first-letter:uppercase",
+      },
+      {
+        accessor: "latestVersion",
+        label: t("common:latestVersion"),
+        type: "version",
+        className: "w-[10%] first-letter:uppercase",
+      },
     ],
     [t],
   )
-  const itemRenderer = useMemo(() => getPublicationsItemRenderer(t), [t])
-
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/${id}`), [navigate, siteId])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -60,8 +76,8 @@ export const PublicationsTab = () => {
       <Table
         columns={columns}
         items={publications?.items}
+        itemRenderer={changedPublicationItemRenderer}
         tableBodyClassName="text-2sm leading-5"
-        itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noPublications")} />}
         onRowClick={handleTableRowClick}
       />
