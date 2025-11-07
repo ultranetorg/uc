@@ -5,7 +5,7 @@ import { memo } from "react"
 import { SvgChevronRight } from "../../../../../assets"
 import { useTranslation } from "react-i18next"
 import { kebabToCamel } from "../../../../../utils"
-import { SelectedProps } from "../selected-props.ts"
+import { getCompareStatus, SelectedProps } from "../selected-props.ts"
 
 export interface ProductFieldInfoProps extends SelectedProps {
   node: ProductFieldViewModel
@@ -54,22 +54,34 @@ const FieldsList = ({ node, onSelect }: ProductFieldInfoProps) => {
         ...
       </li>
 
-      {node.children?.map((child, index) => (
-        <li
-          key={index}
-          className="flex cursor-pointer items-center justify-between bg-gray-100 px-4 py-2 text-sm hover:bg-gray-50"
-          onClick={() => onSelect(child)}
-        >
-          {child.name}
-          <SvgChevronRight className="stroke-gray-400" />
-        </li>
-      ))}
+      {node.children?.map((child, index) => {
+        const status = getCompareStatus(node)
+
+        const rowStatusClass =
+          status === "removed"
+            ? "opacity-75 line-through text-red-700"
+            : status === "added"
+              ? "text-green-800"
+              : status === "changed"
+                ? "text-blue-800"
+                : ""
+
+        return (
+          <li
+            key={index}
+            className={`flex cursor-pointer items-center justify-between bg-gray-100 px-4 py-2 text-sm hover:bg-gray-50 ${rowStatusClass}`}
+            onClick={() => onSelect(child)}
+          >
+            {child.name}
+            <SvgChevronRight className="stroke-gray-400" />
+          </li>
+        )
+      })}
     </ul>
   )
 }
 
 export const ProductFieldInfo = memo(({ node, onSelect }: ProductFieldInfoProps) => {
-  console.log('node', node)
   return (
     <div className="overflow-hidden rounded-md border h-full">
       <FieldBreadcrumbs node={node} onSelect={onSelect} />

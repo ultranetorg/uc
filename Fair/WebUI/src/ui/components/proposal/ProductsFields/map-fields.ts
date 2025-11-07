@@ -18,9 +18,9 @@ function groupByName(list?: ProductFieldViewModel[]) {
   return map
 }
 
-function getGenerator(parent: ProductFieldViewModel | undefined = undefined) {
-  let index = 0
-  return (field: ProductFieldModel, ext: Partial<ProductFieldCompareViewModel>): ProductFieldCompareViewModel => ({
+function getGenerator() {
+  let index = 0;
+  return (field: ProductFieldModel, ext: Partial<ProductFieldCompareViewModel>, parent?: ProductFieldCompareViewModel): ProductFieldCompareViewModel => ({
     ...field,
     id: `${field.name}_${++index}`,
     children: [],
@@ -29,14 +29,18 @@ function getGenerator(parent: ProductFieldViewModel | undefined = undefined) {
   })
 }
 
-function mergeArrays(fromList?: ProductFieldViewModel[], toList?: ProductFieldViewModel[], parent: ProductFieldViewModel | undefined = undefined): ProductFieldCompareViewModel[] {
+function mergeArrays(
+  fromList?: ProductFieldViewModel[],
+  toList?: ProductFieldViewModel[],
+  parent?: ProductFieldCompareViewModel,
+  generate = getGenerator()
+): ProductFieldCompareViewModel[] {
   const fromGroups = groupByName(fromList)
   const toGroups = groupByName(toList)
 
   const keys = new Set<string>([...fromGroups.keys(), ...toGroups.keys()])
 
   const result: ProductFieldCompareViewModel[] = []
-  const generate = getGenerator(parent)
 
   keys.forEach(key => {
     const fromArr = fromGroups.get(key) ?? []
@@ -50,42 +54,41 @@ function mergeArrays(fromList?: ProductFieldViewModel[], toList?: ProductFieldVi
 
       if (from && !to) {
         // removed
-        result.push(
-          generate(from, {
-            children: mergeArrays(from.children, [], from),
-            oldValue: from.value,
-            isRemoved: true,
-          }),
-        )
+        const item = generate(from, {
+          oldValue: from.value,
+          isRemoved: true,
+        }, parent)
+        item.children = mergeArrays(from.children, [], item, generate)
+        result.push(item)
         continue
       }
 
       if (!from && to) {
         // added
-        result.push(
-          generate(to, {
-            children: mergeArrays([], to.children, to),
-            isAdded: true,
-          }),
-        )
+        const item = generate(to, {
+          isAdded: true,
+        }, parent)
+        item.children = mergeArrays([], to.children, item, generate)
+        result.push(item)
         continue
       }
 
       if (from && to) {
         // exists in both - compare
-        const children = mergeArrays(from.children, to.children, to)
+        const item = generate(to, {
+          oldValue: from.value,
+        }, parent)
 
-        const isChanged =
+        item.children = mergeArrays(from.children, to.children, item, generate)
+
+        item.isChanged =
           from.value !== to.value ||
           from.type !== to.type ||
-          children.some(c => c.isAdded || c.isRemoved || c.isChanged)
+          item.children.some(c => c.isAdded || c.isRemoved || c.isChanged) ||
+          undefined
 
         // prefer 'to' values for current representation
-        result.push(generate(to, {
-          children,
-          oldValue: from.value,
-          isChanged: isChanged || undefined,
-        }))
+        result.push(item)
       }
     }
   })
@@ -117,18 +120,13 @@ export function mergeFields(
   >
 }
 
-// index по значению.
-let _idCounter = 0
-function nextId(name: string) {
-  return `${name}_${++_idCounter}`
-}
-
 function mapItems(
   items: ProductFieldModel[],
   parent: ProductFieldViewModel | undefined = undefined,
 ): ProductFieldViewModel[] {
+  let _idCounter = 0
   return items.map(item => {
-    const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: nextId(item.name) }
+    const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: `${item.name}_${++_idCounter}` }
     if (item.children && item.children.length > 0) {
       newItem.children = mapItems(item.children, newItem)
     }
@@ -144,10 +142,6 @@ export function mapFields(
   if (!data) {
     return response as unknown as UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
   }
-
-  // сбросим счётчик id перед маппингом, чтобы id были детерминированы для
-  // одного вызова mapFields
-  _idCounter = 0
 
   const transformed: TotalItemsResult<ProductFieldViewModel> = {
     ...data,

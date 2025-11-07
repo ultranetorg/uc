@@ -4,13 +4,16 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetFile = (id: string) => {
-  const queryFn = () => api.getFile(id)
+export const useGetFile = (id?: string) => {
+  const queryFn = () => api.getFile(id!)
 
-  const { isPending, error, data } = useQuery({
+  const { isLoading, isFetching, error, data } = useQuery({
     queryKey: ["files", id],
     queryFn: queryFn,
+    enabled: !!id,
   })
+
+  const isPending = !!id && (isLoading || isFetching)
 
   return { isPending, error: error ?? undefined, data }
 }

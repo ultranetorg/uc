@@ -1,6 +1,6 @@
+import { JSX } from "react"
 import { ProductFieldCompareViewModel, ProductFieldViewModel } from "types"
 import { ProductFieldViewString } from "./ProductFieldViewString.tsx"
-import { JSX } from "react"
 import { ProductFieldViewUri } from "./ProductFieldViewUri.tsx"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt.tsx"
 import { ProductFieldViewDate } from "./ProductFieldViewDate.tsx"
@@ -13,27 +13,26 @@ export const ProductFieldView = ({ node }: { node: ProductFieldViewModel }) => {
 
   const compareStatus = getCompareStatus(node)
   const oldValue = compareStatus ? (node as ProductFieldCompareViewModel).oldValue ?? null : null
-  console.log('node', node)
 
   switch (node.type) {
     case "uri": {
-      if (parent?.name === "video") {
-        component = <ProductFieldViewVideo value={node.value} />
+      if (node.parent?.name === "video") {
+        component = <ProductFieldViewVideo value={node.value} oldValue={oldValue} status={compareStatus} />
       } else {
-        component = <ProductFieldViewUri value={node.value} />
+        component = <ProductFieldViewUri value={node.value} oldValue={oldValue} status={compareStatus} />
       }
       break
     }
     case "money": {
-      component = <ProductFieldViewBigInt value={node.value} />
+      component = <ProductFieldViewBigInt value={node.value} oldValue={oldValue} status={compareStatus} />
       break
     }
     case "date": {
-      component = <ProductFieldViewDate value={node.value} />
+      component = <ProductFieldViewDate value={node.value} oldValue={oldValue} status={compareStatus} />
       break
     }
     case "file-id": {
-      component = <ProductFieldViewFile value={node.value} />
+      component = <ProductFieldViewFile value={node.value} oldValue={oldValue} status={compareStatus} />
       break
     }
 

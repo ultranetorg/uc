@@ -6,26 +6,29 @@ export interface ProductFieldValueMetadataModel {
   type: TField
 }
 
-export interface ProductFieldModel {
+export interface ProductFieldModelBase<TModel> {
   name: TToken
   type?: TField
   metadata?: ProductFieldValueMetadataModel[]
   value: string
-  children?: ProductFieldModel[]
+  children?: TModel[]
 }
+
+export type ProductFieldModel = ProductFieldModelBase<ProductFieldModel>
 
 export interface ProductFieldCompareModel {
   from: ProductFieldModel[];
   to: ProductFieldModel[];
 }
 
-export interface ProductFieldViewModel extends ProductFieldModel {
+export interface ProductFieldViewModel extends ProductFieldModelBase<ProductFieldViewModel> {
   id: string
   parent?: ProductFieldViewModel
-  children?: ProductFieldViewModel[]
 }
 
-export interface ProductFieldCompareViewModel extends ProductFieldViewModel {
+export interface ProductFieldCompareViewModel extends ProductFieldModelBase<ProductFieldCompareViewModel> {
+  id: string
+  parent?: ProductFieldCompareViewModel
   isRemoved?: true
   isAdded?: true
   isChanged?: true
