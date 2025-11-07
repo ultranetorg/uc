@@ -28,7 +28,8 @@ partial class WalletsPage
 	/// </summary>
 	private void InitializeComponent()
 	{
-		Wallets = new ListBox();
+		components = new System.ComponentModel.Container();
+		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WalletsPage));
 		DeleteWallet = new Button();
 		LockUnlock = new Button();
 		CreateWallet = new Button();
@@ -45,15 +46,11 @@ partial class WalletsPage
 		listView1 = new ListView();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
+		imageList1 = new ImageList(components);
+		Wallets = new ListView();
+		columnHeader3 = new ColumnHeader();
+		columnHeader4 = new ColumnHeader();
 		SuspendLayout();
-		// 
-		// Wallets
-		// 
-		Wallets.FormattingEnabled = true;
-		Wallets.Location = new Point(0, 48);
-		Wallets.Name = "Wallets";
-		Wallets.Size = new Size(233, 184);
-		Wallets.TabIndex = 1;
 		// 
 		// DeleteWallet
 		// 
@@ -200,14 +197,41 @@ partial class WalletsPage
 		columnHeader2.Text = "Address";
 		columnHeader2.Width = 300;
 		// 
+		// imageList1
+		// 
+		imageList1.ColorDepth = ColorDepth.Depth32Bit;
+		imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+		imageList1.TransparentColor = Color.Transparent;
+		imageList1.Images.SetKeyName(0, "lock");
+		// 
+		// Wallets
+		// 
+		Wallets.Columns.AddRange(new ColumnHeader[] { columnHeader3, columnHeader4 });
+		Wallets.Location = new Point(3, 48);
+		Wallets.Name = "Wallets";
+		Wallets.Size = new Size(234, 184);
+		Wallets.TabIndex = 16;
+		Wallets.UseCompatibleStateImageBehavior = false;
+		Wallets.View = View.Details;
+		// 
+		// columnHeader3
+		// 
+		columnHeader3.Text = "";
+		columnHeader3.Width = 30;
+		// 
+		// columnHeader4
+		// 
+		columnHeader4.Text = "Name";
+		columnHeader4.Width = 150;
+		// 
 		// WalletsPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
+		Controls.Add(Wallets);
 		Controls.Add(listView1);
 		Controls.Add(label1);
 		Controls.Add(label3);
-		Controls.Add(Wallets);
 		Controls.Add(DeleteWallet);
 		Controls.Add(CopyAddress);
 		Controls.Add(LockUnlock);
@@ -225,7 +249,6 @@ partial class WalletsPage
 	}
 
 	#endregion
-	private ListBox Wallets;
 	private Button DeleteWallet;
 	private Button LockUnlock;
 	private Button CreateWallet;
@@ -242,4 +265,8 @@ partial class WalletsPage
 	private ListView listView1;
 	private ColumnHeader columnHeader1;
 	private ColumnHeader columnHeader2;
+	private ImageList imageList1;
+	private ListView Wallets;
+	private ColumnHeader columnHeader3;
+	private ColumnHeader columnHeader4;
 }

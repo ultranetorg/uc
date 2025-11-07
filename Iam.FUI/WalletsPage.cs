@@ -11,15 +11,24 @@ public partial class WalletsPage : Page
 	public WalletsPage(Iam iam)
 	{
 		InitializeComponent();
+		
+		Wallets.SmallImageList = imageList1;
 
 		Task.Run(() =>	{
 							foreach(var i in iam.Vault.Request<WalletsApc.Wallet[]>(new WalletsApc {}, new Flow(null)))
 							{
-								var li = new ListViewItem();
+								var li = new ListViewItem("", i.Locked ? "lock" : null);
 								
-								li.Tag = i;		
+								li.SubItems.Add(i.Name);
+								li.Tag = i;
 
-								Wallets.Items.Add(i.Name);
+								Invoke(() =>{ 
+												Wallets.Items.Add(li);
+
+												//LockUnlock.Text = i.Locked ? "Unlock" : "Lock";
+												//RenameWallet.Enabled = !i.Locked;
+												//DeleteWallet.Enabled = !i.Locked;	
+											});
 							}
 						});
 	}
