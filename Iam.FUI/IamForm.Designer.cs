@@ -61,7 +61,7 @@ partial class IamForm
 		radioButton3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 		radioButton3.Appearance = Appearance.Button;
 		radioButton3.Font = new Font("Segoe UI", 12F);
-		radioButton3.Location = new Point(12, 620);
+		radioButton3.Location = new Point(12, 622);
 		radioButton3.Name = "radioButton3";
 		radioButton3.Padding = new Padding(10, 0, 0, 0);
 		radioButton3.Size = new Size(231, 64);

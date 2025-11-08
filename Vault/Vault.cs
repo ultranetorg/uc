@@ -34,7 +34,7 @@ public class Vault : Cli
 	static void Main(string[] args)
 	{
 		var Boot = new NetBoot(ExeDirectory);
-		var s = new VaultSettings(Boot.Profile, Boot.Zone);
+		var s = new VaultSettings(Boot.Profile, Boot.Zone, Boot.Commnand);
 		var u = new Vault(s, new Flow(nameof(Vault), new Log()));
 
 		u.Execute(Boot);

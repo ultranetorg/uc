@@ -57,7 +57,7 @@ public class WalletCommand : VaultCommand
 								Report("Public Address - " + w.Accounts.First().Address); 
 								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());
 
-								Api(new AddWalletApc {Raw = w.Raw});
+								Api(new AddWalletApc {Raw = w.Encrypt()});
 
 								return w;
 							};
@@ -74,7 +74,7 @@ public class WalletCommand : VaultCommand
 		a.Execute = () =>	{
 								var r = Api<WalletsApc.Wallet[]>(new WalletsApc {});
 
-								Flow.Log.Dump(r, ["Name", "State", "Accounts"], [i => i.Name, i => i.Locked ? "Locked" : "Unlocked", i => string.Join(", ", (object[])i.Accounts)]);
+								Flow.Log.Dump(r, ["Name", "State"], [i => i.Name, i => i.Locked ? "Locked" : "Unlocked"]);
 
 								return r;
 							};

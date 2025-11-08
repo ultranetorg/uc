@@ -3,12 +3,15 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>iam</AssemblyName>
     <RootNamespace>Uccs.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+	  <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+	  <EnableNETAnalyzers>False</EnableNETAnalyzers>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,6 +23,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+    <ProjectReference Include="..\Net.FUI\Uccs.Net.FUI.csproj" />
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
     <ProjectReference Include="..\Vault\Uccs.Vault.csproj" />
   </ItemGroup>
