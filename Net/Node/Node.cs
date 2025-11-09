@@ -62,7 +62,7 @@ public class Node
 		if(Debugger.IsAttached)
 			HttpClient.Timeout = Timeout.InfiniteTimeSpan;
 	
-		VaultApi = new VaultApiClient(ApiClient.GetAddress(Net.Zone, host, false, KnownSystem.VaultApi), null, HttpClient);
+		VaultApi = new VaultApiClient(Api.ForSystem(Net.Zone, host, Api.Vault), null, HttpClient);
 	}
 
 	public virtual void Stop()

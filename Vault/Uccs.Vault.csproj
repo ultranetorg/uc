@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
     <Product>Vault</Product>
@@ -9,7 +9,6 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>vault</AssemblyName>
     <AssemblyVersion>1.0.648.0</AssemblyVersion>
     <FileVersion>1.0.648.0</FileVersion>
     <Version>1.0.648.0</Version>

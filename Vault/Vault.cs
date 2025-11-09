@@ -34,25 +34,24 @@ public class Vault : Cli
 	static void Main(string[] args)
 	{
 		var Boot = new NetBoot(ExeDirectory);
-		var s = new VaultSettings(Boot.Profile, Boot.Zone, Boot.Commnand);
-		var u = new Vault(s, new Flow(nameof(Vault), new Log()));
+		var u = new Vault(Boot.Profile, Boot.Zone, null, new Flow(nameof(Vault), new Log()));
 
 		u.Execute(Boot);
 
 		u.Stop();
 	}
 
-	public Vault(VaultSettings settings, Flow flow)
+	public Vault(string profile, Zone zone, VaultSettings settings, Flow flow)
 	{
-		Settings = settings;
+		Settings = settings ?? new VaultSettings(profile, zone);
 		Flow = flow;
-		Cryptography = settings.Encrypt ? new NormalCryptography() : new NoCryptography() ;
+		Cryptography = Settings.Encrypt ? new NormalCryptography() : new NoCryptography() ;
 
-		Directory.CreateDirectory(settings.Profile);
+		Directory.CreateDirectory(Settings.Profile);
 
-		if(Directory.Exists(settings.Profile))
+		if(Directory.Exists(Settings.Profile))
 		{
-			foreach(var i in Directory.EnumerateFiles(settings.Profile, "*." + WalletExt(Cryptography)))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Cryptography)))
 			{
 				Wallets.Add(new Wallet(this, Path.GetFileName(i), File.ReadAllBytes(i)));
 			}

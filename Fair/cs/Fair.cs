@@ -7,7 +7,7 @@ public abstract class Fair : McvNet
 {
 	public override	string			Address => "fair";
 	public override	string			Name => "fair";
-	public override ushort			PortBase => (ushort)KnownSystem.Fair;
+	public override ushort			PpiPort => MapPort(Zone, KnownProtocol.Fair);
 	public override int				TablesCount => Enum.GetNames<FairTable>().Count(i => i[0] != '_');
 	
 	public int						FileLengthMaximum = 1024*1024;

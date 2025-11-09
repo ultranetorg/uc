@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Uccs.Net;
 using Uccs.Rdn;
+using Uccs.Vault;
 
 namespace Uccs.Nexus;
 
@@ -27,11 +28,13 @@ public class NexusCli : Cli
 	{
 		var b = new NetBoot(ExeDirectory);
 		var ns = new NexusSettings(b) {Name = Guid.NewGuid().ToString()};
-		var rs = new RdnNodeSettings(b.Profile);
+		var vs = new VaultSettings(b.Profile, b.Zone);
 		
 		var cli = new NexusCli();
 
-		cli.Nexus = new Nexus(b, ns, rs, new RealClock(), new Flow(nameof(Nexus), new Log()));
+		cli.Nexus = new Nexus(b, ns, vs, new RealClock(), new Flow(nameof(Nexus), new Log()));
+
+		cli.Nexus.RunRdn(null);
 
 		cli.Execute(b);
 

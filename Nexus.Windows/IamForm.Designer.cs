@@ -1,4 +1,4 @@
-﻿namespace Uccs.Iam.FUI;
+﻿namespace Uccs.Nexus.Windows;
 
 partial class IamForm
 {
@@ -132,7 +132,7 @@ partial class IamForm
 		// 
 		// pictureBox1
 		// 
-		pictureBox1.Image = Properties.Resources.Iam_1;
+		pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
 		pictureBox1.Location = new Point(74, -2);
 		pictureBox1.Name = "pictureBox1";
 		pictureBox1.Size = new Size(300, 70);

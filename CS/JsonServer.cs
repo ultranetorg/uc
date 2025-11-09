@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
@@ -49,8 +50,6 @@ public class ApiSettings : Settings
 	public string			PublicAddress { get; set; }
 	public string			PublicAccessKey { get; set; }
 
-	public static string	ToAddress(IPAddress ip, ushort port, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{port}";
-
 	public ApiSettings() : base(XonTextValueSerializator.Default)
 	{
 	}
@@ -91,6 +90,7 @@ public abstract class JsonServer
 	ApiSettings						Settings;
 	Flow							Flow;
 	JsonSerializerOptions			Options;
+	Dictionary<string, ConstructorInfo>			Calls = [];
 
 	protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	protected abstract Type			Create(string call);
@@ -194,17 +194,6 @@ public abstract class JsonServer
 
 										output.Write(buffer, 0, buffer.Length);
 									}
-
-// 			void respondbinary(byte[] t){
-// 											try
-// 											{
-// 												rp.ContentType = "application/octet-stream";
-// 												rp.OutputStream.Write(t, 0, t.Length);
-// 											}
-// 											catch(InvalidOperationException)
-// 											{
-// 											}
-// 										}
 		
 		try
 		{
@@ -215,7 +204,11 @@ public abstract class JsonServer
 				return;
 			}
 
-			if(rq.Url.LocalPath.Substring(1) == "Ping")
+			var p = Listener.Prefixes.First(i => rq.Url.ToString().StartsWith(i));
+
+			var call = rq.Url.LocalPath.Substring(new Uri(p).LocalPath.Length);
+
+			if(call == "Ping")
 			{
 				rp.StatusCode = (int)HttpStatusCode.OK;
 				respondjson(new Pong {Status = "OK"});
@@ -223,18 +216,23 @@ public abstract class JsonServer
 				return;
 			}
 			
-			var t = Type.GetType(typeof(JsonServer).Namespace + '.' + rq.Url.LocalPath.TrimStart('/') + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
-
-			if(t == null)
+			if(!Calls.TryGetValue(call, out var constuctor))
 			{
-				RespondError(rp, HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
-				rp.Close();
-				return;
+				var t = Type.GetType($"{typeof(JsonServer).Namespace}.{call}{Apc.Postfix}") ?? Create(call + Apc.Postfix);
+
+				if(t == null)
+				{
+					RespondError(rp, HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
+					rp.Close();
+					return;
+				}
+
+				Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
 			}
 
-			var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
-			var j = reader.ReadToEnd();
-			var c = (j.Any() ? JsonSerializer.Deserialize(j, t, Options) : t.GetConstructor(new System.Type[]{}).Invoke(null)) as Apc;
+//			var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
+//			var j = reader.ReadToEnd();
+			var c = (rq.ContentLength64 > 0 ? JsonSerializer.Deserialize(rq.InputStream, constuctor.DeclaringType, Options) : constuctor.Invoke(null)) as Apc;
 
 			rp.StatusCode = (int)HttpStatusCode.OK;
 
@@ -253,7 +251,7 @@ public abstract class JsonServer
 
 				foreach(var i in b.Calls)
 				{
-					t = Create(i.Name + Apc.Postfix);
+					var t = Create(i.Name + Apc.Postfix);
 					rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
 				}
 

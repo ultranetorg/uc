@@ -1,6 +1,6 @@
 using Uccs.Nexus;
 
-namespace Uccs.Iam.FUI;
+namespace Uccs.Nexus.Windows;
 
 public partial class IamForm : Form
 {
@@ -9,11 +9,11 @@ public partial class IamForm : Form
 		InitializeComponent();
 	}
 
-	public IamForm(Iam iam)
+	public IamForm(Nexus nexus)
 	{
 		InitializeComponent();
 
-		WalletsAndAccounts.Tag = new WalletsPage(iam);
+		WalletsAndAccounts.Tag = new WalletsPage(nexus);
 		Sessions.Tag = new SessionsPage();
 		Assets.Tag = new AssetsPage();
 

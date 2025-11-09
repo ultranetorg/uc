@@ -8,7 +8,7 @@ internal class NexusApiServer : JsonServer
 {
 	Nexus Nexus;
 
-	public NexusApiServer(Nexus uos, Flow flow) : base(	uos.Settings.Api.ToApiSettings(uos.Settings.Zone, KnownSystem.NexusApi), ApiClient.CreateOptions(), flow)
+	public NexusApiServer(Nexus uos, Flow flow) : base(uos.Settings.Api.ToApiSettings(uos.Settings.Zone, Api.Nexus), ApiClient.CreateOptions(), flow)
 	{
 		Nexus = uos;
 	}

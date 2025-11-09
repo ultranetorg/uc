@@ -6,7 +6,6 @@
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>iam</AssemblyName>
     <RootNamespace>Uccs.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>

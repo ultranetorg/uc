@@ -1,4 +1,4 @@
-﻿namespace Uccs.Iam.FUI;
+﻿namespace Uccs.Nexus.Windows;
 
 public partial class AssetsPage : Page
 {

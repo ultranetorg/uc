@@ -1,20 +1,19 @@
+#if false
 using System.Reflection;
 using Uccs.Net;
 using Uccs.Nexus;
 
-namespace Uccs.Iam.FUI;
+namespace Uccs.Nexus.Windows;
 
 public class IamSettings : SavableSettings
 {
 	public byte[]			VaultAdminKey;
-	public byte[]			NexusProcessId;
 	public Zone				Zone;
 
 	public IamSettings(NetBoot boot) : base(boot.Profile, NetXonTextValueSerializator.Default)
 	{
 		Zone			= boot.Zone;
 		VaultAdminKey	= boot.Commnand.Get<byte[]>("VaultAdminKey", null);
-		NexusProcessId	= boot.Commnand.Get<byte[]>("NexusProcessId", null);
 	}
 
 	public IamSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
@@ -52,3 +51,5 @@ public class Iam
 		Vault = new VaultApiClient(ApiClient.GetAddress(iamsettings.Zone, nexussettings.Api.LocalIP, false, KnownSystem.VaultApi), null);
 	}
 }
+#endif
+

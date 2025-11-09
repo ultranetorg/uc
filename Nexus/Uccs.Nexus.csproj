@@ -23,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Net\Uccs.Net.csproj" />
+    <ProjectReference Include="..\Vault\Uccs.Vault.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Uos.boot">

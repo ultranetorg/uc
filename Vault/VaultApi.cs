@@ -7,7 +7,7 @@ internal class VaultApiServer : JsonServer
 {
 	Vault Vault;
 
-	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToApiSettings(vault.Settings.Zone, KnownSystem.VaultApi), VaultApiClient.CreateOptions(), workflow)
+	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToApiSettings(vault.Settings.Zone, Api.Vault), VaultApiClient.CreateOptions(), workflow)
 	{
 		Vault = vault;
 	}
@@ -46,9 +46,6 @@ public class AddWalletApc : AdminApc
 	{
 		lock(vault)
 		{
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
 			vault.AddWallet(Raw); 
 		}
 		
@@ -68,9 +65,6 @@ public class WalletsApc : AdminApc
 	{
 		lock(vault)
 		{	
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
 			return vault.Wallets.Select(i => new Wallet
 											 {
 												Name = i.Name,
@@ -88,10 +82,7 @@ public class WalletApc : AdminApc
 	{
 		lock(vault)
 		{	
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
-			var w = vault.Wallets.FirstOrDefault(i => i.Name == Name);
+			var w = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null);
 
 			return w.Accounts;
 		}
@@ -107,10 +98,7 @@ public class UnlockWalletApc : AdminApc
 	{
 		lock(vault)
 		{
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
-			(Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).Unlock(Password);
+			vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).Unlock(Password);
 		}
 
 		return null;
@@ -124,11 +112,8 @@ public class LockWalletApc : AdminApc
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-		{
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
-			(Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).Lock();
+		{ 
+			vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).Lock();
 		}
 
 		return null;
@@ -144,10 +129,7 @@ public class AddAccountToWalletApc : AdminApc
 	{
 		lock(vault)
 		{	
-			if(!vault.Settings.AdminKey.SequenceEqual(AdminKey))
-				throw new ApiCallException("Admin Access Denied");
-
-			var a = (Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
+			var a = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).AddAccount(Key);
 		
 			return a.Key.PrivateKey;
 		}

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uccs.Iam.FUI.Properties {
+namespace Uccs.Uccs.Nexus.Windows.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Uccs.Iam.FUI.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uccs.Iam.FUI.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uccs.Uccs.Nexus.Windows.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,26 +66,6 @@ namespace Uccs.Iam.FUI.Properties {
         internal static System.Drawing.Bitmap Iam_1 {
             get {
                 object obj = ResourceManager.GetObject("Iam-1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Iam48 {
-            get {
-                object obj = ResourceManager.GetObject("Iam48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Iam481 {
-            get {
-                object obj = ResourceManager.GetObject("Iam481", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

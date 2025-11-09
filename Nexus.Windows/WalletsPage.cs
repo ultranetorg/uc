@@ -2,21 +2,21 @@
 using Uccs.Net.FUI;
 using Uccs.Vault;
 
-namespace Uccs.Iam.FUI;
+namespace Uccs.Nexus.Windows;
 
 public partial class WalletsPage : Page
 {
-	Iam Iam;
+	Nexus Nexus;
 
 	public WalletsPage()
 	{
 	}
 
-	public WalletsPage(Iam iam)
+	public WalletsPage(Nexus nexus)
 	{
 		InitializeComponent();
 
-		Iam = iam;
+		Nexus = nexus;
 	}
 
 	protected override void OnHandleCreated(EventArgs e)
@@ -39,7 +39,7 @@ public partial class WalletsPage : Page
 	{
 		Wallets.Items.Clear();
 
-		foreach(var i in Iam.Vault.Request<WalletsApc.Wallet[]>(new WalletsApc {AdminKey = Iam.Settings.VaultAdminKey }, new Flow(null)))
+		foreach(var i in Nexus.Vault.Wallets)
 		{
 			var li = new ListViewItem("", i.Locked ? "lock" : null);
 
@@ -52,7 +52,7 @@ public partial class WalletsPage : Page
 
 	private void Wallets_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 	{
-		var w = e.Item?.Tag as WalletsApc.Wallet;
+		var w = e.Item?.Tag as Wallet;
 
 		if(w != null && e.IsSelected)
 		{
@@ -66,16 +66,15 @@ public partial class WalletsPage : Page
 
 			Invoke(() => Accounts.Items.Clear());
 
-			foreach(var i in Iam.Vault.Request<WalletAccount[]>(new WalletApc {Name = w.Name, AdminKey = Iam.Settings.VaultAdminKey}, new Flow(null)))
+			foreach(var i in w.Accounts)
 			{
 				var li = new ListViewItem(i.Name);
 				li.Tag = i;
 				li.SubItems.Add(i.Address.ToString());
 
-				Invoke(() =>
-						{
-							Accounts.Items.Add(li);
-						});
+				Invoke(() =>{
+								Accounts.Items.Add(li);
+							});
 			}
 
 			Invoke(() =>{
@@ -135,19 +134,21 @@ public partial class WalletsPage : Page
 	{
 		var i = Wallets.SelectedItems[0].Index;
 
-		if(Wallets.SelectedItems[0].Tag is WalletsApc.Wallet w && w.Locked)
+		var w = Wallets.SelectedItems[0].Tag as Wallet;
+		
+		if(w.Locked)
 		{
 			var f = new EnterPasswordForm();
 			
 			if(f.Ask("A password required to unlock this wallet"))
 			{
-				Iam.Vault.Request<WalletsApc.Wallet[]>(new UnlockWalletApc {Name = w.Name, Password = f.Password, AdminKey = Iam.Settings.VaultAdminKey}, new Flow(null));
+				w.Unlock(w.Password);
 			} 
 			else
 				return;
 		}
 		else
-			Iam.Vault.Request<WalletsApc.Wallet[]>(new LockWalletApc {AdminKey = Iam.Settings.VaultAdminKey}, new Flow(null));
+			w.Lock();
 
 		LoadWallets();
 

@@ -14,7 +14,7 @@ public class Open : Cli
 	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
 
 	NexusApiClient				_Nexus;
-	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalAddress(Settings.Zone, KnownSystem.NexusApi), null, ApiHttpClient);
+	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalAddress(Settings.Zone, Api.Nexus), null, ApiHttpClient);
 
 	static Open()
 	{
