@@ -1,4 +1,4 @@
 export * from "./CreateProposal"
+export * from "./Proposal"
 
-export * from "./ProposalView"
 export * from "./ProposalsView"
