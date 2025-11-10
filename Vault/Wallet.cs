@@ -1,4 +1,5 @@
-﻿namespace Uccs.Vault;
+﻿
+namespace Uccs.Vault;
 
 public class AuthenticationChoice
 {
@@ -114,6 +115,10 @@ public class Wallet
 
 	public bool					Locked => Encrypted != null;
 
+	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+
+	public const string			Default = "default";
+
 	public byte[] Encrypt()
 	{
 		if(Encrypted != null)
@@ -129,14 +134,14 @@ public class Wallet
 
 	public Wallet(Vault vault, string name, byte[] encrypted)
 	{
-		Name = name;
+		Name = name ?? Default;
 		Vault = vault;
 		Encrypted = encrypted;
 	}
 
 	public Wallet(Vault vault, string name, AccountKey[] keys, string password)
 	{
-		Name = name;
+		Name = name ?? Default;
 		Vault = vault;
 		Password = password;
 		Accounts = keys.Select(i => new WalletAccount(Vault, i)).ToList();
@@ -147,6 +152,9 @@ public class Wallet
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
 
+		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.PrivateKey, key) == 0))
+			throw new VaultException(VaultError.AlreadyExists);
+
 		var a = new WalletAccount(Vault, key == null ? AccountKey.Create() : new AccountKey(key));
 		
 		Accounts.Add(a);
@@ -154,6 +162,13 @@ public class Wallet
 		Save();
 
 		return a;
+	}
+
+	public void DeleteAccount(WalletAccount account)
+	{
+		Accounts.Remove(account);
+	
+		Save();
 	}
 
 	public void Lock()
@@ -185,8 +200,26 @@ public class Wallet
 
 	public void Save()
 	{
-		var path = Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+		File.WriteAllBytes(Path, Encrypted ?? Encrypt());
+	}
 
-		File.WriteAllBytes(path, Encrypted ?? Encrypt());
+	public void Rename(string name)
+	{
+		if(string.Compare(Name, name, true) == 0)
+			return;
+
+		if(Vault.FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var old = Path;
+
+		Name = name;
+
+		if(File.Exists(Path))
+			throw new VaultException(VaultError.AlreadyExists);
+
+		Save();
+
+		File.Delete(old);
 	}
 }

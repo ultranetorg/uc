@@ -40,7 +40,8 @@ public class WalletCommand : VaultCommand
 		a.Name = "c";
 		a.Description = "Used to create a new account and its wallet.";
 		a.Arguments =	[
-							new ("password", PASSWORD, "A password that is used to encrypt the newly created wallet", Flag.Optional)
+							new ("name", NAME, "An arbitrary name of a newly created wallet", Flag.Optional),
+							new ("password", PASSWORD, "A password that is used to encrypt a newly created wallet", Flag.Optional)
 						];
 
 		a.Execute = () =>	{
@@ -52,12 +53,12 @@ public class WalletCommand : VaultCommand
 									p = Vault.PasswordAsker.Password;
 								}
 
-								var w = Vault.CreateWallet(p);
+								var w = Vault.CreateWallet(GetString("name", null), p);
 
 								Report("Public Address - " + w.Accounts.First().Address); 
 								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());
 
-								Api(new AddWalletApc {Raw = w.Encrypt()});
+								Api(new AddWalletApc {Name = GetString("name", null), Raw = w.Encrypt()});
 
 								return w;
 							};

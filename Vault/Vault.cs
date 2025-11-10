@@ -100,36 +100,47 @@ public class Vault : Cli
 		return null;
 	}
 
-	public Wallet CreateWallet(string password, int accounts = 1)
+	public Wallet FindWallet(string name)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
+		return Wallets.Find(i => string.Compare(i.Name, name ?? Wallet.Default, true) == 0);
+	}
+
+	public Wallet CreateWallet(string name, string password, int accounts = 1)
+	{
+		var w = new Wallet(this, name, Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
 		return w;
 	}
 
-	public Wallet CreateWallet(AccountKey[] key, string password)
+	public Wallet CreateWallet(string name, AccountKey[] key, string password)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), key, password);
+		var w = new Wallet(this, name, key, password);
 		return w;
 	}
 
-	public Wallet CreateWallet(byte[] raw)
+	public Wallet CreateWallet(string name, byte[] raw)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), raw);
+		var w = new Wallet(this, name, raw);
 		return w;
 	}
 
-	public void AddWallet(byte[] raw)
+	public void AddWallet(string name, byte[] raw)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), raw);
+		if(FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var w = new Wallet(this, name, raw);
 
 		Wallets.Add(w);
 		
 		w.Save();
 	}
 
-	public Wallet AddWallet(AccountKey[] key, string password)
+	public Wallet AddWallet(string name, AccountKey[] key, string password)
 	{
-		var w = CreateWallet(key, password);
+		if(FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var w = CreateWallet(name, key, password);
 		
 		w.Password = password;
 
@@ -147,8 +158,15 @@ public class Vault : Cli
 
 	public void DeleteWallet(string name)
 	{
+		name = (name ?? Wallet.Default);
+
+		var w = Wallets.FirstOrDefault(i => i.Name == name);
+		
+		if(w == null)
+			throw new VaultException(VaultError.NotFound);
+
 		File.Delete(Path.Combine(Settings.Profile, name + "." + WalletExt(Cryptography)));
 
-		Wallets.RemoveAll(i => i.Name == name);
+		Wallets.Remove(w);
 	}
 }

@@ -38,19 +38,17 @@ partial class WalletsPage
 		DeleteAccount = new Button();
 		CopyAddress = new Button();
 		ImportWallet = new Button();
-		RenameWallet = new Button();
 		label3 = new Label();
 		label1 = new Label();
 		ImportAccount = new Button();
-		RenameAccount = new Button();
 		Accounts = new ListView();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
 		imageList1 = new ImageList(components);
 		Wallets = new ListView();
-		columnHeader3 = new ColumnHeader();
 		columnHeader4 = new ColumnHeader();
 		AccountsPanel = new Panel();
+		ExportWallet = new Button();
 		AccountsPanel.SuspendLayout();
 		SuspendLayout();
 		// 
@@ -117,7 +115,7 @@ partial class WalletsPage
 		// 
 		// CopyAddress
 		// 
-		CopyAddress.Location = new Point(520, 179);
+		CopyAddress.Location = new Point(520, 217);
 		CopyAddress.Name = "CopyAddress";
 		CopyAddress.Size = new Size(211, 32);
 		CopyAddress.TabIndex = 9;
@@ -134,16 +132,6 @@ partial class WalletsPage
 		ImportWallet.Text = "Import";
 		ImportWallet.UseVisualStyleBackColor = true;
 		ImportWallet.Click += ImportWallet_Click;
-		// 
-		// RenameWallet
-		// 
-		RenameWallet.Location = new Point(251, 200);
-		RenameWallet.Name = "RenameWallet";
-		RenameWallet.Size = new Size(124, 32);
-		RenameWallet.TabIndex = 8;
-		RenameWallet.Text = "Rename";
-		RenameWallet.UseVisualStyleBackColor = true;
-		RenameWallet.Click += RenameWallet_Click;
 		// 
 		// label3
 		// 
@@ -181,16 +169,6 @@ partial class WalletsPage
 		ImportAccount.UseVisualStyleBackColor = true;
 		ImportAccount.Click += ImportAccount_Click;
 		// 
-		// RenameAccount
-		// 
-		RenameAccount.Location = new Point(520, 217);
-		RenameAccount.Name = "RenameAccount";
-		RenameAccount.Size = new Size(211, 32);
-		RenameAccount.TabIndex = 8;
-		RenameAccount.Text = "Rename";
-		RenameAccount.UseVisualStyleBackColor = true;
-		RenameAccount.Click += RenameAccount_Click;
-		// 
 		// Accounts
 		// 
 		Accounts.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
@@ -222,20 +200,17 @@ partial class WalletsPage
 		// 
 		// Wallets
 		// 
-		Wallets.Columns.AddRange(new ColumnHeader[] { columnHeader3, columnHeader4 });
+		Wallets.Columns.AddRange(new ColumnHeader[] { columnHeader4 });
 		Wallets.FullRowSelect = true;
+		Wallets.LabelEdit = true;
 		Wallets.Location = new Point(3, 48);
 		Wallets.Name = "Wallets";
 		Wallets.Size = new Size(234, 184);
 		Wallets.TabIndex = 16;
 		Wallets.UseCompatibleStateImageBehavior = false;
 		Wallets.View = View.Details;
+		Wallets.AfterLabelEdit += Wallets_AfterLabelEdit;
 		Wallets.ItemSelectionChanged += Wallets_ItemSelectionChanged;
-		// 
-		// columnHeader3
-		// 
-		columnHeader3.Text = "";
-		columnHeader3.Width = 30;
 		// 
 		// columnHeader4
 		// 
@@ -250,12 +225,22 @@ partial class WalletsPage
 		AccountsPanel.Controls.Add(label1);
 		AccountsPanel.Controls.Add(ShowSecret);
 		AccountsPanel.Controls.Add(CreateAccount);
-		AccountsPanel.Controls.Add(RenameAccount);
 		AccountsPanel.Controls.Add(CopyAddress);
 		AccountsPanel.Location = new Point(0, 272);
 		AccountsPanel.Name = "AccountsPanel";
 		AccountsPanel.Size = new Size(800, 328);
 		AccountsPanel.TabIndex = 17;
+		// 
+		// ExportWallet
+		// 
+		ExportWallet.Location = new Point(251, 200);
+		ExportWallet.Name = "ExportWallet";
+		ExportWallet.Size = new Size(124, 32);
+		ExportWallet.TabIndex = 8;
+		ExportWallet.Text = "Export";
+		ExportWallet.UseVisualStyleBackColor = true;
+		ExportWallet.EnabledChanged += LockUnlock_EnabledChanged;
+		ExportWallet.Click += ExportWallet_Click;
 		// 
 		// WalletsPage
 		// 
@@ -265,8 +250,8 @@ partial class WalletsPage
 		Controls.Add(Wallets);
 		Controls.Add(label3);
 		Controls.Add(DeleteWallet);
+		Controls.Add(ExportWallet);
 		Controls.Add(LockUnlock);
-		Controls.Add(RenameWallet);
 		Controls.Add(ImportWallet);
 		Controls.Add(CreateWallet);
 		Name = "WalletsPage";
@@ -284,17 +269,15 @@ partial class WalletsPage
 	private Button DeleteAccount;
 	private Button CopyAddress;
 	private Button ImportWallet;
-	private Button RenameWallet;
 	private Label label3;
 	private Label label1;
 	private Button ImportAccount;
-	private Button RenameAccount;
 	private ListView Accounts;
 	private ColumnHeader columnHeader1;
 	private ColumnHeader columnHeader2;
 	private ImageList imageList1;
 	private ListView Wallets;
-	private ColumnHeader columnHeader3;
 	private ColumnHeader columnHeader4;
 	private Panel AccountsPanel;
+	private Button ExportWallet;
 }

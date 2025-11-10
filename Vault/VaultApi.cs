@@ -40,13 +40,14 @@ public abstract class AdminApc : Apc, IVaultApc
 
 public class AddWalletApc : AdminApc
 {
+	public string	Name { get; set; }
 	public byte[]	Raw { get; set; }
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
 		{
-			vault.AddWallet(Raw); 
+			vault.AddWallet(Name, Raw); 
 		}
 		
 		return null;
