@@ -1,6 +1,6 @@
 import { UseQueryResult } from "@tanstack/react-query"
 import {
-  ProductFieldCompareModel,
+  ProductFieldCompare,
   ProductFieldCompareViewModel,
   ProductFieldModel,
   ProductFieldViewModel,
@@ -98,7 +98,7 @@ function mergeArrays(
 }
 
 export function mergeFields(
-  response: UseQueryResult<ProductFieldCompareModel, Error>,
+  response: UseQueryResult<ProductFieldCompare, Error>,
 ): UseQueryResult<TotalItemsResult<ProductFieldCompareViewModel>, Error> {
   const { data } = response
 

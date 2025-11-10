@@ -7,4 +7,5 @@ public enum ErrorType
 	ResourceNotFound,
 	ResourceAlreadyExists,
 	NotAllowed,
+	InvalidEntity
 }

@@ -42,7 +42,14 @@ public class ProductsService(
 
 		lock(mcv.Lock)
 		{
-			id = mcv.Publications.Latest(id).Product;
+			Publication publication = mcv.Publications.Latest(id);
+			if(publication == null)
+			{
+				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
+			}
+			
+			id = publication.Product;
+			int currentVersion = publication.ProductVersion;
 
 			Product product = mcv.Products.Latest(id);
 			if(product == null)
@@ -52,12 +59,18 @@ public class ProductsService(
 
 			if(product.Versions.Length < 2)
 			{
-				throw new InvalidAutoIdException(nameof(Product).ToLower(), id.ToString());
+				throw new InvalidEntityException(nameof(Product).ToLower(), id.ToString());
 			}
 
-			var (from, to) = product.Versions
-				.OrderBy(x => x.Id)
-				.Take(2)
+			ProductVersion[] compareVersions =
+			[
+				product.Versions.Single(x => x.Id == currentVersion),
+				product.Versions
+					.OrderBy(x => x.Id)
+					.Last(x => x.Id != currentVersion)
+			];
+
+			var (from, to) = compareVersions
 				.Select(x => x.Fields)
 				.Select(fields => MapValues(fields, Product.Software))
 				.ToArray();
