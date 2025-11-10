@@ -1,4 +1,5 @@
-﻿namespace Uccs.Vault;
+﻿
+namespace Uccs.Vault;
 
 public class AuthenticationChoice
 {
@@ -37,10 +38,15 @@ public class Authentication : IBinarySerializable
 
 public class WalletAccount : IBinarySerializable
 {
-	public AccountAddress		Address; 
+	public string				Name { get; set; } 
+	public AccountAddress		Address { get; set; }
 	public AccountKey			Key;
 	public List<Authentication>	Authentications = [];
 	Vault						Vault;
+
+	public WalletAccount()
+	{ 
+	}
 
 	public WalletAccount(Vault vault)
 	{
@@ -84,12 +90,14 @@ public class WalletAccount : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
+		writer.WriteUtf8Nullable(Name);
 		writer.Write(Key.PrivateKey);
 		writer.Write(Authentications);
 	}
 
 	public void Read(BinaryReader reader)
 	{
+		Name			= reader.ReadUtf8Nullable();
 		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
 
@@ -101,38 +109,39 @@ public class Wallet
 {
 	public string				Name;
 	public List<WalletAccount>	Accounts = new();
-	public byte[]				RawLoaded;
+	public byte[]				Encrypted;
 	public string				Password;
 	Vault						Vault;
 
-	public bool					Locked => RawLoaded != null;
+	public bool					Locked => Encrypted != null;
 
-	public byte[] Raw
+	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+
+	public const string			Default = "default";
+
+	public byte[] Encrypt()
 	{
-		get
-		{
-			if(RawLoaded != null)
-				throw new VaultException(VaultError.Locked);
+		if(Encrypted != null)
+			throw new VaultException(VaultError.Locked);
 
-			var es = new MemoryStream();
-			var ew = new BinaryWriter(es);
+		var es = new MemoryStream();
+		var ew = new BinaryWriter(es);
 
-			ew.Write(Accounts);
+		ew.Write(Accounts);
 
-			return Vault.Cryptography.Encrypt(es.ToArray(), Password);
-		}
+		return Vault.Cryptography.Encrypt(es.ToArray(), Password);
 	}
 
-	public Wallet(Vault vault, string name, byte[] raw)
+	public Wallet(Vault vault, string name, byte[] encrypted)
 	{
-		Name = name;
+		Name = name ?? Default;
 		Vault = vault;
-		RawLoaded = raw;
+		Encrypted = encrypted;
 	}
 
 	public Wallet(Vault vault, string name, AccountKey[] keys, string password)
 	{
-		Name = name;
+		Name = name ?? Default;
 		Vault = vault;
 		Password = password;
 		Accounts = keys.Select(i => new WalletAccount(Vault, i)).ToList();
@@ -140,8 +149,11 @@ public class Wallet
 
 	public WalletAccount AddAccount(byte[] key)
 	{
-		if(RawLoaded != null)
+		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
+
+		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.PrivateKey, key) == 0))
+			throw new VaultException(VaultError.AlreadyExists);
 
 		var a = new WalletAccount(Vault, key == null ? AccountKey.Create() : new AccountKey(key));
 		
@@ -152,12 +164,19 @@ public class Wallet
 		return a;
 	}
 
+	public void DeleteAccount(WalletAccount account)
+	{
+		Accounts.Remove(account);
+	
+		Save();
+	}
+
 	public void Lock()
 	{
-		if(RawLoaded != null)
+		if(Encrypted != null)
 			return;
 
-		RawLoaded = Raw;
+		Encrypted = Encrypt();
 
 		Accounts.Clear();
 		Password = null;
@@ -165,24 +184,42 @@ public class Wallet
 
 	public void Unlock(string password)
 	{
-		if(RawLoaded == null)
+		if(Encrypted == null)
 			return;
 
 		Password = password;
 
-		var de = Vault.Cryptography.Decrypt(RawLoaded, password);
+		var de = Vault.Cryptography.Decrypt(Encrypted, password);
 
 		var r = new BinaryReader(new MemoryStream(de));
 
 		Accounts = r.ReadList(() => { var a = new WalletAccount(Vault); a.Read(r); return a; });
 
-		RawLoaded = null;
+		Encrypted = null;
 	}
 
 	public void Save()
 	{
-		var path = Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+		File.WriteAllBytes(Path, Encrypted ?? Encrypt());
+	}
 
-		File.WriteAllBytes(path, RawLoaded ?? Raw);
+	public void Rename(string name)
+	{
+		if(string.Compare(Name, name, true) == 0)
+			return;
+
+		if(Vault.FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var old = Path;
+
+		Name = name;
+
+		if(File.Exists(Path))
+			throw new VaultException(VaultError.AlreadyExists);
+
+		Save();
+
+		File.Delete(old);
 	}
 }

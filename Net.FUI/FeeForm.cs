@@ -23,7 +23,7 @@ public partial class FeeForm : Form, IFeeAsker
 		Close();
 	}
 
-	public bool Ask(Uccs.Net.HomoTcpPeering sun, AccountAddress account, Operation operation)
+	public bool Ask(HomoTcpPeering sun, AccountAddress account, Operation operation)
 	{
 		from.Text = account.ToString();
 		

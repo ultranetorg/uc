@@ -3,11 +3,12 @@ using System.Windows.Forms;
 
 namespace Uccs.Net.FUI;
 
-public partial class CreatePasswordForm : Form
+public partial class CreateWalletForm : Form
 {
 	public string Password => password.Text;
+	public string WalletName => string.IsNullOrWhiteSpace(walletname.Text) ? null : walletname.Text;
 	
-	public CreatePasswordForm()
+	public CreateWalletForm()
 	{
 		InitializeComponent();
 

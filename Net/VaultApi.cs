@@ -18,48 +18,33 @@ public class VaultApiClient : ApiClient
 	}
 }
 
-public class AddWalletApc : Apc
-{
-	public byte[]	Raw { get; set; }
-}
-
-public class WalletsApc : Apc
-{
-	public class Wallet
-	{
- 		public string			Name { get; set; }
-		public bool				Locked  { get; set; }
-		public AccountAddress[]	Accounts { get; set; }
-	}
-}
-
-public class UnlockWalletApc : Apc
-{
-	public string	Name { get; set; } ///  Null means first
-	public string	Password { get; set; }
-}
-
-public class LockWalletApc : Apc
-{
-	public string	Name { get; set; } ///  Null means first
-}
-
-public class AddAccountToWalletApc : Apc
-{
-	public string	Name { get; set; } ///  Null means first
-	public byte[]	Key { get; set; } ///  Null means create new
-}
+//public class AddWalletApc : Apc
+//{
+//	public byte[]	Raw { get; set; }
+//}
+//
+//public class UnlockWalletApc : Apc
+//{
+//	public string	Name { get; set; } ///  Null means first
+//	public string	Password { get; set; }
+//}
+//
+//public class LockWalletApc : Apc
+//{
+//	public string	Name { get; set; } ///  Null means first
+//}
+//
+//public class AddAccountToWalletApc : Apc
+//{
+//	public string	Name { get; set; } ///  Null means first
+//	public byte[]	Key { get; set; } ///  Null means create new
+//}
 
 public class IsAuthenticatedApc : Apc
 {
 	public string			Net { get; set; }
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }
-}
-
-public class EnforceAuthenticationApc : Apc
-{
-	public bool				Active { get; set; }
 }
 
 public class AuthenticateApc : Apc

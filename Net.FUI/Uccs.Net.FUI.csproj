@@ -3,9 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows7.0</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyName>Rdn.FUI</AssemblyName>
-    <RootNamespace>Uccs.Sun.FUI</RootNamespace>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -15,6 +13,7 @@
     <FileVersion>1.0.40.0</FileVersion>
     <Version>1.0.40.0</Version>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+    <UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;0169</NoWarn>
@@ -42,7 +41,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="EmissionPanel.cs" />
-    <Compile Update="CreatePasswordForm.cs">
+    <Compile Update="CreateWalletForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="AccountsPanel.cs" />
@@ -60,7 +59,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="CreatePasswordForm.resx">
+    <EmbeddedResource Update="CreateWalletForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="DashboardPanel - Copy.resx">

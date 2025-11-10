@@ -2,10 +2,11 @@
 using System.Reflection;
 using Uccs.Net;
 using Uccs.Rdn;
+using Uccs.Vault;
 
 namespace Uccs.Nexus;
 
-public class NodeInstance
+public class NodeDeclaration
 {
 	public string		ApiLocalAddress { get; set; }
 	public string		Net;
@@ -21,18 +22,19 @@ public class Nexus
 	public delegate void			Delegate(Nexus d);
 
 	Flow							Flow;
+	IClock							Clock;
 	public NexusSettings			Settings;
-	public List<NodeInstance>		Nodes = [];
+	public List<NodeDeclaration>	Nodes = [];
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
 	public RdnNode					RdnNode;
-	//RdnApiClient					_Rdn;
-	//public RdnApiClient				RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
 	public PackageHub				PackageHub;
-
+	public Vault.Vault				Vault;
+	public byte[]					VaultAdminKey;
 	public Delegate					Stopped;
+	VoidDelegate					OpenIam;
 
-	public NodeInstance				Find(string net) => Nodes.Find(i => i.Net == net);
+	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
 
 	static Nexus()
 	{
@@ -41,10 +43,11 @@ public class Nexus
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
 
-	public Nexus(NetBoot boot, NexusSettings settings, RdnNodeSettings rdnsettings, IClock clock, Flow flow)
+	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, IClock clock, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot);
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
+		Clock = clock;
 		Flow = flow;
 
 		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
@@ -52,11 +55,8 @@ public class Nexus
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
 				File.Delete(i);
-		
-		RdnNode = new RdnNode(Settings.Name, Settings.Zone, boot.Profile, rdnsettings, clock, flow);
-		PackageHub = new PackageHub(RdnNode, Settings.Packages);
 
-		Nodes = [new NodeInstance {Net = Rdn.Rdn.Root}];
+		Vault = new Vault.Vault(boot.Profile, boot.Zone, vaultsettings, flow);		
 
 		if(Settings.Api != null)
 		{
@@ -78,15 +78,26 @@ public class Nexus
 
 		Stopped?.Invoke(this);
 
-		ApiServer?.Stop();
 
 		foreach(var i in Nodes.ToArray())
 		{	
 			//i.Node.Stop();
 			Nodes.Remove(i);
 		}
+
+		RdnNode?.Stop();
+		Vault.Stop();
+		ApiServer?.Stop();
 	}
 	
+	public void RunRdn(RdnNodeSettings rdnsettings)
+	{
+		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, rdnsettings, Clock, Flow);
+		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
+		
+		Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root}];
+	}
+
 	public void RunApi()
 	{
 		if(!HttpListener.IsSupported)

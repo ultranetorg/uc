@@ -40,10 +40,10 @@
 			// cancel
 			// 
 			cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			cancel.Location = new System.Drawing.Point(592, 335);
-			cancel.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			cancel.Location = new System.Drawing.Point(289, 128);
+			cancel.Margin = new System.Windows.Forms.Padding(9);
 			cancel.Name = "cancel";
-			cancel.Size = new System.Drawing.Size(173, 59);
+			cancel.Size = new System.Drawing.Size(93, 28);
 			cancel.TabIndex = 3;
 			cancel.Text = "Cancel";
 			cancel.UseVisualStyleBackColor = true;
@@ -51,29 +51,27 @@
 			// 
 			// password
 			// 
-			password.Location = new System.Drawing.Point(212, 197);
-			password.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			password.Location = new System.Drawing.Point(85, 66);
 			password.Name = "password";
 			password.PasswordChar = '*';
-			password.Size = new System.Drawing.Size(548, 39);
+			password.Size = new System.Drawing.Size(297, 23);
 			password.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
-			groupBox1.Location = new System.Drawing.Point(26, 276);
-			groupBox1.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			groupBox1.Location = new System.Drawing.Point(14, 101);
+			groupBox1.Margin = new System.Windows.Forms.Padding(9);
 			groupBox1.Name = "groupBox1";
-			groupBox1.Padding = new System.Windows.Forms.Padding(6, 7, 6, 7);
-			groupBox1.Size = new System.Drawing.Size(739, 20);
+			groupBox1.Size = new System.Drawing.Size(368, 9);
 			groupBox1.TabIndex = 5;
 			groupBox1.TabStop = false;
 			// 
 			// ok
 			// 
-			ok.Location = new System.Drawing.Point(379, 335);
-			ok.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			ok.Location = new System.Drawing.Point(178, 129);
+			ok.Margin = new System.Windows.Forms.Padding(9);
 			ok.Name = "ok";
-			ok.Size = new System.Drawing.Size(173, 59);
+			ok.Size = new System.Drawing.Size(93, 28);
 			ok.TabIndex = 3;
 			ok.Text = "OK";
 			ok.UseVisualStyleBackColor = true;
@@ -82,32 +80,31 @@
 			// info
 			// 
 			info.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			info.Location = new System.Drawing.Point(212, 32);
-			info.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			info.Location = new System.Drawing.Point(84, 21);
 			info.Name = "info";
-			info.Size = new System.Drawing.Size(548, 142);
+			info.Size = new System.Drawing.Size(298, 40);
 			info.TabIndex = 4;
 			info.Text = "0x3405034759347598347953495349";
 			info.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// pictureBox1
 			// 
-			pictureBox1.Location = new System.Drawing.Point(26, 32);
-			pictureBox1.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			pictureBox1.Image = Uccs.Net.FUI.Properties.Resources.Golden_key_icon_svg;
+			pictureBox1.Location = new System.Drawing.Point(14, 21);
 			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new System.Drawing.Size(173, 217);
+			pictureBox1.Size = new System.Drawing.Size(64, 68);
 			pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			pictureBox1.TabIndex = 6;
 			pictureBox1.TabStop = false;
 			// 
-			// PasswordForm
+			// EnterPasswordForm
 			// 
 			AcceptButton = ok;
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			AutoSize = true;
 			CancelButton = cancel;
-			ClientSize = new System.Drawing.Size(808, 441);
+			ClientSize = new System.Drawing.Size(417, 174);
 			ControlBox = false;
 			Controls.Add(pictureBox1);
 			Controls.Add(groupBox1);
@@ -116,9 +113,8 @@
 			Controls.Add(ok);
 			Controls.Add(cancel);
 			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
-			Name = "PasswordForm";
-			Padding = new System.Windows.Forms.Padding(0, 0, 0, 20);
+			Name = "EnterPasswordForm";
+			Padding = new System.Windows.Forms.Padding(0, 0, 0, 9);
 			SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			Text = "Password Required";

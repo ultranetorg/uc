@@ -59,10 +59,12 @@ public enum VaultError : byte
 {
 	None,
 	Locked,
+	AlreadyExists,
 	AlreadyLocked,
 	AlreadyUnlocked,
     AccountNotFound,
     NetNotFound,
+    NotFound,
 }
 
 public class NodeException : CodeException

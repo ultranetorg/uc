@@ -1,4 +1,4 @@
-﻿namespace Uccs.Iam.FUI;
+﻿namespace Uccs.Nexus.Windows;
 
 partial class IamForm
 {
@@ -61,7 +61,7 @@ partial class IamForm
 		radioButton3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 		radioButton3.Appearance = Appearance.Button;
 		radioButton3.Font = new Font("Segoe UI", 12F);
-		radioButton3.Location = new Point(12, 620);
+		radioButton3.Location = new Point(12, 622);
 		radioButton3.Name = "radioButton3";
 		radioButton3.Padding = new Padding(10, 0, 0, 0);
 		radioButton3.Size = new Size(231, 64);
@@ -132,7 +132,7 @@ partial class IamForm
 		// 
 		// pictureBox1
 		// 
-		pictureBox1.Image = Properties.Resources.Iam_1;
+		pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
 		pictureBox1.Location = new Point(74, -2);
 		pictureBox1.Name = "pictureBox1";
 		pictureBox1.Size = new Size(300, 70);

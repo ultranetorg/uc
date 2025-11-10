@@ -29,7 +29,7 @@ public class DevCommand : RdnCommand
 
 										var t = DateTime.Now;
 
-										client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.Port);
+										client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.PpiPort);
 			
 										Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 
@@ -54,7 +54,7 @@ public class DevCommand : RdnCommand
 								var host = Args[0].Name;
 								var s = host.Split(':');
 
-								var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.Port);
+								var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.PpiPort);
 								Listener.Start();
 
 								Report($"Listening...");

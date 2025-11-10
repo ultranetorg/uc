@@ -36,51 +36,53 @@
 			// send
 			// 
 			send.DialogResult = System.Windows.Forms.DialogResult.OK;
-			send.Location = new System.Drawing.Point(689, 414);
-			send.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			send.Location = new System.Drawing.Point(412, 177);
 			send.Name = "send";
-			send.Size = new System.Drawing.Size(202, 57);
+			send.Size = new System.Drawing.Size(109, 27);
 			send.TabIndex = 7;
 			send.Text = "OK";
 			send.UseVisualStyleBackColor = true;
-			send.Click += send_Click;
+			send.Click += OK_Click;
 			// 
 			// text
 			// 
-			text.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			text.Location = new System.Drawing.Point(26, 229);
-			text.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			text.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+			text.Location = new System.Drawing.Point(12, 68);
+			text.Margin = new System.Windows.Forms.Padding(0);
 			text.Multiline = true;
 			text.Name = "text";
 			text.ReadOnly = true;
-			text.Size = new System.Drawing.Size(860, 134);
+			text.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			text.Size = new System.Drawing.Size(508, 91);
 			text.TabIndex = 6;
 			text.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// message
 			// 
-			message.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			message.Location = new System.Drawing.Point(24, 32);
-			message.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			message.AutoSize = true;
+			message.Font = new System.Drawing.Font("Tahoma", 8.25F);
+			message.Location = new System.Drawing.Point(12, 17);
+			message.Margin = new System.Windows.Forms.Padding(0);
 			message.Name = "message";
-			message.Size = new System.Drawing.Size(865, 190);
+			message.Size = new System.Drawing.Size(328, 39);
 			message.TabIndex = 4;
 			message.Text = "From Account dgdfg;dfkg;lkd;flgk;dlfkg;ldfk;gk;dflkg;ldfkg;lkdf;lgkd\r\nsdf's;df;lsdf\r\nsdf";
 			// 
 			// TextForm
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			AcceptButton = send;
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			ClientSize = new System.Drawing.Size(921, 505);
-			ControlBox = false;
+			AutoSize = true;
+			ClientSize = new System.Drawing.Size(532, 215);
 			Controls.Add(message);
 			Controls.Add(text);
 			Controls.Add(send);
 			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
 			MaximizeBox = false;
 			MinimizeBox = false;
 			Name = "TextForm";
+			Padding = new System.Windows.Forms.Padding(8);
 			SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			Text = "Confirm Transaction";

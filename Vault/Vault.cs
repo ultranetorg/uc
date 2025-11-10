@@ -34,25 +34,24 @@ public class Vault : Cli
 	static void Main(string[] args)
 	{
 		var Boot = new NetBoot(ExeDirectory);
-		var s = new VaultSettings(Boot.Profile, Boot.Zone);
-		var u = new Vault(s, new Flow(nameof(Vault), new Log()));
+		var u = new Vault(Boot.Profile, Boot.Zone, null, new Flow(nameof(Vault), new Log()));
 
 		u.Execute(Boot);
 
 		u.Stop();
 	}
 
-	public Vault(VaultSettings settings, Flow flow)
+	public Vault(string profile, Zone zone, VaultSettings settings, Flow flow)
 	{
-		Settings = settings;
+		Settings = settings ?? new VaultSettings(profile, zone);
 		Flow = flow;
-		Cryptography = settings.Encrypt ? new NormalCryptography() : new NoCryptography() ;
+		Cryptography = Settings.Encrypt ? new NormalCryptography() : new NoCryptography() ;
 
-		Directory.CreateDirectory(settings.Profile);
+		Directory.CreateDirectory(Settings.Profile);
 
-		if(Directory.Exists(settings.Profile))
+		if(Directory.Exists(Settings.Profile))
 		{
-			foreach(var i in Directory.EnumerateFiles(settings.Profile, "*." + WalletExt(Cryptography)))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Cryptography)))
 			{
 				Wallets.Add(new Wallet(this, Path.GetFileName(i), File.ReadAllBytes(i)));
 			}
@@ -101,36 +100,47 @@ public class Vault : Cli
 		return null;
 	}
 
-	public Wallet CreateWallet(string password, int accounts = 1)
+	public Wallet FindWallet(string name)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
+		return Wallets.Find(i => string.Compare(i.Name, name ?? Wallet.Default, true) == 0);
+	}
+
+	public Wallet CreateWallet(string name, string password, int accounts = 1)
+	{
+		var w = new Wallet(this, name, Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
 		return w;
 	}
 
-	public Wallet CreateWallet(AccountKey[] key, string password)
+	public Wallet CreateWallet(string name, AccountKey[] key, string password)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), key, password);
+		var w = new Wallet(this, name, key, password);
 		return w;
 	}
 
-	public Wallet CreateWallet(byte[] raw)
+	public Wallet CreateWallet(string name, byte[] raw)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), raw);
+		var w = new Wallet(this, name, raw);
 		return w;
 	}
 
-	public void AddWallet(byte[] raw)
+	public void AddWallet(string name, byte[] raw)
 	{
-		var w = new Wallet(this, Wallets.Count.ToString(), raw);
+		if(FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var w = new Wallet(this, name, raw);
 
 		Wallets.Add(w);
 		
 		w.Save();
 	}
 
-	public Wallet AddWallet(AccountKey[] key, string password)
+	public Wallet AddWallet(string name, AccountKey[] key, string password)
 	{
-		var w = CreateWallet(key, password);
+		if(FindWallet(name) != null)
+			throw new VaultException(VaultError.AlreadyExists);
+
+		var w = CreateWallet(name, key, password);
 		
 		w.Password = password;
 
@@ -148,8 +158,15 @@ public class Vault : Cli
 
 	public void DeleteWallet(string name)
 	{
+		name = (name ?? Wallet.Default);
+
+		var w = Wallets.FirstOrDefault(i => i.Name == name);
+		
+		if(w == null)
+			throw new VaultException(VaultError.NotFound);
+
 		File.Delete(Path.Combine(Settings.Profile, name + "." + WalletExt(Cryptography)));
 
-		Wallets.RemoveAll(i => i.Name == name);
+		Wallets.Remove(w);
 	}
 }

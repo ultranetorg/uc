@@ -16,5 +16,8 @@ public class VaultSettings : SavableSettings
 	public VaultSettings(string profile, Zone zone) : base(profile, NetXonTextValueSerializator.Default)
 	{
 		Zone = zone;
+
+		//AdminKey = command?.One("VaultAdminKey")?.Get<byte[]>();
+
 	}
 }

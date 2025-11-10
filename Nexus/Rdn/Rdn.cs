@@ -7,7 +7,7 @@ public abstract class Rdn : McvNet
 {
 	public override	string			Address => Root;
 	public override	string			Name => Root;
-	public override ushort			PortBase => (ushort)KnownSystem.Rdn;
+	public override ushort			PpiPort => MapPort(Zone, KnownProtocol.Rdn);
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
  		
 	public bool						Auctions				= false;

@@ -373,7 +373,7 @@
 		private System.Windows.Forms.TextBox privatekey;
 		private System.Windows.Forms.GroupBox finishgroup;
 		private System.Windows.Forms.Button finish;
-		private Uccs.Net.FUI.CoinEdit eth;
+		private CoinEdit eth;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Unfinished;

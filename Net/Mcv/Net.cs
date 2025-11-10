@@ -13,17 +13,12 @@ public enum Zone : ushort
 	Developer0	= 12_00_0,
 }
 
-public enum KnownSystem : ushort
+public enum KnownProtocol : ushort
 {
-	NexusApi	= 0001,
-	VaultApi	= 0002,
-
-	Rdn			= 0010,
-	Fair		= 0020,
-	
-	Ppi			= 0,
-	Nni			= 1,
-	Api			= 4,
+	Nni			= 000,
+	Rdn			= 001,
+	Fair		= 002,
+	Api			= 900,
 }
 
 public abstract class Net
@@ -34,10 +29,8 @@ public abstract class Net
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
-	public abstract ushort				PortBase { get; }
-	public ushort						Port	=> MapPort(this, KnownSystem.Ppi);
-	public ushort						NniPort => MapPort(this, KnownSystem.Nni);
-	public ushort						ApiPort => MapPort(this, KnownSystem.Api);
+	public abstract ushort				PpiPort { get; }
+	public ushort						NniPort => MapPort(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
 	public IPAddress[]					LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
@@ -60,8 +53,7 @@ public abstract class Net
 	public Dictionary<Type, Dictionary<uint, ConstructorInfo>>	Contructors = [];
 
 	public T							Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
-	public static ushort				MapPort(Net net, KnownSystem system) => (ushort)(net.Zone + net.PortBase + (ushort)system);
-	public static ushort				MapPort(Zone zone, KnownSystem system) => (ushort)(zone + (ushort)system);
+	public static ushort				MapPort(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 
 	public override string ToString()
 	{

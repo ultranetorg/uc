@@ -7,7 +7,7 @@ internal class VaultApiServer : JsonServer
 {
 	Vault Vault;
 
-	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToApiSettings(vault.Settings.Zone, KnownSystem.VaultApi), VaultApiClient.CreateOptions(), workflow)
+	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToApiSettings(vault.Settings.Zone, Api.Vault), VaultApiClient.CreateOptions(), workflow)
 	{
 		Vault = vault;
 	}
@@ -26,84 +26,122 @@ internal class VaultApiServer : JsonServer
 	}
 }
 
-internal interface IVaultApc
+public interface IVaultApc
 {
 	public abstract object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
-internal class AddWalletApc : Net.AddWalletApc, IVaultApc
+public abstract class AdminApc : Apc, IVaultApc
 {
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public byte[]	AdminKey { get; set; }
+
+	public abstract object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
+}
+
+public class AddWalletApc : AdminApc
+{
+	public string	Name { get; set; }
+	public byte[]	Raw { get; set; }
+
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-			vault.AddWallet(Raw);
+		{
+			vault.AddWallet(Name, Raw); 
+		}
 		
 		return null;
 	}
 }
 
-internal class WalletsApc : Net.WalletsApc, IVaultApc
+public class WalletsApc : AdminApc
 {
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public class Wallet
 	{
-		lock(vault)
-			 return vault.Wallets.Select(i => new Wallet{Name = i.Name,
-														 Locked = i.Locked,
-														 Accounts = i.Accounts.Select(i => i.Address).ToArray()}).ToArray();
+ 		public string	Name { get; set; }
+		public bool		Locked  { get; set; }
 	}
-}
 
-internal class UnlockWalletApc : Net.UnlockWalletApc, IVaultApc
-{
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(vault)
-		{
-			(Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).Unlock(Password);
-		}
-
-		return null;
-	}
-}
-
-internal class LockWalletApc : Net.LockWalletApc, IVaultApc
-{
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(vault)
-		{
-			(Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).Lock();
-		}
-
-		return null;
-	}
-}
-
-internal class AddAccountToWalletApc : Net.AddAccountToWalletApc, IVaultApc
-{
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
 		{	
-			var a = (Name == null ? vault.Wallets.First() : vault.Wallets.Find(i => i.Name == Name)).AddAccount(Key);
+			return vault.Wallets.Select(i => new Wallet
+											 {
+												Name = i.Name,
+												Locked = i.Locked,
+											 }).ToArray();
+		}
+	}
+}
+
+public class WalletApc : AdminApc
+{
+ 	public string		Name { get; set; }
+
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(vault)
+		{	
+			var w = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null);
+
+			return w.Accounts;
+		}
+	}
+}
+
+public class UnlockWalletApc : AdminApc
+{
+ 	public string		Name { get; set; }
+	public string		Password { get; set; }
+
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(vault)
+		{
+			vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).Unlock(Password);
+		}
+
+		return null;
+	}
+}
+
+public class LockWalletApc : AdminApc
+{
+ 	public string		Name { get; set; }
+
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(vault)
+		{ 
+			vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).Lock();
+		}
+
+		return null;
+	}
+}
+
+public class AddAccountToWalletApc : AdminApc
+{
+	public string		Name { get; set; } ///  Null means first
+	public byte[]		Key { get; set; } ///  Null means create new
+
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(vault)
+		{	
+			var a = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).AddAccount(Key);
 		
 			return a.Key.PrivateKey;
 		}
 	}
 }
 
-internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IVaultApc
+public class EnforceAuthenticationApc : AdminApc
 {
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(vault)
-			return vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
-	}
-}
+	public bool		Active { get; set; }
 
-internal class EnforceAuthenticationApc : Net.EnforceAuthenticationApc, IVaultApc
-{
-	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
 		{
@@ -135,6 +173,15 @@ internal class EnforceAuthenticationApc : Net.EnforceAuthenticationApc, IVaultAp
 		}
 
 		return null;
+	}
+}
+
+internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IVaultApc
+{
+	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(vault)
+			return vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
 	}
 }
 
