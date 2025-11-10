@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react"
 import { ProductFieldViewModel } from "types"
 import { useGetProductFields } from "entities"
-import { ProductFieldsView } from "./ProductFieldsView.tsx"
-import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo.tsx"
-import { SelectedProps } from "./selected-props.ts"
-import { mapFields } from "./map-fields.ts"
+import { ProductFieldsView } from "./ProductFieldsView"
+import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo"
+import { mapFields } from "./utils"
+import { SelectedProps } from "./types"
 
 export interface ProductsFieldsTreeProps {
   productIds: string[]

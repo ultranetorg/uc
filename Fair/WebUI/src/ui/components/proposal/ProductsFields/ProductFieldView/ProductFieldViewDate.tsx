@@ -1,28 +1,15 @@
 import { memo } from "react"
-import { base64ToUtf8String } from "utils"
-import { ProductFieldViewProps } from "./product-field-view-props.ts"
+import { Types } from "./types"
+import { formatBase64Date } from "utils"
 
 function getAdded(value: string) {
-  return <div className="text-green-700">{formatDate(value)}</div>
+  return <div className="text-green-700">{formatBase64Date(value)}</div>
 }
 function getRemoved(value: string) {
-  return <div className="text-red-500 line-through opacity-75">{formatDate(value)}</div>
+  return <div className="text-red-500 line-through opacity-75">{formatBase64Date(value)}</div>
 }
 
-function formatDate(value: string) {
-  const date = new Date(base64ToUtf8String(value))
-
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(date)
-}
-
-export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFieldViewProps) => {
+export const ProductFieldViewDate = memo(({ value, oldValue, status }: Types) => {
   switch (status) {
     case "added": {
       return getAdded(value)
@@ -39,7 +26,7 @@ export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFi
       )
     }
     default: {
-      return <div>{formatDate(value)}</div>
+      return <div>{formatBase64Date(value)}</div>
     }
   }
 })

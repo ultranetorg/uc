@@ -1,10 +1,10 @@
 import { memo, useMemo, useState } from "react"
 import { ProductFieldViewModel } from "types"
-import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo.tsx"
+import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo"
 import { useGetProductCompareFields } from "entities"
-import { ProductFieldsView } from "./ProductFieldsView.tsx"
-import { SelectedProps } from "./selected-props.ts"
-import { mergeFields } from "./map-fields.ts"
+import { ProductFieldsView } from "./ProductFieldsView"
+import { mergeFields } from "./utils"
+import { SelectedProps } from "./types"
 
 export type ProductCompareFieldsProps = {
   publicationIds: string[]

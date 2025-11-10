@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { base64ToUtf8String } from "utils"
 import { Link } from "react-router-dom"
-import { ProductFieldViewProps } from "./product-field-view-props.ts"
+import { Types } from "./types"
 
 function ensureProtocol(uri: string) {
   if (/^(https?:)?\/\//i.test(uri)) return uri
@@ -52,7 +52,7 @@ function getNew(value: string) {
   )
 }
 
-export const ProductFieldViewUri = memo(({ value, oldValue, status }: ProductFieldViewProps) => {
+export const ProductFieldViewUri = memo(({ value, oldValue, status }: Types) => {
   switch (status) {
     case "added": {
       return getAdded(value)

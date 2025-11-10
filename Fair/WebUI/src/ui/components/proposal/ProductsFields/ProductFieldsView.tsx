@@ -3,7 +3,7 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { ProductFieldViewModel, TotalItemsResult } from "types"
 import { ProductFieldsTree } from "./ProductFieldsTree"
 import { useTranslation } from "react-i18next"
-import { SelectedProps } from "./selected-props.ts"
+import { SelectedProps } from "./types"
 
 export interface ProductFieldsViewProps extends SelectedProps {
   children?: ReactElement | null

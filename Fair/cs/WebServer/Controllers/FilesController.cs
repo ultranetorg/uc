@@ -6,7 +6,7 @@ public class FilesController
 (
 	ILogger<FilesController> logger,
 	IAutoIdValidator autoIdValidator,
-	FileService fileService
+	FilesService filesService
 ) : BaseController
 {
 	[HttpGet("{fileId}")]
@@ -15,6 +15,6 @@ public class FilesController
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {FileId}", nameof(FilesController), nameof(Get), fileId);
 		autoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
 		
-		return Ok(fileService.GetFileData(fileId));
+		return filesService.GetFile(fileId);
 	}
 }

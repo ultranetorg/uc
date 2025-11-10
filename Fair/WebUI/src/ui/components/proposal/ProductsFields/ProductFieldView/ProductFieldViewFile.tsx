@@ -1,8 +1,7 @@
 import { memo } from "react"
-import { useGetFile } from "entities"
-import { buildSrc } from "utils"
-import { SpinnerRowSvg } from "assets"
-import { ProductFieldViewProps } from "./product-field-view-props.ts"
+import { Types } from "./types"
+
+const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 function Img({ src, alt, className = "" }: { src?: string; alt?: string; className?: string }) {
   return <img alt={alt ?? "image"} className={`w-full h-full object-cover ${className}`} src={src} />
@@ -17,23 +16,9 @@ function PreviewBox({ children, label }: { children: React.ReactNode; label?: st
   )
 }
 
-export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFieldViewProps) => {
-  const newFile = useGetFile(value)
-  const oldFile = useGetFile(oldValue ?? undefined)
-
-  const isPending = newFile.isPending || oldFile.isPending
-  const error = newFile.error ?? oldFile.error
-
-  if (isPending) {
-    return <SpinnerRowSvg />
-  }
-
-  if (error) {
-    return <>Error occurred</>
-  }
-
-  const newSrc = buildSrc(newFile.data)
-  const oldSrc = buildSrc(oldFile.data)
+export const ProductFieldViewFile = memo(({ value, oldValue, status }: Types) => {
+  const newSrc = `${BASE_URL}/files/${value}`
+  const oldSrc = `${BASE_URL}/files/${oldValue}`
 
   switch (status) {
     case "added":

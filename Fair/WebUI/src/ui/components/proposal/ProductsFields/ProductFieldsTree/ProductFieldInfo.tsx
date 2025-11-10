@@ -1,11 +1,12 @@
 import { ProductFieldViewModel } from "types"
-import { HomeSvg } from "assets/home.tsx"
+import { HomeSvg } from "assets/home"
 import { ProductFieldView } from "../ProductFieldView"
 import { memo } from "react"
 import { SvgChevronRight } from "../../../../../assets"
 import { useTranslation } from "react-i18next"
 import { kebabToCamel } from "../../../../../utils"
-import { getCompareStatus, SelectedProps } from "../selected-props.ts"
+import { SelectedProps } from "../types"
+import { getCompareStatus } from "../utils"
 
 export interface ProductFieldInfoProps extends SelectedProps {
   node: ProductFieldViewModel

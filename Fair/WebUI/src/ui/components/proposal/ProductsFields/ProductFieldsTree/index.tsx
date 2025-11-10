@@ -3,7 +3,8 @@ import { ProductFieldViewModel, TotalItemsResult } from "types"
 import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "@tanstack/react-query"
-import { getCompareStatus, SelectedProps } from "../selected-props.ts"
+import { SelectedProps } from "../types"
+import { getCompareStatus } from "../utils"
 
 export interface ProductFieldsTreeProps<TModel extends ProductFieldViewModel> extends SelectedProps<TModel> {
   response: UseQueryResult<TotalItemsResult<TModel>, Error>,

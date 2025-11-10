@@ -1,12 +1,12 @@
 import { JSX } from "react"
 import { ProductFieldCompareViewModel, ProductFieldViewModel } from "types"
-import { ProductFieldViewString } from "./ProductFieldViewString.tsx"
-import { ProductFieldViewUri } from "./ProductFieldViewUri.tsx"
-import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt.tsx"
-import { ProductFieldViewDate } from "./ProductFieldViewDate.tsx"
-import { ProductFieldViewFile } from "./ProductFieldViewFile.tsx"
+import { ProductFieldViewString } from "./ProductFieldViewString"
+import { ProductFieldViewUri } from "./ProductFieldViewUri"
+import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt"
+import { ProductFieldViewDate } from "./ProductFieldViewDate"
+import { ProductFieldViewFile } from "./ProductFieldViewFile"
 import { ProductFieldViewVideo } from "./ProductFieldViewVideo"
-import { getCompareStatus } from "../selected-props.ts"
+import { getCompareStatus } from "../utils"
 
 export const ProductFieldView = ({ node }: { node: ProductFieldViewModel }) => {
   let component: JSX.Element

@@ -1,9 +1,9 @@
 import { memo } from "react"
 import { base64ToUtf8String } from "utils"
-import { ProductFieldViewVideoYouTube } from "./ProductFieldViewVideoYouTube.tsx"
-import { ProductFieldViewVideoVkVideo } from "./ProductFieldViewVideoVkVideo.tsx"
-import { ProductFieldViewVideoPlain } from "./ProductFieldViewVideoPlain.tsx"
-import { ProductFieldViewProps } from "../product-field-view-props.ts"
+import { ProductFieldViewVideoYouTube } from "./ProductFieldViewVideoYouTube"
+import { ProductFieldViewVideoVkVideo } from "./ProductFieldViewVideoVkVideo"
+import { ProductFieldViewVideoPlain } from "./ProductFieldViewVideoPlain"
+import { Types } from "../types"
 
 const urlRegexMap = {
   plain: /\.(mp4|webm|ogg)$/i,
@@ -50,7 +50,7 @@ function PreviewBox({ children, label }: { children: React.ReactNode; label?: st
   )
 }
 
-export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductFieldViewProps) => {
+export const ProductFieldViewVideo = memo(({ value, oldValue, status }: Types) => {
   const newUrl = base64ToUtf8String(value)
   const oldUrl = oldValue ? base64ToUtf8String(oldValue) : undefined
 

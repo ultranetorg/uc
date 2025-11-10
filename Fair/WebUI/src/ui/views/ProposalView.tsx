@@ -7,7 +7,7 @@ import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from 
 import { AlternativeOptions, CommentsSection, OptionsCollapsesList, ProposalInfo } from "ui/components/proposal"
 import { useParams } from "react-router-dom"
 import { ProductFields } from "../components/proposal/ProductsFields"
-import { ProductCompareFields } from "../components/proposal/ProductsFields/ProductCompareFields.tsx"
+import { ProductCompareFields } from "../components/proposal/ProductsFields/ProductCompareFields"
 
 type PageState = "voting" | "results"
 
