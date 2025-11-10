@@ -5,7 +5,7 @@ public enum Trust : byte
 	None, NonSpending, Spending
 }
 
-public class AccountSession
+public class AuthenticationResult
 {
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }
@@ -49,6 +49,7 @@ public class IsAuthenticatedApc : Apc
 
 public class AuthenticateApc : Apc
 {
+	public string			Application { get; set; }
 	public string			Net { get; set; }
 	public AccountAddress	Account { get; set; } /// optional
 }

@@ -63,7 +63,7 @@ partial class AssetsPage
 		listView1.FullRowSelect = true;
 		listView1.Location = new Point(3, 178);
 		listView1.Name = "listView1";
-		listView1.Size = new Size(577, 419);
+		listView1.Size = new Size(794, 419);
 		listView1.TabIndex = 8;
 		listView1.UseCompatibleStateImageBehavior = false;
 		listView1.View = View.Details;
@@ -130,9 +130,9 @@ partial class AssetsPage
 		// 
 		// button3
 		// 
-		button3.Location = new Point(600, 178);
+		button3.Location = new Point(600, 46);
 		button3.Name = "button3";
-		button3.Size = new Size(197, 34);
+		button3.Size = new Size(197, 32);
 		button3.TabIndex = 9;
 		button3.Text = "Transfer";
 		button3.UseVisualStyleBackColor = true;

@@ -887,7 +887,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(s != null)
 			return s.Session;
 
-		var a = VaultApi.Request<AccountSession>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
+		var a = VaultApi.Request<AuthenticationResult>(new AuthenticateApc {Net = Net.Name, Account = signer}, Flow); 
 
 		if(a == null)
 			return null;
