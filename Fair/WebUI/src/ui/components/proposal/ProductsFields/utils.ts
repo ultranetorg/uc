@@ -1,12 +1,8 @@
 import { UseQueryResult } from "@tanstack/react-query"
-import {
-  ProductFieldCompare,
-  ProductFieldCompareViewModel,
-  ProductFieldModel,
-  ProductFieldViewModel,
-  TotalItemsResult,
-} from "types"
-import { CompareStatus } from "./types"
+
+import { ProductFieldCompare, ProductFieldModel, ProductFieldViewModel, TotalItemsResult } from "types"
+
+import { CompareStatus, ProductFieldCompareViewModel } from "./types"
 
 function groupByName(list?: ProductFieldViewModel[]) {
   const map = new Map<string, ProductFieldViewModel[]>()
@@ -20,8 +16,12 @@ function groupByName(list?: ProductFieldViewModel[]) {
 }
 
 function getGenerator() {
-  let index = 0;
-  return (field: ProductFieldModel, ext: Partial<ProductFieldCompareViewModel>, parent?: ProductFieldCompareViewModel): ProductFieldCompareViewModel => ({
+  let index = 0
+  return (
+    field: ProductFieldModel,
+    ext: Partial<ProductFieldCompareViewModel>,
+    parent?: ProductFieldCompareViewModel,
+  ): ProductFieldCompareViewModel => ({
     ...field,
     id: `${field.name}_${++index}`,
     children: [],
@@ -34,7 +34,7 @@ function mergeArrays(
   fromList?: ProductFieldViewModel[],
   toList?: ProductFieldViewModel[],
   parent?: ProductFieldCompareViewModel,
-  generate = getGenerator()
+  generate = getGenerator(),
 ): ProductFieldCompareViewModel[] {
   const fromGroups = groupByName(fromList)
   const toGroups = groupByName(toList)
@@ -55,10 +55,14 @@ function mergeArrays(
 
       if (from && !to) {
         // removed
-        const item = generate(from, {
-          oldValue: from.value,
-          isRemoved: true,
-        }, parent)
+        const item = generate(
+          from,
+          {
+            oldValue: from.value,
+            isRemoved: true,
+          },
+          parent,
+        )
         item.children = mergeArrays(from.children, [], item, generate)
         result.push(item)
         continue
@@ -66,9 +70,13 @@ function mergeArrays(
 
       if (!from && to) {
         // added
-        const item = generate(to, {
-          isAdded: true,
-        }, parent)
+        const item = generate(
+          to,
+          {
+            isAdded: true,
+          },
+          parent,
+        )
         item.children = mergeArrays([], to.children, item, generate)
         result.push(item)
         continue
@@ -76,9 +84,13 @@ function mergeArrays(
 
       if (from && to) {
         // exists in both - compare
-        const item = generate(to, {
-          oldValue: from.value,
-        }, parent)
+        const item = generate(
+          to,
+          {
+            oldValue: from.value,
+          },
+          parent,
+        )
 
         item.children = mergeArrays(from.children, to.children, item, generate)
 
@@ -152,10 +164,11 @@ export function mapFields(
   return { ...response, data: transformed } as unknown as UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
 }
 
-export const isCompareNode = (n?: ProductFieldViewModel | ProductFieldCompareViewModel | null): n is ProductFieldCompareViewModel => {
+export const isCompareNode = (
+  n?: ProductFieldViewModel | ProductFieldCompareViewModel | null,
+): n is ProductFieldCompareViewModel => {
   return !!n && ("isRemoved" in n || "isAdded" in n || "isChanged" in n)
 }
-
 
 export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel | null): CompareStatus => {
   if (!node) return null

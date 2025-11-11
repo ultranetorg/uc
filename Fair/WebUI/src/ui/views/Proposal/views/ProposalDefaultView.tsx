@@ -54,7 +54,7 @@ const TEST_ITEMS: { title: string; description: string; votePercents: number; vo
     { title: "Prussia", description: "4", votePercents: 10, votesCount: 126 },
   ]
 
-export const ProposalDefaultView = ({ t, proposal, pageState }: ProposalTypeViewProps) => (
+export const ProposalDefaultView = ({ t, pageState }: ProposalTypeViewProps) => (
   <OptionsCollapsesList
     className="max-w-187.5"
     items={TEST_ITEMS}

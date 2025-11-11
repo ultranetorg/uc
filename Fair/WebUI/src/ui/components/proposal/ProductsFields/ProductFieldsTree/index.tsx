@@ -1,18 +1,20 @@
 import { useCallback, useState, memo } from "react"
-import { ProductFieldViewModel, TotalItemsResult } from "types"
-import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "@tanstack/react-query"
+
+import { ProductFieldViewModel, TotalItemsResult } from "types"
+import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
+
 import { SelectedProps } from "../types"
 import { getCompareStatus } from "../utils"
 
 export interface ProductFieldsTreeProps<TModel extends ProductFieldViewModel> extends SelectedProps<TModel> {
-  response: UseQueryResult<TotalItemsResult<TModel>, Error>,
+  response: UseQueryResult<TotalItemsResult<TModel>, Error>
 }
 
 const pretty = (v?: string) => (v ? v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "")
 
-const TreeNode = <TModel extends ProductFieldViewModel,>({
+const TreeNode = <TModel extends ProductFieldViewModel>({
   node,
   onSelect,
   depth = 0,
@@ -38,17 +40,17 @@ const TreeNode = <TModel extends ProductFieldViewModel,>({
     status === "removed"
       ? "opacity-75 line-through text-red-700"
       : status === "added"
-      ? "text-green-800"
-      : status === "changed"
-      ? "text-blue-800"
-      : ""
+        ? "text-green-800"
+        : status === "changed"
+          ? "text-blue-800"
+          : ""
 
   const selectedClass = selected?.id === node.id ? "bg-gray-100" : ""
 
   return (
     <>
       <div
-        className={`flex cursor-pointer select-none gap-2 py-1 px-1 ${rowStatusClass} ${selectedClass}`}
+        className={`flex cursor-pointer select-none gap-2 px-1 py-1 ${rowStatusClass} ${selectedClass}`}
         role="treeitem"
         aria-expanded={hasChildren ? !closed : undefined}
         tabIndex={0}
@@ -59,10 +61,7 @@ const TreeNode = <TModel extends ProductFieldViewModel,>({
             <SvgChevronRightMd className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
           )}
         </span>
-        <div
-          className={`flex gap-2 px-1 hover:underline flex-1`}
-          onClick={() => select()}
-        >
+        <div className={`flex flex-1 gap-2 px-1 hover:underline`} onClick={() => select()}>
           <span className="text-sm">{pretty(node.name)}</span>
         </div>
       </div>
@@ -95,27 +94,34 @@ const Loader = (locale: string) => (
 const NoData = (locale: string) => <div className="flex items-center gap-2 text-slate-500">{locale}</div>
 const Error = (locale: string) => <div className="text-red-700">{locale}</div>
 
-export const ProductFieldsTree = memo(<TModel extends ProductFieldViewModel,>({ response, onSelect, selected }: ProductFieldsTreeProps<TModel>) => {
-  const { t } = useTranslation("productFields")
-  const { error, data, isPending } = response
+export const ProductFieldsTree = memo(
+  <TModel extends ProductFieldViewModel>({ response, onSelect, selected }: ProductFieldsTreeProps<TModel>) => {
+    const { t } = useTranslation("productFields")
+    const { error, data, isPending } = response
 
-  if (isPending) {
-    return Loader(t("loading"))
-  }
+    if (isPending) {
+      return Loader(t("loading"))
+    }
 
-  if (error) {
-    return Error(t("loadError"))
-  }
+    if (error) {
+      return Error(t("loadError"))
+    }
 
-  if (!data?.items.length) {
-    return NoData(t("noData"))
-  }
+    if (!data?.items.length) {
+      return NoData(t("noData"))
+    }
 
-  return (
-    <>
-      {data.items.map((node, index) => (
-        <MemoTreeNode<TModel> key={(node as ProductFieldViewModel).id ?? index} node={node as TModel} selected={selected ?? null} onSelect={onSelect} />
-      ))}
-    </>
-  )
-})
+    return (
+      <>
+        {data.items.map((node, index) => (
+          <MemoTreeNode<TModel>
+            key={(node as ProductFieldViewModel).id ?? index}
+            node={node as TModel}
+            selected={selected ?? null}
+            onSelect={onSelect}
+          />
+        ))}
+      </>
+    )
+  },
+)

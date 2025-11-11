@@ -120,12 +120,6 @@
   <data name="InvalidPaginationParameters" xml:space="preserve">
     <value>Invalid pagination parameters.</value>
   </data>
-  <data name="InvalidEntityFormat1" xml:space="preserve">
-    <value>An incorrect {0} entity has been provided.</value>
-  </data>
-  <data name="InvalidEntityFormat2" xml:space="preserve">
-    <value>An incorrect {0} entity has been provided {1}.</value>
-  </data>
   <data name="InvalidAutoIdFormat1" xml:space="preserve">
     <value>An incorrect {0} identifier has been provided.</value>
   </data>
@@ -143,5 +137,11 @@
   </data>
   <data name="InvalidSearchQuery" xml:space="preserve">
     <value>Invalid search query specified.</value>
+  </data>
+  <data name="InvalidPublicationVersion" xml:space="preserve">
+    <value>An incorrect publication version specified.</value>
+  </data>
+  <data name="InvalidPublicationVersionFormat2" xml:space="preserve">
+    <value>An incorrect publication {0} version {1} specified.</value>
   </data>
 </root>
