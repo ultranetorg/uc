@@ -13,11 +13,11 @@ export const useGetProductFields = (productId: string) => {
   })
 }
 
-export const useGetProductCompareFields = (publicationId: string) => {
-  const queryFn = () => api.getProductCompareFields(publicationId)
+export const useGetProductCompareFields = (publicationId: string, version: number) => {
+  const queryFn = () => api.getProductCompareFields(publicationId, version)
 
   return useQuery({
-    queryKey: ["publications", publicationId, "updated-fields"],
+    queryKey: ["publications", publicationId, "updated-fields", version],
     queryFn: queryFn,
   })
 }

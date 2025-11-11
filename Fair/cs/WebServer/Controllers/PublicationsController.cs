@@ -35,13 +35,13 @@ public class PublicationsController
 	}
 
 	[HttpGet("{publicationId}/updated-fields")]
-	public ProductFieldCompareModel GetUpdatedFields(string publicationId)
+	public ProductFieldCompareModel GetUpdatedFields(string publicationId, int version)
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetUpdatedFields)} method called with {{PublicationId}}", publicationId);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return productsService.GetUpdatedFieldsByPublication(publicationId);
+		return productsService.GetUpdatedFieldsByPublication(publicationId, version);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/categories/publications")]

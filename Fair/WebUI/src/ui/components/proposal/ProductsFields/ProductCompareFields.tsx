@@ -7,15 +7,16 @@ import { mergeFields } from "./utils"
 import { SelectedProps } from "./types"
 
 export type ProductCompareFieldsProps = {
-  publicationIds: string[]
+  publications: { id: string, version: number }[]
 }
 
 interface ViewProps extends SelectedProps {
-  publicationId: string
+  publicationId: string,
+  version: number
 }
 
-const View = memo(({ publicationId, selected, onSelect }: ViewProps) => {
-  const response = useGetProductCompareFields(publicationId)
+const View = memo(({ publicationId, version, selected, onSelect }: ViewProps) => {
+  const response = useGetProductCompareFields(publicationId, version)
   const mergedResponse = useMemo(() => mergeFields(response), [response])
 
   return (
@@ -25,10 +26,10 @@ const View = memo(({ publicationId, selected, onSelect }: ViewProps) => {
   )
 })
 
-export const ProductCompareFields = ({ publicationIds }: ProductCompareFieldsProps) => {
+export const ProductCompareFields = ({ publications }: ProductCompareFieldsProps) => {
   const [selected, setSelected] = useState<ProductFieldViewModel | null>(null)
 
-  return publicationIds.map(publicationId => (
-    <View key={publicationId} publicationId={publicationId} selected={selected} onSelect={node => setSelected(node)} />
+  return publications.map(publication => (
+    <View key={publication.id} publicationId={publication.id} version={publication.version} selected={selected} onSelect={node => setSelected(node)} />
   ))
 }

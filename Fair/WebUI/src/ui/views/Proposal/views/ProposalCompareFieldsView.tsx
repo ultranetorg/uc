@@ -6,14 +6,17 @@ import { ProductCompareFields } from "ui/components/proposal"
 import { ProposalTypeViewProps } from "./types"
 
 export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
-  const publicationIds = useMemo(
+  const publications = useMemo(
     () =>
       proposal?.options
         ?.map(option => option.operation)
         .filter((operation): operation is PublicationUpdation => operation.$type === "publication-updation")
-        .map(operation => operation.publicationId),
+        .map(operation => ({
+          id: operation.publicationId,
+          version: operation.version,
+        })),
     [proposal],
   )
 
-  return <ProductCompareFields publicationIds={publicationIds} />
+  return <ProductCompareFields publications={publications} />
 })

@@ -33,7 +33,7 @@ public class ProductsService(
 		}
 	}
 
-	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull] [NotEmpty] string publicationId)
+	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull] [NotEmpty] string publicationId, int version)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService),
 			nameof(GetUpdatedFieldsByPublication), publicationId);
@@ -67,9 +67,7 @@ public class ProductsService(
 			ProductVersion[] compareVersions =
 			[
 				product.Versions.Single(x => x.Id == currentVersion),
-				product.Versions
-					.OrderBy(x => x.Id)
-					.Last(x => x.Id != currentVersion)
+				product.Versions.Single(x => x.Id == version),
 			];
 
 			var (from, to) = compareVersions

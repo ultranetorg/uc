@@ -244,8 +244,9 @@ const getProductFields = async (productId: string): Promise<TotalItemsResult<Pro
 
 const getProductCompareFields = async (
   publicationId: string,
+  version: number,
 ): Promise<ProductFieldCompare> => {
-  return fetch(`${BASE_URL}/publications/${publicationId}/updated-fields`).then(res => res.json())
+  return fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 }
 
 const getReviewProposals = async (
