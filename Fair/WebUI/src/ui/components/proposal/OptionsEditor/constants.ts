@@ -28,7 +28,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "file",
           name: "fileId",
-          placeholder: t("placeholders:selectFile"),
+          placeholder: t("placeholders:selectImage"),
           // @ts-expect-error incompatible param.
           rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },
@@ -174,7 +174,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "file",
           name: "fileId",
-          placeholder: t("placeholders:selectFile"),
+          placeholder: t("placeholders:selectImage"),
           // @ts-expect-error incompatible param.
           rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },

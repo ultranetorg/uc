@@ -316,7 +316,7 @@ export const enUS = {
     enterTitle: "Enter title",
     selectApprovalPolicy: "Select approval policy",
     selectCategory: "Select category",
-    selectFile: "Select file",
+    selectImage: "Select image",
     selectParentCategory: "Select parent category",
     selectCategoryType: "Select category type",
     selectOperationClass: "Select operation class",
