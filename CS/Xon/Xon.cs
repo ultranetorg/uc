@@ -218,6 +218,16 @@ public class Xon// : INestedSerializable
 		return (E)Serializator.Get(n, n.Value, typeof(E));
 	} 
 
+	public E GetEnum<E>(string name, E otherwise)
+	{
+		var n = One(name);
+
+		if(n != null)
+			return (E)Serializator.Get(n, n.Value, typeof(E));
+		else
+			return otherwise;
+	} 
+
 	internal void Load(Xon t, IXonReader r)
 	{
 		r.Read(Serializator);

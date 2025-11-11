@@ -45,20 +45,20 @@ public class WalletAccount : IBinarySerializable
 	public AccountAddress		Address { get; set; }
 	public AccountKey			Key;
 	public List<Authentication>	Authentications = [];
-	Vault						Vault;
+	Wallet						Wallet;
 
 	public WalletAccount()
 	{ 
 	}
 
-	public WalletAccount(Vault vault)
+	public WalletAccount(Wallet vault)
 	{
-		Vault = vault;
+		Wallet = vault;
 	}
 
-	public WalletAccount(Vault vault, AccountKey key)
+	public WalletAccount(Wallet vault, AccountKey key)
 	{
-		Vault = vault;
+		Wallet = vault;
 		Address = key;
 		Key = key;
 	}
@@ -95,6 +95,13 @@ public class WalletAccount : IBinarySerializable
 	public Authentication FindAuthentication(string net)
 	{
 		return Authentications.Find(i => i.Net == net);
+	}
+
+	public void RemoveAuthentication(Authentication authentication)
+	{
+		Authentications.Remove(authentication);
+
+		Wallet.Save();
 	}
 
 	public void Write(BinaryWriter writer)
@@ -153,7 +160,7 @@ public class Wallet
 		Name = name ?? Default;
 		Vault = vault;
 		Password = password;
-		Accounts = keys.Select(i => new WalletAccount(Vault, i)).ToList();
+		Accounts = keys.Select(i => new WalletAccount(this, i)).ToList();
 	}
 
 	public WalletAccount AddAccount(byte[] key)
@@ -164,7 +171,7 @@ public class Wallet
 		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.PrivateKey, key) == 0))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(Vault, key == null ? AccountKey.Create() : new AccountKey(key));
+		var a = new WalletAccount(this, key == null ? AccountKey.Create() : new AccountKey(key));
 		
 		Accounts.Add(a);
 
@@ -202,7 +209,7 @@ public class Wallet
 
 		var r = new BinaryReader(new MemoryStream(de));
 
-		Accounts = r.ReadList(() => { var a = new WalletAccount(Vault); a.Read(r); return a; });
+		Accounts = r.ReadList(() => { var a = new WalletAccount(this); a.Read(r); return a; });
 
 		Encrypted = null;
 	}

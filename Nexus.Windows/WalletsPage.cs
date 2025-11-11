@@ -6,7 +6,6 @@ namespace Uccs.Nexus.Windows;
 
 public partial class WalletsPage : Page
 {
-	Nexus Nexus;
 	WalletAccount CurrentAccout => Accounts.SelectedItems[0].Tag as WalletAccount;
 	Wallet CurrentWallet => Wallets.SelectedItems[0].Tag as Wallet;
 
@@ -14,11 +13,9 @@ public partial class WalletsPage : Page
 	{
 	}
 
-	public WalletsPage(Nexus nexus)
+	public WalletsPage(Nexus nexus) : base(nexus)
 	{
 		InitializeComponent();
-
-		Nexus = nexus;
 	}
 
 	protected override void OnHandleCreated(EventArgs e)
