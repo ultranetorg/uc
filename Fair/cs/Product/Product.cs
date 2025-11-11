@@ -127,7 +127,10 @@ public class FieldValue : IBinarySerializable
 		get
 		{
 			var a = new AutoId();
-			a.Read(new BinaryReader(new MemoryStream(Value)));
+			
+			using BinaryReader reader = new(new MemoryStream(Value));
+			a.Read(reader);
+			
 			return a;
 		}
 	}

@@ -124,12 +124,12 @@ export function mergeFields(
 function mapItems(
   items: ProductFieldModel[],
   parent: ProductFieldViewModel | undefined = undefined,
+  idCounter: number = 0,
 ): ProductFieldViewModel[] {
-  let _idCounter = 0
   return items.map(item => {
-    const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: `${item.name}_${++_idCounter}` }
+    const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: `${item.name}_${++idCounter}` }
     if (item.children && item.children.length > 0) {
-      newItem.children = mapItems(item.children, newItem)
+      newItem.children = mapItems(item.children, newItem, idCounter)
     }
     return newItem
   })

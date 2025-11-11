@@ -1,5 +1,4 @@
 import { memo } from "react"
-import { base64ToUtf8String } from "utils"
 import { ProductFieldViewVideoYouTube } from "./ProductFieldViewVideoYouTube"
 import { ProductFieldViewVideoVkVideo } from "./ProductFieldViewVideoVkVideo"
 import { ProductFieldViewVideoPlain } from "./ProductFieldViewVideoPlain"
@@ -11,7 +10,7 @@ const urlRegexMap = {
   vkVideo: /(?:https?:\/\/)?(?:www\.)?(?:vk\.com|vkvideo\.ru)\/.*video.*/i,
 }
 
-function getComponent(rawUrl: string | undefined): React.ReactNode {
+function getComponent(rawUrl: string | null): React.ReactNode {
   if (!rawUrl) return null
 
   const url = rawUrl.trim()
@@ -51,11 +50,8 @@ function PreviewBox({ children, label }: { children: React.ReactNode; label?: st
 }
 
 export const ProductFieldViewVideo = memo(({ value, oldValue, status }: Types) => {
-  const newUrl = base64ToUtf8String(value)
-  const oldUrl = oldValue ? base64ToUtf8String(oldValue) : undefined
-
-  const newPreview = getComponent(newUrl)
-  const oldPreview = getComponent(oldUrl)
+  const newPreview = getComponent(value)
+  const oldPreview = getComponent(oldValue)
 
   switch (status) {
     case "added":

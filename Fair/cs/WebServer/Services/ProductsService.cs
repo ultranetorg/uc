@@ -1,5 +1,7 @@
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using System.Text;
 
 namespace Uccs.Fair;
 
@@ -47,7 +49,7 @@ public class ProductsService(
 			{
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
-			
+
 			id = publication.Product;
 			int currentVersion = publication.ProductVersion;
 
@@ -79,7 +81,7 @@ public class ProductsService(
 		}
 	}
 
-	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
+	private static IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
 		return from value in values
 			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
@@ -87,13 +89,45 @@ public class ProductsService(
 			{
 				Name = value.Name,
 				Type = valueField?.Type,
-				Metadata =
-					valueField?.Fields?.Select(field =>
-						new ProductFieldValueMetadataModel { Name = field.Name, Type = field.Type }),
-				Value = valueField?.Type == FieldType.FileId ? value.AsAutoId.ToString() : value.Value,
+				Value = ConvertValue(valueField?.Type, value),
 				Children = value.Fields?.Length > 0
 					? MapValues(value.Fields, valueField?.Fields)
 					: null
 			};
+	}
+
+	private static object ConvertValue(FieldType? type, FieldValue field)
+	{
+		if(field?.Value == null || type == null)
+			return null;
+
+		switch(type)
+		{
+			case FieldType.Integer:
+				return BinaryPrimitives.ReadInt32BigEndian(field.Value);
+			case FieldType.Float:
+				return BinaryPrimitives.ReadDoubleBigEndian(field.Value);
+			case FieldType.TextUtf8:
+			case FieldType.StringUtf8:
+			case FieldType.URI:
+			case FieldType.Language:
+			case FieldType.License:
+			case FieldType.Deployment:
+			case FieldType.Platform:
+			case FieldType.OS:
+			case FieldType.CPUArchitecture:
+			case FieldType.Hash:
+			case FieldType.Date:
+				return field.AsUtf8;
+			case FieldType.StringAnsi:
+				return Encoding.Default.GetString(field.Value);
+			case FieldType.Money:
+				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
+			case FieldType.None:
+			case FieldType.FileId:
+				return field.AsAutoId.ToString();
+			default:
+				throw new ArgumentOutOfRangeException(nameof(type), type, null);
+		}
 	}
 }

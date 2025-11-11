@@ -1,12 +1,11 @@
 import { memo } from "react"
-import { base64ToBigInt } from "utils"
 import { Types } from "./types"
 
 function getAdded(value: string) {
-  return <div className="text-green-700">{String(base64ToBigInt(value))}</div>
+  return <div className="text-green-700">{value}</div>
 }
 function getRemoved(value: string) {
-  return <div className="text-red-500 line-through opacity-75">{String(base64ToBigInt(value))}</div>
+  return <div className="text-red-500 line-through opacity-75">{value}</div>
 }
 
 export const ProductFieldViewBigInt = memo(({ value, oldValue, status }: Types) => {
@@ -26,7 +25,7 @@ export const ProductFieldViewBigInt = memo(({ value, oldValue, status }: Types) 
       )
     }
     default: {
-      return <div>{String(base64ToBigInt(value))}</div>
+      return <div>{value}</div>
     }
   }
 })

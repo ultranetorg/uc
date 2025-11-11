@@ -1,12 +1,11 @@
 import { memo } from "react"
 import { Types } from "./types"
-import { formatBase64Date } from "utils"
 
 function getAdded(value: string) {
-  return <div className="text-green-700">{formatBase64Date(value)}</div>
+  return <div className="text-green-700">{value}</div>
 }
 function getRemoved(value: string) {
-  return <div className="text-red-500 line-through opacity-75">{formatBase64Date(value)}</div>
+  return <div className="text-red-500 line-through opacity-75">{value}</div>
 }
 
 export const ProductFieldViewDate = memo(({ value, oldValue, status }: Types) => {
@@ -26,7 +25,7 @@ export const ProductFieldViewDate = memo(({ value, oldValue, status }: Types) =>
       )
     }
     default: {
-      return <div>{formatBase64Date(value)}</div>
+      return <div>{value}</div>
     }
   }
 })

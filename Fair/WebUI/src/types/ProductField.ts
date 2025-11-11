@@ -1,15 +1,9 @@
 import { TField } from "./base/Field.ts"
 import { TToken } from "./base/Token.ts"
 
-export interface ProductFieldValueMetadata {
-  name: TToken
-  type: TField
-}
-
 export interface ProductFieldBase<TModel> {
   name: TToken
   type?: TField
-  metadata?: ProductFieldValueMetadata[]
   value: string
   children?: TModel[]
 }
