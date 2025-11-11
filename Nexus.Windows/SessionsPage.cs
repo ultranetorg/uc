@@ -6,57 +6,20 @@ namespace Uccs.Nexus.Windows;
 
 public partial class SessionsPage : Page
 {
-	Nexus Nexus;
-
 	public SessionsPage()
 	{
 		InitializeComponent();
 	}
 
-	public SessionsPage(Nexus nexus) : this()
+	public SessionsPage(Nexus nexus) : base(nexus)
 	{
-		Nexus = nexus;
+		InitializeComponent();
 	}
 
 	public override void Open(bool first)
 	{
 		BindWallets(Wallets);
-	}
-
-	protected void BindWallets(ComboBox control)
-	{
-		control.Items.Clear();
-
-		IEnumerable<string> keys;
-
-		lock(Nexus.Vault)
-			keys = Nexus.Vault.Wallets.Select(i => i.Name);
-
-		foreach(var i in keys)
-			control.Items.Add(i);
-
-		if(control.Items.Count > 0)
-			control.SelectedIndex = 0;
-
 		Wallets_SelectionChangeCommitted(null, EventArgs.Empty);
-	}
-
-	protected void BindAccunts(ComboBox control, Wallet wallet)
-	{
-		control.Items.Clear();
-
-		IEnumerable<AccountAddress> keys;
-
-		lock(Nexus.Vault)
-			keys = wallet.Accounts.Select(i => i.Address);
-
-		foreach(var i in keys)
-			control.Items.Add(i);
-
-		if(control.Items.Count > 0)
-			control.SelectedIndex = 0;
-
-		Accounts_SelectionChangeCommitted(null, EventArgs.Empty);
 	}
 
 	protected void BindSessions(WalletAccount account)
@@ -83,7 +46,8 @@ public partial class SessionsPage : Page
 		lock(Nexus.Vault)
 			w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
 
-		BindAccunts(Accounts, w);
+		BindAccounts(Accounts, w.Accounts);
+		Accounts_SelectionChangeCommitted(null, EventArgs.Empty);
 	}
 
 	private void Accounts_SelectionChangeCommitted(object sender, EventArgs e)
@@ -108,7 +72,7 @@ public partial class SessionsPage : Page
 			var w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
 			a = w.Accounts.Find(i => i.Address == Accounts.SelectedItem as AccountAddress);
 
-			a.Authentications.Remove(Sessions.SelectedItems[0].Tag as Authentication);
+			a.RemoveAuthentication(Sessions.SelectedItems[0].Tag as Authentication);
 
 			BindSessions(a);
 		}
