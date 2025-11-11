@@ -528,4 +528,13 @@ public static class Extentions
 
 		return o;
 	}
+    
+	public static void Deconstruct<T>(this T[] array, out T first, out T second)
+	{
+		if (array.Length < 2)
+			throw new ArgumentException("Array must have at least 2 elements");
+        
+		first = array[0];
+		second = array[1];
+	}
 }

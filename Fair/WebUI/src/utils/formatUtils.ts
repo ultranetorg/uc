@@ -3,6 +3,7 @@ import { TFunction } from "i18next"
 
 import { START_DATE } from "config"
 import { BaseVotableOperation } from "types"
+import { base64ToUtf8String } from "./base64Utils.ts"
 
 const OS_DIVIDER = " | "
 const ROLES_DELIMITER = ", "
@@ -20,6 +21,19 @@ export const formatAverageRating = (value: number): string => (value / 10).toFix
 
 export const formatDate = (days: number): string => {
   return dayjs(START_DATE).add(days, "day").startOf("day").format("DD MMM YYYY")
+}
+
+export function formatBase64Date(value: string) {
+  const date = new Date(base64ToUtf8String(value))
+
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date)
 }
 
 export const formatDuration = (t: TFunction, durationInDays: number): string => {

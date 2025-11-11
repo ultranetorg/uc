@@ -1,21 +1,30 @@
 import { TField } from "./base/Field.ts"
 import { TToken } from "./base/Token.ts"
 
-export interface ProductFieldValueMetadataModel {
-  name: TToken
-  type: TField
-}
-
-export interface ProductFieldModel {
+export interface ProductFieldBase<TModel> {
   name: TToken
   type?: TField
-  metadata?: ProductFieldValueMetadataModel[]
   value: string
-  children?: ProductFieldModel[]
+  children?: TModel[]
 }
 
-export interface ProductFieldViewModel extends ProductFieldModel {
+export type ProductFieldModel = ProductFieldBase<ProductFieldModel>
+
+export interface ProductFieldCompare {
+  from: ProductFieldModel[];
+  to: ProductFieldModel[];
+}
+
+export interface ProductFieldViewModel extends ProductFieldBase<ProductFieldViewModel> {
   id: string
   parent?: ProductFieldViewModel
-  children?: ProductFieldViewModel[]
+}
+
+export interface ProductFieldCompareViewModel extends ProductFieldBase<ProductFieldCompareViewModel> {
+  id: string
+  parent?: ProductFieldCompareViewModel
+  isRemoved?: true
+  isAdded?: true
+  isChanged?: true
+  oldValue?: string
 }

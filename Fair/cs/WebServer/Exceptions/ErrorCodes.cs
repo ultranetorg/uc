@@ -9,4 +9,6 @@ public enum ErrorCodes
 	InvalidPaginationParameters = 1003,
 	InvalidDepth = 1004,
 	InvalidSearchQuery = 1005,
+	
+	InvalidEntity = 1006
 }

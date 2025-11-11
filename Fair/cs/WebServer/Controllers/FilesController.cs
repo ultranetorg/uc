@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Uccs.Web.Pagination;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
-[Route("api/files/{fileId}")]
 public class FilesController
 (
 	ILogger<FilesController> logger,
@@ -11,13 +9,12 @@ public class FilesController
 	FilesService filesService
 ) : BaseController
 {
-	[HttpGet]
-	public FileContentResult Get(string fileId, CancellationToken cancellationToken)
+	[HttpGet("{fileId}")]
+	public IActionResult Get(string fileId)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {FileId}", nameof(FilesController), nameof(Get), fileId);
-
-		autoIdValidator.Validate(fileId, nameof(File).ToLower());
-
+		autoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
+		
 		return filesService.GetFile(fileId);
 	}
 }
