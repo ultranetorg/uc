@@ -28,28 +28,29 @@ partial class SessionsPage
 	/// </summary>
 	private void InitializeComponent()
 	{
-		listView1 = new ListView();
+		Sessions = new ListView();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
 		columnHeader3 = new ColumnHeader();
-		button3 = new Button();
-		comboBox1 = new ComboBox();
+		Revoke = new Button();
+		Wallets = new ComboBox();
 		label1 = new Label();
-		comboBox2 = new ComboBox();
+		Accounts = new ComboBox();
 		label2 = new Label();
 		label3 = new Label();
 		SuspendLayout();
 		// 
-		// listView1
+		// Sessions
 		// 
-		listView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader3 });
-		listView1.FullRowSelect = true;
-		listView1.Location = new Point(3, 106);
-		listView1.Name = "listView1";
-		listView1.Size = new Size(642, 491);
-		listView1.TabIndex = 0;
-		listView1.UseCompatibleStateImageBehavior = false;
-		listView1.View = View.Details;
+		Sessions.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader3 });
+		Sessions.FullRowSelect = true;
+		Sessions.Location = new Point(3, 106);
+		Sessions.Name = "Sessions";
+		Sessions.Size = new Size(642, 491);
+		Sessions.TabIndex = 0;
+		Sessions.UseCompatibleStateImageBehavior = false;
+		Sessions.View = View.Details;
+		Sessions.ItemSelectionChanged += Sessions_ItemSelectionChanged;
 		// 
 		// columnHeader1
 		// 
@@ -66,22 +67,25 @@ partial class SessionsPage
 		columnHeader3.Text = "Session ID";
 		columnHeader3.Width = 300;
 		// 
-		// button3
+		// Revoke
 		// 
-		button3.Location = new Point(666, 106);
-		button3.Name = "button3";
-		button3.Size = new Size(131, 34);
-		button3.TabIndex = 4;
-		button3.Text = "Revoke";
-		button3.UseVisualStyleBackColor = true;
+		Revoke.Location = new Point(666, 106);
+		Revoke.Name = "Revoke";
+		Revoke.Size = new Size(131, 34);
+		Revoke.TabIndex = 4;
+		Revoke.Text = "Revoke";
+		Revoke.UseVisualStyleBackColor = true;
+		Revoke.Click += Revoke_Click;
 		// 
-		// comboBox1
+		// Wallets
 		// 
-		comboBox1.FormattingEnabled = true;
-		comboBox1.Location = new Point(49, 56);
-		comboBox1.Name = "comboBox1";
-		comboBox1.Size = new Size(209, 23);
-		comboBox1.TabIndex = 5;
+		Wallets.DropDownStyle = ComboBoxStyle.DropDownList;
+		Wallets.FormattingEnabled = true;
+		Wallets.Location = new Point(49, 56);
+		Wallets.Name = "Wallets";
+		Wallets.Size = new Size(240, 23);
+		Wallets.TabIndex = 5;
+		Wallets.SelectionChangeCommitted += Wallets_SelectionChangeCommitted;
 		// 
 		// label1
 		// 
@@ -92,13 +96,15 @@ partial class SessionsPage
 		label1.TabIndex = 6;
 		label1.Text = "Wallet";
 		// 
-		// comboBox2
+		// Accounts
 		// 
-		comboBox2.FormattingEnabled = true;
-		comboBox2.Location = new Point(368, 56);
-		comboBox2.Name = "comboBox2";
-		comboBox2.Size = new Size(429, 23);
-		comboBox2.TabIndex = 5;
+		Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
+		Accounts.FormattingEnabled = true;
+		Accounts.Location = new Point(368, 56);
+		Accounts.Name = "Accounts";
+		Accounts.Size = new Size(429, 23);
+		Accounts.TabIndex = 5;
+		Accounts.SelectionChangeCommitted += Accounts_SelectionChangeCommitted;
 		// 
 		// label2
 		// 
@@ -129,10 +135,10 @@ partial class SessionsPage
 		Controls.Add(label3);
 		Controls.Add(label2);
 		Controls.Add(label1);
-		Controls.Add(comboBox2);
-		Controls.Add(comboBox1);
-		Controls.Add(button3);
-		Controls.Add(listView1);
+		Controls.Add(Accounts);
+		Controls.Add(Wallets);
+		Controls.Add(Revoke);
+		Controls.Add(Sessions);
 		Name = "SessionsPage";
 		Size = new Size(800, 600);
 		ResumeLayout(false);
@@ -141,14 +147,14 @@ partial class SessionsPage
 
 	#endregion
 
-	private ListView listView1;
+	private ListView Sessions;
 	private ColumnHeader columnHeader1;
 	private ColumnHeader columnHeader2;
-	private Button button3;
+	private Button Revoke;
 	private ColumnHeader columnHeader3;
-	private ComboBox comboBox1;
+	private ComboBox Wallets;
 	private Label label1;
-	private ComboBox comboBox2;
+	private ComboBox Accounts;
 	private Label label2;
 	private Label label3;
 }

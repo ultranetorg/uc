@@ -29,18 +29,16 @@ partial class AssetsPage
 	private void InitializeComponent()
 	{
 		label3 = new Label();
-		listView1 = new ListView();
+		Assets = new ListView();
 		columnHeader4 = new ColumnHeader();
 		columnHeader5 = new ColumnHeader();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
 		columnHeader3 = new ColumnHeader();
 		label2 = new Label();
-		label1 = new Label();
-		comboBox2 = new ComboBox();
-		comboBox1 = new ComboBox();
-		button3 = new Button();
-		comboBox3 = new ComboBox();
+		Accounts = new ComboBox();
+		Transfer = new Button();
+		Nets = new ComboBox();
 		label4 = new Label();
 		SuspendLayout();
 		// 
@@ -57,16 +55,16 @@ partial class AssetsPage
 		label3.Text = "Assets";
 		label3.TextAlign = ContentAlignment.MiddleLeft;
 		// 
-		// listView1
+		// Assets
 		// 
-		listView1.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader5, columnHeader1, columnHeader2, columnHeader3 });
-		listView1.FullRowSelect = true;
-		listView1.Location = new Point(3, 178);
-		listView1.Name = "listView1";
-		listView1.Size = new Size(577, 419);
-		listView1.TabIndex = 8;
-		listView1.UseCompatibleStateImageBehavior = false;
-		listView1.View = View.Details;
+		Assets.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader5, columnHeader1, columnHeader2, columnHeader3 });
+		Assets.FullRowSelect = true;
+		Assets.Location = new Point(3, 137);
+		Assets.Name = "Assets";
+		Assets.Size = new Size(794, 460);
+		Assets.TabIndex = 8;
+		Assets.UseCompatibleStateImageBehavior = false;
+		Assets.View = View.Details;
 		// 
 		// columnHeader4
 		// 
@@ -96,78 +94,57 @@ partial class AssetsPage
 		// label2
 		// 
 		label2.AutoSize = true;
-		label2.Location = new Point(3, 136);
+		label2.Location = new Point(7, 95);
 		label2.Name = "label2";
 		label2.Size = new Size(52, 15);
 		label2.TabIndex = 12;
 		label2.Text = "Account";
 		// 
-		// label1
+		// Accounts
 		// 
-		label1.AutoSize = true;
-		label1.Location = new Point(3, 97);
-		label1.Name = "label1";
-		label1.Size = new Size(40, 15);
-		label1.TabIndex = 13;
-		label1.Text = "Wallet";
-		label1.Click += label1_Click;
+		Accounts.FormattingEnabled = true;
+		Accounts.Location = new Point(80, 92);
+		Accounts.Name = "Accounts";
+		Accounts.Size = new Size(300, 23);
+		Accounts.TabIndex = 10;
 		// 
-		// comboBox2
+		// Transfer
 		// 
-		comboBox2.FormattingEnabled = true;
-		comboBox2.Location = new Point(80, 133);
-		comboBox2.Name = "comboBox2";
-		comboBox2.Size = new Size(429, 23);
-		comboBox2.TabIndex = 10;
+		Transfer.Location = new Point(600, 46);
+		Transfer.Name = "Transfer";
+		Transfer.Size = new Size(197, 32);
+		Transfer.TabIndex = 9;
+		Transfer.Text = "Transfer";
+		Transfer.UseVisualStyleBackColor = true;
 		// 
-		// comboBox1
+		// Nets
 		// 
-		comboBox1.FormattingEnabled = true;
-		comboBox1.Location = new Point(80, 94);
-		comboBox1.Name = "comboBox1";
-		comboBox1.Size = new Size(209, 23);
-		comboBox1.TabIndex = 11;
-		// 
-		// button3
-		// 
-		button3.Location = new Point(600, 178);
-		button3.Name = "button3";
-		button3.Size = new Size(197, 34);
-		button3.TabIndex = 9;
-		button3.Text = "Transfer";
-		button3.UseVisualStyleBackColor = true;
-		// 
-		// comboBox3
-		// 
-		comboBox3.FormattingEnabled = true;
-		comboBox3.Location = new Point(80, 52);
-		comboBox3.Name = "comboBox3";
-		comboBox3.Size = new Size(209, 23);
-		comboBox3.TabIndex = 11;
+		Nets.FormattingEnabled = true;
+		Nets.Location = new Point(80, 52);
+		Nets.Name = "Nets";
+		Nets.Size = new Size(209, 23);
+		Nets.TabIndex = 11;
 		// 
 		// label4
 		// 
 		label4.AutoSize = true;
-		label4.Location = new Point(3, 55);
+		label4.Location = new Point(7, 55);
 		label4.Name = "label4";
 		label4.Size = new Size(54, 15);
 		label4.TabIndex = 13;
 		label4.Text = "Net/CCP";
-		label4.Click += label1_Click;
 		// 
 		// AssetsPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		Controls.Add(label3);
-		Controls.Add(listView1);
+		Controls.Add(Assets);
 		Controls.Add(label2);
 		Controls.Add(label4);
-		Controls.Add(label1);
-		Controls.Add(comboBox2);
-		Controls.Add(comboBox3);
-		Controls.Add(comboBox1);
-		Controls.Add(button3);
+		Controls.Add(Accounts);
+		Controls.Add(Nets);
+		Controls.Add(Transfer);
 		Name = "AssetsPage";
 		Size = new Size(800, 600);
 		ResumeLayout(false);
@@ -177,16 +154,14 @@ partial class AssetsPage
 	#endregion
 
 	private Label label3;
-	private ListView listView1;
+	private ListView Assets;
 	private ColumnHeader columnHeader1;
 	private ColumnHeader columnHeader2;
 	private ColumnHeader columnHeader3;
 	private Label label2;
-	private Label label1;
-	private ComboBox comboBox2;
-	private ComboBox comboBox1;
-	private Button button3;
-	private ComboBox comboBox3;
+	private ComboBox Accounts;
+	private Button Transfer;
+	private ComboBox Nets;
 	private Label label4;
 	private ColumnHeader columnHeader4;
 	private ColumnHeader columnHeader5;

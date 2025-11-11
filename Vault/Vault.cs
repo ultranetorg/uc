@@ -17,9 +17,9 @@ public class Vault : Cli
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
-	public Func<string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
-	public Action<AccountAddress>								UnlockRequested;
-	public Func<string, AccountAddress, bool>					AuthorizationRequested;
+	public Func<string, string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
+	public Func<string, string, AccountAddress, bool>					AuthorizationRequested;
+	public Action<AccountAddress>										UnlockRequested;
 
 	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
 															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",

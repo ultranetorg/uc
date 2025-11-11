@@ -15,7 +15,7 @@ public enum DependencyFlag : byte
 {
 	None, 
 	Merge				= 0b0000_0001, 
-	AutoUpdateAllowed	= 0b0000_0010
+	AutoUpdateAllowed	= 0b0000_0010,
 }
 
 public class Dependency : IEquatable<Dependency>
@@ -97,17 +97,26 @@ public class Dependency : IEquatable<Dependency>
 	}
 }	
 
+[Flags]
+public enum ParentPackageFlag : byte
+{
+	None, 
+	Compatible	= 0b0000_0001, 
+}
+
 public class ParentPackage
 {
-	public Ura				Release { get; set; }
-	public Dependency[]		AddedDependencies { get; set; }
-	public Dependency[]		RemovedDependencies { get; set; }
+	public Ura					Release { get; set; }
+	public ParentPackageFlag	Flags { get; set; }
+	public Dependency[]			AddedDependencies { get; set; }
+	public Dependency[]			RemovedDependencies { get; set; }
 
 	public static ParentPackage FromXon(Xon xon)
 	{
 		var d = new ParentPackage();
 
 		d.Release				= Ura.Parse(xon.Name);
+		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
 		d.AddedDependencies		= xon.One("Add").Nodes.Select(Dependency.FromXon).ToArray();
 		d.RemovedDependencies	= xon.One("Remove").Nodes.Select(Dependency.FromXon).ToArray();
 
@@ -119,6 +128,7 @@ public class ParentPackage
 		var x = new Xon(serializator);
 	
 		x.Name = Release.ToString();
+		x.Add("Flags").Value = Flags;
 		x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
 		x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
 

@@ -14,8 +14,8 @@ public partial class IamForm : Form
 		InitializeComponent();
 
 		WalletsAndAccounts.Tag = new WalletsPage(nexus);
-		Sessions.Tag = new SessionsPage();
-		Assets.Tag = new AssetsPage();
+		Sessions.Tag = new SessionsPage(nexus);
+		Assets.Tag = new AssetsPage(nexus);
 
 		WalletsAndAccounts.Checked = true;
 	}

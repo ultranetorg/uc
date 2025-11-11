@@ -147,7 +147,7 @@ public class EnforceAuthenticationApc : AdminApc
 		{
 			if(Active)
 			{
-				vault.AuthenticationRequested = (net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Spending};
+				vault.AuthenticationRequested = (application, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Spending};
 			} 
 			else
 			{
@@ -191,7 +191,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 	{
 		lock(vault)
 		{
-			var c = vault.AuthenticationRequested?.Invoke(Net, Account);
+			var c = vault.AuthenticationRequested?.Invoke(Application, Net, Account);
 	
 			if(c != null)
 			{
@@ -200,12 +200,13 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 				if(a == null)
 					throw new VaultException(VaultError.AccountNotFound);
 		
-				var n = a.GetAuthentication(Net, c.Trust);
+
+				var n = a.GetAuthentication(Application, Net, c.Trust);
 		
 				if(n == null)
 					throw new VaultException(VaultError.NetNotFound);
 		
-				return new AccountSession {Account = c.Account, Session = n.Session};
+				return new AuthenticationResult {Account = c.Account, Session = n.Session};
 			} 
 			else
 				return null;
@@ -219,9 +220,9 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 	{
 		var acc = vault.Find(Account);
 		
-		var au = acc?.Authentications.Find(i => i.Net == Net);
+		var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(Session) && i.Net == Net);
 
-		if(au?.Session == null || !au.Session.SequenceEqual(Session))
+		if(au == null)
 			return null;
 
 		if(acc.Key == null)
@@ -234,7 +235,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 
 		if(Trust > au.Trust)
 		{
-			vault.AuthorizationRequested(Net, Account);
+			vault.AuthorizationRequested(au.Application, Net, Account);
 		}
 
 		return vault.Cryptography.Sign(acc.Key, Hash);
