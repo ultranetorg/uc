@@ -1,1 +1,2 @@
-export * from './ProductFields'
+export * from "./ProductFields"
+export * from "./ProductCompareFields"
