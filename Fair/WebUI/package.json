@@ -66,11 +66,11 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint",
-      "prettier"
+      "eslint --fix",
+      "prettier --fix"
     ],
-    "*.{json,css,scss,md, html}": [
-      "prettier"
+    "*.{json,css,scss,md,html}": [
+      "prettier --write"
     ]
   }
 }
