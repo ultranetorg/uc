@@ -109,8 +109,7 @@ public class ProductsService
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();
 			case FieldType.Date:
-				int seconds = BinaryPrimitives.ReadInt32LittleEndian(field.Value);
-				return new Time(seconds);
+				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 			default:
 				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}
