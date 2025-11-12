@@ -110,8 +110,6 @@ public class ProductsService
 				return field.AsAutoId.ToString();
 			case FieldType.Date:
 				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
-			default:
-				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}
 
 		return null;
