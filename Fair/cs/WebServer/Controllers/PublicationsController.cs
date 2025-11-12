@@ -11,7 +11,8 @@ public class PublicationsController
 	ISearchQueryValidator searchQueryValidator,
 	PublicationsService publicationsService,
 	ProductsService productsService,
-	ISearchService searchService
+	ISearchService searchService,
+	VersionValidator versionValidator
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
@@ -40,6 +41,7 @@ public class PublicationsController
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetUpdatedFields)} method called with {{PublicationId}}", publicationId);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		versionValidator.Validate(publicationId, version);
 
 		return productsService.GetUpdatedFieldsByPublication(publicationId, version);
 	}

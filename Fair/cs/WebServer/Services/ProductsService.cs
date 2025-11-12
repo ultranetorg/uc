@@ -1,19 +1,19 @@
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using System.Text;
+using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
-public class ProductsService(
+public class ProductsService
+(
 	ILogger<ProductsService> logger,
 	FairMcv mcv
 )
 {
-	public IEnumerable<ProductFieldValueModel> GetFields([NotNull] [NotEmpty] string productId)
+	public IEnumerable<ProductFieldValueModel> GetFields([NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService),
-			nameof(GetFields), productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
 
 		Guard.Against.NullOrEmpty(productId);
 
@@ -33,12 +33,12 @@ public class ProductsService(
 		}
 	}
 
-	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull] [NotEmpty] string publicationId, int version)
+	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService),
-			nameof(GetUpdatedFieldsByPublication), publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService), nameof(GetUpdatedFieldsByPublication), publicationId);
 
 		Guard.Against.NullOrEmpty(publicationId);
+		Guard.Against.Negative(version);
 
 		AutoId id = AutoId.Parse(publicationId);
 
@@ -50,32 +50,18 @@ public class ProductsService(
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
 
-			id = publication.Product;
-			int currentVersion = publication.ProductVersion;
-
-			Product product = mcv.Products.Latest(id);
-			if(product == null)
+			Product product = mcv.Products.Latest(publication.Product);
+			if(product.Versions.Length < 1 || product.Versions.All(x => x.Id != version))
 			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), id.ToString());
+				throw new InvalidPublicationVersionException(publicationId, version);
 			}
 
-			if(product.Versions.Length < 2)
-			{
-				throw new InvalidEntityException(nameof(Product).ToLower(), id.ToString());
-			}
+			var fieldsFrom = product.Versions.Single(x => x.Id == publication.ProductVersion).Fields;
+			var fieldsTo = product.Versions.Single(x => x.Id == version).Fields;
+			var mappedFrom = MapValues(fieldsFrom, Product.Software);
+			var mappedTo = MapValues(fieldsTo, Product.Software);
 
-			ProductVersion[] compareVersions =
-			[
-				product.Versions.Single(x => x.Id == currentVersion),
-				product.Versions.Single(x => x.Id == version),
-			];
-
-			var (from, to) = compareVersions
-				.Select(x => x.Fields)
-				.Select(fields => MapValues(fields, Product.Software))
-				.ToArray();
-
-			return new ProductFieldCompareModel { From = from, To = to, };
+			return new ProductFieldCompareModel {From = mappedFrom, To = mappedTo};
 		}
 	}
 
@@ -96,7 +82,7 @@ public class ProductsService(
 
 	private static object ConvertValue(FieldType? type, FieldValue field)
 	{
-		if(field?.Value == null || type == null)
+		if(field?.Value == null)
 			return null;
 
 		switch(type)
@@ -115,17 +101,16 @@ public class ProductsService(
 			case FieldType.OS:
 			case FieldType.CPUArchitecture:
 			case FieldType.Hash:
-			case FieldType.Date:
 				return field.AsUtf8;
+			case FieldType.Date:
 			case FieldType.StringAnsi:
 				return Encoding.Default.GetString(field.Value);
 			case FieldType.Money:
 				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
-			case FieldType.None:
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();
-			default:
-				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}
+
+		return null;
 	}
 }

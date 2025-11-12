@@ -32,6 +32,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, isCommentsFetchi
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
 
   const firstOperationType = useMemo(() => proposal?.options?.[0]?.operation.$type, [proposal])
+  const showOnTop = !!(firstOperationType && renderByOperationType[firstOperationType])
   const NestedView = (firstOperationType && renderByOperationType[firstOperationType]) ?? ProposalDefaultView
 
   if (!proposal || !comments) {
@@ -53,9 +54,10 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, isCommentsFetchi
           <span className="text-3.5xl font-semibold leading-10">{proposal.title}</span>
         </div>
       </div>
+      {showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
       <div className="flex gap-8">
-        <div className="flex flex-col gap-8">
-          <NestedView t={t} proposal={proposal} pageState={pageState} />
+        <div className="flex w-full flex-col gap-8">
+          {!showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
           <AlternativeOptions />
           <hr className="h-px border-0 bg-gray-300" />
           <CommentsSection isFetching={isCommentsFetching} comments={comments} />

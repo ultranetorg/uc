@@ -23,7 +23,7 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
     if (!el) return
     if (leftWidth !== null) return
     const w = el.clientWidth
-    setLeftWidth(Math.max(200, Math.round(w * 0.2)))
+    setLeftWidth(Math.max(200, Math.round(w * 0.35)))
   }, [leftWidth])
 
   // Handlers
@@ -87,7 +87,7 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
         role="separator"
         aria-orientation="vertical"
         onMouseDown={onMouseDown}
-        className="m-1 relative flex items-center rounded-full border-2 border-none hover:border-dashed"
+        className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
         style={resizerStyle}
         title="Drag to resize"
       >

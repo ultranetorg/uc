@@ -1,1 +1,0 @@
-export type TField = 'none' | 'integer' | 'float' | 'text-utf8' | 'string-utf8' | 'string-ansi' | 'uri' | 'language' | 'license' | 'video' | 'deployment' | 'money' | 'date' | 'platform' | 'os' | 'cpuarchitecture' | 'hash' | 'file-id';

@@ -1,5 +1,6 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
+
 import { Types } from "./types"
 
 function ensureProtocol(uri: string) {

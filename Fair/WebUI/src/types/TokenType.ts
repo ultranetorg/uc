@@ -1,4 +1,4 @@
-export type TToken =
+export type TokenType =
   | "none"
   | "metadata"
   | "cpu"
