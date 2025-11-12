@@ -157,14 +157,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "site-authors-change",
       fields: [
         {
-          valueType: "authors-additions",
+          valueType: "authors-change",
           name: "candidatesIds",
-          placeholder: t("selectAuthorsToAdd"),
-        },
-        {
-          valueType: "authors-removals",
-          name: "authorsIds",
-          placeholder: t("selectAuthorsToRemove"),
         },
       ],
     },

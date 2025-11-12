@@ -35,7 +35,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   )
 
   return (
-    <Modal title={t("title")} onClose={onClose} className="flex h-170 w-190">
+    <Modal title={t("title")} onClose={onClose} className="w-205 h-165 max-w-205 flex">
       <div className="flex h-full flex-col gap-3">
         <Pagination className="self-end" onPageChange={setPage} page={page} pagesCount={pagesCount} />
         <div className="flex-1 overflow-y-scroll">

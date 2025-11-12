@@ -1,13 +1,7 @@
-import { AccountBase } from "types"
-import { Input, Textarea, ValidationWrapper } from "ui/components"
+import { AccountsList, Input, Textarea, ValidationWrapper } from "ui/components"
+import { MembersPanelList } from "ui/components/proposal"
 
-import {
-  ButtonMembersChange,
-  DropdownSearchCategory,
-  DropdownWithTranslation,
-  FileSelect,
-  ProductVersionSelector,
-} from "./components"
+import { DropdownSearchCategory, DropdownWithTranslation, FileSelect, ProductVersionSelector } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
@@ -63,26 +57,10 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-additions": ({ errorMessage, field, value, onChange }) => (
+  "authors-change": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <ButtonMembersChange
-        changeAction="add"
-        memberType="author"
-        label={field.placeholder!}
-        value={value as AccountBase[]}
-        onChange={onChange}
-      />
-    </ValidationWrapper>
-  ),
-  "authors-removals": ({ errorMessage, field, value, onChange }) => (
-    <ValidationWrapper message={errorMessage}>
-      <ButtonMembersChange
-        changeAction="remove"
-        memberType="author"
-        label={field.placeholder!}
-        value={value as string[]}
-        onChange={onChange}
-      />
+      <MembersPanelList />
+      <MembersPanelList />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (
@@ -114,23 +92,15 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       <FileSelect label={field.placeholder!} value={value as string} onChange={onChange} />
     </ValidationWrapper>
   ),
-  "moderators-additions": ({ field, value, onChange }) => (
-    <ButtonMembersChange
-      changeAction="add"
-      memberType="moderator"
-      label={field.placeholder!}
-      value={value as AccountBase[]}
-      onChange={onChange}
-    />
+  "moderators-additions": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <MembersPanelList />
+    </ValidationWrapper>
   ),
-  "moderators-removals": ({ field, value, onChange }) => (
-    <ButtonMembersChange
-      changeAction="remove"
-      memberType="moderator"
-      label={field.placeholder!}
-      value={value as string[]}
-      onChange={onChange}
-    />
+  "moderators-removals": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <MembersPanelList />
+    </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (
     <DropdownWithTranslation

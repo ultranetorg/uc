@@ -1,6 +1,7 @@
-import { SvgX } from "assets"
 import { memo, useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
+import { SvgX } from "assets"
 import { ButtonOutline } from "ui/components"
 import { MemberFilesModal } from "ui/components/specific"
 
@@ -9,10 +10,11 @@ const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 export type FileSelectProps = {
   label: string
   value?: string
-  onChange: (value: string) => void
+  onChange: (value?: string) => void
 }
 
 export const FileSelect = memo(({ label, value, onChange }: FileSelectProps) => {
+  const { t } = useTranslation("createProposal")
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
 
   const handleClick = useCallback(() => setMembersChangeModalOpen(true), [])
@@ -34,7 +36,12 @@ export const FileSelect = memo(({ label, value, onChange }: FileSelectProps) => 
               </div>
               <span className="text-2sm leading-5">{value}</span>
             </div>
-            <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />
+            <div title={t("removeFile")}>
+              <SvgX
+                className="cursor-pointer stroke-gray-500 hover:stroke-gray-800"
+                onClick={() => onChange(undefined)}
+              />
+            </div>
           </div>
         )}
       </div>

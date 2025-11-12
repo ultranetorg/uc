@@ -222,6 +222,7 @@ export const enUS = {
     description: "Description (optional)",
     howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
+    removeFile: "Remove file",
     selectAuthorsToAdd: "Select Authors to Add",
     selectAuthorsToRemove: "Select Authors to Remove",
     selectModeratorsToAdd: "Select Moderators to Add",
@@ -372,5 +373,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  }
+  },
 }
