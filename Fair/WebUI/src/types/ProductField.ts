@@ -4,7 +4,7 @@ import { TokenType } from "./TokenType.ts"
 export interface ProductFieldBase<TModel> {
   name: TokenType
   type?: FieldType
-  value: string
+  value: unknown
   children?: TModel[]
 }
 

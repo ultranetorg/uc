@@ -65,7 +65,7 @@ public class ProductsService
 		}
 	}
 
-	private static IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
+	private IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
 		return from value in values
 			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
@@ -80,7 +80,7 @@ public class ProductsService
 			};
 	}
 
-	private static object ConvertValue(FieldType? type, FieldValue field)
+	private object ConvertValue(FieldType? type, FieldValue field)
 	{
 		if(field?.Value == null)
 			return null;
@@ -88,9 +88,9 @@ public class ProductsService
 		switch(type)
 		{
 			case FieldType.Integer:
-				return BinaryPrimitives.ReadInt32BigEndian(field.Value);
+				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 			case FieldType.Float:
-				return BinaryPrimitives.ReadDoubleBigEndian(field.Value);
+				return BinaryPrimitives.ReadDoubleLittleEndian(field.Value);
 			case FieldType.TextUtf8:
 			case FieldType.StringUtf8:
 			case FieldType.URI:
@@ -102,13 +102,14 @@ public class ProductsService
 			case FieldType.CPUArchitecture:
 			case FieldType.Hash:
 				return field.AsUtf8;
-			case FieldType.Date:
 			case FieldType.StringAnsi:
 				return Encoding.Default.GetString(field.Value);
 			case FieldType.Money:
 				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();
+			case FieldType.Date:
+				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 		}
 
 		return null;

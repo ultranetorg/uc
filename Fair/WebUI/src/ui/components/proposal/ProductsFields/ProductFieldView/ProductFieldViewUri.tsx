@@ -1,15 +1,14 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
-
-import { Types } from "./types"
+import { ProductFieldViewProp } from "./types"
 
 function ensureProtocol(uri: string) {
   if (/^(https?:)?\/\//i.test(uri)) return uri
   return `https://${uri}`
 }
 
-function getAdded(value: string) {
-  const uri = ensureProtocol(value)
+function getAdded(value: unknown) {
+  const uri = ensureProtocol(value as string)
 
   return (
     <Link
@@ -17,12 +16,12 @@ function getAdded(value: string) {
       target="_blank"
       className="text-green-700 underline transition-colors duration-150 hover:text-blue-800 hover:underline"
     >
-      {value}
+      {uri}
     </Link>
   )
 }
-function getRemoved(value: string) {
-  const uri = ensureProtocol(value)
+function getRemoved(value: unknown) {
+  const uri = ensureProtocol(value as string)
 
   return (
     <Link
@@ -30,13 +29,13 @@ function getRemoved(value: string) {
       target="_blank"
       className="text-red-500 underline line-through opacity-75 transition-colors duration-150 hover:text-blue-800 hover:underline"
     >
-      {value}
+      {uri}
     </Link>
   )
 }
 
-function getNew(value: string) {
-  const uri = ensureProtocol(value)
+function getNew(value: unknown) {
+  const uri = ensureProtocol(value as string)
 
   return (
     <Link
@@ -44,12 +43,12 @@ function getNew(value: string) {
       target="_blank"
       className="text-blue-600 underline transition-colors duration-150 hover:text-blue-800 hover:underline"
     >
-      {value}
+      {uri}
     </Link>
   )
 }
 
-export const ProductFieldViewUri = memo(({ value, oldValue, status }: Types) => {
+export const ProductFieldViewUri = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   switch (status) {
     case "added": {
       return getAdded(value)
