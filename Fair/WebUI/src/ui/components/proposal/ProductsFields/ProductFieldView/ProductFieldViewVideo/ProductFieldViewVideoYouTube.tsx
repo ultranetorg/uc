@@ -1,5 +1,6 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
+
 import { VideoFrame } from "ui/components"
 
 export const ProductFieldViewVideoYouTube = memo(({ url, regex }: { url: string; regex: RegExp }) => {

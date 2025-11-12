@@ -5,7 +5,7 @@ export const ProductFieldViewVideoPlain = memo(({ url }: { url: string }) => {
   const { t } = useTranslation("productFields")
 
   return (
-    <video controls className="w-full h-full bg-black">
+    <video controls className="h-full w-full bg-black">
       <source src={url} />
       {t("unsupportedTag")}
     </video>

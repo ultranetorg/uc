@@ -242,12 +242,8 @@ const getProductFields = async (productId: string): Promise<TotalItemsResult<Pro
   return await toTotalItemsResult(res)
 }
 
-const getProductCompareFields = async (
-  publicationId: string,
-  version: number,
-): Promise<ProductFieldCompare> => {
-  return fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
-}
+const getProductCompareFields = async (publicationId: string, version: number): Promise<ProductFieldCompare> =>
+  fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
 const getReviewProposals = async (
   siteId: string,
