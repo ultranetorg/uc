@@ -3,6 +3,7 @@ export * from "./MembersRemoveModal"
 export * from "./MembersPanelList"
 export * from "./OptionsCollapsesList"
 export * from "./OptionsEditor"
+export * from "./ProductsFields"
 
 export * from "./AlternativeOptions"
 export * from "./CommentsSection"

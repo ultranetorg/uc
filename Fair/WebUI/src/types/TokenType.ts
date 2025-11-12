@@ -1,4 +1,4 @@
-export type TToken =
+export type TokenType =
   | "none"
   | "metadata"
   | "cpu"
@@ -38,5 +38,5 @@ export type TToken =
   | "tags"
   | "price"
   | "description"
-  | "deploymwent"
+  | "deployment"
   | "value"

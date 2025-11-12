@@ -41,4 +41,5 @@ export * from "./Table"
 export * from "./TableEmptyState"
 export * from "./Tabs"
 export * from "./Textarea"
+export * from './VideoFrame'
 export * from "./ValidationWrapper"
