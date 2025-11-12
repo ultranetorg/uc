@@ -1,14 +1,22 @@
 import { memo } from "react"
-import { Types } from "./types"
+import { ProductFieldViewProp } from "./types"
+import { START_DATE } from "config"
 
-function getAdded(value: string) {
-  return <div className="text-green-700">{value}</div>
-}
-function getRemoved(value: string) {
-  return <div className="text-red-500 line-through opacity-75">{value}</div>
+function formatValue(value: unknown) {
+  const { days } = value as { days: number }
+  const date = new Date(START_DATE)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString()
 }
 
-export const ProductFieldViewDate = memo(({ value, oldValue, status }: Types) => {
+function getAdded(value: unknown) {
+  return <div className="text-green-700">{formatValue(value)}</div>
+}
+function getRemoved(value: unknown) {
+  return <div className="text-red-500 line-through opacity-75">{formatValue(value)}</div>
+}
+
+export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   switch (status) {
     case "added": {
       return getAdded(value)
@@ -25,7 +33,7 @@ export const ProductFieldViewDate = memo(({ value, oldValue, status }: Types) =>
       )
     }
     default: {
-      return <div>{value}</div>
+      return <div>{formatValue(value)}</div>
     }
   }
 })

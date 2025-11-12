@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { Types } from "./types"
+import { ProductFieldViewProp } from "./types"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
@@ -16,7 +16,7 @@ function PreviewBox({ children, label }: { children: React.ReactNode; label?: st
   )
 }
 
-export const ProductFieldViewFile = memo(({ value, oldValue, status }: Types) => {
+export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   const newSrc = `${BASE_URL}/files/${value}`
   const oldSrc = `${BASE_URL}/files/${oldValue}`
 

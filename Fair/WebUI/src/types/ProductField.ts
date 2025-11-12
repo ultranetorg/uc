@@ -4,7 +4,7 @@ import { TToken } from "./base/Token.ts"
 export interface ProductFieldBase<TModel> {
   name: TToken
   type?: TField
-  value: string
+  value: unknown
   children?: TModel[]
 }
 
@@ -26,5 +26,5 @@ export interface ProductFieldCompareViewModel extends ProductFieldBase<ProductFi
   isRemoved?: true
   isAdded?: true
   isChanged?: true
-  oldValue?: string
+  oldValue?: unknown
 }

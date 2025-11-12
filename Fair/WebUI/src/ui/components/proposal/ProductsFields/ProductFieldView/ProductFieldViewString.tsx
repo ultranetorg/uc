@@ -1,14 +1,14 @@
 import { memo } from "react"
-import { Types } from "./types"
+import { ProductFieldViewProp } from "./types"
 
-function getAdded(value: string) {
-  return <div className="text-green-700">{value}</div>
+function getAdded(value: unknown) {
+  return <div className="text-green-700">{value as string}</div>
 }
-function getRemoved(value: string) {
-  return <div className="text-red-500 line-through opacity-75">{value}</div>
+function getRemoved(value: unknown) {
+  return <div className="text-red-500 line-through opacity-75">{value as string}</div>
 }
 
-export const ProductFieldViewString = memo(({ value, oldValue, status }: Types) => {
+export const ProductFieldViewString = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   switch (status) {
     case "added": {
       return getAdded(value)
@@ -25,7 +25,7 @@ export const ProductFieldViewString = memo(({ value, oldValue, status }: Types) 
       )
     }
     default: {
-      return <div>{value}</div>
+      return <div>{value as string}</div>
     }
   }
 })

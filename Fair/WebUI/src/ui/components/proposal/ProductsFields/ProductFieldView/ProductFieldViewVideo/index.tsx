@@ -2,7 +2,7 @@ import { memo } from "react"
 import { ProductFieldViewVideoYouTube } from "./ProductFieldViewVideoYouTube"
 import { ProductFieldViewVideoVkVideo } from "./ProductFieldViewVideoVkVideo"
 import { ProductFieldViewVideoPlain } from "./ProductFieldViewVideoPlain"
-import { Types } from "../types"
+import { ProductFieldViewProp } from "../types"
 
 const urlRegexMap = {
   plain: /\.(mp4|webm|ogg)$/i,
@@ -10,10 +10,10 @@ const urlRegexMap = {
   vkVideo: /(?:https?:\/\/)?(?:www\.)?(?:vk\.com|vkvideo\.ru)\/.*video.*/i,
 }
 
-function getComponent(rawUrl: string | null): React.ReactNode {
+function getComponent(rawUrl: unknown | null): React.ReactNode {
   if (!rawUrl) return null
 
-  const url = rawUrl.trim()
+  const url = (rawUrl as string).trim()
 
   if (urlRegexMap.youtube.test(url)) {
     return <ProductFieldViewVideoYouTube url={url} regex={urlRegexMap.youtube} />
@@ -49,7 +49,7 @@ function PreviewBox({ children, label }: { children: React.ReactNode; label?: st
   )
 }
 
-export const ProductFieldViewVideo = memo(({ value, oldValue, status }: Types) => {
+export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   const newPreview = getComponent(value)
   const oldPreview = getComponent(oldValue)
 
