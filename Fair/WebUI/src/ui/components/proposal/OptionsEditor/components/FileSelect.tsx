@@ -1,3 +1,4 @@
+import { SvgX } from "assets"
 import { memo, useCallback, useState } from "react"
 
 import { ButtonOutline } from "ui/components"
@@ -22,14 +23,18 @@ export const FileSelect = memo(({ label, value, onChange }: FileSelectProps) => 
       <div className="flex flex-col gap-4">
         <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
         {value && (
-          <div className="flex h-20 w-full justify-between rounded border border-gray-200 p-2" onClick={handleClick}>
-            <div className="h-16 w-16 overflow-hidden rounded">
-              <img
-                className="h-full w-full object-cover object-center"
-                src={value ? `${BASE_URL}/files/${value}` : undefined}
-                title={value}
-              />
+          <div className="flex h-20 w-full items-center justify-between rounded border border-gray-200 p-2">
+            <div className="flex items-center gap-3">
+              <div className="h-16 w-16 overflow-hidden rounded">
+                <img
+                  className="h-full w-full object-cover object-center"
+                  src={value ? `${BASE_URL}/files/${value}` : undefined}
+                  title={value}
+                />
+              </div>
+              <span className="text-2sm leading-5">{value}</span>
             </div>
+            <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />
           </div>
         )}
       </div>
