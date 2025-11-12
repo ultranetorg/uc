@@ -1,0 +1,24 @@
+<component name="InspectionProjectProfileManager">
+    <profile version="1.0">
+        <option name="myName" value="Project Default" />
+        <!-- Выключаем встроенные проверки кода, чтобы не конфликтовали с ESLint -->
+        <inspection_tool class="JSUnresolvedVariable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnusedGlobalSymbols" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnusedLocalSymbols" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnusedAssignment" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnresolvedFunction" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSValidateTypes" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptUnresolvedFunction" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptUnresolvedVariable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptCheckImport" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptExplicitMemberType" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptMissingImport" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="TypeScriptUnresolvedReference" enabled="false" level="WARNING" enabled_by_default="false" />
+        <!-- ESLint полностью берёт на себя анализ кода -->
+        <inspection_tool class="Eslint" enabled="true" level="ERROR" enabled_by_default="true" />
+        <!-- Включаем React и JSX подсказки (они не мешают) -->
+        <inspection_tool class="JSXUnterminatedTag" enabled="true" level="ERROR" enabled_by_default="true" />
+        <inspection_tool class="JSXInvalidHTMLAttribute" enabled="true" level="WARNING" enabled_by_default="true" />
+        <inspection_tool class="JSXSelfClosingTag" enabled="true" level="WEAK_WARNING" enabled_by_default="true" />
+    </profile>
+</component>
