@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -298,18 +299,94 @@ public class CostApc : RdnApc
 		}
 
 		var r = rdn.Peering.Call(() => new CostRequest(), workflow);
+	
+		return	new Return
+				{	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
+					//Exeunit						= r.ConsensusExeunitFee * Rate,
+				
+					RentAccount					= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
+					
+					RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
+					
+					RentResource				= Years.Select(y => Execution.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
+					RentResourceForever			= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
+				
+					RentResourceData			= Years.Select(y => Execution.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
+					RentResourceDataForever		= Execution.ToBD(1, Mcv.Forever) * Rate
+				};
+	}
+}
 
-		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
-							//Exeunit						= r.ConsensusExeunitFee * Rate,
+
+public class NnHoldersApc : RdnApc
+{
+	public byte[]	Address { get; set; }
+
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(rdn.Mcv.Lock)
+		{	
+			var a = rdn.Mcv.Accounts.Latest(new AccountAddress(Address));
 			
-							RentAccount					= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
-				
-							RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
-				
-							RentResource				= Years.Select(y => Execution.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceForever			= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
+			if(a != null)
+				return new AssetHolder[] {new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}};
+			else
+				throw new NnException(NnError.NotFound);
+		}
+	}
+}
+
+public class NnHolderAssetsApc : RdnApc
+{
+	public string	HolderClass { get; set; }
+	public string	HolderId { get; set; }
+
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(HolderClass != nameof(Account))
+			throw new NnException(NnError.Unknown);
+
+		lock(rdn.Mcv.Lock)
+		{	
+			var a = rdn.Mcv.Accounts.Latest(AutoId.Parse(HolderId));
 			
-							RentResourceData			= Years.Select(y => Execution.ToBD(1, Time.FromYears(y)) * Rate).ToArray(),
-							RentResourceDataForever		= Execution.ToBD(1, Mcv.Forever) * Rate};
+			if(a != null)
+				return new Asset[]	{
+										new () {Name = nameof(Account.Spacetime), Units = "Byte-days (BD)"},
+										new () {Name = nameof(Account.Energy), Units = "Execution Cycles (EC)"},
+									};
+			else
+				throw new NnException(NnError.NotFound);
+		}
+	}
+}
+
+public class NnAssetBalanceApc : RdnApc
+{
+	public string	HolderClass { get; set; }
+	public string	HolderId { get; set; }
+	public string	Name { get; set; }
+
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(HolderClass != nameof(Account))
+			throw new NnException(NnError.Unknown);
+
+		if(Name != nameof(Account.Spacetime) && Name != nameof(Account.Energy))
+			throw new NnException(NnError.Unknown);
+
+		lock(rdn.Mcv.Lock)
+		{	
+			var a = rdn.Mcv.Accounts.Latest(AutoId.Parse(HolderId));
+			
+			if(a != null)
+				return new BigInteger (Name switch
+											{
+												nameof(Account.Spacetime) => a.Spacetime,
+												nameof(Account.Energy) => a.Energy,
+											});
+			else
+				throw new NnException(NnError.NotFound);
+		}
 	}
 }

@@ -95,7 +95,7 @@ public class Nexus
 		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, rdnsettings, Clock, Flow);
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
-		Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root}];
+		Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 
 	public void RunApi()
@@ -114,11 +114,14 @@ public class Nexus
 		//ApiStarted?.Invoke(this);
 	}
 
-	public McvApiClient GetMcvNodeApi(string net)
+	public NnApiClient GetNetToNetnNodeApi(string net)
 	{
-		var ni = Find(net);
+		var d = Find(net);
 
-		return new McvApiClient(ni.ApiLocalAddress, null, ApiHttpClient);
+		if(d == null)
+			throw new NexusException("No node available for this net");
+
+		return new NnApiClient(d.ApiLocalAddress, http: ApiHttpClient);
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)

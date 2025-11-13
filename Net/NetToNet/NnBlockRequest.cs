@@ -1,16 +1,16 @@
 ﻿namespace Uccs.Net;
 
-public class NtnBlockRequest : ProcPeerRequest
+public class CccpBlockRequest : ProcPeerRequest
 {
 	public byte[]			Raw { get; set; }
 
-	public NtnBlockRequest()
+	public CccpBlockRequest()
 	{
 	}
 	
 	public override void Execute()
 	{
-		var p = Peering as NtnTcpPeering;
+		var p = Peering as NnTcpPeering;
 
 		lock(Peering.Lock)
 		{

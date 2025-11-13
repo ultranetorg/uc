@@ -37,9 +37,10 @@ partial class AssetsPage
 		columnHeader3 = new ColumnHeader();
 		label2 = new Label();
 		Accounts = new ComboBox();
-		Transfer = new Button();
+		Start = new Button();
 		Nets = new ComboBox();
 		label4 = new Label();
+		Message = new Label();
 		SuspendLayout();
 		// 
 		// label3
@@ -84,7 +85,7 @@ partial class AssetsPage
 		// columnHeader2
 		// 
 		columnHeader2.Text = "Units";
-		columnHeader2.Width = 100;
+		columnHeader2.Width = 150;
 		// 
 		// columnHeader3
 		// 
@@ -107,15 +108,18 @@ partial class AssetsPage
 		Accounts.Name = "Accounts";
 		Accounts.Size = new Size(300, 23);
 		Accounts.TabIndex = 10;
+		Accounts.SelectionChangeCommitted += Nets_Changed;
+		Accounts.KeyDown += Accounts_KeyDown;
 		// 
-		// Transfer
+		// Start
 		// 
-		Transfer.Location = new Point(600, 46);
-		Transfer.Name = "Transfer";
-		Transfer.Size = new Size(197, 32);
-		Transfer.TabIndex = 9;
-		Transfer.Text = "Transfer";
-		Transfer.UseVisualStyleBackColor = true;
+		Start.Location = new Point(648, 86);
+		Start.Name = "Start";
+		Start.Size = new Size(149, 32);
+		Start.TabIndex = 9;
+		Start.Text = "Search";
+		Start.UseVisualStyleBackColor = true;
+		Start.Click += Start_Click;
 		// 
 		// Nets
 		// 
@@ -124,6 +128,8 @@ partial class AssetsPage
 		Nets.Name = "Nets";
 		Nets.Size = new Size(209, 23);
 		Nets.TabIndex = 11;
+		Nets.SelectionChangeCommitted += Nets_Changed;
+		Nets.KeyDown += Accounts_KeyDown;
 		// 
 		// label4
 		// 
@@ -134,17 +140,28 @@ partial class AssetsPage
 		label4.TabIndex = 13;
 		label4.Text = "Net/CCP";
 		// 
+		// Message
+		// 
+		Message.BackColor = SystemColors.Window;
+		Message.Location = new Point(111, 314);
+		Message.Name = "Message";
+		Message.Size = new Size(578, 71);
+		Message.TabIndex = 15;
+		Message.Text = "label1";
+		Message.TextAlign = ContentAlignment.MiddleCenter;
+		// 
 		// AssetsPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
+		Controls.Add(Message);
 		Controls.Add(label3);
 		Controls.Add(Assets);
 		Controls.Add(label2);
 		Controls.Add(label4);
 		Controls.Add(Accounts);
 		Controls.Add(Nets);
-		Controls.Add(Transfer);
+		Controls.Add(Start);
 		Name = "AssetsPage";
 		Size = new Size(800, 600);
 		ResumeLayout(false);
@@ -165,4 +182,7 @@ partial class AssetsPage
 	private Label label4;
 	private ColumnHeader columnHeader4;
 	private ColumnHeader columnHeader5;
+	private Label Message;
+	private ListView Results;
+	private Button Start;
 }

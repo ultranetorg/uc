@@ -37,6 +37,7 @@ partial class IamForm
 		Logo = new PictureBox();
 		panel1 = new Panel();
 		pictureBox1 = new PictureBox();
+		Transfer = new RadioButton();
 		((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
 		panel1.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -49,12 +50,12 @@ partial class IamForm
 		Sessions.Location = new Point(12, 156);
 		Sessions.Name = "Sessions";
 		Sessions.Padding = new Padding(10, 0, 0, 0);
-		Sessions.Size = new Size(231, 64);
+		Sessions.Size = new Size(230, 64);
 		Sessions.TabIndex = 2;
 		Sessions.TabStop = true;
 		Sessions.Text = "Sessions";
 		Sessions.UseVisualStyleBackColor = true;
-		Sessions.CheckedChanged += radioButton4_CheckedChanged;
+		Sessions.CheckedChanged += radioButton_CheckedChanged;
 		// 
 		// radioButton3
 		// 
@@ -64,12 +65,12 @@ partial class IamForm
 		radioButton3.Location = new Point(12, 622);
 		radioButton3.Name = "radioButton3";
 		radioButton3.Padding = new Padding(10, 0, 0, 0);
-		radioButton3.Size = new Size(231, 64);
+		radioButton3.Size = new Size(230, 64);
 		radioButton3.TabIndex = 2;
 		radioButton3.TabStop = true;
 		radioButton3.Text = "Settings";
 		radioButton3.UseVisualStyleBackColor = true;
-		radioButton3.CheckedChanged += radioButton4_CheckedChanged;
+		radioButton3.CheckedChanged += radioButton_CheckedChanged;
 		// 
 		// Assets
 		// 
@@ -78,12 +79,12 @@ partial class IamForm
 		Assets.Location = new Point(12, 226);
 		Assets.Name = "Assets";
 		Assets.Padding = new Padding(10, 0, 0, 0);
-		Assets.Size = new Size(231, 64);
+		Assets.Size = new Size(230, 64);
 		Assets.TabIndex = 2;
 		Assets.TabStop = true;
 		Assets.Text = "Assets && Tokens";
 		Assets.UseVisualStyleBackColor = true;
-		Assets.CheckedChanged += radioButton4_CheckedChanged;
+		Assets.CheckedChanged += radioButton_CheckedChanged;
 		// 
 		// WalletsAndAccounts
 		// 
@@ -92,12 +93,12 @@ partial class IamForm
 		WalletsAndAccounts.Location = new Point(12, 86);
 		WalletsAndAccounts.Name = "WalletsAndAccounts";
 		WalletsAndAccounts.Padding = new Padding(10, 0, 0, 0);
-		WalletsAndAccounts.Size = new Size(231, 64);
+		WalletsAndAccounts.Size = new Size(230, 64);
 		WalletsAndAccounts.TabIndex = 2;
 		WalletsAndAccounts.TabStop = true;
 		WalletsAndAccounts.Text = "Wallets && Accounts";
 		WalletsAndAccounts.UseVisualStyleBackColor = true;
-		WalletsAndAccounts.CheckedChanged += radioButton4_CheckedChanged;
+		WalletsAndAccounts.CheckedChanged += radioButton_CheckedChanged;
 		// 
 		// Place
 		// 
@@ -140,6 +141,20 @@ partial class IamForm
 		pictureBox1.TabIndex = 5;
 		pictureBox1.TabStop = false;
 		// 
+		// Transfer
+		// 
+		Transfer.Appearance = Appearance.Button;
+		Transfer.Font = new Font("Segoe UI", 12F);
+		Transfer.Location = new Point(45, 296);
+		Transfer.Name = "Transfer";
+		Transfer.Padding = new Padding(10, 0, 0, 0);
+		Transfer.Size = new Size(197, 64);
+		Transfer.TabIndex = 2;
+		Transfer.TabStop = true;
+		Transfer.Text = "Transfer";
+		Transfer.UseVisualStyleBackColor = true;
+		Transfer.CheckedChanged += radioButton_CheckedChanged;
+		// 
 		// IamForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
@@ -148,6 +163,7 @@ partial class IamForm
 		Controls.Add(panel1);
 		Controls.Add(Place);
 		Controls.Add(radioButton3);
+		Controls.Add(Transfer);
 		Controls.Add(Assets);
 		Controls.Add(WalletsAndAccounts);
 		Controls.Add(Sessions);
@@ -170,4 +186,5 @@ partial class IamForm
 	private PictureBox Logo;
 	private Panel panel1;
 	private PictureBox pictureBox1;
+	private RadioButton Transfer;
 }

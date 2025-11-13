@@ -5,30 +5,30 @@ using System.Reflection;
 
 namespace Uccs.Net;
 
-public enum NtnPpcClass : byte
+public enum NnPpcClass : byte
 {
 	None = 0, 
-	NtnBlock,
-	NtnStateHash
+	NnBlock,
+	NnStateHash
 }
 
-public abstract class NtnPpc<R> : Ppc<R> where R : PeerResponse
+public abstract class NnPpc<R> : Ppc<R> where R : PeerResponse
 {
-	public new NtnTcpPeering	Peering => base.Peering as NtnTcpPeering;
+	public new NnTcpPeering	Peering => base.Peering as NnTcpPeering;
 }
 
-public abstract class NtnTcpPeering : TcpPeering
+public abstract class NnTcpPeering : TcpPeering
 {
-	public abstract NtnBlock					ProcessIncoming(byte[] raw, Peer peer);
+	public abstract NniBlock					ProcessIncoming(byte[] raw, Peer peer);
 	public abstract byte[]						GetStateHash(string net);
 
 	protected override IEnumerable<Peer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
 	protected Dictionary<string, List<Peer>>	Peers = [];
 
-	public NtnTcpPeering(Node node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
+	public NnTcpPeering(Node node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
 	{
-		Register(typeof(NtnPpcClass), node);
+		Register(typeof(NnPpcClass), node);
 	}
 
 	public override string ToString()
@@ -201,7 +201,7 @@ public abstract class NtnTcpPeering : TcpPeering
 						 .FirstOrDefault();
 	}
 
-	public R Call<R>(string net, Func<NtnPpc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
+	public R Call<R>(string net, Func<NnPpc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
 	{
 		return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	}
@@ -249,13 +249,13 @@ public abstract class NtnTcpPeering : TcpPeering
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(NtnBlock block, Peer skip = null)
+	public void Broadcast(NniBlock block, Peer skip = null)
 	{
 		foreach(var i in Peers[block.Net].Where(i => i != skip))
 		{
 			try
 			{
-				var v = new NtnBlockRequest { Raw = block.RawPayload };
+				var v = new CccpBlockRequest { Raw = block.RawPayload };
 				v.Peering = this;
 				i.Post(v);
 			}

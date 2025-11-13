@@ -1,9 +1,9 @@
 ﻿namespace Uccs.Net;
 
-public class NtnBlock
+public class NniBlock
 {
 	public string		Net { get; set; }
-	public NtnState		State { get; set; }
+	public NnState		State { get; set; }
 
 	byte[]				_RawPayload;
 
@@ -37,7 +37,7 @@ public class NtnBlock
 	public void ReadPayload(BinaryReader reader)
 	{
 		Net		= reader.ReadUtf8();
-		State	= reader.Read<NtnState>();
+		State	= reader.Read<NnState>();
 	}
 
 	public void Restore()

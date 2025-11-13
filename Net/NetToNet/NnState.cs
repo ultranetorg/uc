@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class NtnState : IBinarySerializable
+public class NnState : IBinarySerializable
 {
 	public byte[] Hash => Cryptography.Hash((this as IBinarySerializable).Raw);
 

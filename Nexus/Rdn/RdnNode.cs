@@ -23,7 +23,7 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	public RdnNtnTcpPeering			NtnPeering;
+	public RdnNnTcpPeering			NnPeering;
 
 	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
 	{
@@ -99,9 +99,9 @@ public class RdnNode : McvNode
 				SeedHub = new SeedHub(Mcv);
 			}
 
-			if(Settings.NtnPeering != null)
+			if(Settings.NnPeering != null)
 			{
-				NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+				NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
 		}
 
@@ -146,7 +146,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
-		NtnPeering?.Stop();
+		NnPeering?.Stop();
 		Mcv?.Stop();
 
 		base.Stop();

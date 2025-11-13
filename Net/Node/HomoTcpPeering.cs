@@ -5,7 +5,7 @@ using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public abstract class HomoTcpPeering : TcpPeering
+public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 {
 	public List<Peer>						Peers = [];
 	public IEnumerable<Peer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
@@ -19,10 +19,9 @@ public abstract class HomoTcpPeering : TcpPeering
 	{
 		Roles = roles;
 
-		Flow.Log?.Report(this, $"Ultranet Node {Version}");
+		Flow.Log?.Report(this, $"Version: {Version}");
 		Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 		Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-		//Flow.Log?.Report(this, $"Profile: {Settings.Profile}");
 
 		if(!Node.Database.TryGetColumnFamily(PeersColumn, out _))
 			Node.Database.CreateColumnFamily(new (), PeersColumn);

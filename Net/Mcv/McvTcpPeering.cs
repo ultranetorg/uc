@@ -671,7 +671,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						v.Time			= Time.Now(Mcv.Clock);
 						v.Violators		= r.ProposeViolators().ToArray();
 						v.MemberLeavers	= r.ProposeMemberLeavers(g).ToArray();
-						v.NntBlocks		= Mcv.NtnBlocks.Select(i => i.State.Hash).ToArray();
+						v.NntBlocks		= Mcv.NnBlocks.Select(i => i.State.Hash).ToArray();
 	
 						//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 						//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();

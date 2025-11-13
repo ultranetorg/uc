@@ -101,18 +101,18 @@ public class RdnRound : Round
 
 	public override void ConfirmForeign(Execution execution)
 	{
-		foreach(var i in ConsensusNtnStates)
+		foreach(var i in ConsensusNnStates)
 		{
-			var b = Mcv.NtnBlocks.Find(j => j.State.Hash.SequenceEqual(i));
+			var b = Mcv.NnBlocks.Find(j => j.State.Hash.SequenceEqual(i));
 
 			if(b == null)
 				throw new ConfirmationException(this, []);
 
 			var d = (execution as RdnExecution).Domains.Affect(b.Net);
-			d.NtnSelfHash	= b.State.Hash;
-			d.NtnChildNet	= b.State;
+			d.NnSelfHash	= b.State.Hash;
+			d.NnChildNet	= b.State;
 
-			Mcv.NtnBlocks.Remove(b);
+			Mcv.NnBlocks.Remove(b);
 		}
 
 		#if IMMISSION

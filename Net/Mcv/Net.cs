@@ -72,9 +72,9 @@ public abstract class Net
 
 }
 
-//  public class Ntn
+//  public class Nn
 //  {
-//  	public static ushort	BasePort => (ushort)KnownSystem.Ntn; /// 00XX0
+//  	public static ushort	BasePort => (ushort)KnownSystem.Nn; /// 00XX0
 // 
 // 		public static ushort	GetPort(Zone land) => (ushort)((ushort)land * 1000 + BasePort);
 //	}

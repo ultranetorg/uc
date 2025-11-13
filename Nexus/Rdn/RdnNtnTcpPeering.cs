@@ -1,19 +1,19 @@
 ﻿namespace Uccs.Rdn;
 
-public class RdnNtnTcpPeering : NtnTcpPeering
+public class RdnNnTcpPeering : NnTcpPeering
 {
 	public new RdnNode			Node => base.Node as RdnNode;
 
-	public RdnNtnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, roles, flow)
+	public RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, roles, flow)
 	{
 		node.Mcv.Confirmed += (r) =>	{
-											foreach(var i in r.ConsensusNtnStates)
+											foreach(var i in r.ConsensusNnStates)
 											{
-												var b = new NtnBlock();
+												var b = new NniBlock();
 
 												b.Net	= node.Net.Name;
 												b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
-																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
+																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
 												Broadcast(b);
 											}
 										};
@@ -29,7 +29,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 			if(d == null)
 				throw new EntityException(EntityError.NotFound);
 
-			return d.NtnSelfHash;
+			return d.NnSelfHash;
 		}
 	}
 
@@ -42,7 +42,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 		{
 			lock(Node.Mcv.Lock)
 			{	
-				var n = Node.Mcv.Domains.Latest(hello.Net)?.NtnChildNet;
+				var n = Node.Mcv.Domains.Latest(hello.Net)?.NnChildNet;
 				
 				if(n == null)
 					return false;
@@ -55,23 +55,23 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 		return true;
 	}
 
-	public override NtnBlock ProcessIncoming(byte[] raw, Peer peer)
+	public override NniBlock ProcessIncoming(byte[] raw, Peer peer)
 	{
 		lock(Node.Mcv.Lock)
 		{
-			var b = Node.Mcv.NtnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
+			var b = Node.Mcv.NnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
 
 			if(b != null)
 				return null;
 
-			b = new NtnBlock {RawPayload = raw};
+			b = new NniBlock {RawPayload = raw};
 			b.Restore();
 
-			var r = Call(b.Net, () => new NtnStateHashRequest {Net = Node.Net.Name}, Flow);
+			var r = Call(b.Net, () => new NnStateHashRequest {Net = Node.Net.Name}, Flow);
 
 			if(r.Hash.SequenceEqual(b.State.Hash))
 			{
-				Node.Mcv.NtnBlocks.Add(b);
+				Node.Mcv.NnBlocks.Add(b);
 
 				return b;
 			}

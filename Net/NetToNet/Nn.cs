@@ -2,15 +2,15 @@
 
 namespace Uccs.Net;
 
-public class NtnNodeSettings : SavableSettings
+public class NnNodeSettings : SavableSettings
 {
 	public bool IsHub { get; set; }
 
-	public NtnNodeSettings() : base(NetXonTextValueSerializator.Default)
+	public NnNodeSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}
 
-	public NtnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
+	public NnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
 	{
 	}
 }
@@ -49,15 +49,15 @@ public class Endpoint : IBinarySerializable
 //		public List<Endpoint>	Peers {get; set;}
 //	}
 
-// 	public class NtnTcpPeering : TcpPeering
+// 	public class NnTcpPeering : TcpPeering
 // 	{
 // 
 // 		public List<Cluster>			Clusters = [];
 // 		public override long			Roles => 0;
-// 		//public new NtnNodeSettings		Settings => base.Settings as NexusNodeSettings;
+// 		//public new NnNodeSettings		Settings => base.Settings as NexusNodeSettings;
 // 		bool							MinimalPeersReached;
 // 
-// 		public NtnTcpPeering(string name, string profile, NodeSettings settings, Flow workflow) : base(name, null, null, settings ?? new NodeSettings(profile), workflow)
+// 		public NnTcpPeering(string name, string profile, NodeSettings settings, Flow workflow) : base(name, null, null, settings ?? new NodeSettings(profile), workflow)
 // 		{
 // 			if(Settings.Api != null)
 // 			{

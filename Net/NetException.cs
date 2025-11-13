@@ -4,7 +4,7 @@ public enum ExceptionClass : byte
 {
 	None, Node, Request, Entity,
 	_Next,
-	Ntn = _Next,
+	Nn = _Next,
 	Vault,
 }
 
@@ -22,7 +22,7 @@ public enum NodeError : byte
 	NoIP,
 	NoMcv,
 	NoNodeForNet,
-	NoNtn,
+	NoNn,
 	NoPeering,
 	NotChain,
 	NotGraph,
