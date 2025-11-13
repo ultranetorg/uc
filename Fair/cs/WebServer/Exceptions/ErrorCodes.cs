@@ -3,10 +3,14 @@
 public enum ErrorCodes
 {
 	// General
-	InvalidEntityId = 1001,
-	EntityNotFound = 1002,
+	Base = 1000,
 
-	InvalidPaginationParameters = 1003,
-	InvalidDepth = 1004,
-	InvalidSearchQuery = 1005,
+	InvalidEntityId = Base + 1,
+	EntityNotFound = Base + 2,
+
+	InvalidPaginationParameters = Base + 3,
+	InvalidDepth = Base + 4,
+	InvalidSearchQuery = Base + 5,
+	
+	InvalidProductVersion = Base + 6
 }

@@ -95,8 +95,9 @@ export const enUS = {
     noData: "No fields data",
     loadError: "Error loading field data",
     selectField: "Select a tree item on the left",
+    invalidUrl: "Invalid URL",
+    unsupportedTag: "Your browser does not support the tag.",
   },
-
   /* Pages */
   about: {
     about: "About",
@@ -371,5 +372,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  },
+  }
 }

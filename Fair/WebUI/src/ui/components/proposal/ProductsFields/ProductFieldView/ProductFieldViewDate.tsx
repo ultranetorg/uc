@@ -1,17 +1,32 @@
 import { memo } from "react"
-import { base64ToUtf8String } from "utils"
+import { ProductFieldViewProp } from "./types"
+import { formatSecDate } from "utils"
 
-export const ProductFieldViewDate = memo(({ value }: { value: string }) => {
-  const date = new Date(base64ToUtf8String(value))
+function getAdded(value: unknown) {
+  return <div className="text-green-700">{formatSecDate(Number(value))}</div>
+}
+function getRemoved(value: unknown) {
+  return <div className="text-red-500 line-through opacity-75">{formatSecDate(Number(value))}</div>
+}
 
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(date)
-
-  return <>{formattedDate}</>
+export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
+  switch (status) {
+    case "added": {
+      return getAdded(value)
+    }
+    case "removed": {
+      return getRemoved(oldValue ?? value)
+    }
+    case "changed": {
+      return (
+        <div>
+          {getRemoved(oldValue!)}
+          {getAdded(value)}
+        </div>
+      )
+    }
+    default: {
+      return <div>{formatSecDate(Number(value))}</div>
+    }
+  }
 })

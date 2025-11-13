@@ -6,5 +6,5 @@ public enum ErrorType
 	ServerError,
 	ResourceNotFound,
 	ResourceAlreadyExists,
-	NotAllowed,
+	NotAllowed
 }
