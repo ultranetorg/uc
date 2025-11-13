@@ -1,4 +1,5 @@
 {
+  "cSpell.language": "en,ru",
   "cSpell.words": [
     "anbb",
     "avenir",
@@ -16,12 +17,20 @@
     "webui",
     "youtu"
   ],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "never"
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnPaste": false,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  },
+  "eslint.format.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "files.associations": {
     "*.css": "tailwindcss"
   },
@@ -31,14 +40,5 @@
     "activeItemClassName\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
     "[A-Z0-9_]+_CLASSNAME\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"
   ],
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "cSpell.language": "en,ru",
+  "prettier.requireConfig": true
 }
