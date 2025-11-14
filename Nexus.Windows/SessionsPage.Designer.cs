@@ -81,18 +81,19 @@ partial class SessionsPage
 		// 
 		Wallets.DropDownStyle = ComboBoxStyle.DropDownList;
 		Wallets.FormattingEnabled = true;
-		Wallets.Location = new Point(49, 56);
+		Wallets.Location = new Point(52, 56);
 		Wallets.Name = "Wallets";
-		Wallets.Size = new Size(240, 23);
+		Wallets.Size = new Size(237, 23);
 		Wallets.TabIndex = 5;
 		Wallets.SelectionChangeCommitted += Wallets_SelectionChangeCommitted;
 		// 
 		// label1
 		// 
 		label1.AutoSize = true;
+		label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
 		label1.Location = new Point(3, 59);
 		label1.Name = "label1";
-		label1.Size = new Size(40, 15);
+		label1.Size = new Size(43, 15);
 		label1.TabIndex = 6;
 		label1.Text = "Wallet";
 		// 
@@ -100,18 +101,19 @@ partial class SessionsPage
 		// 
 		Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
 		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(368, 56);
+		Accounts.Location = new Point(369, 56);
 		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(429, 23);
+		Accounts.Size = new Size(428, 23);
 		Accounts.TabIndex = 5;
 		Accounts.SelectionChangeCommitted += Accounts_SelectionChangeCommitted;
 		// 
 		// label2
 		// 
 		label2.AutoSize = true;
+		label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
 		label2.Location = new Point(310, 59);
 		label2.Name = "label2";
-		label2.Size = new Size(52, 15);
+		label2.Size = new Size(53, 15);
 		label2.TabIndex = 6;
 		label2.Text = "Account";
 		// 

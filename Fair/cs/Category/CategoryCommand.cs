@@ -88,9 +88,9 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new CategoryPublicationsRequest(FirstEntityId));
+								var rp = Ppc(new CategoryPublicationsPpc(FirstEntityId));
 
-								Flow.Log.DumpFixed(rp.Publications.Select(i => Ppc(new PublicationRequest(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								Flow.Log.DumpFixed(rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};
@@ -108,9 +108,9 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new CategoryCategoriesRequest(FirstEntityId));
+								var rp = Ppc(new CategoryCategoriesPpc(FirstEntityId));
 
-								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};

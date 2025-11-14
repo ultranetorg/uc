@@ -12,9 +12,11 @@ public enum NnPpcClass : byte
 	NnStateHash
 }
 
-public abstract class NnPpc<R> : Ppc<R> where R : PeerResponse
+public abstract class Nnc<R> : Ppc<R> where R : PeerResponse
 {
-	public new NnTcpPeering	Peering => base.Peering as NnTcpPeering;
+	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
+	public new McvNode			Node => base.Node as McvNode;
+	public Mcv					Mcv => Node.Mcv;
 }
 
 public abstract class NnTcpPeering : TcpPeering
@@ -201,7 +203,7 @@ public abstract class NnTcpPeering : TcpPeering
 						 .FirstOrDefault();
 	}
 
-	public R Call<R>(string net, Func<NnPpc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
+	public R Call<R>(string net, Func<Nnc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
 	{
 		return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	}
@@ -255,7 +257,7 @@ public abstract class NnTcpPeering : TcpPeering
 		{
 			try
 			{
-				var v = new CccpBlockRequest { Raw = block.RawPayload };
+				var v = new BlockNnc { Raw = block.RawPayload };
 				v.Peering = this;
 				i.Post(v);
 			}

@@ -41,7 +41,7 @@ public class SeedSeeker
 														{
 															try
 															{
-																var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleaseRequest {Address = Address, Count = 16}, Flow);
+																var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleasePpc {Address = Address, Count = 16}, Flow);
 
 																lock(Seeker.Lock)
 																{
@@ -96,7 +96,7 @@ public class SeedSeeker
  		HubingThread = Node.CreateThread(() =>	{ 
 													while(Flow.Active)
 													{
-														var r = Node.Peering.Call(() => new RdnMembersRequest(), Flow);
+														var r = Node.Peering.Call(() => new RdnMembersPpc(), Flow);
 	
 														lock(Lock)
 														{

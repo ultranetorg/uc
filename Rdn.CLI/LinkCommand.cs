@@ -26,8 +26,8 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var s = Ppc(new ResourceRequest(GetResourceAddress(a[0].Name))).Resource;
-								var d = Ppc(new ResourceRequest(GetResourceAddress(a[1].Name))).Resource;
+								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
+								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
 
 								return new ResourceLinkCreation(s.Id, d.Id);
 							};
@@ -48,8 +48,8 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var s = Ppc(new ResourceRequest(GetResourceAddress(a[0].Name))).Resource;
-								var d = Ppc(new ResourceRequest(GetResourceAddress(a[1].Name))).Resource;
+								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
+								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
 
 								return new ResourceLinkDeletion(s.Id, d.Id);
 							};
@@ -70,9 +70,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 				
-								Flow.Log.Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Ppc(new ResourceRequest(i.Destination)).Resource}),
+								Flow.Log.Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i.Destination)).Resource}),
 												["#", "Flags", "Destination", "Destination Data"],
 												[i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
 
@@ -95,9 +95,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var r = Ppc(new ResourceRequest(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 																	
-								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourceRequest(i)).Resource}),
+								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i)).Resource}),
 												["#", "Source", "Source Data"],
 												[i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
 

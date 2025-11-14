@@ -1,4 +1,4 @@
-﻿namespace MimeTypes;
+﻿namespace Uccs.Rdn;
 
 /// <summary>
 /// Class MimeTypeMap.

@@ -38,7 +38,7 @@ public partial class AccountsPanel : MainPanel
 
 									try
 									{
-										e = Node.Peering.Call(() => new AccountRequest(i.Tag as AccountAddress), Node.Flow).Account; 
+										e = Node.Peering.Call(() => new AccountPpc(i.Tag as AccountAddress), Node.Flow).Account; 
 									}
 									catch(Exception)
 									{

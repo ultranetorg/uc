@@ -17,15 +17,15 @@ public partial class AssetsPage : Page
 
 	public override void Open(bool first)
 	{
-		Nets.Items.Insert(0, "rdn");
-		Nets.SelectedIndex = 0;
-
-		BindAccounts(Accounts, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
-		Accounts.Items.Insert(0, "All");
-		Accounts.SelectedIndex = 0;
-
 		if(first)
 		{
+			Nets.Items.Insert(0, "rdn");
+			Nets.SelectedIndex = 0;
+
+			BindAccounts(Accounts, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+			Accounts.Items.Insert(0, "All");
+			Accounts.SelectedIndex = 0;
+
 			Message.Visible = false;
 		}
 	}
@@ -53,15 +53,15 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			var api = Nexus.GetNetToNetnNodeApi(Nets.Text);
+			var nn = Nexus.GetNetToNetPeering(Nets.Text);
 
 			foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
 			{
-				foreach(var h in api.Request<AssetHolder[]>(new NnHoldersApc { Address = acc.Bytes }, f))
+				foreach(var h in nn.Call(Nets.Text, () => new HoldersByAccountNnc {Address = acc.Bytes}, f).Holders)
 				{
-					foreach(var a in api.Request<Asset[]>(new NnHolderAssetsApc { HolderClass = h.Class, HolderId = h.Id }, f))
+					foreach(var a in nn.Call(Nets.Text, () => new HolderAssetsNnc {HolderClass = h.Class, HolderId = h.Id}, f).Assets)
 					{
-						var b = api.Request<BigInteger>(new NnAssetBalanceApc { HolderClass = h.Class, HolderId = h.Id, Name = a.Name }, f);
+						var b = nn.Call(Nets.Text, () => new AssetBalanceNnc {HolderClass = h.Class, HolderId = h.Id, Name = a.Name}, f).Balance;
 
 						var li = new ListViewItem(h.Class);
 						li.SubItems.Add(h.Id);

@@ -4,6 +4,7 @@ public enum NnError : byte
 {
 	None,
 	NotFound,
+	Unavailable,
 	Unknown,
 }
 

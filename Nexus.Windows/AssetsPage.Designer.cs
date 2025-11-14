@@ -95,9 +95,10 @@ partial class AssetsPage
 		// label2
 		// 
 		label2.AutoSize = true;
-		label2.Location = new Point(7, 95);
+		label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+		label2.Location = new Point(21, 95);
 		label2.Name = "label2";
-		label2.Size = new Size(52, 15);
+		label2.Size = new Size(53, 15);
 		label2.TabIndex = 12;
 		label2.Text = "Account";
 		// 
@@ -134,7 +135,8 @@ partial class AssetsPage
 		// label4
 		// 
 		label4.AutoSize = true;
-		label4.Location = new Point(7, 55);
+		label4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+		label4.Location = new Point(21, 55);
 		label4.Name = "label4";
 		label4.Size = new Size(54, 15);
 		label4.TabIndex = 13;

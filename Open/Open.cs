@@ -58,7 +58,7 @@ public class Open : Cli
 
 			var d = RdnApi.FindLocalResource(ura, flow)?.Last
 					?? 
-					RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (ura)}}, flow)?.Resource?.Data;
+					RdnApi.Request<ResourcePpr>(new PpcApc {Request = new ResourcePpc {Identifier = new (ura)}}, flow)?.Resource?.Data;
 	
 			if(d == null)
 				throw new OpenException("Incorrect resource type");

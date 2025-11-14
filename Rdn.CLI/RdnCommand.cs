@@ -33,7 +33,7 @@ public abstract class RdnCommand : McvCommand
 
 	protected AutoId GetResourceId(string text)
 	{
-		return text.Contains('/') ? Ppc(new ResourceRequest(Ura.Parse(text))).Resource.Id
+		return text.Contains('/') ? Ppc(new ResourcePpc(Ura.Parse(text))).Resource.Id
 									:
 									AutoId.Parse(text);
 	}

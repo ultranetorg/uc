@@ -64,7 +64,7 @@ public class FileCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var	r = Ppc(new FileRequest(First)).File;
+								var	r = Ppc(new FilePpc(First)).File;
 				
 								Flow.Log.Dump(r);
 

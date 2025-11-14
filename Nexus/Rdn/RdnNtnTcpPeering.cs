@@ -67,7 +67,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 			b = new NniBlock {RawPayload = raw};
 			b.Restore();
 
-			var r = Call(b.Net, () => new NnStateHashRequest {Net = Node.Net.Name}, Flow);
+			var r = Call(b.Net, () => new StateHashNnc {Net = Node.Net.Name}, Flow);
 
 			if(r.Hash.SequenceEqual(b.State.Hash))
 			{

@@ -358,7 +358,7 @@ public class EstimateOperationApc : McvApc
 
 		///t.Sign(node.Vault.Find(By).Key, []);
 
-		return node.Peering.Call(() => new AllocateTransactionRequest {Transaction = t}, workflow);
+		return node.Peering.Call(() => new AllocateTransactionPpc {Transaction = t}, workflow);
 	}
 }
 
@@ -428,6 +428,20 @@ public class PpcApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		return node.Peering.Call(() => Request, workflow);
+	}
+}
+
+public class NncApc : McvApc
+{
+	public string			Net { get; set; }
+	public FuncPeerRequest	Request { get; set; }
+
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(node.NnPeering == null)
+			throw new NodeException(NodeError.NoNn);
+
+		return node.NnPeering.Call(Net, () => Request, workflow);
 	}
 }
 

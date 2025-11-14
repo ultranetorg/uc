@@ -112,7 +112,7 @@ public abstract class TcpPeering : IPeer
 
 		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(ProcPeerRequest)) && !i.IsGenericType))
 		{	
-			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
 			{
 				Codes[i] = (byte)c;
 				var x = i.GetConstructor([]);
@@ -128,7 +128,7 @@ public abstract class TcpPeering : IPeer
 
 		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsGenericType))
 		{	
-			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Request")), out var c))
+			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
 			{
 				Codes[i] = (byte)c;
 				var x = i.GetConstructor([]);
@@ -144,7 +144,7 @@ public abstract class TcpPeering : IPeer
 
 		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
 		{	
-			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.IndexOf("Response")), out var c))
+			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
 			{
 				Codes[i] = (byte)c;
 				var x = i.GetConstructor([]);

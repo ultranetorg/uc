@@ -150,7 +150,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(IsListener)
 			{
 				foreach(var c in Connections)
-					c.Post(new SharePeersRequest {Broadcast = true, 
+					c.Post(new SharePeersPpc {Broadcast = true, 
 												  Peers = [new Peer(IP, Settings.Port) {Roles = Roles}]});
 			}
 
@@ -195,7 +195,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	{
 		var used = new HashSet<Peer>();
 
-		StampResponse stamp = null;
+		StampPpr stamp = null;
 		Peer peer = null;
 
 		while(Flow.Active)
@@ -208,10 +208,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 				if(Mcv.Settings.Chain == null)
 				{
-					stamp = Call(peer, new StampRequest());
+					stamp = Call(peer, new StampPpc());
 	
 					void download(TableBase t)	{
-													var ts = Call(peer, new TableStampRequest {Table = t.Id, 
+													var ts = Call(peer, new TableStampPpc {Table = t.Id, 
 																							   Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
 																																	 .Select(i => i.Id)
 																																	 .ToArray()});
@@ -229,7 +229,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			
 																	if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
 																	{
-																		var d = Call(peer, new DownloadTableRequest {Table		= t.Id,
+																		var d = Call(peer, new DownloadTablePpc {Table		= t.Id,
 																													 BucketId	= j.Id, 
 																													 Hash		= j.Hash});
 																		lock(Mcv.Lock)	
@@ -261,7 +261,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						r.Confirmed = true;
 						r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
 		
-						var s = Call(peer, new StampRequest());
+						var s = Call(peer, new StampPpc());
 	
 						lock(Mcv.Lock)
 						{
@@ -309,7 +309,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 					to = from + Mcv.P;
 	
-					var rp = Call(peer, new DownloadRoundsRequest {From = from, To = to});
+					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to});
 
 					lock(Mcv.Lock)
 					{
@@ -913,7 +913,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(nothing)		
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
-			var cr = Call(() => new MembersRequest(), Flow);
+			var cr = Call(() => new MembersPpc(), Flow);
 
 			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
 				continue;
@@ -979,7 +979,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																																				Trust	= Trust.None
 																																			}, t.Flow);
 
-						var at = Call(ppi, new AllocateTransactionRequest {Transaction = t});
+						var at = Call(ppi, new AllocateTransactionPpc {Transaction = t});
 							
 						if(nid == -1)
 							nid = at.NextNid;
@@ -1040,7 +1040,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 					try
 					{
-						atxs = Call(ppi, new PlaceTransactionsRequest {Transactions = [..txs]}).Accepted;
+						atxs = Call(ppi, new PlaceTransactionsPpc {Transactions = [..txs]}).Accepted;
 					}
 					catch(NodeException ex)
 					{
@@ -1082,11 +1082,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				foreach(var g in accepted.GroupBy(i => i.Ppi))
 				{
-					TransactionStatusResponse ts;
+					TransactionStatusPpr ts;
 
 					try
 					{
-						ts = Call(g.Key, new TransactionStatusRequest {Signatures = [..g.Select(i => i.Signature)]});
+						ts = Call(g.Key, new TransactionStatusPpc {Signatures = [..g.Select(i => i.Signature)]});
 					}
 					catch(NodeException ex)
 					{
@@ -1257,7 +1257,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		{
 			try
 			{
-				var v = new VoteRequest {Vote = vote};
+				var v = new VotePpc {Vote = vote};
 				v.Peering = this;
 				i.Post(v);
 			}

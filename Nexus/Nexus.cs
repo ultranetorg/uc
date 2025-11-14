@@ -114,14 +114,25 @@ public class Nexus
 		//ApiStarted?.Invoke(this);
 	}
 
-	public NnApiClient GetNetToNetnNodeApi(string net)
+//	public NnApiClient GetNetToNetnNodeApi(string net)
+//	{
+//		var d = Find(net);
+//
+//		if(d == null)
+//			throw new NexusException("No node available for this net");
+//
+//		return new NnApiClient(d.ApiLocalAddress, http: ApiHttpClient);
+//	}
+
+	public NnTcpPeering GetNetToNetPeering(string net)
 	{
 		var d = Find(net);
 
-		if(d == null)
-			throw new NexusException("No node available for this net");
+		if(net == RdnNode.Net.Address)
+			return RdnNode.NnPeering;
 
-		return new NnApiClient(d.ApiLocalAddress, http: ApiHttpClient);
+		throw new NexusException("No node available for this net");
+		//return new NnApiClient(d.ApiLocalAddress, http: ApiHttpClient);
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)

@@ -243,7 +243,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 	protected override void OnConnected(Peer peer)
 	{
 		//RefreshPeers([peer]);
-		peer.Post(new SharePeersRequest {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
+		peer.Post(new SharePeersPpc {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
 	}
 
 	public Peer ChooseBestPeer(long role, HashSet<Peer> exclusions)

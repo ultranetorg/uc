@@ -22,15 +22,15 @@ public class RdnTypeResolver : ApiTypeResolver
         var ti = base.GetTypeInfo(type, options);
 
         if(ti.Type == typeof(FuncPeerRequest))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         if(ti.Type == typeof(PeerResponse))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         if(ti.Type == typeof(CodeException))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
          if(ti.Type == typeof(Operation))
@@ -126,7 +126,7 @@ public class HttpGetApc : RdnApc
 			var a = Ura.Parse(request.QueryString["address"]);
 			var path = request.QueryString["path"] ?? "";
 
-			var r = rdn.Peering.Call(() => new ResourceRequest(a), workflow).Resource;
+			var r = rdn.Peering.Call(() => new ResourcePpc(a), workflow).Resource;
 			var ra = r.Data?.Parse<Urr>()
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);
@@ -160,8 +160,8 @@ public class HttpGetApc : RdnApc
 					break;
 
 				case Urrsd x :
-					var d = rdn.Peering.Call(() => new DomainRequest(a.Domain), workflow).Domain;
-					var aa = rdn.Peering.Call(() => new AccountRequest(d.Owner), workflow).Account;
+					var d = rdn.Peering.Call(() => new DomainPpc(a.Domain), workflow).Domain;
+					var aa = rdn.Peering.Call(() => new AccountPpc(d.Owner), workflow).Account;
 					itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
 					break;
 
@@ -169,7 +169,7 @@ public class HttpGetApc : RdnApc
 					throw new ResourceException(ResourceError.NotSupportedDataType);
 			}
 
-			response.ContentType = MimeTypes.MimeTypeMap.GetMimeType(path);
+			response.ContentType = MimeTypeMap.GetMimeType(path);
 
 			if(!z.IsReady(path))
 			{
@@ -298,7 +298,7 @@ public class CostApc : RdnApc
 			Rate = 1;
 		}
 
-		var r = rdn.Peering.Call(() => new CostRequest(), workflow);
+		var r = rdn.Peering.Call(() => new CostPpc(), workflow);
 	
 		return	new Return
 				{	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
@@ -317,8 +317,18 @@ public class CostApc : RdnApc
 	}
 }
 
+public class NnHolderClassesApc : RdnApc
+{
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		lock(rdn.Mcv.Lock)
+		{	
+			return new string[] {nameof(Account)};
+		}
+	}
+}
 
-public class NnHoldersApc : RdnApc
+public class NnHoldersByAccountApc : RdnApc
 {
 	public byte[]	Address { get; set; }
 
@@ -388,5 +398,39 @@ public class NnAssetBalanceApc : RdnApc
 			else
 				throw new NnException(NnError.NotFound);
 		}
+	}
+}
+
+public class NnTransferApc : RdnApc
+{
+	public string	FromClass { get; set; }
+	public string	FromId { get; set; }
+	public string	Name { get; set; }
+	public string	ToClass { get; set; }
+	public string	ToId { get; set; }
+
+	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+//		if(HolderClass != nameof(Account))
+//			throw new NnException(NnError.Unknown);
+//
+//		if(Name != nameof(Account.Spacetime) && Name != nameof(Account.Energy))
+//			throw new NnException(NnError.Unknown);
+//
+//		lock(rdn.Mcv.Lock)
+//		{	
+//			var a = rdn.Mcv.Accounts.Latest(AutoId.Parse(HolderId));
+//			
+//			if(a != null)
+//				return new BigInteger (Name switch
+//											{
+//												nameof(Account.Spacetime) => a.Spacetime,
+//												nameof(Account.Energy) => a.Energy,
+//											});
+//			else
+//				throw new NnException(NnError.NotFound);
+
+//		}
+		return null;
 	}
 }

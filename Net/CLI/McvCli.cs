@@ -43,7 +43,7 @@ public class McvCli : Cli
 		{
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
+				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
 				flow.Log.Dump(rp);
 			}
 			else
@@ -57,7 +57,7 @@ public class McvCli : Cli
 		{
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
+				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
 				flow.Log.Dump(rp);
 			}
 			else
