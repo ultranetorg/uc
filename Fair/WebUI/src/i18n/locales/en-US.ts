@@ -223,10 +223,9 @@ export const enUS = {
     howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
     removeFile: "Remove file",
-    selectAuthorsToAdd: "Select Authors to Add",
-    selectAuthorsToRemove: "Select Authors to Remove",
-    selectModeratorsToAdd: "Select Moderators to Add",
-    selectModeratorsToRemove: "Select Moderators to Remove",
+    selectMembersToAdd: "Select {{memberType}} to Add",
+    selectMembersToRemove: "Select {{memberType}} to Remove",
+    selected: "Selected",
   },
 
   /* Modals */
@@ -237,7 +236,9 @@ export const enUS = {
     currentMembersTitle: "Currently {{memberType}}s ({{count}})",
   },
   memberFilesModal: {
-    title: "Select file",
+    title: "Select image",
+    loading: "Loading...",
+    noFiles: "You don't have any image",
   },
 
   /* Tabs */

@@ -1,4 +1,8 @@
 import { memo } from "react"
+import { twMerge } from "tailwind-merge"
+
+import { PropsWithClassName } from "types"
+
 import { AccountsListItem, AccountsListItemProps } from "./AccountsListItem"
 
 const TEST_ITEMS: AccountsListItemProps[] = [
@@ -9,14 +13,16 @@ const TEST_ITEMS: AccountsListItemProps[] = [
   { id: "5", title: "Shinyfilliny1991", avatarId: "67465-14" },
 ]
 
-export type AccountsListProps = {
+type AccountsListBaseProps = {
   items: AccountsListItemProps[]
   onItemRemove?: (id: string) => void
 }
 
-export const AccountsList = memo(({ items = TEST_ITEMS, onItemRemove }: AccountsListProps) => {
+export type AccountsListProps = PropsWithClassName & AccountsListBaseProps
+
+export const AccountsList = memo(({ className, items = TEST_ITEMS, onItemRemove }: AccountsListProps) => {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className={twMerge("flex flex-wrap gap-3", className)}>
       {items.map(x => (
         <AccountsListItem key={x.id} {...x} onRemove={() => onItemRemove?.(x.id)} />
       ))}

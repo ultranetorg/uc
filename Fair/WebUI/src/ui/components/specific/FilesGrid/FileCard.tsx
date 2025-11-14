@@ -9,9 +9,18 @@ export type FileCardProps = {
 
 export const FileCard = memo(({ fileId, onClick }: FileCardProps) => (
   <div
-    className="h-[117px] w-[117px] cursor-pointer overflow-hidden rounded-md border-transparent hover:border"
+    className="focused:border-gray-500 cursor-pointer overflow-hidden rounded border border-gray-300 bg-white text-center hover:border-gray-400"
     onClick={onClick}
+    title={fileId}
   >
-    <img className="object-cover" src={`${BASE_URL}/files/${fileId}`} title={fileId} />
+    <div className="h-35 w-35 overflow-hidden bg-gray-200">
+      <img
+        className="h-full w-full object-cover object-center"
+        src={`${BASE_URL}/files/${fileId}`}
+        title={fileId}
+        loading="lazy"
+      />
+    </div>
+    <span className="truncate text-center text-2xs leading-4 text-gray-900">{fileId}</span>
   </div>
 ))

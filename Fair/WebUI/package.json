@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:serverless": "cross-env VITE_APP_SERVERLESS_BUILD=1 yarn build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

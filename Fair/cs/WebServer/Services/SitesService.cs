@@ -115,7 +115,7 @@ public class SitesService
 		}).ToArray();
 	}
 
-	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {{SiteId}}", nameof(SitesService), nameof(GetPublishers), siteId);
 

@@ -1,7 +1,12 @@
-import { AccountsList, Input, Textarea, ValidationWrapper } from "ui/components"
-import { MembersPanelList } from "ui/components/proposal"
+import { Input, Textarea, ValidationWrapper } from "ui/components"
 
-import { DropdownSearchCategory, DropdownWithTranslation, FileSelect, ProductVersionSelector } from "./components"
+import {
+  DropdownSearchCategory,
+  DropdownWithTranslation,
+  FileSelect,
+  MembersPanelList,
+  ProductVersionSelector,
+} from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
@@ -59,8 +64,8 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-change": ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <MembersPanelList />
-      <MembersPanelList />
+      <MembersPanelList changesType="add" memberType="author" />
+      <MembersPanelList changesType="remove" memberType="author" />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (

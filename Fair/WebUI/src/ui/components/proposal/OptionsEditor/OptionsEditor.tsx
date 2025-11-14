@@ -160,7 +160,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
         <>
           <div className="flex flex-col gap-4">
             {!discussionSingleOption && (
-              <span className="text-xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}:</span>
+              <span className="text-2xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}</span>
             )}
             <OptionsEditorList
               t={t}
