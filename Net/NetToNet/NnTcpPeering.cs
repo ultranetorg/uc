@@ -1,42 +1,50 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 
 namespace Uccs.Net;
 
-public enum NnPpcClass : byte
+public enum NncClass : byte
 {
 	None = 0, 
 	NnBlock,
 	NnStateHash
 }
 
-public abstract class Nnc<R> : Ppc<R> where R : PeerResponse
+public abstract class Nnc<R> : Ppc<R> where R : PeerResponse /// Net-to-Net Call
 {
 	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
 	public new McvNode			Node => base.Node as McvNode;
 	public Mcv					Mcv => Node.Mcv;
 }
 
-public abstract class NnTcpPeering : TcpPeering
+public class NnTcpPeering : TcpPeering
 {
-	public abstract NniBlock					ProcessIncoming(byte[] raw, Peer peer);
-	public abstract byte[]						GetStateHash(string net);
+	//public abstract NnBlock						ProcessIncoming(byte[] raw, Peer peer);
+	//public abstract byte[]						GetStateHash(string net);
 
+	public IpcServer							IpcServer;
+	protected Dictionary<string, List<Peer>>	Peers = [];
 	protected override IEnumerable<Peer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
-	protected Dictionary<string, List<Peer>>	Peers = [];
+	public static string						GetName(IPAddress ip) => "NnPeeringIpcServer" + ip.ToString();
 
-	public NnTcpPeering(Node node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
+	public NnTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
-		Register(typeof(NnPpcClass), node);
+		///Register(typeof(NncClass), node);
+
+		IpcServer = new IpcServer(program, GetName(settings.IP), flow);
+		IpcServer.Constuctor.Register<IppRequest>(typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpc".Length), r => r.Owner = this);
+		IpcServer.Constuctor.Register<IppResponse>(typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpr".Length));
 	}
 
 	public override string ToString()
 	{
-		return string.Join(",", new object[] {Node.Name,
-											  Settings?.IP}.Where(i => i != null));
+		return string.Join(",", new object[]
+								{
+									Name, 
+									Settings?.IP}.Where(i => i != null)
+								);
 	}
 
 	protected override void AddPeer(Peer peer)
@@ -65,11 +73,11 @@ public abstract class NnTcpPeering : TcpPeering
 		{
 			var h = new Hello();
 
-			h.Net			= Node.Net.Name;
+			h.Net			= peer.Net;
+			h.Name			= Name;
 			h.Roles			= 0;
 			h.Versions		= Versions;
 			h.IP			= peer.IP;
-			h.Name			= Node.Name;
 			h.Permanent		= permanent;
 		
 			return h;
@@ -82,11 +90,11 @@ public abstract class NnTcpPeering : TcpPeering
 		{
 			var h = new Hello();
 
-			h.Net			= Node.Net.Name;
+			h.Net			= inbound.Net;
+			h.Name			= Name;
 			h.Roles			= 0;
 			h.Versions		= Versions;
 			h.IP			= ip;
-			h.Name			= Node.Name;
 		
 			return h;
 		}
@@ -103,7 +111,7 @@ public abstract class NnTcpPeering : TcpPeering
 				return false;
 		}
 
-		if(hello.Name == Node.Name)
+		if(hello.Name == Name)
 		{
 			Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
 
@@ -198,9 +206,10 @@ public abstract class NnTcpPeering : TcpPeering
 
 	public Peer ChooseBestPeer(string net, HashSet<Peer> exclusions)
 	{
-		return Peers[net].Where(i => i.Net == net && (exclusions == null || !exclusions.Contains(i)))
-						 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
-						 .FirstOrDefault();
+		return Peers.TryGetValue(net, out var n) ? n.Where(i => i.Net == net && (exclusions == null || !exclusions.Contains(i)))
+													.OrderByDescending(i => i.Status == ConnectionStatus.OK)
+													.FirstOrDefault()
+												 : null;
 	}
 
 	public R Call<R>(string net, Func<Nnc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
@@ -208,9 +217,9 @@ public abstract class NnTcpPeering : TcpPeering
 		return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	}
 
-	public PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public virtual PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
-		var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+		var tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
 
 		Peer p;
 
@@ -224,7 +233,7 @@ public abstract class NnTcpPeering : TcpPeering
 
 				if(p == null)
 				{
-					tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+					tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
 					continue;
 				}
 			}
@@ -251,13 +260,13 @@ public abstract class NnTcpPeering : TcpPeering
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(NniBlock block, Peer skip = null)
+	public void Broadcast(NnBlock block, Peer skip = null)
 	{
 		foreach(var i in Peers[block.Net].Where(i => i != skip))
 		{
 			try
 			{
-				var v = new BlockNnc { Raw = block.RawPayload };
+				var v = new BlockNnc {Raw = block.RawPayload};
 				v.Peering = this;
 				i.Post(v);
 			}

@@ -8,7 +8,7 @@ public class RdnCli : McvCli
 	{
 	}
 
-	public RdnCli(RdnNodeSettings settings, RdnApiClient api) : base(settings, api)
+	public RdnCli(NexusSettings nexussettings, RdnNodeSettings settings, RdnApiClient api) : base(nexussettings, settings, api)
 	{
 	}
 

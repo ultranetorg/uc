@@ -12,19 +12,20 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 	protected override IEnumerable<Peer>	PeersToDisconnect => Peers;
 
 	public long								Roles;
-	public ColumnFamilyHandle				PeersFamily => Node.Database.GetColumnFamily(PeersColumn);
+	public ColumnFamilyHandle				PeersFamily => Database.GetColumnFamily(PeersColumn);
 	string									PeersColumn => GetType().Name + nameof(Peers);
 
-	public HomoTcpPeering(Node node, Net net, PeeringSettings settings, long roles, Flow flow) : base(node, settings, flow)
+	Net										Net;
+	RocksDb									Database;
+
+	public HomoTcpPeering(IProgram program, string name, Net net, RocksDb database, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
 		Roles = roles;
+		Database = database;
+		Net = net;
 
-		Flow.Log?.Report(this, $"Version: {Version}");
-		Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
-		Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-
-		if(!Node.Database.TryGetColumnFamily(PeersColumn, out _))
-			Node.Database.CreateColumnFamily(new (), PeersColumn);
+		if(!Database.TryGetColumnFamily(PeersColumn, out _))
+			Database.CreateColumnFamily(new (), PeersColumn);
 	}
 
 	public override void Run()
@@ -32,12 +33,6 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		LoadPeers();
 
 		base.Run();
-	}
-
-	public override string ToString()
-	{
-		return string.Join(",", new string[] {Node.Name,
-											  Settings?.IP.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 	}
 
 	protected override void AddPeer(Peer peer)
@@ -66,11 +61,11 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		{
 			var h = new Hello();
 
-			h.Net			= Node.Net.Name;
+			h.Net			= Net.Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
 			h.IP			= peer.IP;
-			h.Name			= Node.Name;
+			h.Name			= Name;
 			h.Permanent		= permanent;
 		
 			return h;
@@ -83,11 +78,11 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		{
 			var h = new Hello();
 
-			h.Net			= Node.Net.Name;
+			h.Net			= Net.Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
 			h.IP			= ip;
-			h.Name			= Node.Name;
+			h.Name			= Name;
 		
 			return h;
 		}
@@ -101,10 +96,10 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
 
-		if(hello.Net != Node.Net.Name)
+		if(hello.Net != Net.Name)
 			return false;
 
-		if(hello.Name == Node.Name)
+		if(hello.Name == Name)
 		{
 			Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
 
@@ -146,7 +141,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 
 	void LoadPeers()
 	{
-		using(var i = Node.Database.NewIterator(PeersFamily))
+		using(var i = Database.NewIterator(PeersFamily))
 		{
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
@@ -164,8 +159,8 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		}
 		else
 		{
-			Peers = Node.Net.Initials.Select(i => new Peer(i, Node.Net.PpiPort) {Recent = false, 
-																			  LastSeen = DateTime.MinValue}).ToList() ?? [];
+			Peers = Net.Initials.Select(i => new Peer(i, Net.PpiPort) {Recent = false, 
+																		LastSeen = DateTime.MinValue}).ToList() ?? [];
 
 			SavePeers(Peers);
 		}
@@ -183,7 +178,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 				b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
 			}
 
-			Node.Database.Write(b);
+			Database.Write(b);
 		}
 	}
 

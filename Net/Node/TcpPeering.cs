@@ -39,17 +39,17 @@ public enum PpcClass : byte
 
 public abstract class TcpPeering : IPeer
 {
+	public const int							Timeout = 5000;
+
 	public System.Version						Version => Assembly.GetAssembly(GetType()).GetName().Version;
 	public static readonly int[]				Versions = {5};
-
-
-	public const int							Timeout = 5000;
 
 	public PeeringSettings						Settings;
 	public Flow									Flow;
 	public object								Lock = new ();
 
-	public Node									Node;
+	public string								Name;
+	public IProgram								Program;
 	public IPAddress							IP = IPAddress.None;
 	public List<IPAddress>						IgnoredIPs = new();
 	public bool									IsPeering => MainThread != null;
@@ -64,8 +64,7 @@ public abstract class TcpPeering : IPeer
 	protected Thread							ListeningThread;
 	public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
-	public Dictionary<Type, byte>							Codes = [];
-	public Dictionary<Type, Dictionary<byte, Func<object>>>	Contructors = [];
+	public Constructor							Constructor = new();
 
 	protected abstract IEnumerable<Peer>		PeersToDisconnect { get; }
 	protected abstract void						ProcessConnectivity();
@@ -80,101 +79,104 @@ public abstract class TcpPeering : IPeer
 	public virtual void							OnRequestException(Peer peer, NodeException ex){}
 
 
-	public TcpPeering(Node node, PeeringSettings settings, Flow flow)
+	public TcpPeering(IProgram program, string name, PeeringSettings settings, Flow flow)
 	{
-		Node = node;
+		Program = program;
+		Name = name;
 		Settings = settings;
 		Flow = flow;
 
 		Flow.Log?.Report(this, $"Version: {Version}");
 		Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 		Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-		Flow.Log?.Report(this, $"Name: {Node.Name}");
 
-		Contructors[typeof(PeerRequest)] = [];
-		Contructors[typeof(ProcPeerRequest)] = [];
-		Contructors[typeof(FuncPeerRequest)] = [];
-		Contructors[typeof(PeerResponse)] = [];
-		Contructors[typeof(CodeException)] = [];
+
+		//Constructors[typeof(PeerRequest)] = [];
+		//Constructors[typeof(ProcPeerRequest)] = [];
+		//Constructors[typeof(FuncPeerRequest)] = [];
+		//Constructors[typeof(PeerResponse)] = [];
+		//Constructors[typeof(CodeException)] = [];
  
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException))))
-		{
-			var n = i.Name.Remove(i.Name.IndexOf("Exception"));
-			Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
-			var x = i.GetConstructor([]);
-			Contructors[typeof(CodeException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
-		}
+		//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException))))
+		//{
+		//	var n = i.Name.Remove(i.Name.IndexOf("Exception"));
+		//	Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
+		//	var x = i.GetConstructor([]);
+		//	Constructors[typeof(CodeException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
+		//}
+
+		Constructor.Register<CodeException>(typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
-	protected void Register(Type ppclass, Node node)
-	{
-		var assembly = ppclass.Assembly;
-
-		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(ProcPeerRequest)) && !i.IsGenericType))
-		{	
-			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
-
-				Contructors[typeof(PeerRequest)][(byte)c] =
- 				Contructors[typeof(ProcPeerRequest)][(byte)c] = () =>	{
-																			var r = x.Invoke(null) as PeerRequest;
-																			r.Node = node;
-																			return r;
-																		};
-			}
-		}
-
-		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsGenericType))
-		{	
-			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
-
-				Contructors[typeof(PeerRequest)][(byte)c] =
- 				Contructors[typeof(FuncPeerRequest)][(byte)c] = () =>	{
-																			var r = x.Invoke(null) as PeerRequest;
-																			r.Node = node;
-																			return r;
-																		};
-			}
-		}
-
-		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-		{	
-			if(Enum.TryParse(ppclass, i.Name.Substring(0, i.Name.Length - 3), out var c))
-			{
-				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
-				Contructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
-			}
-		}
-	}
+//	protected void Register(Type ppclass, Node node)
+//	{
+//		var assembly = ppclass.Assembly;
+//
+//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(ProcPeerRequest)) && !i.IsGenericType))
+//		{	
+//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
+//			{
+//				Codes[i] = (byte)c;
+//				var x = i.GetConstructor([]);
+//
+//				Constructors[typeof(PeerRequest)][(byte)c] =
+// 				Constructors[typeof(ProcPeerRequest)][(byte)c] = () =>	{
+//																			var r = x.Invoke(null) as PeerRequest;
+//																			r.Node = node;
+//																			return r;
+//																		};
+//			}
+//		}
+//
+//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsGenericType))
+//		{	
+//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
+//			{
+//				Codes[i] = (byte)c;
+//				var x = i.GetConstructor([]);
+//
+//				Constructors[typeof(PeerRequest)][(byte)c] =
+// 				Constructors[typeof(FuncPeerRequest)][(byte)c] = () =>	{
+//																			var r = x.Invoke(null) as PeerRequest;
+//																			r.Node = node;
+//																			return r;
+//																		};
+//			}
+//		}
+//
+//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
+//		{	
+//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
+//			{
+//				Codes[i] = (byte)c;
+//				var x = i.GetConstructor([]);
+//				Constructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
+//			}
+//		}
+//	}
 
 	public virtual void Run()
 	{
 		if(Settings.IP != null)
 		{
-			ListeningThread = Node.CreateThread(Listening);
-			ListeningThread.Name = $"{Node.Name} Listening";
+			ListeningThread = Program.CreateThread(Listening);
+			ListeningThread.Name = $"{Name} Listening";
 			ListeningThread.Start();
 		}
 
-		MainThread = Node.CreateThread(() => {
-											 	while(Flow.Active)
-											 	{
-											 		var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
-											 
-											 		lock(Lock)
+		MainThread = Program.CreateThread(() => {
+											 		while(Flow.Active)
 											 		{
-											 			ProcessConnectivity();
+											 			var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
+											 
+											 			lock(Lock)
+											 			{
+											 				ProcessConnectivity();
+											 			}
 											 		}
-											 	}
-											 });
+												});
 
-		MainThread.Name = $"{Node.Name} Main";
+		MainThread.Name = $"{Name} Main";
 		MainThread.Start();
 	}
 
@@ -197,18 +199,8 @@ public abstract class TcpPeering : IPeer
 
 	public override string ToString()
 	{
-		return string.Join(",", new string[] {	Node.Name,
+		return string.Join(",", new string[] {	Name,
 												Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
-	}
-
-	public virtual object Constract(Type type, byte code)
-	{
-		return Contructors.TryGetValue(type, out var t) && t.TryGetValue(code, out var c) ? c() : null;
-	}
-
-	public virtual byte TypeToCode(Type type)
-	{
-		return Codes[type];
 	}
 
 	protected void Listening()
@@ -324,7 +316,7 @@ public abstract class TcpPeering : IPeer
 			}
 		}
 		
-		var t = Node.CreateThread(f);
+		var t = Program.CreateThread(f);
 		t.Name = Settings.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
 		t.Start();
 					
@@ -381,7 +373,7 @@ public abstract class TcpPeering : IPeer
 
 		IncomingConnections.Add(client);
 
-		var t = Node.CreateThread(incon);
+		var t = Program.CreateThread(incon);
 		t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 		t.Start();
 
@@ -588,10 +580,10 @@ public abstract class TcpPeering : IPeer
 		if(request.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), request, TypeToCode);
+			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constract);
+			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Constract);
 			rq.Peering = this;
 		}
 
@@ -605,10 +597,10 @@ public abstract class TcpPeering : IPeer
 		if(rq.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), rq, TypeToCode);
+			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constract);
+			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constructor.Constract);
 			rq.Peering = this;
 		}
 

@@ -4,6 +4,7 @@ namespace Uccs.Net;
 
 public class McvCli : Cli
 {
+	public NexusSettings	NexusSettings;
 	public McvNodeSettings	Settings;
 	public McvNet			Net;
 	public McvNode			Node;
@@ -13,8 +14,9 @@ public class McvCli : Cli
 	{
 	}
 
-	public McvCli(McvNodeSettings settings, McvApiClient api)
+	public McvCli(NexusSettings nexussettings, McvNodeSettings settings, McvApiClient api)
 	{
+		NexusSettings = nexussettings;
 		Settings = settings;
 		ApiClient = api;
 	}

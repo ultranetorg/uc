@@ -30,7 +30,7 @@ internal class Program: ApplicationContext
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new NetBoot(ExeDirectory);
-			var ns = new NexusSettings(b) {Name = Guid.NewGuid().ToString()};
+			var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
 			var vs = new VaultSettings(b.Profile, b.Zone);
 		
 			Nexus = new Nexus(b, ns, vs, new RealClock(), new Flow(nameof(Nexus), new Log()));

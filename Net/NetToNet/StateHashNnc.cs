@@ -10,7 +10,8 @@ public class StateHashNnc : Nnc<StateHashNnr>
 	
 	public override PeerResponse Execute()
 	{
-		return new StateHashNnr {Hash = Peering.GetStateHash(Net)};
+		///return new StateHashNnr {Hash = Peering.GetStateHash(Net)};
+		return null;
 	}
 }
 

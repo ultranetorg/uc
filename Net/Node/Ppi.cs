@@ -59,12 +59,12 @@ public abstract class FuncPeerRequest : PeerRequest
 		}
 		catch(CodeException ex)
 		{
-			rp = Peering.Constract(typeof(PeerResponse), Peering.TypeToCode(GetType())) as PeerResponse;
+			rp = Peering.Constructor.Constract(typeof(PeerResponse), Peering.Constructor.TypeToCode(GetType())) as PeerResponse;
 			rp.Error = ex;
 		}
 		catch(Exception) when(!Debugger.IsAttached)
 		{
-			rp = Peering.Constract(typeof(PeerResponse), Peering.TypeToCode(GetType())) as PeerResponse;
+			rp = Peering.Constructor.Constract(typeof(PeerResponse), Peering.Constructor.TypeToCode(GetType())) as PeerResponse;
 			rp.Error = new NodeException(NodeError.Unknown);
 		}
 
