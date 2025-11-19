@@ -1,7 +1,7 @@
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 
 import { BaseProposal } from "./BaseProposal"
 
 export type UserProposal = {
-  signer: AccountBase
+  signer: AccountBaseAvatar
 } & BaseProposal

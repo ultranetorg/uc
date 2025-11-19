@@ -216,16 +216,20 @@ export const enUS = {
     addedAnswers:
       "The following answers will be added to your default answer options: Any, ‘Neither’, ‘Ban’, ‘Banish’.",
     addOption: "Add option",
+    changeImage: "Change image",
     changeModerators: "Change Moderators",
     createDiscussion: "Create Discussion",
     createReferendum: "Create Referendum",
     description: "Description (optional)",
+    enterNickname: "Enter nickname",
     howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
     removeFile: "Remove file",
-    selectMembersToAdd: "Select {{memberType}} to Add",
-    selectMembersToRemove: "Select {{memberType}} to Remove",
     selected: "Selected",
+    selectImage: "Select image",
+    selectMembersToAdd: "Select {{memberType}}s to Add",
+    selectMembersToRemove: "Select {{memberType}}s to Remove",
+    userNotFound: "User with that username not found",
   },
 
   /* Modals */
@@ -237,7 +241,6 @@ export const enUS = {
   },
   memberFilesModal: {
     title: "Select image",
-    loading: "Loading...",
     noFiles: "You don't have any image",
   },
 
@@ -294,6 +297,10 @@ export const enUS = {
     "site-text-change": "Site text change",
     "user-deletion": "User deletion",
     "user-registration": "User registration",
+  },
+  extraOperations: {
+    "site-author-addition": "Site author addition",
+    "site-author-removal": "Site author removal",
   },
   operationsShort: {
     "publication-creation": "Creation",

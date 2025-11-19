@@ -8,12 +8,11 @@ import { MemberFilesModal } from "ui/components/specific"
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 export type FileSelectProps = {
-  label: string
   value?: string
   onChange: (value?: string) => void
 }
 
-export const FileSelect = memo(({ label, value, onChange }: FileSelectProps) => {
+export const FileSelect = memo(({ value, onChange }: FileSelectProps) => {
   const { t } = useTranslation("createProposal")
   const [isMembersChangeModalOpen, setMembersChangeModalOpen] = useState(false)
 
@@ -23,7 +22,11 @@ export const FileSelect = memo(({ label, value, onChange }: FileSelectProps) => 
   return (
     <>
       <div className="flex flex-col gap-4">
-        <ButtonOutline className="h-10 w-full" label={label} onClick={handleClick} />
+        <ButtonOutline
+          className="h-10 w-full"
+          label={value ? t("changeImage") : t("selectImage")}
+          onClick={handleClick}
+        />
         {value && (
           <div className="flex h-20 w-full items-center justify-between rounded border border-gray-200 p-2">
             <div className="flex items-center gap-3">

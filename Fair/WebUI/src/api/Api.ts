@@ -1,5 +1,4 @@
 import {
-  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -27,14 +26,15 @@ import {
   TotalItemsResult,
   User,
   UserProposal,
+  AccountBase,
 } from "types"
 
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
-  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>

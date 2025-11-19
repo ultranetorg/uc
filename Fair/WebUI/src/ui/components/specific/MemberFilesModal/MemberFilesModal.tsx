@@ -48,7 +48,6 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
             hasNextPage={hasNextPage}
             onSelect={handleSelect}
             ref={loaderRef}
-            loadingLabel={t("loading")}
             noFilesLabel={t("noFiles")}
           />
         </div>

@@ -1,12 +1,12 @@
 import { forwardRef, memo } from "react"
 
-import { AccountBase, PropsWithStyle } from "types"
+import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
 
 import { Account } from "./components"
 
 export type AccountSwitcherBaseProps = {
-  items: AccountBase[]
+  items: AccountBaseAvatar[]
 }
 
 export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps

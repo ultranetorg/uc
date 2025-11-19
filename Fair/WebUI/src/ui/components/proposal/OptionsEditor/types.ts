@@ -1,9 +1,10 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, OperationType } from "types"
+import { AccountBaseAvatar, CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
-  | "authors-change"
+  | "authors-additions"
+  | "authors-removals"
   | "category"
   | "category-type"
   | "file"
@@ -40,8 +41,8 @@ export type EditorField = {
 export type EditorFieldRendererParams = {
   errorMessage?: string
   field: EditorField
-  value: string | string[] | AccountBase[]
-  onChange: (value?: string | string[] | AccountBase[]) => void
+  value: string | string[] | AccountBaseAvatar[]
+  onChange: (value?: string | string[] | AccountBaseAvatar[]) => void
 }
 
 export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element
@@ -51,7 +52,7 @@ export type ParameterValueType = "category" | "product" | "publication" | "revie
 export type ParameterNameType = "categoryId" | "productId" | "publicationId" | "reviewId" | "userId"
 
 export type EditorOperationFields = {
-  operationType: OperationType
+  operationType: Exclude<OperationType, "site-authors-change"> | "site-author-addition" | "site-author-removal"
   parameterValueType?: ParameterValueType
   parameterName?: ParameterNameType
   parameterLabel?: string

@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import { ReactNode } from "react"
 
-import { AccountBase, BaseProposal, OperationType, PublicationImageBase } from "types"
+import { AccountBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
 import { AccountInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatAnbb,
@@ -15,7 +15,7 @@ import {
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
-export const renderAccount = (account: AccountBase) => (
+export const renderAccount = (account: AccountBaseAvatar) => (
   <AccountInfo
     title={account.nickname || shortenAddress(account.address)}
     fullTitle={account.nickname || account.address}

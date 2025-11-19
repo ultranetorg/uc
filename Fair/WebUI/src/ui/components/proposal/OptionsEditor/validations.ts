@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, CreateProposalDataOption } from "types"
+import { AccountBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -38,7 +38,7 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-const normalizeCandidates = (ids?: AccountBase[]) =>
+const normalizeCandidates = (ids?: AccountBaseAvatar[]) =>
   Array.isArray(ids)
     ? [...ids]
         .map(x => x.id)

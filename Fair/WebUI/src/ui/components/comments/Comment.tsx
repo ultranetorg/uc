@@ -1,10 +1,10 @@
 import { TEST_REVIEW_SRC } from "testConfig"
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 import { RatingBar } from "ui/components"
 import { buildSrc, formatDate, shortenAddress } from "utils"
 
 export type CommentProps = {
-  account: AccountBase
+  account: AccountBaseAvatar
   created: number
   rating?: number
   text: string

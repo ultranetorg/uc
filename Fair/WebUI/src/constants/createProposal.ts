@@ -12,13 +12,19 @@ export const CREATE_REFERENDUM_OPERATION_TYPES: OperationType[] = [
   "site-text-change",
 ]
 
-export const CREATE_DISCUSSION_OPERATION_TYPES: OperationType[] = [
+export const CREATE_DISCUSSION_EXTRA_OPERATION_TYPES = ["site-author-addition", "site-author-removal"] as const
+
+export const CREATE_DISCUSSION_OPERATION_TYPES: (
+  | Exclude<OperationType, "site-authors-change">
+  | "site-author-addition"
+  | "site-author-removal"
+)[] = [
   "category-avatar-change",
   "category-creation",
   "category-deletion",
   "category-movement",
   "category-type-change",
-  "site-authors-change",
+  ...CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
 ] as const
 
 export const CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES: OperationType[] = [

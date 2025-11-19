@@ -3,6 +3,7 @@ export * from "./results"
 export * from "./votableOperations"
 
 export * from "./AccountBase"
+export * from "./AccountBaseAvatar"
 export * from "./AuthorDetails"
 export * from "./AuthorExtended"
 export * from "./AccountSearchLite"

@@ -11,7 +11,7 @@ import {
 } from "@floating-ui/react"
 import { useCopyToClipboard } from "usehooks-ts"
 
-import { AccountBase, PropsWithStyle } from "types"
+import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
 
 import pngBackground from "./background.png"
@@ -38,7 +38,7 @@ const TEST_ACCOUNTS = [
   },
 ]
 
-export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id">
+export type AccountMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id">
 
 export const AccountMenu = memo(
   forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {

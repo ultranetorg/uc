@@ -1,5 +1,6 @@
+export * from "./AddMembersPanelList"
 export * from "./DropdownSearchCategory"
 export * from "./DropdownWithTranslation"
 export * from "./FileSelect"
-export * from "./MembersPanelList"
 export * from "./ProductVersionSelector"
+export * from "./RemoveMembersPanelList"

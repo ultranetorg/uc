@@ -2,7 +2,7 @@ import { forwardRef, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { CheckCircleFillSvg, PersonSquareSvg, StarSvg, StoresSvg, SvgChevronRight } from "assets"
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 
 import personSquareColoredImg from "./person-square-colored.png"
 
@@ -11,7 +11,7 @@ type AccountBaseProps = {
   selected?: boolean
 }
 
-export type AccountProps = AccountBase & AccountBaseProps
+export type AccountProps = AccountBaseAvatar & AccountBaseProps
 
 export const Account = memo(({ nickname, address, addressShort, selected }: AccountProps) => (
   <div className="flex select-none items-center gap-2 px-4 py-2 hover:bg-gray-100">
@@ -53,7 +53,7 @@ export const AllSitesButton = memo(({ title }: AllSitesButtonProps) => (
   </div>
 ))
 
-export type CurrentAccountButtonProps = Omit<AccountBase, "id">
+export type CurrentAccountButtonProps = Omit<AccountBaseAvatar, "id">
 
 export const CurrentAccountButton = memo(
   forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ nickname, address, ...rest }, ref) => (

@@ -134,7 +134,7 @@ public class AccountsService
 		lock(mcv.Lock)
 		{
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-			if(account == null)
+			if(account == null || account.Avatar == null)
 			{
 				throw new EntityNotFoundException(nameof(Account).ToLower(), accountId);
 			}

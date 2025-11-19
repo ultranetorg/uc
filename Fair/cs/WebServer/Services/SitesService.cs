@@ -11,10 +11,10 @@ public class SitesService
 {
 	public IEnumerable<SiteBaseModel> GetDefaultSites(CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetDefaultSites)} method called without parameters");
+		logger.LogDebug("{ClassName}.{MethodName} method called", nameof(SitesService), nameof(SitesService.GetDefaultSites));
 
 		if (cancellationToken.IsCancellationRequested)
-			return Enumerable.Empty<SiteBaseModel>();
+			return [];
 
 		lock (mcv.Lock)
 		{
@@ -41,7 +41,7 @@ public class SitesService
 
 			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
 
-			SiteBaseModel model = new SiteBaseModel(site, avatar);
+			SiteBaseModel model = new(site, avatar);
 			result.Add(model);
 		}
 
@@ -50,7 +50,7 @@ public class SitesService
 
 	public SiteModel GetSite([NotEmpty] string siteId)
 	{
-		logger.LogDebug($"{nameof(SitesService)}.{nameof(SitesService.GetSite)} method called with {{SiteId}}", siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetSite), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -84,13 +84,12 @@ public class SitesService
 		}
 	}
 
-	(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations)
-		GetReferendumDiscussionOperations(Policy[] policies)
+	(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) GetReferendumDiscussionOperations(Policy[] policies)
 	{
 		List<FairOperationClass> referendumsResult = new (policies.Length);
 		List<FairOperationClass> discussionsResult = new (policies.Length);
 
-		foreach (var policy in policies)
+		foreach (Policy policy in policies)
 		{
 			if (policy.Approval == ApprovalRequirement.PublishersMajority)
 			{
@@ -117,7 +116,7 @@ public class SitesService
 
 	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {{SiteId}}", nameof(SitesService), nameof(GetPublishers), siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPublishers), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -138,7 +137,7 @@ public class SitesService
 
 	public IEnumerable<AccountBaseModel> GetModerators([NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {{SiteId}}", nameof(SitesService), nameof(GetModerators), siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetModerators), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 

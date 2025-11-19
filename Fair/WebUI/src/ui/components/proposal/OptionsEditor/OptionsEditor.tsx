@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { TFunction } from "i18next"
 import {
   Controller,
@@ -11,6 +11,7 @@ import {
 
 import { useModerationContext } from "app"
 import {
+  CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
   CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES,
   CREATE_DISCUSSION_OPERATION_TYPES,
   CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES,
@@ -40,7 +41,8 @@ const validationMap: Record<
     lastEditedIndex: number,
   ) => void
 > = {
-  "site-authors-change": validateSiteAuthorsChange,
+  "site-authors-addition": validateSiteAuthorsChange,
+  "site-authors-removal": validateSiteAuthorsChange,
   "site-moderator-addition": validateSiteModeratorAddition,
   "site-moderator-removal": validateSiteModeratorRemoval,
   "site-text-change": validateSiteTextChange,
@@ -71,7 +73,11 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
   const typesItems = useMemo<DropdownItem[]>(() => {
     const types = proposalType === "discussion" ? CREATE_DISCUSSION_OPERATION_TYPES : CREATE_REFERENDUM_OPERATION_TYPES
-    return types.map(x => ({ label: t(`operations:${x}`), value: x as string }))
+    return types.map(x => ({
+      // @ts-expect-error fix
+      label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
+      value: x as string,
+    }))
   }, [proposalType, t])
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(

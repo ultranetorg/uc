@@ -1,7 +1,6 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { LIMIT_DEFAULT } from "constants/"
 import {
-  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -29,6 +28,7 @@ import {
   TotalItemsResult,
   User,
   UserProposal,
+  AccountBase,
 } from "types"
 
 import { Api } from "./Api"
@@ -43,14 +43,14 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
 
+const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
+
 const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
   return await toTotalItemsResult(res)
 }
-
-const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
 const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())

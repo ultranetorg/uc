@@ -154,11 +154,20 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
 
     // Site
     {
-      operationType: "site-authors-change",
+      operationType: "site-author-addition",
       fields: [
         {
-          valueType: "authors-change",
+          valueType: "authors-additions",
           name: "candidatesIds",
+        },
+      ],
+    },
+    {
+      operationType: "site-author-removal",
+      fields: [
+        {
+          valueType: "authors-removals",
+          name: "authorsIds",
         },
       ],
     },
@@ -168,7 +177,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "file",
           name: "fileId",
-          placeholder: t("placeholders:selectImage"),
           // @ts-expect-error incompatible param.
           rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },

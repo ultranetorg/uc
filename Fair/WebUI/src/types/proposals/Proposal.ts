@@ -1,8 +1,8 @@
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 
 import { BaseProposal } from "./BaseProposal"
 
 export type Proposal = {
-  byAccount: AccountBase
+  byAccount: AccountBaseAvatar
   commentsCount: number
 } & BaseProposal

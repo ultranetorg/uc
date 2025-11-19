@@ -1,11 +1,12 @@
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
+  AddMembersPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
   FileSelect,
-  MembersPanelList,
   ProductVersionSelector,
+  RemoveMembersPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
@@ -62,10 +63,14 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-change": ({ errorMessage, field, value, onChange }) => (
+  "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <MembersPanelList changesType="add" memberType="author" />
-      <MembersPanelList changesType="remove" memberType="author" />
+      <AddMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
+    </ValidationWrapper>
+  ),
+  "authors-removals": ({ errorMessage, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <RemoveMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (
@@ -92,19 +97,19 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       />
     </ValidationWrapper>
   ),
-  file: ({ errorMessage, field, value, onChange }) => (
+  file: ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <FileSelect label={field.placeholder!} value={value as string} onChange={onChange} />
+      <FileSelect value={value as string} onChange={onChange} />
     </ValidationWrapper>
   ),
-  "moderators-additions": ({ errorMessage, field, value, onChange }) => (
+  "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <MembersPanelList />
+      <AddMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
     </ValidationWrapper>
   ),
-  "moderators-removals": ({ errorMessage, field, value, onChange }) => (
+  "moderators-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <MembersPanelList />
+      <RemoveMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (

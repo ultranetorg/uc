@@ -23,7 +23,7 @@ public class AccountsController
 	}
 
 	[HttpGet]
-	public IEnumerable<AccountBaseModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
 
@@ -44,7 +44,7 @@ public class AccountsController
 	}
 
 	[HttpGet("{accountId}/avatar")]
-	public FileContentResult GetAvatar([FromQuery] string accountId)
+	public FileContentResult GetAvatar(string accountId)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
 

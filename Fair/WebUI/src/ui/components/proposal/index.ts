@@ -1,3 +1,4 @@
+export * from "./DropdownSearchAccount"
 export * from "./OptionsCollapsesList"
 export * from "./OptionsEditor"
 export * from "./ProductsFields"
