@@ -25,8 +25,8 @@ import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
 import {
+  getValidateSiteMembersAddition,
   validateSiteAuthorRemoval,
-  validateSiteMemberAddition,
   validateSiteModeratorRemoval,
   validateSiteTextChange,
 } from "./validations"
@@ -41,9 +41,9 @@ const validationMap: Record<
     lastEditedIndex: number,
   ) => void
 > = {
-  "site-author-addition": validateSiteMemberAddition,
+  "site-author-addition": getValidateSiteMembersAddition("author"),
   "site-author-removal": validateSiteAuthorRemoval,
-  "site-moderator-addition": validateSiteMemberAddition,
+  "site-moderator-addition": getValidateSiteMembersAddition("moderator"),
   "site-moderator-removal": validateSiteModeratorRemoval,
   "site-text-change": validateSiteTextChange,
 }

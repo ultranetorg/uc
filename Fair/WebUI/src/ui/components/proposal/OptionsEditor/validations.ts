@@ -1,7 +1,8 @@
 import { TFunction } from "i18next"
+import { capitalize } from "lodash"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, CreateProposalDataOption } from "types"
+import { AccountBase, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -46,29 +47,34 @@ const normalizeCandidatesAccounts = (accounts?: AccountBase[]) =>
         .join(",")
     : ""
 
-export const validateSiteMemberAddition = (
-  t: TFunction,
-  options: CreateProposalDataOption[],
-  clearErrors: UseFormClearErrors<CreateProposalData>,
-  setError: UseFormSetError<CreateProposalData>,
-  lastEditedIndex: number,
-) => {
-  if (!options || lastEditedIndex >= options.length) return
+export const getValidateSiteMembersAddition =
+  (memberType: MembersChangeType) =>
+  (
+    t: TFunction,
+    options: CreateProposalDataOption[],
+    clearErrors: UseFormClearErrors<CreateProposalData>,
+    setError: UseFormSetError<CreateProposalData>,
+    lastEditedIndex: number,
+  ) => {
+    if (!options || lastEditedIndex >= options.length) return
 
-  const hasDuplicates = options.some((opt, i) =>
-    options.some(
-      (other, j) =>
-        i !== j &&
-        normalizeCandidatesAccounts(opt.candidatesAccounts) === normalizeCandidatesAccounts(other.candidatesAccounts),
-    ),
-  )
+    const hasDuplicates = options.some((opt, i) =>
+      options.some(
+        (other, j) =>
+          i !== j &&
+          normalizeCandidatesAccounts(opt.candidatesAccounts) === normalizeCandidatesAccounts(other.candidatesAccounts),
+      ),
+    )
 
-  if (hasDuplicates) {
-    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
-  } else {
-    clearErrors(`options.${lastEditedIndex}`)
+    if (hasDuplicates) {
+      setError(`options.${lastEditedIndex}`, {
+        type: "manual",
+        message: t("validation:uniqueMembers", { memberType: capitalize(memberType) }),
+      })
+    } else {
+      clearErrors(`options.${lastEditedIndex}`)
+    }
   }
-}
 
 export const validateSiteAuthorRemoval = (
   t: TFunction,

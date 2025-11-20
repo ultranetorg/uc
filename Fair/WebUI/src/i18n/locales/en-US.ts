@@ -354,6 +354,7 @@ export const enUS = {
     uniqueCategoryTitle: "Category title must be unique",
     uniqueCategoryType: "Category type must be unique",
     uniqueFile: "File must be unique",
+    uniqueMembers: "{{memberType}}s must be unique",
     uniqueParentCategory: "Parent category must be unique",
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
