@@ -18,7 +18,7 @@ export type PublicationStoresModalProps = Pick<ModalProps, "title" | "onClose"> 
 
 export const PublicationStoresModal = memo(
   ({ title = "Published in: 8 stores", onClose, items }: PublicationStoresModalProps) => (
-    <Modal className="max-h-142.25 w-120 border border-b border-gray-300 p-0">
+    <Modal className="max-h-142.25 w-120 border border-gray-300 p-0">
       <div className="divide-y divide-gray-300">
         <div className="flex items-center justify-between gap-6 px-6 py-4">
           <span className="select-none text-base font-semibold leading-5">{title}</span>

@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging.Abstractions;
-using NativeImport;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -14,23 +12,23 @@ public class ModeratorProposalsService
 {
 	public ReviewProposalDetailsModel GetReviewProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetReviewProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetReviewProposal), siteId, proposalId);
 
 		Guard.Against.NullOrEmpty(proposalId);
 
-		return GetProposalByType<ReviewProposalDetailsModel>(siteId, proposalId, nameof(Review).ToLower(), ProposalUtils.IsReviewOperation, p => CreateReviewProposalModel<ReviewProposalDetailsModel>(p));
+		return GetProposalByType<ReviewProposalDetailsModel>(siteId, proposalId, nameof(Review).ToLower(), ProposalUtils.IsReviewOperation, CreateReviewProposalModel<ReviewProposalDetailsModel>);
 	}
 
 	public TotalItemsResult<ReviewProposalModel> GetReviewProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetReviewProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetReviewProposalsNotOptimized), siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
 
-		return GetProposalsByTypeNotOptimized<ReviewProposalModel>(siteId, page, pageSize, search, ProposalUtils.IsReviewOperation, (p) => CreateReviewProposalModel<ReviewProposalModel>(p), cancellationToken);
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel<ReviewProposalModel>, cancellationToken);
 	}
 
 	T CreateReviewProposalModel<T>(Proposal proposal) where T : ReviewProposalModel
@@ -42,7 +40,7 @@ public class ModeratorProposalsService
 			Publication publication = mcv.Publications.Latest(reviewCreation.Publication);
 			return CreateReviewModel<T>(proposal, reviewer, publication);
 		}
-		else if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
+		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication publication = mcv.Publications.Latest(review.Publication);
@@ -62,13 +60,13 @@ public class ModeratorProposalsService
 		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, image);
 
 		T instance = (T) Activator.CreateInstance(typeof(T), proposal, reviewer, model);
-		instance.Options = ProposalUtils.MapOptions(proposal.Options);
+		instance!.Options = ProposalUtils.MapOptions(proposal.Options);
 		return instance;
 	}
 
 	public UserProposalModel GetUserProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
 
 		Guard.Against.NullOrEmpty(proposalId);
 
@@ -81,11 +79,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<UserProposalModel> GetUserProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
 
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsUserOperation, CreateUserProposalModel, cancellationToken);
 	}
@@ -113,11 +111,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
 
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);
 	}
@@ -128,15 +126,15 @@ public class ModeratorProposalsService
 		{
 			return CreatePublicationModelFromProduct(proposal, publicationCreation.Product);
 		}
-		else if(proposal.Options[0].Operation is PublicationDeletion publicationDeletion)
+		if(proposal.Options[0].Operation is PublicationDeletion publicationDeletion)
 		{
 			return CreatePublicationModel(proposal, publicationDeletion.Publication);
 		}
-		else if(proposal.Options[0].Operation is PublicationPublish publicationPublish)
+		if(proposal.Options[0].Operation is PublicationPublish publicationPublish)
 		{
 			return CreatePublicationModel(proposal, publicationPublish.Publication);
 		}
-		else if(proposal.Options[0].Operation is PublicationUpdation publicationUpdation)
+		if(proposal.Options[0].Operation is PublicationUpdation publicationUpdation)
 		{
 			return CreatePublicationModel(proposal, publicationUpdation.Publication);
 		}

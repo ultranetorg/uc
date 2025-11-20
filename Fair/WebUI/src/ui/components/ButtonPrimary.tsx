@@ -1,3 +1,4 @@
+import { MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -6,7 +7,7 @@ type ButtonPrimaryBaseProps = {
   iconBefore?: JSX.Element
   iconAfter?: JSX.Element
   label: string
-  onClick?: () => void
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
 }
 
 export type ButtonPrimaryProps = PropsWithClassName &

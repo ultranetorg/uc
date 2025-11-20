@@ -9,7 +9,7 @@ import { GovernanceModerationHeader } from "ui/components/specific"
 import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
 import { DiscussionsTab } from "./DiscussionsTab"
 import { PublicationsTab } from "./PublicationsTab"
-import { ReviewsTab } from "./ReviewsTab"
+import { ReviewsTab } from "./Reviews"
 import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 import { UserRegistrationsTab } from "./UserRegistrationsTab"
 

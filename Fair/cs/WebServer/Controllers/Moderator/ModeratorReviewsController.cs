@@ -15,7 +15,7 @@ public class ModeratorReviewsController
 	[HttpGet]
 	public IEnumerable<ReviewProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(Get), siteId, pagination, search);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
@@ -25,15 +25,4 @@ public class ModeratorReviewsController
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
-
-	//[HttpGet("~/api/moderator/sites/{siteId}/reviews/{proposalId}")]
-	//public ReviewProposalModel Get(string siteId, string proposalId)
-	//{
-	//	logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
-
-	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-	//	autoIdValidator.Validate(proposalId, nameof(Review).ToLower());
-
-	//	return moderatorProposalsService.GetReviewProposal(siteId, proposalId);
-	//}
 }

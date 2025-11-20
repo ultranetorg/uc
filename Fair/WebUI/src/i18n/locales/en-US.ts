@@ -7,6 +7,7 @@ export const enUS = {
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
+    approve: "approve",
     author: "Author",
     back: "back",
     ban: "Ban",
@@ -32,6 +33,7 @@ export const enUS = {
     publication: "Publication",
     rating: "Rating",
     remove: "remove",
+    reject: "reject",
     review: "review",
     reviewer: "Reviewer",
     text: "Text",
@@ -242,6 +244,9 @@ export const enUS = {
   memberFilesModal: {
     title: "Select image",
     noFiles: "You don't have any image",
+  },
+  previewReviewModal: {
+    title: "Review text",
   },
 
   /* Tabs */
