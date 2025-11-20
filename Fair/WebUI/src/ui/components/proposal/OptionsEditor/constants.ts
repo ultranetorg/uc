@@ -158,7 +158,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "authors-additions",
-          name: "candidatesIds",
+          name: "candidatesAccounts",
         },
       ],
     },
@@ -187,7 +187,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-additions",
-          name: "candidatesIds",
+          name: "candidatesAccounts",
           placeholder: t("selectModeratorsToAdd"),
         },
       ],

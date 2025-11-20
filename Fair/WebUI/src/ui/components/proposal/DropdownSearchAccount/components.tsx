@@ -19,7 +19,7 @@ export const Control = ({ children, ...props }: ControlProps<DropdownItem, false
 export const IndicatorsContainer = (props: IndicatorsContainerProps<DropdownItem, false>) => (
   <components.IndicatorsContainer {...props}>
     {props.selectProps.inputValue && (
-      <div onClick={() => console.log("x")} className="cursor-pointer p-1">
+      <div className="cursor-pointer p-1">
         <SvgXSm className="fill-gray-500 hover:fill-gray-800" />
       </div>
     )}
@@ -34,24 +34,21 @@ export const NoOptionsMessage = ({ noOptionsLabel }: NoOptionsMessageProps) => (
   <span className="select-none text-2xs leading-4 text-gray-500">{noOptionsLabel ?? "No options"}</span>
 )
 
-export const Option = (props: OptionProps<DropdownItem, false>) => {
-  console.log(props.data)
-  return (
-    <components.Option {...props}>
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 overflow-hidden rounded-full">
-          <img
-            className="h-full w-full object-cover object-center"
-            src={buildAccountAvatarUrl(props.data.value)}
-            loading="lazy"
-            onError={e => {
-              e.currentTarget.onerror = null
-              e.currentTarget.src = avatarFallback
-            }}
-          />
-        </div>
-        {props.data.label}
+export const Option = (props: OptionProps<DropdownItem, false>) => (
+  <components.Option {...props}>
+    <div className="flex items-center gap-2">
+      <div className="h-8 w-8 overflow-hidden rounded-full">
+        <img
+          className="h-full w-full object-cover object-center"
+          src={buildAccountAvatarUrl(props.data.value)}
+          loading="lazy"
+          onError={e => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = avatarFallback
+          }}
+        />
       </div>
-    </components.Option>
-  )
-}
+      {props.data.label}
+    </div>
+  </components.Option>
+)

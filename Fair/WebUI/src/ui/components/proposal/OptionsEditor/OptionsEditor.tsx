@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { TFunction } from "i18next"
 import {
   Controller,
@@ -25,8 +25,8 @@ import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
 import {
-  validateSiteAuthorsChange,
-  validateSiteModeratorAddition,
+  validateSiteAuthorRemoval,
+  validateSiteMemberAddition,
   validateSiteModeratorRemoval,
   validateSiteTextChange,
 } from "./validations"
@@ -41,9 +41,9 @@ const validationMap: Record<
     lastEditedIndex: number,
   ) => void
 > = {
-  "site-authors-addition": validateSiteAuthorsChange,
-  "site-authors-removal": validateSiteAuthorsChange,
-  "site-moderator-addition": validateSiteModeratorAddition,
+  "site-author-addition": validateSiteMemberAddition,
+  "site-author-removal": validateSiteAuthorRemoval,
+  "site-moderator-addition": validateSiteMemberAddition,
   "site-moderator-removal": validateSiteModeratorRemoval,
   "site-text-change": validateSiteTextChange,
 }

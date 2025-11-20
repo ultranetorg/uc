@@ -1,3 +1,4 @@
+import { AccountBase } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
@@ -65,7 +66,7 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
+      <AddMembersPanelList memberType="author" value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
@@ -104,7 +105,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
+      <AddMembersPanelList memberType="moderator" value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "moderators-removals": ({ errorMessage, value, onChange }) => (

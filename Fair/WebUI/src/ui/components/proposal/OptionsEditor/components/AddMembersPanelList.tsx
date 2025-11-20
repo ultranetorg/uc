@@ -6,41 +6,42 @@ import { useDebounceValue } from "usehooks-ts"
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
 import { AccountBase, MembersChangeType } from "types"
-import { AccountsList, AccountsListItemProps } from "ui/components"
+import { AccountsList } from "ui/components"
 import { DropdownSearchAccount } from "ui/components/proposal"
 import { DropdownItem } from "ui/components/proposal/DropdownSearchAccount"
 
 export type AddMembersPanelListProps = {
   memberType: MembersChangeType
-  value: string[]
-  onChange: (value: string[]) => void
+  value: AccountBase[]
+  onChange: (value: AccountBase[]) => void
 }
 
 export const AddMembersPanelList = memo(
-  ({ memberType, value: selectedIds = [], onChange }: AddMembersPanelListProps) => {
+  ({ memberType, value: selectedAccounts = [], onChange }: AddMembersPanelListProps) => {
     const { t } = useTranslation("createProposal")
 
-    const [selectedAccounts, setSelectedAccounts] = useState<AccountBase[]>([])
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounceValue(search, SEARCH_DELAY)
 
     const { data: searchResult } = useSearchAccounts(debouncedSearch)
 
-    const accountsListItems = useMemo<AccountsListItemProps[]>(() => {
-      return selectedAccounts.map(x => ({
-        id: x.id,
-        title: x.nickname ?? x.id,
-        avatarId: x.id,
-      }))
-    }, [selectedAccounts])
+    const accountsListItems = useMemo(
+      () =>
+        selectedAccounts.map(({ id, nickname }) => ({
+          id,
+          title: nickname ?? id,
+          avatarId: id,
+        })),
+      [selectedAccounts],
+    )
 
-    const dropdownSearchItems = useMemo<DropdownItem[]>(() => {
-      return (
+    const dropdownSearchItems = useMemo<DropdownItem[]>(
+      () =>
         searchResult
-          ?.filter(x => !selectedIds.some(sa => sa === x.id))
-          .map(x => ({ label: x.nickname ?? x.id, value: x.id, address: x.address })) || []
-      )
-    }, [searchResult, selectedIds])
+          ?.filter(x => selectedAccounts.every(a => a.id !== x.id))
+          .map(x => ({ label: x.nickname ?? x.id, value: x.id, address: x.address })) || [],
+      [searchResult, selectedAccounts],
+    )
 
     const handleAccountSelect = useCallback(
       (item: DropdownItem) => {
@@ -49,18 +50,16 @@ export const AddMembersPanelList = memo(
           nickname: item.label,
           address: item.address,
         }
-        setSelectedAccounts(p => [...p, accountToAdd])
-        onChange([...selectedIds, item.value])
+        onChange([...selectedAccounts, accountToAdd])
       },
-      [onChange, selectedIds],
+      [onChange, selectedAccounts],
     )
 
     const handleItemRemove = useCallback(
       (id: string) => {
-        setSelectedAccounts(p => p.filter(x => x.id !== id))
-        onChange(selectedIds.filter(x => x !== id))
+        onChange(selectedAccounts.filter(x => x.id !== id))
       },
-      [onChange, selectedIds],
+      [onChange, selectedAccounts],
     )
 
     return (
@@ -80,7 +79,7 @@ export const AddMembersPanelList = memo(
           <AccountsList items={accountsListItems} onItemRemove={handleItemRemove} />
         </div>
         <span className="px-4 py-2 text-2xs font-medium leading-4">
-          {t("selected")}: {selectedIds.length}
+          {t("selected")}: {selectedAccounts.length}
         </span>
       </div>
     )

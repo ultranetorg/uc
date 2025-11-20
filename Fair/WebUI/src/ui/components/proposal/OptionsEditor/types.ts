@@ -1,6 +1,6 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { AccountBaseAvatar, CreateProposalData, OperationType } from "types"
+import { AccountBase, CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
   | "authors-additions"
@@ -17,7 +17,7 @@ export type FieldValueType =
 
 export type FieldNameType =
   | "authorsIds"
-  | "candidatesIds"
+  | "candidatesAccounts"
   | "categoryId"
   | "categoryTitle"
   | "description"
@@ -41,8 +41,8 @@ export type EditorField = {
 export type EditorFieldRendererParams = {
   errorMessage?: string
   field: EditorField
-  value: string | string[] | AccountBaseAvatar[]
-  onChange: (value?: string | string[] | AccountBaseAvatar[]) => void
+  value: string | string[] | AccountBase[]
+  onChange: (value?: string | string[] | AccountBase[]) => void
 }
 
 export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element

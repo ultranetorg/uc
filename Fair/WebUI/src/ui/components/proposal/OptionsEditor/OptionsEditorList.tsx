@@ -15,7 +15,7 @@ export type OptionsEditorListProps = {
   t: TFunction
   singleOption: boolean
   operationFields: EditorOperationFields
-  fields: FieldArrayWithId<CreateProposalData, "options" | `options.${number}.candidatesIds`, "id">[]
+  fields: FieldArrayWithId<CreateProposalData, "options" | `options.${number}.candidatesAccounts`, "id">[]
   append: UseFieldArrayAppend<CreateProposalData>
   remove: UseFieldArrayRemove
 }
