@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Net.FUI;
 
-public partial class NtnNetworkPanel : MainPanel
+public partial class NnNetworkPanel : MainPanel
 {
 	Flow Flow;
 
-	public NtnNetworkPanel(HomoTcpPeering node)
+	public NnNetworkPanel(HomoTcpPeering node)
 	{
 		InitializeComponent();
 	}

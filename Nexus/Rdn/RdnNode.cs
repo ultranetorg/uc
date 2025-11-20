@@ -23,9 +23,10 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	public RdnNtnTcpPeering			NtnPeering;
+	//public RdnNnTcpPeering			NnPeering;
+	IpcConnection					NnIpc;
 
-	public RdnNode(string name, Zone zone, string profile, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, flow)
+	public RdnNode(string name, Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
@@ -35,7 +36,7 @@ public class RdnNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeVaultApi(Settings.Host);
+		InitializeVaultApi(NexusSettings.Host);
 
 		if(Settings.Mcv != null)
 		{
@@ -99,9 +100,15 @@ public class RdnNode : McvNode
 				SeedHub = new SeedHub(Mcv);
 			}
 
-			if(Settings.NtnPeering != null)
+			//if(Settings.NnPeering != null)
 			{
-				NtnPeering = new RdnNtnTcpPeering(this, Settings.NtnPeering, 0, flow);
+				//var IpcServer = new IpcServer(this, settings.IP.ToString(), flow);
+				var Constuctor = new Constructor();
+				Constuctor.Register<IppRequest>(typeof(NnIpcClass), i => i.Substring(3, i.Length - 3 - 5), r => r.Owner = this);
+				Constuctor.Register<IppResponse>(typeof(NnIpcClass), i => i.Substring(3, i.Length - 3 - 5));
+
+				NnIpc = new IpcConnection(this, NnTcpPeering.GetName(NexusSettings.Host), flow);
+				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
 		}
 
@@ -146,7 +153,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
-		NtnPeering?.Stop();
+		//NnPeering?.Stop();
 		Mcv?.Stop();
 
 		base.Stop();

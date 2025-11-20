@@ -4,6 +4,7 @@ namespace Uccs.Net;
 
 public class McvCli : Cli
 {
+	public NexusSettings	NexusSettings;
 	public McvNodeSettings	Settings;
 	public McvNet			Net;
 	public McvNode			Node;
@@ -13,8 +14,9 @@ public class McvCli : Cli
 	{
 	}
 
-	public McvCli(McvNodeSettings settings, McvApiClient api)
+	public McvCli(NexusSettings nexussettings, McvNodeSettings settings, McvApiClient api)
 	{
+		NexusSettings = nexussettings;
 		Settings = settings;
 		ApiClient = api;
 	}
@@ -43,7 +45,7 @@ public class McvCli : Cli
 		{
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
+				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
 				flow.Log.Dump(rp);
 			}
 			else
@@ -57,7 +59,7 @@ public class McvCli : Cli
 		{
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<AllocateTransactionResponse>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
+				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
 				flow.Log.Dump(rp);
 			}
 			else

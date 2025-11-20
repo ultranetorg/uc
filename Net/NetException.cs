@@ -2,9 +2,9 @@
 
 public enum ExceptionClass : byte
 {
-	None, Node, Request, Entity,
+	None, Node, Request, Entity, Ipc,
 	_Next,
-	Ntn = _Next,
+	Nn = _Next,
 	Vault,
 }
 
@@ -22,7 +22,7 @@ public enum NodeError : byte
 	NoIP,
 	NoMcv,
 	NoNodeForNet,
-	NoNtn,
+	NoNn,
 	NoPeering,
 	NotChain,
 	NotGraph,

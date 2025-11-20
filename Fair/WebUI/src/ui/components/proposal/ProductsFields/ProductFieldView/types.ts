@@ -1,7 +1,7 @@
 import { CompareStatus } from "../types"
 
-export interface Types {
-  value: string
-  oldValue: string | null
+export interface ProductFieldViewProp {
+  value: unknown
+  oldValue: unknown | null
   status: CompareStatus
 }

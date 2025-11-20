@@ -26,7 +26,7 @@ public class Open : Cli
 	static void Main(string[] args)
 	{
 		var boot = new NetBoot(ExeDirectory);
-		var s = new NexusSettings(boot) {Name = Guid.NewGuid().ToString()};
+		var s = new NexusSettings(boot.Zone, boot.Profile) {Name = Guid.NewGuid().ToString()};
 		var u = new Open(s, new Flow(nameof(Open), new Log()));
 
 		u.Execute(boot);
@@ -58,7 +58,7 @@ public class Open : Cli
 
 			var d = RdnApi.FindLocalResource(ura, flow)?.Last
 					?? 
-					RdnApi.Request<ResourceResponse>(new PpcApc {Request = new ResourceRequest {Identifier = new (ura)}}, flow)?.Resource?.Data;
+					RdnApi.Request<ResourcePpr>(new PpcApc {Request = new ResourcePpc {Identifier = new (ura)}}, flow)?.Resource?.Data;
 	
 			if(d == null)
 				throw new OpenException("Incorrect resource type");

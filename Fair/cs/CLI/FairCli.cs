@@ -8,7 +8,7 @@ public class FairCli : McvCli
 	{
 	}
 
-	public FairCli(FairNodeSettings settings, FairApiClient api) : base(settings, api)
+	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
 	{
 	}
 

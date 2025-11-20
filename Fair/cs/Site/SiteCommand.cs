@@ -38,7 +38,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new SiteRequest(FirstEntityId));
+								var rp = Ppc(new SitePpc(FirstEntityId));
 
 								Flow.Log.Dump(rp.Site);
 					
@@ -100,9 +100,9 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new SiteCategoriesRequest(FirstEntityId));
+								var rp = Ppc(new SiteCategoriesPpc(FirstEntityId));
 
-								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryRequest(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};

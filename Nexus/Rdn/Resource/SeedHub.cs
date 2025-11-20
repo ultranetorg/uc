@@ -137,7 +137,7 @@ public class SeedHub
 		}
 	}
 
- 	public IPAddress[] Locate(LocateReleaseRequest request)
+ 	public IPAddress[] Locate(LocateReleasePpc request)
  	{
  		if(Releases.TryGetValue(request.Address, out var v))
  			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();

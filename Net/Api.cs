@@ -98,7 +98,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -113,7 +113,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -128,7 +128,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}

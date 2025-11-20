@@ -42,7 +42,7 @@ public abstract class Round : IBinarySerializable
 	public AccountAddress[]								ConsensusFundLeavers = {};
 	public long											ConsensusECEnergyCost;
 	public int											ConsensusOverloadRound;
-	public byte[][]										ConsensusNtnStates = [];
+	public byte[][]										ConsensusNnStates = [];
 
 	public bool											Confirmed = false;
 	public byte[]										Hash;
@@ -351,7 +351,7 @@ public abstract class Round : IBinarySerializable
 										.Where(x => svotes.Count(b => b.Violators.Contains(x)) >= min)
 										.Order().ToArray();
 
-			ConsensusNtnStates	= svotes.SelectMany(i => i.NntBlocks).Distinct(Bytes.EqualityComparer)
+			ConsensusNnStates	= svotes.SelectMany(i => i.NntBlocks).Distinct(Bytes.EqualityComparer)
 										.Where(v => svotes.Count(i => i.NntBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
 										.Order(Bytes.Comparer).ToArray();
 

@@ -147,15 +147,16 @@ public class WalletCommand : VaultCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "i";
-		a.Description = "Imports existing wallet";
+		a.Description = "Imports existing wallet using file store";
 		a.Arguments =	[
+							new ("name", NAME, "Name of wallet", Flag.Optional),
 							new (p, FILEPATH, "A path to a source wallet file"),
 						];
 
 		a.Execute = () =>	{
 								var	b = File.ReadAllBytes(GetString(p));
 
-								Api(new AddWalletApc {Raw = b});
+								Api(new AddWalletApc {Name = GetString("name", null), Raw = b});
 		
 								return a;
 							};

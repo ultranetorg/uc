@@ -236,7 +236,7 @@ public class NodeCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var rp = Ppc(new MembersRequest());
+								var rp = Ppc(new MembersPpc());
 	
 								var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
 

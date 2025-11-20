@@ -1,26 +1,27 @@
 ﻿namespace Uccs.Rdn;
 
-public class RdnNtnTcpPeering : NtnTcpPeering
+public class RdnNnTcpPeering : NnTcpPeering
 {
-	public new RdnNode			Node => base.Node as RdnNode;
+	public RdnNode			Node;
 
-	public RdnNtnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, roles, flow)
+	public RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
 	{
+		Node = node;
 		node.Mcv.Confirmed += (r) =>	{
-											foreach(var i in r.ConsensusNtnStates)
+											foreach(var i in r.ConsensusNnStates)
 											{
-												var b = new NtnBlock();
+												var b = new NnBlock();
 
 												b.Net	= node.Net.Name;
 												b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
-																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NtnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
+																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
 												Broadcast(b);
 											}
 										};
 		Run();
 	}
 
-	public override byte[] GetStateHash(string net)
+	public byte[] GetStateHash(string net)
 	{
 		lock(Node.Mcv.Lock)
 		{
@@ -29,7 +30,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 			if(d == null)
 				throw new EntityException(EntityError.NotFound);
 
-			return d.NtnSelfHash;
+			return d.NnSelfHash;
 		}
 	}
 
@@ -42,7 +43,7 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 		{
 			lock(Node.Mcv.Lock)
 			{	
-				var n = Node.Mcv.Domains.Latest(hello.Net)?.NtnChildNet;
+				var n = Node.Mcv.Domains.Latest(hello.Net)?.NnChildNet;
 				
 				if(n == null)
 					return false;
@@ -55,28 +56,86 @@ public class RdnNtnTcpPeering : NtnTcpPeering
 		return true;
 	}
 
-	public override NtnBlock ProcessIncoming(byte[] raw, Peer peer)
+	public NnBlock ProcessIncoming(byte[] raw, Peer peer)
 	{
 		lock(Node.Mcv.Lock)
 		{
-			var b = Node.Mcv.NtnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
+			var b = Node.Mcv.NnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
 
 			if(b != null)
 				return null;
 
-			b = new NtnBlock {RawPayload = raw};
+			b = new NnBlock {RawPayload = raw};
 			b.Restore();
 
-			var r = Call(b.Net, () => new NtnStateHashRequest {Net = Node.Net.Name}, Flow);
+			var r = Call(b.Net, () => new StateHashNnc {Net = Node.Net.Name}, Flow); /// get the hash  from other net for checking
 
 			if(r.Hash.SequenceEqual(b.State.Hash))
 			{
-				Node.Mcv.NtnBlocks.Add(b);
+				Node.Mcv.NnBlocks.Add(b);
 
 				return b;
 			}
 			else
 				return null;
 		}
+	}
+
+	public R Call<R>(Func<Nnc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
+	{
+		return Call((Func<FuncPeerRequest>)call, workflow, exclusions) as R;
+	}
+
+	public PeerResponse Call(Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	{
+		var tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
+
+		Peer p;
+
+		while(workflow.Active)
+		{
+			Thread.Sleep(1);
+
+			lock(Lock)
+			{
+				p = Node.Peering.ChooseBestPeer((long)Role.Graph, tried);
+
+				if(p == null)
+				{
+					tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
+					continue;
+				}
+			}
+
+			tried.Add(p);
+
+			try
+			{
+				Connect(p, workflow);
+
+				var c = call();
+				c.Peering = this;
+
+				return p.Send(c);
+			}
+			catch(NodeException)
+			{
+			}
+			catch(ContinueException)
+			{
+			}
+		}
+
+		throw new OperationCanceledException();
+	}
+
+	public override PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	{
+		if(net == Node.Net.Name)
+		{
+			return Call(call, workflow, exclusions);
+		}
+
+		return base.Call(net, call, workflow, exclusions);
 	}
 }

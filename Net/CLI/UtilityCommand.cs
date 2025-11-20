@@ -28,7 +28,7 @@ public class UtilityCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var info = Ppc(new InfoRequest {});
+								var info = Ppc(new InfoPpc {});
 								
 								var toe = GetString(to).Split('/')[1];
 

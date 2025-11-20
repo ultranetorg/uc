@@ -18,7 +18,7 @@ public enum DomainChildPolicy : byte
 	Programmatic	= 0b11111111, 
 }
 
-public enum NtnStatus
+public enum NnStatus
 {
 	None,
 	Initialized,
@@ -55,8 +55,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public long						Space { get; set; }
 	
 	public DomainChildPolicy		ParentPolicy { get; set; }
-	public NtnState					NtnChildNet { get; set; }
-	public byte[]					NtnSelfHash { get; set; }
+	public NnState					NnChildNet { get; set; }
+	public byte[]					NnSelfHash { get; set; }
 
 	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
@@ -93,8 +93,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 								LastBid = LastBid,
 								LastBidTime = LastBidTime,
 								Space = Space,
-								NtnChildNet = NtnChildNet,
-								NtnSelfHash = NtnSelfHash};
+								NnChildNet = NnChildNet,
+								NnSelfHash = NnSelfHash};
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -189,7 +189,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		
 		if(LastWinner != null)	f |= DomainFlag.Auction;
 		if(Owner != null)		f |= DomainFlag.Owned;
-		if(NtnChildNet != null)	f |= DomainFlag.ChildNet;
+		if(NnChildNet != null)	f |= DomainFlag.ChildNet;
 
 		writer.Write((byte)f);
 		writer.WriteUtf8(Address);
@@ -219,8 +219,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 		if(f.HasFlag(DomainFlag.ChildNet))
 		{
-			writer.Write(NtnChildNet);
-			writer.Write(NtnSelfHash);
+			writer.Write(NnChildNet);
+			writer.Write(NnSelfHash);
 		}
 	}
 
@@ -255,8 +255,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 		if(f.HasFlag(DomainFlag.ChildNet))
 		{
-			NtnChildNet	= reader.Read<NtnState>();
-			NtnSelfHash = reader.ReadHash();
+			NnChildNet	= reader.Read<NnState>();
+			NnSelfHash = reader.ReadHash();
 		}
 	}
 }

@@ -61,7 +61,7 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new AuthorRequest(FirstAuthorId));
+								var rp = Ppc(new AuthorPpc(FirstAuthorId));
 
 								Flow.Log.Dump(rp.Author);
 					

@@ -19,7 +19,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var i = Ppc(new FairAccountRequest(First));
+								var i = Ppc(new FairAccountPpc(First));
 												
 								Flow.Log.Dump(i.Account);
 
@@ -59,7 +59,7 @@ public class AccountCommand : Net.AccountCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new AccountAuthorsRequest(First));
+								var rp = Ppc(new AccountAuthorsPpc(First));
 
 								Flow.Log.Dump(rp.Authors, ["Id"], [i => i]);
 					
@@ -79,9 +79,9 @@ public class AccountCommand : Net.AccountCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new AccountSitesRequest(First));
+								var rp = Ppc(new AccountSitesPpc(First));
 
-								Flow.Log.Dump(rp.Sites.Select(i => Ppc(new SiteRequest(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Flow.Log.Dump(rp.Sites.Select(i => Ppc(new SitePpc(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
 								return rp.Sites;
 							};

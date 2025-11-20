@@ -24,15 +24,15 @@ public class FairTypeResolver : ApiTypeResolver
         var ti = base.GetTypeInfo(type, options);
 
         if(ti.Type == typeof(FuncPeerRequest))
-			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Request".Length))))
+			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         else if(ti.Type == typeof(PeerResponse))
-			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Response".Length))))
+			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         else if(ti.Type == typeof(CodeException))
-			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Remove(i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         else if(ti.Type == typeof(SiteOperation))
@@ -132,7 +132,7 @@ public class CostApc : FairApc
 			Rate = 1;
 		}
 
-		var r = rdn.Peering.Call(() => new CostRequest(), flow);
+		var r = rdn.Peering.Call(() => new CostPpc(), flow);
 
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,

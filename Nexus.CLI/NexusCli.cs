@@ -27,7 +27,7 @@ public class NexusCli : Cli
 	public static void Main(string[] args)
 	{
 		var b = new NetBoot(ExeDirectory);
-		var ns = new NexusSettings(b) {Name = Guid.NewGuid().ToString()};
+		var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
 		var vs = new VaultSettings(b.Profile, b.Zone);
 		
 		var cli = new NexusCli();

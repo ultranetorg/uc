@@ -101,7 +101,7 @@ public class Dependency : IEquatable<Dependency>
 public enum ParentPackageFlag : byte
 {
 	None, 
-	Compatible	= 0b0000_0001, 
+	Software_Compatible	= 0b0000_0001, 
 }
 
 public class ParentPackage

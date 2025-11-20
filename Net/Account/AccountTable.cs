@@ -31,6 +31,11 @@ public class AccountTable : Table<AutoId, Account>
 		return FindEntry(account);
 	}
 
+	public Account Latest(AccountAddress account)
+	{
+		return Find(account, Mcv.LastConfirmedRound.Id);
+	}
+
 // 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 // 		{
 // 			var e = FindEntry(account);

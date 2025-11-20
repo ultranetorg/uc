@@ -65,7 +65,7 @@ public class ProductCommand : FairCommand
 
 								var o =	new ProductUpdation(First);
 
-								var	r = Ppc(new ProductRequest(First)).Product;
+								var	r = Ppc(new ProductPpc(First)).Product;
 
 								if(Has(definition))
 									o.Fields = Product.ParseDefinition(Product.FindDeclaration(r.Type), GetString(definition));
@@ -87,7 +87,7 @@ public class ProductCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var	r = Ppc(new ProductRequest(First)).Product;
+								var	r = Ppc(new ProductPpc(First)).Product;
 				
 								Flow.Log.Dump(r);
 

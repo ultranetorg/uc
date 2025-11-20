@@ -11,11 +11,11 @@ public class AccountSessionSettings
 
 public class McvNodeSettings : SavableSettings
 {
-	public IPAddress				Host { get; set; } = Net.DefaultHost;
+	public string					Name { get; set; }
 	public IpApiSettings			Api { get; set; }
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
-	public PeeringSettings			NtnPeering { get; set; }
+	//public PeeringSettings			NnPeering { get; set; }
 	public AccountSessionSettings[]	Sessions { get; set; }
 	public bool						Log { get; set; }
 	public int						RdcQueryTimeout { get; set; } = 5000;

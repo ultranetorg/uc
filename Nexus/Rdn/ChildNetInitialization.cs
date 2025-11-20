@@ -3,7 +3,7 @@
 public class ChildNetInitialization : RdnOperation
 {
 	public AutoId		Domain  { get; set; }
-	public NtnState		Net { get; set; }
+	public NnState		Net { get; set; }
 
 	public override string		Explanation => $"Hash={Net.Hash.ToHex()}, Pees={Net.Peers.Length}";
 	
@@ -25,7 +25,7 @@ public class ChildNetInitialization : RdnOperation
 	public override void Read(BinaryReader reader)
 	{
 		Domain	= reader.Read<AutoId>();
-		Net		= reader.Read<NtnState>();
+		Net		= reader.Read<NnState>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -39,7 +39,7 @@ public class ChildNetInitialization : RdnOperation
 		if(RequireSignerDomain(execution, Domain, out var e) == false)
 			return;
 
-		if(e.NtnChildNet != null)
+		if(e.NnChildNet != null)
 		{
 			Error = AlreadyExists;
 			return;
@@ -53,7 +53,7 @@ public class ChildNetInitialization : RdnOperation
 
 		e = execution.Domains.Affect(Domain);
 
- 		e.NtnChildNet = Net;
+ 		e.NnChildNet = Net;
 	
 		execution.PayCycleEnergy(Signer);
 	}

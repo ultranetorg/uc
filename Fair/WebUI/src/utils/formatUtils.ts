@@ -22,6 +22,10 @@ export const formatDate = (days: number): string => {
   return dayjs(START_DATE).add(days, "day").startOf("day").format("DD MMM YYYY")
 }
 
+export function formatSecDate(seconds: number) {
+  return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD MMM YYYY")
+}
+
 export const formatDuration = (t: TFunction, durationInDays: number): string => {
   const years = Math.floor(durationInDays / 365)
   if (years > 0) {
