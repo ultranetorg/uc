@@ -17,7 +17,7 @@ export const PublicationsList = ({ isLoading, siteId, publications }: Publicatio
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300">
       {publications.map(({ id, ...rest }) => (
-        <Link to={`/${siteId}/p/${id}`} key={id}>
+        <Link className="block" to={`/${siteId}/p/${id}`} key={id}>
           <PublicationRow {...rest} />
         </Link>
       ))}
