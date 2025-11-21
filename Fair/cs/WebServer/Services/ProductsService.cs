@@ -11,6 +11,31 @@ public class ProductsService
 	FairMcv mcv
 )
 {
+	public ProductModel GetProduct([NotNull][NotEmpty] string productId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetProduct), productId);
+
+		Guard.Against.NullOrEmpty(productId);
+
+		AutoId id = AutoId.Parse(productId);
+
+		lock(mcv.Lock)
+		{
+			Product product = mcv.Products.Latest(id);
+			if(product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+			}
+
+			FieldValue[] fields = GetFieldsLastVersion(product);
+			IEnumerable<ProductFieldValueModel> mappedFields = fields != null ? MapValues(fields, Product.Software) : null;
+			return new ProductModel(product)
+			{
+				Versions = mappedFields
+			};
+		}
+	}
+
 	public IEnumerable<ProductFieldValueModel> GetFields([NotNull][NotEmpty] string productId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
@@ -27,11 +52,12 @@ public class ProductsService
 				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 			}
 
-			var fields = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
-
+			FieldValue[] fields = GetFieldsLastVersion(product);
 			return fields != null ? MapValues(fields, Product.Software) : [];
 		}
 	}
+
+	FieldValue[]? GetFieldsLastVersion(Product product) => product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
 
 	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
 	{

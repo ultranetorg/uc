@@ -13,9 +13,9 @@ export type AccountsListItemProps = {
 
 export const AccountsListItem = memo(({ title, avatarId, onRemove }: AccountsListItemProps) => (
   <div className="flex items-center gap-2 rounded-full border border-gray-300 py-2 pl-2 pr-3">
-    <div className="h-8 w-8 overflow-hidden rounded-full" title={title}>
+    <div className="size-8 overflow-hidden rounded-full" title={title}>
       <img
-        className="h-full w-full object-cover object-center"
+        className="size-full object-cover object-center"
         src={buildAccountAvatarUrl(avatarId)}
         onError={e => {
           e.currentTarget.onerror = null

@@ -113,7 +113,7 @@ const routes: RouteObject[] = [
             element: <ModeratorChangedPublicationPage />,
           },
           {
-            path: "/:siteId/m/n/:publicationId",
+            path: "/:siteId/m/n/:productId",
             element: <ModeratorUnpublishedPublicationPage />,
           },
           {
