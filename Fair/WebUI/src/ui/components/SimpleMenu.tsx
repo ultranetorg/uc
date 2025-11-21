@@ -1,4 +1,4 @@
-import { forwardRef, memo, useMemo } from "react"
+import { forwardRef, memo, MouseEvent, useCallback, useMemo } from "react"
 import { Link, To } from "react-router-dom"
 
 import { PropsWithStyle } from "types"
@@ -14,7 +14,7 @@ export type SimpleMenuItem =
     }
   | {
       label: string
-      onClick: () => void
+      onClick: (e: MouseEvent<HTMLDivElement>) => void
       to?: never
     }
 
@@ -29,12 +29,20 @@ export const SimpleMenu = memo(
   forwardRef<HTMLDivElement, SimpleMenuProps>(({ style, items, onClick }, ref) => {
     const chunks = useMemo(() => chunkArray(items, 8), [items])
 
+    const handleClick = useCallback(
+      (e: MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation()
+        onClick?.()
+      },
+      [onClick],
+    )
+
     return (
       <div
         ref={ref}
         style={style}
         className="z-10 flex cursor-pointer flex-wrap rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md"
-        onClick={onClick}
+        onClick={handleClick}
       >
         {chunks.map((chunk, i) => (
           <div key={i} className="flex flex-col">

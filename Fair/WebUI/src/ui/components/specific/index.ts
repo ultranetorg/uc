@@ -15,5 +15,7 @@ export * from "./SitesGrid"
 
 export * from "./AboutInfo"
 export * from "./GovernanceModerationHeader"
+export * from "./ModeratorOptionsMenu"
+export * from "./ModeratorPublicationMenu"
 export * from "./ScrollToTop"
 export * from "./ToggleViewButton"

@@ -92,6 +92,13 @@ export const enUS = {
   },
 
   /* Components */
+  moderatorOptionsMenu: {
+    label: "Moderation options",
+    removePublication: "Remove publication",
+  },
+  moderatorPublicationMenu: {
+    removePublication: "Remove publication",
+  },
   productFields: {
     loading: "loading..",
     noData: "No fields data",
@@ -100,6 +107,7 @@ export const enUS = {
     invalidUrl: "Invalid URL",
     unsupportedTag: "Your browser does not support the tag.",
   },
+
   /* Pages */
   about: {
     about: "About",

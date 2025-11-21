@@ -1,7 +1,8 @@
+import { Link } from "react-router-dom"
+
 import { Publication, PublicationExtended } from "types"
 
 import { PublicationRow } from "./PublicationRow"
-import { Link } from "react-router-dom"
 
 export type PublicationsListProps = {
   isLoading?: boolean
@@ -16,9 +17,9 @@ export const PublicationsList = ({ isLoading, siteId, publications }: Publicatio
 
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300">
-      {publications.map(({ id, ...rest }) => (
-        <Link className="block" to={`/${siteId}/p/${id}`} key={id}>
-          <PublicationRow {...rest} />
+      {publications.map(x => (
+        <Link className="block" to={`/${siteId}/p/${x.id}`} key={x.id}>
+          <PublicationRow {...x} />
         </Link>
       ))}
     </div>
