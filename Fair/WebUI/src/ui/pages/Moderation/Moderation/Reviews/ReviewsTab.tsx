@@ -57,14 +57,14 @@ export const ReviewsTab = () => {
 
   const handleApproveClick = useCallback(
     (value?: unknown) => {
-      console.log("approve", isString(value) ? value : selectedReviewId)
+      alert("approve " + (isString(value) ? value : selectedReviewId))
     },
     [selectedReviewId],
   )
 
   const handleRejectClick = useCallback(
     (value?: unknown) => {
-      console.log("reject", isString(value) ? value : selectedReviewId)
+      alert("reject " + (isString(value) ? value : selectedReviewId))
     },
     [selectedReviewId],
   )

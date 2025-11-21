@@ -66,7 +66,7 @@ public class ModeratorProposalsService
 
 	public UserProposalModel GetUserProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
-		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetUserProposal), siteId, proposalId);
 
 		Guard.Against.NullOrEmpty(proposalId);
 
@@ -79,7 +79,8 @@ public class ModeratorProposalsService
 	public TotalItemsResult<UserProposalModel> GetUserProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetUserProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}",
+			nameof(ModeratorProposalsService), nameof(GetUserProposalsNotOptimized), siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
@@ -98,7 +99,7 @@ public class ModeratorProposalsService
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
-		logger.LogDebug($"GET {nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetPublicationProposal)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetPublicationProposal), siteId, proposalId);
 
 		Guard.Against.NullOrEmpty(proposalId);
 
@@ -111,7 +112,8 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(ModeratorProposalsService)}.{nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized)} method called with {{SiteId}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, page, pageSize, search);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}",
+			nameof(ModeratorProposalsService), nameof(GetPublicationsProposalsNotOptimized), siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
@@ -187,7 +189,7 @@ public class ModeratorProposalsService
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
-			if (!site.Proposals.Any(x => x == proposalEntityId))
+			if (site.Proposals.All(x => x != proposalEntityId))
 			{
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
@@ -229,7 +231,7 @@ public class ModeratorProposalsService
 		var items = new List<T>(pageSize);
 		int totalItems = 0;
 
-		foreach (var proposalId in site.Proposals)
+		foreach (AutoId proposalId in site.Proposals)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
