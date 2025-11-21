@@ -6,12 +6,11 @@ import { isNumber, isString } from "lodash"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useUrlParamsState } from "hooks"
-import { Pagination, Table, TableEmptyState } from "ui/components"
+import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { getReviewsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
 import { ReviewEdit } from "types"
-import { PreviewReviewModal } from "./PreviewReviewModal"
 
 export const ReviewsTab = () => {
   const { t } = useTranslation("tabReviews")
@@ -55,18 +54,25 @@ export const ReviewsTab = () => {
     [reviews],
   )
 
+  const handleCloseModal = useCallback(() => {
+    setSelectedReviewText(undefined)
+    setSelectedReviewId(undefined)
+  }, [])
+
   const handleApproveClick = useCallback(
     (value?: unknown) => {
       alert("approve " + (isString(value) ? value : selectedReviewId))
+      handleCloseModal()
     },
-    [selectedReviewId],
+    [handleCloseModal, selectedReviewId],
   )
 
   const handleRejectClick = useCallback(
     (value?: unknown) => {
       alert("reject " + (isString(value) ? value : selectedReviewId))
+      handleCloseModal()
     },
-    [selectedReviewId],
+    [handleCloseModal, selectedReviewId],
   )
 
   const handlePageChange = useCallback(
@@ -76,11 +82,6 @@ export const ReviewsTab = () => {
     },
     [setState],
   )
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedReviewText(undefined)
-    setSelectedReviewId(undefined)
-  }, [])
 
   const itemRenderer = useMemo(
     () => getReviewsItemRenderer(t, handleApproveClick, handleRejectClick),
@@ -103,11 +104,13 @@ export const ReviewsTab = () => {
         </div>
       </div>
       {selectedReviewId && selectedReviewText && (
-        <PreviewReviewModal
+        <TextModal
+          title={t("reviewModalTitle")}
           text={selectedReviewText}
-          onClose={handleCloseModal}
-          onApproveClick={handleApproveClick}
-          onRejectClick={handleRejectClick}
+          onCancel={handleRejectClick}
+          onConfirm={handleApproveClick}
+          confirmLabel={t("common:approve")}
+          cancelLabel={t("common:reject")}
         />
       )}
     </>

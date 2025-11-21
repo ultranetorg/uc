@@ -245,9 +245,6 @@ export const enUS = {
     title: "Select image",
     noFiles: "You don't have any image",
   },
-  previewReviewModal: {
-    title: "Review text",
-  },
 
   /* Tabs */
   tabChangedPublications: {
@@ -264,6 +261,7 @@ export const enUS = {
     noReviews: "No reviews",
     reviewer: "Review user",
     text: "Text",
+    reviewModalTitle: "Review text",
   },
   tabUnpublishedPublications: {
     noPublications: "No unpublished publications",
