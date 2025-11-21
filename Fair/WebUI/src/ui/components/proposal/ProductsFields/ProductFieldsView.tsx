@@ -1,13 +1,13 @@
 import { memo, ReactElement, useRef, useState, useEffect, useCallback } from "react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { ProductFieldViewModel, TotalItemsResult } from "types"
-import { ProductFieldsTree } from "./ProductFieldsTree"
 import { useTranslation } from "react-i18next"
+import { ProductFieldViewModel } from "types"
+import { ProductFieldsTree } from "./ProductFieldsTree"
 import { SelectedProps } from "./types"
 
 export interface ProductFieldsViewProps extends SelectedProps {
   children?: ReactElement | null
-  response: UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
+  response: UseQueryResult<ProductFieldViewModel[], Error>
 }
 
 export const ProductFieldsView = memo(({ response, selected, onSelect, children }: ProductFieldsViewProps) => {
@@ -93,9 +93,9 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
       >
         <div>
           <div className="flex h-12 flex-col items-center justify-center gap-1">
-            <div className="h-1 w-1 rounded-full bg-gray-200" />
-            <div className="h-1 w-1 rounded-full bg-gray-300" />
-            <div className="h-1 w-1 rounded-full bg-gray-200" />
+            <div className="size-1 rounded-full bg-gray-200" />
+            <div className="size-1 rounded-full bg-gray-300" />
+            <div className="size-1 rounded-full bg-gray-200" />
           </div>
         </div>
       </div>

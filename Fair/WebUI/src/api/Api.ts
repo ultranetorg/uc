@@ -111,7 +111,7 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(productId: string): Promise<TotalItemsResult<ProductFieldModel>>
+  getProductFields(productId: string): Promise<ProductFieldModel[]>
 
   getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldCompare>
 
