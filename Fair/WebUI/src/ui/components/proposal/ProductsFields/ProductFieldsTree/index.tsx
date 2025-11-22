@@ -2,14 +2,14 @@ import { useCallback, useState, memo } from "react"
 import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "@tanstack/react-query"
 
-import { ProductFieldViewModel, TotalItemsResult } from "types"
+import { ProductFieldViewModel } from "types"
 import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 
 import { SelectedProps } from "../types"
 import { getCompareStatus } from "../utils"
 
 export interface ProductFieldsTreeProps<TModel extends ProductFieldViewModel> extends SelectedProps<TModel> {
-  response: UseQueryResult<TotalItemsResult<TModel>, Error>
+  response: UseQueryResult<TModel[], Error>
 }
 
 const pretty = (v?: string) => (v ? v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "")
@@ -50,13 +50,13 @@ const TreeNode = <TModel extends ProductFieldViewModel>({
   return (
     <>
       <div
-        className={`flex cursor-pointer select-none gap-2 px-1 py-1 ${rowStatusClass} ${selectedClass}`}
+        className={`flex cursor-pointer select-none gap-2 p-1 ${rowStatusClass} ${selectedClass}`}
         role="treeitem"
         aria-expanded={hasChildren ? !closed : undefined}
         tabIndex={0}
         aria-label={pretty(node.name)}
       >
-        <span className="h-4 w-4" onClick={() => setClosed(v => !v)}>
+        <span className="size-4" onClick={() => setClosed(v => !v)}>
           {hasChildren && (
             <SvgChevronRightMd className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
           )}
@@ -107,13 +107,13 @@ export const ProductFieldsTree = memo(
       return Error(t("loadError"))
     }
 
-    if (!data?.items.length) {
+    if (!data?.length) {
       return NoData(t("noData"))
     }
 
     return (
       <>
-        {data.items.map((node, index) => (
+        {data.map((node, index) => (
           <MemoTreeNode<TModel>
             key={(node as ProductFieldViewModel).id ?? index}
             node={node as TModel}

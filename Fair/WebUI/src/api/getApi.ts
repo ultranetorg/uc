@@ -62,7 +62,7 @@ const searchSites = async (query?: string, page?: number): Promise<TotalItemsRes
   return await toTotalItemsResult(res)
 }
 
-const searchLiteSites = async (query?: string): Promise<SiteLiteSearch[]> =>
+const searchLiteSites = (query?: string): Promise<SiteLiteSearch[]> =>
   fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
 const searchPublications = async (
@@ -196,7 +196,7 @@ const getAuthorReferendums = async (
 const getProduct = (productId: string): Promise<Product> =>
   fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
 
-const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> =>
+const getModeratorDiscussion = (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
 const getModeratorDiscussionComments = async (
@@ -241,12 +241,10 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProductFields = async (productId: string): Promise<TotalItemsResult<ProductFieldModel>> => {
-  const res = await fetch(`${BASE_URL}/products/${productId}/fields`)
-  return await toTotalItemsResult(res)
-}
+const getProductFields = (productId: string): Promise<ProductFieldModel[]> =>
+  fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
-const getProductCompareFields = async (publicationId: string, version: number): Promise<ProductFieldCompare> =>
+const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldCompare> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
 const getReviewProposals = async (
