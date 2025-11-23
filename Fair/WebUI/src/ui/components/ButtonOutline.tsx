@@ -1,4 +1,4 @@
-import { memo, ReactNode } from "react"
+import { memo, MouseEvent, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -9,7 +9,7 @@ export type ButtonOutlineBaseProps = {
   iconBefore?: ReactNode
   label: string
   iconPosition?: "before" | "after"
-  onClick?: () => void
+  onClick?: (e: MouseEvent<HTMLSpanElement>) => void
 }
 
 export type ButtonOutlineProps = PropsWithClassName & ButtonOutlineBaseProps

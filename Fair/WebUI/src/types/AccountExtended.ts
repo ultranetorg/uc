@@ -1,6 +1,6 @@
-import { AccountBase } from "./AccountBase"
+import { AccountBaseAvatar } from "./AccountBaseAvatar"
 
 export type AccountExtended = {
   roles: string[]
   registrationDate: number
-} & AccountBase
+} & AccountBaseAvatar

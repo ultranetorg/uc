@@ -15,7 +15,8 @@ public static class McvUtils
 				return result;
 			
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(moderatorsId);
-			result.Add(new AccountBaseModel(account));
+			AccountBaseModel model = new(account);
+			result.Add(model);
 		}
 
 		return result;

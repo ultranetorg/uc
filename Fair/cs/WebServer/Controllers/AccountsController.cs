@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class AccountsController
 (
 	ILogger<AccountsController> logger,
-	IAccountsService usersService,
+	AccountsService accountsService,
 	ISearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
@@ -17,15 +15,15 @@ public class AccountsController
 	[HttpGet("{accountId}")]
 	public UserModel Get(string accountId)
 	{
-		logger.LogInformation($"GET {nameof(AccountsController)}.{nameof(AccountsController.Get)} method called with {{AccountId}}", accountId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(Get), accountId);
 
 		autoIdValidator.Validate(accountId, nameof(Account).ToLower());
 
-		return usersService.Get(accountId);
+		return accountsService.Get(accountId);
 	}
 
 	[HttpGet]
-	public IEnumerable<AccountBaseModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
 
@@ -38,10 +36,20 @@ public class AccountsController
 	[HttpGet("search")]
 	public IEnumerable<AccountSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(AccountsController), nameof(AccountsController.SearchLite), query);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(AccountsController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
 		return searchService.SearchLiteAccounts(query, SearchConstants.SearchAccountsLimit, cancellationToken);
+	}
+
+	[HttpGet("{accountId}/avatar")]
+	public FileContentResult GetAvatar(string accountId)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
+
+		autoIdValidator.Validate(accountId, nameof(Account).ToLower());
+
+		return accountsService.GetAvatar(accountId);
 	}
 }

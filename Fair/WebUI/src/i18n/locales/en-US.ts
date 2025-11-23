@@ -7,6 +7,7 @@ export const enUS = {
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
+    approve: "approve",
     author: "Author",
     back: "back",
     ban: "Ban",
@@ -32,6 +33,7 @@ export const enUS = {
     publication: "Publication",
     rating: "Rating",
     remove: "remove",
+    reject: "reject",
     review: "review",
     reviewer: "Reviewer",
     text: "Text",
@@ -90,6 +92,13 @@ export const enUS = {
   },
 
   /* Components */
+  moderatorOptionsMenu: {
+    label: "Moderation options",
+    removePublication: "Remove publication",
+  },
+  moderatorPublicationMenu: {
+    removePublication: "Remove publication",
+  },
   productFields: {
     loading: "loading..",
     noData: "No fields data",
@@ -98,6 +107,7 @@ export const enUS = {
     invalidUrl: "Invalid URL",
     unsupportedTag: "Your browser does not support the tag.",
   },
+
   /* Pages */
   about: {
     about: "About",
@@ -216,16 +226,20 @@ export const enUS = {
     addedAnswers:
       "The following answers will be added to your default answer options: Any, ‘Neither’, ‘Ban’, ‘Banish’.",
     addOption: "Add option",
+    changeImage: "Change image",
     changeModerators: "Change Moderators",
     createDiscussion: "Create Discussion",
     createReferendum: "Create Referendum",
     description: "Description (optional)",
+    enterNickname: "Enter nickname",
     howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
-    selectAuthorsToAdd: "Select Authors to Add",
-    selectAuthorsToRemove: "Select Authors to Remove",
-    selectModeratorsToAdd: "Select Moderators to Add",
-    selectModeratorsToRemove: "Select Moderators to Remove",
+    removeFile: "Remove file",
+    selected: "Selected",
+    selectImage: "Select image",
+    selectMembersToAdd: "Select {{memberType}}s to Add",
+    selectMembersToRemove: "Select {{memberType}}s to Remove",
+    userNotFound: "User with that username not found",
   },
 
   /* Modals */
@@ -236,7 +250,8 @@ export const enUS = {
     currentMembersTitle: "Currently {{memberType}}s ({{count}})",
   },
   memberFilesModal: {
-    title: "Select file",
+    title: "Select image",
+    noFiles: "You don't have any image",
   },
 
   /* Tabs */
@@ -254,6 +269,7 @@ export const enUS = {
     noReviews: "No reviews",
     reviewer: "Review user",
     text: "Text",
+    reviewModalTitle: "Review text",
   },
   tabUnpublishedPublications: {
     noPublications: "No unpublished publications",
@@ -293,6 +309,10 @@ export const enUS = {
     "user-deletion": "User deletion",
     "user-registration": "User registration",
   },
+  extraOperations: {
+    "site-author-addition": "Site author addition",
+    "site-author-removal": "Site author removal",
+  },
   operationsShort: {
     "publication-creation": "Creation",
     "publication-deletion": "Deletion",
@@ -317,7 +337,7 @@ export const enUS = {
     enterTitle: "Enter title",
     selectApprovalPolicy: "Select approval policy",
     selectCategory: "Select category",
-    selectFile: "Select file",
+    selectImage: "Select image",
     selectParentCategory: "Select parent category",
     selectCategoryType: "Select category type",
     selectOperationClass: "Select operation class",
@@ -345,6 +365,7 @@ export const enUS = {
     uniqueCategoryTitle: "Category title must be unique",
     uniqueCategoryType: "Category type must be unique",
     uniqueFile: "File must be unique",
+    uniqueMembers: "{{memberType}}s must be unique",
     uniqueParentCategory: "Parent category must be unique",
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
@@ -372,5 +393,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  }
+  },
 }

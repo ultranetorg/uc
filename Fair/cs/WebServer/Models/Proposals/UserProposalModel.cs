@@ -2,5 +2,5 @@
 
 public class UserProposalModel(Proposal proposal, FairAccount signer) : BaseProposal(proposal)
 {
-	public AccountBaseModel Signer { get; } = new(signer);
+	public AccountBaseAvatarModel Signer { get; } = new(signer);
 }

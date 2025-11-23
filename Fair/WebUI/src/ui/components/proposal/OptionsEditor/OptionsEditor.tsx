@@ -11,6 +11,7 @@ import {
 
 import { useModerationContext } from "app"
 import {
+  CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
   CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES,
   CREATE_DISCUSSION_OPERATION_TYPES,
   CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES,
@@ -24,8 +25,8 @@ import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
 import { EditorOperationFields } from "./types"
 import {
-  validateSiteAuthorsChange,
-  validateSiteModeratorAddition,
+  getValidateSiteMembersAddition,
+  validateSiteAuthorRemoval,
   validateSiteModeratorRemoval,
   validateSiteTextChange,
 } from "./validations"
@@ -40,8 +41,9 @@ const validationMap: Record<
     lastEditedIndex: number,
   ) => void
 > = {
-  "site-authors-change": validateSiteAuthorsChange,
-  "site-moderator-addition": validateSiteModeratorAddition,
+  "site-author-addition": getValidateSiteMembersAddition("author"),
+  "site-author-removal": validateSiteAuthorRemoval,
+  "site-moderator-addition": getValidateSiteMembersAddition("moderator"),
   "site-moderator-removal": validateSiteModeratorRemoval,
   "site-text-change": validateSiteTextChange,
 }
@@ -71,7 +73,11 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
   const typesItems = useMemo<DropdownItem[]>(() => {
     const types = proposalType === "discussion" ? CREATE_DISCUSSION_OPERATION_TYPES : CREATE_REFERENDUM_OPERATION_TYPES
-    return types.map(x => ({ label: t(`operations:${x}`), value: x as string }))
+    return types.map(x => ({
+      // @ts-expect-error fix
+      label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
+      value: x as string,
+    }))
   }, [proposalType, t])
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
@@ -160,7 +166,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
         <>
           <div className="flex flex-col gap-4">
             {!discussionSingleOption && (
-              <span className="text-xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}:</span>
+              <span className="text-2xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}</span>
             )}
             <OptionsEditorList
               t={t}

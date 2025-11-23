@@ -1,17 +1,17 @@
 import { memo, useMemo, useState } from "react"
 import { ProductFieldViewModel } from "types"
-import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo"
 import { useGetProductCompareFields } from "entities"
+import { ProductFieldInfo } from "./ProductFieldsTree/ProductFieldInfo"
 import { ProductFieldsView } from "./ProductFieldsView"
 import { mergeFields } from "./utils"
 import { SelectedProps } from "./types"
 
 export type ProductCompareFieldsProps = {
-  publications: { id: string, version: number }[]
+  publications: { id: string; version: number }[]
 }
 
 interface ViewProps extends SelectedProps {
-  publicationId: string,
+  publicationId: string
   version: number
 }
 
@@ -30,6 +30,12 @@ export const ProductCompareFields = ({ publications }: ProductCompareFieldsProps
   const [selected, setSelected] = useState<ProductFieldViewModel | null>(null)
 
   return publications.map(publication => (
-    <View key={publication.id} publicationId={publication.id} version={publication.version} selected={selected} onSelect={node => setSelected(node)} />
+    <View
+      key={publication.id}
+      publicationId={publication.id}
+      version={publication.version}
+      selected={selected}
+      onSelect={node => setSelected(node)}
+    />
   ))
 }

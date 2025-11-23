@@ -1,4 +1,7 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Mime;
+using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
@@ -6,11 +9,11 @@ public class AccountsService
 (
 	ILogger<AccountsService> logger,
 	FairMcv mcv
-) : IAccountsService
+)
 {
-	public UserModel Get(string userId)
+	public UserModel Get([NotNull][NotEmpty] string userId)
 	{
-		logger.LogDebug($"GET {nameof(AccountsService)}.{nameof(AccountsService.Get)} method called with {{UserId}}", userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(AccountsService), nameof(Get), userId);
 
 		Guard.Against.NullOrEmpty(userId);
 
@@ -118,6 +121,26 @@ public class AccountsService
 		result.ProductsModels = productModels.Length > 0 ? productModels : [];
 
 		return result;
+	}
+
+	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(AccountsService), nameof(GetAvatar), accountId);
+
+		Guard.Against.NullOrEmpty(accountId);
+
+		AutoId id = AutoId.Parse(accountId);
+
+		lock(mcv.Lock)
+		{
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+			if(account == null || account.Avatar == null)
+			{
+				throw new EntityNotFoundException(nameof(Account).ToLower(), accountId);
+			}
+
+			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
+		}
 	}
 
 	private class LoadProductsResult

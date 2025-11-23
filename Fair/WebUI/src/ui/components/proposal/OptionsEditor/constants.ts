@@ -28,7 +28,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "file",
           name: "fileId",
-          placeholder: t("placeholders:selectFile"),
+          placeholder: t("placeholders:selectImage"),
           // @ts-expect-error incompatible param.
           rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },
@@ -154,17 +154,20 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
 
     // Site
     {
-      operationType: "site-authors-change",
+      operationType: "site-author-addition",
       fields: [
         {
           valueType: "authors-additions",
-          name: "candidatesIds",
-          placeholder: t("selectAuthorsToAdd"),
+          name: "candidatesAccounts",
         },
+      ],
+    },
+    {
+      operationType: "site-author-removal",
+      fields: [
         {
           valueType: "authors-removals",
           name: "authorsIds",
-          placeholder: t("selectAuthorsToRemove"),
         },
       ],
     },
@@ -174,7 +177,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "file",
           name: "fileId",
-          placeholder: t("placeholders:selectFile"),
           // @ts-expect-error incompatible param.
           rules: { required: t("validation:requiredFile"), validate: validateUniqueFileId(t) },
         },
@@ -185,7 +187,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-additions",
-          name: "candidatesIds",
+          name: "candidatesAccounts",
           placeholder: t("selectModeratorsToAdd"),
         },
       ],
