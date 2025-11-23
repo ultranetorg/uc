@@ -5,7 +5,6 @@ namespace Uccs.Net;
 public abstract class Packet : ITypeCode
 {
 	public int		Id { get; set; }
-	public Peer		Peer;
 }
 
 public abstract class IPeer
@@ -15,73 +14,33 @@ public abstract class IPeer
 	public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : PeerResponse => Send((FuncPeerRequest)rq) as Rp;
 }
 
-public abstract class Ppc<R> : FuncPeerRequest where R : PeerResponse /// Peer-to-Peer Call
-{
-
-}
-
 public abstract class PeerRequest : Packet
 {
-	public TcpPeering				Peering;
-	public Node						Node;
+	public Peer				Peer;
+	public TcpPeering		Peering;
+	//public Node				Node;
 }
 
 public abstract class ProcPeerRequest : PeerRequest
 {
 	public abstract void			Execute();
-
-	public void SafeExecute()
-	{
-		try
-		{
-			Execute();
-		}
-		catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
-		{
-		}
-	}
 }
 
 public abstract class FuncPeerRequest : PeerRequest
 {
 	public ManualResetEvent			Event;
 	public PeerResponse				Response;
+	public CodeException			Error;
 
 	public abstract PeerResponse	Execute();
-
-	public PeerResponse SafeExecute()
-	{
-		PeerResponse rp;
-
-		try
-		{
-			rp = Execute();
-		}
-		catch(CodeException ex)
-		{
-			rp = Peering.Constructor.Constract(typeof(PeerResponse), Peering.Constructor.TypeToCode(GetType())) as PeerResponse;
-			rp.Error = ex;
-		}
-		catch(Exception) when(!Debugger.IsAttached)
-		{
-			rp = Peering.Constructor.Constract(typeof(PeerResponse), Peering.Constructor.TypeToCode(GetType())) as PeerResponse;
-			rp.Error = new NodeException(NodeError.Unknown);
-		}
-
-		rp.Id = Id;
-
-		return rp;
-	}
 }
 
 public abstract class PeerResponse : Packet
 {
-	public PpcClass			Class => Enum.Parse<PpcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
-	public CodeException	Error { get; set; }
+}
 
-	static PeerResponse()
-	{
-	}
+public abstract class Ppc<R> : FuncPeerRequest where R : PeerResponse /// Peer-to-Peer Call
+{
 
 }
 

@@ -43,6 +43,15 @@ public class Endpoint : IBinarySerializable
 	}
 }
 
+public class HolderClassesNnc
+{
+}
+
+public class HolderClassesNnr
+{
+	public string[]  Classes { get; set; }
+}
+
 //	public class Cluster
 //	{
 //		public string			Net {get; set;}

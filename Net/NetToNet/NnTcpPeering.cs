@@ -14,8 +14,8 @@ public enum NncClass : byte
 public abstract class Nnc<R> : Ppc<R> where R : PeerResponse /// Net-to-Net Call
 {
 	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
-	public new McvNode			Node => base.Node as McvNode;
-	public Mcv					Mcv => Node.Mcv;
+	//public new McvNode			Node => base.Node as McvNode;
+	//public Mcv					Mcv => Node.Mcv;
 }
 
 public class NnTcpPeering : TcpPeering
@@ -23,7 +23,6 @@ public class NnTcpPeering : TcpPeering
 	//public abstract NnBlock						ProcessIncoming(byte[] raw, Peer peer);
 	//public abstract byte[]						GetStateHash(string net);
 
-	public IpcServer							IpcServer;
 	protected Dictionary<string, List<Peer>>	Peers = [];
 	protected override IEnumerable<Peer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
@@ -32,10 +31,6 @@ public class NnTcpPeering : TcpPeering
 	public NnTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
 		///Register(typeof(NncClass), node);
-
-		IpcServer = new IpcServer(program, GetName(settings.IP), flow);
-		IpcServer.Constuctor.Register<IppRequest>(typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpc".Length), r => r.Owner = this);
-		IpcServer.Constuctor.Register<IppResponse>(typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpr".Length));
 	}
 
 	public override string ToString()

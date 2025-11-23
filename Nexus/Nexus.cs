@@ -20,7 +20,7 @@ public class Nexus : IProgram
 {
 	public delegate void			Delegate(Nexus d);
 
-	Flow							Flow;
+	public Flow						Flow;
 	IClock							Clock;
 	public NexusSettings			Settings;
 	public List<NodeDeclaration>	Nodes = [];
@@ -34,6 +34,8 @@ public class Nexus : IProgram
 	VoidDelegate					OpenIam;
 
 	public NnTcpPeering				NnPeering;
+	public NnIppClientConnection	NnConnection;
+	public NnIppServer				NnIppServer;
 
 	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
 
@@ -62,6 +64,9 @@ public class Nexus : IProgram
 		if(Settings.NnPeering != null)
 		{
 			NnPeering = new NnTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
+			NnIppServer = new NnIppServer(this);
+
+			NnConnection = new NnIppClientConnection(this, NnTcpPeering.GetName(Settings.Host), flow);
 		}
 
 		if(Settings.Api != null)

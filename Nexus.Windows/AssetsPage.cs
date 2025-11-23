@@ -53,12 +53,10 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			var nn = new IpcConnection(Nexus.RdnNode, NnTcpPeering.GetName(Nexus.Settings.Host), f);
-
-			while(!nn.Pipe.IsConnected)
+			while(!Nexus.NnConnection.Pipe.IsConnected)
 				Thread.Sleep(100);
 
-			var c = nn.Send(new HolderClassesNnIpc {});
+			var c = Nexus.NnConnection.Send(new HolderClassesNnIpc {Net = Nets.Text});
 			///foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
 			///{
 			///	foreach(var h in nn.Send(new RdnHoldersByAccountNnc {Address = acc.Bytes}, f).Holders)

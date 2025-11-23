@@ -3,7 +3,7 @@
 public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
 {
 	public new McvTcpPeering	Peering => base.Peering as McvTcpPeering;
-	public new McvNode			Node => base.Node as McvNode;
+	public new McvNode			Node => Peering.Node;
 	public Mcv					Mcv => Node.Mcv;
 
 	protected void RequireGraph()

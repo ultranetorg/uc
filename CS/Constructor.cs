@@ -25,10 +25,8 @@ public class Constructor
 		}
 	}
 
-	public void Register<T>(Type enumclass, Func<string, string> getname, Action<T> setup = null) where T : class
+	public void Register<T>(Assembly assembly, Type enumclass, Func<string, string> getname, Action<T> setup = null) where T : class
 	{
-		var assembly = Assembly.GetCallingAssembly();
-
 		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(T))))
 		{	
 			if(Enum.TryParse(enumclass, getname(i.Name), out var c))
@@ -67,7 +65,7 @@ public class Constructor
 		Contructors[typeof(B)][0] = create;
 	}
 
-	public virtual object Constract(Type type, byte code)
+	public virtual object Construct(Type type, byte code)
 	{
 		var x = Contructors.GetValueOrDefault(type, null);
 		

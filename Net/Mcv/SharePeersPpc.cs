@@ -16,7 +16,7 @@ public class SharePeersPpc : ProcPeerRequest
 
 			if(Broadcast && newfresh.Any())
 			{
-				foreach(var i in (Peering as McvTcpPeering).Connections.Where(i => i != Peer))
+				foreach(var i in (Peering as HomoTcpPeering).Connections.Where(i => i != Peer))
 				{
 					i.Post(new SharePeersPpc {Broadcast = true, Peers = newfresh});
 				}

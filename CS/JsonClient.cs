@@ -111,22 +111,22 @@ public class JsonClient
 		{
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
-			var cr = await Http.SendAsync(m, workflow.Cancellation);
+			var rp = await Http.SendAsync(m, workflow.Cancellation);
 
-			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
+			if(rp.StatusCode != System.Net.HttpStatusCode.OK)
+				throw new ApiCallException(rp, rp.Content.ReadAsStringAsync().Result);
 
-			return cr;
+			return rp;
 		}
 	}
 
 	public Rp Request<Rp>(Apc request, Flow flow)
 	{
-		using(var cr = Send(request, flow))
+		using(var rp = Send(request, flow))
 		{
 			try
 			{
-				return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
+				return JsonSerializer.Deserialize<Rp>(rp.Content.ReadAsStringAsync().Result, Options);
 			}
 			catch(Exception ex)
 			{
@@ -137,11 +137,12 @@ public class JsonClient
 
 	public async Task<Rp> RequestAsync<Rp>(Apc request, Flow flow)
 	{
-		using(var cr = await SendAsync(request, flow))
+		using(var rp = await SendAsync(request, flow))
 		{
 			try
 			{
-				return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
+
+				return JsonSerializer.Deserialize<Rp>(rp.Content.ReadAsStringAsync().Result, Options);
 			}
 			catch(Exception ex)
 			{

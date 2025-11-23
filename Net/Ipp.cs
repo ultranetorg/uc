@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Pipes;
+using System.Reflection;
 
 namespace Uccs.Net;
 
@@ -13,8 +14,7 @@ namespace Uccs.Net;
 public abstract class IppPacket : ITypeCode
 {
 	public int				Id { get; set; }
-	public IpcConnection	Connection;
-	public object			Owner;
+	public IppConnection	Connection;
 }
 
 public abstract class IppRequest : IppPacket
@@ -25,50 +25,51 @@ public abstract class IppFuncRequest : IppRequest
 {
 	public IppResponse			Response;
 	public ManualResetEvent		Event;
+	public CodeException		Exception;
 
-	public abstract IppResponse	Execute(Flow flow);
 
-	public IppResponse SafeExecute(Flow flow)
-	{
-		IppResponse rp;
-
-		try
-		{
-			rp = Execute(flow);
-		}
-		catch(CodeException ex)
-		{
-			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
-			rp.Error = ex;
-		}
-		catch(Exception) when(!Debugger.IsAttached)
-		{
-			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
-			rp.Error = new IpcException(IpcError.Unknown);
-		}
-
-		rp.Id = Id;
-
-		return rp;
-	}
+///	public abstract IppResponse	Execute(Flow flow);
+///
+///	public IppResponse SafeExecute(Flow flow)
+///	{
+///		IppResponse rp;
+///
+///		try
+///		{
+///			rp = Execute(flow);
+///		}
+///		catch(CodeException ex)
+///		{
+///			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
+///			rp.Error = ex;
+///		}
+///		catch(Exception) when(!Debugger.IsAttached)
+///		{
+///			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
+///			rp.Error = new IpcException(IpcError.Unknown);
+///		}
+///
+///		rp.Id = Id;
+///
+///		return rp;
+///	}
 
 }
 
 public abstract class IppProcRequest : IppRequest
 {
-	public abstract void		Execute(Flow flow);
-
-	public void SafeExecute(Flow flow)
-	{
-		try
-		{
-			Execute(flow);
-		}
-		catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
-		{
-		}
-	}
-
+///	public abstract void		Execute(Flow flow);
+///
+///	public void SafeExecute(Flow flow)
+///	{
+///		try
+///		{
+///			Execute(flow);
+///		}
+///		catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
+///		{
+///		}
+///	}
 }
 
 public abstract class IppResponse : IppPacket
@@ -80,55 +81,36 @@ public abstract class Ipc<R> : IppFuncRequest where R : IppResponse /// Pipe-to-
 {
 }
 
-public enum NnIpcClass : byte
-{
-	None = 0, 
-	HolderClasses
-}
-
-public class HolderClassesNnIpc : IppFuncRequest
-{
-	public string	Net { get; set; }
-	public byte[]	Request { get; set; }
-
-	public override IppResponse Execute(Flow flow)
-	{
-		throw new NotImplementedException();
-	}
-}
-
-public class HolderClassesNnIpr : IppResponse
-{
-	public string[]  Classes { get; set; }
-}
-
-public class IpcConnection //: IIpp
+public class IppConnection //: IIpp
 {
 	//public Channel<byte[]> Outbox { get; } = Channel.CreateUnbounded<byte[]>();
 
-	IProgram			Program;
-	public PipeStream	Pipe;
-	BinaryReader		Reader;
-	BinaryWriter		Writer;
-	IpcServer			Server;
-	List<IppRequest>	OutRequests = new();
-	Flow				Flow;
-	int					IdCounter = 0;
-	public Constructor	Constuctor;
+	protected IProgram				Program;
+	public PipeStream				Pipe;
+	public BinaryReader				Reader;
+	public BinaryWriter				Writer;
+	IppServer						Server;
+	public List<IppFuncRequest>		OutRequests = new();
+	int								IdCounter = 0;
+	public Constructor				Constructor;
+	public Flow							Flow;
 
-	internal IpcConnection(IProgram program, NamedPipeServerStream pipe, IpcServer server, Flow flow, Constructor constructor)
+	object							Handler;
+	Dictionary<byte, MethodInfo>	Methods = [];
+
+	public IppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor)
 	{
 		Program		= program;
 		Pipe		= pipe;
 		Server		= server; 
-		Flow		= flow; 
-		Constuctor	= constructor;
+		Constructor	= constructor;
+		Flow		= flow.CreateNested();;
 
 		Reader = new BinaryReader(pipe);
 		Writer = new BinaryWriter(pipe);
 	}
 
-	public IpcConnection(IProgram program, string name, Flow flow)
+	public IppConnection(IProgram program, string name, Flow flow)
 	{
 		Program	= program;
 		Flow	= flow;
@@ -139,14 +121,16 @@ public class IpcConnection //: IIpp
 											try
 											{
 												var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
-					
+												
 												Pipe = pipe;
+												IdCounter = 0;
 	
 												pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
 												Reader = new BinaryReader(pipe);
 												Writer = new BinaryWriter(pipe);
 	
+												Established();
 												Listen();
 											}
 											catch(AggregateException ex) when(ex.InnerException is TaskCanceledException)
@@ -157,46 +141,63 @@ public class IpcConnection //: IIpp
 				.Start();
 	}
 
-	void Request(IppRequest i)
+	public virtual void Established()
 	{
-		try
-		{
-			lock(Writer)
-			{
-				Writer.Write((byte)PacketType.Request);
-				BinarySerializator.Serialize(Writer, i, Constuctor.TypeToCode); 
-			}
-		}
-		catch when(!Debugger.IsAttached)
-		{
-			Server?.Disconnect(this);
+	}
 
-			throw new OperationCanceledException();
+	public void RegisterHandler(Type enumclass, object handler)
+	{
+		Handler = handler;
+
+		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(IppResponse)))
+		{
+			if(Enum.TryParse(enumclass, i.Name, out var c))
+			{
+				Methods[(byte)c] = i;
+			}
+
 		}
 	}
 
-	void Respond(IppRequest i)
+	void Request(IppRequest request)
 	{
-		try
+		lock(Writer)
 		{
-			if(i is IppFuncRequest f)
+			Writer.Write((byte)PacketType.Request);
+			BinarySerializator.Serialize(Writer, request, Constructor.TypeToCode); 
+		}
+	}
+
+	void Respond(IppRequest request)
+	{
+		if(request is IppFuncRequest f)
+		{
+			try
 			{
-				var rp = f.SafeExecute(Flow);
+				var rp = Methods[Constructor.TypeToCode(request.GetType())].Invoke(Handler, [this, request]);
+
+				(rp as IppResponse).Id = request.Id;
+				//var rp = f.SafeExecute(Flow);
 							
 				lock(Writer)
 				{
 					Writer.Write((byte)PacketType.Response);
-					BinarySerializator.Serialize(Writer, rp, Constuctor.TypeToCode); 
+					BinarySerializator.Serialize(Writer, rp, Constructor.TypeToCode); 
 				}
 			}
-			else
-				(i as IppProcRequest).SafeExecute(Flow);
+			catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
+			{
+				lock(Writer)
+				{
+					Writer.Write((byte)PacketType.Failure);
+					Writer.Write(request.Id);
+					BinarySerializator.Serialize(Writer, ex.InnerException, Constructor.TypeToCode);
+				}
+			}
 		}
-		catch when(!Debugger.IsAttached)
-		{
-			Server?.Disconnect(this);
-
-			throw new OperationCanceledException();
+		else
+		{	
+			Methods[Constructor.TypeToCode(request.GetType())].Invoke(Handler, [this, request]);
 		}
 	}
 
@@ -215,7 +216,7 @@ public class IpcConnection //: IIpp
 				{
  					case PacketType.Request:
  					{
-						var rq = BinarySerializator.Deserialize<IppRequest>(Reader, Constuctor.Constract);
+						var rq = BinarySerializator.Deserialize<IppRequest>(Reader, Constructor.Construct);
 						rq.Connection = this;
 						
 						Respond(rq);
@@ -225,7 +226,7 @@ public class IpcConnection //: IIpp
 
 					case PacketType.Response:
  					{
-						var rp = BinarySerializator.Deserialize<IppResponse>(Reader, Constuctor.Constract);
+						var rp = BinarySerializator.Deserialize<IppResponse>(Reader, Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -243,15 +244,37 @@ public class IpcConnection //: IIpp
 
 						break;
 					}
+
+ 					case PacketType.Failure:
+ 					{
+						var id = Reader.ReadInt32();
+						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Constructor.Construct);
+
+						lock(OutRequests)
+						{
+							var rq = OutRequests.Find(i => i.Id == id);
+
+							if(rq is IppFuncRequest f)
+							{
+								f.Exception = ex;
+								f.Event.Set();
+ 									
+								OutRequests.Remove(rq);
+							}
+						}
+
+
+ 						break;
+ 					}
 				}
 			}
 		}
-		catch
+		catch(Exception ex)
 		{
 		}
 		finally
 		{
-			Server.Disconnect(this);
+			Disconnect();
 		}
 	}
 
@@ -297,16 +320,16 @@ public class IpcConnection //: IIpp
 
 		if(i == 0)
 		{
-			if(rq.Response == null)
-				throw new IpcException(IpcError.ConnectionLost);
-
-			if(rq.Response.Error == null)
+			if(rq.Exception == null)
 			{
+				if(rq.Response == null)
+					throw new NodeException(NodeError.Connectivity);
+
 				return rq.Response;
 			}
 			else
 			{
-				throw rq.Response.Error;
+				throw rq.Exception;
 			}
 		}
 		else if(i == 1)
@@ -315,19 +338,48 @@ public class IpcConnection //: IIpp
 			throw new IpcException(IpcError.ConnectionLost);
 	}
 
-	public Rp Send<Rp>(Ipc<Rp> rq) where Rp : IppResponse => Send((IppFuncRequest)rq) as Rp;
+	public void Disconnect()
+	{
+		Flow.Abort();
+
+		lock(OutRequests)
+		{
+			foreach(var i in OutRequests)
+			{
+				if(!i.Event.SafeWaitHandle.IsClosed)
+				{
+					i.Event.Set();
+					i.Event.Close();
+				}
+			}
+
+			OutRequests.Clear();
+		}
+
+		Pipe.Dispose();
+
+		if(Server != null)
+		{
+			lock(Server.Clients)
+			{
+				Server.Clients.Remove(this);
+			}
+		}
+	}
 
 }
 
-public class IpcServer
+public abstract class IppServer
 {
-	IProgram						Program;
-	Flow							Flow;
-	readonly string					Name;
-	readonly List<IpcConnection>	Clients = new();
-	public Constructor				Constuctor = new();
+	protected IProgram					Program;
+	protected Flow						Flow;
+	readonly string						Name;
+	public readonly List<IppConnection>		Clients = new();
+	public Constructor					Constructor = new();
 
-	public IpcServer(IProgram program, string pipeName, Flow flow)
+	public virtual void					Accept(IppConnection connection){}
+
+	public IppServer(IProgram program, string pipeName, Flow flow)
 	{
 		Program = program;
 		Name = pipeName;
@@ -344,23 +396,20 @@ public class IpcServer
 
 											pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
 
-											var c = new IpcConnection(program, pipe, this, Flow, Constuctor);
-		
+											IppConnection c = CreateConnection(pipe);
+
 											lock(Clients)
 												Clients.Add(c);
 
-											c.Listen();
+											Accept(c);
+											program.CreateThread(() => c.Listen()).Start();
 										}
 									})
-			.Start();
+									.Start();
 	}
 
-	public void Disconnect(IpcConnection client)
+	protected virtual IppConnection CreateConnection(NamedPipeServerStream pipe)
 	{
-		lock(Clients)
-		{
-			Clients.Remove(client);
-			client.Pipe.Dispose();
-		}
+		return new IppConnection(Program, pipe, this, Flow, Constructor);
 	}
 }

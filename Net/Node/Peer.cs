@@ -6,7 +6,7 @@ namespace Uccs.Net;
 
 public enum PacketType : byte
 {
-	None, Request, Response
+	None, Request, Response, Failure
 }
 
 public enum ConnectionStatus
@@ -219,22 +219,55 @@ public class Peer : IPeer, IBinarySerializable
 		}
 	}
 
-	void Respond(PeerRequest i)
+	void Respond(PeerRequest request)
 	{
 		try
 		{
-			if(i is FuncPeerRequest f)
+			if(request is FuncPeerRequest f)
 			{
-				var rp = f.SafeExecute();
-							
-				lock(Writer)
+				PeerResponse rp;
+
+				try
 				{
-					Writer.Write((byte)PacketType.Response);
-					BinarySerializator.Serialize(Writer, rp, Peering.Constructor.TypeToCode); 
+					rp = f.Execute();
+
+					rp.Id = f.Id;
+											
+					lock(Writer)
+					{
+						Writer.Write((byte)PacketType.Response);
+						BinarySerializator.Serialize(Writer, rp, Peering.Constructor.TypeToCode);
+					}
+				}
+				catch(CodeException ex)
+				{
+					lock(Writer)
+					{
+						Writer.Write((byte)PacketType.Failure);
+						Writer.Write(request.Id);
+						BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+					}
+				}
+				catch(Exception) when(!Debugger.IsAttached)
+				{
+					lock(Writer)
+					{
+						Writer.Write((byte)PacketType.Failure);
+						Writer.Write(request.Id);
+						BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+					}
 				}
 			}
 			else
-				(i as ProcPeerRequest).SafeExecute();
+			{	
+				try
+				{
+					(request as ProcPeerRequest).Execute();
+				}
+				catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
+				{
+				}
+			}
 		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 		{
@@ -263,7 +296,7 @@ public class Peer : IPeer, IBinarySerializable
 				{
  					case PacketType.Request:
  					{
-						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Constract);
+						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Construct);
 						rq.Peer = this;
 						rq.Peering = Peering;
 						
@@ -274,7 +307,7 @@ public class Peer : IPeer, IBinarySerializable
 
 					case PacketType.Response:
  					{
-						var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Peering.Constructor.Constract);
+						var rp = BinarySerializator.Deserialize<PeerResponse>(Reader, Peering.Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -282,7 +315,6 @@ public class Peer : IPeer, IBinarySerializable
 
 							if(rq is FuncPeerRequest f)
 							{
-								rp.Peer = this;
 								f.Response = rp;
 								f.Event.Set();
  									
@@ -292,6 +324,28 @@ public class Peer : IPeer, IBinarySerializable
 
 						break;
 					}
+
+ 					case PacketType.Failure:
+ 					{
+						var id = Reader.ReadInt32();
+						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Peering.Constructor.Construct);
+
+						lock(OutRequests)
+						{
+							var rq = OutRequests.Find(i => i.Id == id);
+
+							if(rq is FuncPeerRequest f)
+							{
+								f.Error = ex;
+								f.Event.Set();
+ 									
+								OutRequests.Remove(rq);
+							}
+						}
+
+
+ 						break;
+ 					}
 				}
 
 				Peering.Statistics.Reading.End();
@@ -356,21 +410,22 @@ public class Peer : IPeer, IBinarySerializable
 
 		if(i == 0)
 		{
-			if(rq.Response == null)
-				throw new NodeException(NodeError.Connectivity);
-
-			if(rq.Response.Error == null)
+			if(rq.Error == null)
 			{
+				if(rq.Response == null)
+					throw new NodeException(NodeError.Connectivity);
+
 				return rq.Response;
 			}
 			else
 			{
-				if(rq.Response.Error is NodeException e)
+
+				if(rq.Error is NodeException e)
 				{
 					Peering.OnRequestException(this, e);
 				}
 
-				throw rq.Response.Error;
+				throw rq.Error;
 			}
 		}
 		else if(i == 1)
