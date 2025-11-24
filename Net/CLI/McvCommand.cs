@@ -58,8 +58,8 @@ public abstract class McvCommand : NetCommand
 	{
 		var rp = Api<Rp>(new PpcApc {Request = call});
  
- 		if(rp.Error != null)
- 			throw rp.Error;
+ 		//if(rp.Error != null)
+ 		//	throw rp.Error;
  
 		return rp;
 	}

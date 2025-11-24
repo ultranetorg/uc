@@ -44,12 +44,12 @@ public abstract class TcpPeering : IPeer
 	public System.Version						Version => Assembly.GetAssembly(GetType()).GetName().Version;
 	public static readonly int[]				Versions = {5};
 
+	public IProgram								Program;
+	public string								Name;
 	public PeeringSettings						Settings;
 	public Flow									Flow;
 	public object								Lock = new ();
 
-	public string								Name;
-	public IProgram								Program;
 	public IPAddress							IP = IPAddress.None;
 	public List<IPAddress>						IgnoredIPs = new();
 	public bool									IsPeering => MainThread != null;
@@ -58,6 +58,7 @@ public abstract class TcpPeering : IPeer
 	public Statistics							Statistics = new();
 
 	public List<TcpClient>						IncomingConnections = new();
+	protected abstract IEnumerable<Peer>		PeersToDisconnect { get; }
 
 	public TcpListener							Listener;
 	protected Thread							MainThread;
@@ -66,7 +67,6 @@ public abstract class TcpPeering : IPeer
 
 	public Constructor							Constructor = new();
 
-	protected abstract IEnumerable<Peer>		PeersToDisconnect { get; }
 	protected abstract void						ProcessConnectivity();
 	protected abstract Hello					CreateOutboundHello(Peer peer, bool permanent);
 	protected abstract Hello					CreateInboundHello(IPAddress ip, Hello inbound);
@@ -90,70 +90,8 @@ public abstract class TcpPeering : IPeer
 		Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 		Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
 
-
-		//Constructors[typeof(PeerRequest)] = [];
-		//Constructors[typeof(ProcPeerRequest)] = [];
-		//Constructors[typeof(FuncPeerRequest)] = [];
-		//Constructors[typeof(PeerResponse)] = [];
-		//Constructors[typeof(CodeException)] = [];
- 
-		//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException))))
-		//{
-		//	var n = i.Name.Remove(i.Name.IndexOf("Exception"));
-		//	Codes[i] = (byte)Enum.Parse<ExceptionClass>(n);
-		//	var x = i.GetConstructor([]);
-		//	Constructors[typeof(CodeException)][(byte)Enum.Parse<ExceptionClass>(n)] = () => x.Invoke(null);
-		//}
-
-		Constructor.Register<CodeException>(typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
-
-//	protected void Register(Type ppclass, Node node)
-//	{
-//		var assembly = ppclass.Assembly;
-//
-//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(ProcPeerRequest)) && !i.IsGenericType))
-//		{	
-//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
-//			{
-//				Codes[i] = (byte)c;
-//				var x = i.GetConstructor([]);
-//
-//				Constructors[typeof(PeerRequest)][(byte)c] =
-// 				Constructors[typeof(ProcPeerRequest)][(byte)c] = () =>	{
-//																			var r = x.Invoke(null) as PeerRequest;
-//																			r.Node = node;
-//																			return r;
-//																		};
-//			}
-//		}
-//
-//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsGenericType))
-//		{	
-//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
-//			{
-//				Codes[i] = (byte)c;
-//				var x = i.GetConstructor([]);
-//
-//				Constructors[typeof(PeerRequest)][(byte)c] =
-// 				Constructors[typeof(FuncPeerRequest)][(byte)c] = () =>	{
-//																			var r = x.Invoke(null) as PeerRequest;
-//																			r.Node = node;
-//																			return r;
-//																		};
-//			}
-//		}
-//
-//		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse))))
-//		{	
-//			if(Enum.TryParse(ppclass, i.Name.Remove(i.Name.Length - 3), out var c))
-//			{
-//				Codes[i] = (byte)c;
-//				var x = i.GetConstructor([]);
-//				Constructors[typeof(PeerResponse)][(byte)c] = () => x.Invoke(null);
-//			}
-//		}
-//	}
 
 	public virtual void Run()
 	{
@@ -354,21 +292,6 @@ public abstract class TcpPeering : IPeer
 				client.Close();
 				return;
 			}
-
-			//if(peer.Status == ConnectionStatus.Initiated && !peer.Inbound)
-			//{
-			//}
-
-			//peer.Disconnect();
-			//
-			//Monitor.Exit(Lock);
-			//
-			//while(Flow.Active && peer.Status != ConnectionStatus.Disconnected) 
-			//	Thread.Sleep(1);
-			//
-			//Monitor.Enter(Lock);
-			//				
-			//peer.Status = ConnectionStatus.Initiated;
 		}
 
 		IncomingConnections.Add(client);
@@ -445,40 +368,6 @@ public abstract class TcpPeering : IPeer
 		}
 	}
 
-// 		public Peer[] Connect(long role, int n, Flow workflow)
-// 		{
-// 			var peers = new HashSet<Peer>();
-// 				
-// 			while(workflow.Active)
-// 			{
-// 				Peer p;
-// 	
-// 				lock(Lock)
-// 					p = ChooseBestPeer(role, peers);
-// 	
-// 				if(p != null)
-// 				{
-// 					try
-// 					{
-// 						Connect(p, workflow);
-// 					}
-// 					catch(NodeException)
-// 					{
-// 						continue;
-// 					}
-// 
-// 					peers.Add(p);
-// 
-// 					if(peers.Count == n)
-// 					{
-// 						return peers.ToArray();
-// 					}
-// 				}
-// 			}
-// 
-// 			throw new OperationCanceledException();
-// 		}
-
 	public void Connect(Peer peer, Flow workflow)
 	{
 		lock(Lock)
@@ -517,62 +406,6 @@ public abstract class TcpPeering : IPeer
 		}
 	}
 
-	//public double EstimateFee(IEnumerable<Operation> operations)
-	//{
-	//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
-	//}
-
-	// 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, Workflow workflow)
-	// 		{
-	// 						
-	// 			var o = new Emission(wei, eid);
-	// 
-	// 
-	// 			//flow?.SetOperation(o);
-	// 						
-	// 			if(FeeAsker.Ask(this, signer, o))
-	// 			{
-	// 				return o;
-	// 			}
-	// 
-	// 			return null;
-	// 		}
-	// 
-	// 		public Emission FinishEmission(AccountKey signer, Flow workflow)
-	// 		{
-	// 			lock(Lock)
-	// 			{
-	// 				var	l = Call(p =>{
-	// 									try
-	// 									{
-	// 										return p.Request(new AccountRequest(signer));
-	// 									}
-	// 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
-	// 									{
-	// 										return new AccountResponse();
-	// 									}
-	// 								}, 
-	// 								workflow);
-	// 			
-	// 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
-	// 
-	// 				var wei = Nas.FindEmission(signer, eid, workflow);
-	// 
-	// 				if(wei == 0)
-	// 					throw new RequirementException("No corresponding Ethrereum transaction found");
-	// 
-	// 				var o = new Emission(wei, eid);
-	// 
-	// 				if(FeeAsker.Ask(this, signer, o))
-	// 				{
-	// 					Transact(o, signer, TransactionStatus.Confirmed, workflow);
-	// 					return o;
-	// 				}
-	// 			}
-	// 
-	// 			return null;
-	// 		}
-
 	public override PeerResponse Send(FuncPeerRequest request)
 	{
 		var rq = request;
@@ -583,7 +416,7 @@ public abstract class TcpPeering : IPeer
 			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Constract);
+			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
 		}
 
@@ -600,7 +433,7 @@ public abstract class TcpPeering : IPeer
 			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constructor.Constract);
+			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
 		}
 

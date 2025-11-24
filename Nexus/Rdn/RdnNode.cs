@@ -24,7 +24,7 @@ public class RdnNode : McvNode
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	//public RdnNnTcpPeering			NnPeering;
-	IpcConnection					NnIpc;
+	IppConnection					NnConnection;
 
 	public RdnNode(string name, Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
@@ -102,12 +102,7 @@ public class RdnNode : McvNode
 
 			//if(Settings.NnPeering != null)
 			{
-				//var IpcServer = new IpcServer(this, settings.IP.ToString(), flow);
-				var Constuctor = new Constructor();
-				Constuctor.Register<IppRequest>(typeof(NnIpcClass), i => i.Substring(3, i.Length - 3 - 5), r => r.Owner = this);
-				Constuctor.Register<IppResponse>(typeof(NnIpcClass), i => i.Substring(3, i.Length - 3 - 5));
-
-				NnIpc = new IpcConnection(this, NnTcpPeering.GetName(NexusSettings.Host), flow);
+				NnConnection = new RdnNnIppConnection(this, flow);
 				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
 		}

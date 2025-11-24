@@ -58,10 +58,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		Node = node;
 		VaultApi = vaultapi;
 
-		Constructor.Register<PeerRequest>	 (typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<FuncPeerRequest>(typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<ProcPeerRequest>(typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<PeerResponse>	 (typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<FuncPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<ProcPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerResponse>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));

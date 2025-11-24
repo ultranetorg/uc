@@ -158,15 +158,15 @@ public abstract class JsonServer
 		Thread?.Join();
 	}
 
-	protected void RespondError(HttpListenerResponse response, string t, HttpStatusCode code)
+	protected void RespondError(HttpListenerResponse response, string mime, string text, HttpStatusCode code)
 	{
 		try
 		{
 
-			var buffer = Encoding.UTF8.GetBytes(t);
+			var buffer = Encoding.UTF8.GetBytes(text);
 						
 			response.StatusCode = (int)code;
-			response.ContentType = "text/plain" ;
+			response.ContentType = mime;
 			response.ContentLength64 = buffer.Length;
 			response.OutputStream.Write(buffer, 0, buffer.Length);
 		}
@@ -199,7 +199,7 @@ public abstract class JsonServer
 		{
 			if(!rq.Url.IsLoopback && !string.IsNullOrWhiteSpace(Settings.PublicAccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.PublicAccessKey)
 			{
-				RespondError(rp, HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
+				RespondError(rp, "text/plain", HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
 				rp.Close();
 				return;
 			}
@@ -222,7 +222,7 @@ public abstract class JsonServer
 
 				if(t == null)
 				{
-					RespondError(rp, HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
+					RespondError(rp,  "text/plain", HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
 					rp.Close();
 					return;
 				}
@@ -275,15 +275,15 @@ public abstract class JsonServer
 		}
 		catch(CodeException ex)
 		{
-			RespondError(rp, JsonSerializer.Serialize(ex, Options), HttpStatusCode.UnprocessableEntity);
+			RespondError(rp, "application/json", JsonSerializer.Serialize(ex, Options), HttpStatusCode.UnprocessableEntity);
 		}
 		catch(JsonException ex)
 		{
-			RespondError(rp, ex.Message, HttpStatusCode.BadRequest);
+			RespondError(rp, "text/plain", ex.Message, HttpStatusCode.BadRequest);
 		}
 		catch(Exception ex) when (Environment.GetEnvironmentVariable("UO_Environment") != "Development")
 		{
-			RespondError(rp, ex.ToString(), HttpStatusCode.InternalServerError);
+			RespondError(rp, "text/plain", ex.ToString(), HttpStatusCode.InternalServerError);
 			Flow.Log?.ReportError(this, "Request Processing Error", ex);
 		}
 

@@ -21,11 +21,11 @@ public class RdnTcpPeering : McvTcpPeering
 {
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
-		Constructor.Register<PeerRequest>	 (typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<FuncPeerRequest>(typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<ProcPeerRequest>(typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length), i => i.Node = node);
-		Constructor.Register<PeerResponse>	 (typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
-		Constructor.Register<Urr>			 (typeof(UrrScheme), i => i);
+		Constructor.Register<PeerRequest>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<FuncPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<ProcPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerResponse>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Urr>			 (GetType().Assembly, typeof(UrrScheme), i => i);
 
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
