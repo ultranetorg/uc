@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public static class PublicationUtils
 {
@@ -24,6 +22,8 @@ public static class PublicationUtils
 
 	public static string? GetLatestTitle(Product product) => FindLatestField(product, Token.Title)?.AsUtf8;
 
+	public static string? GetLatestDescription(Product product) => FindLatestField(product, Token.DescriptionMinimal)?.AsUtf8;
+
 	public static string? GetDescription(Publication publication, Product product) => FindProductField(publication, product, Token.Description)?.AsUtf8;
 
 	public static AutoId? GetLogo(Publication publication, Product product) => FindProductField(publication, product, Token.Logo)?.AsAutoId;
@@ -37,5 +37,5 @@ public static class PublicationUtils
 		return version.Fields.FirstOrDefault(x => x.Name == fieldName);
 	}
 
-	static FieldValue? FindLatestField(Product product, Token fieldName) => product.Versions.Last()?.Fields.FirstOrDefault(x => x.Name == fieldName);
+	static FieldValue? FindLatestField(Product product, Token fieldName) => product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields.FirstOrDefault(x => x.Name == fieldName);
 }
