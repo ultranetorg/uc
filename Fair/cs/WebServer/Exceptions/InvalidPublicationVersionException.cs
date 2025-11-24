@@ -12,6 +12,10 @@ public class InvalidPublicationVersionException : BaseException
 	{
 	}
 
+	public InvalidPublicationVersionException(string publicationId) : base(string.Format(ErrorMessages.InvalidPublicationVersionFormat1, publicationId))
+	{
+	}
+
 	public InvalidPublicationVersionException(string publicationId, int version) : base(string.Format(ErrorMessages.InvalidPublicationVersionFormat2, publicationId, version))
 	{
 	}

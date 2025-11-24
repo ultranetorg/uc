@@ -10,14 +10,14 @@ import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
 import { DiscussionsTab } from "./DiscussionsTab"
 import { PublicationsTab } from "./PublicationsTab"
 import { ReviewsTab } from "./ReviewsTab"
-import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 import { UserRegistrationsTab } from "./UserRegistrationsTab"
+import { UnpublishedProductsTab } from "./UnpublishedProductsTab"
 
 const routeToTabKey: Record<string, string> = {
   p: "publications",
   u: "user-registrations",
   r: "reviews",
-  n: "unpublished-publications",
+  n: "unpublished-products",
   c: "changed-publications",
 }
 
@@ -38,7 +38,7 @@ export const ModerationPage = () => {
     () => [
       { key: "discussions", label: t("discussions") },
       { key: "changed-publications", label: t("changedPublications"), route: "c" },
-      { key: "unpublished-publications", label: t("unpublishedPublications"), route: "n" },
+      { key: "unpublished-products", label: t("unpublishedProducts"), route: "n" },
       { key: "publications", label: t("publications"), route: "p" },
       { key: "reviews", label: t("reviews"), route: "r" },
       { key: "user-registrations", label: t("userRegistrations"), route: "u" },
@@ -77,8 +77,8 @@ export const ModerationPage = () => {
           <TabContent when="reviews">
             <ReviewsTab />
           </TabContent>
-          <TabContent when="unpublished-publications">
-            <UnpublishedPublicationsTab />
+          <TabContent when="unpublished-products">
+            <UnpublishedProductsTab />
           </TabContent>
           <TabContent when="user-registrations">
             <UserRegistrationsTab />

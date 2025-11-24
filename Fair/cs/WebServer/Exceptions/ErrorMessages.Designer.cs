@@ -108,6 +108,15 @@ namespace Uccs.Fair {
         /// <summary>
         ///   Looks up a localized string similar to An incorrect publication {0} version {1} specified..
         /// </summary>
+        internal static string InvalidPublicationVersionFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidPublicationVersionFormat1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An incorrect publication {0} version specified..
+        /// </summary>
         internal static string InvalidPublicationVersionFormat2 {
             get {
                 return ResourceManager.GetString("InvalidPublicationVersionFormat2", resourceCulture);

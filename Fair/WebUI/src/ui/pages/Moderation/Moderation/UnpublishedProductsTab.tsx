@@ -4,14 +4,14 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUnpublishedPublications } from "entities"
+import { useGetUnpublishedProducts } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { publicationBaseSiteItemRenderer } from "ui/renderers"
+import { unpublishedProductItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-export const UnpublishedPublicationsTab = () => {
-  const { t } = useTranslation("tabUnpublishedPublications")
+export const UnpublishedProductsTab = () => {
+  const { t } = useTranslation("tabUnpublishedProducts")
   const navigate = useNavigate()
   const { siteId } = useParams()
 
@@ -25,11 +25,9 @@ export const UnpublishedPublicationsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: publications } = useGetUnpublishedPublications(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: products } = useGetUnpublishedProducts(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
-    publications?.totalItems && publications.totalItems > 0
-      ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_20)
-      : 0
+    products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const columns = useMemo(
     () => [
@@ -53,10 +51,10 @@ export const UnpublishedPublicationsTab = () => {
     <div className="flex flex-col gap-6">
       <Table
         columns={columns}
-        items={publications?.items}
-        itemRenderer={publicationBaseSiteItemRenderer}
+        items={products?.items}
+        itemRenderer={unpublishedProductItemRenderer}
         tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noPublications")} />}
+        emptyState={<TableEmptyState message={t("noProducts")} />}
         onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">

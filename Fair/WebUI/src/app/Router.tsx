@@ -13,7 +13,7 @@ import {
   ModeratorChangedPublicationPage,
   ModeratorDiscussionPage,
   ModeratorPublicationPage,
-  ModeratorUnpublishedPublicationPage,
+  ModeratorUnpublishedProductPage,
   ModeratorUserRegistrationPage,
   ProfilePage,
   PublicationPage,
@@ -114,7 +114,7 @@ const routes: RouteObject[] = [
           },
           {
             path: "/:siteId/m/n/:productId",
-            element: <ModeratorUnpublishedPublicationPage />,
+            element: <ModeratorUnpublishedProductPage />,
           },
           {
             path: "/:siteId/m/p/:discussionId",

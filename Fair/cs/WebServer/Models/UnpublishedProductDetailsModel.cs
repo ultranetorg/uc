@@ -1,11 +1,7 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductModel(Product product)
+public class UnpublishedProductDetailsModel(Product product, FairAccount account, byte[]? productImage) : UnpublishedProductModel(product, account, productImage)
 {
-	public string Id { get; } = product.Id.ToString();
-
-	public ProductType Type { get; } = product.Type;
-
 	public string Title { get; } = PublicationUtils.GetLatestTitle(product);
 
 	public string Description { get; } = PublicationUtils.GetLatestDescription(product);

@@ -12,11 +12,9 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
-  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
-  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -27,8 +25,11 @@ import {
   User,
   UserProposal,
   AccountBase,
-  Product,
+  UnpublishedProductDetails,
+  UnpublishedProduct,
 } from "types"
+import { ChangedPublication } from "types/ChangedPublication"
+import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
 
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
@@ -50,16 +51,20 @@ export type Api = {
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
   getPublication(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
+
+  getChangedPublication(siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails>
   getChangedPublications(
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<PublicationChanged>>
-  getUnpublishedPublications(
+  ): Promise<TotalItemsResult<ChangedPublication>>
+
+  getUnpublishedProduct(siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedProducts(
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<PublicationBaseSite>>
+  ): Promise<TotalItemsResult<UnpublishedProduct>>
 
   getAuthorPublications(
     siteId: string,
@@ -88,8 +93,6 @@ export type Api = {
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
-
-  getProduct(productId: string): Promise<Product>
 
   // Moderator
   getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>
