@@ -1,5 +1,6 @@
-export * from "./ButtonMembersChange"
+export * from "./AddMembersPanelList"
 export * from "./DropdownSearchCategory"
 export * from "./DropdownWithTranslation"
 export * from "./FileSelect"
 export * from "./ProductVersionSelector"
+export * from "./RemoveMembersPanelList"

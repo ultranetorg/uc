@@ -1,11 +1,10 @@
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetFiles } from "entities"
-import { useEscapeKey } from "hooks"
-import { Modal, ModalProps, Pagination } from "ui/components"
+import { useGetFilesInfinite } from "entities"
+import { useEscapeKey, useInfiniteScrollWithPosition } from "hooks"
+import { Modal, ModalProps } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
 
 const { VITE_APP_USER_ID: USER_ID } = import.meta.env
@@ -19,12 +18,18 @@ export type MemberFilesModalProps = MemberFilesModalBaseProps & ModalProps
 export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalProps) => {
   const { siteId } = useParams()
   const { t } = useTranslation("memberFilesModal")
+
   useEscapeKey(onClose)
 
-  const [page, setPage] = useState(0)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFilesInfinite(siteId, USER_ID)
+  const allFiles = data?.pages.flatMap(p => p.items) || []
 
-  const { data: files, isFetching } = useGetFiles(siteId, USER_ID ?? "", page)
-  const pagesCount = files?.totalItems && files.totalItems > 0 ? Math.ceil(files.totalItems / DEFAULT_PAGE_SIZE_20) : 0
+  const { scrollRef, loaderRef } = useInfiniteScrollWithPosition(
+    fetchNextPage,
+    hasNextPage && !isFetchingNextPage,
+    allFiles.length,
+    isFetchingNextPage,
+  )
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -35,11 +40,16 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   )
 
   return (
-    <Modal title={t("title")} onClose={onClose} className="flex h-170 w-190">
+    <Modal title={t("title")} onClose={onClose} className="flex h-165 w-212.5 max-w-212.5 gap-8">
       <div className="flex h-full flex-col gap-3">
-        <Pagination className="self-end" onPageChange={setPage} page={page} pagesCount={pagesCount} />
-        <div className="flex-1 overflow-y-scroll">
-          <FilesGrid isLoading={isFetching} filesIds={files?.items} onSelect={handleSelect} />
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <FilesGrid
+            filesIds={allFiles}
+            hasNextPage={hasNextPage}
+            onSelect={handleSelect}
+            ref={loaderRef}
+            noFilesLabel={t("noFiles")}
+          />
         </div>
       </div>
     </Modal>

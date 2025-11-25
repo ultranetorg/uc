@@ -21,8 +21,8 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.fixAll.eslint": true
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "eslint.format.enable": true,
   "eslint.validate": [
@@ -40,5 +40,9 @@
     "activeItemClassName\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
     "[A-Z0-9_]+_CLASSNAME\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"
   ],
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "files.exclude": {
+    "**/.husky": true,
+    "**/.idea": true
+  }
 }

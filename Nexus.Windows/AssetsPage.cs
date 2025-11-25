@@ -53,27 +53,30 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			var nn = Nexus.GetNetToNetPeering(Nets.Text);
+			while(!Nexus.NnConnection.Pipe.IsConnected)
+				Thread.Sleep(100);
 
-			foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
-			{
-				foreach(var h in nn.Call(Nets.Text, () => new HoldersByAccountNnc {Address = acc.Bytes}, f).Holders)
-				{
-					foreach(var a in nn.Call(Nets.Text, () => new HolderAssetsNnc {HolderClass = h.Class, HolderId = h.Id}, f).Assets)
-					{
-						var b = nn.Call(Nets.Text, () => new AssetBalanceNnc {HolderClass = h.Class, HolderId = h.Id, Name = a.Name}, f).Balance;
-
-						var li = new ListViewItem(h.Class);
-						li.SubItems.Add(h.Id);
-						li.SubItems.Add(a.Name);
-						li.SubItems.Add(a.Units);
-						li.SubItems.Add(b.ToString());
-
-						Assets.Items.Add(li);
-
-					}
-				}
-			}
+			var c = Nexus.NnConnection.Call(new HolderClassesNnc {Net = Nets.Text});
+			///foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
+			///{
+			///	foreach(var h in nn.Send(new RdnHoldersByAccountNnc {Address = acc.Bytes}, f).Holders)
+			///	{
+			///		foreach(var a in nn.Call(Nets.Text, () => new HolderAssetsNnc {HolderClass = h.Class, HolderId = h.Id}, f).Assets)
+			///		{
+			///			var b = nn.Call(Nets.Text, () => new AssetBalanceNnc {HolderClass = h.Class, HolderId = h.Id, Name = a.Name}, f).Balance;
+			///
+			///			var li = new ListViewItem(h.Class);
+			///			li.SubItems.Add(h.Id);
+			///			li.SubItems.Add(a.Name);
+			///			li.SubItems.Add(a.Units);
+			///			li.SubItems.Add(b.ToString());
+			///
+			///			Assets.Items.Add(li);
+			///
+			///		}
+			///	}
+			///}
+			///
 			Message.Visible = false;
 		}
 		catch(CodeException ex)

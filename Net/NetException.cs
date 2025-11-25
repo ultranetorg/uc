@@ -2,7 +2,7 @@
 
 public enum ExceptionClass : byte
 {
-	None, Node, Request, Entity,
+	None, Node, Request, Entity, Ipc,
 	_Next,
 	Nn = _Next,
 	Vault,

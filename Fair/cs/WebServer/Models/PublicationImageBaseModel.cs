@@ -12,19 +12,19 @@ public class PublicationImageBaseModel
 
 	public string? CategoryTitle { get; }
 
-	public byte[]? Image { get; }
+	public string? ImageId { get; }
 
-	public PublicationImageBaseModel(Product product, byte[]? image)
+	public PublicationImageBaseModel(Product product, AutoId? imageId)
 	{
 		Title = PublicationUtils.GetLatestTitle(product);
-		Image = image;
+		ImageId = imageId?.ToString();
 	}
 
-	public PublicationImageBaseModel(Publication publication, Product product, string categoryTitle, byte[]? image)
+	public PublicationImageBaseModel(Publication publication, Product product, string categoryTitle, AutoId? imageId)
 	{
 		Id = publication.Id.ToString();
 		Title = PublicationUtils.GetTitle(publication, product);
 		CategoryTitle = categoryTitle;
-		Image = image;
+		ImageId = imageId?.ToString();
 	}
 }

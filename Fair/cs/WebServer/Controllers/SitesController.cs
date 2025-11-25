@@ -35,7 +35,7 @@ public class SitesController
 	[HttpGet("{siteId}/moderators")]
 	public IEnumerable<AccountBaseModel> GetModerators(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {{SiteId}}", nameof(SitesController), nameof(SitesController.GetModerators), siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -45,7 +45,7 @@ public class SitesController
 	[HttpGet]
 	public IEnumerable<SiteBaseModel> Search([FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Search)} method called with {{Query}}, {{Page}}", query, page);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Page}", nameof(SitesController), nameof(Search), query, page);
 
 		paginationValidator.Validate(page);
 		siteSearchQueryValidator.Validate(query);
@@ -59,7 +59,7 @@ public class SitesController
 	[HttpGet("search")]
 	public IEnumerable<SiteSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.SearchLite)} method called with {{Query}}", query);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(SitesController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
@@ -69,7 +69,7 @@ public class SitesController
 	[HttpGet("{siteId}")]
 	public SiteModel Get(string siteId)
 	{
-		logger.LogInformation($"GET {nameof(SitesController)}.{nameof(SitesController.Get)} method called with {{SiteId}}", siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(Get), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 

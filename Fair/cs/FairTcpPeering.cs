@@ -34,18 +34,16 @@ public class FairTcpPeering : McvTcpPeering
 {
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
-		Register(typeof(FairPpcClass), node);
+		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<FuncPeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<ProcPeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerResponse>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+
+		Constructor.Register(() => new FairAccount(Mcv));
 
 		Run();
 	}
 
-	public override object Constract(Type t, byte b)
-	{
- 		if(t == typeof(FairAccount))	
- 			return new FairAccount(Mcv);
-
-		return base.Constract(t, b);
-	}
 	public override bool ValidateIncoming(Operation o)
 	{
 		return o is not VotableOperation;

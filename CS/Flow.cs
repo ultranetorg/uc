@@ -4,7 +4,7 @@ namespace Uccs;
 
 public class Flow : IDisposable
 {
-	CancellationTokenSource			CancellationSource;
+	public CancellationTokenSource			CancellationSource;
 	public CancellationToken		Cancellation;
 	public Log						Log { get; set; }
 	public bool						Aborted => Cancellation.IsCancellationRequested;
@@ -51,7 +51,7 @@ public class Flow : IDisposable
 			CancellationSource.CancelAfter(timeout);
 	}
 	
-	public Flow CreateNested(string name, Log log = null)
+	public Flow CreateNested(string name = null, Log log = null)
 	{
 		var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
 		

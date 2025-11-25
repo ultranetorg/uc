@@ -1,8 +1,8 @@
-import { AccountBase } from "./AccountBase"
+import { AccountBaseAvatar } from "./AccountBaseAvatar"
 
 export type CommentBase = {
   id: string
-  creatorAccount: AccountBase
+  creatorAccount: AccountBaseAvatar
   text: string
   created: number
   rating?: number

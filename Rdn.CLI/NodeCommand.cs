@@ -21,7 +21,7 @@ public class NodeCommand : Net.NodeCommand
 						];
 
 		a.Execute = () =>	{
-								Cli.Node = new RdnNode(GetString("name", null), GetEnum("zone", Cli.Net.Zone), GetString("profile", Cli.Settings.Profile), Cli.Settings as RdnNodeSettings, new RealClock(), Flow);
+								Cli.Node = new RdnNode(GetString("name", null), GetEnum("zone", Cli.Net.Zone), GetString("profile", Cli.Settings.Profile), Cli.NexusSettings, Cli.Settings as RdnNodeSettings, new RealClock(), Flow);
 
 								Cli.Run(this, a);
 

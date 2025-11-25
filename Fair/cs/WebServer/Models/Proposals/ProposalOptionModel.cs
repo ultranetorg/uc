@@ -6,5 +6,5 @@ public class ProposalOptionModel(ProposalOption option)
 
 	public BaseVotableOperationModel Operation { get; set; }
 
-	public IEnumerable<AccountBaseModel> YesAccounts { get; set; } = null!;
+	public IEnumerable<AccountBaseAvatarModel> YesAccounts { get; set; } = null!;
 }

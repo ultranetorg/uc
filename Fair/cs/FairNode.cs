@@ -9,7 +9,7 @@ public class FairNode : McvNode
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
 
-	public FairNode(string name, Zone zone, string profile, FairNodeSettings settings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, flow)
+	public FairNode(string name, Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new FairNodeSettings(profile);
 
@@ -19,7 +19,7 @@ public class FairNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeVaultApi(Settings.Host);
+		InitializeVaultApi(NexusSettings.Host);
 
 		if(Settings.Mcv != null)
 		{
@@ -29,11 +29,6 @@ public class FairNode : McvNode
 			{
 				WebServer = new WebServer(this, null);
 			}
-		}
-
-		if(Settings.NnPeering != null)
-		{
-			///NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 		}
 
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);

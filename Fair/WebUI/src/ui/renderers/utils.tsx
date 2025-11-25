@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import { ReactNode } from "react"
 
-import { AccountBase, BaseProposal, OperationType, PublicationImageBase } from "types"
+import { AccountBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
 import { AccountInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatAnbb,
@@ -15,7 +15,7 @@ import {
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
-export const renderAccount = (account: AccountBase) => (
+export const renderAccount = (account: AccountBaseAvatar) => (
   <AccountInfo
     title={account.nickname || shortenAddress(account.address)}
     fullTitle={account.nickname || account.address}
@@ -66,7 +66,7 @@ export const renderLastsFor = (t: TFunction, creationTime: number) => {
 }
 
 export const renderPublication = (publication: PublicationImageBase) => (
-  <PublicationInfo avatar={publication.image} categoryTitle={publication.categoryTitle} title={publication.title} />
+  <PublicationInfo avatarId={publication.imageId} categoryTitle={publication.categoryTitle} title={publication.title} />
 )
 
 export const renderText = (text: string) => (
@@ -77,15 +77,15 @@ export const renderText = (text: string) => (
 
 export const renderTitle = (title: string, text: string) => (
   <div className="flex flex-col gap-1" title={title}>
-    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-2sm leading-5">{title}</span>
-    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-2xs leading-4 text-gray-500">{text}</span>
+    <span className="truncate text-2sm leading-5">{title}</span>
+    <span className="truncate text-2xs leading-4 text-gray-500">{text}</span>
   </div>
 )
 
 export const renderVotes = (votes: number[]) => {
   const formatted = formatVotes(votes)
   return (
-    <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={formatted}>
+    <div className="truncate" title={formatted}>
       {formatted}
     </div>
   )

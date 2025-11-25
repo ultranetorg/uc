@@ -1,12 +1,12 @@
 import { Link, useParams } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { AccountBase, PropsWithClassName } from "types"
+import { AccountBaseAvatar, PropsWithClassName } from "types"
 import { AccountInfo } from "ui/components"
 import { formatDate, shortenAddress } from "utils"
 
 type ProposalInfoBaseProps = {
-  createdBy: AccountBase
+  createdBy: AccountBaseAvatar
   createdAt: number
   daysLeft: number
 }

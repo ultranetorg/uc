@@ -145,7 +145,7 @@ public class SearchService
 		}
 	}
 
-	public IEnumerable<AccountBaseModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	public IEnumerable<AccountBaseAvatarModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -159,7 +159,7 @@ public class SearchService
 			if (AutoId.TryParse(query, out AutoId entityId))
 			{
 				FairAccount account = (FairAccount) mcv.Accounts.Latest(entityId);
-				return [new AccountBaseModel(account)];
+				return [new AccountBaseAvatarModel(account)];
 			}
 
 			string lowercase = query.ToLower();
@@ -167,8 +167,28 @@ public class SearchService
 			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AccountNickname, lowercase, limit);
 			AutoId[] accountsIds = searchResult.ToArray();
 
-			return McvUtils.LoadAccounts(mcv, accountsIds, cancellationToken);
+			return LoadAccounts(mcv, accountsIds, cancellationToken);
 		}
+	}
+
+	static IEnumerable<AccountBaseAvatarModel> LoadAccounts(Mcv mcv, AutoId[] accountsIds, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<AccountBaseAvatarModel> result = new(accountsIds.Length);
+
+		foreach(AutoId moderatorsId in accountsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(moderatorsId);
+			AccountBaseAvatarModel model = new(account);
+			result.Add(model);
+		}
+
+		return result;
 	}
 
 	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)

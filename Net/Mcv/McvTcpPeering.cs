@@ -31,7 +31,7 @@ public enum Role : long
 
 public abstract class McvTcpPeering : HomoTcpPeering
 {
-	new public McvNode						Node => base.Node as McvNode;
+	public McvNode							Node;
 	public McvNet							Net => Node.Net;
 	public Mcv								Mcv => Node.Mcv; 
 	public VaultApiClient					VaultApi; 
@@ -53,27 +53,34 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 	public static List<McvTcpPeering>		All = new();
 
-	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Net, settings, roles, flow)
+	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
 	{
+		Node = node;
 		VaultApi = vaultapi;
 
-		Register(typeof(McvPpcClass), node);
+		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<FuncPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<ProcPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerResponse>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+
+		Constructor.Register(() => new Transaction {Net = Net});
+		Constructor.Register(() => new Vote(Mcv));
 
 		All.Add(this);
 	}
 
-	public override object Constract(Type t, byte b)
-	{
-		if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
- 		if(t == typeof(Vote))			return new Vote(Mcv);
-
-		return base.Constract(t, b);
-	}
-	
-	public override byte TypeToCode(Type i)
-	{
-		return base.TypeToCode(i);
-	}
+	//public override object Constract(Type t, byte b)
+	//{
+	//	if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
+ 	//	if(t == typeof(Vote))			return new Vote(Mcv);
+	//
+	//	return base.Constract(t, b);
+	//}
+	//
+	//public override byte TypeToCode(Type i)
+	//{
+	//	return base.TypeToCode(i);
+	//}
 
 	public override void Run()
 	{

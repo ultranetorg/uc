@@ -7,6 +7,8 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
+  ChangedPublication,
+  ChangedPublicationDetails,
   ProductFieldCompare,
   ProductFieldModel,
   Proposal,
@@ -15,11 +17,9 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
-  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
-  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -27,6 +27,8 @@ import {
   SiteBase,
   SiteLiteSearch,
   TotalItemsResult,
+  UnpublishedProduct,
+  UnpublishedProductDetails,
   User,
   UserProposal,
 } from "types"
@@ -43,14 +45,14 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
 
+const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
+
 const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
   return await toTotalItemsResult(res)
 }
-
-const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
 const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
@@ -61,7 +63,7 @@ const searchSites = async (query?: string, page?: number): Promise<TotalItemsRes
   return await toTotalItemsResult(res)
 }
 
-const searchLiteSites = async (query?: string): Promise<SiteLiteSearch[]> =>
+const searchLiteSites = (query?: string): Promise<SiteLiteSearch[]> =>
   fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
 const searchPublications = async (
@@ -100,23 +102,29 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
+const getChangedPublication = (siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails> =>
+  fetch(`${BASE_URL}/sites/${siteId}/publications/changed/${changedPublicationId}`).then(res => res.json())
+
 const getChangedPublications = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<PublicationChanged>> => {
+): Promise<TotalItemsResult<ChangedPublication>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/changed-publications` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/changed` + params)
   return await toTotalItemsResult(res)
 }
 
-const getUnpublishedPublications = async (
+const getUnpublishedProduct = (siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
+  fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
+
+const getUnpublishedProducts = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<PublicationBaseSite>> => {
+): Promise<TotalItemsResult<UnpublishedProduct>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/unpublished-publications` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/products/unpublished` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -192,7 +200,7 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> =>
+const getModeratorDiscussion = (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
 const getModeratorDiscussionComments = async (
@@ -237,12 +245,10 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProductFields = async (productId: string): Promise<TotalItemsResult<ProductFieldModel>> => {
-  const res = await fetch(`${BASE_URL}/products/${productId}/fields`)
-  return await toTotalItemsResult(res)
-}
+const getProductFields = (productId: string): Promise<ProductFieldModel[]> =>
+  fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
-const getProductCompareFields = async (publicationId: string, version: number): Promise<ProductFieldCompare> =>
+const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldCompare> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
 const getReviewProposals = async (
@@ -283,8 +289,12 @@ const api: Api = {
   getDefaultSites,
   getPublication,
   getPublicationVersions,
+
+  getChangedPublication,
   getChangedPublications,
-  getUnpublishedPublications,
+  getUnpublishedProduct,
+  getUnpublishedProducts,
+
   getReviews,
   getSite,
   getSiteAuthors,

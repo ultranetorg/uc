@@ -7,5 +7,5 @@ public class PublicationProposalModel(Proposal proposal, Product product, FairAc
 	public int UpdationTime { get; } = product.Updated.Days;
 
 	public PublicationImageBaseModel Publication { get; } = publication;
-	public AccountBaseModel Author { get; } = new(publisher);
+	public AccountBaseAvatarModel Author { get; } = new(publisher);
 }

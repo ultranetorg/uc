@@ -21,33 +21,43 @@ public class RdnTcpPeering : McvTcpPeering
 {
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
-		Register(typeof(RdnPpcClass), node);
- 	 
-		Contructors[typeof(Urr)] = [];
+		Constructor.Register<PeerRequest>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<FuncPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<ProcPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerResponse>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Urr>			 (GetType().Assembly, typeof(UrrScheme), i => i);
 
- 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr))))
- 		{	
- 			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
- 			{
- 				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
- 				Contructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
- 			}
- 		}
 
-		Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
-		Contructors[typeof(CodeException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);
+		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
+
+
+///		Register(typeof(RdnPpcClass), node);
+/// 	 
+///		Constructors[typeof(Urr)] = [];
+///
+/// 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr))))
+/// 		{	
+/// 			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
+/// 			{
+/// 				Codes[i] = (byte)c;
+///				var x = i.GetConstructor([]);
+/// 				Constructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
+/// 			}
+/// 		}
+///
+///		Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
+///		Constructors[typeof(CodeException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);
 
 		Run();
 	}
 
-	public override object Constract(Type t, byte b)
-	{
- 			if(t == typeof(Vote))	
- 				return new RdnVote(Mcv);
-
-		return base.Constract(t, b);
-	}
+///	public override object Constract(Type t, byte b)
+///	{
+///	 	if(t == typeof(Vote))	
+/// 		return new RdnVote(Mcv);
+///
+///		return base.Constract(t, b);
+///	}
 
 	public override bool ValidateIncoming(Operation o)
 	{

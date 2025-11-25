@@ -431,19 +431,19 @@ public class PpcApc : McvApc
 	}
 }
 
-public class NncApc : McvApc
-{
-	public string			Net { get; set; }
-	public FuncPeerRequest	Request { get; set; }
-
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		if(node.NnPeering == null)
-			throw new NodeException(NodeError.NoNn);
-
-		return node.NnPeering.Call(Net, () => Request, workflow);
-	}
-}
+//public class NncApc : McvApc
+//{
+//	public string			Net { get; set; }
+//	public FuncPeerRequest	Request { get; set; }
+//
+//	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		if(node.NnPeering == null)
+//			throw new NodeException(NodeError.NoNn);
+//
+//		return node.NnPeering.Call(Net, () => Request, workflow);
+//	}
+//}
 
 public class SetGeneratorApc : McvApc
 {

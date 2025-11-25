@@ -17,7 +17,7 @@ export type FieldValueType =
 
 export type FieldNameType =
   | "authorsIds"
-  | "candidatesIds"
+  | "candidatesAccounts"
   | "categoryId"
   | "categoryTitle"
   | "description"
@@ -42,7 +42,7 @@ export type EditorFieldRendererParams = {
   errorMessage?: string
   field: EditorField
   value: string | string[] | AccountBase[]
-  onChange: (value: string | string[] | AccountBase[]) => void
+  onChange: (value?: string | string[] | AccountBase[]) => void
 }
 
 export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element
@@ -52,7 +52,7 @@ export type ParameterValueType = "category" | "product" | "publication" | "revie
 export type ParameterNameType = "categoryId" | "productId" | "publicationId" | "reviewId" | "userId"
 
 export type EditorOperationFields = {
-  operationType: OperationType
+  operationType: Exclude<OperationType, "site-authors-change"> | "site-author-addition" | "site-author-removal"
   parameterValueType?: ParameterValueType
   parameterName?: ParameterNameType
   parameterLabel?: string

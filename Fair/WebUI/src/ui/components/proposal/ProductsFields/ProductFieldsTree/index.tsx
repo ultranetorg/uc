@@ -2,14 +2,14 @@ import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "@tanstack/react-query"
 
-import { ProductFieldViewModel, TotalItemsResult } from "types"
+import { ProductFieldViewModel } from "types"
 import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 
 import { SelectedProps } from "../types"
 import { getCompareStatus } from "../utils"
 
 export interface ProductFieldsTreeProps<TModel extends ProductFieldViewModel> extends SelectedProps<TModel> {
-  response: UseQueryResult<TotalItemsResult<TModel>, Error>
+  response: UseQueryResult<TModel[], Error>
 }
 
 const pretty = (v?: string) => (v ? v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "")
@@ -109,13 +109,13 @@ export const ProductFieldsTree = memo(
       return Error(t("loadError"))
     }
 
-    if (!data?.items.length) {
+    if (!data?.length) {
       return NoData(t("noData"))
     }
 
     return (
       <>
-        {data.items.map((node, index) => (
+        {data.map((node, index) => (
           <MemoTreeNode<TModel>
             key={(node as ProductFieldViewModel).id ?? index}
             node={node as TModel}

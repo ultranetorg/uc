@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class NniBlock
+public class NnBlock
 {
 	public string		Net { get; set; }
 	public NnState		State { get; set; }

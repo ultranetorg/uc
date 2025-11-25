@@ -27,6 +27,7 @@ public static class ProposalUtils
 			PublicationDeletion operation => new PublicationDeletionModel(operation),
 			PublicationPublish operation => new PublicationPublishModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
+			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteAuthorsChange operation => new SiteAuthorsChangeModel(operation),

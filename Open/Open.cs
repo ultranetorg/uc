@@ -26,7 +26,7 @@ public class Open : Cli
 	static void Main(string[] args)
 	{
 		var boot = new NetBoot(ExeDirectory);
-		var s = new NexusSettings(boot) {Name = Guid.NewGuid().ToString()};
+		var s = new NexusSettings(boot.Zone, boot.Profile) {Name = Guid.NewGuid().ToString()};
 		var u = new Open(s, new Flow(nameof(Open), new Log()));
 
 		u.Execute(boot);

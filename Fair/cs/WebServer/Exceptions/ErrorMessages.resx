@@ -142,6 +142,9 @@
     <value>An incorrect publication version specified.</value>
   </data>
   <data name="InvalidPublicationVersionFormat2" xml:space="preserve">
+    <value>An incorrect publication {0} version specified.</value>
+  </data>
+  <data name="InvalidPublicationVersionFormat1" xml:space="preserve">
     <value>An incorrect publication {0} version {1} specified.</value>
   </data>
 </root>

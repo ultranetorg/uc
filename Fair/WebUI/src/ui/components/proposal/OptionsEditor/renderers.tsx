@@ -2,11 +2,12 @@ import { AccountBase } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
-  ButtonMembersChange,
+  AddMembersPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
   FileSelect,
   ProductVersionSelector,
+  RemoveMembersPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
@@ -63,26 +64,14 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-additions": ({ errorMessage, field, value, onChange }) => (
+  "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <ButtonMembersChange
-        changeAction="add"
-        memberType="author"
-        label={field.placeholder!}
-        value={value as AccountBase[]}
-        onChange={onChange}
-      />
+      <AddMembersPanelList memberType="author" value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
-  "authors-removals": ({ errorMessage, field, value, onChange }) => (
+  "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <ButtonMembersChange
-        changeAction="remove"
-        memberType="author"
-        label={field.placeholder!}
-        value={value as string[]}
-        onChange={onChange}
-      />
+      <RemoveMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (
@@ -109,28 +98,20 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
       />
     </ValidationWrapper>
   ),
-  file: ({ errorMessage, field, value, onChange }) => (
+  file: ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <FileSelect label={field.placeholder!} value={value as string} onChange={onChange} />
+      <FileSelect value={value as string} onChange={onChange} />
     </ValidationWrapper>
   ),
-  "moderators-additions": ({ field, value, onChange }) => (
-    <ButtonMembersChange
-      changeAction="add"
-      memberType="moderator"
-      label={field.placeholder!}
-      value={value as AccountBase[]}
-      onChange={onChange}
-    />
+  "moderators-additions": ({ errorMessage, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <AddMembersPanelList memberType="moderator" value={value as AccountBase[]} onChange={onChange} />
+    </ValidationWrapper>
   ),
-  "moderators-removals": ({ field, value, onChange }) => (
-    <ButtonMembersChange
-      changeAction="remove"
-      memberType="moderator"
-      label={field.placeholder!}
-      value={value as string[]}
-      onChange={onChange}
-    />
+  "moderators-removals": ({ errorMessage, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <RemoveMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
+    </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (
     <DropdownWithTranslation

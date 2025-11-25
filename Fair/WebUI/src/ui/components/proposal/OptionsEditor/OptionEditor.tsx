@@ -31,14 +31,14 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
     <div className={twMerge("flex flex-col gap-4 rounded-lg border border-gray-300 p-4")}>
       {(editorTitle || onRemoveClick) && (
         <div className="flex items-center justify-between">
-          {editorTitle && <span className="text-2sm font-medium leading-5">{editorTitle}</span>}
+          {editorTitle && <span className="text-2base font-semibold leading-5">{editorTitle}</span>}
           {onRemoveClick && (
             <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" onClick={onRemoveClick} />
           )}
         </div>
       )}
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-4">
         <Controller
           control={control}
           name={`options.${index}.title`}
@@ -57,7 +57,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
         />
 
         <ValidationWrapper
-          className="flex flex-col gap-2.5"
+          className="flex flex-col gap-4"
           message={errors?.options?.[index]?.message as string | undefined}
         >
           {editorFields?.fields?.map(x => (

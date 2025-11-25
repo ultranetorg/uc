@@ -71,7 +71,7 @@ public class ProposalService
 		{
 			ProposalOptionModel model = new(option);
 
-			IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
+			IEnumerable<AccountBaseAvatarModel> yesAccounts = LoadYesAccounts(option.Yes);
 			model.YesAccounts = yesAccounts;
 			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
 
@@ -81,14 +81,14 @@ public class ProposalService
 		return result;
 	}
 
-	IEnumerable<AccountBaseModel> LoadYesAccounts(AutoId[] accountsIds)
+	IEnumerable<AccountBaseAvatarModel> LoadYesAccounts(AutoId[] accountsIds)
 	{
 		lock(mcv.Lock)
 		{
 			return accountsIds.Select(id =>
 			{
 				FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
-				return new AccountBaseModel(account);
+				return new AccountBaseAvatarModel(account);
 			}).ToArray();
 		}
 	}

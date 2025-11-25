@@ -1,7 +1,7 @@
 import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { ProductFieldViewModel, TotalItemsResult } from "types"
+import { ProductFieldViewModel } from "types"
 import { ButtonOutline } from "ui/components/ButtonOutline"
 import { ProductPreviewModal } from "../ProductPreview"
 import { ProductFieldsTree } from "./ProductFieldsTree"
@@ -9,7 +9,7 @@ import { SelectedProps } from "./types"
 
 export interface ProductFieldsViewProps extends SelectedProps {
   children?: ReactElement | null
-  response: UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
+  response: UseQueryResult<ProductFieldViewModel[], Error>
 }
 
 export const ProductFieldsView = memo(({ response, selected, onSelect, children }: ProductFieldsViewProps) => {

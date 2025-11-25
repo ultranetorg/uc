@@ -86,7 +86,7 @@ export const SiteHeader = () => {
       )}
       <SearchDropdown
         size="medium"
-        className="flex-grow"
+        className="grow"
         isLoading={isFetching}
         items={items}
         onChange={handleChange}

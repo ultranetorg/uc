@@ -1,6 +1,6 @@
 import { UseQueryResult } from "@tanstack/react-query"
 
-import { ProductFieldCompare, ProductFieldModel, ProductFieldViewModel, TotalItemsResult } from "types"
+import { ProductFieldCompare, ProductFieldModel, ProductFieldViewModel } from "types"
 
 import { CompareStatus, ProductFieldCompareViewModel } from "./types"
 
@@ -111,26 +111,15 @@ function mergeArrays(
 
 export function mergeFields(
   response: UseQueryResult<ProductFieldCompare, Error>,
-): UseQueryResult<TotalItemsResult<ProductFieldCompareViewModel>, Error> {
+): UseQueryResult<ProductFieldCompareViewModel[], Error> {
   const { data } = response
 
   if (!data) {
-    return response as unknown as UseQueryResult<TotalItemsResult<ProductFieldCompareViewModel>, Error>
+    return response as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
   }
 
   const merged = mergeArrays(mapItems(data.from), mapItems(data.to))
-
-  const transformed: TotalItemsResult<ProductFieldCompareViewModel> = {
-    totalItems: merged.length,
-    items: merged,
-    page: 1,
-    pageSize: merged.length,
-  }
-
-  return { ...response, data: transformed } as unknown as UseQueryResult<
-    TotalItemsResult<ProductFieldCompareViewModel>,
-    Error
-  >
+  return { ...response, data: merged } as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
 }
 
 function mapItems(
@@ -148,20 +137,17 @@ function mapItems(
 }
 
 export function mapFields(
-  response: UseQueryResult<TotalItemsResult<ProductFieldModel>, Error>,
-): UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error> {
+  response: UseQueryResult<ProductFieldModel[], Error>,
+): UseQueryResult<ProductFieldViewModel[], Error> {
   const { data } = response
 
   if (!data) {
-    return response as unknown as UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
+    return response as unknown as UseQueryResult<ProductFieldViewModel[], Error>
   }
 
-  const transformed: TotalItemsResult<ProductFieldViewModel> = {
-    ...data,
-    items: mapItems(data.items),
-  }
+  const transformed: ProductFieldViewModel[] = mapItems(data)
 
-  return { ...response, data: transformed } as unknown as UseQueryResult<TotalItemsResult<ProductFieldViewModel>, Error>
+  return { ...response, data: transformed } as unknown as UseQueryResult<ProductFieldViewModel[], Error>
 }
 
 export const isCompareNode = (

@@ -3,11 +3,11 @@ import { TFunction } from "i18next"
 import { FieldArrayWithId, UseFieldArrayAppend, UseFieldArrayRemove } from "react-hook-form"
 
 import { SvgPlusSm } from "assets"
+import { CreateProposalData } from "types"
 import { ButtonOutline } from "ui/components"
 
 import { OptionEditor } from "./OptionEditor"
 import { EditorOperationFields } from "./types"
-import { CreateProposalData } from "types"
 
 const MAX_OPTIONS_COUNT = 16
 
@@ -15,7 +15,7 @@ export type OptionsEditorListProps = {
   t: TFunction
   singleOption: boolean
   operationFields: EditorOperationFields
-  fields: FieldArrayWithId<CreateProposalData, "options" | `options.${number}.candidatesIds`, "id">[]
+  fields: FieldArrayWithId<CreateProposalData, "options" | `options.${number}.candidatesAccounts`, "id">[]
   append: UseFieldArrayAppend<CreateProposalData>
   remove: UseFieldArrayRemove
 }

@@ -109,8 +109,6 @@ partial class AssetsPage
 		Accounts.Name = "Accounts";
 		Accounts.Size = new Size(300, 23);
 		Accounts.TabIndex = 10;
-		Accounts.SelectionChangeCommitted += Nets_Changed;
-		Accounts.KeyDown += Accounts_KeyDown;
 		// 
 		// Start
 		// 
@@ -129,8 +127,6 @@ partial class AssetsPage
 		Nets.Name = "Nets";
 		Nets.Size = new Size(209, 23);
 		Nets.TabIndex = 11;
-		Nets.SelectionChangeCommitted += Nets_Changed;
-		Nets.KeyDown += Accounts_KeyDown;
 		// 
 		// label4
 		// 

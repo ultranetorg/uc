@@ -10,11 +10,12 @@ public class ProductsController
 ) : BaseController
 {
 	[HttpGet("{productId}/fields")]
-	public IActionResult Get(string productId)
+	public IActionResult GetFields(string productId)
 	{
-		logger.LogInformation($"GET {nameof(ProductsController)}.{nameof(Get)} method called with {{ProductId}}", productId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {ProductId}", nameof(ProductsController), nameof(GetFields), productId);
 
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());
+
 		return Ok(productsService.GetFields(productId));
 	}
 }

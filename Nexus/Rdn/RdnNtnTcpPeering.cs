@@ -2,14 +2,15 @@
 
 public class RdnNnTcpPeering : NnTcpPeering
 {
-	public new RdnNode			Node => base.Node as RdnNode;
+	public RdnNode			Node;
 
-	public RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, settings, roles, flow)
+	public RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
 	{
+		Node = node;
 		node.Mcv.Confirmed += (r) =>	{
 											foreach(var i in r.ConsensusNnStates)
 											{
-												var b = new NniBlock();
+												var b = new NnBlock();
 
 												b.Net	= node.Net.Name;
 												b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
@@ -20,7 +21,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 		Run();
 	}
 
-	public override byte[] GetStateHash(string net)
+	public byte[] GetStateHash(string net)
 	{
 		lock(Node.Mcv.Lock)
 		{
@@ -55,28 +56,86 @@ public class RdnNnTcpPeering : NnTcpPeering
 		return true;
 	}
 
-	public override NniBlock ProcessIncoming(byte[] raw, Peer peer)
-	{
-		lock(Node.Mcv.Lock)
-		{
-			var b = Node.Mcv.NnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
+//	public NnBlock ProcessIncoming(byte[] raw, Peer peer)
+//	{
+//		lock(Node.Mcv.Lock)
+//		{
+//			var b = Node.Mcv.NnBlocks.Find(i => i.RawPayload.SequenceEqual(raw));
+//
+//			if(b != null)
+//				return null;
+//
+//			b = new NnBlock {RawPayload = raw};
+//			b.Restore();
+//
+//			var r = Call(b.Net, () => new StateHashNnc {Net = Node.Net.Name}, Flow); /// get the hash  from other net for checking
+//
+//			if(r.Hash.SequenceEqual(b.State.Hash))
+//			{
+//				Node.Mcv.NnBlocks.Add(b);
+//
+//				return b;
+//			}
+//			else
+//				return null;
+//		}
+//	}
 
-			if(b != null)
-				return null;
+//	public R Call<A, R>(Func<Nnc<A, R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where A : NnRequest where R : class, IBinarySerializable
+//	{
+//		return Call(call, workflow, exclusions) as R;
+//	}
+//
+//	public PeerResponse Call(PeerRequest call, Flow workflow, IEnumerable<Peer> exclusions = null)
+//	{
+//		var tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
+//
+//		Peer p;
+//
+//		while(workflow.Active)
+//		{
+//			Thread.Sleep(1);
+//
+//			lock(Lock)
+//			{
+//				p = Node.Peering.ChooseBestPeer((long)Role.Graph, tried);
+//
+//				if(p == null)
+//				{
+//					tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
+//					continue;
+//				}
+//			}
+//
+//			tried.Add(p);
+//
+//			try
+//			{
+//				Connect(p, workflow);
+//
+//				var c = new  call();
+//				c.Peering = this;
+//
+//				return p.Send(c);
+//			}
+//			catch(NodeException)
+//			{
+//			}
+//			catch(ContinueException)
+//			{
+//			}
+//		}
+//
+//		throw new OperationCanceledException();
+//	}
 
-			b = new NniBlock {RawPayload = raw};
-			b.Restore();
-
-			var r = Call(b.Net, () => new StateHashNnc {Net = Node.Net.Name}, Flow);
-
-			if(r.Hash.SequenceEqual(b.State.Hash))
-			{
-				Node.Mcv.NnBlocks.Add(b);
-
-				return b;
-			}
-			else
-				return null;
-		}
-	}
+//	public override PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+//	{
+//		if(net == Node.Net.Name)
+//		{
+//			return Call(call, workflow, exclusions);
+//		}
+//
+//		return base.Call(net, call, workflow, exclusions);
+//	}
 }

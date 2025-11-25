@@ -7,7 +7,7 @@ namespace Uccs.Net;
 
 public delegate void NodeDelegate(Node node);
 
-public class Node
+public class Node : IProgram
 {
 	//public abstract long						Roles { get; }
 	public delegate void		Delegate(Node d);
@@ -20,22 +20,20 @@ public class Node
 	public HttpClient			HttpClient;
 	public Delegate				Stopped;
 	public string				ExeDirectory;
+	public NexusSettings		NexusSettings;
 
 	public RocksDb				Database;
 	readonly DbOptions			DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																	.SetCreateMissingColumnFamilies(true);
 
-	//protected virtual void		CreateTables(ColumnFamilies columns) {}
-
-	//public UosApiClient
-
-	public Node(string name, Net net, string profile, Flow flow)
+	public Node(string name, Net net, string profile, NexusSettings nexussettings, Flow flow)
 	{
 		Name = name ?? Guid.NewGuid().ToByteArray().ToHex();
 		Net = net;
 		Profile = profile;
 		Flow = flow;
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+		NexusSettings = nexussettings ?? new NexusSettings(net.Zone, profile);
 
 		var cf = new ColumnFamilies();
 

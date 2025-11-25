@@ -1,7 +1,8 @@
 import { TFunction } from "i18next"
+import { capitalize } from "lodash"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, CreateProposalDataOption } from "types"
+import { AccountBase, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -38,52 +39,44 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-const normalizeCandidates = (ids?: AccountBase[]) =>
-  Array.isArray(ids)
-    ? [...ids]
+const normalizeCandidatesAccounts = (accounts?: AccountBase[]) =>
+  Array.isArray(accounts)
+    ? [...accounts]
         .map(x => x.id)
         .sort()
         .join(",")
     : ""
 
-const normalizeAuthors = (ids?: string[]) => (Array.isArray(ids) ? [...ids].sort().join(",") : "")
+export const getValidateSiteMembersAddition =
+  (memberType: MembersChangeType) =>
+  (
+    t: TFunction,
+    options: CreateProposalDataOption[],
+    clearErrors: UseFormClearErrors<CreateProposalData>,
+    setError: UseFormSetError<CreateProposalData>,
+    lastEditedIndex: number,
+  ) => {
+    if (!options || lastEditedIndex >= options.length) return
 
-export const validateSiteAuthorsChange = (
-  t: TFunction,
-  options: CreateProposalDataOption[],
-  clearErrors: UseFormClearErrors<CreateProposalData>,
-  setError: UseFormSetError<CreateProposalData>,
-  lastEditedIndex: number,
-) => {
-  if (!options || lastEditedIndex >= options.length) return
+    const hasDuplicates = options.some((opt, i) =>
+      options.some(
+        (other, j) =>
+          i !== j &&
+          normalizeCandidatesAccounts(opt.candidatesAccounts) === normalizeCandidatesAccounts(other.candidatesAccounts),
+      ),
+    )
 
-  const hasEmpty =
-    normalizeAuthors(options[lastEditedIndex].authorsIds) === "" &&
-    normalizeCandidates(options[lastEditedIndex].candidatesIds) === ""
-  if (hasEmpty) {
-    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:requiredAddOrRemoveMembers") })
-    return
+    if (hasDuplicates) {
+      setError(`options.${lastEditedIndex}`, {
+        type: "manual",
+        message: t("validation:uniqueMembers", { memberType: capitalize(memberType) }),
+      })
+    } else {
+      clearErrors(`options.${lastEditedIndex}`)
+    }
   }
 
-  const hasDuplicates = options.some((opt, i) =>
-    options.some((other, j) => {
-      if (i === j) return false
-
-      const sameAuthors = normalizeAuthors(opt.authorsIds) === normalizeAuthors(other.authorsIds)
-      const sameCandidates = normalizeCandidates(opt.candidatesIds) === normalizeCandidates(other.candidatesIds)
-
-      return sameAuthors && sameCandidates
-    }),
-  )
-  if (hasDuplicates) {
-    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
-    return
-  }
-
-  clearErrors(`options.${lastEditedIndex}`)
-}
-
-export const validateSiteModeratorAddition = (
+export const validateSiteAuthorRemoval = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -94,7 +87,7 @@ export const validateSiteModeratorAddition = (
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
-      (other, j) => i !== j && normalizeCandidates(opt.candidatesIds) === normalizeCandidates(other.candidatesIds),
+      (other, j) => i !== j && (other.authorsIds ?? []).sort().join("") === (opt.authorsIds ?? []).sort().join(""),
     ),
   )
 

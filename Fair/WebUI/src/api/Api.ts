@@ -1,5 +1,4 @@
 import {
-  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -13,11 +12,9 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
-  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
-  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -27,14 +24,19 @@ import {
   TotalItemsResult,
   User,
   UserProposal,
+  AccountBase,
+  UnpublishedProductDetails,
+  UnpublishedProduct,
 } from "types"
+import { ChangedPublication } from "types/ChangedPublication"
+import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
 
 export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
-  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
@@ -49,16 +51,20 @@ export type Api = {
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
   getPublication(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
+
+  getChangedPublication(siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails>
   getChangedPublications(
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<PublicationChanged>>
-  getUnpublishedPublications(
+  ): Promise<TotalItemsResult<ChangedPublication>>
+
+  getUnpublishedProduct(siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedProducts(
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<PublicationBaseSite>>
+  ): Promise<TotalItemsResult<UnpublishedProduct>>
 
   getAuthorPublications(
     siteId: string,
@@ -111,12 +117,9 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(productId: string): Promise<TotalItemsResult<ProductFieldModel>>
+  getProductFields(productId: string): Promise<ProductFieldModel[]>
 
-  getProductCompareFields(
-    publicationId: string,
-    version: number,
-  ): Promise<ProductFieldCompare>
+  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldCompare>
 
   getReviewProposals(
     siteId: string,
