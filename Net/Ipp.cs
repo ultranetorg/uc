@@ -248,10 +248,12 @@ public class IppConnection //: IIpp
 ///		Request(rq);
 ///	}
 
-	public IppResponse Send(IppFuncRequest rq)
+	public CallReturn Send(CallArgumentation argumentation)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);
+
+		var rq = new IppFuncRequest {Argumentation = argumentation};
 
 		rq.Id = IdCounter++;
 
@@ -285,7 +287,7 @@ public class IppConnection //: IIpp
 				if(rq.Response == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return rq.Response;
+				return rq.Response.Return;
 			}
 			else
 			{

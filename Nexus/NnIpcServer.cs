@@ -50,9 +50,9 @@ public class NnIppServer : IppServer
 
 		if(Registrations.TryGetValue(call.Net, out var r))
 		{
-			var rp = r.Send(new IppFuncRequest {Argumentation = call});
+			var rp = r.Send(call);
 			//call.Id = rp.Id = id; /// IMPORTANT !!!!!!!!!
-			return rp.Return;
+			return rp;
 		} 
 		else
 			throw new IpcException(IpcError.NotFound);
