@@ -12,7 +12,7 @@ public enum NnIppConnectionType : byte
 
 public class NnIppClientConnection : IppConnection
 {
-	public Rp Call<Rp>(Nnc<Rp> call) where Rp : class, IBinarySerializable => Send(call) as Rp;
+	public Rp Call<Rp>(Nnc<Rp> call) where Rp : CallReturn => Send(call) as Rp;
 
 	public NnIppClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{

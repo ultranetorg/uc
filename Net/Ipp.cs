@@ -18,16 +18,16 @@ public abstract class IppPacket
 
 public class IppFuncRequest : IppPacket
 {
-	public IppResponse			Response;
+	public CallReturn			Return;
 	public ManualResetEvent		Event;
 	public CodeException		Exception;
 	public CallArgumentation	Argumentation { get; set; }
 }
 
-public class IppResponse : IppPacket
-{
-	public CallReturn			Return { get; set; }
-}
+//public class IppResponse : IppPacket
+//{
+//	public CallReturn			Return { get; set; }
+//}
 
 public abstract class CallArgumentation : IBinarySerializable, ITypeCode
 {
@@ -41,9 +41,9 @@ public abstract class CallReturn : IBinarySerializable, ITypeCode
 	public abstract void Write(BinaryWriter writer);
 }
 
-public abstract class Ipc<R> : IppFuncRequest where R : IppResponse /// Pipe-to-Pipe Call
-{
-}
+//public abstract class Ipc<R> : IppFuncRequest where R : IppResponse /// Pipe-to-Pipe Call
+//{
+//}
 
 public class IppConnection //: IIpp
 {
@@ -186,18 +186,17 @@ public class IppConnection //: IIpp
 
 					case PacketType.Response:
  					{
-						var rp = new IppResponse();
-						rp.Id		= Reader.ReadInt32();
-						rp.Return	= Constructor.Construct(typeof(CallReturn), Reader.ReadByte()) as CallReturn;
-						rp.Return.Read(Reader);
+						var id 		= Reader.ReadInt32();
+						var r	= Constructor.Construct(typeof(CallReturn), Reader.ReadByte()) as CallReturn;
+						r.Read(Reader);
 
 						lock(OutRequests)
 						{
-							var rq = OutRequests.Find(i => i.Id == rp.Id);
+							var rq = OutRequests.Find(i => i.Id == id);
 
 							if(rq is IppFuncRequest f)
 							{
-								f.Response = rp;
+								f.Return = r;
 								f.Event.Set();
  									
 								OutRequests.Remove(rq);
@@ -286,10 +285,10 @@ public class IppConnection //: IIpp
 		{
 			if(rq.Exception == null)
 			{
-				if(rq.Response == null)
+				if(rq.Return == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return rq.Response.Return;
+				return rq.Return;
 			}
 			else
 			{

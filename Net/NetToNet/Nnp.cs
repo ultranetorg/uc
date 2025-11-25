@@ -111,7 +111,7 @@ public abstract class NnResponse : CallReturn
 {
 }
 
-public abstract class Nnc<R> : NnRequest where R : IBinarySerializable
+public abstract class Nnc<R> : NnRequest where R : CallReturn
 {
 }
 
