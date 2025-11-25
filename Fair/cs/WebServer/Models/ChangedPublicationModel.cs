@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Fair;
 
-public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairAccount account, Category category, byte[]? logo)
+public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairAccount account, Category category, AutoId logoId)
 {
 	public string Id { get; } = publicationId;
 
-	public PublicationImageBaseModel Publication { get; } = new PublicationImageBaseModel(product, logo);
+	public PublicationImageBaseModel Publication { get; } = new PublicationImageBaseModel(product, logoId);
 	public AccountBaseAvatarModel Author { get; } = new AccountBaseAvatarModel(account);
 
 	public string CategoryId { get; } = category.Id.ToString();

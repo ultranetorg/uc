@@ -14,8 +14,7 @@ public class ProductsService
 {
 	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string unpublishedProductId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {UnpublishedProductId}",
-			nameof(ProductsService), nameof(GetUnpublishedProduct), siteId, unpublishedProductId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {UnpublishedProductId}", nameof(ProductsService), nameof(GetUnpublishedProduct), siteId, unpublishedProductId);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(unpublishedProductId);
@@ -36,18 +35,12 @@ public class ProductsService
 			}
 
 			Product product = mcv.Products.Latest(entitySiteId);
-			if(product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), unpublishedProductId);
-			}
-
-			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
+			FairAccount account = (FairAccount) mcv.Accounts.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
-			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
 			FieldValue[] fields = GetFieldsLastVersion(product);
 			IEnumerable<ProductFieldValueModel> mappedFields = fields != null ? MapValues(fields, Product.Software) : null;
-			return new UnpublishedProductDetailsModel(product, account, logo)
+			return new UnpublishedProductDetailsModel(product, account, fileId)
 			{
 				Versions = mappedFields
 			};
@@ -126,9 +119,8 @@ public class ProductsService
 			Product product = mcv.Products.Latest(publication.Product);
 			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
-			UnpublishedProductModel model = new UnpublishedProductModel(product, account, logo);
+			UnpublishedProductModel model = new UnpublishedProductModel(product, account, fileId);
 			result.Add(model);
 		}
 

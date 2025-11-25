@@ -298,7 +298,7 @@ public class PublicationsService
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
-			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
+			var model = new PublicationExtendedModel(publication, product, author, category, logo);
 			result.Publications.Add(model);
 
 			if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)
@@ -349,14 +349,13 @@ public class PublicationsService
 			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[] logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
 			var fieldsFrom = product.Versions.Single(x => x.Id == publication.ProductVersion).Fields;
 			var fieldsTo = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
 			var mappedFrom = ProductsService.MapValues(fieldsFrom, Product.Software);
 			var mappedTo = ProductsService.MapValues(fieldsTo, Product.Software);
 
-			return new ChangedPublicationDetailsModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, logo)
+			return new ChangedPublicationDetailsModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId)
 			{
 				From = mappedFrom,
 				To = mappedTo
@@ -413,8 +412,8 @@ public class PublicationsService
 			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[] logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
-			var model = new ChangedPublicationModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, logo);
+
+			var model = new ChangedPublicationModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId);
 			result.Add(model);
 		}
 
@@ -464,8 +463,8 @@ public class PublicationsService
 		if(cancellationToken.IsCancellationRequested)
 			return [];
 
-		List<T> result = new List<T>(pageSize);
-		foreach (var publicationId in publicationsIds)
+		var result = new List<T>(pageSize);
+		foreach (AutoId publicationId in publicationsIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;

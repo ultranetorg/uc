@@ -23,15 +23,15 @@ export const ModeratorChangedPublicationPage = () => {
       <ModeratorPublicationHeader
         siteId={siteId!}
         parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
-        title={""}
-        logoFileId={undefined}
+        title={publication.publication.title}
+        logoFileId={publication.publication.imageId}
         onApprove={handleApprove}
         onPreview={handlePreview}
         onReject={handleReject}
         homeLabel={t("common:home")}
       />
       {/* TODO: ProductCompareFields component should be modified and receive product.versions property instead of productIds to avoid second request to back-end. */}
-      <ProductCompareFields publications={[{ id: publication.id, version: 1 }]} />
+      <ProductCompareFields publications={[{ id: publication.id, version: publication.latestVersion }]} />
     </div>
   )
 }
