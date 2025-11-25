@@ -1,11 +1,14 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { LIMIT_DEFAULT } from "constants/"
 import {
+  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
   CategoryParentBase,
   CategoryPublications,
+  ChangedPublication,
+  ChangedPublicationDetails,
   ProductFieldCompare,
   ProductFieldModel,
   Proposal,
@@ -14,11 +17,9 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
-  PublicationChanged,
   PublicationDetails,
   PublicationExtended,
   PublicationProposal,
-  PublicationBaseSite,
   PublicationVersionInfo,
   Review,
   ReviewProposal,
@@ -26,10 +27,10 @@ import {
   SiteBase,
   SiteLiteSearch,
   TotalItemsResult,
+  UnpublishedProduct,
+  UnpublishedProductDetails,
   User,
   UserProposal,
-  AccountBase,
-  Product,
 } from "types"
 
 import { Api } from "./Api"
@@ -101,23 +102,29 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
+const getChangedPublication = (siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails> =>
+  fetch(`${BASE_URL}/sites/${siteId}/publications/changed/${changedPublicationId}`).then(res => res.json())
+
 const getChangedPublications = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<PublicationChanged>> => {
+): Promise<TotalItemsResult<ChangedPublication>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/changed-publications` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/changed` + params)
   return await toTotalItemsResult(res)
 }
 
-const getUnpublishedPublications = async (
+const getUnpublishedProduct = (siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
+  fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
+
+const getUnpublishedProducts = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<PublicationBaseSite>> => {
+): Promise<TotalItemsResult<UnpublishedProduct>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/unpublished-publications` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/products/unpublished` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -192,9 +199,6 @@ const getAuthorReferendums = async (
   const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums` + params)
   return await toTotalItemsResult(res)
 }
-
-const getProduct = (productId: string): Promise<Product> =>
-  fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
 
 const getModeratorDiscussion = (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
@@ -285,8 +289,12 @@ const api: Api = {
   getDefaultSites,
   getPublication,
   getPublicationVersions,
+
+  getChangedPublication,
   getChangedPublications,
-  getUnpublishedPublications,
+  getUnpublishedProduct,
+  getUnpublishedProducts,
+
   getReviews,
   getSite,
   getSiteAuthors,
@@ -304,8 +312,6 @@ const api: Api = {
   getAuthorReferendum,
   getAuthorReferendums,
   getAuthorReferendumComments,
-
-  getProduct,
 
   getModeratorDiscussion,
   getModeratorDiscussions,

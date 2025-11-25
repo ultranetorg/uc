@@ -66,7 +66,7 @@ export const renderLastsFor = (t: TFunction, creationTime: number) => {
 }
 
 export const renderPublication = (publication: PublicationImageBase) => (
-  <PublicationInfo avatar={publication.image} categoryTitle={publication.categoryTitle} title={publication.title} />
+  <PublicationInfo avatarId={publication.imageId} categoryTitle={publication.categoryTitle} title={publication.title} />
 )
 
 export const renderText = (text: string) => (

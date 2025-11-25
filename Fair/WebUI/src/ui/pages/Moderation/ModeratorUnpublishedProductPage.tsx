@@ -2,21 +2,21 @@ import { useCallback } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { useGetProduct } from "entities"
 import { ProductFields } from "ui/components/proposal"
 import { ModeratorPublicationHeader } from "ui/components/specific"
+import { useGetUnpublishedProduct } from "entities"
 
-export const ModeratorUnpublishedPublicationPage = () => {
+export const ModeratorUnpublishedProductPage = () => {
   const { siteId, productId } = useParams()
   const { t } = useTranslation()
 
-  const { isPending, data: product } = useGetProduct(productId)
+  const { isFetching, data: product } = useGetUnpublishedProduct(siteId, productId)
 
   const handleApprove = useCallback(() => alert("approve"), [])
   const handleReject = useCallback(() => alert("reject"), [])
   const handlePreview = useCallback(() => alert("preview"), [])
 
-  if (!siteId || isPending || !product) return <div>LOADING</div>
+  if (!siteId || isFetching || !product) return <div>LOADING</div>
 
   return (
     <div className="flex flex-col gap-6">

@@ -144,7 +144,7 @@ export const enUS = {
     publications: "Publications",
     reviews: "Reviews",
     title: "Moderation",
-    unpublishedPublications: "Unpublished publications",
+    unpublishedProducts: "Unpublished products",
     userRegistrations: "User registrations",
   },
   profile: {
@@ -271,8 +271,8 @@ export const enUS = {
     text: "Text",
     reviewModalTitle: "Review text",
   },
-  tabUnpublishedPublications: {
-    noPublications: "No unpublished publications",
+  tabUnpublishedProducts: {
+    noProducts: "No unpublished products",
   },
   tabUsers: {
     noUsers: "No user registrations",

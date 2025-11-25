@@ -55,9 +55,8 @@ public class ModeratorProposalsService
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-		byte[]? image = fileId != null ? mcv.Files.Latest(fileId)?.Data : null;
 
-		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, image);
+		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
 		T instance = (T) Activator.CreateInstance(typeof(T), proposal, reviewer, model);
 		instance!.Options = ProposalUtils.MapOptions(proposal.Options);
@@ -152,9 +151,8 @@ public class ModeratorProposalsService
 		FairAccount author = (FairAccount) mcv.Accounts.Latest(product.Author);
 
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-		byte[]? image = fileId != null ? mcv.Files.Latest(fileId)?.Data : null;
 
-		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, category.Title, image);
+		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
 		return new PublicationProposalModel(proposal, product, author, publicationImage)
 		{
@@ -167,9 +165,8 @@ public class ModeratorProposalsService
 		Product product = mcv.Products.Latest(productId);
 		FairAccount author = (FairAccount) mcv.Accounts.Latest(product.Author);
 		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
-		byte[]? image = fileId != null ? mcv.Files.Latest(fileId)?.Data : null;
 
-		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, image);
+		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
 		return new PublicationProposalModel(proposal, product, author, publicationImage)
 		{

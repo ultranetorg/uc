@@ -27,28 +27,6 @@ export const useGetPublicationVersions = (publicationId?: string) => {
   return { isFetching, isError, data }
 }
 
-export const useGetChangedPublications = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getChangedPublications(siteId!, page, pageSize)
-
-  const { isFetching, isError, data } = useQuery({
-    queryKey: ["sites", siteId, "changed-publications", { page, pageSize }],
-    queryFn: queryFn,
-    enabled: !!siteId,
-  })
-  return { isFetching, isError, data }
-}
-
-export const useGetUnpublishedPublications = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getUnpublishedPublications(siteId!, page, pageSize)
-
-  const { isFetching, isError, data } = useQuery({
-    queryKey: ["sites", siteId, "unpublished-publications", { page, pageSize }],
-    queryFn: queryFn,
-    enabled: !!siteId,
-  })
-  return { isFetching, isError, data }
-}
-
 export const useGetCategoriesPublications = (siteId?: string) => {
   const queryFn = () => api.getCategoriesPublications(siteId!)
 
