@@ -62,3 +62,8 @@ export const formatTitle = (title: string, maxLength: number = 48, endLength: nu
 }
 
 export const formatVotes = (votes: number[]): string => votes.join(VOTES_DELIMITER)
+
+export function ensureHttp(uri: string) {
+  if (/^(https?:)?\/\//i.test(uri)) return uri
+  return `https://${uri}`
+}

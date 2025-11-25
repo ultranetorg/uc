@@ -42,6 +42,8 @@ export const enUS = {
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
+    unsupportedTag: "Your browser does not support the tag.",
+    invalidUrl: "Invalid URL",
   },
   productToken: {
     none: "None",
@@ -95,8 +97,43 @@ export const enUS = {
     noData: "No fields data",
     loadError: "Error loading field data",
     selectField: "Select a tree item on the left",
-    invalidUrl: "Invalid URL",
-    unsupportedTag: "Your browser does not support the tag.",
+    previewButton: "Preview publication",
+  },
+  productPreview: {
+    descriptionMin: "Description minimal",
+    descriptionMax: "Description maximal",
+    descriptionPoster: "Description poster",
+    descriptionVideo: "Description video",
+    publisher: "Publisher",
+    version: "Version",
+    price: "Price",
+    license: "License",
+    viewSite: "Official site",
+    releases: "Releases",
+    release: "Release #{{version}}",
+    distributive: {
+      title: "Distributive",
+      platform: "Platform",
+      version: "Version",
+      date: "Date",
+      deployment: "Deployment",
+      download: "Download",
+    },
+    requirements: {
+      title: "Requirements",
+      hardware: {
+        cpu: "CPU",
+        gpu: "GPU",
+        npu: "NPU",
+        ram: "RAM",
+        hdd: "HDD",
+      },
+      software: {
+        os: "OS",
+        architecture: "Architecture",
+        version: "Version",
+      },
+    },
   },
   /* Pages */
   about: {
@@ -372,5 +409,5 @@ export const enUS = {
     twitch: "Twitch",
     x: "X / Twitter",
     youtube: "YouTube",
-  }
+  },
 }

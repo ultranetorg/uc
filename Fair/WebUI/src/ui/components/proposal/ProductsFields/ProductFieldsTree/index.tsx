@@ -1,4 +1,4 @@
-import { useCallback, useState, memo } from "react"
+import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "@tanstack/react-query"
 
@@ -50,15 +50,17 @@ const TreeNode = <TModel extends ProductFieldViewModel>({
   return (
     <>
       <div
-        className={`flex cursor-pointer select-none gap-2 px-1 py-1 ${rowStatusClass} ${selectedClass}`}
+        className={`flex cursor-pointer select-none gap-2 p-1 ${rowStatusClass} ${selectedClass}`}
         role="treeitem"
         aria-expanded={hasChildren ? !closed : undefined}
         tabIndex={0}
         aria-label={pretty(node.name)}
       >
-        <span className="h-4 w-4" onClick={() => setClosed(v => !v)}>
+        <span className="size-4" onClick={() => setClosed(v => !v)}>
           {hasChildren && (
-            <SvgChevronRightMd className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
+            <SvgChevronRightMd
+              className={`fill-gray-300 transition-transform duration-150 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`}
+            />
           )}
         </span>
         <div className={`flex flex-1 gap-2 px-1 hover:underline`} onClick={() => select()}>

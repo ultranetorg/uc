@@ -1,8 +1,10 @@
-import { memo, ReactElement, useRef, useState, useEffect, useCallback } from "react"
+import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { ProductFieldViewModel, TotalItemsResult } from "types"
-import { ProductFieldsTree } from "./ProductFieldsTree"
 import { useTranslation } from "react-i18next"
+import { ProductFieldViewModel, TotalItemsResult } from "types"
+import { ButtonOutline } from "ui/components/ButtonOutline"
+import { ProductPreviewModal } from "../ProductPreview"
+import { ProductFieldsTree } from "./ProductFieldsTree"
 import { SelectedProps } from "./types"
 
 export interface ProductFieldsViewProps extends SelectedProps {
@@ -74,34 +76,43 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
     userSelect: "none",
   }
 
+  const [isPreviewModalOpen, setPreviewModalOpen] = useState(false)
+
   return (
-    <div ref={containerRef} className="flex max-h-screen items-stretch">
-      <div className="overflow-auto" style={leftStyle}>
-        <div className="w-fit">
-          <ProductFieldsTree response={response} selected={selected} onSelect={onSelect} />
-        </div>
+    <div>
+      <div className="mb-2 flex justify-end">
+        <ButtonOutline className="h-9" label={t("previewButton")} onClick={() => setPreviewModalOpen(true)} />
       </div>
 
-      {/* Resizer */}
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        onMouseDown={onMouseDown}
-        className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
-        style={resizerStyle}
-        title="Drag to resize"
-      >
-        <div>
-          <div className="flex h-12 flex-col items-center justify-center gap-1">
-            <div className="h-1 w-1 rounded-full bg-gray-200" />
-            <div className="h-1 w-1 rounded-full bg-gray-300" />
-            <div className="h-1 w-1 rounded-full bg-gray-200" />
+      <div ref={containerRef} className="flex max-h-screen items-stretch">
+        <div className="overflow-auto" style={leftStyle}>
+          <div className="w-fit">
+            <ProductFieldsTree response={response} selected={selected} onSelect={onSelect} />
           </div>
         </div>
-      </div>
 
-      <div className="flex-1 overflow-auto">
-        {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
+        {/* Resizer */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          onMouseDown={onMouseDown}
+          className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
+          style={resizerStyle}
+          title="Drag to resize"
+        >
+          <div>
+            <div className="flex h-12 flex-col items-center justify-center gap-1">
+              <div className="size-1 rounded-full bg-gray-200" />
+              <div className="size-1 rounded-full bg-gray-300" />
+              <div className="size-1 rounded-full bg-gray-200" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto">
+          {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
+        </div>
+        {isPreviewModalOpen && <ProductPreviewModal response={response} onClose={() => setPreviewModalOpen(false)} />}
       </div>
     </div>
   )
