@@ -41,7 +41,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 
 	public RdnNnIppConnection(RdnNode node, Flow flow) : base(node, NnTcpPeering.GetName(node.NexusSettings.Host), flow)
 	{
-		RegisterHandler(typeof(NnIpcClass), this);
+		RegisterHandler(typeof(NnClass), this);
 	}
 
 	public override void Established()
@@ -53,30 +53,30 @@ public class RdnNnIppConnection : NnIppNodeConnection
 		}
 	}
 
-	public IppResponse HolderClasses(IppConnection connection, HolderClassesNnIpc call)
+	public CallReturn HolderClasses(IppConnection connection, HolderClassesNnc call)
 	{
-		return new HolderClassesNnIpr {Classes = [nameof(Account)]};
+		return new HolderClassesNnr {Classes = [nameof(Account)]};
 	}
 
-	public IppResponse AssetBalance(IppConnection connection, AssetBalanceNnIpc call)
-	{
-		throw new NotImplementedException();
-	}
-
-	public IppResponse AssetTransfer(IppConnection connection, AssetTransferNnIpc call)
-	{
-		throw new NotImplementedException();
-	}
-
-	public IppResponse HolderAssets(IppConnection connection, HolderAssetsNnIpc call)
-	{
-		throw new NotImplementedException();
-	}
-
-	public IppResponse HoldersByAccount(IppConnection connection, HoldersByAccountNnIpc call)
-	{
-		throw new NotImplementedException();
-	}
+//	public IppResponse AssetBalance(IppConnection connection, AssetBalanceNnIpc call)
+//	{
+//		throw new NotImplementedException();
+//	}
+//
+//	public IppResponse AssetTransfer(IppConnection connection, AssetTransferNnIpc call)
+//	{
+//		throw new NotImplementedException();
+//	}
+//
+//	public IppResponse HolderAssets(IppConnection connection, HolderAssetsNnIpc call)
+//	{
+//		throw new NotImplementedException();
+//	}
+//
+//	public IppResponse HoldersByAccount(IppConnection connection, HoldersByAccountNnIpc call)
+//	{
+//		throw new NotImplementedException();
+//	}
 }
 
 //public class HolderClassesNnIpc : NnIpc<HolderClassesNnIpr>

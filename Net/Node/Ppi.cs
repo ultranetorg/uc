@@ -30,9 +30,14 @@ public abstract class FuncPeerRequest : PeerRequest
 {
 	public ManualResetEvent			Event;
 	public PeerResponse				Response;
-	public CodeException			Error;
+	public CodeException			Exception;
 
 	public abstract PeerResponse	Execute();
+
+    public FuncPeerRequest ShallowCopy()
+    {
+        return (FuncPeerRequest)MemberwiseClone();
+    }
 }
 
 public abstract class PeerResponse : Packet
