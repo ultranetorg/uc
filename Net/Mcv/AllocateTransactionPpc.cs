@@ -4,7 +4,7 @@ public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
 {
 	public Transaction Transaction { get; set; }
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Peering.Lock)
 			lock(Mcv.Lock)
@@ -41,7 +41,7 @@ public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
 	}
 }
 
-public class AllocateTransactionPpr : PeerResponse
+public class AllocateTransactionPpr : Return
 {
 	public int			LastConfirmedRid { get; set; }
 	public int			NextNid { get; set; }

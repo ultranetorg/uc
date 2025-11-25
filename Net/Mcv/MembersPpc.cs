@@ -2,7 +2,7 @@
 
 public class MembersPpc : McvPpc<MembersPpr>
 {
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -16,7 +16,7 @@ public class MembersPpc : McvPpc<MembersPpr>
 	}
 }
 
-public class MembersPpr : PeerResponse
+public class MembersPpr : Return
 {
 	public Generator[] Members { get; set; }
 }

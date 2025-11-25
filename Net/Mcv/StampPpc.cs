@@ -2,7 +2,7 @@
 
 public class StampPpc : McvPpc<StampPpr>
 {
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -25,7 +25,7 @@ public class StampPpc : McvPpc<StampPpr>
 	}
 }
 
-public class StampPpr : PeerResponse
+public class StampPpr : Return
 {
 	public class SuperCluster
 	{

@@ -86,7 +86,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 //		return Call(call, workflow, exclusions) as R;
 //	}
 //
-//	public PeerResponse Call(PeerRequest call, Flow workflow, IEnumerable<Peer> exclusions = null)
+//	public CallReturn Call(PeerRequest call, Flow workflow, IEnumerable<Peer> exclusions = null)
 //	{
 //		var tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
 //
@@ -129,7 +129,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 //		throw new OperationCanceledException();
 //	}
 
-//	public override PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+//	public override CallReturn Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 //	{
 //		if(net == Node.Net.Name)
 //		{

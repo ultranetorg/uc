@@ -13,7 +13,7 @@ public class ProposalCommentPpc : FairPpc<ProposalCommentPpr>
 		Id = id;
 	}
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class ProposalCommentPpc : FairPpc<ProposalCommentPpr>
 	}
 }
 
-public class ProposalCommentPpr : PeerResponse
+public class ProposalCommentPpr : Return
 {
 	public ProposalComment	Comment {get; set;}
 }

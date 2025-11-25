@@ -5,7 +5,7 @@ public class TableStampPpc : McvPpc<TableStampPpr>
 	public int		Table { get; set; }
 	public short[]	Clusters { get; set; }
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		if(Clusters.Length > TableBase.ClustersCountMax)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -39,7 +39,7 @@ public class TableStampPpc : McvPpc<TableStampPpr>
 	}
 }
 
-public class TableStampPpr : PeerResponse
+public class TableStampPpr : Return
 {
 	public class Cluster
 	{

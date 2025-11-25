@@ -25,9 +25,9 @@ public class NnIppServer : IppServer
 	{
 		Nexus = nexus;
 
-		Constructor.Register<CallArgumentation>	(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CallReturn>		(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CodeException>		(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<Argumentation>	(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Return>		(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Accept(IppConnection connection)
@@ -43,7 +43,7 @@ public class NnIppServer : IppServer
 		connection.RegisterHandler(typeof(NnClass), this);
 	}
 
-	CallReturn Relay(IppConnection connection, NnRequest call)
+	Return Relay(IppConnection connection, NnArgumentation call)
 	{
 		//var a = call as NnRequest;
 		//var id = call.Id;
@@ -59,27 +59,27 @@ public class NnIppServer : IppServer
 
 	}
 
-	public CallReturn HolderClasses(IppConnection connection, NnRequest call)
+	public Return HolderClasses(IppConnection connection, NnArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public CallReturn HolderAssets(IppConnection connection, NnRequest call)
+	public Return HolderAssets(IppConnection connection, NnArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public CallReturn HoldersByAccount(IppConnection connection, NnRequest call)
+	public Return HoldersByAccount(IppConnection connection, NnArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public CallReturn AssetBalance(IppConnection connection, NnRequest call)
+	public Return AssetBalance(IppConnection connection, NnArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public CallReturn AssetTransfer(IppConnection connection, NnRequest call)
+	public Return AssetTransfer(IppConnection connection, NnArgumentation call)
 	{
 		return Relay(connection, call);
 	}

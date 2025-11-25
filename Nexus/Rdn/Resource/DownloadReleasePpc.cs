@@ -7,7 +7,7 @@ public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 	public long				Offset { get; set; }
 	public long				Length { get; set; }
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		if(Length > ResourceHub.PieceMaxLength)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -27,7 +27,7 @@ public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 	}
 }
 
-public class DownloadReleasePpr : PeerResponse
+public class DownloadReleasePpr : Return
 {
 	public byte[] Data { get; set; }
 }

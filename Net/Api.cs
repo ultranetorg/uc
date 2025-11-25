@@ -89,7 +89,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
-        if(ti.Type == typeof(FuncPeerRequest))
+        if(ti.Type == typeof(PeerRequest))
         {
             ti.PolymorphismOptions = new JsonPolymorphismOptions
 									 {
@@ -98,13 +98,13 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FuncPeerRequest)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
         }
 
-        if(ti.Type == typeof(PeerResponse))
+        if(ti.Type == typeof(Return))
         {
             ti.PolymorphismOptions = new JsonPolymorphismOptions
 									 {
@@ -113,7 +113,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(PeerResponse)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -128,7 +128,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}
@@ -143,7 +143,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
 									 };
 
-			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+			foreach(var i in typeof(Net).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
 			{
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 			}

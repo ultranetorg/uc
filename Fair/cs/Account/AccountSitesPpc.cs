@@ -23,7 +23,7 @@ public class AccountSitesPpc : McvPpc<AccountSitesPpr>
 		Identifier = new(id);
 	}
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -46,7 +46,7 @@ public class AccountSitesPpc : McvPpc<AccountSitesPpr>
 	}
 }
 
-public class AccountSitesPpr : PeerResponse
+public class AccountSitesPpr : Return
 {
 	public AutoId[] Sites {get; set;}
 }

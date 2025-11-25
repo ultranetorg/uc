@@ -5,7 +5,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 	public Urr		Release { get; set; }
 	public string	File { get; set; }
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Node.ResourceHub.Lock)
 		{
@@ -22,7 +22,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 	}
 }
 
-public class FileInfoPpr : PeerResponse
+public class FileInfoPpr : Return
 {
 	public long Length { get; set; }
 }

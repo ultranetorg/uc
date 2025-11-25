@@ -238,7 +238,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 	protected override void OnConnected(Peer peer)
 	{
 		//RefreshPeers([peer]);
-		peer.Post(new SharePeersPpc {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
+		peer.Send(new SharePeersPpc {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
 	}
 
 	public Peer ChooseBestPeer(long role, HashSet<Peer> exclusions)
@@ -281,14 +281,14 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		throw new OperationCanceledException();
 	}
 
-	public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : PeerResponse
+	public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : Return
 	{
 		rq.Peering	= this;
 
-		return peer.Send((FuncPeerRequest)rq) as Rp;
+		return peer.Call((PeerRequest)rq) as Rp;
 	}
 
-	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : PeerResponse
+	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : Return
 	{
 		var p = GetPeer(ip);
 
@@ -300,7 +300,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		return p.Send(c);
 	}
 
-	public void Tell(IPAddress ip, ProcPeerRequest requet, Flow workflow)
+	public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
 	{
 		var p = GetPeer(ip);
 
@@ -309,7 +309,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		var c = requet;
 		c.Peering	= this;
 
-		p.Post(c);
+		p.Send(c);
 
 	}
 }

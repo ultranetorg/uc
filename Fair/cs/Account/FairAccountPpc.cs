@@ -23,7 +23,7 @@ public class FairAccountPpc : McvPpc<FairAccountPpr>
 		Identifier = new(id);
 	}
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -46,7 +46,7 @@ public class FairAccountPpc : McvPpc<FairAccountPpr>
 	}
 }
 
-public class FairAccountPpr : PeerResponse
+public class FairAccountPpr : Return
 {
 	public FairAccount Account {get; set;}
 }

@@ -406,7 +406,7 @@ public abstract class TcpPeering : IPeer
 		}
 	}
 
-	public override PeerResponse Send(FuncPeerRequest request)
+	public override Return Call(PeerRequest request)
 	{
 		var rq = request;
 
@@ -416,7 +416,7 @@ public abstract class TcpPeering : IPeer
 			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
 			//var id = request.Id;
 			//var e = request.Event;
@@ -433,7 +433,7 @@ public abstract class TcpPeering : IPeer
 		return rq.Execute();
 	}
 
-	public override void Post(ProcPeerRequest request)
+	public override void Send(PeerRequest request)
 	{
 		var rq = request;
 
@@ -443,7 +443,7 @@ public abstract class TcpPeering : IPeer
 			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
 			s.Position = 0;
 
-			rq = BinarySerializator.Deserialize<ProcPeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
 		}
 

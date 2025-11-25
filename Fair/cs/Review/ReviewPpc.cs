@@ -13,7 +13,7 @@ public class ReviewPpc : FairPpc<ReviewPpr>
 		Id = id;
 	}
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class ReviewPpc : FairPpc<ReviewPpr>
 	}
 }
 
-public class ReviewPpr : PeerResponse
+public class ReviewPpr : Return
 {
 	public Review	Review {get; set;}
 }

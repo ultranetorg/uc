@@ -2,7 +2,7 @@
 
 public class CostPpc : McvPpc<CostPpr>
 {
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Peering.Lock)
 		{
@@ -14,7 +14,7 @@ public class CostPpc : McvPpc<CostPpr>
 	}
 }
 
-public class CostPpr : PeerResponse
+public class CostPpr : Return
 {
 	//public Money RentPerBytePerDay { get; set; }
 	public long ConsensusExecutionFee { get; set; }

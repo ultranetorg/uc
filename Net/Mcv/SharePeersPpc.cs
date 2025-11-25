@@ -1,11 +1,11 @@
 ﻿namespace Uccs.Net;
 
-public class SharePeersPpc : ProcPeerRequest
+public class SharePeersPpc : PeerRequest
 {
 	public bool					Broadcast { get; set; }
 	public Peer[]				Peers { get; set; }
 
-	public override void Execute()
+	public override Return Execute()
 	{
 		if(Peers.Length > 1000)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -18,9 +18,11 @@ public class SharePeersPpc : ProcPeerRequest
 			{
 				foreach(var i in (Peering as HomoTcpPeering).Connections.Where(i => i != Peer))
 				{
-					i.Post(new SharePeersPpc {Broadcast = true, Peers = newfresh});
+					i.Send(new SharePeersPpc {Broadcast = true, Peers = newfresh});
 				}
 			}
 		}
+
+		return null;
 	}
 }

@@ -54,7 +54,7 @@ public abstract class McvCommand : NetCommand
 		return Cli.ApiClient.Request<Rp>(call, Flow);
 	}
 
-	public Rp Ppc<Rp>(Ppc<Rp> call) where Rp : PeerResponse
+	public Rp Ppc<Rp>(Ppc<Rp> call) where Rp : Return
 	{
 		var rp = Api<Rp>(new PpcApc {Request = call});
  

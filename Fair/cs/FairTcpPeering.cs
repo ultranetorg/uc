@@ -23,7 +23,7 @@ public enum FairPpcClass : byte
 	Pow
 }
 
-public abstract class FairPpc<R> : McvPpc<R> where R : PeerResponse
+public abstract class FairPpc<R> : McvPpc<R> where R : Return
 {
 	public new FairTcpPeering	Peering => base.Peering as FairTcpPeering;
 	public new FairNode			Node => base.Node as FairNode;
@@ -35,9 +35,7 @@ public class FairTcpPeering : McvTcpPeering
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
 		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<FuncPeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<ProcPeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<PeerResponse>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Return>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new FairAccount(Mcv));
 

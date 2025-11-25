@@ -58,10 +58,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		Node = node;
 		VaultApi = vaultapi;
 
-		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<FuncPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<ProcPeerRequest>(Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<PeerResponse>	 (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<Return> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));
@@ -157,7 +155,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(IsListener)
 			{
 				foreach(var c in Connections)
-					c.Post(new SharePeersPpc {Broadcast = true, 
+					c.Send(new SharePeersPpc {Broadcast = true, 
 												  Peers = [new Peer(IP, Settings.Port) {Roles = Roles}]});
 			}
 
@@ -1195,12 +1193,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		return t;
  	}
 
-	public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : PeerResponse
+	public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : Return
 	{
-		return Call((Func<FuncPeerRequest>)call, workflow, exclusions) as R;
+		return Call((Func<PeerRequest>)call, workflow, exclusions) as R;
 	}
 
-	public PeerResponse Call(Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public Return Call(Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
 		HashSet<Peer> tried;
 		
@@ -1224,7 +1222,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					var c = call();
 					c.Peering = this;
 
-					return Send(c);
+					return Call(c);
 				}
 
 				p = ChooseBestPeer((long)Role.Graph, tried);
@@ -1245,7 +1243,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				var c = call();
 				c.Peering = this;
 
-				return p.Send(c);
+				return p.Call(c);
 			}
 			catch(NodeException ex)
 			{
@@ -1266,7 +1264,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				var v = new VotePpc {Vote = vote};
 				v.Peering = this;
-				i.Post(v);
+				i.Send(v);
 			}
 			catch(NodeException)
 			{

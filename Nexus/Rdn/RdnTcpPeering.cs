@@ -10,7 +10,7 @@ public enum RdnPpcClass : byte
 	QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease
 }
 
-public abstract class RdnPpc<R> : McvPpc<R> where R : PeerResponse
+public abstract class RdnPpc<R> : McvPpc<R> where R : Return
 {
 	public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
 	public new RdnNode			Node => base.Node as RdnNode;
@@ -22,42 +22,21 @@ public class RdnTcpPeering : McvTcpPeering
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
 		Constructor.Register<PeerRequest>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<FuncPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<ProcPeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<PeerResponse>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Return>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 		Constructor.Register<Urr>			 (GetType().Assembly, typeof(UrrScheme), i => i);
-
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
 
+//		var s = new MemoryStream();
+//		var w = new BinaryWriter(s);
+//		var r = new BinaryReader(s);
+//		BinarySerializator.Serialize(w, new SharePeersPpc {Peers = [new Peer {IP = new([1,2,3,4])}]}, Constructor.TypeToCode); 
+//		s.Position = 0;
+//		var p = BinarySerializator.Deserialize<PeerRequest>(r, Constructor.Construct);
 
-///		Register(typeof(RdnPpcClass), node);
-/// 	 
-///		Constructors[typeof(Urr)] = [];
-///
-/// 		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Urr))))
-/// 		{	
-/// 			if(Enum.TryParse<UrrScheme>(i.Name, out var c))
-/// 			{
-/// 				Codes[i] = (byte)c;
-///				var x = i.GetConstructor([]);
-/// 				Constructors[typeof(Urr)][(byte)c] = () => x.Invoke(null);
-/// 			}
-/// 		}
-///
-///		Codes[typeof(ResourceException)] = (byte)ExceptionClass._Next;
-///		Constructors[typeof(CodeException)][(byte)ExceptionClass._Next]  = () => typeof(ResourceException).GetConstructor([]).Invoke(null);
 
 		Run();
 	}
-
-///	public override object Constract(Type t, byte b)
-///	{
-///	 	if(t == typeof(Vote))	
-/// 		return new RdnVote(Mcv);
-///
-///		return base.Constract(t, b);
-///	}
 
 	public override bool ValidateIncoming(Operation o)
 	{

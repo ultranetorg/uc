@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class VotePpc : ProcPeerRequest
+public class VotePpc : PeerRequest
 {
 	public Vote		Vote { get; set; }
 
@@ -8,7 +8,7 @@ public class VotePpc : ProcPeerRequest
 	{
 	}
 	
-	public override void Execute()
+	public override Return Execute()
 	{
 		var p = Peering as McvTcpPeering;
 
@@ -68,5 +68,7 @@ public class VotePpc : ProcPeerRequest
 
 			}
 		}
+
+		return null;
 	}
 }

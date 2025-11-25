@@ -2,49 +2,48 @@
 
 namespace Uccs.Net;
 
-public abstract class Packet : ITypeCode
+public abstract class Packet
 {
 	public int		Id { get; set; }
 }
 
+//public abstract class PpcArgumentation : CallArgumentation
+//{
+//	public TcpPeering	Peering;
+//
+//}
+
+public class RequestPacket: Packet
+{
+	public PeerRequest				Request { get ; set; }
+
+	public Return				Return;
+	public ManualResetEvent			Event;
+	public CodeException			Exception;
+}
+
+public class ResposePacket : Packet
+{
+	public Return	Return { get ; set; }
+}
+
+public abstract class PeerRequest : ITypeCode
+{
+	public Peer					Peer;
+	public TcpPeering			Peering;
+	//public CallArgumentation	Argumentation { get ; set; }
+	
+	public abstract Return	Execute();
+}
+
+
+public abstract class Ppc<R> : PeerRequest where R : Return /// Peer-to-Peer Call
+{
+}
+
 public abstract class IPeer
 {
- 	public abstract	void			Post(ProcPeerRequest rq);
-	public abstract PeerResponse	Send(FuncPeerRequest rq);
-	public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : PeerResponse => Send((FuncPeerRequest)rq) as Rp;
-}
-
-public abstract class PeerRequest : Packet
-{
-	public Peer				Peer;
-	public TcpPeering		Peering;
-	//public Node				Node;
-}
-
-public abstract class ProcPeerRequest : PeerRequest
-{
-	public abstract void			Execute();
-}
-
-public abstract class FuncPeerRequest : PeerRequest
-{
-	public ManualResetEvent			Event;
-	public PeerResponse				Response;
-	public CodeException			Exception;
-
-	public abstract PeerResponse	Execute();
-
-    public FuncPeerRequest ShallowCopy()
-    {
-        return (FuncPeerRequest)MemberwiseClone();
-    }
-}
-
-public abstract class PeerResponse : Packet
-{
-}
-
-public abstract class Ppc<R> : FuncPeerRequest where R : PeerResponse /// Peer-to-Peer Call
-{
-
+ 	public abstract	void			Send(PeerRequest rq);
+	public abstract Return		Call(PeerRequest rq);
+	public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : Return => Call((PeerRequest)rq) as Rp;
 }

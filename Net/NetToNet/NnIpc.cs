@@ -12,13 +12,13 @@ public enum NnIppConnectionType : byte
 
 public class NnIppClientConnection : IppConnection
 {
-	public Rp Call<Rp>(Nnc<Rp> call) where Rp : CallReturn => Send(call) as Rp;
+	public Rp Call<Rp>(Nnc<Rp> call) where Rp : Return => Send(call) as Rp;
 
 	public NnIppClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		Constructor = new ();
-		Constructor.Register<CallArgumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CallReturn>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Return>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
 		Constructor.Register<CodeException>		(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
@@ -33,8 +33,8 @@ public class NnIppNodeConnection : IppConnection
 	public NnIppNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		Constructor = new ();
-		Constructor.Register<CallArgumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CallReturn>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Return>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
 		Constructor.Register<CodeException>		(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 }

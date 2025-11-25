@@ -99,7 +99,8 @@ public enum NnClass : byte
 	AssetTransfer
 }
 
-public abstract class NnRequest : CallArgumentation
+
+public abstract class NnArgumentation : IppArgumentation
 {
 	public string			Net { get; set; }
 
@@ -107,11 +108,11 @@ public abstract class NnRequest : CallArgumentation
 	public override void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
 }
 
-public abstract class NnResponse : CallReturn
+public abstract class NnResponse : IppReturn
 {
 }
 
-public abstract class Nnc<R> : NnRequest where R : CallReturn
+public abstract class Nnc<R> : NnArgumentation where R : Return
 {
 }
 
@@ -121,10 +122,10 @@ public class HolderClassesNnc : Nnc<HolderClassesNnr>
 
 public class HolderClassesNnr : NnResponse
 {
-	public string[] Classes { get; set; }
+	public string[]			Classes { get; set; }
 
-	public override void		Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
-	public override void		Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
+	public override void	Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
+	public override void	Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
 }
 
 public class HoldersByAccountNnc : Nnc<HoldersByAccountNnr>

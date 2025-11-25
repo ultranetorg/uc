@@ -1,9 +1,9 @@
 ﻿namespace Uccs.Net;
 
-public abstract class McvPpc<R> : Ppc<R> where R : PeerResponse
+public abstract class McvPpc<R> : Ppc<R> where R : Return
 {
 	public new McvTcpPeering	Peering => base.Peering as McvTcpPeering;
-	public new McvNode			Node => Peering.Node;
+	public McvNode				Node => Peering.Node;
 	public Mcv					Mcv => Node.Mcv;
 
 	protected void RequireGraph()
@@ -41,7 +41,6 @@ public class McvNode : Node
 	public new McvNet		Net => base.Net as McvNet;
 	public Mcv				Mcv;
 	public McvTcpPeering	Peering;
-	//public NnTcpPeering		NnPeering;
 	public McvNodeSettings	Settings;
 
 	public McvNode(string name, McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(name, net, profile, nexussettings,  flow)

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class BlockNnc : ProcPeerRequest
+public class BlockNnc : PeerRequest
 {
 	public byte[]			Raw { get; set; }
 
@@ -8,7 +8,7 @@ public class BlockNnc : ProcPeerRequest
 	{
 	}
 	
-	public override void Execute()
+	public override Return Execute()
 	{
 		var p = Peering as NnTcpPeering;
 
@@ -48,5 +48,7 @@ public class BlockNnc : ProcPeerRequest
 		///		//Peering.Statistics.RejectedVotes++;
 		///
 		}
+
+		return null;
 	}
 }

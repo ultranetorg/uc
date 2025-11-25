@@ -11,17 +11,29 @@ namespace Uccs.Net;
 //	public Rp			Send<Rp>(Ipc<Rp> rq) where Rp : IppResponse => Send((FuncIpc)rq) as Rp;
 //}
 
+public abstract class IppArgumentation : Argumentation, IBinarySerializable
+{
+	public abstract void Read(BinaryReader reader);
+	public abstract void Write(BinaryWriter writer);
+}
+
+public abstract class IppReturn : Return, IBinarySerializable
+{
+	public abstract void Read(BinaryReader reader);
+	public abstract void Write(BinaryWriter writer);
+}
+
 public abstract class IppPacket
 {
 	public int					Id { get; set; }
 }
 
-public class IppFuncRequest : IppPacket
+public class IppRequest : IppPacket
 {
-	public CallReturn			Return;
+	public Return				Return;
 	public ManualResetEvent		Event;
 	public CodeException		Exception;
-	public CallArgumentation	Argumentation { get; set; }
+	public Argumentation		Argumentation { get; set; }
 }
 
 //public class IppResponse : IppPacket
@@ -29,21 +41,23 @@ public class IppFuncRequest : IppPacket
 //	public CallReturn			Return { get; set; }
 //}
 
-public abstract class CallArgumentation : IBinarySerializable, ITypeCode
+public abstract class Argumentation : ITypeCode
 {
-	public abstract void Read(BinaryReader reader);
-	public abstract void Write(BinaryWriter writer);
+//	public abstract void Read(BinaryReader reader);
+//	public abstract void Write(BinaryWriter writer);
 }
 
-public abstract class CallReturn : IBinarySerializable, ITypeCode
+public abstract class Return : ITypeCode
 {
-	public abstract void Read(BinaryReader reader);
-	public abstract void Write(BinaryWriter writer);
+//	public abstract void Read(BinaryReader reader);
+//	public abstract void Write(BinaryWriter writer);
 }
 
 //public abstract class Ipc<R> : IppFuncRequest where R : IppResponse /// Pipe-to-Pipe Call
 //{
 //}
+
+
 
 public class IppConnection //: IIpp
 {
@@ -54,7 +68,7 @@ public class IppConnection //: IIpp
 	public BinaryReader				Reader;
 	public BinaryWriter				Writer;
 	IppServer						Server;
-	public List<IppFuncRequest>		OutRequests = new();
+	public List<IppRequest>			OutRequests = new();
 	int								IdCounter = 0;
 	public Constructor				Constructor;
 	public Flow						Flow;
@@ -113,7 +127,7 @@ public class IppConnection //: IIpp
 	{
 		Handler = handler;
 
-		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(CallReturn)))
+		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Return)))
 		{
 			if(Enum.TryParse(enumclass, i.Name, out var c))
 			{
@@ -123,29 +137,29 @@ public class IppConnection //: IIpp
 		}
 	}
 
-	void Request(IppFuncRequest request)
+	void Request(IppRequest request)
 	{
 		lock(Writer)
 		{
 			Writer.Write((byte)PacketType.Request);
 			Writer.Write(request.Id);
 			Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
-			request.Argumentation.Write(Writer);
+			(request.Argumentation as IppArgumentation).Write(Writer);
 		}
 	}
 
-	void Respond(IppFuncRequest request)
+	void Respond(IppRequest request)
 	{
 		try
 		{
-			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as CallReturn;
+			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Return;
 	
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Response);
 				Writer.Write(request.Id);
 				Writer.Write(Constructor.TypeToCode(r.GetType()));
-				r.Write(Writer); 
+				(r as IppReturn).Write(Writer); 
 			}
 		}
 		catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
@@ -174,10 +188,10 @@ public class IppConnection //: IIpp
 				{
  					case PacketType.Request:
  					{
-						var rq = new IppFuncRequest();
+						var rq = new IppRequest();
 						rq.Id = Reader.ReadInt32();
-						rq.Argumentation = Constructor.Construct(typeof(CallArgumentation), Reader.ReadByte()) as CallArgumentation;
-						rq.Argumentation.Read(Reader);
+						rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadByte()) as Argumentation;
+						(rq.Argumentation as IppArgumentation).Read(Reader);
 						
 						Respond(rq);
 
@@ -186,15 +200,15 @@ public class IppConnection //: IIpp
 
 					case PacketType.Response:
  					{
-						var id 		= Reader.ReadInt32();
-						var r	= Constructor.Construct(typeof(CallReturn), Reader.ReadByte()) as CallReturn;
-						r.Read(Reader);
+						var id = Reader.ReadInt32();
+						var r	= Constructor.Construct(typeof(Return), Reader.ReadByte()) as Return;
+						(r as IppReturn).Read(Reader);
 
 						lock(OutRequests)
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq is IppFuncRequest f)
+							if(rq is IppRequest f)
 							{
 								f.Return = r;
 								f.Event.Set();
@@ -215,7 +229,7 @@ public class IppConnection //: IIpp
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq is IppFuncRequest f)
+							if(rq is IppRequest f)
 							{
 								f.Exception = ex;
 								f.Event.Set();
@@ -249,12 +263,12 @@ public class IppConnection //: IIpp
 ///		Request(rq);
 ///	}
 
-	public CallReturn Send(CallArgumentation argumentation)
+	public Return Send(Argumentation argumentation)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);
 
-		var rq = new IppFuncRequest {Argumentation = argumentation};
+		var rq = new IppRequest {Argumentation = argumentation};
 
 		rq.Id = IdCounter++;
 

@@ -2,7 +2,7 @@
 
 public class FundsPpc : McvPpc<FundsPpr>
 {
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -13,7 +13,7 @@ public class FundsPpc : McvPpc<FundsPpr>
 	}
 }
 
-public class FundsPpr : PeerResponse
+public class FundsPpr : Return
 {
 	public AccountAddress[] Funds { get; set; }
 }

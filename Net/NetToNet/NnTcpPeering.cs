@@ -208,7 +208,7 @@ public class NnTcpPeering : TcpPeering
 	//	return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	//}
 
-	public virtual PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public virtual Return Call(string net, Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
 		var tried = exclusions != null ? [.. exclusions] : new HashSet<Peer>();
 
@@ -238,7 +238,7 @@ public class NnTcpPeering : TcpPeering
 				var c = call();
 				c.Peering = this;
 
-				return p.Send(c);
+				return p.Call(c);
 			}
 			catch(NodeException)
 			{
@@ -259,7 +259,7 @@ public class NnTcpPeering : TcpPeering
 			{
 				var v = new BlockNnc {Raw = block.RawPayload};
 				v.Peering = this;
-				i.Post(v);
+				i.Send(v);
 			}
 			catch(NodeException)
 			{

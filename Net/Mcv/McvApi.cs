@@ -420,7 +420,7 @@ public class IncomingTransactionsApc : McvApc
 
 public class PpcApc : McvApc
 {
-	public FuncPeerRequest Request { get; set; }
+	public PeerRequest Request { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{

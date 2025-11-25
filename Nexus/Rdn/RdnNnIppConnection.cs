@@ -53,7 +53,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 		}
 	}
 
-	public CallReturn HolderClasses(IppConnection connection, HolderClassesNnc call)
+	public Return HolderClasses(IppConnection connection, HolderClassesNnc call)
 	{
 		return new HolderClassesNnr {Classes = [nameof(Account)]};
 	}
@@ -81,13 +81,13 @@ public class RdnNnIppConnection : NnIppNodeConnection
 
 //public class HolderClassesNnIpc : NnIpc<HolderClassesNnIpr>
 //{
-//	public override PeerResponse Execute()
+//	public override CallReturn Execute()
 //	{
 //		return new HolderClassesNnIpr {Classes = [nameof(Account)]};
 //	}
 //}
 //
-//public class HolderClassesNnIpr : PeerResponse
+//public class HolderClassesNnIpr : CallReturn
 //{
 //	public string[] Classes {get; set;}
 //}
@@ -96,7 +96,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //{
 //	public byte[]	Address { get; set; }
 //
-//	public override PeerResponse Execute()
+//	public override CallReturn Execute()
 //	{
 //		lock(Mcv.Lock)
 //		{	
@@ -110,7 +110,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	}
 //}
 //
-//public class HoldersByAccountNnIpr : PeerResponse
+//public class HoldersByAccountNnIpr : CallReturn
 //{
 //	public AssetHolder[] Holders {get; set;}
 //}
@@ -120,7 +120,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	public string	HolderClass { get; set; }
 //	public string	HolderId { get; set; }
 //
-//	public override PeerResponse Execute()
+//	public override CallReturn Execute()
 //	{
 //		if(HolderClass != nameof(Account))
 //			throw new NnException(NnError.Unknown);
@@ -138,7 +138,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	}
 //}
 //
-//public class HolderAssetsNnIpr : PeerResponse
+//public class HolderAssetsNnIpr : CallReturn
 //{
 //	public Asset[] Assets {get; set;}
 //}
@@ -149,7 +149,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	public string	HolderId { get; set; }
 //	public string	Name { get; set; }
 //
-//	public override PeerResponse Execute()
+//	public override CallReturn Execute()
 //	{
 //		if(HolderClass != nameof(Account))
 //			throw new NnException(NnError.Unknown);
@@ -176,7 +176,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	}
 //}
 //
-//public class AssetBalanceNnIpr : PeerResponse
+//public class AssetBalanceNnIpr : CallReturn
 //{
 //	public BigInteger Balance {get; set;}
 //}
@@ -191,7 +191,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	public string	Name { get; set; }
 //	public string	Amount { get; set; }
 //
-//	public override PeerResponse Execute()
+//	public override CallReturn Execute()
 //	{
 //		if(ToNet == Node.Net.Name)
 //			throw new NnException(NnError.Unavailable);
@@ -200,6 +200,6 @@ public class RdnNnIppConnection : NnIppNodeConnection
 //	}
 //}
 //
-//public class AssetTransferNnIpr : PeerResponse
+//public class AssetTransferNnIpr : CallReturn
 //{
 //}

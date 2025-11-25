@@ -13,7 +13,7 @@ public class ProductPpc : FairPpc<ProductPpr>
 		Id = identifier;
 	}
 
-	public override PeerResponse Execute()
+	public override Return Execute()
 	{
  		lock(Mcv.Lock)
 		{	
@@ -27,7 +27,7 @@ public class ProductPpc : FairPpc<ProductPpr>
 	}
 }
 	
-public class ProductPpr : PeerResponse
+public class ProductPpr : Return
 {
 	public Product Product { get; set; }
 }
