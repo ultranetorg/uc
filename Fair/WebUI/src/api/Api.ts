@@ -27,6 +27,7 @@ import {
   User,
   UserProposal,
   AccountBase,
+  Product,
 } from "types"
 
 export type Api = {
@@ -87,6 +88,8 @@ export type Api = {
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
+
+  getProduct(productId: string): Promise<Product>
 
   // Moderator
   getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>

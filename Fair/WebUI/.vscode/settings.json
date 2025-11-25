@@ -40,5 +40,9 @@
     "activeItemClassName\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]",
     "[A-Z0-9_]+_CLASSNAME\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"
   ],
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "files.exclude": {
+    "**/.husky": true,
+    "**/.idea": true
+  }
 }

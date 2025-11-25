@@ -92,7 +92,7 @@ export const PublicationPage = () => {
         <SoftwarePublicationHeader
           id={publicationId!}
           title={publication.title}
-          logo={publication.logo}
+          logoFileId={publication.logoFileId}
           categories={TEST_SOFTWARE_CATEGORIES}
         />
         <div className="flex gap-8">

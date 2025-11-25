@@ -29,6 +29,7 @@ import {
   User,
   UserProposal,
   AccountBase,
+  Product,
 } from "types"
 
 import { Api } from "./Api"
@@ -192,6 +193,9 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
+const getProduct = (productId: string): Promise<Product> =>
+  fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
+
 const getModeratorDiscussion = (siteId: string, discussionId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
 
@@ -300,6 +304,8 @@ const api: Api = {
   getAuthorReferendum,
   getAuthorReferendums,
   getAuthorReferendumComments,
+
+  getProduct,
 
   getModeratorDiscussion,
   getModeratorDiscussions,
