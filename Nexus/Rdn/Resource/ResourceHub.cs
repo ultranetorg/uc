@@ -275,7 +275,7 @@ public class ResourceHub
 		{
 			Node.Peering.Statistics.Declaring.Begin();
 
-			var cr = Node.Peering.Call(() => new RdnMembersPpc(), Node.Flow);
+			var cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
 
 			if(!cr.Members.Any())
 				continue;
@@ -338,7 +338,7 @@ public class ResourceHub
 					var t = new Task(() =>	{
 												try
 												{
-													var cr = Node.Peering.Call(() => new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
 													
 													lock(Lock)
 													{

@@ -918,7 +918,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(nothing)		
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
-			var cr = Call(() => new MembersPpc(), Flow);
+			var cr = Call(new MembersPpc(), Flow);
 
 			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
 				continue;
@@ -1193,12 +1193,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		return t;
  	}
 
-	public R Call<R>(Func<Ppc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : Return
+	public R Call<R>(Ppc<R> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : Return
 	{
-		return Call((Func<PeerRequest>)call, workflow, exclusions) as R;
+		return Call((PeerRequest)call, workflow, exclusions) as R;
 	}
 
-	public Return Call(Func<PeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public Return Call(PeerRequest call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{
 		HashSet<Peer> tried;
 		
@@ -1219,7 +1219,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				if(Synchronization == Synchronization.Synchronized)
 				{
-					var c = call();
+					var c = call;
 					c.Peering = this;
 
 					return Call(c);
@@ -1240,7 +1240,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				Connect(p, workflow);
 
-				var c = call();
+				var c = call;
 				c.Peering = this;
 
 				return p.Call(c);

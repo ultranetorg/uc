@@ -32,7 +32,7 @@ public class ResourceDownloadApc : RdnApc
 
 	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var r = sun.Peering.Call(() => new ResourcePpc(Identifier), workflow).Resource;
+		var r = sun.Peering.Call(new ResourcePpc(Identifier), workflow).Resource;
 
 		if(r == null)
 			throw new ResourceException(ResourceError.NotFound);

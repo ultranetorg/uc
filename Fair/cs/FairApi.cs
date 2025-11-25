@@ -132,7 +132,7 @@ public class CostApc : FairApc
 			Rate = 1;
 		}
 
-		var r = rdn.Peering.Call(() => new CostPpc(), flow);
+		var r = rdn.Peering.Call(new CostPpc(), flow);
 
 		return new Return {	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
 							//Exeunit						= r.ConsensusExeunitFee * Rate,

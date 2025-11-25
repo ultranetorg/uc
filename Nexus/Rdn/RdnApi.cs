@@ -126,7 +126,7 @@ public class HttpGetApc : RdnApc
 			var a = Ura.Parse(request.QueryString["address"]);
 			var path = request.QueryString["path"] ?? "";
 
-			var r = rdn.Peering.Call(() => new ResourcePpc(a), workflow).Resource;
+			var r = rdn.Peering.Call(new ResourcePpc(a), workflow).Resource;
 			var ra = r.Data?.Parse<Urr>()
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);
@@ -160,8 +160,8 @@ public class HttpGetApc : RdnApc
 					break;
 
 				case Urrsd x :
-					var d = rdn.Peering.Call(() => new DomainPpc(a.Domain), workflow).Domain;
-					var aa = rdn.Peering.Call(() => new AccountPpc(d.Owner), workflow).Account;
+					var d = rdn.Peering.Call(new DomainPpc(a.Domain), workflow).Domain;
+					var aa = rdn.Peering.Call(new AccountPpc(d.Owner), workflow).Account;
 					itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Address);
 					break;
 
@@ -298,7 +298,7 @@ public class CostApc : RdnApc
 			Rate = 1;
 		}
 
-		var r = rdn.Peering.Call(() => new CostPpc(), workflow);
+		var r = rdn.Peering.Call(new CostPpc(), workflow);
 	
 		return	new Return
 				{	//RentBytePerDay				= r.RentPerBytePerDay * Rate,

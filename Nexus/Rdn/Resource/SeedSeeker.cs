@@ -96,7 +96,7 @@ public class SeedSeeker
  		HubingThread = Node.CreateThread(() =>	{ 
 													while(Flow.Active)
 													{
-														var r = Node.Peering.Call(() => new RdnMembersPpc(), Flow);
+														var r = Node.Peering.Call(new RdnMembersPpc(), Flow);
 	
 														lock(Lock)
 														{

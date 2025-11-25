@@ -60,7 +60,7 @@ public class UserRegistration : VotableOperation
 
 			var r = new Random();
 	
-			var s = node.Peering.Call(() => new PowPpc {Site = site}, flow);
+			var s = node.Peering.Call(new PowPpc {Site = site}, flow);
 	
 			var ts =  Enumerable.Range(0, Environment.ProcessorCount)
 								.Select(i => new Thread(() =>	{ 

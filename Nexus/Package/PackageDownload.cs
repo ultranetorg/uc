@@ -78,7 +78,7 @@ public class PackageDownload
 										{
 											try
 											{
-												last = node.Peering.Call(() => new ResourcePpc(package.Resource.Address), workflow).Resource;
+												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), workflow).Resource;
 													
 												if(last.Data?.Type != new DataType(DataType.File, ContentType.Rdn_VersionManifest))
 												{
@@ -109,8 +109,8 @@ public class PackageDownload
 												break;
 
 											case Urrsd u:
-												var d = node.Peering.Call(() => new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
-												var aa = node.Peering.Call(() => new AccountPpc(d.Owner), workflow).Account;
+												var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
+												var aa = node.Peering.Call(new AccountPpc(d.Owner), workflow).Account;
 												itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Address);
 												break;
 										};
