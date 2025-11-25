@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router-dom"
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 import { SvgBoxArrowUpRight } from "assets"
 import { ensureHttp } from "utils"
 import { Card } from "ui/components/Card"
@@ -9,7 +9,7 @@ import { LinkFullscreen } from "../../../components"
 import { PublicationMetaItemView, PublicationMetaItemViewSimple } from "./PublicationMetaItemView"
 
 export type PublicationViewBSideProps = {
-  owner?: AccountBase
+  owner?: AccountBaseAvatar
   version: string
   license: string
   uri: string

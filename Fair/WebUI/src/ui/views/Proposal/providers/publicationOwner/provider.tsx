@@ -1,9 +1,15 @@
 import React from "react"
-import type { AccountBase } from "types"
+import type { AccountBaseAvatar } from "types"
 
 import { PublicationOwnerContext } from "./context.ts"
 
-export const PublicationOwnerProvider = ({ owner, children }: { owner?: AccountBase; children: React.ReactNode }) => {
+export const PublicationOwnerProvider = ({
+  owner,
+  children,
+}: {
+  owner?: AccountBaseAvatar
+  children: React.ReactNode
+}) => {
   return <PublicationOwnerContext.Provider value={owner}>{children}</PublicationOwnerContext.Provider>
 }
 
