@@ -27,12 +27,12 @@ public class RdnTcpPeering : McvTcpPeering
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
 
-//		var s = new MemoryStream();
-//		var w = new BinaryWriter(s);
-//		var r = new BinaryReader(s);
-//		BinarySerializator.Serialize(w, new SharePeersPpc {Peers = [new Peer {IP = new([1,2,3,4])}]}, Constructor.TypeToCode); 
-//		s.Position = 0;
-//		var p = BinarySerializator.Deserialize<PeerRequest>(r, Constructor.Construct);
+		//var s = new MemoryStream();
+		//var w = new BinaryWriter(s);
+		//var r = new BinaryReader(s);
+		//BinarySerializator.Serialize(w, new SharePeersPpc {Peers = [new Peer {IP = new([1,2,3,4])}]}, Constructor.TypeToCode); 
+		//s.Position = 0;
+		//var p = BinarySerializator.Deserialize<PeerRequest>(r, Constructor.Construct);
 
 
 		Run();

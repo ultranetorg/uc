@@ -100,35 +100,45 @@ public enum NnClass : byte
 }
 
 
-public abstract class NnArgumentation : IppArgumentation
+public abstract class NnArgumentation : Argumentation
 {
-	public string			Net { get; set; }
+	public string		Net { get; set; }
 
-	public override void	Read(BinaryReader reader) => Net = reader.ReadASCII();
-	public override void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
+	public virtual void	Read(BinaryReader reader) => Net = reader.ReadASCII();
+	public virtual void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
 }
 
-public abstract class NnResponse : IppReturn
+public class Nnc<A, R> : ICall<A, R> where A : NnArgumentation, new() where R : Return
+{
+	public A Argumentation = new A();
+
+	public Nnc(A argumentation)
+	{
+		Argumentation = argumentation;
+	}
+}
+
+public class HolderClassesNna : NnArgumentation, IBinarySerializable
 {
 }
 
-public abstract class Nnc<R> : NnArgumentation where R : Return
-{
-}
-
-public class HolderClassesNnc : Nnc<HolderClassesNnr>
-{
-}
-
-public class HolderClassesNnr : NnResponse
+public class HolderClassesNnr : Return, IBinarySerializable
 {
 	public string[]			Classes { get; set; }
 
-	public override void	Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
-	public override void	Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
+	public void				Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
+	public void				Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
 }
 
-public class HoldersByAccountNnc : Nnc<HoldersByAccountNnr>
+//public class HolderClassesNnc : Nnc<HolderClassesNna, HolderClassesNnr>
+//{
+//	public HolderClassesNnc(string net)
+//	{
+//		Argumentation.Net = net;
+//	}
+//}
+
+public class HoldersByAccountNna : NnArgumentation, IBinarySerializable
 {
 	public byte[]	Address { get; set; }
 
@@ -145,15 +155,16 @@ public class HoldersByAccountNnc : Nnc<HoldersByAccountNnr>
 	}
 }
 
-public class HoldersByAccountNnr : NnResponse
+public class HoldersByAccountNnr : Return, IBinarySerializable
 {
 	public AssetHolder[] Holders { get; set; }
 
-	public override	void Read(BinaryReader reader) => Holders = reader.ReadArray<AssetHolder>();
-	public override void Write(BinaryWriter writer) => writer.Write(Holders);
+	public void Read(BinaryReader reader) => Holders = reader.ReadArray<AssetHolder>();
+	public void Write(BinaryWriter writer) => writer.Write(Holders);
 }
 
-public class HolderAssetsNnc : Nnc<HolderAssetsNnr>
+
+public class HolderAssetsNna : NnArgumentation, IBinarySerializable
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }
@@ -173,15 +184,15 @@ public class HolderAssetsNnc : Nnc<HolderAssetsNnr>
 	}
 }
 
-public class HolderAssetsNnr : NnResponse
+public class HolderAssetsNnr : Return, IBinarySerializable
 {
 	public Asset[] Assets {get; set;}
 
-	public override void Read(BinaryReader reader) => Assets = reader.ReadArray<Asset>();
-	public override void Write(BinaryWriter writer) => writer.Write(Assets);
+	public void Read(BinaryReader reader) => Assets = reader.ReadArray<Asset>();
+	public void Write(BinaryWriter writer) => writer.Write(Assets);
 }
 
-public class AssetBalanceNnc : Nnc<AssetBalanceNnr>
+public class AssetBalanceNna : NnArgumentation, IBinarySerializable
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }
@@ -204,12 +215,12 @@ public class AssetBalanceNnc : Nnc<AssetBalanceNnr>
 	}
 }
 
-public class AssetBalanceNnr : NnResponse
+public class AssetBalanceNnr : Return, IBinarySerializable
 {
 	public BigInteger Balance {get; set;}
 
-	public override void Read(BinaryReader reader) => Balance = reader.ReadBigInteger();
-	public override void Write(BinaryWriter writer) => writer.Write(Balance);
+	public  void Read(BinaryReader reader) => Balance = reader.ReadBigInteger();
+	public  void Write(BinaryWriter writer) => writer.Write(Balance);
 }
 
 ///public class AssetTransferNnc : Nnc<AssetTransferNnr>

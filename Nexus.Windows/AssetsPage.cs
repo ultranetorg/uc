@@ -56,7 +56,7 @@ public partial class AssetsPage : Page
 			while(!Nexus.NnConnection.Pipe.IsConnected)
 				Thread.Sleep(100);
 
-			var c = Nexus.NnConnection.Call(new HolderClassesNnc {Net = Nets.Text});
+			var c = Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new () {Net = Nets.Text}));
 			///foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
 			///{
 			///	foreach(var h in nn.Send(new RdnHoldersByAccountNnc {Address = acc.Bytes}, f).Holders)

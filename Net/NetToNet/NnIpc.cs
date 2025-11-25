@@ -12,14 +12,14 @@ public enum NnIppConnectionType : byte
 
 public class NnIppClientConnection : IppConnection
 {
-	public Rp Call<Rp>(Nnc<Rp> call) where Rp : Return => Send(call) as Rp;
+	public R Call<A, R>(Nnc<A, R> call) where A : NnArgumentation, new() where R : Return => Send(call.Argumentation) as R;
 
 	public NnIppClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		Constructor = new ();
 		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
 		Constructor.Register<Return>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CodeException>		(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Established()
@@ -35,6 +35,6 @@ public class NnIppNodeConnection : IppConnection
 		Constructor = new ();
 		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
 		Constructor.Register<Return>		(Assembly.GetExecutingAssembly(), typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CodeException>		(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 }

@@ -17,7 +17,7 @@ public class RequestPacket: Packet
 {
 	public PeerRequest				Request { get ; set; }
 
-	public Return				Return;
+	public Return					Return;
 	public ManualResetEvent			Event;
 	public CodeException			Exception;
 }
@@ -44,6 +44,6 @@ public abstract class Ppc<R> : PeerRequest where R : Return /// Peer-to-Peer Cal
 public abstract class IPeer
 {
  	public abstract	void			Send(PeerRequest rq);
-	public abstract Return		Call(PeerRequest rq);
+	public abstract Return			Call(PeerRequest rq);
 	public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : Return => Call((PeerRequest)rq) as Rp;
 }

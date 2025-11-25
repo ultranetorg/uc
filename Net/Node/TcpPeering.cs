@@ -418,16 +418,6 @@ public abstract class TcpPeering : IPeer
 			
 			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
-			//var id = request.Id;
-			//var e = request.Event;
-			//var ex = request.Exception;
-			//var r = request.Response;
-			//rq = rq.ShallowCopy();
-			//request.Id = id;
-			//request.Event = e;
-			//request.Exception = ex;
-			//request.Response = r;
-
 		}
 
 		return rq.Execute();
@@ -442,7 +432,7 @@ public abstract class TcpPeering : IPeer
 			var s = new MemoryStream();
 			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
 			s.Position = 0;
-
+			
 			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
 			rq.Peering = this;
 		}

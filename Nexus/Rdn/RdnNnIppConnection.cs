@@ -53,7 +53,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 		}
 	}
 
-	public Return HolderClasses(IppConnection connection, HolderClassesNnc call)
+	public Return HolderClasses(IppConnection connection, HolderClassesNna call)
 	{
 		return new HolderClassesNnr {Classes = [nameof(Account)]};
 	}

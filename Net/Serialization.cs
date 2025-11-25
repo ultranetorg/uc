@@ -276,7 +276,7 @@ public class BinarySerializator
 
 		var o = Construct(reader, type, construct);
 
-		if(type.GetInterfaces().Any(i => i == typeof(IBinarySerializable))) 
+		if(o.GetType().GetInterfaces().Any(i => i == typeof(IBinarySerializable))) 
 		{
 			(o as IBinarySerializable).Read(reader);
 		}
