@@ -14,7 +14,6 @@ namespace Uccs.Net;
 public abstract class IppPacket
 {
 	public int					Id { get; set; }
-	public IppConnection		Connection;
 }
 
 public class IppFuncRequest : IppPacket
@@ -129,7 +128,9 @@ public class IppConnection //: IIpp
 		lock(Writer)
 		{
 			Writer.Write((byte)PacketType.Request);
-			BinarySerializator.Serialize(Writer, request, Constructor.TypeToCode); 
+			Writer.Write(request.Id);
+			Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
+			request.Argumentation.Write(Writer);
 		}
 	}
 
@@ -138,16 +139,13 @@ public class IppConnection //: IIpp
 		try
 		{
 			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as CallReturn;
-
-			var rp = new IppResponse();
-			rp.Id = request.Id;
-			rp.Return = r;
-			//var rp = f.SafeExecute(Flow);
-							
+	
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Response);
-				BinarySerializator.Serialize(Writer, rp, Constructor.TypeToCode); 
+				Writer.Write(request.Id);
+				Writer.Write(Constructor.TypeToCode(r.GetType()));
+				r.Write(Writer); 
 			}
 		}
 		catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
@@ -176,8 +174,10 @@ public class IppConnection //: IIpp
 				{
  					case PacketType.Request:
  					{
-						var rq = BinarySerializator.Deserialize<IppFuncRequest>(Reader, Constructor.Construct);
-						rq.Connection = this;
+						var rq = new IppFuncRequest();
+						rq.Id = Reader.ReadInt32();
+						rq.Argumentation = Constructor.Construct(typeof(CallArgumentation), Reader.ReadByte()) as CallArgumentation;
+						rq.Argumentation.Read(Reader);
 						
 						Respond(rq);
 
@@ -186,7 +186,10 @@ public class IppConnection //: IIpp
 
 					case PacketType.Response:
  					{
-						var rp = BinarySerializator.Deserialize<IppResponse>(Reader, Constructor.Construct);
+						var rp = new IppResponse();
+						rp.Id		= Reader.ReadInt32();
+						rp.Return	= Constructor.Construct(typeof(CallReturn), Reader.ReadByte()) as CallReturn;
+						rp.Return.Read(Reader);
 
 						lock(OutRequests)
 						{
@@ -194,7 +197,6 @@ public class IppConnection //: IIpp
 
 							if(rq is IppFuncRequest f)
 							{
-								rp.Connection = this;
 								f.Response = rp;
 								f.Event.Set();
  									
