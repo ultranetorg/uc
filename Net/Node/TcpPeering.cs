@@ -412,21 +412,21 @@ public abstract class TcpPeering : IPeer
 
 		if(request.Peer == null) /// self call, cloning needed
 		{
-			//var s = new MemoryStream();
-			//BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
-			//s.Position = 0;
-			//
-			//rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Construct);
-			//rq.Peering = this;
-			var id = request.Id;
-			var e = request.Event;
-			var ex = request.Exception;
-			var r = request.Response;
-			rq = rq.ShallowCopy();
-			request.Id = id;
-			request.Event = e;
-			request.Exception = ex;
-			request.Response = r;
+			var s = new MemoryStream();
+			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
+			s.Position = 0;
+			
+			rq = BinarySerializator.Deserialize<FuncPeerRequest>(new(s), Constructor.Construct);
+			rq.Peering = this;
+			//var id = request.Id;
+			//var e = request.Event;
+			//var ex = request.Exception;
+			//var r = request.Response;
+			//rq = rq.ShallowCopy();
+			//request.Id = id;
+			//request.Event = e;
+			//request.Exception = ex;
+			//request.Response = r;
 
 		}
 
