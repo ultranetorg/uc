@@ -336,7 +336,7 @@ public class Peer : IPeer, IBinarySerializable
 
 							if(rq is FuncPeerRequest f)
 							{
-								f.Error = ex;
+								f.Exception = ex;
 								f.Event.Set();
  									
 								OutRequests.Remove(rq);
@@ -410,7 +410,7 @@ public class Peer : IPeer, IBinarySerializable
 
 		if(i == 0)
 		{
-			if(rq.Error == null)
+			if(rq.Exception == null)
 			{
 				if(rq.Response == null)
 					throw new NodeException(NodeError.Connectivity);
@@ -420,12 +420,12 @@ public class Peer : IPeer, IBinarySerializable
 			else
 			{
 
-				if(rq.Error is NodeException e)
+				if(rq.Exception is NodeException e)
 				{
 					Peering.OnRequestException(this, e);
 				}
 
-				throw rq.Error;
+				throw rq.Exception;
 			}
 		}
 		else if(i == 1)

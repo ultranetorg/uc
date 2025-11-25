@@ -97,7 +97,7 @@ public partial class TransferPage : Page
 		if(combobox.Items.Count > 0)
 			return;
 
-		foreach(var i in Nexus.NnConnection.Send(new HolderClassesNnIpc {Net = net}).Classes)
+		foreach(var i in Nexus.NnConnection.Call(new HolderClassesNnc {Net = net}).Classes)
 		{
 			combobox.Items.Add(i);
 		}
@@ -113,7 +113,7 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nexus.NnConnection.Send(	new HolderAssetsNnIpc
+		foreach(var a in Nexus.NnConnection.Call(	new HolderAssetsNnc
 													{
 														Net = FromNet.Text,
 														HolderClass = FromClass.Text,
@@ -127,7 +127,7 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nexus.NnConnection.Send(new AssetBalanceNnIpc
+		Balance.Text += Nexus.NnConnection.Call(new AssetBalanceNnc
 												{
 													Net = FromNet.Text,
 													HolderClass = FromClass.Text,

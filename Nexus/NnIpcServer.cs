@@ -25,9 +25,9 @@ public class NnIppServer : IppServer
 	{
 		Nexus = nexus;
 
-		Constructor.Register<IppRequest> (typeof(NnIpcClass).Assembly, typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpc".Length));
-		Constructor.Register<IppResponse>(typeof(NnIpcClass).Assembly, typeof(NnIpcClass), i => i.Remove(i.Length - "NnIpr".Length));
-		Constructor.Register<CodeException>(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<CallArgumentation>	(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<CallReturn>		(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<CodeException>		(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Accept(IppConnection connection)
@@ -40,45 +40,46 @@ public class NnIppServer : IppServer
 			Registrations[net] = connection;
 		}
 	
-		connection.RegisterHandler(typeof(NnIpcClass), this);
+		connection.RegisterHandler(typeof(NnClass), this);
 	}
 
-	IppResponse Relay(IppConnection connection, NnIppRequest call)
+	CallReturn Relay(IppConnection connection, NnRequest call)
 	{
-		var id = call.Id;
+		//var a = call as NnRequest;
+		//var id = call.Id;
 
 		if(Registrations.TryGetValue(call.Net, out var r))
 		{
-			var rp = r.Send(call);
-			call.Id  = rp.Id = id; /// IMPORTANT !!!!!!!!!
-			return rp;
+			var rp = r.Send(new IppFuncRequest {Argumentation = call});
+			//call.Id = rp.Id = id; /// IMPORTANT !!!!!!!!!
+			return rp.Return;
 		} 
 		else
 			throw new IpcException(IpcError.NotFound);
 
 	}
 
-	public IppResponse HolderClasses(IppConnection connection, NnIppRequest call)
+	public CallReturn HolderClasses(IppConnection connection, NnRequest call)
 	{
 		return Relay(connection, call);
 	}
 
-	public IppResponse HolderAssets(IppConnection connection, NnIppRequest call)
+	public CallReturn HolderAssets(IppConnection connection, NnRequest call)
 	{
 		return Relay(connection, call);
 	}
 
-	public IppResponse HoldersByAccount(IppConnection connection, NnIppRequest call)
+	public CallReturn HoldersByAccount(IppConnection connection, NnRequest call)
 	{
 		return Relay(connection, call);
 	}
 
-	public IppResponse AssetBalance(IppConnection connection, NnIppRequest call)
+	public CallReturn AssetBalance(IppConnection connection, NnRequest call)
 	{
 		return Relay(connection, call);
 	}
 
-	public IppResponse AssetTransfer(IppConnection connection, NnIppRequest call)
+	public CallReturn AssetTransfer(IppConnection connection, NnRequest call)
 	{
 		return Relay(connection, call);
 	}

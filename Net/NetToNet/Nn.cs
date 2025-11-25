@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Numerics;
 
 namespace Uccs.Net;
 
@@ -43,14 +44,210 @@ public class Endpoint : IBinarySerializable
 	}
 }
 
-public class HolderClassesNnc
+public class AssetHolder : IBinarySerializable
+{
+	public string	Class { get; set; }
+	public string	Id { get; set; }
+
+	public void Read(BinaryReader reader)
+	{
+		Class = reader.ReadASCII();
+		Id = reader.ReadASCII();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.WriteASCII(Class);
+		writer.WriteASCII(Id);
+	}
+}
+
+public class Asset : IBinarySerializable
+{
+	public string	Name { get; set; }
+	public string	Units { get; set; }
+
+	public override string ToString()
+	{
+		return $"{Name} ({Units})";
+	}
+
+	public void Read(BinaryReader reader)
+	{
+		Name = reader.ReadASCII();
+		Units = reader.ReadASCII();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.WriteASCII(Name);
+		writer.WriteASCII(Units);
+	}
+}
+
+public enum NnClass : byte
+{
+	None = 0, 
+	
+	NnBlock,
+	NnStateHash,
+
+	HolderClasses,
+	HoldersByAccount,
+	HolderAssets,
+	AssetBalance,
+	AssetTransfer
+}
+
+public abstract class NnRequest : CallArgumentation
+{
+	public string			Net { get; set; }
+
+	public override void	Read(BinaryReader reader) => Net = reader.ReadASCII();
+	public override void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
+}
+
+public abstract class NnResponse : CallReturn
 {
 }
 
-public class HolderClassesNnr
+public abstract class Nnc<R> : NnRequest where R : IBinarySerializable
 {
-	public string[]  Classes { get; set; }
 }
+
+public class HolderClassesNnc : Nnc<HolderClassesNnr>
+{
+}
+
+public class HolderClassesNnr : NnResponse
+{
+	public string[] Classes { get; set; }
+
+	public override void		Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
+	public override void		Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
+}
+
+public class HoldersByAccountNnc : Nnc<HoldersByAccountNnr>
+{
+	public byte[]	Address { get; set; }
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Address = reader.ReadBytes();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteBytes(Address);
+	}
+}
+
+public class HoldersByAccountNnr : NnResponse
+{
+	public AssetHolder[] Holders { get; set; }
+
+	public override	void Read(BinaryReader reader) => Holders = reader.ReadArray<AssetHolder>();
+	public override void Write(BinaryWriter writer) => writer.Write(Holders);
+}
+
+public class HolderAssetsNnc : Nnc<HolderAssetsNnr>
+{
+	public string	HolderClass { get; set; }
+	public string	HolderId { get; set; }
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		HolderClass = reader.ReadASCII();
+		HolderId = reader.ReadASCII();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(HolderClass);
+		writer.WriteASCII(HolderId);
+	}
+}
+
+public class HolderAssetsNnr : NnResponse
+{
+	public Asset[] Assets {get; set;}
+
+	public override void Read(BinaryReader reader) => Assets = reader.ReadArray<Asset>();
+	public override void Write(BinaryWriter writer) => writer.Write(Assets);
+}
+
+public class AssetBalanceNnc : Nnc<AssetBalanceNnr>
+{
+	public string	HolderClass { get; set; }
+	public string	HolderId { get; set; }
+	public string	Name { get; set; }
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		HolderClass = reader.ReadASCII();
+		HolderId	= reader.ReadASCII();
+		Name		= reader.ReadASCII();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(HolderClass);
+		writer.WriteASCII(HolderId);
+		writer.WriteASCII(Name);
+	}
+}
+
+public class AssetBalanceNnr : NnResponse
+{
+	public BigInteger Balance {get; set;}
+
+	public override void Read(BinaryReader reader) => Balance = reader.ReadBigInteger();
+	public override void Write(BinaryWriter writer) => writer.Write(Balance);
+}
+
+///public class AssetTransferNnc : Nnc<AssetTransferNnr>
+///{
+///	public string	FromClass { get; set; }
+///	public string	FromId { get; set; }
+///	public string	ToNet { get; set; }
+///	public string	ToClass { get; set; }
+///	public string	ToId { get; set; }
+///	public string	Name { get; set; }
+///	public string	Amount { get; set; }
+///}
+///
+///public class AssetTransferNnIpr : IppResponse
+///{
+///}
+
+
+//
+//public class StateHashNnc : IBinarySerializable
+//{
+//	public string			Net { get; set; }
+//
+//	public StateHashNnc()
+//	{
+//	}
+//	
+//	public override PeerResponse Execute()
+//	{
+//		///return new StateHashNnr {Hash = Peering.GetStateHash(Net)};
+//		return null;
+//	}
+//}
+//
+//public class StateHashNnr : IBinarySerializable
+//{
+//	public byte[]	Hash { get; set; }
+//}
+
 
 //	public class Cluster
 //	{

@@ -4,19 +4,13 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public enum NncClass : byte
-{
-	None = 0, 
-	NnBlock,
-	NnStateHash
-}
 
-public abstract class Nnc<R> : Ppc<R> where R : PeerResponse /// Net-to-Net Call
-{
-	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
-	//public new McvNode			Node => base.Node as McvNode;
-	//public Mcv					Mcv => Node.Mcv;
-}
+///public abstract class Nnc<R> : Ppc<R> where R : PeerResponse /// Net-to-Net Call
+///{
+///	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
+///	//public new McvNode			Node => base.Node as McvNode;
+///	//public Mcv					Mcv => Node.Mcv;
+///}
 
 public class NnTcpPeering : TcpPeering
 {
@@ -207,10 +201,12 @@ public class NnTcpPeering : TcpPeering
 												 : null;
 	}
 
-	public R Call<R>(string net, Func<Nnc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
-	{
-		return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
-	}
+	//public Rp Send<A, Rp>(Nnc<A, Rp> call) where A : NnRequest where Rp : class, IBinarySerializable => Send(new IppFuncRequest {Arguments = call}).Return as Rp;
+	//
+	//public R Call<R>(string net, Func<Nnc<R>> call, Flow workflow, IEnumerable<Peer> exclusions = null) where R : PeerResponse
+	//{
+	//	return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
+	//}
 
 	public virtual PeerResponse Call(string net, Func<FuncPeerRequest> call, Flow workflow, IEnumerable<Peer> exclusions = null)
 	{

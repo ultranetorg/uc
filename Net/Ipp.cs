@@ -11,70 +11,35 @@ namespace Uccs.Net;
 //	public Rp			Send<Rp>(Ipc<Rp> rq) where Rp : IppResponse => Send((FuncIpc)rq) as Rp;
 //}
 
-public abstract class IppPacket : ITypeCode
+public abstract class IppPacket
 {
-	public int				Id { get; set; }
-	public IppConnection	Connection;
+	public int					Id { get; set; }
+	public IppConnection		Connection;
 }
 
-public abstract class IppRequest : IppPacket
-{
-}
-
-public abstract class IppFuncRequest : IppRequest
+public class IppFuncRequest : IppPacket
 {
 	public IppResponse			Response;
 	public ManualResetEvent		Event;
 	public CodeException		Exception;
-
-
-///	public abstract IppResponse	Execute(Flow flow);
-///
-///	public IppResponse SafeExecute(Flow flow)
-///	{
-///		IppResponse rp;
-///
-///		try
-///		{
-///			rp = Execute(flow);
-///		}
-///		catch(CodeException ex)
-///		{
-///			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
-///			rp.Error = ex;
-///		}
-///		catch(Exception) when(!Debugger.IsAttached)
-///		{
-///			rp = Connection.Constuctor.Constract(typeof(IppResponse), Connection.Constuctor.TypeToCode(GetType())) as IppResponse;
-///			rp.Error = new IpcException(IpcError.Unknown);
-///		}
-///
-///		rp.Id = Id;
-///
-///		return rp;
-///	}
-
+	public CallArgumentation	Argumentation { get; set; }
 }
 
-public abstract class IppProcRequest : IppRequest
+public class IppResponse : IppPacket
 {
-///	public abstract void		Execute(Flow flow);
-///
-///	public void SafeExecute(Flow flow)
-///	{
-///		try
-///		{
-///			Execute(flow);
-///		}
-///		catch(Exception ex) when(!Debugger.IsAttached || ex is CodeException)
-///		{
-///		}
-///	}
+	public CallReturn			Return { get; set; }
 }
 
-public abstract class IppResponse : IppPacket
+public abstract class CallArgumentation : IBinarySerializable, ITypeCode
 {
-	public CodeException	Error { get; set; }
+	public abstract void Read(BinaryReader reader);
+	public abstract void Write(BinaryWriter writer);
+}
+
+public abstract class CallReturn : IBinarySerializable, ITypeCode
+{
+	public abstract void Read(BinaryReader reader);
+	public abstract void Write(BinaryWriter writer);
 }
 
 public abstract class Ipc<R> : IppFuncRequest where R : IppResponse /// Pipe-to-Pipe Call
@@ -93,7 +58,7 @@ public class IppConnection //: IIpp
 	public List<IppFuncRequest>		OutRequests = new();
 	int								IdCounter = 0;
 	public Constructor				Constructor;
-	public Flow							Flow;
+	public Flow						Flow;
 
 	object							Handler;
 	Dictionary<byte, MethodInfo>	Methods = [];
@@ -149,7 +114,7 @@ public class IppConnection //: IIpp
 	{
 		Handler = handler;
 
-		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(IppResponse)))
+		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(CallReturn)))
 		{
 			if(Enum.TryParse(enumclass, i.Name, out var c))
 			{
@@ -159,7 +124,7 @@ public class IppConnection //: IIpp
 		}
 	}
 
-	void Request(IppRequest request)
+	void Request(IppFuncRequest request)
 	{
 		lock(Writer)
 		{
@@ -168,36 +133,31 @@ public class IppConnection //: IIpp
 		}
 	}
 
-	void Respond(IppRequest request)
+	void Respond(IppFuncRequest request)
 	{
-		if(request is IppFuncRequest f)
+		try
 		{
-			try
-			{
-				var rp = Methods[Constructor.TypeToCode(request.GetType())].Invoke(Handler, [this, request]);
+			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as CallReturn;
 
-				(rp as IppResponse).Id = request.Id;
-				//var rp = f.SafeExecute(Flow);
+			var rp = new IppResponse();
+			rp.Id = request.Id;
+			rp.Return = r;
+			//var rp = f.SafeExecute(Flow);
 							
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Response);
-					BinarySerializator.Serialize(Writer, rp, Constructor.TypeToCode); 
-				}
-			}
-			catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
+			lock(Writer)
 			{
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Failure);
-					Writer.Write(request.Id);
-					BinarySerializator.Serialize(Writer, ex.InnerException, Constructor.TypeToCode);
-				}
+				Writer.Write((byte)PacketType.Response);
+				BinarySerializator.Serialize(Writer, rp, Constructor.TypeToCode); 
 			}
 		}
-		else
-		{	
-			Methods[Constructor.TypeToCode(request.GetType())].Invoke(Handler, [this, request]);
+		catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
+		{
+			lock(Writer)
+			{
+				Writer.Write((byte)PacketType.Failure);
+				Writer.Write(request.Id);
+				BinarySerializator.Serialize(Writer, ex.InnerException, Constructor.TypeToCode);
+			}
 		}
 	}
 
@@ -216,7 +176,7 @@ public class IppConnection //: IIpp
 				{
  					case PacketType.Request:
  					{
-						var rq = BinarySerializator.Deserialize<IppRequest>(Reader, Constructor.Construct);
+						var rq = BinarySerializator.Deserialize<IppFuncRequest>(Reader, Constructor.Construct);
 						rq.Connection = this;
 						
 						Respond(rq);
@@ -278,15 +238,15 @@ public class IppConnection //: IIpp
 		}
 	}
 
-	public void Post(IppProcRequest rq)
-	{
-		if(!Pipe.IsConnected)
-			throw new IpcException(IpcError.ConnectionLost);
-
-		rq.Id = IdCounter++;
-
-		Request(rq);
-	}
+///	public void Post(IppProcRequest rq)
+///	{
+///		if(!Pipe.IsConnected)
+///			throw new IpcException(IpcError.ConnectionLost);
+///
+///		rq.Id = IdCounter++;
+///
+///		Request(rq);
+///	}
 
 	public IppResponse Send(IppFuncRequest rq)
 	{
