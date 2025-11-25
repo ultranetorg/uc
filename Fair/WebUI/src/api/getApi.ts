@@ -115,10 +115,13 @@ const getChangedPublications = async (
   return await toTotalItemsResult(res)
 }
 
-const getUnpublishedProduct = (siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
+const getUnpublishedProduct = (unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
+  fetch(`${BASE_URL}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
+
+const getUnpublishedSiteProduct = (siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
   fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
 
-const getUnpublishedProducts = async (
+const getUnpublishedSiteProducts = async (
   siteId: string,
   page?: number,
   pageSize?: number,
@@ -293,7 +296,8 @@ const api: Api = {
   getChangedPublication,
   getChangedPublications,
   getUnpublishedProduct,
-  getUnpublishedProducts,
+  getUnpublishedSiteProduct,
+  getUnpublishedSiteProducts,
 
   getReviews,
   getSite,

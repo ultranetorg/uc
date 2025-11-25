@@ -12,21 +12,31 @@ public class ModeratorUnpublishedProductsController
 	ProductsService productsService
 ) : BaseController
 {
-	[HttpGet("{unpublishedProductId}")]
-	public UnpublishedProductDetailsModel Get(string siteId, string unpublishedProductId)
+	[HttpGet("/api/products/unpublished/{unpublishedProductId}")]
+	public UnpublishedProductDetailsModel GetUnpublishedProduct(string unpublishedProductId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(Get), siteId, unpublishedProductId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedProduct), unpublishedProductId);
+
+		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
+
+		return productsService.GetUnpublishedProduct(unpublishedProductId);
+	}
+
+	[HttpGet("{unpublishedProductId}")]
+	public UnpublishedProductDetailsModel GetUnpublishedSiteProduct(string siteId, string unpublishedProductId)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedSiteProduct), siteId, unpublishedProductId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
 
-		return productsService.GetUnpublishedProduct(siteId, unpublishedProductId);
+		return productsService.GetUnpublishedProduct(unpublishedProductId, siteId);
 	}
 
 	[HttpGet]
-	public IEnumerable<UnpublishedProductModel> GetUnpublishedPublications(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<UnpublishedProductModel> GetUnpublishedSitePublications(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedPublications), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedSitePublications), siteId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);

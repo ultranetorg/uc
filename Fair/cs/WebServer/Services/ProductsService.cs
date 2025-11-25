@@ -12,29 +12,40 @@ public class ProductsService
 	FairMcv mcv
 )
 {
-	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string unpublishedProductId)
+	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string unpublishedProductId, [NotEmpty] string siteId = null)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {UnpublishedProductId}", nameof(ProductsService), nameof(GetUnpublishedProduct), siteId, unpublishedProductId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UnpublishedProductId}, {SiteId}", nameof(ProductsService), nameof(GetUnpublishedProduct), unpublishedProductId, siteId);
 
-		Guard.Against.NullOrEmpty(siteId);
+		if(siteId != null)
+		{
+			Guard.Against.NullOrEmpty(siteId);
+		}
 		Guard.Against.NullOrEmpty(unpublishedProductId);
 
-		AutoId entitySiteId = AutoId.Parse(siteId);
 		AutoId entityUnpublishedProductId = AutoId.Parse(unpublishedProductId);
 
 		lock(mcv.Lock)
 		{
-			Site site = mcv.Sites.Latest(entitySiteId);
-			if(site == null)
+			if(siteId != null)
 			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if(!site.UnpublishedPublications.Contains(entityUnpublishedProductId))
-			{
-				throw new EntityNotFoundException(nameof(EntityNames.UnpublishedProductEntityName).ToLower(), unpublishedProductId);
+				AutoId entitySiteId = AutoId.Parse(siteId);
+				Site site = mcv.Sites.Latest(entitySiteId);
+				if(site == null)
+				{
+					throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+				}
+				if(!site.UnpublishedPublications.Contains(entityUnpublishedProductId))
+				{
+					throw new EntityNotFoundException(nameof(EntityNames.UnpublishedProductEntityName).ToLower(), unpublishedProductId);
+				}
 			}
 
-			Product product = mcv.Products.Latest(entitySiteId);
+			Product product = mcv.Products.Latest(entityUnpublishedProductId);
+			if(siteId == null && product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), unpublishedProductId);
+			}
+
 			FairAccount account = (FairAccount) mcv.Accounts.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 

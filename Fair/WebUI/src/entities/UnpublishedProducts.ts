@@ -4,8 +4,20 @@ import { getApi } from "api"
 
 const api = getApi()
 
-export const useGetUnpublishedProduct = (siteId?: string, unpublishedProductId?: string) => {
-  const queryFn = () => api.getUnpublishedProduct(siteId!, unpublishedProductId!)
+export const useGetUnpublishedProduct = (unpublishedProductId?: string) => {
+  const queryFn = () => api.getUnpublishedProduct(unpublishedProductId!)
+
+  const { isFetching, isError, data } = useQuery({
+    queryKey: ["products", "unpublished", unpublishedProductId],
+    queryFn: queryFn,
+    enabled: !!unpublishedProductId,
+  })
+
+  return { isFetching, isError, data }
+}
+
+export const useGetUnpublishedSiteProduct = (siteId?: string, unpublishedProductId?: string) => {
+  const queryFn = () => api.getUnpublishedSiteProduct(siteId!, unpublishedProductId!)
 
   const { isFetching, isError, data } = useQuery({
     queryKey: ["sites", siteId, "products", "unpublished", unpublishedProductId],
@@ -16,8 +28,8 @@ export const useGetUnpublishedProduct = (siteId?: string, unpublishedProductId?:
   return { isFetching, isError, data }
 }
 
-export const useGetUnpublishedProducts = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getUnpublishedProducts(siteId!, page, pageSize)
+export const useGetUnpublishedSiteProducts = (siteId?: string, page?: number, pageSize?: number) => {
+  const queryFn = () => api.getUnpublishedSiteProducts(siteId!, page, pageSize)
 
   const { isFetching, isError, data } = useQuery({
     queryKey: ["sites", siteId, "products", "unpublished", { page, pageSize }],

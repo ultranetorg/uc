@@ -59,8 +59,9 @@ export type Api = {
     pageSize?: number,
   ): Promise<TotalItemsResult<ChangedPublication>>
 
-  getUnpublishedProduct(siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails>
-  getUnpublishedProducts(
+  getUnpublishedProduct(unpublishedProductId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedSiteProduct(siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedSiteProducts(
     siteId: string,
     page?: number,
     pageSize?: number,

@@ -1,4 +1,4 @@
-import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
+import { Breadcrumbs, BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export type GovernanceModerationHeaderProps = {
   siteId: string
@@ -6,8 +6,10 @@ export type GovernanceModerationHeaderProps = {
   totalItems?: number
   parentBreadcrumb?: BreadcrumbsItemProps
   onCreateButtonClick?: () => void
+  onSearchProduct?: () => void
   createButtonLabel?: string
   homeLabel: string
+  searchProductLabel?: string
 }
 
 export const GovernanceModerationHeader = ({
@@ -16,8 +18,10 @@ export const GovernanceModerationHeader = ({
   totalItems,
   parentBreadcrumb,
   onCreateButtonClick,
+  onSearchProduct,
   createButtonLabel,
   homeLabel,
+  searchProductLabel,
 }: GovernanceModerationHeaderProps) => (
   <div className="flex flex-col gap-2">
     <Breadcrumbs
@@ -33,9 +37,14 @@ export const GovernanceModerationHeader = ({
         <span>{title}</span>
         {totalItems && <span className="text-gray-400">({totalItems})</span>}
       </div>
-      {onCreateButtonClick && createButtonLabel && (
-        <ButtonPrimary label={createButtonLabel} onClick={onCreateButtonClick} />
-      )}
+      <ButtonBar>
+        {onSearchProduct && searchProductLabel && (
+          <ButtonOutline className="w-48" label={searchProductLabel} onClick={onSearchProduct} />
+        )}
+        {onCreateButtonClick && createButtonLabel && (
+          <ButtonPrimary label={createButtonLabel} onClick={onCreateButtonClick} />
+        )}
+      </ButtonBar>
     </div>
   </div>
 )

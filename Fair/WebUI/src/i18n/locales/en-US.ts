@@ -127,6 +127,9 @@ export const enUS = {
     list: "List View",
     resetAll: "Reset all",
   },
+  createPublication: {
+    searchProduct: "Search products by ID",
+  },
   error: {
     backToHome: "Back to Home",
     refreshPage: "Refresh page",
@@ -143,6 +146,7 @@ export const enUS = {
     discussions: "Discussions",
     publications: "Publications",
     reviews: "Reviews",
+    searchProduct: "Search products by ID",
     title: "Moderation",
     unpublishedProducts: "Unpublished products",
     userRegistrations: "User registrations",
