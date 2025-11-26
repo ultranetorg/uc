@@ -67,7 +67,7 @@ export const ModeratorCreatePublicationPage = () => {
         onClearInputClick={handleClearInputClick}
         onInputChange={handleInputChange}
       />
-      {debouncedQuery && !productId && <MessageBox className="p-6" message={t("productNotFound")} />}
+      {debouncedQuery && !productExists && <MessageBox className="p-6" message={t("productNotFound")} />}
       {productId && <ProductFields productIds={[productId!]} />}
     </div>
   )
