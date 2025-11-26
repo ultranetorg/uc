@@ -1,21 +1,28 @@
+import { twMerge } from "tailwind-merge"
 import { SvgEyeSm } from "assets"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 
+import { PropsWithClassName } from "types"
 import { SoftwarePublicationLogo } from "./SoftwarePublicationLogo"
 
-export type ModeratorPublicationHeaderProps = {
+export type ModeratorPublicationHeaderBaseProps = {
   siteId: string
+  showLogo?: boolean
   logoFileId?: string
   title: string
   parentBreadcrumb?: BreadcrumbsItemProps
-  onApprove: () => void
-  onReject: () => void
-  onPreview: () => void
+  onApprove?: () => void
+  onReject?: () => void
+  onPreview?: () => void
   homeLabel: string
 }
 
+export type ModeratorPublicationHeaderProps = PropsWithClassName & ModeratorPublicationHeaderBaseProps
+
 export const ModeratorPublicationHeader = ({
+  className,
   siteId,
+  showLogo = true,
   logoFileId,
   title,
   parentBreadcrumb,
@@ -24,7 +31,7 @@ export const ModeratorPublicationHeader = ({
   onPreview,
   homeLabel,
 }: ModeratorPublicationHeaderProps) => (
-  <div className="flex flex-col gap-6">
+  <div className={twMerge("flex flex-col gap-6", className)}>
     <Breadcrumbs
       fullPath={true}
       items={[
@@ -33,18 +40,20 @@ export const ModeratorPublicationHeader = ({
         { title: title },
       ]}
     />
-    <div className="flex items-center justify-between">
-      <SoftwarePublicationLogo logoFileId={logoFileId} title={title} />
+    <div className="flex h-11 items-center justify-between">
+      <SoftwarePublicationLogo showLogo={showLogo} logoFileId={logoFileId} title={title} />
       <ButtonBar className="items-center">
-        <ButtonPrimary className="h-11" label="Suggest to approve" onClick={onApprove} />
-        <ButtonOutline className="h-11" label="Suggest to reject" onClick={onReject} />
-        <Separator className="h-8" />
-        <ButtonOutline
-          className="h-11 w-52"
-          label="Preview publication"
-          iconBefore={<SvgEyeSm className="fill-gray-800" />}
-          onClick={onPreview}
-        />
+        {onApprove && <ButtonPrimary className="h-11" label="Suggest to approve" onClick={onApprove} />}
+        {onReject && <ButtonOutline className="h-11" label="Suggest to reject" onClick={onReject} />}
+        {(onApprove || onReject) && onPreview && <Separator className="h-8" />}
+        {onReject && (
+          <ButtonOutline
+            className="h-11 w-52"
+            label="Preview publication"
+            iconBefore={<SvgEyeSm className="fill-gray-800" />}
+            onClick={onPreview}
+          />
+        )}
       </ButtonBar>
     </div>
   </div>
