@@ -115,6 +115,11 @@ const getChangedPublications = async (
   return await toTotalItemsResult(res)
 }
 
+const headUnpublishedProduct = async (unpublishedProductId: string): Promise<boolean> => {
+  const response = await fetch(`${BASE_URL}/products/unpublished/${unpublishedProductId}`, { method: "HEAD" })
+  return response.status === 200
+}
+
 const getUnpublishedProduct = (unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
   fetch(`${BASE_URL}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
 
@@ -295,6 +300,7 @@ const api: Api = {
 
   getChangedPublication,
   getChangedPublications,
+  headUnpublishedProduct,
   getUnpublishedProduct,
   getUnpublishedSiteProduct,
   getUnpublishedSiteProducts,

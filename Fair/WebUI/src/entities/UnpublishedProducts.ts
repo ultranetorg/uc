@@ -4,6 +4,18 @@ import { getApi } from "api"
 
 const api = getApi()
 
+export const useHeadUnpublishedProduct = (unpublishedProductId?: string) => {
+  const queryFn = () => api.headUnpublishedProduct(unpublishedProductId!)
+
+  const { isFetching, isError, data } = useQuery({
+    queryKey: ["HEAD", "products", "unpublished", unpublishedProductId],
+    queryFn: queryFn,
+    enabled: !!unpublishedProductId,
+  })
+
+  return { isFetching, isError, data }
+}
+
 export const useGetUnpublishedProduct = (unpublishedProductId?: string) => {
   const queryFn = () => api.getUnpublishedProduct(unpublishedProductId!)
 

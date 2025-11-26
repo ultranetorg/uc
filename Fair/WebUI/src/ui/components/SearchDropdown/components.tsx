@@ -65,7 +65,7 @@ export const Menu = (props: MenuProps<SearchDropdownItem, false> & MenuBaseProps
 export const Option = (props: OptionProps<SearchDropdownItem>) => {
   return (
     <components.Option {...props}>
-      <SvgSearchMd className="h-4 w-4 stroke-gray-500" />
+      <SvgSearchMd className="size-4 stroke-gray-500" />
       <span>
         <HighlightText highlightText={props.selectProps.inputValue} className="font-bold text-dark-100">
           {props.data.label}

@@ -128,6 +128,7 @@ export const enUS = {
     resetAll: "Reset all",
   },
   createPublication: {
+    productNotFound: "We didn’t find anything. Try a different or shorter search.",
     searchProduct: "Search products by ID",
   },
   error: {
@@ -337,6 +338,7 @@ export const enUS = {
     enterDescription: "Enter description",
     enterNickname: "Enter nickname",
     enterOptionTitle: "Enter option title",
+    enterProductId: "Enter product ID",
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
     selectApprovalPolicy: "Select approval policy",

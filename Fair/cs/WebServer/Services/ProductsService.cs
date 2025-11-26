@@ -12,6 +12,19 @@ public class ProductsService
 	FairMcv mcv
 )
 {
+	public bool UnpublishedProductExists([NotNull][NotEmpty] string unpublishedProductId)
+	{
+		Guard.Against.NullOrEmpty(unpublishedProductId);
+
+		AutoId id = AutoId.Parse(unpublishedProductId);
+
+		lock(mcv.Lock)
+		{
+			Product product = mcv.Products.Latest(id);
+			return product != null;
+		}
+	}
+
 	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string unpublishedProductId, [NotEmpty] string siteId = null)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UnpublishedProductId}, {SiteId}", nameof(ProductsService), nameof(GetUnpublishedProduct), unpublishedProductId, siteId);

@@ -40,7 +40,7 @@ export const ModeratorPublicationHeader = ({
         { title: title },
       ]}
     />
-    <div className="flex items-center justify-between">
+    <div className="flex h-11 items-center justify-between">
       <SoftwarePublicationLogo showLogo={showLogo} logoFileId={logoFileId} title={title} />
       <ButtonBar className="items-center">
         {onApprove && <ButtonPrimary className="h-11" label="Suggest to approve" onClick={onApprove} />}

@@ -12,6 +12,18 @@ public class ModeratorUnpublishedProductsController
 	ProductsService productsService
 ) : BaseController
 {
+	[HttpHead("/api/products/unpublished/{unpublishedProductId}")]
+	public IActionResult HeadUnpublishedProduct(string unpublishedProductId)
+	{
+		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(HeadUnpublishedProduct), unpublishedProductId);
+
+		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
+
+		bool exists = productsService.UnpublishedProductExists(unpublishedProductId);
+
+		return exists ? Ok() : NotFound();
+	}
+
 	[HttpGet("/api/products/unpublished/{unpublishedProductId}")]
 	public UnpublishedProductDetailsModel GetUnpublishedProduct(string unpublishedProductId)
 	{
