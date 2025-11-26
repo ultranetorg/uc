@@ -223,7 +223,7 @@ public class IppConnection
 ///		Request(rq);
 ///	}
 
-	public Return Send(Argumentation argumentation)
+	public Return Call(Argumentation argumentation)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);

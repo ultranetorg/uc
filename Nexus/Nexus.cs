@@ -65,7 +65,6 @@ public class Nexus : IProgram
 		{
 			NnPeering = new NnTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
 			NnIppServer = new NnIppServer(this);
-
 			NnConnection = new NnIppClientConnection(this, NnTcpPeering.GetName(Settings.Host), flow);
 		}
 

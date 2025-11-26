@@ -45,18 +45,17 @@ public class NnIppServer : IppServer
 
 	Return Relay(IppConnection connection, NnArgumentation call)
 	{
-		//var a = call as NnRequest;
-		//var id = call.Id;
-
 		if(Registrations.TryGetValue(call.Net, out var r))
 		{
-			var rp = r.Send(call);
-			//call.Id = rp.Id = id; /// IMPORTANT !!!!!!!!!
+			var rp = r.Call(call);
 			return rp;
 		} 
 		else
-			throw new IpcException(IpcError.NotFound);
+		{
+			//return Nexus.NnPeering.Call(call.Net, call, Flow);
 
+			throw new IpcException(IpcError.NotFound);
+		} 
 	}
 
 	public Return HolderClasses(IppConnection connection, NnArgumentation call)

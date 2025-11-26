@@ -4,13 +4,22 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
+//
+//public interface NnPpc
+//{
+//	public NnTcpPeering		Peering { get ;set; }
+//	public Return			Execute();
+//}
+//
+//public class HolderClassesNnPpc : HolderClassesNna, NnPpc
+//{
+//	public NnTcpPeering		Peering { get; set; }
+//
+//	public Return Execute()
+//	{
+//	}
+//}
 
-///public abstract class Nnc<R> : Ppc<R> where R : PeerResponse /// Net-to-Net Call
-///{
-///	public new NnTcpPeering		Peering => base.Peering as NnTcpPeering;
-///	//public new McvNode			Node => base.Node as McvNode;
-///	//public Mcv					Mcv => Node.Mcv;
-///}
 
 public class NnTcpPeering : TcpPeering
 {
