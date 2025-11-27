@@ -34,7 +34,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 		}
 	}
 
-	protected override bool Consider(bool inbound, Hello hello, Peer peer)
+	protected override bool Consider(bool inbound, Hello hello, NnPeer peer)
 	{
 		if(base.Consider(inbound, hello, peer) == false)
 			return false;

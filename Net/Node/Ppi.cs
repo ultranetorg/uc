@@ -15,22 +15,25 @@ public abstract class Packet
 
 public class RequestPacket: Packet
 {
-	public PeerRequest				Request { get ; set; }
-
 	public Return					Return;
 	public ManualResetEvent			Event;
 	public CodeException			Exception;
 }
 
-public class ResposePacket : Packet
+public class HomoRequestPacket: RequestPacket
 {
-	public Return	Return { get ; set; }
+	public PeerRequest				Request { get ; set; }
 }
+
+//public class ResposePacket : Packet
+//{
+//	public Return	Return { get ; set; }
+//}
 
 public abstract class PeerRequest : ITypeCode
 {
-	public Peer					Peer;
-	public TcpPeering			Peering;
+	public HomoPeer				Peer;
+	public HomoTcpPeering		Peering;
 	//public CallArgumentation	Argumentation { get ; set; }
 	
 	public abstract Return	Execute();
@@ -41,9 +44,3 @@ public abstract class Ppc<R> : PeerRequest where R : Return /// Peer-to-Peer Cal
 {
 }
 
-public abstract class IPeer
-{
- 	public abstract	void			Send(PeerRequest rq);
-	public abstract Return			Call(PeerRequest rq);
-	public Rp						Send<Rp>(Ppc<Rp> rq) where Rp : Return => Call((PeerRequest)rq) as Rp;
-}

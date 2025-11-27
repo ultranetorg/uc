@@ -4,40 +4,26 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public interface INn
+public interface IHomoPeer
 {
-	public Return HolderClasses(NnPeer peer, HolderClassesNna call);
-	public Return HolderAssets(NnPeer peer, HolderAssetsNna call);
-	public Return HoldersByAccount(NnPeer peer, HoldersByAccountNna call);
-	public Return AssetBalance(NnPeer peer, AssetBalanceNna call);
-	//public Return AssetTransfer(NnPeer peer, AssetTransferNna call);
+ 	public abstract	void			Send(PeerRequest rq);
+	public abstract Return			Call(PeerRequest rq);
+	public R						Call<R>(Ppc<R> rq) where R : Return => Call((PeerRequest)rq) as R;
 }
 
-public class NnRequestPacket: RequestPacket
+public class HomoPeer : Peer, IHomoPeer
 {
-	public Argumentation			Argumentation { get ; set; }
-}
-
-public class NnPeer : Peer, IBinarySerializable
-{
-	INn							Nn;
-
-	public NnPeer()
+	public HomoPeer()
 	{
 	}
 
-	public NnPeer(IPAddress ip, ushort port)
+	public HomoPeer(IPAddress ip, ushort port)
 	{
 		IP = ip;
 		Port = port;
 	}
 
-	public override string ToString()
-	{
-		return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
-	}
- 		
-	void Request(int id, Argumentation request)
+	void Request(int id, PeerRequest request)
 	{
 		try
 		{
@@ -55,6 +41,53 @@ public class NnPeer : Peer, IBinarySerializable
 
 			throw new OperationCanceledException();
 		}
+	}
+
+	void Respond(int id, PeerRequest request)
+	{
+		try
+		{
+			try
+			{
+				var r =  request.Execute();
+				
+				if(r != null)
+				{
+					lock(Writer)
+					{
+						Writer.Write((byte)PacketType.Response);
+						Writer.Write(id);
+						BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
+					}
+				}
+			}
+			catch(CodeException ex)
+			{
+				lock(Writer)
+				{
+					Writer.Write((byte)PacketType.Failure);
+					Writer.Write(id);
+					BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+				}
+			}
+			catch(Exception) when(!Debugger.IsAttached)
+			{
+				lock(Writer)
+				{
+					Writer.Write((byte)PacketType.Failure);
+					Writer.Write(id);
+					BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+				}
+			}
+		}
+		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
+		{
+			lock(Peering.Lock)
+				Disconnect();
+
+			throw new OperationCanceledException();
+		}
+
 	}
 
 	protected override void Listening()
@@ -75,43 +108,11 @@ public class NnPeer : Peer, IBinarySerializable
  					case PacketType.Request:
  					{
 						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<Argumentation>(Reader, Peering.Constructor.Construct);
+						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Construct);
+						rq.Peer = this;
+						rq.Peering = Peering as HomoTcpPeering;
 						
-						try
-						{
-							///var r = request.Execute();
-							Return r = null;
-
-							switch((NnClass)Peering.Constructor.TypeToCode(rq.GetType()))
-							{
-								case NnClass.HolderClasses:		r = Nn.HolderClasses(this, rq as HolderClassesNna); break;
-								case NnClass.HoldersByAccount:	r = Nn.HoldersByAccount(this, rq as HoldersByAccountNna); break;
-								case NnClass.HolderAssets:		r = Nn.HolderAssets(this, rq as HolderAssetsNna); break;
-								case NnClass.AssetBalance:		r = Nn.AssetBalance(this, rq as AssetBalanceNna); break;
-								///case NnClass.AssetTransfer:	r = Nn.AssetTransfer(this, request as AssetTransferNna); break;
-								default:
-									break;
-							}
-
-							if(r != null)
-							{
-								lock(Writer)
-								{
-									Writer.Write((byte)PacketType.Response);
-									Writer.Write(id);
-									BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
-								}
-							}
-						}
-						catch(CodeException ex)
-						{
-							lock(Writer)
-							{
-								Writer.Write((byte)PacketType.Failure);
-								Writer.Write(id);
-								BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
-							}
-						}
+						Respond(id, rq);
 
  						break;
  					}
@@ -172,14 +173,14 @@ public class NnPeer : Peer, IBinarySerializable
 		{
 			ListenThread = null;
 
-			if(Status == ConnectionStatus.Disconnecting)
+			if(Status == ConnectionStatus.Disconnecting && ListenThread == null)
 			{
 				Status = ConnectionStatus.Disconnected;
 			}
 		}
 	}
 
-	public void Send(Argumentation args)
+	public void Send(PeerRequest args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -187,14 +188,14 @@ public class NnPeer : Peer, IBinarySerializable
 		Request(IdCounter++, args);
 	}
 
-	public Return Call(Argumentation args)
+	public Return Call(PeerRequest args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
-		var p = new NnRequestPacket();
+		var p = new HomoRequestPacket();
 
-		p.Argumentation = args;
+		p.Request = args;
 		p.Id = IdCounter++;
 
 		lock(OutRequests)
@@ -232,10 +233,10 @@ public class NnPeer : Peer, IBinarySerializable
 			else
 			{
 
-				///if(p.Exception is NodeException e)
-				///{
-				///	Peering.OnRequestException(this, e);
-				///}
+				if(p.Exception is NodeException e)
+				{
+					Peering.OnRequestException(this, e);
+				}
 
 				throw p.Exception;
 			}

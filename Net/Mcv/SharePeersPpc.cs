@@ -3,7 +3,7 @@
 public class SharePeersPpc : PeerRequest
 {
 	public bool					Broadcast { get; set; }
-	public Peer[]				Peers { get; set; }
+	public HomoPeer[]			Peers { get; set; }
 
 	public override Return Execute()
 	{
@@ -12,11 +12,11 @@ public class SharePeersPpc : PeerRequest
 
 		lock(Peering.Lock)
 		{
-			var newfresh = (Peering as McvTcpPeering).RefreshPeers(Peers).ToArray();
+			var newfresh = Peering.RefreshPeers(Peers).ToArray();
 
 			if(Broadcast && newfresh.Any())
 			{
-				foreach(var i in (Peering as HomoTcpPeering).Connections.Where(i => i != Peer))
+				foreach(var i in Peering.Connections.Where(i => i != Peer))
 				{
 					i.Send(new SharePeersPpc {Broadcast = true, Peers = newfresh});
 				}

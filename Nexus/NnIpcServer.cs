@@ -52,9 +52,7 @@ public class NnIppServer : IppServer
 		} 
 		else
 		{
-			//return Nexus.NnPeering.Call(call.Net, call, Flow);
-
-			throw new IpcException(IpcError.NotFound);
+			return Nexus.NnPeering.Call(call.Net, call, Flow);
 		} 
 	}
 

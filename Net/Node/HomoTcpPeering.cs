@@ -5,18 +5,20 @@ using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public abstract class HomoTcpPeering : TcpPeering /// same type of peers
+public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same type of peers
 {
-	public List<Peer>						Peers = [];
-	public IEnumerable<Peer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
-	protected override IEnumerable<Peer>	PeersToDisconnect => Peers;
+	public List<HomoPeer>						Peers = [];
+	public IEnumerable<HomoPeer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
+	protected override IEnumerable<HomoPeer>	PeersToDisconnect => Peers;
 
-	public long								Roles;
-	public ColumnFamilyHandle				PeersFamily => Database.GetColumnFamily(PeersColumn);
-	string									PeersColumn => GetType().Name + nameof(Peers);
+	public long									Roles;
+	public ColumnFamilyHandle					PeersFamily => Database.GetColumnFamily(PeersColumn);
+	string										PeersColumn => GetType().Name + nameof(Peers);
 
-	Net										Net;
-	RocksDb									Database;
+	Net											Net;
+	RocksDb										Database;
+
+	protected override HomoPeer					CreatePeer() => new ();
 
 	public HomoTcpPeering(IProgram program, string name, Net net, RocksDb database, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
@@ -35,17 +37,17 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		base.Run();
 	}
 
-	protected override void AddPeer(Peer peer)
+	protected override void AddPeer(HomoPeer peer)
 	{
 		Peers.Add(peer);
 	}
 
-	protected override void RemovePeer(Peer peer)
+	protected override void RemovePeer(HomoPeer peer)
 	{
 		Peers.Remove(peer);
 	}
 
-	protected override Peer FindPeer(IPAddress ip)
+	protected override HomoPeer FindPeer(IPAddress ip)
 	{
 		return Peers.Find(i => i.IP.Equals(ip));
 	}
@@ -55,7 +57,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		return Connections.Count(i => i.Inbound) < Settings.InboundMax;
 	}
 
-	protected override Hello CreateOutboundHello(Peer peer, bool permanent)
+	protected override Hello CreateOutboundHello(HomoPeer peer, bool permanent)
 	{
 		lock(Lock)
 		{
@@ -88,7 +90,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		}
 	}
 
-	protected override bool Consider(bool inbound, Hello hello, Peer peer)
+	protected override bool Consider(bool inbound, Hello hello, HomoPeer peer)
 	{
 		if(hello.Permanent && Connections.Count(i => i.Inbound && i.Permanent) >= Settings.PermanentInboundMax)
 			return false;
@@ -106,7 +108,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 			if(peer != null)
 			{	
 				IgnoredIPs.Add(peer.IP);
-				Peers.Remove(peer);
+				Peers.Remove(peer as HomoPeer);
 			}
 
 			return false;
@@ -121,9 +123,9 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		return true;
 	}
 
-	public Peer GetPeer(IPAddress ip)
+	public HomoPeer GetPeer(IPAddress ip)
 	{
-		Peer p = null;
+		HomoPeer p = null;
 
 		lock(Lock)
 		{
@@ -132,7 +134,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 			if(p != null)
 				return p;
 
-			p = new Peer(ip, 0);
+			p = new HomoPeer(ip, 0);
 			Peers.Add(p);
 		}
 
@@ -145,7 +147,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		{
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
- 				var p = new Peer();
+ 				var p = new HomoPeer();
 				p.IP = new IPAddress(i.Key());
 				p.Recent = false;
  				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
@@ -159,8 +161,12 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		}
 		else
 		{
-			Peers = Net.Initials.Select(i => new Peer(i, Net.PpiPort) {Recent = false, 
-																		LastSeen = DateTime.MinValue}).ToList() ?? [];
+			Peers = Net.Initials.Select(i => new HomoPeer(i, Net.PpiPort)
+											 {
+												Recent = false, 
+												LastSeen = DateTime.MinValue
+											 })
+											 .ToList() ?? [];
 
 			SavePeers(Peers);
 		}
@@ -182,11 +188,11 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		}
 	}
 
-	public List<Peer> RefreshPeers(IEnumerable<Peer> peers)
+	public List<HomoPeer> RefreshPeers(IEnumerable<HomoPeer> peers)
 	{
 		lock(Lock)
 		{
-			var affected = new List<Peer>();
+			var affected = new List<HomoPeer>();
 												
 			foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
 			{
@@ -235,22 +241,22 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 
 	}
 
-	protected override void OnConnected(Peer peer)
+	protected override void OnConnected(HomoPeer peer)
 	{
 		//RefreshPeers([peer]);
 		peer.Send(new SharePeersPpc {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
 	}
 
-	public Peer ChooseBestPeer(long role, HashSet<Peer> exclusions)
+	public HomoPeer ChooseBestPeer(long role, HashSet<HomoPeer> exclusions)
 	{
 		return Peers.Where(i => i.Roles.IsSet(role) && (exclusions == null || !exclusions.Contains(i)))
 					.OrderByDescending(i => i.Status == ConnectionStatus.OK)
 					.FirstOrDefault();
 	}
 
-	public Peer Connect(long role, HashSet<Peer> exclusions, Flow flow)
+	public HomoPeer Connect(long role, HashSet<HomoPeer> exclusions, Flow flow)
 	{
-		Peer peer;
+		HomoPeer peer;
 			
 		while(flow.Active)
 		{
@@ -281,7 +287,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		throw new OperationCanceledException();
 	}
 
-	public Rp Call<Rp>(IPeer peer, Ppc<Rp> rq) where Rp : Return
+	public Rp Call<Rp>(IHomoPeer peer, Ppc<Rp> rq) where Rp : Return
 	{
 		rq.Peering	= this;
 
@@ -297,7 +303,7 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		var c = call();
 		c.Peering	= this;
 
-		return p.Send(c);
+		return ((IHomoPeer)p).Call(c);
 	}
 
 	public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
@@ -312,4 +318,39 @@ public abstract class HomoTcpPeering : TcpPeering /// same type of peers
 		p.Send(c);
 
 	}
+
+	public Return Call(PeerRequest request)
+	{
+		var rq = request;
+
+		if(request.Peer == null) /// self call, cloning needed
+		{
+			var s = new MemoryStream();
+			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
+			s.Position = 0;
+			
+			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq.Peering = this;
+		}
+
+		return rq.Execute();
+	}
+
+	public void Send(PeerRequest request)
+	{
+		var rq = request;
+
+		if(rq.Peer == null) /// self call, cloning needed
+		{
+			var s = new MemoryStream();
+			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
+			s.Position = 0;
+			
+			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq.Peering = this;
+		}
+
+		rq.Execute();
+	}
+
 }

@@ -14,46 +14,47 @@ public enum ConnectionStatus
 	None, Disconnected, Initiated, OK, Disconnecting
 }
 
-public class Peer : IPeer, IBinarySerializable
+public abstract class Peer : IBinarySerializable
 {
-	public IPAddress			IP {get; set;} 
-	public string				Name;
-	public string				Net;
-	public ushort				Port;
+	public IPAddress				IP {get; set;} 
+	public ushort					Port {get; set;} 
+	public string					Name;
+	public string					Net;
 
-	public ConnectionStatus		Status = ConnectionStatus.Disconnected;
+	public ConnectionStatus			Status = ConnectionStatus.Disconnected;
 
-	public bool					Forced;
-	public bool					Permanent;
-	public bool					Recent;
-	int							IdCounter = 0;
-	public DateTime				LastSeen = DateTime.MinValue;
-	public DateTime				LastTry = DateTime.MinValue;
-	public int					Retries;
+	public bool						Forced;
+	public bool						Permanent;
+	public bool						Recent;
+	public DateTime					LastSeen = DateTime.MinValue;
+	public DateTime					LastTry = DateTime.MinValue;
+	public int						Retries;
 
-	public bool					Inbound;
-	public string				StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
+	public bool						Inbound;
+	public string					StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
 
-	public int					PeerRank = 0;
-	public long					Roles;
+	public int						PeerRank = 0;
+	public long						Roles;
 
-	public TcpPeering			Peering;
-	TcpClient					Tcp;
-	NetworkStream				Stream;
-	BinaryWriter				Writer;
-	BinaryReader				Reader;
-	Thread						ListenThread;
-	List<RequestPacket>				OutRequests = new();
+	public Peering					Peering;
+	protected TcpClient				Tcp;
+	protected NetworkStream			Stream;
+	protected BinaryWriter			Writer;
+	protected BinaryReader			Reader;
+	protected Thread				ListenThread;
+	protected int					IdCounter = 0;
+	
+	protected List<RequestPacket>	OutRequests = new();
 
 	public Peer()
 	{
 	}
 
-	public Peer(IPAddress ip, ushort port)
-	{
-		IP = ip;
-		Port = port;
-	}
+//	public Peer(IPAddress ip, ushort port)
+//	{
+//		IP = ip;
+//		Port = port;
+//	}
 
 	public override string ToString()
 	{
@@ -176,13 +177,13 @@ public class Peer : IPeer, IBinarySerializable
 		}
 	}
 
-	public void Start(TcpPeering peering, TcpClient client, Hello h, bool inbound)
+	public void Start(Peering peering, TcpClient client, Hello h, bool inbound)
 	{
 		Peering = peering;
 		Tcp = client;
 		
 		Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-		Tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : TcpPeering.Timeout;
+		Tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : TcpPeering<Peer>.Timeout;
 
 		PeerRank++;
 		Name		= h.Name;
@@ -200,227 +201,6 @@ public class Peer : IPeer, IBinarySerializable
 		ListenThread.Start();
 	}
 
-	void Request(int id, PeerRequest request)
-	{
-		try
-		{
-			lock(Writer)
-			{
-				Writer.Write((byte)PacketType.Request);
-				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
-			}
-		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
+	protected abstract void Listening();
 
-			throw new OperationCanceledException();
-		}
-	}
-
-	void Respond(int id, PeerRequest request)
-	{
-		try
-		{
-			try
-			{
-				var r =  request.Execute();
-				
-				if(r != null)
-				{
-					lock(Writer)
-					{
-						Writer.Write((byte)PacketType.Response);
-						Writer.Write(id);
-						BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
-					}
-				}
-			}
-			catch(CodeException ex)
-			{
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Failure);
-					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
-				}
-			}
-			catch(Exception) when(!Debugger.IsAttached)
-			{
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Failure);
-					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
-				}
-			}
-		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
-
-			throw new OperationCanceledException();
-		}
-
-	}
-
-	void Listening()
-	{
- 		try
- 		{
-			while(Peering.Flow.Active && Status == ConnectionStatus.OK)
-			{
-				var pk = (PacketType)Reader.ReadByte();
-
-				if(Peering.Flow.Aborted || Status != ConnectionStatus.OK)
-					return;
-				
-				Peering.Statistics.Reading.Begin();
-
-				switch(pk)
-				{
- 					case PacketType.Request:
- 					{
-						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Construct);
-						rq.Peer = this;
-						rq.Peering = Peering;
-						
-						Respond(id, rq);
-
- 						break;
- 					}
-
-					case PacketType.Response:
- 					{
-						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Return>(Reader, Peering.Constructor.Construct);
-
-						lock(OutRequests)
-						{
-							var rq = OutRequests.Find(i => i.Id == id);
-
-							if(rq.Event != null)
-							{
-								rq.Return = r;
-								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
-							}
-						}
-
-						break;
-					}
-
- 					case PacketType.Failure:
- 					{
-						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Peering.Constructor.Construct);
-
-						lock(OutRequests)
-						{
-							var rq = OutRequests.Find(i => i.Id == id);
-
-							if(rq.Event != null)
-							{
-								rq.Exception = ex;
-								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
-							}
-						}
-
- 						break;
- 					}
-				}
-
-				Peering.Statistics.Reading.End();
-			}
- 		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
-		}
-
-		//lock(Sun.Lock)
-		{
-			ListenThread = null;
-
-			if(Status == ConnectionStatus.Disconnecting && ListenThread == null)
-			{
-				Status = ConnectionStatus.Disconnected;
-			}
-		}
-	}
-
-	public override void Send(PeerRequest args)
-	{
-		if(Status != ConnectionStatus.OK)
-			throw new NodeException(NodeError.Connectivity);
-
-		Request(IdCounter++, args);
-	}
-
-	public override Return Call(PeerRequest args)
-	{
-		if(Status != ConnectionStatus.OK)
-			throw new NodeException(NodeError.Connectivity);
-
-		var p = new RequestPacket();
-
-		p.Request = args;
-		p.Id = IdCounter++;
-
-		lock(OutRequests)
-		{
-			p.Event = new ManualResetEvent(false);
-			OutRequests.Add(p);
-		}
-
-		Request(p.Id, args);
-
-		int i = -1;
-
-		try
-		{
-			i = WaitHandle.WaitAny([p.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
-		}
-		catch(ObjectDisposedException)
-		{
-			throw new OperationCanceledException();
-		}
-		finally
-		{
-			p.Event.Close();
-		}
-
-		if(i == 0)
-		{
-			if(p.Exception == null)
-			{
-				if(p.Return == null)
-					throw new NodeException(NodeError.Connectivity);
-
-				return p.Return;
-			}
-			else
-			{
-
-				if(p.Exception is NodeException e)
-				{
-					Peering.OnRequestException(this, e);
-				}
-
-				throw p.Exception;
-			}
-		}
-		else if(i == 1)
-			throw new OperationCanceledException();
-		else
-			throw new NodeException(NodeError.Timeout);
-	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Uccs;
 
@@ -32,7 +33,6 @@ public class Constructor
 			if(Enum.TryParse(enumclass, getname(i.Name), out var c))
 			{
 				Codes[i] = (byte)c;
-				var x = i.GetConstructor([]);
 
 				if(!Contructors.ContainsKey(typeof(T)))
 					Contructors[typeof(T)] = [];
@@ -40,8 +40,12 @@ public class Constructor
 				if(Contructors[typeof(T)].ContainsKey((byte)c))
 					throw new ArgumentException();
 
+				var e = Expression.New(i.GetConstructor([]));
+				var l = Expression.Lambda<Func<T>>(e);
+				var f = l.Compile();
+
 				Contructors[typeof(T)][(byte)c] = () =>	{
-															var r = x.Invoke(null) as T;
+															var r = f();
 															setup?.Invoke(r);
 															return r;
 														};

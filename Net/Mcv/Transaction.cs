@@ -51,7 +51,7 @@ public class Transaction : IBinarySerializable
 	private AccountAddress			_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 	public TransactionStatus		Status;
-	public IPeer					Ppi;
+	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;

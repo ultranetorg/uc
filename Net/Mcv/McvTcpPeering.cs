@@ -36,7 +36,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	public Mcv								Mcv => Node.Mcv; 
 	public VaultApiClient					VaultApi; 
 
-	public IEnumerable<Peer>				Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
+	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
 	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
@@ -155,8 +155,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			if(IsListener)
 			{
 				foreach(var c in Connections)
-					c.Send(new SharePeersPpc {Broadcast = true, 
-												  Peers = [new Peer(IP, Settings.Port) {Roles = Roles}]});
+					c.Send(new SharePeersPpc{Broadcast = true, 
+											 Peers = [new HomoPeer(IP, Settings.Port) {Roles = Roles}]});
 			}
 
 			if(Mcv != null)
@@ -198,10 +198,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	void Synchronizing()
 	{
-		var used = new HashSet<Peer>();
+		var used = new HashSet<HomoPeer>();
 
 		StampPpr stamp = null;
-		Peer peer = null;
+		HomoPeer peer = null;
 
 		while(Flow.Active)
 		{
@@ -925,7 +925,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 			var members = cr.Members;
 
-			IPeer getrdi(AccountAddress account)
+			IHomoPeer getrdi(AccountAddress account)
 			{
 				var m = members.NearestBy(i => i.Address, account);
 
@@ -949,7 +949,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				var m = members.NearestBy(i => i.Address, g.Key);
 
-				IPeer ppi; 
+				IHomoPeer ppi; 
 
 				try
 				{
@@ -1193,14 +1193,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		return t;
  	}
 
-	public R Call<R>(Ppc<R> call, Flow workflow, IEnumerable<Peer> exclusions = null)  where R : Return
+	public R Call<R>(Ppc<R> call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)  where R : Return
 	{
 		return Call((PeerRequest)call, workflow, exclusions) as R;
 	}
 
-	public Return Call(PeerRequest call, Flow workflow, IEnumerable<Peer> exclusions = null)
+	public Return Call(PeerRequest call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)
 	{
-		HashSet<Peer> tried;
+		HashSet<HomoPeer> tried;
 		
 		void init()
 		{
@@ -1209,7 +1209,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		init();
 
-		Peer p;
+		HomoPeer p;
 
 		while(workflow.Active)
 		{
@@ -1256,7 +1256,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(Vote vote, Peer skip = null)
+	public void Broadcast(Vote vote, HomoPeer skip = null)
 	{
 		foreach(var i in Graphs.Where(i => i != skip))
 		{

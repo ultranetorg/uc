@@ -7,7 +7,7 @@ public class SeedSeeker
 	public class Seed
 	{
 		public IPAddress	IP;
-		public Peer			Peer;
+		public HomoPeer		Peer;
 		public DateTime		Failed;
 
 		public bool			Good => Peer != null && Peer.Status == ConnectionStatus.OK && Failed == DateTime.MinValue;

@@ -50,7 +50,7 @@ public abstract class Round : IBinarySerializable
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
-	public long[]										Spacetimes = [];
+	public long											ReclaimedSpacetime;
 	public long[]										Bandwidths = [];
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
@@ -146,120 +146,6 @@ public abstract class Round : IBinarySerializable
 	{
 		return AffectedByTable(table) as Dictionary<K, E>;
 	}
-	/*
-	public int GetNextEid(TableBase table,  int b)
-	{
-		int e = 0;
-
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= Id))
-		{	
-			var eids = r.NextEids[table.Id];
-
-			if(eids != null && eids.TryGetValue(b, out e))
-				break;
-		}
-			
-		if(e == 0)
-			e = table.FindBucket(b)?.NextEid ?? 0;
-
-		NextEids[table.Id][b] = e + 1;
-
-		return e;
-	}
-	*/
-	/*
-	public virtual ITableEntry Affect(byte table, EntityId id)
-	{
-		if(Mcv.Accounts.Id == table)	
-			return Mcv.Accounts.Find(id, Id) != null ? AffectAccount(id) : null;
-
-		return null;
-	}
-
-	public virtual AccountEntry AffectSigner(Transaction transaction)
-	{
- 		if(transaction.Signer == Net.God)
- 			return new AccountEntry {Address = Net.God};
-
-		var s = Mcv.Accounts.Find(transaction.Signer, Id);
-
-		if(s == null)
-		{
-			foreach(var o in transaction.Operations)
-				o.Error = Operation.NotFound;
-					
-			return null;
-		}
-	
-		if(transaction.Nid != s.LastTransactionNid + 1)
-		{
-			foreach(var o in transaction.Operations)
-				o.Error = Operation.NotSequential;
-					
-			return null;
-		}
-
-		return AffectAccount(s.Id);
-	}
-
-	public virtual AccountEntry CreateAccount(AccountAddress address)
-	{
-		var b = Mcv.Accounts.KeyToBid(address);
-			
-		int e = GetNextEid(Mcv.Accounts, b);
-
-		var a = Mcv.Accounts.Create();
-
-		a.Id		= LastCreatedId = new EntityId(b, e);
-		a.Address	= address;
-		a.New		= true;
-		
-		AffectedAccounts[a.Id] = a;
-
-		return a;
-	}
-	*/
-
-// 	protected AccountEntry AffectAccount(EntityId id)
-// 	{
-// 		if(AffectedAccounts.TryGetValue(id, out var a))
-// 			return a;
-// 
-// 		a = Mcv.Accounts.Find(id, Id - 1)?.Clone();	
-// 
-// 		AffectedAccounts[a.Id] = a;
-// 
-// 		TransferEnergyIfNeeded(a);
-// 
-// 		return a;
-// 	}
-// 
-// 	Generator AffectCandidate(EntityId id)
-// 	{
-// 		if(AffectedCandidates.TryGetValue(id, out Generator a))
-// 			return a;
-// 
-// 		if(Id > 0 && Candidates == Previous.Candidates)
-// 		{
-// 			Candidates = Previous.Candidates.ToList();
-// 		}
-// 
-// 		var c = Candidates.Find(i => i.Id == id);
-// 
-// 		if(c == null)
-// 		{
-// 			c = AffectedCandidates[id] = Mcv.CreateGenerator();
-// 
-// 			Candidates.Add(c);
-// 		
-// 			if(Candidates.Count > Mcv.Net.CandidatesMaximum)
-// 				Candidates.RemoveAt(0);
-// 		}
-// 		else
-// 			throw new IntegrityException();
-// 
-// 		return c;
-// 	}
 	
 	public virtual void Elect(Vote[] votes, int gq)
 	{
@@ -407,8 +293,9 @@ public abstract class Round : IBinarySerializable
 		Members		= Id == 0 ? new()								: Previous.Members;
 		Funds		= Id == 0 ? new()								: Previous.Funds;
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
-		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
+		//Spacetimes	= Id == 0 ? new long[Time.FromYears(1).Days]	: Previous.Spacetimes.Clone() as long[];
 
+		ReclaimedSpacetime = 0;
 		AffectedMetas.Clear();
 		AffectedAccounts.Clear();
 		
@@ -503,8 +390,8 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in execution.NextEids[t])
 				NextEids[t][i.Key] = i.Value;
 
+		ReclaimedSpacetime	= execution.ReclaimedSpacetime;
 		if(execution.Candidates != null)	Candidates	= execution.Candidates;
-		if(execution.Spacetimes != null)	Spacetimes	= execution.Spacetimes;
 		if(execution.Bandwidths != null)	Bandwidths	= execution.Bandwidths;
 	}
 
@@ -583,8 +470,8 @@ public abstract class Round : IBinarySerializable
 
 			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
 			{
-				i.EnergyNext	+= d * Net.ECDayEmission / Members.Count;
-				i.Spacetime		+= d * (Net.BDDayEmission + e.Spacetimes[0]) / Members.Count;
+				i.EnergyNext += d * Net.ECDayEmission / Members.Count;
+				i.Spacetime	 += d * (Net.BDDayEmission + e.ReclaimedSpacetime) / Members.Count;
 			}
 		}
 
@@ -613,7 +500,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(Hash);
 		writer.Write(Bandwidths, writer.Write7BitEncodedInt64);
 		writer.Write(Funds);
-		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
+		//writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusECEnergyCost);
@@ -626,7 +513,7 @@ public abstract class Round : IBinarySerializable
 		Hash					= reader.ReadHash();
 		Bandwidths				= reader.ReadArray(reader.Read7BitEncodedInt64);
 		Funds					= reader.ReadList<AccountAddress>();
-		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
+		//Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusECEnergyCost	= reader.Read7BitEncodedInt64();

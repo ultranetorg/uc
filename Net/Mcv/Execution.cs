@@ -6,7 +6,7 @@ public class Execution : ITableExecution
 	public Dictionary<AutoId, Account>			AffectedAccounts = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
-	public long[]								Spacetimes;
+	public long									ReclaimedSpacetime;
 	public long[]								Bandwidths;
 
 	public List<Generator>						Candidates;
@@ -39,7 +39,7 @@ public class Execution : ITableExecution
 		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 
 		Candidates = round.Candidates;
-		Spacetimes = round.Spacetimes;
+		ReclaimedSpacetime = round.ReclaimedSpacetime;
 		Bandwidths = round.Bandwidths;
 	}
 
@@ -171,7 +171,7 @@ public class Execution : ITableExecution
 
 	public void FreeEntity()
 	{
-		Spacetimes[0] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
+		ReclaimedSpacetime += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
 	}
 
 	public static long ToBD(long length, short time)
@@ -195,8 +195,8 @@ public class Execution : ITableExecution
 	
 		payer.Spacetime -= ToBD(space, (short)n);
 
-		for(int i = 0; i < n; i++)
-			Spacetimes[i] += space;
+		//for(int i = 0; i < n; i++)
+		//	Spacetimes[i] += space;
 
 		SpacetimeSpenders.Add(payer);
 	}
@@ -213,13 +213,13 @@ public class Execution : ITableExecution
 			SpacetimeSpenders.Add(payer);
 		}
 
-		var n = start + duration.Days - Time.Days;
+		//var exp = start + duration.Days;
 
-		if(n > Spacetimes.Length)
-			Spacetimes = [..Spacetimes, ..new long[n - Spacetimes.Length]];
-
-		for(int i = 0; i < duration.Days; i++)
-			Spacetimes[start - Time.Days + i] += consumer.Space;
+		//if(exp > Spacetimes.Length)
+		//	Spacetimes = [..Spacetimes, ..new long[exp - Spacetimes.Length]];
+		//
+		//for(int i = start; i < exp; i++)
+		//	Spacetimes[i] += consumer.Space;
 
 	}
 
@@ -239,8 +239,8 @@ public class Execution : ITableExecution
 		{
 			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
-			for(int i = 1; i < d; i++)
-				Spacetimes[i] -= space;
+			//for(int i = Time.Days; i < consumer.Expiration; i++)
+			//	Spacetimes[i] -= space;
 		}
 	}
 

@@ -37,47 +37,53 @@ public enum PpcClass : byte
 	_Last = 99
 }
 
-public abstract class TcpPeering : IPeer
+public abstract class Peering
+{
+	public IProgram			Program;
+	public string			Name;
+	public object			Lock = new ();
+	public Constructor		Constructor = new();
+	public Flow				Flow;
+	public Statistics		Statistics = new();
+	
+	public virtual void		OnRequestException(Peer peer, NodeException ex){}
+}
+
+public abstract class TcpPeering<P> : Peering where P : Peer
 {
 	public const int							Timeout = 5000;
 
 	public System.Version						Version => Assembly.GetAssembly(GetType()).GetName().Version;
 	public static readonly int[]				Versions = {5};
 
-	public IProgram								Program;
-	public string								Name;
 	public PeeringSettings						Settings;
-	public Flow									Flow;
-	public object								Lock = new ();
 
 	public IPAddress							IP = IPAddress.None;
 	public List<IPAddress>						IgnoredIPs = new();
 	public bool									IsPeering => MainThread != null;
 	public bool									IsListener => ListeningThread != null;
 
-	public Statistics							Statistics = new();
 
 	public List<TcpClient>						IncomingConnections = new();
-	protected abstract IEnumerable<Peer>		PeersToDisconnect { get; }
+	protected abstract IEnumerable<P>			PeersToDisconnect { get; }
 
 	public TcpListener							Listener;
 	protected Thread							MainThread;
 	protected Thread							ListeningThread;
 	public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
-	public Constructor							Constructor = new();
 
 	protected abstract void						ProcessConnectivity();
-	protected abstract Hello					CreateOutboundHello(Peer peer, bool permanent);
+	protected abstract Hello					CreateOutboundHello(P peer, bool permanent);
 	protected abstract Hello					CreateInboundHello(IPAddress ip, Hello inbound);
 	protected abstract bool						Consider(TcpClient client);
-	protected abstract bool						Consider(bool inbound, Hello hello, Peer peer);
-	protected abstract void						AddPeer(Peer peer);
-	protected abstract void						RemovePeer(Peer peer);
-	protected abstract Peer						FindPeer(IPAddress ip);
-	protected virtual void						OnConnected(Peer peer) {}
-	public virtual void							OnRequestException(Peer peer, NodeException ex){}
+	protected abstract bool						Consider(bool inbound, Hello hello, P peer);
+	protected abstract void						AddPeer(P peer);
+	protected abstract void						RemovePeer(P peer);
+	protected abstract P						FindPeer(IPAddress ip);
+	protected virtual void						OnConnected(P peer) {}
 
+	protected abstract P						CreatePeer();
 
 	public TcpPeering(IProgram program, string name, PeeringSettings settings, Flow flow)
 	{
@@ -177,7 +183,7 @@ public abstract class TcpPeering : IPeer
 		}
 	}
 
-	protected void OutboundConnect(Peer peer, bool permanent)
+	protected void OutboundConnect(P peer, bool permanent)
 	{
 		peer.Status = ConnectionStatus.Initiated;
 		peer.Permanent = permanent;
@@ -323,7 +329,11 @@ public abstract class TcpPeering : IPeer
 					goto failed;
 
 				if(peer == null)
-					peer = new Peer(ip, Settings.Port);
+				{	
+					peer = CreatePeer();
+					peer.IP = ip;
+					peer.Port = Settings.Port;
+				}
 
 				if(Consider(true, h, peer) == false)
 					goto failed;
@@ -368,7 +378,7 @@ public abstract class TcpPeering : IPeer
 		}
 	}
 
-	public void Connect(Peer peer, Flow workflow)
+	public void Connect(P peer, Flow workflow)
 	{
 		lock(Lock)
 		{
@@ -404,39 +414,5 @@ public abstract class TcpPeering : IPeer
 			
 			Thread.Sleep(1);
 		}
-	}
-
-	public override Return Call(PeerRequest request)
-	{
-		var rq = request;
-
-		if(request.Peer == null) /// self call, cloning needed
-		{
-			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
-			s.Position = 0;
-			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
-			rq.Peering = this;
-		}
-
-		return rq.Execute();
-	}
-
-	public override void Send(PeerRequest request)
-	{
-		var rq = request;
-
-		if(rq.Peer == null) /// self call, cloning needed
-		{
-			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
-			s.Position = 0;
-			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
-			rq.Peering = this;
-		}
-
-		rq.Execute();
 	}
 }
