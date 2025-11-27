@@ -1,2 +1,2 @@
-export * from "./context.ts"
-export * from "./provider.tsx"
+export * from "./context"
+export * from "./provider"

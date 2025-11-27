@@ -73,7 +73,7 @@ export const Accordion = ({ items, multi, defaultOpenIds = [], className = "" }:
               id={panelId}
               role="region"
               aria-labelledby={headerId}
-              className={`overflow-hidden transition-[max-height,opacity,padding] duration-200 ${isOpen ? "max-h-screen" : "max-h-0 p-0 opacity-0"}`}
+              className={`transition-[opacity,padding] duration-200 ${isOpen ? "py-2 opacity-100" : "hidden p-0 opacity-0"}`}
             >
               <div className="text-sm text-gray-700">{it.content}</div>
             </div>

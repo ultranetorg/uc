@@ -8,17 +8,22 @@ const getData = <TData = string>(fields: ProductFieldViewModel[], token: TokenTy
   return fields.find(x => x.name === token)?.value as TData | undefined
 }
 
-const getFileUri = (fields: ProductFieldViewModel[], token: TokenType) => `${BASE_URL}/files/${getData(fields, token)}`
+const getFileUri = (fields: ProductFieldViewModel[], token: TokenType): string | undefined => {
+  const id = getData<string>(fields, token)
+  return id ? `${BASE_URL}/files/${id}` : undefined
+}
 
 const parseDescription = (fields: ProductFieldViewModel[], token: TokenType): IPublicationDescription[] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
-      const language = getData(field.children!, "language")!
-      const text = getData(field.children!, "value") ?? getData(field.children!, "description")!
+      const children = field.children ?? []
+      const language = getData(children, "language")
+      const text = getData(children, "value") ?? getData(children, "description")
 
-      return { language, text } satisfies IPublicationDescription
+      return language || text ? { language: language ?? "", text: text ?? "" } : undefined
     })
+    .filter((x): x is IPublicationDescription => !!x)
 
 const parseArts = (fields: ProductFieldViewModel[], token: TokenType): IPublication["arts"] =>
   fields
@@ -29,13 +34,16 @@ const parseArts = (fields: ProductFieldViewModel[], token: TokenType): IPublicat
       const screenshotChildren = children.find(c => c.name === "screenshot")?.children ?? []
       const videoChildren = children.find(c => c.name === "video")?.children ?? []
 
+      const screenshotUri = getFileUri(screenshotChildren, "id")
+      const videoUri = getData<string>(videoChildren, "uri")
+
       return {
         screenshot: {
-          uri: getFileUri(screenshotChildren, "id")!,
+          uri: screenshotUri ?? "",
           description: parseDescription(screenshotChildren, "description"),
         },
         video: {
-          uri: getData(videoChildren, "uri")!,
+          uri: videoUri ?? "",
           description: parseDescription(videoChildren, "description"),
         },
       }
@@ -55,33 +63,35 @@ const parseReleases = (fields: ProductFieldViewModel[], token: TokenType): IPubl
       const requirementsHardwareChildren = requirementsChildren.find(c => c.name === "hardware")?.children ?? []
       const requirementsSoftwareChildren = requirementsChildren.find(c => c.name === "software")?.children ?? []
 
+      const dateVal = getData<number>(distributiveChildren, "date")
+
       return {
-        version: getData(children, "version")!,
+        version: getData(children, "version") ?? "",
         distributive: {
-          platform: getData(distributiveChildren, "platform")!,
-          version: getData(distributiveChildren, "version")!,
-          date: formatSecDate(getData<number>(distributiveChildren, "date")!),
-          deployment: getData(distributiveChildren, "deployment")!,
+          platform: getData(distributiveChildren, "platform") ?? "",
+          version: getData(distributiveChildren, "version") ?? "",
+          date: dateVal ? formatSecDate(dateVal) : "",
+          deployment: getData(distributiveChildren, "deployment") ?? "",
           download: {
-            uri: getData(distributiveDownloadChildren, "uri")!,
+            uri: getData(distributiveDownloadChildren, "uri") ?? "",
             hash: {
-              type: getData(distributiveDownloadHashChildren, "type")!,
-              value: getData(distributiveDownloadHashChildren, "value")!,
+              type: getData(distributiveDownloadHashChildren, "type") ?? "",
+              value: getData(distributiveDownloadHashChildren, "value") ?? "",
             },
           },
         },
         requirements: {
           hardware: {
-            cpu: getData(requirementsHardwareChildren, "cpu")!,
-            gpu: getData(requirementsHardwareChildren, "gpu")!,
-            npu: getData(requirementsHardwareChildren, "npu")!,
-            ram: getData(requirementsHardwareChildren, "ram")!,
-            hdd: getData(requirementsHardwareChildren, "hdd")!,
+            cpu: getData(requirementsHardwareChildren, "cpu") ?? "",
+            gpu: getData(requirementsHardwareChildren, "gpu") ?? "",
+            npu: getData(requirementsHardwareChildren, "npu") ?? "",
+            ram: getData(requirementsHardwareChildren, "ram") ?? "",
+            hdd: getData(requirementsHardwareChildren, "hdd") ?? "",
           },
           software: {
-            os: getData(requirementsSoftwareChildren, "os")!,
-            architecture: getData(requirementsSoftwareChildren, "architecture")!,
-            version: getData(requirementsSoftwareChildren, "version")!,
+            os: getData(requirementsSoftwareChildren, "os") ?? "",
+            architecture: getData(requirementsSoftwareChildren, "architecture") ?? "",
+            version: getData(requirementsSoftwareChildren, "version") ?? "",
           },
         },
       }
@@ -89,19 +99,19 @@ const parseReleases = (fields: ProductFieldViewModel[], token: TokenType): IPubl
 
 export function toPublicationData(fields: ProductFieldViewModel[]): IPublication {
   return {
-    logo: getFileUri(fields, "logo"),
-    title: getData<string>(fields, "title")!,
-    slogan: getData<string>(fields, "slogan"),
-    uri: getData<string>(fields, "uri")!,
-    tags: getData<string>(fields, "tags"),
-    license: getData<string>(fields, "license")!,
+    logo: getFileUri(fields, "logo") ?? "",
+    title: getData<string>(fields, "title") ?? "",
+    slogan: getData<string>(fields, "slogan") ?? "",
+    uri: getData<string>(fields, "uri") ?? "",
+    tags: getData<string>(fields, "tags") ?? "",
+    license: getData<string>(fields, "license") ?? "",
     metadata: {
       version: getData<string>(fields.find(field => field.name === "metadata")?.children ?? [], "version") ?? "",
     },
-    price: getData<number>(fields, "price") ?? 0,
-    descriptionMin: parseDescription(fields, "description-minimal") ?? [],
-    descriptionMax: parseDescription(fields, "description-maximal") ?? [],
-    arts: parseArts(fields, "art") ?? [],
-    releases: parseReleases(fields, "release") ?? [],
+    price: getData<number>(fields, "price"),
+    descriptionMin: parseDescription(fields, "description-minimal"),
+    descriptionMax: parseDescription(fields, "description-maximal"),
+    arts: parseArts(fields, "art"),
+    releases: parseReleases(fields, "release"),
   }
 }

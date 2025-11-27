@@ -2,7 +2,6 @@ import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "re
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { ProductFieldViewModel } from "types"
-import { ButtonOutline } from "ui/components/ButtonOutline"
 import { ProductPreviewModal } from "../ProductPreview"
 import { ProductFieldsTree } from "./ProductFieldsTree"
 import { SelectedProps } from "./types"
@@ -80,9 +79,9 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
 
   return (
     <div>
-      <div className="mb-2 flex justify-end">
-        <ButtonOutline className="h-9" label={t("previewButton")} onClick={() => setPreviewModalOpen(true)} />
-      </div>
+      {/*<div className="mb-2 flex justify-end">*/}
+      {/*  <ButtonOutline className="h-9" label={t("previewButton")} onClick={() => setPreviewModalOpen(true)} />*/}
+      {/*</div>*/}
 
       <div ref={containerRef} className="flex max-h-screen items-stretch">
         <div className="overflow-auto" style={leftStyle}>
