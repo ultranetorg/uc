@@ -6,6 +6,7 @@ import { SvgArrowLeft } from "assets"
 import { Proposal, ProposalComment, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
+import { PublicationOwnerProvider } from "./providers/publicationOwner"
 
 import { PageState } from "./types"
 import { ProposalCompareFieldsView, ProposalDefaultView, ProposalFieldsView, ProposalTypeViewProps } from "./views"
@@ -54,32 +55,34 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, isCommentsFetchi
           <span className="text-3.5xl font-semibold leading-10">{proposal.title}</span>
         </div>
       </div>
-      {showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
-      <div className="flex gap-8">
-        <div className="flex w-full flex-col gap-8">
-          {!showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
-          <AlternativeOptions />
-          <hr className="h-px border-0 bg-gray-300" />
-          <CommentsSection isFetching={isCommentsFetching} comments={comments} />
-        </div>
-        <div className="flex flex-col gap-6">
-          <ProposalInfo
-            className="w-87.5"
-            createdBy={proposal?.byAccount}
-            createdAt={proposal?.creationTime}
-            daysLeft={7}
-          />
-          {pageState == "voting" ? (
-            <ButtonOutline className="h-11 w-full" label="Show results" onClick={togglePageState} />
-          ) : (
-            <ButtonPrimary
-              label="Back to options"
-              onClick={togglePageState}
-              iconBefore={<SvgArrowLeft className="fill-white" />}
+      <PublicationOwnerProvider owner={proposal?.byAccount}>
+        {showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
+        <div className="flex gap-8">
+          <div className="flex w-full flex-col gap-8">
+            {!showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
+            <AlternativeOptions />
+            <hr className="h-px border-0 bg-gray-300" />
+            <CommentsSection isFetching={isCommentsFetching} comments={comments} />
+          </div>
+          <div className="flex flex-col gap-6">
+            <ProposalInfo
+              className="w-87.5"
+              createdBy={proposal?.byAccount}
+              createdAt={proposal?.creationTime}
+              daysLeft={7}
             />
-          )}
+            {pageState == "voting" ? (
+              <ButtonOutline className="h-11 w-full" label="Show results" onClick={togglePageState} />
+            ) : (
+              <ButtonPrimary
+                label="Back to options"
+                onClick={togglePageState}
+                iconBefore={<SvgArrowLeft className="fill-white" />}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      </PublicationOwnerProvider>
     </div>
   )
 })

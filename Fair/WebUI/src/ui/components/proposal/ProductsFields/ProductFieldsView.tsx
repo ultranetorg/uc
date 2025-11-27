@@ -1,4 +1,4 @@
-import { memo, ReactElement, useRef, useState, useEffect, useCallback } from "react"
+import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { ProductFieldViewModel } from "types"
@@ -75,33 +75,35 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
   }
 
   return (
-    <div ref={containerRef} className="flex max-h-screen items-stretch">
-      <div className="overflow-auto" style={leftStyle}>
-        <div className="w-fit">
-          <ProductFieldsTree response={response} selected={selected} onSelect={onSelect} />
-        </div>
-      </div>
-
-      {/* Resizer */}
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        onMouseDown={onMouseDown}
-        className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
-        style={resizerStyle}
-        title="Drag to resize"
-      >
-        <div>
-          <div className="flex h-12 flex-col items-center justify-center gap-1">
-            <div className="size-1 rounded-full bg-gray-200" />
-            <div className="size-1 rounded-full bg-gray-300" />
-            <div className="size-1 rounded-full bg-gray-200" />
+    <div>
+      <div ref={containerRef} className="flex max-h-screen items-stretch">
+        <div className="overflow-auto" style={leftStyle}>
+          <div className="w-fit">
+            <ProductFieldsTree response={response} selected={selected} onSelect={onSelect} />
           </div>
         </div>
-      </div>
 
-      <div className="flex-1 overflow-auto">
-        {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
+        {/* Resizer */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          onMouseDown={onMouseDown}
+          className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
+          style={resizerStyle}
+          title="Drag to resize"
+        >
+          <div>
+            <div className="flex h-12 flex-col items-center justify-center gap-1">
+              <div className="size-1 rounded-full bg-gray-200" />
+              <div className="size-1 rounded-full bg-gray-300" />
+              <div className="size-1 rounded-full bg-gray-200" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto">
+          {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
+        </div>
       </div>
     </div>
   )

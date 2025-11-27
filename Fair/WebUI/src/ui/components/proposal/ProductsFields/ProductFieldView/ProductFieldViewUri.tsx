@@ -1,14 +1,10 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
+import { ensureHttp } from "utils"
 import { ProductFieldViewProp } from "./types"
 
-function ensureProtocol(uri: string) {
-  if (/^(https?:)?\/\//i.test(uri)) return uri
-  return `https://${uri}`
-}
-
 function getAdded(value: unknown) {
-  const uri = ensureProtocol(value as string)
+  const uri = ensureHttp(value as string)
 
   return (
     <Link
@@ -21,13 +17,13 @@ function getAdded(value: unknown) {
   )
 }
 function getRemoved(value: unknown) {
-  const uri = ensureProtocol(value as string)
+  const uri = ensureHttp(value as string)
 
   return (
     <Link
       to={uri}
       target="_blank"
-      className="text-red-500 underline line-through opacity-75 transition-colors duration-150 hover:text-blue-800 hover:underline"
+      className="text-red-500 underline opacity-75 transition-colors duration-150 hover:text-blue-800 hover:underline"
     >
       {uri}
     </Link>
@@ -35,7 +31,7 @@ function getRemoved(value: unknown) {
 }
 
 function getNew(value: unknown) {
-  const uri = ensureProtocol(value as string)
+  const uri = ensureHttp(value as string)
 
   return (
     <Link

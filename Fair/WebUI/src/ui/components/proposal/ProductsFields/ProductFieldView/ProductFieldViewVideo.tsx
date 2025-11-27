@@ -1,31 +1,25 @@
 import { memo } from "react"
 
-import { ProductFieldViewVideoYouTube } from "./ProductFieldViewVideoYouTube"
-import { ProductFieldViewVideoVkVideo } from "./ProductFieldViewVideoVkVideo"
-import { ProductFieldViewVideoPlain } from "./ProductFieldViewVideoPlain"
-import { ProductFieldViewProp } from "../types"
-
-const urlRegexMap = {
-  plain: /\.(mp4|webm|ogg)$/i,
-  youtube: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]{11})/,
-  vkVideo: /(?:https?:\/\/)?(?:www\.)?(?:vk\.com|vkvideo\.ru)\/.*video.*/i,
-}
+import { VideoViewPlain, VideoViewVk, VideoViewYouTube } from "ui/components/VideoView"
+import { getVideoType } from "utils"
+import { ProductFieldViewProp } from "./types.ts"
 
 function getComponent(rawUrl: unknown | null): React.ReactNode {
   if (!rawUrl) return null
 
   const url = (rawUrl as string).trim()
+  const videoType = getVideoType(url)
 
-  if (urlRegexMap.youtube.test(url)) {
-    return <ProductFieldViewVideoYouTube url={url} regex={urlRegexMap.youtube} />
+  if (videoType === "youtube") {
+    return <VideoViewYouTube url={url} />
   }
 
-  if (urlRegexMap.vkVideo.test(url)) {
-    return <ProductFieldViewVideoVkVideo url={url} />
+  if (videoType === "vkVideo") {
+    return <VideoViewVk url={url} />
   }
 
-  if (urlRegexMap.plain.test(url)) {
-    return <ProductFieldViewVideoPlain url={url} />
+  if (videoType === "video") {
+    return <VideoViewPlain url={url} className="size-full bg-black" controls={true} />
   }
 
   // fallback: plain link — external anchor
@@ -58,10 +52,8 @@ export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductF
     case "added":
       return (
         <PreviewBox label="Added">
-          <div className="h-full w-full p-1">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-green-500 bg-black">
-              {newPreview}
-            </div>
+          <div className="size-full p-1">
+            <div className="size-full overflow-hidden rounded-md border-2 border-green-500 bg-black">{newPreview}</div>
           </div>
         </PreviewBox>
       )
@@ -69,8 +61,8 @@ export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductF
     case "removed":
       return (
         <PreviewBox label="Removed">
-          <div className="relative h-full w-full">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-red-500 bg-black opacity-90">
+          <div className="relative size-full">
+            <div className="size-full overflow-hidden rounded-md border-2 border-red-500 bg-black opacity-90">
               {oldPreview}
             </div>
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -84,23 +76,21 @@ export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductF
       return (
         <div className="flex items-start gap-4">
           <PreviewBox label="Old">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-red-500 bg-black opacity-90">
+            <div className="size-full overflow-hidden rounded-md border-2 border-red-500 bg-black opacity-90">
               {oldPreview}
             </div>
           </PreviewBox>
 
           <PreviewBox label="New">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-green-500 bg-black">
-              {newPreview}
-            </div>
+            <div className="size-full overflow-hidden rounded-md border-2 border-green-500 bg-black">{newPreview}</div>
           </PreviewBox>
         </div>
       )
 
     default:
       return (
-        <div className="h-full w-full">
-          <div className="h-full w-full overflow-hidden rounded-md bg-black">{newPreview}</div>
+        <div className="size-full">
+          <div className="size-full overflow-hidden rounded-md bg-black">{newPreview}</div>
         </div>
       )
   }
