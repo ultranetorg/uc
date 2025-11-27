@@ -75,7 +75,7 @@ public class WalletsApc : AdminApc
 	}
 }
 
-public class WalletApc : AdminApc
+public class WalletAccountsApc : AdminApc
 {
  	public string		Name { get; set; }
 
