@@ -461,6 +461,7 @@ public class Product : IBinarySerializable, ITableEntry
 																															])
 																									 ]),
 																			new (Token.Requirements,[
+																										new (Token.Platform,	FieldType.StringUtf8),
 																										new (Token.Hardware,[
 																																new (Token.CPU,				FieldType.StringAnsi,		FieldFlag.Optional),
 																																new (Token.GPU,				FieldType.StringAnsi,		FieldFlag.Optional),

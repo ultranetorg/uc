@@ -50,7 +50,7 @@ public abstract class Round : IBinarySerializable
 	public List<Generator>								Candidates = new();
 	public List<Generator>								Members = new();
 	public List<AccountAddress>							Funds;
-	public long											ReclaimedSpacetime;
+	public long[]										Spacetimes = [];
 	public long[]										Bandwidths = [];
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
@@ -293,9 +293,8 @@ public abstract class Round : IBinarySerializable
 		Members		= Id == 0 ? new()								: Previous.Members;
 		Funds		= Id == 0 ? new()								: Previous.Funds;
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
-		//Spacetimes	= Id == 0 ? new long[Time.FromYears(1).Days]	: Previous.Spacetimes.Clone() as long[];
+		Spacetimes	= Id == 0 ? new long[Time.FromYears(1).Days]	: Previous.Spacetimes.Clone() as long[];
 
-		ReclaimedSpacetime = 0;
 		AffectedMetas.Clear();
 		AffectedAccounts.Clear();
 		
@@ -390,8 +389,8 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in execution.NextEids[t])
 				NextEids[t][i.Key] = i.Value;
 
-		ReclaimedSpacetime	= execution.ReclaimedSpacetime;
 		if(execution.Candidates != null)	Candidates	= execution.Candidates;
+		if(execution.Spaces != null)	Spacetimes	= execution.Spaces;
 		if(execution.Bandwidths != null)	Bandwidths	= execution.Bandwidths;
 	}
 
@@ -471,7 +470,7 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
 			{
 				i.EnergyNext += d * Net.ECDayEmission / Members.Count;
-				i.Spacetime	 += d * (Net.BDDayEmission + e.ReclaimedSpacetime) / Members.Count;
+				i.Spacetime	 += d * (Net.BDDayEmission + e.Spaces[e.Time.Days]) / Members.Count;
 			}
 		}
 
@@ -500,7 +499,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(Hash);
 		writer.Write(Bandwidths, writer.Write7BitEncodedInt64);
 		writer.Write(Funds);
-		//writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
+		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusECEnergyCost);
@@ -513,7 +512,7 @@ public abstract class Round : IBinarySerializable
 		Hash					= reader.ReadHash();
 		Bandwidths				= reader.ReadArray(reader.Read7BitEncodedInt64);
 		Funds					= reader.ReadList<AccountAddress>();
-		//Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
+		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusECEnergyCost	= reader.Read7BitEncodedInt64();
