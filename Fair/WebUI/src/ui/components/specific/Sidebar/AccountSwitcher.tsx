@@ -1,12 +1,11 @@
 import { forwardRef, memo } from "react"
 
-import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { shortenAddress } from "utils"
+import { AccountBase, PropsWithStyle } from "types"
 
 import { Account } from "./components"
 
 export type AccountSwitcherBaseProps = {
-  items: AccountBaseAvatar[]
+  items: Omit<AccountBase, "address">[]
 }
 
 export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
@@ -20,7 +19,7 @@ export const AccountSwitcher = memo(
     >
       <div>
         {items.map(x => (
-          <Account key={x.id} addressShort={shortenAddress(x.address)} {...x} />
+          <Account key={x.id} {...x} />
         ))}
       </div>
       <div className="cursor-pointer select-none px-4 py-3 text-2sm leading-4.25 text-gray-900 hover:bg-gray-100">

@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { useSiteContext } from "app"
+import { useRootContext } from "app"
 import { Breadcrumbs } from "ui/components"
 import { AboutInfo } from "ui/components/specific"
 
 export const AboutPage = () => {
   const { siteId } = useParams()
   const { t } = useTranslation("about")
-  const { site } = useSiteContext()
+  const { site } = useRootContext()
 
   return (
     <div className="flex flex-col gap-6">

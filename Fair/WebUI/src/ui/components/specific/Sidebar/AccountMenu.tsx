@@ -11,37 +11,38 @@ import {
 } from "@floating-ui/react"
 import { useCopyToClipboard } from "usehooks-ts"
 
-import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { shortenAddress } from "utils"
+import avatarFallback from "assets/fallback/account-avatar-11xl.png"
+import { AccountBase, PropsWithStyle } from "types"
+import { CopyButton } from "ui/components/CopyButton"
 
+import { buildAccountAvatarUrl } from "utils"
 import pngBackground from "./background.png"
-import personSquareColoredImg from "./person-square-colored.png"
-
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
-import { CopyButton } from "ui/components/CopyButton"
 
 const TEST_ACCOUNTS = [
   {
-    id: "0",
+    id: "67465-1",
     nickname: "This is very very long nickname",
-    address: "0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936",
   },
   {
-    id: "1",
+    id: "67465-2",
     nickname: "Short",
-    address: "0x1234567890abcdef1234567890abcdef12345678",
   },
   {
-    id: "2",
+    id: "67465-3",
     address: "0x1234567890abcdef1234567890abcdef12345678",
   },
 ]
 
-export type AccountMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id">
+type AccountMenuBaseProps = {
+  accountId: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
+}
+
+export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id" | "address"> & AccountMenuBaseProps
 
 export const AccountMenu = memo(
-  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, nickname, address }, ref) => {
+  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, accountId, nickname }, ref) => {
     const [copiedText, copy] = useCopyToClipboard()
 
     const [isOpen, setOpen] = useState(false)
@@ -61,9 +62,9 @@ export const AccountMenu = memo(
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
     const handleCopyClick = useCallback(() => {
-      copy(address)
+      copy(accountId)
       console.log(copiedText)
-    }, [address, copiedText, copy])
+    }, [accountId, copiedText, copy])
 
     return (
       <>
@@ -75,14 +76,17 @@ export const AccountMenu = memo(
         >
           <div className="relative h-[169px]">
             <div className="h-[120px] w-[340px] bg-[#2A2A2A]">
-              <img src={pngBackground} alt="Background" className="h-full w-full rounded-lg object-cover" />
+              <img src={pngBackground} alt="Background" className="size-full rounded-lg object-cover" />
             </div>
-            <div className="absolute bottom-0 left-[20px] h-[98px] w-[98px] rounded-full bg-gray-75" />
-            <div
-              className="absolute bottom-[4px] left-[24px] h-[90px] w-[90px] rounded-full"
-              title={nickname ?? address}
-            >
-              <img src={personSquareColoredImg} />
+            <div className="absolute bottom-0 left-[20px] size-[98px] rounded-full bg-gray-75" />
+            <div className="absolute bottom-[4px] left-[24px] size-[90px] rounded-full" title={nickname ?? accountId}>
+              <img
+                src={buildAccountAvatarUrl(accountId)}
+                onError={e => {
+                  e.currentTarget.onerror = null
+                  e.currentTarget.src = avatarFallback
+                }}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-2 px-6 py-2">
@@ -95,9 +99,9 @@ export const AccountMenu = memo(
             <div className="flex items-center gap-1">
               <span
                 className="overflow-hidden text-ellipsis text-nowrap text-2xs leading-3.5 text-gray-500"
-                title={address}
+                title={accountId}
               >
-                {shortenAddress(address)}
+                {accountId}
               </span>
               <CopyButton onClick={handleCopyClick} />
             </div>

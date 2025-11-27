@@ -26,14 +26,18 @@ import {
 } from "ui/pages"
 
 import { ModerationProvider } from "./ModerationContext"
-import { SiteProvider } from "./SiteContext"
+import { RootProvider } from "./RootContext"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
 
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <BaseLayout />,
+    element: (
+      <RootProvider>
+        <BaseLayout />
+      </RootProvider>
+    ),
     errorElement: (
       <AppLayout>
         <BaseLayout>
@@ -49,11 +53,7 @@ const routes: RouteObject[] = [
 
       {
         path: "/:siteId",
-        element: (
-          <SiteProvider>
-            <SiteLayout />
-          </SiteProvider>
-        ),
+        element: <SiteLayout />,
         children: [
           {
             index: true,

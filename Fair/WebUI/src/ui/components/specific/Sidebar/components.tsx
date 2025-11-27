@@ -2,36 +2,36 @@ import { forwardRef, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { CheckCircleFillSvg, PersonSquareSvg, StarSvg, StoresSvg, SvgChevronRight } from "assets"
-import { AccountBaseAvatar } from "types"
-
-import personSquareColoredImg from "./person-square-colored.png"
+import avatarFallbackXl from "assets/fallback/account-avatar-xl.png"
+import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
+import { AccountBase } from "types"
+import { buildAccountAvatarUrl } from "utils"
 
 type AccountBaseProps = {
-  addressShort: string
   selected?: boolean
 }
 
-export type AccountProps = AccountBaseAvatar & AccountBaseProps
+export type AccountProps = Omit<AccountBase, "address"> & AccountBaseProps
 
-export const Account = memo(({ nickname, address, addressShort, selected }: AccountProps) => (
+export const Account = memo(({ id, nickname, selected }: AccountProps) => (
   <div className="flex select-none items-center gap-2 px-4 py-2 hover:bg-gray-100">
-    <div className="h-8 w-8 rounded-full" title={nickname ?? address}>
-      <img src={personSquareColoredImg} />
+    <div className="size-8 rounded-full" title={nickname ?? id}>
+      <img
+        src={buildAccountAvatarUrl(id)}
+        onError={e => {
+          e.currentTarget.onerror = null
+          e.currentTarget.src = avatarFallbackXl
+        }}
+      />
     </div>
     <div className="flex w-39 flex-col gap-1">
       {nickname && (
-        <span
-          className="overflow-hidden text-ellipsis whitespace-nowrap text-2sm leading-4.25 text-gray-800"
-          title={nickname}
-        >
+        <span className="truncate text-2sm leading-4.25 text-gray-800" title={nickname}>
           {nickname}
         </span>
       )}
-      <span
-        className="overflow-hidden text-ellipsis whitespace-nowrap text-2xs leading-3.75 text-gray-500"
-        title={address}
-      >
-        {addressShort}
+      <span className="truncate text-2xs leading-3.75 text-gray-500" title={id}>
+        {id}
       </span>
     </div>
     {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
@@ -44,26 +44,31 @@ export type AllSitesButtonProps = {
 
 export const AllSitesButton = memo(({ title }: AllSitesButtonProps) => (
   <div className="group flex items-center gap-3">
-    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-950">
+    <div className="flex size-10 items-center justify-center rounded-lg bg-gray-950">
       <StoresSvg className="fill-white" />
     </div>
-    <span className="w-36 flex-grow overflow-hidden text-ellipsis whitespace-nowrap text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
+    <span className="w-36 grow truncate text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
       {title}
     </span>
   </div>
 ))
 
-export type CurrentAccountButtonProps = Omit<AccountBaseAvatar, "id">
+export type CurrentAccountButtonProps = Omit<AccountBase, "address">
 
 export const CurrentAccountButton = memo(
-  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ nickname, address, ...rest }, ref) => (
+  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ id, nickname }, ref) => (
     <div
       className="sticky bottom-2 z-20 flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100"
       ref={ref}
-      {...rest}
     >
-      <div className="h-10 w-10 rounded-full" title={nickname ?? address}>
-        <img src={personSquareColoredImg} />
+      <div className="size-10 rounded-full" title={nickname ?? id}>
+        <img
+          src={buildAccountAvatarUrl(id)}
+          onError={e => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = avatarFallback3xl
+          }}
+        />
       </div>
       <div className="flex h-10 w-44 flex-col justify-between">
         <span className="overflow-hidden text-ellipsis text-nowrap text-2sm leading-4.5 text-gray-800" title={nickname}>
@@ -71,9 +76,9 @@ export const CurrentAccountButton = memo(
         </span>
         <span
           className="overflow-hidden text-ellipsis text-nowrap text-xs uppercase leading-3.75 text-gray-500"
-          title={address}
+          title={id}
         >
-          {address}
+          {id}
         </span>
       </div>
     </div>
@@ -105,8 +110,8 @@ export type SiteProps = {
 
 export const Site = memo(({ title, isStarred }: SiteProps) => (
   <div className="group flex items-center gap-3">
-    <div className="h-10 w-10 rounded-lg bg-gray-700" />
-    <span className="w-36 flex-grow overflow-hidden text-ellipsis whitespace-nowrap text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
+    <div className="size-10 rounded-lg bg-gray-700" />
+    <span className="w-36 grow truncate text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
       {title}
     </span>
     <StarSvg
