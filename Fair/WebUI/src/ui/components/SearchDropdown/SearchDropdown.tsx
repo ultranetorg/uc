@@ -8,6 +8,7 @@ import { getStyles } from "./styles"
 import { IndicatorsContainerSelectProps, SearchDropdownItem, SearchDropdownSize } from "./types"
 
 export type SearchDropdownBaseProps = {
+  clearInputAfterChange?: boolean
   size?: SearchDropdownSize
   isLoading?: boolean
   inputValue?: string
@@ -25,6 +26,7 @@ export type SearchDropdownProps = PropsWithClassName & IndicatorsContainerSelect
 
 export const SearchDropdown = memo(
   ({
+    clearInputAfterChange = true,
     size = "large",
     className,
     isLoading,
@@ -46,7 +48,9 @@ export const SearchDropdown = memo(
     const handleBlur = () => setDropdownOpen(false)
 
     const handleChange = (item: SearchDropdownItem | null) => {
-      setInputValue("")
+      if (clearInputAfterChange) {
+        setInputValue("")
+      }
       setDropdownOpen(false)
 
       onChange?.(item ?? undefined)
@@ -89,6 +93,7 @@ export const SearchDropdown = memo(
 
     return (
       <CustomSelect
+        closeMenuOnSelect={false} // Required for the correct functioning of <SearchDropdown> on the ModeratorCreatePublicationPage.
         className={className}
         inputValue={inputValue}
         isLoading={isLoading}

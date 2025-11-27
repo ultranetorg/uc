@@ -29,6 +29,8 @@ export const ModerationPage = () => {
 
   const handleCreateButtonClick = useCallback(() => navigate(`/${siteId}/m/new`), [navigate, siteId])
 
+  const handleSearchProduct = useCallback(() => navigate(`/${siteId}/m/new-publication`), [navigate, siteId])
+
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) => navigate(item.route ? `/${siteId}/m/${item.route}` : `/${siteId}/m`),
     [navigate, siteId],
@@ -52,8 +54,10 @@ export const ModerationPage = () => {
         siteId={siteId!}
         title={t("title")}
         onCreateButtonClick={handleCreateButtonClick}
+        onSearchProduct={handleSearchProduct}
         homeLabel={t("common:home")}
         createButtonLabel={t("createDiscussion")}
+        searchProductLabel={t("searchProduct")}
       />
       <TabsProvider defaultKey={key || "discussions"}>
         <div className="flex flex-col gap-6">

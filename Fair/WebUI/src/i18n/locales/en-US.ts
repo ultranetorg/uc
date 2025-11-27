@@ -127,6 +127,10 @@ export const enUS = {
     list: "List View",
     resetAll: "Reset all",
   },
+  createPublication: {
+    productNotFound: "We didn’t find anything. Try a different or shorter search.",
+    searchProduct: "Search products by ID",
+  },
   error: {
     backToHome: "Back to Home",
     refreshPage: "Refresh page",
@@ -143,6 +147,7 @@ export const enUS = {
     discussions: "Discussions",
     publications: "Publications",
     reviews: "Reviews",
+    searchProduct: "Search products by ID",
     title: "Moderation",
     unpublishedProducts: "Unpublished products",
     userRegistrations: "User registrations",
@@ -333,6 +338,7 @@ export const enUS = {
     enterDescription: "Enter description",
     enterNickname: "Enter nickname",
     enterOptionTitle: "Enter option title",
+    enterProductId: "Enter product ID",
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
     selectApprovalPolicy: "Select approval policy",

@@ -11,6 +11,7 @@ import {
   ErrorPage,
   ModerationPage,
   ModeratorChangedPublicationPage,
+  ModeratorCreatePublicationPage,
   ModeratorDiscussionPage,
   ModeratorPublicationPage,
   ModeratorUnpublishedProductPage,
@@ -99,6 +100,10 @@ const routes: RouteObject[] = [
                 <CreateDiscussionPage />
               </ModerationProvider>
             ),
+          },
+          {
+            path: "/:siteId/m/new-publication",
+            element: <ModeratorCreatePublicationPage />,
           },
           {
             path: "/:siteId/m/:tabKey?",

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUnpublishedProducts } from "entities"
+import { useGetUnpublishedSiteProducts } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { unpublishedProductItemRenderer } from "ui/renderers"
@@ -25,7 +25,7 @@ export const UnpublishedProductsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: products } = useGetUnpublishedProducts(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: products } = useGetUnpublishedSiteProducts(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
