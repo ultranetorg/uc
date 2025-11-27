@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { VideoFrame } from "ui/components"
+import { VideoFrame } from "ui/components/VideoFrame"
 
 function buildEmbedUrl(raw: string): string | null {
   try {
@@ -43,8 +43,8 @@ function buildEmbedUrl(raw: string): string | null {
   }
 }
 
-export const ProductFieldViewVideoVkVideo = memo(({ url }: { url: string }) => {
-  const { t } = useTranslation("productFields")
+export const VideoViewVk = memo(({ url, className }: { url: string; className?: string }) => {
+  const { t } = useTranslation("common")
 
   const embedUrl = buildEmbedUrl(url)
 
@@ -52,5 +52,9 @@ export const ProductFieldViewVideoVkVideo = memo(({ url }: { url: string }) => {
     return <div> {t("invalidUrl")} </div>
   }
 
-  return <VideoFrame src={embedUrl} title="VK video player" />
+  return (
+    <div className={className}>
+      <VideoFrame src={embedUrl} title="VK video player" />
+    </div>
+  )
 })

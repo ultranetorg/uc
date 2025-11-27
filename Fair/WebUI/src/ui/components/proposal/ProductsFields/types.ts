@@ -13,5 +13,5 @@ export interface ProductFieldCompareViewModel extends ProductFieldBase<ProductFi
   isRemoved?: true
   isAdded?: true
   isChanged?: true
-  oldValue?: string
+  oldValue?: unknown
 }

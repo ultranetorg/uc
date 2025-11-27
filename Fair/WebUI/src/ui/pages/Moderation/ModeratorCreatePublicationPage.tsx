@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
+import { SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useHeadUnpublishedProduct } from "entities"
-import { MessageBox, SearchDropdown, SearchDropdownItem } from "ui/components"
+import { Input, MessageBox } from "ui/components"
 import { ModeratorPublicationHeader } from "ui/components/specific"
 import { ProductFields } from "ui/components/proposal"
 
@@ -13,32 +14,13 @@ export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
   const { t } = useTranslation("createPublication")
 
-  const [productId, setProductId] = useState<string | undefined>()
   const [query, setQuery] = useState("")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: productExists } = useHeadUnpublishedProduct(debouncedQuery)
 
-  const items = useMemo(
-    () => (productExists ? [{ label: debouncedQuery, value: debouncedQuery }] : undefined),
-    [debouncedQuery, productExists],
-  )
-
-  const handleChange = useCallback((item?: SearchDropdownItem) => {
-    setProductId(item!.value)
-  }, [])
-
-  const handleClearInputClick = useCallback(() => {
-    setProductId(undefined)
+  const handleInputClear = useCallback(() => {
     setQuery("")
   }, [setQuery])
-
-  const handleInputChange = useCallback(
-    (value: string) => {
-      setProductId(undefined)
-      setQuery(value)
-    },
-    [setQuery],
-  )
 
   const handleApprove = useCallback(() => alert("approve"), [])
   const handleReject = useCallback(() => alert("reject"), [])
@@ -52,23 +34,32 @@ export const ModeratorCreatePublicationPage = () => {
         parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
         title={t("searchProduct")}
         showLogo={false}
-        onApprove={productId ? handleApprove : undefined}
-        onPreview={productId ? handlePreview : undefined}
-        onReject={productId ? handleReject : undefined}
+        onApprove={productExists ? handleApprove : undefined}
+        onPreview={productExists ? handlePreview : undefined}
+        onReject={productExists ? handleReject : undefined}
         homeLabel={t("common:home")}
       />
-      <SearchDropdown
-        clearInputAfterChange={false}
-        size="medium"
-        placeholder={t("placeholders:enterProductId")}
-        className="max-w-120"
-        items={items}
-        onChange={handleChange}
-        onClearInputClick={handleClearInputClick}
-        onInputChange={handleInputChange}
-      />
+      <div className="max-w-120">
+        <Input
+          value={query}
+          onChange={setQuery}
+          placeholder={t("placeholders:enterProductId")}
+          className="max-w-120 placeholder:text-gray-500"
+          iconAfter={
+            <>
+              {query && (
+                <div onClick={handleInputClear} className="cursor-pointer">
+                  <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
+                </div>
+              )}
+              <SvgSearchMd className="size-5 stroke-gray-500" />
+            </>
+          }
+        />
+      </div>
+
       {debouncedQuery && !productExists && <MessageBox className="p-6" message={t("productNotFound")} />}
-      {productId && <ProductFields productIds={[productId!]} />}
+      {productExists && <ProductFields productIds={[debouncedQuery!]} />}
     </div>
   )
 }

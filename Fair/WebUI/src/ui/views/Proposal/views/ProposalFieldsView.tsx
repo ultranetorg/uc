@@ -2,8 +2,8 @@ import { memo, useMemo } from "react"
 
 import { ProductFields } from "ui/components/proposal"
 
-import { ProposalTypeViewProps } from "./types"
 import { PublicationCreation } from "types"
+import { ProposalTypeViewProps } from "./types"
 
 export const ProposalFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
   const productIds = useMemo(
