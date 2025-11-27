@@ -1,8 +1,6 @@
 import { ProductFieldViewModel, TokenType } from "types"
-import { formatSecDate } from "utils"
+import { buildFileUrl, formatSecDate } from "utils"
 import { IPublication, IPublicationDescription } from "./types"
-
-const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 const getData = <TData = string>(fields: ProductFieldViewModel[], token: TokenType): TData | undefined => {
   return fields.find(x => x.name === token)?.value as TData | undefined
@@ -10,7 +8,7 @@ const getData = <TData = string>(fields: ProductFieldViewModel[], token: TokenTy
 
 const getFileUri = (fields: ProductFieldViewModel[], token: TokenType): string | undefined => {
   const id = getData<string>(fields, token)
-  return id ? `${BASE_URL}/files/${id}` : undefined
+  return id ? buildFileUrl(id) : undefined
 }
 
 const parseDescription = (fields: ProductFieldViewModel[], token: TokenType): IPublicationDescription[] =>

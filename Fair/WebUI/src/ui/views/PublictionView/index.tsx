@@ -52,7 +52,7 @@ export const PublicationView = ({ response }: PublicationViewProps) => {
   )
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4">
       <PublicationViewHeader
         logo={publication.logo}
         title={publication.title}

@@ -106,7 +106,6 @@ export const enUS = {
     noData: "No fields data",
     loadError: "Error loading field data",
     selectField: "Select a tree item on the left",
-    previewButton: "Preview publication",
   },
   productPreview: {
     descriptionMin: "Description minimal",

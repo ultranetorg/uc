@@ -2,7 +2,6 @@ import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "re
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { ProductFieldViewModel } from "types"
-import { ProductPreviewModal } from "../ProductPreview"
 import { ProductFieldsTree } from "./ProductFieldsTree"
 import { SelectedProps } from "./types"
 
@@ -75,14 +74,8 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
     userSelect: "none",
   }
 
-  const [isPreviewModalOpen, setPreviewModalOpen] = useState(false)
-
   return (
     <div>
-      {/*<div className="mb-2 flex justify-end">*/}
-      {/*  <ButtonOutline className="h-9" label={t("previewButton")} onClick={() => setPreviewModalOpen(true)} />*/}
-      {/*</div>*/}
-
       <div ref={containerRef} className="flex max-h-screen items-stretch">
         <div className="overflow-auto" style={leftStyle}>
           <div className="w-fit">
@@ -111,7 +104,6 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
         <div className="flex-1 overflow-auto">
           {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
         </div>
-        {isPreviewModalOpen && <ProductPreviewModal response={response} onClose={() => setPreviewModalOpen(false)} />}
       </div>
     </div>
   )

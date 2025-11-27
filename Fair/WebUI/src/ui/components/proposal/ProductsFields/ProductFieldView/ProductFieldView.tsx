@@ -9,7 +9,7 @@ import { ProductFieldViewUri } from "./ProductFieldViewUri"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt"
 import { ProductFieldViewDate } from "./ProductFieldViewDate"
 import { ProductFieldViewFile } from "./ProductFieldViewFile"
-import { ProductFieldViewVideo } from "./ProductFieldViewVideo.tsx"
+import { ProductFieldViewVideo } from "./ProductFieldViewVideo"
 
 export const ProductFieldView = ({ node }: { node: ProductFieldViewModel }) => {
   let component: JSX.Element

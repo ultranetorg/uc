@@ -58,9 +58,7 @@ const TreeNode = <TModel extends ProductFieldViewModel>({
       >
         <span className="size-4" onClick={() => setClosed(v => !v)}>
           {hasChildren && (
-            <SvgChevronRightMd
-              className={`fill-gray-300 transition-transform duration-150 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`}
-            />
+            <SvgChevronRightMd className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
           )}
         </span>
         <div className={`flex flex-1 gap-2 px-1 hover:underline`} onClick={() => select()}>
