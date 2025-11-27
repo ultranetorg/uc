@@ -203,7 +203,9 @@ public class Execution : ITableExecution
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
 	{	
-		var start = consumer.Expiration < Time.Days ? Time.Days : consumer.Expiration;
+		var now = Time.Days;
+
+		var start = now >= consumer.Expiration ? now : consumer.Expiration;
 
 		consumer.Expiration = (short)(start + duration.Days);
 
@@ -215,10 +217,10 @@ public class Execution : ITableExecution
 
 		var exp = start + duration.Days;
 
-		if(exp > Spaces.Length)
-			Spaces = [..Spaces, ..new long[exp - Spaces.Length]];
+		if(exp - now > Spaces.Length)
+			Spaces = [..Spaces, ..new long[Spaces.Length + exp - now]];
 
-		for(int i = start; i < exp; i++)
+		for(int i = start - now; i < exp - now; i++)
 			Spaces[i] += consumer.Space;
 
 	}
@@ -228,18 +230,20 @@ public class Execution : ITableExecution
 		if(space == 0)
 			return;
 
+		var now = Time.Days;
+
 		consumer.Space -= space;
 
 		if(consumer.Space < 0)
 			throw new IntegrityException();
 
-		var d = consumer.Expiration - Time.Days;
+		var d = consumer.Expiration - now;
 		
 		if(d > 0)
 		{
 			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
-			for(int i = Time.Days; i < consumer.Expiration; i++)
+			for(int i = 0; i < consumer.Expiration - now; i++)
 				Spaces[i] -= space;
 		}
 	}

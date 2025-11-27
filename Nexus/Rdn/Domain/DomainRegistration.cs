@@ -72,10 +72,10 @@ public class DomainRegistration : RdnOperation
 			///	Transaction.BYReturned += e.LastBid;
 							
 			e.Owner			= Signer.Id;
-			e.LastWinner	= null;
-			e.LastBid		= 0;
-			e.LastBidTime	= Time.Empty;
-			e.FirstBidTime	= Time.Empty;
+			//e.LastWinner	= null;
+			//e.LastBid		= 0;
+			//e.LastBidTime	= Time.Empty;
+			//e.FirstBidTime	= Time.Empty;
 		}
 		else
 		{
