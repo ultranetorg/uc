@@ -55,7 +55,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public long						Space { get; set; }
 	
 	public DomainChildPolicy		ParentPolicy { get; set; }
-	public NnState					NnChildNet { get; set; }
+	public NnpState					NnChildNet { get; set; }
 	public byte[]					NnSelfHash { get; set; }
 
 	public EntityId					Key => Id;
@@ -256,7 +256,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 		if(f.HasFlag(DomainFlag.ChildNet))
 		{
-			NnChildNet	= reader.Read<NnState>();
+			NnChildNet	= reader.Read<NnpState>();
 			NnSelfHash = reader.ReadHash();
 		}
 	}

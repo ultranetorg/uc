@@ -378,18 +378,19 @@ public class ResourceHub
 
 					var t = Task.Run(() =>	{
 												DeclareReleasePpr drr;
+												ResourceDeclaration[] rds;
+
+												lock(Lock)
+													rds = i.Value.Select(rs =>	new ResourceDeclaration
+																				{
+																					Resource = rs.Key.Id, 
+																					Release = rs.Value.Address, 
+																					Availability = rs.Value.Availability
+																				}).ToArray();
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleasePpc
-																												{
-																													Resources = i.Value.Select(rs => new ResourceDeclaration
-																																					 {
-																																						Resource = rs.Key.Id, 
-																																						Release = rs.Value.Address, 
-																																						Availability = rs.Value.Availability
-																																					 }).ToArray()
-																												}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), () => new DeclareReleasePpc {Resources = rds}, Node.Flow);
 												}
 												catch(NodeException)/// when(!Debugger.IsAttached)
 												{

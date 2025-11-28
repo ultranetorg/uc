@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class RdnNnTcpPeering : NnTcpPeering
+public class RdnNnTcpPeering : NnpTcpPeering
 {
 	public RdnNode			Node;
 
@@ -10,18 +10,18 @@ public class RdnNnTcpPeering : NnTcpPeering
 		node.Mcv.Confirmed += (r) =>	{
 											foreach(var i in r.ConsensusNnStates)
 											{
-												var b = new NnBlock();
+												var b = new NnpBlock();
 
 												b.Net	= node.Net.Name;
 												b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
-																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
+																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnpState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
 												Broadcast(b);
 											}
 										};
 		Run();
 	}
 
-	public byte[] GetStateHash(string net)
+	public byte[] GetMerkle(string net)
 	{
 		lock(Node.Mcv.Lock)
 		{
@@ -34,7 +34,7 @@ public class RdnNnTcpPeering : NnTcpPeering
 		}
 	}
 
-	protected override bool Consider(bool inbound, Hello hello, NnPeer peer)
+	protected override bool Consider(bool inbound, Hello hello, NnpPeer peer)
 	{
 		if(base.Consider(inbound, hello, peer) == false)
 			return false;

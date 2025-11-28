@@ -21,7 +21,7 @@ public class NnIppServer : IppServer
 	Nexus.Nexus							Nexus;
 	Dictionary<string, IppConnection>	Registrations = [];
 
-	public NnIppServer(Nexus.Nexus nexus) : base(nexus, NnTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
+	public NnIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 
@@ -32,9 +32,9 @@ public class NnIppServer : IppServer
 
 	public override void Accept(IppConnection connection)
 	{
-		var ct = connection.Reader.Read<NnIppConnectionType>();
+		var ct = connection.Reader.Read<NnpIppConnectionType>();
 
-		if(ct == NnIppConnectionType.Node)
+		if(ct == NnpIppConnectionType.Node)
 		{	
 			var net = connection.Reader.ReadUtf8();
 			Registrations[net] = connection;
@@ -43,7 +43,7 @@ public class NnIppServer : IppServer
 		connection.RegisterHandler(typeof(NnClass), this);
 	}
 
-	Return Relay(IppConnection connection, NnArgumentation call)
+	Return Relay(IppConnection connection, NnpArgumentation call)
 	{
 		if(Registrations.TryGetValue(call.Net, out var r))
 		{
@@ -56,27 +56,27 @@ public class NnIppServer : IppServer
 		} 
 	}
 
-	public Return HolderClasses(IppConnection connection, NnArgumentation call)
+	public Return HolderClasses(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HolderAssets(IppConnection connection, NnArgumentation call)
+	public Return HolderAssets(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HoldersByAccount(IppConnection connection, NnArgumentation call)
+	public Return HoldersByAccount(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetBalance(IppConnection connection, NnArgumentation call)
+	public Return AssetBalance(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetTransfer(IppConnection connection, NnArgumentation call)
+	public Return AssetTransfer(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}

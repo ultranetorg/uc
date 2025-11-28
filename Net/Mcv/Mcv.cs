@@ -76,7 +76,7 @@ public abstract class Mcv /// Mutual chain voting
 	//public List<Generator>						NextVoteMembers => FindRound(NextVoteRound.VotersId).Members;
 
 
-	public List<NnBlock>						NnBlocks = [];
+	public List<NnpBlock>						NnBlocks = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);

@@ -4,12 +4,12 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public interface INn
+public interface INnp
 {
-	public Return HolderClasses(NnPeer peer, HolderClassesNna call);
-	public Return HolderAssets(NnPeer peer, HolderAssetsNna call);
-	public Return HoldersByAccount(NnPeer peer, HoldersByAccountNna call);
-	public Return AssetBalance(NnPeer peer, AssetBalanceNna call);
+	public Return HolderClasses(NnpPeer peer, HolderClassesNna call);
+	public Return HolderAssets(NnpPeer peer, HolderAssetsNna call);
+	public Return HoldersByAccount(NnpPeer peer, HoldersByAccountNna call);
+	public Return AssetBalance(NnpPeer peer, AssetBalanceNna call);
 	//public Return AssetTransfer(NnPeer peer, AssetTransferNna call);
 }
 
@@ -18,15 +18,15 @@ public class NnRequestPacket: RequestPacket
 	public Argumentation			Argumentation { get ; set; }
 }
 
-public class NnPeer : Peer, IBinarySerializable
+public class NnpPeer : Peer, IBinarySerializable
 {
-	INn							Nn;
+	INnp		Nni;
 
-	public NnPeer()
+	public NnpPeer()
 	{
 	}
 
-	public NnPeer(IPAddress ip, ushort port)
+	public NnpPeer(IPAddress ip, ushort port)
 	{
 		IP = ip;
 		Port = port;
@@ -84,10 +84,10 @@ public class NnPeer : Peer, IBinarySerializable
 
 							switch((NnClass)Peering.Constructor.TypeToCode(rq.GetType()))
 							{
-								case NnClass.HolderClasses:		r = Nn.HolderClasses(this, rq as HolderClassesNna); break;
-								case NnClass.HoldersByAccount:	r = Nn.HoldersByAccount(this, rq as HoldersByAccountNna); break;
-								case NnClass.HolderAssets:		r = Nn.HolderAssets(this, rq as HolderAssetsNna); break;
-								case NnClass.AssetBalance:		r = Nn.AssetBalance(this, rq as AssetBalanceNna); break;
+								case NnClass.HolderClasses:		r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
+								case NnClass.HoldersByAccount:	r = Nni.HoldersByAccount(this, rq as HoldersByAccountNna); break;
+								case NnClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
+								case NnClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
 								///case NnClass.AssetTransfer:	r = Nn.AssetTransfer(this, request as AssetTransferNna); break;
 								default:
 									break;

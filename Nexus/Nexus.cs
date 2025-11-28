@@ -33,8 +33,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnTcpPeering				NnPeering;
-	public NnIppClientConnection	NnConnection;
+	public NnpTcpPeering				NnPeering;
+	public NnpIppClientConnection	NnConnection;
 	public NnIppServer				NnIppServer;
 
 	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
@@ -63,9 +63,9 @@ public class Nexus : IProgram
 
 		if(Settings.NnPeering != null)
 		{
-			NnPeering = new NnTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
+			NnPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
 			NnIppServer = new NnIppServer(this);
-			NnConnection = new NnIppClientConnection(this, NnTcpPeering.GetName(Settings.Host), flow);
+			NnConnection = new NnpIppClientConnection(this, NnpTcpPeering.GetName(Settings.Host), flow);
 		}
 
 		if(Settings.Api != null)

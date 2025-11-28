@@ -341,7 +341,7 @@ public class NnHoldersByAccountApc : RdnApc
 			if(a != null)
 				return new AssetHolder[] {new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}};
 			else
-				throw new NnException(NnError.NotFound);
+				throw new NnpException(NnError.NotFound);
 		}
 	}
 }
@@ -354,7 +354,7 @@ public class NnHolderAssetsApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(Account))
-			throw new NnException(NnError.Unknown);
+			throw new NnpException(NnError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -366,7 +366,7 @@ public class NnHolderAssetsApc : RdnApc
 										new () {Name = nameof(Account.Energy), Units = "Execution Cycles (EC)"},
 									};
 			else
-				throw new NnException(NnError.NotFound);
+				throw new NnpException(NnError.NotFound);
 		}
 	}
 }
@@ -380,10 +380,10 @@ public class NnAssetBalanceApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(Account))
-			throw new NnException(NnError.Unknown);
+			throw new NnpException(NnError.Unknown);
 
 		if(Name != nameof(Account.Spacetime) && Name != nameof(Account.Energy))
-			throw new NnException(NnError.Unknown);
+			throw new NnpException(NnError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -396,7 +396,7 @@ public class NnAssetBalanceApc : RdnApc
 												nameof(Account.Energy) => a.Energy,
 											});
 			else
-				throw new NnException(NnError.NotFound);
+				throw new NnpException(NnError.NotFound);
 		}
 	}
 }

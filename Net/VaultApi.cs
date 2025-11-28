@@ -50,7 +50,7 @@ public class IsAuthenticatedApc : Apc
 public class AuthenticateApc : Apc
 {
 	public string			Application { get; set; }
-	public string			Net { get; set; }
+	public string			Net { get; set; } /// rdn/fair /fair
 	public AccountAddress	Account { get; set; } /// optional
 }
 

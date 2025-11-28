@@ -20,15 +20,15 @@ namespace Uccs.Net;
 //	}
 //}
 
-public class NnTcpPeering : TcpPeering<NnPeer>
+public class NnpTcpPeering : TcpPeering<NnpPeer>
 {
-	protected Dictionary<string, List<NnPeer>>	Peers = [];
-	protected override IEnumerable<NnPeer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
+	protected Dictionary<string, List<NnpPeer>>	Peers = [];
+	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
 	public static string						GetName(IPAddress ip) => "NnPeeringIpcServer" + ip.ToString();
-	protected override NnPeer					CreatePeer() => new ();
+	protected override NnpPeer					CreatePeer() => new ();
 
-	public NnTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
+	public NnpTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
 		///Register(typeof(NncClass), node);
 	}
@@ -42,17 +42,17 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 								);
 	}
 
-	protected override void AddPeer(NnPeer peer)
+	protected override void AddPeer(NnpPeer peer)
 	{
 		Peers[peer.Net].Add(peer);
 	}
 
-	protected override void RemovePeer(NnPeer peer)
+	protected override void RemovePeer(NnpPeer peer)
 	{
 		Peers[peer.Net].Remove(peer);
 	}
 
-	protected override NnPeer FindPeer(IPAddress ip)
+	protected override NnpPeer FindPeer(IPAddress ip)
 	{
 		return Peers.SelectMany(i => i.Value).FirstOrDefault(i => i.IP.Equals(ip));
 	}
@@ -62,7 +62,7 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 		return true;
 	}
 
-	protected override Hello CreateOutboundHello(NnPeer peer, bool permanent)
+	protected override Hello CreateOutboundHello(NnpPeer peer, bool permanent)
 	{
 		lock(Lock)
 		{
@@ -95,7 +95,7 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 		}
 	}
 
-	protected override bool Consider(bool inbound, Hello hello, NnPeer peer)
+	protected override bool Consider(bool inbound, Hello hello, NnpPeer peer)
 	{
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
@@ -128,9 +128,9 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 		return true;
 	}
 
-	public NnPeer GetPeer(string net, IPAddress ip)
+	public NnpPeer GetPeer(string net, IPAddress ip)
 	{
-		NnPeer p = null;
+		NnpPeer p = null;
 
 		lock(Lock)
 		{
@@ -139,18 +139,18 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 			if(p != null)
 				return p;
 
-			p = new NnPeer(ip, 0) {Net = net};
+			p = new NnpPeer(ip, 0) {Net = net};
 			Peers[net].Add(p);
 		}
 
 		return p;
 	}
 
-	public List<NnPeer> RefreshPeers(string net, IEnumerable<NnPeer> peers)
+	public List<NnpPeer> RefreshPeers(string net, IEnumerable<NnpPeer> peers)
 	{
 		lock(Lock)
 		{
-			var affected = new List<NnPeer>();
+			var affected = new List<NnpPeer>();
 												
 			foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
 			{
@@ -199,7 +199,7 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 		}
 	}
 
-	public NnPeer ChooseBestPeer(string net, HashSet<NnPeer> exclusions)
+	public NnpPeer ChooseBestPeer(string net, HashSet<NnpPeer> exclusions)
 	{
 		return Peers.TryGetValue(net, out var n) ? n.Where(i => i.Net == net && (exclusions == null || !exclusions.Contains(i)))
 													.OrderByDescending(i => i.Status == ConnectionStatus.OK)
@@ -214,11 +214,11 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 	//	return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	//}
 
-	public virtual Return Call(string net, Argumentation call, Flow workflow, IEnumerable<NnPeer> exclusions = null)
+	public virtual Return Call(string net, Argumentation call, Flow workflow, IEnumerable<NnpPeer> exclusions = null)
 	{
-		var tried = exclusions != null ? [.. exclusions] : new HashSet<NnPeer>();
+		var tried = exclusions != null ? [.. exclusions] : new HashSet<NnpPeer>();
 
-		NnPeer p;
+		NnpPeer p;
 
 		while(workflow.Active)
 		{
@@ -230,7 +230,7 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 
 				if(p == null)
 				{
-					tried = exclusions != null ? [.. exclusions] : new HashSet<NnPeer>();
+					tried = exclusions != null ? [.. exclusions] : new HashSet<NnpPeer>();
 					continue;
 				}
 			}
@@ -254,7 +254,7 @@ public class NnTcpPeering : TcpPeering<NnPeer>
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(NnBlock block, NnPeer skip = null)
+	public void Broadcast(NnpBlock block, NnpPeer skip = null)
 	{
 ///		foreach(var i in Peers[block.Net].Where(i => i != skip))
 ///		{
