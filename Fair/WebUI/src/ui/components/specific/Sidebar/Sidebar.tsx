@@ -40,10 +40,8 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
 
   const { t } = useTranslation("sites")
 
-  const { currentAccount } = useRootContext()
-  const id = currentAccount?.id ?? "10000-0"
-  const nickname =
-    currentAccount?.nickname ?? "This is very very long nickname nickname nickname nickname nickname nickname nickname"
+  const { accountAddress, id, nickname } = useRootContext()
+  console.log(accountAddress)
   console.log(id)
   console.log(nickname)
 
@@ -70,13 +68,20 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         <SitesList title={t("currentSite")} items={[TEST_CURRENT_SITE]} emptyStateMessage={t("emptySitesList")} />
         <SitesList title={t("starredSites")} items={TEST_SITES} emptyStateMessage={t("emptySitesList")} />
       </div>
-      <CurrentAccountButton id={id} nickname={nickname} ref={refs.setReference} {...getReferenceProps()} />
+      <CurrentAccountButton
+        nickname={nickname ?? "This is very very long nickname"}
+        id={id ?? "10000-0"}
+        address={accountAddress ?? "0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936"}
+        ref={refs.setReference}
+        {...getReferenceProps()}
+      />
       {isOpen && (
         <AccountMenu
           ref={refs.setFloating}
           style={floatingStyles}
           accountId={id}
-          nickname={nickname}
+          nickname={nickname ?? "This is very very long nickname nickname nickname nickname nickname nickname nickname"}
+          address={accountAddress ?? "0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936"}
           {...getFloatingProps()}
         />
       )}

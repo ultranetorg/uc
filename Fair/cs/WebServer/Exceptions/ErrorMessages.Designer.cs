@@ -61,6 +61,24 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An incorrect account address has been provided..
+        /// </summary>
+        internal static string InvalidAccountAddress {
+            get {
+                return ResourceManager.GetString("InvalidAccountAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An incorrect account address has been provided {0}..
+        /// </summary>
+        internal static string InvalidAccountAddressFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidAccountAddressFormat1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An incorrect {0} identifier has been provided..
         /// </summary>
         internal static string InvalidAutoIdFormat1 {

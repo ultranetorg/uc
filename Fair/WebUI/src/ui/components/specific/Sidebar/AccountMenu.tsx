@@ -12,10 +12,10 @@ import {
 import { useCopyToClipboard } from "usehooks-ts"
 
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
-import { AccountBase, PropsWithStyle } from "types"
+import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { CopyButton } from "ui/components/CopyButton"
+import { buildAccountAvatarUrl, shortenAddress } from "utils"
 
-import { buildAccountAvatarUrl } from "utils"
 import pngBackground from "./background.png"
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
@@ -24,10 +24,12 @@ const TEST_ACCOUNTS = [
   {
     id: "67465-1",
     nickname: "This is very very long nickname",
+    address: "0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936",
   },
   {
     id: "67465-2",
     nickname: "Short",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
   },
   {
     id: "67465-3",
@@ -36,13 +38,13 @@ const TEST_ACCOUNTS = [
 ]
 
 type AccountMenuBaseProps = {
-  accountId: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
+  accountId?: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
 }
 
-export type AccountMenuProps = PropsWithStyle & Omit<AccountBase, "id" | "address"> & AccountMenuBaseProps
+export type AccountMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & AccountMenuBaseProps
 
 export const AccountMenu = memo(
-  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, accountId, nickname }, ref) => {
+  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, accountId, nickname, address }, ref) => {
     const [copiedText, copy] = useCopyToClipboard()
 
     const [isOpen, setOpen] = useState(false)
@@ -62,9 +64,9 @@ export const AccountMenu = memo(
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
     const handleCopyClick = useCallback(() => {
-      copy(accountId)
+      copy(address)
       console.log(copiedText)
-    }, [accountId, copiedText, copy])
+    }, [address, copiedText, copy])
 
     return (
       <>
@@ -79,9 +81,10 @@ export const AccountMenu = memo(
               <img src={pngBackground} alt="Background" className="size-full rounded-lg object-cover" />
             </div>
             <div className="absolute bottom-0 left-[20px] size-[98px] rounded-full bg-gray-75" />
-            <div className="absolute bottom-[4px] left-[24px] size-[90px] rounded-full" title={nickname ?? accountId}>
+            <div className="absolute bottom-[4px] left-[24px] size-[90px] rounded-full" title={nickname ?? address}>
               <img
-                src={buildAccountAvatarUrl(accountId)}
+                src={accountId != null ? buildAccountAvatarUrl(accountId) : avatarFallback}
+                loading="lazy"
                 onError={e => {
                   e.currentTarget.onerror = null
                   e.currentTarget.src = avatarFallback
@@ -92,16 +95,16 @@ export const AccountMenu = memo(
           <div className="flex flex-col gap-2 px-6 py-2">
             <span
               className="overflow-hidden text-ellipsis text-nowrap text-xl font-semibold leading-6 text-gray-800"
-              title={nickname}
+              title={address}
             >
               {nickname}
             </span>
             <div className="flex items-center gap-1">
               <span
                 className="overflow-hidden text-ellipsis text-nowrap text-2xs leading-3.5 text-gray-500"
-                title={accountId}
+                title={address}
               >
-                {accountId}
+                {shortenAddress(address)}
               </span>
               <CopyButton onClick={handleCopyClick} />
             </div>

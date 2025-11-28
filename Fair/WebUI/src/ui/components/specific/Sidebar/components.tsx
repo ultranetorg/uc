@@ -4,20 +4,22 @@ import { twMerge } from "tailwind-merge"
 import { CheckCircleFillSvg, PersonSquareSvg, StarSvg, StoresSvg, SvgChevronRight } from "assets"
 import avatarFallbackXl from "assets/fallback/account-avatar-xl.png"
 import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
-import { AccountBase } from "types"
+import { AccountBaseAvatar } from "types"
 import { buildAccountAvatarUrl } from "utils"
 
 type AccountBaseProps = {
+  addressShort: string
   selected?: boolean
 }
 
-export type AccountProps = Omit<AccountBase, "address"> & AccountBaseProps
+export type AccountProps = AccountBaseAvatar & AccountBaseProps
 
-export const Account = memo(({ id, nickname, selected }: AccountProps) => (
+export const Account = memo(({ id, nickname, address, addressShort, selected }: AccountProps) => (
   <div className="flex select-none items-center gap-2 px-4 py-2 hover:bg-gray-100">
-    <div className="size-8 rounded-full" title={nickname ?? id}>
+    <div className="size-8 rounded-full" title={nickname ?? address}>
       <img
         src={buildAccountAvatarUrl(id)}
+        loading="lazy"
         onError={e => {
           e.currentTarget.onerror = null
           e.currentTarget.src = avatarFallbackXl
@@ -30,8 +32,8 @@ export const Account = memo(({ id, nickname, selected }: AccountProps) => (
           {nickname}
         </span>
       )}
-      <span className="truncate text-2xs leading-3.75 text-gray-500" title={id}>
-        {id}
+      <span className="truncate text-2xs leading-3.75 text-gray-500" title={address}>
+        {addressShort}
       </span>
     </div>
     {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
@@ -53,10 +55,10 @@ export const AllSitesButton = memo(({ title }: AllSitesButtonProps) => (
   </div>
 ))
 
-export type CurrentAccountButtonProps = Omit<AccountBase, "address">
+export type CurrentAccountButtonProps = AccountBaseAvatar
 
 export const CurrentAccountButton = memo(
-  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ id, nickname }, ref) => (
+  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ id, address, nickname }, ref) => (
     <div
       className="sticky bottom-2 z-20 flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100"
       ref={ref}
@@ -76,9 +78,9 @@ export const CurrentAccountButton = memo(
         </span>
         <span
           className="overflow-hidden text-ellipsis text-nowrap text-xs uppercase leading-3.75 text-gray-500"
-          title={id}
+          title={address}
         >
-          {id}
+          {address}
         </span>
       </div>
     </div>

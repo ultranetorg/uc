@@ -123,6 +123,12 @@
   <data name="InvalidAutoIdFormat1" xml:space="preserve">
     <value>An incorrect {0} identifier has been provided.</value>
   </data>
+  <data name="InvalidAccountAddress" xml:space="preserve">
+    <value>An incorrect account address has been provided.</value>
+  </data>
+  <data name="InvalidAccountAddressFormat1" xml:space="preserve">
+    <value>An incorrect account address has been provided {0}.</value>
+  </data>
   <data name="InvalidAutoIdFormat2" xml:space="preserve">
     <value>An incorrect {0} identifier has been provided {1}.</value>
   </data>

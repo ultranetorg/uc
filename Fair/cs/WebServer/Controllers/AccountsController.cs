@@ -7,11 +7,22 @@ public class AccountsController
 	ILogger<AccountsController> logger,
 	AccountsService accountsService,
 	ISearchService searchService,
+	AccountAddressValidator accountAddressValidator,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
 	LimitValidator limitValidator
 ) : BaseController
 {
+	[HttpGet("address/{address}")]
+	public AccountBaseModel GetByAddress(string address)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountAddress}", nameof(AccountsController), nameof(GetByAddress), address);
+
+		accountAddressValidator.Validate(address);
+
+		return accountsService.GetByAddress(address);
+	}
+
 	[HttpGet("{accountId}")]
 	public UserModel Get(string accountId)
 	{

@@ -12,5 +12,7 @@ public enum ErrorCodes
 	InvalidDepth = Base + 4,
 	InvalidSearchQuery = Base + 5,
 	
-	InvalidProductVersion = Base + 6
+	InvalidProductVersion = Base + 6,
+
+	InvalidAccountAddress = Base + 7,
 }
