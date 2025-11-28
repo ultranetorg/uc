@@ -3,6 +3,8 @@
 public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo, byte[]? authorAvatar)
 	: PublicationExtendedModel(publication, product, author, category, logo)
 {
+	public ProductType ProductType { get; } = product.Type;
+
 	public byte[] AuthorAvatar { get; set; } = authorAvatar;
 
 	public int Rating { get; set; } = publication.Rating;
