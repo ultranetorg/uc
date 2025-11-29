@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublication, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
@@ -14,18 +15,12 @@ import { getPublicationContentByType } from "./utils"
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
   const { siteId, publicationId } = useParams()
-  useDocumentTitle(publicationId ? `Publication - ${publicationId} | Ultranet Fair` : "Publication | Ultranet Fair")
+  useDocumentTitle(t("title", { publicationId }))
 
   const [isReviewModalOpen, setReviewModalOpen] = useState(false)
-  const [reviewsPage] = useState(0)
-  const [reviewPageSize] = useState(20)
 
   const { isPending, data: publication } = useGetPublication(publicationId)
-  const {
-    isPending: isPendingReviews,
-    data: reviews,
-    error,
-  } = useGetReviews(publicationId, reviewsPage, reviewPageSize)
+  const { isPending: isPendingReviews, data: reviews, error } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
     () =>
@@ -34,10 +29,6 @@ export const PublicationPage = () => {
         : undefined,
     [publication, siteId, t],
   )
-
-  const handleLeaveReview = useCallback(() => setReviewModalOpen(true), [])
-  const handleReviewModalClose = useCallback(() => setReviewModalOpen(false), [])
-  const handleReviewModalSubmit = useCallback(() => setReviewModalOpen(false), [])
 
   if (isPending || !publication) {
     return <div>Loading</div>
@@ -64,15 +55,15 @@ export const PublicationPage = () => {
             siteId={siteId!}
             error={error}
             reviews={reviews}
-            onLeaveReview={handleLeaveReview}
+            onLeaveReview={() => setReviewModalOpen(true)}
           />
         </div>
       </div>
       {isReviewModalOpen && (
         <ReviewModal
           title={t("leaveReview")}
-          onClose={handleReviewModalClose}
-          onSubmit={handleReviewModalSubmit}
+          onClose={() => setReviewModalOpen(false)}
+          onSubmit={() => setReviewModalOpen(false)}
           cancelLabel={t("common:cancel")}
           submitLabel={t("submitReview")}
           thankYouLabel={t("thankYou")}
