@@ -4,27 +4,22 @@ import { ProductType } from "types"
 
 import {
   BookPublicationContent,
+  DefaultPublicationContent,
   GamePublicationContent,
   MoviePublicationContent,
   MusicPublicationContent,
   SoftwarePublicationContent,
 } from "./content"
 import { ContentProps } from "./types"
-import { DefaultPublicationContent } from "./content/DefaultPublicationContent"
+
+const publicationContentMap: Partial<Record<ProductType, ComponentType<ContentProps>>> = {
+  book: BookPublicationContent,
+  game: GamePublicationContent,
+  movie: MoviePublicationContent,
+  music: MusicPublicationContent,
+  software: SoftwarePublicationContent,
+}
 
 export const getPublicationContentByType = (productType: ProductType): ComponentType<ContentProps> => {
-  switch (productType) {
-    case "book":
-      return BookPublicationContent
-    case "game":
-      return GamePublicationContent
-    case "movie":
-      return MoviePublicationContent
-    case "music":
-      return MusicPublicationContent
-    case "software":
-      return SoftwarePublicationContent
-  }
-
-  return DefaultPublicationContent
+  return publicationContentMap[productType] ?? DefaultPublicationContent
 }
