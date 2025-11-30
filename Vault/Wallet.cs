@@ -65,7 +65,7 @@ public class WalletAccount : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Address} Authentications={Authentications.Count}";
+		return $"{Address}";
 	}
 
 	public Authentication GetAuthentication(string application, string net, Trust trust)

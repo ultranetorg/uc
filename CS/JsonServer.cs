@@ -215,20 +215,23 @@ public abstract class JsonServer
 				rp.Close();
 				return;
 			}
+
+			ConstructorInfo constuctor;
 			
-			if(!Calls.TryGetValue(call, out var constuctor))
-			{
-				var t = Type.GetType($"{typeof(JsonServer).Namespace}.{call}{Apc.Postfix}") ?? Create(call + Apc.Postfix);
-
-				if(t == null)
+			lock(Calls)
+				if(!Calls.TryGetValue(call, out constuctor))
 				{
-					RespondError(rp,  "text/plain", HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
-					rp.Close();
-					return;
-				}
+					var t = Type.GetType($"{typeof(JsonServer).Namespace}.{call}{Apc.Postfix}") ?? Create(call + Apc.Postfix);
 
-				Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
-			}
+					if(t == null)
+					{
+						RespondError(rp,  "text/plain", HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
+						rp.Close();
+						return;
+					}
+
+					Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
+				}
 
 //			var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
 //			var j = reader.ReadToEnd();

@@ -18,7 +18,7 @@ public class Vault : Cli
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
 	public Func<string, string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
-	public Func<string, string, AccountAddress, bool>					AuthorizationRequested;
+	public Func<string, string, AccountAddress, string, bool>			AuthorizationRequested;
 	public Action<AccountAddress>										UnlockRequested;
 
 	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",

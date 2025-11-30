@@ -981,7 +981,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																																				Account	= t.Signer,
 																																				Session = GetSession(t.Signer),
 																																				Hash	= t.Hashify(),
-																																				Trust	= Trust.None
 																																			}, t.Flow);
 
 						var at = Call(ppi, new AllocateTransactionPpc {Transaction = t});
@@ -1003,7 +1002,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																																				Account = t.Signer,
 																																				Session = GetSession(t.Signer),
 																																				Hash = t.Hashify(),
-																																				Trust = Trust.None
 																																			}, t.Flow);
 
 						txs.Add(t);

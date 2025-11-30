@@ -2,7 +2,7 @@
 
 public enum Trust : byte
 {
-	None, NonSpending, Spending
+	None, Complete, AskEveryTime
 }
 
 public class AuthenticationResult
@@ -57,8 +57,9 @@ public class AuthenticateApc : Apc
 public class AuthorizeApc : Apc
 {
 	public string			Net { get; set; }
+	public string			Application { get; set; }
+	public string			Operation { get; set; }
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }
 	public byte[]			Hash { get; set; }
-	public Trust			Trust { get; set; }
 }
