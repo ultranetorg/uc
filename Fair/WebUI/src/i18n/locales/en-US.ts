@@ -200,6 +200,7 @@ export const enUS = {
     title: "Title",
   },
   publication: {
+    title: "Publication - {{publicationId}} | Ultranet Fair",
     activation: "Activation",
     information: "Information",
     lastUpdated: "Last Updated",

@@ -15,6 +15,7 @@ public enum Token : uint
 	GPU,
 	Hardware,
 	LicenseType,
+	ISBN,
 	Logo,
 	NPU,
 	Platform,
@@ -415,9 +416,23 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public static Field[] FindDeclaration(ProductType type) =>	type switch
 																{
-																	ProductType.Software => Software, 
+																	ProductType.Book => Book,
+																	ProductType.Software => Software,
 																	_ => throw new IntegrityException()
 																};
+
+	public static readonly Field[] Book =	[
+												new (Token.Title, FieldType.StringUtf8, length: 128),
+												new (Token.DescriptionMinimal,	[
+																					new (Token.Language,FieldType.LanguageCode, length: 8),
+																					new (Token.Value, FieldType.TextUtf8, length: 1024),
+																				]),
+												new (Token.DescriptionMaximal,	[
+																					new (Token.Language,FieldType.LanguageCode, length: 8),
+																					new (Token.Value,	FieldType.TextUtf8, length: int.MaxValue),
+																				]),
+												new (Token.ISBN, FieldType.StringAnsi, length: 13),
+											];
 
 	public static readonly Field[] Software =	[
 													new (Token.Metadata,
