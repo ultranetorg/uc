@@ -293,7 +293,7 @@ public abstract class Round : IBinarySerializable
 		Members		= Id == 0 ? new()								: Previous.Members;
 		Funds		= Id == 0 ? new()								: Previous.Funds;
 		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
-		Spacetimes	= Id == 0 ? new long[Time.FromYears(1).Days]	: Previous.Spacetimes.Clone() as long[];
+		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
 
 		AffectedMetas.Clear();
 		AffectedAccounts.Clear();
@@ -470,8 +470,11 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
 			{
 				i.EnergyNext += d * Net.ECDayEmission / Members.Count;
-				i.Spacetime	 += d * (Net.BDDayEmission + e.Spaces[e.Time.Days]) / Members.Count;
+				i.Spacetime	 += d * (Net.BDDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
 			}
+			
+			if(d <= e.Spaces.Length)
+				e.Spaces = e.Spaces[d..];
 		}
 
 		Absorb(e);

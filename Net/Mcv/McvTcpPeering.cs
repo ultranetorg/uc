@@ -527,7 +527,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 			v.Restore();
 							
-			//if(r.VotersRound.Confirmed)
+			if(r.VotersRound.Confirmed)
 			{
 				if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
 				{	
