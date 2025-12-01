@@ -147,7 +147,7 @@ public class OverrideAuthenticationApc : AdminApc
 		{
 			if(Active)
 			{
-				vault.AuthenticationRequested = (application, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Complete};
+				vault.AuthenticationRequested = (application, logo, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Complete};
 			} 
 			else
 			{
@@ -174,7 +174,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 	{
 		lock(vault)
 		{
-			var c = vault.AuthenticationRequested?.Invoke(Application, Net, Account);
+			var c = vault.AuthenticationRequested?.Invoke(Application, Logo, Net, Account);
 	
 			if(c != null)
 			{
@@ -184,7 +184,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 					throw new VaultException(VaultError.AccountNotFound);
 		
 
-				var n = a.GetAuthentication(Application, Net, c.Trust);
+				var n = a.GetAuthentication(Application, Logo, Net, c.Trust);
 		
 				if(n == null)
 					throw new VaultException(VaultError.NetNotFound);
@@ -218,7 +218,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 
 		if(au.Trust == Trust.AskEveryTime)
 		{
-			vault.AuthorizationRequested(au.Application, Net, Account, Operation);
+			vault.AuthorizationRequested(Account, au, Operation);
 		}
 
 		return vault.Cryptography.Sign(acc.Key, Hash);

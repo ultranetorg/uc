@@ -10,32 +10,27 @@ public class AuthenticationChoice
 public class Authentication : IBinarySerializable
 {
 	public string	Application { get; set; }
+	public byte[]	Logo { get; set; }
 	public string	Net { get; set; }
-	public byte[]	Session { get; set; }
 	public Trust	Trust { get; set; }
+	public byte[]	Session { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
 		Application = reader.ReadUtf8();
+		Logo		= reader.ReadBytes();
 		Net			= reader.ReadUtf8();
 		Trust		= reader.Read<Trust>();
-		
-		if(Trust != Trust.None)
-		{
-			Session = reader.ReadBytes();
-		}
+		Session		= reader.ReadBytes();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Application);
+		writer.WriteBytes(Logo);
 		writer.WriteUtf8(Net);
 		writer.Write(Trust);
-		
-		if(Trust != Trust.None)
-		{
-			writer.WriteBytes(Session);
-		}
+		writer.WriteBytes(Session);
 	}
 }
 
@@ -68,7 +63,7 @@ public class WalletAccount : IBinarySerializable
 		return $"{Address}";
 	}
 
-	public Authentication GetAuthentication(string application, string net, Trust trust)
+	public Authentication GetAuthentication(string application, byte[] logo, string net, Trust trust)
 	{
 		if(application == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -85,7 +80,7 @@ public class WalletAccount : IBinarySerializable
 	
 		Cryptography.Random.NextBytes(s);
 	
-		a = new Authentication {Application = application, Net = net, Session = s, Trust = trust};
+		a = new Authentication {Application = application, Logo = logo, Net = net, Session = s, Trust = trust};
 
 		Authentications.Add(a);
 	
