@@ -1,0 +1,1 @@
+export const PublicationDefaultPage = () => <>PublicationDefaultPage</>
