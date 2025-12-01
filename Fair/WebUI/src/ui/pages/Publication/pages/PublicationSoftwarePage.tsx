@@ -1,9 +1,9 @@
 import { memo } from "react"
+import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import { PublicationDetails } from "types"
 
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { ReviewsList } from "ui/components/specific"
-
-import { ContentProps } from "../types"
 
 const TEST_TAB_ITEMS = [
   {
@@ -40,23 +40,20 @@ const TEST_TAB_ITEMS = [
   { key: "macos", label: "macOS", sections: [] },
 ]
 
-export const SoftwarePublicationContent = memo(
-  ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => (
+export interface PublicationSoftwarePageProps {
+  publication: PublicationDetails
+}
+
+export const PublicationSoftwarePage = memo(({ publication }: PublicationSoftwarePageProps) => {
+  const { t } = useTranslation("publication")
+  const { siteId } = useParams()
+
+  return (
     <>
       <div className="flex flex-1 flex-col gap-8">
         <Slider />
         <Description text={publication.description} showMoreLabel={t("showMore")} descriptionLabel={t("information")} />
         <SystemRequirementsTabs label={t("systemRequirements")} tabs={TEST_TAB_ITEMS} />
-        <ReviewsList
-          isPending={isPending || isPendingReviews}
-          reviews={reviews}
-          error={error}
-          onLeaveReviewClick={onLeaveReview}
-          leaveReviewLabel={t("leaveReview")}
-          noReviewsLabel={t("noReviews")}
-          reviewLabel={t("review", { count: reviews?.totalItems })}
-          showMoreReviewsLabel={t("showMoreReviews")}
-        />
       </div>
       <div className="flex w-87.5 flex-col gap-8">
         <SoftwareInfo
@@ -72,5 +69,5 @@ export const SoftwarePublicationContent = memo(
         <SiteLink to={"google.com"} label={t("officialSite")} />
       </div>
     </>
-  ),
-)
+  )
+})

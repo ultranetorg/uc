@@ -1,16 +1,15 @@
 import { useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Outlet, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
-import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublication, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
-
-import { getPublicationContentByType } from "./utils"
+import { ReviewsList } from "ui/components/specific"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
@@ -34,8 +33,6 @@ export const PublicationPage = () => {
     return <div>Loading</div>
   }
 
-  const ContentComponent = getPublicationContentByType(publication.productType)
-
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -46,16 +43,18 @@ export const PublicationPage = () => {
           logoFileId={publication.logoFileId}
           categories={TEST_SOFTWARE_CATEGORIES}
         />
-        <div className="flex gap-8">
-          <ContentComponent
-            t={t}
-            isPending={isPending}
-            isPendingReviews={isPendingReviews}
-            publication={publication}
-            siteId={siteId!}
-            error={error}
+        <div className="flex flex-1 flex-col gap-8">
+          <Outlet />
+
+          <ReviewsList
+            isPending={isPending || isPendingReviews}
             reviews={reviews}
-            onLeaveReview={() => setReviewModalOpen(true)}
+            error={error}
+            onLeaveReviewClick={() => setReviewModalOpen(true)}
+            leaveReviewLabel={t("leaveReview")}
+            noReviewsLabel={t("noReviews")}
+            reviewLabel={t("review", { count: reviews?.totalItems })}
+            showMoreReviewsLabel={t("showMoreReviews")}
           />
         </div>
       </div>

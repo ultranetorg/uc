@@ -1,6 +1,0 @@
-export * from "./BookPublicationContent"
-export * from "./DefaultPublicationContent"
-export * from "./GamePublicationContent"
-export * from "./MoviePublicationContent"
-export * from "./MusicPublicationContent"
-export * from "./SoftwarePublicationContent"

@@ -1,7 +1,7 @@
 export * from "./Category"
 export * from "./Governance"
 export * from "./Moderation"
-export * from "./Publication"
+export * from "./Publication/route.config"
 export * from "./Sites"
 
 export * from "./hooks"

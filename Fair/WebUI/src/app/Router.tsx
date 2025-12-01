@@ -17,7 +17,7 @@ import {
   ModeratorUnpublishedProductPage,
   ModeratorUserRegistrationPage,
   ProfilePage,
-  PublicationPage,
+  PublicationRoute,
   ReferendumPage,
   ReferendumsPage,
   SearchPage,
@@ -64,8 +64,8 @@ const routes: RouteObject[] = [
             element: <CategoryPage />,
           },
           {
+            ...PublicationRoute,
             path: "/:siteId/p/:publicationId",
-            element: <PublicationPage />,
           },
           {
             path: "/:siteId/s",
