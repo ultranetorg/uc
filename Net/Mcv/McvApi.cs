@@ -352,8 +352,8 @@ public class EstimateOperationApc : McvApc
 		t.Signature	 = node.VaultApi.Request<byte[]>(new AuthorizeApc  {Net		= node.Mcv.Net.Name,
 																		Account	= By,
 																		Session = node.Settings.Sessions.First(i => i.Account == By).Session,
-																		Hash	= t.Hashify(),
-																		Trust	= Trust.None}, t.Flow);
+																		Hash	= t.Hashify()}
+																		,t.Flow);
 
 
 		///t.Sign(node.Vault.Find(By).Key, []);

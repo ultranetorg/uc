@@ -35,11 +35,11 @@ namespace Uccs.Rdn;
 //	}
 //}
 
-public class RdnNnIppConnection : NnIppNodeConnection
+public class RdnNnIppConnection : NnpIppNodeConnection
 {
 	RdnNode Node => Program as RdnNode;
 
-	public RdnNnIppConnection(RdnNode node, Flow flow) : base(node, NnTcpPeering.GetName(node.NexusSettings.Host), flow)
+	public RdnNnIppConnection(RdnNode node, Flow flow) : base(node, NnpTcpPeering.GetName(node.NexusSettings.Host), flow)
 	{
 		RegisterHandler(typeof(NnClass), this);
 	}
@@ -48,7 +48,7 @@ public class RdnNnIppConnection : NnIppNodeConnection
 	{
 		lock(Writer)
 		{
-			Writer.Write(NnIppConnectionType.Node);
+			Writer.Write(NnpIppConnectionType.Node);
 			Writer.WriteUtf8(Node.Net.Address);
 		}
 	}

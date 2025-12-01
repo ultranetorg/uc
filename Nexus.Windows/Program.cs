@@ -11,7 +11,7 @@ using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
 
-internal class Program: ApplicationContext
+public class Program: ApplicationContext
 {
 	[STAThread]
 	static void Main()
@@ -35,6 +35,47 @@ internal class Program: ApplicationContext
 		
 			Nexus = new Nexus(b, ns, vs, new RealClock(), new Flow(nameof(Nexus), new Log()));
 			Nexus.RunRdn(null);
+
+		}
+
+		public static void InitializeAuthUI(Nexus nexus)
+		{
+			nexus.Vault.AuthenticationRequested =	(appplication, net, suggested) =>
+													{
+														var f = new AuthenticattionForm(nexus.Vault);
+
+														f.Account = suggested;
+														f.SetApplication(appplication);
+														f.SetNet(net);
+													
+														if(f.ShowDialog() == DialogResult.OK)
+														{
+															return new AuthenticationChoice {Account = f.Account, Trust = f.Trust};
+														}
+														else
+														{
+															return null;
+														}
+													};
+
+			nexus.Vault.AuthorizationRequested  =	(appplication, net, signer, operation) =>
+													{
+														var f = new AuthorizationForm();
+
+														f.SetApplication(appplication);
+														f.SetNet(net);
+														f.SetSigner(signer);
+														f.SetOperation(operation);
+													
+														if(f.ShowDialog() == DialogResult.OK)
+														{
+															return true;
+														}
+														else
+														{
+															return false;
+														}
+													};
 		}
 	}
 }

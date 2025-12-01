@@ -212,9 +212,9 @@ public class ProductsService
 			case FieldType.TextUtf8:
 			case FieldType.StringUtf8:
 			case FieldType.URI:
-			case FieldType.Language:
+			case FieldType.LanguageCode:
 			case FieldType.License:
-			case FieldType.Deployment:
+			case FieldType.DistributionType:
 			case FieldType.Platform:
 			case FieldType.OS:
 			case FieldType.CPUArchitecture:

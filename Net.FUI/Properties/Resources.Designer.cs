@@ -22,7 +22,7 @@ namespace Uccs.Net.FUI.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -63,7 +63,7 @@ namespace Uccs.Net.FUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Golden_key_icon_svg {
+        public static System.Drawing.Bitmap Golden_key_icon_svg {
             get {
                 object obj = ResourceManager.GetObject("Golden_key_icon.svg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));

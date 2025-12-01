@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class BlockNna : NnArgumentation
+public class BlockNna : NnpArgumentation
 {
 	public byte[]			Raw { get; set; }
 

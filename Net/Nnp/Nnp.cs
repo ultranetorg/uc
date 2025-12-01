@@ -3,15 +3,15 @@ using System.Numerics;
 
 namespace Uccs.Net;
 
-public class NnNodeSettings : SavableSettings
+public class NnpNodeSettings : SavableSettings
 {
 	public bool IsHub { get; set; }
 
-	public NnNodeSettings() : base(NetXonTextValueSerializator.Default)
+	public NnpNodeSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}
 
-	public NnNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
+	public NnpNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
 	{
 	}
 }
@@ -100,7 +100,7 @@ public enum NnClass : byte
 }
 
 
-public abstract class NnArgumentation : Argumentation
+public abstract class NnpArgumentation : Argumentation
 {
 	public string		Net { get; set; }
 
@@ -108,7 +108,7 @@ public abstract class NnArgumentation : Argumentation
 	public virtual void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
 }
 
-public class Nnc<A, R> : ICall<A, R> where A : NnArgumentation, new() where R : Return
+public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R : Return
 {
 	public A Argumentation = new A();
 
@@ -118,7 +118,7 @@ public class Nnc<A, R> : ICall<A, R> where A : NnArgumentation, new() where R : 
 	}
 }
 
-public class HolderClassesNna : NnArgumentation, IBinarySerializable
+public class HolderClassesNna : NnpArgumentation, IBinarySerializable
 {
 }
 
@@ -138,7 +138,7 @@ public class HolderClassesNnr : Return, IBinarySerializable
 //	}
 //}
 
-public class HoldersByAccountNna : NnArgumentation, IBinarySerializable
+public class HoldersByAccountNna : NnpArgumentation, IBinarySerializable
 {
 	public byte[]	Address { get; set; }
 
@@ -164,7 +164,7 @@ public class HoldersByAccountNnr : Return, IBinarySerializable
 }
 
 
-public class HolderAssetsNna : NnArgumentation, IBinarySerializable
+public class HolderAssetsNna : NnpArgumentation, IBinarySerializable
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }
@@ -192,7 +192,7 @@ public class HolderAssetsNnr : Return, IBinarySerializable
 	public void Write(BinaryWriter writer) => writer.Write(Assets);
 }
 
-public class AssetBalanceNna : NnArgumentation, IBinarySerializable
+public class AssetBalanceNna : NnpArgumentation, IBinarySerializable
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }

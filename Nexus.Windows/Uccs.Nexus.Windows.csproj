@@ -28,6 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AuthorizationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AuthenticattionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="TransferPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -39,6 +45,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="AuthorizationForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="AuthenticattionForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

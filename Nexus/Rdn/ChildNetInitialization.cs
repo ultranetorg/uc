@@ -3,7 +3,7 @@
 public class ChildNetInitialization : RdnOperation
 {
 	public AutoId		Domain  { get; set; }
-	public NnState		Net { get; set; }
+	public NnpState		Net { get; set; }
 
 	public override string		Explanation => $"Hash={Net.Hash.ToHex()}, Pees={Net.Peers.Length}";
 	
@@ -25,7 +25,7 @@ public class ChildNetInitialization : RdnOperation
 	public override void Read(BinaryReader reader)
 	{
 		Domain	= reader.Read<AutoId>();
-		Net		= reader.Read<NnState>();
+		Net		= reader.Read<NnpState>();
 	}
 
 	public override void Write(BinaryWriter writer)

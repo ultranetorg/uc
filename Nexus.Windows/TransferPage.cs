@@ -31,7 +31,7 @@ public partial class TransferPage : Page
 			FromAccount.SelectedIndex = 0;
 		}
 
-		BindAccounts(FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+		BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)
@@ -40,7 +40,7 @@ public partial class TransferPage : Page
 		{
 			if(sender == FromNet) RefreshNets(FromNet);
 			if(sender == FromClass) RefreshClasses(FromNet.Text, FromClass);
-			if(sender == FromAccount) BindAccounts(FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+			if(sender == FromAccount) BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
 
 			if(sender == ToNet) RefreshNets(ToNet);
 			if(sender == ToClass) RefreshClasses(ToNet.Text, ToClass);

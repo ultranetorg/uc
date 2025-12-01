@@ -21,14 +21,14 @@ public class Page : UserControl
 		Nexus = nexus;
 	}
 
-	protected void BindWallets(ComboBox control)
+	public static void BindWallets(Vault.Vault vault,ComboBox control)
 	{
 		control.Items.Clear();
 
 		IEnumerable<string> keys;
 
-		lock(Nexus.Vault)
-			keys = Nexus.Vault.Wallets.Select(i => i.Name);
+		lock(vault)
+			keys = vault.Wallets.Select(i => i.Name);
 
 		foreach(var i in keys)
 			control.Items.Add(i);
@@ -38,13 +38,13 @@ public class Page : UserControl
 
 	}
 
-	protected void BindAccounts(ComboBox control, IEnumerable<WalletAccount> accounts)
+	public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts)
 	{
 		control.Items.Clear();
 
 		IEnumerable<AccountAddress> keys;
 
-		lock(Nexus.Vault)
+		lock(vault)
 			keys = accounts.Select(i => i.Address);
 
 		foreach(var i in keys)

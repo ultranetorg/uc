@@ -137,7 +137,7 @@ public class AddAccountToWalletApc : AdminApc
 	}
 }
 
-public class EnforceAuthenticationApc : AdminApc
+public class OverrideAuthenticationApc : AdminApc
 {
 	public bool		Active { get; set; }
 
@@ -147,29 +147,12 @@ public class EnforceAuthenticationApc : AdminApc
 		{
 			if(Active)
 			{
-				vault.AuthenticationRequested = (application, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Spending};
+				vault.AuthenticationRequested = (application, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Complete};
 			} 
 			else
 			{
 				vault.AuthenticationRequested = null;
 			}
-
-			//if(Account != null)
-			//{
-			//	vault.GetMcvApi(Net).Send(new EnforceSessionsApc {Account = Account}, flow);
-			//} 
-			//else
-			//{
-			//	foreach(var w in vault.Wallets)
-			//	{
-			//		foreach(var i in w.Accounts)
-			//		{
-			//			 vault.GetMcvApi(Net).Send(new EnforceSessionsApc {Account = i.Address}, flow);
-			//		}
-			//	}
-			//}
-
-			//vault.AuthenticationRequested = old;
 		}
 
 		return null;
@@ -233,9 +216,9 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 		if(acc.Key == null)
 			return null;
 
-		if(Trust > au.Trust)
+		if(au.Trust == Trust.AskEveryTime)
 		{
-			vault.AuthorizationRequested(au.Application, Net, Account);
+			vault.AuthorizationRequested(au.Application, Net, Account, Operation);
 		}
 
 		return vault.Cryptography.Sign(acc.Key, Hash);
