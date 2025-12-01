@@ -18,7 +18,22 @@ public partial class AuthorizationForm : Form
 		
 		if(authentication.Logo != null)
 		{
-			Logo.Image = Image.FromStream(new MemoryStream(authentication.Logo));
+			Logo.BackColor = Color.Transparent;
+
+			try
+			{
+				Logo.Image = Image.FromStream(new MemoryStream(authentication.Logo));
+				Shield.Width = Shield.Width/2;
+				Shield.Height = Shield.Height/2;
+				Shield.Left = Logo.Width - Shield.Width;
+				Shield.Top = Logo.Height - Shield.Height;
+				Shield.BackColor = Color.Transparent;
+
+				Shield.Parent = Logo;
+			}
+			catch(Exception ex)
+			{
+			}
 		}
 	}
 

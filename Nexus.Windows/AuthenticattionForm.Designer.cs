@@ -43,7 +43,9 @@
 			Ask = new Button();
 			label6 = new Label();
 			Net = new Label();
+			Shield = new PictureBox();
 			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
+			((System.ComponentModel.ISupportInitialize)Shield).BeginInit();
 			SuspendLayout();
 			// 
 			// Reject
@@ -195,6 +197,16 @@
 			Net.Text = "<net>";
 			Net.TextAlign = ContentAlignment.MiddleCenter;
 			// 
+			// Shield
+			// 
+			Shield.Image = (Image)resources.GetObject("Shield.Image");
+			Shield.Location = new Point(19, 11);
+			Shield.Name = "Shield";
+			Shield.Size = new Size(100, 100);
+			Shield.SizeMode = PictureBoxSizeMode.Zoom;
+			Shield.TabIndex = 11;
+			Shield.TabStop = false;
+			// 
 			// AuthenticattionForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
@@ -203,6 +215,7 @@
 			CancelButton = Reject;
 			ClientSize = new Size(461, 355);
 			ControlBox = false;
+			Controls.Add(Shield);
 			Controls.Add(label6);
 			Controls.Add(Net);
 			Controls.Add(label2);
@@ -224,6 +237,7 @@
 			StartPosition = FormStartPosition.CenterParent;
 			Text = "Authenticattion Required";
 			((System.ComponentModel.ISupportInitialize)Logo).EndInit();
+			((System.ComponentModel.ISupportInitialize)Shield).EndInit();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -244,5 +258,6 @@
 		private Button Ask;
 		private Label label6;
 		private Label Net;
+		private PictureBox Shield;
 	}
 }

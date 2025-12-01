@@ -25,15 +25,21 @@ public partial class AuthenticattionForm : Form
 	
 	public void SetLogo(byte[] image)
 	{ 
-		var i = Logo.Image;
+		Logo.BackColor = Color.Transparent;
 
 		try
 		{
 			Logo.Image = Image.FromStream(new MemoryStream(image));
+			Shield.Width = Shield.Width/2;
+			Shield.Height = Shield.Height/2;
+			Shield.Left = Logo.Width - Shield.Width;
+			Shield.Top = Logo.Height - Shield.Height;
+			Shield.BackColor = Color.Transparent;
+
+			Shield.Parent = Logo;
 		}
-		catch(Exception ex)
+		catch
 		{
-			Logo.Image = i;
 		}
 	}
 
