@@ -40,13 +40,14 @@ public class Program: ApplicationContext
 
 		public static void InitializeAuthUI(Nexus nexus)
 		{
-			nexus.Vault.AuthenticationRequested =	(appplication, net, suggested) =>
+			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, suggested) =>
 													{
 														var f = new AuthenticattionForm(nexus.Vault);
 
 														f.Account = suggested;
 														f.SetApplication(appplication);
 														f.SetNet(net);
+														f.SetLogo(logo);
 													
 														if(f.ShowDialog() == DialogResult.OK)
 														{
@@ -58,14 +59,9 @@ public class Program: ApplicationContext
 														}
 													};
 
-			nexus.Vault.AuthorizationRequested  =	(appplication, net, signer, operation) =>
+			nexus.Vault.AuthorizationRequested  =	(signer, authenticateon, operation) =>
 													{
-														var f = new AuthorizationForm();
-
-														f.SetApplication(appplication);
-														f.SetNet(net);
-														f.SetSigner(signer);
-														f.SetOperation(operation);
+														var f = new AuthorizationForm(signer, authenticateon, operation);
 													
 														if(f.ShowDialog() == DialogResult.OK)
 														{

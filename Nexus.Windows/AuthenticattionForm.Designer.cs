@@ -33,7 +33,7 @@
 			groupBox1 = new GroupBox();
 			Allow = new Button();
 			Application = new Label();
-			pictureBox1 = new PictureBox();
+			Logo = new PictureBox();
 			Accounts = new ComboBox();
 			Wallets = new ComboBox();
 			label1 = new Label();
@@ -43,7 +43,7 @@
 			Ask = new Button();
 			label6 = new Label();
 			Net = new Label();
-			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
 			SuspendLayout();
 			// 
 			// Reject
@@ -90,15 +90,15 @@
 			Application.Text = "0x3405034759347598347953495349";
 			Application.TextAlign = ContentAlignment.MiddleCenter;
 			// 
-			// pictureBox1
+			// Logo
 			// 
-			pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-			pictureBox1.Location = new Point(19, 11);
-			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new Size(100, 100);
-			pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-			pictureBox1.TabIndex = 6;
-			pictureBox1.TabStop = false;
+			Logo.Image = (Image)resources.GetObject("Logo.Image");
+			Logo.Location = new Point(19, 11);
+			Logo.Name = "Logo";
+			Logo.Size = new Size(100, 100);
+			Logo.SizeMode = PictureBoxSizeMode.Zoom;
+			Logo.TabIndex = 6;
+			Logo.TabStop = false;
 			// 
 			// Accounts
 			// 
@@ -210,7 +210,7 @@
 			Controls.Add(label1);
 			Controls.Add(Wallets);
 			Controls.Add(Accounts);
-			Controls.Add(pictureBox1);
+			Controls.Add(Logo);
 			Controls.Add(groupBox1);
 			Controls.Add(label4);
 			Controls.Add(Application);
@@ -223,7 +223,7 @@
 			SizeGripStyle = SizeGripStyle.Hide;
 			StartPosition = FormStartPosition.CenterParent;
 			Text = "Authenticattion Required";
-			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+			((System.ComponentModel.ISupportInitialize)Logo).EndInit();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -234,7 +234,7 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Button Allow;
 		private System.Windows.Forms.Label Application;
-		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.PictureBox Logo;
 		private ComboBox Accounts;
 		private ComboBox Wallets;
 		private Label label1;

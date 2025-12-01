@@ -32,7 +32,7 @@
 			Reject = new Button();
 			groupBox1 = new GroupBox();
 			Application = new Label();
-			pictureBox1 = new PictureBox();
+			Logo = new PictureBox();
 			label2 = new Label();
 			label3 = new Label();
 			label4 = new Label();
@@ -42,7 +42,7 @@
 			Signer = new Label();
 			Net = new Label();
 			label6 = new Label();
-			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
 			SuspendLayout();
 			// 
 			// Reject
@@ -78,15 +78,15 @@
 			Application.Text = "<Allication Name>";
 			Application.TextAlign = ContentAlignment.MiddleCenter;
 			// 
-			// pictureBox1
+			// Logo
 			// 
-			pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-			pictureBox1.Location = new Point(19, 12);
-			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new Size(108, 86);
-			pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-			pictureBox1.TabIndex = 6;
-			pictureBox1.TabStop = false;
+			Logo.Image = (Image)resources.GetObject("Logo.Image");
+			Logo.Location = new Point(19, 12);
+			Logo.Name = "Logo";
+			Logo.Size = new Size(108, 86);
+			Logo.SizeMode = PictureBoxSizeMode.Zoom;
+			Logo.TabIndex = 6;
+			Logo.TabStop = false;
 			// 
 			// label2
 			// 
@@ -197,7 +197,7 @@
 			Controls.Add(label2);
 			Controls.Add(label6);
 			Controls.Add(label3);
-			Controls.Add(pictureBox1);
+			Controls.Add(Logo);
 			Controls.Add(groupBox1);
 			Controls.Add(label4);
 			Controls.Add(Net);
@@ -211,7 +211,7 @@
 			SizeGripStyle = SizeGripStyle.Hide;
 			StartPosition = FormStartPosition.CenterParent;
 			Text = "Authorization Required";
-			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+			((System.ComponentModel.ISupportInitialize)Logo).EndInit();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -221,7 +221,7 @@
 		private System.Windows.Forms.Button Reject;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Label Application;
-		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.PictureBox Logo;
 		private Label label2;
 		private Label label3;
 		private Label label4;

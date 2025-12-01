@@ -52,6 +52,7 @@ public class AuthenticateApc : Apc
 	public string			Application { get; set; }
 	public string			Net { get; set; } /// rdn/fair /fair
 	public AccountAddress	Account { get; set; } /// optional
+	public byte[]			Logo { get; set; }
 }
 
 public class AuthorizeApc : Apc

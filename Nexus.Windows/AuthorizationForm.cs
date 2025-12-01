@@ -1,18 +1,25 @@
 ﻿using System.Windows.Forms;
 using Uccs.Net;
+using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
 
 public partial class AuthorizationForm : Form
 {
-	public void SetApplication(string applicaiton) => Application.Text = applicaiton;
-	public void SetNet(string net) => Net.Text = net;
-	public void SetSigner(AccountAddress account) => Signer.Text = account.ToString();
-	public void SetOperation(string operation) => Operation.Text = operation;
 
-	public AuthorizationForm()
+	public AuthorizationForm(AccountAddress signer,  Authentication authentication, string operation)
 	{
 		InitializeComponent();
+
+		Application.Text = authentication.Application;
+		Net.Text = authentication.Net;
+		Signer.Text = signer.ToString();
+		Operation.Text = operation;
+		
+		if(authentication.Logo != null)
+		{
+			Logo.Image = Image.FromStream(new MemoryStream(authentication.Logo));
+		}
 	}
 
 	private void Reject_Click(object sender, EventArgs e)

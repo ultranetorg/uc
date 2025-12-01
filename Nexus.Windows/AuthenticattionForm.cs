@@ -22,6 +22,20 @@ public partial class AuthenticattionForm : Form
 		Page.BindWallets(vault, Wallets);
 		Wallets_SelectedValueChanged(null, EventArgs.Empty);
 	}
+	
+	public void SetLogo(byte[] image)
+	{ 
+		var i = Logo.Image;
+
+		try
+		{
+			Logo.Image = Image.FromStream(new MemoryStream(image));
+		}
+		catch(Exception ex)
+		{
+			Logo.Image = i;
+		}
+	}
 
 	private void cancel_Click(object sender, EventArgs e)
 	{
