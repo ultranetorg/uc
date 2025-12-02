@@ -183,7 +183,6 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 				if(a == null)
 					throw new VaultException(VaultError.AccountNotFound);
 		
-
 				var n = a.GetAuthentication(Application, Logo, Net, c.Trust);
 		
 				if(n == null)
@@ -203,7 +202,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 	{
 		var acc = vault.Find(Account);
 		
-		var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(Session) && i.Net == Net);
+		var au = acc?.Authentications?.Find(i => i.Net == Net && i.Application == Application && i.Session.SequenceEqual(Session));
 
 		if(au == null)
 			return null;

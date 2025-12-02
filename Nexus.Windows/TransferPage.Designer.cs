@@ -135,6 +135,7 @@ partial class TransferPage
 		Transfer.TabIndex = 9;
 		Transfer.Text = "Transfer";
 		Transfer.UseVisualStyleBackColor = true;
+		Transfer.Click += Transfer_Click;
 		// 
 		// FromNet
 		// 

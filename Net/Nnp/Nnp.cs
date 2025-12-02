@@ -223,20 +223,48 @@ public class AssetBalanceNnr : Return, IBinarySerializable
 	public  void Write(BinaryWriter writer) => writer.Write(Balance);
 }
 
-///public class AssetTransferNnc : Nnc<AssetTransferNnr>
-///{
-///	public string	FromClass { get; set; }
-///	public string	FromId { get; set; }
-///	public string	ToNet { get; set; }
-///	public string	ToClass { get; set; }
-///	public string	ToId { get; set; }
-///	public string	Name { get; set; }
-///	public string	Amount { get; set; }
-///}
-///
-///public class AssetTransferNnIpr : IppResponse
-///{
-///}
+public class AssetTransferNna : NnpArgumentation, IBinarySerializable
+{
+	public string	FromClass { get; set; }
+	public string	FromId { get; set; }
+	public string	ToNet { get; set; }
+	public string	ToClass { get; set; }
+	public string	ToId { get; set; }
+	public string	Name { get; set; }
+	public string	Amount { get; set; }
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		FromClass	= reader.ReadASCII();
+		FromId		= reader.ReadASCII();
+		ToNet		= reader.ReadASCII();
+		ToClass		= reader.ReadASCII();
+		ToId		= reader.ReadASCII();
+		Name		= reader.ReadASCII();
+		Amount		= reader.ReadASCII();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(FromClass);
+		writer.WriteASCII(FromId);
+		writer.WriteASCII(ToNet);
+		writer.WriteASCII(ToClass);
+		writer.WriteASCII(ToId);
+		writer.WriteASCII(Name);
+		writer.WriteASCII(Amount);
+	}
+}
+
+public class AssetTransferNnr : Return, IBinarySerializable
+{
+	public byte[]	TransactionId { get; set; }
+
+	public  void Read(BinaryReader reader) => TransactionId = reader.ReadBytes();
+	public  void Write(BinaryWriter writer) => writer.WriteBytes(TransactionId);
+}
 
 
 //

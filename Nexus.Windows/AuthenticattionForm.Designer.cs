@@ -111,6 +111,7 @@
 			Accounts.Name = "Accounts";
 			Accounts.Size = new Size(306, 23);
 			Accounts.TabIndex = 1;
+			Accounts.TextChanged += Accounts_TextChanged;
 			// 
 			// Wallets
 			// 

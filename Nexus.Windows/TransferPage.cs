@@ -97,7 +97,11 @@ public partial class TransferPage : Page
 		if(combobox.Items.Count > 0)
 			return;
 
-		foreach(var i in Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new () { Net = net})).Classes)
+		foreach(var i in Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
+																							 {
+																								Net = net
+																							 }),
+																							 new Flow(5000)).Classes)
 		{
 			combobox.Items.Add(i);
 		}
@@ -113,13 +117,13 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(	new ()
-																							{ 
+		foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(	new()
+																							{
 																								Net = FromNet.Text,
 																								HolderClass = FromClass.Text,
 																								HolderId = FromId.Text
-																							}))
-																							.Assets)
+																							}),
+																							new Flow(5000)).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -128,14 +132,14 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(	new ()
+		Balance.Text += Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(	new()
 																							{
 																								Net = FromNet.Text,
 																								HolderClass = FromClass.Text,
 																								HolderId = FromId.Text,
 																								Name = (Asset.SelectedItem as Asset).Name
-																							}))
-																							.Balance.ToString();
+																							}),
+																							new Flow(5000)).Balance.ToString();
 	}
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
@@ -147,5 +151,10 @@ public partial class TransferPage : Page
 	private void ToNet_TextUpdate(object sender, EventArgs e)
 	{
 		ToClass.Items.Clear();
+	}
+
+	private void Transfer_Click(object sender, EventArgs e)
+	{
+
 	}
 }

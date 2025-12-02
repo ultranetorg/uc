@@ -6,12 +6,12 @@ namespace Uccs.Nexus.Windows;
 
 public partial class AuthenticattionForm : Form
 {
-	public AccountAddress	Account { get => AccountAddress.Parse(Accounts.Text); set => Accounts.SelectedItem = value; }
-	public Trust			Trust { get; protected set; }
+	public AccountAddress Account { get => AccountAddress.Parse(Accounts.Text); set => Accounts.SelectedItem = value; }
+	public Trust Trust { get; protected set; }
 
-	Vault.Vault				Vault;
-	public void				SetApplication(string applicaiton) => Application.Text = applicaiton;
-	public void				SetNet(string net) => Net.Text = net;
+	Vault.Vault Vault;
+	public void SetApplication(string applicaiton) => Application.Text = applicaiton;
+	public void SetNet(string net) => Net.Text = net;
 
 	public AuthenticattionForm(Vault.Vault vault)
 	{
@@ -19,19 +19,22 @@ public partial class AuthenticattionForm : Form
 
 		InitializeComponent();
 
+		Allow.Enabled = Ask.Enabled = false;
+
 		Page.BindWallets(vault, Wallets);
 		Wallets_SelectedValueChanged(null, EventArgs.Empty);
+
 	}
-	
+
 	public void SetLogo(byte[] image)
-	{ 
+	{
 		Logo.BackColor = Color.Transparent;
 
 		try
 		{
 			Logo.Image = Image.FromStream(new MemoryStream(image));
-			Shield.Width = Shield.Width/2;
-			Shield.Height = Shield.Height/2;
+			Shield.Width = Shield.Width / 2;
+			Shield.Height = Shield.Height / 2;
 			Shield.Left = Logo.Width - Shield.Width;
 			Shield.Top = Logo.Height - Shield.Height;
 			Shield.BackColor = Color.Transparent;
@@ -69,5 +72,10 @@ public partial class AuthenticattionForm : Form
 		Trust = Trust.AskEveryTime;
 		DialogResult = DialogResult.OK;
 		Close();
+	}
+
+	private void Accounts_TextChanged(object sender, EventArgs e)
+	{
+		Allow.Enabled = Ask.Enabled = Accounts.SelectedItem is AccountAddress;
 	}
 }

@@ -2,7 +2,7 @@
 
 public enum ExceptionClass : byte
 {
-	None, Node, Request, Entity, Ipc,
+	None, Node, Request, Entity, Ipc, Nnp,
 	_Next,
 	Nn = _Next,
 	Vault,
@@ -45,7 +45,9 @@ public enum EntityError : byte
 	ExcutionFailed,
 	EmissionFailed,
 	NoMembers,
-	HashMismatach
+	HashMismatach,
+	UnknownClass,
+	UnknownAsset,
 }
 
 public enum RequestError : byte
