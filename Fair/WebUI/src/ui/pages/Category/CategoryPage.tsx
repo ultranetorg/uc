@@ -1,13 +1,13 @@
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { useLocalStorage } from "usehooks-ts"
 
 import { useGetCategory, useGetCategoryPublications } from "entities"
 import { Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 
 import { CategoryHeader } from "./CategoryHeader"
-import { useCallback, useState } from "react"
-import { useLocalStorage } from "usehooks-ts"
 
 export const CategoryPage = () => {
   const { t } = useTranslation("category")

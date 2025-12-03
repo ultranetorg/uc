@@ -2,7 +2,7 @@ import { memo, ReactNode, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { ControlledMenu, FocusableItem, SubMenu, useClick } from "@szhsin/react-menu"
 
-import { useRootContext } from "app"
+import { useSiteContext } from "app"
 import { Button } from "ui/components"
 import { formatTitle } from "utils"
 import { GridSvg } from "assets"
@@ -35,7 +35,7 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
   const [isOpen, setOpen] = useState(false)
   const anchorProps = useClick(isOpen, setOpen)
 
-  const { categories, isCategoriesPending: isPending } = useRootContext()
+  const { categories, isCategoriesPending: isPending } = useSiteContext()
 
   const menuItems = useMemo(() => {
     if (isPending || !categories) {

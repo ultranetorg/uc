@@ -15,7 +15,7 @@ import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
-import { useRootContext } from "app"
+import { useSiteContext } from "app"
 
 type ModeratorPublicationMenuBaseProps = {
   publicationId: string
@@ -25,7 +25,7 @@ export type ModeratorPublicationMenuProps = PropsWithClassName & ModeratorPublic
 
 export const ModeratorPublicationMenu = memo(({ className, publicationId }: ModeratorPublicationMenuProps) => {
   const { t } = useTranslation("moderatorPublicationMenu")
-  const { isModerator } = useRootContext()
+  const { isModerator } = useSiteContext()
 
   const [isExpanded, setExpanded] = useState(false)
 

@@ -1,4 +1,4 @@
-import { forwardRef, memo, useCallback, useState } from "react"
+import { forwardRef, memo, useCallback, useMemo, useState } from "react"
 import {
   offset,
   safePolygon,
@@ -10,7 +10,10 @@ import {
   useRole,
 } from "@floating-ui/react"
 import { useCopyToClipboard } from "usehooks-ts"
+import { useTranslation } from "react-i18next"
 
+import { useAccountsContext } from "app"
+import { PersonSquareSvg, SvgBoxArrowRight, SvgChevronRight } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { CopyButton } from "ui/components/CopyButton"
@@ -20,34 +23,24 @@ import pngBackground from "./background.png"
 import { AccountSwitcher } from "./AccountSwitcher"
 import { MenuButton } from "./components"
 
-const TEST_ACCOUNTS = [
-  {
-    id: "67465-1",
-    nickname: "This is very very long nickname",
-    address: "0xf2884A04A0caB3fa166c85DF55Ab1Af8549dB936",
-  },
-  {
-    id: "67465-2",
-    nickname: "Short",
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-  },
-  {
-    id: "67465-3",
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-  },
-]
-
 type AccountMenuBaseProps = {
   accountId?: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
+  onMenuClose: () => void
 }
 
 export type AccountMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & AccountMenuBaseProps
 
 export const AccountMenu = memo(
-  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, accountId, nickname, address }, ref) => {
+  forwardRef<HTMLDivElement, AccountMenuProps>(({ style, accountId, nickname, address, onMenuClose }, ref) => {
+    const { t } = useTranslation("currentAccount")
+
     const [copiedText, copy] = useCopyToClipboard()
 
+    const { accounts, currentAccount, authenticate, logout, selectAccount } = useAccountsContext()
+
     const [isOpen, setOpen] = useState(false)
+
+    const accountSwitcherItems = useMemo(() => accounts.map(x => x.account), [accounts])
 
     const nodeId = useFloatingNodeId()
     const { context, floatingStyles, refs } = useFloating({
@@ -68,6 +61,24 @@ export const AccountMenu = memo(
       console.log(copiedText)
     }, [address, copiedText, copy])
 
+    const handleAccountAdd = useCallback(() => {
+      authenticate()
+      onMenuClose()
+    }, [authenticate, onMenuClose])
+
+    const handleAccountSelect = useCallback(
+      (index: number) => {
+        selectAccount(index)
+        onMenuClose()
+      },
+      [onMenuClose, selectAccount],
+    )
+
+    const handleLogout = () => {
+      logout()
+      onMenuClose()
+    }
+
     return (
       <>
         <div
@@ -81,8 +92,12 @@ export const AccountMenu = memo(
               <img src={pngBackground} alt="Background" className="size-full rounded-lg object-cover" />
             </div>
             <div className="absolute bottom-0 left-[20px] size-[98px] rounded-full bg-gray-75" />
-            <div className="absolute bottom-[4px] left-[24px] size-[90px] rounded-full" title={nickname ?? address}>
+            <div
+              className="absolute bottom-[4px] left-[24px] size-[90px] overflow-hidden rounded-full"
+              title={nickname ?? address}
+            >
               <img
+                className="size-full object-cover object-center"
                 src={accountId != null ? buildAccountAvatarUrl(accountId) : avatarFallback}
                 loading="lazy"
                 onError={e => {
@@ -116,14 +131,28 @@ export const AccountMenu = memo(
                 <MenuButton label="Profile" />
               </Link>
             */}
-            <MenuButton label="Switch Accounts" ref={refs.setReference} {...getReferenceProps()} />
+            <MenuButton
+              label={t("switchAccounts")}
+              iconBefore={<PersonSquareSvg className="fill-gray-800" />}
+              iconAfter={<SvgChevronRight className="stroke-gray-800" />}
+              ref={refs.setReference}
+              {...getReferenceProps()}
+            />
+            <MenuButton
+              label={t("signout")}
+              iconBefore={<SvgBoxArrowRight className="fill-gray-800" />}
+              onClick={handleLogout}
+            />
           </div>
         </div>
         {isOpen && (
           <AccountSwitcher
             ref={refs.setFloating}
             style={floatingStyles}
-            items={TEST_ACCOUNTS}
+            selectedItemAddress={currentAccount!.address}
+            items={accountSwitcherItems}
+            onAccountAdd={handleAccountAdd}
+            onAccountSelect={handleAccountSelect}
             {...getFloatingProps()}
           />
         )}

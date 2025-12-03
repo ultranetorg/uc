@@ -94,6 +94,11 @@ export const enUS = {
   },
 
   /* Components */
+  currentAccount: {
+    addAccount: "Add another account",
+    signout: "Sign Out",
+    switchAccounts: "Switch Accounts",
+  },
   moderatorOptionsMenu: {
     label: "Moderation options",
     removePublication: "Remove publication",
