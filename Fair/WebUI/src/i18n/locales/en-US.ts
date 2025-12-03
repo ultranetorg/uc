@@ -96,6 +96,7 @@ export const enUS = {
   /* Components */
   currentAccount: {
     addAccount: "Add another account",
+    createNickname: "Create nickname",
     signout: "Sign Out",
     switchAccounts: "Switch Accounts",
   },

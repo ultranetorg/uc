@@ -39,6 +39,8 @@ export const CurrentAccount = () => {
 
   const handleClose = useCallback(() => setIsOpen(false), [])
 
+  const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
+
   return (
     <>
       {currentAccount?.address ? (
@@ -62,6 +64,7 @@ export const CurrentAccount = () => {
           nickname={currentAccount?.nickname}
           address={currentAccount!.address!}
           onMenuClose={handleClose}
+          onNicknameCreate={handleNicknameCreate}
           {...getFloatingProps()}
         />
       )}

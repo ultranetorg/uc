@@ -42,7 +42,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   })
 
   const currentAccount =
-    session.selectedIndex !== undefined && session.accounts.length > session.selectedIndex
+    session.selectedIndex !== undefined && session.accounts[session.selectedIndex]
       ? session.accounts[session.selectedIndex].account
       : undefined
 
@@ -51,56 +51,63 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   const { data: account } = useGetAccountByAddress(currentAccount?.address)
 
   useEffect(() => {
-    if (account === undefined) return
+    if (!account) return
 
-    const index = session.accounts.find(x => x.account.address === account?.address)
-    if (index?.account.id) {
-      return
-    }
+    const found = session.accounts.find(a => a.account.address === account.address)
+    if (!found || found.account.id) return
 
-    setSession(prev => {
-      const accounts = prev.accounts.map(item =>
-        item.account.address === account!.address
+    setSession(p => ({
+      ...p,
+      accounts: p.accounts.map(a =>
+        a.account.address === account.address
           ? {
-              ...item,
+              ...a,
               account: {
-                ...item.account,
-                id: account!.id,
-                nickname: account!.nickname,
+                ...a.account,
+                id: account.id,
+                nickname: account.nickname,
               },
             }
-          : item,
-      )
-
-      return {
-        ...prev,
-        accounts,
-      }
-    })
+          : a,
+      ),
+    }))
   }, [account, session.accounts, setSession])
 
   const selectAccount = useCallback(
     (index: number) => {
-      if (session.accounts.length <= index || session.selectedIndex === index) return
+      if (index < 0 || index >= session.accounts.length) return
+      if (session.selectedIndex === index) return
 
-      const sessionAccount = session.accounts[index]
+      const target = session.accounts[index]
+
       isAuthenticated(
-        { accountAddress: sessionAccount.account.address, session: sessionAccount.session },
+        { accountAddress: target.account.address, session: target.session },
         {
-          onSuccess: response => {
-            if (response) {
+          onSuccess: valid => {
+            if (valid) {
               setSession(p => ({ ...p, selectedIndex: index }))
             } else {
-              setSession(p => ({
-                accounts: p.accounts.filter((_, i) => i !== index),
-                selectedIndex: p.selectedIndex && p.selectedIndex > index ? p.selectedIndex - 1 : p.selectedIndex,
-              }))
+              // remove invalid account
+              setSession(p => {
+                const accounts = p.accounts.filter((_, i) => i !== index)
+                const newSelected =
+                  p.selectedIndex !== undefined
+                    ? p.selectedIndex > index
+                      ? p.selectedIndex - 1
+                      : p.selectedIndex === index
+                        ? undefined
+                        : p.selectedIndex
+                    : undefined
+
+                return { ...p, accounts, selectedIndex: newSelected }
+              })
             }
           },
         },
       )
     },
-    [isAuthenticated, session.accounts, session.selectedIndex, setSession],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isAuthenticated, session.accounts.length, session.selectedIndex, setSession],
   )
 
   const authenticate = useCallback(
@@ -109,19 +116,25 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         {},
         {
           onSuccess: data =>
-            setSession(p => {
-              // RU: Проверяем, выбран ли уже аккаунт, который находится в списке accounts. В этом случае делаем его выбранным (currentAccountIndex) и обновляем session.
-              // EN: Checking if an account that is in the accounts list has already been selected. In this case, we set it as the selected one (currentAccountIndex) and update the session.
-              const index = p.accounts.findIndex(x => x.account.address === data.account)
-              if (index !== -1) {
-                const accounts = p.accounts.map((x, i) => (i !== index ? x : { ...x, session: data.session }))
-                return { selectedIndex: index, accounts }
+            setSession(prev => {
+              const existingIndex = prev.accounts.findIndex(x => x.account.address === data.account)
+
+              if (existingIndex !== -1) {
+                return {
+                  ...prev,
+                  accounts: prev.accounts.map((acc, i) =>
+                    i === existingIndex ? { ...acc, session: data.session } : acc,
+                  ),
+                  selectedIndex: existingIndex,
+                }
               }
 
-              const accounts = [{ session: data.session, account: { address: data.account } }, ...p.accounts]
+              const newAccounts = [{ session: data.session, account: { address: data.account } }, ...prev.accounts]
+
               return {
+                ...prev,
+                accounts: newAccounts,
                 selectedIndex: 0,
-                accounts,
               }
             }),
         },
@@ -150,6 +163,8 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       logout,
     ],
   )
+
+  useEffect(() => {}, [])
 
   return <AccountsContext.Provider value={value}>{children}</AccountsContext.Provider>
 }
