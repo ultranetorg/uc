@@ -164,7 +164,7 @@ internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IVaultApc
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-			return vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net)?.Session.SequenceEqual(Session) ?? false;
+			return vault.UnlockedAccounts.FirstOrDefault(i => i.Address == Account)?.FindAuthentication(Net, Application)?.Session.SequenceEqual(Session) ?? false;
 	}
 }
 

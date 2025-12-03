@@ -42,6 +42,7 @@ public class VaultApiClient : ApiClient
 
 public class IsAuthenticatedApc : Apc
 {
+	public string			Application { get; set; }
 	public string			Net { get; set; }
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }

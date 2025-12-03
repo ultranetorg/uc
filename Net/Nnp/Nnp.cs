@@ -225,13 +225,14 @@ public class AssetBalanceNnr : Return, IBinarySerializable
 
 public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 {
-	public string	FromClass { get; set; }
-	public string	FromId { get; set; }
-	public string	ToNet { get; set; }
-	public string	ToClass { get; set; }
-	public string	ToId { get; set; }
-	public string	Name { get; set; }
-	public string	Amount { get; set; }
+	public string			FromClass { get; set; }
+	public string			FromId { get; set; }
+	public string			ToNet { get; set; }
+	public string			ToClass { get; set; }
+	public string			ToId { get; set; }
+	public string			Name { get; set; }
+	public string			Amount { get; set; }
+	public AccountAddress	Signer { get; set; }
 
 	public override void Read(BinaryReader reader)
 	{
@@ -243,6 +244,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		ToId		= reader.ReadASCII();
 		Name		= reader.ReadASCII();
 		Amount		= reader.ReadASCII();
+		Signer		= reader.Read<AccountAddress>();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -255,6 +257,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		writer.WriteASCII(ToId);
 		writer.WriteASCII(Name);
 		writer.WriteASCII(Amount);
+		writer.Write(Signer);
 	}
 }
 

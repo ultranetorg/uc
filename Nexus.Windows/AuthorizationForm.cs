@@ -48,4 +48,12 @@ public partial class AuthorizationForm : Form
 		DialogResult = DialogResult.OK;
 		Close();
 	}
+
+	protected override void OnShown(EventArgs e)
+	{
+		base.OnShown(e);
+
+		FlashWindow.Flash(this);
+	}
+
 }

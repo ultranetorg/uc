@@ -4,9 +4,9 @@ using Uccs.Net;
 
 namespace Uccs.Rdn;
 
-internal class  NnIppConnection : IppConnection
+internal class  NnpIppConnection : IppConnection
 {	
-	public NnIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
+	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
 	{
 	}
 
@@ -16,12 +16,12 @@ internal class  NnIppConnection : IppConnection
 	}
 }
 	
-public class NnIppServer : IppServer
+public class NnpIppServer : IppServer
 {
 	Nexus.Nexus							Nexus;
 	Dictionary<string, IppConnection>	Registrations = [];
 
-	public NnIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
+	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 

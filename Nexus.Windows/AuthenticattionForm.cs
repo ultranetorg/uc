@@ -23,7 +23,6 @@ public partial class AuthenticattionForm : Form
 
 		Page.BindWallets(vault, Wallets);
 		Wallets_SelectedValueChanged(null, EventArgs.Empty);
-
 	}
 
 	public void SetLogo(byte[] image)
@@ -77,5 +76,12 @@ public partial class AuthenticattionForm : Form
 	private void Accounts_TextChanged(object sender, EventArgs e)
 	{
 		Allow.Enabled = Ask.Enabled = Accounts.SelectedItem is AccountAddress;
+	}
+
+	protected override void OnShown(EventArgs e)
+	{
+		base.OnShown(e);
+
+		FlashWindow.Flash(this);
 	}
 }

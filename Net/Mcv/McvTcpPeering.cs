@@ -1176,6 +1176,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))
 			throw new NodeException(NodeError.Invalid);
 
+		foreach(var i in operations)
+			i.PreTransact(Node, sponsored, flow);
+
 		var t = new Transaction();
 		t.Tag				= tag ?? Guid.NewGuid().ToByteArray();
 		t.Net				= Net;

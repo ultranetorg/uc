@@ -32,7 +32,7 @@ public class RdnNnIppConnection : NnpIppNodeConnection
 		if(call.HolderClass != nameof(Account))
 			throw new EntityException(EntityError.UnknownClass);
 
-		if(call.Name != nameof(Account.Spacetime) && call.Name != nameof(Account.Energy))
+		if(call.Name != nameof(Account.Spacetime) && call.Name != nameof(Account.Energy) && call.Name != nameof(Account.EnergyNext))
 			throw new EntityException(EntityError.UnknownAsset);
 
 		lock(Node.Mcv.Lock)
@@ -88,7 +88,35 @@ public class RdnNnIppConnection : NnpIppNodeConnection
 
 	public Return AssetTransfer(IppConnection connection, AssetTransferNna call)
 	{
-		throw new NotImplementedException();
+		if(call.ToNet != Node.Net.Name)
+			throw new NnpException(NnError.Unavailable);
+
+		var t = new TransactApc
+				{
+					Signer = call.Signer, 
+					Tag = Guid.CreateVersion7().ToByteArray(),
+					Operations = [new UtilityTransfer
+								 {
+								 	FromTable	= (byte)Enum.Parse<RdnTable>(call.FromClass),
+								 	From		= AutoId.Parse(call.FromId),
+								 	ToTable		= (byte)Enum.Parse<RdnTable>(call.ToClass),
+								 	To			= AutoId.Parse(call.ToId),
+								 	Energy		= call.Name == nameof(Account.Energy) ? long.Parse(call.Amount) : 0, 
+								 	EnergyNext	= call.Name == nameof(Account.EnergyNext) ? long.Parse(call.Amount) : 0,
+								 	Spacetime	= call.Name == nameof(Account.Spacetime) ? long.Parse(call.Amount) : 0,
+								 }] 
+				};
+
+		t.Execute(Node, null, null, Flow);
+
+		var otc = new OutgoingTransactionApc {Tag = t.Tag};
+
+		while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
+		{
+			Thread.Sleep(10);
+		}
+
+		return new AssetTransferNnr {TransactionId = t.Tag};
 	}
 }
 

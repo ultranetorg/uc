@@ -300,9 +300,6 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		foreach(var i in Operations)
-			i.PreTransact(node, Sponsored, flow);
-
 		var t = node.Peering.Transact(Operations, Signer, Tag, Sponsored, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
