@@ -12,7 +12,7 @@ public enum NnpIppConnectionType : byte
 
 public class NnpIppClientConnection : IppConnection
 {
-	public R Call<A, R>(Nnc<A, R> call) where A : NnpArgumentation, new() where R : Return => Call(call.Argumentation) as R;
+	public R Call<A, R>(Nnc<A, R> call, Flow flow) where A : NnpArgumentation, new() where R : Return => Call(call.Argumentation, flow) as R;
 
 	public NnpIppClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{

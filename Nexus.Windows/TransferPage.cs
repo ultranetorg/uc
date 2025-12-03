@@ -97,7 +97,11 @@ public partial class TransferPage : Page
 		if(combobox.Items.Count > 0)
 			return;
 
-		foreach(var i in Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new () { Net = net})).Classes)
+		foreach(var i in Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
+		{
+			Net = net
+		}),
+																							 new Flow(5000)).Classes)
 		{
 			combobox.Items.Add(i);
 		}
@@ -113,13 +117,13 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(	new ()
-																							{ 
-																								Net = FromNet.Text,
-																								HolderClass = FromClass.Text,
-																								HolderId = FromId.Text
-																							}))
-																							.Assets)
+		foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
+		{
+			Net = FromNet.Text,
+			HolderClass = FromClass.Text,
+			HolderId = FromId.Text
+		}),
+																							new Flow(5000)).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -128,14 +132,14 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(	new ()
-																							{
-																								Net = FromNet.Text,
-																								HolderClass = FromClass.Text,
-																								HolderId = FromId.Text,
-																								Name = (Asset.SelectedItem as Asset).Name
-																							}))
-																							.Balance.ToString();
+		Balance.Text += Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
+		{
+			Net = FromNet.Text,
+			HolderClass = FromClass.Text,
+			HolderId = FromId.Text,
+			Name = (Asset.SelectedItem as Asset).Name
+		}),
+																							new Flow(5000)).Balance.ToString();
 	}
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
@@ -147,5 +151,35 @@ public partial class TransferPage : Page
 	private void ToNet_TextUpdate(object sender, EventArgs e)
 	{
 		ToClass.Items.Clear();
+	}
+
+	private void Any_Changed(object sender, EventArgs e)
+	{
+		Transfer.Enabled =	!string.IsNullOrEmpty(FromNet.Text) &&
+							!string.IsNullOrEmpty(FromClass.Text) &&
+							!string.IsNullOrEmpty(FromId.Text) &&
+							!string.IsNullOrEmpty(FromAccount.Text) &&
+							!string.IsNullOrEmpty(ToNet.Text) &&
+							!string.IsNullOrEmpty(ToClass.Text) &&
+							!string.IsNullOrEmpty(ToId.Text) &&
+							!string.IsNullOrEmpty(Asset.Text) &&
+							!string.IsNullOrEmpty(Amount.Text);
+	}
+
+	private void Transfer_Click(object sender, EventArgs e)
+	{
+		Nexus.NnConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
+																			{
+																				Net = FromNet.Text,
+																				ToNet = ToNet.Text,
+																				FromClass = FromClass.Text,
+																				FromId = FromId.Text,
+																				ToClass = ToClass.Text,
+																				ToId = ToId.Text,
+																				Name = (Asset.SelectedItem as Asset).Name,
+																				Amount = Amount.Text,
+																				Signer = FromAccount.SelectedItem as AccountAddress,
+																			}),
+																			new Flow(5000));
 	}
 }

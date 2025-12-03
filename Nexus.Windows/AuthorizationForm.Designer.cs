@@ -42,7 +42,9 @@
 			Signer = new Label();
 			Net = new Label();
 			label6 = new Label();
+			Shield = new PictureBox();
 			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
+			((System.ComponentModel.ISupportInitialize)Shield).BeginInit();
 			SuspendLayout();
 			// 
 			// Reject
@@ -184,6 +186,16 @@
 			label6.TabIndex = 8;
 			label6.Text = "Net";
 			// 
+			// Shield
+			// 
+			Shield.Image = (Image)resources.GetObject("Shield.Image");
+			Shield.Location = new Point(19, 12);
+			Shield.Name = "Shield";
+			Shield.Size = new Size(108, 86);
+			Shield.SizeMode = PictureBoxSizeMode.Zoom;
+			Shield.TabIndex = 10;
+			Shield.TabStop = false;
+			// 
 			// AuthorizationForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
@@ -192,6 +204,7 @@
 			CancelButton = Reject;
 			ClientSize = new Size(462, 389);
 			ControlBox = false;
+			Controls.Add(Shield);
 			Controls.Add(Operation);
 			Controls.Add(label1);
 			Controls.Add(label2);
@@ -212,6 +225,7 @@
 			StartPosition = FormStartPosition.CenterParent;
 			Text = "Authorization Required";
 			((System.ComponentModel.ISupportInitialize)Logo).EndInit();
+			((System.ComponentModel.ISupportInitialize)Shield).EndInit();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -231,5 +245,6 @@
 		private Label Signer;
 		private Label Net;
 		private Label label6;
+		private PictureBox Shield;
 	}
 }

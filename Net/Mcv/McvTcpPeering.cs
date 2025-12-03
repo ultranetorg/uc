@@ -977,11 +977,17 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																													:
 																													VaultApi.Request<byte[]>(new AuthorizeApc
 																																			{
-																																				Net		= Net.Name,
-																																				Account	= t.Signer,
-																																				Session = GetSession(t.Signer),
-																																				Hash	= t.Hashify(),
+																																				Application	= Name,
+																																				Net			= Net.Name,
+																																				Account		= t.Signer,
+																																				Session		= GetSession(t.Signer),
+																																				Hash		= t.Hashify(),
 																																			}, t.Flow);
+						if(t.Signature == null)
+						{	
+							t.Flow?.Log.ReportError(this, $"Failed to sign");
+							break;
+						}
 
 						var at = Call(ppi, new AllocateTransactionPpc {Transaction = t});
 							
@@ -998,6 +1004,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																													:
 																													VaultApi.Request<byte[]>(new AuthorizeApc
 																																			{
+																																				Application	= Name,
 																																				Net = Net.Name,
 																																				Account = t.Signer,
 																																				Session = GetSession(t.Signer),
@@ -1168,6 +1175,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))
 			throw new NodeException(NodeError.Invalid);
+
+		foreach(var i in operations)
+			i.PreTransact(Node, sponsored, flow);
 
 		var t = new Transaction();
 		t.Tag				= tag ?? Guid.NewGuid().ToByteArray();

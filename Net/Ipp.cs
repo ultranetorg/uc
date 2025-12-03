@@ -223,7 +223,7 @@ public class IppConnection
 ///		Request(rq);
 ///	}
 
-	public Return Call(Argumentation argumentation)
+	public Return Call(Argumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);
@@ -244,7 +244,7 @@ public class IppConnection
 
 		try
 		{
-			i = WaitHandle.WaitAny([rq.Event, Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
+			i = WaitHandle.WaitAny([rq.Event, flow.Cancellation.WaitHandle, Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{
@@ -311,7 +311,7 @@ public abstract class IppServer
 	protected IProgram					Program;
 	protected Flow						Flow;
 	readonly string						Name;
-	public readonly List<IppConnection>		Clients = new();
+	public readonly List<IppConnection>	Clients = new();
 	public Constructor					Constructor = new();
 
 	public virtual void					Accept(IppConnection connection){}
@@ -325,21 +325,28 @@ public abstract class IppServer
 		program.CreateThread(() =>	{ 
 										while(Flow.Active)
 										{
-											var pipe = new NamedPipeServerStream(Name,
-																				 PipeDirection.InOut,
-																				 NamedPipeServerStream.MaxAllowedServerInstances,
-																				 PipeTransmissionMode.Byte,
-																				 PipeOptions.Asynchronous);
-
-											pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
-
-											IppConnection c = CreateConnection(pipe);
-
-											lock(Clients)
-												Clients.Add(c);
-
-											Accept(c);
-											program.CreateThread(() => c.Listen()).Start();
+											try
+											{
+												var pipe = new NamedPipeServerStream(Name,
+																					 PipeDirection.InOut,
+																					 NamedPipeServerStream.MaxAllowedServerInstances,
+																					 PipeTransmissionMode.Byte,
+																					 PipeOptions.Asynchronous);
+	
+												pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
+	
+												IppConnection c = CreateConnection(pipe);
+	
+												lock(Clients)
+													Clients.Add(c);
+	
+												Accept(c);
+												program.CreateThread(() => c.Listen()).Start();
+											}
+											catch(AggregateException ex) when(ex.InnerException is OperationCanceledException)
+											{
+												break;
+											}
 										}
 									})
 									.Start();

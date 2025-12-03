@@ -4,37 +4,6 @@ using Uccs.Net;
 
 namespace Uccs.Rdn;
 
-//public interface RdnNnIpc<C, R> where C : Ipc<R> where R : IppResponse 
-//{
-	//public RdnNode Node => Owner as RdnNode;
-//}
-
-//public class RdnHolderClassesNnIpc : HolderClassesNnIpc
-//{
-//	public override IppResponse Execute(Flow flow)
-//	{
-//		return new HolderClassesNnIpr {Classes = [nameof(Account)]};
-//	}
-//}
-//
-//public class RdnHoldersByAccountNnIpc : HoldersByAccountNnIpc
-//{
-//	public RdnNode Node => Owner as RdnNode;
-//
-//	public override IppResponse Execute(Flow flow)
-//	{
-//		lock(Node.Mcv.Lock)
-//		{	
-//			var a = Node.Mcv.Accounts.Latest(new AccountAddress(Address));
-//			
-//			if(a != null)
-//				return new HoldersByAccountNnIpr {Holders = [new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}]};
-//			else
-//				throw new NnException(NnError.NotFound);
-//		}
-//	}
-//}
-
 public class RdnNnIppConnection : NnpIppNodeConnection
 {
 	RdnNode Node => Program as RdnNode;
@@ -58,25 +27,97 @@ public class RdnNnIppConnection : NnpIppNodeConnection
 		return new HolderClassesNnr {Classes = [nameof(Account)]};
 	}
 
-//	public IppResponse AssetBalance(IppConnection connection, AssetBalanceNnIpc call)
-//	{
-//		throw new NotImplementedException();
-//	}
-//
-//	public IppResponse AssetTransfer(IppConnection connection, AssetTransferNnIpc call)
-//	{
-//		throw new NotImplementedException();
-//	}
-//
-//	public IppResponse HolderAssets(IppConnection connection, HolderAssetsNnIpc call)
-//	{
-//		throw new NotImplementedException();
-//	}
-//
-//	public IppResponse HoldersByAccount(IppConnection connection, HoldersByAccountNnIpc call)
-//	{
-//		throw new NotImplementedException();
-//	}
+	public Return AssetBalance(IppConnection connection, AssetBalanceNna call)
+	{
+		if(call.HolderClass != nameof(Account))
+			throw new EntityException(EntityError.UnknownClass);
+
+		if(call.Name != nameof(Account.Spacetime) && call.Name != nameof(Account.Energy) && call.Name != nameof(Account.EnergyNext))
+			throw new EntityException(EntityError.UnknownAsset);
+
+		lock(Node.Mcv.Lock)
+		{	
+			var a = Node.Mcv.Accounts.Latest(AutoId.Parse(call.HolderId));
+			
+			if(a != null)
+				return	new AssetBalanceNnr
+						{
+							Balance = new BigInteger(call.Name switch
+															   {
+																	nameof(Account.Spacetime) => a.Spacetime,
+																	nameof(Account.Energy) => a.Energy,
+															   })
+						};
+			else
+				throw new EntityException(EntityError.NotFound);
+		}
+	}
+
+	public Return HolderAssets(IppConnection connection, HolderAssetsNna call)
+	{
+		if(call.HolderClass != nameof(Account))
+			throw new NnpException(NnError.Unknown);
+
+		lock(Node.Mcv.Lock)
+		{	
+			if(!AutoId.TryParse(call.HolderId, out var id))
+				throw new NnpException(NnError.NotFound);
+
+			var a = Node.Mcv.Accounts.Latest(id);
+			
+			if(a != null)
+				return new HolderAssetsNnr{Assets = [new () {Name = nameof(Account.Spacetime), Units = "Byte-days (BD)"},
+													 new () {Name = nameof(Account.Energy), Units = "Execution Cycles (EC)"}]};
+			else
+				throw new EntityException(EntityError.NotFound);
+		}
+	}
+
+	public Return HoldersByAccount(IppConnection connection, HoldersByAccountNna call)
+	{
+		lock(Node.Mcv.Lock)
+		{	
+			var a = Node.Mcv.Accounts.Latest(new AccountAddress(call.Address));
+			
+			if(a != null)
+				return new HoldersByAccountNnr {Holders = [new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}]};
+			else
+				throw new NnpException(NnError.NotFound);
+		}
+	}
+
+	public Return AssetTransfer(IppConnection connection, AssetTransferNna call)
+	{
+		if(call.ToNet != Node.Net.Name)
+			throw new NnpException(NnError.Unavailable);
+
+		var t = new TransactApc
+				{
+					Signer = call.Signer, 
+					Tag = Guid.CreateVersion7().ToByteArray(),
+					Operations = [new UtilityTransfer
+								 {
+								 	FromTable	= (byte)Enum.Parse<RdnTable>(call.FromClass),
+								 	From		= AutoId.Parse(call.FromId),
+								 	ToTable		= (byte)Enum.Parse<RdnTable>(call.ToClass),
+								 	To			= AutoId.Parse(call.ToId),
+								 	Energy		= call.Name == nameof(Account.Energy) ? long.Parse(call.Amount) : 0, 
+								 	EnergyNext	= call.Name == nameof(Account.EnergyNext) ? long.Parse(call.Amount) : 0,
+								 	Spacetime	= call.Name == nameof(Account.Spacetime) ? long.Parse(call.Amount) : 0,
+								 }] 
+				};
+
+		t.Execute(Node, null, null, Flow);
+
+		var otc = new OutgoingTransactionApc {Tag = t.Tag};
+
+		while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
+		{
+			Thread.Sleep(10);
+		}
+
+		return new AssetTransferNnr {TransactionId = t.Tag};
+	}
 }
 
 //public class HolderClassesNnIpc : NnIpc<HolderClassesNnIpr>

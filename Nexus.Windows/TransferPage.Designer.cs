@@ -135,6 +135,7 @@ partial class TransferPage
 		Transfer.TabIndex = 9;
 		Transfer.Text = "Transfer";
 		Transfer.UseVisualStyleBackColor = true;
+		Transfer.Click += Transfer_Click;
 		// 
 		// FromNet
 		// 
@@ -146,6 +147,7 @@ partial class TransferPage
 		FromNet.TabIndex = 11;
 		FromNet.DropDown += Open_DropDown;
 		FromNet.TextUpdate += FromNet_TextUpdate;
+		FromNet.TextChanged += Any_Changed;
 		// 
 		// label4
 		// 
@@ -167,6 +169,7 @@ partial class TransferPage
 		FromClass.Size = new Size(134, 23);
 		FromClass.TabIndex = 10;
 		FromClass.DropDown += Open_DropDown;
+		FromClass.TextChanged += Any_Changed;
 		// 
 		// Asset
 		// 
@@ -179,6 +182,7 @@ partial class TransferPage
 		Asset.TabIndex = 10;
 		Asset.DropDown += Open_DropDown;
 		Asset.SelectionChangeCommitted += Asset_SelectionChangeCommitted;
+		Asset.TextChanged += Any_Changed;
 		// 
 		// label5
 		// 
@@ -207,6 +211,7 @@ partial class TransferPage
 		Amount.Name = "Amount";
 		Amount.Size = new Size(209, 23);
 		Amount.TabIndex = 15;
+		Amount.TextChanged += Any_Changed;
 		// 
 		// ToNet
 		// 
@@ -218,6 +223,7 @@ partial class TransferPage
 		ToNet.TabIndex = 11;
 		ToNet.DropDown += Open_DropDown;
 		ToNet.TextUpdate += ToNet_TextUpdate;
+		ToNet.TextChanged += Any_Changed;
 		// 
 		// ToClass
 		// 
@@ -229,6 +235,7 @@ partial class TransferPage
 		ToClass.Size = new Size(144, 23);
 		ToClass.TabIndex = 10;
 		ToClass.DropDown += Open_DropDown;
+		ToClass.TextChanged += Any_Changed;
 		// 
 		// label7
 		// 
@@ -263,9 +270,9 @@ partial class TransferPage
 		// pictureBox1
 		// 
 		pictureBox1.Image = Properties.Resources.right_arrow;
-		pictureBox1.Location = new Point(364, 45);
+		pictureBox1.Location = new Point(365, 45);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(49, 126);
+		pictureBox1.Size = new Size(48, 126);
 		pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
 		pictureBox1.TabIndex = 16;
 		pictureBox1.TabStop = false;
@@ -280,6 +287,7 @@ partial class TransferPage
 		FromAccount.Size = new Size(292, 23);
 		FromAccount.TabIndex = 11;
 		FromAccount.DropDown += Open_DropDown;
+		FromAccount.TextChanged += Any_Changed;
 		// 
 		// label10
 		// 
@@ -307,7 +315,7 @@ partial class TransferPage
 		FromId.Name = "FromId";
 		FromId.Size = new Size(152, 23);
 		FromId.TabIndex = 17;
-		FromId.TextChanged += FromId_TextChanged;
+		FromId.TextChanged += Any_Changed;
 		// 
 		// ToId
 		// 
@@ -316,6 +324,7 @@ partial class TransferPage
 		ToId.Name = "ToId";
 		ToId.Size = new Size(152, 23);
 		ToId.TabIndex = 17;
+		ToId.TextChanged += Any_Changed;
 		// 
 		// label11
 		// 
@@ -409,7 +418,6 @@ partial class TransferPage
 	private Label label8;
 	private Label label9;
 	private PictureBox pictureBox1;
-	private ComboBox comboBox1;
 	private ComboBox FromAccount;
 	private Label label10;
 	private Label Balance;

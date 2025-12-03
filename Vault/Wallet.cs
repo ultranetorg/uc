@@ -71,7 +71,7 @@ public class WalletAccount : IBinarySerializable
 		if(net == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		var a = Authentications.Find(i => i.Application == application && i.Net == net);
+		var a = FindAuthentication(net, application);
 		
 		if(a != null)
 			return a;
@@ -80,16 +80,23 @@ public class WalletAccount : IBinarySerializable
 	
 		Cryptography.Random.NextBytes(s);
 	
-		a = new Authentication {Application = application, Logo = logo, Net = net, Session = s, Trust = trust};
-
+		a = new Authentication
+			{
+				Application = application, 
+				Logo = logo, 
+				Net = net, 
+				Session = s, 
+				Trust = trust
+			};
+			
 		Authentications.Add(a);
 	
 		return a;
 	}
 
-	public Authentication FindAuthentication(string net)
+	public Authentication FindAuthentication(string net, string application)
 	{
-		return Authentications.Find(i => i.Net == net);
+		return Authentications.Find(i => i.Net == net && i.Application == application);
 	}
 
 	public void RemoveAuthentication(Authentication authentication)
@@ -125,7 +132,6 @@ public class Wallet
 	Vault						Vault;
 
 	public bool					Locked => Encrypted != null;
-
 	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
 
 	public const string			Default = "default";

@@ -35,7 +35,7 @@ public class Nexus : IProgram
 
 	public NnpTcpPeering				NnPeering;
 	public NnpIppClientConnection	NnConnection;
-	public NnIppServer				NnIppServer;
+	public NnpIppServer				NnIppServer;
 
 	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
 
@@ -64,7 +64,7 @@ public class Nexus : IProgram
 		if(Settings.NnPeering != null)
 		{
 			NnPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
-			NnIppServer = new NnIppServer(this);
+			NnIppServer = new NnpIppServer(this);
 			NnConnection = new NnpIppClientConnection(this, NnpTcpPeering.GetName(Settings.Host), flow);
 		}
 
