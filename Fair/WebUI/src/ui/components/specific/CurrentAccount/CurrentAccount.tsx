@@ -9,19 +9,26 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
+import { useTranslation } from "react-i18next"
 
+import { SvgBoxArrowRight } from "assets"
 import { useAccountsContext } from "app"
 import { useScrollOrResize } from "hooks"
 
+import { ButtonPrimary } from "ui/components/ButtonPrimary"
 import { AccountMenu } from "./AccountMenu"
 import { CurrentAccountButton } from "./components"
 
+const STICKY_CLASSNAME = "sticky bottom-2 z-20"
+
 export const CurrentAccount = () => {
+  const { t } = useTranslation("currentAccount")
+
   const [isOpen, setIsOpen] = useState(false)
 
   useScrollOrResize(() => setIsOpen(false))
 
-  const { currentAccount, authenticate } = useAccountsContext()
+  const { accounts, currentAccount, authenticate } = useAccountsContext()
 
   const nodeId = useFloatingParentNodeId()
   const { context, floatingStyles, refs } = useFloating({
@@ -43,18 +50,24 @@ export const CurrentAccount = () => {
 
   return (
     <>
-      {currentAccount?.address ? (
-        <CurrentAccountButton
-          nickname={currentAccount?.nickname}
-          id={currentAccount?.id}
-          address={currentAccount?.address}
-          ref={refs.setReference}
-          {...getReferenceProps()}
+      {!accounts.length ? (
+        <ButtonPrimary
+          iconBefore={<SvgBoxArrowRight className="fill-white" />}
+          className={STICKY_CLASSNAME}
+          label={t("login")}
+          onClick={() => authenticate()}
         />
       ) : (
-        <div className="cursor-pointer" onClick={() => authenticate()}>
-          LOGIN
-        </div>
+        currentAccount?.address && (
+          <CurrentAccountButton
+            className={STICKY_CLASSNAME}
+            nickname={currentAccount?.nickname}
+            id={currentAccount?.id}
+            address={currentAccount?.address}
+            ref={refs.setReference}
+            {...getReferenceProps()}
+          />
+        )
       )}
       {isOpen && (
         <AccountMenu

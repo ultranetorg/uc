@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { CheckCircleFillSvg, StarSvg } from "assets"
 import avatarFallbackXl from "assets/fallback/account-avatar-xl.png"
 import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
-import { AccountBase } from "types"
+import { AccountBase, PropsWithClassName } from "types"
 import { buildAccountAvatarUrl, MakeOptional, shortenAddress } from "utils"
 
 type AccountBaseProps = {
@@ -42,12 +42,12 @@ export const Account = memo(({ id, nickname, address, addressShort, selected, on
   </div>
 ))
 
-export type CurrentAccountButtonProps = MakeOptional<AccountBase, "id">
+export type CurrentAccountButtonProps = PropsWithClassName & MakeOptional<AccountBase, "id">
 
 export const CurrentAccountButton = memo(
-  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ id, address, nickname }, ref) => (
+  forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ className, id, address, nickname }, ref) => (
     <div
-      className="sticky bottom-2 z-20 flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100"
+      className={twMerge("flex cursor-pointer select-none gap-3 rounded-lg p-2 hover:bg-gray-100", className)}
       ref={ref}
     >
       <div className="size-10 overflow-hidden rounded-full" title={nickname ?? id}>

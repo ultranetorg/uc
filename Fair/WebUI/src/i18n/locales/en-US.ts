@@ -97,6 +97,7 @@ export const enUS = {
   currentAccount: {
     addAccount: "Add another account",
     createNickname: "Create nickname",
+    login: "Login",
     signout: "Sign Out",
     switchAccounts: "Switch Accounts",
   },
