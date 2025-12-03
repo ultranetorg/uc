@@ -82,7 +82,7 @@ public class RdnNnIppConnection : NnpIppNodeConnection
 			if(a != null)
 				return new HoldersByAccountNnr {Holders = [new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}]};
 			else
-				throw new NnpException(NnError.NotFound);
+				return new HoldersByAccountNnr {Holders = []};
 		}
 	}
 

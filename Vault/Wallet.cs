@@ -15,6 +15,12 @@ public class Authentication : IBinarySerializable
 	public Trust	Trust { get; set; }
 	public byte[]	Session { get; set; }
 
+	WalletAccount Account;
+
+	public Authentication()
+	{
+	}
+
 	public void Read(BinaryReader reader)
 	{
 		Application = reader.ReadUtf8();
@@ -32,6 +38,19 @@ public class Authentication : IBinarySerializable
 		writer.Write(Trust);
 		writer.WriteBytes(Session);
 	}
+
+	public byte[] Heshify(AccountAddress account)
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		w.Write(account);
+		w.WriteUtf8(Application);
+		w.WriteUtf8(Net);
+		w.WriteBytes(Session);
+
+		return Cryptography.Hash(s.ToArray());
+	}
 }
 
 public class WalletAccount : IBinarySerializable
@@ -40,7 +59,7 @@ public class WalletAccount : IBinarySerializable
 	public AccountAddress		Address { get; set; }
 	public AccountKey			Key;
 	public List<Authentication>	Authentications = [];
-	Wallet						Wallet;
+	public Wallet				Wallet;
 
 	public WalletAccount()
 	{ 
@@ -63,7 +82,7 @@ public class WalletAccount : IBinarySerializable
 		return $"{Address}";
 	}
 
-	public Authentication GetAuthentication(string application, byte[] logo, string net, Trust trust)
+	public Authentication AddAuthentication(string application, string net, byte[] logo, Trust trust)
 	{
 		if(application == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -71,37 +90,42 @@ public class WalletAccount : IBinarySerializable
 		if(net == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		var a = FindAuthentication(net, application);
-		
-		if(a != null)
-			return a;
+		//var a = FindAuthentication(net, application);
+		//
+		//if(a != null)
+		//	return a;
 		
 		var s = new byte[32];
 	
 		Cryptography.Random.NextBytes(s);
 	
-		a = new Authentication
-			{
-				Application = application, 
-				Logo = logo, 
-				Net = net, 
-				Session = s, 
-				Trust = trust
-			};
+		var a = new Authentication
+				{
+					Application = application, 
+					Logo = logo, 
+					Net = net, 
+					Session = s, 
+					Trust = trust
+				};
 			
 		Authentications.Add(a);
+		Wallet.AuthenticationHashes.Add(a.Heshify(Address));
+
+		Wallet.Save();
 	
 		return a;
 	}
 
-	public Authentication FindAuthentication(string net, string application)
-	{
-		return Authentications.Find(i => i.Net == net && i.Application == application);
-	}
+	//public Authentication FindAuthentication(string net, string application)
+	//{
+	//	return Authentications.Find(i => i.Net == net && i.Application == application);
+	//}
 
 	public void RemoveAuthentication(Authentication authentication)
 	{
 		Authentications.Remove(authentication);
+		var h = authentication.Heshify(Address);
+		Wallet.AuthenticationHashes.RemoveAll(i => i.SequenceEqual(h));
 
 		Wallet.Save();
 	}
@@ -127,9 +151,10 @@ public class Wallet
 {
 	public string				Name;
 	public List<WalletAccount>	Accounts = new();
+	public List<byte[]>			AuthenticationHashes = new();
 	public byte[]				Encrypted;
 	public string				Password;
-	Vault						Vault;
+	public Vault				Vault;
 
 	public bool					Locked => Encrypted != null;
 	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
@@ -149,11 +174,15 @@ public class Wallet
 		return Vault.Cryptography.Encrypt(es.ToArray(), Password);
 	}
 
-	public Wallet(Vault vault, string name, byte[] encrypted)
+	public Wallet(Vault vault, string name, byte[] data)
 	{
 		Name = name ?? Default;
 		Vault = vault;
-		Encrypted = encrypted;
+
+		var r = new BinaryReader(new MemoryStream(data));
+		
+		AuthenticationHashes = r.ReadList(() => r.ReadBytes(Cryptography.HashSize));
+		Encrypted			 = r.ReadBytes();
 	}
 
 	public Wallet(Vault vault, string name, AccountKey[] keys, string password)
@@ -162,6 +191,17 @@ public class Wallet
 		Vault = vault;
 		Password = password;
 		Accounts = keys.Select(i => new WalletAccount(this, i)).ToList();
+	}
+
+	public void Save()
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		w.Write(AuthenticationHashes, w.Write);
+		w.WriteBytes(Encrypted ?? Encrypt());
+
+		File.WriteAllBytes(Path, s.ToArray());
 	}
 
 	public WalletAccount AddAccount(byte[] key)
@@ -213,11 +253,6 @@ public class Wallet
 		Accounts = r.ReadList(() => { var a = new WalletAccount(this); a.Read(r); return a; });
 
 		Encrypted = null;
-	}
-
-	public void Save()
-	{
-		File.WriteAllBytes(Path, Encrypted ?? Encrypt());
 	}
 
 	public void Rename(string name)

@@ -169,4 +169,11 @@ public class Vault : Cli
 
 		Wallets.Remove(w);
 	}
+
+	public bool IsAuthenticated(AccountAddress account, string application, string net, byte[] sesssion)
+	{
+		var h = new Authentication {Application = application, Net = net, Session = sesssion}.Heshify(account);
+
+		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+	}
 }
