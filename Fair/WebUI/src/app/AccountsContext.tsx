@@ -71,7 +71,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
           : a,
       ),
     }))
-  }, [account, session.accounts, setSession])
+  }, [account, session.accounts.length, setSession])
 
   const selectAccount = useCallback(
     (index: number) => {
@@ -106,7 +106,6 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         },
       )
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isAuthenticated, session.accounts.length, session.selectedIndex, setSession],
   )
 
@@ -144,6 +143,29 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback(() => removeSession(), [removeSession])
 
+  useEffect(() => {
+    if (session.selectedIndex === undefined) return
+    if (session.accounts.length <= session.selectedIndex) {
+      removeSession()
+      return
+    }
+
+    const target = session.accounts[session.selectedIndex]
+    isAuthenticated(
+      { accountAddress: target.account.address, session: target.session },
+      {
+        onSuccess: valid => {
+          if (!valid) {
+            setSession(p => {
+              const accounts = p.accounts.filter((_, i) => i !== p.selectedIndex)
+              return { ...p, accounts, selectedIndex: undefined }
+            })
+          }
+        },
+      },
+    )
+  }, [])
+
   const value = useMemo(
     () => ({
       accounts: session.accounts,
@@ -163,8 +185,6 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       logout,
     ],
   )
-
-  useEffect(() => {}, [])
 
   return <AccountsContext.Provider value={value}>{children}</AccountsContext.Provider>
 }
