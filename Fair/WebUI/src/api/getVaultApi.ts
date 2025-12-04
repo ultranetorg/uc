@@ -1,6 +1,7 @@
 import { VAULT } from "constants/"
 import { AuthenticationResult, Wallet, WalletAccount } from "types/vault"
 
+import { CryptographyType } from "types/vault/CryptographyType"
 import { VaultApi } from "./VaultApi"
 import { toLowerCamel } from "./utils"
 
@@ -37,6 +38,7 @@ const authorize = (operation: string, accountAddress: string, session: string, h
   fetch(`${BASE_URL}/Authenticate`, {
     method: "POST",
     body: JSON.stringify({
+      Cryptography: CryptographyType.Mcv,
       Net: VAULT.NETWORK,
       Application: VAULT.APPLICATION,
       Operation: operation,
