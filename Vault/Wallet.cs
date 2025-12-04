@@ -161,19 +161,6 @@ public class Wallet
 
 	public const string			Default = "default";
 
-	public byte[] Encrypt()
-	{
-		if(Encrypted != null)
-			throw new VaultException(VaultError.Locked);
-
-		var es = new MemoryStream();
-		var ew = new BinaryWriter(es);
-
-		ew.Write(Accounts);
-
-		return Vault.Cryptography.Encrypt(es.ToArray(), Password);
-	}
-
 	public Wallet(Vault vault, string name, byte[] data)
 	{
 		Name = name ?? Default;
@@ -193,7 +180,20 @@ public class Wallet
 		Accounts = keys.Select(i => new WalletAccount(this, i)).ToList();
 	}
 
-	public void Save()
+	byte[] Encrypt()
+	{
+		if(Encrypted != null)
+			throw new VaultException(VaultError.Locked);
+
+		var es = new MemoryStream();
+		var ew = new BinaryWriter(es);
+
+		ew.Write(Accounts);
+
+		return Vault.Cryptography.Encrypt(es.ToArray(), Password);
+	}
+
+	public byte[] ToRaw()
 	{
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
@@ -201,7 +201,12 @@ public class Wallet
 		w.Write(AuthenticationHashes, w.Write);
 		w.WriteBytes(Encrypted ?? Encrypt());
 
-		File.WriteAllBytes(Path, s.ToArray());
+		return s.ToArray();
+	}
+
+	public void Save()
+	{
+		File.WriteAllBytes(Path, ToRaw());
 	}
 
 	public WalletAccount AddAccount(byte[] key)
