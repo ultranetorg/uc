@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Uccs.Net;
+using Uccs.Net.FUI;
 using Uccs.Nexus;
 using Uccs.Rdn;
 using Uccs.Vault;
@@ -72,6 +74,89 @@ public class Program: ApplicationContext
 															return false;
 														}
 													};
+
+			nexus.Vault.UnlockRequested	=	(uiparent, wallet) =>
+											{
+												var f = new EnterPasswordForm();
+											
+												while(true)
+												{
+													try
+													{
+														if(f.Ask($"A password required to unlock '{wallet}' wallet"))
+														{
+															nexus.Vault.FindWallet(wallet).Unlock(f.Password);
+														}
+
+														break;
+													}
+													catch(CryptographicException ex)
+													{
+														MessageBox.Show(uiparent as IWin32Window, "Access Denied", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+													}
+												}
+											};
+		}
+
+		static void BindWallets(Vault.Vault vault,ComboBox control)
+		{
+			control.Items.Clear();
+
+			IEnumerable<string> keys;
+
+			lock(vault)
+				keys = vault.Wallets.Select(i => i.Name);
+
+			foreach(var i in keys)
+				control.Items.Add(i);
+
+			if(control.Items.Count > 0)
+				control.SelectedIndex = 0;
+
+		}
+
+		public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts)
+		{
+			control.Items.Clear();
+
+			IEnumerable<AccountAddress> keys;
+
+			lock(vault)
+				keys = accounts.Select(i => i.Address);
+
+			foreach(var i in keys)
+				control.Items.Add(i);
+
+			if(control.Items.Count > 0)
+				control.SelectedIndex = 0;
+
+		}
+
+		public static void BindWallets(IWin32Window parent, Vault.Vault vault, ComboBox wallets, ComboBox accounts)
+		{
+			void f(object s, EventArgs e)
+			{
+				accounts.Items.Clear();
+
+				if(wallets.SelectedItem is string wn)
+				{
+					var w = vault.FindWallet(wn);
+	
+					if(w.Locked)
+						vault.UnlockRequested(parent, w.Name);
+	
+					if(!w.Locked)
+						BindAccounts(vault, accounts, w.Accounts);
+				}
+				else
+					accounts.Items.Clear();
+			};
+
+			wallets.SelectionChangeCommitted += f;
+
+			BindWallets(vault, wallets);
+
+			f(null, null);
 		}
 	}
 }

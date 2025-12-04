@@ -96,7 +96,7 @@ partial class AssetsPage
 		// 
 		label2.AutoSize = true;
 		label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label2.Location = new Point(21, 95);
+		label2.Location = new Point(21, 98);
 		label2.Name = "label2";
 		label2.Size = new Size(53, 15);
 		label2.TabIndex = 12;
@@ -105,14 +105,14 @@ partial class AssetsPage
 		// Accounts
 		// 
 		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(80, 92);
+		Accounts.Location = new Point(80, 95);
 		Accounts.Name = "Accounts";
 		Accounts.Size = new Size(300, 23);
 		Accounts.TabIndex = 10;
 		// 
 		// Start
 		// 
-		Start.Location = new Point(648, 86);
+		Start.Location = new Point(648, 89);
 		Start.Name = "Start";
 		Start.Size = new Size(149, 32);
 		Start.TabIndex = 9;
@@ -125,7 +125,7 @@ partial class AssetsPage
 		Nets.FormattingEnabled = true;
 		Nets.Location = new Point(80, 52);
 		Nets.Name = "Nets";
-		Nets.Size = new Size(209, 23);
+		Nets.Size = new Size(163, 23);
 		Nets.TabIndex = 11;
 		// 
 		// label4

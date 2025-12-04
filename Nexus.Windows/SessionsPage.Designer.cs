@@ -85,7 +85,6 @@ partial class SessionsPage
 		Wallets.Name = "Wallets";
 		Wallets.Size = new Size(237, 23);
 		Wallets.TabIndex = 5;
-		Wallets.SelectionChangeCommitted += Wallets_SelectionChangeCommitted;
 		// 
 		// label1
 		// 

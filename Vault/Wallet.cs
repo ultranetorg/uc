@@ -244,6 +244,14 @@ public class Wallet
 		Password = null;
 	}
 
+	//public void Access(object uiparent)
+	//{
+	//	if(Locked)
+	//	{	
+	//		Vault.UnlockRequested?.Invoke(uiparent, Name); 
+	//	}
+	//}
+
 	public void Unlock(string password)
 	{
 		if(Encrypted == null)

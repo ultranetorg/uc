@@ -59,8 +59,8 @@ public enum RequestError : byte
 
 public enum VaultError : byte
 {
-	None,
 	Locked,
+	Corrupted,
 	AlreadyExists,
 	AlreadyLocked,
 	AlreadyUnlocked,

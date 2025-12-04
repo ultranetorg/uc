@@ -1,5 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using System.Security.Cryptography;
+using System.Windows.Forms;
 using Uccs.Net;
+using Uccs.Net.FUI;
 using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
@@ -21,8 +23,7 @@ public partial class AuthenticattionForm : Form
 
 		Allow.Enabled = Ask.Enabled = false;
 
-		Page.BindWallets(vault, Wallets);
-		Wallets_SelectedValueChanged(null, EventArgs.Empty);
+		Program.NexusSystem.BindWallets(this, vault, Wallets, Accounts);
 	}
 
 	public void SetLogo(byte[] image)
@@ -49,14 +50,6 @@ public partial class AuthenticattionForm : Form
 	{
 		DialogResult = DialogResult.Cancel;
 		Close();
-	}
-
-	private void Wallets_SelectedValueChanged(object sender, EventArgs e)
-	{
-		if(Wallets.SelectedItem is string w)
-			Page.BindAccounts(Vault, Accounts, Vault.FindWallet(w).Accounts);
-		else
-			Accounts.Items.Clear();
 	}
 
 	private void Allow_Click(object sender, EventArgs e)

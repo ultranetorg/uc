@@ -20,7 +20,7 @@ public class Vault : Cli
 
 	public Func<string, byte[], string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
 	public Func<AccountAddress, Authentication, string, bool>					AuthorizationRequested;
-	public Action<AccountAddress>												UnlockRequested;
+	public Action<object, string>												UnlockRequested;
 
 	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
 															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
@@ -170,9 +170,9 @@ public class Vault : Cli
 		Wallets.Remove(w);
 	}
 
-	public bool IsAuthenticated(AccountAddress account, string application, string net, byte[] sesssion)
+	public bool IsAuthenticated(AccountAddress account, string application, string net, byte[] session)
 	{
-		var h = new Authentication {Application = application, Net = net, Session = sesssion}.Heshify(account);
+		var h = new Authentication {Application = application, Net = net, Session = session}.Heshify(account);
 
 		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	}

@@ -197,20 +197,36 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 {
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
+		if(string.IsNullOrWhiteSpace(Application) || string.IsNullOrWhiteSpace(Net) || Session.Length != Uccs.Net.Cryptography.HashSize)
+			throw new VaultException(VaultError.IncorrectArgumets);
+
+		var h = new	Authentication {Application = Application, Net = Net, Session = Session}.Heshify(Account);
+
+		var w = vault.Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+
+		if(w == null)
+			throw new VaultException(VaultError.NotFound);
+
+		if(w.Locked)
+			vault.UnlockRequested?.Invoke(null,w.Name);
+
+		if(w.Locked)
+			throw new VaultException(VaultError.Locked);
+
 		var acc = vault.Find(Account);
 		
 		var au = acc?.Authentications?.Find(i => i.Net == Net && i.Application == Application && i.Session.SequenceEqual(Session));
 
 		if(au == null)
-			return null;
+			throw new VaultException(VaultError.Corrupted);
 
-		if(acc.Key == null)
-		{
-			vault.UnlockRequested(Account);
-		}
+		//if(acc.Key == null)
+		//{
+		//	vault.UnlockRequested(Account);
+		//}
 
-		if(acc.Key == null)
-			return null;
+		//if(acc.Key == null)
+		//	return null;
 
 		if(au.Trust == Trust.AskEveryTime)
 		{
