@@ -34,6 +34,7 @@ public static class RegisterServicesExtensions
 
 	private static void RegisterValidators(IServiceCollection services)
 	{
+		services.AddSingleton<AccountAddressValidator>();
 		services.AddSingleton<IDepthValidator, DepthValidator>();
 		services.AddSingleton<IAutoIdValidator, AutoIdValidator>();
 		services.AddSingleton<LimitValidator>();

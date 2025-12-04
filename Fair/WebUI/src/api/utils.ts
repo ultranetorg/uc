@@ -53,3 +53,20 @@ export const toPaginationResult = async <T>(response: Response): Promise<Paginat
     pageSize,
   }
 }
+
+export const toLowerCamel = (obj: unknown): unknown => {
+  if (Array.isArray(obj)) {
+    return obj.map(toLowerCamel)
+  }
+
+  if (obj !== null && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => {
+        const lowerKey = key.charAt(0).toLowerCase() + key.slice(1)
+        return [lowerKey, toLowerCamel(value)]
+      }),
+    )
+  }
+
+  return obj
+}

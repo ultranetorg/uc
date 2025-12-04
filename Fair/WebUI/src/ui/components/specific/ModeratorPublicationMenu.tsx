@@ -15,6 +15,7 @@ import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
+import { useSiteContext } from "app"
 
 type ModeratorPublicationMenuBaseProps = {
   publicationId: string
@@ -24,6 +25,7 @@ export type ModeratorPublicationMenuProps = PropsWithClassName & ModeratorPublic
 
 export const ModeratorPublicationMenu = memo(({ className, publicationId }: ModeratorPublicationMenuProps) => {
   const { t } = useTranslation("moderatorPublicationMenu")
+  const { isModerator } = useSiteContext()
 
   const [isExpanded, setExpanded] = useState(false)
 
@@ -53,6 +55,10 @@ export const ModeratorPublicationMenu = memo(({ className, publicationId }: Mode
   )
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
+
+  if (!isModerator) {
+    return null
+  }
 
   return (
     <>

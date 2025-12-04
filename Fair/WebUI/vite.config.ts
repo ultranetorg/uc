@@ -19,6 +19,7 @@ export default defineConfig({
       constants: path.resolve(__dirname, "src/constants"),
       entities: path.resolve(__dirname, "src/entities"),
       hooks: path.resolve(__dirname, "src/hooks"),
+      types: path.resolve(__dirname, "src/types"),
       ui: path.resolve(__dirname, "src/ui"),
       utils: path.resolve(__dirname, "src/utils"),
       config: path.resolve(__dirname, "src/config.ts"),

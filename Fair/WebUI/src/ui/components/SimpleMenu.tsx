@@ -52,12 +52,7 @@ export const SimpleMenu = memo(
                   {label}
                 </div>
               ) : (
-                <Link
-                  key={i + to.toString()}
-                  to={to}
-                  className="w-40 truncate rounded-sm p-2 text-2sm leading-4.5 text-gray-900 hover:bg-gray-100"
-                  title={label}
-                >
+                <Link key={i + to.toString()} to={to} className={MENU_ITEM_CLASSNAME} title={label}>
                   {label}
                 </Link>
               ),

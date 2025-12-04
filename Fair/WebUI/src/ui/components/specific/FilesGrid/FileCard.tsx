@@ -13,9 +13,9 @@ export const FileCard = memo(({ fileId, onClick }: FileCardProps) => (
     onClick={onClick}
     title={fileId}
   >
-    <div className="h-35 w-35 overflow-hidden bg-gray-200">
+    <div className="size-35 overflow-hidden bg-gray-200">
       <img
-        className="h-full w-full object-cover object-center"
+        className="size-full object-cover object-center"
         src={`${BASE_URL}/files/${fileId}`}
         title={fileId}
         loading="lazy"

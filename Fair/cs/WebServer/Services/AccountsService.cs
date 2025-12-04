@@ -11,6 +11,21 @@ public class AccountsService
 	FairMcv mcv
 )
 {
+	public AccountBaseModel GetByAddress([NotNull][NotEmpty] string address)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountAddress}", nameof(AccountsService), nameof(GetByAddress), address);
+
+		Guard.Against.NullOrEmpty(address);
+
+		AccountAddress accountAddress = AccountAddress.Parse(address);
+
+		lock(mcv.Lock)
+		{
+			FairAccount account = (FairAccount)mcv.Accounts.Latest(accountAddress);
+			return new AccountBaseModel(account);
+		}
+	}
+
 	public UserModel Get([NotNull][NotEmpty] string userId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(AccountsService), nameof(Get), userId);

@@ -82,6 +82,9 @@ const searchLitePublication = (siteId: string, query?: string): Promise<Publicat
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
+const getAccountByAddress = (accountAddress: string): Promise<AccountBase> =>
+  fetch(`${BASE_URL}/accounts/address/${accountAddress}`).then(res => res.json())
+
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
 
@@ -288,6 +291,7 @@ const getUserProposals = async (
 }
 
 const api: Api = {
+  getAccountByAddress,
   getAuthor,
   getAuthorPublications,
   getCategories,

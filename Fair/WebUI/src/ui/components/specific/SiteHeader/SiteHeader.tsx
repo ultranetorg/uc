@@ -3,7 +3,7 @@ import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSearchQueryContext, useSiteContext } from "app"
+import { useSiteContext, useSearchQueryContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
@@ -20,7 +20,7 @@ export const SiteHeader = () => {
 
   const { t } = useTranslation("site")
 
-  const { site } = useSiteContext()
+  const { site, isModerator, isAuthor } = useSiteContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
@@ -95,12 +95,16 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
-      <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
-        {t("governance")}
-      </LinkCounter>
-      <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
-        {t("moderation")}
-      </LinkCounter>
+      {isAuthor && (
+        <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
+          {t("governance")}
+        </LinkCounter>
+      )}
+      {isModerator && (
+        <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
+          {t("moderation")}
+        </LinkCounter>
+      )}
       {site.description && (
         <LinkCounter to={`/${siteId}/i`} className="w-[45px]">
           {t("about")}

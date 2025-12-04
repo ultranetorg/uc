@@ -45,6 +45,7 @@ export type Api = {
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
 
+  getAccountByAddress(accountAddress: string): Promise<AccountBase>
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
