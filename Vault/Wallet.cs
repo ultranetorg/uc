@@ -157,7 +157,7 @@ public class Wallet
 	public Vault				Vault;
 
 	public bool					Locked => Encrypted != null;
-	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExt(Vault.Cryptography));
+	string						Path => System.IO.Path.Combine(Vault.Settings.Profile, Name + "." + Vault.WalletExtention);
 
 	public const string			Default = "default";
 
@@ -190,7 +190,7 @@ public class Wallet
 
 		ew.Write(Accounts);
 
-		return Vault.Cryptography.Encrypt(es.ToArray(), Password);
+		return Vault.Encrypt(es.ToArray(), Password);
 	}
 
 	public byte[] ToRaw()
@@ -204,7 +204,7 @@ public class Wallet
 		return s.ToArray();
 	}
 
-	public void Save()
+	internal void Save()
 	{
 		File.WriteAllBytes(Path, ToRaw());
 	}
@@ -251,7 +251,7 @@ public class Wallet
 
 		Password = password;
 
-		var de = Vault.Cryptography.Decrypt(Encrypted, password);
+		var de = Vault.Decrypt(Encrypted, password);
 
 		var r = new BinaryReader(new MemoryStream(de));
 

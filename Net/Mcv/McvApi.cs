@@ -346,7 +346,8 @@ public class EstimateOperationApc : McvApc
 		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
 
 		t.Signer = By;
-		t.Signature	 = node.VaultApi.Request<byte[]>(new AuthorizeApc  {Net		= node.Mcv.Net.Name,
+		t.Signature	 = node.VaultApi.Request<byte[]>(new AuthorizeApc  {Cryptography = node.Mcv.Net.Cryptography.Type,
+																		Net		= node.Mcv.Net.Name,
 																		Account	= By,
 																		Session = node.Settings.Sessions.First(i => i.Account == By).Session,
 																		Hash	= t.Hashify()}

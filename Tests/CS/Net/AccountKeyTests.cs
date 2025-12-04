@@ -26,17 +26,17 @@ public class AccountKeyTests
 		var k = AccountKey.Create();
 		var kk = AccountKey.Create();
 
-		var s = Cryptography.Normal.Sign(k, h);
+		var s = Cryptography.Mcv.Sign(k, h);
 
 
 		Assert.True(k == new AccountKey(k.PrivateKey));
 		Assert.True(k == AccountAddress.Parse(k.ToString()));
-		Assert.True(Cryptography.Normal.Valid(s, h, k));
-		Assert.False(Cryptography.Normal.Valid(s, h, kk));
+		Assert.True(Cryptography.Mcv.Valid(s, h, k));
+		Assert.False(Cryptography.Mcv.Valid(s, h, kk));
 					
 		string p = "password";
-		Assert.True(Cryptography.Normal.Decrypt(Cryptography.Normal.Encrypt(h, p), p).SequenceEqual(h));
-		Assert.Equal(Cryptography.Normal.Decrypt(Cryptography.Normal.Encrypt(h, p), p), h);
+		Assert.True(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p).SequenceEqual(h));
+		Assert.Equal(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p), h);
 		//Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  	}
 }

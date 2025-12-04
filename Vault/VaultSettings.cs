@@ -6,7 +6,7 @@ public class VaultSettings : SavableSettings
 {
 	public Zone				Zone;
 	public IPAddress		Host { get; set; } = Net.Net.DefaultHost;
-	public bool				Encrypt { get; set; }
+	//public bool				Encrypt { get; set; }
 	public IpApiSettings	Api { get; set; }
 
 	public VaultSettings() : base(NetXonTextValueSerializator.Default)

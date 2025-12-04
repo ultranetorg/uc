@@ -56,8 +56,14 @@ public class AuthenticateApc : Apc
 	public byte[]			Logo { get; set; }
 }
 
+public enum CryptographyType : byte
+{
+	No, Mcv
+}
+
 public class AuthorizeApc : Apc
 {
+	public CryptographyType	Cryptography { get; set; }
 	public string			Net { get; set; }
 	public string			Application { get; set; }
 	public string			Operation { get; set; }

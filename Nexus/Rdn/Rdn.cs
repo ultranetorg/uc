@@ -15,6 +15,7 @@ public abstract class Rdn : McvNet
  	public static readonly Rdn		Local = new RdnLocal();
  	public static readonly Rdn		Test = new RdnTest();
  	public static readonly Rdn		Developer0 = new RdnDeveloper0();
+ 	public static readonly Rdn		TA = new RdnTA();
 	public static readonly Rdn		Main = null;
 	public static readonly Rdn[]	Official = [Local, Developer0, Test];
 

@@ -217,6 +217,11 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 			vault.AuthorizationRequested(Account, au, Operation);
 		}
 
-		return vault.Cryptography.Sign(acc.Key, Hash);
+		return Cryptography switch 
+							{
+								CryptographyType.No => Uccs.Net.Cryptography.No.Sign(acc.Key, Hash),
+								CryptographyType.Mcv => Uccs.Net.Cryptography.Mcv.Sign(acc.Key, Hash),
+								_ => throw new VaultException(VaultError.UnknownCtyptography)
+							};
 	}
 }
