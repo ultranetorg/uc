@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Uccs.Vault;
 
@@ -8,11 +10,10 @@ public class Vault : Cli
 {
 	public const string					WalletExtention = "uwa";
 	public const string					PrivateKeyExtention = "pk";
-	public static string				WalletExt(Cryptography c) => c is NormalCryptography ? WalletExtention : PrivateKeyExtention;
+	//public static string				WalletExt(Cryptography c) => c is McvCryptography ? WalletExtention : PrivateKeyExtention;
 
 	public List<Wallet>					Wallets = new();
 	public IEnumerable<WalletAccount>	UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
-	public Cryptography					Cryptography;
 	public VaultSettings				Settings;
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
@@ -45,13 +46,12 @@ public class Vault : Cli
 	{
 		Settings = settings ?? new VaultSettings(profile, zone);
 		Flow = flow;
-		Cryptography = Settings.Encrypt ? new NormalCryptography() : new NoCryptography() ;
-
+		
 		Directory.CreateDirectory(Settings.Profile);
 
 		if(Directory.Exists(Settings.Profile))
 		{
-			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Cryptography)))
+			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExtention))
 			{
 				Wallets.Add(new Wallet(this, Path.GetFileName(i), File.ReadAllBytes(i)));
 			}
@@ -165,8 +165,81 @@ public class Vault : Cli
 		if(w == null)
 			throw new VaultException(VaultError.NotFound);
 
-		File.Delete(Path.Combine(Settings.Profile, name + "." + WalletExt(Cryptography)));
+		File.Delete(Path.Combine(Settings.Profile, name + "." + WalletExtention));
 
 		Wallets.Remove(w);
 	}
+
+	public bool IsAuthenticated(AccountAddress account, string application, string net, byte[] sesssion)
+	{
+		var h = new Authentication {Application = application, Net = net, Session = sesssion}.Heshify(account);
+
+		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+	}
+
+	public static byte[] Encrypt(byte[] data, string password)
+	{
+        byte[] iv = RandomNumberGenerator.GetBytes(16);
+
+		using(Aes aesAlg = Aes.Create())
+		{
+			aesAlg.Key = Cryptography.Hash(Encoding.UTF8.GetBytes(password));
+			aesAlg.IV = iv;
+			ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+			
+			byte[] en;
+			
+			using(var msEncrypt = new MemoryStream())
+			{
+				using(var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+				{
+					csEncrypt.Write(data, 0, data.Length);
+				}
+				en = msEncrypt.ToArray();
+			}
+
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			//w.WriteBytes(key.GetPublicAddressAsBytes());
+			w.WriteBytes(iv);
+			w.WriteBytes(en);
+
+			return s.ToArray();
+		}
+	}
+
+	public static byte[] Decrypt(byte[] data, string password)
+	{
+		var s = new MemoryStream(data);
+		var r = new BinaryReader(s);
+			
+		//var pub = r.ReadBytes();
+		var iv = r.ReadBytes();
+		var en = r.ReadBytes();
+
+		using(Aes aesAlg = Aes.Create())
+		{
+			aesAlg.Key = Cryptography.Hash(Encoding.UTF8.GetBytes(password));
+			aesAlg.IV = iv;
+
+			ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+			byte[] de;
+
+			using(var msDecrypt = new MemoryStream(en))
+			{
+				using(var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+				{
+					using(var msPlain = new MemoryStream())
+					{
+						csDecrypt.CopyTo(msPlain);
+						de = msPlain.ToArray();
+					}
+				}
+			}
+
+			return de;
+		}
+	}
+
 }

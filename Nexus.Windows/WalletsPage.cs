@@ -202,7 +202,7 @@ public partial class WalletsPage : Page
 
 			if(fd.ShowDialog() == DialogResult.OK)
 			{
-				File.WriteAllBytes(fd.FileName, CurrentWallet.Encrypted ?? CurrentWallet.Encrypt());
+				File.WriteAllBytes(fd.FileName, CurrentWallet.ToRaw());
 			}
 		}
 	}

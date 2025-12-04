@@ -114,7 +114,7 @@ public abstract class McvNet : Net
 	public const long		IdealRoundsPerDay						= 60*60*24;
 	public Time				ECLifetime								= Time.FromYears(1);
 
- 	public Cryptography		Cryptography							= Cryptography.Normal;
+ 	public Cryptography		Cryptography							= Cryptography.Mcv;
 	public int				CommitLength							= 1000;
 	public int				ExternalVerificationRoundDurationLimit	= 1000;
 	public int				MembersLimit							= 1000;

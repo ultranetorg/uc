@@ -22,6 +22,7 @@ public abstract class Fair : McvNet
  	public static readonly Fair		Local = new FairLocal();
  	public static readonly Fair		Test = new FairTest();
  	public static readonly Fair		Developer0 = new FairDeveloper0();
+ 	public static readonly Fair		TA = new FairTA();
 	public static readonly Fair		Main = null;
 	public static readonly Fair[]	Official = [Local, Developer0, Test];
 

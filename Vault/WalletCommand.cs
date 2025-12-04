@@ -58,7 +58,7 @@ public class WalletCommand : VaultCommand
 								Report("Public Address - " + w.Accounts.First().Address); 
 								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());
 
-								Api(new AddWalletApc {Name = GetString("name", null), Raw = w.Encrypt()});
+								Api(new AddWalletApc {Name = GetString("name", null), Raw = w.ToRaw()});
 
 								return w;
 							};

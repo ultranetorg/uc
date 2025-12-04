@@ -977,6 +977,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																													:
 																													VaultApi.Request<byte[]>(new AuthorizeApc
 																																			{
+																																				Cryptography= Net.Cryptography.Type,
 																																				Application	= Name,
 																																				Net			= Net.Name,
 																																				Account		= t.Signer,
@@ -1004,11 +1005,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																													:
 																													VaultApi.Request<byte[]>(new AuthorizeApc
 																																			{
+																																				Cryptography= Net.Cryptography.Type,
 																																				Application	= Name,
-																																				Net = Net.Name,
-																																				Account = t.Signer,
-																																				Session = GetSession(t.Signer),
-																																				Hash = t.Hashify(),
+																																				Net			= Net.Name,
+																																				Account		= t.Signer,
+																																				Session		= GetSession(t.Signer),
+																																				Hash		= t.Hashify(),
 																																			}, t.Flow);
 
 						txs.Add(t);

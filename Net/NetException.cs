@@ -67,7 +67,8 @@ public enum VaultError : byte
     AccountNotFound,
     NetNotFound,
     NotFound,
-	IncorrectArgumets
+	IncorrectArgumets,
+	UnknownCtyptography
 }
 
 public class NodeException : CodeException

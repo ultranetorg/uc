@@ -233,8 +233,6 @@ public abstract class JsonServer
 					Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
 				}
 
-//			var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
-//			var j = reader.ReadToEnd();
 			var c = (rq.ContentLength64 > 0 ? JsonSerializer.Deserialize(rq.InputStream, constuctor.DeclaringType, Options) : constuctor.Invoke(null)) as Apc;
 
 			rp.StatusCode = (int)HttpStatusCode.OK;
