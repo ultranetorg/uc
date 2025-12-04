@@ -75,6 +75,8 @@ public class McvApiClient : ApiClient
 
 		//o.Converters.Add(new OperationJsonConverter(net));
 		
+		o.Converters.Add(new JsonStringEnumConverter());
+
 		return o;
 	}
 

@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.Json.Serialization;
+
+namespace Uccs.Net;
 
 public enum Trust : byte
 {
@@ -56,6 +58,7 @@ public class AuthenticateApc : Apc
 	public byte[]			Logo { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))] 
 public enum CryptographyType : byte
 {
 	No, Mcv
