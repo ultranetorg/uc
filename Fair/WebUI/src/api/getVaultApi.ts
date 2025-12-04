@@ -1,7 +1,6 @@
 import { VAULT } from "constants/"
-import { AuthenticationResult, Wallet, WalletAccount } from "types/vault"
+import { AuthenticationResult, CryptographyType, Wallet, WalletAccount } from "types/vault"
 
-import { CryptographyType } from "types/vault/CryptographyType"
 import { VaultApi } from "./VaultApi"
 import { toLowerCamel } from "./utils"
 

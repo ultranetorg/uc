@@ -1,20 +1,11 @@
-import { forwardRef, memo, useCallback, useMemo, useState } from "react"
-import {
-  offset,
-  safePolygon,
-  useDismiss,
-  useFloating,
-  useFloatingNodeId,
-  useHover,
-  useInteractions,
-  useRole,
-} from "@floating-ui/react"
+import { forwardRef, memo, useCallback, useMemo } from "react"
 import { useCopyToClipboard } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
 import { useAccountsContext } from "app"
-import { PersonSquareSvg, SvgBoxArrowRight, SvgChevronRight, SvgPencilSm } from "assets"
+import { PersonSquareSvg, SvgBoxArrowRight, SvgChevronRight, SvgGlobe, SvgPencilSm } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
+import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { CopyButton } from "ui/components/CopyButton"
 import { buildAccountAvatarUrl, shortenAddress } from "utils"
@@ -36,27 +27,25 @@ export const AccountMenu = memo(
     ({ style, accountId, nickname, address, onMenuClose, onNicknameCreate }, ref) => {
       const { t } = useTranslation("currentAccount")
 
+      // const languagesMenu = useSubmenu({ placement: "right" })
+      const accountMenu = useSubmenu({ placement: "right" })
+
       const [copiedText, copy] = useCopyToClipboard()
 
       const { accounts, currentAccount, authenticate, logout, selectAccount } = useAccountsContext()
 
-      const [isOpen, setOpen] = useState(false)
+      // const languageItems = useMemo(
+      //   () => [
+      //     {
+      //       onClick: () => alert("English"),
+      //       label: "English",
+      //     },
+      //     { onClick: () => alert("Russian"), label: "Russian" },
+      //   ],
+      //   [],
+      // )
 
       const accountSwitcherItems = useMemo(() => accounts.map(x => x.account), [accounts])
-
-      const nodeId = useFloatingNodeId()
-      const { context, floatingStyles, refs } = useFloating({
-        nodeId,
-        middleware: [offset(8)],
-        open: isOpen,
-        placement: "right",
-        onOpenChange: setOpen,
-      })
-
-      const dismiss = useDismiss(context)
-      const hover = useHover(context, { handleClose: safePolygon({ requireIntent: true }) })
-      const role = useRole(context)
-      const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
       const handleCopyClick = useCallback(() => {
         copy(address)
@@ -137,19 +126,27 @@ export const AccountMenu = memo(
                 <CopyButton onClick={handleCopyClick} />
               </div>
             </div>
-            <div className="flex flex-col gap-4 p-6">
+            <div className="flex flex-col gap-2 p-6">
               {/*
               //TODO: should be uncommented later.
               <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
                 <MenuButton label="Profile" />
               </Link>
             */}
+              {/* <MenuButton
+                className="capitalize"
+                label={t("common:language")}
+                iconBefore={<SvgGlobe className="stroke-gray-800" />}
+                iconAfter={<SvgChevronRight className="stroke-gray-800" />}
+                ref={languagesMenu.refs.setReference}
+                {...languagesMenu.getReferenceProps()}
+              /> */}
               <MenuButton
                 label={t("switchAccounts")}
                 iconBefore={<PersonSquareSvg className="fill-gray-800" />}
                 iconAfter={<SvgChevronRight className="stroke-gray-800" />}
-                ref={refs.setReference}
-                {...getReferenceProps()}
+                ref={accountMenu.refs.setReference}
+                {...accountMenu.getReferenceProps()}
               />
               <MenuButton
                 label={t("signout")}
@@ -158,15 +155,24 @@ export const AccountMenu = memo(
               />
             </div>
           </div>
-          {isOpen && (
+          {/* {languagesMenu.isOpen && (
+            <SimpleMenu
+              ref={languagesMenu.refs.setFloating}
+              items={languageItems}
+              style={languagesMenu.floatingStyles}
+              onClick={() => console.log("")}
+              {...languagesMenu.getFloatingProps()}
+            />
+          )} */}
+          {accountMenu.isOpen && (
             <AccountSwitcher
-              ref={refs.setFloating}
-              style={floatingStyles}
+              ref={accountMenu.refs.setFloating}
+              style={accountMenu.floatingStyles}
               selectedItemAddress={currentAccount!.address}
               items={accountSwitcherItems}
               onAccountAdd={handleAccountAdd}
               onAccountSelect={handleAccountSelect}
-              {...getFloatingProps()}
+              {...accountMenu.getFloatingProps()}
             />
           )}
         </>

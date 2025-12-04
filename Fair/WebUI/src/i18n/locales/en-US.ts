@@ -21,6 +21,7 @@ export const enUS = {
     date: "Date",
     governance: "governance",
     home: "Home",
+    language: "language",
     lastsFor: "Lasts for",
     latestVersion: "latest version",
     neither: "Neither",
