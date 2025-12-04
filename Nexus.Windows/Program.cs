@@ -36,6 +36,9 @@ public class Program: ApplicationContext
 			var vs = new VaultSettings(b.Profile, b.Zone);
 		
 			Nexus = new Nexus(b, ns, vs, new RealClock(), new Flow(nameof(Nexus), new Log()));
+
+			InitializeAuthUI(Nexus);
+
 			Nexus.RunRdn(null);
 
 		}
@@ -83,7 +86,7 @@ public class Program: ApplicationContext
 												{
 													try
 													{
-														if(f.Ask($"A password required to unlock '{wallet}' wallet"))
+														if(f.Ask($"A password required to unlock '{wallet}' wallet", uiparent as IWin32Window))
 														{
 															nexus.Vault.FindWallet(wallet).Unlock(f.Password);
 														}

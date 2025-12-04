@@ -166,14 +166,19 @@ public partial class WalletsPage : Page
 
 		if(w.Locked)
 		{
-			var f = new EnterPasswordForm();
+			Nexus.Vault.UnlockRequested(ParentForm, w.Name);
 
-			if(f.Ask("A password required to unlock this wallet"))
-			{
-				w.Unlock(w.Password);
-			}
-			else
+			if(w.Locked)
 				return;
+
+			//var f = new EnterPasswordForm();
+			//
+			//if(f.Ask("A password required to unlock this wallet", this))
+			//{
+			//	w.Unlock(w.Password);
+			//}
+			//else
+			//	return;
 		}
 		else
 			w.Lock();

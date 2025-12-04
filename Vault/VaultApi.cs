@@ -202,35 +202,30 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 
 		var h = new	Authentication {Application = Application, Net = Net, Session = Session}.Heshify(Account);
 
-		var w = vault.Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+		WalletAccount acc;
 
-		if(w == null)
-			throw new VaultException(VaultError.NotFound);
-
-		if(w.Locked)
-			vault.UnlockRequested?.Invoke(null,w.Name);
-
-		if(w.Locked)
-			throw new VaultException(VaultError.Locked);
-
-		var acc = vault.Find(Account);
-		
-		var au = acc?.Authentications?.Find(i => i.Net == Net && i.Application == Application && i.Session.SequenceEqual(Session));
-
-		if(au == null)
-			throw new VaultException(VaultError.Corrupted);
-
-		//if(acc.Key == null)
-		//{
-		//	vault.UnlockRequested(Account);
-		//}
-
-		//if(acc.Key == null)
-		//	return null;
-
-		if(au.Trust == Trust.AskEveryTime)
+		lock(vault)
 		{
-			vault.AuthorizationRequested(Account, au, Operation);
+			var w = vault.Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+	
+			if(w == null)
+				throw new VaultException(VaultError.NotFound);
+	
+			if(w.Locked)
+				vault.UnlockRequested?.Invoke(null,w.Name);
+	
+			if(w.Locked)
+				throw new VaultException(VaultError.Locked);
+	
+			acc = w.Accounts.Find(i => i.Address == Account);
+			
+			var au = acc?.Authentications?.Find(i => i.Net == Net && i.Application == Application && i.Session.SequenceEqual(Session));
+	
+			if(au == null)
+				throw new VaultException(VaultError.Corrupted);
+	
+			if(au.Trust == Trust.AskEveryTime)
+				vault.AuthorizationRequested(Account, au, Operation);
 		}
 
 		return Cryptography switch 

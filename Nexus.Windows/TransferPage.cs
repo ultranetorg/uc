@@ -26,12 +26,12 @@ public partial class TransferPage : Page
 			ToNet.Items.Insert(0, "rdn");
 			ToNet.SelectedIndex = 0;
 			RefreshClasses(ToNet.Text, ToClass);
-
-			FromAccount.Items.Insert(0, "All");
-			FromAccount.SelectedIndex = 0;
+//
+//			Wallets.Items.Insert(0, "All");
+//			Wallets.SelectedIndex = 0;
 		}
 
-		Program.NexusSystem.BindWallets(this, Nexus.Vault, FromAccount, Wallets);
+		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)
@@ -158,7 +158,7 @@ public partial class TransferPage : Page
 		Transfer.Enabled = !string.IsNullOrEmpty(FromNet.Text) &&
 							!string.IsNullOrEmpty(FromClass.Text) &&
 							!string.IsNullOrEmpty(FromId.Text) &&
-							!string.IsNullOrEmpty(FromAccount.Text) &&
+							!string.IsNullOrEmpty(Wallets.Text) &&
 							!string.IsNullOrEmpty(ToNet.Text) &&
 							!string.IsNullOrEmpty(ToClass.Text) &&
 							!string.IsNullOrEmpty(ToId.Text) &&
@@ -178,7 +178,7 @@ public partial class TransferPage : Page
 			ToId = ToId.Text,
 			Name = (Asset.SelectedItem as Asset).Name,
 			Amount = Amount.Text,
-			Signer = FromAccount.SelectedItem as AccountAddress,
+			Signer = Accounts.SelectedItem as AccountAddress,
 		}),
 																			new Flow(5000));
 	}
