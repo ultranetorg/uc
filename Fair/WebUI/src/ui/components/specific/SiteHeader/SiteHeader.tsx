@@ -20,7 +20,7 @@ export const SiteHeader = () => {
 
   const { t } = useTranslation("site")
 
-  const { site, isModerator } = useSiteContext()
+  const { site, isModerator, isAuthor } = useSiteContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
@@ -95,9 +95,11 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
-      <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
-        {t("governance")}
-      </LinkCounter>
+      {isAuthor && (
+        <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
+          {t("governance")}
+        </LinkCounter>
+      )}
       {isModerator && (
         <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
           {t("moderation")}
