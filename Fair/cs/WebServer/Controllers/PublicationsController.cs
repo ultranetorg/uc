@@ -22,7 +22,7 @@ public class PublicationsController
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return publicationsService.GetPublication(publicationId);
+		return publicationsService.GetPublicationDetails(publicationId);
 	}
 
 	[HttpGet("{publicationId}/versions")]
