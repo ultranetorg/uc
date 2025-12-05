@@ -7,25 +7,26 @@ import { MakeOptional, shortenAddress } from "utils"
 
 import { Account } from "./components"
 
-type AccountSwitcherItem = MakeOptional<AccountBase, "id">
+export type AccountSwitcherItem = MakeOptional<AccountBase, "id">
 
 export interface AccountSwitcherBaseProps {
-  selectedItemAddress: string
+  selectedItemAddress?: string
   items: AccountSwitcherItem[]
-  onAccountAdd: () => void
-  onAccountSelect: (index: number) => void
+  onAdd: () => void
+  onRemove: (index: number) => void
+  onSelect: (index: number) => void
 }
 
 export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
 
 export const AccountSwitcher = memo(
   forwardRef<HTMLDivElement, AccountSwitcherProps>(
-    ({ style, selectedItemAddress, items, onAccountAdd, onAccountSelect }: AccountSwitcherProps, ref) => {
+    ({ style, selectedItemAddress, items, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
       const { t } = useTranslation("currentAccount")
 
       return (
         <div
-          className="z-10 w-65 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
+          className="w-70 z-10 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
           ref={ref}
           style={style}
         >
@@ -35,14 +36,15 @@ export const AccountSwitcher = memo(
                 key={x.address}
                 addressShort={shortenAddress(x.address)}
                 selected={x.address === selectedItemAddress}
-                onClick={() => onAccountSelect(i)}
+                onSelect={() => onSelect(i)}
+                onRemove={() => onRemove(i)}
                 {...x}
               />
             ))}
           </div>
           <div
             className="flex cursor-pointer select-none items-center gap-2 px-4 py-3 text-2sm leading-4.25 text-gray-900 hover:bg-gray-100"
-            onClick={onAccountAdd}
+            onClick={onAdd}
           >
             <SvgPlusCircleMd className="fill-gray-800" /> {t("addAccount")}
           </div>

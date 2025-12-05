@@ -96,10 +96,9 @@ export const enUS = {
 
   /* Components */
   currentAccount: {
-    addAccount: "Add another account",
+    addAccount: "Add account",
     createNickname: "Create nickname",
-    login: "Login",
-    signout: "Sign Out",
+    authenticate: "Authenticate Yourself",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
