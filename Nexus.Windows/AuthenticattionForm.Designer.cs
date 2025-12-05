@@ -122,7 +122,6 @@
 			Wallets.Name = "Wallets";
 			Wallets.Size = new Size(160, 23);
 			Wallets.TabIndex = 0;
-			Wallets.SelectionChangeCommitted += Wallets_SelectedValueChanged;
 			// 
 			// label1
 			// 

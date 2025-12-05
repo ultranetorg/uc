@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace Uccs.Net.FUI;
+namespace Uccs.Nexus.Windows;
 
 public partial class EnterPasswordForm : Form
 {
@@ -25,11 +25,11 @@ public partial class EnterPasswordForm : Form
 		Close();
 	}
 
-	public bool Ask(string information)
+	public bool Ask(string information, IWin32Window owner)
 	{
 		info.Text = information;
 
-		if(ShowDialog() == DialogResult.OK)
+		if(ShowDialog(owner) == DialogResult.OK)
 		{
 			return true;
 		}

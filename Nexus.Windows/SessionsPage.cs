@@ -18,8 +18,7 @@ public partial class SessionsPage : Page
 
 	public override void Open(bool first)
 	{
-		BindWallets(Nexus.Vault, Wallets);
-		Wallets_SelectionChangeCommitted(null, EventArgs.Empty);
+		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
 	}
 
 	protected void BindSessions(WalletAccount account)
@@ -37,17 +36,6 @@ public partial class SessionsPage : Page
 		}
 
 		Revoke.Enabled = false;
-	}
-
-	private void Wallets_SelectionChangeCommitted(object sender, EventArgs e)
-	{
-		Wallet w;
-
-		lock(Nexus.Vault)
-			w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
-
-		BindAccounts(Nexus.Vault, Accounts, w.Accounts);
-		Accounts_SelectionChangeCommitted(null, EventArgs.Empty);
 	}
 
 	private void Accounts_SelectionChangeCommitted(object sender, EventArgs e)

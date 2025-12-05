@@ -1,4 +1,4 @@
-﻿namespace Uccs.Net.FUI
+﻿namespace Uccs.Nexus.Windows
 {
 	partial class CreateWalletForm
 	{

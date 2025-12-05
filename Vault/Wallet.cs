@@ -149,7 +149,7 @@ public class WalletAccount : IBinarySerializable
 
 public class Wallet
 {
-	public string				Name;
+	public string				Name {get;set; }
 	public List<WalletAccount>	Accounts = new();
 	public List<byte[]>			AuthenticationHashes = new();
 	public byte[]				Encrypted;
@@ -243,6 +243,14 @@ public class Wallet
 		Accounts.Clear();
 		Password = null;
 	}
+
+	//public void Access(object uiparent)
+	//{
+	//	if(Locked)
+	//	{	
+	//		Vault.UnlockRequested?.Invoke(uiparent, Name); 
+	//	}
+	//}
 
 	public void Unlock(string password)
 	{

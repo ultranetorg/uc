@@ -41,16 +41,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="EmissionPanel.cs" />
-    <Compile Update="CreateWalletForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="AccountsPanel.cs" />
     <Compile Update="InterzoneNetworkPanel.cs" />
     <Compile Update="DashboardPanel - Copy.Designer.cs">
       <DependentUpon>DashboardPanel.Designer.cs</DependentUpon>
-    </Compile>
-    <Compile Update="PasswordForm.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -59,9 +53,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="CreateWalletForm.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Update="DashboardPanel - Copy.resx">
       <DependentUpon>DashboardPanel.resx</DependentUpon>
     </EmbeddedResource>
@@ -69,9 +60,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="FeeForm.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="PasswordForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">

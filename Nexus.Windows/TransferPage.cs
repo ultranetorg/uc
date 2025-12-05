@@ -26,12 +26,12 @@ public partial class TransferPage : Page
 			ToNet.Items.Insert(0, "rdn");
 			ToNet.SelectedIndex = 0;
 			RefreshClasses(ToNet.Text, ToClass);
-
-			FromAccount.Items.Insert(0, "All");
-			FromAccount.SelectedIndex = 0;
+//
+//			Wallets.Items.Insert(0, "All");
+//			Wallets.SelectedIndex = 0;
 		}
 
-		BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)
@@ -40,7 +40,7 @@ public partial class TransferPage : Page
 		{
 			if(sender == FromNet) RefreshNets(FromNet);
 			if(sender == FromClass) RefreshClasses(FromNet.Text, FromClass);
-			if(sender == FromAccount) BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+			//if(sender == FromAccount) BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
 
 			if(sender == ToNet) RefreshNets(ToNet);
 			if(sender == ToClass) RefreshClasses(ToNet.Text, ToClass);
@@ -155,10 +155,10 @@ public partial class TransferPage : Page
 
 	private void Any_Changed(object sender, EventArgs e)
 	{
-		Transfer.Enabled =	!string.IsNullOrEmpty(FromNet.Text) &&
+		Transfer.Enabled = !string.IsNullOrEmpty(FromNet.Text) &&
 							!string.IsNullOrEmpty(FromClass.Text) &&
 							!string.IsNullOrEmpty(FromId.Text) &&
-							!string.IsNullOrEmpty(FromAccount.Text) &&
+							!string.IsNullOrEmpty(Wallets.Text) &&
 							!string.IsNullOrEmpty(ToNet.Text) &&
 							!string.IsNullOrEmpty(ToClass.Text) &&
 							!string.IsNullOrEmpty(ToId.Text) &&
@@ -169,17 +169,17 @@ public partial class TransferPage : Page
 	private void Transfer_Click(object sender, EventArgs e)
 	{
 		Nexus.NnConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
-																			{
-																				Net = FromNet.Text,
-																				ToNet = ToNet.Text,
-																				FromClass = FromClass.Text,
-																				FromId = FromId.Text,
-																				ToClass = ToClass.Text,
-																				ToId = ToId.Text,
-																				Name = (Asset.SelectedItem as Asset).Name,
-																				Amount = Amount.Text,
-																				Signer = FromAccount.SelectedItem as AccountAddress,
-																			}),
+		{
+			Net = FromNet.Text,
+			ToNet = ToNet.Text,
+			FromClass = FromClass.Text,
+			FromId = FromId.Text,
+			ToClass = ToClass.Text,
+			ToId = ToId.Text,
+			Name = (Asset.SelectedItem as Asset).Name,
+			Amount = Amount.Text,
+			Signer = Accounts.SelectedItem as AccountAddress,
+		}),
 																			new Flow(5000));
 	}
 }

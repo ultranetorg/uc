@@ -1,13 +1,12 @@
 ﻿using Uccs.Net;
-using Uccs.Net.FUI;
 using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
 
 public partial class WalletsPage : Page
 {
-	WalletAccount CurrentAccout => Accounts.SelectedItems[0].Tag as WalletAccount;
-	Wallet CurrentWallet => Wallets.SelectedItems[0].Tag as Wallet;
+	WalletAccount	CurrentAccout => Accounts.SelectedItems[0].Tag as WalletAccount;
+	Wallet			CurrentWallet => Wallets.SelectedItems.Count == 0 ? null : Wallets.SelectedItems[0].Tag as Wallet;
 
 	public WalletsPage()
 	{
@@ -166,13 +165,9 @@ public partial class WalletsPage : Page
 
 		if(w.Locked)
 		{
-			var f = new EnterPasswordForm();
+			Nexus.Vault.UnlockRequested(ParentForm, w.Name);
 
-			if(f.Ask("A password required to unlock this wallet"))
-			{
-				w.Unlock(w.Password);
-			}
-			else
+			if(w.Locked)
 				return;
 		}
 		else
@@ -181,7 +176,6 @@ public partial class WalletsPage : Page
 		LoadWallets();
 
 		Wallets.Items[i].Selected = true;
-		//Wallets_ItemSelectionChanged(this, new ListViewItemSelectionChangedEventArgs([i.Index], i.Index, true));
 	}
 
 	private void RenameWallet_Click(object sender, EventArgs e)
@@ -300,6 +294,6 @@ public partial class WalletsPage : Page
 			return;
 		}
 
-		CurrentWallet.Rename(e.Label);
+		(Wallets.SelectedItems[e.Item].Tag as Wallet).Rename(e.Label);
 	}
 }
