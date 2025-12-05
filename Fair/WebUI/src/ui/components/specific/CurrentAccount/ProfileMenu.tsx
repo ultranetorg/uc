@@ -7,7 +7,7 @@ import { SvgPersonSquare, SvgChevronRight, SvgPencilSm } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { CopyButton } from "ui/components/CopyButton"
+import { CopyButton } from "ui/components"
 import { buildAccountAvatarUrl, shortenAddress } from "utils"
 
 import pngBackground from "./background.png"

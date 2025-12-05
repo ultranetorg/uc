@@ -1,14 +1,14 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useAccountsContext } from "app"
+import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 
 import { AccountSwitcher } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
-import { ProfileMenu } from "./ProfileMenu"
 import { ProfileButton } from "./ProfileButton"
+import { ProfileMenu } from "./ProfileMenu"
 
 const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
