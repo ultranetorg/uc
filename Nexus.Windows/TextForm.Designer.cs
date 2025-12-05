@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Nexus.Windows
 {
-	partial class TextForm
+	public partial class TextForm
 	{
 		/// <summary>
 		/// Required designer variable.

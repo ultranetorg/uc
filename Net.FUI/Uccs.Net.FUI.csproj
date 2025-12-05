@@ -34,9 +34,6 @@
     <Compile Update="MembersPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ResourcesPanel.cs" />
-    <Compile Update="TextForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="FeeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -55,9 +52,6 @@
   <ItemGroup>
     <EmbeddedResource Update="DashboardPanel - Copy.resx">
       <DependentUpon>DashboardPanel.resx</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="TextForm.resx">
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="FeeForm.resx">
       <SubType>Designer</SubType>
