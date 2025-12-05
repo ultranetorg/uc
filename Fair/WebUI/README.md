@@ -41,6 +41,35 @@ text-7xl font-size: 4.5rem; /_ 72px _/
 text-8xl font-size: 6rem; /_ 96px _/
 text-9xl font-size: 8rem; /_ 128px _/
 
+## Classes hierarchy
+
+### Publication
+
+```mermaid
+graph TD;
+    PublicationImageBaseModel
+    PublicationAuthorModel --> PublicationBaseModel
+    PublicationModel --> PublicationBaseModel
+    PublicationDetailsModel --> PublicationExtendedModel
+    PublicationExtendedModel --> PublicationModel
+```
+
+### ChangedPublication
+
+```mermaid
+graph TD;
+    ChangedPublicationDetailsModel --> ChangedPublication
+```
+
+### Category
+
+```mermaid
+graph TD;
+    CategoryParentBaseModel --> CategoryBaseModel
+    CategoryPublicationsModel --> CategoryBaseModel
+    CategoryModel --> CategoryParentBaseModel
+```
+
 ## Z-Index
 
 50 - fullscreen modal

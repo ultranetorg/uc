@@ -1,7 +1,7 @@
-import { forwardRef, memo } from "react"
+import { forwardRef, memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { CheckCircleFillSvg, StarSvg } from "assets"
+import { CheckCircleFillSvg, StarSvg, SvgXSm } from "assets"
 import avatarFallbackXl from "assets/fallback/account-avatar-xl.png"
 import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
 import { AccountBase, PropsWithClassName } from "types"
@@ -10,37 +10,48 @@ import { buildAccountAvatarUrl, MakeOptional, shortenAddress } from "utils"
 type AccountBaseProps = {
   addressShort: string
   selected?: boolean
-  onClick: () => void
+  onSelect: () => void
+  onRemove: () => void
 }
 
 export type AccountProps = MakeOptional<AccountBase, "id"> & AccountBaseProps
 
-export const Account = memo(({ id, nickname, address, addressShort, selected, onClick }: AccountProps) => (
-  <div className="flex select-none items-center gap-2 overflow-hidden px-4 py-2 hover:bg-gray-100" onClick={onClick}>
-    <div className="size-8 overflow-hidden rounded-full" title={nickname ?? address}>
-      <img
-        src={id ? buildAccountAvatarUrl(id) : avatarFallbackXl}
-        className="size-full object-cover object-center"
-        loading="lazy"
-        onError={e => {
-          e.currentTarget.onerror = null
-          e.currentTarget.src = avatarFallbackXl
-        }}
-      />
-    </div>
-    <div className="flex w-39 flex-col gap-1">
-      {nickname && (
-        <span className="truncate text-2sm leading-4.25 text-gray-800" title={nickname}>
-          {nickname}
+export const Account = memo(({ id, nickname, address, addressShort, selected, onSelect, onRemove }: AccountProps) => {
+  const handleRemove = (e: MouseEvent<SVGSVGElement>) => {
+    e.stopPropagation()
+    onRemove?.()
+  }
+
+  return (
+    <div className="flex select-none items-center gap-2 overflow-hidden px-4 py-2 hover:bg-gray-100" onClick={onSelect}>
+      <div className="size-8 overflow-hidden rounded-full" title={nickname ?? address}>
+        <img
+          src={id ? buildAccountAvatarUrl(id) : avatarFallbackXl}
+          className="size-full object-cover object-center"
+          loading="lazy"
+          onError={e => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = avatarFallbackXl
+          }}
+        />
+      </div>
+      <div className="flex w-39 flex-col gap-1">
+        {nickname && (
+          <span className="truncate text-2sm leading-4.25 text-gray-800" title={nickname}>
+            {nickname}
+          </span>
+        )}
+        <span className="truncate text-2xs leading-3.75 text-gray-500" title={address}>
+          {addressShort}
         </span>
-      )}
-      <span className="truncate text-2xs leading-3.75 text-gray-500" title={address}>
-        {addressShort}
-      </span>
+      </div>
+      <div className="ml-auto flex items-center gap-2">
+        {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
+        <SvgXSm className="fill-gray-500 hover:fill-gray-950" onClick={handleRemove} />
+      </div>
     </div>
-    {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
-  </div>
-))
+  )
+})
 
 export type CurrentAccountButtonProps = PropsWithClassName & MakeOptional<AccountBase, "id">
 
@@ -85,33 +96,6 @@ export const CurrentAccountButton = memo(
           </span>
         )}
       </div>
-    </div>
-  )),
-)
-
-type MenuButtonBaseProps = {
-  label: string
-  iconBefore?: JSX.Element
-  iconAfter?: JSX.Element
-  onClick?: () => void
-}
-
-export type MenuButtonProps = PropsWithClassName & MenuButtonBaseProps
-
-export const MenuButton = memo(
-  forwardRef<HTMLDivElement, MenuButtonProps>(({ className, label, iconBefore, iconAfter, onClick, ...rest }, ref) => (
-    <div
-      className={twMerge(
-        "box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 py-3 pl-4 pr-3 text-2sm leading-5 text-gray-800 hover:bg-gray-200",
-        className,
-      )}
-      onClick={onClick}
-      ref={ref}
-      {...rest}
-    >
-      {iconBefore}
-      <span className="w-full">{label}</span>
-      {iconAfter}
     </div>
   )),
 )

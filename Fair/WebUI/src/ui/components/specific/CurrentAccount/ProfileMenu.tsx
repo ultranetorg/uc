@@ -1,74 +1,49 @@
-import { forwardRef, memo, useCallback, useMemo } from "react"
+import { forwardRef, memo, useCallback } from "react"
 import { useCopyToClipboard } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
 import { useAccountsContext } from "app"
-import { PersonSquareSvg, SvgBoxArrowRight, SvgChevronRight, SvgGlobe, SvgPencilSm } from "assets"
+import { SvgPersonSquare, SvgChevronRight, SvgPencilSm } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { CopyButton } from "ui/components/CopyButton"
+import { CopyButton } from "ui/components"
 import { buildAccountAvatarUrl, shortenAddress } from "utils"
 
 import pngBackground from "./background.png"
-import { AccountSwitcher } from "./AccountSwitcher"
-import { MenuButton } from "./components"
+import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
+import { ProfileButton } from "./ProfileButton"
 
-type AccountMenuBaseProps = {
+type ProfileMenuBaseProps = {
+  customParentId: string
   accountId?: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
-  onMenuClose: () => void
+  items: AccountSwitcherItem[]
+  onAdd: () => void
+  onRemove: (index: number) => void
+  onSelect: (index: number) => void
   onNicknameCreate: () => void
 }
 
-export type AccountMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & AccountMenuBaseProps
+export type ProfileMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & ProfileMenuBaseProps
 
-export const AccountMenu = memo(
-  forwardRef<HTMLDivElement, AccountMenuProps>(
-    ({ style, accountId, nickname, address, onMenuClose, onNicknameCreate }, ref) => {
+export const ProfileMenu = memo(
+  forwardRef<HTMLDivElement, ProfileMenuProps>(
+    (
+      { customParentId, style, accountId, nickname, address, items, onAdd, onRemove, onSelect, onNicknameCreate },
+      ref,
+    ) => {
       const { t } = useTranslation("currentAccount")
 
-      // const languagesMenu = useSubmenu({ placement: "right" })
-      const accountMenu = useSubmenu({ placement: "right" })
+      const accountMenu = useSubmenu({ placement: "right-end", customParentId })
 
       const [copiedText, copy] = useCopyToClipboard()
 
-      const { accounts, currentAccount, authenticate, logout, selectAccount } = useAccountsContext()
-
-      // const languageItems = useMemo(
-      //   () => [
-      //     {
-      //       onClick: () => alert("English"),
-      //       label: "English",
-      //     },
-      //     { onClick: () => alert("Russian"), label: "Russian" },
-      //   ],
-      //   [],
-      // )
-
-      const accountSwitcherItems = useMemo(() => accounts.map(x => x.account), [accounts])
+      const { currentAccount } = useAccountsContext()
 
       const handleCopyClick = useCallback(() => {
         copy(address)
         console.log(copiedText)
       }, [address, copiedText, copy])
-
-      const handleAccountAdd = useCallback(() => {
-        authenticate()
-        onMenuClose()
-      }, [authenticate, onMenuClose])
-
-      const handleAccountSelect = useCallback(
-        (index: number) => {
-          selectAccount(index)
-          onMenuClose()
-        },
-        [onMenuClose, selectAccount],
-      )
-
-      const handleLogout = () => {
-        logout()
-        onMenuClose()
-      }
 
       return (
         <>
@@ -133,45 +108,24 @@ export const AccountMenu = memo(
                 <MenuButton label="Profile" />
               </Link>
             */}
-              {/* <MenuButton
-                className="capitalize"
-                label={t("common:language")}
-                iconBefore={<SvgGlobe className="stroke-gray-800" />}
-                iconAfter={<SvgChevronRight className="stroke-gray-800" />}
-                ref={languagesMenu.refs.setReference}
-                {...languagesMenu.getReferenceProps()}
-              /> */}
-              <MenuButton
+              <ProfileButton
                 label={t("switchAccounts")}
-                iconBefore={<PersonSquareSvg className="fill-gray-800" />}
+                iconBefore={<SvgPersonSquare className="fill-gray-800" />}
                 iconAfter={<SvgChevronRight className="stroke-gray-800" />}
                 ref={accountMenu.refs.setReference}
                 {...accountMenu.getReferenceProps()}
               />
-              <MenuButton
-                label={t("signout")}
-                iconBefore={<SvgBoxArrowRight className="fill-gray-800" />}
-                onClick={handleLogout}
-              />
             </div>
           </div>
-          {/* {languagesMenu.isOpen && (
-            <SimpleMenu
-              ref={languagesMenu.refs.setFloating}
-              items={languageItems}
-              style={languagesMenu.floatingStyles}
-              onClick={() => console.log("")}
-              {...languagesMenu.getFloatingProps()}
-            />
-          )} */}
           {accountMenu.isOpen && (
             <AccountSwitcher
               ref={accountMenu.refs.setFloating}
               style={accountMenu.floatingStyles}
               selectedItemAddress={currentAccount!.address}
-              items={accountSwitcherItems}
-              onAccountAdd={handleAccountAdd}
-              onAccountSelect={handleAccountSelect}
+              items={items}
+              onAdd={onAdd}
+              onRemove={onRemove}
+              onSelect={onSelect}
               {...accountMenu.getFloatingProps()}
             />
           )}

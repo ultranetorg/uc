@@ -12,6 +12,7 @@ import {
 } from "@floating-ui/react"
 
 export type UseSubmenuProps = {
+  customParentId?: string
   placement?: Placement
   offset?: number
 }
@@ -19,7 +20,7 @@ export type UseSubmenuProps = {
 export const useSubmenu = (options?: UseSubmenuProps) => {
   const [isOpen, setOpen] = useState(false)
 
-  const nodeId = useFloatingNodeId()
+  const nodeId = useFloatingNodeId(options?.customParentId)
 
   const { context, floatingStyles, refs } = useFloating({
     nodeId,
@@ -35,6 +36,8 @@ export const useSubmenu = (options?: UseSubmenuProps) => {
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
   return {
+    nodeId,
+
     isOpen,
     setOpen,
 

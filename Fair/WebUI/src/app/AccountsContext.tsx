@@ -25,7 +25,7 @@ interface AccountsContextType {
   isPending: boolean
   selectAccount(index: number): void
   authenticate(): void
-  logout(): void
+  logout(index: number): void
 }
 
 const AccountsContext = createContext<AccountsContextType>({
@@ -141,7 +141,27 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
     [authenticateMutation, setSession],
   )
 
-  const logout = useCallback(() => removeSession(), [removeSession])
+  const logout = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= session.accounts.length) return
+      if (session.accounts.length === 1) removeSession()
+
+      setSession(p => {
+        const accounts = p.accounts.filter((_, i) => i !== index)
+        const newSelected =
+          p.selectedIndex !== undefined
+            ? p.selectedIndex > index
+              ? p.selectedIndex - 1
+              : p.selectedIndex === index
+                ? undefined
+                : p.selectedIndex
+            : undefined
+
+        return { ...p, accounts, selectedIndex: newSelected }
+      })
+    },
+    [removeSession, session.accounts.length, setSession],
+  )
 
   useEffect(() => {
     if (session.selectedIndex === undefined) return

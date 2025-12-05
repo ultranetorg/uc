@@ -10,9 +10,9 @@ public class PublicationsService
 	FairMcv mcv
 )
 {
-	public PublicationDetailsModel GetPublication([NotEmpty][NotNull] string publicationId)
+	public PublicationDetailsModel GetPublicationDetails([NotEmpty][NotNull] string publicationId)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetPublication)} method called with {{PublicationId}}", publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(GetPublicationDetails), publicationId);
 
 		Guard.Against.NullOrEmpty(publicationId);
 
@@ -159,7 +159,7 @@ public class PublicationsService
 
 	public TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoryPublicationsNotOptimized)} method called with {{CategoryId}}", categoryId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(PublicationsService), nameof(GetCategoryPublicationsNotOptimized), categoryId);
 
 		Guard.Against.NullOrEmpty(categoryId);
 		Guard.Against.Negative(page);
@@ -220,7 +220,7 @@ public class PublicationsService
 
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotNull][NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(PublicationsService)}.{nameof(PublicationsService.GetCategoriesPublicationsNotOptimized)} method called with {{SiteId}}", siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(PublicationsService), nameof(GetCategoriesPublicationsNotOptimized), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -423,7 +423,7 @@ public class PublicationsService
 	TotalItemsResult<T> GetSitePublications<T>(string siteId, Func<Site, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
 		where T: PublicationBaseModel
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetSitePublications), siteId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetSitePublications), siteId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
