@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Windows.Forms;
 using Uccs.Net;
-using Uccs.Net.FUI;
 using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;

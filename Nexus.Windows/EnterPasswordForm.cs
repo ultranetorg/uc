@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace Uccs.Net.FUI;
+namespace Uccs.Nexus.Windows;
 
 public partial class EnterPasswordForm : Form
 {

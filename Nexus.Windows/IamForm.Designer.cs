@@ -90,6 +90,7 @@ partial class IamForm
 		// 
 		WalletsAndAccounts.Appearance = Appearance.Button;
 		WalletsAndAccounts.Font = new Font("Segoe UI", 12F);
+		WalletsAndAccounts.ImageAlign = ContentAlignment.MiddleLeft;
 		WalletsAndAccounts.Location = new Point(12, 86);
 		WalletsAndAccounts.Name = "WalletsAndAccounts";
 		WalletsAndAccounts.Padding = new Padding(10, 0, 0, 0);
@@ -97,6 +98,7 @@ partial class IamForm
 		WalletsAndAccounts.TabIndex = 2;
 		WalletsAndAccounts.TabStop = true;
 		WalletsAndAccounts.Text = "Wallets && Accounts";
+		WalletsAndAccounts.TextImageRelation = TextImageRelation.ImageBeforeText;
 		WalletsAndAccounts.UseVisualStyleBackColor = true;
 		WalletsAndAccounts.CheckedChanged += radioButton_CheckedChanged;
 		// 

@@ -149,7 +149,7 @@ public class WalletAccount : IBinarySerializable
 
 public class Wallet
 {
-	public string				Name;
+	public string				Name {get;set; }
 	public List<WalletAccount>	Accounts = new();
 	public List<byte[]>			AuthenticationHashes = new();
 	public byte[]				Encrypted;

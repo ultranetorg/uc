@@ -6,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Uccs.Net;
-using Uccs.Net.FUI;
 using Uccs.Nexus;
 using Uccs.Rdn;
 using Uccs.Vault;
@@ -103,19 +102,15 @@ public class Program: ApplicationContext
 
 		static void BindWallets(Vault.Vault vault,ComboBox control)
 		{
-			control.Items.Clear();
+			//control.Items.Clear();
 
-			IEnumerable<string> keys;
+			//foreach(var i in vault.Wallets)
+			//	control.Items.Add(i);
 
-			lock(vault)
-				keys = vault.Wallets.Select(i => i.Name);
+			control.DataSource = vault.Wallets;
+			control.DisplayMember = "Name";
 
-			foreach(var i in keys)
-				control.Items.Add(i);
-
-			if(control.Items.Count > 0)
-				control.SelectedIndex = 0;
-
+			control.SelectedItem = control.Items.OfType<Wallet>().FirstOrDefault(i => !i.Locked);
 		}
 
 		public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts)
@@ -141,18 +136,16 @@ public class Program: ApplicationContext
 			{
 				accounts.Items.Clear();
 
-				if(wallets.SelectedItem is string wn)
+				if(wallets.SelectedItem is Wallet w)
 				{
-					var w = vault.FindWallet(wn);
-	
 					if(w.Locked)
 						vault.UnlockRequested(parent, w.Name);
 	
 					if(!w.Locked)
 						BindAccounts(vault, accounts, w.Accounts);
+					else
+						wallets.SelectedItem = null;
 				}
-				else
-					accounts.Items.Clear();
 			};
 
 			wallets.SelectionChangeCommitted += f;

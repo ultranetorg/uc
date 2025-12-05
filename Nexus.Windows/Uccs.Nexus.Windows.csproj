@@ -22,7 +22,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-    <ProjectReference Include="..\Net.FUI\Uccs.Net.FUI.csproj" />
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
     <ProjectReference Include="..\Vault\Uccs.Vault.csproj" />
   </ItemGroup>
@@ -32,6 +31,15 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="AuthenticattionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="CreateWalletForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="EnterPasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TextForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="TransferPage.cs">
@@ -51,9 +59,18 @@
     <EmbeddedResource Update="AuthenticattionForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Update="CreateWalletForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="EnterPasswordForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="TextForm.resx">
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
 
