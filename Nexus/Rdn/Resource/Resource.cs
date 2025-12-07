@@ -23,7 +23,8 @@ public enum ResourceChanges : byte
 public enum ResourceLinkFlag : byte
 {
 	None		= 0,
-	Sealed		= 0b________1,
+	Hierarchy	= 0b________1,
+	Sealed		= 0b_______10,
 }
 
 public enum ResourceLinkChanges : byte
@@ -65,7 +66,7 @@ public class Resource : ITableEntry
 	public ResourceData			Data { get; set; }
 	public Time					Updated { get; set; }
 	public ResourceLink[]		Outbounds { get; set; } = [];
-	public AutoId[]			Inbounds { get; set; } = [];
+	public AutoId[]				Inbounds { get; set; } = [];
 
 	bool						OutboundsCloned;
 	bool						InboundsCloned;

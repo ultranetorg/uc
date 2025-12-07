@@ -112,7 +112,7 @@ public class RdnRound : Round
 			d.NnSelfHash	= b.State.Hash;
 			d.NnChildNet	= b.State;
 
-			Mcv.NnBlocks.Remove(b);
+			Mcv.NnBlocks.Remove(b); /// ??????
 		}
 
 		#if IMMISSION
@@ -170,19 +170,15 @@ public class RdnRound : Round
 	{
 		base.WriteConfirmed(writer);
 
-		#if IMMISSION
-		writer.Write(ConsensusEmissions);
-		#endif
 		writer.Write(ConsensusMigrations);
+		writer.Write(ConsensusNnStates, writer.Write);
 	}
 
 	public override void ReadConfirmed(BinaryReader reader)
 	{
 		base.ReadConfirmed(reader);
 		
-		#if IMMISSION
-		ConsensusEmissions	= reader.ReadArray<ForeignResult>();
-		#endif
 		ConsensusMigrations	= reader.ReadArray<ForeignResult>();
+		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashSize));
 	}
 }

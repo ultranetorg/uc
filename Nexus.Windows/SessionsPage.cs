@@ -14,6 +14,8 @@ public partial class SessionsPage : Page
 	public SessionsPage(Nexus nexus) : base(nexus)
 	{
 		InitializeComponent();
+
+		Revoke.Enabled = false;
 	}
 
 	public override void Open(bool first)

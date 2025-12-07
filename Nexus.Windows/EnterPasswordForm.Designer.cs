@@ -38,16 +38,16 @@
 			// password
 			// 
 			password.Font = new Font("Segoe UI", 12F);
-			password.Location = new Point(22, 87);
+			password.Location = new Point(16, 96);
 			password.Name = "password";
 			password.PasswordChar = '*';
-			password.Size = new Size(263, 29);
+			password.Size = new Size(265, 29);
 			password.TabIndex = 1;
 			password.TextAlign = HorizontalAlignment.Center;
 			// 
 			// ok
 			// 
-			ok.Location = new Point(297, 84);
+			ok.Location = new Point(293, 93);
 			ok.Margin = new Padding(9);
 			ok.Name = "ok";
 			ok.Size = new Size(107, 32);
@@ -59,9 +59,9 @@
 			// info
 			// 
 			info.ImageAlign = ContentAlignment.TopLeft;
-			info.Location = new Point(105, 8);
+			info.Location = new Point(126, 3);
 			info.Name = "info";
-			info.Size = new Size(288, 72);
+			info.Size = new Size(274, 81);
 			info.TabIndex = 4;
 			info.Text = "0x3405034759347598347953495349";
 			info.TextAlign = ContentAlignment.MiddleLeft;
@@ -69,9 +69,9 @@
 			// pictureBox1
 			// 
 			pictureBox1.Image = Properties.Resources.key_13705428;
-			pictureBox1.Location = new Point(22, 9);
+			pictureBox1.Location = new Point(16, 3);
 			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new Size(77, 71);
+			pictureBox1.Size = new Size(104, 81);
 			pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 			pictureBox1.TabIndex = 6;
 			pictureBox1.TabStop = false;
@@ -82,7 +82,7 @@
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			AutoSize = true;
-			ClientSize = new Size(424, 136);
+			ClientSize = new Size(416, 144);
 			Controls.Add(password);
 			Controls.Add(pictureBox1);
 			Controls.Add(info);

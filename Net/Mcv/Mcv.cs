@@ -174,6 +174,9 @@ public abstract class Mcv /// Mutual chain voting
 			r.ConsensusECEnergyCost = 1; ///1
 			r.ConsensusFundJoiners = [Net.Father0];
 			r.ConsensusTransactions = r.OrderedTransactions.ToArray();
+			r.ConsensusViolators = [];
+			r.ConsensusMemberLeavers = [];
+			r.Funds = [];
 
 			r.Hashify();
 			r.Confirm();

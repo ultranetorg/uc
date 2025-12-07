@@ -22,7 +22,7 @@ public abstract class Round : IBinarySerializable
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God}] : Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God}] : (Voters ?? []).OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AccountAddress>							Forkers = [];
@@ -35,23 +35,23 @@ public abstract class Round : IBinarySerializable
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
-	public Transaction[]								ConsensusTransactions = {};
-	public AutoId[]										ConsensusMemberLeavers = {};
-	public AutoId[]										ConsensusViolators = {};
-	public AccountAddress[]								ConsensusFundJoiners = {};
-	public AccountAddress[]								ConsensusFundLeavers = {};
+	public Transaction[]								ConsensusTransactions;
+	public AutoId[]										ConsensusMemberLeavers;
+	public AutoId[]										ConsensusViolators;
+	public AccountAddress[]								ConsensusFundJoiners = [];
+	public AccountAddress[]								ConsensusFundLeavers = [];
 	public long											ConsensusECEnergyCost;
 	public int											ConsensusOverloadRound;
-	public byte[][]										ConsensusNnStates = [];
+	public byte[][]										ConsensusNnStates;
 
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public List<Generator>								Candidates = new();
-	public List<Generator>								Members = new();
+	public List<Generator>								Candidates;
+	public List<Generator>								Members;
 	public List<AccountAddress>							Funds;
-	public long[]										Spacetimes = [];
-	public long[]										Bandwidths = [];
+	public long[]										Spacetimes;
+	public long[]										Bandwidths;
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
 	public Dictionary<AutoId, Account>					AffectedAccounts = new();
@@ -227,7 +227,15 @@ public abstract class Round : IBinarySerializable
 
 		ConsensusTransactions = txs.Where(i => i.Successful).ToArray();
 
-		if(Id >= Mcv.P)
+		if(Id < Mcv.P)
+		{
+			ConsensusMemberLeavers = [];
+			ConsensusViolators = [];
+			ConsensusNnStates = [];
+			//ConsensusFundJoiners = [];
+			//ConsensusFundLeavers = [];
+		}
+		else
 		{
 			ConsensusMemberLeavers = svotes	.SelectMany(i => i.MemberLeavers).Distinct()
 											.Where(x => Members.Any(j => j.Id == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
@@ -286,8 +294,12 @@ public abstract class Round : IBinarySerializable
 			return;
 
 		foreach(var t in transactions)
+		{	
+			t.Error = null;
+
 			foreach(var o in t.Operations)
 				o.Error = null;
+		}
 
 		Candidates	= Id == 0 ? new()								: Previous.Candidates.ToList();
 		Members		= Id == 0 ? new()								: Previous.Members;
@@ -304,7 +316,7 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
 
-		foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
+		foreach(var t in transactions.Reverse())
 		{
 			var e = CreateExecution(t);
 			
@@ -390,7 +402,7 @@ public abstract class Round : IBinarySerializable
 				NextEids[t][i.Key] = i.Value;
 
 		if(execution.Candidates != null)	Candidates	= execution.Candidates;
-		if(execution.Spaces != null)	Spacetimes	= execution.Spaces;
+		if(execution.Spaces != null)		Spacetimes	= execution.Spaces;
 		if(execution.Bandwidths != null)	Bandwidths	= execution.Bandwidths;
 	}
 
@@ -405,10 +417,8 @@ public abstract class Round : IBinarySerializable
 		if(Id > 0 && Mcv.LastConfirmedRound != null && Mcv.LastConfirmedRound.Id + 1 != Id)
 			throw new IntegrityException("LastConfirmedRound.Id + 1 == Id");
 
-		Execute(ConsensusTransactions);
-
-		//Members	= Members.ToList();
-		//Funds	= Funds.ToList();
+		///if(Members == null)
+			Execute(ConsensusTransactions);
 
 		CopyConfirmed();
 		
@@ -443,7 +453,7 @@ public abstract class Round : IBinarySerializable
 			Members.Remove(i);
 		}
 
-		foreach(var i in e.Candidates/*.OrderByHash(i => i.Address.Bytes, Hash)*/.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
+		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
 			var c = e.AffectCandidate(i.Id);
 			
@@ -453,8 +463,6 @@ public abstract class Round : IBinarySerializable
 			Members.Add(c);
 		}
 
-		//Members.Sort((a, b) => a.Address.CompareTo(b.Address));
-
 		Funds = [..Funds];
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
@@ -462,8 +470,6 @@ public abstract class Round : IBinarySerializable
 		if(Id > 0 && ConsensusTime.Days != Previous.ConsensusTime.Days) /// day switched
 		{
 			var d = ConsensusTime.Days - Previous.ConsensusTime.Days;
-
-			//d %= Time.FromYears(1).Days;
 
 			e.Bandwidths = d < e.Bandwidths.Length ? [..e.Bandwidths[d..], ..new long[d]] : new long[d];
 

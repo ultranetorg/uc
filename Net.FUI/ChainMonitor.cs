@@ -140,7 +140,7 @@ public partial class ChainMonitor : UserControl
 								ntry = Math.Max(ntry, r.Try);
 								nv = r.VotersId >= 0 ? Math.Max(nv, IntLength(r.MajorityOfRequiredByParentHash?.Count() ?? 0) + 1 + IntLength(r.MinimumForConsensus)) : 0;
 								//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
-								nl = Math.Max(nl, r.ConsensusMemberLeavers.Length);
+								nl = Math.Max(nl, r.ConsensusMemberLeavers?.Length ?? 0);
 	
 								if(r?.Members != null)
 									nm = Math.Max(nm, r.Members.Count);
@@ -212,9 +212,9 @@ public partial class ChainMonitor : UserControl
 															r.Try,
 															r.Confirmed ? "c" : " ",
 															r.VotersId >= 0 ? $"{r.MajorityOfRequiredByParentHash?.Count() ?? 0}/{r.MinimumForConsensus}" : null,
-															r.Members.Count,
+															r.Members?.Count,
 															//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
-															r.ConsensusMemberLeavers.Length,
+															r.ConsensusMemberLeavers?.Length,
 															r.ConsensusTime,
 															r.Hash != null ?r.Hash.ToHexPrefix() : "--------");
 									

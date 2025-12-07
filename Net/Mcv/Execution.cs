@@ -276,16 +276,14 @@ public class Execution : ITableExecution
 
 			if(s == null)
 			{
-				foreach(var o in Transaction.Operations)
-					o.Error = Operation.NotFound;
+				Transaction.Error = Operation.NotFound;
 					
 				return null;
 			}
 	
 			if(Transaction.Nid != s.LastTransactionNid + 1)
 			{
-				foreach(var o in Transaction.Operations)
-					o.Error = Operation.NotSequential;
+				Transaction.Error = Operation.NotSequential;
 					
 				return null;
 			}
