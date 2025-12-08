@@ -11,7 +11,7 @@ public class AccountsService
 	FairMcv mcv
 )
 {
-	public AccountBaseModel GetByAddress([NotNull][NotEmpty] string address)
+	public AccountModel GetByAddress([NotNull][NotEmpty] string address)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountAddress}", nameof(AccountsService), nameof(GetByAddress), address);
 
@@ -22,8 +22,26 @@ public class AccountsService
 		lock(mcv.Lock)
 		{
 			FairAccount account = (FairAccount)mcv.Accounts.Latest(accountAddress);
-			return new AccountBaseModel(account);
+			return new AccountModel(account)
+			{
+				FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
+			};
 		}
+	}
+
+	SiteBaseModel[] LoadAccountSites(AutoId[] sitesIds)
+	{
+		var sites = new SiteBaseModel[sitesIds.Length];
+		int i = 0;
+
+		foreach(AutoId siteId in sitesIds)
+		{
+			Site site = mcv.Sites.Latest(siteId);
+			var model = new SiteBaseModel(site);
+			sites[i++] = model;
+		}
+
+		return sites;
 	}
 
 	public UserModel Get([NotNull][NotEmpty] string userId)

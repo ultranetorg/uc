@@ -39,9 +39,7 @@ public class SitesService
 				continue;
 			}
 
-			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
-
-			SiteBaseModel model = new(site, avatar);
+			var model = new SiteBaseModel(site);
 			result.Add(model);
 		}
 
@@ -71,14 +69,11 @@ public class SitesService
 			(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) =
 				GetReferendumDiscussionOperations(site.Policies);
 
-			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
-
-			return new SiteModel(site, avatar)
+			return new SiteModel(site)
 			{
 				Categories = categories,
 				ModeratorsIds = moderatorsIds,
 				AuthorsIds = authorsIds,
-				ReferendumOperations = referendumOperations,
 				DiscussionOperations = discussionOperations
 			};
 		}

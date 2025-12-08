@@ -1,3 +1,4 @@
+export * from "./Account"
 export * from "./AccountBase"
 export * from "./AccountBaseAvatar"
 export * from "./AccountSearchLite"

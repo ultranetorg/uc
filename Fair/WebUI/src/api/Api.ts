@@ -1,4 +1,6 @@
 import {
+  Account,
+  AccountBase,
   AccountSearchLite,
   AuthorDetails,
   Category,
@@ -22,11 +24,10 @@ import {
   SiteBase,
   SiteLiteSearch,
   TotalItemsResult,
+  UnpublishedProduct,
+  UnpublishedProductDetails,
   User,
   UserProposal,
-  AccountBase,
-  UnpublishedProductDetails,
-  UnpublishedProduct,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -45,7 +46,7 @@ export type Api = {
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
 
-  getAccountByAddress(accountAddress: string): Promise<AccountBase>
+  getAccountByAddress(accountAddress: string): Promise<Account>
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>

@@ -22,9 +22,10 @@ yarn dev
 | 28                  | lg                |                |
 | 32                  | xl                |                |
 | 36                  | 2xl               |                |
-| 40                  |                   |                |
+| 40                  |                   | 3xl            |
 | 44                  |                   |                |
 | 64                  | 9xl               | 9xl            |
+| 72                  | 10xl              | 10xl           |
 | 76                  |                   |                |
 
 text-xs font-size: 0.75rem; /_ 12px _/
@@ -42,6 +43,16 @@ text-8xl font-size: 6rem; /_ 96px _/
 text-9xl font-size: 8rem; /_ 128px _/
 
 ## Classes hierarchy
+
+### Account
+
+```mermaid
+graph TD;
+    AccountModel["AccountModel<br/>(Используется AccountSwitcher, используется Sidebar, содержит настройки аккаунта - FavoriteSites)"]
+
+    AccountModel --> AccountBaseModel
+    AccountBaseAvatarModel --> AccountBaseModel
+```
 
 ### Publication
 
@@ -68,6 +79,13 @@ graph TD;
     CategoryParentBaseModel --> CategoryBaseModel
     CategoryPublicationsModel --> CategoryBaseModel
     CategoryModel --> CategoryParentBaseModel
+```
+
+### Site
+
+```mermaid
+graph TD;
+    SiteModel --> SiteBaseModel
 ```
 
 ## Z-Index

@@ -4,24 +4,24 @@ import { useLocalStorage } from "usehooks-ts"
 import { LOCAL_STORAGE_KEYS } from "constants/"
 import { useAuthenticate, useIsAuthenticated } from "entities/vault"
 import { useGetAccountByAddress } from "entities"
-import { AccountBase } from "types"
+import { Account } from "types"
 import { MakeOptional } from "utils"
 
-type Account = MakeOptional<AccountBase, "id">
+type AccountWithOptional = MakeOptional<Account, "id" | "favoriteSites">
 
-interface SessionAccount {
-  account: Account
+type SessionAccount = {
+  account: AccountWithOptional
   session: string
 }
 
-interface StoredAccounts {
+type StoredAccounts = {
   accounts: SessionAccount[]
   selectedIndex?: number
 }
 
-interface AccountsContextType {
+type AccountsContextType = {
   accounts: SessionAccount[]
-  currentAccount?: Account
+  currentAccount?: AccountWithOptional
   isPending: boolean
   selectAccount(index: number): void
   authenticate(): void
@@ -62,11 +62,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         a.account.address === account.address
           ? {
               ...a,
-              account: {
-                ...a.account,
-                id: account.id,
-                nickname: account.nickname,
-              },
+              account,
             }
           : a,
       ),

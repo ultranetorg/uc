@@ -108,6 +108,11 @@ public class FilesService
 		lock(mcv.Lock)
 		{
 			File file = mcv.Files.Latest(id);
+			if(file == null)
+			{
+				throw new EntityNotFoundException(nameof(Field).ToLower(), fileId);
+			}
+
 			string mimeType = GetMimeType(file.Mime);
 			return new FileContentResult(file.Data, mimeType);
 		}

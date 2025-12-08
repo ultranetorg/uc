@@ -14,7 +14,7 @@ public class AccountsController
 ) : BaseController
 {
 	[HttpGet("address/{address}")]
-	public AccountBaseModel GetByAddress(string address)
+	public AccountModel GetByAddress(string address)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountAddress}", nameof(AccountsController), nameof(GetByAddress), address);
 

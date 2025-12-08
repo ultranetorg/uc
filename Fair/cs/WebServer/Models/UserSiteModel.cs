@@ -1,14 +1,8 @@
 ﻿namespace Uccs.Fair; 
 
-public class UserSiteModel : SiteBaseModel
+public class UserSiteModel(Site site) : SiteBaseModel(site)
 {
-	public int ProductsCount { get; set; }
+	public int ProductsCount { get; init; }
 
-	public string Url { get; set; }
-
-	public UserSiteModel(Site site) : base(site, null)
-	{
-		Id = site.Id.ToString();
-		Title = site.Title;
-	}
+	public string Url { get; init; }
 }

@@ -120,9 +120,7 @@ public class SearchService
 				break;
 
 			Site site = mcv.Sites.Latest(search.Entity);
-			byte[]? avatar = site.Avatar != null ? mcv.Files.Latest(site.Avatar).Data : null;
-
-			SiteBaseModel model = new SiteBaseModel(site, avatar);
+			var model = new SiteBaseModel(site);
 			result.Add(model);
 		}
 	}
