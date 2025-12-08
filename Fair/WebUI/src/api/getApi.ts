@@ -1,6 +1,7 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { LIMIT_DEFAULT } from "constants/"
 import {
+  Account,
   AccountBase,
   AccountSearchLite,
   AuthorDetails,
@@ -82,7 +83,7 @@ const searchLitePublication = (siteId: string, query?: string): Promise<Publicat
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
-const getAccountByAddress = (accountAddress: string): Promise<AccountBase> =>
+const getAccountByAddress = (accountAddress: string): Promise<Account> =>
   fetch(`${BASE_URL}/accounts/address/${accountAddress}`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>

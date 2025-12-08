@@ -17,9 +17,9 @@ export const SitesList = memo(({ title, items, emptyStateMessage }: SitesListPro
     <div className="flex flex-col gap-4">
       <span className="text-xs uppercase leading-3.75 tracking-tight-048 text-gray-500">{title}</span>
       {items && items.length > 0 ? (
-        items.map(({ id, title }) => (
-          <Link key={id} to={`/s/${id}`}>
-            <Site title={title} />
+        items.map(({ id, title, imageFileId }) => (
+          <Link key={id} to={`${id}`}>
+            <Site title={title} imageFileId={imageFileId} />
           </Link>
         ))
       ) : (

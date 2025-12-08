@@ -26,7 +26,7 @@ export const AccountSwitcher = memo(
 
       return (
         <div
-          className="w-70 z-10 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
+          className="z-10 w-70 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
           ref={ref}
           style={style}
         >

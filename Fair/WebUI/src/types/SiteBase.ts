@@ -3,5 +3,5 @@ export type SiteBase = {
   nickname?: string
   title: string
   description?: string
-  avatar?: string
+  imageFileId?: string
 }

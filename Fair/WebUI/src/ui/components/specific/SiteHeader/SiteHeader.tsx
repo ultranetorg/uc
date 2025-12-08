@@ -79,7 +79,7 @@ export const SiteHeader = () => {
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
       <Link to={`/${siteId}`}>
-        <LogoDropdownButton title={site.title} avatar={site.avatar} />
+        <LogoDropdownButton title={site.title} imageFileId={site.imageFileId} />
       </Link>
       {categoriesItems && categoriesItems.length > 0 && (
         <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />

@@ -37,9 +37,9 @@ export const NoOptionsMessage = ({ noOptionsLabel }: NoOptionsMessageProps) => (
 export const Option = (props: OptionProps<DropdownItem, false>) => (
   <components.Option {...props}>
     <div className="flex items-center gap-2">
-      <div className="h-8 w-8 overflow-hidden rounded-full">
+      <div className="size-8 overflow-hidden rounded-full">
         <img
-          className="h-full w-full object-cover object-center"
+          className="size-full object-cover object-center"
           src={buildAccountAvatarUrl(props.data.value)}
           loading="lazy"
           onError={e => {

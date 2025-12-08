@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class SiteModel(Site site, byte[]? avatar) : SiteBaseModel(site, avatar)
+public class SiteModel(Site site) : SiteBaseModel(site)
 {
 	public IEnumerable<SiteCategoryModel> Categories { get; set; }
 

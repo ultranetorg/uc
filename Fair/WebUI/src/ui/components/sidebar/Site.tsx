@@ -2,16 +2,30 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { StarSvg } from "assets"
+import avatarFallback from "assets/fallback/site-logo-3xl.png"
+import { buildFileUrl } from "utils"
 
 export type SiteProps = {
   title: string
+  imageFileId?: string
   isStarred?: boolean
 }
 
-export const Site = memo(({ title, isStarred }: SiteProps) => (
+export const Site = memo(({ title, imageFileId, isStarred }: SiteProps) => (
   <div className="group flex items-center gap-3">
-    <div className="h-10 w-10 rounded-lg bg-gray-700" />
-    <span className="w-36 flex-grow overflow-hidden text-ellipsis whitespace-nowrap text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
+    <div className="size-10 overflow-hidden rounded-lg bg-gray-700">
+      <img
+        src={imageFileId ? buildFileUrl(imageFileId) : avatarFallback}
+        alt="Logo"
+        className="size-full object-contain object-center"
+        loading="lazy"
+        onError={e => {
+          e.currentTarget.onerror = null
+          e.currentTarget.src = avatarFallback
+        }}
+      />
+    </div>
+    <span className="w-36 grow truncate text-2xs font-medium leading-4 text-gray-800 group-hover:font-semibold">
       {title}
     </span>
     <StarSvg
