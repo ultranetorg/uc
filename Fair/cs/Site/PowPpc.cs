@@ -13,7 +13,7 @@ public class PowPpc : FairPpc<PowPpr>
 		Site = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Site == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class PowPpc : FairPpc<PowPpr>
 	}
 }
 
-public class PowPpr : Return
+public class PowPpr : Result
 {
 	public int		Complexity {get; set;}
 	public byte[]	GraphHash {get; set;}

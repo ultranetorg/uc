@@ -8,7 +8,7 @@ public class VotePpc : PeerRequest
 	{
 	}
 	
-	public override Return Execute()
+	public override Result Execute()
 	{
 		var p = Peering as McvTcpPeering;
 

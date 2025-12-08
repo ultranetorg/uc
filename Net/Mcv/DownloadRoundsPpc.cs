@@ -5,7 +5,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 	public int From { get; set; }
 	public int To { get; set; }
 	
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -30,7 +30,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 	}
 }
 
-public class DownloadRoundsPpr : Return
+public class DownloadRoundsPpr : Result
 {
 	public int		LastNonEmptyRound { get; set; }
 	public int		LastConfirmedRound { get; set; }

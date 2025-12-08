@@ -13,7 +13,7 @@ public class SitePpc : FairPpc<SitePpr>
 		Id = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class SitePpc : FairPpc<SitePpr>
 	}
 }
 
-public class SitePpr : Return
+public class SitePpr : Result
 {
 	public Site	Site {get; set;}
 }

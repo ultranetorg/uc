@@ -2,7 +2,7 @@
 
 public class MembersPpc : McvPpc<MembersPpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -16,7 +16,7 @@ public class MembersPpc : McvPpc<MembersPpr>
 	}
 }
 
-public class MembersPpr : Return
+public class MembersPpr : Result
 {
 	public Generator[] Members { get; set; }
 }

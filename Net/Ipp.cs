@@ -11,7 +11,7 @@ public abstract class IppPacket
 
 public class IppRequest : IppPacket
 {
-	public Return				Return;
+	public Result				Return;
 	public ManualResetEvent		Event;
 	public CodeException		Exception;
 	public Argumentation		Argumentation { get; set; }
@@ -30,7 +30,7 @@ public class IppConnection
 	public Flow						Flow;
 
 	object							Handler;
-	Dictionary<byte, MethodInfo>	Methods = [];
+	Dictionary<uint, MethodInfo>	Methods = [];
 
 	public IppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor)
 	{
@@ -83,11 +83,11 @@ public class IppConnection
 	{
 		Handler = handler;
 
-		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Return)))
+		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Result)))
 		{
 			if(Enum.TryParse(enumclass, i.Name, out var c))
 			{
-				Methods[(byte)c] = i;
+				Methods[(uint)c] = i;
 			}
 
 		}
@@ -109,7 +109,7 @@ public class IppConnection
 	{
 		try
 		{
-			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Return;
+			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
 	
 			lock(Writer)
 			{
@@ -162,7 +162,7 @@ public class IppConnection
 						var id = Reader.ReadInt32();
 						//var r = Constructor.Construct(typeof(Return), Reader.ReadByte()) as Return;
 						//(r as IBinarySerializable).Read(Reader);
-						var r = BinarySerializator.Deserialize<Return>(Reader, Constructor.Construct);
+						var r = BinarySerializator.Deserialize<Result>(Reader, Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -223,7 +223,7 @@ public class IppConnection
 ///		Request(rq);
 ///	}
 
-	public Return Call(Argumentation argumentation, Flow flow)
+	public Result Call(Argumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);

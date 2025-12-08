@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Rdn;
 
-public class RdnNnTcpPeering : NnpTcpPeering
+public class ___RdnNnTcpPeering : NnpTcpPeering
 {
 	public RdnNode			Node;
 
-	public RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
+	public ___RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
 	{
 		Node = node;
 		node.Mcv.Confirmed += (r) =>	{

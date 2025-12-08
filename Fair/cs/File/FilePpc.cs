@@ -13,7 +13,7 @@ public class FilePpc : FairPpc<FilePpr>
 		Id = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class FilePpc : FairPpc<FilePpr>
 	}
 }
 
-public class FilePpr : Return
+public class FilePpr : Result
 {
 	public File	File {get; set;}
 }

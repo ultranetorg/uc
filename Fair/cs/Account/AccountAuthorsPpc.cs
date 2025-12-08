@@ -23,7 +23,7 @@ public class AccountAuthorsPpc : McvPpc<AccountAuthorsPpr>
 		Identifier = new(id);
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -46,7 +46,7 @@ public class AccountAuthorsPpc : McvPpc<AccountAuthorsPpr>
 	}
 }
 
-public class AccountAuthorsPpr : Return
+public class AccountAuthorsPpr : Result
 {
 	public AutoId[] Authors {get; set;}
 }

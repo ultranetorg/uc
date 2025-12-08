@@ -2,7 +2,7 @@
 
 public class TimePpc : McvPpc<TimePpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Peering.Lock)
 		{
@@ -13,7 +13,7 @@ public class TimePpc : McvPpc<TimePpr>
 	}
 }
 
-public class TimePpr : Return
+public class TimePpr : Result
 {
 	public Time Time { get; set; }
 }

@@ -6,7 +6,7 @@ public struct Portion
 	public Unit	Amount;
 }
 
-public enum OperationClass
+public enum OperationClass : uint
 {
 	None = 0, 
 	Genesis						= 000_000_001, 

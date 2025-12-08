@@ -13,7 +13,7 @@ public class CategoryPpc : FairPpc<CategoryPpr>
 		Id = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class CategoryPpc : FairPpc<CategoryPpr>
 	}
 }
 
-public class CategoryPpr : Return
+public class CategoryPpr : Result
 {
 	public Category	Category {get; set;}
 }

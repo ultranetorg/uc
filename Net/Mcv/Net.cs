@@ -49,10 +49,8 @@ public abstract class Net
 													.Select(i => IPAddress.Parse(i))
 													.ToArray();
 
-	public Dictionary<Type, uint>								Codes = [];
-	public Dictionary<Type, Dictionary<uint, ConstructorInfo>>	Contructors = [];
+	public Constructor					Constructor = new ();
 
-	public T							Contruct<T>(uint code) => (T)Contructors[typeof(T)][code].Invoke(null);
 	public static ushort				MapPort(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 
 	public override string ToString()
@@ -71,43 +69,6 @@ public abstract class Net
 	}
 
 }
-
-//  public class Nn
-//  {
-//  	public static ushort	BasePort => (ushort)KnownSystem.Nn; /// 00XX0
-// 
-// 		public static ushort	GetPort(Zone land) => (ushort)((ushort)land * 1000 + BasePort);
-//	}
- 
-// 	public class LocalNexus : NetToNet
-// 	{
-// 		public override	NetScope	Scope => NetScope.Local;
-// 
-// 		public LocalNexus()
-// 		{
-// 			Initials	= [];
-// 		}
-// 	}
-// 
-// 	public class Developer0Nexus : NetToNet
-// 	{
-// 		public override	NetScope	Scope => NetScope.Developer0;
-// 
-// 		public Developer0Nexus()
-// 		{
-// 			Initials	= [];
-// 		}
-// 	}
-// 
-// 	public class PublicTestNexus : NetToNet
-// 	{
-// 		public override	NetScope	Scope => NetScope.PublicTest;
-// 
-// 		public PublicTestNexus()
-// 		{
-// 			Initials	= [];
-// 		}
-// 	}
 
 public abstract class McvNet : Net
 {
@@ -137,18 +98,11 @@ public abstract class McvNet : Net
 
 	public abstract int		TablesCount { get; }
 
-	//public AccountAddress	God										= AccountAddress.Parse("0xFFFF9F9D0914ED338CB26CE8B1B9B8810BAFB608");
 	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 	public IPAddress		Father0IP;
 
 	public McvNet()
 	{
-		Contructors[typeof(Operation)] = [];
-
-		foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
-		{
-			Codes[i] = (uint)Enum.Parse<OperationClass>(i.Name);
-			Contructors[typeof(Operation)][(uint)Enum.Parse<OperationClass>(i.Name)] = i.GetConstructor([]);
-		}
+		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(OperationClass), i => i);
 	}
 }

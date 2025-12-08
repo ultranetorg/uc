@@ -214,7 +214,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 	//	return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	//}
 
-	public virtual Return Call(string net, Argumentation call, Flow workflow, IEnumerable<NnpPeer> exclusions = null)
+	public virtual Result Call(string net, Argumentation call, Flow workflow, IEnumerable<NnpPeer> exclusions = null)
 	{
 		var tried = exclusions != null ? [.. exclusions] : new HashSet<NnpPeer>();
 

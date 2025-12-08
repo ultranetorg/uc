@@ -4,7 +4,7 @@ public class DeclareReleasePpc : RdnPpc<DeclareReleasePpr>//, IBinarySerializabl
 {
 	public ResourceDeclaration[]	Resources { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Node.Mcv.Lock)
 			RequireMember();
@@ -35,7 +35,7 @@ public class ReleaseDeclarationResult
 	}
 }
 
-public class DeclareReleasePpr : Return
+public class DeclareReleasePpr : Result
 {
 	public ReleaseDeclarationResult[]	Results { get; set; }
 }

@@ -3,7 +3,7 @@ using RocksDbSharp;
 
 namespace Uccs.Rdn;
 
-public enum RdnTable
+public enum RdnTable : byte
 {
 	Meta = McvTable.Meta, Account = McvTable.Account,
 	Domain, Resource

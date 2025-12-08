@@ -32,8 +32,8 @@ public class NnpIppServer : IppServer
 	{
 		Nexus = nexus;
 
-		Constructor.Register<Argumentation>	(typeof(NnClass).Assembly,			typeof(NnClass),		i => i.Remove(i.Length - 3));
-		Constructor.Register<Return>		(typeof(NnClass).Assembly,			typeof(NnClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<Argumentation>	(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<Result>		(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
 		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
@@ -48,10 +48,10 @@ public class NnpIppServer : IppServer
 			Nodes.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
-		connection.RegisterHandler(typeof(NnClass), this);
+		connection.RegisterHandler(typeof(NnpClass), this);
 	}
 
-	Return Relay(IppConnection connection, NnpArgumentation call)
+	Result Relay(IppConnection connection, NnpArgumentation call)
 	{
 		var n = Nodes.Find(i => i.Net == call.Net);
 
@@ -66,27 +66,27 @@ public class NnpIppServer : IppServer
 		} 
 	}
 
-	public Return HolderClasses(IppConnection connection, NnpArgumentation call)
+	public Result HolderClasses(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HolderAssets(IppConnection connection, NnpArgumentation call)
+	public Result HolderAssets(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HoldersByAccount(IppConnection connection, NnpArgumentation call)
+	public Result HoldersByAccount(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetBalance(IppConnection connection, NnpArgumentation call)
+	public Result AssetBalance(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetTransfer(IppConnection connection, NnpArgumentation call)
+	public Result AssetTransfer(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}

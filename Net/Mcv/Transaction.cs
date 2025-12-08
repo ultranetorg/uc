@@ -116,7 +116,7 @@ public class Transaction : IBinarySerializable
 		writer.WriteBytes(Tag);
 		writer.Write(Sponsored);
 		writer.Write(Operations, i =>{
-										writer.Write(Net.Codes[i.GetType()]); 
+										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
 									 });
  	}
@@ -132,7 +132,7 @@ public class Transaction : IBinarySerializable
 		Tag			= reader.ReadBytes();
 		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
- 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
+ 												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  												o.Transaction = this;
  												o.Read(reader); 
  												return o; 
@@ -151,7 +151,7 @@ public class Transaction : IBinarySerializable
 		writer.WriteBytes(Tag);
 		writer.Write(Sponsored);
 		writer.Write(Operations, i => {
-										writer.Write(Net.Codes[i.GetType()]); 
+										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
 									  });
 	}
@@ -168,7 +168,7 @@ public class Transaction : IBinarySerializable
 		Tag			= reader.ReadBytes();
 		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
- 												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
+ 												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  												o.Transaction	= this;
  												o.Read(reader); 
  												return o; 
@@ -187,7 +187,7 @@ public class Transaction : IBinarySerializable
 		writer.WriteBytes(Tag);
 		writer.Write(Sponsored);
 		writer.Write(Operations, i =>	{
-											writer.Write(Net.Codes[i.GetType()]); 
+											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 											i.Write(writer); 
 										});
 	}
@@ -204,7 +204,7 @@ public class Transaction : IBinarySerializable
 		Tag			= reader.ReadBytes();
 		Sponsored	= reader.ReadBoolean();
 		Operations	= reader.ReadArray(() => {
-												var o = Net.Contructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as Operation;
+												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
 												o.Transaction = this;
 												o.Read(reader); 
 												return o; 

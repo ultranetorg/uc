@@ -22,7 +22,7 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 {
 	public byte[][]	Signatures { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Peering.Lock)
 		{
@@ -47,7 +47,7 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 	}
 }
 
-public class TransactionStatusPpr : Return
+public class TransactionStatusPpr : Result
 {
 	public class Item
 	{

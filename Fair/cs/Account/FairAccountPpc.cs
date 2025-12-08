@@ -23,7 +23,7 @@ public class FairAccountPpc : McvPpc<FairAccountPpr>
 		Identifier = new(id);
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -46,7 +46,7 @@ public class FairAccountPpc : McvPpc<FairAccountPpr>
 	}
 }
 
-public class FairAccountPpr : Return
+public class FairAccountPpr : Result
 {
 	public FairAccount Account {get; set;}
 }

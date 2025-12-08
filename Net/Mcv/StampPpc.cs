@@ -2,7 +2,7 @@
 
 public class StampPpc : McvPpc<StampPpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -25,7 +25,7 @@ public class StampPpc : McvPpc<StampPpr>
 	}
 }
 
-public class StampPpr : Return
+public class StampPpr : Result
 {
 	public class SuperCluster
 	{

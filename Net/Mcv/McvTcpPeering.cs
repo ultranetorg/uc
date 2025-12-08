@@ -5,7 +5,7 @@ using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public enum McvPpcClass : byte
+public enum McvPpcClass : uint
 {
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
@@ -59,7 +59,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		VaultApi = vaultapi;
 
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<Return> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Result> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));
@@ -1203,12 +1203,12 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		return t;
  	}
 
-	public R Call<R>(Ppc<R> call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)  where R : Return
+	public R Call<R>(Ppc<R> call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)  where R : Result
 	{
 		return Call((PeerRequest)call, workflow, exclusions) as R;
 	}
 
-	public Return Call(PeerRequest call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)
+	public Result Call(PeerRequest call, Flow workflow, IEnumerable<HomoPeer> exclusions = null)
 	{
 		HashSet<HomoPeer> tried;
 		

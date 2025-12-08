@@ -85,12 +85,13 @@ public class Asset : IBinarySerializable
 	}
 }
 
-public enum NnClass : byte
+public enum NnpClass : uint
 {
 	None = 0, 
 	
-	NnBlock,
-	NnStateHash,
+	Block,
+	RootHash,
+	Transact,
 
 	HolderClasses,
 	HoldersByAccount,
@@ -98,7 +99,6 @@ public enum NnClass : byte
 	AssetBalance,
 	AssetTransfer
 }
-
 
 public abstract class NnpArgumentation : Argumentation
 {
@@ -108,9 +108,9 @@ public abstract class NnpArgumentation : Argumentation
 	public virtual void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
 }
 
-public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R : Return
+public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R : Result
 {
-	public A Argumentation = new A();
+	public A Argumentation;
 
 	public Nnc(A argumentation)
 	{
@@ -118,11 +118,101 @@ public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R :
 	}
 }
 
+public class BlockNna : NnpArgumentation
+{
+	public byte[]			Raw { get; set; }
+
+	public BlockNna()
+	{
+	}
+	
+//	public override Return Execute()
+//	{
+//		//var p = Peering as NnTcpPeering;
+//
+//		//lock(Peering.Lock)
+//		{
+//		///	var b = p.ProcessIncoming(Raw, Peer);
+//		///
+//		///	//if(Peering.Synchronization == Synchronization.Synchronized)
+//		///	//{
+//		///	//	//var r = sun.Mcv.FindRound(v.RoundId);
+//		///	//	var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
+//		///	//
+//		///	//	if(_v != null) /// added or existed
+//		///	//	{
+//		///	//		if(accepted) /// for the added vote
+//		///	//		{
+//		///	//			var m = Mcv.LastConfirmedRound.Members.Find(i => i.Address == v.Generator);
+//		///	//					
+//		///	//			if(m != null)
+//		///	//			{
+//		///	//				//m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
+//		///	//				//m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
+//		///	//				m.Proxy			= Peer;
+//		///	//			}
+//		///	//		}
+//		///	//		else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote
+//		///	//			_v.BroadcastConfirmed = true;
+//		///	//	}
+//		///	//}
+//		///
+//		///	if(b != null)
+//		///	{
+//		///		p.Broadcast(b, Peer);
+//		///		//Peering.Statistics.AcceptedVotes++;
+//		///	}
+//		///	//else
+//		///		//Peering.Statistics.RejectedVotes++;
+//		///
+//		}
+//
+//		return null;
+//	}
+}
+
+public enum PacketFormat : byte
+{
+	None, Binary, JsonUtf8
+}
+
+public class PacketNna : NnpArgumentation, IBinarySerializable
+{
+	public byte[]			Transaction { get; set; }
+	public PacketFormat		Format { get; set; }
+	public int				Timeout { get; set; } = 5000;
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Format		= reader.Read<PacketFormat>();
+		Timeout		= reader.Read7BitEncodedInt();
+		Transaction		= reader.ReadBytes();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.Write(Format);
+		writer.Write7BitEncodedInt(Timeout);
+		writer.WriteBytes(Transaction);
+	}
+}
+
+public class PacketNnr : Result, IBinarySerializable
+{
+	public byte[]	Result { get; set; }
+
+	public void		Read(BinaryReader reader) => Result = reader.ReadBytes();
+	public void		Write(BinaryWriter writer) => writer.WriteBytes(Result);
+}
+
+
 public class HolderClassesNna : NnpArgumentation, IBinarySerializable
 {
 }
 
-public class HolderClassesNnr : Return, IBinarySerializable
+public class HolderClassesNnr : Result, IBinarySerializable
 {
 	public string[]			Classes { get; set; }
 
@@ -155,7 +245,7 @@ public class HoldersByAccountNna : NnpArgumentation, IBinarySerializable
 	}
 }
 
-public class HoldersByAccountNnr : Return, IBinarySerializable
+public class HoldersByAccountNnr : Result, IBinarySerializable
 {
 	public AssetHolder[] Holders { get; set; }
 
@@ -184,7 +274,7 @@ public class HolderAssetsNna : NnpArgumentation, IBinarySerializable
 	}
 }
 
-public class HolderAssetsNnr : Return, IBinarySerializable
+public class HolderAssetsNnr : Result, IBinarySerializable
 {
 	public Asset[] Assets {get; set;}
 
@@ -215,7 +305,7 @@ public class AssetBalanceNna : NnpArgumentation, IBinarySerializable
 	}
 }
 
-public class AssetBalanceNnr : Return, IBinarySerializable
+public class AssetBalanceNnr : Result, IBinarySerializable
 {
 	public BigInteger Balance {get; set;}
 
@@ -261,7 +351,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 	}
 }
 
-public class AssetTransferNnr : Return, IBinarySerializable
+public class AssetTransferNnr : Result, IBinarySerializable
 {
 	public byte[]	TransactionId { get; set; }
 

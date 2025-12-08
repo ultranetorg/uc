@@ -6,12 +6,12 @@ namespace Uccs.Net;
 
 public class BinarySerializator
 {
-	public static void Serialize(BinaryWriter writer, object o, Func<Type, byte> typetocode)
+	public static void Serialize(BinaryWriter writer, object o, Func<Type, uint> typetocode)
 	{
 		Serialize(writer, o, o.GetType(), typetocode);
 	}
 
-	static void Serialize(BinaryWriter writer, object val, Type type, Func<Type, byte> typetocode)
+	static void Serialize(BinaryWriter writer, object val, Type type, Func<Type, uint> typetocode)
 	{
 		switch(val)
 		{
@@ -146,13 +146,13 @@ public class BinarySerializator
 // 			return o;
 // 		}
 
-	static object Construct(BinaryReader reader, Type type, Func<Type, byte, object> construct)
+	static object Construct(BinaryReader reader, Type type, Func<Type, uint, object> construct)
 	{
 		object o;
 
 		if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 		{	
-			var c = reader.ReadByte();
+			var c = reader.ReadUInt32();
 			o = construct(type, c);
 		}
 		else
@@ -163,7 +163,7 @@ public class BinarySerializator
 		return o;
 	}
 
-	public static O Deserialize<O>(BinaryReader reader, Func<Type, byte, object> construct)
+	public static O Deserialize<O>(BinaryReader reader, Func<Type, uint, object> construct)
 	{
 		return (O)Deserialize(reader, typeof(O), construct);
 	}
@@ -189,7 +189,7 @@ public class BinarySerializator
 	//	return l;
 	//}
 
-	static object Deserialize(BinaryReader reader, Type type, Func<Type, byte, object> construct)
+	static object Deserialize(BinaryReader reader, Type type, Func<Type, uint, object> construct)
 	{
 		if(typeof(bool) == type)			
 		{

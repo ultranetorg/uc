@@ -13,7 +13,7 @@ public class SiteCategoriesPpc : FairPpc<SiteCategoriesPpr>
 		Site = siteid;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -29,7 +29,7 @@ public class SiteCategoriesPpc : FairPpc<SiteCategoriesPpr>
 	}
 }
 
-public class SiteCategoriesPpr : Return
+public class SiteCategoriesPpr : Result
 {
 	public AutoId[] Categories {get; set;}
 }

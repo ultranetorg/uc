@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public enum ExceptionClass : byte
+public enum ExceptionClass : uint
 {
 	None, Node, Request, Entity, Ipc, Nnp,
 	_Next,
@@ -8,7 +8,7 @@ public enum ExceptionClass : byte
 	Vault,
 }
 
-public enum NodeError : byte
+public enum NodeError : uint
 {
 	None,
 	AllNodesFailed,
@@ -38,7 +38,7 @@ public enum NodeError : byte
 	Unknown,
 }
 
-public enum EntityError : byte
+public enum EntityError : uint
 {
 	None,
 	NotFound,
@@ -50,14 +50,14 @@ public enum EntityError : byte
 	UnknownAsset,
 }
 
-public enum RequestError : byte
+public enum RequestError : uint
 {
 	None,
 	IncorrectRequest,
 	OutOfRange,
 }
 
-public enum VaultError : byte
+public enum VaultError : uint
 {
 	Locked,
 	Corrupted,

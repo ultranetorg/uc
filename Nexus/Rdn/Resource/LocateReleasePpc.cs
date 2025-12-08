@@ -7,7 +7,7 @@ public class LocateReleasePpc : RdnPpc<LocateReleasePpr>
 	public Urr	Address { get; set; }
 	public int	Count { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 			RequireMember();
@@ -17,7 +17,7 @@ public class LocateReleasePpc : RdnPpc<LocateReleasePpr>
 	}
 }
 	
-public class LocateReleasePpr : Return
+public class LocateReleasePpr : Result
 {
 	public IPAddress[]	Seeders { get; set; }
 }

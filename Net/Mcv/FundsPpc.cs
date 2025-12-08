@@ -2,7 +2,7 @@
 
 public class FundsPpc : McvPpc<FundsPpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -13,7 +13,7 @@ public class FundsPpc : McvPpc<FundsPpr>
 	}
 }
 
-public class FundsPpr : Return
+public class FundsPpr : Result
 {
 	public AccountAddress[] Funds { get; set; }
 }

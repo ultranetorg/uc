@@ -5,7 +5,7 @@ public class SharePeersPpc : PeerRequest
 	public bool					Broadcast { get; set; }
 	public HomoPeer[]			Peers { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Peers.Length > 1000)
 			throw new RequestException(RequestError.IncorrectRequest);

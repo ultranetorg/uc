@@ -27,7 +27,7 @@ public class FairTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        else if(ti.Type == typeof(Return))
+        else if(ti.Type == typeof(Result))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
