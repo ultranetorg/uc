@@ -17,19 +17,17 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { currentAccount } = useAccountsContext()
 
   return (
-    <div className={twMerge("flex min-w-65 flex-col gap-6 p-2", className)}>
+    <div className={twMerge("flex w-65 min-w-65 flex-col gap-6 p-2", className)}>
       <div className="flex grow flex-col gap-8 p-2">
         <Link to="/">
           <AllSitesButton title={t("allSites")} />
         </Link>
         {site && <SitesList title={t("currentSite")} items={[site]} emptyStateMessage={t("emptySitesList")} />}
-        {currentAccount?.favoriteSites && currentAccount.favoriteSites.length > 0 && (
-          <SitesList
-            title={t("starredSites")}
-            items={currentAccount.favoriteSites}
-            emptyStateMessage={t("emptySitesList")}
-          />
-        )}
+        <SitesList
+          title={t("starredSites")}
+          items={currentAccount?.favoriteSites}
+          emptyStateMessage={t("emptySitesList")}
+        />
       </div>
       <CurrentAccount />
     </div>
