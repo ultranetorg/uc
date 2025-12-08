@@ -292,7 +292,7 @@ public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public AccountAddress			Signer { get; set; }
-	public byte[]					Tag { get; set; }
+	public byte[]					Tag { get; set; } /// optional
 	public bool						Sponsored { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 

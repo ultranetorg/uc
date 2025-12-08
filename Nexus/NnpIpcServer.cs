@@ -15,19 +15,26 @@ internal class  NnpIppConnection : IppConnection
 		
 	}
 }
+
+public class NnpNode
+{
+	public string			Api { get; set; }
+	public string			Net;
+	public IppConnection	Connection;
+}
 	
 public class NnpIppServer : IppServer
 {
-	Nexus.Nexus							Nexus;
-	Dictionary<string, IppConnection>	Registrations = [];
+	Nexus.Nexus				Nexus;
+	public List<NnpNode>	Nodes = [];
 
 	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 
-		Constructor.Register<Argumentation>	(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<Return>		(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<Argumentation>	(typeof(NnClass).Assembly,			typeof(NnClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<Return>		(typeof(NnClass).Assembly,			typeof(NnClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Accept(IppConnection connection)
@@ -37,7 +44,8 @@ public class NnpIppServer : IppServer
 		if(ct == NnpIppConnectionType.Node)
 		{	
 			var net = connection.Reader.ReadUtf8();
-			Registrations[net] = connection;
+			var api = connection.Reader.ReadUtf8();
+			Nodes.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
 		connection.RegisterHandler(typeof(NnClass), this);
@@ -45,9 +53,11 @@ public class NnpIppServer : IppServer
 
 	Return Relay(IppConnection connection, NnpArgumentation call)
 	{
-		if(Registrations.TryGetValue(call.Net, out var r))
+		var n = Nodes.Find(i => i.Net == call.Net);
+
+		if(n != null)
 		{
-			var rp = r.Call(call, Flow);
+			var rp = n.Connection.Call(call, Flow);
 			return rp;
 		} 
 		else

@@ -19,6 +19,7 @@ public class RdnNnIppConnection : NnpIppNodeConnection
 		{
 			Writer.Write(NnpIppConnectionType.Node);
 			Writer.WriteUtf8(Node.Net.Address);
+			Writer.WriteUtf8(Node.Settings.Api.LocalAddress(Node.Net));
 		}
 	}
 
