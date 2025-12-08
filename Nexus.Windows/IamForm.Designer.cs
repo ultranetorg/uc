@@ -47,13 +47,16 @@ partial class IamForm
 		// 
 		Sessions.Appearance = Appearance.Button;
 		Sessions.Font = new Font("Segoe UI", 12F);
+		Sessions.Image = Properties.Resources.checked_figure;
+		Sessions.ImageAlign = ContentAlignment.MiddleLeft;
 		Sessions.Location = new Point(12, 156);
 		Sessions.Name = "Sessions";
 		Sessions.Padding = new Padding(10, 0, 0, 0);
 		Sessions.Size = new Size(230, 64);
 		Sessions.TabIndex = 2;
 		Sessions.TabStop = true;
-		Sessions.Text = "Sessions";
+		Sessions.Text = " Sessions";
+		Sessions.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Sessions.UseVisualStyleBackColor = true;
 		Sessions.CheckedChanged += radioButton_CheckedChanged;
 		// 
@@ -62,13 +65,16 @@ partial class IamForm
 		radioButton3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 		radioButton3.Appearance = Appearance.Button;
 		radioButton3.Font = new Font("Segoe UI", 12F);
+		radioButton3.Image = Properties.Resources.setting_2_1_;
+		radioButton3.ImageAlign = ContentAlignment.MiddleLeft;
 		radioButton3.Location = new Point(12, 622);
 		radioButton3.Name = "radioButton3";
 		radioButton3.Padding = new Padding(10, 0, 0, 0);
 		radioButton3.Size = new Size(230, 64);
 		radioButton3.TabIndex = 2;
 		radioButton3.TabStop = true;
-		radioButton3.Text = "Settings";
+		radioButton3.Text = " Settings";
+		radioButton3.TextImageRelation = TextImageRelation.ImageBeforeText;
 		radioButton3.UseVisualStyleBackColor = true;
 		radioButton3.CheckedChanged += radioButton_CheckedChanged;
 		// 
@@ -76,13 +82,16 @@ partial class IamForm
 		// 
 		Assets.Appearance = Appearance.Button;
 		Assets.Font = new Font("Segoe UI", 12F);
+		Assets.Image = Properties.Resources.coins;
+		Assets.ImageAlign = ContentAlignment.MiddleLeft;
 		Assets.Location = new Point(12, 226);
 		Assets.Name = "Assets";
 		Assets.Padding = new Padding(10, 0, 0, 0);
 		Assets.Size = new Size(230, 64);
 		Assets.TabIndex = 2;
 		Assets.TabStop = true;
-		Assets.Text = "Assets && Tokens";
+		Assets.Text = " Assets && Tokens";
+		Assets.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Assets.UseVisualStyleBackColor = true;
 		Assets.CheckedChanged += radioButton_CheckedChanged;
 		// 
@@ -90,6 +99,7 @@ partial class IamForm
 		// 
 		WalletsAndAccounts.Appearance = Appearance.Button;
 		WalletsAndAccounts.Font = new Font("Segoe UI", 12F);
+		WalletsAndAccounts.Image = Properties.Resources.users;
 		WalletsAndAccounts.ImageAlign = ContentAlignment.MiddleLeft;
 		WalletsAndAccounts.Location = new Point(12, 86);
 		WalletsAndAccounts.Name = "WalletsAndAccounts";
@@ -97,7 +107,7 @@ partial class IamForm
 		WalletsAndAccounts.Size = new Size(230, 64);
 		WalletsAndAccounts.TabIndex = 2;
 		WalletsAndAccounts.TabStop = true;
-		WalletsAndAccounts.Text = "Wallets && Accounts";
+		WalletsAndAccounts.Text = " Wallets && Accounts";
 		WalletsAndAccounts.TextImageRelation = TextImageRelation.ImageBeforeText;
 		WalletsAndAccounts.UseVisualStyleBackColor = true;
 		WalletsAndAccounts.CheckedChanged += radioButton_CheckedChanged;
@@ -114,7 +124,7 @@ partial class IamForm
 		Logo.BackColor = Color.Transparent;
 		Logo.BackgroundImageLayout = ImageLayout.None;
 		Logo.Image = (Image)resources.GetObject("Logo.Image");
-		Logo.InitialImage = (Image)resources.GetObject("Logo.InitialImage");
+		Logo.InitialImage = null;
 		Logo.Location = new Point(20, 9);
 		Logo.Name = "Logo";
 		Logo.Size = new Size(48, 48);
@@ -147,13 +157,16 @@ partial class IamForm
 		// 
 		Transfer.Appearance = Appearance.Button;
 		Transfer.Font = new Font("Segoe UI", 12F);
+		Transfer.Image = Properties.Resources.money_send;
+		Transfer.ImageAlign = ContentAlignment.MiddleLeft;
 		Transfer.Location = new Point(45, 296);
 		Transfer.Name = "Transfer";
 		Transfer.Padding = new Padding(10, 0, 0, 0);
 		Transfer.Size = new Size(197, 64);
 		Transfer.TabIndex = 2;
 		Transfer.TabStop = true;
-		Transfer.Text = "Transfer";
+		Transfer.Text = " Transfer";
+		Transfer.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Transfer.UseVisualStyleBackColor = true;
 		Transfer.CheckedChanged += radioButton_CheckedChanged;
 		// 

@@ -31,7 +31,7 @@ public class Transaction : IBinarySerializable
 										}
 									 }
 	public Operation[]				Operations = {};
-	public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
+	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
 
 #if IMMISSION
 	public bool						EmissionOnly => Operations.All(i => i is Immission);
@@ -48,12 +48,13 @@ public class Transaction : IBinarySerializable
 	public long						EnergyConsumed;
 	public byte[]					Signature { get; set; }
 
-	private AccountAddress			_Signer;
+	AccountAddress					_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 	public TransactionStatus		Status;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
+	public string					Error;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
 	public bool Valid(Mcv mcv)

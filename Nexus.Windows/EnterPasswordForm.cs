@@ -38,9 +38,4 @@ public partial class EnterPasswordForm : Form
 			return false;
 		}
 	}
-
-	public void ShowError(string message)
-	{
-		MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-	}
 }

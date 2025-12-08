@@ -94,7 +94,7 @@ public class Program: ApplicationContext
 													}
 													catch(CryptographicException ex)
 													{
-														MessageBox.Show(uiparent as IWin32Window, "Access Denied", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+														MessageBox.Show(f, "Access Denied", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 													}
 												}
 											};
