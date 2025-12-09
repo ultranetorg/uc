@@ -95,6 +95,8 @@ public class Nexus : IProgram
 			Nodes.Remove(i);
 		}
 
+		NnConnection?.Disconnect();
+		NnPeering?.Stop();
 		RdnNode?.Stop();
 		Vault.Stop();
 		ApiServer?.Stop();

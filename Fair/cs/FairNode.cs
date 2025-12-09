@@ -59,6 +59,7 @@ public class FairNode : McvNode
 		WebServer?.Stop();
 		ApiServer?.Stop();
 		Peering.Stop();
+		NnConnection?.Disconnect();
 		Mcv?.Stop();
 
 		base.Stop();

@@ -305,7 +305,7 @@ public class IppConnection
 			OutRequests.Clear();
 		}
 
-		Pipe.Dispose();
+		Pipe.Close();
 
 		if(Server != null)
 		{
