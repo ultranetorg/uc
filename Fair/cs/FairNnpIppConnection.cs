@@ -8,7 +8,6 @@ public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
 {
 	public FairNnpIppConnection(FairNode node, Flow flow) : base(node, [nameof(Account), nameof(Author), nameof(Site)], flow)
 	{
-		RegisterHandler(typeof(NnpClass), this);
 	}
 
 	public override Result AssetBalance(IppConnection connection, AssetBalanceNna call)
@@ -19,7 +18,7 @@ public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
 		if(!Assets.Any(i => i.Name == call.Name))
 			throw new EntityException(EntityError.UnknownAsset);
 
-		long b = -1;
+		IHolder o = null;
 
 		lock(Node.Mcv.Lock)
 		{	
@@ -27,54 +26,33 @@ public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
 			{
 				case nameof(Account) :
 				{
-					var a = Node.Mcv.Accounts.Latest(AutoId.Parse(call.HolderId));
-			
-					if(a == null)
-						throw new EntityException(EntityError.NotFound);
-					
-					b = call.Name	switch
-									{
-										nameof(Account.Spacetime) => a.Spacetime,
-										nameof(Account.Energy) => a.Energy,
-										nameof(Account.EnergyNext) => a.EnergyNext,
-									};
+					o = Node.Mcv.Accounts.Latest(AutoId.Parse(call.HolderId));
 					break;;
 				}
 
 				case nameof(Author) :
 				{	
-					var a = Node.Mcv.Authors.Latest(AutoId.Parse(call.HolderId));
-			
-					if(a == null)
-						throw new EntityException(EntityError.NotFound);
-					
-					b = call.Name	switch
-									{
-										nameof(Account.Spacetime) => a.Spacetime,
-										nameof(Account.Energy) => a.Energy,
-										nameof(Account.EnergyNext) => a.EnergyNext,
-									};
+					o = Node.Mcv.Authors.Latest(AutoId.Parse(call.HolderId));
 					break;;
 				}
 
 				case nameof(Site) :
 				{	
-					var a = Node.Mcv.Sites.Latest(AutoId.Parse(call.HolderId));
-			
-					if(a == null)
-						throw new EntityException(EntityError.NotFound);
-					
-					b = call.Name	switch
-									{
-										nameof(Account.Spacetime) => a.Spacetime,
-										nameof(Account.Energy) => a.Energy,
-										nameof(Account.EnergyNext) => a.EnergyNext,
-									};
+					o = Node.Mcv.Sites.Latest(AutoId.Parse(call.HolderId));
 					break;;
 				}
 			}
-		}
 
-		return	new AssetBalanceNnr{Balance = b};
+			if(o == null)
+				throw new EntityException(EntityError.NotFound);
+
+			return new AssetBalanceNnr{Balance = call.Name	switch
+															{
+																nameof(Account.Spacetime)	=> (o as ISpacetimeHolder).Spacetime,
+																nameof(Account.Energy)		=> (o as IEnergyHolder).Energy,
+																nameof(Account.EnergyNext)	=> (o as IEnergyHolder).EnergyNext,
+																_							=> throw new EntityException(EntityError.UnknownAsset)
+															}};
+		}
 	}
 }

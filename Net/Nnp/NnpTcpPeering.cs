@@ -25,7 +25,6 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 	protected Dictionary<string, List<NnpPeer>>	Peers = [];
 	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
-	public static string						GetName(IPAddress ip) => "NnPeeringIpcServer" + ip.ToString();
 	protected override NnpPeer					CreatePeer() => new ();
 
 	public NnpTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)

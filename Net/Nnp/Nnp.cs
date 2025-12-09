@@ -3,19 +3,6 @@ using System.Numerics;
 
 namespace Uccs.Net;
 
-public class NnpNodeSettings : SavableSettings
-{
-	public bool IsHub { get; set; }
-
-	public NnpNodeSettings() : base(NetXonTextValueSerializator.Default)
-	{
-	}
-
-	public NnpNodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
-	{
-	}
-}
-
 public class Endpoint : IBinarySerializable
 {
 	public IPAddress	IP {get; set;}
@@ -92,6 +79,7 @@ public enum NnpClass : uint
 	Block,
 	RootHash,
 	Transact,
+	Request,
 
 	HolderClasses,
 	HoldersByAccount,
@@ -187,7 +175,7 @@ public class PacketNna : NnpArgumentation, IBinarySerializable
 		base.Read(reader);
 		Format		= reader.Read<PacketFormat>();
 		Timeout		= reader.Read7BitEncodedInt();
-		Transaction		= reader.ReadBytes();
+		Transaction	= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)

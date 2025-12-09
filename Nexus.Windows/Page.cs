@@ -23,11 +23,11 @@ public class Page : UserControl
 
 	public void ShowException(string message, Exception ex)
 	{
-		MessageBox.Show(this, message + " (" + ex.Message + ")", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		MessageBox.Show(ParentForm, message + " (" + ex.Message + ")", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
 	public void ShowError(string message)
 	{
-		MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		MessageBox.Show(ParentForm, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.IO.Pipes;
+using System.Net;
+using System.Numerics;
 using System.Reflection;
 
 namespace Uccs.Net;
@@ -10,7 +12,17 @@ public enum NnpIppConnectionType : byte
 	Client
 }
 
-public class NnpIppClientConnection : IppConnection
+public abstract class NnpIppConnection : IppConnection
+{
+	public static string	GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
+
+	protected NnpIppConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	{
+		RegisterHandler(typeof(NnpClass), this);
+	}
+}
+
+public class NnpIppClientConnection : NnpIppConnection
 {
 	public R Call<A, R>(Nnc<A, R> call, Flow flow) where A : NnpArgumentation, new() where R : Result => Call(call.Argumentation, flow) as R;
 
@@ -28,7 +40,7 @@ public class NnpIppClientConnection : IppConnection
 	}
 }
 
-public class NnpIppNodeConnection : IppConnection
+public class NnpIppNodeConnection : NnpIppConnection
 {
 	public NnpIppNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
@@ -42,16 +54,13 @@ public class NnpIppNodeConnection : IppConnection
 public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode where T : unmanaged, Enum
 {
 	protected N			Node => Program as N;
-
 	protected string[]	Classes; 
 	protected Asset[]	Assets = [new () {Name = nameof(Account.Spacetime), Units = "Byte-days (BD)"},
-								  new () {Name = nameof(Account.Energy), Units = "Execution Cycles (EC)"},
-								  new () {Name = nameof(Account.EnergyNext), Units = "Execution Cycles (EC)"}];
+								  new () {Name = nameof(Account.Energy),	Units = "Execution Cycles (EC)"},
+								  new () {Name = nameof(Account.EnergyNext),Units = "Execution Cycles (EC)"}];
 
-	public McvNnpIppConnection(N node, string [] classes, Flow flow) : base(node, NnpTcpPeering.GetName(node.NexusSettings.Host), flow)
+	public McvNnpIppConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
-		RegisterHandler(typeof(NnpClass), this);
-
 		Classes = classes;
 	}
 

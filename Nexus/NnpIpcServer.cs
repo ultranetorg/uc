@@ -4,17 +4,17 @@ using Uccs.Net;
 
 namespace Uccs.Rdn;
 
-internal class  NnpIppConnection : IppConnection
-{	
-	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
-	{
-	}
-
-	public override void Established()
-	{
-		
-	}
-}
+//internal class  NnpIppConnection : IppConnection
+//{	
+//	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
+//	{
+//	}
+//
+//	public override void Established()
+//	{
+//		
+//	}
+//}
 
 public class NnpNode
 {
@@ -28,7 +28,7 @@ public class NnpIppServer : IppServer
 	Nexus.Nexus				Nexus;
 	public List<NnpNode>	Nodes = [];
 
-	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
+	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpIppConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 

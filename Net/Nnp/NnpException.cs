@@ -3,6 +3,7 @@
 public enum NnpError : byte
 {
 	None,
+	ExcutionFailed,
 	NotFound,
 	Unavailable,
 	Unknown,
