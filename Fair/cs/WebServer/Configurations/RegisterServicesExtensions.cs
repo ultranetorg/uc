@@ -4,15 +4,16 @@ public static class RegisterServicesExtensions
 {
 	public static IServiceCollection RegisterServices(this IServiceCollection services, FairNode node)
 	{
-		RegisterMisc(services, node);
+		RegisterFairNode(services, node);
 		RegisterServicesInternal(services, node);
 		RegisterValidators(services);
 
 		return services;
 	}
 
-	private static void RegisterMisc(IServiceCollection services, FairNode node)
+	private static void RegisterFairNode(IServiceCollection services, FairNode node)
 	{
+		services.AddSingleton(node);
 		services.AddSingleton(node.Mcv);
 	}
 
