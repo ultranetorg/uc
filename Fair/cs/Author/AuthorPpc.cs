@@ -13,7 +13,7 @@ public class AuthorPpc : FairPpc<AuthorPpr>
 		Id = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -32,7 +32,7 @@ public class AuthorPpc : FairPpc<AuthorPpr>
 	}
 }
 
-public class AuthorPpr : Return
+public class AuthorPpr : Result
 {
 	public Author	Author {get; set;}
 }

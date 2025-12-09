@@ -287,14 +287,14 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		throw new OperationCanceledException();
 	}
 
-	public Rp Call<Rp>(IHomoPeer peer, Ppc<Rp> rq) where Rp : Return
+	public Rp Call<Rp>(IHomoPeer peer, Ppc<Rp> rq) where Rp : Result
 	{
 		rq.Peering	= this;
 
 		return peer.Call((PeerRequest)rq) as Rp;
 	}
 
-	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : Return
+	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : Result
 	{
 		var p = GetPeer(ip);
 
@@ -319,7 +319,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	}
 
-	public Return Call(PeerRequest request)
+	public Result Call(PeerRequest request)
 	{
 		var rq = request;
 

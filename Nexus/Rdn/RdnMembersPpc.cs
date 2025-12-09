@@ -2,7 +2,7 @@
 
 public class RdnMembersPpc : McvPpc<RdnMembersPpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -16,7 +16,7 @@ public class RdnMembersPpc : McvPpc<RdnMembersPpr>
 	}
 }
 
-public class RdnMembersPpr : Return
+public class RdnMembersPpr : Result
 {
 	public RdnGenerator[] Members { get; set; }
 }

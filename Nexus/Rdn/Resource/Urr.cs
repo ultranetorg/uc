@@ -7,7 +7,7 @@ namespace Uccs.Rdn;
 /// 
 /// </summary>
 
-public enum UrrScheme : byte
+public enum UrrScheme : uint
 {
 	None, Urrh, Urrsd
 }

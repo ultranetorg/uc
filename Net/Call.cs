@@ -8,13 +8,13 @@ public abstract class Argumentation : ITypeCode
 //	public abstract void Write(BinaryWriter writer);
 }
 
-public abstract class Return : ITypeCode
+public abstract class Result : ITypeCode
 {
 //	public abstract void Read(BinaryReader reader);
 //	public abstract void Write(BinaryWriter writer);
 }
 
 
-public interface ICall<A, R>  where A : Argumentation where R : Return /// Peer-to-Peer Call
+public interface ICall<A, R>  where A : Argumentation where R : Result /// Peer-to-Peer Call
 {
 }

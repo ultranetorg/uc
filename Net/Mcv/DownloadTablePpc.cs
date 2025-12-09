@@ -6,7 +6,7 @@ public class DownloadTablePpc : McvPpc<DownloadTablePpr>
 	public byte[]	Hash { get; set; }
 	public int		BucketId { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -28,7 +28,7 @@ public class DownloadTablePpc : McvPpc<DownloadTablePpr>
 	}
 }
 	
-public class DownloadTablePpr : Return
+public class DownloadTablePpr : Result
 {
 	public byte[] Main { get; set; }
 }

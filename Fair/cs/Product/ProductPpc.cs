@@ -13,7 +13,7 @@ public class ProductPpc : FairPpc<ProductPpr>
 		Id = identifier;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{	
@@ -27,7 +27,7 @@ public class ProductPpc : FairPpc<ProductPpr>
 	}
 }
 	
-public class ProductPpr : Return
+public class ProductPpr : Result
 {
 	public Product Product { get; set; }
 }

@@ -5,7 +5,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 	public Urr		Release { get; set; }
 	public string	File { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Node.ResourceHub.Lock)
 		{
@@ -22,7 +22,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 	}
 }
 
-public class FileInfoPpr : Return
+public class FileInfoPpr : Result
 {
 	public long Length { get; set; }
 }

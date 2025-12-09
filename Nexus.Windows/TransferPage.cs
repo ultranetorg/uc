@@ -168,18 +168,25 @@ public partial class TransferPage : Page
 
 	private void Transfer_Click(object sender, EventArgs e)
 	{
-		Nexus.NnConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
+		try
 		{
-			Net = FromNet.Text,
-			ToNet = ToNet.Text,
-			FromClass = FromClass.Text,
-			FromId = FromId.Text,
-			ToClass = ToClass.Text,
-			ToId = ToId.Text,
-			Name = (Asset.SelectedItem as Asset).Name,
-			Amount = Amount.Text,
-			Signer = Accounts.SelectedItem as AccountAddress,
-		}),
-																			new Flow(5000));
+			Nexus.NnConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
+																				{
+																					Net = FromNet.Text,
+																					ToNet = ToNet.Text,
+																					FromClass = FromClass.Text,
+																					FromId = FromId.Text,
+																					ToClass = ToClass.Text,
+																					ToId = ToId.Text,
+																					Name = (Asset.SelectedItem as Asset).Name,
+																					Amount = Amount.Text,
+																					Signer = Accounts.SelectedItem as AccountAddress,
+																				}),
+																				new Flow(5000));
+		}
+		catch(Exception ex)
+		{
+			ShowError(ex.Message);
+		}
 	}
 }

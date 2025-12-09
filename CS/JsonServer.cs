@@ -197,6 +197,17 @@ public abstract class JsonServer
 		
 		try
 		{
+            rp.AddHeader("Access-Control-Allow-Origin", "*");
+            rp.AddHeader("Access-Control-Allow-Methods", "*");
+            rp.AddHeader("Access-Control-Allow-Headers", "*");
+
+            if(rq.HttpMethod == "OPTIONS")
+            {
+                rp.StatusCode = 200;
+                rp.Close();
+                return;
+            }
+
 			if(!rq.Url.IsLoopback && !string.IsNullOrWhiteSpace(Settings.PublicAccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.PublicAccessKey)
 			{
 				RespondError(rp, "text/plain", HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);

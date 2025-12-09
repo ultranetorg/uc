@@ -37,10 +37,12 @@ public abstract class Fair : McvNet
 		{
 			if(Enum.TryParse<FairOperationClass>(i.Name, out var v))
 			{
-				OCodes[i] = Codes[i] = (uint)v;
-				OContructors[typeof(Operation)][(uint)v] = Contructors[typeof(Operation)][(uint)v]  = i.GetConstructor([]);
+				OCodes[i] = (uint)v;
+				OContructors[typeof(Operation)][(uint)v] = i.GetConstructor([]);
 			}
 		}
+
+		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(FairOperationClass), i => i);
 	}
 }
 

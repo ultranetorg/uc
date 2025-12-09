@@ -4,30 +4,37 @@ using Uccs.Net;
 
 namespace Uccs.Rdn;
 
-internal class  NnpIppConnection : IppConnection
-{	
-	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
-	{
-	}
+//internal class  NnpIppConnection : IppConnection
+//{	
+//	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
+//	{
+//	}
+//
+//	public override void Established()
+//	{
+//		
+//	}
+//}
 
-	public override void Established()
-	{
-		
-	}
+public class NnpNode
+{
+	public string			Api { get; set; }
+	public string			Net;
+	public IppConnection	Connection;
 }
 	
 public class NnpIppServer : IppServer
 {
-	Nexus.Nexus							Nexus;
-	Dictionary<string, IppConnection>	Registrations = [];
+	Nexus.Nexus				Nexus;
+	public List<NnpNode>	Nodes = [];
 
-	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpTcpPeering.GetName(nexus.Settings.Host), nexus.Flow)
+	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpIppConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 
-		Constructor.Register<Argumentation>	(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<Return>		(typeof(NnClass).Assembly, typeof(NnClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly, typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+		Constructor.Register<Argumentation>	(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<Result>		(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Accept(IppConnection connection)
@@ -37,17 +44,20 @@ public class NnpIppServer : IppServer
 		if(ct == NnpIppConnectionType.Node)
 		{	
 			var net = connection.Reader.ReadUtf8();
-			Registrations[net] = connection;
+			var api = connection.Reader.ReadUtf8();
+			Nodes.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
-		connection.RegisterHandler(typeof(NnClass), this);
+		connection.RegisterHandler(typeof(NnpClass), this);
 	}
 
-	Return Relay(IppConnection connection, NnpArgumentation call)
+	Result Relay(IppConnection connection, NnpArgumentation call)
 	{
-		if(Registrations.TryGetValue(call.Net, out var r))
+		var n = Nodes.Find(i => i.Net == call.Net);
+
+		if(n != null)
 		{
-			var rp = r.Call(call, Flow);
+			var rp = n.Connection.Call(call, Flow);
 			return rp;
 		} 
 		else
@@ -56,27 +66,27 @@ public class NnpIppServer : IppServer
 		} 
 	}
 
-	public Return HolderClasses(IppConnection connection, NnpArgumentation call)
+	public Result HolderClasses(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HolderAssets(IppConnection connection, NnpArgumentation call)
+	public Result HolderAssets(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return HoldersByAccount(IppConnection connection, NnpArgumentation call)
+	public Result HoldersByAccount(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetBalance(IppConnection connection, NnpArgumentation call)
+	public Result AssetBalance(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}
 
-	public Return AssetTransfer(IppConnection connection, NnpArgumentation call)
+	public Result AssetTransfer(IppConnection connection, NnpArgumentation call)
 	{
 		return Relay(connection, call);
 	}

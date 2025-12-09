@@ -13,7 +13,7 @@ public class CategoryPublicationsPpc : FairPpc<CategoryPublicationsPpr>
 		Category = id;
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -29,7 +29,7 @@ public class CategoryPublicationsPpc : FairPpc<CategoryPublicationsPpr>
 	}
 }
 
-public class CategoryPublicationsPpr : Return
+public class CategoryPublicationsPpr : Result
 {
 	public AutoId[] Publications { get; set; }
 }

@@ -65,7 +65,7 @@ public class Nexus : IProgram
 		{
 			NnPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
 			NnIppServer = new NnpIppServer(this);
-			NnConnection = new NnpIppClientConnection(this, NnpTcpPeering.GetName(Settings.Host), flow);
+			NnConnection = new NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), flow);
 		}
 
 		if(Settings.Api != null)
@@ -95,6 +95,8 @@ public class Nexus : IProgram
 			Nodes.Remove(i);
 		}
 
+		NnConnection?.Disconnect();
+		NnPeering?.Stop();
 		RdnNode?.Stop();
 		Vault.Stop();
 		ApiServer?.Stop();

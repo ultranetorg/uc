@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Pipes;
+using System.Net;
 using System.Reflection;
 
 namespace Uccs.Net;
@@ -11,7 +12,7 @@ public abstract class IppPacket
 
 public class IppRequest : IppPacket
 {
-	public Return				Return;
+	public Result				Return;
 	public ManualResetEvent		Event;
 	public CodeException		Exception;
 	public Argumentation		Argumentation { get; set; }
@@ -30,7 +31,7 @@ public class IppConnection
 	public Flow						Flow;
 
 	object							Handler;
-	Dictionary<byte, MethodInfo>	Methods = [];
+	Dictionary<uint, MethodInfo>	Methods = [];
 
 	public IppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor)
 	{
@@ -83,11 +84,11 @@ public class IppConnection
 	{
 		Handler = handler;
 
-		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Return)))
+		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Result)))
 		{
 			if(Enum.TryParse(enumclass, i.Name, out var c))
 			{
-				Methods[(byte)c] = i;
+				Methods[(uint)c] = i;
 			}
 
 		}
@@ -99,9 +100,9 @@ public class IppConnection
 		{
 			Writer.Write((byte)PacketType.Request);
 			Writer.Write(request.Id);
-			//Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
-			//(request.Argumentation as IBinarySerializable).Write(Writer);
-			BinarySerializator.Serialize(Writer, request.Argumentation, Constructor.TypeToCode);
+			Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
+			(request.Argumentation as IBinarySerializable).Write(Writer);
+			///BinarySerializator.Serialize(Writer, request.Argumentation, Constructor.TypeToCode);
 		}
 	}
 
@@ -109,24 +110,32 @@ public class IppConnection
 	{
 		try
 		{
-			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Return;
+			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
 	
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Response);
 				Writer.Write(request.Id);
-				//Writer.Write(Constructor.TypeToCode(r.GetType()));
-				//(r as IBinarySerializable).Write(Writer); 
-				BinarySerializator.Serialize(Writer, r, Constructor.TypeToCode);
+				Writer.Write(Constructor.TypeToCode(r.GetType()));
+				(r as IBinarySerializable).Write(Writer); 
+				///BinarySerializator.Serialize(Writer, r, Constructor.TypeToCode);
 			}
 		}
-		catch(TargetInvocationException ex) when (ex.InnerException is CodeException)
+		catch(TargetInvocationException ex)
 		{
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Failure);
 				Writer.Write(request.Id);
-				BinarySerializator.Serialize(Writer, ex.InnerException, Constructor.TypeToCode);
+				
+				if(ex.InnerException is CodeException ce)
+				{
+					BinarySerializator.Serialize(Writer, ce, Constructor.TypeToCode);
+				} 
+				else
+				{
+					BinarySerializator.Serialize(Writer, new NnpException(NnpError.ExcutionFailed), Constructor.TypeToCode);
+				}
 			}
 		}
 	}
@@ -148,9 +157,9 @@ public class IppConnection
  					{
 						var rq = new IppRequest();
 						rq.Id = Reader.ReadInt32();
-						//rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadByte()) as Argumentation;
-						//(rq.Argumentation as IBinarySerializable).Read(Reader);
-						rq.Argumentation = BinarySerializator.Deserialize<Argumentation>(Reader, Constructor.Construct);
+						rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadUInt32()) as Argumentation;
+						(rq.Argumentation as IBinarySerializable).Read(Reader);
+						///rq.Argumentation = BinarySerializator.Deserialize<Argumentation>(Reader, Constructor.Construct);
 						
 						Respond(rq);
 
@@ -160,9 +169,9 @@ public class IppConnection
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						//var r = Constructor.Construct(typeof(Return), Reader.ReadByte()) as Return;
-						//(r as IBinarySerializable).Read(Reader);
-						var r = BinarySerializator.Deserialize<Return>(Reader, Constructor.Construct);
+						var r = Constructor.Construct(typeof(Result), Reader.ReadUInt32()) as Result;
+						(r as IBinarySerializable).Read(Reader);
+						///var r = BinarySerializator.Deserialize<Result>(Reader, Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -201,6 +210,9 @@ public class IppConnection
 
  						break;
  					}
+
+					default:
+						throw new NodeException(NodeError.Integrity);
 				}
 			}
 		}
@@ -223,7 +235,7 @@ public class IppConnection
 ///		Request(rq);
 ///	}
 
-	public Return Call(Argumentation argumentation, Flow flow)
+	public Result Call(Argumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);
@@ -293,7 +305,7 @@ public class IppConnection
 			OutRequests.Clear();
 		}
 
-		Pipe.Dispose();
+		Pipe.Close();
 
 		if(Server != null)
 		{

@@ -55,18 +55,18 @@ public class XonTextValueSerializator : IXonValueSerializator
 		var t = value as string;
 
 		if(type == typeof(string))		return value;
-		if(type == typeof(byte))		return (object)byte.Parse(t);
-		if(type == typeof(sbyte))		return (object)sbyte.Parse(t);
-		if(type == typeof(short))		return (object)short.Parse(t);
-		if(type == typeof(ushort))		return (object)ushort.Parse(t);
-		if(type == typeof(int))			return (object)int.Parse(t);
-		if(type == typeof(uint))		return (object)uint.Parse(t);
-		if(type == typeof(long))		return (object)long.Parse(t);
-		if(type == typeof(ulong))		return (object)ulong.Parse(t);
-		if(type == typeof(byte[]))		return (object)t.FromHex();
+		if(type == typeof(byte))		return byte.Parse(t);
+		if(type == typeof(sbyte))		return sbyte.Parse(t);
+		if(type == typeof(short))		return short.Parse(t);
+		if(type == typeof(ushort))		return ushort.Parse(t);
+		if(type == typeof(int))			return int.Parse(t);
+		if(type == typeof(uint))		return uint.Parse(t);
+		if(type == typeof(long))		return long.Parse(t);
+		if(type == typeof(ulong))		return ulong.Parse(t);
+		if(type == typeof(byte[]))		return t.FromHex();
 		if(type.IsEnum)					return Enum.Parse(type, t); 
-		if(type == typeof(IPAddress))	return (object)IPAddress.Parse(t);
-		if(type == typeof(Guid))		return (object)Guid.Parse(t);
+		if(type == typeof(IPAddress))	return IPAddress.Parse(t);
+		if(type == typeof(Guid))		return Guid.Parse(t);
 
 		if(type.GetInterfaces().Any(i => i == typeof(ITextSerialisable)))
 		{

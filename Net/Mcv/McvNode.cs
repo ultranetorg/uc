@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public abstract class McvPpc<R> : Ppc<R> where R : Return
+public abstract class McvPpc<R> : Ppc<R> where R : Result
 {
 	public new McvTcpPeering	Peering => base.Peering as McvTcpPeering;
 	public McvNode				Node => Peering.Node;

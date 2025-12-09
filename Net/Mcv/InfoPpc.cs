@@ -2,7 +2,7 @@
 
 public class InfoPpc : McvPpc<InfoPpr>
 {
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Mcv.Lock)
 		{
@@ -13,7 +13,7 @@ public class InfoPpc : McvPpc<InfoPpr>
 	}
 }
 
-public class InfoPpr : Return
+public class InfoPpr : Result
 {
 	public Dictionary<string, byte> Tables { get; set; }
 }

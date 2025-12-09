@@ -102,7 +102,7 @@ public class RdnNode : McvNode
 
 			//if(Settings.NnPeering != null)
 			{
-				NnConnection = new RdnNnIppConnection(this, flow);
+				NnConnection = new RdnNnpIppConnection(this, flow);
 				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
 		}

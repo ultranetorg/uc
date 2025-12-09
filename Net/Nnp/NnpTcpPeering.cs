@@ -25,7 +25,6 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 	protected Dictionary<string, List<NnpPeer>>	Peers = [];
 	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
 
-	public static string						GetName(IPAddress ip) => "NnPeeringIpcServer" + ip.ToString();
 	protected override NnpPeer					CreatePeer() => new ();
 
 	public NnpTcpPeering(IProgram program, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
@@ -214,7 +213,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 	//	return Call(net, (Func<FuncPeerRequest>)call, workflow, exclusions) as R;
 	//}
 
-	public virtual Return Call(string net, Argumentation call, Flow workflow, IEnumerable<NnpPeer> exclusions = null)
+	public virtual Result Call(string net, Argumentation call, Flow workflow, IEnumerable<NnpPeer> exclusions = null)
 	{
 		var tried = exclusions != null ? [.. exclusions] : new HashSet<NnpPeer>();
 

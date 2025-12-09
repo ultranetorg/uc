@@ -4,7 +4,7 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 {
 	public Transaction[]	Transactions {get; set;}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		lock(Peering.Lock)
 			lock(Mcv.Lock)
@@ -18,7 +18,7 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 	}
 }
 
-public class PlaceTransactionsPpr : Return
+public class PlaceTransactionsPpr : Result
 {
 	public byte[][] Accepted { get; set; }
 }

@@ -4,7 +4,7 @@ public class QueryResourcePpc : RdnPpc<QueryResourcePpr>
 {
 	public string		Query { get; set; }
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  			lock(Mcv.Lock)
 		{	
@@ -13,7 +13,7 @@ public class QueryResourcePpc : RdnPpc<QueryResourcePpr>
 	}
 }
 	
-public class QueryResourcePpr : Return
+public class QueryResourcePpr : Result
 {
 	public Ura[] Resources { get; set; }
 }

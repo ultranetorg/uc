@@ -7,8 +7,8 @@ namespace Uccs.Net;
 public interface IHomoPeer
 {
  	public abstract	void			Send(PeerRequest rq);
-	public abstract Return			Call(PeerRequest rq);
-	public R						Call<R>(Ppc<R> rq) where R : Return => Call((PeerRequest)rq) as R;
+	public abstract Result			Call(PeerRequest rq);
+	public R						Call<R>(Ppc<R> rq) where R : Result => Call((PeerRequest)rq) as R;
 }
 
 public class HomoPeer : Peer, IHomoPeer
@@ -120,7 +120,7 @@ public class HomoPeer : Peer, IHomoPeer
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Return>(Reader, Peering.Constructor.Construct);
+						var r = BinarySerializator.Deserialize<Result>(Reader, Peering.Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -188,7 +188,7 @@ public class HomoPeer : Peer, IHomoPeer
 		Request(IdCounter++, args);
 	}
 
-	public Return Call(PeerRequest args)
+	public Result Call(PeerRequest args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);

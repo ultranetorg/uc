@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn;
 
-public enum RdnPpcClass : byte
+public enum RdnPpcClass : uint
 {
 	None = 0, 
 	Domain = McvPpcClass._Last + 1, 
@@ -10,7 +10,7 @@ public enum RdnPpcClass : byte
 	QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease
 }
 
-public abstract class RdnPpc<R> : McvPpc<R> where R : Return
+public abstract class RdnPpc<R> : McvPpc<R> where R : Result
 {
 	public new RdnTcpPeering	Peering => base.Peering as RdnTcpPeering;
 	public new RdnNode			Node => base.Node as RdnNode;
@@ -21,9 +21,9 @@ public class RdnTcpPeering : McvTcpPeering
 {
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
-		Constructor.Register<PeerRequest>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<Return>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
-		Constructor.Register<Urr>			 (GetType().Assembly, typeof(UrrScheme), i => i);
+		Constructor.Register<PeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<Result>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Urr>		 (GetType().Assembly, typeof(UrrScheme), i => i);
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
 

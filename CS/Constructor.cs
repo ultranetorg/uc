@@ -5,14 +5,14 @@ namespace Uccs;
 
 public class Constructor
 {
-	public Dictionary<Type, byte>								Codes = [];
-	public Dictionary<Type, Dictionary<byte, Func<object>>>		Contructors = [];
+	public Dictionary<Type, uint>								Codes = [];
+	public Dictionary<Type, Dictionary<uint, Func<object>>>		Contructors = [];
 
 	public Constructor()
 	{
 	}
 
-	public Constructor(Dictionary<Type, byte> codes, Dictionary<Type, Dictionary<byte, Func<object>>> contructors)
+	public Constructor(Dictionary<Type, uint> codes, Dictionary<Type, Dictionary<uint, Func<object>>> contructors)
 	{
 		foreach(var i in codes)
 			Codes.Add(i.Key, i.Value);
@@ -26,25 +26,25 @@ public class Constructor
 		}
 	}
 
-	public void Register<T>(Assembly assembly, Type enumclass, Func<string, string> getname, Action<T> setup = null) where T : class
+	public void Register<T>(Assembly assembly, Type enumclass, Func<string, string> getname, Action<T> setup = null, bool overwrite = false) where T : class
 	{
 		foreach(var i in assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(T))))
 		{	
 			if(Enum.TryParse(enumclass, getname(i.Name), out var c))
 			{
-				Codes[i] = (byte)c;
+				Codes[i] = (uint)c;
 
 				if(!Contructors.ContainsKey(typeof(T)))
 					Contructors[typeof(T)] = [];
 
-				if(Contructors[typeof(T)].ContainsKey((byte)c))
+				if(!overwrite && Contructors[typeof(T)].ContainsKey((uint)c))
 					throw new ArgumentException();
 
 				var e = Expression.New(i.GetConstructor([]));
 				var l = Expression.Lambda<Func<T>>(e);
 				var f = l.Compile();
 
-				Contructors[typeof(T)][(byte)c] = () =>	{
+				Contructors[typeof(T)][(uint)c] = () =>	{
 															var r = f();
 															setup?.Invoke(r);
 															return r;
@@ -69,17 +69,17 @@ public class Constructor
 		Contructors[typeof(B)][0] = create;
 	}
 
-	public virtual object Construct(Type type, byte code)
+	public virtual object Construct(Type type, uint code)
 	{
 		var x = Contructors.GetValueOrDefault(type, null);
 		
 		if(x != null)
-			return (x.GetValueOrDefault(code, null) ?? x.GetValueOrDefault((byte)0, null))?.Invoke();
+			return (x.GetValueOrDefault(code, null) ?? x.GetValueOrDefault((uint)0, null))?.Invoke();
 		else 
 			return null;
 	}
 
-	public virtual byte TypeToCode(Type type)
+	public virtual uint TypeToCode(Type type)
 	{
 		return Codes[type];
 	}

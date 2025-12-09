@@ -59,13 +59,13 @@ public class NexusPropertyApc : Apc, INexusApc
 	}
 }
 
-internal class NodeInfoApc : Apc, INexusApc
+public class NnpNodeApc : Apc, INexusApc
 {
 	public string Net { get; set; }
 
 	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			return uos.Nodes.Find(i => i.Net == Net);
+			return uos.NnIppServer.Nodes.Find(i => i.Net == Net);
 	}
 }

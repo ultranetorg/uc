@@ -104,7 +104,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 			}
         }
 
-        if(ti.Type == typeof(Return))
+        if(ti.Type == typeof(Result))
         {
             ti.PolymorphismOptions = new JsonPolymorphismOptions
 									 {

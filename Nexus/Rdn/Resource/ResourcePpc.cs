@@ -23,7 +23,7 @@ public class ResourcePpc : RdnPpc<ResourcePpr>
 		Identifier = new(id);
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{	
@@ -44,7 +44,7 @@ public class ResourcePpc : RdnPpc<ResourcePpr>
 	}
 }
 	
-public class ResourcePpr : Return
+public class ResourcePpr : Result
 {
 	public Resource Resource { get; set; }
 }

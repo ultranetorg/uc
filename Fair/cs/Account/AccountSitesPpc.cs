@@ -23,7 +23,7 @@ public class AccountSitesPpc : McvPpc<AccountSitesPpr>
 		Identifier = new(id);
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{
@@ -46,7 +46,7 @@ public class AccountSitesPpc : McvPpc<AccountSitesPpr>
 	}
 }
 
-public class AccountSitesPpr : Return
+public class AccountSitesPpr : Result
 {
 	public AutoId[] Sites {get; set;}
 }

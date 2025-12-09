@@ -25,7 +25,7 @@ public class RdnTypeResolver : ApiTypeResolver
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
-        if(ti.Type == typeof(Return))
+        if(ti.Type == typeof(Result))
 			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
@@ -341,7 +341,7 @@ public class NnHoldersByAccountApc : RdnApc
 			if(a != null)
 				return new AssetHolder[] {new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}};
 			else
-				throw new NnpException(NnError.NotFound);
+				throw new NnpException(NnpError.NotFound);
 		}
 	}
 }
@@ -354,7 +354,7 @@ public class NnHolderAssetsApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(Account))
-			throw new NnpException(NnError.Unknown);
+			throw new NnpException(NnpError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -366,7 +366,7 @@ public class NnHolderAssetsApc : RdnApc
 										new () {Name = nameof(Account.Energy), Units = "Execution Cycles (EC)"},
 									};
 			else
-				throw new NnpException(NnError.NotFound);
+				throw new NnpException(NnpError.NotFound);
 		}
 	}
 }
@@ -380,10 +380,10 @@ public class NnAssetBalanceApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(Account))
-			throw new NnpException(NnError.Unknown);
+			throw new NnpException(NnpError.Unknown);
 
 		if(Name != nameof(Account.Spacetime) && Name != nameof(Account.Energy))
-			throw new NnpException(NnError.Unknown);
+			throw new NnpException(NnpError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -396,7 +396,7 @@ public class NnAssetBalanceApc : RdnApc
 												nameof(Account.Energy) => a.Energy,
 											});
 			else
-				throw new NnpException(NnError.NotFound);
+				throw new NnpException(NnpError.NotFound);
 		}
 	}
 }

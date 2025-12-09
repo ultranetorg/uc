@@ -1,10 +1,7 @@
-﻿
-namespace Uccs.Fair;
+﻿namespace Uccs.Fair;
 
 public enum FairOperationClass : uint
 {
-	FairCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
-	
 	AccountNicknameChange			= 100_000_000,
 	AccountAvatarChange				= 100_000_001,
 	FavoriteSiteChange				= 100_000_002,

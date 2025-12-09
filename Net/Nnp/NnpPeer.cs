@@ -6,10 +6,12 @@ namespace Uccs.Net;
 
 public interface INnp
 {
-	public Return HolderClasses(NnpPeer peer, HolderClassesNna call);
-	public Return HolderAssets(NnpPeer peer, HolderAssetsNna call);
-	public Return HoldersByAccount(NnpPeer peer, HoldersByAccountNna call);
-	public Return AssetBalance(NnpPeer peer, AssetBalanceNna call);
+	public Result Transact(NnpPeer peer, PacketNna call);
+	public Result Request(NnpPeer peer, PacketNna call);
+	public Result HolderClasses(NnpPeer peer, HolderClassesNna call);
+	public Result HolderAssets(NnpPeer peer, HolderAssetsNna call);
+	public Result HoldersByAccount(NnpPeer peer, HoldersByAccountNna call);
+	public Result AssetBalance(NnpPeer peer, AssetBalanceNna call);
 	//public Return AssetTransfer(NnPeer peer, AssetTransferNna call);
 }
 
@@ -80,14 +82,16 @@ public class NnpPeer : Peer, IBinarySerializable
 						try
 						{
 							///var r = request.Execute();
-							Return r = null;
+							Result r = null;
 
-							switch((NnClass)Peering.Constructor.TypeToCode(rq.GetType()))
+							switch((NnpClass)Peering.Constructor.TypeToCode(rq.GetType()))
 							{
-								case NnClass.HolderClasses:		r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
-								case NnClass.HoldersByAccount:	r = Nni.HoldersByAccount(this, rq as HoldersByAccountNna); break;
-								case NnClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
-								case NnClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
+								case NnpClass.Transact:			r = Nni.Transact(this, rq as PacketNna); break;
+								case NnpClass.Request:			r = Nni.Request(this, rq as PacketNna); break;
+								case NnpClass.HolderClasses:	r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
+								case NnpClass.HoldersByAccount:	r = Nni.HoldersByAccount(this, rq as HoldersByAccountNna); break;
+								case NnpClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
+								case NnpClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
 								///case NnClass.AssetTransfer:	r = Nn.AssetTransfer(this, request as AssetTransferNna); break;
 								default:
 									break;
@@ -119,7 +123,7 @@ public class NnpPeer : Peer, IBinarySerializable
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Return>(Reader, Peering.Constructor.Construct);
+						var r = BinarySerializator.Deserialize<Result>(Reader, Peering.Constructor.Construct);
 
 						lock(OutRequests)
 						{
@@ -187,7 +191,7 @@ public class NnpPeer : Peer, IBinarySerializable
 		Request(IdCounter++, args);
 	}
 
-	public Return Call(Argumentation args)
+	public Result Call(Argumentation args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);

@@ -23,7 +23,7 @@ public class DomainPpc : RdnPpc<DomainPpr>
 		Identifier = new(id);
 	}
 
-	public override Return Execute()
+	public override Result Execute()
 	{
 		if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 			throw new RequestException(RequestError.IncorrectRequest);
@@ -49,7 +49,7 @@ public class DomainPpc : RdnPpc<DomainPpr>
 	}
 }
 
-public class DomainPpr : Return
+public class DomainPpr : Result
 {
 	public Domain	Domain {get; set;}
 }
