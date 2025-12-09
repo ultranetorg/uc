@@ -9,14 +9,6 @@ type AuthenticateMutationArgs = {
   accountAddress?: string
 }
 
-const mutationFn =
-  (baseUrl: string) =>
-  async ({ accountAddress }: AuthenticateMutationArgs) => {
-    const res = await vaultApi.authenticate(baseUrl!, accountAddress)
-    if (res === null) throw new Error("Authentication failed")
-    return res
-  }
-
 export const useAuthenticate = () => {
   const { isLoading: isUrlLoading, data: baseUrl } = useGetVaultUrl()
 
@@ -25,7 +17,11 @@ export const useAuthenticate = () => {
     isPending,
     error,
   } = useMutation({
-    mutationFn: mutationFn(baseUrl!),
+    mutationFn: async ({ accountAddress }: AuthenticateMutationArgs) => {
+      const res = await vaultApi.authenticate(baseUrl!, accountAddress)
+      if (res === null) throw new Error("Authentication failed")
+      return res
+    },
   })
 
   return { authenticate, isFetching: isPending, isUrlLoading, error: error ?? undefined }

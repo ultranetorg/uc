@@ -46,7 +46,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       ? session.accounts[session.selectedIndex].account
       : undefined
 
-  const { authenticate: authenticateMutation, isPending: isAuthenticatePending } = useAuthenticate()
+  const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticate()
   const { isAuthenticated: isAuthenticatedMutation, isPending: isAuthenticatedPending } = useIsAuthenticated()
   const { data: account } = useGetAccountByAddress(currentAccount?.address)
 
