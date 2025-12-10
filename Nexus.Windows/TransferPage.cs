@@ -85,7 +85,7 @@ public partial class TransferPage : Page
 	{
 		combobox.Items.Clear();
 
-		foreach(var i in Nexus.Nodes.Select(i => i.Net))
+		foreach(var i in Nexus.NnpIppServer.Locals.Select(i => i.Net))
 		{
 			combobox.Items.Add(i);
 		}
@@ -97,7 +97,7 @@ public partial class TransferPage : Page
 		if(combobox.Items.Count > 0)
 			return;
 
-		foreach(var i in Nexus.NnConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
+		foreach(var i in Nexus.NnpConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
 		{
 			Net = net
 		}),
@@ -117,7 +117,7 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
+		foreach(var a in Nexus.NnpConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
 		{
 			Net = FromNet.Text,
 			HolderClass = FromClass.Text,
@@ -132,7 +132,7 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
+		Balance.Text += Nexus.NnpConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
 		{
 			Net = FromNet.Text,
 			HolderClass = FromClass.Text,
@@ -170,7 +170,7 @@ public partial class TransferPage : Page
 	{
 		try
 		{
-			Nexus.NnConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
+			Nexus.NnpConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
 																				{
 																					Net = FromNet.Text,
 																					ToNet = ToNet.Text,

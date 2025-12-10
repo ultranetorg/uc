@@ -8,10 +8,10 @@ public enum RdnOperationClass : uint
 	Domain							= 100,
 		DomainRegistration			= 100_000_001, 
 		DomainMigration				= 100_000_002, 
-		DomainBid					= 100_000_003, 
-		DomainRenewal				= 100_000_004,
-		DomainTransfer				= 100_000_005,
-		DomainPolicyUpdation		= 100_000_006,
+		DomainRenewal				= 100_000_003,
+		DomainTransfer				= 100_000_004,
+		DomainPolicyUpdation		= 100_000_005,
+		//DomainBid					= 100_000_003, 
 
 	Resource						= 101,
 		ResourceCreation			= 101_000_001, 
@@ -28,12 +28,12 @@ public enum RdnOperationClass : uint
 
 public abstract class RdnOperation : Operation
 {
-	public const string					CantChangeSealedResource = "Cant change sealed resource";
-	public const string					NotRoot = "Not root domain";
-	public const string					ReservedForOwner = "Unknown web domain";
-	public const string					Sealed = "Sealed";
-	public const string					NotSealed = "NotSealed";
-	public const string					NoData = "NoData";
+	public const string		CantChangeSealedResource = "Cant change sealed resource";
+	public const string		NotRoot = "Not root domain";
+	public const string		ReservedForOwner = "Unknown web domain";
+	public const string		Sealed = "Sealed";
+	public const string		NotSealed = "NotSealed";
+	public const string		NoData = "NoData";
 
 	public abstract void Execute(RdnExecution execution);
 

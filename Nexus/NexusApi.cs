@@ -66,6 +66,6 @@ public class NnpNodeApc : Apc, INexusApc
 	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(uos)
-			return uos.NnIppServer.Nodes.Find(i => i.Net == Net);
+			return uos.NnpIppServer.Locals.Find(i => i.Net == Net);
 	}
 }

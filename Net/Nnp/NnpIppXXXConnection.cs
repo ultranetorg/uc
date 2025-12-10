@@ -38,6 +38,49 @@ public class NnpIppClientConnection : NnpIppConnection
 	{
 		Writer.Write(NnpIppConnectionType.Client);
 	}
+
+	public virtual byte[] Transact(Net net, Operation[] operations, AccountAddress account, bool sponsored, Endpoint node, Flow flow)
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		w.Write(operations, i => {
+									w.Write(net.Constructor.TypeToCode(i.GetType()));
+									i.Write(w); 
+								 });
+		w.Write(account);
+		w.Write(sponsored);
+		//w.Write(node);
+
+		return Call(new Nnc<TransactNna, TransactNnr>(	new()
+														{
+															Format = PacketFormat.Binary,
+															Transaction = s.ToArray(),
+															Net	= net.Address,
+														}),
+														flow).Result;
+	}
+	
+	public virtual Result Request(Net net, PeerRequest request, Flow flow)
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		BinarySerializator.Serialize(w, request, Constructor.TypeToCode);
+
+		var rp = Call(new Nnc<RequestNna, RequestNnr>(	new()
+														{
+															Format = PacketFormat.Binary,
+															Request = s.ToArray(),
+															Net	= net.Address,
+														}),
+														flow);
+
+		
+		var r = new BinaryReader(new MemoryStream(rp.Response));
+		
+		return BinarySerializator.Deserialize<Result>(r, Constructor.Construct);
+	}
 }
 
 public class NnpIppNodeConnection : NnpIppConnection
@@ -74,19 +117,32 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		}
 	}
 
-	public virtual Result Transact(IppConnection connection, PacketNna call)
+	public virtual Result Peers(IppConnection connection, PeersNna call)
+	{
+		if(Node.Mcv != null)
+		{
+			lock(Node.Mcv)
+				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => new Endpoint(i.GraphPpcIPs[0], 0)).ToArray()};
+		} 
+		else
+		{
+			return new PeersNnr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => new Endpoint(i.GraphPpcIPs[0], 0)).ToArray()};
+		}
+	}
+
+	public virtual Result Transact(IppConnection connection, TransactNna call)
 	{
 		var f = Flow.CreateNested(call.Timeout);
 		
 		var r = new BinaryReader(new MemoryStream(call.Transaction));
 		
 		var t = Node.Peering.Transact(	r.ReadArray(() =>	{
- 														 		var o = Node.Net.Constructor.Construct(typeof(Operation), (byte)r.ReadUInt32()) as Operation;
+ 														 		var o = Node.Net.Constructor.Construct(typeof(Operation), r.ReadUInt32()) as Operation;
  														 		o.Read(r); 
  																return o;
 															}),
 										r.Read<AccountAddress>(),
-										r.ReadBytes(),
+										null,
 										r.ReadBoolean(),
 										ActionOnResult.RetryUntilConfirmed,
 										f);
@@ -96,14 +152,14 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 			Thread.Sleep(10);
 		}
 		
-		return new PacketNnr {Result = t.Tag};
+		return new TransactNnr {Result = t.Tag};
 	}
 	
-	public virtual Result Request(IppConnection connection, PacketNna call)
+	public virtual Result Request(IppConnection connection, RequestNna call)
 	{
 		var f = Flow.CreateNested(call.Timeout);
 		
-		var r = new BinaryReader(new MemoryStream(call.Transaction));
+		var r = new BinaryReader(new MemoryStream(call.Request));
 		
 		var rq = BinarySerializator.Deserialize<PeerRequest>(r, Node.Peering.Constructor.Construct);
 		
@@ -111,7 +167,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f), Node.Peering.Constructor.TypeToCode);
 
-		return new PacketNnr {Result = (w.BaseStream as MemoryStream).ToArray()};
+		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}
 
 	public virtual Result HolderClasses(IppConnection connection, HolderClassesNna call)

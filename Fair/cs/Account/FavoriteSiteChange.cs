@@ -35,6 +35,12 @@ public class FavoriteSiteChange : FairOperation
 
 		if(Action)
 		{
+			if(Signer.FavoriteSites.Contains(Site))
+			{
+				Error = AlreadyExists;
+				return;
+			}
+
 			Signer.FavoriteSites = [..Signer.FavoriteSites, Site];
 		} 
 		else

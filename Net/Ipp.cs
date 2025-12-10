@@ -281,7 +281,7 @@ public class IppConnection
 				throw rq.Exception;
 			}
 		}
-		else if(i == 1)
+		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
 			throw new IpcException(IpcError.ConnectionLost);

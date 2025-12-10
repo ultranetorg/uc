@@ -161,6 +161,7 @@ public class ApiClient : JsonClient
 		
 		o.IgnoreReadOnlyProperties = true;
 
+		o.Converters.Add(new JsonStringEnumConverter());
 		o.Converters.Add(new UnitJsonConverter());
 		o.Converters.Add(new AccountJsonConverter());
 		o.Converters.Add(new EntityIdJsonConverter());
@@ -175,6 +176,7 @@ public class ApiClient : JsonClient
 #endif
 
 		o.TypeInfoResolver = new ApiTypeResolver();
+
 
 		return o;
 	}

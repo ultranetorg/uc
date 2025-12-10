@@ -26,7 +26,7 @@ public class NnpNode
 public class NnpIppServer : IppServer
 {
 	Nexus.Nexus				Nexus;
-	public List<NnpNode>	Nodes = [];
+	public List<NnpNode>	Locals = [];
 
 	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpIppConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
@@ -45,7 +45,7 @@ public class NnpIppServer : IppServer
 		{	
 			var net = connection.Reader.ReadUtf8();
 			var api = connection.Reader.ReadUtf8();
-			Nodes.Add(new NnpNode {Connection = connection, Net = net, Api = api});
+			Locals.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
 		connection.RegisterHandler(typeof(NnpClass), this);
@@ -53,7 +53,7 @@ public class NnpIppServer : IppServer
 
 	Result Relay(IppConnection connection, NnpArgumentation call)
 	{
-		var n = Nodes.Find(i => i.Net == call.Net);
+		var n = Locals.Find(i => i.Net == call.Net);
 
 		if(n != null)
 		{
@@ -62,32 +62,18 @@ public class NnpIppServer : IppServer
 		} 
 		else
 		{
-			return Nexus.NnPeering.Call(call.Net, call, Flow);
+			//Nexus.RdnNode.
+
+			return Nexus.NnpPeering.Call(call.Net, call, Flow);
 		} 
 	}
 
-	public Result HolderClasses(IppConnection connection, NnpArgumentation call)
-	{
-		return Relay(connection, call);
-	}
-
-	public Result HolderAssets(IppConnection connection, NnpArgumentation call)
-	{
-		return Relay(connection, call);
-	}
-
-	public Result HoldersByAccount(IppConnection connection, NnpArgumentation call)
-	{
-		return Relay(connection, call);
-	}
-
-	public Result AssetBalance(IppConnection connection, NnpArgumentation call)
-	{
-		return Relay(connection, call);
-	}
-
-	public Result AssetTransfer(IppConnection connection, NnpArgumentation call)
-	{
-		return Relay(connection, call);
-	}
+	public Result Peers(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result Transact(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result Request(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result HolderClasses(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result HolderAssets(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result HoldersByAccount(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result AssetBalance(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
+	public Result AssetTransfer(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
 }

@@ -6,28 +6,32 @@ namespace Uccs.Net;
 public class Endpoint : IBinarySerializable
 {
 	public IPAddress	IP {get; set;}
-	public long			Roles {get; set;}
+	public ushort		Port {get; set;}
+	//public long			Roles {get; set;}
 
 	public Endpoint()
 	{
 	}
 
-	public Endpoint(IPAddress ip, long roles)
+	public Endpoint(IPAddress iP, ushort port)
 	{
-		IP = ip;
-		Roles = roles;
+		IP = iP;
+		Port = port;
+		//Roles = roles;
 	}
 
 	public void Read(BinaryReader reader)
 	{
 		IP = reader.ReadIPAddress();
-		Roles = reader.Read7BitEncodedInt64();
+		Port = reader.ReadUInt16();
+		//Roles = reader.Read7BitEncodedInt64();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(IP);
-		writer.Write7BitEncodedInt64(Roles);
+		writer.Write(Port);
+		//writer.Write7BitEncodedInt64(Roles);
 	}
 }
 
@@ -76,8 +80,8 @@ public enum NnpClass : uint
 {
 	None = 0, 
 	
+	Peers,
 	Block,
-	RootHash,
 	Transact,
 	Request,
 
@@ -159,42 +163,91 @@ public class BlockNna : NnpArgumentation
 //	}
 }
 
+public class PeersNna : NnpArgumentation, IBinarySerializable
+{
+}
+
+public class PeersNnr : Result, IBinarySerializable
+{
+	public Endpoint[]	Peers { get; set; }
+
+	public void			Read(BinaryReader reader) => Peers = reader.ReadArray<Endpoint>();
+	public void			Write(BinaryWriter writer) => writer.Write(Peers);
+}
+
+
 public enum PacketFormat : byte
 {
 	None, Binary, JsonUtf8
 }
 
-public class PacketNna : NnpArgumentation, IBinarySerializable
+public class RequestNna : NnpArgumentation, IBinarySerializable
 {
-	public byte[]			Transaction { get; set; }
+	public byte[]			Request { get; set; }
 	public PacketFormat		Format { get; set; }
+	public Endpoint			Node { get; set; }
 	public int				Timeout { get; set; } = 5000;
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
+		Request		= reader.ReadBytes();
 		Format		= reader.Read<PacketFormat>();
+		Node		= reader.ReadNullable<Endpoint>();
 		Timeout		= reader.Read7BitEncodedInt();
-		Transaction	= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
+		writer.WriteBytes(Request);
 		writer.Write(Format);
+		writer.WriteNullable(Node);
 		writer.Write7BitEncodedInt(Timeout);
-		writer.WriteBytes(Transaction);
 	}
 }
 
-public class PacketNnr : Result, IBinarySerializable
+public class RequestNnr : Result, IBinarySerializable
+{
+	public byte[]	Response { get; set; }
+
+	public void		Read(BinaryReader reader) => Response = reader.ReadBytes();
+	public void		Write(BinaryWriter writer) => writer.WriteBytes(Response);
+}
+
+public class TransactNna : NnpArgumentation, IBinarySerializable
+{
+	public byte[]			Transaction { get; set; }
+	public PacketFormat		Format { get; set; }
+	public Endpoint			Node { get; set; }
+	public int				Timeout { get; set; } = 5000;
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Transaction		= reader.ReadBytes();
+		Format		= reader.Read<PacketFormat>();
+		Node		= reader.ReadNullable<Endpoint>();
+		Timeout		= reader.Read7BitEncodedInt();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteBytes(Transaction);
+		writer.Write(Format);
+		writer.WriteNullable(Node);
+		writer.Write7BitEncodedInt(Timeout);
+	}
+}
+
+public class TransactNnr : Result, IBinarySerializable
 {
 	public byte[]	Result { get; set; }
 
 	public void		Read(BinaryReader reader) => Result = reader.ReadBytes();
 	public void		Write(BinaryWriter writer) => writer.WriteBytes(Result);
 }
-
 
 public class HolderClassesNna : NnpArgumentation, IBinarySerializable
 {
@@ -346,28 +399,6 @@ public class AssetTransferNnr : Result, IBinarySerializable
 	public  void Read(BinaryReader reader) => TransactionId = reader.ReadBytes();
 	public  void Write(BinaryWriter writer) => writer.WriteBytes(TransactionId);
 }
-
-
-//
-//public class StateHashNnc : IBinarySerializable
-//{
-//	public string			Net { get; set; }
-//
-//	public StateHashNnc()
-//	{
-//	}
-//	
-//	public override PeerResponse Execute()
-//	{
-//		///return new StateHashNnr {Hash = Peering.GetStateHash(Net)};
-//		return null;
-//	}
-//}
-//
-//public class StateHashNnr : IBinarySerializable
-//{
-//	public byte[]	Hash { get; set; }
-//}
 
 
 //	public class Cluster

@@ -5,17 +5,6 @@ using Uccs.Vault;
 
 namespace Uccs.Nexus;
 
-public class NodeDeclaration
-{
-	public string		ApiLocalAddress { get; set; }
-	public string		Net;
-
-	public override string ToString()
-	{
-		return Net;
-	}
-}
-
 public class Nexus : IProgram
 {
 	public delegate void			Delegate(Nexus d);
@@ -23,7 +12,6 @@ public class Nexus : IProgram
 	public Flow						Flow;
 	IClock							Clock;
 	public NexusSettings			Settings;
-	public List<NodeDeclaration>	Nodes = [];
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
 	public RdnNode					RdnNode;
@@ -33,11 +21,9 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnpTcpPeering				NnPeering;
-	public NnpIppClientConnection	NnConnection;
-	public NnpIppServer				NnIppServer;
-
-	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
+	public NnpTcpPeering			NnpPeering;
+	public NnpIppServer				NnpIppServer;
+	public NnpIppClientConnection	NnpConnection;
 
 	static Nexus()
 	{
@@ -63,9 +49,11 @@ public class Nexus : IProgram
 
 		if(Settings.NnPeering != null)
 		{
-			NnPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
-			NnIppServer = new NnpIppServer(this);
-			NnConnection = new NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), flow);
+			NnpPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
+			NnpIppServer = new NnpIppServer(this);
+			NnpConnection = new NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), flow);
+
+			NnpPeering.Run();
 		}
 
 		if(Settings.Api != null)
@@ -88,15 +76,8 @@ public class Nexus : IProgram
 
 		Stopped?.Invoke(this);
 
-
-		foreach(var i in Nodes.ToArray())
-		{	
-			//i.Node.Stop();
-			Nodes.Remove(i);
-		}
-
-		NnConnection?.Disconnect();
-		NnPeering?.Stop();
+		NnpConnection?.Disconnect();
+		NnpPeering?.Stop();
 		RdnNode?.Stop();
 		Vault.Stop();
 		ApiServer?.Stop();
@@ -128,7 +109,7 @@ public class Nexus : IProgram
 		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow);
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
-		Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
+		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 
 	public void RunApi()

@@ -1015,7 +1015,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 						txs.Add(t);
 
-						t.Flow?.Log.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Hash={t.Hashify()}, Signature={t.Signature.ToHex()}");
+						t.Flow.Log?.Report(this, $"Created:  Nid={t.Nid}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Hash={t.Hashify()}, Signature={t.Signature.ToHex()}");
 					}
 					catch(NodeException ex)
 					{

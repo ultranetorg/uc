@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.Json.Serialization;
+
+namespace Uccs.Net;
 
 public enum TransactionStatus : byte
 {
