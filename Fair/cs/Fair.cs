@@ -24,9 +24,8 @@ public abstract class Fair : McvNet
  	public static readonly Fair		Developer0 = new FairDeveloper0();
  	public static readonly Fair		TA = new FairTA();
 	public static readonly Fair		Main = null;
-	public static readonly Fair[]	Official = [Local, Developer0, Test];
 
-	public static Fair				ByZone(Zone name) => Official.First(i => i.Zone == name);
+	public static Fair				ByZone(Zone name) => new Fair[]{Local, Developer0, Test, TA}.First(i => i.Zone == name);
 
 	
 	public Fair()
