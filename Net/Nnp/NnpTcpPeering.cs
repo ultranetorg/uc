@@ -37,7 +37,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 		return string.Join(",", new object[]
 								{
 									Name, 
-									Settings?.IP}.Where(i => i != null)
+									Settings.EP}.Where(i => i != null)
 								);
 	}
 
@@ -51,9 +51,9 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 		Peers[peer.Net].Remove(peer);
 	}
 
-	protected override NnpPeer FindPeer(IPAddress ip)
+	protected override NnpPeer FindPeer(Endpoint ip)
 	{
-		return Peers.SelectMany(i => i.Value).FirstOrDefault(i => i.IP.Equals(ip));
+		return Peers.SelectMany(i => i.Value).FirstOrDefault(i => i.EP.Equals(ip));
 	}
 
 	protected override bool Consider(TcpClient client)
@@ -71,7 +71,8 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 			h.Name			= Name;
 			h.Roles			= 0;
 			h.Versions		= Versions;
-			h.IP			= peer.IP;
+			h.YourIP		= peer.EP.IP;
+			h.MyPort		= Settings.EP.Port;
 			h.Permanent		= permanent;
 		
 			return h;
@@ -88,7 +89,8 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 			h.Name			= Name;
 			h.Roles			= 0;
 			h.Versions		= Versions;
-			h.IP			= ip;
+			h.YourIP		= ip;
+			h.MyPort		= Settings.EP.Port;
 		
 			return h;
 		}
@@ -107,11 +109,11 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 
 		if(hello.Name == Name)
 		{
-			Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
+			Flow.Log?.ReportError(this, $"To {peer.EP}. It's me" );
 
 			if(peer != null)
 			{	
-				IgnoredIPs.Add(peer.IP);
+				IgnoredIPs.Add(peer.EP.IP);
 				Peers[hello.Net].Remove(peer);
 			}
 
@@ -120,7 +122,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 
 		if(peer != null && peer.Status == ConnectionStatus.OK)
 		{
-			Flow.Log?.ReportError(this, $"From {peer.IP}. Already established" );
+			Flow.Log?.ReportError(this, $"From {peer.EP}. Already established" );
 			return false;
 		}
 
@@ -133,12 +135,12 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 
 		lock(Lock)
 		{
-			p = Peers[net].Find(i => i.IP.Equals(ip));
+			p = Peers[net].Find(i => i.EP.IP.Equals(ip));
 
 			if(p != null)
 				return p;
 
-			p = new NnpPeer(ip, 0) {Net = net};
+			p = new NnpPeer(new Endpoint(ip, 0)) {Net = net};
 			Peers[net].Add(p);
 		}
 
@@ -151,9 +153,9 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 		{
 			var affected = new List<NnpPeer>();
 												
-			foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
+			foreach(var i in peers.Where(i => !i.EP.Equals(EP)))
 			{
-				var p = Peers[net].Find(j => j.IP.Equals(i.IP));
+				var p = Peers[net].Find(j => j.EP.Equals(i.EP));
 				
 				if(p == null)
 				{
@@ -162,11 +164,10 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 					Peers[net].Add(i);
 					affected.Add(i);
 				}
-				else if(p.Roles != i.Roles || p.Port != i.Port)
+				else if(p.Roles != i.Roles)
 				{
 					p.Recent = true;
 					p.Roles = i.Roles;
-					p.Port = i.Port;
 
 					affected.Add(p);
 				}

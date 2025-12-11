@@ -40,7 +40,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.EP], [Settings.Peering.EP], clock ?? new RealClock());
 
 			Mcv.Confirmed += r =>	{
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))

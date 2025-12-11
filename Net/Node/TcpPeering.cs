@@ -58,7 +58,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	public PeeringSettings						Settings;
 
-	public IPAddress							IP = IPAddress.None;
+	public Endpoint								EP;
 	public List<IPAddress>						IgnoredIPs = new();
 	public bool									IsPeering => MainThread != null;
 	public bool									IsListener => ListeningThread != null;
@@ -80,7 +80,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	protected abstract bool						Consider(bool inbound, Hello hello, P peer);
 	protected abstract void						AddPeer(P peer);
 	protected abstract void						RemovePeer(P peer);
-	protected abstract P						FindPeer(IPAddress ip);
+	protected abstract P						FindPeer(Endpoint ip);
 	protected virtual void						OnConnected(P peer) {}
 
 	protected abstract P						CreatePeer();
@@ -101,7 +101,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	public virtual void Run()
 	{
-		if(Settings.IP != null)
+		if(Settings.EP != null)
 		{
 			ListeningThread = Program.CreateThread(Listening);
 			ListeningThread.Name = $"{Name} Listening";
@@ -144,16 +144,16 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	public override string ToString()
 	{
 		return string.Join(",", new string[] {	Name,
-												Settings.IP != null ? IP.ToString() : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
+												Settings.EP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 	}
 
 	protected void Listening()
 	{
 		try
 		{
-			Flow.Log?.Report(this, $"Listening {Settings.IP}:{Settings.Port}");
+			Flow.Log?.Report(this, $"Listening {Settings.EP}");
 
-			Listener = new TcpListener(Settings.IP, Settings.Port);
+			Listener = new TcpListener(Settings.EP.IP, Settings.EP.Port);
 			Listener.Start();
 
 			while(Flow.Active)
@@ -192,190 +192,183 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 		TcpClient tcp = null;
 		
-		void f()
-		{
+		Task.Run(() =>	{
+							try
+							{
+								tcp = Settings.EP != null ? new TcpClient(new IPEndPoint(Settings.EP.IP, 0)) : new TcpClient();
 
-			try
-			{
-				tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
+								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+								//client.ReceiveTimeout = Timeout;
+								tcp.Connect(peer.EP.IP, peer.EP.Port);
+							}
+							catch(SocketException ex) 
+							{
+								Flow.Log?.ReportError(this, $"To {peer.EP}. {ex.Message}" );
+								goto failed;
+							}
 
-				tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
-				//client.ReceiveTimeout = Timeout;
-				tcp.Connect(peer.IP, peer.Port);
-			}
-			catch(SocketException ex) 
-			{
-				Flow.Log?.ReportError(this, $"To {peer.IP}. {ex.Message}" );
-				goto failed;
-			}
-
-			Hello h = null;
+							Hello h = null;
 								
-			try
-			{
-				tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
-				tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+							try
+							{
+								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-				Peer.SendHello(tcp, CreateOutboundHello(peer, permanent));
-				h = Peer.WaitHello(tcp);
-			}
-			catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
-			{
-				Flow.Log?.ReportError(this, $"To {peer.IP}. {ex.Message}" );
-				goto failed;
-			}
+								Peer.SendHello(tcp, CreateOutboundHello(peer, permanent));
+								h = Peer.WaitHello(tcp);
+							}
+							catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
+							{
+								Flow.Log?.ReportError(this, $"To {peer.EP}. {ex.Message}" );
+								goto failed;
+							}
 
-			lock(Lock)
-			{
-				if(Flow.Aborted)
-				{
-					tcp.Close();
-					return;
-				}
+							lock(Lock)
+							{
+								if(Flow.Aborted)
+								{
+									tcp.Close();
+									return;
+								}
 
-				if(Consider(false, h, peer) == false)
-					goto failed;
+								if(Consider(false, h, peer) == false)
+									goto failed;
 												
-				if(IP.Equals(IPAddress.None))
-				{
-					IP = h.IP;
-					Flow.Log?.Report(this, $"Reported IP {IP}");
-				}
+								if(EP == null)
+								{
+									EP = new Endpoint(h.YourIP, Settings.EP.Port);
+									Flow.Log?.Report(this, $"Reported IP {EP}");
+								}
 
+								peer.Start(this, tcp, h, false);
 
-				peer.Start(this, tcp, h, false);
+								OnConnected(peer);
+							}
 
-				OnConnected(peer);
-			}
+							Flow.Log?.Report(this, $"Connected to {peer}");
+							return;
 
-			Flow.Log?.Report(this, $"Connected to {peer}");
-			return;
-
-			failed:
-			{
-				lock(Lock)
-					peer.Disconnect();;
+							failed:
+							{
+								lock(Lock)
+									peer.Disconnect();;
 								
-				tcp?.Close();
-			}
-		}
-		
-		var t = Program.CreateThread(f);
-		t.Name = Settings.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
-		t.Start();
-					
+								tcp?.Close();
+							}
+						});
+	
 	}
 
 	private void InboundConnect(TcpClient client)
 	{
 		var ip = (client.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
-		var peer = FindPeer(ip);
 
-		if(ip.Equals(IP))
-		{
-			IgnoredIPs.Add(ip);
-			
-			if(peer != null)
-				RemovePeer(peer);
-			
-			client.Close();
-			return;
-		}
+///		if(ip.Equals(IP))
+///		{
+///			IgnoredIPs.Add(ip);
+///			
+///			if(peer != null)
+///				RemovePeer(peer);
+///			
+///			client.Close();
+///			return;
+///		}
 
 		if(IgnoredIPs.Contains(ip))
 		{
-			if(peer != null)
-				RemovePeer(peer);
+			///var peer = FindPeer(ip);
+			///
+			///if(peer != null)
+			///	RemovePeer(peer);
 
 			client.Close();
 			return;
 		}
 
-		if(peer != null)
-		{
-			if(peer.Status != ConnectionStatus.Disconnected)
-			{
-				client.Close();
-				return;
-			}
-		}
+		P peer = null;
 
 		IncomingConnections.Add(client);
 
-		var t = Program.CreateThread(incon);
-		t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
-		t.Start();
+		Task.Run(() =>	{
+							Hello h = null;
 
-		void incon()
-		{
-			Hello h = null;
+							try
+							{
+								client.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+								client.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-			try
-			{
-				client.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
-				client.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
-
-				h = Peer.WaitHello(client);
-			}
-			catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
-			{
-				Flow.Log?.ReportError(this, $"From {ip}. WaitHello -> {ex.Message}");
-				goto failed;
-			}
+								h = Peer.WaitHello(client);
+							}
+							catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
+							{
+								Flow.Log?.ReportError(this, $"From {ip}. WaitHello -> {ex.Message}");
+								goto failed;
+							}
 			
-			lock(Lock)
-			{
-				if(Flow.Aborted)
-					goto failed;
+							lock(Lock)
+							{
+								if(Flow.Aborted)
+									goto failed;
 
-				if(peer == null)
-				{	
-					peer = CreatePeer();
-					peer.IP = ip;
-					peer.Port = Settings.Port;
-				}
+								var ep = new Endpoint(ip, h.MyPort);
+								peer = FindPeer(ep);
 
-				if(Consider(true, h, peer) == false)
-					goto failed;
+								if(peer != null)
+								{
+									if(peer.Status != ConnectionStatus.Disconnected)
+									{
+										client.Close();
+										return;
+									}
+								}
 
-				if(IP.Equals(IPAddress.None))
-				{
-					IP = h.IP;
-					Flow.Log?.Report(this, $"Reported IP {IP}");
-				}
+								if(peer == null)
+								{	
+									peer = CreatePeer();
+									peer.EP = ep;
+								}
+
+								if(Consider(true, h, peer) == false)
+									goto failed;
+
+								if(EP == null)
+								{
+									EP = new Endpoint(h.YourIP, Settings.EP.Port);
+									Flow.Log?.Report(this, $"Reported IP {EP}");
+								}
 	
-				try
-				{
-					Peer.SendHello(client, CreateInboundHello(ip, h));
-				}
-				catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
-				{
-					Flow.Log?.ReportError(this, $"From {ip}. SendHello -> {ex.Message}");
-					goto failed;
-				}
+								try
+								{
+									Peer.SendHello(client, CreateInboundHello(ip, h));
+								}
+								catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
+								{
+									Flow.Log?.ReportError(this, $"From {ip}. SendHello -> {ex.Message}");
+									goto failed;
+								}
 
-				if(FindPeer(ip) == null)
-					AddPeer(peer);
+								if(FindPeer(peer.EP) == null)
+									AddPeer(peer);
 
-				peer.Permanent = h.Permanent;
-				peer.Start(this, client, h, true);
+								peer.Permanent = h.Permanent;
+								peer.Start(this, client, h, true);
 
-				OnConnected(peer);
+								OnConnected(peer);
 
-				IncomingConnections.Remove(client);
-			}
+								IncomingConnections.Remove(client);
+							}
 
-			Flow.Log?.Report(this, $"Connected from {peer}");
-			return;
+							Flow.Log?.Report(this, $"Connected from {peer}");
+							return;
 
-		failed:
-			if(peer != null)
-				lock(Lock)
-					peer.Disconnect();;
+						failed:
+							if(peer != null)
+								lock(Lock)
+									peer.Disconnect();;
 
-			client.Close();
+							client.Close();
 
-		}
+						});
 	}
 
 	public void Connect(P peer, Flow workflow)

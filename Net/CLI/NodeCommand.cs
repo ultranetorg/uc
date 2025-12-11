@@ -144,7 +144,7 @@ public class NodeCommand : McvCommand
 																
 								Flow.Log.Dump(	r.Peers, 
 												["IP", "Status", "PeerRank", "Roles"], 
-												[i => i.IP, i => i.Status, i => i.PeerRank, i => i.Roles]);
+												[i => i.EP, i => i.Status, i => i.PeerRank, i => i.Roles]);
 													
 								return r;
 							};

@@ -47,9 +47,9 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		Peers.Remove(peer);
 	}
 
-	protected override HomoPeer FindPeer(IPAddress ip)
+	protected override HomoPeer FindPeer(Endpoint ip)
 	{
-		return Peers.Find(i => i.IP.Equals(ip));
+		return Peers.Find(i => i.EP.Equals(ip));
 	}
 
 	protected override bool Consider(TcpClient client)
@@ -64,10 +64,11 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 			var h = new Hello();
 
 			h.Net			= Net.Name;
+			h.Name			= Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
-			h.IP			= peer.IP;
-			h.Name			= Name;
+			h.YourIP		= peer.EP.IP;
+			h.MyPort		= Settings.EP.Port;
 			h.Permanent		= permanent;
 		
 			return h;
@@ -81,10 +82,11 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 			var h = new Hello();
 
 			h.Net			= Net.Name;
+			h.Name			= Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
-			h.IP			= ip;
-			h.Name			= Name;
+			h.YourIP		= ip;
+			h.MyPort		= Settings.EP.Port;
 		
 			return h;
 		}
@@ -103,12 +105,12 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 		if(hello.Name == Name)
 		{
-			Flow.Log?.ReportError(this, $"To {peer.IP}. It's me" );
+			Flow.Log?.ReportError(this, $"To {peer.EP}. It's me" );
 
 			if(peer != null)
 			{	
-				IgnoredIPs.Add(peer.IP);
-				Peers.Remove(peer as HomoPeer);
+				IgnoredIPs.Add(peer.EP.IP);
+				Peers.Remove(peer);
 			}
 
 			return false;
@@ -116,25 +118,25 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 		if(peer != null && peer.Status == ConnectionStatus.OK)
 		{
-			Flow.Log?.ReportError(this, $"From {hello.IP}. Already established" );
+			Flow.Log?.ReportError(this, $"From {hello.YourIP}. Already established" );
 			return false;
 		}
 
 		return true;
 	}
 
-	public HomoPeer GetPeer(IPAddress ip)
+	public HomoPeer GetPeer(Endpoint ip)
 	{
 		HomoPeer p = null;
 
 		lock(Lock)
 		{
-			p = Peers.Find(i => i.IP.Equals(ip));
+			p = Peers.Find(i => i.EP.Equals(ip));
 
 			if(p != null)
 				return p;
 
-			p = new HomoPeer(ip, 0);
+			p = new HomoPeer(ip);
 			Peers.Add(p);
 		}
 
@@ -148,7 +150,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
  				var p = new HomoPeer();
-				p.IP = new IPAddress(i.Key());
+				//p.EP = new IPAddress(i.Key());
 				p.Recent = false;
  				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
  				Peers.Add(p);
@@ -181,7 +183,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 				i.SaveNode(w);
-				b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
+				b.Put(i.EP.Raw, s.ToArray(), PeersFamily);
 			}
 
 			Database.Write(b);
@@ -194,9 +196,9 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		{
 			var affected = new List<HomoPeer>();
 												
-			foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
+			foreach(var i in peers.Where(i => !i.EP.Equals(EP)))
 			{
-				var p = Peers.Find(j => j.IP.Equals(i.IP));
+				var p = Peers.Find(j => j.EP.Equals(i.EP));
 				
 				if(p == null)
 				{
@@ -205,11 +207,10 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 					Peers.Add(i);
 					affected.Add(i);
 				}
-				else if(p.Roles != i.Roles || p.Port != i.Port)
+				else if(p.Roles != i.Roles)
 				{
 					p.Recent = true;
 					p.Roles = i.Roles;
-					p.Port = i.Port;
 
 					affected.Add(p);
 				}
@@ -294,9 +295,9 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		return peer.Call((PeerRequest)rq) as Rp;
 	}
 
-	public R Call<R>(IPAddress ip, Func<Ppc<R>> call, Flow workflow) where R : Result
+	public R Call<R>(Endpoint ep, Func<Ppc<R>> call, Flow workflow) where R : Result
 	{
-		var p = GetPeer(ip);
+		var p = GetPeer(ep);
 
 		Connect(p, workflow);
 
@@ -306,9 +307,9 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		return ((IHomoPeer)p).Call(c);
 	}
 
-	public void Tell(IPAddress ip, PeerRequest requet, Flow workflow)
+	public void Tell(Endpoint ep, PeerRequest requet, Flow workflow)
 	{
-		var p = GetPeer(ip);
+		var p = GetPeer(ep);
 
 		Connect(p, workflow);
 

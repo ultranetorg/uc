@@ -4,13 +4,13 @@ namespace Uccs.Rdn;
 
 public class RdnCandidacyDeclaration : CandidacyDeclaration
 {
-	public IPAddress[]		SeedHubRdcIPs;
+	public Endpoint[]		SeedHubRdcIPs;
 	
 	public RdnCandidacyDeclaration()
 	{
 	}
 
-	public RdnCandidacyDeclaration(IPAddress[] baseRdcIPs, IPAddress[] seedHubRdcIPs)
+	public RdnCandidacyDeclaration(Endpoint[] baseRdcIPs, Endpoint[] seedHubRdcIPs)
 	{
 		GraphIPs = baseRdcIPs;
 		SeedHubRdcIPs = seedHubRdcIPs;
@@ -20,14 +20,14 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 	{
 		base.Read(reader);
 
-		SeedHubRdcIPs = reader.ReadArray(reader.ReadIPAddress);
+		SeedHubRdcIPs = reader.ReadArray<Endpoint>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
 
-		writer.Write(SeedHubRdcIPs, writer.Write);
+		writer.Write(SeedHubRdcIPs);
 	}
 
 	public override void Execute(Execution execution)

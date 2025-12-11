@@ -156,7 +156,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				foreach(var c in Connections)
 					c.Send(new SharePeersPpc{Broadcast = true, 
-											 Peers = [new HomoPeer(IP, Settings.Port) {Roles = Roles}]});
+											 Peers = [new HomoPeer(EP) {Roles = Roles}]});
 			}
 
 			if(Mcv != null)
@@ -175,7 +175,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public void Synchronize()
 	{
-		if(Settings.IP != null && Settings.IP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Contains(Net.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+		if(Settings.EP != null && Settings.EP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Contains(Net.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 		{
 			Synchronization = Synchronization.Synchronized;
 			return;
@@ -327,7 +327,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 							//if(r == null)
 							//	break;
 							
-							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
+							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.EP}");
 								
 							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
 							 	throw new SynchronizationException();
@@ -929,7 +929,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				var m = members.NearestBy(i => i.Address, account);
 
-				if(m.GraphPpcIPs.Contains(Settings.IP))
+				if(m.GraphPpcIPs.Contains(Settings.EP))
 					return this;
 
 				var p = GetPeer(m.GraphPpcIPs.Random());

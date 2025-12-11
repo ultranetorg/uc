@@ -114,7 +114,7 @@ public class PeersReportApc : McvApc
 		lock(node.Peering.Lock)
 			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK && (Permanent is null || i.Permanent == Permanent))
 														.TakeLast(Limit)
-														.Select(i => new Return.Peer   {IP			= i.IP,			
+														.Select(i => new Return.Peer   {EP			= i.EP,			
 																						Status		= i.StatusDescription,
 																						PeerRank	= i.PeerRank,
 																						Roles		= i.Roles,
@@ -127,7 +127,7 @@ public class PeersReportApc : McvApc
 	{
 		public class Peer
 		{
-			public IPAddress	IP { get; set; }
+			public Endpoint		EP { get; set; }
 			public string		Status  { get; set; }
 			public int			PeerRank { get; set; }
 			public DateTime		LastSeen { get; set; }
@@ -154,7 +154,7 @@ public class McvSummaryApc : McvApc
 		lock(node.Peering.Lock)
 		{
 			f = [	new ("Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"),
-					new ("IP(Reported):Port",		$"{node.Peering.Settings.IP} ({node.Peering.IP}) : {node.Peering.Settings.Port}"),
+					new ("IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"),
 					new ("Votes Acceped/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"),
 
 					new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
@@ -377,7 +377,7 @@ public class TransactionApe
 		 
 	public AccountAddress			Signer { get; set; }
 	public TransactionStatus		Status { get; set; }
-	public IPAddress				MemberEndpoint { get; set; }
+	public Endpoint					MemberEndpoint { get; set; }
 	public ActionOnResult			__ExpectedStatus { get; set; }
 
 	public IEnumerable<Operation>	Operations  { get; set; }
@@ -399,7 +399,7 @@ public class TransactionApe
 		Bonus				= transaction.Bonus;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Ppi as Peer)?.IP ?? (transaction.Ppi as HomoTcpPeering)?.IP;
+		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoTcpPeering)?.EP;
 		Signer				= transaction.Signer;
 		Status				= transaction.Status;
 		__ExpectedStatus	= transaction.ActionOnResult;

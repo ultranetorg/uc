@@ -28,15 +28,14 @@ public class NnpPeer : Peer, IBinarySerializable
 	{
 	}
 
-	public NnpPeer(IPAddress ip, ushort port)
+	public NnpPeer(Endpoint endpoint)
 	{
-		IP = ip;
-		Port = port;
+		EP = endpoint;
 	}
 
 	public override string ToString()
 	{
-		return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
+		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
  		
 	void Request(int id, Argumentation request)

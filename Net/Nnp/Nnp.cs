@@ -3,11 +3,13 @@ using System.Numerics;
 
 namespace Uccs.Net;
 
-public class Endpoint : IBinarySerializable
+public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 {
 	public IPAddress	IP {get; set;}
 	public ushort		Port {get; set;}
 	//public long			Roles {get; set;}
+
+	public byte[]		Raw => [..IP.GetAddressBytes(), ..BitConverter.GetBytes(Port)];
 
 	public Endpoint()
 	{
@@ -18,6 +20,11 @@ public class Endpoint : IBinarySerializable
 		IP = iP;
 		Port = port;
 		//Roles = roles;
+	}
+
+	public override string ToString()
+	{
+		return $"{IP}:{Port}";
 	}
 
 	public void Read(BinaryReader reader)
@@ -32,6 +39,28 @@ public class Endpoint : IBinarySerializable
 		writer.Write(IP);
 		writer.Write(Port);
 		//writer.Write7BitEncodedInt64(Roles);
+	}
+
+	public override bool Equals(object o)
+	{
+		return o is Endpoint e && Equals(e);
+	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(IP, Port);
+	}
+
+	public bool Equals(Endpoint e)
+	{
+		return IP.Equals(e.IP) && Port == e.Port;
+	}
+
+	public static Endpoint Parse(string v)
+	{
+		var i = v.IndexOf(':');
+
+		return new Endpoint(IPAddress.Parse(v.AsSpan(0, i)), ushort.Parse(v.AsSpan(i + 1)));
 	}
 }
 

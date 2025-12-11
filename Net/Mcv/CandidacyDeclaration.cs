@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public class CandidacyDeclaration : Operation
 {
-	public IPAddress[]		GraphIPs  { get; set; }
+	public Endpoint[]		GraphIPs  { get; set; }
 
 	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
 
@@ -16,12 +16,12 @@ public class CandidacyDeclaration : Operation
 
 	public override void Read(BinaryReader reader)
 	{
-		GraphIPs = reader.ReadArray(() => reader.ReadIPAddress());
+		GraphIPs = reader.ReadArray<Endpoint>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(GraphIPs, i => writer.Write(i));
+		writer.Write(GraphIPs);
 	}
 
 	public override void Execute(Execution execution)

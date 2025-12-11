@@ -52,7 +52,7 @@ public class FairLocal : Fair
 	
 	public FairLocal()
 	{
-		Father0IP		= DefaultHost;
+		Father0IP		= new (DefaultHost, PpiPort);
 		Cryptography	= Cryptography.No;
 		CommitLength	= 100;
 		ECLifetime		= Time.FromYears(100);
@@ -81,7 +81,7 @@ public class FairTest : Fair
 
 	public FairTest()
 	{
- 		Father0IP	= IPAddress.Parse("78.47.204.100");
+ 		Father0IP	= new (IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
 	}
 }
@@ -92,7 +92,7 @@ public class FairTA : Fair
 	
 	public FairTA()
 	{
-		Father0IP		= DefaultHost;
+		Father0IP		= new (DefaultHost, PpiPort);
 		Initials		= LocalInitials;
 	}
 }

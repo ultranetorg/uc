@@ -122,11 +122,11 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		if(Node.Mcv != null)
 		{
 			lock(Node.Mcv)
-				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => new Endpoint(i.GraphPpcIPs[0], 0)).ToArray()};
+				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		} 
 		else
 		{
-			return new PeersNnr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => new Endpoint(i.GraphPpcIPs[0], 0)).ToArray()};
+			return new PeersNnr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		}
 	}
 

@@ -19,5 +19,5 @@ public class LocateReleasePpc : RdnPpc<LocateReleasePpr>
 	
 public class LocateReleasePpr : Result
 {
-	public IPAddress[]	Seeders { get; set; }
+	public Endpoint[]	Seeders { get; set; }
 }

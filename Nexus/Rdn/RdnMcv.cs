@@ -14,14 +14,14 @@ public class RdnMcv : Mcv
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
 	public List<ForeignResult>		ApprovedMigrations = new();
-	IPAddress[]						GraphIPs;
-	IPAddress[]						SeedHubIPs;
+	Endpoint[]						GraphIPs;
+	Endpoint[]						SeedHubIPs;
 
 	public RdnMcv()
 	{
   	}
 
-	public RdnMcv(Rdn sun, McvSettings settings, string datapath, string databasepath, IPAddress[] baseips, IPAddress[] seedhubips, IClock clock) : base(sun, settings, datapath, databasepath, new RdnGenesis(), clock)
+	public RdnMcv(Rdn sun, McvSettings settings, string datapath, string databasepath, Endpoint[] baseips, Endpoint[] seedhubips, IClock clock) : base(sun, settings, datapath, databasepath, new RdnGenesis(), clock)
 	{
 		GraphIPs = baseips;
 		SeedHubIPs = seedhubips;
