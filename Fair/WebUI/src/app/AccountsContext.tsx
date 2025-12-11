@@ -5,7 +5,7 @@ import { LOCAL_STORAGE_KEYS } from "constants/"
 import { useAuthenticate, useIsAuthenticated } from "entities/vault"
 import { useGetAccountByAddress } from "entities"
 import { Account } from "types"
-import { MakeOptional } from "utils"
+import { MakeOptional, showToast } from "utils"
 
 type AccountWithOptional = MakeOptional<Account, "id" | "favoriteSites">
 
@@ -46,8 +46,8 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       ? session.accounts[session.selectedIndex].account
       : undefined
 
-  const { authenticate: authenticateMutation, isPending: isAuthenticatePending } = useAuthenticate()
-  const { isAuthenticated, isPending: isAuthenticatedPending } = useIsAuthenticated()
+  const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticate()
+  const { isAuthenticated: isAuthenticatedMutation, isPending: isAuthenticatedPending } = useIsAuthenticated()
   const { data: account } = useGetAccountByAddress(currentAccount?.address)
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
 
       const target = session.accounts[index]
 
-      isAuthenticated(
+      isAuthenticatedMutation(
         { accountAddress: target.account.address, session: target.session },
         {
           onSuccess: valid => {
@@ -102,7 +102,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         },
       )
     },
-    [isAuthenticated, session.accounts.length, session.selectedIndex, setSession],
+    [isAuthenticatedMutation, session.accounts.length, session.selectedIndex, setSession],
   )
 
   const authenticate = useCallback(
@@ -132,6 +132,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
                 selectedIndex: 0,
               }
             }),
+          onError: error => showToast(error.message, "warning"),
         },
       ),
     [authenticateMutation, setSession],
@@ -167,7 +168,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
     }
 
     const target = session.accounts[session.selectedIndex]
-    isAuthenticated(
+    isAuthenticatedMutation(
       { accountAddress: target.account.address, session: target.session },
       {
         onSuccess: valid => {

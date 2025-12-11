@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { getVaultApi } from "api"
+import { useGetVaultUrl } from "entities/node"
 
 const vaultApi = getVaultApi()
 
@@ -10,10 +11,16 @@ type IsAuthenticatedMutationArgs = {
 }
 
 export const useIsAuthenticated = () => {
-  const { mutateAsync: isAuthenticated, isPending } = useMutation({
+  const { isLoading: isUrlLoading, data: baseUrl } = useGetVaultUrl()
+
+  const {
+    mutateAsync: isAuthenticated,
+    isPending,
+    error,
+  } = useMutation({
     mutationFn: ({ accountAddress, session }: IsAuthenticatedMutationArgs) =>
-      vaultApi.isAuthenticated(accountAddress, session),
+      vaultApi.isAuthenticated(baseUrl!, accountAddress, session),
   })
 
-  return { isAuthenticated, isPending }
+  return { isAuthenticated, isPending, isUrlLoading, error: error ?? undefined }
 }

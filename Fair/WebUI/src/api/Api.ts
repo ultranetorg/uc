@@ -33,6 +33,9 @@ import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
 
 export type Api = {
+  getNexusUrl(): Promise<string>
+  getVaultUrl(): Promise<string>
+
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
