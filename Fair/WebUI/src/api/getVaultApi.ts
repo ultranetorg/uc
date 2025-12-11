@@ -2,7 +2,7 @@ import { VAULT } from "constants/"
 import { AuthenticationResult, Wallet, WalletAccount } from "types/vault"
 
 import { VaultApi } from "./VaultApi"
-import { toLowerCamel } from "./utils"
+import { keysToCamelCase } from "./utils"
 
 const authenticate = async (baseUrl: string, accountAddress?: string): Promise<AuthenticationResult | null> => {
   const response = await fetch(`${baseUrl}/Authenticate`, {
@@ -15,9 +15,7 @@ const authenticate = async (baseUrl: string, accountAddress?: string): Promise<A
     }),
   })
   const data = await response.json()
-  const r = toLowerCamel(data) as AuthenticationResult
-  console.log(r)
-  return r
+  return keysToCamelCase(data) as AuthenticationResult
 }
 
 const isAuthenticated = (baseUrl: string, accountAddress: string, session: string): Promise<boolean> =>
@@ -36,11 +34,11 @@ const getWallets = (baseUrl: string): Promise<Wallet[]> => fetch(`${baseUrl}/Wal
 const getWalletAccounts = (baseUrl: string, name?: string): Promise<WalletAccount[]> =>
   fetch(`${baseUrl}/WalletAccounts`, { body: JSON.stringify({ Name: name }) }).then(res => res.json())
 
-const vaultApi: VaultApi = {
+const api: VaultApi = {
   authenticate,
   isAuthenticated,
   getWallets,
   getWalletAccounts,
 }
 
-export const getVaultApi = () => vaultApi
+export const getVaultApi = () => api

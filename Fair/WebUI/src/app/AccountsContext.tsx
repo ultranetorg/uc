@@ -2,8 +2,8 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
-import { useAuthenticate, useIsAuthenticated } from "entities/vault"
 import { useGetAccountByAddress } from "entities"
+import { useAuthenticateMutation, useIsAuthenticatedMutation } from "entities/vault"
 import { Account } from "types"
 import { MakeOptional, showToast } from "utils"
 
@@ -46,8 +46,12 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       ? session.accounts[session.selectedIndex].account
       : undefined
 
-  const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticate()
-  const { isAuthenticated: isAuthenticatedMutation, isPending: isAuthenticatedPending } = useIsAuthenticated()
+  const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
+  const {
+    isAuthenticated: isAuthenticatedMutation,
+    isPending: isAuthenticatedPending,
+    isReady: isAuthenticatedReady,
+  } = useIsAuthenticatedMutation()
   const { data: account } = useGetAccountByAddress(currentAccount?.address)
 
   useEffect(() => {
@@ -67,6 +71,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
           : a,
       ),
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, session.accounts.length, setSession])
 
   const selectAccount = useCallback(
@@ -102,6 +107,7 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         },
       )
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isAuthenticatedMutation, session.accounts.length, session.selectedIndex, setSession],
   )
 
@@ -110,7 +116,12 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       authenticateMutation(
         {},
         {
-          onSuccess: data =>
+          onSuccess: data => {
+            if (data.account === undefined) {
+              showToast("Authentication cancelled", "warning")
+              return
+            }
+
             setSession(prev => {
               const existingIndex = prev.accounts.findIndex(x => x.account.address === data.account)
 
@@ -131,8 +142,9 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
                 accounts: newAccounts,
                 selectedIndex: 0,
               }
-            }),
-          onError: error => showToast(error.message, "warning"),
+            })
+          },
+          onError: error => showToast(error.message, "error"),
         },
       ),
     [authenticateMutation, setSession],
@@ -161,7 +173,9 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   )
 
   useEffect(() => {
+    if (!isAuthenticatedReady) return
     if (session.selectedIndex === undefined) return
+
     if (session.accounts.length <= session.selectedIndex) {
       removeSession()
       return
@@ -173,6 +187,11 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       {
         onSuccess: valid => {
           if (!valid) {
+            if (session.accounts.length === 0) {
+              removeSession()
+              return
+            }
+
             setSession(p => {
               const accounts = p.accounts.filter((_, i) => i !== p.selectedIndex)
               return { ...p, accounts, selectedIndex: undefined }
@@ -181,7 +200,8 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
         },
       },
     )
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticatedMutation, isAuthenticatedReady, removeSession, setSession])
 
   const value = useMemo(
     () => ({

@@ -1,4 +1,4 @@
-export * from "./useAuthenticate"
+export * from "./useAuthenticateMutation"
 export * from "./useGetWalletAccounts"
 export * from "./useGetWallets"
-export * from "./useIsAuthenticated"
+export * from "./useIsAuthenticatedMutation"

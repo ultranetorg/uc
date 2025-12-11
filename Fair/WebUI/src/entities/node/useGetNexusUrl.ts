@@ -8,11 +8,11 @@ export const useGetNexusUrl = () => {
   const queryFn = () => api.getNexusUrl()
 
   const { isLoading, error, data } = useQuery({
-    queryKey: ["node", "urls", "nexus"],
+    queryKey: ["urls", "nexus"],
     queryFn: queryFn,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   })
 
-  return { isLoading, error: error ?? undefined, data }
+  return { data, isLoading, error: error ?? undefined }
 }
