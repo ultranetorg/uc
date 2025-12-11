@@ -1,6 +1,7 @@
-export * from "./AccountsContext"
 export * from "./Router"
-export * from "./SearchContext"
-export * from "./ModerationContext"
-export * from "./SiteContext"
-export * from "./Tabs"
+
+export * from "./AccountsProvider"
+export * from "./ModerationProvider"
+export * from "./SearchProvider"
+export * from "./SiteProvider"
+export * from "./TabsProvider"

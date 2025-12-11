@@ -5,7 +5,10 @@ type SearchQueryContextType = {
   setQuery: (value: string) => void
 }
 
-const SearchQueryContext = createContext<SearchQueryContextType | undefined>(undefined)
+const SearchQueryContext = createContext<SearchQueryContextType>({
+  query: "",
+  setQuery: () => {},
+})
 
 export const SearchQueryProvider = ({ children }: PropsWithChildren) => {
   const [query, setQuery] = useState("")
@@ -13,10 +16,4 @@ export const SearchQueryProvider = ({ children }: PropsWithChildren) => {
   return <SearchQueryContext.Provider value={{ query, setQuery }}>{children}</SearchQueryContext.Provider>
 }
 
-export const useSearchQueryContext = () => {
-  const context = useContext(SearchQueryContext)
-  if (!context) {
-    throw new Error("useSearchQueryContext must be used within an SearchQueryProvider")
-  }
-  return context
-}
+export const useSearchQueryContext = () => useContext(SearchQueryContext)

@@ -25,9 +25,9 @@ import {
   SitesPage,
 } from "ui/pages"
 
-import { AccountsProvider } from "./AccountsContext"
-import { ModerationProvider } from "./ModerationContext"
-import { SiteProvider } from "./SiteContext"
+import { AccountsProvider } from "./AccountsProvider"
+import { ModerationProvider } from "./ModerationProvider"
+import { SiteProvider } from "./SiteProvider"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
 

@@ -5,7 +5,7 @@ import { useGetCategories, useGetSite } from "entities"
 import { CategoryParentBaseWithChildren, Site } from "types"
 import { buildCategoryTree } from "utils"
 
-import { useAccountsContext } from "./AccountsContext"
+import { useAccountsContext } from "./AccountsProvider"
 
 type SiteContextType = {
   isAuthor?: boolean
