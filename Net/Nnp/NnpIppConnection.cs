@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipes;
+using System.Linq.Expressions;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
@@ -14,11 +15,50 @@ public enum NnpIppConnectionType : byte
 
 public abstract class NnpIppConnection : IppConnection
 {
-	public static string	GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
+	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
 
 	protected NnpIppConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
-		RegisterHandler(typeof(NnpClass), this);
+		//RegisterHandler(typeof(NnpClass), this);
+
+		Dictionary<Type, Func<IppConnection, NnpArgumentation, Result>> ms = [];
+
+		Handler =	(c, a) =>
+					{
+						if(ms.TryGetValue(a.GetType(), out var e))
+						{
+							return e(c, a);
+						}
+
+						var m = CreateAdapter<Func<IppConnection, NnpArgumentation, Result>>(GetType().GetMethods().First(i => i.GetParameters().Length == 2 && i.GetParameters()[1].ParameterType == a.GetType() && i.ReturnType == typeof(Result)));
+
+						ms[a.GetType()] = m;
+
+						return m(c, a);
+					};
+	}
+
+	public TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
+	{
+		var funcType = typeof(TFunc);
+		var invoke = funcType.GetMethod("Invoke")!;
+
+		var delegateParamTypes = invoke.GetParameters().Select(p => p.ParameterType).ToArray();
+		var delegateReturnType = invoke.ReturnType;
+
+		var lp = delegateParamTypes.Select(Expression.Parameter).ToArray();
+
+		var methodParams = mi.GetParameters();
+
+		var convertedArgs = methodParams.Select((p, i) => Expression.Convert(lp[i], p.ParameterType)).ToArray();
+
+		var call = mi.IsStatic	? Expression.Call(mi, convertedArgs)
+								: Expression.Call(Expression.Constant(this, mi.DeclaringType), mi, convertedArgs);
+
+		Expression body = mi.ReturnType == typeof(void)	? Expression.Block(call, Expression.Default(delegateReturnType))
+														: Expression.Convert(call, delegateReturnType);
+
+		return Expression.Lambda<TFunc>(body, lp).Compile();
 	}
 }
 
@@ -39,23 +79,12 @@ public class NnpIppClientConnection : NnpIppConnection
 		Writer.Write(NnpIppConnectionType.Client);
 	}
 
-	public virtual byte[] Transact(Net net, Operation[] operations, AccountAddress account, bool sponsored, Endpoint node, Flow flow)
+	public virtual byte[] Transact(Net net, byte[] transaction, Endpoint node, Flow flow)
 	{
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-
-		w.Write(operations, i => {
-									w.Write(net.Constructor.TypeToCode(i.GetType()));
-									i.Write(w); 
-								 });
-		w.Write(account);
-		w.Write(sponsored);
-		//w.Write(node);
-
 		return Call(new Nnc<TransactNna, TransactNnr>(	new()
 														{
 															Format = PacketFormat.Binary,
-															Transaction = s.ToArray(),
+															Transaction = transaction,
 															Net	= net.Address,
 														}),
 														flow).Result;

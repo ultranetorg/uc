@@ -164,7 +164,7 @@ public class ApiClient : JsonClient
 		o.Converters.Add(new JsonStringEnumConverter());
 		o.Converters.Add(new UnitJsonConverter());
 		o.Converters.Add(new AccountJsonConverter());
-		o.Converters.Add(new EntityIdJsonConverter());
+		o.Converters.Add(new AutoIdJsonConverter());
 		o.Converters.Add(new IPJsonConverter());
 		o.Converters.Add(new TimeJsonConverter());
 		o.Converters.Add(new VersionJsonConverter());

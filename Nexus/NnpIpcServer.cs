@@ -48,10 +48,10 @@ public class NnpIppServer : IppServer
 			Locals.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
-		connection.RegisterHandler(typeof(NnpClass), this);
+		connection.Handler = Relay;
 	}
 
-	Result Relay(IppConnection connection, NnpArgumentation call)
+	public Result Relay(IppConnection connection, NnpArgumentation call)
 	{
 		var n = Locals.Find(i => i.Net == call.Net);
 
@@ -67,13 +67,4 @@ public class NnpIppServer : IppServer
 			return Nexus.NnpPeering.Call(call.Net, call, Flow);
 		} 
 	}
-
-	public Result Peers(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result Transact(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result Request(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result HolderClasses(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result HolderAssets(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result HoldersByAccount(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result AssetBalance(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
-	public Result AssetTransfer(IppConnection connection, NnpArgumentation call) => Relay(connection, call);
 }

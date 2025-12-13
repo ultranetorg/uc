@@ -254,7 +254,7 @@ public class TransactNna : NnpArgumentation, IBinarySerializable
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
-		Transaction		= reader.ReadBytes();
+		Transaction	= reader.ReadBytes();
 		Format		= reader.Read<PacketFormat>();
 		Node		= reader.ReadNullable<Endpoint>();
 		Timeout		= reader.Read7BitEncodedInt();

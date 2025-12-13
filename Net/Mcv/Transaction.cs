@@ -212,4 +212,20 @@ public class Transaction : IBinarySerializable
 												return o; 
 											});
 	}
+
+	public static byte[] Export(Net net, Operation[] operations, AccountAddress account, bool sponsored)
+	{
+		var s = new MemoryStream();
+		var w = new BinaryWriter(s);
+
+		w.Write(operations, i => {
+									w.Write(net.Constructor.TypeToCode(i.GetType()));
+									i.Write(w); 
+								 });
+		w.Write(account);
+		w.Write(sponsored);
+
+		return s.ToArray();
+	}
+
 }

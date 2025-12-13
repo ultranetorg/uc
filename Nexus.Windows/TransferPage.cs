@@ -10,7 +10,7 @@ public partial class TransferPage : Page
 	{
 	}
 
-	public TransferPage(Nexus nexus) : base(nexus)
+	public TransferPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}
@@ -97,7 +97,7 @@ public partial class TransferPage : Page
 		if(combobox.Items.Count > 0)
 			return;
 
-		foreach(var i in Nexus.NnpConnection.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
+		foreach(var i in Nnp.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(new()
 		{
 			Net = net
 		}),
@@ -117,7 +117,7 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nexus.NnpConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
+		foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
 		{
 			Net = FromNet.Text,
 			HolderClass = FromClass.Text,
@@ -132,7 +132,7 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nexus.NnpConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
+		Balance.Text += Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
 		{
 			Net = FromNet.Text,
 			HolderClass = FromClass.Text,
@@ -170,19 +170,19 @@ public partial class TransferPage : Page
 	{
 		try
 		{
-			Nexus.NnpConnection.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
-																				{
-																					Net = FromNet.Text,
-																					ToNet = ToNet.Text,
-																					FromClass = FromClass.Text,
-																					FromId = FromId.Text,
-																					ToClass = ToClass.Text,
-																					ToId = ToId.Text,
-																					Name = (Asset.SelectedItem as Asset).Name,
-																					Amount = Amount.Text,
-																					Signer = Accounts.SelectedItem as AccountAddress,
-																				}),
-																				new Flow(5000));
+			Nnp.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
+																{
+																	Net = FromNet.Text,
+																	ToNet = ToNet.Text,
+																	FromClass = FromClass.Text,
+																	FromId = FromId.Text,
+																	ToClass = ToClass.Text,
+																	ToId = ToId.Text,
+																	Name = (Asset.SelectedItem as Asset).Name,
+																	Amount = Amount.Text,
+																	Signer = Accounts.SelectedItem as AccountAddress,
+																}),
+																new Flow(5000));
 		}
 		catch(Exception ex)
 		{

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Pipes;
+using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 
@@ -28,10 +29,9 @@ public class IppConnection
 	IppServer						Server;
 	int								IdCounter = 0;
 	public Constructor				Constructor;
-	public Flow						Flow;
+	protected Flow					Flow;
 
-	object							Handler;
-	Dictionary<uint, MethodInfo>	Methods = [];
+	public Func<IppConnection, NnpArgumentation, Result>	Handler;
 
 	public IppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor)
 	{
@@ -48,49 +48,65 @@ public class IppConnection
 	public IppConnection(IProgram program, string name, Flow flow)
 	{
 		Program	= program;
-		Flow	= flow;
+		Flow	= flow.CreateNested(name);
 
-		program.CreateThread(() =>	{ 
-										while(Flow.Active)
-										{
-											try
-											{
-												var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
+		var t = program.CreateThread(() =>	{ 
+												while(Flow.Active)
+												{
+													try
+													{
+														var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
 												
-												Pipe = pipe;
-												IdCounter = 0;
+														Pipe = pipe;
+														IdCounter = 0;
 	
-												pipe.ConnectAsync(Flow.Cancellation).Wait();
+														pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
-												Reader = new BinaryReader(pipe);
-												Writer = new BinaryWriter(pipe);
+														Reader = new BinaryReader(pipe);
+														Writer = new BinaryWriter(pipe);
 	
-												Established();
-												Listen();
-											}
-											catch(AggregateException ex) when(ex.InnerException is TaskCanceledException)
-											{
-											}
-										}
-									})
-				.Start();
+														Established();
+														Listen();
+													}
+													catch(AggregateException ex) when(ex.InnerException is TaskCanceledException)
+													{
+													}
+												}
+											});
+		t.Name = name;
+		t.Start();
 	}
 
 	public virtual void Established()
 	{
 	}
 
-	public void RegisterHandler(Type enumclass, object handler)
+	public void Disconnect()
 	{
-		Handler = handler;
+		Flow.Abort();
 
-		foreach(var i in handler.GetType().GetMethods().Where(i => i.GetParameters().Length == 2 && i.ReturnType == typeof(Result)))
+		lock(OutRequests)
 		{
-			if(Enum.TryParse(enumclass, i.Name, out var c))
+			foreach(var i in OutRequests)
 			{
-				Methods[(uint)c] = i;
+				if(!i.Event.SafeWaitHandle.IsClosed)
+				{
+					i.Event.Set();
+					i.Event.Close();
+				}
 			}
 
+			OutRequests.Clear();
+		}
+
+		Pipe.Close();
+
+		if(Server != null)
+		{
+			lock(Server.Clients)
+			{
+				Server.Clients.Remove(this);
+			}
 		}
 	}
 
@@ -110,7 +126,8 @@ public class IppConnection
 	{
 		try
 		{
-			var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
+			///var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
+			var r = Handler(this, request.Argumentation as NnpArgumentation);
 	
 			lock(Writer)
 			{
@@ -121,16 +138,16 @@ public class IppConnection
 				///BinarySerializator.Serialize(Writer, r, Constructor.TypeToCode);
 			}
 		}
-		catch(TargetInvocationException ex)
+		catch(Exception ex)
 		{
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Failure);
 				Writer.Write(request.Id);
 				
-				if(ex.InnerException is CodeException ce)
+				if(ex is CodeException)
 				{
-					BinarySerializator.Serialize(Writer, ce, Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, ex, Constructor.TypeToCode);
 				} 
 				else
 				{
@@ -286,36 +303,6 @@ public class IppConnection
 		else
 			throw new IpcException(IpcError.ConnectionLost);
 	}
-
-	public void Disconnect()
-	{
-		Flow.Abort();
-
-		lock(OutRequests)
-		{
-			foreach(var i in OutRequests)
-			{
-				if(!i.Event.SafeWaitHandle.IsClosed)
-				{
-					i.Event.Set();
-					i.Event.Close();
-				}
-			}
-
-			OutRequests.Clear();
-		}
-
-		Pipe.Close();
-
-		if(Server != null)
-		{
-			lock(Server.Clients)
-			{
-				Server.Clients.Remove(this);
-			}
-		}
-	}
-
 }
 
 public abstract class IppServer

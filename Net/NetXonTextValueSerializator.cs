@@ -15,6 +15,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 		if(	val is AccountAddress ||
 			val is Time ||
 			val is Endpoint ||
+			val is AutoId ||
 			val is Unit)
 			return val.ToString();
 
@@ -29,6 +30,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 		if(type == typeof(AccountAddress))		return AccountAddress.Parse(v);
 		if(type == typeof(Time))				return Time.Parse(v);
 		if(type == typeof(Unit))				return Unit.Parse(v);
+		if(type == typeof(AutoId))				return AutoId.Parse(v);
 		if(type == typeof(Endpoint))			return Endpoint.Parse(v);
 
 		return base.Get(node, value, type);

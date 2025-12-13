@@ -23,7 +23,6 @@ public class Nexus : IProgram
 
 	public NnpTcpPeering			NnpPeering;
 	public NnpIppServer				NnpIppServer;
-	public NnpIppClientConnection	NnpConnection;
 
 	static Nexus()
 	{
@@ -39,7 +38,7 @@ public class Nexus : IProgram
 		Clock = clock;
 		Flow = flow;
 
-		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
+		new FileLog(Flow.Log, GetType().Name, Settings.Profile);
 
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
@@ -51,7 +50,6 @@ public class Nexus : IProgram
 		{
 			NnpPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
 			NnpIppServer = new NnpIppServer(this);
-			NnpConnection = new NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), flow);
 
 			NnpPeering.Run();
 		}
@@ -76,7 +74,6 @@ public class Nexus : IProgram
 
 		Stopped?.Invoke(this);
 
-		NnpConnection?.Disconnect();
 		NnpPeering?.Stop();
 		RdnNode?.Stop();
 		Vault.Stop();
@@ -103,10 +100,23 @@ public class Nexus : IProgram
 									}
 								});
 	}
+
+	public NnpIppClientConnection CreateNnpClientConnection()
+	{
+		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		return c;
+	}
+
+	public NnpIppClientConnection CreateNnpClientConnection(Constructor constructor)
+	{
+		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		c.Constructor.Merge(constructor);
+		return c;
+	}
 	
 	public void RunRdn(RdnNodeSettings rdnsettings)
 	{
-		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow);
+		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow.CreateNested(new Log()));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
 		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];

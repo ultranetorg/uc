@@ -12,7 +12,7 @@ public partial class WalletsPage : Page
 	{
 	}
 
-	public WalletsPage(Nexus nexus) : base(nexus)
+	public WalletsPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}

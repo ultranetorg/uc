@@ -31,7 +31,7 @@ public class RdnNode : McvNode
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, Net.Address, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
@@ -113,7 +113,6 @@ public class RdnNode : McvNode
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
-
 			ResourceHub.RunDeclaring();
 		}
 		
@@ -149,6 +148,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
+		NnConnection?.Disconnect();
 		//NnPeering?.Stop();
 		Mcv?.Stop();
 

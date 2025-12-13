@@ -126,7 +126,7 @@ public class AutoId : EntityId
 	}
 }
 
-public class EntityIdJsonConverter : JsonConverter<AutoId>
+public class AutoIdJsonConverter : JsonConverter<AutoId>
 {
 	public override AutoId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
