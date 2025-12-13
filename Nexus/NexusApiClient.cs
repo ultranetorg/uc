@@ -5,7 +5,7 @@ namespace Uccs.Nexus;
 
 public class NexusApiClient : ApiClient
 {
-	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Request<PackageInfo>(new LocalPackageApc { Address = address }, flow);
+	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
 
 	public NexusApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
@@ -17,11 +17,11 @@ public class NexusApiClient : ApiClient
 
 		do
 		{
-			var d = Request<PackageActivityProgress>(new PackageActivityProgressApc { Package = address }, flow);
+			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc { Package = address }, flow);
 
 			if(d is null)
 			{
-				return Request<PackageInfo>(new LocalPackageApc { Address = address }, flow);
+				return Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{
