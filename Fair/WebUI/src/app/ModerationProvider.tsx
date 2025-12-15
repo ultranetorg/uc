@@ -20,8 +20,6 @@ const ModerationContext = createContext<ModerationContextType>({
   isCategoriesPending: false,
 })
 
-export const useModerationContext = () => useContext(ModerationContext)
-
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
   const [searchParams] = useSearchParams()
@@ -62,3 +60,6 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     </ModerationContext.Provider>
   )
 }
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useModerationContext = () => useContext(ModerationContext)

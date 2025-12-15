@@ -10,8 +10,8 @@ type IsAuthenticatedMutationArgs = {
   session: string
 }
 
-export const useIsAuthenticated = () => {
-  const { isLoading: isUrlLoading, data: baseUrl } = useGetVaultUrl()
+export const useIsAuthenticatedMutation = () => {
+  const { isLoading, data: baseUrl } = useGetVaultUrl()
 
   const {
     mutateAsync: isAuthenticated,
@@ -22,5 +22,5 @@ export const useIsAuthenticated = () => {
       vaultApi.isAuthenticated(baseUrl!, accountAddress, session),
   })
 
-  return { isAuthenticated, isPending, isUrlLoading, error: error ?? undefined }
+  return { isAuthenticated, isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
 }

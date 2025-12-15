@@ -1,8 +1,8 @@
 import { memo } from "react"
 
-import { useTabs } from "app"
-import { PropsWithClassName } from "types"
 import { twMerge } from "tailwind-merge"
+import { useTabsContext } from "app"
+import { PropsWithClassName } from "types"
 
 export type TabListItem = { key: string; label: string }
 
@@ -14,7 +14,7 @@ type TabListBaseProps = {
 export type TabListProps = PropsWithClassName & TabListBaseProps
 
 export const TabList = memo(({ className, items, onTabSelect }: TabListProps) => {
-  const { activeKey, setActiveKey } = useTabs()
+  const { activeKey, setActiveKey } = useTabsContext()
 
   return (
     <div

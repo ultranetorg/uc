@@ -47,7 +47,7 @@ export const Account = memo(({ id, nickname, address, addressShort, selected, on
       </div>
       <div className="ml-auto flex items-center gap-2">
         {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
-        <SvgXSm className="fill-gray-500 hover:fill-gray-950" onClick={handleRemove} />
+        <SvgXSm className="fill-gray-500 hover:fill-gray-800" onClick={handleRemove} />
       </div>
     </div>
   )

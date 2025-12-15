@@ -5,7 +5,10 @@ type TabsContextType = {
   setActiveKey: (key: string) => void
 }
 
-const TabsContext = createContext<TabsContextType | null>(null)
+const TabsContext = createContext<TabsContextType>({
+  activeKey: "",
+  setActiveKey: () => {},
+})
 
 type TabsProviderProps = {
   defaultKey: string
@@ -18,10 +21,5 @@ export const TabsProvider = ({ defaultKey, children }: TabsProviderProps) => {
   return <TabsContext.Provider value={{ activeKey, setActiveKey }}>{children}</TabsContext.Provider>
 }
 
-export const useTabs = () => {
-  const context = useContext(TabsContext)
-  if (!context) {
-    throw new Error("useTabs must be used within a TabsProvider")
-  }
-  return context
-}
+// eslint-disable-next-line react-refresh/only-export-components
+export const useTabsContext = () => useContext(TabsContext)

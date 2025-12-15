@@ -7,13 +7,13 @@ const api = getApi()
 export const useGetAccountByAddress = (accountAddress?: string) => {
   const queryFn = () => api.getAccountByAddress(accountAddress!)
 
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ["accounts", "address", accountAddress],
     queryFn: queryFn,
     enabled: !!accountAddress,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isPending, error: error ?? undefined, data, refetch }
 }
 
 export const useGetUser = (userId?: string) => {

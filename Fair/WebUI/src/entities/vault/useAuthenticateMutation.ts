@@ -9,8 +9,8 @@ type AuthenticateMutationArgs = {
   accountAddress?: string
 }
 
-export const useAuthenticate = () => {
-  const { isLoading: isUrlLoading, data: baseUrl } = useGetVaultUrl()
+export const useAuthenticateMutation = () => {
+  const { isLoading, data: baseUrl } = useGetVaultUrl()
 
   const {
     mutateAsync: authenticate,
@@ -24,5 +24,5 @@ export const useAuthenticate = () => {
     },
   })
 
-  return { authenticate, isFetching: isPending, isUrlLoading, error: error ?? undefined }
+  return { authenticate, isFetching: isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
 }

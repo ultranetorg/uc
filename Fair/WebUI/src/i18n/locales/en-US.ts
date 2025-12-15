@@ -153,6 +153,10 @@ export const enUS = {
       },
     },
   },
+  toast: {
+    favoriteAdded: `Site "{{site}}" successfully added to favorites`,
+    favoriteRemoved: `Site "{{site}}" successfully removed from favorites`,
+  },
 
   /* Pages */
   about: {

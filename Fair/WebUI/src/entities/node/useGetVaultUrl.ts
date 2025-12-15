@@ -8,11 +8,11 @@ export const useGetVaultUrl = () => {
   const queryFn = () => api.getVaultUrl()
 
   const { isLoading, error, data } = useQuery({
-    queryKey: ["node", "urls", "vault"],
+    queryKey: ["urls", "vault"],
     queryFn: queryFn,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   })
 
-  return { isLoading, error: error ?? undefined, data }
+  return { data, isLoading, error: error ?? undefined }
 }

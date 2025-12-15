@@ -1,6 +1,6 @@
 import { memo, ReactNode } from "react"
 
-import { useTabs } from "app"
+import { useTabsContext } from "app"
 
 export type TabContentProps = {
   when: string
@@ -8,6 +8,6 @@ export type TabContentProps = {
 }
 
 export const TabContent = memo(({ when, children }: TabContentProps) => {
-  const { activeKey } = useTabs()
+  const { activeKey } = useTabsContext()
   return activeKey === when ? <>{children}</> : null
 })
