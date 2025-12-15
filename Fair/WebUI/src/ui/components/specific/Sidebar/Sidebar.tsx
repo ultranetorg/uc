@@ -22,11 +22,19 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         <Link to="/">
           <AllSitesButton title={t("allSites")} />
         </Link>
-        {site && <SitesList title={t("currentSite")} items={[site]} emptyStateMessage={t("emptySitesList")} />}
+        {site && (
+          <SitesList
+            title={t("currentSite")}
+            items={[site]}
+            emptyStateMessage={t("emptySitesList")}
+            onFavoriteClick={id => console.log(id)}
+          />
+        )}
         <SitesList
           title={t("starredSites")}
           items={currentAccount?.favoriteSites}
           emptyStateMessage={t("emptySitesList")}
+          onFavoriteClick={id => console.log(id)}
         />
       </div>
       <CurrentAccount />

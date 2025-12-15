@@ -46,4 +46,5 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSiteContext = () => useContext(SiteContext)

@@ -16,4 +16,5 @@ export const SearchQueryProvider = ({ children }: PropsWithChildren) => {
   return <SearchQueryContext.Provider value={{ query, setQuery }}>{children}</SearchQueryContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSearchQueryContext = () => useContext(SearchQueryContext)

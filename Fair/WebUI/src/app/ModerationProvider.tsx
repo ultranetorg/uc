@@ -61,4 +61,5 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useModerationContext = () => useContext(ModerationContext)
