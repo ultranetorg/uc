@@ -6,8 +6,8 @@ namespace Uccs.Net;
 
 public interface INnp
 {
-	public Result Transact(NnpPeer peer, PacketNna call);
-	public Result Request(NnpPeer peer, PacketNna call);
+	public Result Transact(NnpPeer peer, TransactNna call);
+	public Result Request(NnpPeer peer, RequestNna call);
 	public Result HolderClasses(NnpPeer peer, HolderClassesNna call);
 	public Result HolderAssets(NnpPeer peer, HolderAssetsNna call);
 	public Result HoldersByAccount(NnpPeer peer, HoldersByAccountNna call);
@@ -28,15 +28,14 @@ public class NnpPeer : Peer, IBinarySerializable
 	{
 	}
 
-	public NnpPeer(IPAddress ip, ushort port)
+	public NnpPeer(Endpoint endpoint)
 	{
-		IP = ip;
-		Port = port;
+		EP = endpoint;
 	}
 
 	public override string ToString()
 	{
-		return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
+		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
  		
 	void Request(int id, Argumentation request)
@@ -86,13 +85,13 @@ public class NnpPeer : Peer, IBinarySerializable
 
 							switch((NnpClass)Peering.Constructor.TypeToCode(rq.GetType()))
 							{
-								case NnpClass.Transact:			r = Nni.Transact(this, rq as PacketNna); break;
-								case NnpClass.Request:			r = Nni.Request(this, rq as PacketNna); break;
+								case NnpClass.Transact:			r = Nni.Transact(this, rq as TransactNna); break;
+								case NnpClass.Request:			r = Nni.Request(this, rq as RequestNna); break;
 								case NnpClass.HolderClasses:	r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
 								case NnpClass.HoldersByAccount:	r = Nni.HoldersByAccount(this, rq as HoldersByAccountNna); break;
 								case NnpClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
 								case NnpClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
-								///case NnClass.AssetTransfer:	r = Nn.AssetTransfer(this, request as AssetTransferNna); break;
+								//case NnpClass.AssetTransfer:	r = Nni.AssetTransfer(this, rq as AssetTransferNna); break;
 								default:
 									break;
 							}

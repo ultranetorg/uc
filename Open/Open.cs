@@ -58,7 +58,7 @@ public class Open : Cli
 
 			var d = RdnApi.FindLocalResource(ura, flow)?.Last
 					?? 
-					RdnApi.Request<ResourcePpr>(new PpcApc {Request = new ResourcePpc {Identifier = new (ura)}}, flow)?.Resource?.Data;
+					RdnApi.Call<ResourcePpr>(new PpcApc {Request = new ResourcePpc {Identifier = new (ura)}}, flow)?.Resource?.Data;
 	
 			if(d == null)
 				throw new OpenException("Incorrect resource type");
@@ -70,7 +70,7 @@ public class Open : Cli
 			{
 				var lrr = RdnApi.Download(ura, flow);
 	
-				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Request<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
+				var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Call<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
 	
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}

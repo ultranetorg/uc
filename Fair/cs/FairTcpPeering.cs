@@ -34,7 +34,7 @@ public class FairTcpPeering : McvTcpPeering
 {
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
-		Constructor.Register<PeerRequest>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
+		Constructor.Register<PeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new FairAccount(Mcv));

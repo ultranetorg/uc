@@ -462,9 +462,9 @@ public class ReleaseDownloadProgress : ResourceActivityProgress
 
 	public class Seed
 	{
-		public IPAddress	IP { get; set; }
-		public int			Failures { get; set; }
-		public int			Succeses { get; set; }
+		public Endpoint	IP { get; set; }
+		public int		Failures { get; set; }
+		public int		Succeses { get; set; }
 	}
 
 	public IEnumerable<Hub>						Hubs { get; set; }

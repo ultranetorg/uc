@@ -66,8 +66,8 @@ public class RdnApiServer : McvApiServer
 
 public class RdnApiClient : McvApiClient
 {
-	public LocalResource	FindLocalResource(Ura address, Flow flow) => Request<LocalResource>(new LocalResourceApc {Address = address}, flow);
-	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Request<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
+	public LocalResource	FindLocalResource(Ura address, Flow flow) => Call<LocalResource>(new LocalResourceApc {Address = address}, flow);
+	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Call<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 
 	new public static JsonSerializerOptions CreateOptions()
 	{
@@ -89,15 +89,15 @@ public class RdnApiClient : McvApiClient
 
 	public LocalReleaseApe Download(Ura address, Flow flow)
 	{
-		var r = Request<Resource>(new ResourceDownloadApc {Identifier = new(address)}, flow);
+		var r = Call<Resource>(new ResourceDownloadApc {Identifier = new(address)}, flow);
 
 		do
 		{
-			var d = Request<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
 
 			if(d is null)
 			{
-				return Request<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{

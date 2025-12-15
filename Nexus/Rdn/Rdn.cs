@@ -17,9 +17,8 @@ public abstract class Rdn : McvNet
  	public static readonly Rdn		Developer0 = new RdnDeveloper0();
  	public static readonly Rdn		TA = new RdnTA();
 	public static readonly Rdn		Main = null;
-	public static readonly Rdn[]	Official = [Local, Developer0, Test];
 
-	public static Rdn				ByZone(Zone zone) => Official.First(i => i.Zone == zone);
+	public static Rdn				ByZone(Zone zone) => new Rdn[]{Local, Developer0, Test, TA}.First(i => i.Zone == zone);
 	
 	public Rdn()
 	{
@@ -42,7 +41,7 @@ public class RdnLocal : Rdn
 	
 	public RdnLocal()
 	{
-		Father0IP		= DefaultHost;
+		Father0IP		= new(DefaultHost, PpiPort);
 		Cryptography	= Cryptography.No;
 		Auctions		= false;
 		CommitLength	= 100;
@@ -71,7 +70,7 @@ public class RdnTest : Rdn
 
 	public RdnTest()
 	{
- 		Father0IP	= IPAddress.Parse("78.47.204.100");
+ 		Father0IP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
 	}
 }
@@ -82,7 +81,7 @@ public class RdnTA : Rdn
 	
 	public RdnTA()
 	{
-		Father0IP		= DefaultHost;
+		Father0IP		= new(DefaultHost, PpiPort);
 		Initials		= LocalInitials;
 	}
 }

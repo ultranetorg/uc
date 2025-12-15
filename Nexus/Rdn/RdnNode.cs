@@ -31,7 +31,7 @@ public class RdnNode : McvNode
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, Net.Address, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
@@ -40,7 +40,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.IP], [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.EP], [Settings.Peering.EP], clock ?? new RealClock());
 
 			Mcv.Confirmed += r =>	{
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Contains(i.Address)))
@@ -102,17 +102,17 @@ public class RdnNode : McvNode
 
 			//if(Settings.NnPeering != null)
 			{
-				NnConnection = new RdnNnpIppConnection(this, flow);
 				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
 		}
+		
+		NnConnection = new RdnNnpIppConnection(this, flow);
 
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
-
 			ResourceHub.RunDeclaring();
 		}
 		
@@ -148,6 +148,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
+		NnConnection?.Disconnect();
 		//NnPeering?.Stop();
 		Mcv?.Stop();
 

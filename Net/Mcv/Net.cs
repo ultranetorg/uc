@@ -99,7 +99,7 @@ public abstract class McvNet : Net
 	public abstract int		TablesCount { get; }
 
 	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
-	public IPAddress		Father0IP;
+	public Endpoint			Father0IP;
 
 	public McvNet()
 	{

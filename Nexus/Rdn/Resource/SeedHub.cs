@@ -12,11 +12,11 @@ public class ResourceDeclaration
 
 public class Seed
 {
-	public IPAddress			IP;
+	public Endpoint				IP;
 	public DateTime				Arrived;
 	public Availability			Availability;
 
-	public Seed(IPAddress iP, DateTime arrived, Availability availability)
+	public Seed(Endpoint iP, DateTime arrived, Availability availability)
 	{
 		IP = iP;
 		Arrived = arrived;
@@ -42,7 +42,7 @@ public class SeedHub
 		Mcv = sun;
 	}
 
-	public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(IPAddress ip, ResourceDeclaration[] resources)
+	public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(Endpoint ip, ResourceDeclaration[] resources)
 	{
 		foreach(var rsd in resources)
 		{
@@ -137,11 +137,11 @@ public class SeedHub
 		}
 	}
 
- 	public IPAddress[] Locate(LocateReleasePpc request)
+ 	public Endpoint[] Locate(LocateReleasePpc request)
  	{
  		if(Releases.TryGetValue(request.Address, out var v))
  			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
  		else
- 			return new IPAddress[0]; /// TODO: ask other hubs
+ 			return []; /// TODO: ask other hubs
  	}
 }

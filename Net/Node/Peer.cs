@@ -16,8 +16,7 @@ public enum ConnectionStatus
 
 public abstract class Peer : IBinarySerializable
 {
-	public IPAddress				IP {get; set;} 
-	public ushort					Port {get; set;} 
+	public Endpoint					EP {get; set;} 
 	public string					Name;
 	public string					Net;
 
@@ -58,38 +57,38 @@ public abstract class Peer : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Name}, {IP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
+		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
  		
-	public static bool operator == (Peer a, Peer b)
-	{
-		return a is null && b is null || a is not null && a.Equals(b);
-	}
-
-	public static bool operator != (Peer a, Peer b)
-	{
-		return !(a == b);
-	}
-
-	public override bool Equals(object o)
-	{
-		return o is Peer a && Equals(a);  
-	}
-
-	public bool Equals(Peer a)
-	{
-		return a is not null && IP.Equals(a.IP);
-	}
+//	public static bool operator == (Peer a, Peer b)
+//	{
+//		return a is null && b is null || a is not null && a.Equals(b);
+//	}
+//
+//	public static bool operator != (Peer a, Peer b)
+//	{
+//		return !(a == b);
+//	}
+//
+//	public override bool Equals(object o)
+//	{
+//		return o is Peer a && Equals(a);  
+//	}
+//
+//	public bool Equals(Peer a)
+//	{
+//		return a is not null && EP.Equals(a.EP);
+//	}
 
 	public override int GetHashCode()
 	{
-		return IP.GetHashCode();
+		return EP.GetHashCode();
 	}
 
 	public void SaveNode(BinaryWriter writer)
 	{
 		//writer.WriteUtf8(Net);
-		writer.Write(Port);
+		writer.Write(EP);
 		writer.Write7BitEncodedInt64(Roles);
 		writer.Write7BitEncodedInt64(LastSeen.ToBinary());
 		writer.Write(PeerRank);
@@ -98,7 +97,7 @@ public abstract class Peer : IBinarySerializable
 	public void LoadNode(BinaryReader reader)
 	{
 		//Net = reader.ReadUtf8();
-		Port = reader.ReadUInt16();
+		EP = reader.Read<Endpoint>();
 		Roles = reader.Read7BitEncodedInt64();
 		LastSeen = DateTime.FromBinary(reader.Read7BitEncodedInt64());
 		PeerRank = reader.ReadInt32();
@@ -106,15 +105,13 @@ public abstract class Peer : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(IP);
-		writer.Write(Port);
+		writer.Write(EP);
 		writer.Write7BitEncodedInt64(Roles);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		IP = reader.ReadIPAddress();
-		Port = reader.ReadUInt16();
+		EP = reader.Read<Endpoint>();
 		Roles = reader.Read7BitEncodedInt64();
 	}
 

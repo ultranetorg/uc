@@ -7,14 +7,14 @@ public class Generator
 	public AccountAddress	Address { get; set; }
 	public AutoId			Id { get; set; }
 	public int				Registered { get; set; }
-	public IPAddress[]		GraphPpcIPs { get; set; } = [];
+	public Endpoint[]		GraphPpcIPs { get; set; } = [];
 	public int				CastingSince { get; set; }
 	
 	public Peer         	Proxy;
 
 	public override string ToString()
 	{
-		return $"Address={Address}, JoinedAt={CastingSince}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
+		return $"Address={Address}, CastingSince={CastingSince}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
 	}
 
   	public virtual void WriteMember(BinaryWriter writer)
@@ -29,7 +29,7 @@ public class Generator
  	{
 		Id				= reader.Read<AutoId>();
 		Address			= reader.Read<AccountAddress>();
-		GraphPpcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
+		GraphPpcIPs		= reader.ReadArray<Endpoint>();
  		CastingSince	= reader.Read7BitEncodedInt();
 	}
 
@@ -44,7 +44,7 @@ public class Generator
  	{
 		Id			= reader.Read<AutoId>();
 		Registered	= reader.Read7BitEncodedInt();
-		GraphPpcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+		GraphPpcIPs	= reader.ReadArray<Endpoint>();
 	}
 
 	public virtual Generator Clone()

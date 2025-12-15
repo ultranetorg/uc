@@ -24,7 +24,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.IP], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.EP], clock ?? new RealClock());
 
 			if(Settings.Web != null)
 			{

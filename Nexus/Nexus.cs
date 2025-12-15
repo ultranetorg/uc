@@ -5,17 +5,6 @@ using Uccs.Vault;
 
 namespace Uccs.Nexus;
 
-public class NodeDeclaration
-{
-	public string		ApiLocalAddress { get; set; }
-	public string		Net;
-
-	public override string ToString()
-	{
-		return Net;
-	}
-}
-
 public class Nexus : IProgram
 {
 	public delegate void			Delegate(Nexus d);
@@ -23,7 +12,6 @@ public class Nexus : IProgram
 	public Flow						Flow;
 	IClock							Clock;
 	public NexusSettings			Settings;
-	public List<NodeDeclaration>	Nodes = [];
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
 	public RdnNode					RdnNode;
@@ -33,11 +21,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnpTcpPeering				NnPeering;
-	public NnpIppClientConnection	NnConnection;
-	public NnpIppServer				NnIppServer;
-
-	public NodeDeclaration			Find(string net) => Nodes.Find(i => i.Net == net);
+	public NnpTcpPeering			NnpPeering;
+	public NnpIppServer				NnpIppServer;
 
 	static Nexus()
 	{
@@ -53,7 +38,7 @@ public class Nexus : IProgram
 		Clock = clock;
 		Flow = flow;
 
-		new FileLog(Flow.Log, Flow.Name, Settings.Profile);
+		new FileLog(Flow.Log, GetType().Name, Settings.Profile);
 
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
@@ -63,9 +48,10 @@ public class Nexus : IProgram
 
 		if(Settings.NnPeering != null)
 		{
-			NnPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
-			NnIppServer = new NnpIppServer(this);
-			NnConnection = new NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), flow);
+			NnpPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
+			NnpIppServer = new NnpIppServer(this);
+
+			NnpPeering.Run();
 		}
 
 		if(Settings.Api != null)
@@ -88,15 +74,7 @@ public class Nexus : IProgram
 
 		Stopped?.Invoke(this);
 
-
-		foreach(var i in Nodes.ToArray())
-		{	
-			//i.Node.Stop();
-			Nodes.Remove(i);
-		}
-
-		NnConnection?.Disconnect();
-		NnPeering?.Stop();
+		NnpPeering?.Stop();
 		RdnNode?.Stop();
 		Vault.Stop();
 		ApiServer?.Stop();
@@ -122,13 +100,26 @@ public class Nexus : IProgram
 									}
 								});
 	}
+
+	public NnpIppClientConnection CreateNnpClientConnection()
+	{
+		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		return c;
+	}
+
+	public NnpIppClientConnection CreateNnpClientConnection(Constructor constructor)
+	{
+		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		c.Constructor.Merge(constructor);
+		return c;
+	}
 	
 	public void RunRdn(RdnNodeSettings rdnsettings)
 	{
-		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow);
+		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow.CreateNested(new Log()));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
-		Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
+		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 
 	public void RunApi()

@@ -6,7 +6,7 @@ namespace Uccs;
 public class Constructor
 {
 	public Dictionary<Type, uint>								Codes = [];
-	public Dictionary<Type, Dictionary<uint, Func<object>>>		Contructors = [];
+	public Dictionary<Type, Dictionary<uint, Func<object>>>		Ctors = [];
 
 	public Constructor()
 	{
@@ -19,10 +19,27 @@ public class Constructor
 
 		foreach(var i in contructors)
 		{
-			Contructors[i.Key] = [];
+			Ctors[i.Key] = [];
 
 			foreach(var j in i.Value)
-				Contructors[i.Key].Add(j.Key, j.Value);
+				Ctors[i.Key].Add(j.Key, j.Value);
+		}
+	}
+
+	public void Merge(Constructor constructor)
+	{
+		foreach(var i in constructor.Codes)
+			if(!Codes.ContainsKey(i.Key))
+				Codes.Add(i.Key, i.Value);
+
+		foreach(var i in constructor.Ctors)
+		{
+			if(!Ctors.ContainsKey(i.Key))
+				Ctors[i.Key] = [];
+
+			foreach(var j in i.Value)
+				if(!Ctors[i.Key].ContainsKey(j.Key))
+					Ctors[i.Key].Add(j.Key, j.Value);
 		}
 	}
 
@@ -34,17 +51,17 @@ public class Constructor
 			{
 				Codes[i] = (uint)c;
 
-				if(!Contructors.ContainsKey(typeof(T)))
-					Contructors[typeof(T)] = [];
+				if(!Ctors.ContainsKey(typeof(T)))
+					Ctors[typeof(T)] = [];
 
-				if(!overwrite && Contructors[typeof(T)].ContainsKey((uint)c))
+				if(!overwrite && Ctors[typeof(T)].ContainsKey((uint)c))
 					throw new ArgumentException();
 
 				var e = Expression.New(i.GetConstructor([]));
 				var l = Expression.Lambda<Func<T>>(e);
 				var f = l.Compile();
 
-				Contructors[typeof(T)][(uint)c] = () =>	{
+				Ctors[typeof(T)][(uint)c] = () =>	{
 															var r = f();
 															setup?.Invoke(r);
 															return r;
@@ -55,23 +72,23 @@ public class Constructor
 
 	public void Register<T>(Func<T> create) where T : class
 	{
-		if(!Contructors.ContainsKey(typeof(T)))
-			Contructors[typeof(T)] = [];
+		if(!Ctors.ContainsKey(typeof(T)))
+			Ctors[typeof(T)] = [];
 
-		Contructors[typeof(T)][0] = create;
+		Ctors[typeof(T)][0] = create;
 	}
 
 	public void Register<B, T>(Func<T> create) where T : class
 	{
-		if(!Contructors.ContainsKey(typeof(B)))
-			Contructors[typeof(B)] = [];
+		if(!Ctors.ContainsKey(typeof(B)))
+			Ctors[typeof(B)] = [];
 
-		Contructors[typeof(B)][0] = create;
+		Ctors[typeof(B)][0] = create;
 	}
 
 	public virtual object Construct(Type type, uint code)
 	{
-		var x = Contructors.GetValueOrDefault(type, null);
+		var x = Ctors.GetValueOrDefault(type, null);
 		
 		if(x != null)
 			return (x.GetValueOrDefault(code, null) ?? x.GetValueOrDefault((uint)0, null))?.Invoke();

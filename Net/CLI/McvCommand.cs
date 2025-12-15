@@ -51,7 +51,7 @@ public abstract class McvCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		return Cli.ApiClient.Request<Rp>(call, Flow);
+		return Cli.ApiClient.Call<Rp>(call, Flow);
 	}
 
 	public Rp Ppc<Rp>(Ppc<Rp> call) where Rp : Result
@@ -66,7 +66,7 @@ public abstract class McvCommand : NetCommand
 
 	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, ActionOnResult aor)
 	{
-		var t = Cli.ApiClient.Request<TransactionApe>(	new TransactApc
+		var t = Cli.ApiClient.Call<TransactionApe>(	new TransactApc
 														{
 															Operations = operations,
 															Signer = signer,
@@ -76,7 +76,7 @@ public abstract class McvCommand : NetCommand
 
 		do 
 		{
-			t = Cli.ApiClient.Request<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+			t = Cli.ApiClient.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
 
 			if(t.Status != TransactionStatus.FailedOrNotFound)
 			{

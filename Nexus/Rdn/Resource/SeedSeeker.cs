@@ -6,7 +6,7 @@ public class SeedSeeker
 {
 	public class Seed
 	{
-		public IPAddress	IP;
+		public Endpoint		IP;
 		public HomoPeer		Peer;
 		public DateTime		Failed;
 
@@ -21,14 +21,14 @@ public class SeedSeeker
 	public class Hub
 	{
 		public AccountAddress		Member;
-		public IPAddress[]			IPs;
+		public Endpoint[]			IPs;
 		//public Seed[]				Seeds = {};
 		public HubStatus			Status = HubStatus.Estimating;
 		SeedSeeker					Seeker;
 		Urr							Address;
 		Flow						Flow;
 
-		public Hub(SeedSeeker seeker, Urr hash, AccountAddress member, IEnumerable<IPAddress> ips)
+		public Hub(SeedSeeker seeker, Urr hash, AccountAddress member, IEnumerable<Endpoint> ips)
 		{
 			Seeker = seeker;
 			Address = hash;

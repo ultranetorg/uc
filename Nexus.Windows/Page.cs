@@ -12,13 +12,16 @@ public class Page : UserControl
 	public virtual void Close(){ }
 	public virtual void PeriodicalRefresh(){ }
 
+	protected NnpIppClientConnection Nnp;
+
 	public Page()
 	{
 	}
 
-	public Page(Nexus nexus) : this()
+	public Page(Nexus nexus, NnpIppClientConnection nnp) : this()
 	{
 		Nexus = nexus;
+		Nnp = nnp;
 	}
 
 	public void ShowException(string message, Exception ex)

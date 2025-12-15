@@ -1,9 +1,12 @@
+using Uccs.Net;
 using Uccs.Nexus;
 
 namespace Uccs.Nexus.Windows;
 
 public partial class IamForm : Form
 {
+	NnpIppClientConnection Nnp;
+
 	public IamForm()
 	{
 		InitializeComponent();
@@ -13,12 +16,20 @@ public partial class IamForm : Form
 	{
 		InitializeComponent();
 
-		WalletsAndAccounts.Tag = new WalletsPage(nexus);
-		Sessions.Tag = new SessionsPage(nexus);
-		Assets.Tag = new AssetsPage(nexus);
-		Transfer.Tag = new TransferPage(nexus);
+		Nnp = nexus.CreateNnpClientConnection();
+
+		WalletsAndAccounts.Tag = new WalletsPage(nexus, Nnp);
+		Sessions.Tag = new SessionsPage(nexus, Nnp);
+		Assets.Tag = new AssetsPage(nexus, Nnp);
+		Transfer.Tag = new TransferPage(nexus, Nnp);
 
 		WalletsAndAccounts.Checked = true;
+	}
+
+	protected override void OnClosed(EventArgs e)
+	{
+		Nnp.Disconnect();
+		base.OnClosed(e);
 	}
 	
 	private void radioButton_CheckedChanged(object sender, EventArgs e)

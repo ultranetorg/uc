@@ -1,60 +1,60 @@
 ﻿namespace Uccs.Rdn;
 
-public class ___RdnNnTcpPeering : NnpTcpPeering
-{
-	public RdnNode			Node;
-
-	public ___RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
-	{
-		Node = node;
-		node.Mcv.Confirmed += (r) =>	{
-											foreach(var i in r.ConsensusNnStates)
-											{
-												var b = new NnpBlock();
-
-												b.Net	= node.Net.Name;
-												b.State = new() {State = node.Mcv.LastConfirmedRound.Hash,
-																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnpState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
-												Broadcast(b);
-											}
-										};
-		Run();
-	}
-
-	public byte[] GetMerkle(string net)
-	{
-		lock(Node.Mcv.Lock)
-		{
-			var d = Node.Mcv.Domains.Find(net, Node.Mcv.LastConfirmedRound.Id);
-
-			if(d == null)
-				throw new EntityException(EntityError.NotFound);
-
-			return d.NnSelfHash;
-		}
-	}
-
-	protected override bool Consider(bool inbound, Hello hello, NnpPeer peer)
-	{
-		if(base.Consider(inbound, hello, peer) == false)
-			return false;
-
-		if(inbound)
-		{
-			lock(Node.Mcv.Lock)
-			{	
-				var n = Node.Mcv.Domains.Latest(hello.Net)?.NnChildNet;
-				
-				if(n == null)
-					return false;
-
-				if(!n.Peers.Any(i => i.IP.Equals(peer.IP)))
-					return false;
-			}
-		}
-
-		return true;
-	}
+//public class ___RdnNnTcpPeering : NnpTcpPeering
+//{
+//	public RdnNode			Node;
+//
+//	public ___RdnNnTcpPeering(RdnNode node, PeeringSettings settings, long roles, Flow flow) : base(node, node.Settings.Name, settings, roles, flow)
+//	{
+//		Node = node;
+//		node.Mcv.Confirmed += (r) =>	{
+//											foreach(var i in r.ConsensusNnStates)
+//											{
+//												var b = new NnpBlock();
+//
+//												b.Net	= node.Net.Name;
+//												b.State = new() {RootHash = node.Mcv.LastConfirmedRound.Hash,
+//																 Peers = node.Mcv.LastConfirmedRound.Members.Select(i => new NnpState.Peer {IP = i.GraphPpcIPs[0], Port = 0}).ToArray()};
+//												Broadcast(b);
+//											}
+//										};
+//		Run();
+//	}
+//
+//	public byte[] GetMerkle(string net)
+//	{
+//		lock(Node.Mcv.Lock)
+//		{
+//			var d = Node.Mcv.Domains.Find(net, Node.Mcv.LastConfirmedRound.Id);
+//
+//			if(d == null)
+//				throw new EntityException(EntityError.NotFound);
+//
+//			return d.NnSelfHash;
+//		}
+//	}
+//
+//	protected override bool Consider(bool inbound, Hello hello, NnpPeer peer)
+//	{
+//		if(base.Consider(inbound, hello, peer) == false)
+//			return false;
+//
+//		if(inbound)
+//		{
+//			lock(Node.Mcv.Lock)
+//			{	
+//				var n = Node.Mcv.Domains.Latest(hello.Net)?.NnChildNet;
+//				
+//				if(n == null)
+//					return false;
+//
+//				if(!n.Peers.Any(i => i.IP.Equals(peer.IP)))
+//					return false;
+//			}
+//		}
+//
+//		return true;
+//	}
 
 //	public NnBlock ProcessIncoming(byte[] raw, Peer peer)
 //	{
@@ -138,4 +138,4 @@ public class ___RdnNnTcpPeering : NnpTcpPeering
 //
 //		return base.Call(net, call, workflow, exclusions);
 //	}
-}
+//}

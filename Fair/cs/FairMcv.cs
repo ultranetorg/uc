@@ -40,16 +40,16 @@ public class FairMcv : Mcv
 	public PublicationTitleIndex		PublicationTitles;
 	public SiteTitleIndex				SiteTitles;
 
-	IPAddress[]							GraphIPs;
+	Net.Endpoint[]						GraphIPs;
 	public new IEnumerable<FairRound>	Tail => base.Tail.Cast<FairRound>();
 
 	public FairMcv()
 	{
   	}
 
-	public FairMcv(Fair net, McvSettings settings, string databasepath, IPAddress[] baseips, IClock clock) : base(net, settings, null, databasepath, new Genesis(), clock)
+	public FairMcv(Fair net, McvSettings settings, string databasepath, Net.Endpoint[] grpaheps, IClock clock) : base(net, settings, null, databasepath, new Genesis(), clock)
 	{
-		GraphIPs = baseips;
+		GraphIPs = grpaheps;
 	}
 
 	protected override void GenesisInitilize(Round round)

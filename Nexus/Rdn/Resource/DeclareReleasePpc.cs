@@ -10,7 +10,7 @@ public class DeclareReleasePpc : RdnPpc<DeclareReleasePpr>//, IBinarySerializabl
 			RequireMember();
 
 		lock(Node.SeedHub.Lock)
-			return new DeclareReleasePpr {Results = Node.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray()};
+			return new DeclareReleasePpr {Results = Node.SeedHub.ProcessIncoming(Peer.EP, Resources).ToArray()};
 	}
 }
 

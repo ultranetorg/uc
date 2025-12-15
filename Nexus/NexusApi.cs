@@ -8,9 +8,9 @@ internal class NexusApiServer : JsonServer
 {
 	Nexus Nexus;
 
-	public NexusApiServer(Nexus uos, Flow flow) : base(uos.Settings.Api.ToApiSettings(uos.Settings.Zone, Api.Nexus), ApiClient.CreateOptions(), flow)
+	public NexusApiServer(Nexus nexus, Flow flow) : base(nexus.Settings.Api.ToApiSettings(nexus.Settings.Zone, Api.Nexus), ApiClient.CreateOptions(), flow)
 	{
-		Nexus = uos;
+		Nexus = nexus;
 	}
 
 	protected override Type Create(string call)
@@ -29,16 +29,16 @@ internal class NexusApiServer : JsonServer
 
 public interface INexusApc
 {
-	public abstract object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
+	public abstract object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
 public class NexusPropertyApc : Apc, INexusApc
 {
 	public string Path { get; set; }
 
-	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		object o = uos;
+		object o = nexus;
 
 		foreach(var i in Path.Split('.'))
 		{
@@ -63,9 +63,32 @@ public class NnpNodeApc : Apc, INexusApc
 {
 	public string Net { get; set; }
 
-	public object Execute(Nexus uos, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		lock(uos)
-			return uos.NnIppServer.Nodes.Find(i => i.Net == Net);
+		lock(nexus)
+			return nexus.NnpIppServer.Locals.Find(i => i.Net == Net);
+	}
+}
+
+public class NnpCallApc : Apc, INexusApc
+{
+	public string			Net { get; set; }
+	public Argumentation	Argumentation { get; set; }
+
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(nexus)
+			return nexus.NnpPeering.Call(Net, Argumentation, flow);
+	}
+}
+
+public class TransactNncApc : Apc, INexusApc
+{
+	public TransactNna	Argumentation { get; set; }
+
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(nexus)
+			return nexus.NnpIppServer.Relay(null, Argumentation);
 	}
 }

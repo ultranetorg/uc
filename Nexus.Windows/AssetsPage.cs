@@ -6,11 +6,12 @@ namespace Uccs.Nexus.Windows;
 
 public partial class AssetsPage : Page
 {
+
 	public AssetsPage()
 	{
 	}
 
-	public AssetsPage(Nexus nexus) : base(nexus)
+	public AssetsPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}
@@ -53,16 +54,13 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			while(!Nexus.NnConnection.Pipe.IsConnected)
-				Thread.Sleep(100);
-			
 			foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
 			{
-				foreach(var h in Nexus.NnConnection.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = acc.Bytes}), f).Holders)
+				foreach(var h in Nnp.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = acc.Bytes}), f).Holders)
 				{
-					foreach(var a in Nexus.NnConnection.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id}), f).Assets)
+					foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id}), f).Assets)
 					{
-						var b = Nexus.NnConnection.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id, Name = a.Name}), f).Balance;
+						var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id, Name = a.Name}), f).Balance;
 			
 						var li = new ListViewItem(h.Class);
 						li.SubItems.Add(h.Id);

@@ -17,10 +17,14 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 	}
 
+	public HomoPeer(Endpoint endpoint)
+	{
+		EP = endpoint;
+	}
+
 	public HomoPeer(IPAddress ip, ushort port)
 	{
-		IP = ip;
-		Port = port;
+		EP = new Endpoint(ip, port);
 	}
 
 	void Request(int id, PeerRequest request)

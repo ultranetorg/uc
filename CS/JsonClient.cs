@@ -120,7 +120,7 @@ public class JsonClient
 		}
 	}
 
-	public Rp Request<Rp>(Apc request, Flow flow)
+	public Rp Call<Rp>(Apc request, Flow flow)
 	{
 		using(var rp = Send(request, flow))
 		{
@@ -135,7 +135,7 @@ public class JsonClient
 		}
 	}
 
-	public async Task<Rp> RequestAsync<Rp>(Apc request, Flow flow)
+	public async Task<Rp> CallAsync<Rp>(Apc request, Flow flow)
 	{
 		using(var rp = await SendAsync(request, flow))
 		{

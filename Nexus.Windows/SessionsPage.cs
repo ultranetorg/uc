@@ -11,7 +11,7 @@ public partial class SessionsPage : Page
 		InitializeComponent();
 	}
 
-	public SessionsPage(Nexus nexus) : base(nexus)
+	public SessionsPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 
@@ -21,6 +21,11 @@ public partial class SessionsPage : Page
 	public override void Open(bool first)
 	{
 		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
+
+		if(Accounts.Items.Count > 0)
+		{
+			Accounts_SelectionChangeCommitted(null, null);
+		}
 	}
 
 	protected void BindSessions(WalletAccount account)
@@ -46,7 +51,7 @@ public partial class SessionsPage : Page
 
 		lock(Nexus.Vault)
 		{
-			var w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
+			var w = Wallets.SelectedItem as Wallet;
 			a = w.Accounts.Find(i => i.Address == Accounts.SelectedItem as AccountAddress);
 		}
 

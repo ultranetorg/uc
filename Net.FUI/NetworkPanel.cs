@@ -22,7 +22,7 @@ public partial class NetworkPanel : MainPanel
 		{
 			foreach(var p in Peering.Peers.OrderByDescending(i => i.Status))
 			{
-				var r = Peers.Items.Add(p.IP.ToString());
+				var r = Peers.Items.Add(p.EP.ToString());
 				r.SubItems.Add(p.StatusDescription);
 				r.SubItems.Add(p.Retries.ToString());
 				r.SubItems.Add(p.PeerRank.ToString());

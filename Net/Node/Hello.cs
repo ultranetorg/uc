@@ -7,7 +7,8 @@ public class Hello
 	public int[]						Versions;
 	public long							Roles;
 	public string						Net;
-	public IPAddress					IP;
+	public IPAddress					YourIP;
+	public ushort						MyPort;
 	public bool							Permanent;
 	public string						Name;
 
@@ -17,17 +18,19 @@ public class Hello
 		w.WriteUtf8(Net);
 		w.WriteUtf8(Name);
 		w.Write7BitEncodedInt64(Roles);
-		w.Write(IP);
+		w.Write(YourIP);
+		w.Write(MyPort);
 		w.Write(Permanent);
 	}
 
 	public void Read(BinaryReader r)
 	{
-		Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
-		Net					= r.ReadUtf8();
-		Name				= r.ReadUtf8();
-		Roles				= r.Read7BitEncodedInt64();
-		IP					= r.ReadIPAddress();
-		Permanent			= r.ReadBoolean();
+		Versions	= r.ReadArray(() => r.Read7BitEncodedInt());
+		Net			= r.ReadUtf8();
+		Name		= r.ReadUtf8();
+		Roles		= r.Read7BitEncodedInt64();
+		YourIP		= r.ReadIPAddress();
+		MyPort		= r.ReadUInt16();
+		Permanent	= r.ReadBoolean();
 	}
 }
