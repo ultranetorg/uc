@@ -608,6 +608,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				{
 					if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
 						continue;
+
+					try
+					{
+						var fcb = !CandidacyDeclarations.Contains(g) && GetSession(g) == null;
+					}
+					catch(VaultException ex)
+					{
+						
+					}
 	
 					if(!CandidacyDeclarations.Contains(g) && GetSession(g) != null)
 					{
@@ -767,13 +776,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						{
 							///v.Sign(Vault.Find(g).Key);
 							v.Generator = g;
-							v.Signature	= Net.Cryptography.Sign(g, v.Hashify());
-										//VaultApi.Request<byte[]>(new AuthorizeApc{Net		= Net.Name,
-										//											Account	= g,
-										//											Session = GetSession(g),
-										//											Hash	= v.Hashify(),
-										//											Trust	= Trust.None}, Flow);						
-										//
+							v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
+																{
+																	Cryptography= Net.Cryptography.Type,
+																	Application	= Name,
+																	Net			= Net.Name,
+																	Account		= g,
+																	Session		= GetSession(g),
+																	Hash		= v.Hashify()
+																}, Flow);						
 							votes.Add(v);
 						}
 					}
@@ -785,12 +796,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	 					var v = createvote(r);
 	 						
 						v.Generator = g;
-						v.Signature	= Net.Cryptography.Sign(g, v.Hashify());
-									//VaultApi.Request<byte[]>(new AuthorizeApc{Net		= Net.Name,
-									//											Account	= g,
-									//											Session = GetSession(g),
-									//											Hash	= v.Hashify(),
-									//											Trust	= Trust.None}, Flow);						
+						v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
+															{
+																Cryptography= Net.Cryptography.Type,
+																Application	= Name,
+																Net			= Net.Name,
+																Account		= g,
+																Session		= GetSession(g),
+																Hash		= v.Hashify()
+															}, Flow);						
 	 					votes.Add(v);
 	 				}
 	
@@ -973,17 +987,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Nid		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
-						t.Signature	 = Mcv?.Settings.Generators != null && Mcv.Settings.Generators.Contains(g.Key) ?Net.Cryptography.Sign(Mcv.Settings.Generators.First(k => k == g.Key), t.Hashify())
-																													:
-																													VaultApi.Call<byte[]>(new AuthorizeApc
-																																			{
-																																				Cryptography= Net.Cryptography.Type,
-																																				Application	= Name,
-																																				Net			= Net.Name,
-																																				Account		= t.Signer,
-																																				Session		= GetSession(t.Signer),
-																																				Hash		= t.Hashify(),
-																																			}, t.Flow);
+						t.Signature	 = VaultApi.Call<byte[]>(new AuthorizeApc
+															 {
+																Cryptography= Net.Cryptography.Type,
+																Application	= Name,
+																Net			= Net.Name,
+																Account		= t.Signer,
+																Session		= GetSession(t.Signer),
+																Hash		= t.Hashify(),
+															 }, t.Flow);
 						if(t.Signature == null)
 						{	
 							t.Flow?.Log.ReportError(this, $"Failed to sign");
@@ -1001,17 +1013,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 						t.Bonus		 = 0;
 						t.Nid		 = nid;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
-						t.Signature  = Mcv?.Settings.Generators != null && Mcv.Settings.Generators.Contains(g.Key) ?Net.Cryptography.Sign(Mcv.Settings.Generators.First(k => k == g.Key), t.Hashify())
-																													:
-																													VaultApi.Call<byte[]>(new AuthorizeApc
-																																			{
-																																				Cryptography= Net.Cryptography.Type,
-																																				Application	= Name,
-																																				Net			= Net.Name,
-																																				Account		= t.Signer,
-																																				Session		= GetSession(t.Signer),
-																																				Hash		= t.Hashify(),
-																																			}, t.Flow);
+						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
+															 {
+																Cryptography= Net.Cryptography.Type,
+																Application	= Name,
+																Net			= Net.Name,
+																Account		= t.Signer,
+																Session		= GetSession(t.Signer),
+																Hash		= t.Hashify(),
+															 }, t.Flow);
 
 						txs.Add(t);
 

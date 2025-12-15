@@ -22,7 +22,7 @@ public abstract class Round : IBinarySerializable
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God}] : (Voters ?? []).OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God.Address}] : (Voters ?? []).OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AccountAddress>							Forkers = [];

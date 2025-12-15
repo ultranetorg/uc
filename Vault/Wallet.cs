@@ -56,8 +56,8 @@ public class Authentication : IBinarySerializable
 public class WalletAccount : IBinarySerializable
 {
 	public string				Name { get; set; } 
-	public AccountAddress		Address { get; set; }
-	public AccountKey			Key;
+	public AccountKey			Key { get; set; }
+	public AccountAddress		Address  => Key.Address;
 	public List<Authentication>	Authentications = [];
 	public Wallet				Wallet;
 
@@ -73,7 +73,6 @@ public class WalletAccount : IBinarySerializable
 	public WalletAccount(Wallet vault, AccountKey key)
 	{
 		Wallet = vault;
-		Address = key;
 		Key = key;
 	}
 
@@ -142,8 +141,6 @@ public class WalletAccount : IBinarySerializable
 		Name			= reader.ReadUtf8Nullable();
 		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
-
-		Address	= Key;
 	}
 }
 

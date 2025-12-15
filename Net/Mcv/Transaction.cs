@@ -76,7 +76,7 @@ public class Transaction : IBinarySerializable
 
 	public void Sign(AccountKey signer)
 	{
-		Signer = signer;
+		Signer = signer.Address;
 		Signature = Net.Cryptography.Sign(signer, Hashify());
 	}
 

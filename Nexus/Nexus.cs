@@ -10,7 +10,6 @@ public class Nexus : IProgram
 	public delegate void			Delegate(Nexus d);
 
 	public Flow						Flow;
-	IClock							Clock;
 	public NexusSettings			Settings;
 	internal NexusApiServer			ApiServer;
 	public static HttpClient		ApiHttpClient;
@@ -31,11 +30,10 @@ public class Nexus : IProgram
 		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
 	}
 
-	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, IClock clock, Flow flow)
+	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
-		Clock = clock;
 		Flow = flow;
 
 		new FileLog(Flow.Log, GetType().Name, Settings.Profile);
@@ -114,9 +112,9 @@ public class Nexus : IProgram
 		return c;
 	}
 	
-	public void RunRdn(RdnNodeSettings rdnsettings)
+	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
 	{
-		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Settings.Profile, Settings, rdnsettings, Clock, Flow.CreateNested(new Log()));
+		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address), Settings, rdnsettings, clock, Flow.CreateNested(new Log()));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
 		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];

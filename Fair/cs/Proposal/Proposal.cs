@@ -45,7 +45,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public AutoId				Site { get; set; }
 	public AutoId				By { get; set; }
 	public Role					As { get; set; }
-	public PolicyFlag		Flags { get; set; }
+	public PolicyFlag			Flags { get; set; }
 	public AutoId[]				Neither { get; set; }
 	public AutoId[]				Any { get; set; }
 	public AutoId[]				Ban { get; set; }

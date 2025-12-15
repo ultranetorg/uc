@@ -114,7 +114,7 @@ public class Vote : IBinarySerializable
 	
 	public void Sign(AccountKey generator)
 	{
-		_Generator = generator;
+		_Generator = generator.Address;
 		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
 	}
 

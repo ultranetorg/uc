@@ -1,4 +1,6 @@
-﻿using NBitcoin.Secp256k1;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using NBitcoin.Secp256k1;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -7,13 +9,13 @@ using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
 
-public class AccountKey : AccountAddress
+public class AccountKey
 {
-	private readonly ECKey	ECKey;
-	private byte[]			_PublicKeyNoPrefix;
-	private byte[]			_PublicKeyNoPrefixCompressed;
-	private byte[]			_PrivateKey;
-	private byte[]			_PublicAddress;
+	private readonly ECKey		ECKey;
+	private byte[]				_PublicKeyNoPrefix;
+	private byte[]				_PublicKeyNoPrefixCompressed;
+	private byte[]				_PrivateKey;
+	AccountAddress				_Address;
 
 	static ECKeyPairGenerator	Generator;
 
@@ -23,20 +25,21 @@ public class AccountKey : AccountAddress
 		Generator.Init(new KeyGenerationParameters(Cryptography.Random, 256));
 	}
 
-	public override byte[] Bytes 
+	public AccountAddress Address 
 	{
 		get
 		{
-			if(_PublicAddress == null)
+			if(_Address == null)
 			{
 				var initaddr = Cryptography.Hash(GetPubKeyNoPrefix());
-				_PublicAddress = new byte[initaddr.Length - 12];
-				Array.Copy(initaddr, 12, _PublicAddress, 0, initaddr.Length - 12);
+				var a  = new byte[initaddr.Length - 12];
+				Array.Copy(initaddr, 12, a, 0, initaddr.Length - 12);
+
+				_Address = new AccountAddress(a);
 			}
 
-			return _PublicAddress;
+			return _Address;
 		}
-		protected set => throw new NotSupportedException(); 
 	}
 
 	public byte[] PrivateKey
@@ -131,5 +134,19 @@ public class AccountKey : AccountAddress
 		recSignature.Deconstruct(out var r, out var s, out var recId);
 
 		return new ECDSASignature(new BigInteger(1, r.ToBytes()), new BigInteger(1, s.ToBytes())){ V = [(byte)recId]};
+	}
+}
+
+
+public class AccountKeyJsonConverter : JsonConverter<AccountKey>
+{
+	public override AccountKey Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return new AccountKey(reader.GetString().FromHex());
+	}
+
+	public override void Write(Utf8JsonWriter writer, AccountKey value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.PrivateKey.ToHex());
 	}
 }

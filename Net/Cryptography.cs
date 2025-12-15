@@ -91,7 +91,7 @@ public class NoCryptography : Cryptography
 	{
 		var s = new byte[SignatureSize];
 
-		Array.Copy(k.Bytes, 0, s, 0, k.Bytes.Length);
+		Array.Copy(k.Address.Bytes, 0, s, 0, k.Address.Bytes.Length);
 		Array.Copy(h, 0, s, 32,	h.Length);
 
 		return s;
@@ -134,6 +134,6 @@ public class McvCryptography : Cryptography
 									 new Org.BouncyCastle.Math.BigInteger(1, s))
 									 {V = [signature[64]]};
 		
-		return new AccountAddress(AccountKey.RecoverFromSignature(sig, hash));
+		return AccountKey.RecoverFromSignature(sig, hash).Address;
 	}
 }

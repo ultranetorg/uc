@@ -32,9 +32,9 @@ public class NexusCli : Cli
 		
 		var cli = new NexusCli();
 
-		cli.Nexus = new Nexus(b, ns, vs, new RealClock(), new Flow(nameof(Nexus), new Log()));
+		cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()));
 
-		cli.Nexus.RunRdn(null);
+		cli.Nexus.RunRdn(null, new RealClock());
 
 		cli.Execute(b);
 

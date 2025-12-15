@@ -20,21 +20,13 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	{
 	}
 
-	public AccountAddress(AccountKey k)
-	{
-		Bytes = k.Bytes;
-
-		if(Bytes.Length != Length)
-			throw new IntegrityException("Bytes.Length != Length");
-	}
-
- 		public AccountAddress(byte[] b)
- 		{
+ 	public AccountAddress(byte[] b)
+ 	{
 		if(b.Length == Length)
 			Bytes = b;
 		else
 			throw new IntegrityException("Wrong length");
- 		}
+ 	}
 
 	public void Write(BinaryWriter w)
 	{

@@ -33,7 +33,7 @@ public class Node : IProgram
 		Profile = profile;
 		Flow = flow;
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-		NexusSettings = nexussettings ?? new NexusSettings(net.Zone, profile);
+		NexusSettings = nexussettings;
 
 		var cf = new ColumnFamilies();
 

@@ -105,7 +105,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(Signer.Address != Mcv.God)
+				if(Signer.Address != Mcv.God.Address)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;

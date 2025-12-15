@@ -30,9 +30,9 @@ public class AccountKeyTests
 
 
 		Assert.True(k == new AccountKey(k.PrivateKey));
-		Assert.True(k == AccountAddress.Parse(k.ToString()));
-		Assert.True(Cryptography.Mcv.Valid(s, h, k));
-		Assert.False(Cryptography.Mcv.Valid(s, h, kk));
+		Assert.True(k.Address == AccountAddress.Parse(k.ToString()));
+		Assert.True(Cryptography.Mcv.Valid(s, h, k.Address));
+		Assert.False(Cryptography.Mcv.Valid(s, h, kk.Address));
 					
 		string p = "password";
 		Assert.True(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p).SequenceEqual(h));

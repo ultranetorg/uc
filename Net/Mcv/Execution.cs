@@ -269,8 +269,8 @@ public class Execution : ITableExecution
 		}
 		else
 		{
- 			if(Transaction.Signer == Mcv.God)
- 				return new Account {Address = Mcv.God};
+ 			if(Transaction.Signer == Mcv.God.Address)
+ 				return new Account {Address = Mcv.God.Address};
 
 			var s = Mcv.Accounts.Find(Transaction.Signer, Round.Id);
 

@@ -447,21 +447,21 @@ public class PpcApc : McvApc
 //	}
 //}
 
-public class SetGeneratorApc : McvApc
-{
-	public IEnumerable<byte[]>	 Generators {get; set;}
-
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		if(node.Mcv == null)
-			throw new NodeException(NodeError.NoMcv);
-
-		lock(node.Mcv.Lock)
-			node.Mcv.Settings.Generators = Generators.Select(i => new AccountKey(i)).ToArray();
-
-		return null;
-	}
-}
+//public class SetGeneratorApc : McvApc
+//{
+//	public IEnumerable<byte[]>	 Generators {get; set;}
+//
+//	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		if(node.Mcv == null)
+//			throw new NodeException(NodeError.NoMcv);
+//
+//		lock(node.Mcv.Lock)
+//			node.Mcv.Settings.Generators = Generators.Select(i => new AccountKey(i)).ToArray();
+//
+//		return null;
+//	}
+//}
 
 public class EnforceSessionsApc : McvApc
 {
