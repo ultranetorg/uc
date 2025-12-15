@@ -61,27 +61,21 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   const { data: account, refetch: refetchAccount } = useGetAccountByAddress(currentAccountAddress)
 
   useEffect(() => {
-    if (!account) {
-      setCurrentAccount(undefined)
-      return
-    }
-
-    const found = session.accounts.find(x => x.account.address === account.address)
-    if (!found) return
-
     setCurrentAccount(account)
-    setSession(p => ({
-      ...p,
-      accounts: p.accounts.map(a =>
-        a.account.address !== account.address
-          ? a
-          : {
-              ...a,
-              ...{ account: { address: account.address, id: account.id, nickname: account.nickname } },
-            },
-      ),
-    }))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    if (account) {
+      setSession(p => ({
+        ...p,
+        accounts: p.accounts.map(a =>
+          a.account.address !== account.address
+            ? a
+            : {
+                ...a,
+                ...{ account: { address: account.address, id: account.id, nickname: account.nickname } },
+              },
+        ),
+      }))
+    }
   }, [account, session.accounts.length, setSession])
 
   useEffect(() => {

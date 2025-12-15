@@ -11,7 +11,7 @@ export type SitesListProps = {
   title: string
   items?: SiteBase[]
   emptyStateMessage: string
-  onFavoriteClick: (id: string) => void
+  onFavoriteClick: (item: SiteBase) => void
 }
 
 export const SitesList = memo(({ isStarred, title, items, emptyStateMessage, onFavoriteClick }: SitesListProps) =>
@@ -19,12 +19,12 @@ export const SitesList = memo(({ isStarred, title, items, emptyStateMessage, onF
     <div className="flex flex-col gap-4">
       <span className="text-xs uppercase leading-3.75 tracking-tight-048 text-gray-500">{title}</span>
       {items && items.length > 0 ? (
-        items.map(({ id, title, imageFileId }) => (
-          <Link key={id} to={`${id}`}>
+        items.map(x => (
+          <Link key={x.id} to={`${x.id}`}>
             <Site
-              title={title}
-              imageFileId={imageFileId}
-              onFavoriteClick={() => onFavoriteClick(id)}
+              title={x.title}
+              imageFileId={x.imageFileId}
+              onFavoriteClick={() => onFavoriteClick(x)}
               isStarred={isStarred}
             />
           </Link>
