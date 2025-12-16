@@ -105,6 +105,9 @@ export const enUS = {
     label: "Moderation options",
     removePublication: "Remove publication",
   },
+  moderatorCategoryMenu: {
+    createCategory: "Create category",
+  },
   moderatorPublicationMenu: {
     removePublication: "Remove publication",
   },
