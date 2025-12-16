@@ -16,6 +16,7 @@ export * from "./SitesGrid"
 
 export * from "./AboutInfo"
 export * from "./GovernanceModerationHeader"
+export * from "./ModeratorCategoryMenu"
 export * from "./ModeratorOptionsMenu"
 export * from "./ModeratorPublicationHeader"
 export * from "./ModeratorPublicationMenu"

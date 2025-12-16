@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
-import { FiltersDropdownButton, ToggleViewButton, ViewType } from "ui/components/specific"
+import { FiltersDropdownButton, ModeratorCategoryMenu, ToggleViewButton, ViewType } from "ui/components/specific"
 import { createBreadcrumbs } from "utils"
 
 export type CategoryHeaderProps = {
@@ -32,6 +32,7 @@ export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: Ca
         <div className="flex items-center gap-4">
           <FiltersDropdownButton label={t("filters")} resetAllLabel={t("resetAll")} />
           <ToggleViewButton onChange={onViewChange} view={view} gridTitle={t("grid")} listTitle={t("list")} />
+          <ModeratorCategoryMenu />
           <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} />
         </div>
       </div>
