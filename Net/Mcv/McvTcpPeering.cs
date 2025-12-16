@@ -865,7 +865,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		catch(ApiCallException ex)
 		{
 			Flow?.Log.ReportError(this, "Uos API call failure", ex);
-			Thread.Sleep(1000);
+			Thread.Sleep(NodeGlobals.TimeoutOnError);
 		}
 	}
 
@@ -971,7 +971,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 				}
 				catch(NodeException)
 				{
-					Thread.Sleep(1000);
+					Thread.Sleep(NodeGlobals.TimeoutOnError);
 					continue;
 				}
 
@@ -1030,14 +1030,11 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					catch(NodeException ex)
 					{
 						Flow.Log?.ReportError(this, "Transaction allocation", ex);
-						
-						Thread.Sleep(1000);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 					catch(EntityException ex)
 					{
-						Flow.Log?.ReportError(this, "Transaction allocation", ex);
-
 						if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
 						{
 							lock(Lock)
@@ -1045,13 +1042,14 @@ public abstract class McvTcpPeering : HomoTcpPeering
 								OutgoingTransactions.Remove(t);
 						} 
 
+						Flow.Log?.ReportError(this, "Transaction allocation", ex);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 					catch(ApiCallException ex)
 					{
 						Flow.Log?.ReportError(this, "Transaction allocation", ex);
-
-						Thread.Sleep(1000);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 				}
@@ -1067,7 +1065,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					catch(NodeException ex)
 					{
 						Flow.Log?.ReportError(this, "PlaceTransactionsRequest", ex);
-						Thread.Sleep(1000);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 
@@ -1113,7 +1111,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					catch(NodeException ex)
 					{
 						Flow.Log?.ReportError(this, "TransactionStatusRequest", ex);
-						Thread.Sleep(1000);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 

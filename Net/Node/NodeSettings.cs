@@ -72,6 +72,7 @@ public class SecretSettings
 public class NodeGlobals
 {
 	public static bool				InfiniteTimeouts;
+	public static int				TimeoutOnError = 1000;
 	public static bool				ThrowOnCorrupted;
 	public static bool				SkipMigrationVerification;
 

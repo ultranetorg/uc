@@ -162,6 +162,7 @@ public class McvSummaryApc : McvApc
 					new ("    Pending",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
 					new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
 					new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
+					new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}")
 					//new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")
 					];
 		}
@@ -181,7 +182,6 @@ public class McvSummaryApc : McvApc
 				f.Add(new ("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}"));
 				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusECEnergyCost.ToString()}"));
 				f.Add(new ("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}"));
-				f.Add(new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}"));
 
 /// 				foreach(var i in node.UosApi.Request())
 /// 				{
