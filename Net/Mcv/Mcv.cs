@@ -8,7 +8,7 @@ namespace Uccs.Net;
 public delegate void BlockDelegate(Vote b);
 public delegate void RoundDelegate(Round b);
 
-public enum McvTable
+public enum McvTable : byte
 {
 	Meta, Account, _Last = Account
 }

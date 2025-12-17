@@ -2,18 +2,16 @@
 
 public class UtilityTransfer : Operation
 {
-	public AutoId			To { get; set; }
-	public byte				ToTable { get; set; }
-	public AutoId			From { get; set; }
-	public byte				FromTable { get; set; }
+	public EntityAddress	From { get; set; }
+	public EntityAddress	To { get; set; }
 	public long				Spacetime { get; set; }
 	public long				Energy { get; set; }
 	public long				EnergyNext { get; set; }
-	public override string	Explanation => $"{FromTable}/{From} -> {ToTable}/{To}, {string.Join(", ", new string[] {(Energy > 0 ? Energy + " EC" : null), 
-																													(EnergyNext > 0 ? EnergyNext + " EC" : null), 
-																													(Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
+	public override string	Explanation => $"{From} -> {To}, {string.Join(", ", new string[]   {(Energy > 0 ? Energy + " EC" : null), 
+																								(EnergyNext > 0 ? EnergyNext + " EC" : null), 
+																								(Spacetime > 0 ? Spacetime + " BD" : null)}.Where(i => i != null))} -> {To}";
 
-	public override bool	IsValid(McvNet net) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0 && ToTable < net.TablesCount && FromTable < net.TablesCount;
+	public override bool	IsValid(McvNet net) => Spacetime >= 0 && Energy >= 0 && EnergyNext >= 0 && To.IsValid(net) && From.IsValid(net);
 
 	public UtilityTransfer()
 	{
@@ -24,10 +22,8 @@ public class UtilityTransfer : Operation
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
 
-		FromTable			= fromtable;
-		From				= from;
-		ToTable				= totable;
-		To					= to;
+		From				= new (fromtable, from);
+		To					= new (totable, to);
 
 		Energy				= energy;
 		EnergyNext			= energynext;
@@ -36,10 +32,8 @@ public class UtilityTransfer : Operation
 
 	public override void Read(BinaryReader reader)
 	{
-		FromTable				= reader.ReadByte();
-		From					= reader.Read<AutoId>();
-		ToTable					= reader.ReadByte();
-		To						= reader.Read<AutoId>();
+		From					= reader.Read<EntityAddress>();
+		To						= reader.Read<EntityAddress>();
 
 		Energy					= reader.Read7BitEncodedInt64();
 		EnergyNext				= reader.Read7BitEncodedInt64();
@@ -48,9 +42,7 @@ public class UtilityTransfer : Operation
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(FromTable);
 		writer.Write(From);
-		writer.Write(ToTable);
 		writer.Write(To);
 
 		writer.Write7BitEncodedInt64(Energy);
@@ -60,13 +52,13 @@ public class UtilityTransfer : Operation
 
 	public override void Execute(Execution execution)
 	{
-		if(To == AutoId.LastCreated && execution.FindExecution(ToTable).LastCreatedId == null)
+		if(To.Id == AutoId.LastCreated && execution.FindExecution(To.Table).LastCreatedId == null)
 		{
 			Error = NothingLastCreated;
 			return;
 		}
 
-		var to = execution.Affect(ToTable, To);
+		var to = execution.Affect(To.Table, To.Id);
 
 		if(to == null)
 		{
@@ -78,7 +70,7 @@ public class UtilityTransfer : Operation
 
 		if(execution.Round.Id > 0)
 		{
-			h = execution.Affect(FromTable, From) as IHolder;
+			h = execution.Affect(From.Table, From.Id) as IHolder;
 
 			if(h == null)
 			{

@@ -30,7 +30,7 @@ public class FileCommand : FairCommand
 
 								return	new FileCreation
 										{
-											Owner = EntityAddress.Parse(Args[0].Name), 
+											Owner = EntityAddress.Parse<FairTable>(Args[0].Name), 
 											Data = System.IO.File.ReadAllBytes(GetString(path))
 										};
 							};

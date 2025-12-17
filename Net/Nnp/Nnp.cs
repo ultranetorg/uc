@@ -63,24 +63,24 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 		return new Endpoint(IPAddress.Parse(v.AsSpan(0, i)), ushort.Parse(v.AsSpan(i + 1)));
 	}
 }
-
-public class AssetHolder : IBinarySerializable
-{
-	public string	Class { get; set; }
-	public string	Id { get; set; }
-
-	public void Read(BinaryReader reader)
-	{
-		Class = reader.ReadASCII();
-		Id = reader.ReadASCII();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.WriteASCII(Class);
-		writer.WriteASCII(Id);
-	}
-}
+//
+//public class AssetHolder : IBinarySerializable
+//{
+//	public string	Class { get; set; }
+//	public string	Id { get; set; }
+//
+//	public void Read(BinaryReader reader)
+//	{
+//		Class = reader.ReadASCII();
+//		Id = reader.ReadASCII();
+//	}
+//
+//	public void Write(BinaryWriter writer)
+//	{
+//		writer.WriteASCII(Class);
+//		writer.WriteASCII(Id);
+//	}
+//}
 
 public class Asset : IBinarySerializable
 {
@@ -317,30 +317,27 @@ public class HoldersByAccountNna : NnpArgumentation, IBinarySerializable
 
 public class HoldersByAccountNnr : Result, IBinarySerializable
 {
-	public AssetHolder[] Holders { get; set; }
+	public string[] Holders { get; set; }
 
-	public void Read(BinaryReader reader) => Holders = reader.ReadArray<AssetHolder>();
-	public void Write(BinaryWriter writer) => writer.Write(Holders);
+	public void Read(BinaryReader reader) => Holders = reader.ReadArray(reader.ReadASCII);
+	public void Write(BinaryWriter writer) => writer.Write(Holders, writer.WriteASCII);
 }
 
 
 public class HolderAssetsNna : NnpArgumentation, IBinarySerializable
 {
-	public string	HolderClass { get; set; }
-	public string	HolderId { get; set; }
+	public string	Entity { get; set; }
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
-		HolderClass = reader.ReadASCII();
-		HolderId = reader.ReadASCII();
+		Entity = reader.ReadASCII();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-		writer.WriteASCII(HolderClass);
-		writer.WriteASCII(HolderId);
+		writer.WriteASCII(Entity);
 	}
 }
 
@@ -354,23 +351,20 @@ public class HolderAssetsNnr : Result, IBinarySerializable
 
 public class AssetBalanceNna : NnpArgumentation, IBinarySerializable
 {
-	public string	HolderClass { get; set; }
-	public string	HolderId { get; set; }
+	public string	Entity { get; set; }
 	public string	Name { get; set; }
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
-		HolderClass = reader.ReadASCII();
-		HolderId	= reader.ReadASCII();
-		Name		= reader.ReadASCII();
+		Entity = reader.ReadASCII();
+		Name	= reader.ReadASCII();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-		writer.WriteASCII(HolderClass);
-		writer.WriteASCII(HolderId);
+		writer.WriteASCII(Entity);
 		writer.WriteASCII(Name);
 	}
 }
@@ -385,11 +379,9 @@ public class AssetBalanceNnr : Result, IBinarySerializable
 
 public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 {
-	public string			FromClass { get; set; }
-	public string			FromId { get; set; }
+	public string			FromEntity { get; set; }
 	public string			ToNet { get; set; }
-	public string			ToClass { get; set; }
-	public string			ToId { get; set; }
+	public string			ToEntity { get; set; }
 	public string			Name { get; set; }
 	public string			Amount { get; set; }
 	public AccountAddress	Signer { get; set; }
@@ -397,11 +389,9 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
-		FromClass	= reader.ReadASCII();
-		FromId		= reader.ReadASCII();
+		FromEntity	= reader.ReadASCII();
 		ToNet		= reader.ReadASCII();
-		ToClass		= reader.ReadASCII();
-		ToId		= reader.ReadASCII();
+		ToEntity	= reader.ReadASCII();
 		Name		= reader.ReadASCII();
 		Amount		= reader.ReadASCII();
 		Signer		= reader.Read<AccountAddress>();
@@ -410,11 +400,9 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-		writer.WriteASCII(FromClass);
-		writer.WriteASCII(FromId);
+		writer.WriteASCII(FromEntity);
 		writer.WriteASCII(ToNet);
-		writer.WriteASCII(ToClass);
-		writer.WriteASCII(ToId);
+		writer.WriteASCII(ToEntity);
 		writer.WriteASCII(Name);
 		writer.WriteASCII(Amount);
 		writer.Write(Signer);

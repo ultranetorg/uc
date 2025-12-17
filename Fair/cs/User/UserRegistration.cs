@@ -98,7 +98,7 @@ public class UserRegistration : VotableOperation
 
 		if(Pow != null)
 		{	
-			Signer.AllocationSponsor = new EntityAddress(FairTable.Site, s.Id);
+			Signer.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
 			execution.AllocateForever(s, execution.Net.EntityLength);
 		}
 		else

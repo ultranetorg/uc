@@ -47,6 +47,7 @@ public enum EntityError : uint
 	NoMembers,
 	HashMismatach,
 	UnknownClass,
+	UnknownEntity,
 	UnknownAsset,
 }
 

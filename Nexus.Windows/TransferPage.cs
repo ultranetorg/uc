@@ -21,11 +21,11 @@ public partial class TransferPage : Page
 		{
 			FromNet.Items.Insert(0, "rdn");
 			FromNet.SelectedIndex = 0;
-			RefreshClasses(FromNet.Text, FromClass);
+			RefreshClasses(FromNet.Text, FromEntity);
 
 			ToNet.Items.Insert(0, "rdn");
 			ToNet.SelectedIndex = 0;
-			RefreshClasses(ToNet.Text, ToClass);
+			RefreshClasses(ToNet.Text, ToEntity);
 //
 //			Wallets.Items.Insert(0, "All");
 //			Wallets.SelectedIndex = 0;
@@ -39,11 +39,11 @@ public partial class TransferPage : Page
 		try
 		{
 			if(sender == FromNet) RefreshNets(FromNet);
-			if(sender == FromClass) RefreshClasses(FromNet.Text, FromClass);
+			if(sender == FromEntity) RefreshClasses(FromNet.Text, FromEntity);
 			//if(sender == FromAccount) BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
 
 			if(sender == ToNet) RefreshNets(ToNet);
-			if(sender == ToClass) RefreshClasses(ToNet.Text, ToClass);
+			if(sender == ToEntity) RefreshClasses(ToNet.Text, ToEntity);
 
 			if(sender == Asset) RefreshAssets();
 		}
@@ -112,18 +112,17 @@ public partial class TransferPage : Page
 		if(Asset.Items.Count > 0)
 			return;
 
-		if(string.IsNullOrWhiteSpace(FromNet.Text) || string.IsNullOrWhiteSpace(FromClass.Text) || string.IsNullOrWhiteSpace(FromId.Text))
+		if(string.IsNullOrWhiteSpace(FromNet.Text) || string.IsNullOrWhiteSpace(FromEntity.Text))
 			return;
 
 		Asset.Items.Clear();
 
 		foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
-		{
-			Net = FromNet.Text,
-			HolderClass = FromClass.Text,
-			HolderId = FromId.Text
-		}),
-																							new Flow(5000)).Assets)
+									{
+										Net = FromNet.Text,
+										Entity = FromEntity.Text,
+									}),
+									new Flow(5000)).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -135,8 +134,7 @@ public partial class TransferPage : Page
 		Balance.Text += Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new()
 		{
 			Net = FromNet.Text,
-			HolderClass = FromClass.Text,
-			HolderId = FromId.Text,
+			Entity = FromEntity.Text,
 			Name = (Asset.SelectedItem as Asset).Name
 		}),
 																							new Flow(5000)).Balance.ToString();
@@ -144,24 +142,22 @@ public partial class TransferPage : Page
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
 	{
-		FromClass.Items.Clear();
+		FromEntity.Items.Clear();
 		Asset.Items.Clear();
 	}
 
 	private void ToNet_TextUpdate(object sender, EventArgs e)
 	{
-		ToClass.Items.Clear();
+		ToEntity.Items.Clear();
 	}
 
 	private void Any_Changed(object sender, EventArgs e)
 	{
 		Transfer.Enabled = !string.IsNullOrEmpty(FromNet.Text) &&
-							!string.IsNullOrEmpty(FromClass.Text) &&
-							!string.IsNullOrEmpty(FromId.Text) &&
+							!string.IsNullOrEmpty(FromEntity.Text) &&
 							!string.IsNullOrEmpty(Wallets.Text) &&
 							!string.IsNullOrEmpty(ToNet.Text) &&
-							!string.IsNullOrEmpty(ToClass.Text) &&
-							!string.IsNullOrEmpty(ToId.Text) &&
+							!string.IsNullOrEmpty(ToEntity.Text) &&
 							!string.IsNullOrEmpty(Asset.Text) &&
 							!string.IsNullOrEmpty(Amount.Text);
 	}
@@ -174,10 +170,8 @@ public partial class TransferPage : Page
 																{
 																	Net = FromNet.Text,
 																	ToNet = ToNet.Text,
-																	FromClass = FromClass.Text,
-																	FromId = FromId.Text,
-																	ToClass = ToClass.Text,
-																	ToId = ToId.Text,
+																	FromEntity = FromEntity.Text,
+																	ToEntity = ToEntity.Text,
 																	Name = (Asset.SelectedItem as Asset).Name,
 																	Amount = Amount.Text,
 																	Signer = Accounts.SelectedItem as AccountAddress,

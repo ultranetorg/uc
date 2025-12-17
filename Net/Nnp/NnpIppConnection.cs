@@ -206,15 +206,15 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 	public virtual Result AssetBalance(IppConnection connection, AssetBalanceNna call)
 	{
-		if(call.HolderClass != nameof(Account))
-			throw new EntityException(EntityError.UnknownClass);
+		if(!EntityAddress.TryParse<McvTable>(call.Entity, out var ea) || !Classes.Any(i => i == ((McvTable)ea.Table).ToString())) 
+			throw new EntityException(EntityError.UnknownEntity);
 
 		if(!Assets.Any(i => i.Name == call.Name))
 			throw new EntityException(EntityError.UnknownAsset);
 
 		lock(Node.Mcv.Lock)
 		{	
-			var a = Node.Mcv.Accounts.Latest(AutoId.Parse(call.HolderId));
+			var a = Node.Mcv.Accounts.Latest(ea.Id);
 			
 			if(a != null)
 				return	new AssetBalanceNnr
@@ -233,15 +233,12 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 	public virtual Result HolderAssets(IppConnection connection, HolderAssetsNna call)
 	{
-		if(call.HolderClass != nameof(Account))
-			throw new NnpException(NnpError.Unknown);
+		if(!EntityAddress.TryParse<McvTable>(call.Entity, out var ea) || !Classes.Any(i => i == ((McvTable)ea.Table).ToString())) 
+			throw new EntityException(EntityError.UnknownEntity);
 
 		lock(Node.Mcv.Lock)
 		{	
-			if(!AutoId.TryParse(call.HolderId, out var id))
-				throw new NnpException(NnpError.NotFound);
-
-			var a = Node.Mcv.Accounts.Latest(id);
+			var a = Node.Mcv.Accounts.Latest(ea.Id);
 			
 			if(a != null)
 				return new HolderAssetsNnr{Assets = Assets};
@@ -257,7 +254,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 			var a = Node.Mcv.Accounts.Latest(new AccountAddress(call.Address));
 
 			if(a != null)
-				return new HoldersByAccountNnr {Holders = [new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}]};
+				return new HoldersByAccountNnr {Holders = [EntityAddress.ToString(McvTable.Account, a.Id)]};
 			else
 				return new HoldersByAccountNnr {Holders = []};
 		}
@@ -274,10 +271,8 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 					Tag = Guid.CreateVersion7().ToByteArray(),
 					Operations = [new UtilityTransfer
 								 {
-								 	FromTable	= (byte)Enum.Parse(typeof(T), call.FromClass),
-								 	From		= AutoId.Parse(call.FromId),
-								 	ToTable		= (byte)Enum.Parse(typeof(T), call.ToClass),
-								 	To			= AutoId.Parse(call.ToId),
+								 	From		= EntityAddress.Parse<T>(call.FromEntity),
+								 	To			= EntityAddress.Parse<T>(call.ToEntity),
 								 	Energy		= call.Name == nameof(Account.Energy) ? long.Parse(call.Amount) : 0, 
 								 	EnergyNext	= call.Name == nameof(Account.EnergyNext) ? long.Parse(call.Amount) : 0,
 								 	Spacetime	= call.Name == nameof(Account.Spacetime) ? long.Parse(call.Amount) : 0,

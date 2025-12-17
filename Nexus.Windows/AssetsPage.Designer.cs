@@ -31,7 +31,6 @@ partial class AssetsPage
 		label3 = new Label();
 		Assets = new ListView();
 		columnHeader4 = new ColumnHeader();
-		columnHeader5 = new ColumnHeader();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
 		columnHeader3 = new ColumnHeader();
@@ -58,7 +57,7 @@ partial class AssetsPage
 		// 
 		// Assets
 		// 
-		Assets.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader5, columnHeader1, columnHeader2, columnHeader3 });
+		Assets.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader1, columnHeader2, columnHeader3 });
 		Assets.FullRowSelect = true;
 		Assets.Location = new Point(3, 137);
 		Assets.Name = "Assets";
@@ -69,13 +68,8 @@ partial class AssetsPage
 		// 
 		// columnHeader4
 		// 
-		columnHeader4.Text = "Owner Class";
-		columnHeader4.Width = 100;
-		// 
-		// columnHeader5
-		// 
-		columnHeader5.Text = "Owner Id";
-		columnHeader5.Width = 100;
+		columnHeader4.Text = "Owner";
+		columnHeader4.Width = 150;
 		// 
 		// columnHeader1
 		// 
@@ -90,7 +84,7 @@ partial class AssetsPage
 		// columnHeader3
 		// 
 		columnHeader3.Text = "Amount";
-		columnHeader3.Width = 100;
+		columnHeader3.Width = 150;
 		// 
 		// label2
 		// 
@@ -179,7 +173,6 @@ partial class AssetsPage
 	private ComboBox Nets;
 	private Label label4;
 	private ColumnHeader columnHeader4;
-	private ColumnHeader columnHeader5;
 	private Label Message;
 	private ListView Results;
 	private Button Start;

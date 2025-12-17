@@ -36,28 +36,22 @@ partial class TransferPage
 		CToEntity = new ColumnHeader();
 		CAsset = new ColumnHeader();
 		CAmount = new ColumnHeader();
-		label2 = new Label();
 		Transfer = new Button();
 		FromNet = new ComboBox();
 		label4 = new Label();
-		FromClass = new ComboBox();
+		FromEntity = new ComboBox();
 		Asset = new ComboBox();
 		label5 = new Label();
 		label6 = new Label();
 		Amount = new TextBox();
 		ToNet = new ComboBox();
-		ToClass = new ComboBox();
+		ToEntity = new ComboBox();
 		label7 = new Label();
-		label8 = new Label();
-		label9 = new Label();
 		pictureBox1 = new PictureBox();
 		Wallets = new ComboBox();
 		label10 = new Label();
 		Balance = new Label();
-		FromId = new TextBox();
-		ToId = new TextBox();
 		label11 = new Label();
-		label1 = new Label();
 		label12 = new Label();
 		Accounts = new ComboBox();
 		label13 = new Label();
@@ -81,9 +75,9 @@ partial class TransferPage
 		// 
 		Transfers.Columns.AddRange(new ColumnHeader[] { CFromNet, CFromEntity, CToNet, CToEntity, CAsset, CAmount });
 		Transfers.FullRowSelect = true;
-		Transfers.Location = new Point(3, 365);
+		Transfers.Location = new Point(3, 326);
 		Transfers.Name = "Transfers";
-		Transfers.Size = new Size(794, 232);
+		Transfers.Size = new Size(794, 271);
 		Transfers.TabIndex = 8;
 		Transfers.UseCompatibleStateImageBehavior = false;
 		Transfers.View = View.Details;
@@ -118,19 +112,9 @@ partial class TransferPage
 		CAmount.Text = "Amount";
 		CAmount.Width = 100;
 		// 
-		// label2
-		// 
-		label2.AutoSize = true;
-		label2.Font = new Font("Segoe UI", 9F);
-		label2.Location = new Point(206, 81);
-		label2.Name = "label2";
-		label2.Size = new Size(17, 15);
-		label2.TabIndex = 12;
-		label2.Text = "Id";
-		// 
 		// Transfer
 		// 
-		Transfer.Location = new Point(277, 308);
+		Transfer.Location = new Point(280, 269);
 		Transfer.Margin = new Padding(3, 6, 3, 6);
 		Transfer.Name = "Transfer";
 		Transfer.Size = new Size(209, 32);
@@ -161,23 +145,22 @@ partial class TransferPage
 		label4.TabIndex = 13;
 		label4.Text = "Net/CCP";
 		// 
-		// FromClass
+		// FromEntity
 		// 
-		FromClass.DropDownStyle = ComboBoxStyle.DropDownList;
-		FromClass.FormattingEnabled = true;
-		FromClass.Location = new Point(66, 97);
-		FromClass.Margin = new Padding(3, 6, 3, 6);
-		FromClass.Name = "FromClass";
-		FromClass.Size = new Size(134, 23);
-		FromClass.TabIndex = 10;
-		FromClass.DropDown += Open_DropDown;
-		FromClass.TextChanged += Any_Changed;
+		FromEntity.FormattingEnabled = true;
+		FromEntity.Location = new Point(67, 80);
+		FromEntity.Margin = new Padding(3, 6, 3, 6);
+		FromEntity.Name = "FromEntity";
+		FromEntity.Size = new Size(292, 23);
+		FromEntity.TabIndex = 10;
+		FromEntity.DropDown += Open_DropDown;
+		FromEntity.TextChanged += Any_Changed;
 		// 
 		// Asset
 		// 
 		Asset.DropDownStyle = ComboBoxStyle.DropDownList;
 		Asset.FormattingEnabled = true;
-		Asset.Location = new Point(277, 238);
+		Asset.Location = new Point(280, 199);
 		Asset.Margin = new Padding(3, 6, 3, 6);
 		Asset.Name = "Asset";
 		Asset.Size = new Size(209, 23);
@@ -190,7 +173,7 @@ partial class TransferPage
 		// 
 		label5.AutoSize = true;
 		label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label5.Location = new Point(234, 241);
+		label5.Location = new Point(237, 202);
 		label5.Name = "label5";
 		label5.Size = new Size(37, 15);
 		label5.TabIndex = 12;
@@ -200,7 +183,7 @@ partial class TransferPage
 		// 
 		label6.AutoSize = true;
 		label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label6.Location = new Point(219, 276);
+		label6.Location = new Point(222, 237);
 		label6.Name = "label6";
 		label6.Size = new Size(52, 15);
 		label6.TabIndex = 12;
@@ -208,7 +191,7 @@ partial class TransferPage
 		// 
 		// Amount
 		// 
-		Amount.Location = new Point(277, 273);
+		Amount.Location = new Point(280, 234);
 		Amount.Margin = new Padding(3, 6, 3, 6);
 		Amount.Name = "Amount";
 		Amount.Size = new Size(209, 23);
@@ -227,17 +210,16 @@ partial class TransferPage
 		ToNet.TextUpdate += ToNet_TextUpdate;
 		ToNet.TextChanged += Any_Changed;
 		// 
-		// ToClass
+		// ToEntity
 		// 
-		ToClass.DropDownStyle = ComboBoxStyle.DropDownList;
-		ToClass.FormattingEnabled = true;
-		ToClass.Location = new Point(419, 97);
-		ToClass.Margin = new Padding(3, 6, 3, 6);
-		ToClass.Name = "ToClass";
-		ToClass.Size = new Size(144, 23);
-		ToClass.TabIndex = 10;
-		ToClass.DropDown += Open_DropDown;
-		ToClass.TextChanged += Any_Changed;
+		ToEntity.FormattingEnabled = true;
+		ToEntity.Location = new Point(419, 80);
+		ToEntity.Margin = new Padding(3, 6, 3, 6);
+		ToEntity.Name = "ToEntity";
+		ToEntity.Size = new Size(302, 23);
+		ToEntity.TabIndex = 10;
+		ToEntity.DropDown += Open_DropDown;
+		ToEntity.TextChanged += Any_Changed;
 		// 
 		// label7
 		// 
@@ -249,32 +231,12 @@ partial class TransferPage
 		label7.TabIndex = 13;
 		label7.Text = "Net/CCP";
 		// 
-		// label8
-		// 
-		label8.AutoSize = true;
-		label8.Font = new Font("Segoe UI", 9F);
-		label8.Location = new Point(419, 81);
-		label8.Name = "label8";
-		label8.Size = new Size(34, 15);
-		label8.TabIndex = 13;
-		label8.Text = "Class";
-		// 
-		// label9
-		// 
-		label9.AutoSize = true;
-		label9.Font = new Font("Segoe UI", 9F);
-		label9.Location = new Point(569, 81);
-		label9.Name = "label9";
-		label9.Size = new Size(17, 15);
-		label9.TabIndex = 12;
-		label9.Text = "Id";
-		// 
 		// pictureBox1
 		// 
 		pictureBox1.Image = Properties.Resources.right_arrow;
 		pictureBox1.Location = new Point(365, 45);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(48, 75);
+		pictureBox1.Size = new Size(48, 93);
 		pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
 		pictureBox1.TabIndex = 16;
 		pictureBox1.TabStop = false;
@@ -283,7 +245,7 @@ partial class TransferPage
 		// 
 		Wallets.DropDownStyle = ComboBoxStyle.DropDownList;
 		Wallets.FormattingEnabled = true;
-		Wallets.Location = new Point(66, 132);
+		Wallets.Location = new Point(67, 115);
 		Wallets.Margin = new Padding(3, 6, 3, 6);
 		Wallets.Name = "Wallets";
 		Wallets.Size = new Size(188, 23);
@@ -293,7 +255,7 @@ partial class TransferPage
 		// 
 		label10.AutoSize = true;
 		label10.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label10.Location = new Point(18, 170);
+		label10.Location = new Point(18, 153);
 		label10.Name = "label10";
 		label10.Size = new Size(43, 15);
 		label10.TabIndex = 13;
@@ -302,55 +264,27 @@ partial class TransferPage
 		// Balance
 		// 
 		Balance.AutoSize = true;
-		Balance.Location = new Point(492, 241);
+		Balance.Location = new Point(495, 202);
 		Balance.Name = "Balance";
 		Balance.Size = new Size(48, 15);
 		Balance.TabIndex = 13;
 		Balance.Text = "Balance";
 		// 
-		// FromId
-		// 
-		FromId.Location = new Point(206, 97);
-		FromId.Margin = new Padding(3, 6, 3, 6);
-		FromId.Name = "FromId";
-		FromId.Size = new Size(152, 23);
-		FromId.TabIndex = 17;
-		FromId.TextChanged += Any_Changed;
-		// 
-		// ToId
-		// 
-		ToId.Location = new Point(569, 97);
-		ToId.Margin = new Padding(3, 6, 3, 6);
-		ToId.Name = "ToId";
-		ToId.Size = new Size(152, 23);
-		ToId.TabIndex = 17;
-		ToId.TextChanged += Any_Changed;
-		// 
 		// label11
 		// 
 		label11.AutoSize = true;
 		label11.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label11.Location = new Point(14, 100);
+		label11.Location = new Point(14, 83);
 		label11.Name = "label11";
 		label11.Size = new Size(47, 15);
 		label11.TabIndex = 13;
 		label11.Text = "Sender";
 		// 
-		// label1
-		// 
-		label1.AutoSize = true;
-		label1.Font = new Font("Segoe UI", 9F);
-		label1.Location = new Point(67, 81);
-		label1.Name = "label1";
-		label1.Size = new Size(34, 15);
-		label1.TabIndex = 12;
-		label1.Text = "Class";
-		// 
 		// label12
 		// 
 		label12.AutoSize = true;
 		label12.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label12.Location = new Point(727, 100);
+		label12.Location = new Point(727, 83);
 		label12.Name = "label12";
 		label12.Size = new Size(60, 15);
 		label12.TabIndex = 12;
@@ -360,7 +294,7 @@ partial class TransferPage
 		// 
 		Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
 		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(67, 167);
+		Accounts.Location = new Point(67, 150);
 		Accounts.Margin = new Padding(3, 6, 3, 6);
 		Accounts.Name = "Accounts";
 		Accounts.Size = new Size(291, 23);
@@ -371,7 +305,7 @@ partial class TransferPage
 		// 
 		label13.AutoSize = true;
 		label13.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label13.Location = new Point(18, 135);
+		label13.Location = new Point(18, 118);
 		label13.Name = "label13";
 		label13.Size = new Size(43, 15);
 		label13.TabIndex = 13;
@@ -381,8 +315,6 @@ partial class TransferPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		Controls.Add(ToId);
-		Controls.Add(FromId);
 		Controls.Add(pictureBox1);
 		Controls.Add(Amount);
 		Controls.Add(label3);
@@ -390,18 +322,14 @@ partial class TransferPage
 		Controls.Add(label6);
 		Controls.Add(label5);
 		Controls.Add(label12);
-		Controls.Add(label9);
-		Controls.Add(label1);
-		Controls.Add(label2);
-		Controls.Add(label8);
 		Controls.Add(label11);
 		Controls.Add(label7);
 		Controls.Add(label13);
 		Controls.Add(label10);
 		Controls.Add(Balance);
 		Controls.Add(label4);
-		Controls.Add(ToClass);
-		Controls.Add(FromClass);
+		Controls.Add(ToEntity);
+		Controls.Add(FromEntity);
 		Controls.Add(Asset);
 		Controls.Add(ToNet);
 		Controls.Add(Accounts);
@@ -423,31 +351,25 @@ partial class TransferPage
 	private ColumnHeader CToNet;
 	private ColumnHeader CToEntity;
 	private ColumnHeader CAsset;
-	private Label label2;
 	private Button Transfer;
 	private ComboBox FromNet;
 	private Label label4;
 	private ColumnHeader CFromNet;
 	private ColumnHeader CFromEntity;
 	private ColumnHeader CAmount;
-	private ComboBox FromClass;
+	private ComboBox FromEntity;
 	private ComboBox Asset;
 	private Label label5;
 	private Label label6;
 	private TextBox Amount;
 	private ComboBox ToNet;
-	private ComboBox ToClass;
+	private ComboBox ToEntity;
 	private Label label7;
-	private Label label8;
-	private Label label9;
 	private PictureBox pictureBox1;
 	private ComboBox Wallets;
 	private Label label10;
 	private Label Balance;
-	private TextBox FromId;
-	private TextBox ToId;
 	private Label label11;
-	private Label label1;
 	private Label label12;
 	private ComboBox Accounts;
 	private Label label13;

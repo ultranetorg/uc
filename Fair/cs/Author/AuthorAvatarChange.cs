@@ -33,7 +33,7 @@ public class AuthorAvatarChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		if(!CanAccessFile(execution, File, new EntityAddress(FairTable.Author, Author), out var f, out Error))
+		if(!CanAccessFile(execution, File, new EntityAddress((byte)FairTable.Author, Author), out var f, out Error))
 			return;
 
 		a = execution.Authors.Affect(Author);

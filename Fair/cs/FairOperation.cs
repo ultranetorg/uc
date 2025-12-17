@@ -447,9 +447,9 @@ public abstract class FairOperation : Operation
 		if(!FileExists(execution, id, out file, out error))
 			return false;
 
-		if(file.Owner.Table == FairTable.Author && !CanAccessAuthor(execution, file.Owner.Id, out _, out error))
+		if((FairTable)file.Owner.Table == FairTable.Author && !CanAccessAuthor(execution, file.Owner.Id, out _, out error))
 			return false;
-		else if(file.Owner.Table == FairTable.Site && !IsModerator(execution, file.Owner.Id, out _, out error))
+		else if((FairTable)file.Owner.Table == FairTable.Site && !IsModerator(execution, file.Owner.Id, out _, out error))
 			return false;
 
 		return true;

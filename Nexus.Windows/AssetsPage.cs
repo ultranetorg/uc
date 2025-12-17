@@ -58,12 +58,11 @@ public partial class AssetsPage : Page
 			{
 				foreach(var h in Nnp.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = acc.Bytes}), f).Holders)
 				{
-					foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id}), f).Assets)
+					foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = h}), f).Assets)
 					{
-						var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, HolderClass = h.Class, HolderId = h.Id, Name = a.Name}), f).Balance;
+						var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = h, Name = a.Name}), f).Balance;
 			
-						var li = new ListViewItem(h.Class);
-						li.SubItems.Add(h.Id);
+						var li = new ListViewItem(h);
 						li.SubItems.Add(a.Name);
 						li.SubItems.Add(a.Units);
 						li.SubItems.Add(b.ToString());

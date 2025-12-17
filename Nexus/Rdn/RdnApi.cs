@@ -339,7 +339,7 @@ public class NnHoldersByAccountApc : RdnApc
 			var a = rdn.Mcv.Accounts.Latest(new AccountAddress(Address));
 			
 			if(a != null)
-				return new AssetHolder[] {new AssetHolder {Class = nameof(Account), Id = a.Id.ToString()}};
+				return new string[] {EntityAddress.ToString(McvTable.Account, a.Id)};
 			else
 				throw new NnpException(NnpError.NotFound);
 		}

@@ -24,7 +24,7 @@ public class FileCreation : FairOperation
 
 	public FileCreation(FairTable table, AutoId id, byte[] data, MimeType mime)
 	{
-		Owner = new EntityAddress(table, id);
+		Owner = new EntityAddress((byte)table, id);
 		Data = data;
 		Mime = mime;
 	}
@@ -52,7 +52,7 @@ public class FileCreation : FairOperation
 		f.Data		= Data;
 		f.Mime		= Mime;
 
-		switch(Owner.Table)
+		switch((FairTable)Owner.Table)
 		{
 			//case FairTable.Account:
 			//{

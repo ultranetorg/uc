@@ -12,7 +12,7 @@ public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
 
 	public override Result AssetBalance(IppConnection connection, AssetBalanceNna call)
 	{
-		if(!Classes.Contains(call.HolderClass))
+		if(!EntityAddress.TryParse<FairTable>(call.Entity, out var a))
 			throw new EntityException(EntityError.UnknownClass);
 
 		if(!Assets.Any(i => i.Name == call.Name))
@@ -22,23 +22,23 @@ public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
 
 		lock(Node.Mcv.Lock)
 		{	
-			switch(call.HolderClass)
+			switch((FairTable)a.Table)
 			{
-				case nameof(Account) :
+				case FairTable.Account:
 				{
-					o = Node.Mcv.Accounts.Latest(AutoId.Parse(call.HolderId));
+					o = Node.Mcv.Accounts.Latest(a.Id);
 					break;;
 				}
 
-				case nameof(Author) :
+				case FairTable.Author :
 				{	
-					o = Node.Mcv.Authors.Latest(AutoId.Parse(call.HolderId));
+					o = Node.Mcv.Authors.Latest(a.Id);
 					break;;
 				}
 
-				case nameof(Site) :
+				case FairTable.Site :
 				{	
-					o = Node.Mcv.Sites.Latest(AutoId.Parse(call.HolderId));
+					o = Node.Mcv.Sites.Latest(a.Id);
 					break;;
 				}
 			}

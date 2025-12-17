@@ -32,7 +32,7 @@ public class FileDeletion : FairOperation
 			return;
 		}
 
-		switch(f.Owner.Table)
+		switch((FairTable)f.Owner.Table)
 		{
 			//case FairTable.Account:
 			//{
