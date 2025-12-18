@@ -3,5 +3,5 @@ export type SitesListEmptyStateProps = {
 }
 
 export const SitesListEmptyState = ({ message }: SitesListEmptyStateProps) => (
-  <span className="bg-warning rounded p-2 text-2xs leading-4">{message}</span>
+  <span className="rounded bg-warning p-2 text-2xs leading-4">{message}</span>
 )
