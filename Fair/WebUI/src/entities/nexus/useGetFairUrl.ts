@@ -14,6 +14,8 @@ export const useGetFairUrl = (baseUrl?: string) => {
   useEffect(() => {
     if (!baseUrl || hasFetched.current) return
 
+    setIsLoading(true)
+
     api
       .getFairUrl(baseUrl)
       .then(res => {

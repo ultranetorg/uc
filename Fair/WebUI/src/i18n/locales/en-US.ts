@@ -157,8 +157,8 @@ export const enUS = {
     },
   },
   toast: {
-    favoriteAdded: `Site "{{site}}" successfully added to favorites`,
-    favoriteRemoved: `Site "{{site}}" successfully removed from favorites`,
+    favoriteAdded: `Site "{{site}}" added to favorites`,
+    favoriteRemoved: `Site "{{site}}" removed from favorites`,
   },
 
   /* Pages */
