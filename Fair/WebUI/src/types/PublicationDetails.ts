@@ -1,4 +1,5 @@
 import { ProductType } from "./ProductType"
+import { ProductFieldModel } from "./ProductField"
 import { PublicationExtended } from "./PublicationExtended"
 
 export type PublicationDetails = {
@@ -8,4 +9,6 @@ export type PublicationDetails = {
   reviewsCount: number
   description: string
   productUpdated: number
+
+	productFields?: ProductFieldModel[]
 } & PublicationExtended

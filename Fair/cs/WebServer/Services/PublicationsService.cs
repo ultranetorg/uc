@@ -33,7 +33,13 @@ public class PublicationsService
 			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 			byte[]? authorAvatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
 
-			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar);
+			FieldValue[]? fields = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
+			IEnumerable<ProductFieldValueModel>? mappedFields = fields != null ? ProductsService.MapValues(fields, Product.Software) : null;
+
+			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar)
+			{
+				ProductFields = mappedFields
+			};
 		}
 	}
 

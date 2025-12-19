@@ -14,7 +14,7 @@ import { twMerge } from "tailwind-merge"
 
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
-import { SimpleMenu } from "ui/components"
+import { SimpleMenu, TextModal } from "ui/components"
 import { PropsWithClassName } from "types"
 import { useSiteContext } from "app"
 
@@ -29,6 +29,7 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
   const { isModerator } = useSiteContext()
 
   const [isExpanded, setExpanded] = useState(false)
+  const [isModalOpen, setModalOpen] = useState(false)
 
   useScrollOrResize(() => setExpanded(false), isExpanded)
 
@@ -43,7 +44,11 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
   const role = useRole(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
-  const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
+  const handleRemovePublication = useCallback(() => setModalOpen(true), [])
+  const handleConfirmRemove = useCallback(() => {
+    console.log("Remove publication", publicationId)
+    setModalOpen(false)
+  }, [publicationId])
 
   const menuItems = useMemo(
     () => [
@@ -84,6 +89,16 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
             {...getFloatingProps()}
           />
         </FloatingPortal>
+      )}
+      {isModalOpen && (
+        <TextModal
+          title={t("confirmRemoveTitle")}
+          text={t("confirmRemoveText")}
+          confirmLabel={t("confirm")}
+          cancelLabel={t("cancel")}
+          onConfirm={handleConfirmRemove}
+          onCancel={() => setModalOpen(false)}
+        />
       )}
     </>
   )
