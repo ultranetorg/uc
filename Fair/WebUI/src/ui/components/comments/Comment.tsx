@@ -60,7 +60,7 @@ export const Comment = memo(({ account, created, rating, text }: CommentProps) =
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
         <div className="flex flex-col gap-4">
           <div className="flex gap-4.5">
-            <div className="size-13 overflow-hidden rounded-full">
+            <div className="size-13 w-full overflow-hidden rounded-full">
               <img src={buildSrc(account.avatar, TEST_REVIEW_SRC)} className="size-full object-cover" />
             </div>
             <div className="flex w-full flex-col justify-center gap-2">
