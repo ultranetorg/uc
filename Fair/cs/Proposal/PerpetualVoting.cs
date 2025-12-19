@@ -88,7 +88,7 @@ public class PerpetualVoting : FairOperation
 			o.Operation.Site = s;
 
 			o.Operation.Execute(execution);
-			r.LastWin = (sbyte)Choice;
+			r.LastWin = Choice;
 		}
 
 		var a = execution.Authors.Affect(Publisher);

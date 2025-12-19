@@ -124,9 +124,9 @@ public class ProposalCreation : FairOperation
  
         var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
 
-		var p = s.Policies.FirstOrDefault(i => i.Operation == c);
- 		if(p == null)
- 			throw new IntegrityException();
+		var p = s.Policies.First(i => i.Operation == c);
+ 		///if(p == null)
+ 		///	throw new IntegrityException();
  
  		if(s.Proposals.Any(i =>  {
 									var d = execution.Proposals.Find(i);
@@ -206,8 +206,8 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, By, out _, out _) ||
-									s.IsDiscussion(c)								&& IsModerator(execution, By, out _, out _) && s.Moderators.Length == 1 ||
+		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, Site, out _, out _) ||
+									s.IsDiscussion(c)								&& IsModerator(execution, Site, out _, out _) && s.Moderators.Length == 1 ||
 									s.IsReferendum(c)								&& IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
 		{
 			Options[0].Operation.Site	= s;
@@ -251,6 +251,15 @@ public class ProposalCreation : FairOperation
 				var a = execution.Authors.Affect(By);
  				execution.Allocate(a, a, l);
  			}
+		}
+
+		foreach(var i in s.Proposals.Select(i => execution.Proposals.Find(i)).Where(i => {
+																							var t = (FairOperationClass)Fair.OCodes[i.Options[0].Operation.GetType()];
+																									
+																							return s.Policies.First(i => i.Operation == t).Approval == ApprovalRequirement.PublishersMajority && execution.Time - i.CreationTime > Time.FromDays(30);
+																						}))
+		{
+			execution.Proposals.Delete(s, i);
 		}
 	}
 }
