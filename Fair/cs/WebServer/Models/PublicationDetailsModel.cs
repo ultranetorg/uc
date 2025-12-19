@@ -14,4 +14,6 @@ public class PublicationDetailsModel(Publication publication, Product product, A
 	public string Description { get; set; } = PublicationUtils.GetDescription(publication, product);	
 
 	public int ProductUpdated { get; set; } = product.Updated.Days;
+
+	public IEnumerable<ProductFieldValueModel>? ProductFields { get; set; }
 }
