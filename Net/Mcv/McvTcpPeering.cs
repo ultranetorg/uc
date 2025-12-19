@@ -615,7 +615,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					}
 					catch(VaultException ex)
 					{
-						
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
 					}
 	
 					if(!CandidacyDeclarations.Contains(g) && GetSession(g) != null)
