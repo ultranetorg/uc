@@ -20,7 +20,7 @@ public partial class SessionsPage : Page
 
 	public override void Open(bool first)
 	{
-		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
+		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
 
 		if(Accounts.Items.Count > 0)
 		{

@@ -31,7 +31,7 @@ public partial class TransferPage : Page
 //			Wallets.SelectedIndex = 0;
 		}
 
-		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts);
+		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)

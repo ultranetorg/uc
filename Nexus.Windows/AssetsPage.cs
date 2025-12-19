@@ -23,7 +23,7 @@ public partial class AssetsPage : Page
 			Nets.Items.Insert(0, "rdn");
 			Nets.SelectedIndex = 0;
 
-			Program.NexusSystem.BindAccounts(Nexus.Vault, Accounts, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
+			Program.NexusSystem.BindAccounts(Nexus.Vault, Accounts, Nexus.Vault.Wallets.SelectMany(i => i.Accounts), null);
 			Accounts.Items.Insert(0, "All");
 			Accounts.SelectedIndex = 0;
 

@@ -44,13 +44,9 @@ public class Program: ApplicationContext
 
 		public static void InitializeAuthUI(Nexus nexus)
 		{
-			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, suggested) =>
+			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, preselected) =>
 													{
-														var f = new AuthenticattionForm(nexus.Vault);
-
-														f.Account = suggested;
-														f.SetApplication(appplication);
-														f.SetNet(net);
+														var f = new AuthenticattionForm(nexus.Vault, appplication, net, preselected);
 														f.SetLogo(logo);
 													
 														if(f.ShowDialog() == DialogResult.OK)
@@ -113,7 +109,7 @@ public class Program: ApplicationContext
 			control.SelectedItem = control.Items.OfType<Wallet>().FirstOrDefault(i => !i.Locked);
 		}
 
-		public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts)
+		public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts, AccountAddress preselected)
 		{
 			control.Items.Clear();
 
@@ -126,11 +122,13 @@ public class Program: ApplicationContext
 				control.Items.Add(i);
 
 			if(control.Items.Count > 0)
-				control.SelectedIndex = 0;
-
+				if(preselected != null)
+					control.SelectedIndex = Array.IndexOf(keys.ToArray(), preselected);
+				else	
+					control.SelectedIndex = 0;
 		}
 
-		public static void BindWallets(IWin32Window parent, Vault.Vault vault, ComboBox wallets, ComboBox accounts)
+		public static void BindWallets(IWin32Window parent, Vault.Vault vault, ComboBox wallets, ComboBox accounts, AccountAddress preselected)
 		{
 			void f(object s, EventArgs e)
 			{
@@ -142,7 +140,7 @@ public class Program: ApplicationContext
 						vault.UnlockRequested(parent, w.Name);
 	
 					if(!w.Locked)
-						BindAccounts(vault, accounts, w.Accounts);
+						BindAccounts(vault, accounts, w.Accounts, preselected);
 					else
 						wallets.SelectedItem = null;
 				}
