@@ -70,6 +70,7 @@ public class IppConnection
 													}
 													catch(AggregateException ex) when(ex.InnerException is TaskCanceledException)
 													{
+														return;
 													}
 												}
 											});
@@ -344,7 +345,7 @@ public abstract class IppServer
 											}
 											catch(AggregateException ex) when(ex.InnerException is OperationCanceledException)
 											{
-												break;
+												return;
 											}
 										}
 									})

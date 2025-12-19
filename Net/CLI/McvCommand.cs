@@ -67,11 +67,12 @@ public abstract class McvCommand : NetCommand
 	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, ActionOnResult aor)
 	{
 		var t = Cli.ApiClient.Call<TransactionApe>(	new TransactApc
-														{
-															Operations = operations,
-															Signer = signer,
-															ActionOnResult = aor
-														}, Flow);
+													{
+														Operations = operations,
+														Signer = signer,
+														ActionOnResult = aor
+													},
+													Flow);
 		int n = 0;
 
 		do 

@@ -271,11 +271,11 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 					Tag = Guid.CreateVersion7().ToByteArray(),
 					Operations = [new UtilityTransfer
 								 {
-								 	From		= EntityAddress.Parse<T>(call.FromEntity),
-								 	To			= EntityAddress.Parse<T>(call.ToEntity),
-								 	Energy		= call.Name == nameof(Account.Energy) ? long.Parse(call.Amount) : 0, 
-								 	EnergyNext	= call.Name == nameof(Account.EnergyNext) ? long.Parse(call.Amount) : 0,
-								 	Spacetime	= call.Name == nameof(Account.Spacetime) ? long.Parse(call.Amount) : 0,
+									From		= EntityAddress.Parse<T>(call.FromEntity),
+									To			= EntityAddress.Parse<T>(call.ToEntity),
+									Energy		= call.Name == nameof(Account.Energy) ? long.Parse(call.Amount) : 0, 
+									EnergyNext	= call.Name == nameof(Account.EnergyNext) ? long.Parse(call.Amount) : 0,
+									Spacetime	= call.Name == nameof(Account.Spacetime) ? long.Parse(call.Amount) : 0,
 								 }] 
 				};
 
@@ -285,7 +285,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 		while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
 		{
-			Thread.Sleep(10);
+			Thread.Sleep(1000);
 		}
 
 		return new AssetTransferNnr {TransactionId = t.Tag};
