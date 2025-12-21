@@ -124,7 +124,7 @@ public class ProposalCreation : FairOperation
  
         var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
 
-		var p = s.Policies.First(i => i.Operation == c);
+		var p = s.Policies.First(i => i.OperationClass == c);
  		///if(p == null)
  		///	throw new IntegrityException();
  
@@ -254,9 +254,11 @@ public class ProposalCreation : FairOperation
 		}
 
 		foreach(var i in s.Proposals.Select(i => execution.Proposals.Find(i)).Where(i => {
-																							var t = (FairOperationClass)Fair.OCodes[i.Options[0].Operation.GetType()];
-																									
-																							return s.Policies.First(i => i.Operation == t).Approval == ApprovalRequirement.PublishersMajority && execution.Time - i.CreationTime > Time.FromDays(30);
+																							var oc = (FairOperationClass)Fair.OCodes[i.Options[0].Operation.GetType()];
+																							
+																							return	s.Policies.First(i => i.OperationClass == oc).Approval == ApprovalRequirement.PublishersMajority && 
+																									!Uccs.Fair.Site.Restrictions.First(i => i.OperationClass == oc).Flags.HasFlag(PolicyFlag.Infinite) && 
+																									execution.Time - i.CreationTime > Time.FromDays(30);
 																						}))
 		{
 			execution.Proposals.Delete(s, i);

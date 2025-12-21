@@ -69,7 +69,7 @@ public enum PolicyFlag : byte
 
 public class Policy : IBinarySerializable
 {
-	public FairOperationClass	Operation { get ; set; }
+	public FairOperationClass	OperationClass { get ; set; }
 	public Role					Creators { get ; set; }
 	public ApprovalRequirement	Approval { get ; set; }
 
@@ -79,21 +79,21 @@ public class Policy : IBinarySerializable
 
 	public Policy(FairOperationClass operation, Role creators, ApprovalRequirement approval)
 	{
-		Operation = operation;
+		OperationClass = operation;
 		Creators = creators;
 		Approval = approval;
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Operation	= reader.Read<FairOperationClass>();
+		OperationClass	= reader.Read<FairOperationClass>();
 		Creators	= reader.Read<Role>();
 		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Operation);
+		writer.Write(OperationClass);
 		writer.Write(Creators);
 		writer.Write(Approval);
 	}
@@ -101,7 +101,7 @@ public class Policy : IBinarySerializable
 
 public class Restiction
 {
-	public FairOperationClass	Operation { get ; set; }
+	public FairOperationClass	OperationClass { get ; set; }
 	public Role					Creators { get ; set; }
 	public PolicyFlag			Flags { get ; set; }
 
@@ -111,7 +111,7 @@ public class Restiction
 
 	public Restiction(FairOperationClass operation, Role creators, PolicyFlag flags)
 	{
-		Operation = operation;
+		OperationClass = operation;
 		Creators = creators;
 		Flags = flags;
 	}
@@ -342,12 +342,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public bool IsReferendum(FairOperationClass operation)
 	{
-		return Policies.First(i => i.Operation == operation).Approval == ApprovalRequirement.PublishersMajority;
+		return Policies.First(i => i.OperationClass == operation).Approval == ApprovalRequirement.PublishersMajority;
 	}
 
 	public bool IsDiscussion(FairOperationClass operation)
 	{
-		var a = Policies.First(i => i.Operation == operation).Approval;
+		var a = Policies.First(i => i.OperationClass == operation).Approval;
 
 		return a == ApprovalRequirement.AnyModerator || a == ApprovalRequirement.ModeratorsMajority || a == ApprovalRequirement.AllModerators;
 	}

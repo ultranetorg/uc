@@ -77,7 +77,7 @@ public class ProposalVoting : FairOperation
 		 
  		p = execution.Proposals.Affect(Proposal);
 
-		var policy = s.Policies.FirstOrDefault(i => i.Operation == c);
+		var policy = s.Policies.FirstOrDefault(i => i.OperationClass == c);
 
 		bool won(AutoId[] votes)
 		{

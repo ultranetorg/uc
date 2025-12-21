@@ -88,11 +88,11 @@ public class SitesService
 		{
 			if (policy.Approval == ApprovalRequirement.PublishersMajority)
 			{
-				referendumsResult.Add(policy.Operation);
+				referendumsResult.Add(policy.OperationClass);
 			}
 			else
 			{
-				discussionsResult.Add(policy.Operation);
+				discussionsResult.Add(policy.OperationClass);
 			}
 		}
 
