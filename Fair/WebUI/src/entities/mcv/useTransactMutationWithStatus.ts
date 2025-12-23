@@ -23,19 +23,19 @@ export const useTransactMutationWithStatus = () => {
 
   const [tag, setTag] = useState<string | undefined>()
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)
-  const hasFinishedRef = useRef(false)
+  const isPendingRef = useRef(false)
 
   const mutation = useMutation({
-    mutationFn: ({ operation }: { operation: BaseFairOperation }) =>
-      api.transact(fair.data!, operation, currentAccount!.address),
+    mutationFn: ({ operations }: { operations: BaseFairOperation[] }) =>
+      api.transact(fair.data!, operations, currentAccount!.address),
 
     onSuccess: tx => {
       setTag(tx.tag)
     },
 
     onError: err => {
-      if (!hasFinishedRef.current) {
-        hasFinishedRef.current = true
+      if (isPendingRef.current) {
+        isPendingRef.current = false
         callbacksRef.current?.onError?.(err)
         callbacksRef.current?.onSettled?.()
       }
@@ -55,37 +55,32 @@ export const useTransactMutationWithStatus = () => {
   })
 
   useEffect(() => {
-    if (!query.data || hasFinishedRef.current) return
+    if (!query.data) return
 
     if (query.data.status === TransactionStatus.Confirmed) {
-      hasFinishedRef.current = true
       callbacksRef.current?.onSuccess?.(query.data)
       callbacksRef.current?.onSettled?.()
-    }
-
-    if (query.data.status === TransactionStatus.FailedOrNotFound) {
-      hasFinishedRef.current = true
+    } else if (query.data.status === TransactionStatus.FailedOrNotFound) {
       callbacksRef.current?.onError?.(new Error("Transaction failed or not found"))
       callbacksRef.current?.onSettled?.()
     }
+
+    isPendingRef.current = false
   }, [query.data])
 
   const mutate = useCallback(
-    (operation: BaseFairOperation, callbacks?: TransactMutationCallbacks) => {
-      hasFinishedRef.current = false
+    (operations: BaseFairOperation | BaseFairOperation[], callbacks?: TransactMutationCallbacks) => {
+      isPendingRef.current = true
       callbacksRef.current = callbacks ?? null
-      return mutation.mutateAsync({ operation })
+      return mutation.mutateAsync({ operations: Array.isArray(operations) ? operations : [operations] })
     },
     [mutation],
   )
 
-  // @ts-expect-error fix
-  const isPending = mutation.isPending || (query.isPending && query.data?.status !== TransactionStatus.Confirmed)
-
   return {
     mutate,
     data: query.data,
-    isPending,
+    isPending: isPendingRef.current,
     isReady: !!fair.data && !!currentAccount?.address,
     error: mutation.error || query.error,
   }

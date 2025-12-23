@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
+import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { FiltersDropdownButton, ModeratorCategoryMenu, ToggleViewButton, ViewType } from "ui/components/specific"
 import { createBreadcrumbs } from "utils"
 
@@ -30,10 +30,10 @@ export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: Ca
           <span className="text-gray-400">{category.publicationsCount}</span>
         </div>
         <div className="flex items-center gap-4">
+          {/* <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} /> */}
           <FiltersDropdownButton label={t("filters")} resetAllLabel={t("resetAll")} />
           <ToggleViewButton onChange={onViewChange} view={view} gridTitle={t("grid")} listTitle={t("list")} />
           <ModeratorCategoryMenu />
-          <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} />
         </div>
       </div>
     </div>

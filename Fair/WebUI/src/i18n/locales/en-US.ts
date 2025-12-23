@@ -18,14 +18,17 @@ export const enUS = {
     confirm: "confirm",
     createdBy: "Created By",
     currentVersion: "current version",
+    delete: "delete",
     date: "Date",
     governance: "governance",
     home: "Home",
     language: "language",
     lastsFor: "Lasts for",
     latestVersion: "latest version",
+    moderator: "moderator",
     neither: "Neither",
     next: "Next",
+    nickname: "nickname",
     no: "No",
     noVotes: "No votes",
     ok: "ok",
@@ -37,6 +40,7 @@ export const enUS = {
     reject: "reject",
     review: "review",
     reviewer: "Reviewer",
+    saveChanges: "Save changes",
     text: "Text",
     title: "Title",
     type: "type",
@@ -97,8 +101,9 @@ export const enUS = {
   /* Components */
   currentAccount: {
     addAccount: "Add account",
-    createNickname: "Create nickname",
     authenticate: "Authenticate Yourself",
+    createNickname: "Create nickname",
+    profile: "Profile",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
@@ -159,6 +164,7 @@ export const enUS = {
   toast: {
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
+    nicknameChanged: "Nickname changed successfully",
   },
 
   /* Pages */
@@ -207,6 +213,7 @@ export const enUS = {
   },
   profile: {
     authors: "My authors",
+    createNickname: "Create nickname",
     moderation: "Moderation",
     profile: "Profile",
     profileSettings: "Profile settings",
@@ -215,6 +222,7 @@ export const enUS = {
     publicationType: "Publication Type",
     publishedIn: "Published in:",
     title: "Title",
+    uploadAvatar: "Upload avatar",
   },
   publication: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
@@ -416,6 +424,10 @@ export const enUS = {
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
+    maxLength: "Must be at most {{count}} characters",
+    minLength: "Must be at least {{count}} characters",
+    onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
+    required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",
     requiredCategory: "Category is required",
     requiredCategoryTitle: "Category title is required",

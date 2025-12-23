@@ -1,5 +1,3 @@
-import { memo, SVGProps } from "react"
-
 import { HeadingsMenuHeadingItem } from "ui/components"
 
 export const PUBLICATIONS_STORE_ROW_TEST_IMAGE =
