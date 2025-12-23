@@ -7,7 +7,7 @@ import { SvgPersonSquare, SvgChevronRight, SvgPencilSm, SvgPerson2 } from "asset
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { CopyButton, LinkFullscreen } from "ui/components"
+import { ButtonGhost, CopyButton, LinkFullscreen } from "ui/components"
 import { buildAccountAvatarUrl, shortenAddress } from "utils"
 
 import pngBackground from "./background.png"
@@ -82,14 +82,14 @@ export const ProfileMenu = memo(
                   {nickname}
                 </span>
               ) : (
-                <div
-                  className="flex cursor-pointer items-center gap-1"
-                  title={t("createNickname")}
-                  onClick={onNicknameCreate}
-                >
-                  <span className="text-2sm leading-5">{t("createNickname")}</span>
-                  <SvgPencilSm className="text-gray-800" />
-                </div>
+                <LinkFullscreen to={`/p/${address}`} params={{ defaultTabKey: "profileSettings" }}>
+                  <ButtonGhost
+                    className="text-2sm leading-5"
+                    label={t("createNickname")}
+                    iconAfter={<SvgPencilSm className="fill-gray-800" />}
+                    onClick={() => console.log("Create nickname")}
+                  />
+                </LinkFullscreen>
               )}
               <div className="flex items-center gap-1">
                 <span

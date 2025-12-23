@@ -20,7 +20,7 @@ export const SiteHeader = () => {
 
   const { t } = useTranslation("site")
 
-  const { site, isModerator, isAuthor } = useSiteContext()
+  const { site, isModerator } = useSiteContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(

@@ -9,13 +9,9 @@ export type ValidationWrapperBaseProps = {
 
 export type ValidationWrapperProps = PropsWithChildren & PropsWithClassName & ValidationWrapperBaseProps
 
-export const ValidationWrapper = memo(({ children, className, message }: ValidationWrapperProps) =>
-  !message ? (
-    children
-  ) : (
-    <div className={twMerge("flex flex-col gap-1", className)}>
-      {children}
-      <span className={twMerge("text-2xs font-medium leading-4 text-error", className)}>{message}</span>
-    </div>
-  ),
-)
+export const ValidationWrapper = memo(({ children, className, message }: ValidationWrapperProps) => (
+  <div className={className}>
+    {children}
+    {message && <span className={twMerge("mt-1 text-2xs font-medium leading-4 text-error", className)}>{message}</span>}
+  </div>
+))

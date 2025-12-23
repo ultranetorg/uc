@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps, Pagination } from "ui/components"
+import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { FiltersDropdownButton, ModeratorCategoryMenu, ToggleViewButton, ViewType } from "ui/components/specific"
 import { createBreadcrumbs } from "utils"
 

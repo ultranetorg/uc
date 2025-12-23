@@ -164,6 +164,7 @@ export const enUS = {
   toast: {
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
+    nicknameChanged: "Nickname changed successfully",
   },
 
   /* Pages */
@@ -423,6 +424,10 @@ export const enUS = {
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
+    maxLength: "Must be at most {{count}} characters",
+    minLength: "Must be at least {{count}} characters",
+    onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
+    required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",
     requiredCategory: "Category is required",
     requiredCategoryTitle: "Category title is required",

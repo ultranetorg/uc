@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react"
+import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TabsProvider, useAccountsContext, useSiteContext } from "app"
@@ -11,11 +11,12 @@ import { TabContent } from "./TabContent"
 import { TabList } from "./TabList"
 
 export type ProfileTabsProps = {
+  defaultTabKey?: string
   tabsListClassName?: string
   onTabSelect: (tab: string) => void
 }
 
-export const ProfileTabs = memo(({ tabsListClassName, onTabSelect }: ProfileTabsProps) => {
+export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect }: ProfileTabsProps) => {
   const { t } = useTranslation("profile")
 
   const { currentAccount } = useAccountsContext()
@@ -28,16 +29,8 @@ export const ProfileTabs = memo(({ tabsListClassName, onTabSelect }: ProfileTabs
     return roleList.length > 0 ? roleList : undefined
   }, [isAuthor, isModerator, t])
 
-  const handleDeleteAvatar = useCallback(() => {
-    alert("handleDeleteAvatar")
-  }, [])
-
-  const handleUploadAvatar = useCallback(() => {
-    alert("handleUploadAvatar")
-  }, [])
-
   return (
-    <TabsProvider defaultKey="profile">
+    <TabsProvider defaultKey={defaultTabKey ?? "profile"}>
       <div className="flex grow gap-8">
         <div className="flex-1">
           <TabContent when="profile">
@@ -51,15 +44,7 @@ export const ProfileTabs = memo(({ tabsListClassName, onTabSelect }: ProfileTabs
             )}
           </TabContent>
           <TabContent when="profileSettings">
-            <EditProfileInfo
-              t={t}
-              nickname={currentAccount?.nickname}
-              onDeleteAvatar={handleDeleteAvatar}
-              onUploadAvatar={handleUploadAvatar}
-              onSubmit={data => {
-                console.log(data)
-              }}
-            />
+            <EditProfileInfo t={t} nickname={currentAccount?.nickname} />
           </TabContent>
           {/*
             <TabContent when="authors">
