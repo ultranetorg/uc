@@ -1,6 +1,6 @@
-import { SvgStarXxs } from "assets"
 import { twMerge } from "tailwind-merge"
 
+import { SvgStarXxs } from "assets"
 import { PublicationDetails } from "types"
 import { ButtonPrimary, LinkFullscreen } from "ui/components"
 import { formatAverageRating } from "utils"

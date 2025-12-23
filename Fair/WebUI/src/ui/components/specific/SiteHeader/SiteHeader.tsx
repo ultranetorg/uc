@@ -95,11 +95,9 @@ export const SiteHeader = () => {
         onKeyDown={handleKeyDown}
         onSearchClick={handleSearchClick}
       />
-      {isAuthor && (
-        <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
-          {t("governance")}
-        </LinkCounter>
-      )}
+      <LinkCounter to={`/${siteId}/g`} className="w-[115px]">
+        {t("governance")}
+      </LinkCounter>
       {isModerator && (
         <LinkCounter to={`/${siteId}/m`} className="w-[110px]">
           {t("moderation")}

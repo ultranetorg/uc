@@ -3,11 +3,11 @@ import { useCopyToClipboard } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
 import { useAccountsContext } from "app"
-import { SvgPersonSquare, SvgChevronRight, SvgPencilSm } from "assets"
+import { SvgPersonSquare, SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { CopyButton } from "ui/components"
+import { CopyButton, LinkFullscreen } from "ui/components"
 import { buildAccountAvatarUrl, shortenAddress } from "utils"
 
 import pngBackground from "./background.png"
@@ -102,15 +102,12 @@ export const ProfileMenu = memo(
               </div>
             </div>
             <div className="flex flex-col gap-2 p-6">
-              {/*
-              //TODO: should be uncommented later.
-              <Link to={`/p/abc`} state={{ backgroundLocation: location }}>
-                <MenuButton label="Profile" />
-              </Link>
-            */}
+              <LinkFullscreen to={`/p/${address}`}>
+                <ProfileButton iconBefore={<SvgPersonSquare className="fill-gray-800" />} label={t("profile")} />
+              </LinkFullscreen>
               <ProfileButton
                 label={t("switchAccounts")}
-                iconBefore={<SvgPersonSquare className="fill-gray-800" />}
+                iconBefore={<SvgPerson2 className="fill-gray-800" />}
                 iconAfter={<SvgChevronRight className="stroke-gray-800" />}
                 ref={accountMenu.refs.setReference}
                 {...accountMenu.getReferenceProps()}

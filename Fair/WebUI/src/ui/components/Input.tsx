@@ -14,7 +14,10 @@ export type InputBaseProps = {
   onChange: (value: string) => void
 }
 
-export type InputProps = Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "placeholder" | "readOnly" | "onBlur"> &
+export type InputProps = Pick<
+  InputHTMLAttributes<HTMLInputElement>,
+  "id" | "maxLength" | "placeholder" | "readOnly" | "onBlur"
+> &
   PropsWithClassName &
   InputBaseProps
 
