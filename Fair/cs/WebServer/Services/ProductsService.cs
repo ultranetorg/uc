@@ -185,6 +185,11 @@ public class ProductsService
 
 	public static IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
+		if(values == null)
+			return Enumerable.Empty<ProductFieldValueModel>();
+
+		metaFields ??= Array.Empty<Field>();
+
 		return from value in values
 			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
 			select new ProductFieldValueModel
@@ -193,7 +198,7 @@ public class ProductsService
 				Type = valueField?.Type,
 				Value = ConvertValue(valueField?.Type, value),
 				Children = value.Fields?.Length > 0
-					? MapValues(value.Fields, valueField?.Fields)
+					? MapValues(value.Fields, valueField?.Fields ?? Array.Empty<Field>())
 					: null
 			};
 	}
@@ -209,6 +214,7 @@ public class ProductsService
 				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 			case FieldType.Float:
 				return BinaryPrimitives.ReadDoubleLittleEndian(field.Value);
+
 			case FieldType.TextUtf8:
 			case FieldType.StringUtf8:
 			case FieldType.URI:
@@ -219,11 +225,13 @@ public class ProductsService
 			case FieldType.OS:
 			case FieldType.CPUArchitecture:
 			case FieldType.Hash:
+			case FieldType.URL:
 				return field.AsUtf8;
 			case FieldType.StringAnsi:
 				return Encoding.Default.GetString(field.Value);
 			case FieldType.Money:
 				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
+
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();
 			case FieldType.Date:

@@ -7,7 +7,6 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublication, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
-import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
 
 import { getPublicationContentByType } from "./utils"
@@ -30,8 +29,14 @@ export const PublicationPage = () => {
     [publication, siteId, t],
   )
 
+  const headerCategories = useMemo(() => {
+    const pt = publication?.productType
+    const ptLabel = pt ? pt.charAt(0).toUpperCase() + pt.slice(1) : ""
+    return [ptLabel, publication?.categoryTitle].filter(Boolean) as string[]
+  }, [publication])
+
   if (isPending || !publication) {
-    return <div>Loading</div>
+    return <div>{t("loading")}</div>
   }
 
   const ContentComponent = getPublicationContentByType(publication.productType)
@@ -44,7 +49,7 @@ export const PublicationPage = () => {
           id={publicationId!}
           title={publication.title}
           logoFileId={publication.logoFileId}
-          categories={TEST_SOFTWARE_CATEGORIES}
+          categories={headerCategories}
         />
         <div className="flex gap-8">
           <ContentComponent

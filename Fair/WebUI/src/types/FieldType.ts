@@ -6,6 +6,7 @@ export type FieldType =
   | "string-utf8"
   | "string-ansi"
   | "uri"
+  | "url"
   | "language"
   | "license"
   | "video"

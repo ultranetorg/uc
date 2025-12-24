@@ -35,16 +35,16 @@ export const PublicationsCollapse = ({
         className={twMerge("flex items-center gap-4 p-4", hasItems && "cursor-pointer")}
         onClick={hasItems ? () => onExpand(id) : undefined}
       >
-        <div className="flex grow gap-3">
-          <div className="size-13 overflow-hidden rounded-full">
-            <img src={TEST_AUTHOR_IMG} className="size-full object-cover" />
+        <div className="flex flex-grow gap-3">
+          <div className="h-13 w-13 overflow-hidden rounded-full">
+            <img src={TEST_AUTHOR_IMG} className="h-full w-full object-cover" />
           </div>
           <div className="flex flex-col justify-center gap-1">
             <span className="text-2sm font-semibold leading-4.5">{nickname}</span>
             <span className="text-2xs leading-4">{title}</span>
           </div>
         </div>
-        <span className="w-28 truncate">
+        <span className="w-28 overflow-hidden text-ellipsis whitespace-nowrap">
           {items.length} {t("publication", { count: items.length })}
         </span>
         {hasItems &&

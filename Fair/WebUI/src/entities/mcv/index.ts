@@ -1,1 +1,1 @@
-export * from "./useTransactMutationWithStatus"
+export * from "./useTransactMutation"

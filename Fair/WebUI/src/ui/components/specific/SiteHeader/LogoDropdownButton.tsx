@@ -1,7 +1,6 @@
 import { memo } from "react"
 
-import { SvgSiteLogo } from "assets/fallback"
-import { ImageFallback } from "ui/components"
+import avatarFallback from "assets/fallback/site-logo-3xl.png"
 import { buildFileUrl } from "utils"
 
 export type LogoDropdownButtonProps = {
@@ -43,7 +42,16 @@ export const LogoDropdownButton = memo(({ title, imageFileId }: LogoDropdownButt
     >
       <div className="flex select-none items-center gap-3">
         <div className="size-10 overflow-hidden rounded-lg">
-          <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgSiteLogo className="size-10" />} />
+          <img
+            src={imageFileId ? buildFileUrl(imageFileId) : avatarFallback}
+            alt="Logo"
+            className="size-full object-contain object-center"
+            loading="lazy"
+            onError={e => {
+              e.currentTarget.onerror = null
+              e.currentTarget.src = avatarFallback
+            }}
+          />
         </div>
         <span className="w-21.5 truncate text-2base font-medium leading-5.25 text-gray-800">{title}</span>
       </div>

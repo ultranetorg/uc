@@ -1,7 +1,7 @@
+import { SvgChevronRight } from "assets"
 import { forwardRef, memo, useMemo } from "react"
 import { Link, To } from "react-router-dom"
 
-import { SvgChevronRight } from "assets"
 import { PropsWithStyle } from "types"
 import { chunkArray } from "utils"
 
@@ -40,7 +40,7 @@ export const HeadingsMenu = memo(
                   <Link
                     key={x.to.toString() + i}
                     to={x.to}
-                    className="truncate rounded-sm p-2 text-2sm font-semibold leading-4.5 hover:bg-gray-100"
+                    className="overflow-hidden text-ellipsis whitespace-nowrap rounded-sm p-2 text-2sm font-semibold leading-4.5 hover:bg-gray-100"
                     title={x.label}
                   >
                     {x.label}
@@ -48,7 +48,7 @@ export const HeadingsMenu = memo(
                   {x.items?.map(s => (
                     <Link
                       to={s.to}
-                      className="truncate rounded-sm px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100"
+                      className="overflow-hidden text-ellipsis whitespace-nowrap rounded-sm px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100"
                       title={s.label}
                     >
                       {s.label}

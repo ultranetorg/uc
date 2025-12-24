@@ -1,20 +1,11 @@
 import { memo, useCallback, useMemo, useState } from "react"
-import {
-  FloatingPortal,
-  offset,
-  safePolygon,
-  useDismiss,
-  useFloating,
-  useHover,
-  useInteractions,
-  useRole,
-} from "@floating-ui/react"
+import { FloatingPortal } from "@floating-ui/react"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
 import { SvgThreeDotsSm } from "assets"
-import { useScrollOrResize } from "hooks"
-import { SimpleMenu } from "ui/components"
+import { useScrollOrResize, useSubmenu } from "hooks"
+import { SimpleMenu, TextModal } from "ui/components"
 import { PropsWithClassName } from "types"
 import { useSiteContext } from "app"
 
@@ -26,24 +17,23 @@ export type ModeratorOptionsMenuProps = PropsWithClassName & ModeratorOptionsMen
 
 export const ModeratorOptionsMenu = memo(({ className, publicationId }: ModeratorOptionsMenuProps) => {
   const { t } = useTranslation("moderatorOptionsMenu")
+  const { t: tCommon } = useTranslation("common")
   const { isModerator } = useSiteContext()
 
-  const [isExpanded, setExpanded] = useState(false)
+  const menu = useSubmenu({ placement: "bottom-end", offset: 4 })
+  const [isRemoveModalOpen, setRemoveModalOpen] = useState(false)
 
-  useScrollOrResize(() => setExpanded(false), isExpanded)
+  useScrollOrResize(() => menu.setOpen(false), menu.isOpen)
 
-  const { context, floatingStyles, refs } = useFloating({
-    middleware: [offset(4)],
-    open: isExpanded,
-    placement: "bottom-end",
-    onOpenChange: setExpanded,
-  })
-  const dismiss = useDismiss(context)
-  const hover = useHover(context, { handleClose: safePolygon() })
-  const role = useRole(context)
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+  const handleRemovePublication = useCallback(() => {
+    menu.setOpen(false)
+    setRemoveModalOpen(true)
+  }, [menu])
 
-  const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
+  const handleConfirmRemove = useCallback(() => {
+    setRemoveModalOpen(false)
+    alert("Remove publication " + publicationId)
+  }, [publicationId])
 
   const menuItems = useMemo(
     () => [
@@ -55,7 +45,7 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
     [handleRemovePublication, t],
   )
 
-  const handleMenuClick = useCallback(() => setExpanded(false), [])
+  const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])
 
   if (!isModerator) {
     return null
@@ -68,22 +58,35 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
           "flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-3 py-2 hover:border-gray-400",
           className,
         )}
-        ref={refs.setReference}
-        {...getReferenceProps()}
+        ref={menu.refs.setReference}
+        {...menu.getReferenceProps()}
+        onClick={() => menu.setOpen(!menu.isOpen)}
       >
         <span className="text-2xs font-medium leading-4">{t("label")}</span>
         <SvgThreeDotsSm className="size-6 fill-gray-800" />
       </div>
-      {isExpanded && (
+      {menu.isOpen && (
         <FloatingPortal>
           <SimpleMenu
-            ref={refs.setFloating}
+            ref={menu.refs.setFloating}
             items={menuItems}
-            style={floatingStyles}
+            style={menu.floatingStyles}
             onClick={handleMenuClick}
-            {...getFloatingProps()}
+            {...menu.getFloatingProps()}
           />
         </FloatingPortal>
+      )}
+      {isRemoveModalOpen && (
+        <TextModal
+          title={t("removePublication")}
+          text={
+            "Are you sure you want to remove the publication?\n\nAfter rejection, the review will be stored in the moderation section."
+          }
+          confirmLabel={tCommon("remove")}
+          cancelLabel={tCommon("cancel")}
+          onConfirm={handleConfirmRemove}
+          onCancel={() => setRemoveModalOpen(false)}
+        />
       )}
     </>
   )

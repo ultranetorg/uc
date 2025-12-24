@@ -1,10 +1,10 @@
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
 import { useAccountsContext, useSiteContext } from "app"
-import { useTransactMutationWithStatus } from "entities/mcv"
+import { useTransactMutation } from "entities/mcv"
 import { FavoriteSiteChange, PropsWithClassName, SiteBase } from "types"
 import { SitesList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
@@ -17,37 +17,26 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
 
   const { site } = useSiteContext()
   const { currentAccount, refetchAccount } = useAccountsContext()
-  const [showPending, setShowPending] = useState(false)
-  const [disabledIds, setDisabledIds] = useState<string[]>([])
-  const { mutate } = useTransactMutationWithStatus()
+  const { mutate: transact } = useTransactMutation()
 
   const transactOperation = useCallback(
     ({ id, title }: SiteBase, action: boolean) => {
-      if (action) {
-        setShowPending(true)
-      }
-
-      setDisabledIds(prev => [...prev, id])
-
       const operation = new FavoriteSiteChange(id, action)
-      mutate(operation, {
-        onSuccess: () => {
-          const message = action
-            ? t("toast:favoriteAdded", { site: title })
-            : t("toast:favoriteRemoved", { site: title })
-          showToast(message, "success")
+      transact(
+        { operation },
+        {
+          onSuccess: () => {
+            setTimeout(() => {
+              showToast(
+                t(action ? t("toast:favoriteAdded", { site: title }) : t("toast:favoriteRemoved", { site: title })),
+              )
+              refetchAccount()
+            }, 1500)
+          },
         },
-        onError: err => {
-          showToast(err.toString(), "error")
-        },
-        onSettled: () => {
-          setDisabledIds(() => [])
-          setShowPending(false)
-          refetchAccount()
-        },
-      })
+      )
     },
-    [mutate, refetchAccount, t],
+    [refetchAccount, t, transact],
   )
 
   const handleFavoriteAdd = useCallback((item: SiteBase) => transactOperation(item, true), [transactOperation])
@@ -62,12 +51,10 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         </Link>
         {site && (
           <SitesList
-            disabledFavorite={(!currentAccount || currentAccount?.favoriteSites?.some(s => s.id === site.id)) ?? false}
             title={t("currentSite")}
             items={[site]}
             emptyStateMessage={t("emptySitesList")}
             onFavoriteClick={handleFavoriteAdd}
-            disabledIds={disabledIds}
           />
         )}
         <SitesList
@@ -76,8 +63,6 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
           emptyStateMessage={t("emptySitesList")}
           onFavoriteClick={handleFavoriteRemove}
           isStarred={true}
-          disabledIds={disabledIds}
-          showPending={showPending}
         />
       </div>
       <CurrentAccount />

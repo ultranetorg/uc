@@ -105,9 +105,6 @@ export const enUS = {
     label: "Moderation options",
     removePublication: "Remove publication",
   },
-  moderatorCategoryMenu: {
-    createCategory: "Create category",
-  },
   moderatorPublicationMenu: {
     removePublication: "Remove publication",
   },
@@ -157,8 +154,8 @@ export const enUS = {
     },
   },
   toast: {
-    favoriteAdded: `Site "{{site}}" added to favorites`,
-    favoriteRemoved: `Site "{{site}}" removed from favorites`,
+    favoriteAdded: `Site "{{site}}" successfully added to favorites`,
+    favoriteRemoved: `Site "{{site}}" successfully removed from favorites`,
   },
 
   /* Pages */
@@ -218,13 +215,24 @@ export const enUS = {
   },
   publication: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
+    loading: "Loading...",
     activation: "Activation",
+    download: "Download",
+    downloadFromRdn: "Download from RDN",
+    downloadFromWeb: "Download from web",
+    downloadTorrent: "Download torrent",
+    eula: "End-User License Agreement",
+    free: "Free",
     information: "Information",
+    languages: "Languages",
     lastUpdated: "Last Updated",
     leaveReview: "Leave a Review",
+    licenseType: "License Type",
     noReviews: "No reviews yet. Be the first to share your experience",
     officialSite: "Official site",
     os: "OS",
+    paid: "Paid",
+    price: "Price",
     publisher: "Publisher",
     rating: "Rating",
     review_one: "Review",

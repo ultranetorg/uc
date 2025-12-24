@@ -39,7 +39,7 @@ export const ReviewsList = memo(
       {error ? (
         <div>{error.message}</div>
       ) : isPending || !reviews ? (
-        <div>⏱️ PENDING</div>
+        <div>Loading...</div>
       ) : reviews.items.length === 0 ? (
         <ReviewsListEmptyState label={noReviewsLabel} />
       ) : (

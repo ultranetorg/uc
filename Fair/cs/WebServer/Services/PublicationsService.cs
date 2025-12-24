@@ -33,7 +33,24 @@ public class PublicationsService
 			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 			byte[]? authorAvatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
 
-			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar);
+			var model = new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar);
+
+			ProductVersion? version = product.Versions.FirstOrDefault(v => v.Id == publication.ProductVersion)
+										 ?? product.Versions.OrderBy(v => v.Id).LastOrDefault();
+
+			if(version?.Fields != null)
+			{
+				try
+				{
+					Field[] declaration = Product.FindDeclaration(product.Type);
+					model.ProductFields = ProductsService.MapValues(version.Fields, declaration);
+				}
+				catch(IntegrityException)
+				{
+				}
+			}
+
+			return model;
 		}
 	}
 
