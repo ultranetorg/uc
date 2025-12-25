@@ -23,6 +23,10 @@ export const formatDate = (days: number): string => {
   return dayjs(START_DATE).add(days, "day").startOf("day").format("DD MMM YYYY")
 }
 
+export const formatDateDots = (days: number): string => {
+  return dayjs(START_DATE).add(days, "day").startOf("day").format("DD.MM.YYYY")
+}
+
 export function formatSecDate(seconds: number) {
   return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD MMM YYYY")
 }

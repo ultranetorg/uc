@@ -1,9 +1,14 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text.Json.Serialization;
+
+namespace Uccs.Fair;
 
 public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo, byte[]? authorAvatar)
 	: PublicationExtendedModel(publication, product, author, category, logo)
 {
 	public ProductType ProductType { get; } = product.Type;
+
+	[JsonPropertyName("productFields")]
+	public IEnumerable<ProductFieldValueModel> ProductFields { get; set; }
 
 	public byte[] AuthorAvatar { get; set; } = authorAvatar;
 

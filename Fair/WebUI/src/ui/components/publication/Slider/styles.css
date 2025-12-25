@@ -1,9 +1,19 @@
+.swiper-pagination {
+  bottom: 16px !important;
+  left: 0 !important;
+  right: 0 !important;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
 .swiper-pagination-bullet {
-  width: 40px;
-  height: 4px;
+  width: 32px;
+  height: 3px;
   background-color: #ffffff;
   opacity: 0.35;
   border-radius: 2px;
+  margin: 0 !important;
 }
 
 .swiper-pagination-bullet:hover {
@@ -11,8 +21,8 @@
 }
 
 .swiper-pagination-bullet-active {
-  width: 40px;
-  height: 4px;
+  width: 32px;
+  height: 3px;
   opacity: 0.65;
   background-color: #ffffff;
   border-radius: 2px;
@@ -21,6 +31,13 @@
 .swiper-button-prev::after,
 .swiper-button-next::after {
   content: "";
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
 }
 
 .swiper-button-disabled {
