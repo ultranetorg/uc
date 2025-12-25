@@ -2,7 +2,6 @@
 
 public class FairUser : User
 {
-	public string					Nickname { get; set; }
 	public AutoId[]					Authors  { get; set; }
 	public AutoId[]					ModeratedSites  { get; set; }
 	public AutoId[]					Registrations  { get; set; }
@@ -25,7 +24,6 @@ public class FairUser : User
 	{
 		var a = base.Clone() as FairUser;
 
-		a.Nickname				= Nickname;
 		a.Authors				= Authors;
 		a.ModeratedSites		= ModeratedSites;
 		a.Registrations			= Registrations;
@@ -43,7 +41,6 @@ public class FairUser : User
 	{
 		base.Write(writer);
 
-		writer.WriteUtf8(Nickname);
 		writer.Write(Authors);
 		writer.Write(ModeratedSites);
 		writer.Write(Registrations);
@@ -60,7 +57,6 @@ public class FairUser : User
 	{
 		base.Read(reader);
 
-		Nickname				= reader.ReadUtf8();
 		Authors					= reader.ReadArray<AutoId>();
 		ModeratedSites			= reader.ReadArray<AutoId>();
 		Registrations			= reader.ReadArray<AutoId>();

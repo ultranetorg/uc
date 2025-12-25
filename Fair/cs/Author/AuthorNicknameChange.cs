@@ -48,7 +48,7 @@ public class AuthorNicknameChange : FairOperation
 
 		if(Nickname != "")
 		{
-			execution.Words.Register(Nickname, EntityTextField.SiteNickname, a.Id);
+			execution.Words.Register(Nickname, EntityTextField.AuthorNickname, a.Id);
 		}
 
 		a = execution.Authors.Affect(Author);

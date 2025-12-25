@@ -220,7 +220,7 @@ public class SearchService
 			AccountSearchLiteModel model = new AccountSearchLiteModel
 			{
 				Id = account.Id.ToString(),
-				Nickname = account.Nickname
+				Nickname = account.Name
 			};
 			result.Add(model);
 		}

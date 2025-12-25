@@ -18,7 +18,10 @@ public class WordTable : Table<RawId, Word>
 
 	public IEnumerable<AutoId> Search(EntityTextField field, string prefix, int count)
 	{
-		var id = Word.GetId(prefix);
+		if(prefix.Length < 3)
+			yield break;
+
+		var pre = Word.GetId(prefix);
 
 		int n = 0;
 
@@ -26,11 +29,10 @@ public class WordTable : Table<RawId, Word>
 
 		foreach(var i in Tail)
 		{
-			foreach(var r in i.Words.Affected.Where(i => i.Key.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)).Where(i => i.Value.Reference.Field == field).Select(i => i.Value.Reference))
+			foreach(var r in i.Words.Affected.Where(i => i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Where(i => i.Value.Reference.Field == field).Select(i => i.Value.Reference))
 			{
-				if(!found.Contains(r.Entity))
+				if(found.Add(r.Entity))
 				{
-					found.Add(r.Entity);
 					yield return r.Entity;
 
 					n++;
@@ -41,15 +43,14 @@ public class WordTable : Table<RawId, Word>
 			}
 		}
 						
-		var b = FindBucket(id.B);
+		var b = FindBucket(pre.B);
 
 		if(b != null)
 		{
-			foreach(var r in b.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)).Select(i => i.Reference))
+			foreach(var r in b.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Reference))
 			{
-				if(!found.Contains(r.Entity))
+				if(found.Add(r.Entity))
 				{
-					found.Add(r.Entity);
 					yield return r.Entity;
 	
 					n++;
@@ -60,49 +61,49 @@ public class WordTable : Table<RawId, Word>
 			}
 		}
 
-		if(id.Bytes.Length <= 2)
-		{
-			var c = FindCluster((short)(id.B >> 2 & 0x3ff));
-			
-			if(c != null)
-				foreach(var i in c.Buckets.Where(b => (b.Id >> 8 & 0b11) == (id.B & 0b11)))
-				{
-					foreach(var r in i.Entries.Where(i => i.Reference.Field == field).Select(i => i.Reference))
-					{
-						if(!found.Contains(r.Entity))
-						{
-							found.Add(r.Entity);
-							yield return r.Entity;
-	
-							n++;
-	
-							if(n > count)
-								yield break;
-						}
-					}
-				}
-		}
-
-		/// MAY BE TOO SLOW
-		if(id.Bytes.Length == 1)
-		{
-			foreach(var c in Clusters.Where(c => (c.Id >> 6) == (id.B & 0xf)).SelectMany(j => j.Buckets))
-			{
-				foreach(var r in c.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes[0] == id.Bytes[0]).Select(i => i.Reference))
-				{
-					if(!found.Contains(r.Entity))
-					{
-						found.Add(r.Entity);
-						yield return r.Entity;
-	
-						n++;
-	
-						if(n > count)
-							yield break;
-					}
-				}
-			}
-		}
+//		if(pre.Bytes.Length == 2)
+//		{
+//			var c = FindCluster(ClusterFromBucket(pre.B));
+//			
+//			if(c != null)
+//				foreach(var i in c.Buckets.Where(b => (b.Id >> 8 & 0b11) == (id.B & 0b11)))
+//				{
+//					foreach(var r in i.Entries.Where(i => i.Reference.Field == field).Select(i => i.Reference))
+//					{
+//						if(!found.Contains(r.Entity))
+//						{
+//							found.Add(r.Entity);
+//							yield return r.Entity;
+//	
+//							n++;
+//	
+//							if(n > count)
+//								yield break;
+//						}
+//					}
+//				}
+//		}
+//
+//		/// MAY BE TOO SLOW
+//		if(pre.Bytes.Length == 1)
+//		{
+//			foreach(var c in Clusters.Where(c => (c.Id >> 6) == (pre.B & 0xf)).SelectMany(j => j.Buckets))
+//			{
+//				foreach(var r in c.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes[0] == pre.Bytes[0]).Select(i => i.Reference))
+//				{
+//					if(!found.Contains(r.Entity))
+//					{
+//						found.Add(r.Entity);
+//						yield return r.Entity;
+//	
+//						n++;
+//	
+//						if(n > count)
+//							yield break;
+//					}
+//				}
+//			}
+//		}
 	}
  }
 

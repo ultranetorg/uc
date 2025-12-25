@@ -178,7 +178,6 @@ public class FairExecution : Execution
 		a.Authors = [];
 		a.Registrations = [];
 		a.FavoriteSites = [];
-		a.Nickname = "";
 
 		return a;
 	}
