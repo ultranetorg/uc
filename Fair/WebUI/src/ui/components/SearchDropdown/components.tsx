@@ -7,7 +7,7 @@ import Select, {
   Props,
 } from "react-select"
 
-import { SvgSearchMd, SpinnerSvg, SvgX } from "assets"
+import { SvgSearchMd, SvgSpinner, SvgX } from "assets"
 import { HighlightText } from "ui/components"
 
 import { IndicatorsContainerSelectProps, MenuSelectProps, SearchDropdownItem } from "./types"
@@ -39,7 +39,7 @@ export const IndicatorsContainer = ({
 
 export const LoadingMessage = (props: NoticeProps<SearchDropdownItem>) => (
   <components.LoadingMessage {...props}>
-    <SpinnerSvg className="mx-auto animate-spin-slow fill-gray-300" />
+    <SvgSpinner className="mx-auto animate-spin-slow fill-gray-300" />
   </components.LoadingMessage>
 )
 

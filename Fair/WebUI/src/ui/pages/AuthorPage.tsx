@@ -31,7 +31,7 @@ export const AuthorPage = () => {
   const [isModalOpen, setModalOpen] = useState(false)
 
   const { isPending, data: author } = useGetAuthor(authorId)
-  const { isPending: _isPublicationsPending, data: publications } = useGetAuthorPublications(siteId, author?.id)
+  const { data: publications } = useGetAuthorPublications(siteId, author?.id)
 
   useDocumentTitle(author?.title ? `Author - ${author?.title} | Fair` : "Author | Fair")
 

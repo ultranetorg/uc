@@ -15,13 +15,13 @@ const outgoingTransaction = async (baseUrl: string, tag: string): Promise<Transa
   return keysToCamelCase(data) as TransactionApe
 }
 
-const transact = async (baseUrl: string, operation: BaseFairOperation, signer: string): Promise<TransactionApe> => {
-  const obj = keysToPascalCase(operation)
+const transact = async (baseUrl: string, operations: BaseFairOperation[], signer: string): Promise<TransactionApe> => {
+  const mapped = operations.map(x => keysToPascalCase(x))
 
   const response = await fetch(`${baseUrl}/Transact`, {
     method: "POST",
     body: JSON.stringify({
-      Operations: [obj],
+      Operations: mapped,
       Signer: signer,
     }),
   })
