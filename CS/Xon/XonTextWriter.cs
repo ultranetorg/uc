@@ -60,7 +60,7 @@ public class XonTextWriter : StreamWriter, IXonWriter
 		string t = new string('\t', d);
 
 		s.Append(t);
-		s.Append(t + (n.IsDifferenceDeleted ? '-' : ""));
+		s.Append((n.IsDifferenceDeleted ? '-' : ""));
 		s.Append(Quotate(n.Name, true));
 		
 		///if(IsWriteTypes && n.GetValue() != null)

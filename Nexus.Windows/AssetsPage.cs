@@ -54,24 +54,24 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
-			{
-				foreach(var h in Nnp.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = acc.Bytes}), f).Holders)
-				{
-					foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = h}), f).Assets)
-					{
-						var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = h, Name = a.Name}), f).Balance;
-			
-						var li = new ListViewItem(h);
-						li.SubItems.Add(a.Name);
-						li.SubItems.Add(a.Units);
-						li.SubItems.Add(b.ToString());
-			
-						Assets.Items.Add(li);
-			
-					}
-				}
-			}
+			///foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
+			///{
+			///	foreach(var h in Nnp.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = User.NameToBytes(acc.)}), f).Holders)
+			///	{
+			///		foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = h}), f).Assets)
+			///		{
+			///			var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = h, Name = a.Name}), f).Balance;
+			///
+			///			var li = new ListViewItem(h);
+			///			li.SubItems.Add(a.Name);
+			///			li.SubItems.Add(a.Units);
+			///			li.SubItems.Add(b.ToString());
+			///
+			///			Assets.Items.Add(li);
+			///
+			///		}
+			///	}
+			///}
 			
 			Message.Visible = false;
 		}

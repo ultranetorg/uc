@@ -13,6 +13,7 @@ public class Vote : IBinarySerializable
 	byte[]						_RawPayload;
 	Mcv							Mcv;
 
+	public AutoId				User;
 	public int					RoundId;
 	public int					Try; /// TODO: revote if consensus not reached
 	public Time					Time;
@@ -134,6 +135,7 @@ public class Vote : IBinarySerializable
 
 	protected virtual void WritePayload(BinaryWriter writer)
 	{
+		writer.Write(User);
 		writer.Write7BitEncodedInt(Try);
 		writer.Write(Time);
 		writer.Write(ParentHash);
@@ -149,6 +151,7 @@ public class Vote : IBinarySerializable
 
 	protected virtual void ReadPayload(BinaryReader reader)
 	{
+		User				= reader.Read<AutoId>();
 		Try					= reader.Read7BitEncodedInt();
 		Time				= reader.Read<Time>();
 		ParentHash			= reader.ReadBytes(Cryptography.HashSize);
@@ -207,17 +210,17 @@ public class Vote : IBinarySerializable
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.VotersRound.Members.NearestBy(m => m.Address, t.Signer).Address}");
+			log.ReportWarning(this, $"----NearestBy {round.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
 			log.ReportWarning(this, $"----Zone {t.Net.Zone}");
 			log.ReportWarning(this, $"----Net {t.Net.Address}");
 			log.ReportWarning(this, $"----Member {t.Member}");
-			log.ReportWarning(this, $"----Nid {t.Nid}");
+			log.ReportWarning(this, $"----Nonce {t.Nonce}");
 			log.ReportWarning(this, $"----Expiration {t.Expiration}");
 			log.ReportWarning(this, $"----Bonus {t.Bonus}");
 			log.ReportWarning(this, $"----Tag {t.Tag?.ToHex()}");
-			log.ReportWarning(this, $"----Sponsored {t.Sponsored}");
+			log.ReportWarning(this, $"----Sponsored {t.UserCreationRequest}");
 
 			foreach(var i in t.Operations)
 				log.ReportWarning(this, $"--------Operation {i}");

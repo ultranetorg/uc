@@ -19,10 +19,20 @@ public static class Extentions
 		return s;
 	}
 
-	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account)
+	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account, int nonce)
 	{
-		return e.MinBy(m => Cryptography.Hash(by(m).Bytes, account.Bytes), Bytes.Comparer);
+		return e.MinBy(m => Cryptography.Hash(by(m).Bytes, [..account.Bytes, (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
 	}
+
+	//public static T NearestBy<T>(this T[] e, int x)
+	//{
+	//	return e[x % e.Length];
+	//}
+	//
+	//public static T NearestBy<T>(this List<T> e, int x)
+	//{
+	//	return e[x % e.Count];
+	//}
  
 	public static IEnumerable<T> OrderByHash<T>(this IEnumerable<T> e, Func<T, byte[]> by, byte[] hash)
 	{

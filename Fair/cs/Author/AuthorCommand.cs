@@ -19,7 +19,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Creates a new author for a specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
-						SignerArgument("Address of account that owns or is going to register the author")];
+						ByArgument("Address of account that owns or is going to register the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -39,7 +39,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets an nickname for a specified author";
 		a.Arguments =	[new (null, EID, "Id of a author to update", Flag.First),
 						new (nickname, NAME, "A new nickname"),
-						SignerArgument("Address of account that is author's owner")];
+						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -83,7 +83,7 @@ public class AuthorCommand : FairCommand
 							new (null, EID, "Id of an author to be renewed", Flag.First),
 							new (addowner, AA, "Account Id of a new owner to add"),
 							new (removeowner, AA, "Account Id of a existing owner to remove"),
-							SignerArgument("Address of account that owns the author")
+							ByArgument("Address of account that owns the author")
 						];
 
 		a.Execute = () =>	{
@@ -113,7 +113,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Prolongs current expiration date of an author for a specified number of years";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (years, YEARS, "A number of years to renew author for. Allowed during the last year of current period only."),
-						SignerArgument("Address of account that owns the author")];
+						ByArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -133,7 +133,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets an avatar for a specified author";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (file, EID, "A file"),
-						SignerArgument("Address of account that is author's owner")];
+						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -159,7 +159,7 @@ public class AuthorCommand : FairCommand
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (t, TEXT, "A new title"),
 						new (d, TEXT,  "A new description"),
-						SignerArgument("Address of account that owns the site")];
+						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -187,7 +187,7 @@ public class AuthorCommand : FairCommand
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (add, TEXT, "A links to add", Flag.Optional|Flag.Multi),
 						new (remove, TEXT, "A links to remove", Flag.Optional|Flag.Multi),
-						SignerArgument("Address of account that owns the author")];
+						ByArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

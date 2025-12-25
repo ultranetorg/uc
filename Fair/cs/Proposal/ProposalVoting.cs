@@ -198,7 +198,7 @@ public class ProposalVoting : FairOperation
 					o.Operation.Site	= s;
 					o.Operation.As		= p.As;
 					o.Operation.By		= p.By;
-					o.Operation.Signer	= p.As == Role.User ? execution.AffectAccount(p.By) : null;
+					o.Operation.User	= p.As == Role.User ? execution.AffectUser(p.By) : null;
 
 					var e = execution.CreateChild();
 	 		

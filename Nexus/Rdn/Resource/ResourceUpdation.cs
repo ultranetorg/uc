@@ -83,14 +83,14 @@ public class ResourceUpdation : RdnOperation
 
 				if(r.Flags.HasFlag(ResourceFlags.Data))
 				{
-					execution.Free(Signer, d, r.Data.Value.Length);
+					execution.Free(User, d, r.Data.Value.Length);
 				}
 
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
 				r.Updated	= execution.Time;
 
-				execution.Allocate(Signer, d, r.Data.Value.Length);
+				execution.Allocate(User, d, r.Data.Value.Length);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
@@ -106,7 +106,7 @@ public class ResourceUpdation : RdnOperation
 					return;
 				}
 
-				execution.Free(Signer, d, r.Data.Value.Length);
+				execution.Free(User, d, r.Data.Value.Length);
 
 				r.Flags	&= ~ResourceFlags.Data;
 				r.Data = null;
@@ -141,7 +141,7 @@ public class ResourceUpdation : RdnOperation
 				}
 			} 
 
-			execution.PayCycleEnergy(Signer);
+			execution.PayCycleEnergy(User);
 		}
 
 		execute(x.Address);

@@ -28,12 +28,12 @@ public class UserRegistration : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return other is UserRegistration o && o.Signer.Address == Signer.Address;
+		return other is UserRegistration o && o.User.Owner == User.Owner;
 	}
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(Site.Users.Contains(Signer.Id))
+		if(Site.Users.Contains(User.Id))
 		{
 			error = AlreadyExists;
 			return false;
@@ -52,9 +52,9 @@ public class UserRegistration : VotableOperation
 		return true;
  	}
 
-	public override void PreTransact(McvNode node, bool sponsored, Flow flow, AutoId site)
+	public override void PreTransact(McvNode node, string userCreationRequest, Flow flow, AutoId site)
 	{
-		if(sponsored)
+		if(userCreationRequest != null)
 		{
 			Pow = null;
 
@@ -92,16 +92,16 @@ public class UserRegistration : VotableOperation
 	{
 		var s = Site;
 
-		s.Users = [..s.Users, Signer.Id];
+		s.Users = [..s.Users, User.Id];
 
-		Signer.Registrations = [..Signer.Registrations, Site.Id];
+		User.Registrations = [..User.Registrations, Site.Id];
 
 		if(Pow != null)
 		{	
-			Signer.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
+			User.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
 			execution.AllocateForever(s, execution.Net.EntityLength);
 		}
 		else
-			execution.AllocateForever(Signer, execution.Net.EntityLength);
+			execution.AllocateForever(User, execution.Net.EntityLength);
 	}
 }

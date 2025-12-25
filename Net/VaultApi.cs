@@ -46,7 +46,7 @@ public class IsAuthenticatedApc : Apc
 {
 	public string			Application { get; set; }
 	public string			Net { get; set; }
-	public AccountAddress	Account { get; set; }
+	public string			User { get; set; }
 	public byte[]			Session { get; set; }
 }
 
@@ -54,8 +54,9 @@ public class AuthenticateApc : Apc
 {
 	public string			Application { get; set; }
 	public string			Net { get; set; } /// rdn/fair /fair
-	public AccountAddress	Account { get; set; } /// optional
+	public string			User { get; set; } /// optional
 	public byte[]			Logo { get; set; }
+	public AccountAddress	Account { get; set; }/// suggested
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))] 
@@ -70,7 +71,7 @@ public class AuthorizeApc : Apc
 	public string			Net { get; set; }
 	public string			Application { get; set; }
 	public string			Operation { get; set; }
-	public AccountAddress	Account { get; set; }
+	public string			User { get; set; }
 	public byte[]			Session { get; set; }
 	public byte[]			Hash { get; set; }
 }

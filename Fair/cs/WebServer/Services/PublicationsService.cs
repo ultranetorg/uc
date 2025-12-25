@@ -346,7 +346,7 @@ public class PublicationsService
 				throw new InvalidPublicationVersionException(changedPublicationId);
 			}
 
-			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
+			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
@@ -409,7 +409,7 @@ public class PublicationsService
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
-			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
+			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 

@@ -384,7 +384,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 	public string			ToEntity { get; set; }
 	public string			Name { get; set; }
 	public string			Amount { get; set; }
-	public AccountAddress	Signer { get; set; }
+	public byte[]			Signature { get; set; }
 
 	public override void Read(BinaryReader reader)
 	{
@@ -394,7 +394,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		ToEntity	= reader.ReadASCII();
 		Name		= reader.ReadASCII();
 		Amount		= reader.ReadASCII();
-		Signer		= reader.Read<AccountAddress>();
+		Signature	= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -405,7 +405,7 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		writer.WriteASCII(ToEntity);
 		writer.WriteASCII(Name);
 		writer.WriteASCII(Amount);
-		writer.Write(Signer);
+		writer.WriteBytes(Signature);
 	}
 }
 

@@ -6,7 +6,7 @@ namespace Uccs.Rdn;
 
 public class RdnNnpIppConnection : McvNnpIppConnection<RdnNode, RdnTable>
 {
-	public RdnNnpIppConnection(RdnNode node, Flow flow) : base(node, [nameof(Account)], flow)
+	public RdnNnpIppConnection(RdnNode node, Flow flow) : base(node, [nameof(User)], flow)
 	{
 	}
 }

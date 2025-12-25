@@ -46,10 +46,10 @@ public class UserDeletion : VotableOperation
 	{
 		var s = Site;
 
-		s.Users = s.Users.Remove(Signer.Id);
-		Signer.Registrations = Signer.Registrations.Remove(s.Id);
+		s.Users = s.Users.Remove(base.User.Id);
+		base.User.Registrations = base.User.Registrations.Remove(s.Id);
 
-		if(Signer.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
+		if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
 		{
 			execution.FreeForever(s, execution.Net.EntityLength);
 		}

@@ -8,10 +8,10 @@ public enum ApprovalRequirement : byte
 public enum Role : byte
 {
 	None, 
-	Moderator	= 0b0001,
-	Candidate	= 0b0010,
-	Publisher	= 0b0100,
-	User		= 0b1000,
+	Moderator	= 0b0001, /// User.Id
+	Candidate	= 0b0010, /// Author.Id
+	Publisher	= 0b0100, /// Author.Id
+	User		= 0b1000, /// User.Id
 }
 
 public class Moderator : IBinarySerializable

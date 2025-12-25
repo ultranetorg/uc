@@ -10,7 +10,7 @@ public enum OperationClass : uint
 {
 	None = 0, 
 	Genesis						= 000_000_001, 
-	AccountCreation				= 000_000_002, 
+	UserCreation				= 000_000_002, 
 	CandidacyDeclaration		= 000_000_003, 
 	UtilityTransfer				= 000_000_004,
 	BandwidthAllocation			= 000_000_005,
@@ -24,7 +24,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 {
 	public string						Error;
 	public Transaction					Transaction;
-	public Account						Signer;
+	public User							User;
 	public abstract string				Explanation { get; }
 
 	public const string					AlreadyExists = "Already exists";
@@ -77,13 +77,13 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 	
-	public virtual void PreTransact(McvNode node, bool sponsored, Flow flow)
+	public virtual void PreTransact(McvNode node, string userCreationRequest, Flow flow)
 	{
 	}
 
-	public bool AccountExists(Execution executions, AutoId id, out Account account, out string error)
+	public bool AccountExists(Execution executions, AutoId id, out User account, out string error)
 	{
-		account = executions.FindAccount(id);
+		account = executions.FindUser(id);
 
 		if(account == null || account.Deleted)
 		{
@@ -95,12 +95,12 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return true;
 	}
 
-	public bool CanAccessAccount(Execution executions, AutoId id, out Account account, out string error)
+	public bool CanAccessAccount(Execution executions, AutoId id, out User account, out string error)
 	{
 		if(!AccountExists(executions, id, out account, out error))
 			return false;
 
-		if(account.Address != Signer.Address)
+		if(account.Owner != User.Owner)
 		{
 			error = Denied;
 			return false;

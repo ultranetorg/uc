@@ -21,7 +21,7 @@ public class ProductCommand : FairCommand
 		a.Description = "Creates a product entity in the MCV database";
 		a.Arguments =  [new (null, EID, "Entity id of author to create a product for", Flag.First),
 						new (type, PRODUCTTYPE, "A type of product"),
-						SignerArgument()];
+						ByArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -38,7 +38,7 @@ public class ProductCommand : FairCommand
 		a.Name = "x";
 		a.Description = "Destroys existing product and all its associated data";
 		a.Arguments =  [new (null, EID, "Id of a product to delete", Flag.First),
-						SignerArgument()];
+						ByArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -58,7 +58,7 @@ public class ProductCommand : FairCommand
 		a.Description = "Updates a product entity properties in the MCV database";
 		a.Arguments =  [new (null, EID, "Id of a product to update", Flag.First),
 						new (definition, TEXT, "Product definition"),
-						SignerArgument()];
+						ByArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -82,7 +82,7 @@ public class ProductCommand : FairCommand
 		a.Name = "e";
 		a.Description = "Gets product entity information from the MCV database";
 		a.Arguments =  [new (null, EID, "Id of a product to get information about", Flag.First), 
-						SignerArgument()];
+						ByArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);

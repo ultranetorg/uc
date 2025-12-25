@@ -6,7 +6,7 @@ public class CandidacyDeclaration : Operation
 {
 	public Endpoint[]		GraphIPs  { get; set; }
 
-	public override string	Explanation => $"Id={Signer.Id}, Address={Signer.Address}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
+	public override string	Explanation => $"Id={User.Id}, Address={User.Owner}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
 
 	public CandidacyDeclaration()
 	{
@@ -26,13 +26,13 @@ public class CandidacyDeclaration : Operation
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.Round.Members.Any(i => i.Id == Signer.Id))
+		if(execution.Round.Members.Any(i => i.Id == User.Id))
 		{
 			Error = "Already member";
 			return;
 		}
 
-		var c = execution.Candidates.Find(i => i.Id == Signer.Id);
+		var c = execution.Candidates.Find(i => i.Id == User.Id);
 
 		if(c != null)
 		{
@@ -40,12 +40,12 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
-		Signer.Energy -= execution.Net.DeclarationCost;
+		User.Energy -= execution.Net.DeclarationCost;
 
-		c = execution.AffectCandidate(Signer.Id);
+		c = execution.AffectCandidate(User.Id);
 		
-		c.Id			= Signer.Id;
-		c.Address		= Signer.Address;
+		c.Id			= User.Id;
+		c.Address		= User.Owner;
 		c.GraphPpcIPs	= GraphIPs;
 		c.Registered	= execution.Round.Id;
 	}

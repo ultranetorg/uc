@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class AccountAvatarChange : FairOperation
+public class UserAvatarChange : FairOperation
 {
 	/// <summary>
 	///  Both == null means delete avatar
@@ -9,7 +9,7 @@ public class AccountAvatarChange : FairOperation
 	public byte[]				Image { get; set; }
 	public override string		Explanation => $"Avatar={Image?.Length}";
 	
-	public AccountAvatarChange()
+	public UserAvatarChange()
 	{
 	}
 	
@@ -30,12 +30,12 @@ public class AccountAvatarChange : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!CanAccessAccount(execution, Signer.Id, out var a, out Error))
+		if(!CanAccessAccount(execution, User.Id, out var a, out Error))
 			return;
 
-		Signer.Avatar = Image;
+		User.Avatar = Image;
 
-		execution.AllocateForever(Signer, Image.Length);
-		execution.PayCycleEnergy(Signer);
+		execution.AllocateForever(User, Image.Length);
+		execution.PayCycleEnergy(User);
 	}
 }

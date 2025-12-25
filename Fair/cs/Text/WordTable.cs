@@ -26,11 +26,9 @@ public class WordTable : Table<RawId, Word>
 
 		foreach(var i in Tail)
 		{
-			foreach(var j in i.Words.Affected.Where(i => i.Key.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)))
+			foreach(var r in i.Words.Affected.Where(i => i.Key.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)).Where(i => i.Value.Reference.Field == field).Select(i => i.Value.Reference))
 			{
-				var r = j.Value.References.FirstOrDefault(i => i.Field == field);
-					
-				if(r != null && !found.Contains(r.Entity))
+				if(!found.Contains(r.Entity))
 				{
 					found.Add(r.Entity);
 					yield return r.Entity;
@@ -47,10 +45,8 @@ public class WordTable : Table<RawId, Word>
 
 		if(b != null)
 		{
-			foreach(var i in b.Entries.Where(i => i.References.Any(j => j.Field == field) && i.Id.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)))
+			foreach(var r in b.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes.Take(id.Bytes.Length).SequenceEqual(id.Bytes)).Select(i => i.Reference))
 			{
-				var r = i.References.First(j => j.Field == field);
-	
 				if(!found.Contains(r.Entity))
 				{
 					found.Add(r.Entity);
@@ -71,11 +67,9 @@ public class WordTable : Table<RawId, Word>
 			if(c != null)
 				foreach(var i in c.Buckets.Where(b => (b.Id >> 8 & 0b11) == (id.B & 0b11)))
 				{
-					foreach(var j in i.Entries)
+					foreach(var r in i.Entries.Where(i => i.Reference.Field == field).Select(i => i.Reference))
 					{
-						var r = j.References.FirstOrDefault(i => i.Field == field);
-						
-						if(r != null && !found.Contains(r.Entity))
+						if(!found.Contains(r.Entity))
 						{
 							found.Add(r.Entity);
 							yield return r.Entity;
@@ -94,11 +88,9 @@ public class WordTable : Table<RawId, Word>
 		{
 			foreach(var c in Clusters.Where(c => (c.Id >> 6) == (id.B & 0xf)).SelectMany(j => j.Buckets))
 			{
-				foreach(var j in c.Entries.Where(i => i.Id.Bytes[0] == id.Bytes[0]))
+				foreach(var r in c.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes[0] == id.Bytes[0]).Select(i => i.Reference))
 				{
-					var r = j.References.FirstOrDefault(i => i.Field == field);
-						
-					if(r != null && !found.Contains(r.Entity))
+					if(!found.Contains(r.Entity))
 					{
 						found.Add(r.Entity);
 						yield return r.Entity;
@@ -133,7 +125,6 @@ public class WordExecution : TableExecution<RawId, Word>
 
 			a = Table.Create();
 			a.Id = id;
-			a.References = [];
 		
 			return Affected[id] = a;
 		} 
@@ -146,26 +137,16 @@ public class WordExecution : TableExecution<RawId, Word>
 	public void Register(string word, EntityTextField field, AutoId entity)
 	{
 		var id = Word.GetId(word);
-		var w = Find(id)?.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);;
-		
-		if(w == null)
-		{
-			var t = Affect(id);
+		var w = Affect(id);
 	
-			t.References = [..t.References, new EntityFieldAddress {Entity = entity, Field = field}];
-		}
+		w.Reference = new EntityFieldAddress {Entity = entity, Field = field};
 	}
 
-	public void Unregister(string word, EntityTextField field, AutoId entity)
+	public void Unregister(string word)
 	{
 		var id = Word.GetId(word);
-		var w = Find(id)?.References.FirstOrDefault(e => e.Field == field && e.Entity == entity);;
-		
-		if(w == null)
-		{
-			var t = Affect(id);
-	
-			t.References = t.References.Remove(w);
-		}
+		var w = Affect(id);
+
+		w.Deleted = true;
 	}
 }

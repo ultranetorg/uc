@@ -5,11 +5,11 @@ namespace Uccs.Fair;
 public enum FairPpcClass : uint
 {
 	None = 0, 
-	FairAccount = McvPpcClass._Last + 1, 
+	FairUser = McvPpcClass._Last + 1, 
 	FairMembers,
 
-	AccountAuthors,
-	AccountSites,
+	UserAuthors,
+	UserSites,
 
 	Author,
 	Product,
@@ -37,7 +37,7 @@ public class FairTcpPeering : McvTcpPeering
 		Constructor.Register<PeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
-		Constructor.Register(() => new FairAccount(Mcv));
+		Constructor.Register(() => new FairUser(Mcv));
 
 		Run();
 	}

@@ -291,9 +291,10 @@ public class VotesReportResponse
 public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
-	public AccountAddress			Signer { get; set; }
+	public string					User { get; set; }
+	//public AccountAddress			Signer { get; set; }
 	public byte[]					Tag { get; set; } /// optional
-	public bool						Sponsored { get; set; }
+	public string					UserCreationRequest { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -301,7 +302,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, Signer, Tag, Sponsored, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, User, Tag, UserCreationRequest, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -340,22 +341,22 @@ public class OutgoingTransactionsApc : McvApc
 public class EstimateOperationApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
-	public AccountAddress			By  { get; set; }
+	public string					User  { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
 
-		t.Signer = By;
+		//t.Signer = By;
 		t.Signature	= node.VaultApi.Call<byte[]>(new AuthorizeApc
-													{
-														Cryptography = node.Mcv.Net.Cryptography.Type,
-														Application = GetType().Name,
-														Net		= node.Mcv.Net.Name,
-														Account	= By,
-														Session = node.Settings.Sessions.First(i => i.Account == By).Session,
-														Hash	= t.Hashify()
-													}, t.Flow);
+												 {
+												 	Cryptography = node.Mcv.Net.Cryptography.Type,
+												 	Application = GetType().Name,
+												 	Net			= node.Mcv.Net.Name,
+												 	User		= User.ToString(),
+												 	Session		= node.Settings.Sessions.First(i => i.User == User).Session,
+												 	Hash		= t.Hashify()
+												 }, t.Flow);
 
 
 		///t.Sign(node.Vault.Find(By).Key, []);
@@ -389,7 +390,7 @@ public class TransactionApe
 
 	public TransactionApe(Transaction transaction)
 	{
-		Nid					= transaction.Nid;
+		Nid					= transaction.Nonce;
 		Id					= transaction.Id;
 		Operations			= [..transaction.Operations];
 		   
@@ -400,7 +401,7 @@ public class TransactionApe
 		Signature			= transaction.Signature;
 		   
 		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoTcpPeering)?.EP;
-		Signer				= transaction.Signer;
+		//Signer				= transaction.Signer;
 		Status				= transaction.Status;
 		__ExpectedStatus	= transaction.ActionOnResult;
 
@@ -465,7 +466,7 @@ public class PpcApc : McvApc
 
 public class EnforceSessionsApc : McvApc
 {
-	public AccountAddress	 Account {get; set;}
+	public string	 User {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -473,7 +474,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.GetSession(Account);
+			node.Peering.GetSession(User);
 
 		return null;
 	}

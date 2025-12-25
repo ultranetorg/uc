@@ -38,7 +38,7 @@ public class FairRound : Round
 		return new FairExecution(Mcv, this, transaction);
 	}
 
-	public override long AccountAllocationFee(Account account)
+	public override long AccountAllocationFee(User account)
 	{
 		return FairExecution.ToBD(Net.EntityLength, Uccs.Net.Mcv.Forever);
 	}

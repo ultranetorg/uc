@@ -16,6 +16,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	
 	public byte	this[int k] => Bytes[k];
  
+
 	public AccountAddress()
 	{
 	}

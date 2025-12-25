@@ -21,7 +21,7 @@ public class RdnRound : Round
 		return new RdnExecution(Mcv, this, transaction);
 	}
 
-	public override long AccountAllocationFee(Account account)
+	public override long AccountAllocationFee(User account)
 	{
 		return Execution.ToBD(Mcv.Net.EntityLength, Uccs.Net.Mcv.Forever);
 	}
@@ -142,7 +142,7 @@ public class RdnRound : Round
 				Migrations.Remove(e);
 			} 
 			else
-				execution.AffectAccount(e.Generator).AverageUptime -= 10;
+				execution.AffectUser(e.Generator).AverageUptime -= 10;
 		}
 
 		Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);

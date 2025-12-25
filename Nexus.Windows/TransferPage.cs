@@ -174,7 +174,7 @@ public partial class TransferPage : Page
 																	ToEntity = ToEntity.Text,
 																	Name = (Asset.SelectedItem as Asset).Name,
 																	Amount = Amount.Text,
-																	Signer = Accounts.SelectedItem as AccountAddress,
+																	///Signer = Accounts.SelectedItem as AccountAddress,
 																}),
 																new Flow(5000));
 		}

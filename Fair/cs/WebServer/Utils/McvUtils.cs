@@ -14,7 +14,7 @@ public static class McvUtils
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 			
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(moderatorsId);
+			FairUser account = (FairUser) mcv.Users.Latest(moderatorsId);
 			AccountBaseModel model = new(account);
 			result.Add(model);
 		}

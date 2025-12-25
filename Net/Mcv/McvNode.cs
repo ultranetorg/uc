@@ -19,21 +19,21 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 	{
 		RequireGraph();
 
-		if(!Node.Mcv.NextVotingRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Contains(i.Address))) 
+		if(!Node.Mcv.NextVotingRound.VotersRound.Members.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Signer == i.Address))) 
 			throw new NodeException(NodeError.NotMember);
 	}
 
-	protected Generator RequireMemberFor(AccountAddress signer)
-	{
-		RequireGraph();
-
-		var m = Node.Mcv.NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, signer);
-
-		if(!Node.Mcv.Settings.Generators.Contains(m.Address)) 
-			throw new NodeException(NodeError.NotMember);
-
-		return m;
-	}
+//	protected Generator RequireMemberFor(AccountAddress signer)
+//	{
+//		RequireGraph();
+//
+//		var m = Node.Mcv.NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, signer);
+//
+//		if(!Node.Mcv.Settings.Generators.Any(i => i.Signer == m.Address)) 
+//			throw new NodeException(NodeError.NotMember);
+//
+//		return m;
+//	}
 }
 
 public class McvNode : Node

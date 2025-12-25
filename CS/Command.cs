@@ -229,7 +229,7 @@ public abstract class Command
 		return One(paramenter) != null;
 	}
 
-	protected string GetString(string paramenter, bool mandatory = true)
+	public string GetString(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 
@@ -242,7 +242,7 @@ public abstract class Command
 				return null;
 	}
 
-	protected string GetString(string paramenter, string def)
+	public string GetString(string paramenter, string def)
 	{
 		var p = One(paramenter);
 
@@ -252,7 +252,7 @@ public abstract class Command
 			return def;
 	}
 
-	protected long GetLong(string paramenter)
+	public long GetLong(string paramenter)
 	{
 		var p = One(paramenter);
 
@@ -262,7 +262,7 @@ public abstract class Command
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected int GetInt(string paramenter)
+	public int GetInt(string paramenter)
 	{
 		var p = One(paramenter);
 
@@ -272,7 +272,7 @@ public abstract class Command
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected int GetInt(string paramenter, int def)
+	public int GetInt(string paramenter, int def)
 	{
 		var p = One(paramenter);
 
@@ -282,7 +282,7 @@ public abstract class Command
 			return def;
 	}
 
-	protected byte[] GetBytes(string paramenter, bool mandatory = true)
+	public byte[] GetBytes(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 
@@ -295,7 +295,7 @@ public abstract class Command
 				return null;
 	}
 
-	protected Version GetVersion(string paramenter, bool mandatory = true)
+	public Version GetVersion(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 

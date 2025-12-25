@@ -41,30 +41,21 @@ public class McvCli : Cli
 	{
 		var c = command as McvCommand;
 
-		if(result is Operation o)
+		if(result is Operation || result is IEnumerable<Operation>)
 		{
-			if(c.Has("estimate"))
-			{
-				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = [o], By = c.GetAccountAddress(McvCommand.SignerArg)});
-				flow.Log.Dump(rp);
-			}
-			else
-			{
-				var t = c.Transact([o], c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetActionOnResult(args));
+			Operation[] ops = result is Operation o ? [o] : [..result as IEnumerable<Operation>];
 
-				c.Transacted?.Invoke();
-			}
-		}
-		else if(result is IEnumerable<Operation> ooo)
-		{
+			//var u = c.Api<UserPpr>(new PpcApc {Request = new UserPpc(c.GetString(McvCommand.ByArg))});
+
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = ooo, By = c.GetAccountAddress(McvCommand.SignerArg)});
+				var rp = c.Api<AllocateTransactionPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByArg)});
 				flow.Log.Dump(rp);
 			}
 			else
 			{
-				var t = c.Transact(ooo, c.GetAccountAddress(McvCommand.SignerArg), McvCommand.GetActionOnResult(args));
+
+				var t = c.Transact(ops, c.GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

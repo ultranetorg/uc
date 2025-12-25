@@ -80,12 +80,12 @@ public class ProposalCreation : FairOperation
 		return e;
 	}
 
-	public override void PreTransact(McvNode node, bool sponsored, Flow flow)
+	public override void PreTransact(McvNode node, string userCreationRequest, Flow flow)
 	{
 		foreach(var i in Options)
-			i.Operation.PreTransact(node, sponsored, flow, Site);
+			i.Operation.PreTransact(node, userCreationRequest, flow, Site);
 
-		base.PreTransact(node, sponsored, flow);
+		base.PreTransact(node, userCreationRequest, flow);
 	}
 
 	public override void Read(BinaryReader reader)
@@ -116,7 +116,7 @@ public class ProposalCreation : FairOperation
 		foreach(var i in Options)
 		{
 			i.Operation.Site = s;
-			i.Operation.Signer = Signer;
+			i.Operation.User = User;
 		}
 
  		if(!Options.All(i => i.Operation.ValidateProposal(execution, out Error)))
@@ -212,7 +212,7 @@ public class ProposalCreation : FairOperation
 		{
 			Options[0].Operation.Site	= s;
 			Options[0].Operation.As		= As;
-			Options[0].Operation.By		= As == Role.User ? Signer.Id : By;
+			Options[0].Operation.By		= As == Role.User ? User.Id : By;
 
 			Options[0].Operation.Execute(execution);
 		}
@@ -221,7 +221,7 @@ public class ProposalCreation : FairOperation
  			var z = execution.Proposals.Create(s);
  
  			z.Site			= Site;
-			z.By			= As == Role.User ? Signer.Id : By;
+			z.By			= As == Role.User ? User.Id : By;
 			z.As			= As;
 			z.Title			= Title;
 			z.Text			= Text;

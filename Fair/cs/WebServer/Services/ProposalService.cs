@@ -53,7 +53,7 @@ public class ProposalService
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
 
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
+			FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
 
 			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 			return new ProposalDetailsModel(proposal, account)
@@ -87,7 +87,7 @@ public class ProposalService
 		{
 			return accountsIds.Select(id =>
 			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+				FairUser account = (FairUser) mcv.Users.Latest(id);
 				return new AccountBaseAvatarModel(account);
 			}).ToArray();
 		}
@@ -158,7 +158,7 @@ public class ProposalService
 		IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
 		foreach(Proposal proposal in proposals)
 		{
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(proposal.By);
+			FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
 			ProposalModel model = new ProposalModel(proposal, account)
 			{
 				Options = ProposalUtils.MapOptions(proposal.Options)

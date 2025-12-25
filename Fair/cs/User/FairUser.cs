@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class FairAccount : Account
+public class FairUser : User
 {
 	public string					Nickname { get; set; }
 	public AutoId[]					Authors  { get; set; }
@@ -13,17 +13,17 @@ public class FairAccount : Account
 	public EntityAddress			AllocationSponsor { get; set; }
 	public byte[]					Avatar  { get; set; }
 
-	public FairAccount()
+	public FairUser()
 	{
 	}
 
-	public FairAccount(Mcv mcv) : base(mcv)
+	public FairUser(Mcv mcv) : base(mcv)
 	{
 	}
 
-	public override Account Clone()
+	public override User Clone()
 	{
-		var a = base.Clone() as FairAccount;
+		var a = base.Clone() as FairUser;
 
 		a.Nickname				= Nickname;
 		a.Authors				= Authors;

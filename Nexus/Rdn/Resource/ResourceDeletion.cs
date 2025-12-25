@@ -35,7 +35,7 @@ public class ResourceDeletion : RdnOperation
 		d = execution.Domains.Affect(d.Id);
 		execution.Resources.Affect(Resource).Deleted = true;
 
-		execution.Free(Signer, d, execution.Net.EntityLength + r.Length);
+		execution.Free(User, d, execution.Net.EntityLength + r.Length);
 
 		foreach(var i in r.Outbounds)
 		{
@@ -44,7 +44,7 @@ public class ResourceDeletion : RdnOperation
 			dr = execution.Resources.Affect(d, dr.Address.Resource);
 			dr.RemoveInbound(r.Id);
 
-			execution.Free(Signer, d, execution.Net.EntityLength);
+			execution.Free(User, d, execution.Net.EntityLength);
 		}
 
 		foreach(var i in r.Inbounds ?? [])

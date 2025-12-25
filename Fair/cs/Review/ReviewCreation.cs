@@ -29,7 +29,7 @@ public class ReviewCreation : VotableOperation
 	{
 		var o = other as ReviewCreation;
 
-		return Publication == o.Publication && o.Signer.Id == Signer.Id;
+		return Publication == o.Publication && o.User.Id == User.Id;
 	}
 	
 	 public override bool ValidateProposal(FairExecution execution, out string error)
@@ -45,7 +45,7 @@ public class ReviewCreation : VotableOperation
 		var v = execution.Reviews.Create(Publication);
 
 		v.Publication	= Publication;
-		v.Creator		= Signer.Id;
+		v.Creator		= User.Id;
 		v.Status		= ReviewStatus.Accepted;
 		v.Rating		= Rating;
 		v.Text			= Text;
@@ -55,7 +55,7 @@ public class ReviewCreation : VotableOperation
 		p.Reviews = [..p.Reviews, v.Id];
 		p.Rating = (byte)((p.Rating + v.Rating)/2);
 
-		Signer.Reviews = [..Signer.Reviews, v.Id];
+		User.Reviews = [..User.Reviews, v.Id];
 
 		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{ 

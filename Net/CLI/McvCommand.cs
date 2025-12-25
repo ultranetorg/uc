@@ -7,16 +7,17 @@ namespace Uccs.Net;
 public abstract class McvCommand : NetCommand
 {
 	public const string					AORArg = "aor";
-	public const string					SignerArg = "signer";
+	public const string					ByArg = "by";
+	//public const string					SignerArg = "signer";
 	public Action						Transacted;
 	protected McvCli					Cli;
 
-	public static readonly ArgumentType YEARS	= new ArgumentType("YEARS",	@"Number of years",															[@"5"]);
-	public static readonly ArgumentType	ET	= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
-	public static readonly ArgumentType	EID	= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
-	public static readonly ArgumentType	EA	= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
+	public static readonly ArgumentType YEARS	= new ("YEARS",	@"Number of years",	[@"5"]);
+	public static readonly ArgumentType	ET		= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
+	public static readonly ArgumentType	EID		= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
+	public static readonly ArgumentType	EA		= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
 
-	protected Argument					SignerArgument(string description = "Signer account address") => new (SignerArg, AA, description);
+	protected Argument					ByArgument(string description = "User name") => new (ByArg, NAME, description);
 
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
@@ -64,12 +65,12 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public TransactionApe Transact(IEnumerable<Operation> operations, AccountAddress signer, ActionOnResult aor)
+	public TransactionApe Transact(IEnumerable<Operation> operations, string user, ActionOnResult aor)
 	{
 		var t = Cli.ApiClient.Call<TransactionApe>(	new TransactApc
 													{
 														Operations = operations,
-														Signer = signer,
+														User = user,
 														ActionOnResult = aor
 													},
 													Flow);
@@ -152,7 +153,7 @@ public abstract class McvCommand : NetCommand
 		var p = One(paramenter);
 
 		if(p != null)
-			return Account.ParseSpacetime(p.Get<string>());
+			return User.ParseSpacetime(p.Get<string>());
 		else
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
@@ -162,7 +163,7 @@ public abstract class McvCommand : NetCommand
 		var p = One(paramenter);
 
 		if(p != null)
-			return Account.ParseSpacetime(p.Get<string>());
+			return User.ParseSpacetime(p.Get<string>());
 		else
 			return def;
 	}

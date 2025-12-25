@@ -156,7 +156,7 @@ public class SearchService
 		{
 			if (AutoId.TryParse(query, out AutoId entityId))
 			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(entityId);
+				FairUser account = (FairUser) mcv.Users.Latest(entityId);
 				return [new AccountBaseAvatarModel(account)];
 			}
 
@@ -181,7 +181,7 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(moderatorsId);
+			FairUser account = (FairUser) mcv.Users.Latest(moderatorsId);
 			AccountBaseAvatarModel model = new(account);
 			result.Add(model);
 		}
@@ -216,7 +216,7 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(accountId);
+			FairUser account = (FairUser) mcv.Users.Latest(accountId);
 			AccountSearchLiteModel model = new AccountSearchLiteModel
 			{
 				Id = account.Id.ToString(),

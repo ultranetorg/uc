@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class UnpublishedProductModel(Product product, FairAccount account, AutoId productImageId)
+public class UnpublishedProductModel(Product product, FairUser account, AutoId productImageId)
 {
 	public string Id { get; } = product.Id.ToString();
 

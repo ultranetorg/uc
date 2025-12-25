@@ -10,7 +10,7 @@ public delegate void RoundDelegate(Round b);
 
 public enum McvTable : byte
 {
-	Meta, Account, _Last = Account
+	Meta, User, _Last = User
 }
 
 public abstract class Mcv /// Mutual chain voting
@@ -31,6 +31,7 @@ public abstract class Mcv /// Mutual chain voting
 	//public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
 	public readonly static AccountKey			God = new AccountKey([1, ..new byte[31]]);
+	public readonly static string				GodName = "";
 
 	public object								Lock = new();
 	public McvSettings							Settings;
@@ -48,7 +49,7 @@ public abstract class Mcv /// Mutual chain voting
 	static readonly byte[]						ChainStateKey = [0x03];
 	static readonly byte[]						GenesisKey = [0x04];
 	public MetaTable							Metas;
-	public AccountTable							Accounts;
+	public UserTable							Users;
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
@@ -150,17 +151,18 @@ public abstract class Mcv /// Mutual chain voting
 				var v = CreateVote(); 
 
 				v.RoundId	 = i;
+				v.User		 = AutoId.God;
 				v.Time		 = Time.Zero;
 				v.ParentHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
 
 				if(i == 0)
 				{
- 					var t = new Transaction {Net = Net, Nid = 0, Expiration = 0};
+ 					var t = new Transaction {Net = Net, Nonce = 0, Expiration = 0};
  					t.Member = new(0, -1);
+					t.User = GodName;
 					t.AddOperation(Genesis);
- 					t.Sign(God);
  					v.AddTransaction(t);
-
+ 					t.Sign(God);
 				}
 		
 				v.Sign(God);
@@ -172,7 +174,7 @@ public abstract class Mcv /// Mutual chain voting
 			var r = GetRound(0);
 
 			r.ConsensusECEnergyCost = 1; ///1
-			r.ConsensusFundJoiners = [Net.Father0];
+			r.ConsensusFundJoiners = [Net.Father0Signer];
 			r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 			r.ConsensusViolators = [];
 			r.ConsensusMemberLeavers = [];
@@ -409,24 +411,24 @@ public abstract class Mcv /// Mutual chain voting
 		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
 			return null;
 
-		var a = Accounts.Find(transaction.Signer, LastConfirmedRound.Id);
+		var a = Users.Latest(transaction.User);
 
-		var nid = transaction.Nid;
+		var nid = transaction.Nonce;
 
 		if(a == null)
 		{	
-			if(transaction.Sponsored)
-				transaction.Nid = 0;
+			if(transaction.UserCreationRequest != null)
+				transaction.Nonce = 0;
 			else
 				return null;
 		}
 		else
-			transaction.Nid	= a.LastTransactionNid + 1;
+			transaction.Nonce = a.LastTransactionNid + 1;
 
 		var round = TryExecute(transaction);
 
 		if(preserve)
-			transaction.Nid = nid;
+			transaction.Nonce = nid;
 
 		return round;
 
@@ -495,12 +497,12 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Round TryExecute(Transaction transaction)
 	{
-		var m = NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, transaction.Signer).Address;
+		//var m = NextVotingRound.VotersRound.Members.NearestBy(transaction.Nonce).Address;
+		//
+		//if(!Settings.Generators.Any(i => i.Signer == m))
+		//	return null;
 
-		if(!Settings.Generators.Contains(m))
-			return null;
-
-		var p = Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? LastConfirmedRound;
+		var p = Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ?? LastConfirmedRound;
 
 		var r = GetRound(p.Id + 1);
 		

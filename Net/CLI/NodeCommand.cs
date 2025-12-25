@@ -230,7 +230,7 @@ public class NodeCommand : McvCommand
 		a.Name = "m";
 		a.Description = "Get information about membership status of specified account";
 		a.Arguments =	[
-							new (null, AA, "Ultranet account public address to check the membership status", Flag.First)
+							new (null, EID, "Ultranet account id to check the membership status", Flag.First)
 						];
 
 		a.Execute = () =>	{
@@ -238,7 +238,7 @@ public class NodeCommand : McvCommand
 
 								var rp = Ppc(new MembersPpc());
 	
-								var m = rp.Members.FirstOrDefault(i => i.Address == AccountAddress.Parse(Args[0].Name));
+								var m = rp.Members.FirstOrDefault(i => i.Id == AutoId.Parse(Args[0].Name));
 
 								if(m == null)
 									throw new EntityException(EntityError.NotFound);

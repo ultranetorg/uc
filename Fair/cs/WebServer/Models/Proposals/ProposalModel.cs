@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalModel(Proposal proposal, FairAccount account) : BaseProposal(proposal)
+public class ProposalModel(Proposal proposal, FairUser account) : BaseProposal(proposal)
 {
 	public AccountBaseAvatarModel ByAccount { get; set; } = new(account);
 

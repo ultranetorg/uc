@@ -47,6 +47,18 @@ public static class Extentions
 		return e.OrderBy(i => Guid.NewGuid());
 	}
 
+	public static OrderedDictionary<K, V> ToOrderedDictionary<T, K, V>(this IEnumerable<T> e, Func<T, K> k, Func<T, V> v)
+	{
+		var c = new OrderedDictionary<K, V>();
+
+		foreach(var i in e)
+		{
+			c.Add(k(i), v(i));
+		}
+
+		return c;
+	}
+
 	public static bool Contains(this Exception e, Func<Exception, bool> p)
 	{
 		if(p(e))
@@ -161,6 +173,30 @@ public static class Extentions
 		else
 		{
 			var a = Encoding.UTF8.GetBytes(s);
+			w.Write7BitEncodedInt(a.Length);
+			w.Write(a);
+		}
+	}
+
+	public static string ReadASCIINullable(this BinaryReader r)
+	{
+		var n = r.Read7BitEncodedInt();
+
+		if(n == 0)
+			return null;
+		else
+			return Encoding.ASCII.GetString(r.ReadBytes(n));
+	}
+
+	public static void WriteASCIINullable(this BinaryWriter w, string s)
+	{
+		if(s == null)
+		{
+			w.Write7BitEncodedInt(0);
+		} 
+		else
+		{
+			var a = Encoding.ASCII.GetBytes(s);
 			w.Write7BitEncodedInt(a.Length);
 			w.Write(a);
 		}
