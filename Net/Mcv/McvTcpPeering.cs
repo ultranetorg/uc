@@ -1177,7 +1177,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, string user, byte[] tag, string userCreationRequest, ActionOnResult aor, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, string user, byte[] tag, ActionOnResult aor, Flow flow)
  	{
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
@@ -1186,7 +1186,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			throw new NodeException(NodeError.Invalid);
 
 		foreach(var i in operations)
-			i.PreTransact(Node, userCreationRequest, flow);
+			i.PreTransact(Node, flow);
 
 		//var s = GetSession(user);
 		//
@@ -1198,7 +1198,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		//t.Signer				= s.Account;
 		t.Net					= Net;
 		t.Tag					= tag ?? Guid.NewGuid().ToByteArray();
-		t.UserCreationRequest	= userCreationRequest;
+		//t.UserCreationRequest	= userCreationRequest;
 		t.Flow					= flow;
 		t.Inquired				= DateTime.UtcNow;
  		t.ActionOnResult		= aor;

@@ -294,7 +294,7 @@ public class TransactApc : McvApc
 	public string					User { get; set; }
 	//public AccountAddress			Signer { get; set; }
 	public byte[]					Tag { get; set; } /// optional
-	public string					UserCreationRequest { get; set; }
+	//public string					UserCreationRequest { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -302,7 +302,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, User, Tag, UserCreationRequest, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, User, Tag, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}

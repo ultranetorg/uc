@@ -39,7 +39,7 @@ public class Transaction : IBinarySerializable
 
 	public string					User { get; set; }
 	public int						Nonce { get; set; }
-	public string					UserCreationRequest { get; set; }
+	//public bool						UserCreationRequest => User != Mcv.GodName && User[0] == '?';
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
@@ -105,7 +105,6 @@ public class Transaction : IBinarySerializable
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Bonus);
 		w.WriteBytes(Tag);
-		w.WriteASCIINullable(UserCreationRequest);
 		w.Write(Operations, i => i.Write(w));
 
 		return Cryptography.Hash(s.ToArray());
@@ -117,8 +116,6 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Bonus);
-		//writer.WriteBytes(Tag);
-		writer.WriteASCIINullable(UserCreationRequest);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
@@ -133,8 +130,6 @@ public class Transaction : IBinarySerializable
 		Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Bonus				= reader.Read7BitEncodedInt64();
-		//Tag				= reader.ReadBytes();
-		UserCreationRequest	= reader.ReadASCIINullable();
  		Operations			= reader.ReadArray(() => {
  														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  														o.Transaction = this;
@@ -154,7 +149,6 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
-		writer.WriteASCIINullable(UserCreationRequest);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 											i.Write(writer); 
@@ -172,7 +166,6 @@ public class Transaction : IBinarySerializable
 		Expiration			= reader.Read7BitEncodedInt();
 		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
-		UserCreationRequest	= reader.ReadASCIINullable();
  		Operations			= reader.ReadArray(() => {
  													 	var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  													 	o.Transaction	= this;
@@ -192,7 +185,6 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
-		writer.WriteASCIINullable(UserCreationRequest);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 											i.Write(writer); 
@@ -210,7 +202,6 @@ public class Transaction : IBinarySerializable
 		Expiration			= reader.Read7BitEncodedInt();
 		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
-		UserCreationRequest	= reader.ReadASCIINullable();
 		Operations			= reader.ReadArray(() => {
 														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
 														o.Transaction = this;
@@ -219,7 +210,7 @@ public class Transaction : IBinarySerializable
 													});
 	}
 
-	public static byte[] Export(Net net, Operation[] operations, string user, string userCreationRequest)
+	public static byte[] Export(Net net, Operation[] operations, string user)
 	{
 		throw new NotImplementedException("USER AND SIGNATURE NEEDED");
 
@@ -231,12 +222,11 @@ public class Transaction : IBinarySerializable
 									i.Write(w); 
 								 });
 		w.WriteUtf8(user);
-		w.WriteASCIINullable(userCreationRequest);
 
 		return s.ToArray();
 	}
 
-	public static void Import(byte[] raw, Constructor constructor, out Operation[] operations, out string user, out string userCreationRequest)
+	public static void Import(byte[] raw, Constructor constructor, out Operation[] operations, out string user)
 	{
 		throw new NotImplementedException("USER AND SIGNATURE NEEDED");
 
@@ -248,6 +238,5 @@ public class Transaction : IBinarySerializable
  											return o;
 										});
 		user = r.ReadUtf8();
-		userCreationRequest =  r.ReadASCIINullable();
 	}
 }

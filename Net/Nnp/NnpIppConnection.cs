@@ -163,9 +163,9 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 	{
 		var f = Flow.CreateNested(call.Timeout);
 				
-		Transaction.Import(call.Transaction, Node.Net.Constructor, out var o, out var a, out var s);
+		Transaction.Import(call.Transaction, Node.Net.Constructor, out var o, out var a);
 
-		var t = Node.Peering.Transact(o, a, null, s,ActionOnResult.RetryUntilConfirmed, f);
+		var t = Node.Peering.Transact(o, a, null, ActionOnResult.RetryUntilConfirmed, f);
 		
 		while(f.Active && t.Status != TransactionStatus.Confirmed)
 		{

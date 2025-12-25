@@ -250,44 +250,33 @@ public class Execution : ITableExecution
 
 	public virtual User AffectSigner()
 	{
-		if(Transaction.UserCreationRequest != null)
-		{
-			if(AffectedUsers.FirstOrDefault(i => i.Value.Name == Transaction.UserCreationRequest).Value is User a)
-				return a;
+ 		if(Round.Id == 0)
+ 			return new User {Name = Mcv.GodName, Owner = Mcv.God.Address};
+
+		var u = Transaction.User;
+
+		if(AffectedUsers.FirstOrDefault(i => i.Value.Name == u).Value is User s)
+			return s;
 		
-			if(Parent != null)
-				a = Parent.FindUser(Transaction.UserCreationRequest);
-			else
-				a = Mcv.Users.Find(Transaction.UserCreationRequest, Round.Id);	
-
-			if(a == null)
-				a = CreateUser(Transaction.UserCreationRequest, Transaction.Signer);
-			else
-				a = AffectUser(a.Id);
-
-			return a;
-		}
+		if(Parent != null)
+			s = Parent.FindUser(u);
 		else
-		{
- 			if(Round.Id == 0)
- 				return new User {Name = Mcv.GodName, Owner = Mcv.God.Address};
+			s = Mcv.Users.Find(u, Round.Id);	
 
-			var s = Mcv.Users.Find(Transaction.User, Round.Id);
-
-			if(s == null)
-			{
-				Transaction.Error = Operation.NotFound;
-				return null;
-			}
-	
-			if(Transaction.Nonce != s.LastTransactionNid + 1)
+		if(s == null)
+			s = CreateUser(u, Transaction.Signer);
+		else
+		{	
+			if(Transaction.Nonce != s.LastNonce + 1)
 			{
 				Transaction.Error = Operation.NotSequential;
 				return null;
 			}
 
-			return AffectUser(s.Id);
+			s = AffectUser(s.Id);
 		}
+
+		return s;
 	}
 
 	public User FindUser(AutoId id)

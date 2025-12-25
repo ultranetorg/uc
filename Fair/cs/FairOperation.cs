@@ -76,7 +76,7 @@ public abstract class VotableOperation : SiteOperation
 
 	public abstract bool		ValidateProposal(FairExecution execution, out string error);
  	public abstract bool		Overlaps(VotableOperation other);
-	public virtual void			PreTransact(McvNode node, string userCreationRequest, Flow flow, AutoId site){}
+	public virtual void			PreTransact(McvNode node, Flow flow, AutoId site){}
 }
 
 public abstract class FairOperation : Operation

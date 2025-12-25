@@ -80,12 +80,12 @@ public class ProposalCreation : FairOperation
 		return e;
 	}
 
-	public override void PreTransact(McvNode node, string userCreationRequest, Flow flow)
+	public override void PreTransact(McvNode node, Flow flow)
 	{
 		foreach(var i in Options)
-			i.Operation.PreTransact(node, userCreationRequest, flow, Site);
+			i.Operation.PreTransact(node, flow, Site);
 
-		base.PreTransact(node, userCreationRequest, flow);
+		base.PreTransact(node, flow);
 	}
 
 	public override void Read(BinaryReader reader)

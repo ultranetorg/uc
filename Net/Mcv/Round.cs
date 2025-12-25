@@ -325,23 +325,23 @@ public abstract class Round : IBinarySerializable
 			e.SpacetimeSpenders	= [];
 			e.ECEnergyCost		= ConsensusECEnergyCost;
 
-			var s = e.AffectSigner();
+			var u = e.AffectSigner();
 
-			if(s == null)
+			if(u == null)
 				continue;
 
 			foreach(var o in t.Operations)
 			{
-				o.User = s;
+				o.User = u;
 
 				o.Execute(e);
 
 				if(o.Error != null)
 					break;
 
-				s.Energy -= t.Bonus;
+				u.Energy -= t.Bonus;
 
-				if(s.Energy < 0)
+				if(u.Energy < 0)
 				{
 					o.Error = Operation.NotEnoughEnergy;
 					break;
@@ -380,7 +380,7 @@ public abstract class Round : IBinarySerializable
 			
 			if(t.Successful)
 			{
-				s.LastTransactionNid++;
+				u.LastNonce++;
 	
 				Absorb(e);
 			}

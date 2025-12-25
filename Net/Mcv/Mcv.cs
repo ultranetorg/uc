@@ -417,13 +417,13 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(a == null)
 		{	
-			if(transaction.UserCreationRequest != null)
+			//if(transaction.UserCreationRequest)
 				transaction.Nonce = 0;
-			else
-				return null;
+			//else
+			//	return null;
 		}
 		else
-			transaction.Nonce = a.LastTransactionNid + 1;
+			transaction.Nonce = a.LastNonce + 1;
 
 		var round = TryExecute(transaction);
 

@@ -4,6 +4,7 @@ namespace Uccs.Fair;
 
 public class UserRegistration : VotableOperation
 {
+	public bool					UsePow { get; set; }
 	public byte[]				Pow { get; set; }
 	public override string		Explanation => $"Site={Site}";
 	
@@ -52,28 +53,28 @@ public class UserRegistration : VotableOperation
 		return true;
  	}
 
-	public override void PreTransact(McvNode node, string userCreationRequest, Flow flow, AutoId site)
+	public override void PreTransact(McvNode node, Flow flow, AutoId site)
 	{
-		if(userCreationRequest != null)
+		if(UsePow)
 		{
 			Pow = null;
-
+	
 			var r = new Random();
-	
+		
 			var s = node.Peering.Call(new PowPpc {Site = site}, flow);
-	
+		
 			var ts =  Enumerable.Range(0, Environment.ProcessorCount)
 								.Select(i => new Thread(() =>	{ 
 																	var b = new byte[32];
 																	var a = Blake2Fast.Blake2b.CreateHashAlgorithm(32);
-	
+		
 																	while(flow.Active && Pow == null)
 																	{
 																		r.NextBytes(b);
 																		var h = a.ComputeHash([..s.GraphHash, ..b]);
-	
+		
 																		var f = h.Sum(i => BitOperations.PopCount(i));
-															
+																
 																		if(f >= s.Complexity)
 																		{
 																			Pow = b;
@@ -82,7 +83,7 @@ public class UserRegistration : VotableOperation
 																})).ToArray();
 			foreach(var i in ts)
 				i.Start();
-					
+						
 			foreach(var i in ts)
 				i.Join();
 		}

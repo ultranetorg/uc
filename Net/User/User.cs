@@ -93,7 +93,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
 	public AccountAddress	Owner { get; set; }
-	public int				LastTransactionNid { get; set; } = -1;
+	public int				LastNonce { get; set; } = -1;
 	public long				AverageUptime { get; set; }
 	
 	public long				Spacetime { get; set; }
@@ -118,7 +118,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 	public override string ToString()
 	{
-		return $"{Name}, {Id}, {Owner}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
+		return $"{Name}, {Id}, {Owner}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastNonce}, AverageUptime={AverageUptime}";
 	}
 
 	public static long ParseSpacetime(string t)
@@ -145,7 +145,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		writer.WriteASCII(Name);
 
 		writer.Write7BitEncodedInt64(Spacetime);
-		writer.Write7BitEncodedInt(LastTransactionNid);
+		writer.Write7BitEncodedInt(LastNonce);
 		writer.Write7BitEncodedInt64(AverageUptime);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
@@ -158,7 +158,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		Name			= reader.ReadASCII();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
-		LastTransactionNid	= reader.Read7BitEncodedInt();
+		LastNonce	= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
@@ -181,7 +181,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		a.Owner					= Owner;
 		a.Name				= Name;
 		a.Spacetime				= Spacetime;
-		a.LastTransactionNid	= LastTransactionNid;
+		a.LastNonce	= LastNonce;
 		a.AverageUptime			= AverageUptime;
 
 		((IEnergyHolder)this).Clone(a);

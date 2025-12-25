@@ -77,7 +77,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 	
-	public virtual void PreTransact(McvNode node, string userCreationRequest, Flow flow)
+	public virtual void PreTransact(McvNode node, Flow flow)
 	{
 	}
 
