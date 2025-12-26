@@ -1,9 +1,11 @@
+import { useEffect, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgStarXxs } from "assets"
 import { PublicationDetails } from "types"
-import { ButtonPrimary, LinkFullscreen } from "ui/components"
-import { formatAverageRating } from "utils"
+import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
+import { formatAverageRating, formatDate } from "utils"
+import { getChildren, getValue, nameEq } from "ui/components/publication/utils"
 
 import { AuthorImageTitle } from "./components"
 
@@ -19,6 +21,12 @@ export type SoftwareInfoProps = {
   osLabel: string
   ratingLabel: string
   lastUpdatedLabel: string
+  licenseTypeLabel: string
+  priceLabel: string
+  languagesLabel: string
+  downloadFromRdnLabel: string
+  downloadFromTorrentLabel: string
+  downloadFromWebLabel: string
 }
 
 export const SoftwareInfo = ({
@@ -30,47 +38,132 @@ export const SoftwareInfo = ({
   osLabel,
   ratingLabel,
   lastUpdatedLabel,
-}: SoftwareInfoProps) => (
-  <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-      <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-        <AuthorImageTitle title={publication.authorTitle} authorAvatar={publication.authorAvatar} />
-      </LinkFullscreen>
-    </div>
+  licenseTypeLabel,
+  priceLabel,
+  languagesLabel,
+  downloadFromRdnLabel,
+  downloadFromTorrentLabel,
+  downloadFromWebLabel,
+}: SoftwareInfoProps) => {
+  const fields = publication.productFields
 
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{versionLabel}</span>
-      <span className={VALUE_CLASSNAME}>2.16.4.1870</span>
-    </div>
+  const versions = useMemo(() => {
+    const releases = (fields ?? []).filter(x => nameEq(x.name, "release"))
+    const collected: string[] = []
+    for (const r of releases) {
+      const v = getValue(r.children, "version")
+      if (v) collected.push(String(v))
+    }
+    const unique = Array.from(new Set(collected)).filter(Boolean)
+    return unique
+  }, [fields])
 
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{activationLabel}</span>
-      <span className={VALUE_CLASSNAME}>Free</span>
-    </div>
+  const [selectedVersion, setSelectedVersion] = useState<string | undefined>(undefined)
 
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{osLabel}</span>
-      <span className={VALUE_CLASSNAME}>Windows / MacOS / Linux</span>
-    </div>
+  useEffect(() => {
+    if (!versions.length) {
+      setSelectedVersion(undefined)
+      return
+    }
+    setSelectedVersion(prev => (prev && versions.includes(prev) ? prev : versions[0]))
+  }, [versions])
 
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
-      <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
-        {formatAverageRating(publication.rating)} <SvgStarXxs className="fill-favorite" />
+  const versionItems = useMemo(() => versions.map(v => ({ value: v, label: v })), [versions])
+
+  const licenseType = useMemo(() => {
+    const v =
+      getValue(fields, "license") ??
+      getValue(fields, "license-type") ??
+      getValue(fields, "licensetype")
+    return v ? String(v) : undefined
+  }, [fields])
+
+  const price = useMemo(() => {
+    const v = getValue(fields, "price")
+    return v ? String(v) : undefined
+  }, [fields])
+
+  const languages = useMemo(() => {
+    const uiLanguages = getChildren(fields, "uilanguages")
+    const codes = uiLanguages
+      .filter(x => nameEq(x.name, "language"))
+      .map(x => String(x.value).toUpperCase())
+      .filter(Boolean)
+    const unique = Array.from(new Set(codes))
+    return unique.length ? unique.join(", ") : undefined
+  }, [fields])
+
+  return (
+    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
+      <div className="flex flex-col gap-2">
+        <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
+        <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
+          <AuthorImageTitle title={publication.authorTitle} authorAvatar={publication.authorAvatar} />
+        </LinkFullscreen>
+      </div>
+
+      {versions.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className={LABEL_CLASSNAME}>{versionLabel}</span>
+          <DropdownSecondary
+            className="w-full"
+            controlled={true}
+            size="medium"
+            items={versionItems}
+            value={selectedVersion ?? versions[0]}
+            onChange={x => setSelectedVersion(x.value)}
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <span className={LABEL_CLASSNAME}>{activationLabel}</span>
+        <span className={VALUE_CLASSNAME}>Free</span>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className={LABEL_CLASSNAME}>{osLabel}</span>
+        <span className={VALUE_CLASSNAME}>Windows / MacOS / Linux</span>
+      </div>
+
+      {licenseType && (
+        <div className="flex flex-col gap-2">
+          <span className={LABEL_CLASSNAME}>{licenseTypeLabel}</span>
+          <span className={VALUE_CLASSNAME}>{licenseType}</span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
+        <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
+          {formatAverageRating(publication.rating)} <SvgStarXxs className="fill-favorite" />
+        </div>
+      </div>
+
+      {price && (
+        <div className="flex flex-col gap-2">
+          <span className={LABEL_CLASSNAME}>{priceLabel}</span>
+          <span className={VALUE_CLASSNAME}>{price}</span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <span className={LABEL_CLASSNAME}>{lastUpdatedLabel}</span>
+        <span className={VALUE_CLASSNAME}>{formatDate(publication.productUpdated)}</span>
+      </div>
+
+      {languages && (
+        <div className="flex flex-col gap-2">
+          <span className={LABEL_CLASSNAME}>{languagesLabel}</span>
+          <span className={VALUE_CLASSNAME}>{languages}</span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
+        <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
+        <ButtonPrimary className="w-full" label={downloadFromWebLabel} />
       </div>
     </div>
-
-    <div className="flex flex-col gap-2">
-      <span className={LABEL_CLASSNAME}>{lastUpdatedLabel}</span>
-      <span className={VALUE_CLASSNAME}>{publication.productUpdated}</span>
-    </div>
-
-    <div className="flex flex-col gap-4">
-      <ButtonPrimary label="Download from RDN" />
-      <ButtonPrimary label="Download from torrent" />
-      <ButtonPrimary label="Download from torrent" />
-      <ButtonPrimary label="Download from web" />
-    </div>
-  </div>
-)
+  )
+}

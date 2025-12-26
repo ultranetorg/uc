@@ -1,7 +1,7 @@
 export const urlRegexMap = {
-  video: /\.(mp4|webm|ogg)$/i,
+  video: /\.(mp4|webm|ogg)(?:[?#].*)?$/i,
   youtube: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]{11})/,
-  vkVideo: /(?:https?:\/\/)?(?:www\.)?(?:vk\.com|vkvideo\.ru)\/.*video.*/i,
+  vkVideo: /(?:https?:\/\/)?(?:www\.)?(?:vk\.com|vkvideo\.ru)\/(?:video(?:-?\d+_\d+)?|video_ext\.php)(?:\b|\/|\?|#).*/i,
 }
 
 export const getVideoType = (url: string) => {

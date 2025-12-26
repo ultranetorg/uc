@@ -193,7 +193,7 @@ public class ProductsService
 				Type = valueField?.Type,
 				Value = ConvertValue(valueField?.Type, value),
 				Children = value.Fields?.Length > 0
-					? MapValues(value.Fields, valueField?.Fields)
+					? MapValues(value.Fields, valueField?.Fields ?? [])
 					: null
 			};
 	}
