@@ -261,12 +261,18 @@ public class Execution : ITableExecution
 		if(Parent != null)
 			s = Parent.FindUser(u);
 		else
-			s = Mcv.Users.Find(u, Round.Id);	
+			s = Mcv.Users.Find(u, Round.Id);
 
 		if(s == null)
 			s = CreateUser(u, Transaction.Signer);
 		else
 		{	
+			if(Transaction.Signature != null && Transaction.Signer != s.Owner)
+			{
+				Transaction.Error = Operation.Denied;
+				return null;
+			}
+
 			if(Transaction.Nonce != s.LastNonce + 1)
 			{
 				Transaction.Error = Operation.NotSequential;

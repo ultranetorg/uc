@@ -11,9 +11,10 @@ public enum OperationClass : uint
 	None = 0, 
 	Genesis						= 000_000_001, 
 	UserCreation				= 000_000_002, 
-	CandidacyDeclaration		= 000_000_003, 
-	UtilityTransfer				= 000_000_004,
-	BandwidthAllocation			= 000_000_005,
+	UserOwnerChange				= 000_000_003, 
+	CandidacyDeclaration		= 000_000_004, 
+	UtilityTransfer				= 000_000_005,
+	BandwidthAllocation			= 000_000_006,
 
 	ChildNet					= 001, 
 		ChildNetInitialization	= 001_000_001,

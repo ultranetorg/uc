@@ -510,7 +510,7 @@ public abstract class Mcv /// Mutual chain voting
 		r.ConsensusECEnergyCost	= LastConfirmedRound.ConsensusECEnergyCost;
 		//r.Spacetimes			= LastConfirmedRound.Spacetimes;
 
-		r.Execute([transaction], true);
+		r.Execute([transaction]);
 
 		return r;
 	}

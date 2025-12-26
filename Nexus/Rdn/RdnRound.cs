@@ -52,11 +52,11 @@ public class RdnRound : Round
 		Resources.Absorb(e.Resources);
 	}
 
-	public override void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	public override void Execute(IEnumerable<Transaction> transactions)
 	{
 		Migrations	= Id == 0 ? [] : (Previous as RdnRound).Migrations;
 
-		base.Execute(transactions, trying);
+		base.Execute(transactions);
 	}
 
 	public override void FinishExecution()

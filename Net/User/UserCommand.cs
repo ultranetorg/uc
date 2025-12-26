@@ -30,6 +30,24 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
+	public CommandAction ChangeOwner()
+	{
+		var owner = "owner";
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Name = "co";
+		a.Description = "Create a new account entity";
+		a.Arguments = [new (owner, AA, "Public address of a new account owner")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								return new UserOwnerChange {Owner = GetAccountAddress(owner)};
+							};
+		return a;
+	}
+
 	public virtual CommandAction Entity()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

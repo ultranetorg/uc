@@ -285,7 +285,7 @@ public abstract class Round : IBinarySerializable
 	{
 	}
 
-	public virtual void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	public virtual void Execute(IEnumerable<Transaction> transactions)
 	{
 		if(Confirmed)
 			throw new IntegrityException();

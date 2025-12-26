@@ -29,7 +29,7 @@ public class WordTable : Table<RawId, Word>
 
 		foreach(var i in Tail)
 		{
-			foreach(var r in i.Words.Affected.Where(i => i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Where(i => i.Value.Reference.Field == field).Select(i => i.Value.Reference))
+			foreach(var r in i.Words.Affected.Where(i => i.Value.Reference.Field == field && i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Value.Reference))
 			{
 				if(found.Add(r.Entity))
 				{
