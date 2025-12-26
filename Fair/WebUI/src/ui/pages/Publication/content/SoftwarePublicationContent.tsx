@@ -6,14 +6,9 @@ import { ReviewsList } from "ui/components/specific"
 import { ProductFieldModel } from "types"
 
 import { buildFileUrl, ensureHttp } from "utils"
+import { getValue, nameEq } from "ui/components/publication/utils"
 
 import { ContentProps } from "../types"
-
-const nameEq = (name: unknown, expected: string) => String(name).toLowerCase() === expected
-
-const getValue = <TValue = string>(fields: ProductFieldModel[] | undefined, name: string) => {
-  return fields?.find(x => nameEq(x.name, name))?.value as TValue | undefined
-}
 
 function buildDescriptions(fields: ProductFieldModel[] | undefined): { language: string; text: string }[] {
   const descriptionMaximal = (fields ?? []).filter(x => nameEq(x.name, "description-maximal"))
@@ -100,70 +95,104 @@ const TEST_TAB_ITEMS = [
   { key: "macos", label: "macOS", sections: [] },
 ]
 
+type TagsListProps = {
+  tags?: string[]
+}
+
+const TagsList = ({ tags }: TagsListProps) => {
+  if (!tags || tags.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tags.map(tag => (
+        <span key={tag} className="rounded bg-gray-200 px-2 py-1.5 text-2xs leading-4 text-gray-800">
+          {tag}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 export const SoftwarePublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
     const mediaItems = useMemo(() => buildMediaItems(publication.productFields), [publication.productFields])
     const descriptions = useMemo(() => buildDescriptions(publication.productFields), [publication.productFields])
 
+    const hasDescription = !!publication.description || descriptions.length > 0
+
     const officialSite = useMemo(() => {
       const raw = getValue<string>(publication.productFields, "uri")
-      return raw ? ensureHttp(String(raw)) : "google.com"
+      if (!raw) return undefined
+      const normalized = String(raw).trim()
+      return normalized ? ensureHttp(normalized) : undefined
+    }, [publication.productFields])
+
+    const eulaUrl = useMemo(() => {
+      const raw =
+        getValue<string>(publication.productFields, "licensing-details-url") ??
+        getValue<string>(publication.productFields, "eula")
+      if (!raw) return undefined
+      const normalized = String(raw).trim()
+      return normalized ? ensureHttp(normalized) : undefined
     }, [publication.productFields])
 
     const tags = useMemo(() => {
       const raw = getValue<string>(publication.productFields, "tags")
-      if (!raw) return [] as string[]
-      return String(raw)
+      if (!raw) return undefined
+      const parsed = String(raw)
         .split(/[,;\s]+/g)
         .map(x => x.trim())
         .filter(Boolean)
+      return parsed.length ? parsed : undefined
     }, [publication.productFields])
 
     return (
-    <>
-      <div className="flex flex-1 flex-col gap-8">
-        <Slider items={mediaItems} />
-        <Description
-          text={publication.description}
-          descriptions={descriptions.length ? descriptions : undefined}
-          showMoreLabel={t("showMore")}
-          descriptionLabel={t("information")}
-        />
-        <SystemRequirementsTabs label={t("systemRequirements")} tabs={TEST_TAB_ITEMS} />
-        <ReviewsList
-          isPending={isPending || isPendingReviews}
-          reviews={reviews}
-          error={error}
-          onLeaveReviewClick={onLeaveReview}
-          leaveReviewLabel={t("leaveReview")}
-          noReviewsLabel={t("noReviews")}
-          reviewLabel={t("review", { count: reviews?.totalItems })}
-          showMoreReviewsLabel={t("showMoreReviews")}
-        />
-      </div>
-      <div className="flex w-87.5 flex-col gap-8">
-        <SoftwareInfo
-          siteId={siteId!}
-          publication={publication}
-          publisherLabel={t("publisher")}
-          versionLabel={t("version")}
-          activationLabel={t("activation")}
-          osLabel={t("os")}
-          ratingLabel={t("rating")}
-          lastUpdatedLabel={t("lastUpdated")}
-        />
-        <SiteLink to={officialSite} label={t("officialSite")} />
-        {tags.length ? (
-          <div className="flex flex-wrap gap-2">
-            {tags.map(tag => (
-              <span key={tag} className="rounded border border-[#D7DDEB] bg-[#F3F5F8] px-2 py-1 text-2xs leading-4 text-gray-800">
-                {tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    </>
+      <>
+        <div className="flex flex-1 flex-col gap-8">
+          {mediaItems.length > 0 && <Slider items={mediaItems} />}
+          {hasDescription && (
+            <Description
+              text={publication.description}
+              descriptions={descriptions.length ? descriptions : undefined}
+              showMoreLabel={t("showMore")}
+              showLessLabel={t("showLess")}
+              descriptionLabel={t("information")}
+            />
+          )}
+          <SystemRequirementsTabs label={t("systemRequirements")} tabs={TEST_TAB_ITEMS} />
+          <ReviewsList
+            isPending={isPending || isPendingReviews}
+            reviews={reviews}
+            error={error}
+            onLeaveReviewClick={onLeaveReview}
+            leaveReviewLabel={t("leaveReview")}
+            noReviewsLabel={t("noReviews")}
+            reviewLabel={t("review", { count: reviews?.totalItems })}
+            showMoreReviewsLabel={t("showMoreReviews")}
+          />
+        </div>
+        <div className="flex w-87.5 flex-col gap-8">
+          <SoftwareInfo
+            siteId={siteId!}
+            publication={publication}
+            publisherLabel={t("publisher")}
+            versionLabel={t("version")}
+            activationLabel={t("activation")}
+            osLabel={t("os")}
+            ratingLabel={t("rating")}
+            lastUpdatedLabel={t("lastUpdated")}
+            licenseTypeLabel={t("licenseType")}
+            priceLabel={t("price")}
+            languagesLabel={t("languages")}
+            downloadFromRdnLabel={t("downloadFromRdn")}
+            downloadFromTorrentLabel={t("downloadFromTorrent")}
+            downloadFromWebLabel={t("downloadFromWeb")}
+          />
+          {officialSite && <SiteLink to={officialSite} label={t("officialSite")} />}
+          {eulaUrl && <SiteLink to={eulaUrl} label={t("eula")} />}
+          {tags && <TagsList tags={tags} />}
+        </div>
+      </>
     )
   },
 )

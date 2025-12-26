@@ -185,8 +185,6 @@ public class ProductsService
 
 	public static IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
 	{
-		metaFields ??= [];
-
 		return from value in values
 			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
 			select new ProductFieldValueModel
@@ -195,7 +193,7 @@ public class ProductsService
 				Type = valueField?.Type,
 				Value = ConvertValue(valueField?.Type, value),
 				Children = value.Fields?.Length > 0
-					? MapValues(value.Fields, valueField?.Fields)
+					? MapValues(value.Fields, valueField?.Fields ?? [])
 					: null
 			};
 	}
@@ -204,9 +202,6 @@ public class ProductsService
 	{
 		if(field?.Value == null)
 			return null;
-
-		if(type == null)
-			return field.AsUtf8;
 
 		switch(type)
 		{
