@@ -70,35 +70,37 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Update()
+	public CommandAction Security()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var addowner = "addowner";
-		var removeowner = "removeowner";
+		var ao = "addowner";
+		var ro = "removeowner";
 
-		a.Name = "u";
+		a.Name = "s";
 		a.Description = "Extend author rent for a specified period. Allowed during the last year of current period only.";
 		a.Arguments =	[
 							new (null, EID, "Id of an author to be renewed", Flag.First),
-							new (addowner, AA, "Account Id of a new owner to add"),
-							new (removeowner, AA, "Account Id of a existing owner to remove"),
+							new (ao, AA, "Account Id of a new owner to add"),
+							new (ro, AA, "Account Id of a existing owner to remove"),
 							ByArgument("Address of account that owns the author")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-											
-								if(Has(addowner))
+								
+								FairOperation o = null;
+								
+								if(Has(ao))
 								{
-									return new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetAutoId(addowner)};
+									o = new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetAutoId(ao)};
 								}
-								if(Has(removeowner))
+								if(Has(ro))
 								{
-									return new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetAutoId(addowner)};
+									o = new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetAutoId(ao)};
 								}
-								else
-									throw new SyntaxException("Unknown parameters");
+
+								return o ?? throw new SyntaxException("Unknown parameters");
 							};
 		return a;
 	}
