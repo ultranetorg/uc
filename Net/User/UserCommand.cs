@@ -30,13 +30,13 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction ChangeOwner()
+	public CommandAction Security()
 	{
 		var owner = "owner";
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "co";
+		a.Name = "s";
 		a.Description = "Create a new account entity";
 		a.Arguments = [new (owner, AA, "Public address of a new account owner")];
 

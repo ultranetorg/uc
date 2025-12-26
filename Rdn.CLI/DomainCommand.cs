@@ -165,15 +165,15 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Transfer()
+	public CommandAction Security()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "t";
+		a.Name = "s";
 		a.Description = "Changes an owner of domain";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to transfer", Flag.First),
-							new ("to", NAME, "A name of a new owner"),
+							new ("owner", NAME, "A name of a new owner"),
 							ByArgument("Address of account of the current owner")
 						];
 
