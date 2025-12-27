@@ -16,18 +16,18 @@ public enum Role : byte
 
 public class Moderator : IBinarySerializable
 {
-	public AutoId		Account { get; set; }
+	public AutoId		User { get; set; }
 	public Time			BannedTill { get; set; }
 
 	public void Read(BinaryReader reader)
 	{
-		Account		= reader.Read<AutoId>();
+		User		= reader.Read<AutoId>();
 		BannedTill	= reader.Read<Time>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Account);
+		writer.Write(User);
 		writer.Write(BannedTill);
 	}
 }

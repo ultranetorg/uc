@@ -64,7 +64,7 @@ public class SitesService
 
 			IEnumerable<SiteCategoryModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
 
-			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.Account.ToString());
+			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
 			IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
 			(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) =
 				GetReferendumDiscussionOperations(site.Policies);
@@ -146,7 +146,7 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			AutoId[] moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(p => p.Account).ToArray();
+			AutoId[] moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(p => p.User).ToArray();
 			return McvUtils.LoadAccounts(mcv, moderatorsIds, cancellationToken);
 		}
 	}

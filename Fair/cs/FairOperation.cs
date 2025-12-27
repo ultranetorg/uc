@@ -219,7 +219,7 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		var m = site.Moderators.FirstOrDefault(i => i.Account == User.Id);
+		var m = site.Moderators.FirstOrDefault(i => i.User == User.Id);
 
 		if(m == null || m.BannedTill > execution.Time)
 		{
@@ -232,7 +232,7 @@ public abstract class FairOperation : Operation
 
 	public bool IsModerator(FairExecution execution, Site site, AutoId accountid, out Moderator moderator, out string error)
 	{
-		moderator = site.Moderators.FirstOrDefault(i => i.Account == accountid);
+		moderator = site.Moderators.FirstOrDefault(i => i.User == accountid);
 
 		if(moderator == null)
 		{

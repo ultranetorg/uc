@@ -29,7 +29,7 @@ public class SiteModeratorRemoval : VotableOperation
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		if(!Site.Moderators.Any(m => m.Account == Moderator))
+		if(!Site.Moderators.Any(m => m.User == Moderator))
 		{
 			error = NotFound;
 			return false;
@@ -43,6 +43,6 @@ public class SiteModeratorRemoval : VotableOperation
 	{
  		var s = Site;
  
-		s.Moderators = s.Moderators.Remove(s.Moderators.First(m => m.Account == Moderator));
+		s.Moderators = s.Moderators.Remove(s.Moderators.First(m => m.User == Moderator));
 	}
 }

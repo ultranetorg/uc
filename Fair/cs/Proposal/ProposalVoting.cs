@@ -177,9 +177,9 @@ public class ProposalVoting : FairOperation
  					}
 					else if(p.As == Role.Moderator)
  					{
-						var i = Array.FindIndex(s.Moderators, i => i.Account == p.By);
+						var i = Array.FindIndex(s.Moderators, i => i.User == p.By);
 						s.Moderators = [..s.Moderators];
-						s.Moderators[i] = new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)};
+						s.Moderators[i] = new Moderator {User = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					break;
  				

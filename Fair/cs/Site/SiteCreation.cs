@@ -40,7 +40,7 @@ public class SiteCreation : FairOperation
 		s.Title			= Title;
 		s.PoWComplexity	= 172;
 		s.Space			= execution.Net.EntityLength;
-		s.Moderators	= [new Moderator {Account = User.Id}];
+		s.Moderators	= [new Moderator {User = User.Id}];
 
 		s.Policies =   [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
 						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
