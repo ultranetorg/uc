@@ -127,9 +127,9 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		if(ex.Error == NodeError.NotChain)	peer.Roles  &= ~(long)Role.Chain;
 	}
 
-	protected override void ProcessConnectivity()
+	protected override void ProcessMain()
 	{
-		base.ProcessConnectivity();
+		base.ProcessMain();
 
 		if(Mcv != null)
 		{

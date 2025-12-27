@@ -222,7 +222,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		}
 	}
 
-	protected override void ProcessConnectivity()
+	protected override void ProcessMain()
 	{
 		var needed = Settings.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 	
