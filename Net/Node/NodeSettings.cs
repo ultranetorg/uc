@@ -44,12 +44,6 @@ public class SecretSettings
 	public const string		FileName = "Secrets.globals";
 
 	public string			Password;
-	public string			EthereumWallet;
-	public string			EthereumPassword;
-
-	public string			EthereumProvider;
-
-	string					Path;
 
 	public SecretSettings()
 	{
@@ -57,15 +51,9 @@ public class SecretSettings
 
 	public SecretSettings(string path)
 	{
-		Path = path;
-
 		var d = new Xon(File.ReadAllText(path));
 		
 		Password			= d.Get<string>("Password");
-
-		EthereumProvider	= d.Get<string>("NasProvider");
-		EthereumWallet		= d.Get<string>("EmissionWallet");
-		EthereumPassword	= d.Get<string>("EmissionPassword");
 	}
 }
 

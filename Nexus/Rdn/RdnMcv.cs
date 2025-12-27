@@ -40,6 +40,8 @@ public class RdnMcv : Mcv
 		var dbo	= new DbOptions().SetCreateIfMissing(true)
 								 .SetCreateMissingColumnFamilies(true);
 
+		//dbo.SetEnv(RocksDbSharp.Native.Instance.rocksdb_create_mem_env());
+
 		var cfs = new ColumnFamilies();
 		
 		if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
