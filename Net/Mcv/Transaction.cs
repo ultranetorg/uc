@@ -113,7 +113,7 @@ public class Transaction : IBinarySerializable
  	public void	WriteConfirmed(BinaryWriter writer)
  	{
 		writer.WriteUtf8(User);
-		writer.Write(Member);
+		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(Operations, i =>{
@@ -124,18 +124,18 @@ public class Transaction : IBinarySerializable
  		
  	public void	ReadConfirmed(BinaryReader reader)
  	{
-		Status				= TransactionStatus.Confirmed;
+		Status		= TransactionStatus.Confirmed;
 
-		User				= reader.ReadUtf8();
-		Member				= reader.Read<AutoId>();
-		Nonce				= reader.Read7BitEncodedInt();
-		Bonus				= reader.Read7BitEncodedInt64();
- 		Operations			= reader.ReadArray(() => {
- 														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
- 														o.Transaction = this;
- 														o.Read(reader); 
- 														return o; 
- 													});
+		User		= reader.ReadUtf8();
+		//Member		= reader.Read<AutoId>();
+		Nonce		= reader.Read7BitEncodedInt();
+		Bonus		= reader.Read7BitEncodedInt64();
+ 		Operations	= reader.ReadArray(() => {
+ 												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+ 												o.Transaction = this;
+ 												o.Read(reader); 
+ 												return o; 
+ 											});
  	}
 
 	public void	WriteForVote(BinaryWriter writer)

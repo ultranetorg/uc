@@ -124,9 +124,9 @@ public class RdnNode : McvNode
 		string f()=> string.Join(", ", new string[]{GetType().Name,
 													Name,
 													(ApiServer != null ? "A" : null) +
-													(Settings.Mcv != null ? "B" : null) +
+													(Settings.Mcv != null ? "G" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
-													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Signer == i.Address)) ? "G" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Signer == i.Address)) ? "M" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
