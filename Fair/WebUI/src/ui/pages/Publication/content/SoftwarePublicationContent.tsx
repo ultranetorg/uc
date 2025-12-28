@@ -1,12 +1,11 @@
 import { memo, useMemo } from "react"
 
-import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { ReviewsList } from "ui/components/specific"
-
 import { ProductFieldModel } from "types"
-
-import { buildFileUrl, ensureHttp } from "utils"
+import { TagsList } from "ui/components"
+import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { getValue, nameEq } from "ui/components/publication/utils"
+import { ReviewsList } from "ui/components/specific"
+import { buildFileUrl, ensureHttp } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -95,24 +94,6 @@ const TEST_TAB_ITEMS = [
   { key: "macos", label: "macOS", sections: [] },
 ]
 
-type TagsListProps = {
-  tags?: string[]
-}
-
-const TagsList = ({ tags }: TagsListProps) => {
-  if (!tags || tags.length === 0) return null
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tags.map(tag => (
-        <span key={tag} className="rounded bg-gray-200 px-2 py-1.5 text-2xs leading-4 text-gray-800">
-          {tag}
-        </span>
-      ))}
-    </div>
-  )
-}
-
 export const SoftwarePublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
     const mediaItems = useMemo(() => buildMediaItems(publication.productFields), [publication.productFields])
@@ -177,7 +158,6 @@ export const SoftwarePublicationContent = memo(
             publication={publication}
             publisherLabel={t("publisher")}
             versionLabel={t("version")}
-            activationLabel={t("activation")}
             osLabel={t("os")}
             ratingLabel={t("rating")}
             lastUpdatedLabel={t("lastUpdated")}
