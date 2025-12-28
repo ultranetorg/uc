@@ -216,10 +216,10 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					stamp = Call(peer, new StampPpc());
 	
 					void download(TableBase t)	{
-													var ts = Call(peer, new TableStampPpc {Table = t.Id, 
-																							   Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
-																																	 .Select(i => i.Id)
-																																	 .ToArray()});
+													var ts = Call(peer, new TableStampPpc  {Table = t.Id, 
+																							Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
+																																	.Select(i => i.Id)
+																																	.ToArray()});
 													using(var w = new WriteBatch())
 													{
 														foreach(var i in ts.Clusters)
@@ -235,8 +235,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 																	if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
 																	{
 																		var d = Call(peer, new DownloadTablePpc {Table		= t.Id,
-																													 BucketId	= j.Id, 
-																													 Hash		= j.Hash});
+																												 BucketId	= j.Id, 
+																												 Hash		= j.Hash});
 																		lock(Mcv.Lock)	
 																			b.Import(w, d.Main);
 				
@@ -596,16 +596,15 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	
 				var r = Mcv.NextVotingRound;
 	
-				if(!r.ConsensusFailed && r.VotesOfTry.Any(i => i.Generator == g))
-					continue;
-
 				if(r.ConsensusFailed)
 				{
-					var h = r.Parent.Summarize();
+					var h = r.Parent.Hash;
 
-					if(r.Parent.Hash.SequenceEqual(h))
+					if(r.Parent.Summarize().SequenceEqual(h))
 						continue;
 				}
+				else if(r.VotesOfTry.Any(i => i.Generator == g))
+					continue;
 	
 				Vote createvote(Round r)
 				{
@@ -782,7 +781,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 					{
 						r.ConsensusTime			= r.Previous.ConsensusTime;
 						r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
-						///r.RentPerBytePerDay	= r.Previous.RentPerBytePerDay;
 						r.Members				= r.Previous.Members;
 						r.Funds					= r.Previous.Funds;
 					}
