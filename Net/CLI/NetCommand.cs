@@ -15,7 +15,7 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType DIRPATH	= new ArgumentType("DIRPATH",	@"A text string of the local directory path in its native format",		[@"C:\Folder"]);
 	public readonly ArgumentType PORT		= new ArgumentType("PORT",		@"Port number",															["3800"]);
 	public readonly ArgumentType PRIVATEKEY	= new ArgumentType("PRIVATEKEY",@"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
-	public readonly ArgumentType NAME		= new ArgumentType("NAME",		@"An arbitrary single-line string without spaces",						["One"]);
+	public readonly ArgumentType NAME		= new ArgumentType("NAME",		@"An arbitrary single-line string without spaces",						["one", "second"]);
 	public readonly ArgumentType NET		= new ArgumentType("NET",		@"A name of a network",													["rdn"]);
 	public readonly ArgumentType ST			= new ArgumentType("ST",		@"Space-time in form of byte-years(BY), byte-days(BY), eth.",			["300bd", "500by"]);
 	public readonly ArgumentType EC			= new ArgumentType("EC",		@"Execution Cycles in form of integer number",							["1000"]);

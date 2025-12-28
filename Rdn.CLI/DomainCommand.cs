@@ -74,7 +74,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "m";
 		a.Description = "Request web domain migration";
 		a.Arguments =	[
-							new (null, RDA, "Ultranet address of a root domain to migrate", Flag.First),
+							new (null, RDA, "Address of a root domain to migrate", Flag.First),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
 							ByArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
 						];
