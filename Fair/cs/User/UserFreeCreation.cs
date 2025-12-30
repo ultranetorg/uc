@@ -26,7 +26,6 @@ public class UserFreeCreation : FairOperation
 	{
 		Pow = null;
 	
-		var r = new Random();
 		
 		var s = node.Peering.Call(new StampPpc {}, flow);
 		
@@ -34,6 +33,7 @@ public class UserFreeCreation : FairOperation
 						   .Select(i => node.CreateThread(() => { 
 																 	var b = new byte[32];
 																 	var a = Blake2Fast.Blake2b.CreateHashAlgorithm(32);
+																	var r = new Random();
 																 
 																 	while(flow.Active && Pow == null)
 																 	{

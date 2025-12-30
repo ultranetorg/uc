@@ -34,7 +34,7 @@ public enum FairOperationClass : uint
 		SiteAvatarChange			= 103_000_008,
 		SiteNicknameChange			= 103_000_009,
 		UserRegistration			= 103_000_010,
-		UserDeletion				= 103_000_011,
+		UserUnregistration			= 103_000_011,
 		SiteDeletion				= 103_000_999,
 
 		Proposal						= 103_001,

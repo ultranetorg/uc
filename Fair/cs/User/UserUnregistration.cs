@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair;
 
-public class UserDeletion : VotableOperation
+public class UserUnregistration : VotableOperation
 {
 	public new  AutoId			User { get; set; }
 
 	public override string		Explanation => $"Site={Site}";
 	
-	public UserDeletion()
+	public UserUnregistration()
 	{
 	}
 	
@@ -27,7 +27,7 @@ public class UserDeletion : VotableOperation
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return other is UserDeletion o && o.User == User;
+		return other is UserUnregistration o && o.User == User;
 	}
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
@@ -46,7 +46,7 @@ public class UserDeletion : VotableOperation
 	{
 		var s = Site;
 
-		s.Users = s.Users.Remove(base.User.Id);
+		s.Users = s.Users.Remove(User);
 		base.User.Sites = base.User.Sites.Remove(s.Id);
 
 		//if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
