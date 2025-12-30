@@ -176,7 +176,7 @@ public class FairExecution : Execution
 		a.Reviews = [];
 		a.ModeratedSites = [];
 		a.Authors = [];
-		a.Registrations = [];
+		a.Sites = [];
 		a.FavoriteSites = [];
 
 		return a;

@@ -21,7 +21,7 @@ public class RdnRound : Round
 		return new RdnExecution(Mcv, this, transaction);
 	}
 
-	public override long AccountAllocationFee(User account)
+	public override long AccountAllocationFee()
 	{
 		return Execution.ToBD(Mcv.Net.EntityLength, Uccs.Net.Mcv.Forever);
 	}

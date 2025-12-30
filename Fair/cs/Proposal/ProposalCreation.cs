@@ -83,7 +83,7 @@ public class ProposalCreation : FairOperation
 	public override void PreTransact(McvNode node, Flow flow)
 	{
 		foreach(var i in Options)
-			i.Operation.PreTransact(node, flow, Site);
+			i.Operation.PreTransact(node, flow);
 
 		base.PreTransact(node, flow);
 	}

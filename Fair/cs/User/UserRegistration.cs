@@ -4,8 +4,6 @@ namespace Uccs.Fair;
 
 public class UserRegistration : VotableOperation
 {
-	public bool					UsePow { get; set; }
-	public byte[]				Pow { get; set; }
 	public override string		Explanation => $"Site={Site}";
 	
 	public UserRegistration()
@@ -19,75 +17,34 @@ public class UserRegistration : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Pow = reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.WriteBytes(Pow);
 	}
 
 	public override bool Overlaps(VotableOperation other)
 	{
-		return other is UserRegistration o && o.User.Owner == User.Owner;
+		return other is UserRegistration o && o.User.Id == User.Id;
 	}
 
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
+		if(execution.Transaction.Nonce == 0)
+		{
+			error = NotAllowedForNewUser;
+			return false;
+		}
+
 		if(Site.Users.Contains(User.Id))
 		{
 			error = AlreadyExists;
 			return false;
 		}
 
-		if(!execution.SkipPowCheck)
-		{
-			if(Pow != null && Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < Site.PoWComplexity)
-			{
-				error = DoesNotSatisfy;
-				return false;
-			}
-		}
-
 		error = null;
 		return true;
  	}
-
-	public override void PreTransact(McvNode node, Flow flow, AutoId site)
-	{
-		if(UsePow)
-		{
-			Pow = null;
-	
-			var r = new Random();
-		
-			var s = node.Peering.Call(new PowPpc {Site = site}, flow);
-		
-			var ts =  Enumerable.Range(0, Environment.ProcessorCount)
-								.Select(i => new Thread(() =>	{ 
-																	var b = new byte[32];
-																	var a = Blake2Fast.Blake2b.CreateHashAlgorithm(32);
-		
-																	while(flow.Active && Pow == null)
-																	{
-																		r.NextBytes(b);
-																		var h = a.ComputeHash([..s.GraphHash, ..b]);
-		
-																		var f = h.Sum(i => BitOperations.PopCount(i));
-																
-																		if(f >= s.Complexity)
-																		{
-																			Pow = b;
-																		}
-																	}
-																})).ToArray();
-			foreach(var i in ts)
-				i.Start();
-						
-			foreach(var i in ts)
-				i.Join();
-		}
-	}
 
 	public override void Execute(FairExecution execution)
 	{
@@ -95,14 +52,14 @@ public class UserRegistration : VotableOperation
 
 		s.Users = [..s.Users, User.Id];
 
-		User.Registrations = [..User.Registrations, Site.Id];
-
-		if(Pow != null)
-		{	
-			User.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
-			execution.AllocateForever(s, execution.Net.EntityLength);
-		}
-		else
-			execution.AllocateForever(User, execution.Net.EntityLength);
+		User.Sites = [..User.Sites, Site.Id];
+//
+//		if(Pow != null)
+//		{	
+//			User.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
+//			execution.AllocateForever(s, execution.Net.EntityLength);
+//		}
+//		else
+//			execution.AllocateForever(User, execution.Net.EntityLength);
 	}
 }

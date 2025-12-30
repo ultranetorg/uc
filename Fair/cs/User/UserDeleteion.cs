@@ -2,7 +2,7 @@
 
 public class UserDeletion : VotableOperation
 {
-	public AutoId				User { get; set; }
+	public new  AutoId			User { get; set; }
 
 	public override string		Explanation => $"Site={Site}";
 	
@@ -47,11 +47,11 @@ public class UserDeletion : VotableOperation
 		var s = Site;
 
 		s.Users = s.Users.Remove(base.User.Id);
-		base.User.Registrations = base.User.Registrations.Remove(s.Id);
+		base.User.Sites = base.User.Sites.Remove(s.Id);
 
-		if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
-		{
-			execution.FreeForever(s, execution.Net.EntityLength);
-		}
+		//if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
+		//{
+		//	execution.FreeForever(s, execution.Net.EntityLength);
+		//}
 	}
 }

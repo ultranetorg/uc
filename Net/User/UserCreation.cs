@@ -40,9 +40,9 @@ public class UserCreation : Operation
 
 		if(execution.Round.Id > 0)
 		{
-			User.Spacetime -= execution.Round.AccountAllocationFee(a);
+			User.Spacetime -= execution.Round.AccountAllocationFee();
 
-			execution.SpacetimeSpenders.Add(a);
+			execution.SpacetimeSpenders.Add(User);
 		}
 	}
 }
