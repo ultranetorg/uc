@@ -18,12 +18,12 @@ export const useGetFairUrl = (baseUrl?: string) => {
 
     api
       .getFairUrl(baseUrl)
-      .then(res => {
-        hasFetched.current = true
-        setData(res?.api)
-      })
+      .then(res => setData(res?.api))
       .catch(err => setError(err))
-      .finally(() => setIsLoading(false))
+      .finally(() => {
+        setIsLoading(false)
+        hasFetched.current = true
+      })
   }, [baseUrl, isLoading])
 
   return { data, isLoading, error }
