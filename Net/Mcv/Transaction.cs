@@ -210,10 +210,8 @@ public class Transaction : IBinarySerializable
 													});
 	}
 
-	public static byte[] Export(Net net, Operation[] operations, string user)
+	public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, BinaryWriter, byte[]> sign)
 	{
-		throw new NotImplementedException("USER AND SIGNATURE NEEDED");
-
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
 
@@ -222,14 +220,13 @@ public class Transaction : IBinarySerializable
 									i.Write(w); 
 								 });
 		w.WriteUtf8(user);
+		w.WriteBytes(sign(s, w));
 
 		return s.ToArray();
 	}
 
-	public static void Import(byte[] raw, Constructor constructor, out Operation[] operations, out string user)
+	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user, out AccountAddress account)
 	{
-		throw new NotImplementedException("USER AND SIGNATURE NEEDED");
-
 		var r = new BinaryReader(new MemoryStream(raw));
 
 		operations = r.ReadArray(() =>	{
@@ -238,5 +235,6 @@ public class Transaction : IBinarySerializable
  											return o;
 										});
 		user = r.ReadUtf8();
+		account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
 	}
 }

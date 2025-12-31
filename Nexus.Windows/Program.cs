@@ -47,7 +47,9 @@ public class Program: ApplicationContext
 			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, user, account) =>
 													{
 														var f = new AuthenticattionForm(nexus.Vault, appplication, net, user, account);
-														f.SetLogo(logo);
+														
+														if(logo != null)
+															f.SetLogo(logo);
 													
 														if(f.ShowDialog() == DialogResult.OK)
 														{

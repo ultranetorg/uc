@@ -11,10 +11,10 @@ public abstract class Cryptography
 	public static readonly Cryptography				No = new NoCryptography();
 	public static readonly Cryptography				Mcv = new McvCryptography();
 
-	public const int								SignatureSize = 65;
+	public const int								SignatureLength = 65;
 	public const int								HashSize = 32;
 	public const int								PrivateKeyLength = 32;
-	public virtual byte[]							ZeroSignature => new byte[SignatureSize];
+	public virtual byte[]							ZeroSignature => new byte[SignatureLength];
 	public virtual byte[]							ZeroHash  => new byte[HashSize];
 
 	public abstract CryptographyType				Type {get; }
@@ -46,6 +46,11 @@ public abstract class Cryptography
 		return Blake2b.ComputeHash(32, data);
 	}
 
+	public static byte[] Hash(Span<byte> data)
+	{
+		return Blake2b.ComputeHash(32, data);
+	}
+
 	public static byte[] Hash(int length, byte[] data)
 	{
 		return Blake2b.ComputeHash(length, data);
@@ -53,16 +58,6 @@ public abstract class Cryptography
 
 	public static byte[] Hash(byte[] a, byte[] b)
 	{
-		//if(SHA == null)
-		//{
-		//	SHA = new DZen.Security.Cryptography.SHA3256Managed();
-		//	SHA.UseKeccakPadding = true;
-		//}
-		//
-		//return SHA.ComputeHash(data);
-		//return Sha3Keccack.Current.CalculateHash(data);
-		
-		//return SHA256.HashData(data);
 		return Blake2b.ComputeHash(32, [..a, ..b]);
 	}
 
@@ -89,7 +84,7 @@ public class NoCryptography : Cryptography
 
 	public override byte[] Sign(AccountKey k, byte[] h)
 	{
-		var s = new byte[SignatureSize];
+		var s = new byte[SignatureLength];
 
 		Array.Copy(k.Address.Bytes, 0, s, 0, k.Address.Bytes.Length);
 		Array.Copy(h, 0, s, 32,	h.Length);
@@ -111,7 +106,7 @@ public class McvCryptography : Cryptography
 	{
 		var sig = k.SignAndCalculateV(h);
 
-		var o = new byte[SignatureSize];
+		var o = new byte[SignatureLength];
 
 		var r = sig.R.ToByteArrayUnsigned();
 		var s = sig.S.ToByteArrayUnsigned();

@@ -56,7 +56,7 @@ public static class Extentions
 
 	public static byte[] ReadSignature(this BinaryReader r)
 	{
-		return r.ReadBytes(Cryptography.SignatureSize);
+		return r.ReadBytes(Cryptography.SignatureLength);
 	}
 
 	public static AccountAddress ReadAccount(this BinaryReader r)
