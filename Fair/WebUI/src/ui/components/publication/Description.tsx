@@ -14,7 +14,13 @@ export type DescriptionProps = {
   showLessLabel: string
 }
 
-export const Description = ({ text, descriptions, descriptionLabel, showMoreLabel, showLessLabel }: DescriptionProps) => {
+export const Description = ({
+  text,
+  descriptions,
+  descriptionLabel,
+  showMoreLabel,
+  showLessLabel,
+}: DescriptionProps) => {
   const hasMultipleLanguages = descriptions && descriptions.length > 1
   const [selectedLanguage, setSelectedLanguage] = useState(descriptions?.[0]?.language ?? "en")
   const [expanded, setExpanded] = useState(false)
@@ -39,7 +45,7 @@ export const Description = ({ text, descriptions, descriptionLabel, showMoreLabe
           {hasMultipleLanguages && (
             <DropdownTertiary
               isMulti={false}
-              className="w-20"
+              className="w-14"
               controlled={true}
               size="medium"
               items={languageItems}
@@ -55,7 +61,7 @@ export const Description = ({ text, descriptions, descriptionLabel, showMoreLabe
       {isLong && (
         <div className="flex justify-center py-4">
           <ShowMoreButton
-            className="px-4 text-2sm font-medium text-gray-800"
+            className="px-4 text-2xs text-gray-800"
             isExpanded={expanded}
             onExpand={setExpanded}
             showMoreLabel={showMoreLabel}
