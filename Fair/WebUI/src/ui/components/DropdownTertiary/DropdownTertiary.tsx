@@ -10,6 +10,6 @@ const DropdownTertiaryInner = <IsMulti extends boolean>(props: DropdownTertiaryP
   <Dropdown styles={dropdownTertiaryStyle} {...props} />
 )
 
-export const DropdownTertiary = memo(
-  DropdownTertiaryInner,
-) as <IsMulti extends boolean>(props: DropdownTertiaryProps<IsMulti>) => JSX.Element
+export const DropdownTertiary = memo(DropdownTertiaryInner) as <IsMulti extends boolean>(
+  props: DropdownTertiaryProps<IsMulti>,
+) => JSX.Element

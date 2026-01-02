@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 
 import { SvgStarXxs } from "assets"
 import { PublicationDetails } from "types"
-import { ButtonPrimary, DropdownTertiary, LinkFullscreen } from "ui/components"
+import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
 import { formatAverageRating, formatDate } from "utils"
 import { getChildren, getRequirementPlatforms, getValue, nameEq } from "ui/components/publication/utils"
 
@@ -101,7 +101,7 @@ export const SoftwareInfo = memo(
         {versions.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{versionLabel}</span>
-            <DropdownTertiary
+            <DropdownSecondary
               isMulti={false}
               className="w-full"
               controlled={true}
