@@ -27,24 +27,11 @@ public class RdnTcpPeering : McvTcpPeering
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
 
-		//var s = new MemoryStream();
-		//var w = new BinaryWriter(s);
-		//var r = new BinaryReader(s);
-		//BinarySerializator.Serialize(w, new SharePeersPpc {Peers = [new Peer {IP = new([1,2,3,4])}]}, Constructor.TypeToCode); 
-		//s.Position = 0;
-		//var p = BinarySerializator.Deserialize<PeerRequest>(r, Constructor.Construct);
-
-
 		Run();
 	}
 
 	public override bool ValidateIncoming(Operation o)
 	{
-		#if ETHEREUM
-		if(o is Immission e && !Ethereum.IsEmissionValid(e))
-			return false;
-		#endif
-
 		if(o is DomainMigration m && !(Node as RdnNode).IsDnsValid(m))
 			return false;
 

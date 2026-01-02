@@ -31,39 +31,37 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		{
 			lock(Node.Mcv)
 				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
-		} 
+		}
 		else
 		{
 			return new PeersNnr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		}
 	}
 
-	public virtual Result Transact(IppConnection connection, TransactNna call)
-	{
-		var f = Flow.CreateNested(call.Timeout);
-				
-		Transaction.Import(Node.Net, call.Transaction, Node.Net.Constructor, out var o, out var u, out var a);
-
-		var t = Node.Peering.Transact(o, u, null, ActionOnResult.RetryUntilConfirmed, f);
-		
-		while(f.Active && t.Status != TransactionStatus.Confirmed)
-		{
-			Thread.Sleep(10);
-		}
-		
-		return new TransactNnr {Result = t.Tag};
-	}
+//	public virtual Result Transact(IppConnection connection, TransactNna call)
+//	{
+//		var f = Flow.CreateNested(call.Timeout);
+//				
+//		Transaction.Import(Node.Net, call.Transaction, Node.Net.Constructor, out var o, out var u, out var a);
+//
+//		var t = Node.Peering.Transact(o, u, null, ActionOnResult.RetryUntilConfirmed, f);
+//		
+//		while(f.Active && t.Status != TransactionStatus.Confirmed)
+//		{
+//			Thread.Sleep(10);
+//		}
+//		
+//		return new TransactNnr {Result = t.Tag};
+//	}
 	
 	public virtual Result Request(IppConnection connection, RequestNna call)
 	{
 		var f = Flow.CreateNested(call.Timeout);
 		
 		var r = new BinaryReader(new MemoryStream(call.Request));
-		
 		var rq = BinarySerializator.Deserialize<PeerRequest>(r, Node.Peering.Constructor.Construct);
 		
 		var w = new BinaryWriter(new MemoryStream());
-
 		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f), Node.Peering.Constructor.TypeToCode);
 
 		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};

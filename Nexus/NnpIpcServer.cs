@@ -62,9 +62,14 @@ public class NnpIppServer : IppServer
 		} 
 		else
 		{
-			//Nexus.RdnNode.
-
-			return Nexus.NnpPeering.Call(call.Net, call, Flow);
-		} 
+			if(call is McvTransactNna)
+			{
+				return null; /// GetMcvNnpTransactor(call.Net)
+			}
+			else
+			{
+				return Nexus.NnpPeering.Call(call.Net, call, Flow);
+			}
+		}
 	}
 }

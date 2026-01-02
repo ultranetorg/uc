@@ -111,7 +111,6 @@ public enum NnpClass : uint
 	
 	Peers,
 	Block,
-	Transact,
 	Request,
 
 	HolderClasses,
@@ -244,33 +243,27 @@ public class RequestNnr : Result, IBinarySerializable
 	public void		Write(BinaryWriter writer) => writer.WriteBytes(Response);
 }
 
-public class TransactNna : NnpArgumentation, IBinarySerializable
+public class McvTransactNna : NnpArgumentation, IBinarySerializable
 {
-	public byte[]			Transaction { get; set; }
-	public PacketFormat		Format { get; set; }
-	public Endpoint			Node { get; set; }
-	public int				Timeout { get; set; } = 5000;
+	public byte[]		Operations { get; set; }
+	public int			Timeout { get; set; } = 5000;
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
-		Transaction	= reader.ReadBytes();
-		Format		= reader.Read<PacketFormat>();
-		Node		= reader.ReadNullable<Endpoint>();
+		Operations	= reader.ReadBytes();
 		Timeout		= reader.Read7BitEncodedInt();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-		writer.WriteBytes(Transaction);
-		writer.Write(Format);
-		writer.WriteNullable(Node);
+		writer.WriteBytes(Operations);
 		writer.Write7BitEncodedInt(Timeout);
 	}
 }
 
-public class TransactNnr : Result, IBinarySerializable
+public class McvTransactNnr : Result, IBinarySerializable
 {
 	public byte[]	Result { get; set; }
 
