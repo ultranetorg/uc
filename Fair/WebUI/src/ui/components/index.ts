@@ -2,6 +2,7 @@ export * from "./AccountsList"
 export * from "./comments"
 export * from "./Dropdown"
 export * from "./DropdownSecondary"
+export * from "./DropdownTertiary"
 
 export * from "./Accordion"
 export * from "./AccountInfo"
