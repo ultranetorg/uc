@@ -1,7 +1,7 @@
-import { memo, useMemo } from "react"
+import { memo, useMemo, useState } from "react"
 
 import { ProductFieldModel } from "types"
-import { TagsList } from "ui/components"
+import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { getValue, nameEq } from "ui/components/publication/utils"
 import { ReviewsList } from "ui/components/specific"
@@ -90,12 +90,13 @@ const TEST_TAB_ITEMS = [
       },
     ],
   },
+  { key: "macos", label: "MacOS", sections: [] },
   { key: "linux", label: "Linux", sections: [] },
-  { key: "macos", label: "macOS", sections: [] },
 ]
 
 export const SoftwarePublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+    const [isEulaOpen, setIsEulaOpen] = useState(false)
     const mediaItems = useMemo(() => buildMediaItems(publication.productFields), [publication.productFields])
     const descriptions = useMemo(() => buildDescriptions(publication.productFields), [publication.productFields])
 
@@ -108,13 +109,11 @@ export const SoftwarePublicationContent = memo(
       return normalized ? ensureHttp(normalized) : undefined
     }, [publication.productFields])
 
-    const eulaUrl = useMemo(() => {
-      const raw =
-        getValue<string>(publication.productFields, "licensing-details-url") ??
-        getValue<string>(publication.productFields, "eula")
+    const eulaText = useMemo(() => {
+      const raw = getValue<string>(publication.productFields, "eula")
       if (!raw) return undefined
       const normalized = String(raw).trim()
-      return normalized ? ensureHttp(normalized) : undefined
+      return normalized || undefined
     }, [publication.productFields])
 
     const tags = useMemo(() => {
@@ -169,7 +168,23 @@ export const SoftwarePublicationContent = memo(
             downloadFromWebLabel={t("downloadFromWeb")}
           />
           {officialSite && <SiteLink to={officialSite} label={t("officialSite")} />}
-          {eulaUrl && <SiteLink to={eulaUrl} label={t("eula")} />}
+          {eulaText && (
+            <button
+              type="button"
+              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] px-6 py-4 text-left text-2sm font-medium leading-4.5 text-gray-800"
+              onClick={() => setIsEulaOpen(true)}
+            >
+              {t("eula")}
+            </button>
+          )}
+          {isEulaOpen && eulaText && (
+            <TextModal
+              title={t("eula")}
+              text={eulaText}
+              confirmLabel={t("common:ok")}
+              onConfirm={() => setIsEulaOpen(false)}
+            />
+          )}
           {tags && <TagsList tags={tags} />}
         </div>
       </>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { DropdownSecondary, ShowMoreButton } from "ui/components"
+import { DropdownTertiary, ShowMoreButton } from "ui/components"
 
 export type DescriptionLanguage = {
   language: string
@@ -37,7 +37,8 @@ export const Description = ({ text, descriptions, descriptionLabel, showMoreLabe
         <div className="flex items-center justify-between">
           <span className="text-xl font-semibold leading-6">{descriptionLabel}</span>
           {hasMultipleLanguages && (
-            <DropdownSecondary
+            <DropdownTertiary
+              isMulti={false}
               className="w-20"
               controlled={true}
               size="medium"
