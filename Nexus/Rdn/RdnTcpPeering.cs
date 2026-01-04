@@ -17,7 +17,7 @@ public abstract class RdnPpc<R> : McvPpc<R> where R : Result
 	public new RdnMcv			Mcv => base.Mcv as RdnMcv;
 }
 
-public class RdnTcpPeering : McvTcpPeering
+public class RdnTcpPeering : McvPeering
 {
 	public RdnTcpPeering(RdnNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{

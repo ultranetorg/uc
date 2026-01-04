@@ -48,13 +48,9 @@ partial class TransferPage
 		ToEntity = new ComboBox();
 		label7 = new Label();
 		pictureBox1 = new PictureBox();
-		Wallets = new ComboBox();
-		label10 = new Label();
 		Balance = new Label();
 		label11 = new Label();
 		label12 = new Label();
-		Accounts = new ComboBox();
-		label13 = new Label();
 		((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
 		SuspendLayout();
 		// 
@@ -75,9 +71,9 @@ partial class TransferPage
 		// 
 		Transfers.Columns.AddRange(new ColumnHeader[] { CFromNet, CFromEntity, CToNet, CToEntity, CAsset, CAmount });
 		Transfers.FullRowSelect = true;
-		Transfers.Location = new Point(3, 326);
+		Transfers.Location = new Point(3, 262);
 		Transfers.Name = "Transfers";
-		Transfers.Size = new Size(794, 271);
+		Transfers.Size = new Size(794, 335);
 		Transfers.TabIndex = 8;
 		Transfers.UseCompatibleStateImageBehavior = false;
 		Transfers.View = View.Details;
@@ -114,7 +110,7 @@ partial class TransferPage
 		// 
 		// Transfer
 		// 
-		Transfer.Location = new Point(280, 269);
+		Transfer.Location = new Point(299, 202);
 		Transfer.Margin = new Padding(3, 6, 3, 6);
 		Transfer.Name = "Transfer";
 		Transfer.Size = new Size(209, 32);
@@ -160,7 +156,7 @@ partial class TransferPage
 		// 
 		Asset.DropDownStyle = ComboBoxStyle.DropDownList;
 		Asset.FormattingEnabled = true;
-		Asset.Location = new Point(280, 199);
+		Asset.Location = new Point(299, 132);
 		Asset.Margin = new Padding(3, 6, 3, 6);
 		Asset.Name = "Asset";
 		Asset.Size = new Size(209, 23);
@@ -173,7 +169,7 @@ partial class TransferPage
 		// 
 		label5.AutoSize = true;
 		label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label5.Location = new Point(237, 202);
+		label5.Location = new Point(256, 135);
 		label5.Name = "label5";
 		label5.Size = new Size(37, 15);
 		label5.TabIndex = 12;
@@ -183,7 +179,7 @@ partial class TransferPage
 		// 
 		label6.AutoSize = true;
 		label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label6.Location = new Point(222, 237);
+		label6.Location = new Point(241, 170);
 		label6.Name = "label6";
 		label6.Size = new Size(52, 15);
 		label6.TabIndex = 12;
@@ -191,7 +187,7 @@ partial class TransferPage
 		// 
 		// Amount
 		// 
-		Amount.Location = new Point(280, 234);
+		Amount.Location = new Point(299, 167);
 		Amount.Margin = new Padding(3, 6, 3, 6);
 		Amount.Name = "Amount";
 		Amount.Size = new Size(209, 23);
@@ -236,35 +232,15 @@ partial class TransferPage
 		pictureBox1.Image = Properties.Resources.right_arrow;
 		pictureBox1.Location = new Point(365, 45);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(48, 93);
+		pictureBox1.Size = new Size(48, 58);
 		pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
 		pictureBox1.TabIndex = 16;
 		pictureBox1.TabStop = false;
 		// 
-		// Wallets
-		// 
-		Wallets.DropDownStyle = ComboBoxStyle.DropDownList;
-		Wallets.FormattingEnabled = true;
-		Wallets.Location = new Point(67, 115);
-		Wallets.Margin = new Padding(3, 6, 3, 6);
-		Wallets.Name = "Wallets";
-		Wallets.Size = new Size(188, 23);
-		Wallets.TabIndex = 11;
-		// 
-		// label10
-		// 
-		label10.AutoSize = true;
-		label10.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label10.Location = new Point(18, 153);
-		label10.Name = "label10";
-		label10.Size = new Size(43, 15);
-		label10.TabIndex = 13;
-		label10.Text = "Signer";
-		// 
 		// Balance
 		// 
 		Balance.AutoSize = true;
-		Balance.Location = new Point(495, 202);
+		Balance.Location = new Point(514, 135);
 		Balance.Name = "Balance";
 		Balance.Size = new Size(48, 15);
 		Balance.TabIndex = 13;
@@ -290,27 +266,6 @@ partial class TransferPage
 		label12.TabIndex = 12;
 		label12.Text = "Recipient";
 		// 
-		// Accounts
-		// 
-		Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
-		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(67, 150);
-		Accounts.Margin = new Padding(3, 6, 3, 6);
-		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(291, 23);
-		Accounts.TabIndex = 11;
-		Accounts.TextChanged += Any_Changed;
-		// 
-		// label13
-		// 
-		label13.AutoSize = true;
-		label13.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label13.Location = new Point(18, 118);
-		label13.Name = "label13";
-		label13.Size = new Size(43, 15);
-		label13.TabIndex = 13;
-		label13.Text = "Wallet";
-		// 
 		// TransferPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
@@ -324,16 +279,12 @@ partial class TransferPage
 		Controls.Add(label12);
 		Controls.Add(label11);
 		Controls.Add(label7);
-		Controls.Add(label13);
-		Controls.Add(label10);
 		Controls.Add(Balance);
 		Controls.Add(label4);
 		Controls.Add(ToEntity);
 		Controls.Add(FromEntity);
 		Controls.Add(Asset);
 		Controls.Add(ToNet);
-		Controls.Add(Accounts);
-		Controls.Add(Wallets);
 		Controls.Add(FromNet);
 		Controls.Add(Transfer);
 		Font = new Font("Segoe UI", 9F);
@@ -366,11 +317,7 @@ partial class TransferPage
 	private ComboBox ToEntity;
 	private Label label7;
 	private PictureBox pictureBox1;
-	private ComboBox Wallets;
-	private Label label10;
 	private Label Balance;
 	private Label label11;
 	private Label label12;
-	private ComboBox Accounts;
-	private Label label13;
 }

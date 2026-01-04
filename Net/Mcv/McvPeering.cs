@@ -29,7 +29,7 @@ public enum Role : long
 	Chain		= 0b00000010,
 }
 
-public abstract class McvTcpPeering : HomoTcpPeering
+public abstract class McvPeering : HomoTcpPeering
 {
 	public McvNode							Node;
 	public McvNet							Net => Node.Net;
@@ -41,19 +41,18 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
-	public List<Transaction>				OutgoingTransactions = new();
-	public List<Transaction>				IncomingTransactions = new();
-	public List<Transaction>				ConfirmedTransactions = new();
+	public List<Transaction>				OutgoingTransactions = [];
+	public List<Transaction>				IncomingTransactions = [];
+	public List<Transaction>				ConfirmedTransactions = [];
+	List<AccountAddress>					CandidacyDeclarations = [];
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
-	public Dictionary<int, List<Vote>>		SyncTail = new();
+	public Dictionary<int, List<Vote>>		SyncTail = [];
 
-	List<AccountAddress>					CandidacyDeclarations = [];
-	
-	public static List<McvTcpPeering>		All = new();
+	public static List<McvPeering>			All = [];
 
-	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
+	public McvPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
 	{
 		Node = node;
 		VaultApi = vaultapi;
@@ -1216,7 +1215,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public static void CompareGraphs(string destination)
 	{
-		var mcvs = All.OfType<McvTcpPeering>().GroupBy(i => i.Net.Address);
+		var mcvs = All.OfType<McvPeering>().GroupBy(i => i.Net.Address);
 
 		foreach(var i in mcvs)
 		{
@@ -1226,7 +1225,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
-	public static void CompareBase(McvTcpPeering[] all, string destibation)
+	public static void CompareBase(McvPeering[] all, string destibation)
 	{
 		//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 		Directory.CreateDirectory(destibation);

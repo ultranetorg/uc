@@ -5,7 +5,8 @@ namespace Uccs.Rdn;
 
 public enum RdnTable : byte
 {
-	Meta = McvTable.Meta, Account = McvTable.User,
+	Meta = McvTable.Meta, 
+	User = McvTable.User,
 	Domain, Resource
 }
 

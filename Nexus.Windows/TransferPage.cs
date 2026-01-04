@@ -29,9 +29,15 @@ public partial class TransferPage : Page
 //
 //			Wallets.Items.Insert(0, "All");
 //			Wallets.SelectedIndex = 0;
+
+			if(Nexus.Settings.Zone == Zone.Local)
+			{
+				FromEntity.Text = "user/father0000";
+				ToEntity.Text = "user/father0000";
+			}
 		}
 
-		Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
+		//Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)
@@ -155,7 +161,6 @@ public partial class TransferPage : Page
 	{
 		Transfer.Enabled = !string.IsNullOrEmpty(FromNet.Text) &&
 							!string.IsNullOrEmpty(FromEntity.Text) &&
-							!string.IsNullOrEmpty(Wallets.Text) &&
 							!string.IsNullOrEmpty(ToNet.Text) &&
 							!string.IsNullOrEmpty(ToEntity.Text) &&
 							!string.IsNullOrEmpty(Asset.Text) &&
@@ -167,7 +172,7 @@ public partial class TransferPage : Page
 		try
 		{
 			Nnp.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
-																{
+																 {
 																	Net = FromNet.Text,
 																	ToNet = ToNet.Text,
 																	FromEntity = FromEntity.Text,
@@ -175,8 +180,8 @@ public partial class TransferPage : Page
 																	Name = (Asset.SelectedItem as Asset).Name,
 																	Amount = Amount.Text,
 																	///Signer = Accounts.SelectedItem as AccountAddress,
-																}),
-																new Flow(5000));
+																 }),
+																 new Flow(5000));
 		}
 		catch(Exception ex)
 		{

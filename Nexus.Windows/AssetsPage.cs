@@ -6,7 +6,6 @@ namespace Uccs.Nexus.Windows;
 
 public partial class AssetsPage : Page
 {
-
 	public AssetsPage()
 	{
 	}
@@ -23,28 +22,29 @@ public partial class AssetsPage : Page
 			Nets.Items.Insert(0, "rdn");
 			Nets.SelectedIndex = 0;
 
-			Program.NexusSystem.BindAccounts(Nexus.Vault, Accounts, Nexus.Vault.Wallets.SelectMany(i => i.Accounts), null);
-			Accounts.Items.Insert(0, "All");
-			Accounts.SelectedIndex = 0;
-
 			Message.Visible = false;
+
+			if(Nexus.Settings.Zone == Zone.Local)
+			{
+				Entity.Text = "user/father0000";
+			}
 		}
 	}
 
 	private void Nets_Changed(object sender, EventArgs e)
 	{
-		Search(Accounts.SelectedItem.ToString());
+		Search(Entity.SelectedItem.ToString());
 	}
 
 	private void Accounts_KeyDown(object sender, KeyEventArgs e)
 	{
 		if(e.KeyCode == Keys.Enter)
 		{
-			Search(Accounts.Text);
+			Search(Entity.Text);
 		}
 	}
 
-	void Search(string account)
+	void Search(string entity)
 	{
 		var f = new Flow("");
 
@@ -54,24 +54,17 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			///foreach(var acc in account == "All" ? Nexus.Vault.Wallets.SelectMany(i => i.Accounts).Select(i => i.Address) : [AccountAddress.Parse(account)])
-			///{
-			///	foreach(var h in Nnp.Call(new Nnc<HoldersByAccountNna, HoldersByAccountNnr>(new () {Net = Nets.Text, Address = User.NameToBytes(acc.)}), f).Holders)
-			///	{
-			///		foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = h}), f).Assets)
-			///		{
-			///			var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = h, Name = a.Name}), f).Balance;
-			///
-			///			var li = new ListViewItem(h);
-			///			li.SubItems.Add(a.Name);
-			///			li.SubItems.Add(a.Units);
-			///			li.SubItems.Add(b.ToString());
-			///
-			///			Assets.Items.Add(li);
-			///
-			///		}
-			///	}
-			///}
+			foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = entity}), f).Assets)
+			{
+				var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = entity, Name = a.Name}), f).Balance;
+			
+				var li = new ListViewItem(entity);
+				li.SubItems.Add(a.Name);
+				li.SubItems.Add(a.Units);
+				li.SubItems.Add(b.ToString());
+			
+				Assets.Items.Add(li);
+			}
 			
 			Message.Visible = false;
 		}
@@ -93,6 +86,6 @@ public partial class AssetsPage : Page
 
 	private void Start_Click(object sender, EventArgs e)
 	{
-		Search(Accounts.Text);
+		Search(Entity.Text);
 	}
 }

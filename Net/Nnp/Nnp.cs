@@ -114,7 +114,6 @@ public enum NnpClass : uint
 	Request,
 
 	HolderClasses,
-	HoldersByAccount,
 	HolderAssets,
 	AssetBalance,
 	AssetTransfer
@@ -243,33 +242,33 @@ public class RequestNnr : Result, IBinarySerializable
 	public void		Write(BinaryWriter writer) => writer.WriteBytes(Response);
 }
 
-public class McvTransactNna : NnpArgumentation, IBinarySerializable
-{
-	public byte[]		Operations { get; set; }
-	public int			Timeout { get; set; } = 5000;
-
-	public override void Read(BinaryReader reader)
-	{
-		base.Read(reader);
-		Operations	= reader.ReadBytes();
-		Timeout		= reader.Read7BitEncodedInt();
-	}
-
-	public override void Write(BinaryWriter writer)
-	{
-		base.Write(writer);
-		writer.WriteBytes(Operations);
-		writer.Write7BitEncodedInt(Timeout);
-	}
-}
-
-public class McvTransactNnr : Result, IBinarySerializable
-{
-	public byte[]	Result { get; set; }
-
-	public void		Read(BinaryReader reader) => Result = reader.ReadBytes();
-	public void		Write(BinaryWriter writer) => writer.WriteBytes(Result);
-}
+//public class McvTransactNna : NnpArgumentation, IBinarySerializable
+//{
+//	public byte[]		Operations { get; set; }
+//	public int			Timeout { get; set; } = 5000;
+//
+//	public override void Read(BinaryReader reader)
+//	{
+//		base.Read(reader);
+//		Operations	= reader.ReadBytes();
+//		Timeout		= reader.Read7BitEncodedInt();
+//	}
+//
+//	public override void Write(BinaryWriter writer)
+//	{
+//		base.Write(writer);
+//		writer.WriteBytes(Operations);
+//		writer.Write7BitEncodedInt(Timeout);
+//	}
+//}
+//
+//public class McvTransactNnr : Result, IBinarySerializable
+//{
+//	public byte[]	Result { get; set; }
+//
+//	public void		Read(BinaryReader reader) => Result = reader.ReadBytes();
+//	public void		Write(BinaryWriter writer) => writer.WriteBytes(Result);
+//}
 
 public class HolderClassesNna : NnpArgumentation, IBinarySerializable
 {
@@ -291,31 +290,30 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //	}
 //}
 
-public class HoldersByAccountNna : NnpArgumentation, IBinarySerializable
-{
-	public byte[]	Address { get; set; }
-
-	public override void Read(BinaryReader reader)
-	{
-		base.Read(reader);
-		Address = reader.ReadBytes();
-	}
-
-	public override void Write(BinaryWriter writer)
-	{
-		base.Write(writer);
-		writer.WriteBytes(Address);
-	}
-}
-
-public class HoldersByAccountNnr : Result, IBinarySerializable
-{
-	public string[] Holders { get; set; }
-
-	public void Read(BinaryReader reader) => Holders = reader.ReadArray(reader.ReadASCII);
-	public void Write(BinaryWriter writer) => writer.Write(Holders, writer.WriteASCII);
-}
-
+//public class HoldersByAccountNna : NnpArgumentation, IBinarySerializable
+//{
+//	public byte[]	Address { get; set; }
+//
+//	public override void Read(BinaryReader reader)
+//	{
+//		base.Read(reader);
+//		Address = reader.ReadBytes();
+//	}
+//
+//	public override void Write(BinaryWriter writer)
+//	{
+//		base.Write(writer);
+//		writer.WriteBytes(Address);
+//	}
+//}
+//
+//public class HoldersByAccountNnr : Result, IBinarySerializable
+//{
+//	public string[] Holders { get; set; }
+//
+//	public void Read(BinaryReader reader) => Holders = reader.ReadArray(reader.ReadASCII);
+//	public void Write(BinaryWriter writer) => writer.Write(Holders, writer.WriteASCII);
+//}
 
 public class HolderAssetsNna : NnpArgumentation, IBinarySerializable
 {
@@ -377,7 +375,6 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 	public string			ToEntity { get; set; }
 	public string			Name { get; set; }
 	public string			Amount { get; set; }
-	public byte[]			Signature { get; set; }
 
 	public override void Read(BinaryReader reader)
 	{
@@ -387,7 +384,6 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		ToEntity	= reader.ReadASCII();
 		Name		= reader.ReadASCII();
 		Amount		= reader.ReadASCII();
-		Signature	= reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -398,7 +394,6 @@ public class AssetTransferNna : NnpArgumentation, IBinarySerializable
 		writer.WriteASCII(ToEntity);
 		writer.WriteASCII(Name);
 		writer.WriteASCII(Amount);
-		writer.WriteBytes(Signature);
 	}
 }
 
