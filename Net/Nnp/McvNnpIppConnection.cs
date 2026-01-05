@@ -72,6 +72,23 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		return new HolderClassesNnr {Classes = Classes};
 	}
 
+	protected virtual void GetHolder(byte c, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)
+	{
+		sh = null;
+		eh = null;
+
+		if(c == (byte)McvTable.User)
+		{
+			var a = Node.Mcv.Users.Latest(n);
+	
+			if(a == null)
+				throw new EntityException(EntityError.NotFound);
+	
+			sh = a;
+			eh = a;
+		}
+	}
+
 	public virtual Result AssetBalance(IppConnection connection, AssetBalanceNna args)
 	{
 		Parse(args.Entity, out var c, out var n); 
@@ -84,13 +101,16 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 		lock(Node.Mcv.Lock)
 		{	
-			var a = Node.Mcv.Users.Latest(n);
+			GetHolder(c, n, out sh, out eh);
 
-			if(a == null)
-				throw new EntityException(EntityError.NotFound);
+			if(string.Compare(args.Name, nameof(User.Spacetime),  true) == 0 && sh == null)
+				throw new EntityException(EntityError.NotHolder);
 
-			sh = a;
-			eh = a;
+			if(string.Compare(args.Name, nameof(User.Energy),  true) == 0 && eh == null)
+				throw new EntityException(EntityError.NotHolder);
+
+			if(string.Compare(args.Name, nameof(User.EnergyNext), true) == 0 && eh == null)
+				throw new EntityException(EntityError.NotHolder);
 		}
 			
 		return	new AssetBalanceNnr

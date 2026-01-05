@@ -86,8 +86,8 @@ public abstract class McvNet : Net
 	public int								ExecutionCyclesPerTransactionLimit		= 200;
 	public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
 	public long								ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
-	public long								ECEmission								=> ECDayEmission * 365;
-	public long								BDDayEmission							= 1024L*1024L * IdealRoundsPerDay;
+	public long								EnergyEmission							=> ECDayEmission * 365;
+	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
 	public long								DeclarationCost							=> 1000_000;
 	
 	public int								EntityLength							= 100;
