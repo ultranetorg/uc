@@ -9,24 +9,24 @@ public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
 		lock(Peering.Lock)
 			lock(Mcv.Lock)
 			{
-				var m = RequireMemberFor(Transaction.Signer);
+				//var m = RequireMemberFor(Transaction.Signer);
 
-				var a = Mcv.Accounts.Find(Transaction.Signer, Mcv.LastConfirmedRound.Id);
+				var u = Mcv.Users.Find(Transaction.User, Mcv.LastConfirmedRound.Id);
 
 				Transaction.Expiration = Mcv.LastConfirmedRound.Id + 1;
 
 				if(Peering.ValidateIncoming(Transaction, false, out var r))
 				{
-					var b = r.AffectedAccounts.Values.First(i => i.Address == Transaction.Signer);
+					var b = r.AffectedAccounts.Values.First(i => i.Name == Transaction.User);
 				
-					var atr = new AllocateTransactionPpr{Generator			= m.Id,
+					var atr = new AllocateTransactionPpr{//Generator			= m.Id,
 														 LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-														 NextNid			= Transaction.Nid};
+														 NextNid			= Transaction.Nonce};
 
-					if(a != null)
+					if(u != null)
 					{
-						atr.SpacetimeConsumed	= a.Spacetime - b.Spacetime;
-						atr.EnergyConsumed		= a.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed;
+						atr.SpacetimeConsumed	= u.Spacetime - b.Spacetime;
+						atr.EnergyConsumed		= u.BandwidthExpiration > Mcv.LastConfirmedRound.ConsensusTime.Days ? 0 : Transaction.EnergyConsumed;
 					}
 					else
 					{
@@ -47,5 +47,5 @@ public class AllocateTransactionPpr : Result
 	public int			NextNid { get; set; }
 	public long			SpacetimeConsumed { get; set; }
 	public long			EnergyConsumed { get; set; }
-	public AutoId		Generator { get; set; }
+	//public AutoId		Generator { get; set; }
 }

@@ -52,7 +52,7 @@ public partial class ChainPanel : MainPanel
 																		var li = new ListViewItem(j.ToString());
 																		li.Tag = i;
 																		li.SubItems.Add(i.Id.ToString());
-																		li.SubItems.Add(i.Nid.ToString());
+																		li.SubItems.Add(i.Nonce.ToString());
 																		li.SubItems.Add(i.Signer.ToString());
 																		li.SubItems.Add(i.Operations.Length.ToString());
 																		li.SubItems.Add(i.Bonus.ToString());

@@ -4,7 +4,7 @@ public class DomainRegistration : RdnOperation
 {
 	public string				Address {get; set;}
 	public byte					Years {get; set;}
-	public AccountAddress		Owner  {get; set;}
+	public AutoId				Owner  {get; set;}
 	public DomainChildPolicy	Policy {get; set;}
 
 	public override string		Explanation => $"{Address} for {Years} years";
@@ -34,7 +34,7 @@ public class DomainRegistration : RdnOperation
 
 		if(Domain.IsChild(Address))
 		{
-			Owner = reader.Read<AccountAddress>();
+			Owner = reader.Read<AutoId>();
 			Policy	= reader.Read<DomainChildPolicy>();
 		}
 	}
@@ -57,7 +57,7 @@ public class DomainRegistration : RdnOperation
 
 		if(Domain.IsRoot(Address))
 		{
-			if(!Domain.CanRegister(Address, e, execution.Time, Signer))
+			if(!Domain.CanRegister(Address, e, execution.Time, User))
 			{
 				Error = NotAvailable;
 				return;
@@ -66,12 +66,12 @@ public class DomainRegistration : RdnOperation
 			e = execution.Domains.Affect(Address);
 			
 			execution.PayForName(Address, Years);
-			execution.Prolong(Signer, e, Time.FromYears(Years));
+			execution.Prolong(User, e, Time.FromYears(Years));
 
 			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
 			///	Transaction.BYReturned += e.LastBid;
 							
-			e.Owner			= Signer.Id;
+			e.Owner			= User.Id;
 			//e.LastWinner	= null;
 			//e.LastBid		= 0;
 			//e.LastBidTime	= Time.Empty;
@@ -85,7 +85,7 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			var o = execution.FindAccount(Owner);
+			var o = execution.FindUser(Owner);
 
 			if(o == null)
 			{
@@ -113,6 +113,6 @@ public class DomainRegistration : RdnOperation
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		execution.PayCycleEnergy(Signer);
+		execution.PayCycleEnergy(User);
 	}
 }

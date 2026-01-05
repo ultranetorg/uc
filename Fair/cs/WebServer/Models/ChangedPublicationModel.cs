@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairAccount account, Category category, AutoId logoId)
+public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairUser account, Category category, AutoId logoId)
 {
 	public string Id { get; } = publicationId;
 

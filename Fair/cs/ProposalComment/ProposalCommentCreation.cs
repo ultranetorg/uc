@@ -47,7 +47,7 @@ public class ProposalCommentCreation : FairOperation
  			if(!IsModerator(execution, s.Id, out var _, out Error))
  				return;
 
-			c.Creator = Signer.Id;
+			c.Creator = User.Id;
 
  		}
  		else if(s.IsReferendum(d.OptionClass))

@@ -26,7 +26,7 @@ public class AuthorTable : Table<AutoId, Author>
 				{
 					var w = e.Words.Affect(Word.GetId(i.Nickname));
 
-					w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname}];
+					w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname};
 				}
 	
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
@@ -39,10 +39,9 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 	{
 	}
 
-	public Author Create(AccountAddress signer)
+	public Author Create(string name)
 	{
-		var b = Execution.Mcv.Accounts.KeyToBucket(signer);
-		
+		var b = Execution.Mcv.Users.KeyToBucket(name);
 		int e = Execution.GetNextEid(Table, b);
 
 		var a = Table.Create();

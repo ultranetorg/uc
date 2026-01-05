@@ -25,7 +25,7 @@ public class SiteTable : Table<AutoId, Site>
 		{
 			var w = e.Words.Affect(Word.GetId(i.Nickname));
 
-			w.References = [..w.References, new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname}];
+			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname};
 		}
 
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
@@ -64,12 +64,11 @@ public class SiteExecution : TableExecution<AutoId, Site>
 	{
 	}
 
-	public Site Create(Account signer)
+	public Site Create(User signer)
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.SitesCount);
 
-		var b = Execution.Mcv.Accounts.KeyToBucket(signer.Address);
-		
+		var b = Execution.Mcv.Users.KeyToBucket(signer.Name);
 		int e = Execution.GetNextEid(Table, b);
 
 		var s = Table.Create();

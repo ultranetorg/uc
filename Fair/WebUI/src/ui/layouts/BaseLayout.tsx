@@ -1,9 +1,9 @@
-import { PropsWithChildren } from "react"
+import { memo, PropsWithChildren } from "react"
 import { Outlet } from "react-router-dom"
 
 import { PageBanner, Sidebar } from "ui/components/specific"
 
-export const BaseLayout = ({ children }: PropsWithChildren) => (
+export const BaseLayout = memo(({ children }: PropsWithChildren) => (
   <div className="min-h-screen w-full">
     <PageBanner className="sticky top-0 z-20" />
     <div className="mx-auto max-w-[1440px]">
@@ -13,4 +13,4 @@ export const BaseLayout = ({ children }: PropsWithChildren) => (
       </div>
     </div>
   </div>
-)
+))

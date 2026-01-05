@@ -8,6 +8,7 @@ public class DomainMigration : RdnOperation
 	public override string	Explanation => $"{Name}.{Tld}";
 	public bool				DnsApproved;
 	public AutoId			Generator;
+	public AutoId			UserId;
 
 	public DomainMigration()
 	{
@@ -27,11 +28,11 @@ public class DomainMigration : RdnOperation
 		if(!Domain.IsWeb(Name))
 			return false;
 
-		if(Tld.Length > 8)
+		if(!Domain.ExclusiveTlds.Contains(Tld))
 			return false;
 
 		return true;
-	} 
+	}
 	
 	public override void Read(BinaryReader reader)
 	{
@@ -47,23 +48,23 @@ public class DomainMigration : RdnOperation
 
 	public void WriteBaseState(BinaryWriter writer)
 	{
-		writer.Write(Id);
-		writer.Write(Signer);
+		//writer.Write(Id);
+		writer.Write(UserId);
 		writer.WriteUtf8(Name);
-		writer.WriteUtf8(Tld);
+		//writer.WriteUtf8(Tld);
 		writer.Write(Generator);
 	}
 
 	public void ReadBaseState(BinaryReader reader)
 	{
-		_Id	= reader.Read<OperationId>();
+		//_Id	= reader.Read<OperationId>();
 
-		Transaction = new ();
+		//Transaction = new ();
 		
-		Transaction.Signer	= reader.ReadAccount();
-		Name				= reader.ReadUtf8();
-		Tld					= reader.ReadUtf8();
-		Generator			= reader.Read<AutoId>();
+		UserId		= reader.Read<AutoId>();
+		Name		= reader.ReadUtf8();
+		//Tld			= reader.ReadUtf8();
+		Generator	= reader.Read<AutoId>();
 	}
 
 	public override void Execute(RdnExecution execution)
@@ -83,8 +84,10 @@ public class DomainMigration : RdnOperation
 			Error = ReservedForOwner;
 			return;
 		}
+
+		UserId = User.Id;
 	
-		execution.PayCycleEnergy(Signer);
+		execution.PayCycleEnergy(User);
 	}
 
 	public void ConfirmedExecute(Execution execution)
@@ -92,6 +95,6 @@ public class DomainMigration : RdnOperation
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);
 
-		a.Owner = Signer.Id;
+		a.Owner = UserId;
 	}
 }

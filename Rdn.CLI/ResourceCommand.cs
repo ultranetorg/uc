@@ -25,7 +25,7 @@ public class ResourceCommand : RdnCommand
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to create", Flag.First),
 							new ("data", HEX, "A data associated with the resource"),
-							SignerArgument()
+							ByArgument()
 						];
 
 		a.Execute = () =>	{
@@ -52,7 +52,7 @@ public class ResourceCommand : RdnCommand
 		a.Description = "Destroys existing resource and all its associated links";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to delete", Flag.First),
-							SignerArgument()
+							ByArgument()
 						];
 
 		a.Execute = () =>	{
@@ -76,7 +76,7 @@ public class ResourceCommand : RdnCommand
 							new ("data", HEX, "A data associated with the resource", Flag.Optional),
 							new ("seal", null, "If set, resource data cannot be changed anymore", Flag.Optional),
 							new ("recursive", null, "Update all descendants", Flag.Optional),
-							SignerArgument()
+							ByArgument()
 						];
 
 		a.Execute = () =>	{

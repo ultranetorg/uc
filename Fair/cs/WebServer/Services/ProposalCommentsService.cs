@@ -61,7 +61,7 @@ public class ProposalCommentsService
 				return;
 
 			ProposalComment comment = mcv.ProposalComments.Latest(commentId);
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(comment.Creator);
+			FairUser account = (FairUser) mcv.Users.Latest(comment.Creator);
 			ProposalCommentModel model = new ProposalCommentModel(comment, account);
 			context.Items.Add(model);
 		}

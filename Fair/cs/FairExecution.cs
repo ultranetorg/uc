@@ -84,8 +84,8 @@ public class FairExecution : Execution
 
 	public void Absorb(FairExecution execution)
 	{
-		foreach(var i in execution.AffectedAccounts)
-			AffectedAccounts[i.Key] = i.Value;
+		foreach(var i in execution.AffectedUsers)
+			AffectedUsers[i.Key] = i.Value;
 
 		foreach(var i in execution.AffectedMetas)
 			AffectedMetas[i.Key] = i.Value;
@@ -159,31 +159,30 @@ public class FairExecution : Execution
 		return base.AffectedByTable(table);
 	}
 
-	public new FairAccount FindAccount(AutoId id)
+	public new FairUser FindUser(AutoId id)
 	{
-		return base.FindAccount(id) as FairAccount;
+		return base.FindUser(id) as FairUser;
 	}
 
-	public new FairAccount AffectAccount(AutoId id)
+	public new FairUser AffectUser(AutoId id)
 	{
-		return base.AffectAccount(id) as FairAccount;
+		return base.AffectUser(id) as FairUser;
 	}
 
-	public override FairAccount CreateAccount(AccountAddress address)
+	public override FairUser CreateUser(string name, AccountAddress address)
 	{
-		var a = base.CreateAccount(address) as FairAccount;
+		var a = base.CreateUser(name, address) as FairUser;
 
 		a.Reviews = [];
 		a.ModeratedSites = [];
 		a.Authors = [];
-		a.Registrations = [];
+		a.Sites = [];
 		a.FavoriteSites = [];
-		a.Nickname = "";
 
 		return a;
 	}
 
-	public void DeleteAccount(FairAccount account)
+	public void DeleteAccount(FairUser account)
 	{
 		account.Deleted = true;
 // 

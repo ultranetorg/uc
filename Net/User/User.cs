@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 
 namespace Uccs.Net;
 
@@ -87,33 +88,37 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
-public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
+public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
 {
-	public AutoId						Id { get; set; }
-	public AccountAddress				Address { get; set; }
-	public int							LastTransactionNid { get; set; } = -1;
-	public long							AverageUptime { get; set; }
+	public AutoId			Id { get; set; }
+	public string			Name { get; set; }
+	public AccountAddress	Owner { get; set; }
+	public int				LastNonce { get; set; } = -1;
+	public long				AverageUptime { get; set; }
 	
-	public long							Spacetime { get; set; }
+	public long				Spacetime { get; set; }
 	
-	public long							Energy { get; set; }
-	public byte							EnergyThisPeriod { get; set; }
-	public long							EnergyNext { get; set; }
+	public long				Energy { get; set; }
+	public byte				EnergyThisPeriod { get; set; }
+	public long				EnergyNext { get; set; }
 
-	public long							Bandwidth { get; set; }
-	public short						BandwidthExpiration { get; set; } = -1;
-	public long							BandwidthToday { get; set; }
-	public short						BandwidthTodayTime { get; set; }
-	public long							BandwidthTodayAvailable { get; set; }
+	public long				Bandwidth { get; set; }
+	public short			BandwidthExpiration { get; set; } = -1;
+	public long				BandwidthToday { get; set; }
+	public short			BandwidthTodayTime { get; set; }
+	public long				BandwidthTodayAvailable { get; set; }
 
-	public EntityId						Key => Id;
-	public bool							Deleted { get; set; }
+	public EntityId			Key => Id;
+	public bool				Deleted { get; set; }
 
-	Mcv									Mcv;
+	Mcv						Mcv;
+
+	public static byte[]	NameToBytes(string name) => Encoding.ASCII.GetBytes(name);
+	public static string	BytesToName(byte[] bytes) => Encoding.ASCII.GetString(bytes); 
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastTransactionNid}, AverageUptime={AverageUptime}";
+		return $"{Name}, {Id}, {Owner}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastNonce}, AverageUptime={AverageUptime}";
 	}
 
 	public static long ParseSpacetime(string t)
@@ -136,10 +141,11 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 	public virtual void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(Address);
+		writer.Write(Owner);
+		writer.WriteASCII(Name);
 
 		writer.Write7BitEncodedInt64(Spacetime);
-		writer.Write7BitEncodedInt(LastTransactionNid);
+		writer.Write7BitEncodedInt(LastNonce);
 		writer.Write7BitEncodedInt64(AverageUptime);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
@@ -148,33 +154,35 @@ public class Account : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITa
 	public virtual void Read(BinaryReader reader)
 	{
 		Id					= reader.Read<AutoId>();
-		Address				= reader.ReadAccount();
+		Owner				= reader.ReadAccount();
+		Name			= reader.ReadASCII();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
-		LastTransactionNid	= reader.Read7BitEncodedInt();
+		LastNonce	= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
 
-	public Account()
+	public User()
 	{
 	}
 
-	public Account(Mcv mcv)
+	public User(Mcv mcv)
 	{
 		Mcv = mcv;
 	}
 
 	public virtual object Clone()
 	{
-		var a = Mcv.Accounts.Create();
+		var a = Mcv.Users.Create();
 
-		a.Id						= Id;
-		a.Address					= Address;
-		a.Spacetime					= Spacetime;
-		a.LastTransactionNid		= LastTransactionNid;
-		a.AverageUptime				= AverageUptime;
+		a.Id					= Id;
+		a.Owner					= Owner;
+		a.Name				= Name;
+		a.Spacetime				= Spacetime;
+		a.LastNonce	= LastNonce;
+		a.AverageUptime			= AverageUptime;
 
 		((IEnergyHolder)this).Clone(a);
 

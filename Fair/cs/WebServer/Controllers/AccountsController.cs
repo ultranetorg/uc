@@ -28,7 +28,7 @@ public class AccountsController
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(Get), accountId);
 
-		autoIdValidator.Validate(accountId, nameof(Account).ToLower());
+		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
 		return accountsService.Get(accountId);
 	}
@@ -59,7 +59,7 @@ public class AccountsController
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
 
-		autoIdValidator.Validate(accountId, nameof(Account).ToLower());
+		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
 		return accountsService.GetAvatar(accountId);
 	}

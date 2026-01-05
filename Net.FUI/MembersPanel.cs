@@ -28,7 +28,7 @@ public partial class MembersPanel : MainPanel
 			{
 				var li = Generators.Items.Add(i.Address.ToString());
 	
-				if(Mcv.Settings.Generators.Contains(i.Address))
+				if(Mcv.Settings.Generators.Any(g => g.Signer == i.Address))
 				{
 					li.Font = Bold;
 				}

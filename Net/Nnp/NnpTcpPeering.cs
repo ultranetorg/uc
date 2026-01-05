@@ -177,7 +177,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 		}
 	}
 
-	protected override void ProcessConnectivity()
+	protected override void ProcessMain()
 	{
 		foreach(var n in Peers)
 		{

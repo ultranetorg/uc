@@ -28,10 +28,7 @@ export type ProfileMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & 
 
 export const ProfileMenu = memo(
   forwardRef<HTMLDivElement, ProfileMenuProps>(
-    (
-      { customParentId, style, accountId, nickname, address, items, onAdd, onRemove, onSelect, onNicknameCreate },
-      ref,
-    ) => {
+    ({ customParentId, style, accountId, nickname, address, items, onAdd, onRemove, onSelect }, ref) => {
       const { t } = useTranslation("currentAccount")
 
       const accountMenu = useSubmenu({ placement: "right-end", customParentId })

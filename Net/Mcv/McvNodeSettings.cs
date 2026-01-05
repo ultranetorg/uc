@@ -5,6 +5,7 @@ namespace Uccs.Net;
 
 public class AccountSessionSettings
 {
+	public string			User { get; set; }
 	public AccountAddress	Account { get; set; }
 	public byte[]			Session { get; set; }
 }

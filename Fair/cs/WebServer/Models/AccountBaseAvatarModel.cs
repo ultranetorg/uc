@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class AccountBaseAvatarModel(FairAccount account) : AccountBaseModel(account)
+public class AccountBaseAvatarModel(FairUser account) : AccountBaseModel(account)
 {
 	[JsonPropertyOrder(-1)]
 	public byte[]? Avatar { get; } = account.Avatar;

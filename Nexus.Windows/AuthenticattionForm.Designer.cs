@@ -44,6 +44,8 @@
 			label6 = new Label();
 			Net = new Label();
 			Shield = new PictureBox();
+			label5 = new Label();
+			User = new Label();
 			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
 			((System.ComponentModel.ISupportInitialize)Shield).BeginInit();
 			SuspendLayout();
@@ -51,7 +53,7 @@
 			// Reject
 			// 
 			Reject.DialogResult = DialogResult.Cancel;
-			Reject.Location = new Point(311, 305);
+			Reject.Location = new Point(311, 338);
 			Reject.Margin = new Padding(9);
 			Reject.Name = "Reject";
 			Reject.Size = new Size(128, 32);
@@ -62,7 +64,7 @@
 			// 
 			// groupBox1
 			// 
-			groupBox1.Location = new Point(19, 278);
+			groupBox1.Location = new Point(19, 311);
 			groupBox1.Margin = new Padding(9);
 			groupBox1.Name = "groupBox1";
 			groupBox1.Size = new Size(420, 9);
@@ -71,7 +73,7 @@
 			// 
 			// Allow
 			// 
-			Allow.Location = new Point(19, 305);
+			Allow.Location = new Point(19, 338);
 			Allow.Margin = new Padding(9);
 			Allow.Name = "Allow";
 			Allow.Size = new Size(128, 32);
@@ -87,9 +89,9 @@
 			Application.Location = new Point(133, 151);
 			Application.Margin = new Padding(3, 6, 3, 6);
 			Application.Name = "Application";
-			Application.Size = new Size(187, 15);
+			Application.Size = new Size(82, 15);
 			Application.TabIndex = 4;
-			Application.Text = "0x3405034759347598347953495349";
+			Application.Text = "<application>";
 			Application.TextAlign = ContentAlignment.MiddleCenter;
 			// 
 			// Logo
@@ -106,7 +108,7 @@
 			// 
 			Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
 			Accounts.FormattingEnabled = true;
-			Accounts.Location = new Point(133, 240);
+			Accounts.Location = new Point(133, 267);
 			Accounts.Margin = new Padding(3, 6, 3, 6);
 			Accounts.Name = "Accounts";
 			Accounts.Size = new Size(306, 23);
@@ -117,7 +119,7 @@
 			// 
 			Wallets.DropDownStyle = ComboBoxStyle.DropDownList;
 			Wallets.FormattingEnabled = true;
-			Wallets.Location = new Point(133, 205);
+			Wallets.Location = new Point(133, 232);
 			Wallets.Margin = new Padding(3, 6, 3, 6);
 			Wallets.Name = "Wallets";
 			Wallets.Size = new Size(160, 23);
@@ -127,7 +129,7 @@
 			// 
 			label1.AutoSize = true;
 			label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label1.Location = new Point(84, 208);
+			label1.Location = new Point(84, 235);
 			label1.Name = "label1";
 			label1.Size = new Size(43, 15);
 			label1.TabIndex = 8;
@@ -137,7 +139,7 @@
 			// 
 			label2.AutoSize = true;
 			label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label2.Location = new Point(74, 243);
+			label2.Location = new Point(74, 270);
 			label2.Name = "label2";
 			label2.Size = new Size(53, 15);
 			label2.TabIndex = 8;
@@ -166,7 +168,7 @@
 			// 
 			// Ask
 			// 
-			Ask.Location = new Point(165, 305);
+			Ask.Location = new Point(165, 338);
 			Ask.Margin = new Padding(9);
 			Ask.Name = "Ask";
 			Ask.Size = new Size(128, 32);
@@ -207,16 +209,40 @@
 			Shield.TabIndex = 11;
 			Shield.TabStop = false;
 			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			label5.Location = new Point(94, 205);
+			label5.Name = "label5";
+			label5.Size = new Size(33, 15);
+			label5.TabIndex = 10;
+			label5.Text = "User";
+			// 
+			// User
+			// 
+			User.AutoSize = true;
+			User.ImageAlign = ContentAlignment.TopLeft;
+			User.Location = new Point(133, 205);
+			User.Margin = new Padding(3, 6, 3, 6);
+			User.Name = "User";
+			User.Size = new Size(45, 15);
+			User.TabIndex = 9;
+			User.Text = "<user>";
+			User.TextAlign = ContentAlignment.MiddleCenter;
+			// 
 			// AuthenticattionForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			AutoSize = true;
 			CancelButton = Reject;
-			ClientSize = new Size(461, 355);
+			ClientSize = new Size(461, 388);
 			ControlBox = false;
 			Controls.Add(Shield);
+			Controls.Add(label5);
 			Controls.Add(label6);
+			Controls.Add(User);
 			Controls.Add(Net);
 			Controls.Add(label2);
 			Controls.Add(label3);
@@ -259,5 +285,7 @@
 		private Label label6;
 		private Label Net;
 		private PictureBox Shield;
+		private Label label5;
+		private Label User;
 	}
 }

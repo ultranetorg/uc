@@ -1,11 +1,6 @@
 using Uccs;
 using Uccs.Fair;
 
-public abstract class SiteOperation : FairOperation
-{
-	public Site	Site;
-}
-
 public class SurveyOption : IBinarySerializable
 {
 	public SiteOperation		Operation { get; set; }

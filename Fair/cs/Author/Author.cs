@@ -100,7 +100,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return Owners.Contains(signer); /// TODO : Owner only
 	}
 
-	public static bool IsOwner(Author author, Account account, Time time)
+	public static bool IsOwner(Author author, User account, Time time)
 	{
 		return author.Owners.Contains(account.Id) && !author.IsExpired(time);
 	}

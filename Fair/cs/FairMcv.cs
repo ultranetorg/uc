@@ -21,7 +21,7 @@ public enum FairMetaEntityType : int
 
 public enum FairTable : byte
 {
-	Meta = McvTable.Meta, Account = McvTable.Account,
+	Meta = McvTable.Meta, User = McvTable.User,
 	Author, Product, Site, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _PublicationTitle, _SiteTitle
 }
 
@@ -80,7 +80,7 @@ public class FairMcv : Mcv
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
 		Metas = new (this);
-		Accounts = new FairAccountTable(this);
+		Users = new FairUserTable(this);
 		Authors = new (this);
 		Products = new (this);
 		Sites = new (this);
@@ -94,7 +94,7 @@ public class FairMcv : Mcv
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Metas, Accounts, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Users, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

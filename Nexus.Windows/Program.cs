@@ -44,10 +44,12 @@ public class Program: ApplicationContext
 
 		public static void InitializeAuthUI(Nexus nexus)
 		{
-			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, preselected) =>
+			nexus.Vault.AuthenticationRequested =	(appplication, logo, net, user, account) =>
 													{
-														var f = new AuthenticattionForm(nexus.Vault, appplication, net, preselected);
-														f.SetLogo(logo);
+														var f = new AuthenticattionForm(nexus.Vault, appplication, net, user, account);
+														
+														if(logo != null)
+															f.SetLogo(logo);
 													
 														if(f.ShowDialog() == DialogResult.OK)
 														{

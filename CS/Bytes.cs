@@ -36,7 +36,7 @@ public class BytesEqualityComparer : IEqualityComparer<byte[]>
 public static class Bytes
 {
 	public static BytesEqualityComparer EqualityComparer = new BytesEqualityComparer();
-	public static BytesComparer Comparer = new BytesComparer();
+	public static BytesComparer			Comparer = new BytesComparer();
 
 	public static byte[] Xor(byte[] a, byte[] b)
 	{

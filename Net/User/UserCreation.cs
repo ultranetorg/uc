@@ -1,12 +1,13 @@
 ﻿namespace Uccs.Net;
 
-public class AccountCreation : Operation
+public class UserCreation : Operation
 {
+	public string				Name { get; set; }
 	public AccountAddress		Owner { get; set; }
 
 	public override string		Explanation => $"{Owner}";
 	
-	public AccountCreation ()
+	public UserCreation ()
 	{
 	}
 	
@@ -17,29 +18,31 @@ public class AccountCreation : Operation
 
 	public override void Read(BinaryReader reader)
 	{
+		Name = reader.ReadASCII();
 		Owner = reader.Read<AccountAddress>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
+		writer.WriteASCII(Name);
 		writer.Write(Owner);
 	}
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.FindAccount(Owner) != null)
+		if(execution.FindUser(Name) != null)
 		{
 			Error = AlreadyExists;
 			return;
 		}
 
-		var a = execution.CreateAccount(Owner);
+		var a = execution.CreateUser(Name, Owner);
 
 		if(execution.Round.Id > 0)
 		{
-			Signer.Spacetime -= execution.Round.AccountAllocationFee(a);
+			User.Spacetime -= execution.Round.AccountAllocationFee();
 
-			execution.SpacetimeSpenders.Add(a);
+			execution.SpacetimeSpenders.Add(User);
 		}
 	}
 }

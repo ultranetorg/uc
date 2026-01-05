@@ -13,6 +13,11 @@ public class Flow : IDisposable
 	public string					WorkDirectory;
 	Flow							Parent;
 
+	public Flow()
+	{
+		CancellationSource = new CancellationTokenSource();
+	}
+
 	public Flow(string name)
 	{
 		Name = name;

@@ -85,7 +85,7 @@ public abstract class RdnOperation : Operation
 		if(!RequireDomain(execution, name, out domain))
 			return false;
 
-		if(domain.Owner != Signer.Id)
+		if(domain.Owner != User.Id)
 		{
 			Error = Denied;
 			return false;
@@ -99,7 +99,7 @@ public abstract class RdnOperation : Operation
 		if(!RequireDomain(execution, id, out domain))
 			return false;
 
-		if(domain.Owner != Signer.Id)
+		if(domain.Owner != User.Id)
 		{
 			Error = Denied;
 			return false;

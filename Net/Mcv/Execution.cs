@@ -3,7 +3,7 @@
 public class Execution : ITableExecution
 {
 	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
-	public Dictionary<AutoId, Account>			AffectedAccounts = new();
+	public Dictionary<AutoId, User>				AffectedUsers = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	public Dictionary<int, int>[]				NextEids;
 	public long[]								Spaces;
@@ -45,22 +45,22 @@ public class Execution : ITableExecution
 
 	public virtual ITableExecution FindExecution(byte table)
 	{
-		if(Mcv.Accounts.Id == table) return this;
+		if(Mcv.Users.Id == table) return this;
 
 		return null;
 	}
 
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Accounts.Id == table)	
-			return FindAccount(id as AutoId) != null ? AffectAccount(id as AutoId) : null;
+		if(Mcv.Users.Id == table)	
+			return FindUser(id as AutoId) != null ? AffectUser(id as AutoId) : null;
 
 		return null;
 	}
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)	return AffectedAccounts;
+		if(table == Mcv.Users)	return AffectedUsers;
 
 		throw new IntegrityException();
 	}
@@ -248,108 +248,102 @@ public class Execution : ITableExecution
 		}
 	}
 
-	public virtual Account AffectSigner()
+	public virtual User AffectSigner()
 	{
-		if(Transaction.Sponsored)
-		{
-			if(AffectedAccounts.FirstOrDefault(i => i.Value.Address == Transaction.Signer).Value is Account a)
-				return a;
+ 		if(Round.Id == 0)
+ 			return new User {Name = Mcv.GodName, Owner = Mcv.God.Address};
+
+		var u = Transaction.User;
+
+		if(AffectedUsers.FirstOrDefault(i => i.Value.Name == u).Value is User s)
+			return s;
 		
-			if(Parent != null)
-				a = Parent.FindAccount(Transaction.Signer);
-			else
-				a = Mcv.Accounts.Find(Transaction.Signer, Round.Id);	
-
-			if(a == null)
-				a = CreateAccount(Transaction.Signer);
-			else
-				a = AffectAccount(a.Id);
-
-			return a;
-		}
+		if(Parent != null)
+			s = Parent.FindUser(u);
 		else
-		{
- 			if(Transaction.Signer == Mcv.God.Address)
- 				return new Account {Address = Mcv.God.Address};
+			s = Mcv.Users.Find(u, Round.Id);
 
-			var s = Mcv.Accounts.Find(Transaction.Signer, Round.Id);
-
-			if(s == null)
+		if(s == null)
+			s = CreateUser(u, Transaction.Signer);
+		else
+		{	
+			if(Transaction.Signature != null && Transaction.Signer != s.Owner)
 			{
-				Transaction.Error = Operation.NotFound;
-					
+				Transaction.Error = Operation.Denied;
 				return null;
 			}
-	
-			if(Transaction.Nid != s.LastTransactionNid + 1)
+
+			if(Transaction.Nonce != s.LastNonce + 1)
 			{
 				Transaction.Error = Operation.NotSequential;
-					
 				return null;
 			}
 
-			return AffectAccount(s.Id);
+			s = AffectUser(s.Id);
 		}
+
+		return s;
 	}
 
-	public Account FindAccount(AutoId id)
+	public User FindUser(AutoId id)
 	{
 		id = id == AutoId.LastCreated ? LastCreatedId : id;
 
 		if(id == null)
 			return null;
 
-		if(AffectedAccounts.TryGetValue(id, out var a))
+		if(AffectedUsers.TryGetValue(id, out var a))
 			return a;
 
 		if(Parent != null)
-			return Parent.FindAccount(id);
+			return Parent.FindUser(id);
 
-		return Mcv.Accounts.Find(id, Round.Id);
+		return Mcv.Users.Find(id, Round.Id);
 	}
 
-	public Account FindAccount(AccountAddress address)
+	public User FindUser(string name)
 	{
-		if(AffectedAccounts.Values.FirstOrDefault(i => i.Address == address) is Account a)
+		if(AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User a)
 			return a;
 
 		if(Parent != null)
-			return Parent.FindAccount(address);
+			return Parent.FindUser(name);
 
-		return Mcv.Accounts.Find(address, Round.Id);
+		return Mcv.Users.Find(name, Round.Id);
 	}
 
-	public virtual Account CreateAccount(AccountAddress address)
+	public virtual User CreateUser(string name, AccountAddress owner)
 	{
-		var b = Mcv.Accounts.KeyToBucket(address);
+		var b = Mcv.Users.KeyToBucket(name);
 			
-		int e = GetNextEid(Mcv.Accounts, b);
+		int e = GetNextEid(Mcv.Users, b);
 
-		var a = Mcv.Accounts.Create();
+		var a = Mcv.Users.Create();
 
-		a.Id		= LastCreatedId = new AutoId(b, e);
-		a.Address	= address;
+		a.Id	= LastCreatedId = new AutoId(b, e);
+		a.Name	= name;
+		a.Owner	= owner;
 
-		AffectedAccounts[a.Id] = a;
+		AffectedUsers[a.Id] = a;
 
 		IncrementCount((int)MetaEntityType.AccountCount);
 
 		return a;
 	}
 
-	public Account AffectAccount(AutoId id)
+	public User AffectUser(AutoId id)
 	{
 		id = id == AutoId.LastCreated ? LastCreatedId : id;
 
-		if(AffectedAccounts.TryGetValue(id, out var a))
+		if(AffectedUsers.TryGetValue(id, out var a))
 			return a;
 
 		if(Parent != null)
-			a = Parent.FindAccount(id);
+			a = Parent.FindUser(id);
 		else
-			a = Mcv.Accounts.Find(id, Round.Id)?.Clone() as Account;
+			a = Mcv.Users.Find(id, Round.Id)?.Clone() as User;
 
-		AffectedAccounts[a.Id] = a;
+		AffectedUsers[a.Id] = a;
 
 		TransferEnergyIfNeeded(a);
 

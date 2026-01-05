@@ -1,39 +1,41 @@
-﻿namespace Uccs.Net;
+﻿using System.Text;
 
-public class AccountTable : Table<AutoId, Account>
+namespace Uccs.Net;
+
+public class UserTable : Table<AutoId, User>
 {
-	public override string Name => McvTable.Account.ToString();
+	public override string Name => McvTable.User.ToString();
 
-	public int	KeyToBucket(AccountAddress account) => account.Bytes[0] << 16 | account.Bytes[1] << 8 | account.Bytes[2];
+	public int	KeyToBucket(string name) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(name.PadRight(3, '\0'), 0, 3));
 
-	public AccountTable(Mcv chain) : base(chain)
+	public UserTable(Mcv chain) : base(chain)
 	{
 	}
 
-	public override Account Create()
+	public override User Create()
 	{
-		return new Account(Mcv);
+		return new User(Mcv);
 	}
 
-	public Account FindEntry(AccountAddress key)
+	public User FindEntry(string nickname)
 	{
-		var bid = KeyToBucket(key);
+		var bid = KeyToBucket(nickname);
 
-		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == key);
+		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Name == nickname);
 	}
 
-	public Account Find(AccountAddress account, int ridmax)
+	public User Find(string nickname, int ridmax)
 	{
 		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Address == account) is Account e && !e.Deleted)
+			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
 				return e;
 
-		return FindEntry(account);
+		return FindEntry(nickname);
 	}
 
-	public Account Latest(AccountAddress account)
+	public User Latest(string nickname)
 	{
-		return Find(account, Mcv.LastConfirmedRound.Id);
+		return Find(nickname, Mcv.LastConfirmedRound.Id);
 	}
 
 // 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)

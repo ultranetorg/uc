@@ -51,7 +51,7 @@ public class DomainCommand : RdnCommand
 		a.Arguments =	[
 							new (null, RDA, "Address of a root domain to be acquired", Flag.First),
 							new ("years", YEARS, "Integer number of years in [1..10] range"),
-							SignerArgument("Address of account that owns or is going to register the domain")
+							ByArgument("Address of account that owns or is going to register the domain")
 						];
 
 		a.Execute = () =>	{
@@ -74,9 +74,9 @@ public class DomainCommand : RdnCommand
 		a.Name = "m";
 		a.Description = "Request web domain migration";
 		a.Arguments =	[
-							new (null, RDA, "Ultranet address of a root domain to migrate", Flag.First),
+							new (null, RDA, "Address of a root domain to migrate", Flag.First),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
-							SignerArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
+							ByArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
 						];
 
 		a.Execute = () =>	{
@@ -97,7 +97,7 @@ public class DomainCommand : RdnCommand
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to be renewed", Flag.First),
 							new ("years", YEARS, "Integer number of years in [1..10] range"),
-							SignerArgument("Address of account that owns the domain")
+							ByArgument("Address of account that owns the domain")
 						];
 
 		a.Execute = () =>	{
@@ -122,17 +122,22 @@ public class DomainCommand : RdnCommand
 							new (null, SDA, "Subdomain address to create", Flag.First),
 							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
 							new ("years", YEARS, "Number of years in [1..10] range"),
-							new ("for", AA, "Address of account that will own the subdomain"),
-							SignerArgument("Address of account that owns the parent domain")
+							new ("for", NAME, "Name of the account that will own the subdomain"),
+							ByArgument("Address of account that owns the parent domain")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new DomainRegistration  {Address	= First,
-																Years	= byte.Parse(GetString("years")),
-																Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership),
-																Owner	= GetAccountAddress("for")};
+								var f = Ppc(new UserPpc(GetString(a.Arguments[3].Name)));
+
+								return	new DomainRegistration
+										{
+											Address	= First,
+											Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership),
+											Years	= byte.Parse(GetString(a.Arguments[2].Name)),
+											Owner	= f.User.Id
+										};
 							};
 		return a;
 	}
@@ -146,7 +151,7 @@ public class DomainCommand : RdnCommand
 		a.Arguments =	[
 							new (null, SDA, "Address of a domain to change policy for", Flag.First),
 							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
-							SignerArgument("Address of account that owns a subdomain")
+							ByArgument("Address of account that owns a subdomain")
 						];
 
 		a.Execute = () =>	{
@@ -155,30 +160,31 @@ public class DomainCommand : RdnCommand
 								var d = Ppc(new DomainPpc(First)).Domain;
 
 								return new DomainPolicyUpdation {Id		= d.Id,
-																 Policy	= GetEnum("policy", DomainChildPolicy.FullOwnership)};
+																 Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership)};
 							};
 		return a;
 	}
 
-	public CommandAction Transfer()
+	public CommandAction Security()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "t";
+		a.Name = "s";
 		a.Description = "Changes an owner of domain";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to transfer", Flag.First),
-							new ("to", EID, "Address of account of a new owner"),
-							SignerArgument("Address of account of the current owner")
+							new ("owner", NAME, "A name of a new owner"),
+							ByArgument("Address of account of the current owner")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
 								var d = Ppc(new DomainPpc(First)).Domain;
+								var to = Ppc(new UserPpc(GetString(a.Arguments[1].Name))).User;
 
 								return new DomainTransfer  {Id		= d.Id,
-															Owner	= GetAutoId("to")};
+															Owner	= to.Id};
 							};
 
 		return a;

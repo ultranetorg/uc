@@ -22,22 +22,22 @@ public class UtilityTransfer : Operation
 		if(to == null)
 			throw new RequirementException("Destination account is null or invalid");
 
-		From				= new (fromtable, from);
-		To					= new (totable, to);
+		From		= new (fromtable, from);
+		To			= new (totable, to);
 
-		Energy				= energy;
-		EnergyNext			= energynext;
-		Spacetime			= spacetime;
+		Energy		= energy;
+		EnergyNext	= energynext;
+		Spacetime	= spacetime;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
-		From					= reader.Read<EntityAddress>();
-		To						= reader.Read<EntityAddress>();
+		From		= reader.Read<EntityAddress>();
+		To			= reader.Read<EntityAddress>();
 
-		Energy					= reader.Read7BitEncodedInt64();
-		EnergyNext				= reader.Read7BitEncodedInt64();
-		Spacetime				= reader.Read7BitEncodedInt64();
+		Energy		= reader.Read7BitEncodedInt64();
+		EnergyNext	= reader.Read7BitEncodedInt64();
+		Spacetime	= reader.Read7BitEncodedInt64();
 	}
 
 	public override void Write(BinaryWriter writer)
@@ -78,7 +78,7 @@ public class UtilityTransfer : Operation
 				return;
 			}
 
-			if(!h.IsSpendingAuthorized(execution, Signer.Id))
+			if(!h.IsSpendingAuthorized(execution, User.Id))
 			{
 				Error = Denied;
 				return;
@@ -97,7 +97,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(Signer.Address != Mcv.God.Address)
+				if(User.Owner != Mcv.God.Address)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;

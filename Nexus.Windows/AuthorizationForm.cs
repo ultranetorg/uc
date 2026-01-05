@@ -7,15 +7,16 @@ namespace Uccs.Nexus.Windows;
 public partial class AuthorizationForm : Form
 {
 
-	public AuthorizationForm(AccountAddress signer,  Authentication authentication, string operation)
+	public AuthorizationForm(AccountAddress signer, Authentication authentication, string operation)
 	{
 		InitializeComponent();
 
 		Application.Text = authentication.Application;
 		Net.Text = authentication.Net;
+		User.Text = authentication.User;
 		Signer.Text = signer.ToString();
 		Operation.Text = operation;
-		
+
 		if(authentication.Logo != null)
 		{
 			Logo.BackColor = Color.Transparent;
@@ -23,8 +24,8 @@ public partial class AuthorizationForm : Form
 			try
 			{
 				Logo.Image = Image.FromStream(new MemoryStream(authentication.Logo));
-				Shield.Width = Shield.Width/2;
-				Shield.Height = Shield.Height/2;
+				Shield.Width = Shield.Width / 2;
+				Shield.Height = Shield.Height / 2;
 				Shield.Left = Logo.Width - Shield.Width;
 				Shield.Top = Logo.Height - Shield.Height;
 				Shield.BackColor = Color.Transparent;
@@ -56,4 +57,8 @@ public partial class AuthorizationForm : Form
 		FlashWindow.Flash(this);
 	}
 
+	private void Net_Click(object sender, EventArgs e)
+	{
+
+	}
 }

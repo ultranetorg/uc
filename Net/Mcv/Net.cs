@@ -72,34 +72,36 @@ public abstract class Net
 
 public abstract class McvNet : Net
 {
-	public const long		IdealRoundsPerDay						= 60*60*24;
-	public Time				ECLifetime								= Time.FromYears(1);
+	public const long						IdealRoundsPerDay						= 60*60*24;
+	public Time								ECLifetime								= Time.FromYears(1);
 
- 	public Cryptography		Cryptography							= Cryptography.Mcv;
-	public int				CommitLength							= 1000;
-	public int				ExternalVerificationRoundDurationLimit	= 1000;
-	public int				MembersLimit							= 1000;
-	public long				CandidatesMaximum						= 1000 * 10;
-	public long				TransactionsPerRoundAbsoluteLimit		= 15_000;
-	public long				TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
-	public long				OverloadFeeFactor						= 2;
-	public int				ExecutionCyclesPerTransactionLimit		= 200;
-	public long				ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
-	public long				ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
-	public long				ECEmission								=> ECDayEmission * 365;
-	public long				BDDayEmission							= 1024L*1024L * IdealRoundsPerDay;
-	public long				DeclarationCost							=> 1000_000;
+ 	public Cryptography						Cryptography							= Cryptography.Mcv;
+	public int								CommitLength							= 1000;
+	public int								ExternalVerificationRoundDurationLimit	= 1000;
+	public int								MembersLimit							= 1000;
+	public long								CandidatesMaximum						= 1000 * 10;
+	public long								TransactionsPerRoundAbsoluteLimit		= 15_000;
+	public long								TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
+	public long								OverloadFeeFactor						= 2;
+	public int								ExecutionCyclesPerTransactionLimit		= 200;
+	public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
+	public long								ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
+	public long								EnergyEmission							=> ECDayEmission * 365;
+	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
+	public long								DeclarationCost							=> 1000_000;
 	
-	public int				EntityLength							= 100;
+	public int								EntityLength							= 100;
 
-	public int				BandwidthDaysMaximum					=> 365;
-	public long				BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
-	public long				BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
+	public int								BandwidthDaysMaximum					=> 365;
+	public long								BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
+	public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 
-	public abstract int		TablesCount { get; }
+	public abstract int						TablesCount { get; }
 
-	public AccountAddress	Father0									= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
-	public Endpoint			Father0IP;
+	public Endpoint							Father0IP;
+	public readonly string					Father0Name		= "father0000";
+	public readonly AutoId					Father0Id		= new AutoId(287078, 0);
+	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
 
 	public McvNet()
 	{

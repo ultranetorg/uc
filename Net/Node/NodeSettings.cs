@@ -7,7 +7,7 @@ public class PeeringSettings : Settings
 {
 	public Endpoint			EP { get; set; }
 	public int				PermanentMin { get; set; } = 6;
-	public int				PermanentGraphsMin { get; set; } = 6;
+	//public int				PermanentGraphsMin { get; set; } = 6;
 	public int				PermanentInboundMax { get; set; } = 128;
 	public int				InboundMax { get; set; } = 16 * 1024;
 	public bool				InitialRandomization { get; set; } = true;
@@ -44,12 +44,6 @@ public class SecretSettings
 	public const string		FileName = "Secrets.globals";
 
 	public string			Password;
-	public string			EthereumWallet;
-	public string			EthereumPassword;
-
-	public string			EthereumProvider;
-
-	string					Path;
 
 	public SecretSettings()
 	{
@@ -57,15 +51,9 @@ public class SecretSettings
 
 	public SecretSettings(string path)
 	{
-		Path = path;
-
 		var d = new Xon(File.ReadAllText(path));
 		
 		Password			= d.Get<string>("Password");
-
-		EthereumProvider	= d.Get<string>("NasProvider");
-		EthereumWallet		= d.Get<string>("EmissionWallet");
-		EthereumPassword	= d.Get<string>("EmissionPassword");
 	}
 }
 

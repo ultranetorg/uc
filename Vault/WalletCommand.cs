@@ -40,7 +40,8 @@ public class WalletCommand : VaultCommand
 		a.Name = "c";
 		a.Description = "Used to create a new account and its wallet.";
 		a.Arguments =	[
-							new ("name", NAME, "An arbitrary name of a newly created wallet", Flag.Optional),
+							new ("name", NAME, "An arbitrary name of a newly created wallet"),
+							new ("accounts", INT, "Count of account to create in the wallet"),
 							new ("password", PASSWORD, "A password that is used to encrypt a newly created wallet", Flag.Optional)
 						];
 
@@ -53,12 +54,16 @@ public class WalletCommand : VaultCommand
 									p = Vault.PasswordAsker.Password;
 								}
 
-								var w = Vault.CreateWallet(GetString("name", null), p);
+								var w = Vault.CreateWallet(GetString("name"), p, GetInt("accounts", 1));
 
-								Report("Public Address - " + w.Accounts.First().Address); 
-								Report("Private Key    - " + w.Accounts.First().Key.PrivateKey.ToHex());
+								foreach(var i in w.Accounts.Index())
+								{
+									Report($"Account {i.Index}:");
+									Report($"   Public Address - {i.Item.Address}");
+									Report($"   Private Key    - {i.Item.Key.PrivateKey.ToHex()}");
+								}
 
-								Api(new AddWalletApc {Name = GetString("name", null), Raw = w.ToRaw()});
+								Api(new AddWalletApc {Name = GetString("name"), Raw = w.ToRaw()});
 
 								return w;
 							};
@@ -124,11 +129,12 @@ public class WalletCommand : VaultCommand
 
 		a.Name = "aa";
 		a.Description = "Creates a new or import existing account to a wallet";
-		a.Arguments =  [new ("name", NAME, "Name of wallet", Flag.Optional),
+		a.Arguments =  [new ("wallet", NAME, "A name of a wallet to add the account to", Flag.Optional),
+						new ("name", NAME, "A name of account", Flag.Optional),
 						new ("key", PRIVATEKEY, "Private key of account to import")];
 
 		a.Execute = () =>	{
-								var pk = Api<byte[]>(new AddAccountToWalletApc {Name = GetString("name", null), Key = GetBytes("key", false) });
+								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", false), Name = GetString("name", null) });
 								
 								var k = new AccountKey(pk);
 

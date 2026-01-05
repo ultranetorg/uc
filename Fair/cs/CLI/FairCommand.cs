@@ -14,7 +14,7 @@ public abstract class FairCommand : McvCommand
 
 	protected string				As = "as";
 
-	public readonly ArgumentType	EA = new ArgumentType("EA",	@"Entity Address", [$"{FairTable.Account}/123-456"]);
+	public readonly ArgumentType	EA = new ArgumentType("EA",	@"Entity Address", [$"{FairTable.User}/123-456"]);
 	public readonly ArgumentType	PRODUCTTYPE = new ArgumentType("PRODUCTTYPE",	@"Product Type", [$"{ProductType.Software}"]);
 	public readonly ArgumentType	ROLE = new ArgumentType("ROLE",	@"Site role", Enum.GetNames<Uccs.Fair.Role>().ToArray());
 

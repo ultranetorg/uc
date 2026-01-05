@@ -37,19 +37,19 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 	public static readonly string[] ExclusiveTlds = ["com", "org", "net", "info", "biz"];
 
-	//public static readonly Time		AuctionMinimalDuration = Time.FromDays(365);
-	//public static readonly Time		Prolongation = Time.FromDays(30);
-	//public static readonly Time		WinnerRegistrationPeriod = Time.FromDays(30);
+	//public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
+	//public static readonly Time	Prolongation = Time.FromDays(30);
+	//public static readonly Time	WinnerRegistrationPeriod = Time.FromDays(30);
 	//public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
-	//public Time						AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
+	//public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
-	//public Time						FirstBidTime { get; set; } = Time.Empty;
+	//public Time					FirstBidTime { get; set; } = Time.Empty;
 	//public AutoId					LastWinner { get; set; }
-	//public long						LastBid { get; set; }
-	//public Time						LastBidTime { get; set; } = Time.Empty;
+	//public long					LastBid { get; set; }
+	//public Time					LastBidTime { get; set; } = Time.Empty;
 	
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -132,7 +132,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		return i == -1 ? name : name.Substring(i + 1);
 	}
 
-	public static bool IsOwner(Domain domain, Account account, Time time)
+	public static bool IsOwner(Domain domain, User account, Time time)
 	{
 		return domain.Owner == account.Id && !domain.IsExpired(time);
 	}
@@ -143,12 +143,12 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 									  Owner != null && time.Days >= Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public bool CanRenew(Account owner, Time time, Time duration)
+	public bool CanRenew(User owner, Time time, Time duration)
 	{
 		return  Owner == owner.Id && ((IExpirable)this).CanRenew(time, duration);
 	}
 
-	public static bool CanRegister(string name, Domain domain, Time time, Account by)
+	public static bool CanRegister(string name, Domain domain, Time time, User by)
 	{
 		return	domain == null && !IsWeb(name) || /// available
 				domain != null && !IsWeb(name) && domain.Owner != null && time.Days >= domain.Expiration /// not renewed by current owner

@@ -77,7 +77,7 @@ public class ProposalVoting : FairOperation
 		 
  		p = execution.Proposals.Affect(Proposal);
 
-		var policy = s.Policies.FirstOrDefault(i => i.Operation == c);
+		var policy = s.Policies.FirstOrDefault(i => i.OperationClass == c);
 
 		bool won(AutoId[] votes)
 		{
@@ -177,9 +177,9 @@ public class ProposalVoting : FairOperation
  					}
 					else if(p.As == Role.Moderator)
  					{
-						var i = Array.FindIndex(s.Moderators, i => i.Account == p.By);
+						var i = Array.FindIndex(s.Moderators, i => i.User == p.By);
 						s.Moderators = [..s.Moderators];
-						s.Moderators[i] = new Moderator {Account = p.By, BannedTill = execution.Time + Time.FromDays(30)};
+						s.Moderators[i] = new Moderator {User = p.By, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					break;
  				
@@ -198,7 +198,7 @@ public class ProposalVoting : FairOperation
 					o.Operation.Site	= s;
 					o.Operation.As		= p.As;
 					o.Operation.By		= p.By;
-					o.Operation.Signer	= p.As == Role.User ? execution.AffectAccount(p.By) : null;
+					o.Operation.User	= p.As == Role.User ? execution.AffectUser(p.By) : null;
 
 					var e = execution.CreateChild();
 	 		

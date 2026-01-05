@@ -17,7 +17,7 @@ public class SiteCommand : FairCommand
 		a.Description = "Creates a new site";
 		a.Arguments =  [new ("years", INT, "Integer number of years in [1..10] range"),
 						new ("title", NAME, "A title of a site being created"),
-						SignerArgument("Address of account that owns or is going to register the site")];
+						ByArgument("Address of account that owns or is going to register the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -57,7 +57,7 @@ public class SiteCommand : FairCommand
 		a.Description = "Prolongs current expiration date of a site for a specified number of years";
 		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
 							 new (years, INT, "A number of years to renew site for. Allowed during the last year of current period only."),
-							 SignerArgument("Address of account that owns the site")];
+							 ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -79,7 +79,7 @@ public class SiteCommand : FairCommand
 						new (null, EID, "Id of a creator", Flag.Second),
 						new (nickname, EID, "A new nickname"),
 						new (As, ROLE, "On behalf of"),
-						SignerArgument("Address of account that owns the site")];
+						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
@@ -125,7 +125,7 @@ public class SiteCommand : FairCommand
 						new (t, TEXT, "A new title", Flag.Optional),
 						new (s, TEXT, "A new slogan", Flag.Optional),
 						new (d, TEXT, "A new description", Flag.Optional),
-						SignerArgument("Address of account that owns the site")];
+						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

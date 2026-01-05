@@ -33,15 +33,15 @@ public class Genesis : Operation
 			return;
 		}
 
-		var a = execution.CreateAccount(execution.Net.Father0);
+		var a = execution.CreateUser(execution.Net.Father0Name, execution.Net.Father0Signer);
 
-		a.Energy		+= execution.Net.ECEmission;
-		a.Spacetime		+= execution.Net.BDDayEmission;
+		a.Energy		+= execution.Net.EnergyEmission;
+		a.Spacetime		+= execution.Net.SpacetimeDayEmission;
 
 		var	c = execution.AffectCandidate(a.Id);
 
 		c.Id			= a.Id;
-		c.Address		= a.Address;
+		c.Address		= a.Owner;
 		c.GraphPpcIPs	= [execution.Net.Father0IP];
 		c.Registered	= execution.Round.Id;
 

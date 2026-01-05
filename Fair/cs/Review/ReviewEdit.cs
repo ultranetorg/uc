@@ -30,12 +30,12 @@ public class ReviewEdit : VotableOperation
 	{
 		var o = other as ReviewEdit;
 
-		return Review == o.Review && o.Signer.Id == Signer.Id;
+		return Review == o.Review && o.User.Id == User.Id;
 	}
 	
 	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!IsReviewOwner(execution, Review, Signer, out var _, out error))
+		if(!IsReviewOwner(execution, Review, User, out var _, out error))
 			return false;
 
 		return true;

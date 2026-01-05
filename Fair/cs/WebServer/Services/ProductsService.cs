@@ -59,7 +59,7 @@ public class ProductsService
 				throw new EntityNotFoundException(nameof(Product).ToLower(), unpublishedProductId);
 			}
 
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(product.Author);
+			FairUser account = (FairUser) mcv.Users.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 			FieldValue[] fields = GetFieldsLastVersion(product);
@@ -141,7 +141,7 @@ public class ProductsService
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
-			FairAccount account = (FairAccount)mcv.Accounts.Latest(product.Author);
+			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
 			UnpublishedProductModel model = new UnpublishedProductModel(product, account, fileId);

@@ -13,20 +13,21 @@ public class AccountsService
 {
 	public AccountModel GetByAddress([NotNull][NotEmpty] string address)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountAddress}", nameof(AccountsService), nameof(GetByAddress), address);
-
-		Guard.Against.NullOrEmpty(address);
-
-		AccountAddress accountAddress = AccountAddress.Parse(address);
-
-		lock(mcv.Lock)
-		{
-			FairAccount account = (FairAccount)mcv.Accounts.Latest(accountAddress);
-			return new AccountModel(account)
-			{
-				FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
-			};
-		}
+		throw new NotImplementedException("Need to use User.Id (or User.Name) instead of address");
+		///logger.LogDebug("{ClassName}.{MethodName} method called with {AccountAddress}", nameof(AccountsService), nameof(GetByAddress), address);
+		///
+		///Guard.Against.NullOrEmpty(address);
+		///
+		///AccountAddress accountAddress = AccountAddress.Parse(address);
+		///
+		///lock(mcv.Lock)
+		///{
+		///	FairAccount account = (FairAccount)mcv.Users.Latest(accountAddress);
+		///	return new AccountModel(account)
+		///	{
+		///		FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
+		///	};
+		///}
 	}
 
 	SiteBaseModel[] LoadAccountSites(AutoId[] sitesIds)
@@ -52,13 +53,13 @@ public class AccountsService
 
 		AutoId id = AutoId.Parse(userId);
 
-		FairAccount account = null;
+		FairUser account = null;
 		lock (mcv.Lock)
 		{
-			account = (FairAccount) mcv.Accounts.Find(id, mcv.LastConfirmedRound.Id);
+			account = (FairUser) mcv.Users.Find(id, mcv.LastConfirmedRound.Id);
 			if (account == null)
 			{
-				throw new EntityNotFoundException(nameof(Account).ToLower(), userId);
+				throw new EntityNotFoundException(nameof(User).ToLower(), userId);
 			}
 		}
 
@@ -166,10 +167,10 @@ public class AccountsService
 
 		lock(mcv.Lock)
 		{
-			FairAccount account = (FairAccount) mcv.Accounts.Latest(id);
+			FairUser account = (FairUser) mcv.Users.Latest(id);
 			if(account == null || account.Avatar == null)
 			{
-				throw new EntityNotFoundException(nameof(Account).ToLower(), accountId);
+				throw new EntityNotFoundException(nameof(User).ToLower(), accountId);
 			}
 
 			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
