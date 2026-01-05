@@ -18,9 +18,9 @@ public class Vault : Cli
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
-	public Func<string, byte[], string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
-	public Func<AccountAddress, Authentication, string, bool>					AuthorizationRequested;
-	public Action<object, string>												UnlockRequested;
+	public Func<string, byte[], string, string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
+	public Func<AccountAddress, Authentication, string, bool>							AuthorizationRequested;
+	public Action<object, string>														UnlockRequested;
 
 	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
 															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
@@ -100,20 +100,30 @@ public class Vault : Cli
 		return null;
 	}
 
+	public WalletAccount Find(string name)
+	{
+		foreach(var i in Wallets)
+			foreach(var j in i.Accounts)
+				if(j.Name == name)
+					return j;
+
+		return null;
+	}
+
 	public Wallet FindWallet(string name)
 	{
 		return Wallets.Find(i => string.Compare(i.Name, name ?? Wallet.Default, true) == 0);
 	}
 
-	public Wallet CreateWallet(string name, string password, int accounts = 1)
+	public Wallet CreateWallet(string name, string password, int accounts)
 	{
-		var w = new Wallet(this, name, Enumerable.Range(0, accounts).Select(i => AccountKey.Create()).ToArray(), password);
+		var w = new Wallet(this, name, Enumerable.Range(0, accounts).ToDictionary(i => AccountKey.Create(), i => (string)null), password);
 		return w;
 	}
 
-	public Wallet CreateWallet(string name, AccountKey[] key, string password)
+	public Wallet CreateWallet(string name, IDictionary<AccountKey, string> keys, string password)
 	{
-		var w = new Wallet(this, name, key, password);
+		var w = new Wallet(this, name, keys, password);
 		return w;
 	}
 
@@ -135,12 +145,12 @@ public class Vault : Cli
 		w.Save();
 	}
 
-	public Wallet AddWallet(string name, AccountKey[] key, string password)
+	public Wallet AddWallet(string name, IDictionary<AccountKey, string> keys, string password)
 	{
 		if(FindWallet(name) != null)
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var w = CreateWallet(name, key, password);
+		var w = CreateWallet(name, keys, password);
 		
 		w.Password = password;
 
@@ -170,9 +180,9 @@ public class Vault : Cli
 		Wallets.Remove(w);
 	}
 
-	public bool IsAuthenticated(AccountAddress account, string application, string net, byte[] session)
+	public bool IsAuthenticated(string user, string application, string net, byte[] session)
 	{
-		var h = new Authentication {Application = application, Net = net, Session = session}.Heshify(account);
+		var h = new Authentication {User = user, Application = application, Net = net, Session = session}.Hashify();
 
 		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	}

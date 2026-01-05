@@ -5,7 +5,8 @@ namespace Uccs.Rdn;
 
 public enum RdnTable : byte
 {
-	Meta = McvTable.Meta, Account = McvTable.Account,
+	Meta = McvTable.Meta, 
+	User = McvTable.User,
 	Domain, Resource
 }
 
@@ -40,6 +41,8 @@ public class RdnMcv : Mcv
 		var dbo	= new DbOptions().SetCreateIfMissing(true)
 								 .SetCreateMissingColumnFamilies(true);
 
+		//dbo.SetEnv(RocksDbSharp.Native.Instance.rocksdb_create_mem_env());
+
 		var cfs = new ColumnFamilies();
 		
 		if(RocksDb.TryListColumnFamilies(dbo, databasepath, out var cfn))
@@ -55,11 +58,11 @@ public class RdnMcv : Mcv
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
 		Metas = new (this);
-		Accounts = new (this);
+		Users = new (this);
 		Domains = new (this);
 		Resources = new (this);
 
-		Tables = [Metas, Accounts, Domains, Resources];
+		Tables = [Metas, Users, Domains, Resources];
 	}
 
 	public override Round CreateRound()

@@ -7,9 +7,19 @@ public class ChainSettings : Settings
 	}
 }
 
+public class GeneratorSettings : Settings
+{
+	public string			User { get; set; }
+	public AccountAddress	Signer { get; set; }
+
+	public GeneratorSettings() : base(NetXonTextValueSerializator.Default)
+	{
+	}
+}
+
 public class McvSettings : Settings
 {
-	public AccountAddress[]			Generators { get; set; } = [];
+	public GeneratorSettings[]		Generators { get; set; } = [];
 	public ChainSettings			Chain { get; set; }
 	public virtual long				Roles => ((long)Role.Graph) |
 											 (Chain != null ? (long)Role.Chain : 0);

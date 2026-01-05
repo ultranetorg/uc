@@ -73,7 +73,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	public AutoResetEvent						MainWakeup = new AutoResetEvent(true);
 
 
-	protected abstract void						ProcessConnectivity();
+	protected abstract void						ProcessMain();
 	protected abstract Hello					CreateOutboundHello(P peer, bool permanent);
 	protected abstract Hello					CreateInboundHello(IPAddress ip, Hello inbound);
 	protected abstract bool						Consider(TcpClient client);
@@ -115,7 +115,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 											 
 											 			lock(Lock)
 											 			{
-											 				ProcessConnectivity();
+											 				ProcessMain();
 											 			}
 											 		}
 												});

@@ -5,11 +5,11 @@ namespace Uccs.Fair;
 public enum FairPpcClass : uint
 {
 	None = 0, 
-	FairAccount = McvPpcClass._Last + 1, 
+	FairUser = McvPpcClass._Last + 1, 
 	FairMembers,
 
-	AccountAuthors,
-	AccountSites,
+	UserAuthors,
+	UserSites,
 
 	Author,
 	Product,
@@ -30,14 +30,14 @@ public abstract class FairPpc<R> : McvPpc<R> where R : Result
 	public new FairMcv			Mcv => base.Mcv as FairMcv;
 }
 
-public class FairTcpPeering : McvTcpPeering
+public class FairTcpPeering : McvPeering
 {
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{
 		Constructor.Register<PeerRequest>(Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	 (Assembly.GetExecutingAssembly(), typeof(FairPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
-		Constructor.Register(() => new FairAccount(Mcv));
+		Constructor.Register(() => new FairUser(Mcv));
 
 		Run();
 	}

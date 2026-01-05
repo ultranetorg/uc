@@ -239,7 +239,7 @@ public class Urrsd : Urr
 	protected override void ReadMore(BinaryReader reader)
 	{
 		Resource = reader.Read<Ura>();
-		Signature = reader.ReadBytes(Cryptography.SignatureSize);
+		Signature = reader.ReadBytes(Cryptography.SignatureLength);
 	}
 }
 

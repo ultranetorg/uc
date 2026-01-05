@@ -41,7 +41,7 @@ public class DomainRenewal : RdnOperation
 			return;
 		}	
 
-		if(!e.CanRenew(Signer, execution.Time, Time.FromYears(Years)))
+		if(!e.CanRenew(User, execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;
@@ -58,8 +58,8 @@ public class DomainRenewal : RdnOperation
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		execution.Prolong(Signer, e, Time.FromYears(Years));
-		execution.PayCycleEnergy(Signer);
+		execution.Prolong(User, e, Time.FromYears(Years));
+		execution.PayCycleEnergy(User);
 	}
 }
 
@@ -106,7 +106,7 @@ public class DomainTransfer : RdnOperation
 
 		if(Domain.IsRoot(e.Address))
 		{
-			if(!Domain.IsOwner(e, Signer, execution.Time))
+			if(!Domain.IsOwner(e, User, execution.Time))
 			{
 				Error = Denied;
 				return;
@@ -126,13 +126,13 @@ public class DomainTransfer : RdnOperation
 			//	return;
 			//}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, Signer, execution.Time))
+			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, User, execution.Time))
 			{
 				Error = Denied;
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && (!Domain.IsOwner(e, Signer, execution.Time) || e.IsExpired(execution.Time)))
+			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && (!Domain.IsOwner(e, User, execution.Time) || e.IsExpired(execution.Time)))
 			{
 				Error = Denied;
 				return;
@@ -142,7 +142,7 @@ public class DomainTransfer : RdnOperation
 			e.Owner	= Owner;
 		}
 
-		execution.PayCycleEnergy(Signer);
+		execution.PayCycleEnergy(User);
 	}
 }
 
@@ -191,7 +191,7 @@ public class DomainPolicyUpdation : RdnOperation
 		{
 			var p = execution.Domains.Find(Domain.GetParent(e.Address));
 
-			if(!Domain.IsOwner(p, Signer, execution.Time))
+			if(!Domain.IsOwner(p, User, execution.Time))
 			{
 				Error = Denied;
 				return;
@@ -212,6 +212,6 @@ public class DomainPolicyUpdation : RdnOperation
 			return;
 		}
 
-		execution.PayCycleEnergy(Signer);
+		execution.PayCycleEnergy(User);
 	}
 }

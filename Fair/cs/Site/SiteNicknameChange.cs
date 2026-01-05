@@ -38,18 +38,17 @@ public class SiteNicknameChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Words.Find(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
+		var e = execution.Words.Find(Word.GetId(Nickname));
 
 		if(e != null)
 		{
-			if(e.Entity != Site.Id)
-			{
-				Error = NotAvailable;
-				return;
-			}
+			Error = NotAvailable;
+			return;
+		}
 
-			if(e.Field != EntityTextField.SiteNickname)
-				execution.Words.Unregister(Nickname, e.Field, e.Entity);
+		if(Site.Nickname != "")
+		{
+			execution.Words.Unregister(Site.Nickname);
 		}
 
 		if(Nickname != "")

@@ -7,21 +7,22 @@ namespace Uccs.Nexus.Windows;
 
 public partial class AuthenticattionForm : Form
 {
-	Vault.Vault				Vault;
-	public AccountAddress	Account { get => AccountAddress.Parse(Accounts.Text); }
-	public Trust			Trust { get; protected set; }
+	Vault.Vault Vault;
+	public AccountAddress Account { get => AccountAddress.Parse(Accounts.Text); }
+	public Trust Trust { get; protected set; }
 
-	public AuthenticattionForm(Vault.Vault vault, string applicaiton, string net, AccountAddress preselected)
+	public AuthenticattionForm(Vault.Vault vault, string applicaiton, string net, string user, AccountAddress account)
 	{
 		Vault = vault;
 
 		InitializeComponent();
 
 		Net.Text = net;
+		User.Text = user;
 		Application.Text = applicaiton;
 		Allow.Enabled = Ask.Enabled = false;
 
-		Program.NexusSystem.BindWallets(this, vault, Wallets, Accounts, preselected);
+		Program.NexusSystem.BindWallets(this, vault, Wallets, Accounts, account);
 	}
 
 	public void SetLogo(byte[] image)

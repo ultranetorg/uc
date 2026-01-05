@@ -4,7 +4,6 @@ public abstract class NetCommand : Command
 {
 
 	public readonly ArgumentType AA			= new ArgumentType("AA",		@"Account address, in hexadecimal form prepended with '0x'",			["0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68", "0x0001D9867473B229B5F13BF594E0DF9D4F61F8ED", "0x0002C6C15D653236A811A1115A6F08F0BC54D2B7", "0x0003924B07CE25C18667899EFFF15CBF5C75C1EE"]);
-	public readonly ArgumentType AAID		= new ArgumentType("AAID",		@"Account address or Id",												["0x0000fffb3f90771533b1739480987cee9f08d754", "123456-789"]);
 	public readonly ArgumentType COMMAND	= new ArgumentType("COMMAND",	@"Arbitrary command",													["{...}"]);
 	public readonly ArgumentType IP			= new ArgumentType("IP",		@"IP Address",															["12.34.56.78"]);
 	public readonly ArgumentType INT		= new ArgumentType("INT",		@"Positive integer number",												["324552"]);
@@ -16,11 +15,12 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType DIRPATH	= new ArgumentType("DIRPATH",	@"A text string of the local directory path in its native format",		[@"C:\Folder"]);
 	public readonly ArgumentType PORT		= new ArgumentType("PORT",		@"Port number",															["3800"]);
 	public readonly ArgumentType PRIVATEKEY	= new ArgumentType("PRIVATEKEY",@"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
-	public readonly ArgumentType NAME		= new ArgumentType("NAME",		@"An arbitrary single-line string",										["One"]);
+	public readonly ArgumentType NAME		= new ArgumentType("NAME",		@"An arbitrary single-line string without spaces",						["one", "second"]);
 	public readonly ArgumentType NET		= new ArgumentType("NET",		@"A name of a network",													["rdn"]);
 	public readonly ArgumentType ST			= new ArgumentType("ST",		@"Space-time in form of byte-years(BY), byte-days(BY), eth.",			["300bd", "500by"]);
 	public readonly ArgumentType EC			= new ArgumentType("EC",		@"Execution Cycles in form of integer number",							["1000"]);
 	public readonly ArgumentType TEXT		= new ArgumentType("TEXT",		@"Arbitrary text, can be multi-line",									["Hello world!"]);
+	public readonly ArgumentType UID		= new ArgumentType("UID",		@"User Id",																["123456-789"]);
 	public readonly ArgumentType UNEL		= new ArgumentType("UNEL",		@"Universal network-entity address",									["ccp:fair/author/123-234"]);
 	public readonly ArgumentType URL		= new ArgumentType("URL",		@"Fully-qualified URL address",											["http://fair.net", "http://ultranet.org"]);
 	public readonly ArgumentType ZONE		= new ArgumentType("ZONE",		@"Zone name",															[Zone.Main.ToString(), Zone.Test.ToString()]);

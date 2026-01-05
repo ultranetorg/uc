@@ -12,7 +12,7 @@ public struct Time : IBinarySerializable
 
 	public static readonly Time		Zero = new Time(0);
 	public static readonly Time		Empty = new Time(-1);
-	public static DateTime			Start = new DateTime(2025, 1, 1);
+	public static DateTime			Start = new DateTime(2026, 1, 1);
 
 	public static Time				operator -  (Time a, Time b) => new Time(a.Seconds - b.Seconds);
 	public static Time				operator +  (Time a, Time b) => new Time(a.Seconds + b.Seconds);

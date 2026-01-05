@@ -82,13 +82,14 @@ public class NnpCallApc : Apc, INexusApc
 	}
 }
 
-public class TransactNncApc : Apc, INexusApc
-{
-	public TransactNna	Argumentation { get; set; }
-
-	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(nexus)
-			return nexus.NnpIppServer.Relay(null, Argumentation);
-	}
-}
+//public class TransactNncApc : Apc, INexusApc
+//{
+//	public TransactNna	Argumentation { get; set; }
+//
+//	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(nexus)
+//			return nexus.NnpIppServer.Relay(null, Argumentation);
+//	}
+//}
+//

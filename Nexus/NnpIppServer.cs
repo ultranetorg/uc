@@ -62,9 +62,7 @@ public class NnpIppServer : IppServer
 		} 
 		else
 		{
-			//Nexus.RdnNode.
-
 			return Nexus.NnpPeering.Call(call.Net, call, Flow);
-		} 
+		}
 	}
 }

@@ -7,10 +7,10 @@ public enum EntityTextField : byte
 	AccountNickname, 
 	AuthorNickname, 
 	SiteNickname, 
-
-	AuthorTitle,
-	SiteTitle,
-	PublicationTitle,
+//
+//	AuthorTitle,
+//	SiteTitle,
+//	PublicationTitle,
 }
 
 public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAddress>
@@ -73,7 +73,7 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 public class Word : IBinarySerializable, ITableEntry
 {
 	public RawId				Id { get; set; }
-	public EntityFieldAddress[]	References { get; set; }
+	public EntityFieldAddress	Reference { get; set; }
 
 	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
@@ -90,7 +90,7 @@ public class Word : IBinarySerializable, ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Id}, {Encoding.UTF8.GetString(Id.Bytes)}, References={References.Length}";
+		return $"{Id}, {Encoding.UTF8.GetString(Id.Bytes)}, Reference={Reference}";
 	}
 
 	public static RawId	GetId(string t)
@@ -103,7 +103,7 @@ public class Word : IBinarySerializable, ITableEntry
 	public object Clone()
 	{
 		var a = new Word(Mcv)  {Id			= Id,
-								References	= References};
+								Reference	= Reference};
 
 		return a;
 	}
@@ -125,12 +125,12 @@ public class Word : IBinarySerializable, ITableEntry
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<RawId>();
-		References	= reader.ReadArray<EntityFieldAddress>();
+		Reference	= reader.Read<EntityFieldAddress>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write(References);
+		writer.Write(Reference);
 	}
 }

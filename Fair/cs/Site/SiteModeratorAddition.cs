@@ -32,7 +32,7 @@ public class SiteModeratorAddition : VotableOperation
  	{
 		foreach(var i in Candidates)
 		{
-			if(Site.Moderators.Any(m => m.Account == i))
+			if(Site.Moderators.Any(m => m.User == i))
 			{	
 				error = AlreadyExists;
 				return false;
@@ -50,6 +50,6 @@ public class SiteModeratorAddition : VotableOperation
 	{
  		var s = Site;
  
- 		s.Moderators = [..s.Moderators, ..Candidates.Select(i => new Moderator {Account = i})];
+ 		s.Moderators = [..s.Moderators, ..Candidates.Select(i => new Moderator {User = i})];
 	}
 }

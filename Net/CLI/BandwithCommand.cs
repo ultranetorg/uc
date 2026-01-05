@@ -17,7 +17,7 @@ public class BandwidthCommand : McvCommand
 		a.Arguments =	[
 						new ("bandwidth", EC, "Amount of EC allocated per day"),
 						new ("days", INT, "Number of days to allocate bandwidth for"),
-						SignerArgument()
+						ByArgument()
 					];
 
 		a.Execute = () =>	{

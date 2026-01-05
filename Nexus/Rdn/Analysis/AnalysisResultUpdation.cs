@@ -49,7 +49,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		var aix = Array.IndexOf(c.Analyzers, Signer.Address);
+		var aix = Array.IndexOf(c.Analyzers, User.Owner);
 
 		if(aix == -1)
 		{
@@ -68,10 +68,10 @@ public class AnalysisResultUpdation : RdnOperation
 		{
 			an.Results = [..an.Results, new AnalyzerResult {Analyzer = (byte)aix, Result = Result}];
 
-			Signer.Energy	  += an.EnergyReward / c.Analyzers.Length;
-			Signer.Spacetime  += an.SpacetimeReward / c.Analyzers.Length;
+			User.Energy	  += an.EnergyReward / c.Analyzers.Length;
+			User.Spacetime  += an.SpacetimeReward / c.Analyzers.Length;
 
-			var o = execution.AffectAccount(ad.Owner);
+			var o = execution.AffectUser(ad.Owner);
 
 			o.Energy	-= an.EnergyReward / c.Analyzers.Length;
 			o.Spacetime -= an.SpacetimeReward / c.Analyzers.Length;
@@ -85,6 +85,6 @@ public class AnalysisResultUpdation : RdnOperation
 			an.Results[j].Result = Result;
 		}
 
-		execution.PayCycleEnergy(Signer);
+		execution.PayCycleEnergy(User);
 	}
 }

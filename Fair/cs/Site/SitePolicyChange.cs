@@ -47,13 +47,13 @@ public class SitePolicyChange : SiteOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!Site.Restrictions.First(i => i.Operation == Operation).Flags.HasFlag(PolicyFlag.ChangableApproval))
+		if(!Site.Restrictions.First(i => i.OperationClass == Operation).Flags.HasFlag(PolicyFlag.ChangableApproval))
 		{
 			Error = Denied;
 			return;
 		}
 
-		if(!Site.Restrictions.First(i => i.Operation == Operation).Creators.HasFlag(Creators))
+		if(!Site.Restrictions.First(i => i.OperationClass == Operation).Creators.HasFlag(Creators))
 		{
 			Error = Denied;
 			return;
@@ -63,7 +63,7 @@ public class SitePolicyChange : SiteOperation
 
 		s.Policies = [..s.Policies];
 		
-		var i = Array.FindIndex(s.Policies, i => i.Operation == Operation);
+		var i = Array.FindIndex(s.Policies, i => i.OperationClass == Operation);
 
 		s.Policies[i] = new Policy(Operation, Creators, Approval);
 	}

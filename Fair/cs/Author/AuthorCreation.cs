@@ -33,15 +33,15 @@ public class AuthorCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Authors.Create(Signer.Address);
+		var e = execution.Authors.Create(User.Name);
 
-		Signer.Authors = [..Signer.Authors, e.Id];
+		User.Authors = [..User.Authors, e.Id];
 		
-		e.Owners	= [Signer.Id];
+		e.Owners	= [User.Id];
 		e.Title		= Title;
 		e.Space		= execution.Net.EntityLength;
 
-		execution.Prolong(Signer, e, Time.FromYears(Years));
-		execution.PayCycleEnergy(Signer);
+		execution.Prolong(User, e, Time.FromYears(Years));
+		execution.PayCycleEnergy(User);
 	}
 }

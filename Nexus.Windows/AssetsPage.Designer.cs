@@ -35,7 +35,7 @@ partial class AssetsPage
 		columnHeader2 = new ColumnHeader();
 		columnHeader3 = new ColumnHeader();
 		label2 = new Label();
-		Accounts = new ComboBox();
+		Entity = new ComboBox();
 		Start = new Button();
 		Nets = new ComboBox();
 		label4 = new Label();
@@ -59,9 +59,9 @@ partial class AssetsPage
 		// 
 		Assets.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader1, columnHeader2, columnHeader3 });
 		Assets.FullRowSelect = true;
-		Assets.Location = new Point(3, 137);
+		Assets.Location = new Point(3, 101);
 		Assets.Name = "Assets";
-		Assets.Size = new Size(794, 460);
+		Assets.Size = new Size(794, 496);
 		Assets.TabIndex = 8;
 		Assets.UseCompatibleStateImageBehavior = false;
 		Assets.View = View.Details;
@@ -90,23 +90,24 @@ partial class AssetsPage
 		// 
 		label2.AutoSize = true;
 		label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label2.Location = new Point(21, 98);
+		label2.Location = new Point(273, 55);
 		label2.Name = "label2";
-		label2.Size = new Size(53, 15);
+		label2.Size = new Size(39, 15);
 		label2.TabIndex = 12;
-		label2.Text = "Account";
+		label2.Text = "Entity";
 		// 
-		// Accounts
+		// Entity
 		// 
-		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(80, 95);
-		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(300, 23);
-		Accounts.TabIndex = 10;
+		Entity.FormattingEnabled = true;
+		Entity.Location = new Point(318, 52);
+		Entity.Margin = new Padding(3, 6, 3, 6);
+		Entity.Name = "Entity";
+		Entity.Size = new Size(309, 23);
+		Entity.TabIndex = 10;
 		// 
 		// Start
 		// 
-		Start.Location = new Point(648, 89);
+		Start.Location = new Point(648, 46);
 		Start.Name = "Start";
 		Start.Size = new Size(149, 32);
 		Start.TabIndex = 9;
@@ -118,6 +119,7 @@ partial class AssetsPage
 		// 
 		Nets.FormattingEnabled = true;
 		Nets.Location = new Point(80, 52);
+		Nets.Margin = new Padding(3, 6, 3, 6);
 		Nets.Name = "Nets";
 		Nets.Size = new Size(163, 23);
 		Nets.TabIndex = 11;
@@ -126,7 +128,7 @@ partial class AssetsPage
 		// 
 		label4.AutoSize = true;
 		label4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label4.Location = new Point(21, 55);
+		label4.Location = new Point(20, 55);
 		label4.Name = "label4";
 		label4.Size = new Size(54, 15);
 		label4.TabIndex = 13;
@@ -151,7 +153,7 @@ partial class AssetsPage
 		Controls.Add(Assets);
 		Controls.Add(label2);
 		Controls.Add(label4);
-		Controls.Add(Accounts);
+		Controls.Add(Entity);
 		Controls.Add(Nets);
 		Controls.Add(Start);
 		Name = "AssetsPage";
@@ -168,7 +170,7 @@ partial class AssetsPage
 	private ColumnHeader columnHeader2;
 	private ColumnHeader columnHeader3;
 	private Label label2;
-	private ComboBox Accounts;
+	private ComboBox Entity;
 	private Button Transfer;
 	private ComboBox Nets;
 	private Label label4;

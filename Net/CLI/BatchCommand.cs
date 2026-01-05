@@ -14,15 +14,14 @@ public class BatchCommand : McvCommand
 
 		a.Description = "Sends multiple operations as a single transaction";
 		a.Arguments = [new ("command", COMMAND, "Operation command arguments", Flag.Multi),
-						SignerArgument()];
+						ByArgument()];
 
 		a.Execute = () =>	{
-								return Args	.Where(i =>	i.Name != AORArg  && i.Name != SignerArg)
+								return Args	.Where(i =>	i.Name != AORArg  && i.Name != ByArg)
 											.Select(x => {
 															var op = (x.Value as Xon).Nodes;
 
 															var c = Cli.Create(op, Flow);
-
 
 															c.Args.RemoveAt(0);
 

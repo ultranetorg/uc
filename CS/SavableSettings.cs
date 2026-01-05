@@ -14,7 +14,13 @@ public class Settings
 
 	protected object Load(string name, Type t, Xon x)
 	{
-		if(t.IsArray)
+		if(t.Name.EndsWith("Settings"))
+		{
+			var s = Activator.CreateInstance(t) as Settings;
+			s.Load(x);
+			return s;
+		}
+		else if(t.IsArray)
 		{
 			var m = x.Parent.Many(name.TrimEnd('s'));
 			
@@ -36,9 +42,9 @@ public class Settings
 			return x.Get(t);
 	}
 
-	public void Load(Xon xon)
+	public void Load(Type type, Xon xon)
 	{
-		foreach(var p in GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+		foreach(var p in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 		{
 			var x = xon.One(p.Name) ?? xon.One(p.Name.TrimEnd('s'));
 	
@@ -48,16 +54,14 @@ public class Settings
 			}
 			else if(x != null)
 			{
-				if(p.PropertyType.Name.EndsWith("Settings"))
-				{
-					var s = Activator.CreateInstance(p.PropertyType) as Settings;
-					s.Load(x);
-					p.SetValue(this, s);
-				}
-				else
-					p.SetValue(this, Load(p.Name, p.PropertyType, x));
+				p.SetValue(this, Load(p.Name, p.PropertyType, x));
 			}
 		}
+	}
+	
+	public void Load(Xon xon)
+	{
+		Load(GetType(), xon);
 	}
 }
 

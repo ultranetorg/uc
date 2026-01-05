@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalCommentModel(ProposalComment proposal, FairAccount account)
+public class ProposalCommentModel(ProposalComment proposal, FairUser account)
 {
 	public string Id { get; set; } = proposal.Id.ToString();
 

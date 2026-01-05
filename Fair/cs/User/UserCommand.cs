@@ -2,9 +2,9 @@
 
 namespace Uccs.Fair;
 
-public class AccountCommand : Net.AccountCommand
+public class UserCommand : Net.UserCommand
 {
-	public AccountCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
 
@@ -13,40 +13,40 @@ public class AccountCommand : Net.AccountCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Description = "Get account entity information from Ultranet distributed database";
-		a.Arguments = [new (null, AA, "Address of an account to get information about", Flag.First)];
+		a.Description = "Get account entity information from MCV distributed database";
+		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
-								var i = Ppc(new FairAccountPpc(First));
+								var i = Ppc(new FairUserPpc(GetString(a.Arguments[0].Name)));
 												
-								Flow.Log.Dump(i.Account);
+								Flow.Log.Dump(i.User);
 
-								return i.Account;
+								return i.User;
 							};
 		return a;
 	}
 	
-	public CommandAction Nickname()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-		
-		var nickname = "nickname";
-
-		a.Name = "n";
-		a.Description = "Sets a nickname for a specified account";
-		a.Arguments =  [new (null, EID,  "Id of account", Flag.First),
-						new (nickname, NAME,  "A new nickname"),
-						SignerArgument()];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-
-								return new AccountNicknameChange {Nickname = GetString(nickname)}; 
-							};
-		return a;
-	}
+//	public CommandAction Nickname()
+//	{
+//		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+//		
+//		var nickname = "nickname";
+//
+//		a.Name = "n";
+//		a.Description = "Sets a nickname for a specified account";
+//		a.Arguments =  [new (null, EID,  "Id of account", Flag.First),
+//						new (nickname, NAME,  "A new nickname"),
+//						SignerArgument()];
+//
+//		a.Execute = () =>	{
+//								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+//
+//								return new AccountNicknameChange {Nickname = GetString(nickname)}; 
+//							};
+//		return a;
+//	}
 
 	public CommandAction ListAuthors()
 	{
@@ -54,12 +54,12 @@ public class AccountCommand : Net.AccountCommand
 
 		a.Name = "la";
 		a.Description = "Get authors that specified account owns";
-		a.Arguments = [new (null, AAID, "Id of an account to get authors from", Flag.First)];
+		a.Arguments = [new ("name", NAME, "A name of user to get authors from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new AccountAuthorsPpc(First));
+								var rp = Ppc(new UserAuthorsPpc(GetString(a.Arguments[0].Name)));
 
 								Flow.Log.Dump(rp.Authors, ["Id"], [i => i]);
 					
@@ -74,12 +74,12 @@ public class AccountCommand : Net.AccountCommand
 
 		a.Name = "ls";
 		a.Description = "Get sites of a specified account";
-		a.Arguments = [new (null, AAID, "Id of an account to get sites from", Flag.First)];
+		a.Arguments = [new ("name", NAME, "A name of user to get sites from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 				
-								var rp = Ppc(new AccountSitesPpc(First));
+								var rp = Ppc(new UserSitesPpc(GetString(a.Arguments[0].Name)));
 
 								Flow.Log.Dump(rp.Sites.Select(i => Ppc(new SitePpc(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
@@ -96,14 +96,13 @@ public class AccountCommand : Net.AccountCommand
 
 		a.Name = "avatar";
 		a.Description = "Sets an avatar for a specified account";
-		a.Arguments =  [new (null, EID, "Id of an author to update"),
-						new (path, PATH, "A path to image file"),
-						SignerArgument()];
+		a.Arguments =  [new (path, PATH, "A path to image file"),
+						ByArgument()];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return	new AccountAvatarChange {Image = System.IO.File.ReadAllBytes(GetString(path))}; 
+								return	new UserAvatarChange {Image = System.IO.File.ReadAllBytes(GetString(path))}; 
 							};
 		return a;
 	}	

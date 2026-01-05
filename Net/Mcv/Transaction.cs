@@ -16,8 +16,6 @@ public class Transaction : IBinarySerializable
 {
 	public const int				TagLengthMax = 1024;
 
-	public int						Nid { get; set; }
-	public bool						Sponsored { get; set; }
 	TransactionId					_Id;
 	public TransactionId			Id
 									{ 
@@ -39,6 +37,9 @@ public class Transaction : IBinarySerializable
 	public bool						EmissionOnly => Operations.All(i => i is Immission);
 #endif
 
+	public string					User { get; set; }
+	public int						Nonce { get; set; }
+	//public bool						UserCreationRequest => User != Mcv.GodName && User[0] == '?';
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
@@ -51,7 +52,7 @@ public class Transaction : IBinarySerializable
 	public byte[]					Signature { get; set; }
 
 	AccountAddress					_Signer;
-	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
+	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); protected set => _Signer = value; }
 	public TransactionStatus		Status;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
@@ -71,7 +72,7 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"Id={Id}, Nid={Nid}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+		return $"Id={Id}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(AccountKey signer)
@@ -96,14 +97,14 @@ public class Transaction : IBinarySerializable
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
 
-		w.Write((byte)Net.Zone);
+		w.Write(Net.Zone);
 		w.WriteUtf8(Net.Address);
+		w.WriteUtf8(User);
 		w.Write(Member);
-		w.Write7BitEncodedInt(Nid);
+		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Bonus);
 		w.WriteBytes(Tag);
-		w.Write(Sponsored);
 		w.Write(Operations, i => i.Write(w));
 
 		return Cryptography.Hash(s.ToArray());
@@ -111,12 +112,10 @@ public class Transaction : IBinarySerializable
 
  	public void	WriteConfirmed(BinaryWriter writer)
  	{
-		writer.Write(Member);
-		writer.Write(Signer);
-		writer.Write7BitEncodedInt(Nid);
+		writer.WriteUtf8(User);
+		//writer.Write(Member);
+		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Bonus);
-		writer.WriteBytes(Tag);
-		writer.Write(Sponsored);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
@@ -127,12 +126,10 @@ public class Transaction : IBinarySerializable
  	{
 		Status		= TransactionStatus.Confirmed;
 
-		Member		= reader.Read<AutoId>();
-		Signer		= reader.ReadAccount();
-		Nid			= reader.Read7BitEncodedInt();
+		User		= reader.ReadUtf8();
+		//Member		= reader.Read<AutoId>();
+		Nonce		= reader.Read7BitEncodedInt();
 		Bonus		= reader.Read7BitEncodedInt64();
-		Tag			= reader.ReadBytes();
-		Sponsored	= reader.ReadBoolean();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  												o.Transaction = this;
@@ -144,50 +141,50 @@ public class Transaction : IBinarySerializable
 	public void	WriteForVote(BinaryWriter writer)
 	{
 		writer.Write(ActionOnResult);
-
-		writer.Write(Member);
 		writer.Write(Signature);
-		writer.Write7BitEncodedInt(Nid);
+
+		writer.WriteUtf8(User);
+		writer.Write(Member);
+		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
-		writer.Write(Sponsored);
-		writer.Write(Operations, i => {
-										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
-										i.Write(writer); 
-									  });
+		writer.Write(Operations, i =>	{
+											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
+											i.Write(writer); 
+										});
 	}
  		
 	public void	ReadForVote(BinaryReader reader)
 	{
-		ActionOnResult = reader.Read<ActionOnResult>();
+		ActionOnResult		= reader.Read<ActionOnResult>();
+		Signature			= reader.ReadSignature();
 
-		Member		= reader.Read<AutoId>();
-		Signature	= reader.ReadSignature();
-		Nid			= reader.Read7BitEncodedInt();
-		Expiration	= reader.Read7BitEncodedInt();
-		Bonus		= reader.Read7BitEncodedInt64();
-		Tag			= reader.ReadBytes();
-		Sponsored	= reader.ReadBoolean();
- 		Operations	= reader.ReadArray(() => {
- 												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
- 												o.Transaction	= this;
- 												o.Read(reader); 
- 												return o; 
- 											});
+		User				= reader.ReadUtf8();
+		Member				= reader.Read<AutoId>();
+		Nonce				= reader.Read7BitEncodedInt();
+		Expiration			= reader.Read7BitEncodedInt();
+		Bonus				= reader.Read7BitEncodedInt64();
+		Tag					= reader.ReadBytes();
+ 		Operations			= reader.ReadArray(() => {
+ 													 	var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+ 													 	o.Transaction	= this;
+ 													 	o.Read(reader); 
+ 													 	return o; 
+ 													 });
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(ActionOnResult);
-	
-		writer.Write(Member);
 		writer.Write(Signature);
-		writer.Write7BitEncodedInt(Nid);
+	
+		writer.WriteUtf8(User);
+		writer.Write(Member);
+		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
-		writer.Write(Sponsored);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 											i.Write(writer); 
@@ -196,24 +193,24 @@ public class Transaction : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
-		ActionOnResult = reader.Read<ActionOnResult>();
+		ActionOnResult		= reader.Read<ActionOnResult>();
+		Signature			= reader.ReadSignature();
 	
-		Member		= reader.Read<AutoId>();
-		Signature	= reader.ReadSignature();
-		Nid			= reader.Read7BitEncodedInt();
-		Expiration	= reader.Read7BitEncodedInt();
-		Bonus		= reader.Read7BitEncodedInt64();
-		Tag			= reader.ReadBytes();
-		Sponsored	= reader.ReadBoolean();
-		Operations	= reader.ReadArray(() => {
-												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
-												o.Transaction = this;
-												o.Read(reader); 
-												return o; 
-											});
+		User				= reader.ReadUtf8();
+		Member				= reader.Read<AutoId>();
+		Nonce				= reader.Read7BitEncodedInt();
+		Expiration			= reader.Read7BitEncodedInt();
+		Bonus				= reader.Read7BitEncodedInt64();
+		Tag					= reader.ReadBytes();
+		Operations			= reader.ReadArray(() => {
+														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+														o.Transaction = this;
+														o.Read(reader); 
+														return o; 
+													});
 	}
 
-	public static byte[] Export(Net net, Operation[] operations, AccountAddress account, bool sponsored)
+	public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, BinaryWriter, byte[]> sign)
 	{
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
@@ -222,10 +219,22 @@ public class Transaction : IBinarySerializable
 									w.Write(net.Constructor.TypeToCode(i.GetType()));
 									i.Write(w); 
 								 });
-		w.Write(account);
-		w.Write(sponsored);
+		w.WriteUtf8(user);
+		w.WriteBytes(sign(s, w));
 
 		return s.ToArray();
 	}
 
+	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user, out AccountAddress account)
+	{
+		var r = new BinaryReader(new MemoryStream(raw));
+
+		operations = r.ReadArray(() =>	{
+ 											var o = constructor.Construct(typeof(Operation), r.ReadUInt32()) as Operation;
+ 											o.Read(r); 
+ 											return o;
+										});
+		user = r.ReadUtf8();
+		account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
+	}
 }

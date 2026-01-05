@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ReviewModel(Review review, FairAccount account)
+public class ReviewModel(Review review, FairUser account)
 {
 	public string Id { get; set; } = review.Id.ToString();
 

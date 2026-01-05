@@ -33,23 +33,22 @@ public class AuthorNicknameChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		var e = execution.Words.Find(Word.GetId(Nickname))?.References.FirstOrDefault(i => i.Field == EntityTextField.AccountNickname || i.Field == EntityTextField.AuthorNickname || i.Field == EntityTextField.SiteNickname);
+		var e = execution.Words.Find(Word.GetId(Nickname));
 
 		if(e != null)
 		{
-			if(e.Entity != Author)
-			{
-				Error = NotAvailable;
-				return;
-			}
+			Error = NotAvailable;
+			return;
+		}
 
-			if(e.Field != EntityTextField.AuthorNickname)
-				execution.Words.Unregister(Nickname, e.Field, e.Entity);
+		if(a.Nickname != "")
+		{
+			execution.Words.Unregister(a.Nickname);
 		}
 
 		if(Nickname != "")
 		{
-			execution.Words.Register(Nickname, EntityTextField.AuthorNickname, Author);
+			execution.Words.Register(Nickname, EntityTextField.AuthorNickname, a.Id);
 		}
 
 		a = execution.Authors.Affect(Author);

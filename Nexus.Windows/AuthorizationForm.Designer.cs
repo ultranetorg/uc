@@ -43,6 +43,8 @@
 			Net = new Label();
 			label6 = new Label();
 			Shield = new PictureBox();
+			label5 = new Label();
+			User = new Label();
 			((System.ComponentModel.ISupportInitialize)Logo).BeginInit();
 			((System.ComponentModel.ISupportInitialize)Shield).BeginInit();
 			SuspendLayout();
@@ -50,7 +52,7 @@
 			// Reject
 			// 
 			Reject.DialogResult = DialogResult.Cancel;
-			Reject.Location = new Point(311, 339);
+			Reject.Location = new Point(311, 373);
 			Reject.Margin = new Padding(9);
 			Reject.Name = "Reject";
 			Reject.Size = new Size(128, 32);
@@ -61,7 +63,7 @@
 			// 
 			// groupBox1
 			// 
-			groupBox1.Location = new Point(19, 312);
+			groupBox1.Location = new Point(19, 346);
 			groupBox1.Margin = new Padding(9);
 			groupBox1.Name = "groupBox1";
 			groupBox1.Size = new Size(420, 9);
@@ -94,7 +96,7 @@
 			// 
 			label2.AutoSize = true;
 			label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label2.Location = new Point(84, 184);
+			label2.Location = new Point(84, 211);
 			label2.Name = "label2";
 			label2.Size = new Size(43, 15);
 			label2.TabIndex = 8;
@@ -123,7 +125,7 @@
 			// 
 			// Ask
 			// 
-			Ask.Location = new Point(165, 339);
+			Ask.Location = new Point(165, 373);
 			Ask.Margin = new Padding(9);
 			Ask.Name = "Ask";
 			Ask.Size = new Size(128, 32);
@@ -134,7 +136,7 @@
 			// 
 			// Operation
 			// 
-			Operation.Location = new Point(133, 211);
+			Operation.Location = new Point(133, 238);
 			Operation.Margin = new Padding(3, 6, 3, 6);
 			Operation.Multiline = true;
 			Operation.Name = "Operation";
@@ -146,7 +148,7 @@
 			// 
 			label1.AutoSize = true;
 			label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label1.Location = new Point(51, 214);
+			label1.Location = new Point(51, 241);
 			label1.Name = "label1";
 			label1.Size = new Size(76, 15);
 			label1.TabIndex = 8;
@@ -156,7 +158,7 @@
 			// 
 			Signer.AutoSize = true;
 			Signer.ImageAlign = ContentAlignment.TopLeft;
-			Signer.Location = new Point(133, 184);
+			Signer.Location = new Point(133, 211);
 			Signer.Margin = new Padding(3, 6, 3, 6);
 			Signer.Name = "Signer";
 			Signer.Size = new Size(270, 15);
@@ -175,6 +177,7 @@
 			Net.TabIndex = 4;
 			Net.Text = "<net>";
 			Net.TextAlign = ContentAlignment.MiddleCenter;
+			Net.Click += Net_Click;
 			// 
 			// label6
 			// 
@@ -196,23 +199,48 @@
 			Shield.TabIndex = 10;
 			Shield.TabStop = false;
 			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			label5.Location = new Point(99, 184);
+			label5.Name = "label5";
+			label5.Size = new Size(33, 15);
+			label5.TabIndex = 8;
+			label5.Text = "User";
+			// 
+			// User
+			// 
+			User.AutoSize = true;
+			User.ImageAlign = ContentAlignment.TopLeft;
+			User.Location = new Point(133, 184);
+			User.Margin = new Padding(3, 6, 3, 6);
+			User.Name = "User";
+			User.Size = new Size(45, 15);
+			User.TabIndex = 4;
+			User.Text = "<user>";
+			User.TextAlign = ContentAlignment.MiddleCenter;
+			User.Click += Net_Click;
+			// 
 			// AuthorizationForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			AutoSize = true;
 			CancelButton = Reject;
-			ClientSize = new Size(462, 389);
+			ClientSize = new Size(462, 423);
 			ControlBox = false;
 			Controls.Add(Shield);
 			Controls.Add(Operation);
 			Controls.Add(label1);
 			Controls.Add(label2);
+			Controls.Add(label5);
 			Controls.Add(label6);
 			Controls.Add(label3);
 			Controls.Add(Logo);
 			Controls.Add(groupBox1);
 			Controls.Add(label4);
+			Controls.Add(User);
 			Controls.Add(Net);
 			Controls.Add(Signer);
 			Controls.Add(Application);
@@ -246,5 +274,7 @@
 		private Label Net;
 		private Label label6;
 		private PictureBox Shield;
+		private Label label5;
+		private Label User;
 	}
 }

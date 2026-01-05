@@ -9,6 +9,7 @@ public class AuthenticationChoice
 
 public class Authentication : IBinarySerializable
 {
+	public string	User { get; set; }
 	public string	Application { get; set; }
 	public byte[]	Logo { get; set; }
 	public string	Net { get; set; }
@@ -23,28 +24,30 @@ public class Authentication : IBinarySerializable
 
 	public void Read(BinaryReader reader)
 	{
+		User		= reader.ReadUtf8();
 		Application = reader.ReadUtf8();
-		Logo		= reader.ReadBytes();
 		Net			= reader.ReadUtf8();
 		Trust		= reader.Read<Trust>();
+		Logo		= reader.ReadBytes();
 		Session		= reader.ReadBytes();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
+		writer.WriteUtf8(User);
 		writer.WriteUtf8(Application);
-		writer.WriteBytes(Logo);
 		writer.WriteUtf8(Net);
 		writer.Write(Trust);
+		writer.WriteBytes(Logo);
 		writer.WriteBytes(Session);
 	}
 
-	public byte[] Heshify(AccountAddress account)
+	public byte[] Hashify()
 	{
 		var s = new MemoryStream();
 		var w = new BinaryWriter(s);
 
-		w.Write(account);
+		w.WriteUtf8(User);
 		w.WriteUtf8(Application);
 		w.WriteUtf8(Net);
 		w.WriteBytes(Session);
@@ -70,9 +73,10 @@ public class WalletAccount : IBinarySerializable
 		Wallet = vault;
 	}
 
-	public WalletAccount(Wallet vault, AccountKey key)
+	public WalletAccount(Wallet vault, string name, AccountKey key)
 	{
 		Wallet = vault;
+		Name = name;
 		Key = key;
 	}
 
@@ -81,7 +85,7 @@ public class WalletAccount : IBinarySerializable
 		return $"{Address}";
 	}
 
-	public Authentication AddAuthentication(string application, string net, byte[] logo, Trust trust)
+	public Authentication AddAuthentication(string application, string net, string user, byte[] logo, Trust trust)
 	{
 		if(application == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -100,6 +104,7 @@ public class WalletAccount : IBinarySerializable
 	
 		var a = new Authentication
 				{
+					User = user,
 					Application = application, 
 					Logo = logo, 
 					Net = net, 
@@ -108,7 +113,7 @@ public class WalletAccount : IBinarySerializable
 				};
 			
 		Authentications.Add(a);
-		Wallet.AuthenticationHashes.Add(a.Heshify(Address));
+		Wallet.AuthenticationHashes.Add(a.Hashify());
 
 		Wallet.Save();
 	
@@ -123,7 +128,7 @@ public class WalletAccount : IBinarySerializable
 	public void RemoveAuthentication(Authentication authentication)
 	{
 		Authentications.Remove(authentication);
-		var h = authentication.Heshify(Address);
+		var h = authentication.Hashify();
 		Wallet.AuthenticationHashes.RemoveAll(i => i.SequenceEqual(h));
 
 		Wallet.Save();
@@ -169,12 +174,12 @@ public class Wallet
 		Encrypted			 = r.ReadBytes();
 	}
 
-	public Wallet(Vault vault, string name, AccountKey[] keys, string password)
+	public Wallet(Vault vault, string name, IDictionary<AccountKey, string> keys, string password)
 	{
 		Name = name ?? Default;
 		Vault = vault;
 		Password = password;
-		Accounts = keys.Select(i => new WalletAccount(this, i)).ToList();
+		Accounts = keys.Select(i => new WalletAccount(this, i.Value, i.Key)).ToList();
 	}
 
 	byte[] Encrypt()
@@ -206,7 +211,7 @@ public class Wallet
 		File.WriteAllBytes(Path, ToRaw());
 	}
 
-	public WalletAccount AddAccount(byte[] key)
+	public WalletAccount AddAccount(string name, byte[] key)
 	{
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
@@ -214,7 +219,7 @@ public class Wallet
 		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.PrivateKey, key) == 0))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(this, key == null ? AccountKey.Create() : new AccountKey(key));
+		var a = new WalletAccount(this, name, key == null ? AccountKey.Create() : new AccountKey(key));
 		
 		Accounts.Add(a);
 

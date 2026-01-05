@@ -10,7 +10,6 @@ public class AutoId : EntityId
 
 	public static readonly AutoId		LastCreated = new AutoId {E = -1};
 	public static readonly AutoId		God = new AutoId {E = -2};
-	public static readonly AutoId		Father0 = new AutoId(165, 0);
 
 	public AutoId()
 	{

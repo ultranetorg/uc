@@ -128,7 +128,7 @@ public partial class WalletsPage : Page
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
 				var acc = AccountKey.Create();
-				var w = Nexus.Vault.AddWallet(f.WalletName, [acc], f.Password);
+				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<AccountKey, string> {{acc, null}}, f.Password);
 
 				LoadWallets();
 			}
@@ -210,7 +210,7 @@ public partial class WalletsPage : Page
 
 	private void CreateAccount_Click(object sender, EventArgs e)
 	{
-		CurrentWallet.AddAccount(AccountKey.Create().PrivateKey);
+		CurrentWallet.AddAccount(null, AccountKey.Create().PrivateKey);
 		LoadAccounts(CurrentWallet);
 	}
 
@@ -227,7 +227,7 @@ public partial class WalletsPage : Page
 																"Always copy it exactly — even a single wrong character will make it invalid.\r\n" +
 																"Keep it secret and offline — anyone with this key can access your funds and data.", out var k) == DialogResult.OK)
 			{
-				CurrentWallet.AddAccount(k.FromHex());
+				CurrentWallet.AddAccount(null, k.FromHex());
 				LoadAccounts(CurrentWallet);
 			}
 		}

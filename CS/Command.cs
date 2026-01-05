@@ -32,14 +32,19 @@ public abstract class Command
 	
 				var used = new Dictionary<ArgumentType, int>();
 	
-				foreach(var i in Arguments)
-					if(i.Name == null)
-						s += $" {i.Type.Name}";
+				if(Arguments != null)
+				{
+					foreach(var i in Arguments)
+						if(i.Name == null)
+							s += $" {i.Type.Name}";
 	
-				foreach(var i in Arguments)
-					if(i.Name != null)
-						s += $" {i.Name}={i.Type.Name}";
-	
+					foreach(var i in Arguments)
+						if(i.Name != null)
+							if(i.Type != null)
+								s += $" {i.Name}={i.Type.Name}";
+							else
+								s += $" {i.Name}"; /// boolean
+				}
 				return s;
 			}
 		}
@@ -51,30 +56,36 @@ public abstract class Command
 			Method = method;
 
 			Examples = () =>	{
-								var c = Command.Keyword;
+									var c = Command.Keyword;
 	
-								var used = new Dictionary<ArgumentType, int>();
+									var used = new Dictionary<ArgumentType, int>();
 	
-								string nextexample(ArgumentType t)
-								{
-									if(!used.ContainsKey(t))
-										used[t] = 0;
-									else
-										used[t]++;
+									string nextexample(ArgumentType t)
+									{
+										if(!used.ContainsKey(t))
+											used[t] = 0;
+										else
+											used[t]++;
 	
-									return t.Examples[used[t]];
-								}
+										return t.Examples[used[t]];
+									}
 	
-								foreach(var i in Arguments)
-									if(i.Name == null)
-										c += $" {nextexample(i.Type)}";
+									if(Arguments != null)
+									{
+										foreach(var i in Arguments)
+											if(i.Name == null)
+												c += $" {nextexample(i.Type)}";
 	
-								foreach(var i in Arguments)
-									if(i.Name != null)
-										c += $" {i.Name}={nextexample(i.Type)}";
-	
-								return [new Example(null, c)];
-							};
+										foreach(var i in Arguments)
+											if(i.Name != null)
+												if(i.Type != null)
+													c += $" {i.Name}={nextexample(i.Type)}";
+												else
+													c += $" {i.Name}";
+									}
+									
+									return [new Example(null, c)];
+								};
 		}
 	}
 
@@ -229,7 +240,7 @@ public abstract class Command
 		return One(paramenter) != null;
 	}
 
-	protected string GetString(string paramenter, bool mandatory = true)
+	public string GetString(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 
@@ -242,7 +253,7 @@ public abstract class Command
 				return null;
 	}
 
-	protected string GetString(string paramenter, string def)
+	public string GetString(string paramenter, string def)
 	{
 		var p = One(paramenter);
 
@@ -252,7 +263,7 @@ public abstract class Command
 			return def;
 	}
 
-	protected long GetLong(string paramenter)
+	public long GetLong(string paramenter)
 	{
 		var p = One(paramenter);
 
@@ -262,7 +273,7 @@ public abstract class Command
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected int GetInt(string paramenter)
+	public int GetInt(string paramenter)
 	{
 		var p = One(paramenter);
 
@@ -272,7 +283,7 @@ public abstract class Command
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected int GetInt(string paramenter, int def)
+	public int GetInt(string paramenter, int def)
 	{
 		var p = One(paramenter);
 
@@ -282,7 +293,7 @@ public abstract class Command
 			return def;
 	}
 
-	protected byte[] GetBytes(string paramenter, bool mandatory = true)
+	public byte[] GetBytes(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 
@@ -295,7 +306,7 @@ public abstract class Command
 				return null;
 	}
 
-	protected Version GetVersion(string paramenter, bool mandatory = true)
+	public Version GetVersion(string paramenter, bool mandatory = true)
 	{
 		var p = One(paramenter);
 

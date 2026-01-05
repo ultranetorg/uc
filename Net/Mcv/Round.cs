@@ -25,7 +25,7 @@ public abstract class Round : IBinarySerializable
 	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God.Address}] : (Voters ?? []).OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
-	public List<AccountAddress>							Forkers = [];
+	public List<AutoId>									Forkers = [];
 	public List<Vote>									VotesOfTry = [];
 	public List<Vote>									Payloads = [];
 	public List<Vote>									SelectedArrived = [];
@@ -54,13 +54,13 @@ public abstract class Round : IBinarySerializable
 	public long[]										Bandwidths;
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
-	public Dictionary<AutoId, Account>					AffectedAccounts = new();
+	public Dictionary<AutoId, User>						AffectedAccounts = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
 
-	public abstract long								AccountAllocationFee(Account account);
+	public abstract long								AccountAllocationFee();
 	//public abstract int									GetSpaceUsers();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
@@ -131,7 +131,7 @@ public abstract class Round : IBinarySerializable
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Accounts)	return AffectedAccounts;
+		if(table == Mcv.Users)	return AffectedAccounts;
 		if(table == Mcv.Metas)	return AffectedMetas;
 
 		throw new IntegrityException();
@@ -259,7 +259,7 @@ public abstract class Round : IBinarySerializable
 	
 	public IEnumerable<AutoId> ProposeViolators()
 	{
-		return Forkers.Select(i => Mcv.Accounts.Find(i, Previous.Id).Id);
+		return Forkers;
 	}
 
 	public IEnumerable<AutoId> ProposeMemberLeavers(AccountAddress generator)
@@ -285,7 +285,7 @@ public abstract class Round : IBinarySerializable
 	{
 	}
 
-	public virtual void Execute(IEnumerable<Transaction> transactions, bool trying = false)
+	public virtual void Execute(IEnumerable<Transaction> transactions)
 	{
 		if(Confirmed)
 			throw new IntegrityException();
@@ -325,23 +325,23 @@ public abstract class Round : IBinarySerializable
 			e.SpacetimeSpenders	= [];
 			e.ECEnergyCost		= ConsensusECEnergyCost;
 
-			var s = e.AffectSigner();
+			var u = e.AffectSigner();
 
-			if(s == null)
+			if(u == null)
 				continue;
 
 			foreach(var o in t.Operations)
 			{
-				o.Signer = s;
+				o.User = u;
 
 				o.Execute(e);
 
 				if(o.Error != null)
 					break;
 
-				s.Energy -= t.Bonus;
+				u.Energy -= t.Bonus;
 
-				if(s.Energy < 0)
+				if(u.Energy < 0)
 				{
 					o.Error = Operation.NotEnoughEnergy;
 					break;
@@ -380,7 +380,7 @@ public abstract class Round : IBinarySerializable
 			
 			if(t.Successful)
 			{
-				s.LastTransactionNid++;
+				u.LastNonce++;
 	
 				Absorb(e);
 			}
@@ -394,7 +394,7 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in execution.AffectedMetas)
 			AffectedMetas[i.Key] = i.Value;
 
-		foreach(var i in execution.AffectedAccounts)
+		foreach(var i in execution.AffectedUsers)
 			AffectedAccounts[i.Key] = i.Value;
 
 		for(int t=0; t<Mcv.Tables.Length; t++)
@@ -441,13 +441,13 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
 		{
-			e.AffectAccount(i.Id).AverageUptime = 0;
+			e.AffectUser(i.Id).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
 		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
 		{
-			var a = e.AffectAccount(i.Id);
+			var a = e.AffectUser(i.Id);
 			
 			a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
@@ -473,7 +473,7 @@ public abstract class Round : IBinarySerializable
 
 			e.Bandwidths = d < e.Bandwidths.Length ? [..e.Bandwidths[d..], ..new long[d]] : new long[d];
 
-			foreach(var i in Members.Select(i => e.AffectAccount(i.Id)))
+			foreach(var i in Members.Select(i => e.AffectUser(i.Id)))
 			{
 				i.EnergyNext += d * Net.ECDayEmission / Members.Count;
 				i.Spacetime	 += d * (Net.BDDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;

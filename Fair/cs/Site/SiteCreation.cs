@@ -35,12 +35,12 @@ public class SiteCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = execution.Sites.Create(Signer);
+		var s = execution.Sites.Create(User);
 
 		s.Title			= Title;
 		s.PoWComplexity	= 172;
 		s.Space			= execution.Net.EntityLength;
-		s.Moderators	= [new Moderator {Account = Signer.Id}];
+		s.Moderators	= [new Moderator {User = User.Id}];
 
 		s.Policies =   [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
 						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
@@ -61,7 +61,7 @@ public class SiteCreation : FairOperation
 						new (FairOperationClass.PublicationUnpublish,			Role.Moderator, 								ApprovalRequirement.AnyModerator),
 																																								
 						new (FairOperationClass.UserRegistration,				Role.User, 										ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.UserDeletion,					Role.Moderator, 								ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.UserUnregistration,				Role.Moderator, 								ApprovalRequirement.AnyModerator),
 																																								
 						new (FairOperationClass.ReviewCreation,					Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.ReviewEdit,						Role.User, 										ApprovalRequirement.AnyModerator),
@@ -74,8 +74,8 @@ public class SiteCreation : FairOperation
  														z.Options = Enum.GetValues<ApprovalRequirement>()	.Where(i => i != ApprovalRequirement.None)
 																											.Select(a => new SurveyOption(	new SitePolicyChange
 																																			{
-																																				Operation = i.Operation, 
-																																				Creators = Site.Restrictions.First(j => j.Operation == i.Operation).Creators,
+																																				Operation = i.OperationClass, 
+																																				Creators = Site.Restrictions.First(j => j.OperationClass == i.OperationClass).Creators,
 																																				Approval = a
 																																			}))
 																											.ToArray();
@@ -83,9 +83,9 @@ public class SiteCreation : FairOperation
 													}).ToArray();;
 
 
-		Signer.ModeratedSites = [..Signer.ModeratedSites, s.Id];
+		User.ModeratedSites = [..User.ModeratedSites, s.Id];
 
-		execution.Prolong(Signer, s, Time.FromYears(Years));
+		execution.Prolong(User, s, Time.FromYears(Years));
 
 		execution.SiteTitles.Index(s.Id, Title);
 	}

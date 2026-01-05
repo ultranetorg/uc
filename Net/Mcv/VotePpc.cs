@@ -10,7 +10,7 @@ public class VotePpc : PeerRequest
 	
 	public override Result Execute()
 	{
-		var p = Peering as McvTcpPeering;
+		var p = Peering as McvPeering;
 
 		if(p.Node.Mcv == null)
 			throw new NodeException(NodeError.NotGraph);

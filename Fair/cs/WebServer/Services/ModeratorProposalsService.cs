@@ -33,7 +33,7 @@ public class ModeratorProposalsService
 
 	T CreateReviewProposalModel<T>(Proposal proposal) where T : ReviewProposalModel
 	{
-		FairAccount reviewer = (FairAccount) mcv.Accounts.Latest(proposal.By);
+		FairUser reviewer = (FairUser) mcv.Users.Latest(proposal.By);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
@@ -50,7 +50,7 @@ public class ModeratorProposalsService
 		return null;
 	}
 
-	T CreateReviewModel<T>(Proposal proposal, FairAccount reviewer, Publication publication) where T : ReviewProposalModel
+	T CreateReviewModel<T>(Proposal proposal, FairUser reviewer, Publication publication) where T : ReviewProposalModel
 	{
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
@@ -90,7 +90,7 @@ public class ModeratorProposalsService
 
 	UserProposalModel CreateUserProposalModel(Proposal proposal)
 	{
-		FairAccount? signer = proposal.Options.Length > 0 ? proposal.Options[0].Operation.Signer : null;
+		FairUser? signer = proposal.Options.Length > 0 ? proposal.Options[0].Operation.User : null;
 		var model = new UserProposalModel(proposal, signer);
 		model.Options = ProposalUtils.MapOptions(proposal.Options);
 		return model;
@@ -148,7 +148,7 @@ public class ModeratorProposalsService
 		Publication publication = mcv.Publications.Latest(publicationId);
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
-		FairAccount author = (FairAccount) mcv.Accounts.Latest(product.Author);
+		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
 
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
@@ -163,7 +163,7 @@ public class ModeratorProposalsService
 	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
 	{
 		Product product = mcv.Products.Latest(productId);
-		FairAccount author = (FairAccount) mcv.Accounts.Latest(product.Author);
+		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
 		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);

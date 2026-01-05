@@ -110,8 +110,8 @@ public class PackageDownload
 
 											case Urrsd u:
 												var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
-												var aa = node.Peering.Call(new AccountPpc(d.Owner), workflow).Account;
-												itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Address);
+												var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
+												itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
 												break;
 										};
 

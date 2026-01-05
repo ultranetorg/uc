@@ -24,13 +24,6 @@ public class Xon// : INestedSerializable
 	public int						Int => Serializator.Get<int>(this, _Value);
 	public long						Long => Serializator.Get<long>(this, _Value);
 
-	public List<Xon>				Templates = new List<Xon>();
-	public bool						IsTemplate = false;
-	public List<Xon>				Removed;
-	public bool						IsRemoved = false;
-
-	public bool						IsDifferenceDeleted { get => false; }
-
 	public Xon()
 	{
 	}
@@ -44,27 +37,26 @@ public class Xon// : INestedSerializable
 	{
 		Parent		= null;
 		Name		= name;
-		IsTemplate	= false;
 	}
 
 	public Xon(string text) : this(XonTextValueSerializator.Default)
 	{
-		Load(null, new XonTextReader(text));
+		Load(new XonTextReader(text));
 	}
 
 	public Xon(string text, IXonValueSerializator serializator) : this(serializator)
 	{
-		Load(null, new XonTextReader(text));
+		Load(new XonTextReader(text));
 	}
 
 	public Xon(byte[] data) : this(XonBinaryValueSerializator.Default)
 	{
-		Load(null, new XonBinaryReader(new MemoryStream(data)));
+		Load(new XonBinaryReader(new MemoryStream(data)));
 	}
 	
 	public Xon(IXonReader r, IXonValueSerializator serializator) : this(serializator)
 	{
-		Load(null, r);
+		Load(r);
 	}
 
 	public Xon Add(string name)
@@ -153,25 +145,6 @@ public class Xon// : INestedSerializable
 		return o;
 	}
 
-	public Xon CloneInternal(Xon parent)
-	{
-		var p = new Xon(Serializator, Name);
-		p.Parent = parent;
-
-		foreach(var i in Nodes)
-		{
-			p.Nodes.Add(i.CloneInternal(p));
-		}
-
-		p.Templates = Templates;
-
-		if(Value != null)
-		{
-			p.Value = Value;
-		}
-		return p;
-	}
-
 	public O Get<O>()
 	{
 		return Serializator.Get<O>(this, Value);
@@ -228,7 +201,7 @@ public class Xon// : INestedSerializable
 			return otherwise;
 	} 
 
-	internal void Load(Xon t, IXonReader r)
+	internal void Load(IXonReader r)
 	{
 		r.Read(Serializator);
 
@@ -236,7 +209,7 @@ public class Xon// : INestedSerializable
 
 		while(r.Current != XonToken.End)
 		{
-			n = Load(r, this, t);
+			n = Load(r, this);
 			r.ReadNext();
 
 			if(n == null)
@@ -251,7 +224,7 @@ public class Xon// : INestedSerializable
 		//}
 	}
 
-	protected Xon Load(IXonReader r, Xon parent, Xon tparent)
+	protected Xon Load(IXonReader r, Xon parent)
 	{
 		//CString name;
 		//CString type;
@@ -268,81 +241,13 @@ public class Xon// : INestedSerializable
 					break;
 
 				case XonToken.NodeEnd:
-					if(t != null)
-					{
-						if(tparent != null)
-						{
-							var d = tparent.Nodes.FirstOrDefault(j => j.Name == n.Name && j.Value != null && n.Value != null && n.Value.Equals(j.Value) ); // from default list?
-							if(d != null)
-								t = d;
-						}
-					
-						foreach(var i in t.Nodes)
-						{
-							if(!i.IsTemplate)
-							{
-								var c = n.Nodes.FirstOrDefault(j => j.Name == i.Name);
-								if(c == null)
-								{
-									n.Nodes.Add(i.CloneInternal(this));
-								}
-							}
-						}
-					}
 					return n;
 
 				case XonToken.NameBegin:
 				{
 					n.Name = r.ParseName();
 
-					var pre = n.Name[0];
-
-					if(pre == '-')
-					{
-						n.Name = n.Name.Substring(1);
-						n.IsRemoved = true;
-					}
-					if(pre == '*')
-					{
-						n.Name = n.Name.Substring(1);
-					}
-
-					if(tparent != null)
-					{
-						t = tparent.Templates.FirstOrDefault(i => i.Name == n.Name); // multi merge
-						if(t == null)
-							t = (Xon)tparent.Nodes.FirstOrDefault(i => i.Name == n.Name); // single merge
-					}
-					else if(parent != null) // self merge
-					{
-						t = parent.Templates.FirstOrDefault(i => i.Name == n.Name);
-					}
-				
-					if(t != null)
-					{
-						parent.Nodes.Add(n);
-					}
-					else
-					{
-						if(pre == '*') // this is template
-						{
-							parent.IsTemplate = true;
-							parent.Templates.Add(n);
-						}
-						else
-							parent.Nodes.Add(n); // to children
-					}
-
-					if(t != null && t.Value != null)
-						n.Value = t.Value;
-					//else
-					//	if(StandardTypes.ContainsKey(n.Type))
-					//		n.Value = StandardTypes[n.Type].Clone();
-					//	else if(Types.ContainsKey(n.Type))
-					//	{
-					//		n.Value = Types[n.Type].Clone();
-					//		n.Type = Types[n.Type].GetTypeName();
-					//	}
+					parent.Nodes.Add(n); // to children
 					break;
 				}	
 
@@ -362,7 +267,7 @@ public class Xon// : INestedSerializable
 	
 					while(r.ReadNext() == XonToken.NodeBegin)
 					{
-						Load(r, a, null);
+						Load(r, a);
 
 						//if(r.Current == XonToken.AttrValueEnd)
 						//{
@@ -375,7 +280,7 @@ public class Xon// : INestedSerializable
 				case XonToken.ChildrenBegin:
 					while(r.ReadNext() == XonToken.NodeBegin)
 					{
-						if(Load(r, n, t) == null)
+						if(Load(r, n) == null)
 						{
 							return n;
 						}

@@ -18,12 +18,12 @@ public class UtilityCommand : McvCommand
 		a.Name = "t";
 
 		a.Description = "Send utility from one account to another.";
-		a.Arguments =  [new (from, EA, "Entity type and id where funds are credited from"),
-						new (to, EA, "Entity type and id where funds are credited to"),
+		a.Arguments =  [new (from, EA, "Entity type and id where utility are credited from"),
+						new (to, EA, "Entity type and id where utility are credited to"),
 						new ("st", ST, "Amount of space-time to be transferred", Flag.Optional),
 						new ("ec", EC, "Amount of Execution Cycles of the current year to be transferred", Flag.Optional),
 						new ("ecnext", EC, "Amount of Execution Cycles of next year to be transferred", Flag.Optional),
-						SignerArgument("Account public address where funds are debited from")];
+						ByArgument("Account public address where funds are debited from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);

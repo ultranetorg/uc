@@ -61,7 +61,7 @@ public class ReviewsService
 
 			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
 			{
-				FairAccount account = (FairAccount) mcv.Accounts.Latest(review.Creator);
+				FairUser account = (FairUser) mcv.Users.Latest(review.Creator);
 				var model = new ReviewModel(review, account);
 				context.Items.Add(model);
 			}

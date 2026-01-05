@@ -22,7 +22,7 @@ public class FileCommand : FairCommand
 		a.Arguments =	[
 							new (null, EA, "An entity address of file owner", Flag.First),
 							new (path, PATH, "A data associated with the file"),
-							SignerArgument()
+							ByArgument()
 						];
 
 		a.Execute = () =>	{

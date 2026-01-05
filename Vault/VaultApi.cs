@@ -123,6 +123,7 @@ public class LockWalletApc : AdminApc
 
 public class AddAccountToWalletApc : AdminApc
 {
+	public string		Wallet { get; set; } ///  Null means first
 	public string		Name { get; set; } ///  Null means first
 	public byte[]		Key { get; set; } ///  Null means create new
 
@@ -130,7 +131,7 @@ public class AddAccountToWalletApc : AdminApc
 	{
 		lock(vault)
 		{	
-			var a = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null).AddAccount(Key);
+			var a = vault.Wallets.FirstOrDefault(i => i.Name == Wallet, vault.Wallets[0]).AddAccount(Name, Key);
 		
 			return a.Key.PrivateKey;
 		}
@@ -139,7 +140,7 @@ public class AddAccountToWalletApc : AdminApc
 
 public class OverrideAuthenticationApc : AdminApc
 {
-	public bool		Active { get; set; }
+	public bool				Active { get; set; }
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -147,7 +148,11 @@ public class OverrideAuthenticationApc : AdminApc
 		{
 			if(Active)
 			{
-				vault.AuthenticationRequested = (application, logo, net, account) => new AuthenticationChoice {Account = account, Trust = Trust.Complete};
+				vault.AuthenticationRequested = (application, logo, net, user, account) =>
+												{	
+													lock(vault)
+														return new AuthenticationChoice {Account = vault.Find(user).Address, Trust = Trust.Complete};
+												};
 			} 
 			else
 			{
@@ -164,7 +169,7 @@ internal class IsAuthenticatedApc : Net.IsAuthenticatedApc, IVaultApc
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-			return vault.IsAuthenticated(Account, Application, Net, Session);
+			return vault.IsAuthenticated(User, Application, Net, Session);
 	}
 }
 
@@ -174,7 +179,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 	{
 		lock(vault)
 		{
-			var c = vault.AuthenticationRequested?.Invoke(Application, Logo, Net, Account);
+			var c = vault.AuthenticationRequested?.Invoke(Application, Logo, Net, User, Account);
 	
 			if(c != null)
 			{
@@ -183,7 +188,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 				if(a == null)
 					throw new VaultException(VaultError.AccountNotFound);
 		
-				var n = a.AddAuthentication(Application, Net, Logo, c.Trust);
+				var n = a.AddAuthentication(Application, Net, User, Logo, c.Trust);
 		
 				return new AuthenticationResult {Account = c.Account, Session = n.Session};
 			} 
@@ -200,7 +205,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 		if(string.IsNullOrWhiteSpace(Application) || string.IsNullOrWhiteSpace(Net) || Session.Length != Uccs.Net.Cryptography.HashSize)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		var h = new	Authentication {Application = Application, Net = Net, Session = Session}.Heshify(Account);
+		var h = new	Authentication {Application = Application, Net = Net, Session = Session, User = User}.Hashify();
 
 		WalletAccount acc;
 
@@ -217,15 +222,17 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 			if(w.Locked)
 				throw new VaultException(VaultError.Locked);
 	
-			acc = w.Accounts.Find(i => i.Address == Account);
+			//acc = w.Accounts.Find(i => i.Address == Account);
 			
-			var au = acc?.Authentications?.Find(i => i.Net == Net && i.Application == Application && i.Session.SequenceEqual(Session));
+			acc = w.Accounts.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(Session)));
 	
+			var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(Session));
+
 			if(au == null)
 				throw new VaultException(VaultError.Corrupted);
 	
 			if(au.Trust == Trust.AskEveryTime)
-				vault.AuthorizationRequested(Account, au, Operation);
+				vault.AuthorizationRequested(acc.Address, au, Operation);
 		}
 
 		return Cryptography switch 

@@ -2,9 +2,10 @@
 
 public enum FairOperationClass : uint
 {
-	AccountNicknameChange			= 100_000_000,
-	AccountAvatarChange				= 100_000_001,
-	FavoriteSiteChange				= 100_000_002,
+	User							= 100,
+		UserFreeCreation			= 100_000_000,
+		UserAvatarChange			= 100_000_001,
+		FavoriteSiteChange			= 100_000_002,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -33,7 +34,7 @@ public enum FairOperationClass : uint
 		SiteAvatarChange			= 103_000_008,
 		SiteNicknameChange			= 103_000_009,
 		UserRegistration			= 103_000_010,
-		UserDeletion				= 103_000_011,
+		UserUnregistration			= 103_000_011,
 		SiteDeletion				= 103_000_999,
 
 		Proposal						= 103_001,
@@ -70,6 +71,11 @@ public enum FairOperationClass : uint
 		FileDeletion					= 104_000_999,
 } 
 
+public abstract class SiteOperation : FairOperation
+{
+	public Site	Site;
+}
+
 public abstract class VotableOperation : SiteOperation
 {
 	public Role					As;
@@ -77,23 +83,23 @@ public abstract class VotableOperation : SiteOperation
 
 	public abstract bool		ValidateProposal(FairExecution execution, out string error);
  	public abstract bool		Overlaps(VotableOperation other);
-	public virtual void			PreTransact(McvNode node, bool sponsored, Flow flow, AutoId site){}
 }
 
 public abstract class FairOperation : Operation
 {
-	public const string			NotAllowedForSponsoredAccount = "Not allowed for free account";
+	public const string			NotAllowedForNewUser = "Not allowed for a new account";
 	//public const string			InvalidProposal = "Invalid proposal";
 	public const string			CategoryNotSet = "Category not set";
 	public const string			NotEmpty = "Not empty";
+	public const string			NotNewUser = "Not a new user";
 	public const string			Ended = "Ended";
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
 	public const string			DoesNotBelogToSite = "Does not belong to site";
 	public const string			DoesNotSatisfy = "Does Not Satisfy";
-	public const string			NotEmptyReferencies = "Not Empty Referencies";
+	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 
-	public new FairAccount		Signer { get => base.Signer as FairAccount; set => base.Signer = value; }
+	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 
 	public abstract void		Execute(FairExecution execution);
 
@@ -102,20 +108,20 @@ public abstract class FairOperation : Operation
 		Execute(execution as FairExecution);
 	}
 
-	public bool AccountExists(FairExecution execution, AutoId id, out FairAccount account, out string error)
+	public bool AccountExists(FairExecution execution, AutoId id, out FairUser account, out string error)
 	{
 		var r = base.AccountExists(execution, id, out var a, out error);
 		
-		account = a as FairAccount;
+		account = a as FairUser;
 
 		return r;
 	}
 
-	public bool CanAccessAccount(FairExecution execution, AutoId id, out FairAccount account, out string error)
+	public bool CanAccessAccount(FairExecution execution, AutoId id, out FairUser account, out string error)
 	{
 		var r = base.CanAccessAccount(execution, id, out var a, out error);
 		
-		account = a as FairAccount;
+		account = a as FairUser;
 
 		return r;
 	}
@@ -162,7 +168,7 @@ public abstract class FairOperation : Operation
 		if(!AuthorExists(execution, id, out author, out error))
 			return false;
 
-		if(!author.Owners.Contains(Signer.Id))
+		if(!author.Owners.Contains(User.Id))
 		{
 			error = Denied;
 			return false;
@@ -220,7 +226,7 @@ public abstract class FairOperation : Operation
  		if(!SiteExists(execution, siteid, out site, out error))
  			return false; 
 
-		var m = site.Moderators.FirstOrDefault(i => i.Account == Signer.Id);
+		var m = site.Moderators.FirstOrDefault(i => i.User == User.Id);
 
 		if(m == null || m.BannedTill > execution.Time)
 		{
@@ -233,7 +239,7 @@ public abstract class FairOperation : Operation
 
 	public bool IsModerator(FairExecution execution, Site site, AutoId accountid, out Moderator moderator, out string error)
 	{
-		moderator = site.Moderators.FirstOrDefault(i => i.Account == accountid);
+		moderator = site.Moderators.FirstOrDefault(i => i.User == accountid);
 
 		if(moderator == null)
 		{
@@ -287,7 +293,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool CamModeratePublication(FairExecution execution, AutoId id, Account signer, out Publication publication, out Site site, out string error)
+ 	public bool CamModeratePublication(FairExecution execution, AutoId id, User signer, out Publication publication, out Site site, out string error)
  	{
 		site = null;
 
@@ -315,12 +321,12 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool IsReviewOwner(FairExecution execution, AutoId id, Account signer, out Review review, out string error)
+ 	public bool IsReviewOwner(FairExecution execution, AutoId id, User signer, out Review review, out string error)
  	{
  		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
-		if(review.Creator == Signer.Id)
+		if(review.Creator == User.Id)
 			return true;
 
  		//if(!PublicationExists(execution, review.Publication, out var p, out error))
@@ -330,14 +336,14 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
- 	public bool CanModerateReview(FairExecution execution, AutoId id, Account signer, out Review review, out Site site, out string error)
+ 	public bool CanModerateReview(FairExecution execution, AutoId id, User signer, out Review review, out Site site, out string error)
  	{
 		site = null;
 
  		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
- 		if(!CamModeratePublication(execution, review.Publication, Signer, out var p, out site, out error))
+ 		if(!CamModeratePublication(execution, review.Publication, User, out var p, out site, out error))
  			return false; 
  
 		error = null;

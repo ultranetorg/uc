@@ -26,14 +26,14 @@ public class BandwidthAllocation : Operation
 
 	public override void Execute(Execution execution)
 	{
-		var r = Signer.BandwidthExpiration - execution.Time.Days;
+		var r = User.BandwidthExpiration - execution.Time.Days;
 
 		if(r > 0) /// reclaim the remaining
 		{
-			Signer.Energy += Signer.Bandwidth * r;
+			User.Energy += User.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
-				execution.Bandwidths[i] -= Signer.Bandwidth;
+				execution.Bandwidths[i] -= User.Bandwidth;
 		}
 
 		for(int i = 0; i < Days; i++)
@@ -49,8 +49,8 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		Signer.Energy				-= Bandwidth * Days;
-		Signer.Bandwidth			= Bandwidth;
-		Signer.BandwidthExpiration	= (short)(execution.Time.Days + Days);
+		User.Energy				-= Bandwidth * Days;
+		User.Bandwidth			= Bandwidth;
+		User.BandwidthExpiration	= (short)(execution.Time.Days + Days);
 	}
 }
