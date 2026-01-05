@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 import { PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
 import { formatAverageRating, formatDate } from "utils"
-import { getChildren, getValue, nameEq } from "ui/components/publication/utils"
+import { getChildren, getRequirementPlatforms, getValue, nameEq } from "ui/components/publication/utils"
 
 import { AuthorImageTitle } from "./components"
 
@@ -75,6 +75,12 @@ export const SoftwareInfo = memo(
       return unique.length ? unique.join(", ") : undefined
     }, [fields])
 
+    const os = useMemo(() => {
+      const platforms = getRequirementPlatforms(fields)
+      if (!platforms.length) return undefined
+      return platforms.map(p => p.label.replace("Mac OS", "macOS")).join(" / ")
+    }, [fields])
+
     useEffect(() => {
       if (!versions.length) {
         setSelectedVersion(undefined)
@@ -107,10 +113,12 @@ export const SoftwareInfo = memo(
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <span className={LABEL_CLASSNAME}>{osLabel}</span>
-          <span className={VALUE_CLASSNAME}>Windows / MacOS / Linux</span>
-        </div>
+        {os && (
+          <div className="flex flex-col gap-2">
+            <span className={LABEL_CLASSNAME}>{osLabel}</span>
+            <span className={VALUE_CLASSNAME}>{os}</span>
+          </div>
+        )}
 
         {licenseType && (
           <div className="flex flex-col gap-2">

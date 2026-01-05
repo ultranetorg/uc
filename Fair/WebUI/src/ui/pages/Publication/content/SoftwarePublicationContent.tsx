@@ -1,9 +1,9 @@
-import { memo, useMemo } from "react"
+import { memo, useMemo, useState } from "react"
 
 import { ProductFieldModel } from "types"
-import { TagsList } from "ui/components"
+import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { getValue, nameEq } from "ui/components/publication/utils"
+import { RequirementPlatform, getChildren, getRequirementPlatforms, getValue, nameEq } from "ui/components/publication/utils"
 import { ReviewsList } from "ui/components/specific"
 import { buildFileUrl, ensureHttp } from "utils"
 
@@ -59,45 +59,97 @@ function buildMediaItems(fields: ProductFieldModel[] | undefined) {
   return Array.from(unique.values())
 }
 
-const TEST_TAB_ITEMS = [
-  {
-    key: "windows",
-    label: "Windows",
-    sections: [
-      {
-        key: "Minimum",
-        name: "Minimum",
-        values: {
-          CPU: "AMD Ryzen 5 1600 or Intel Core i5 6600K",
-          RAM: "8 GB",
-          "Video Card": "AMD Radeon RX 570 or Nvidia GeForce GTX 1050 Ti",
-          "Dedicated Video RAM": "4096 MB",
-          OS: "Windows 10 / 11 - 64-Bit (Latest Update)",
-          "Free Disk Space": "100 GB",
-        },
-      },
-      {
-        key: "recommended",
-        name: "Recommended",
-        values: {
-          CPU: "AMD Ryzen 7 2700X or Intel Core i7 6700",
-          RAM: "12 GB",
-          "Video Card": "AMD Radeon RX 570 or Nvidia GeForce GTX 1050 Ti",
-          "Dedicated Video RAM": "4096 MB",
-          OS: "Windows 10 / 11 - 64-Bit (Latest Update)",
-          "Free Disk Space": "100 GB",
-        },
-      },
-    ],
-  },
-  { key: "linux", label: "Linux", sections: [] },
-  { key: "macos", label: "macOS", sections: [] },
-]
+type SystemRequirementsTabSectionLike = {
+  key: string
+  name: string
+  values: Record<string, string>
+}
+
+type SystemRequirementsTabLike = {
+  key: string
+  label: string
+  sections: SystemRequirementsTabSectionLike[]
+}
+
+function buildSection(
+  platform: RequirementPlatform,
+  sectionKey: string,
+  sectionName: string,
+  children: ProductFieldModel[] | undefined,
+): SystemRequirementsTabSectionLike | null {
+  if (!children?.length) return null
+
+  const hardware = getChildren(children, "hardware")
+  const software = getChildren(children, "software")
+
+  const values: Record<string, string> = {}
+
+  const cpu = getValue(hardware, "cpu")
+  if (cpu) values.CPU = String(cpu)
+
+  const ram = getValue(hardware, "ram")
+  if (ram) values.RAM = String(ram)
+
+  const gpu = getValue(hardware, "gpu")
+  if (gpu) values.GPU = String(gpu)
+
+  const hdd = getValue(hardware, "hdd")
+  if (hdd) values.HDD = String(hdd)
+
+  const os = getValue(software, "os")
+  if (os) values.OS = String(os)
+
+  const architecture = getValue(software, "architecture")
+  if (architecture) values.Architecture = String(architecture)
+
+  if (!Object.keys(values).length) return null
+
+  return {
+    key: `${platform.key}-${sectionKey}`,
+    name: sectionName,
+    values,
+  }
+}
+
+function buildSystemRequirementsTabs(fields: ProductFieldModel[] | undefined): SystemRequirementsTabLike[] {
+  const platforms = getRequirementPlatforms(fields)
+  const tabs: SystemRequirementsTabLike[] = []
+
+  for (const platform of platforms) {
+    const platformChildren = platform.node.children ?? []
+
+    const minimalChildren = getChildren(platformChildren, "minimal")
+    const recommendedChildren = getChildren(platformChildren, "recommended")
+
+    const sections: SystemRequirementsTabSectionLike[] = []
+
+    const minimalSection = buildSection(platform, "minimum", "Minimum", minimalChildren)
+    if (minimalSection) sections.push(minimalSection)
+
+    const recommendedSection = buildSection(platform, "recommended", "Recommended", recommendedChildren)
+    if (recommendedSection) sections.push(recommendedSection)
+
+    if (sections.length) {
+      tabs.push({
+        key: platform.key,
+        label: platform.label,
+        sections,
+      })
+    }
+  }
+
+  return tabs
+}
 
 export const SoftwarePublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+    const [isEulaOpen, setIsEulaOpen] = useState(false)
     const mediaItems = useMemo(() => buildMediaItems(publication.productFields), [publication.productFields])
     const descriptions = useMemo(() => buildDescriptions(publication.productFields), [publication.productFields])
+    const systemRequirementsTabs = useMemo(
+      () => buildSystemRequirementsTabs(publication.productFields),
+      [publication.productFields],
+    )
 
     const hasDescription = !!publication.description || descriptions.length > 0
 
@@ -108,13 +160,11 @@ export const SoftwarePublicationContent = memo(
       return normalized ? ensureHttp(normalized) : undefined
     }, [publication.productFields])
 
-    const eulaUrl = useMemo(() => {
-      const raw =
-        getValue<string>(publication.productFields, "licensing-details-url") ??
-        getValue<string>(publication.productFields, "eula")
+    const eulaText = useMemo(() => {
+      const raw = getValue<string>(publication.productFields, "eula")
       if (!raw) return undefined
       const normalized = String(raw).trim()
-      return normalized ? ensureHttp(normalized) : undefined
+      return normalized || undefined
     }, [publication.productFields])
 
     const tags = useMemo(() => {
@@ -140,7 +190,9 @@ export const SoftwarePublicationContent = memo(
               descriptionLabel={t("information")}
             />
           )}
-          <SystemRequirementsTabs label={t("systemRequirements")} tabs={TEST_TAB_ITEMS} />
+          {systemRequirementsTabs.length > 0 && (
+            <SystemRequirementsTabs label={t("systemRequirements")} tabs={systemRequirementsTabs} />
+          )}
           <ReviewsList
             isPending={isPending || isPendingReviews}
             reviews={reviews}
@@ -169,7 +221,23 @@ export const SoftwarePublicationContent = memo(
             downloadFromWebLabel={t("downloadFromWeb")}
           />
           {officialSite && <SiteLink to={officialSite} label={t("officialSite")} />}
-          {eulaUrl && <SiteLink to={eulaUrl} label={t("eula")} />}
+          {eulaText && (
+            <button
+              type="button"
+              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] px-6 py-4 text-left text-2sm font-medium leading-4.5 text-gray-800"
+              onClick={() => setIsEulaOpen(true)}
+            >
+              {t("eula")}
+            </button>
+          )}
+          {isEulaOpen && eulaText && (
+            <TextModal
+              title={t("eula")}
+              text={eulaText}
+              confirmLabel={t("common:ok")}
+              onConfirm={() => setIsEulaOpen(false)}
+            />
+          )}
           {tags && <TagsList tags={tags} />}
         </div>
       </>
