@@ -264,7 +264,15 @@ public class Execution : ITableExecution
 			s = Mcv.Users.Find(u, Round.Id);
 
 		if(s == null)
+		{	
+			if(!Operation.IsFreeNameValid(u))
+			{
+				Transaction.Error = Operation.InvalidName;
+				return null;
+			}
+		
 			s = CreateUser(u, Transaction.Signer);
+		}
 		else
 		{	
 			if(Transaction.Signature != null && Transaction.Signer != s.Owner)

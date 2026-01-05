@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.RegularExpressions;
+
+namespace Uccs.Net;
 
 public struct Portion
 {
@@ -33,6 +35,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string					Denied = "Access denied";
 	public const string					ExistingAccountRequired = "ExistingAccountRequired";
 	public const string					Expired = "Expired";
+	public const string					InvalidName = "Invalid Name";
 	public const string					LimitReached = "Limit Reached";
 	public const string					OutOfBounds = "Out Of Bounds";
 	public const string					Mismatch = "Mismatch";
@@ -77,6 +80,10 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
+
+	public static bool	IsFreeNameValid(string name) =>	name.Length <= 32 
+														&& name.Length >= 5 
+														&& Regex.Match(name, "^[a-z0-9_]+$").Success;
 	
 	public virtual void PreTransact(McvNode node, Flow flow)
 	{
