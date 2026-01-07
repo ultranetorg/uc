@@ -5,12 +5,10 @@ namespace Uccs.Fair;
 public class AuthorNicknameChange : FairOperation
 {
 	public AutoId				Author { get; set; }
-	public string				Nickname { get; set; }
+	public string				Name { get; set; }
 
-	public override bool		IsValid(McvNet net) =>	Nickname.Length <= 32 
-														&& Nickname.Length >= 4 
-														&& Regex.Match(Nickname, "^[a-z0-9]+$").Success;
-	public override string		Explanation => $"{Author}, {Nickname}";
+	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
+	public override string		Explanation => $"{Author}, {Name}";
 
 	public AuthorNicknameChange()
 	{
@@ -18,14 +16,14 @@ public class AuthorNicknameChange : FairOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Nickname	= reader.ReadUtf8();
-		Author		= reader.Read<AutoId>();
+		Author	= reader.Read<AutoId>();
+		Name	= reader.ReadUtf8();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8(Nickname);
 		writer.Write(Author);
+		writer.WriteUtf8(Name);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -33,7 +31,7 @@ public class AuthorNicknameChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		var e = execution.Words.Find(Word.GetId(Nickname));
+		var e = execution.Words.Find(Word.GetId(Name));
 
 		if(e != null)
 		{
@@ -46,14 +44,14 @@ public class AuthorNicknameChange : FairOperation
 			execution.Words.Unregister(a.Nickname);
 		}
 
-		if(Nickname != "")
+		if(Name != "")
 		{
-			execution.Words.Register(Nickname, EntityTextField.AuthorNickname, a.Id);
+			execution.Words.Register(Name, EntityTextField.AuthorNickname, a.Id);
 		}
 
 		a = execution.Authors.Affect(Author);
 		
-		a.Nickname = Nickname;	
+		a.Nickname = Name;	
 		
 		execution.PayCycleEnergy(a);
 	}

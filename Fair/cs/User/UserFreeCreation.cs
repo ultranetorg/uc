@@ -9,7 +9,7 @@ public class UserFreeCreation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return true;
+		return Pow == null || Pow.Length <= 32;
 	}
 
 	public override void Read(BinaryReader reader)
@@ -25,8 +25,7 @@ public class UserFreeCreation : FairOperation
 	public override void PreTransact(McvNode node, Flow flow)
 	{
 		Pow = null;
-	
-		
+			
 		var s = node.Peering.Call(new StampPpc {}, flow);
 		
 		var ts = Enumerable.Range(0, Environment.ProcessorCount)

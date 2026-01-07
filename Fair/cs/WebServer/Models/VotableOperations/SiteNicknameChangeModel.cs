@@ -2,5 +2,5 @@
 
 public class SiteNicknameChangeModel(SiteNicknameChange operation) : BaseVotableOperationModel(operation)
 {
-	public string Nickname { get; set; } = operation.Nickname;
+	public string Nickname { get; set; } = operation.Name;
 }
