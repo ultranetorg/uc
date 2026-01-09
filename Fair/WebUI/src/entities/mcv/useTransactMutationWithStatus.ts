@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 import { getMcvApi } from "api"
-import { useAccountsContext } from "app"
+import { useManageUsersContext } from "app"
 import { useGetFairUrl } from "entities/nexus"
 import { useGetNexusUrl } from "entities/node"
 import { BaseFairOperation, TransactionStatus } from "types"
@@ -19,7 +19,7 @@ type TransactMutationCallbacks = {
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
   const fair = useGetFairUrl(nexus.data)
-  const { currentAccount } = useAccountsContext()
+  const { currentUserName } = useManageUsersContext()
 
   const [tag, setTag] = useState<string | undefined>()
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)
@@ -27,7 +27,7 @@ export const useTransactMutationWithStatus = () => {
 
   const mutation = useMutation({
     mutationFn: ({ operations }: { operations: BaseFairOperation[] }) =>
-      api.transact(fair.data!, operations, currentAccount!.address),
+      api.transact(fair.data!, operations, currentUserName!),
 
     onSuccess: tx => {
       setTag(tx.tag)
@@ -81,7 +81,7 @@ export const useTransactMutationWithStatus = () => {
     mutate,
     data: query.data,
     isPending: isPendingRef.current,
-    isReady: !!fair.data && !!currentAccount?.address,
+    isReady: !!fair.data && !!currentUserName,
     error: mutation.error || query.error,
   }
 }

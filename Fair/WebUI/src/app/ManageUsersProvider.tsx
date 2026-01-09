@@ -1,15 +1,20 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react"
 import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
-import { useGetAccountByAddress } from "entities"
 import { useAuthenticateMutation, useIsAuthenticatedMutation } from "entities/vault"
-import { Account, AccountBase } from "types"
-import { MakeOptional, showToast } from "utils"
+import { AuthenticationResult } from "types/vault"
 
-// TODO: showToast related code with showToast function should be moved from here.
+type AuthenticateMutationCallbacks = {
+  onSuccess?: (data: AuthenticationResult | null) => void
+  onError?: (error: Error) => void
+  onSettled?: (data?: AuthenticationResult | null) => void
+}
 
-type StoredAccount = MakeOptional<AccountBase, "id">
+type StoredAccount = {
+  userName: string
+  address: string
+}
 
 type StoredAccountSession = {
   account: StoredAccount
@@ -21,26 +26,24 @@ type AccountsStorageState = {
   selectedIndex?: number
 }
 
-type AccountsContextType = {
+type ManageUsersContextType = {
   accounts: StoredAccountSession[]
-  currentAccount?: Account
+  currentUserName?: string
   isPending: boolean
-  refetchAccount(): void
   selectAccount(index: number): void
-  authenticate(): void
+  authenticateMutation(userName: string, address: string, callbacks?: AuthenticateMutationCallbacks): void
   logout(index: number): void
 }
 
-const AccountsContext = createContext<AccountsContextType>({
+const ManageUsersContext = createContext<ManageUsersContextType>({
   isPending: false,
   accounts: [],
-  refetchAccount: () => {},
   selectAccount: () => {},
-  authenticate: () => {},
+  authenticateMutation: () => {},
   logout: () => {},
 })
 
-export const AccountsProvider = ({ children }: PropsWithChildren) => {
+export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession, removeSession] = useLocalStorage<AccountsStorageState>(
     LOCAL_STORAGE_KEYS.STORED_ACCOUNTS,
     {
@@ -48,9 +51,8 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
     },
   )
 
-  const currentAccountAddress =
-    session.selectedIndex !== undefined ? session.accounts[session.selectedIndex]?.account?.address : undefined
-  const [currentAccount, setCurrentAccount] = useState<Account | undefined>()
+  const currentUserName =
+    session.selectedIndex !== undefined ? session.accounts[session.selectedIndex]?.account?.userName : undefined
 
   const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
   const {
@@ -58,25 +60,6 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
     isPending: isAuthenticatedPending,
     isReady: isAuthenticatedReady,
   } = useIsAuthenticatedMutation()
-  const { data: account, refetch: refetchAccount } = useGetAccountByAddress(currentAccountAddress)
-
-  useEffect(() => {
-    setCurrentAccount(account)
-
-    if (account) {
-      setSession(p => ({
-        ...p,
-        accounts: p.accounts.map(a =>
-          a.account.address !== account.address
-            ? a
-            : {
-                ...a,
-                ...{ account: { address: account.address, id: account.id, nickname: account.nickname } },
-              },
-        ),
-      }))
-    }
-  }, [account, session.accounts.length, setSession])
 
   useEffect(() => {
     if (!isAuthenticatedReady) return
@@ -89,9 +72,9 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
 
     const target = session.accounts[session.selectedIndex]
     isAuthenticatedMutation(
-      { accountAddress: target.account.address, session: target.session },
+      { userName: target.account.userName, session: target.session },
       {
-        onSuccess: valid => {
+        onSettled: valid => {
           if (!valid) {
             if (session.accounts.length > 1) {
               setSession(p => {
@@ -101,8 +84,6 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
             } else {
               removeSession()
             }
-
-            setCurrentAccount(undefined)
           }
         },
       },
@@ -111,15 +92,14 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   }, [isAuthenticatedMutation, isAuthenticatedReady, removeSession, setSession])
 
   const authenticate = useCallback(
-    () =>
+    (userName: string, address: string, callbacks?: AuthenticateMutationCallbacks) =>
       authenticateMutation(
-        {},
+        { userName, address },
         {
           onSuccess: data => {
-            if (data.account === undefined) {
-              showToast("Authentication cancelled", "warning")
-              return
-            }
+            callbacks?.onSuccess?.(data)
+
+            if (data === null) return
 
             setSession(prev => {
               const existingIndex = prev.accounts.findIndex(x => x.account.address === data.account)
@@ -134,7 +114,10 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
                 }
               }
 
-              const newAccounts = [{ session: data.session, account: { address: data.account } }, ...prev.accounts]
+              const newAccounts = [
+                ...prev.accounts,
+                { session: data.session, account: { address: data.account, userName } },
+              ]
 
               return {
                 ...prev,
@@ -143,7 +126,8 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
               }
             })
           },
-          onError: error => showToast(error.message, "error"),
+          onError: error => callbacks?.onError?.(error),
+          onSettled: data => callbacks?.onSettled?.(data),
         },
       ),
     [authenticateMutation, setSession],
@@ -157,26 +141,23 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
       const target = session.accounts[index]
 
       isAuthenticatedMutation(
-        { accountAddress: target.account.address, session: target.session },
+        { userName: target.account.userName, session: target.session },
         {
           onSuccess: valid => {
             if (valid) {
               setSession(p => ({ ...p, selectedIndex: index }))
-            } else {
-              // Remove invalid account.
-              setSession(p => {
-                const accounts = p.accounts.filter((_, i) => i !== index)
-                const newSelected =
-                  p.selectedIndex !== undefined
-                    ? p.selectedIndex > index
-                      ? p.selectedIndex - 1
-                      : p.selectedIndex === index
-                        ? undefined
-                        : p.selectedIndex
-                    : undefined
-
-                return { ...p, accounts, selectedIndex: newSelected }
-              })
+            }
+          },
+          onSettled: valid => {
+            if (!valid) {
+              if (session.accounts.length > 1) {
+                setSession(p => {
+                  const accounts = p.accounts.filter((_, i) => i !== p.selectedIndex)
+                  return { ...p, accounts, selectedIndex: undefined }
+                })
+              } else {
+                removeSession()
+              }
             }
           },
         },
@@ -211,27 +192,25 @@ export const AccountsProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo(
     () => ({
       accounts: session.accounts,
-      currentAccount,
+      currentUserName,
       isPending: isAuthenticatePending || isAuthenticatedPending,
-      refetchAccount,
-      selectAccount,
-      authenticate,
+      authenticateMutation: authenticate,
       logout,
+      selectAccount,
     }),
     [
       session.accounts,
-      currentAccount,
+      currentUserName,
       isAuthenticatePending,
       isAuthenticatedPending,
-      refetchAccount,
-      selectAccount,
       authenticate,
       logout,
+      selectAccount,
     ],
   )
 
-  return <AccountsContext.Provider value={value}>{children}</AccountsContext.Provider>
+  return <ManageUsersContext.Provider value={value}>{children}</ManageUsersContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useAccountsContext = () => useContext(AccountsContext)
+export const useManageUsersContext = () => useContext(ManageUsersContext)

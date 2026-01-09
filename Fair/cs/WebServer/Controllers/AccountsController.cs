@@ -7,30 +7,50 @@ public class AccountsController
 	ILogger<AccountsController> logger,
 	AccountsService accountsService,
 	ISearchService searchService,
-	AccountAddressValidator accountAddressValidator,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
-	LimitValidator limitValidator
+	LimitValidator limitValidator,
+	UserNameValidator userNameValidator
 ) : BaseController
 {
-	[HttpGet("address/{address}")]
-	public AccountModel GetByAddress(string address)
+	//[HttpGet("address/{address}")]
+	//public AccountModel GetByAddress(string address)
+	//{
+	//	logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountAddress}", nameof(AccountsController), nameof(GetByAddress), address);
+
+	//	accountAddressValidator.Validate(address);
+
+	//	return accountsService.GetByAddress(address);
+	//}
+
+	[HttpGet("/api/users/{name}")]
+	public AccountBaseModel Get(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountAddress}", nameof(AccountsController), nameof(GetByAddress), address);
+		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(AccountsController), nameof(Get), name);
 
-		accountAddressValidator.Validate(address);
+		userNameValidator.Validate(name);
 
-		return accountsService.GetByAddress(address);
+		return accountsService.Get(name);
+	}
+
+	[HttpGet("/api/users/{name}/details")]
+	public AccountModel GetDetails(string name)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(AccountsController), nameof(GetDetails), name);
+
+		userNameValidator.Validate(name);
+
+		return accountsService.GetDetails(name);
 	}
 
 	[HttpGet("{accountId}")]
-	public UserModel Get(string accountId)
+	public UserModel GetById(string accountId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(Get), accountId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetById), accountId);
 
 		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
-		return accountsService.Get(accountId);
+		return accountsService.GetById(accountId);
 	}
 
 	[HttpGet]

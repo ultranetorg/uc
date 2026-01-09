@@ -2,7 +2,7 @@ import { forwardRef, memo, useCallback } from "react"
 import { useCopyToClipboard } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
-import { useAccountsContext } from "app"
+import { useUserContext } from "app"
 import { SvgPersonSquare, SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
@@ -35,7 +35,7 @@ export const ProfileMenu = memo(
 
       const [copiedText, copy] = useCopyToClipboard()
 
-      const { currentAccount } = useAccountsContext()
+      const { user } = useUserContext()
 
       const handleCopyClick = useCallback(() => {
         copy(address)
@@ -115,7 +115,7 @@ export const ProfileMenu = memo(
             <AccountSwitcher
               ref={accountMenu.refs.setFloating}
               style={accountMenu.floatingStyles}
-              selectedItemAddress={currentAccount!.address}
+              selectedItemAddress={user!.address}
               items={items}
               onAdd={onAdd}
               onRemove={onRemove}

@@ -106,6 +106,24 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An incorrect {0} {1} has been provided..
+        /// </summary>
+        internal static string InvalidEntityParameterFormat2 {
+            get {
+                return ResourceManager.GetString("InvalidEntityParameterFormat2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An incorrect {0} {1} has been provided {2}..
+        /// </summary>
+        internal static string InvalidEntityParameterFormat3 {
+            get {
+                return ResourceManager.GetString("InvalidEntityParameterFormat3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid pagination parameters..
         /// </summary>
         internal static string InvalidPaginationParameters {

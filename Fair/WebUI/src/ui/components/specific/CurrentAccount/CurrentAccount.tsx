@@ -1,14 +1,16 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useAccountsContext } from "app"
+import { useManageUsersContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 
+import { showToast } from "utils"
 import { AccountSwitcher } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
 import { ProfileButton } from "./ProfileButton"
 import { ProfileMenu } from "./ProfileMenu"
+import { SignInModal } from "./SignInModal"
 
 const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
@@ -19,15 +21,18 @@ export const CurrentAccount = () => {
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
-  const { accounts, currentAccount, authenticate, logout, selectAccount } = useAccountsContext()
+  const [showUserModal, setShowUserModal] = useState(false)
+
+  const { user } = useUserContext()
+  const { accounts, isPending, authenticateMutation, logout, selectAccount } = useManageUsersContext()
 
   const accountItems = useMemo(() => accounts.map(x => x.account), [accounts])
 
   const handleAccountAdd = useCallback(() => {
-    authenticate()
+    setShowUserModal(true)
     accountsMenu.setOpen(false)
     profileMenu.setOpen(false)
-  }, [accountsMenu, authenticate, profileMenu])
+  }, [accountsMenu, profileMenu])
 
   const handleAccountRemove = useCallback(
     (index: number) => {
@@ -49,6 +54,23 @@ export const CurrentAccount = () => {
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
 
+  const handleSignIn = useCallback(
+    (userName: string, address: string) =>
+      authenticateMutation(userName, address, {
+        onSuccess: data => {
+          if (data === null) {
+            showToast(t("authenticationCancelled"), "warning")
+            return
+          }
+
+          showToast(t("successfullyAuthenticated", { userName }), "success")
+          setShowUserModal(false)
+        },
+        onError: error => showToast(error.message, "error"),
+      }),
+    [authenticateMutation, t],
+  )
+
   const accountSwitcherProps = useMemo(
     () => ({
       items: accountItems,
@@ -66,9 +88,9 @@ export const CurrentAccount = () => {
           iconBefore={<SvgPersonSquare className="fill-gray-800" />}
           className={STICKY_CLASSNAME}
           label={t("authenticate")}
-          onClick={() => authenticate()}
+          onClick={() => setShowUserModal(true)}
         />
-      ) : !currentAccount || !currentAccount?.address ? (
+      ) : !user ? (
         <ProfileButton
           iconBefore={<SvgPersonSquare className="fill-gray-800" />}
           iconAfter={<SvgChevronRight className="stroke-gray-800" />}
@@ -80,9 +102,9 @@ export const CurrentAccount = () => {
       ) : (
         <CurrentAccountButton
           className={STICKY_CLASSNAME}
-          nickname={currentAccount?.nickname}
-          id={currentAccount?.id}
-          address={currentAccount?.address}
+          nickname={user.nickname}
+          id={user.id}
+          address={user.address}
           ref={profileMenu.refs.setReference}
           {...profileMenu.getReferenceProps()}
         />
@@ -92,9 +114,9 @@ export const CurrentAccount = () => {
           customParentId={profileMenu.nodeId!}
           ref={profileMenu.refs.setFloating}
           style={profileMenu.floatingStyles}
-          accountId={currentAccount?.id}
-          nickname={currentAccount?.nickname}
-          address={currentAccount!.address!}
+          nickname={user!.nickname}
+          accountId={user!.id}
+          address={user!.address!}
           onNicknameCreate={handleNicknameCreate}
           {...accountSwitcherProps}
           {...profileMenu.getFloatingProps()}
@@ -104,9 +126,18 @@ export const CurrentAccount = () => {
         <AccountSwitcher
           ref={accountsMenu.refs.setFloating}
           style={accountsMenu.floatingStyles}
-          selectedItemAddress={currentAccount?.address}
+          selectedItemAddress={user!.address}
           {...accountSwitcherProps}
           {...accountsMenu.getFloatingProps()}
+        />
+      )}
+      {showUserModal && (
+        <SignInModal
+          submitDisabled={isPending}
+          submitLabel={t("common:signIn")}
+          title={t("common:signIn")}
+          onClose={() => setShowUserModal(false)}
+          onSubmit={handleSignIn}
         />
       )}
     </>
