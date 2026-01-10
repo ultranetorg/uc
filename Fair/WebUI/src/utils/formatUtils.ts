@@ -20,11 +20,11 @@ export const formatAnbbShort = (any: number, neither: number, ban: number, banis
 export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
 
 export const formatDate = (days: number): string => {
-  return dayjs(START_DATE).add(days, "day").startOf("day").format("DD MMM YYYY")
+  return dayjs(START_DATE).add(days, "day").startOf("day").format("DD.MM.YYYY")
 }
 
 export function formatSecDate(seconds: number) {
-  return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD MMM YYYY")
+  return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD.MM.YYYY")
 }
 
 export const formatDuration = (t: TFunction, durationInDays: number): string => {

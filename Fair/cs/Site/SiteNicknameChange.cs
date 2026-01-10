@@ -4,12 +4,10 @@ namespace Uccs.Fair;
 
 public class SiteNicknameChange : VotableOperation
 {
-	public string				Nickname { get; set; }
+	public string				Name { get; set; }
 
-	public override bool		IsValid(McvNet net) =>	Nickname.Length <= 32 
-														&& Nickname.Length >= 4 
-														&& Regex.Match(Nickname, "^[a-z0-9_]+$").Success;
-	public override string		Explanation => $"{Nickname}";
+	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
+	public override string		Explanation => $"{Name}";
 
 	public SiteNicknameChange()
 	{
@@ -17,12 +15,12 @@ public class SiteNicknameChange : VotableOperation
 
 	public override void Read(BinaryReader reader)
 	{
-		Nickname	= reader.ReadUtf8();
+		Name	= reader.ReadUtf8();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8(Nickname);
+		writer.WriteUtf8(Name);
 	}
 
 	public override bool Overlaps(VotableOperation other)
@@ -38,7 +36,7 @@ public class SiteNicknameChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Words.Find(Word.GetId(Nickname));
+		var e = execution.Words.Find(Word.GetId(Name));
 
 		if(e != null)
 		{
@@ -51,11 +49,11 @@ public class SiteNicknameChange : VotableOperation
 			execution.Words.Unregister(Site.Nickname);
 		}
 
-		if(Nickname != "")
+		if(Name != "")
 		{
-			execution.Words.Register(Nickname, EntityTextField.SiteNickname, Site.Id);
+			execution.Words.Register(Name, EntityTextField.SiteNickname, Site.Id);
 		}
 
-		Site.Nickname = Nickname;	
+		Site.Nickname = Name;	
 	}
 }

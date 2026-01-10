@@ -30,7 +30,7 @@ public abstract class FairPpc<R> : McvPpc<R> where R : Result
 	public new FairMcv			Mcv => base.Mcv as FairMcv;
 }
 
-public class FairTcpPeering : McvTcpPeering
+public class FairTcpPeering : McvPeering
 {
 	public FairTcpPeering(FairNode node, PeeringSettings settings, long roles, VaultApiClient vault, Flow flow, IClock clock) : base(node, settings, roles, vault, flow)
 	{

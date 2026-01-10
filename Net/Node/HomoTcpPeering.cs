@@ -28,13 +28,8 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 		if(!Database.TryGetColumnFamily(PeersColumn, out _))
 			Database.CreateColumnFamily(new (), PeersColumn);
-	}
-
-	public override void Run()
-	{
+		
 		LoadPeers();
-
-		base.Run();
 	}
 
 	protected override void AddPeer(HomoPeer peer)
@@ -224,8 +219,8 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	protected override void ProcessMain()
 	{
-		var needed = Settings.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
-	
+		var needed = 1 - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+		
 		foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected &&
 											DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 								.OrderBy(i => i.Retries)

@@ -6,13 +6,10 @@ namespace Uccs.Net;
 
 public interface INnp
 {
-	public Result Transact(NnpPeer peer, TransactNna call);
 	public Result Request(NnpPeer peer, RequestNna call);
 	public Result HolderClasses(NnpPeer peer, HolderClassesNna call);
 	public Result HolderAssets(NnpPeer peer, HolderAssetsNna call);
-	public Result HoldersByAccount(NnpPeer peer, HoldersByAccountNna call);
 	public Result AssetBalance(NnpPeer peer, AssetBalanceNna call);
-	//public Return AssetTransfer(NnPeer peer, AssetTransferNna call);
 }
 
 public class NnRequestPacket: RequestPacket
@@ -85,10 +82,8 @@ public class NnpPeer : Peer, IBinarySerializable
 
 							switch((NnpClass)Peering.Constructor.TypeToCode(rq.GetType()))
 							{
-								case NnpClass.Transact:			r = Nni.Transact(this, rq as TransactNna); break;
 								case NnpClass.Request:			r = Nni.Request(this, rq as RequestNna); break;
 								case NnpClass.HolderClasses:	r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
-								case NnpClass.HoldersByAccount:	r = Nni.HoldersByAccount(this, rq as HoldersByAccountNna); break;
 								case NnpClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
 								case NnpClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
 								//case NnpClass.AssetTransfer:	r = Nni.AssetTransfer(this, rq as AssetTransferNna); break;

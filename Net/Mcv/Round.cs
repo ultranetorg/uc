@@ -476,7 +476,7 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in Members.Select(i => e.AffectUser(i.Id)))
 			{
 				i.EnergyNext += d * Net.ECDayEmission / Members.Count;
-				i.Spacetime	 += d * (Net.BDDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
+				i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
 			}
 			
 			if(d <= e.Spaces.Length)

@@ -29,7 +29,7 @@ public enum Role : long
 	Chain		= 0b00000010,
 }
 
-public abstract class McvTcpPeering : HomoTcpPeering
+public abstract class McvPeering : HomoTcpPeering
 {
 	public McvNode							Node;
 	public McvNet							Net => Node.Net;
@@ -41,19 +41,18 @@ public abstract class McvTcpPeering : HomoTcpPeering
 	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
-	public List<Transaction>				OutgoingTransactions = new();
-	public List<Transaction>				IncomingTransactions = new();
-	public List<Transaction>				ConfirmedTransactions = new();
+	public List<Transaction>				OutgoingTransactions = [];
+	public List<Transaction>				IncomingTransactions = [];
+	public List<Transaction>				ConfirmedTransactions = [];
+	List<AccountAddress>					CandidacyDeclarations = [];
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
-	public Dictionary<int, List<Vote>>		SyncTail = new();
+	public Dictionary<int, List<Vote>>		SyncTail = [];
 
-	List<AccountAddress>					CandidacyDeclarations = [];
-	
-	public static List<McvTcpPeering>		All = new();
+	public static List<McvPeering>			All = [];
 
-	public McvTcpPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
+	public McvPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
 	{
 		Node = node;
 		VaultApi = vaultapi;
@@ -63,26 +62,6 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));
-
-		All.Add(this);
-	}
-
-	//public override object Constract(Type t, byte b)
-	//{
-	//	if(t == typeof(Transaction))	return new Transaction {Net = Net}; 
- 	//	if(t == typeof(Vote))			return new Vote(Mcv);
-	//
-	//	return base.Constract(t, b);
-	//}
-	//
-	//public override byte TypeToCode(Type i)
-	//{
-	//	return base.TypeToCode(i);
-	//}
-
-	public override void Run()
-	{
-		base.Run();
 
 		if(Mcv != null)
 		{
@@ -107,6 +86,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 										}
 									};
 		}
+
+		All.Add(this);
 	}
 
 	public override void Stop()
@@ -133,8 +114,8 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 		if(Mcv != null)
 		{
-			var needed = Settings.PermanentGraphsMin - Graphs.Count();
-
+			var needed = Settings.PermanentMin - Graphs.Count();
+	
 			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
 									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
@@ -143,33 +124,28 @@ public abstract class McvTcpPeering : HomoTcpPeering
 			{
 				OutboundConnect(p, true);
 			}
-		}
 
-		if(!MinimalPeersReached && 
-			Connections.Count(i => i.Permanent) >= Settings.PermanentMin && 
-			(Mcv == null || Graphs.Count() >= Settings.PermanentGraphsMin))
-		{
-			MinimalPeersReached = true;
-			Flow.Log?.Report(this, $"Minimal peers reached");
-
-			if(IsListener)
+			if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
 			{
-				foreach(var c in Connections)
-					c.Send(new SharePeersPpc{Broadcast = true, 
-											 Peers = [new HomoPeer(EP) {Roles = Roles}]});
-			}
+				MinimalPeersReached = true;
+				Flow.Log?.Report(this, $"PermanentMin reached");
 
-			if(Mcv != null)
-			{
+				if(IsListener)
+				{
+					foreach(var c in Connections)
+						c.Send(new SharePeersPpc{Broadcast = true, 
+												 Peers = [new HomoPeer(EP) {Roles = Roles}]});
+				}
+
 				lock(Mcv.Lock)
 					Synchronize();
 			}
-		}
 
-		if(Mcv != null && MinimalPeersReached)
-		{
-			lock(Mcv.Lock)
-				Generate();
+			if(MinimalPeersReached)
+			{
+				lock(Mcv.Lock)
+					Generate();
+			}
 		}
 	}
 
@@ -1239,7 +1215,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 
 	public static void CompareGraphs(string destination)
 	{
-		var mcvs = All.OfType<McvTcpPeering>().GroupBy(i => i.Net.Address);
+		var mcvs = All.OfType<McvPeering>().GroupBy(i => i.Net.Address);
 
 		foreach(var i in mcvs)
 		{
@@ -1249,7 +1225,7 @@ public abstract class McvTcpPeering : HomoTcpPeering
 		}
 	}
 
-	public static void CompareBase(McvTcpPeering[] all, string destibation)
+	public static void CompareBase(McvPeering[] all, string destibation)
 	{
 		//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 		Directory.CreateDirectory(destibation);

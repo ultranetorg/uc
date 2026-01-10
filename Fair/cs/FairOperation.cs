@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text.RegularExpressions;
+
+namespace Uccs.Fair;
 
 public enum FairOperationClass : uint
 {
@@ -102,6 +104,7 @@ public abstract class FairOperation : Operation
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 
 	public abstract void		Execute(FairExecution execution);
+
 
 	public override void Execute(Execution execution)
 	{

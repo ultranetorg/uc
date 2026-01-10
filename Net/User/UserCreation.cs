@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.RegularExpressions;
+
+namespace Uccs.Net;
 
 public class UserCreation : Operation
 {
@@ -13,7 +15,7 @@ public class UserCreation : Operation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return true;
+		return IsFreeNameValid(Name);
 	}
 
 	public override void Read(BinaryReader reader)

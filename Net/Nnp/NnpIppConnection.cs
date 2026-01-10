@@ -78,16 +78,16 @@ public class NnpIppClientConnection : NnpIppConnection
 		Writer.Write(NnpIppConnectionType.Client);
 	}
 
-	public virtual byte[] Transact(Net net, byte[] transaction, Endpoint node, Flow flow)
-	{
-		return Call(new Nnc<TransactNna, TransactNnr>(	new()
-														{
-															Format = PacketFormat.Binary,
-															Transaction = transaction,
-															Net	= net.Address,
-														}),
-														flow).Result;
-	}
+	//public virtual byte[] Transact(Net net, byte[] transaction, Endpoint node, Flow flow)
+	//{
+	//	return Call(new Nnc<TransactNna, TransactNnr>(	new()
+	//													{
+	//														Format = PacketFormat.Binary,
+	//														Transaction = transaction,
+	//														Net	= net.Address,
+	//													}),
+	//													flow).Result;
+	//}
 	
 	public virtual Result Request(Net net, PeerRequest request, Flow flow)
 	{

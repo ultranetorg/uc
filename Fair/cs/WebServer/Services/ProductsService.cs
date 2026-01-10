@@ -63,7 +63,7 @@ public class ProductsService
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 			FieldValue[] fields = GetFieldsLastVersion(product);
-			IEnumerable<ProductFieldValueModel> mappedFields = fields != null ? MapValues(fields, Product.Software) : null;
+			IEnumerable<ProductFieldValueModel> mappedFields = fields != null ? MapValues(Product.Software, fields) : null;
 			return new UnpublishedProductDetailsModel(product, account, fileId)
 			{
 				Versions = mappedFields
@@ -89,7 +89,7 @@ public class ProductsService
 			}
 
 			FieldValue[] fields = GetFieldsLastVersion(product);
-			return fields != null ? MapValues(fields, Product.Software) : [];
+			return fields != null ? MapValues(Product.Software, fields) : [];
 		}
 	}
 
@@ -176,39 +176,49 @@ public class ProductsService
 
 			var fieldsFrom = product.Versions.Single(x => x.Id == publication.ProductVersion).Fields;
 			var fieldsTo = product.Versions.Single(x => x.Id == version).Fields;
-			var mappedFrom = MapValues(fieldsFrom, Product.Software);
-			var mappedTo = MapValues(fieldsTo, Product.Software);
+			var mappedFrom = MapValues(Product.Software, fieldsFrom);
+			var mappedTo = MapValues(Product.Software, fieldsTo);
 
 			return new ProductFieldCompareModel {From = mappedFrom, To = mappedTo};
 		}
 	}
 
-	public static IEnumerable<ProductFieldValueModel> MapValues(FieldValue[] values, Field[] metaFields)
+	public static IEnumerable<ProductFieldValueModel> MapValues(Field[] declarationFields, FieldValue[] productFields)
 	{
-		return from value in values
-			let valueField = metaFields.FirstOrDefault(d => d.Name == value.Name)
-			select new ProductFieldValueModel
+		var result = new List<ProductFieldValueModel>();
+
+		foreach(FieldValue value in productFields)
+		{
+			var declarationField = declarationFields.FirstOrDefault(d => d.Name == value.Name);
+
+			var model = new ProductFieldValueModel
 			{
 				Name = value.Name,
-				Type = valueField?.Type,
-				Value = ConvertValue(valueField?.Type, value),
-				Children = value.Fields?.Length > 0
-					? MapValues(value.Fields, valueField?.Fields)
+				Type = declarationField?.Type,
+				Value = ConvertValue(declarationField?.Type, value),
+				Children = value.Fields != null && value.Fields.Length > 0
+					? MapValues(declarationField?.Fields ?? [], value.Fields)
 					: null
 			};
+
+			result.Add(model);
+		}
+
+		return result;
 	}
 
-	private static object ConvertValue(FieldType? type, FieldValue field)
+	private static object ConvertValue(FieldType? declarationType, FieldValue field)
 	{
 		if(field?.Value == null)
 			return null;
 
-		switch(type)
+		switch(declarationType)
 		{
 			case FieldType.Integer:
 				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 			case FieldType.Float:
 				return BinaryPrimitives.ReadDoubleLittleEndian(field.Value);
+
 			case FieldType.TextUtf8:
 			case FieldType.StringUtf8:
 			case FieldType.URI:
@@ -220,12 +230,16 @@ public class ProductsService
 			case FieldType.CPUArchitecture:
 			case FieldType.Hash:
 				return field.AsUtf8;
+
 			case FieldType.StringAnsi:
 				return Encoding.Default.GetString(field.Value);
+
 			case FieldType.Money:
 				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
+
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();
+
 			case FieldType.Date:
 				return BinaryPrimitives.ReadInt32LittleEndian(field.Value);
 		}

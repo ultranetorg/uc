@@ -35,8 +35,8 @@ public class Genesis : Operation
 
 		var a = execution.CreateUser(execution.Net.Father0Name, execution.Net.Father0Signer);
 
-		a.Energy		+= execution.Net.ECEmission;
-		a.Spacetime		+= execution.Net.BDDayEmission;
+		a.Energy		+= execution.Net.EnergyEmission;
+		a.Spacetime		+= execution.Net.SpacetimeDayEmission;
 
 		var	c = execution.AffectCandidate(a.Id);
 
