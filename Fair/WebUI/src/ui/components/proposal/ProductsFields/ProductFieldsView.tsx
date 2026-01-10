@@ -1,5 +1,4 @@
 import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
-import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { ProductFieldViewModel } from "types"
 import { ProductFieldsTree } from "./ProductFieldsTree"
@@ -7,10 +6,10 @@ import { SelectedProps } from "./types"
 
 export interface ProductFieldsViewProps extends SelectedProps {
   children?: ReactElement | null
-  response: UseQueryResult<ProductFieldViewModel[], Error>
+  items: ProductFieldViewModel[]
 }
 
-export const ProductFieldsView = memo(({ response, selected, onSelect, children }: ProductFieldsViewProps) => {
+export const ProductFieldsView = memo(({ items, selected, onSelect, children }: ProductFieldsViewProps) => {
   const { t } = useTranslation("productFields")
 
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -79,7 +78,7 @@ export const ProductFieldsView = memo(({ response, selected, onSelect, children 
       <div ref={containerRef} className="flex max-h-screen items-stretch">
         <div className="overflow-auto" style={leftStyle}>
           <div className="w-fit">
-            <ProductFieldsTree response={response} selected={selected} onSelect={onSelect} />
+            <ProductFieldsTree items={items} selected={selected} onSelect={onSelect} />
           </div>
         </div>
 

@@ -36,7 +36,10 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
   const { data: categories, isPending: isCategoriesPending } = useGetCategories(effectiveSiteId, 2)
 
-  const categoriesTree = useMemo(() => categories && buildCategoryTree(categories), [categories])
+  const categoriesTree = useMemo(
+    () => (Array.isArray(categories) ? buildCategoryTree(categories) : []),
+    [categories],
+  )
 
   const value = useMemo<SiteContextType>(() => {
     return {

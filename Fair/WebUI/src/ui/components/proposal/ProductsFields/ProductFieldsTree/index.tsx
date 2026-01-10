@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { UseQueryResult } from "@tanstack/react-query"
 
 import { ProductFieldViewModel } from "types"
 import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
@@ -8,22 +7,22 @@ import { SpinnerRowSvg, SvgChevronRightMd } from "assets"
 import { SelectedProps } from "../types"
 import { getCompareStatus } from "../utils"
 
-export interface ProductFieldsTreeProps<TModel extends ProductFieldViewModel> extends SelectedProps<TModel> {
-  response: UseQueryResult<TModel[], Error>
+export interface ProductFieldsTreeProps extends SelectedProps {
+  items: ProductFieldViewModel[]
 }
 
 const pretty = (v?: string) => (v ? v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "")
 
-const TreeNode = <TModel extends ProductFieldViewModel>({
+const TreeNode = ({
   node,
   onSelect,
   depth = 0,
   selected,
 }: {
-  node: TModel
-  onSelect: (node: TModel | null) => void
+  node: ProductFieldViewModel
+  onSelect: (node: ProductFieldViewModel | null) => void
   depth?: number
-  selected: TModel | null
+  selected: ProductFieldViewModel | null
 }) => {
   const hasChildren = !!node.children?.length
   const [closed, setClosed] = useState(depth < 1)
@@ -68,9 +67,9 @@ const TreeNode = <TModel extends ProductFieldViewModel>({
       {hasChildren && !closed && (
         <div className="ml-6 border-l">
           {node.children!.map((child, idx) => (
-            <TreeNode<TModel>
-              key={(child as ProductFieldViewModel).id ?? idx}
-              node={child as TModel}
+            <TreeNode
+              key={child.id ?? idx}
+              node={child}
               selected={selected}
               depth={depth + 1}
               onSelect={onSelect}
@@ -82,46 +81,27 @@ const TreeNode = <TModel extends ProductFieldViewModel>({
   )
 }
 
-const MemoTreeNode = memo(TreeNode) as typeof TreeNode
-
-const Loader = (locale: string) => (
-  <div className="flex items-center gap-2 text-slate-500">
-    <SpinnerRowSvg />
-    {locale}
-  </div>
-)
+const MemoTreeNode = memo(TreeNode)
 
 const NoData = (locale: string) => <div className="flex items-center gap-2 text-slate-500">{locale}</div>
-const Error = (locale: string) => <div className="text-red-700">{locale}</div>
 
-export const ProductFieldsTree = memo(
-  <TModel extends ProductFieldViewModel>({ response, onSelect, selected }: ProductFieldsTreeProps<TModel>) => {
-    const { t } = useTranslation("productFields")
-    const { error, data, isPending } = response
+export const ProductFieldsTree = memo(({ items, onSelect, selected }: ProductFieldsTreeProps) => {
+  const { t } = useTranslation("productFields")
 
-    if (isPending) {
-      return Loader(t("loading"))
-    }
+  if (!items?.length) {
+    return NoData(t("noData"))
+  }
 
-    if (error) {
-      return Error(t("loadError"))
-    }
-
-    if (!data?.length) {
-      return NoData(t("noData"))
-    }
-
-    return (
-      <>
-        {data.map((node, index) => (
-          <MemoTreeNode<TModel>
-            key={(node as ProductFieldViewModel).id ?? index}
-            node={node as TModel}
-            selected={selected ?? null}
-            onSelect={onSelect}
-          />
-        ))}
-      </>
-    )
-  },
-)
+  return (
+    <>
+      {items.map((node, index) => (
+        <MemoTreeNode
+          key={node.id ?? index}
+          node={node}
+          selected={selected ?? null}
+          onSelect={onSelect}
+        />
+      ))}
+    </>
+  )
+})

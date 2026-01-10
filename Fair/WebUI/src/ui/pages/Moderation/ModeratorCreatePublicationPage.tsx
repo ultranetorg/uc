@@ -5,10 +5,9 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
-import { useHeadUnpublishedProduct } from "entities"
+import { useGetUnpublishedSiteProduct } from "entities"
 import { Input, MessageBox } from "ui/components"
-import { ModeratorPublicationHeader } from "ui/components/specific"
-import { ProductFields } from "ui/components/proposal"
+import { ModeratorPublicationHeader, ProductFieldsViewer } from "ui/components/specific"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
@@ -16,7 +15,7 @@ export const ModeratorCreatePublicationPage = () => {
 
   const [query, setQuery] = useState("")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
-  const { data: productExists } = useHeadUnpublishedProduct(debouncedQuery)
+  const { data: product } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
 
   const handleInputClear = useCallback(() => {
     setQuery("")
@@ -34,9 +33,9 @@ export const ModeratorCreatePublicationPage = () => {
         parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
         title={t("searchProduct")}
         showLogo={false}
-        onApprove={productExists ? handleApprove : undefined}
-        onPreview={productExists ? handlePreview : undefined}
-        onReject={productExists ? handleReject : undefined}
+        onApprove={product ? handleApprove : undefined}
+        onPreview={product ? handlePreview : undefined}
+        onReject={product ? handleReject : undefined}
         homeLabel={t("common:home")}
       />
       <div className="max-w-120">
@@ -58,8 +57,8 @@ export const ModeratorCreatePublicationPage = () => {
         />
       </div>
 
-      {debouncedQuery && !productExists && <MessageBox className="p-6" message={t("productNotFound")} />}
-      {productExists && <ProductFields productIds={[debouncedQuery!]} />}
+      {debouncedQuery && !product && <MessageBox className="p-6" message={t("productNotFound")} />}
+      {product && <ProductFieldsViewer productFields={product.versions} />}
     </div>
   )
 }

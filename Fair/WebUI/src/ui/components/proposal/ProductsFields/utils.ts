@@ -1,5 +1,3 @@
-import { UseQueryResult } from "@tanstack/react-query"
-
 import { ProductFieldCompare, ProductFieldModel, ProductFieldViewModel } from "types"
 
 import { CompareStatus, ProductFieldCompareViewModel } from "./types"
@@ -109,19 +107,6 @@ function mergeArrays(
   return result
 }
 
-export function mergeFields(
-  response: UseQueryResult<ProductFieldCompare, Error>,
-): UseQueryResult<ProductFieldCompareViewModel[], Error> {
-  const { data } = response
-
-  if (!data) {
-    return response as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
-  }
-
-  const merged = mergeArrays(mapItems(data.from), mapItems(data.to))
-  return { ...response, data: merged } as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
-}
-
 function mapItems(
   items: ProductFieldModel[],
   parent: ProductFieldViewModel | undefined = undefined,
@@ -136,18 +121,20 @@ function mapItems(
   })
 }
 
-export function mapFields(
-  response: UseQueryResult<ProductFieldModel[], Error>,
-): UseQueryResult<ProductFieldViewModel[], Error> {
-  const { data } = response
-
-  if (!data) {
-    return response as unknown as UseQueryResult<ProductFieldViewModel[], Error>
+export function mergeFields(compare?: ProductFieldCompare | null): ProductFieldCompareViewModel[] {
+  if (!compare) {
+    return []
   }
 
-  const transformed: ProductFieldViewModel[] = mapItems(data)
+  return mergeArrays(mapItems(compare.from), mapItems(compare.to))
+}
 
-  return { ...response, data: transformed } as unknown as UseQueryResult<ProductFieldViewModel[], Error>
+export function mapFields(items?: ProductFieldModel[] | null): ProductFieldViewModel[] {
+  if (!items?.length) {
+    return []
+  }
+
+  return mapItems(items)
 }
 
 export const isCompareNode = (
