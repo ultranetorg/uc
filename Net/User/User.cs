@@ -39,20 +39,18 @@ public interface IEnergyHolder : IHolder
 	
 	long		Bandwidth { get; set; }
 	short		BandwidthExpiration { get; set; }
-	long		BandwidthToday { get; set; }
 	short		BandwidthTodayTime { get; set; }
-	long		BandwidthTodayAvailable { get; set; }
+	long		BandwidthTodayBalance { get; set; }
 
 	public void Clone(IEnergyHolder a)
 	{ 
-		a.Energy				  = Energy;
-		a.EnergyThisPeriod        = EnergyThisPeriod;
-		a.EnergyNext              = EnergyNext;
-		a.Bandwidth               = Bandwidth;
-		a.BandwidthExpiration     = BandwidthExpiration;
-		a.BandwidthToday          = BandwidthToday;
-		a.BandwidthTodayTime      = BandwidthTodayTime;
-		a.BandwidthTodayAvailable = BandwidthTodayAvailable;
+		a.Energy				 = Energy;
+		a.EnergyThisPeriod       = EnergyThisPeriod;
+		a.EnergyNext             = EnergyNext;
+		a.Bandwidth              = Bandwidth;
+		a.BandwidthExpiration    = BandwidthExpiration;
+		a.BandwidthTodayTime     = BandwidthTodayTime;
+		a.BandwidthTodayBalance		= BandwidthTodayBalance;
 	}
 
 	public void WriteEnergyHolder(BinaryWriter writer)
@@ -60,15 +58,11 @@ public interface IEnergyHolder : IHolder
 		writer.Write7BitEncodedInt64(Energy);
 		writer.Write(EnergyThisPeriod);
 		writer.Write7BitEncodedInt64(EnergyNext);
+	
 		writer.Write7BitEncodedInt64(Bandwidth);
-		
-		if(Bandwidth > 0)
-		{
-			writer.Write(BandwidthExpiration);
-			writer.Write7BitEncodedInt64(BandwidthToday);
-			writer.Write(BandwidthTodayTime);
-			writer.Write7BitEncodedInt64(BandwidthTodayAvailable);
-		}
+		writer.Write(BandwidthExpiration);
+		writer.Write(BandwidthTodayTime);
+		writer.Write7BitEncodedInt64(BandwidthTodayBalance);
 	}
 
 	public void ReadEnergyHolder(BinaryReader reader)
@@ -76,15 +70,11 @@ public interface IEnergyHolder : IHolder
 		Energy	 			= reader.Read7BitEncodedInt64();
 		EnergyThisPeriod 	= reader.ReadByte();
 		EnergyNext	 		= reader.Read7BitEncodedInt64();
-		Bandwidth			= reader.Read7BitEncodedInt64();
 
-		if(Bandwidth > 0)
-		{
-			BandwidthExpiration		= reader.ReadInt16();
-			BandwidthToday			= reader.Read7BitEncodedInt64();
-			BandwidthTodayTime		= reader.ReadInt16();
-			BandwidthTodayAvailable	= reader.Read7BitEncodedInt64();
-		}
+		Bandwidth			= reader.Read7BitEncodedInt64();
+		BandwidthExpiration	= reader.ReadInt16();
+		BandwidthTodayTime	= reader.ReadInt16();
+		BandwidthTodayBalance	= reader.Read7BitEncodedInt64();
 	}
 }
 
@@ -106,7 +96,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public short			BandwidthExpiration { get; set; } = -1;
 	public long				BandwidthToday { get; set; }
 	public short			BandwidthTodayTime { get; set; }
-	public long				BandwidthTodayAvailable { get; set; }
+	public long				BandwidthTodayBalance { get; set; }
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }

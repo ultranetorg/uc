@@ -33,9 +33,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public long						EnergyNext { get; set; }
 	public long						Bandwidth { get; set; }
 	public short					BandwidthExpiration { get; set; } = -1;
-	public long						BandwidthToday { get; set; }
 	public short					BandwidthTodayTime { get; set; }
-	public long						BandwidthTodayAvailable { get; set; }
+	public long						BandwidthTodayBalance { get; set; }
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }

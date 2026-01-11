@@ -14,7 +14,7 @@ public abstract class Round : IBinarySerializable
 	public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
 	public long											PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundAbsoluteLimit / Members.Count;
 	public long											PerVoteOperationsLimit			=> Mcv.Net.ExecutionCyclesPerRoundMaximum / Members.Count;
-	public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
+	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
 
@@ -323,7 +323,7 @@ public abstract class Round : IBinarySerializable
 			t.EnergyConsumed	= 0;
 			e.EnergySpenders	= [];
 			e.SpacetimeSpenders	= [];
-			e.ECEnergyCost		= ConsensusECEnergyCost;
+			e.EnergyCost		= ConsensusECEnergyCost;
 
 			var u = e.AffectSigner();
 
@@ -361,11 +361,11 @@ public abstract class Round : IBinarySerializable
 						break;
 					}
 
-					if(i.BandwidthTodayAvailable < 0)
-					{
-						o.Error = Operation.NotEnoughBandwidth;
-						break;
-					}
+					//if(i.BandwidthTodayBalance < 0)
+					//{
+					//	o.Error = Operation.NotEnoughBandwidth;
+					//	break;
+					//}
 				}
 
 				foreach(var i in e.SpacetimeSpenders)

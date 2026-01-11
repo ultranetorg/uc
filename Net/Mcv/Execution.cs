@@ -23,7 +23,7 @@ public class Execution : ITableExecution
 	//public IEnergyHolder						EnergyFeePayer;
 	public HashSet<IEnergyHolder>				EnergySpenders;
 	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
-	public long									ECEnergyCost;
+	public long									EnergyCost;
 
 	public Execution							Parent;
 
@@ -138,24 +138,22 @@ public class Execution : ITableExecution
 
 	public void PayCycleEnergy(IEnergyHolder spender)
 	{
-		if(spender.BandwidthExpiration >= Time.Days)
-		{
-			if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
-			{	
-				spender.BandwidthTodayTime		= Time.Days;
-				spender.BandwidthTodayAvailable	= spender.Bandwidth;
-			}
-
-			spender.BandwidthTodayAvailable -= ECEnergyCost;
-		}
-		else
-		{
-			spender.Energy -= ECEnergyCost;
-
-			Transaction.EnergyConsumed += ECEnergyCost;
+		if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
+		{	
+			spender.BandwidthTodayTime		= Time.Days;
+			spender.BandwidthTodayBalance	= spender.Bandwidth;
 		}
 
-		EnergySpenders.Add(spender);
+		var d = spender.BandwidthTodayBalance - EnergyCost;
+
+		if(d < 0)
+		{
+			d = -d;
+			spender.Energy -= Math.Min(d, EnergyCost);
+			EnergySpenders.Add(spender);
+		}
+		
+		Transaction.EnergyConsumed += EnergyCost;
 	}
 
 	public void AllocateForever(ISpacetimeHolder payer, int length)
