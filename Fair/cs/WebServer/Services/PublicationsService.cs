@@ -33,7 +33,14 @@ public class PublicationsService
 			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 			byte[]? authorAvatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
 
-			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar);
+			var fields = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion)?.Fields;
+			Field[] declaration = Product.FindDeclaration(product.Type);
+			var mappedFields = fields != null ? ProductsService.MapValues(declaration, fields) : [];
+
+			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar)
+			{
+				ProductFields = mappedFields
+			};
 		}
 	}
 
@@ -352,8 +359,10 @@ public class PublicationsService
 
 			var fieldsFrom = product.Versions.Single(x => x.Id == publication.ProductVersion).Fields;
 			var fieldsTo = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
-			var mappedFrom = ProductsService.MapValues(fieldsFrom, Product.Software);
-			var mappedTo = ProductsService.MapValues(fieldsTo, Product.Software);
+
+			Field[] declaration = Product.FindDeclaration(product.Type);
+			var mappedFrom = ProductsService.MapValues(declaration, fieldsFrom);
+			var mappedTo = ProductsService.MapValues(declaration, fieldsTo);
 
 			return new ChangedPublicationDetailsModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId)
 			{

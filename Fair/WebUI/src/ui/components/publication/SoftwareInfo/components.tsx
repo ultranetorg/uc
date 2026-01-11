@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TEST_PUBLISHER_SRC } from "testConfig"
@@ -8,10 +9,10 @@ export type AuthorImageTitleProps = {
   authorAvatar?: string
 }
 
-export const AuthorImageTitle = ({ title, authorAvatar }: AuthorImageTitleProps) => (
+export const AuthorImageTitle = memo(({ title, authorAvatar }: AuthorImageTitleProps) => (
   <div className="flex items-center gap-2">
-    <div className="h-8 w-8 overflow-hidden rounded-full">
-      <img src={buildSrc(authorAvatar, TEST_PUBLISHER_SRC)} className="h-full w-full object-cover" />
+    <div className="size-8 overflow-hidden rounded-full">
+      <img src={buildSrc(authorAvatar, TEST_PUBLISHER_SRC)} className="size-full object-cover" />
     </div>
     <span
       className={twMerge(
@@ -21,4 +22,4 @@ export const AuthorImageTitle = ({ title, authorAvatar }: AuthorImageTitleProps)
       {title}
     </span>
   </div>
-)
+))

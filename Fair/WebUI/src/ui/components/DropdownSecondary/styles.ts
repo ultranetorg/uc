@@ -6,7 +6,7 @@ export const dropdownSecondaryStyle: StylesConfig<DropdownItem, boolean> = {
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),
-    fontSize: "0.8125rem",
+    fontSize: "0.9375rem", // 15px
     fontWeight: "500",
     lineHeight: "1rem",
   }),

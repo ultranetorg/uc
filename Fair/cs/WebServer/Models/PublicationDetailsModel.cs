@@ -5,6 +5,8 @@ public class PublicationDetailsModel(Publication publication, Product product, A
 {
 	public ProductType ProductType { get; } = product.Type;
 
+	public IEnumerable<ProductFieldValueModel> ProductFields { get; set; }
+
 	public byte[] AuthorAvatar { get; set; } = authorAvatar;
 
 	public int Rating { get; set; } = publication.Rating;
