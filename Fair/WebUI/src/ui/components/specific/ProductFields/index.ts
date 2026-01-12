@@ -1,2 +1,2 @@
-export * from "./ProductFieldsViewer"
-export * from "./ProductFieldsDiffViewer"
+export * from "./ProductFieldsTree"
+export * from "./ProductFieldsDiff"

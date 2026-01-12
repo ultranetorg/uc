@@ -6,7 +6,7 @@ import { HomeSvg } from "assets/home"
 import { kebabToCamel } from "utils"
 
 import { ProductFieldView } from "./ProductFieldView"
-import { ProductFieldViewModel, SelectedProps } from "./models"
+import { ProductFieldViewModel, SelectedProps } from "./types"
 import { getCompareStatus } from "./utils"
 
 export interface ProductFieldInfoProps extends SelectedProps {
@@ -25,7 +25,7 @@ const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
         </>
       )}
       <span
-        className="cursor-pointer rounded-sm px-1 py-1 text-gray-600 hover:text-gray-900"
+        className="cursor-pointer rounded-sm p-1 text-gray-600 hover:text-gray-900"
         key={node.name}
         onClick={() => onSelect(node)}
       >
@@ -39,7 +39,7 @@ const FieldBreadcrumbs = ({ node, onSelect }: ProductFieldInfoProps) => {
   return (
     <div className="flex items-center border-b bg-gray-200 px-4 py-1 text-sm">
       <HomeSvg
-        className="h-4 w-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900"
+        className="size-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900"
         onClick={() => onSelect(undefined)}
       />
       <SvgChevronRight className="stroke-gray-400" />

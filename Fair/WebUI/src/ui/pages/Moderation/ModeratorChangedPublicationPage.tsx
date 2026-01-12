@@ -36,7 +36,7 @@ export const ModeratorChangedPublicationPage = () => {
         homeLabel={t("common:home")}
       />
       {/* TODO: ProductCompareFields component should be modified and receive product.versions property instead of productIds to avoid second request to back-end. */}
-      <ProductFieldsDiff productFieldsFrom={publication.from} productFieldsTo={publication.to} />
+      <ProductFieldsDiff from={publication.from} to={publication.to} />
     </div>
   )
 }

@@ -11,7 +11,7 @@ const CompareFieldsForPublication = ({ id, version }: { id: string; version: num
 
   if (isFetching || !data) return <div>LOADING</div>
 
-  return <ProductFieldsDiff productFieldsFrom={data.from} productFieldsTo={data.to} />
+  return <ProductFieldsDiff from={data.from} to={data.to} />
 }
 
 export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {

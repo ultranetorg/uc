@@ -2,8 +2,8 @@ import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "re
 import { useTranslation } from "react-i18next"
 
 import { ProductFieldsTreeInternal } from "./ProductFieldsTreeInternal"
-import { SelectedProps, ProductFieldViewModel } from "./models"
 import { SplitPaneResizer } from "./SplitPaneResizer"
+import { SelectedProps, ProductFieldViewModel } from "./types"
 
 export interface ProductFieldsProps extends SelectedProps {
   children?: ReactElement | null

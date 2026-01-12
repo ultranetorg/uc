@@ -1,6 +1,6 @@
-import { ProductFieldCompare, ProductFieldModel } from "types"
+import { ProductFieldDiff, ProductField } from "types"
 
-import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./models"
+import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./types"
 
 function groupByName(list?: ProductFieldViewModel[]) {
   const map = new Map<string, ProductFieldViewModel[]>()
@@ -16,7 +16,7 @@ function groupByName(list?: ProductFieldViewModel[]) {
 function getGenerator() {
   let index = 0
   return (
-    field: ProductFieldModel,
+    field: ProductField,
     ext: Partial<ProductFieldCompareViewModel>,
     parent?: ProductFieldCompareViewModel,
   ): ProductFieldCompareViewModel => ({
@@ -113,7 +113,7 @@ function mergeArrays(
 }
 
 function mapItems(
-  items: ProductFieldModel[],
+  items: ProductField[],
   parent: ProductFieldViewModel | undefined = undefined,
   idCounter: number = 0,
 ): ProductFieldViewModel[] {
@@ -126,7 +126,7 @@ function mapItems(
   })
 }
 
-export function mergeFields(compare?: ProductFieldCompare | null): ProductFieldCompareViewModel[] {
+export function mergeFields(compare?: ProductFieldDiff | null): ProductFieldCompareViewModel[] {
   if (!compare) {
     return []
   }
@@ -134,7 +134,7 @@ export function mergeFields(compare?: ProductFieldCompare | null): ProductFieldC
   return mergeArrays(mapItems(compare.from), mapItems(compare.to))
 }
 
-export function mapFields(items?: ProductFieldModel[] | null): ProductFieldViewModel[] {
+export function mapFields(items?: ProductField[] | null): ProductFieldViewModel[] {
   if (!items?.length) {
     return []
   }

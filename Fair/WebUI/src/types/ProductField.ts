@@ -1,16 +1,9 @@
 import { FieldType } from "./FieldType.ts"
 import { TokenType } from "./TokenType.ts"
 
-export interface ProductFieldBase<TModel> {
+export type ProductField = {
   name: TokenType
   type?: FieldType
   value: unknown
-  children?: TModel[]
-}
-
-export type ProductFieldModel = ProductFieldBase<ProductFieldModel>
-
-export interface ProductFieldCompare {
-  from: ProductFieldModel[]
-  to: ProductFieldModel[]
+  children?: ProductField[]
 }

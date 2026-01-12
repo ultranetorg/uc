@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { SvgChevronRightMd } from "assets"
 
-import { ProductFieldViewModel, SelectedProps } from "./models"
+import { ProductFieldViewModel, SelectedProps } from "./types"
 import { getCompareStatus } from "./utils"
 
 export interface ProductFieldsTreeInternalProps extends SelectedProps {

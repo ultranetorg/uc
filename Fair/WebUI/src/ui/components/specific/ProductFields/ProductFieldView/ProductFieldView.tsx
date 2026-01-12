@@ -1,7 +1,8 @@
 import { JSX } from "react"
 
-import { ProductFieldViewModel, ProductFieldCompareViewModel } from "../models"
+import { ProductFieldViewModel, ProductFieldCompareViewModel } from "../types"
 import { getCompareStatus } from "../utils"
+
 import { ProductFieldViewString } from "./ProductFieldViewString"
 import { ProductFieldViewUri } from "./ProductFieldViewUri"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt"

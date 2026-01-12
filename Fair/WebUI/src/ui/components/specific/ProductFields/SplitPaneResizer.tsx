@@ -6,7 +6,7 @@ interface SplitPaneResizerProps {
   onLeftWidthChange: (width: number) => void
 }
 
-export const SplitPaneResizer = memo(({ containerRef, leftWidth, onLeftWidthChange }: SplitPaneResizerProps) => {
+export const SplitPaneResizer = memo(({ containerRef, onLeftWidthChange }: SplitPaneResizerProps) => {
   const draggingRef = useRef(false)
 
   const onMouseDown = () => {
