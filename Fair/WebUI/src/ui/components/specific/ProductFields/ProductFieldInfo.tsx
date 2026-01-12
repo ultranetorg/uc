@@ -5,7 +5,7 @@ import { SvgChevronRight } from "assets"
 import { HomeSvg } from "assets/home"
 import { kebabToCamel } from "utils"
 
-import { ProductFieldView } from "./ProductFieldView"
+import { FieldData } from "./FieldData"
 import { ProductFieldViewModel, SelectedProps } from "./types"
 import { getCompareStatus } from "./utils"
 
@@ -90,7 +90,7 @@ export const ProductFieldInfo = memo(({ node, onSelect }: ProductFieldInfoProps)
   return (
     <div className="h-full overflow-hidden rounded-md border">
       <FieldBreadcrumbs node={node} onSelect={onSelect} />
-      {node.children?.length ? <FieldsList node={node} onSelect={onSelect} /> : <ProductFieldView node={node} />}
+      {node.children?.length ? <FieldsList node={node} onSelect={onSelect} /> : <FieldData node={node} />}
     </div>
   )
 })

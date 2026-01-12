@@ -1,7 +1,7 @@
-import { memo, useEffect, useRef } from "react"
+import { memo, RefObject, useEffect, useRef } from "react"
 
-interface SplitPaneResizerProps {
-  containerRef: React.RefObject<HTMLDivElement>
+export type SplitPaneResizerProps = {
+  containerRef: RefObject<HTMLDivElement>
   leftWidth: number | undefined
   onLeftWidthChange: (width: number) => void
 }
@@ -36,6 +36,7 @@ export const SplitPaneResizer = memo(({ containerRef, onLeftWidthChange }: Split
 
     window.addEventListener("mousemove", handleMove)
     window.addEventListener("mouseup", handleUp)
+
     return () => {
       window.removeEventListener("mousemove", handleMove)
       window.removeEventListener("mouseup", handleUp)

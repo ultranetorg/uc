@@ -2,7 +2,7 @@ import { ProductFieldDiff, ProductField } from "types"
 
 import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./types"
 
-function groupByName(list?: ProductFieldViewModel[]) {
+const groupByName = (list?: ProductFieldViewModel[]) => {
   const map = new Map<string, ProductFieldViewModel[]>()
   ;(list ?? []).forEach(item => {
     const key = item.name
@@ -13,7 +13,7 @@ function groupByName(list?: ProductFieldViewModel[]) {
   return map
 }
 
-function getGenerator() {
+const getGenerator = () => {
   let index = 0
   return (
     field: ProductField,
@@ -28,12 +28,12 @@ function getGenerator() {
   })
 }
 
-function mergeArrays(
+const mergeArrays = (
   fromList?: ProductFieldViewModel[],
   toList?: ProductFieldViewModel[],
   parent?: ProductFieldCompareViewModel,
   generate = getGenerator(),
-): ProductFieldCompareViewModel[] {
+): ProductFieldCompareViewModel[] => {
   const fromGroups = groupByName(fromList)
   const toGroups = groupByName(toList)
 
@@ -112,11 +112,11 @@ function mergeArrays(
   return result
 }
 
-function mapItems(
+const mapItems = (
   items: ProductField[],
   parent: ProductFieldViewModel | undefined = undefined,
   idCounter: number = 0,
-): ProductFieldViewModel[] {
+): ProductFieldViewModel[] => {
   return items.map(item => {
     const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: `${item.name}_${++idCounter}` }
     if (item.children && item.children.length > 0) {
@@ -126,29 +126,16 @@ function mapItems(
   })
 }
 
-export function mergeFields(compare?: ProductFieldDiff | null): ProductFieldCompareViewModel[] {
-  if (!compare) {
-    return []
-  }
-
-  return mergeArrays(mapItems(compare.from), mapItems(compare.to))
-}
-
-export function mapFields(items?: ProductField[] | null): ProductFieldViewModel[] {
-  if (!items?.length) {
-    return []
-  }
-
-  return mapItems(items)
-}
-
-export const isCompareNode = (
-  n?: ProductFieldViewModel | ProductFieldCompareViewModel | null,
-): n is ProductFieldCompareViewModel => {
+const isCompareNode = (n?: ProductFieldViewModel | ProductFieldCompareViewModel): n is ProductFieldCompareViewModel => {
   return !!n && ("isRemoved" in n || "isAdded" in n || "isChanged" in n)
 }
 
-export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel | null): CompareStatus => {
+export const mergeFields = (compare: ProductFieldDiff): ProductFieldCompareViewModel[] =>
+  mergeArrays(mapItems(compare.from), mapItems(compare.to))
+
+export const mapFields = (items: ProductField[]): ProductFieldViewModel[] => mapItems(items)
+
+export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel): CompareStatus => {
   if (!node) return undefined
   if (!isCompareNode(node)) return undefined
   // precedence: removed > added > changed

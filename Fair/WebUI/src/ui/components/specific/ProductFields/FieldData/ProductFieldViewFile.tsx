@@ -4,7 +4,7 @@ import { ProductFieldViewProp } from "./types"
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 function Img({ src, alt, className = "" }: { src?: string; alt?: string; className?: string }) {
-  return <img alt={alt ?? "image"} className={`h-full w-full object-cover ${className}`} src={src} />
+  return <img alt={alt ?? "image"} className={`size-full object-cover ${className}`} src={src} />
 }
 
 function PreviewBox({ children, label }: { children: React.ReactNode; label?: string }) {
@@ -24,8 +24,8 @@ export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFi
     case "added":
       return (
         <PreviewBox label="Added">
-          <div className="h-full w-full p-0.5">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-green-500">
+          <div className="size-full p-0.5">
+            <div className="size-full overflow-hidden rounded-md border-2 border-green-500">
               <Img src={newSrc} alt="added image" />
             </div>
           </div>
@@ -34,8 +34,8 @@ export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFi
     case "removed":
       return (
         <PreviewBox label="Removed">
-          <div className="relative h-full w-full">
-            <div className="h-full w-full overflow-hidden rounded-md border-2 border-red-500">
+          <div className="relative size-full">
+            <div className="size-full overflow-hidden rounded-md border-2 border-red-500">
               <Img src={oldSrc} alt="removed image" className="opacity-60" />
             </div>
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -48,16 +48,16 @@ export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFi
       return (
         <div className="flex items-start gap-3">
           <PreviewBox label="Old">
-            <div className="relative h-full w-full">
-              <div className="h-full w-full overflow-hidden rounded-md border-2 border-red-500">
+            <div className="relative size-full">
+              <div className="size-full overflow-hidden rounded-md border-2 border-red-500">
                 <Img src={oldSrc} alt="old image" className="opacity-70" />
               </div>
             </div>
           </PreviewBox>
 
           <PreviewBox label="New">
-            <div className="h-full w-full">
-              <div className="h-full w-full overflow-hidden rounded-md border-2 border-green-500">
+            <div className="size-full">
+              <div className="size-full overflow-hidden rounded-md border-2 border-green-500">
                 <Img src={newSrc} alt="new image" />
               </div>
             </div>
@@ -66,8 +66,8 @@ export const ProductFieldViewFile = memo(({ value, oldValue, status }: ProductFi
       )
     default:
       return (
-        <div className="h-full w-full">
-          <div className="h-full w-full overflow-hidden rounded-md">
+        <div className="size-full">
+          <div className="size-full overflow-hidden rounded-md">
             <Img src={newSrc} alt="image" />
           </div>
         </div>

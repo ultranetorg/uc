@@ -2,6 +2,7 @@ import { memo } from "react"
 
 import { VideoViewPlain, VideoViewVk, VideoViewYouTube } from "ui/components/VideoView"
 import { getVideoType } from "utils"
+
 import { ProductFieldViewProp } from "./types"
 
 function getComponent(rawUrl: unknown | null | undefined): React.ReactNode {

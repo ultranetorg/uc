@@ -1,7 +1,7 @@
 import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ProductFieldsTreeInternal } from "./ProductFieldsTreeInternal"
+import { FieldsTree } from "./FieldsTree"
 import { SplitPaneResizer } from "./SplitPaneResizer"
 import { SelectedProps, ProductFieldViewModel } from "./types"
 
@@ -14,7 +14,7 @@ export const ProductFields = memo(({ items, selected, onSelect, children }: Prod
   const { t } = useTranslation("productFields")
 
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [leftWidth, setLeftWidth] = useState<number | undefined>(undefined)
+  const [leftWidth, setLeftWidth] = useState<number | undefined>()
 
   // Initialize left width to 35% of container on mount
   useEffect(() => {
@@ -34,7 +34,7 @@ export const ProductFields = memo(({ items, selected, onSelect, children }: Prod
       <div ref={containerRef} className="flex max-h-screen items-stretch">
         <div className="overflow-auto" style={leftWidth ? { width: leftWidth } : { width: "20%" }}>
           <div className="w-fit">
-            <ProductFieldsTreeInternal items={items} selected={selected} onSelect={onSelect} />
+            <FieldsTree items={items} selected={selected} onSelect={onSelect} />
           </div>
         </div>
 

@@ -10,7 +10,7 @@ import { ProductFieldViewDate } from "./ProductFieldViewDate"
 import { ProductFieldViewFile } from "./ProductFieldViewFile"
 import { ProductFieldViewVideo } from "./ProductFieldViewVideo"
 
-export const ProductFieldView = ({ node }: { node: ProductFieldViewModel }) => {
+export const FieldData = ({ node }: { node: ProductFieldViewModel }) => {
   let component: JSX.Element
 
   const compareStatus = getCompareStatus(node)

@@ -1,6 +1,8 @@
 import { memo } from "react"
-import { ProductFieldViewProp } from "./types"
+
 import { formatSecDate } from "utils"
+
+import { ProductFieldViewProp } from "./types"
 
 function getAdded(value: unknown) {
   return <div className="text-green-700">{formatSecDate(Number(value))}</div>

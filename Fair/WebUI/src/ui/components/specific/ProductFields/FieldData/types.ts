@@ -1,4 +1,4 @@
-import { CompareStatus } from "../models"
+import { CompareStatus } from "../types"
 
 export interface ProductFieldViewProp {
   value: unknown
