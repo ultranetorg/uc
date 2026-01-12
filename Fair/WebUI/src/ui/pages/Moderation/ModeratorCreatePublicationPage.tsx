@@ -7,7 +7,7 @@ import { SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
 import { Input, MessageBox } from "ui/components"
-import { ModeratorPublicationHeader, ProductFieldsViewer } from "ui/components/specific"
+import { ModeratorPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
@@ -58,7 +58,7 @@ export const ModeratorCreatePublicationPage = () => {
       </div>
 
       {debouncedQuery && !product && <MessageBox className="p-6" message={t("productNotFound")} />}
-      {product && <ProductFieldsViewer productFields={product.versions} />}
+      {product && <ProductFieldsTree productFields={product.versions} />}
     </div>
   )
 }

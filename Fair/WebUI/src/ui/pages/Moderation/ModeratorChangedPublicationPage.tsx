@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { useGetChangedPublication } from "entities"
-import { ModeratorPublicationHeader, ProductFieldsDiffViewer } from "ui/components/specific"
+import { ModeratorPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 
 export const ModeratorChangedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
@@ -36,7 +36,7 @@ export const ModeratorChangedPublicationPage = () => {
         homeLabel={t("common:home")}
       />
       {/* TODO: ProductCompareFields component should be modified and receive product.versions property instead of productIds to avoid second request to back-end. */}
-      <ProductFieldsDiffViewer productFieldsFrom={publication.from} productFieldsTo={publication.to} />
+      <ProductFieldsDiff productFieldsFrom={publication.from} productFieldsTo={publication.to} />
     </div>
   )
 }

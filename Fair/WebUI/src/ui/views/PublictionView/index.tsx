@@ -1,6 +1,6 @@
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { ProductFieldViewModel } from "types"
+import { ProductFieldModel } from "types"
 import { SpinnerRowSvg } from "assets"
 import { usePublicationOwner } from "ui/views/Proposal/providers/publicationOwner"
 import { PublicationViewHeader } from "./components/PublicationViewHeader"
@@ -11,7 +11,7 @@ import PublicationViewArts, { MediaItem } from "./components/PublicationViewArts
 import { PublicationViewRelease } from "./components/PublicationViewRelease"
 
 export interface PublicationViewProps {
-  response: UseQueryResult<ProductFieldViewModel[], Error>
+  response: UseQueryResult<ProductFieldModel[], Error>
 }
 
 const Loader = (locale: string) => (

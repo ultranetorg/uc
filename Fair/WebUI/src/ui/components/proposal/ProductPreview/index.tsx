@@ -1,11 +1,11 @@
 import { memo } from "react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { ProductFieldViewModel } from "types"
+import { ProductFieldModel } from "types"
 import { PublicationView } from "ui/views/PublictionView"
 import { Modal } from "ui/components/Modal"
 
 interface ProductPreviewProps {
-  response: UseQueryResult<ProductFieldViewModel[], Error>
+  response: UseQueryResult<ProductFieldModel[], Error>
   onClose: () => void
 }
 

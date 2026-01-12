@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
 
 import { useGetProductCompareFields } from "entities"
-import { ProductFieldsDiffViewer } from "ui/components/specific"
+import { ProductFieldsDiff } from "ui/components/specific"
 import { PublicationUpdation } from "types"
 
 import { ProposalTypeViewProps } from "./types"
@@ -11,7 +11,7 @@ const CompareFieldsForPublication = ({ id, version }: { id: string; version: num
 
   if (isFetching || !data) return <div>LOADING</div>
 
-  return <ProductFieldsDiffViewer productFieldsFrom={data.from} productFieldsTo={data.to} />
+  return <ProductFieldsDiff productFieldsFrom={data.from} productFieldsTo={data.to} />
 }
 
 export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {

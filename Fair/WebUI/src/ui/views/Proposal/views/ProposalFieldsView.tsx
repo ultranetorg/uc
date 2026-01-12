@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
 
 import { useGetProductFields } from "entities"
-import { ProductFieldsViewer } from "ui/components/specific"
+import { ProductFieldsTree } from "ui/components/specific"
 
 import { PublicationCreation } from "types"
 import { ProposalTypeViewProps } from "./types"
@@ -11,7 +11,7 @@ const ProductFieldsForProduct = ({ productId }: { productId: string }) => {
 
   if (isFetching || !data) return <div>LOADING</div>
 
-  return <ProductFieldsViewer productFields={data} />
+  return <ProductFieldsTree productFields={data} />
 }
 
 export const ProposalFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {

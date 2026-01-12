@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useGetUnpublishedSiteProduct } from "entities"
-import { ModeratorPublicationHeader, ProductFieldsViewer } from "ui/components/specific"
+import { ModeratorPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 
 export const ModeratorUnpublishedProductPage = () => {
   const { siteId, productId } = useParams()
@@ -30,7 +30,7 @@ export const ModeratorUnpublishedProductPage = () => {
         homeLabel={t("common:home")}
       />
       {/* TODO: ProductFields component should be modified and receive product.versions property instead of productIds to avoid second request to back-end. */}
-      <ProductFieldsViewer productFields={product.versions} />
+      <ProductFieldsTree productFields={product.versions} />
     </div>
   )
 }

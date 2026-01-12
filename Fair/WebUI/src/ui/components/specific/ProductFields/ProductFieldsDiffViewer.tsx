@@ -1,21 +1,19 @@
-import { useMemo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 
-import { ProductFieldModel, ProductFieldViewModel } from "types"
+import { ProductFieldModel } from "types"
 
-import { ProductFieldsView } from "../../proposal/ProductsFields/ProductFieldsView"
-import { ProductFieldInfo } from "../../proposal/ProductsFields/ProductFieldsTree/ProductFieldInfo"
-import { mergeFields } from "../../proposal/ProductsFields/utils"
+import { ProductFields } from "./ProductFields"
+import { ProductFieldInfo } from "./ProductFieldInfo"
+import { mergeFields } from "./utils"
+import { ProductFieldViewModel } from "./models"
 
-export type ProductFieldsDiffViewerProps = {
-  productFieldsFrom?: ProductFieldModel[] | null
-  productFieldsTo?: ProductFieldModel[] | null
+export type ProductFieldsDiffProps = {
+  productFieldsFrom?: ProductFieldModel[]
+  productFieldsTo?: ProductFieldModel[]
 }
 
-export const ProductFieldsDiffViewer = ({
-  productFieldsFrom,
-  productFieldsTo,
-}: ProductFieldsDiffViewerProps) => {
-  const [selected, setSelected] = useState<ProductFieldViewModel | null>(null)
+export const ProductFieldsDiff = memo(({ productFieldsFrom, productFieldsTo }: ProductFieldsDiffProps) => {
+  const [selected, setSelected] = useState<ProductFieldViewModel | undefined>(undefined)
 
   const items = useMemo(
     () => mergeFields({ from: productFieldsFrom ?? [], to: productFieldsTo ?? [] }),
@@ -23,8 +21,8 @@ export const ProductFieldsDiffViewer = ({
   )
 
   return (
-    <ProductFieldsView items={items} selected={selected} onSelect={setSelected}>
+    <ProductFields items={items} selected={selected} onSelect={setSelected}>
       {selected && <ProductFieldInfo node={selected} onSelect={setSelected} />}
-    </ProductFieldsView>
+    </ProductFields>
   )
-}
+})

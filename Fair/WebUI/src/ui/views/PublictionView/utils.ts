@@ -1,17 +1,17 @@
-import { ProductFieldViewModel, TokenType } from "types"
+import { ProductFieldModel, TokenType } from "types"
 import { buildFileUrl, formatSecDate } from "utils"
 import { IPublication, IPublicationDescription } from "./types"
 
-const getData = <TData = string>(fields: ProductFieldViewModel[], token: TokenType): TData | undefined => {
+const getData = <TData = string>(fields: ProductFieldModel[], token: TokenType): TData | undefined => {
   return fields.find(x => x.name === token)?.value as TData | undefined
 }
 
-const getFileUri = (fields: ProductFieldViewModel[], token: TokenType): string | undefined => {
+const getFileUri = (fields: ProductFieldModel[], token: TokenType): string | undefined => {
   const id = getData<string>(fields, token)
   return id ? buildFileUrl(id) : undefined
 }
 
-const parseDescription = (fields: ProductFieldViewModel[], token: TokenType): IPublicationDescription[] =>
+const parseDescription = (fields: ProductFieldModel[], token: TokenType): IPublicationDescription[] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -23,7 +23,7 @@ const parseDescription = (fields: ProductFieldViewModel[], token: TokenType): IP
     })
     .filter((x): x is IPublicationDescription => !!x)
 
-const parseArts = (fields: ProductFieldViewModel[], token: TokenType): IPublication["arts"] =>
+const parseArts = (fields: ProductFieldModel[], token: TokenType): IPublication["arts"] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -47,7 +47,7 @@ const parseArts = (fields: ProductFieldViewModel[], token: TokenType): IPublicat
       }
     })
 
-const parseReleases = (fields: ProductFieldViewModel[], token: TokenType): IPublication["releases"] =>
+const parseReleases = (fields: ProductFieldModel[], token: TokenType): IPublication["releases"] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -95,7 +95,7 @@ const parseReleases = (fields: ProductFieldViewModel[], token: TokenType): IPubl
       }
     })
 
-export function toPublicationData(fields: ProductFieldViewModel[]): IPublication {
+export function toPublicationData(fields: ProductFieldModel[]): IPublication {
   return {
     logo: getFileUri(fields, "logo") ?? "",
     title: getData<string>(fields, "title") ?? "",

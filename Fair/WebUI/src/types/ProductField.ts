@@ -14,8 +14,3 @@ export interface ProductFieldCompare {
   from: ProductFieldModel[]
   to: ProductFieldModel[]
 }
-
-export interface ProductFieldViewModel extends ProductFieldBase<ProductFieldViewModel> {
-  id: string
-  parent?: ProductFieldViewModel
-}
