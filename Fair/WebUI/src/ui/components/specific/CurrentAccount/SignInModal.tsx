@@ -4,12 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { SvgCheckCircle, SvgSpinner, SvgXCircleSm } from "assets"
 import { SEARCH_DELAY } from "config"
+import { USER_NAME_MAX_LENGTH, USER_NAME_MIN_LENGTH } from "constants/validation"
 import { useGetUser } from "entities"
 import { useEscapeKey } from "hooks"
-import { ButtonPrimary, Input, ValidationWrapper } from "ui/components"
-import { Modal, ModalProps } from "ui/components/Modal"
+import { ButtonPrimary, Input, Modal, ModalProps, ValidationWrapper } from "ui/components"
 import { USER_NAME } from "utils"
-import { USER_NAME_MAX_LENGTH, USER_NAME_MIN_LENGTH } from "constants/validation"
 
 import { ActiveAccount } from "./ActiveAccount"
 
@@ -49,9 +48,9 @@ export const SignInModal = ({ submitDisabled, onSubmit, submitLabel, title, ...r
   const handleSubmit = useCallback(() => onSubmit(userName, user!.data!.address), [onSubmit, user, userName])
 
   return (
-    <Modal className={"p-4"} {...rest}>
-      <div className="flex flex-col gap-6 px-12 pb-12 pt-6">
-        <span className="text-center text-[3rem] font-semibold first-letter:uppercase">{title}</span>
+    <Modal className="w-130 gap-0 p-4" {...rest}>
+      <div className="flex flex-col gap-6 px-4 pb-4">
+        <span className="text-center text-[44px] font-semibold first-letter:uppercase">{title}</span>
         <div className="flex flex-col gap-2">
           <span className="text-2xs font-medium first-letter:uppercase">{t("common:nickname")}</span>
           <ValidationWrapper message={validationMessage}>
@@ -76,10 +75,10 @@ export const SignInModal = ({ submitDisabled, onSubmit, submitLabel, title, ...r
         {user?.ok && <ActiveAccount {...user.data!} onClick={handleSubmit} />}
         <div className="flex justify-end gap-6">
           <ButtonPrimary
-            className="w-97.5 px-6 capitalize"
+            className="w-full px-6 capitalize"
             label={submitLabel}
             onClick={handleSubmit}
-            disabled={!!validationMessage || submitDisabled}
+            disabled={!!validationMessage || submitDisabled || userName.length < USER_NAME_MIN_LENGTH}
           />
         </div>
       </div>
