@@ -38,7 +38,7 @@ public class BandwidthAllocation : Operation
 
 		for(int i = 0; i < Days; i++)
 		{
-			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.BandwidthAllocationPerDayMaximum)
+			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.BandwidthDayCapacity)
 			{
 				execution.Bandwidths[i] += Bandwidth;
 			}
@@ -49,8 +49,8 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		User.Energy				-= Bandwidth * Days;
-		User.Bandwidth			= Bandwidth;
+		User.Energy					-= Bandwidth * Days;
+		User.Bandwidth				= Bandwidth;
 		User.BandwidthExpiration	= (short)(execution.Time.Days + Days);
 	}
 }

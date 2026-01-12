@@ -93,8 +93,8 @@ public abstract class McvNet : Net
 	public int								EntityLength							= 100;
 
 	public int								BandwidthDaysMaximum					=> 365;
-	public long								BandwidthAllocationPerDayMaximum		=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay / 2; /// 50%
-	public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
+	public long								BandwidthDayCapacity					=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
+	//public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 
 	public abstract int						TablesCount { get; }
 

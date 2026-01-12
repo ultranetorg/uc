@@ -629,69 +629,65 @@ public abstract class McvPeering : HomoTcpPeering
 						
 					/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
 	
-					bool tryplace(Transaction t, bool ba, bool isdeferred)	{ 	
-																				if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
-																					return false;
+					bool tryplace(Transaction t, bool isdeferred)	
+					{ 	
+						if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
+							return false;
 	
-																				if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > (ba ? pp.PerVoteBandwidthAllocationLimit : pp.PerVoteOperationsLimit))
-																					return false;
+						if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > pp.PerVoteOperationsLimit)
+							return false;
 	
-																				if(r.Id > t.Expiration)
-																				{
-																					IncomingTransactions.Remove(t);
-																					return true;
-																				}
+						if(r.Id > t.Expiration)
+						{
+							IncomingTransactions.Remove(t);
+							return true;
+						}
 	
-																				var nearest = r.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address;
+						var nearest = r.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address;
 	
-																				if(nearest != g)
-																				{
-																					if(!Mcv.Settings.Generators.Any(i => i.Signer == nearest))
-																						IncomingTransactions.Remove(t);
+						if(nearest != g)
+						{
+							if(!Mcv.Settings.Generators.Any(i => i.Signer == nearest))
+								IncomingTransactions.Remove(t);
 	
-																					return true;
-																				}
+							return true;
+						}
 	
-																				if(!isdeferred)
-																				{
-																					if(txs.Any(i => i.Signer == t.Signer && i.Nonce < t.Nonce)) /// any older tx left?
-																					{
-																						deferred.Add(t);
-																						return true;
-																					}
-																				}
-																				else
-																					deferred.Remove(t);
+						if(!isdeferred)
+						{
+							if(txs.Any(i => i.Signer == t.Signer && i.Nonce < t.Nonce)) /// any older tx left?
+							{
+								deferred.Add(t);
+								return true;
+							}
+						}
+						else
+							deferred.Remove(t);
 	
-																				t.Status = TransactionStatus.Placed;
-																				v.AddTransaction(t);
+						t.Status = TransactionStatus.Placed;
+						v.AddTransaction(t);
 	
-																				var next = deferred.Find(i => i.Signer == t.Signer && i.Nonce + 1 == t.Nonce);
+						var next = deferred.Find(i => i.Signer == t.Signer && i.Nonce + 1 == t.Nonce);
 	
-																				if(next != null)
-																				{
-																					if(tryplace(next, ba, true) == false)
-																						return false;
-																				}
+						if(next != null)
+						{
+							if(tryplace(next, true) == false)
+								return false;
+						}
 	
-																				Flow.Log?.Report(this, "Transaction Placed", t.ToString());
+						Flow.Log?.Report(this, "Transaction Placed", t.ToString());
 	
-																				return true;
-																			}
+						return true;
+					}
 	
 					var stxs = txs.Select(i => new {t = i, a = Mcv.Users.Find(i.User, pp.Id)});
 	
-					foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration >= pp.ConsensusTime.Days && (i.a.BandwidthTodayTime == pp.ConsensusTime.Days && i.a.BandwidthTodayAvailable >= i.t.EnergyConsumed || /// Allocated bandwidth first
-																															i.a.Bandwidth >= i.t.EnergyConsumed)))
-						if(false == tryplace(t.t, true, false))
-							break;
-	
-					foreach(var t in stxs.Where(i => i.a != null && i.a.BandwidthExpiration < pp.ConsensusTime.Days).OrderByDescending(i => i.t.Bonus))		/// ... then paid transactions
-						if(false == tryplace(t.t, false, false))
+					foreach(var t in stxs.Where(i => i.a != null).OrderByDescending(i => i.a.BandwidthTodayBalance))	/// Allocated bandwidth first
+						if(false == tryplace(t.t, false))
 							break;
 	
 					foreach(var t in stxs.Where(i => i.a == null))
-						if(false == tryplace(t.t, false, false))
+						if(false == tryplace(t.t, false))
 							break;
 	
 					if(v.Transactions.Any() || must)

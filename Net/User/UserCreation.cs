@@ -7,7 +7,7 @@ public class UserCreation : Operation
 	public string				Name { get; set; }
 	public AccountAddress		Owner { get; set; }
 
-	public override string		Explanation => $"{Owner}";
+	public override string		Explanation => $"Name={Name} Owner={Owner}";
 	
 	public UserCreation ()
 	{
