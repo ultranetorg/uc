@@ -2,6 +2,6 @@ import { CompareStatus } from "../types"
 
 export interface ProductFieldViewProp {
   value: unknown
-  oldValue: unknown | null
+  oldValue?: unknown
   status: CompareStatus
 }

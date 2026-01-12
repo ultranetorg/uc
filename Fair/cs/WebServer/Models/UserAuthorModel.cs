@@ -19,7 +19,6 @@ public class UserAuthorModel : AuthorBaseModel
 
 	public long Bandwidth { get; set; }
 	public short BandwidthExpiration { get; set; }
-	public long BandwidthToday { get; set; }
 	public short BandwidthTodayTime { get; set; }
 	public long BandwidthTodayAvailable { get; set; }
 
@@ -34,7 +33,6 @@ public class UserAuthorModel : AuthorBaseModel
 		EnergyNext = author.EnergyNext;
 		Bandwidth = author.Bandwidth;
 		BandwidthExpiration = author.BandwidthExpiration;
-		BandwidthToday = author.BandwidthToday;
-		BandwidthTodayAvailable = author.BandwidthTodayAvailable;
+		BandwidthTodayAvailable = author.BandwidthTodayBalance;
 	}
 }

@@ -10,8 +10,8 @@ import {
   CategoryPublications,
   ChangedPublication,
   ChangedPublicationDetails,
-  ProductFieldCompare,
-  ProductFieldModel,
+  ProductFieldDiff,
+  ProductField,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -274,10 +274,10 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProductFields = (productId: string): Promise<ProductFieldModel[]> =>
+const getProductFields = (productId: string): Promise<ProductField[]> =>
   fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
-const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldCompare> =>
+const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldDiff> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
 const getReviewProposals = async (

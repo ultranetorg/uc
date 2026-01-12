@@ -2,9 +2,10 @@ import { memo } from "react"
 
 import { VideoViewPlain, VideoViewVk, VideoViewYouTube } from "ui/components/VideoView"
 import { getVideoType } from "utils"
-import { ProductFieldViewProp } from "./types.ts"
 
-function getComponent(rawUrl: unknown | null): React.ReactNode {
+import { ProductFieldViewProp } from "./types"
+
+function getComponent(rawUrl: unknown | null | undefined): React.ReactNode {
   if (!rawUrl) return null
 
   const url = (rawUrl as string).trim()

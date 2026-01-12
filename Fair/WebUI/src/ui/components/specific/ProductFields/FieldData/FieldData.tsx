@@ -1,9 +1,8 @@
 import { JSX } from "react"
 
-import { ProductFieldViewModel } from "types"
-
-import { ProductFieldCompareViewModel } from "../types"
+import { ProductFieldViewModel, ProductFieldCompareViewModel } from "../types"
 import { getCompareStatus } from "../utils"
+
 import { ProductFieldViewString } from "./ProductFieldViewString"
 import { ProductFieldViewUri } from "./ProductFieldViewUri"
 import { ProductFieldViewBigInt } from "./ProductFieldViewBigInt"
@@ -11,11 +10,11 @@ import { ProductFieldViewDate } from "./ProductFieldViewDate"
 import { ProductFieldViewFile } from "./ProductFieldViewFile"
 import { ProductFieldViewVideo } from "./ProductFieldViewVideo"
 
-export const ProductFieldView = ({ node }: { node: ProductFieldViewModel }) => {
+export const FieldData = ({ node }: { node: ProductFieldViewModel }) => {
   let component: JSX.Element
 
   const compareStatus = getCompareStatus(node)
-  const oldValue = compareStatus ? ((node as ProductFieldCompareViewModel).oldValue ?? null) : null
+  const oldValue = compareStatus ? (node as ProductFieldCompareViewModel).oldValue : undefined
 
   switch (node.type) {
     case "uri": {

@@ -1,30 +1,27 @@
-import { ProductFieldModel } from "types"
+import { ProductField } from "types"
 
 export const nameEq = (name: unknown, expected: string) => String(name).toLowerCase() === expected
 
-export const getValue = <TValue = string>(
-  fields: ProductFieldModel[] | undefined,
-  name: string,
-): TValue | undefined => {
+export const getValue = <TValue = string>(fields: ProductField[] | undefined, name: string): TValue | undefined => {
   return fields?.find(x => nameEq(x.name, name))?.value as TValue | undefined
 }
 
-export const getChildren = (fields: ProductFieldModel[] | undefined, name: string) => {
+export const getChildren = (fields: ProductField[] | undefined, name: string) => {
   return fields?.find(x => nameEq(x.name, name))?.children ?? []
 }
 
-export const getChildrenAny = (fields: ProductFieldModel[] | undefined, names: string[]) => {
+export const getChildrenAny = (fields: ProductField[] | undefined, names: string[]) => {
   for (const n of names) {
     const c = getChildren(fields, n)
     if (c.length) return c
   }
-  return [] as ProductFieldModel[]
+  return [] as ProductField[]
 }
 
 export type RequirementPlatform = {
   key: string
   label: string
-  node: ProductFieldModel
+  node: ProductField
 }
 
 const normalizePlatformName = (raw: string): { key: string; label: string } => {
@@ -45,9 +42,7 @@ const normalizePlatformName = (raw: string): { key: string; label: string } => {
   return { key: lower || value.toLowerCase(), label: value || raw }
 }
 
-export const getRequirementPlatforms = (
-  fields: ProductFieldModel[] | undefined,
-): RequirementPlatform[] => {
+export const getRequirementPlatforms = (fields: ProductField[] | undefined): RequirementPlatform[] => {
   const result: RequirementPlatform[] = []
   const seen = new Set<string>()
   const releases = (fields ?? []).filter(x => nameEq(x.name, "release"))

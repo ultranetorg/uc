@@ -19,7 +19,7 @@ export const ProductFieldViewString = memo(({ value, oldValue, status }: Product
     case "changed": {
       return (
         <div>
-          {getRemoved(oldValue!)}
+          {getRemoved(oldValue ?? value)}
           {getAdded(value)}
         </div>
       )

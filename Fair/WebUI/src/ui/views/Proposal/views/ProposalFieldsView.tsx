@@ -1,9 +1,18 @@
 import { memo, useMemo } from "react"
 
-import { ProductFields } from "ui/components/proposal"
+import { useGetProductFields } from "entities"
+import { ProductFieldsTree } from "ui/components/specific"
 
 import { PublicationCreation } from "types"
 import { ProposalTypeViewProps } from "./types"
+
+const ProductFieldsForProduct = ({ productId }: { productId: string }) => {
+  const { isFetching, data } = useGetProductFields(productId)
+
+  if (isFetching || !data) return <div>LOADING</div>
+
+  return <ProductFieldsTree productFields={data} />
+}
 
 export const ProposalFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
   const productIds = useMemo(
@@ -15,5 +24,13 @@ export const ProposalFieldsView = memo(({ proposal }: ProposalTypeViewProps) => 
     [proposal],
   )
 
-  return <ProductFields productIds={productIds} />
+  if (!productIds?.length) return null
+
+  return (
+    <>
+      {productIds.map(productId => (
+        <ProductFieldsForProduct key={productId} productId={productId} />
+      ))}
+    </>
+  )
 })

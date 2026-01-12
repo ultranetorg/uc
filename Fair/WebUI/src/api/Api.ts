@@ -6,8 +6,8 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ProductFieldCompare,
-  ProductFieldModel,
+  ProductFieldDiff,
+  ProductField,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -126,9 +126,9 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(productId: string): Promise<ProductFieldModel[]>
+  getProductFields(productId: string): Promise<ProductField[]>
 
-  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldCompare>
+  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldDiff>
 
   getReviewProposals(
     siteId: string,
