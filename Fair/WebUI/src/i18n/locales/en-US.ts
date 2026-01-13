@@ -337,6 +337,7 @@ export const enUS = {
     dontHaveAccount: "Don’t have an account?",
     signIn: "sign in",
     signUp: "sign up",
+    uniqueNickname: "Choose a unique nickname. It will be visible to other users.",
   },
 
   /* Tabs */
@@ -437,6 +438,7 @@ export const enUS = {
     selectUser: "Select user",
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
+    yourNickname: "Your nickname",
   },
 
   /* Validation messages */
@@ -446,6 +448,8 @@ export const enUS = {
     invalidUserName: "Invalid user name",
     maxLength: "Must be at most {{count}} characters",
     minLength: "Must be at least {{count}} characters",
+    nicknameAlreadyInUse: "Nickname is already in use",
+    nicknameAvailable: "Nickname is available",
     onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
     required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",
