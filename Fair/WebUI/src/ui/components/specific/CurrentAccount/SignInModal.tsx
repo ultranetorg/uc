@@ -62,7 +62,6 @@ export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalPr
           <span className="text-2xs font-medium first-letter:uppercase">{t("common:nickname")}</span>
           <ValidationWrapper message={validationMessage}>
             <Input
-              error={!!validationMessage}
               containerClassName="h-10 px-3 py-2.5"
               placeholder={t("placeholders:enterYourNickname")}
               value={userName}
