@@ -21,5 +21,5 @@ export const useAuthenticateMutation = () => {
     mutationFn: ({ userName, address }: AuthenticateMutationArgs) => vaultApi.authenticate(baseUrl!, userName, address),
   })
 
-  return { authenticate, isFetching: isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
+  return { mutate: authenticate, isFetching: isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
 }

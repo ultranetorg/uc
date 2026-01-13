@@ -18,7 +18,7 @@ export const ProfilePage = () => {
   const backgroundLocation = state?.backgroundLocation
   const defaultTabKey = state?.defaultTabKey as string | undefined
 
-  const { currentUserName } = useManageUsersContext()
+  const { selectedUserName } = useManageUsersContext()
 
   const close = useCallback(() => {
     navigate(-1)
@@ -28,7 +28,7 @@ export const ProfilePage = () => {
 
   const handleTabSelect = useCallback((tab: string) => setTitleKey(tab), [])
 
-  if (!currentUserName) {
+  if (!selectedUserName) {
     return <Navigate to="/" replace={true} />
   }
 

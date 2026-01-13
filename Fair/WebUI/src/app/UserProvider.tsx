@@ -19,9 +19,9 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider = ({ children }: PropsWithChildren) => {
   const [currentUser, setCurrentUser] = useState<Account | undefined>()
 
-  const { currentUserName } = useManageUsersContext()
+  const { selectedUserName } = useManageUsersContext()
 
-  const { isFetching, data: user, refetch } = useGetUserDetails(currentUserName)
+  const { isFetching, data: user, refetch } = useGetUserDetails(selectedUserName)
 
   useEffect(() => setCurrentUser(user), [user])
 

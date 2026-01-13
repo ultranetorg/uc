@@ -43,6 +43,7 @@ export const enUS = {
     reviewer: "Reviewer",
     saveChanges: "Save changes",
     signIn: "sign in",
+    signUp: "sign up",
     text: "Text",
     title: "Title",
     type: "type",
@@ -330,6 +331,12 @@ export const enUS = {
   memberFilesModal: {
     title: "Select image",
     noFiles: "You don't have any image",
+  },
+  signInModal: {
+    alreadyHaveAccount: "Already have an account?",
+    dontHaveAccount: "Don’t have an account?",
+    signIn: "sign in",
+    signUp: "sign up",
   },
 
   /* Tabs */

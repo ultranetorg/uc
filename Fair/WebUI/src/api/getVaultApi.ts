@@ -15,13 +15,14 @@ const authenticate = async (
       Application: VAULT.APPLICATION,
       Net: VAULT.NETWORK,
       User: userName,
+      Account: address,
     }),
   })
   const data = await response.json()
   if (data === null) return null
 
   const res = keysToCamelCase(data) as AuthenticationResult
-  if (res.account !== address) throw new Error("You don't have permission")
+  if (res.account !== address) throw new Error("You don't have permission to selected account")
   return res
 }
 

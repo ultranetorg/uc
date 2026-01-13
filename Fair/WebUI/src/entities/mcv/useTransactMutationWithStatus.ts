@@ -19,7 +19,7 @@ type TransactMutationCallbacks = {
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
   const fair = useGetFairUrl(nexus.data)
-  const { currentUserName } = useManageUsersContext()
+  const { selectedUserName } = useManageUsersContext()
 
   const [tag, setTag] = useState<string | undefined>()
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)
@@ -27,7 +27,7 @@ export const useTransactMutationWithStatus = () => {
 
   const mutation = useMutation({
     mutationFn: ({ operations }: { operations: BaseFairOperation[] }) =>
-      api.transact(fair.data!, operations, currentUserName!),
+      api.transact(fair.data!, operations, selectedUserName!),
 
     onSuccess: tx => {
       setTag(tx.tag)
@@ -81,7 +81,7 @@ export const useTransactMutationWithStatus = () => {
     mutate,
     data: query.data,
     isPending: isPendingRef.current,
-    isReady: !!fair.data && !!currentUserName,
+    isReady: !!fair.data && !!selectedUserName,
     error: mutation.error || query.error,
   }
 }

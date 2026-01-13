@@ -11,50 +11,44 @@ type AuthenticateMutationCallbacks = {
   onSettled?: (data?: AuthenticationResult | null) => void
 }
 
-type StoredAccount = {
-  userName: string
-  address: string
+type StoredUser = {
+  name: string
+  owner: string
 }
 
-type StoredAccountSession = {
-  account: StoredAccount
+type StoredUserSession = {
+  user: StoredUser
   session: string
 }
 
-type AccountsStorageState = {
-  accounts: StoredAccountSession[]
-  selectedIndex?: number
+type UsersStorageState = {
+  users: StoredUserSession[]
+  selectedUserName?: string
 }
 
 type ManageUsersContextType = {
-  accounts: StoredAccountSession[]
-  currentUserName?: string
+  users: StoredUserSession[]
+  selectedUserName?: string
   isPending: boolean
-  selectAccount(index: number): void
-  authenticateMutation(userName: string, address: string, callbacks?: AuthenticateMutationCallbacks): void
-  logout(index: number): void
+  selectUser(userName: string): void
+  authenticate(userName: string, owner: string, callbacks?: AuthenticateMutationCallbacks): void
+  logout(userName: string): void
 }
 
 const ManageUsersContext = createContext<ManageUsersContextType>({
   isPending: false,
-  accounts: [],
-  selectAccount: () => {},
-  authenticateMutation: () => {},
+  users: [],
+  selectUser: () => {},
+  authenticate: () => {},
   logout: () => {},
 })
 
 export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
-  const [session, setSession, removeSession] = useLocalStorage<AccountsStorageState>(
-    LOCAL_STORAGE_KEYS.STORED_ACCOUNTS,
-    {
-      accounts: [],
-    },
-  )
+  const [storage, setStorage, removeStorage] = useLocalStorage<UsersStorageState>(LOCAL_STORAGE_KEYS.STORED_USERS, {
+    users: [],
+  })
 
-  const currentUserName =
-    session.selectedIndex !== undefined ? session.accounts[session.selectedIndex]?.account?.userName : undefined
-
-  const { authenticate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
+  const { mutate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
   const {
     isAuthenticated: isAuthenticatedMutation,
     isPending: isAuthenticatedPending,
@@ -63,33 +57,21 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!isAuthenticatedReady) return
-    if (session.selectedIndex === undefined) return
+    if (storage.selectedUserName === undefined) return
 
-    if (session.accounts.length <= session.selectedIndex) {
-      removeSession()
-      return
-    }
+    const user = storage.users.find(x => x.user.name === storage.selectedUserName)
+    if (!user) return
 
-    const target = session.accounts[session.selectedIndex]
     isAuthenticatedMutation(
-      { userName: target.account.userName, session: target.session },
+      { userName: user.user.name, session: user.session },
       {
         onSettled: valid => {
-          if (!valid) {
-            if (session.accounts.length > 1) {
-              setSession(p => {
-                const accounts = p.accounts.filter((_, i) => i !== p.selectedIndex)
-                return { ...p, accounts, selectedIndex: undefined }
-              })
-            } else {
-              removeSession()
-            }
-          }
+          if (!valid) removeUser(storage.selectedUserName!)
         },
       },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticatedMutation, isAuthenticatedReady, removeSession, setSession])
+  }, [isAuthenticatedMutation, isAuthenticatedReady, removeStorage, setStorage])
 
   const authenticate = useCallback(
     (userName: string, address: string, callbacks?: AuthenticateMutationCallbacks) =>
@@ -101,28 +83,20 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
             if (data === null) return
 
-            setSession(prev => {
-              const existingIndex = prev.accounts.findIndex(x => x.account.address === data.account)
-
+            setStorage(prev => {
+              const existingIndex = prev.users.findIndex(x => x.user.name === userName)
               if (existingIndex !== -1) {
                 return {
                   ...prev,
-                  accounts: prev.accounts.map((acc, i) =>
-                    i === existingIndex ? { ...acc, session: data.session } : acc,
-                  ),
-                  selectedIndex: existingIndex,
+                  users: prev.users.map((acc, i) => (i === existingIndex ? { ...acc, session: data.session } : acc)),
                 }
               }
 
-              const newAccounts = [
-                ...prev.accounts,
-                { session: data.session, account: { address: data.account, userName } },
-              ]
-
+              const newUsers = [...prev.users, { session: data.session, user: { owner: data.account, name: userName } }]
               return {
                 ...prev,
-                accounts: newAccounts,
-                selectedIndex: 0,
+                users: newUsers,
+                selectedUserName: userName,
               }
             })
           },
@@ -130,82 +104,68 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
           onSettled: data => callbacks?.onSettled?.(data),
         },
       ),
-    [authenticateMutation, setSession],
+    [authenticateMutation, setStorage],
   )
 
-  const selectAccount = useCallback(
-    (index: number) => {
-      if (index < 0 || index >= session.accounts.length) return
-      if (session.selectedIndex === index) return
+  const removeUser = useCallback(
+    (userName: string) => {
+      if (storage.users.length > 1) {
+        setStorage(p => {
+          const users = p.users.filter(x => x.user.name !== userName)
+          const selectedUserName = p.selectedUserName !== userName ? p.selectedUserName : undefined
+          return { ...p, users, selectedUserName }
+        })
+      } else {
+        removeStorage()
+      }
+    },
+    [removeStorage, setStorage, storage.users.length],
+  )
 
-      const target = session.accounts[index]
+  const selectUser = useCallback(
+    (userName: string) => {
+      if (storage.selectedUserName === userName) return
+
+      const user = storage.users.find(x => x.user.name === userName)
+      if (!user) return
 
       isAuthenticatedMutation(
-        { userName: target.account.userName, session: target.session },
+        { userName: user.user.name, session: user.session },
         {
           onSuccess: valid => {
             if (valid) {
-              setSession(p => ({ ...p, selectedIndex: index }))
+              setStorage(p => ({ ...p, selectedUserName: userName }))
             }
           },
           onSettled: valid => {
-            if (!valid) {
-              if (session.accounts.length > 1) {
-                setSession(p => {
-                  const accounts = p.accounts.filter((_, i) => i !== p.selectedIndex)
-                  return { ...p, accounts, selectedIndex: undefined }
-                })
-              } else {
-                removeSession()
-              }
-            }
+            if (!valid) removeUser(userName)
           },
         },
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isAuthenticatedMutation, session.accounts.length, session.selectedIndex, setSession],
+    [storage.selectedUserName, storage.users.length, isAuthenticatedMutation, setStorage, removeUser],
   )
 
-  const logout = useCallback(
-    (index: number) => {
-      if (index < 0 || index >= session.accounts.length) return
-      if (session.accounts.length === 1) removeSession()
-
-      setSession(p => {
-        const accounts = p.accounts.filter((_, i) => i !== index)
-        const newSelected =
-          p.selectedIndex !== undefined
-            ? p.selectedIndex > index
-              ? p.selectedIndex - 1
-              : p.selectedIndex === index
-                ? undefined
-                : p.selectedIndex
-            : undefined
-
-        return { ...p, accounts, selectedIndex: newSelected }
-      })
-    },
-    [removeSession, session.accounts.length, setSession],
-  )
+  const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
 
   const value = useMemo(
     () => ({
-      accounts: session.accounts,
-      currentUserName,
+      users: storage.users,
+      selectedUserName: storage.selectedUserName,
       isPending: isAuthenticatePending || isAuthenticatedPending,
-      authenticateMutation: authenticate,
+      authenticate,
       logout,
-      selectAccount,
+      selectUser,
     }),
     [
-      session.accounts,
-      currentUserName,
+      storage.users,
+      storage.selectedUserName,
       isAuthenticatePending,
       isAuthenticatedPending,
       authenticate,
       logout,
-      selectAccount,
+      selectUser,
     ],
   )
 

@@ -200,6 +200,7 @@ public class AccountsService
 		return result;
 	}
 
+	[Obsolete("This method is deprected use GetUserAvatar instead")]
 	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(AccountsService), nameof(GetAvatar), accountId);
@@ -214,6 +215,24 @@ public class AccountsService
 			if(account == null || account.Avatar == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), accountId);
+			}
+
+			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
+		}
+	}
+
+	public FileContentResult GetUserAvatar([NotNull][NotEmpty] string name)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(AccountsService), nameof(GetUserAvatar), name);
+
+		Guard.Against.NullOrEmpty(name);
+
+		lock(mcv.Lock)
+		{
+			FairUser account = (FairUser)mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			if(account == null || account.Avatar == null)
+			{
+				throw new EntityNotFoundException(nameof(User).ToLower(), name);
 			}
 
 			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);

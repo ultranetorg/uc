@@ -74,6 +74,7 @@ public class AccountsController
 		return searchService.SearchLiteAccounts(query, SearchConstants.SearchAccountsLimit, cancellationToken);
 	}
 
+	[Obsolete("This endpoint is deprected use GetUserAvatar instead")]
 	[HttpGet("{accountId}/avatar")]
 	public FileContentResult GetAvatar(string accountId)
 	{
@@ -82,5 +83,15 @@ public class AccountsController
 		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
 		return accountsService.GetAvatar(accountId);
+	}
+
+	[HttpGet("/api/users/{name}/avatar")]
+	public FileContentResult GetUserAvatar(string name)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Name}", nameof(AccountsController), nameof(GetUserAvatar), name);
+
+		userNameValidator.Validate(name);
+
+		return accountsService.GetUserAvatar(name);
 	}
 }

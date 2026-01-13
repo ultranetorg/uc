@@ -6,7 +6,7 @@ import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 
 import { showToast } from "utils"
-import { AccountSwitcher } from "./AccountSwitcher"
+import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
 import { ProfileButton } from "./ProfileButton"
 import { ProfileMenu } from "./ProfileMenu"
@@ -24,9 +24,23 @@ export const CurrentAccount = () => {
   const [showUserModal, setShowUserModal] = useState(false)
 
   const { user } = useUserContext()
-  const { accounts, isPending, authenticateMutation, logout, selectAccount } = useManageUsersContext()
+  const {
+    isPending,
+    selectedUserName,
+    users,
+    authenticate: authenticateMutation,
+    logout,
+    selectUser: selectAccount,
+  } = useManageUsersContext()
 
-  const accountItems = useMemo(() => accounts.map(x => x.account), [accounts])
+  const userItems = useMemo(
+    () =>
+      users.map<AccountSwitcherItem>(x => ({
+        nickname: x.user.name,
+        address: x.user.owner,
+      })),
+    [users],
+  )
 
   const handleAccountAdd = useCallback(() => {
     setShowUserModal(true)
@@ -34,18 +48,18 @@ export const CurrentAccount = () => {
     profileMenu.setOpen(false)
   }, [accountsMenu, profileMenu])
 
-  const handleAccountRemove = useCallback(
-    (index: number) => {
-      logout(index)
+  const handleUserRemove = useCallback(
+    (userName: string) => {
+      logout(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
     },
     [accountsMenu, logout, profileMenu],
   )
 
-  const handleAccountSelect = useCallback(
-    (index: number) => {
-      selectAccount(index)
+  const handleUserSelect = useCallback(
+    (userName: string) => {
+      selectAccount(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
     },
@@ -71,19 +85,20 @@ export const CurrentAccount = () => {
     [authenticateMutation, t],
   )
 
-  const accountSwitcherProps = useMemo(
+  const userSwitcherProps = useMemo(
     () => ({
-      items: accountItems,
+      items: userItems,
+      selectedUserName,
       onAdd: handleAccountAdd,
-      onRemove: handleAccountRemove,
-      onSelect: handleAccountSelect,
+      onRemove: handleUserRemove,
+      onSelect: handleUserSelect,
     }),
-    [accountItems, handleAccountAdd, handleAccountRemove, handleAccountSelect],
+    [userItems, handleAccountAdd, handleUserRemove, handleUserSelect, selectedUserName],
   )
 
   return (
     <>
-      {!accounts.length ? (
+      {!users.length ? (
         <ProfileButton
           iconBefore={<SvgPersonSquare className="fill-gray-800" />}
           className={STICKY_CLASSNAME}
@@ -115,10 +130,9 @@ export const CurrentAccount = () => {
           ref={profileMenu.refs.setFloating}
           style={profileMenu.floatingStyles}
           nickname={user!.nickname}
-          accountId={user!.id}
           address={user!.address!}
           onNicknameCreate={handleNicknameCreate}
-          {...accountSwitcherProps}
+          {...userSwitcherProps}
           {...profileMenu.getFloatingProps()}
         />
       )}
@@ -126,19 +140,12 @@ export const CurrentAccount = () => {
         <AccountSwitcher
           ref={accountsMenu.refs.setFloating}
           style={accountsMenu.floatingStyles}
-          selectedItemAddress={user!.address}
-          {...accountSwitcherProps}
+          {...userSwitcherProps}
           {...accountsMenu.getFloatingProps()}
         />
       )}
       {showUserModal && (
-        <SignInModal
-          submitDisabled={isPending}
-          submitLabel={t("common:signIn")}
-          title={t("common:signIn")}
-          onClose={() => setShowUserModal(false)}
-          onSubmit={handleSignIn}
-        />
+        <SignInModal submitDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleSignIn} />
       )}
     </>
   )
