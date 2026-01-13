@@ -3,18 +3,27 @@ import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
-type ImageFallbackBaseProps = {
+type WithFallbackElement = {
   src?: string
   fallback: JSX.Element
+  fallbackSrc?: never
 }
+
+type WithFallbackSrc = {
+  src?: string
+  fallbackSrc: string
+  fallback?: never
+}
+
+type ImageFallbackBaseProps = WithFallbackElement | WithFallbackSrc
 
 export type ImageFallbackProps = PropsWithClassName & ImageFallbackBaseProps
 
-export const ImageFallback = memo(({ className, src, fallback }: ImageFallbackProps) => {
-  const [error, setError] = useState(false)
+export const ImageFallback = memo(({ className, src, fallbackSrc, fallback }: ImageFallbackProps) => {
+  const [showFallbackElement, setShowFallbackElement] = useState(false)
 
-  if (error || !src) {
-    return fallback
+  if (showFallbackElement || !src) {
+    return fallback ?? null
   }
 
   return (
@@ -24,7 +33,12 @@ export const ImageFallback = memo(({ className, src, fallback }: ImageFallbackPr
       className={twMerge("size-full object-cover object-center", className)}
       onError={e => {
         e.currentTarget.onerror = null
-        setError(true)
+
+        if (fallbackSrc) {
+          e.currentTarget.src = fallbackSrc
+        } else {
+          setShowFallbackElement(true)
+        }
       }}
     />
   )

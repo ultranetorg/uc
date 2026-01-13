@@ -15,4 +15,6 @@ public enum ErrorCodes
 	InvalidProductVersion = Base + 6,
 
 	InvalidAccountAddress = Base + 7,
+
+	InvalidEntityParameter = Base + 8,
 }

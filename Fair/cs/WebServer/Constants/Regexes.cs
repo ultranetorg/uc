@@ -9,4 +9,7 @@ public static class Regexes
 
 	private const string EntityIdPattern = @"^\d+-\d$";
 	public static Regex EntityId = new Regex(EntityIdPattern, RegexOptions.Compiled);
+
+	private const string UserNamePattern = @"^[a-z0-9]+$";
+	public static Regex UserName = new Regex(UserNamePattern, RegexOptions.Compiled);
 }

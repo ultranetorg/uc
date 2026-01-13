@@ -3,25 +3,25 @@ import { useTranslation } from "react-i18next"
 
 import { SvgPlusCircleMd } from "assets"
 import { AccountBase, PropsWithStyle } from "types"
-import { MakeOptional, shortenAddress } from "utils"
+import { shortenAddress } from "utils"
 
 import { Account } from "./components"
 
-export type AccountSwitcherItem = MakeOptional<AccountBase, "id">
+export type AccountSwitcherItem = Omit<AccountBase, "id">
 
 export interface AccountSwitcherBaseProps {
-  selectedItemAddress?: string
+  selectedUserName?: string
   items: AccountSwitcherItem[]
   onAdd: () => void
-  onRemove: (index: number) => void
-  onSelect: (index: number) => void
+  onRemove: (userName: string) => void
+  onSelect: (userName: string) => void
 }
 
 export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
 
 export const AccountSwitcher = memo(
   forwardRef<HTMLDivElement, AccountSwitcherProps>(
-    ({ style, selectedItemAddress, items, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
+    ({ style, selectedUserName, items, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
       const { t } = useTranslation("currentAccount")
 
       return (
@@ -31,13 +31,13 @@ export const AccountSwitcher = memo(
           style={style}
         >
           <div>
-            {items.map((x, i) => (
+            {items.map(x => (
               <Account
                 key={x.address}
                 addressShort={shortenAddress(x.address)}
-                selected={x.address === selectedItemAddress}
-                onSelect={() => onSelect(i)}
-                onRemove={() => onRemove(i)}
+                selected={x.nickname === selectedUserName}
+                onSelect={() => onSelect(x.nickname)}
+                onRemove={() => onRemove(x.nickname)}
                 {...x}
               />
             ))}

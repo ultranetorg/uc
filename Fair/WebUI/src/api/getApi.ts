@@ -27,10 +27,10 @@ import {
   Site,
   SiteBase,
   SiteLiteSearch,
+  StatusResult,
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
-  User,
   UserProposal,
 } from "types"
 
@@ -87,8 +87,23 @@ const searchLitePublication = (siteId: string, query?: string): Promise<Publicat
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
-const getAccountByAddress = (accountAddress: string): Promise<Account> =>
-  fetch(`${BASE_URL}/accounts/address/${accountAddress}`).then(res => res.json())
+const getUser = async (name: string): Promise<StatusResult<AccountBase>> => {
+  try {
+    const res = await fetch(`${BASE_URL}/users/${name}`)
+    if (!res.ok) {
+      return { ok: res.ok, status: res.status }
+    }
+
+    const data: AccountBase = await res.json()
+    return { ok: res.ok, status: res.status, data }
+  } catch (error) {
+    console.error(error)
+    return { ok: false, status: 0 } // 0 = network / unknown error
+  }
+}
+
+const getUserDetails = (name: string): Promise<Account> =>
+  fetch(`${BASE_URL}/users/${name}/details`).then(res => res.json())
 
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
@@ -171,8 +186,6 @@ const getReviews = async (
   const res = await fetch(`${BASE_URL}/publications/${publicationId}/reviews` + params)
   return await toTotalItemsResult(res)
 }
-
-const getUser = (userId: string): Promise<User> => fetch(`${BASE_URL}/users/${userId}`).then(res => res.json())
 
 const getAuthorFiles = async (
   siteId: string,
@@ -299,7 +312,9 @@ const api: Api = {
   getNexusUrl,
   getVaultUrl,
 
-  getAccountByAddress,
+  getUser,
+  getUserDetails,
+
   getAuthor,
   getAuthorPublications,
   getCategories,
@@ -322,7 +337,6 @@ const api: Api = {
   getSiteAuthors,
   getSiteFiles,
   getSiteModerators,
-  getUser,
   searchLitePublication,
   searchLiteSites,
   searchPublications,

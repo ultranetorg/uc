@@ -1,3 +1,5 @@
+export * from "./User"
+
 export * from "./Account"
 export * from "./Author"
 export * from "./AuthorFiles"

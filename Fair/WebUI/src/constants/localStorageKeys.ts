@@ -1,4 +1,4 @@
 export const LOCAL_STORAGE_KEYS = {
-  STORED_ACCOUNTS: "application.storedAccounts",
+  STORED_USERS: "application.storedUsers",
   SHOW_WEB3_BANNER: "application.showWeb3Banner",
 }

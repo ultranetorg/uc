@@ -1,6 +1,7 @@
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useState } from "react"
 
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
+import { useEscapeKey } from "hooks"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
 
 import { YourRatingBar } from "./YourRatingBar"
@@ -42,19 +43,7 @@ export const ReviewModal = memo(
       }, 2000)
     }, [onSubmit])
 
-    useEffect(() => {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (step == 0 && e.key === "Escape") {
-          onClose?.()
-        }
-      }
-
-      document.addEventListener("keydown", handleKeyDown)
-
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown)
-      }
-    }, [onClose, step])
+    useEscapeKey(onClose)
 
     return (
       <Modal {...rest} className="h-97.5 w-190">
