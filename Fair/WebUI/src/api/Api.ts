@@ -6,8 +6,8 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ProductFieldCompare,
-  ProductFieldModel,
+  ProductFieldDiff,
+  ProductField,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -23,10 +23,10 @@ import {
   Site,
   SiteBase,
   SiteLiteSearch,
+  StatusResult,
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
-  User,
   UserProposal,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
@@ -49,7 +49,10 @@ export type Api = {
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
 
-  getAccountByAddress(accountAddress: string): Promise<Account>
+  // User
+  getUser(name: string): Promise<StatusResult<AccountBase>>
+  getUserDetails(name: string): Promise<Account>
+
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
@@ -81,7 +84,6 @@ export type Api = {
   ): Promise<TotalItemsResult<PublicationAuthor>>
   getCategoryPublications(categoryId: string, page?: number): Promise<TotalItemsResult<Publication>>
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
-  getUser(userId: string): Promise<User>
 
   // Author
   getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
@@ -124,9 +126,9 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getProductFields(productId: string): Promise<ProductFieldModel[]>
+  getProductFields(productId: string): Promise<ProductField[]>
 
-  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldCompare>
+  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldDiff>
 
   getReviewProposals(
     siteId: string,

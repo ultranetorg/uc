@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
 
-import { useAccountsContext } from "app"
+import { useManageUsersContext } from "app"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
 import { useEscapeKey } from "hooks"
@@ -18,7 +18,7 @@ export const ProfilePage = () => {
   const backgroundLocation = state?.backgroundLocation
   const defaultTabKey = state?.defaultTabKey as string | undefined
 
-  const { currentAccount } = useAccountsContext()
+  const { selectedUserName } = useManageUsersContext()
 
   const close = useCallback(() => {
     navigate(-1)
@@ -28,7 +28,7 @@ export const ProfilePage = () => {
 
   const handleTabSelect = useCallback((tab: string) => setTitleKey(tab), [])
 
-  if (!currentAccount) {
+  if (!selectedUserName) {
     return <Navigate to="/" replace={true} />
   }
 

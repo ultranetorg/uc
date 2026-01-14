@@ -25,6 +25,7 @@ export const enUS = {
     language: "language",
     lastsFor: "Lasts for",
     latestVersion: "latest version",
+    login: "login",
     moderator: "moderator",
     neither: "Neither",
     next: "Next",
@@ -41,6 +42,8 @@ export const enUS = {
     review: "review",
     reviewer: "Reviewer",
     saveChanges: "Save changes",
+    signIn: "sign in",
+    signUp: "sign up",
     text: "Text",
     title: "Title",
     type: "type",
@@ -102,8 +105,10 @@ export const enUS = {
   currentAccount: {
     addAccount: "Add account",
     authenticate: "Authenticate Yourself",
+    authenticationCancelled: "Authentication cancelled",
     createNickname: "Create nickname",
     profile: "Profile",
+    successfullyAuthenticated: "User {{userName}} successfully authenticated",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
@@ -334,6 +339,12 @@ export const enUS = {
     title: "Select image",
     noFiles: "You don't have any image",
   },
+  signInModal: {
+    alreadyHaveAccount: "Already have an account?",
+    dontHaveAccount: "Don’t have an account?",
+    signIn: "sign in",
+    signUp: "sign up",
+  },
 
   /* Tabs */
   tabChangedPublications: {
@@ -413,6 +424,7 @@ export const enUS = {
     enterCategoryTitle: "Enter category title",
     enterDescription: "Enter description",
     enterNickname: "Enter nickname",
+    enterYourNickname: "Enter your nickname",
     enterOptionTitle: "Enter option title",
     enterProductId: "Enter product ID",
     enterSlogan: "Enter slogan",
@@ -438,6 +450,7 @@ export const enUS = {
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
+    invalidUserName: "Invalid user name",
     maxLength: "Must be at most {{count}} characters",
     minLength: "Must be at least {{count}} characters",
     onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
@@ -456,6 +469,7 @@ export const enUS = {
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
     uniqueOptions: "Some options are identical. Each must differ by at least one field.",
+    userNotFound: "User not found",
   },
 
   /* Misc */

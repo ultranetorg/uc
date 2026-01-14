@@ -1,15 +1,21 @@
 import { memo, useMemo, useState } from "react"
 
-import { ProductFieldModel } from "types"
+import { ProductField } from "types"
 import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { RequirementPlatform, getChildren, getRequirementPlatforms, getValue, nameEq } from "ui/components/publication/utils"
+import {
+  RequirementPlatform,
+  getChildren,
+  getRequirementPlatforms,
+  getValue,
+  nameEq,
+} from "ui/components/publication/utils"
 import { ReviewsList } from "ui/components/specific"
 import { buildFileUrl, ensureHttp } from "utils"
 
 import { ContentProps } from "../types"
 
-function buildDescriptions(fields: ProductFieldModel[] | undefined): { language: string; text: string }[] {
+function buildDescriptions(fields: ProductField[] | undefined): { language: string; text: string }[] {
   const descriptionMaximal = (fields ?? []).filter(x => nameEq(x.name, "description-maximal"))
 
   const descriptions: { language: string; text: string }[] = []
@@ -27,7 +33,7 @@ function buildDescriptions(fields: ProductFieldModel[] | undefined): { language:
   return descriptions
 }
 
-function buildMediaItems(fields: ProductFieldModel[] | undefined) {
+function buildMediaItems(fields: ProductField[] | undefined) {
   const arts = (fields ?? []).filter(x => nameEq(x.name, "art"))
   const items: { src: string; poster?: string; alt?: string }[] = []
 
@@ -75,7 +81,7 @@ function buildSection(
   platform: RequirementPlatform,
   sectionKey: string,
   sectionName: string,
-  children: ProductFieldModel[] | undefined,
+  children: ProductField[] | undefined,
 ): SystemRequirementsTabSectionLike | null {
   if (!children?.length) return null
 
@@ -111,7 +117,7 @@ function buildSection(
   }
 }
 
-function buildSystemRequirementsTabs(fields: ProductFieldModel[] | undefined): SystemRequirementsTabLike[] {
+function buildSystemRequirementsTabs(fields: ProductField[] | undefined): SystemRequirementsTabLike[] {
   const platforms = getRequirementPlatforms(fields)
   const tabs: SystemRequirementsTabLike[] = []
 

@@ -1,10 +1,8 @@
-import { UseQueryResult } from "@tanstack/react-query"
+import { ProductFieldDiff, ProductField } from "types"
 
-import { ProductFieldCompare, ProductFieldModel, ProductFieldViewModel } from "types"
+import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./types"
 
-import { CompareStatus, ProductFieldCompareViewModel } from "./types"
-
-function groupByName(list?: ProductFieldViewModel[]) {
+const groupByName = (list?: ProductFieldViewModel[]) => {
   const map = new Map<string, ProductFieldViewModel[]>()
   ;(list ?? []).forEach(item => {
     const key = item.name
@@ -15,10 +13,10 @@ function groupByName(list?: ProductFieldViewModel[]) {
   return map
 }
 
-function getGenerator() {
+const getGenerator = () => {
   let index = 0
   return (
-    field: ProductFieldModel,
+    field: ProductField,
     ext: Partial<ProductFieldCompareViewModel>,
     parent?: ProductFieldCompareViewModel,
   ): ProductFieldCompareViewModel => ({
@@ -30,12 +28,12 @@ function getGenerator() {
   })
 }
 
-function mergeArrays(
+const mergeArrays = (
   fromList?: ProductFieldViewModel[],
   toList?: ProductFieldViewModel[],
   parent?: ProductFieldCompareViewModel,
   generate = getGenerator(),
-): ProductFieldCompareViewModel[] {
+): ProductFieldCompareViewModel[] => {
   const fromGroups = groupByName(fromList)
   const toGroups = groupByName(toList)
 
@@ -63,7 +61,7 @@ function mergeArrays(
           },
           parent,
         )
-        item.children = mergeArrays(from.children, [], item, generate)
+        item.children = mergeArrays(from.children as ProductFieldViewModel[] | undefined, [], item, generate)
         result.push(item)
         continue
       }
@@ -77,7 +75,7 @@ function mergeArrays(
           },
           parent,
         )
-        item.children = mergeArrays([], to.children, item, generate)
+        item.children = mergeArrays([], to.children as ProductFieldViewModel[] | undefined, item, generate)
         result.push(item)
         continue
       }
@@ -92,12 +90,17 @@ function mergeArrays(
           parent,
         )
 
-        item.children = mergeArrays(from.children, to.children, item, generate)
+        item.children = mergeArrays(
+          from.children as ProductFieldViewModel[] | undefined,
+          to.children as ProductFieldViewModel[] | undefined,
+          item,
+          generate,
+        )
 
         item.isChanged =
           from.value !== to.value ||
           from.type !== to.type ||
-          item.children.some(c => c.isAdded || c.isRemoved || c.isChanged) ||
+          (item.children?.some(c => c.isAdded || c.isRemoved || c.isChanged) ?? false) ||
           undefined
 
         // prefer 'to' values for current representation
@@ -109,24 +112,11 @@ function mergeArrays(
   return result
 }
 
-export function mergeFields(
-  response: UseQueryResult<ProductFieldCompare, Error>,
-): UseQueryResult<ProductFieldCompareViewModel[], Error> {
-  const { data } = response
-
-  if (!data) {
-    return response as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
-  }
-
-  const merged = mergeArrays(mapItems(data.from), mapItems(data.to))
-  return { ...response, data: merged } as unknown as UseQueryResult<ProductFieldCompareViewModel[], Error>
-}
-
-function mapItems(
-  items: ProductFieldModel[],
+const mapItems = (
+  items: ProductField[],
   parent: ProductFieldViewModel | undefined = undefined,
   idCounter: number = 0,
-): ProductFieldViewModel[] {
+): ProductFieldViewModel[] => {
   return items.map(item => {
     const newItem: ProductFieldViewModel = { ...item, parent, children: undefined, id: `${item.name}_${++idCounter}` }
     if (item.children && item.children.length > 0) {
@@ -136,32 +126,21 @@ function mapItems(
   })
 }
 
-export function mapFields(
-  response: UseQueryResult<ProductFieldModel[], Error>,
-): UseQueryResult<ProductFieldViewModel[], Error> {
-  const { data } = response
-
-  if (!data) {
-    return response as unknown as UseQueryResult<ProductFieldViewModel[], Error>
-  }
-
-  const transformed: ProductFieldViewModel[] = mapItems(data)
-
-  return { ...response, data: transformed } as unknown as UseQueryResult<ProductFieldViewModel[], Error>
-}
-
-export const isCompareNode = (
-  n?: ProductFieldViewModel | ProductFieldCompareViewModel | null,
-): n is ProductFieldCompareViewModel => {
+const isCompareNode = (n?: ProductFieldViewModel | ProductFieldCompareViewModel): n is ProductFieldCompareViewModel => {
   return !!n && ("isRemoved" in n || "isAdded" in n || "isChanged" in n)
 }
 
-export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel | null): CompareStatus => {
-  if (!node) return null
-  if (!isCompareNode(node)) return null
+export const mergeFields = (compare: ProductFieldDiff): ProductFieldCompareViewModel[] =>
+  mergeArrays(mapItems(compare.from), mapItems(compare.to))
+
+export const mapFields = (items: ProductField[]): ProductFieldViewModel[] => mapItems(items)
+
+export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel): CompareStatus => {
+  if (!node) return undefined
+  if (!isCompareNode(node)) return undefined
   // precedence: removed > added > changed
   if (node.isRemoved) return "removed"
   if (node.isAdded) return "added"
   if (node.isChanged) return "changed"
-  return null
+  return undefined
 }

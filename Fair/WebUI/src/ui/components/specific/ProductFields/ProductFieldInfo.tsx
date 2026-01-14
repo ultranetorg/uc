@@ -3,12 +3,11 @@ import { useTranslation } from "react-i18next"
 
 import { SvgChevronRight } from "assets"
 import { HomeSvg } from "assets/home"
-import { ProductFieldViewModel } from "types"
 import { kebabToCamel } from "utils"
 
-import { ProductFieldView } from "../ProductFieldView"
-import { SelectedProps } from "../types"
-import { getCompareStatus } from "../utils"
+import { FieldData } from "./FieldData"
+import { ProductFieldViewModel, SelectedProps } from "./types"
+import { getCompareStatus } from "./utils"
 
 export interface ProductFieldInfoProps extends SelectedProps {
   node: ProductFieldViewModel
@@ -26,7 +25,7 @@ const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
         </>
       )}
       <span
-        className="cursor-pointer rounded-sm px-1 py-1 text-gray-600 hover:text-gray-900"
+        className="cursor-pointer rounded-sm p-1 text-gray-600 hover:text-gray-900"
         key={node.name}
         onClick={() => onSelect(node)}
       >
@@ -40,8 +39,8 @@ const FieldBreadcrumbs = ({ node, onSelect }: ProductFieldInfoProps) => {
   return (
     <div className="flex items-center border-b bg-gray-200 px-4 py-1 text-sm">
       <HomeSvg
-        className="h-4 w-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900"
-        onClick={() => onSelect(null)}
+        className="size-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900"
+        onClick={() => onSelect(undefined)}
       />
       <SvgChevronRight className="stroke-gray-400" />
       <BreadcrumbNode node={node} onSelect={onSelect} />
@@ -55,7 +54,7 @@ const FieldsList = ({ node, onSelect }: ProductFieldInfoProps) => {
       <li
         key={node.name}
         className="flex cursor-pointer items-center justify-between bg-gray-100 px-4 py-2 text-sm hover:bg-gray-50"
-        onClick={() => onSelect(node.parent ?? null!)}
+        onClick={() => onSelect(node.parent ?? undefined)}
       >
         ...
       </li>
@@ -91,7 +90,7 @@ export const ProductFieldInfo = memo(({ node, onSelect }: ProductFieldInfoProps)
   return (
     <div className="h-full overflow-hidden rounded-md border">
       <FieldBreadcrumbs node={node} onSelect={onSelect} />
-      {node.children?.length ? <FieldsList node={node} onSelect={onSelect} /> : <ProductFieldView node={node} />}
+      {node.children?.length ? <FieldsList node={node} onSelect={onSelect} /> : <FieldData node={node} />}
     </div>
   )
 })

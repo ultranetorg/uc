@@ -1,6 +1,8 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
+
 import { ensureHttp } from "utils"
+
 import { ProductFieldViewProp } from "./types"
 
 function getAdded(value: unknown) {
@@ -55,7 +57,7 @@ export const ProductFieldViewUri = memo(({ value, oldValue, status }: ProductFie
     case "changed": {
       return (
         <div>
-          {getRemoved(oldValue!)}
+          {getRemoved(oldValue ?? value)}
           {getAdded(value)}
         </div>
       )

@@ -24,3 +24,5 @@ export * from "./PageBanner"
 export * from "./SoftwarePublicationLogo"
 export * from "./ScrollToTop"
 export * from "./ToggleViewButton"
+
+export * from "./ProductFields"

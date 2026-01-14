@@ -128,7 +128,7 @@ public class Execution : ITableExecution
 	{
 		if(a.EnergyThisPeriod != Time.Days/Net.ECLifetime.Days)
 		{
-			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days)
+			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days) /// if this is next period only
 				a.Energy = a.EnergyNext;
 	
 			a.EnergyNext = 0;

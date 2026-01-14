@@ -1,7 +1,7 @@
 import { ChangedPublication } from "./ChangedPublication"
-import { ProductFieldModel } from "./ProductField"
+import { ProductField } from "./ProductField"
 
 export type ChangedPublicationDetails = {
-  from: ProductFieldModel[]
-  to: ProductFieldModel[]
+  from: ProductField[]
+  to: ProductField[]
 } & ChangedPublication

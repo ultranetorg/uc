@@ -42,6 +42,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IPaginationValidator, PaginationValidator>();
 		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
 		services.AddSingleton<ISiteSearchQueryValidator, SiteSearchQueryValidator>();
+		services.AddSingleton<UserNameValidator>();
 		services.AddSingleton<VersionValidator>();
 	}
 }
