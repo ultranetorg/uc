@@ -5,7 +5,7 @@ import { LOCAL_STORAGE_KEYS } from "constants/"
 import { useAuthenticateMutation, useIsAuthenticatedMutation } from "entities/vault"
 import { AuthenticationResult } from "types/vault"
 
-type AuthenticateMutationCallbacks = {
+type Callbacks = {
   onSuccess?: (data: AuthenticationResult | null) => void
   onError?: (error: Error) => void
   onSettled?: (data?: AuthenticationResult | null) => void
@@ -31,8 +31,9 @@ type ManageUsersContextType = {
   selectedUserName?: string
   isPending: boolean
   selectUser(userName: string): void
-  authenticate(userName: string, owner: string, callbacks?: AuthenticateMutationCallbacks): void
+  authenticate(userName: string, owner: string, callbacks?: Callbacks): void
   logout(userName: string): void
+  register(userName: string, callbacks?: Callbacks): void
 }
 
 const ManageUsersContext = createContext<ManageUsersContextType>({
@@ -41,6 +42,7 @@ const ManageUsersContext = createContext<ManageUsersContextType>({
   selectUser: () => {},
   authenticate: () => {},
   logout: () => {},
+  register: () => {},
 })
 
 export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
@@ -74,7 +76,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
   }, [isAuthenticatedMutation, isAuthenticatedReady, removeStorage, setStorage])
 
   const authenticate = useCallback(
-    (userName: string, address: string, callbacks?: AuthenticateMutationCallbacks) =>
+    (userName: string, address: string, callbacks?: Callbacks) =>
       authenticateMutation(
         { userName, address },
         {

@@ -12,11 +12,11 @@ import { USER_NAME_REGEXP } from "utils"
 
 import { ActiveAccount } from "./ActiveAccount"
 
-type SignInState = "sign-in" | "sign-up"
+export type SignInModalState = "sign-in" | "sign-up"
 
 type SignInModalBaseProps = {
   submitDisabled: boolean
-  onSubmit(userName: string, address: string): void
+  onSubmit(state: SignInModalState, userName: string, address?: string): void
 }
 
 export type SignInModalProps = Pick<ModalProps, "onClose"> & SignInModalBaseProps
@@ -26,7 +26,7 @@ export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalPr
 
   useEscapeKey(rest.onClose)
 
-  const [state, setState] = useState<SignInState>("sign-in")
+  const [state, setState] = useState<SignInModalState>("sign-in")
   const [userName, setUserName] = useState("")
   const [debouncedUserName] = useDebounceValue(userName, SEARCH_DELAY)
 
@@ -58,7 +58,10 @@ export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalPr
     return { message: t("uniqueNickname"), type: "default" }
   }, [t, user, userName])
 
-  const handleSubmit = useCallback(() => onSubmit(userName, user!.data!.address), [onSubmit, user, userName])
+  const handleSubmit = useCallback(
+    () => onSubmit(state, userName, user?.data?.address),
+    [onSubmit, state, user?.data?.address, userName],
+  )
 
   const toggleState = () => (state === "sign-in" ? setState("sign-up") : setState("sign-in"))
 

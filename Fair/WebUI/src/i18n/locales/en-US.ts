@@ -108,6 +108,7 @@ export const enUS = {
     authenticationCancelled: "Authentication cancelled",
     createNickname: "Create nickname",
     profile: "Profile",
+    registrationCancelled: "Registration cancelled",
     successfullyAuthenticated: "User {{userName}} successfully authenticated",
     switchAccounts: "Switch Accounts",
   },

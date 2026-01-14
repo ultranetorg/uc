@@ -4,7 +4,7 @@ import { NnpNode } from "types/nexus"
 import { NexusApi } from "./NexusApi"
 import { keysToCamelCase } from "./utils"
 
-const getFairUrl = async (baseUrl: string): Promise<NnpNode> => {
+const getNodeUrl = async (baseUrl: string): Promise<NnpNode> => {
   const response = await fetch(`${baseUrl}/NnpNode`, {
     method: "POST",
     body: JSON.stringify({
@@ -16,7 +16,7 @@ const getFairUrl = async (baseUrl: string): Promise<NnpNode> => {
 }
 
 const api: NexusApi = {
-  getFairUrl,
+  getNodeUrl,
 }
 
 export const getNexusApi = () => api

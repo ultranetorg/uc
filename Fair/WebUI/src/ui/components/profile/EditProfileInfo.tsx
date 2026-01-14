@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { Controller, useForm } from "react-hook-form"
 
 import { useUserContext } from "app"
-import { useTransactMutationWithStatus } from "entities/mcv"
+import { useTransactMutationWithStatus } from "entities/node"
 import { PROFILE_SRC } from "testConfig"
 import { AccountNicknameChange } from "types"
 import { ButtonPrimary, Input, ValidationWrapper } from "ui/components"

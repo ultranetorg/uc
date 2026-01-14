@@ -37,6 +37,21 @@ const isAuthenticated = (baseUrl: string, userName: string, session: string): Pr
     }),
   }).then(res => res.json())
 
+const register = async (baseUrl: string, userName: string): Promise<AuthenticationResult | null> => {
+  const response = await fetch(`${baseUrl}/Authenticate`, {
+    method: "POST",
+    body: JSON.stringify({
+      Application: VAULT.APPLICATION,
+      Net: VAULT.NETWORK,
+      User: userName,
+    }),
+  })
+  const data = await response.json()
+  if (data === null) return null
+
+  return keysToCamelCase(data) as AuthenticationResult
+}
+
 const getWallets = (baseUrl: string): Promise<Wallet[]> => fetch(`${baseUrl}/Wallets`).then(res => res.json())
 
 const getWalletAccounts = (baseUrl: string, name?: string): Promise<WalletAccount[]> =>
@@ -45,6 +60,7 @@ const getWalletAccounts = (baseUrl: string, name?: string): Promise<WalletAccoun
 const api: VaultApi = {
   authenticate,
   isAuthenticated,
+  register,
   getWallets,
   getWalletAccounts,
 }
