@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
+public class ExamineTransactionPpc : McvPpc<ExamineTransactionPpr>
 {
 	public Transaction Transaction { get; set; }
 
@@ -17,11 +17,13 @@ public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
 
 				if(Peering.ValidateIncoming(Transaction, false, out var r))
 				{
-					var b = r.AffectedAccounts.Values.First(i => i.Name == Transaction.User);
+					var b = r.AffectedAccounts.Values.First(i => u == null ? i.Name == Transaction.User : i.Id == u.Id);
 				
-					var atr = new AllocateTransactionPpr{//Generator			= m.Id,
-														 LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-														 NextNid			= Transaction.Nonce};
+					var atr = new ExamineTransactionPpr
+							  {
+								  LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
+								  NextNid			= Transaction.Nonce
+							  };
 
 					if(u != null)
 					{
@@ -41,7 +43,7 @@ public class AllocateTransactionPpc : McvPpc<AllocateTransactionPpr>
 	}
 }
 
-public class AllocateTransactionPpr : Result
+public class ExamineTransactionPpr : Result
 {
 	public int			LastConfirmedRid { get; set; }
 	public int			NextNid { get; set; }
