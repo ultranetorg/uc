@@ -4,8 +4,8 @@ import { twMerge } from "tailwind-merge"
 import { SvgStarXxs } from "assets"
 import { PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
-import { formatAverageRating, formatDate } from "utils"
-import { getChildren, getRequirementPlatforms, getValue, nameEq } from "ui/components/publication/utils"
+import { formatAverageRating, formatDate, getValue, nameEq } from "utils"
+import { getChildren, getRequirementPlatforms } from "ui/components/publication/utils"
 
 import { AuthorImageTitle } from "./components"
 
