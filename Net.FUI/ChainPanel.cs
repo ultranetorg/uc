@@ -55,7 +55,6 @@ public partial class ChainPanel : MainPanel
 																		li.SubItems.Add(i.Nonce.ToString());
 																		li.SubItems.Add(i.Signer.ToString());
 																		li.SubItems.Add(i.Operations.Length.ToString());
-																		li.SubItems.Add(i.Bonus.ToString());
 																		return li;
 																	}).ToArray());
 	}

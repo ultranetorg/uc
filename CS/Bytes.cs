@@ -22,9 +22,16 @@ public class BytesComparer : IComparer<byte[]>
 
 public class BytesEqualityComparer : IEqualityComparer<byte[]>
 {
-	public bool Equals(byte[] b1, byte[] b2)
+	public bool Equals(byte[] a, byte[] b)
 	{
-		return b1.SequenceEqual(b2);
+		if(a.Length != b.Length)
+			return false;
+
+		for(int i = 0; i < a.Length; i++)
+			if(a[i] != b[i])
+				return false;
+
+		return true;
 	}
 
 	public int GetHashCode(byte[] b)

@@ -9,7 +9,7 @@ public class CostPpc : McvPpc<CostPpr>
 			RequireGraph();
 
 			return new CostPpr{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusECEnergyCost};
+									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusEnergyCost};
 		}
 	}
 }

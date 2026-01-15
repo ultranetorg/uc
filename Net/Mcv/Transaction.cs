@@ -46,7 +46,6 @@ public class Transaction : IBinarySerializable
 	public AutoId					Member;
 	public int						Expiration { get; set; }
 	public byte[]					Tag;
-	public long						Bonus;
 	
 	public long						EnergyConsumed;
 	public byte[]					Signature { get; set; }
@@ -103,7 +102,6 @@ public class Transaction : IBinarySerializable
 		w.Write(Member);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
-		w.Write(Bonus);
 		w.WriteBytes(Tag);
 		w.Write(Operations, i => i.Write(w));
 
@@ -115,7 +113,6 @@ public class Transaction : IBinarySerializable
 		writer.WriteUtf8(User);
 		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
@@ -129,7 +126,6 @@ public class Transaction : IBinarySerializable
 		User		= reader.ReadUtf8();
 		//Member		= reader.Read<AutoId>();
 		Nonce		= reader.Read7BitEncodedInt();
-		Bonus		= reader.Read7BitEncodedInt64();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  												o.Transaction = this;
@@ -147,7 +143,6 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
@@ -164,7 +159,6 @@ public class Transaction : IBinarySerializable
 		Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
-		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
  		Operations			= reader.ReadArray(() => {
  													 	var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
@@ -183,7 +177,6 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
@@ -200,7 +193,6 @@ public class Transaction : IBinarySerializable
 		Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
-		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
 		Operations			= reader.ReadArray(() => {
 														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;

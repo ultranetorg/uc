@@ -452,7 +452,7 @@ public abstract class McvPeering : HomoTcpPeering
 			
 			var r = Mcv.GetRound(v.RoundId);
 
-			if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, v.Signature)))
 				return false;
 								
 			if(r.VotersRound.Members.Any() && !r.VotersRound.Members.Any(i => i.Address == v.Generator))
@@ -477,13 +477,13 @@ public abstract class McvPeering : HomoTcpPeering
 							
 			if(r.VotersRound.Confirmed)
 			{
-				if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
-				{	
-					//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
-					return false;
-				}
+				//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
+				//{	
+				//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+				//	return false;
+				//}
 
-				if(v.Transactions.Sum(i => i.Operations.Length) > r.VotersRound.PerVoteOperationsLimit)
+				if(v.Transactions.Sum(i => i.Operations.Length) > r.VotersRound.PerVoteOperationsMaximum)
 				{	
 					//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
 					return false;
@@ -631,10 +631,10 @@ public abstract class McvPeering : HomoTcpPeering
 	
 					bool tryplace(Transaction t, bool isdeferred)	
 					{ 	
-						if(v.Transactions.Length + 1 > pp.PerVoteTransactionsLimit)
+						if(v.Transactions.Sum(i => i.Operations.Length) + 1 > pp.PerVoteOperationsMaximum)
 							return false;
 	
-						if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > pp.PerVoteOperationsLimit)
+						if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > pp.PerVoteOperationsMaximum)
 							return false;
 	
 						if(r.Id > t.Expiration)
@@ -752,7 +752,7 @@ public abstract class McvPeering : HomoTcpPeering
 					if(r.Hash == null)
 					{
 						r.ConsensusTime			= r.Previous.ConsensusTime;
-						r.ConsensusECEnergyCost	= r.Previous.ConsensusECEnergyCost;
+						r.ConsensusEnergyCost	= r.Previous.ConsensusEnergyCost;
 						r.Members				= r.Previous.Members;
 						r.Funds					= r.Previous.Funds;
 					}
@@ -882,7 +882,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 					try
 					{
-						t.Bonus		 = 0;
 						t.Nonce		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
@@ -925,7 +924,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 						t.Ppi		 = ppi;
 						t.Member	 = m.Id;
-						t.Bonus		 = 0;
 						t.Nonce		 = nonce;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc

@@ -7,9 +7,9 @@ class Program
 	{
 		//IdTests.Main();
 		//MoneyTests.Main();
-		//AccountKeyTests.Main();
+		AccountKeyTests.Main();
 		//XonTest.Custom();
-		ECTests.Move();
+		//ECTests.Move();
 
 		//UraTests.UAddresses();
 		//UraTests.Resource();
