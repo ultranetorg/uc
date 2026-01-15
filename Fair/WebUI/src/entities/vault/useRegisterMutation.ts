@@ -20,5 +20,5 @@ export const useRegisterMutation = () => {
     mutationFn: ({ userName }: RegisterMutationArgs) => vaultApi.register(baseUrl!, userName),
   })
 
-  return { mutate, isFetching: isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
+  return { mutate, isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }
 }

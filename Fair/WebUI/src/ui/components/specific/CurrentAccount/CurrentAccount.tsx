@@ -3,10 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { useManageUsersContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
-import { useTransactMutationWithStatus } from "entities/node"
-import { useRegisterMutation } from "entities/vault"
 import { useScrollOrResize, useSubmenu } from "hooks"
-import { UserFreeCreation } from "types"
 import { showToast } from "utils"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
@@ -33,10 +30,9 @@ export const CurrentAccount = () => {
     users,
     authenticate: authenticateMutation,
     logout,
-    selectUser: selectAccount,
+    register,
+    selectUser,
   } = useManageUsersContext()
-  const { mutate: registerMutate } = useRegisterMutation()
-  const { mutate: transactMutate } = useTransactMutationWithStatus()
 
   const userItems = useMemo(
     () =>
@@ -66,11 +62,11 @@ export const CurrentAccount = () => {
 
   const handleUserSelect = useCallback(
     (userName: string) => {
-      selectAccount(userName)
+      selectUser(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
     },
-    [accountsMenu, profileMenu, selectAccount],
+    [accountsMenu, profileMenu, selectUser],
   )
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
@@ -95,31 +91,20 @@ export const CurrentAccount = () => {
 
   const registerUser = useCallback(
     (userName: string) => {
-      registerMutate(
-        { userName: userName },
-        {
-          onSuccess: data => {
-            if (data === null) {
-              showToast(t("registrationCancelled"), "warning")
-              return
-            }
+      register(userName, {
+        onSuccess: data => {
+          if (data === null) {
+            showToast(t("registrationCancelled"), "warning")
+            return
+          }
 
-            const operation = new UserFreeCreation()
-            transactMutate(
-              operation,
-              {
-                onSuccess: () => console.log("SUCCESS"),
-                onError: err => console.log(err),
-                onSettled: () => console.log("SETTLED"),
-              },
-              userName,
-            )
-          },
-          onError: error => showToast(error.message, "error"),
+          showToast(t("successfullyRegistered", { userName }), "success")
+          setShowUserModal(false)
         },
-      )
+        onError: error => showToast(error.message, "error"),
+      })
     },
-    [registerMutate, t, transactMutate],
+    [register, t],
   )
 
   const handleModalSubmit = useCallback(
