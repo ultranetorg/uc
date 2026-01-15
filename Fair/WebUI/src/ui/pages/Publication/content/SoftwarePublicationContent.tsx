@@ -3,15 +3,9 @@ import { memo, useMemo, useState } from "react"
 import { ProductField } from "types"
 import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import {
-  RequirementPlatform,
-  getChildren,
-  getRequirementPlatforms,
-  getValue,
-  nameEq,
-} from "ui/components/publication/utils"
+import { RequirementPlatform, getChildren, getRequirementPlatforms } from "ui/components/publication/utils"
 import { ReviewsList } from "ui/components/specific"
-import { buildFileUrl, ensureHttp } from "utils"
+import { buildFileUrl, ensureHttp, getValue, nameEq } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -22,8 +16,8 @@ function buildDescriptions(fields: ProductField[] | undefined): { language: stri
 
   for (const desc of descriptionMaximal) {
     const children = desc.children ?? []
-    const language = (getValue<string>(children, "language") ?? "").trim()
-    const text = (getValue<string>(children, "value") ?? "").trim()
+    const language = (getValue(children, "language") ?? "").trim()
+    const text = (getValue(children, "value") ?? "").trim()
 
     if (language && text) {
       descriptions.push({ language, text })
@@ -160,21 +154,21 @@ export const SoftwarePublicationContent = memo(
     const hasDescription = !!publication.description || descriptions.length > 0
 
     const officialSite = useMemo(() => {
-      const raw = getValue<string>(publication.productFields, "uri")
+      const raw = getValue(publication.productFields, "uri")
       if (!raw) return undefined
       const normalized = String(raw).trim()
       return normalized ? ensureHttp(normalized) : undefined
     }, [publication.productFields])
 
     const eulaText = useMemo(() => {
-      const raw = getValue<string>(publication.productFields, "eula")
+      const raw = getValue(publication.productFields, "eula")
       if (!raw) return undefined
       const normalized = String(raw).trim()
       return normalized || undefined
     }, [publication.productFields])
 
     const tags = useMemo(() => {
-      const raw = getValue<string>(publication.productFields, "tags")
+      const raw = getValue(publication.productFields, "tags")
       if (!raw) return undefined
       const parsed = String(raw)
         .split(/[,;\s]+/g)
