@@ -361,7 +361,7 @@ public class EstimateOperationApc : McvApc
 
 		///t.Sign(node.Vault.Find(By).Key, []);
 
-		return node.Peering.Call(new AllocateTransactionPpc {Transaction = t}, workflow);
+		return node.Peering.Call(new ExamineTransactionPpc {Transaction = t}, workflow);
 	}
 }
 

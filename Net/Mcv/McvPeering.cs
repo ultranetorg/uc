@@ -10,7 +10,7 @@ public enum McvPpcClass : uint
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
 	Info,
-	Vote, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, User, 
+	Vote, Time, Members, Funds, ExamineTransaction, PlaceTransactions, TransactionStatus, User, 
 	Stamp, TableStamp, DownloadTable, DownloadRounds,
 	Cost,
 	_Last = 199
@@ -901,7 +901,7 @@ public abstract class McvPeering : HomoTcpPeering
 							break;
 						}
 
-						var at = Call(new AllocateTransactionPpc {Transaction = t}, t.Flow);
+						var at = Call(new ExamineTransactionPpc {Transaction = t}, t.Flow);
 							
 						if(nonce == -1)
 							nonce = at.NextNid;
