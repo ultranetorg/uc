@@ -1,5 +1,5 @@
 import { NnpNode } from "types/nexus"
 
 export type NexusApi = {
-  getFairUrl(baseUrl: string): Promise<NnpNode>
+  getNodeUrl(baseUrl: string): Promise<NnpNode>
 }

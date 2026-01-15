@@ -27,6 +27,7 @@ import {
 
 import { ManageUsersProvider } from "./ManageUsersProvider"
 import { ModerationProvider } from "./ModerationProvider"
+import { NodeCheckerProvider } from "./NodeCheckerProvider"
 import { SiteProvider } from "./SiteProvider"
 import { UserProvider } from "./UserProvider"
 
@@ -36,13 +37,15 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <ManageUsersProvider>
-        <UserProvider>
-          <SiteProvider>
-            <BaseLayout />
-          </SiteProvider>
-        </UserProvider>
-      </ManageUsersProvider>
+      <NodeCheckerProvider>
+        <ManageUsersProvider>
+          <UserProvider>
+            <SiteProvider>
+              <BaseLayout />
+            </SiteProvider>
+          </UserProvider>
+        </ManageUsersProvider>
+      </NodeCheckerProvider>
     ),
     errorElement: (
       <AppLayout>

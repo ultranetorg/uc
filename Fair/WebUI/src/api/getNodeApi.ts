@@ -1,7 +1,7 @@
 import { BaseFairOperation } from "types"
-import { TransactionApe } from "types/mcv"
+import { Pong, TransactionApe } from "types/node"
 
-import { McvApi } from "./McvApi"
+import { NodeApi } from "./NodeApi"
 import { keysToCamelCase, keysToPascalCase } from "./utils"
 
 const outgoingTransaction = async (baseUrl: string, tag: string): Promise<TransactionApe> => {
@@ -13,6 +13,17 @@ const outgoingTransaction = async (baseUrl: string, tag: string): Promise<Transa
   })
   const data = await response.json()
   return keysToCamelCase(data) as TransactionApe
+}
+
+const ping = async (baseUrl: string): Promise<boolean> => {
+  try {
+    const res = await fetch(`${baseUrl}/Ping`)
+    const data = await res.json()
+    const normalized = keysToCamelCase(data) as Pong
+    return normalized.status == "OK"
+  } catch {
+    return false
+  }
 }
 
 const transact = async (
@@ -33,9 +44,10 @@ const transact = async (
   return keysToCamelCase(data) as TransactionApe
 }
 
-const api: McvApi = {
+const api: NodeApi = {
   outgoingTransaction,
+  ping,
   transact,
 }
 
-export const getMcvApi = () => api
+export const getNodeApi = () => api

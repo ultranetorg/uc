@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { getMcvApi } from "api"
+import { getNodeApi } from "api"
 import { useManageUsersContext } from "app"
-import { useGetFairUrl } from "entities/nexus"
+import { useGetNodeUrl } from "entities/nexus"
 import { useGetNexusUrl } from "entities/node"
 import { BaseFairOperation, TransactionStatus } from "types"
-import { TransactionApe } from "types/mcv"
+import { TransactionApe } from "types/node"
 
-const api = getMcvApi()
+const api = getNodeApi()
+
+type TransactMutationArgs = {
+  operations: BaseFairOperation[]
+  userName?: string
+}
 
 type TransactMutationCallbacks = {
   onSuccess?: (tx: TransactionApe) => void
@@ -18,7 +23,7 @@ type TransactMutationCallbacks = {
 
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
-  const fair = useGetFairUrl(nexus.data)
+  const node = useGetNodeUrl(nexus.data)
   const { selectedUserName } = useManageUsersContext()
 
   const [tag, setTag] = useState<string | undefined>()
@@ -26,8 +31,8 @@ export const useTransactMutationWithStatus = () => {
   const isPendingRef = useRef(false)
 
   const mutation = useMutation({
-    mutationFn: ({ operations }: { operations: BaseFairOperation[] }) =>
-      api.transact(fair.data!, operations, selectedUserName!),
+    mutationFn: ({ operations, userName = undefined }: TransactMutationArgs) =>
+      api.transact(node.data!, operations, userName || selectedUserName!),
 
     onSuccess: tx => {
       setTag(tx.tag)
@@ -44,8 +49,8 @@ export const useTransactMutationWithStatus = () => {
 
   const query = useQuery<TransactionApe, Error>({
     queryKey: ["operations", "tag", tag],
-    enabled: !!fair.data && !!tag,
-    queryFn: () => api.outgoingTransaction(fair.data!, tag!),
+    enabled: !!node.data && !!tag,
+    queryFn: () => api.outgoingTransaction(node.data!, tag!),
     refetchInterval: query =>
       query.state.data?.status === TransactionStatus.Confirmed ||
       query.state.data?.status === TransactionStatus.FailedOrNotFound
@@ -60,19 +65,23 @@ export const useTransactMutationWithStatus = () => {
     if (query.data.status === TransactionStatus.Confirmed) {
       callbacksRef.current?.onSuccess?.(query.data)
       callbacksRef.current?.onSettled?.()
+      isPendingRef.current = false
     } else if (query.data.status === TransactionStatus.FailedOrNotFound) {
       callbacksRef.current?.onError?.(new Error("Transaction failed or not found"))
       callbacksRef.current?.onSettled?.()
+      isPendingRef.current = false
     }
-
-    isPendingRef.current = false
   }, [query.data])
 
   const mutate = useCallback(
-    (operations: BaseFairOperation | BaseFairOperation[], callbacks?: TransactMutationCallbacks) => {
+    (
+      operations: BaseFairOperation | BaseFairOperation[],
+      callbacks?: TransactMutationCallbacks,
+      userName: string | undefined = undefined,
+    ) => {
       isPendingRef.current = true
       callbacksRef.current = callbacks ?? null
-      return mutation.mutateAsync({ operations: Array.isArray(operations) ? operations : [operations] })
+      return mutation.mutateAsync({ operations: Array.isArray(operations) ? operations : [operations], userName })
     },
     [mutation],
   )
@@ -81,7 +90,7 @@ export const useTransactMutationWithStatus = () => {
     mutate,
     data: query.data,
     isPending: isPendingRef.current,
-    isReady: !!fair.data && !!selectedUserName,
+    isReady: !!node.data && !!selectedUserName,
     error: mutation.error || query.error,
   }
 }

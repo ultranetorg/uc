@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next"
 import { useManageUsersContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
-
 import { showToast } from "utils"
+
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
 import { ProfileButton } from "./ProfileButton"
 import { ProfileMenu } from "./ProfileMenu"
-import { SignInModal } from "./SignInModal"
+import { SignInModal, SignInModalState } from "./SignInModal"
 
 const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
@@ -30,7 +30,8 @@ export const CurrentAccount = () => {
     users,
     authenticate: authenticateMutation,
     logout,
-    selectUser: selectAccount,
+    register,
+    selectUser,
   } = useManageUsersContext()
 
   const userItems = useMemo(
@@ -41,6 +42,8 @@ export const CurrentAccount = () => {
       })),
     [users],
   )
+
+  const handleAuthenticate = useCallback(() => setShowUserModal(true), [])
 
   const handleAccountAdd = useCallback(() => {
     setShowUserModal(true)
@@ -59,21 +62,21 @@ export const CurrentAccount = () => {
 
   const handleUserSelect = useCallback(
     (userName: string) => {
-      selectAccount(userName)
+      selectUser(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
     },
-    [accountsMenu, profileMenu, selectAccount],
+    [accountsMenu, profileMenu, selectUser],
   )
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
 
-  const handleSignIn = useCallback(
-    (userName: string, address: string) =>
-      authenticateMutation(userName, address, {
+  const authenticateUser = useCallback(
+    (userName: string, address: string) => {
+      authenticateMutation(userName, address!, {
         onSuccess: data => {
           if (data === null) {
-            showToast(t("authenticationCancelled"), "warning")
+            showToast(t("authenticationCancelled"), "success")
             return
           }
 
@@ -81,8 +84,35 @@ export const CurrentAccount = () => {
           setShowUserModal(false)
         },
         onError: error => showToast(error.message, "error"),
-      }),
+      })
+    },
     [authenticateMutation, t],
+  )
+
+  const registerUser = useCallback(
+    (userName: string) => {
+      register(userName, {
+        onSuccess: data => {
+          if (data === null) {
+            showToast(t("registrationCancelled"), "success")
+            return
+          }
+
+          showToast(t("successfullyRegistered", { userName }), "success")
+          setShowUserModal(false)
+        },
+        onError: error => showToast(error.message, "error"),
+      })
+    },
+    [register, t],
+  )
+
+  const handleModalSubmit = useCallback(
+    (state: SignInModalState, userName: string, address?: string) => {
+      if (state === "sign-in") authenticateUser(userName, address!)
+      else registerUser(userName)
+    },
+    [authenticateUser, registerUser],
   )
 
   const userSwitcherProps = useMemo(
@@ -103,7 +133,7 @@ export const CurrentAccount = () => {
           iconBefore={<SvgPersonSquare className="fill-gray-800" />}
           className={STICKY_CLASSNAME}
           label={t("authenticate")}
-          onClick={() => setShowUserModal(true)}
+          onClick={handleAuthenticate}
         />
       ) : !user ? (
         <ProfileButton
@@ -145,7 +175,7 @@ export const CurrentAccount = () => {
         />
       )}
       {showUserModal && (
-        <SignInModal submitDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleSignIn} />
+        <SignInModal formDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleModalSubmit} />
       )}
     </>
   )

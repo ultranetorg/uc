@@ -2,10 +2,12 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
-import { useAuthenticateMutation, useIsAuthenticatedMutation } from "entities/vault"
+import { useAuthenticateMutation, useIsAuthenticatedMutation, useRegisterMutation } from "entities/vault"
+import { UserFreeCreation } from "types"
 import { AuthenticationResult } from "types/vault"
+import { useTransactMutationWithStatus } from "entities/node"
 
-type AuthenticateMutationCallbacks = {
+type Callbacks = {
   onSuccess?: (data: AuthenticationResult | null) => void
   onError?: (error: Error) => void
   onSettled?: (data?: AuthenticationResult | null) => void
@@ -30,17 +32,19 @@ type ManageUsersContextType = {
   users: StoredUserSession[]
   selectedUserName?: string
   isPending: boolean
-  selectUser(userName: string): void
-  authenticate(userName: string, owner: string, callbacks?: AuthenticateMutationCallbacks): void
+  authenticate(userName: string, owner: string, callbacks?: Callbacks): void
   logout(userName: string): void
+  register(userName: string, callbacks?: Callbacks): void
+  selectUser(userName: string): void
 }
 
 const ManageUsersContext = createContext<ManageUsersContextType>({
   isPending: false,
   users: [],
-  selectUser: () => {},
   authenticate: () => {},
   logout: () => {},
+  register: () => {},
+  selectUser: () => {},
 })
 
 export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
@@ -49,6 +53,8 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
   })
 
   const { mutate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
+  const { mutate: registerMutation, isPending: isRegisterPending } = useRegisterMutation()
+  const { mutate: transactMutation, isPending: isTransactPending } = useTransactMutationWithStatus()
   const {
     isAuthenticated: isAuthenticatedMutation,
     isPending: isAuthenticatedPending,
@@ -73,8 +79,50 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticatedMutation, isAuthenticatedReady, removeStorage, setStorage])
 
+  const register = useCallback(
+    (userName: string, callbacks?: Callbacks) => {
+      registerMutation(
+        { userName: userName },
+        {
+          onSuccess: data => {
+            if (data === null) {
+              callbacks?.onSuccess?.(null)
+              return
+            }
+
+            const operation = new UserFreeCreation()
+            transactMutation(
+              operation,
+              {
+                onSuccess: () => {
+                  setStorage(p => {
+                    const newUsers = [
+                      ...p.users,
+                      { session: data.session, user: { owner: data.account, name: userName } },
+                    ]
+                    return {
+                      ...p,
+                      users: newUsers,
+                      selectedUserName: userName,
+                    }
+                  })
+
+                  callbacks?.onSuccess?.(data)
+                },
+                onError: error => callbacks?.onError?.(error),
+              },
+              userName,
+            )
+          },
+          onError: error => callbacks?.onError?.(error),
+        },
+      )
+    },
+    [registerMutation, setStorage, transactMutation],
+  )
+
   const authenticate = useCallback(
-    (userName: string, address: string, callbacks?: AuthenticateMutationCallbacks) =>
+    (userName: string, address: string, callbacks?: Callbacks) =>
       authenticateMutation(
         { userName, address },
         {
@@ -149,23 +197,36 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
 
+  console.log(
+    "isAuthenticatePending",
+    isAuthenticatePending,
+    "isAuthenticatedPending",
+    isAuthenticatedPending,
+    "isRegisterPending",
+    isRegisterPending,
+  )
+
   const value = useMemo(
     () => ({
       users: storage.users,
       selectedUserName: storage.selectedUserName,
-      isPending: isAuthenticatePending || isAuthenticatedPending,
+      isPending: isAuthenticatePending || isAuthenticatedPending || isRegisterPending || isTransactPending,
       authenticate,
       logout,
       selectUser,
+      register,
     }),
     [
       storage.users,
       storage.selectedUserName,
       isAuthenticatePending,
       isAuthenticatedPending,
+      isRegisterPending,
+      isTransactPending,
       authenticate,
       logout,
       selectUser,
+      register,
     ],
   )
 

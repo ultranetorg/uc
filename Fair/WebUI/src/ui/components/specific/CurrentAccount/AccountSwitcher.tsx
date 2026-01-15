@@ -33,7 +33,7 @@ export const AccountSwitcher = memo(
           <div>
             {items.map(x => (
               <Account
-                key={x.address}
+                key={x.nickname}
                 addressShort={shortenAddress(x.address)}
                 selected={x.nickname === selectedUserName}
                 onSelect={() => onSelect(x.nickname)}

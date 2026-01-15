@@ -108,7 +108,9 @@ export const enUS = {
     authenticationCancelled: "Authentication cancelled",
     createNickname: "Create nickname",
     profile: "Profile",
+    registrationCancelled: "Registration cancelled",
     successfullyAuthenticated: "User {{userName}} successfully authenticated",
+    successfullyRegistered: "User {{userName}} successfully registered",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
@@ -232,6 +234,9 @@ export const enUS = {
   publication: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
     information: "Information",
+    storeName: "Store name",
+    ratings: "Ratings",
+    author: "Author",
     lastUpdated: "Last Updated",
     leaveReview: "Leave a Review",
     noReviews: "No reviews yet. Be the first to share your experience",
@@ -244,6 +249,10 @@ export const enUS = {
     showMore: "Show More",
     showLess: "Show Less",
     showMoreReviews: "Show more reviews",
+    isbn: "ISBN",
+    genre: "Genre",
+    publicationDate: "Publication Date",
+    about: "About",
     submitReview: "Submit Review",
     systemRequirements: "System Requirements",
     thankYou: "Thank you for your feedback!",
@@ -337,6 +346,7 @@ export const enUS = {
     dontHaveAccount: "Don’t have an account?",
     signIn: "sign in",
     signUp: "sign up",
+    uniqueNickname: "Choose a unique nickname. It will be visible to other users.",
   },
 
   /* Tabs */
@@ -437,6 +447,7 @@ export const enUS = {
     selectUser: "Select user",
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
+    yourNickname: "Your nickname",
   },
 
   /* Validation messages */
@@ -446,6 +457,8 @@ export const enUS = {
     invalidUserName: "Invalid user name",
     maxLength: "Must be at most {{count}} characters",
     minLength: "Must be at least {{count}} characters",
+    nicknameAlreadyInUse: "Nickname is already in use",
+    nicknameAvailable: "Nickname is available",
     onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
     required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",

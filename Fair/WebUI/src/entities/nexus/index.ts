@@ -1,1 +1,1 @@
-export * from "./useGetFairUrl"
+export * from "./useGetNodeUrl"
