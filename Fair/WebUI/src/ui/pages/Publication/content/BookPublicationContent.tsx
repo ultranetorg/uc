@@ -5,6 +5,7 @@ import { ProductFieldModel } from "types"
 import { ButtonPrimary, LinkFullscreen } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
+import { twMerge } from "tailwind-merge"
 import { buildFileUrl, formatAverageRating, formatDate } from "utils"
 import { getValue, nameEq } from "ui/components/publication/utils"
 
@@ -63,8 +64,8 @@ function getMaxDescription(fields: ProductFieldModel[] | undefined): string | un
   return undefined
 }
 
-const LABEL_CLASSNAME = "leading-4 text-gray-500 text-2xs"
-const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800"
+const LABEL_CLASSNAME = "w-28 text-2sm font-medium leading-5 text-gray-900"
+const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm leading-5 text-gray-900"
 
 export const BookPublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
@@ -88,13 +89,14 @@ export const BookPublicationContent = memo(
     }, [bookFields.publicationDate, publication.productUpdated])
 
     const authorName = bookFields.author ?? publication.authorTitle
+    const publisherAccountName = publication.authorTitle
     const publisherName = bookFields.publisher ?? publication.authorTitle
 
     return (
       <>
         {/* Left column: cover + download buttons */}
-        <div className="flex w-80 flex-col gap-4">
-          <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-gray-200">
+        <div className="flex w-80 flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6">
+          <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-gray-200">
             {coverSrc ? (
               <img src={coverSrc} alt={publication.title} className="h-full w-full object-cover" />
             ) : (
@@ -112,58 +114,64 @@ export const BookPublicationContent = memo(
 
         {/* Right column: book info + reviews */}
         <div className="flex flex-1 flex-col gap-8">
-          <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("publisher")}</span>
-                <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-                  <AuthorImageTitle title={publication.authorTitle} authorAvatar={publication.authorAvatar} />
-                </LinkFullscreen>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("ratings")}</span>
-                <span className="flex items-center gap-1 text-2sm font-medium leading-5 text-gray-800">
-                  <span>{t("storeName")}: </span>
-                  <span>{formatAverageRating(publication.rating)}</span>
-                  <SvgStarXxs className="fill-favorite" />
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("author")}</span>
-                <span className={VALUE_CLASSNAME}>{authorName}</span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("publisher")}</span>
-                <span className={VALUE_CLASSNAME}>{publisherName}</span>
-              </div>
-
-              {bookFields.isbn && (
-                <div className="flex flex-col gap-2">
-                  <span className={LABEL_CLASSNAME}>{t("isbn")}</span>
-                  <span className={VALUE_CLASSNAME}>{bookFields.isbn}</span>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("publicationDate")}</span>
-                <span className={VALUE_CLASSNAME}>{publishedAt}</span>
-              </div>
-
-              {bookFields.genre && (
-                <div className="flex flex-col gap-2">
-                  <span className={LABEL_CLASSNAME}>{t("genre")}</span>
-                  <span className={VALUE_CLASSNAME}>{bookFields.genre}</span>
-                </div>
-              )}
+          <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6">
+            {/* Publisher (account with avatar) */}
+            <div className="flex items-center gap-6 py-1">
+              <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
+              <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
+                <AuthorImageTitle title={publisherAccountName} authorAvatar={publication.authorAvatar} />
+              </LinkFullscreen>
             </div>
 
+            {/* Ratings */}
+            <div className="flex items-center gap-6 py-1">
+              <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
+              <span className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1 whitespace-nowrap")}> 
+                <span>{t("storeName")}: </span>
+                <span className="font-semibold">{formatAverageRating(publication.rating)}</span>
+                <SvgStarXxs className="fill-favorite" />
+              </span>
+            </div>
+
+            {/* Author */}
+            <div className="flex gap-6 py-1">
+              <span className={LABEL_CLASSNAME}>{t("author")}:</span>
+              <span className={VALUE_CLASSNAME}>{authorName}</span>
+            </div>
+
+            {/* Publisher (book publisher) */}
+            <div className="flex gap-6 py-1">
+              <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
+              <span className={VALUE_CLASSNAME}>{publisherName}</span>
+            </div>
+
+            {/* ISBN */}
+            {bookFields.isbn && (
+              <div className="flex gap-6 py-1">
+                <span className={LABEL_CLASSNAME}>{t("isbn")}:</span>
+                <span className={VALUE_CLASSNAME}>{bookFields.isbn}</span>
+              </div>
+            )}
+
+            {/* Publication Date */}
+            <div className="flex gap-6 py-1">
+              <span className={LABEL_CLASSNAME}>{t("publicationDate")}:</span>
+              <span className={VALUE_CLASSNAME}>{publishedAt}</span>
+            </div>
+
+            {/* Genre */}
+            {bookFields.genre && (
+              <div className="flex gap-6 py-1">
+                <span className={LABEL_CLASSNAME}>{t("genre")}:</span>
+                <span className={VALUE_CLASSNAME}>{bookFields.genre}</span>
+              </div>
+            )}
+
+            {/* About */}
             {aboutText && (
-              <div className="mt-2 flex flex-col gap-2">
-                <span className={LABEL_CLASSNAME}>{t("about")}</span>
-                <p className="line-clamp-3 text-2sm leading-5 text-gray-800">{aboutText}</p>
+              <div className="flex gap-6 py-1">
+                <span className={LABEL_CLASSNAME}>{t("about")}:</span>
+                <p className="line-clamp-3 text-2sm leading-5 text-gray-900">{aboutText}</p>
               </div>
             )}
           </div>
