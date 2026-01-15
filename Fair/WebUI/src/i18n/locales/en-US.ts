@@ -110,6 +110,7 @@ export const enUS = {
     profile: "Profile",
     registrationCancelled: "Registration cancelled",
     successfullyAuthenticated: "User {{userName}} successfully authenticated",
+    successfullyRegistered: "User {{userName}} successfully registered",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {

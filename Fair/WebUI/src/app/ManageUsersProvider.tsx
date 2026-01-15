@@ -32,19 +32,19 @@ type ManageUsersContextType = {
   users: StoredUserSession[]
   selectedUserName?: string
   isPending: boolean
-  selectUser(userName: string): void
   authenticate(userName: string, owner: string, callbacks?: Callbacks): void
   logout(userName: string): void
   register(userName: string, callbacks?: Callbacks): void
+  selectUser(userName: string): void
 }
 
 const ManageUsersContext = createContext<ManageUsersContextType>({
   isPending: false,
   users: [],
-  selectUser: () => {},
   authenticate: () => {},
   logout: () => {},
   register: () => {},
+  selectUser: () => {},
 })
 
 export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
@@ -54,7 +54,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
   const { mutate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
   const { mutate: registerMutation, isPending: isRegisterPending } = useRegisterMutation()
-  const { mutate: transactMutation } = useTransactMutationWithStatus()
+  const { mutate: transactMutation, isPending: isTransactPending } = useTransactMutationWithStatus()
   const {
     isAuthenticated: isAuthenticatedMutation,
     isPending: isAuthenticatedPending,
@@ -197,11 +197,20 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
 
+  console.log(
+    "isAuthenticatePending",
+    isAuthenticatePending,
+    "isAuthenticatedPending",
+    isAuthenticatedPending,
+    "isRegisterPending",
+    isRegisterPending,
+  )
+
   const value = useMemo(
     () => ({
       users: storage.users,
       selectedUserName: storage.selectedUserName,
-      isPending: isAuthenticatePending || isAuthenticatedPending || isRegisterPending,
+      isPending: isAuthenticatePending || isAuthenticatedPending || isRegisterPending || isTransactPending,
       authenticate,
       logout,
       selectUser,
@@ -213,6 +222,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
       isAuthenticatePending,
       isAuthenticatedPending,
       isRegisterPending,
+      isTransactPending,
       authenticate,
       logout,
       selectUser,

@@ -76,7 +76,7 @@ export const CurrentAccount = () => {
       authenticateMutation(userName, address!, {
         onSuccess: data => {
           if (data === null) {
-            showToast(t("authenticationCancelled"), "warning")
+            showToast(t("authenticationCancelled"), "success")
             return
           }
 
@@ -94,7 +94,7 @@ export const CurrentAccount = () => {
       register(userName, {
         onSuccess: data => {
           if (data === null) {
-            showToast(t("registrationCancelled"), "warning")
+            showToast(t("registrationCancelled"), "success")
             return
           }
 
@@ -175,7 +175,7 @@ export const CurrentAccount = () => {
         />
       )}
       {showUserModal && (
-        <SignInModal submitDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleModalSubmit} />
+        <SignInModal formDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleModalSubmit} />
       )}
     </>
   )

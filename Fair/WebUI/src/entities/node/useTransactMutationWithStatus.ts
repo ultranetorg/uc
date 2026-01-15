@@ -65,12 +65,12 @@ export const useTransactMutationWithStatus = () => {
     if (query.data.status === TransactionStatus.Confirmed) {
       callbacksRef.current?.onSuccess?.(query.data)
       callbacksRef.current?.onSettled?.()
+      isPendingRef.current = false
     } else if (query.data.status === TransactionStatus.FailedOrNotFound) {
       callbacksRef.current?.onError?.(new Error("Transaction failed or not found"))
       callbacksRef.current?.onSettled?.()
+      isPendingRef.current = false
     }
-
-    isPendingRef.current = false
   }, [query.data])
 
   const mutate = useCallback(

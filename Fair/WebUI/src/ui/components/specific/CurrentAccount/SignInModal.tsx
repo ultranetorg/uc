@@ -15,13 +15,13 @@ import { ActiveAccount } from "./ActiveAccount"
 export type SignInModalState = "sign-in" | "sign-up"
 
 type SignInModalBaseProps = {
-  submitDisabled: boolean
+  formDisabled: boolean
   onSubmit(state: SignInModalState, userName: string, address?: string): void
 }
 
 export type SignInModalProps = Pick<ModalProps, "onClose"> & SignInModalBaseProps
 
-export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalProps) => {
+export const SignInModal = ({ formDisabled, onSubmit, ...rest }: SignInModalProps) => {
   const { t } = useTranslation("signInModal")
 
   useEscapeKey(rest.onClose)
@@ -75,6 +75,7 @@ export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalPr
           <span className="text-2xs font-medium first-letter:uppercase">{t("common:nickname")}</span>
           <ValidationWrapper {...(state === "sign-in" ? signInValidationProps : signUpValidationProps)}>
             <Input
+              disabled={formDisabled}
               containerClassName="h-10 px-3 py-2.5"
               placeholder={state === "sign-in" ? t("placeholders:enterYourNickname") : t("placeholders:yourNickname")}
               value={userName}
@@ -92,14 +93,16 @@ export const SignInModal = ({ submitDisabled, onSubmit, ...rest }: SignInModalPr
             />
           </ValidationWrapper>
         </div>
-        {state === "sign-in" && user?.ok && <ActiveAccount {...user.data!} onClick={handleSubmit} />}
+        {state === "sign-in" && user?.ok && (
+          <ActiveAccount disabled={formDisabled} {...user.data!} onClick={handleSubmit} />
+        )}
         <div className="flex justify-end gap-6">
           <ButtonPrimary
             className="w-full px-6 capitalize"
             label={title}
             onClick={handleSubmit}
             disabled={
-              submitDisabled ||
+              formDisabled ||
               userName.length < USER_NAME_MIN_LENGTH ||
               (state === "sign-in" ? !!signInValidationProps : signUpValidationProps?.type !== "success")
             }
