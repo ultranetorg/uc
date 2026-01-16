@@ -1,3 +1,4 @@
+import { VAULT } from "constants/"
 import { BaseFairOperation } from "types"
 import { Pong, TransactionApe } from "types/node"
 
@@ -36,6 +37,7 @@ const transact = async (
   const response = await fetch(`${baseUrl}/Transact`, {
     method: "POST",
     body: JSON.stringify({
+      Application: VAULT.APPLICATION,
       Operations: mapped,
       User: userName,
     }),
