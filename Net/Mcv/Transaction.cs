@@ -38,7 +38,6 @@ public class Transaction : IBinarySerializable
 
 	public string					Applicaiton { get; set; } /// for API
 
-
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;

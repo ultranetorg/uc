@@ -130,7 +130,7 @@ public class RdnNode : McvNode
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-													$"T(i/o)={Peering.IncomingTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
+													$"T(i/o)={Peering.CandidateTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 
 		if(Mcv != null)

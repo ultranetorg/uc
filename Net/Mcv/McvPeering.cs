@@ -42,7 +42,7 @@ public abstract class McvPeering : HomoTcpPeering
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
 	public List<Transaction>				OutgoingTransactions = [];
-	public List<Transaction>				IncomingTransactions = [];
+	public List<Transaction>				CandidateTransactions = [];
 	public List<Transaction>				ConfirmedTransactions = [];
 	List<AccountAddress>					CandidacyDeclarations = [];
 
@@ -81,7 +81,7 @@ public abstract class McvPeering : HomoTcpPeering
 											bool old(Transaction t) => t.Vote?.Round?.Id == r.Id || t.Expiration <= r.Id;
 	
 											ConfirmedTransactions.AddRange(r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Signer == j.Vote.Generator)));
-											IncomingTransactions.RemoveAll(old);
+											CandidateTransactions.RemoveAll(old);
 											ConfirmedTransactions.RemoveAll(t => t.Expiration < r.Id - Net.CommitLength);
 										}
 									};
@@ -160,7 +160,7 @@ public abstract class McvPeering : HomoTcpPeering
 		if(Synchronization != Synchronization.Downloading)
 		{
 			SyncTail.Clear();
-			IncomingTransactions.Clear();
+			CandidateTransactions.Clear();
 
 			Flow.Log?.Report(this, $"Synchronization Started");
 
@@ -618,7 +618,7 @@ public abstract class McvPeering : HomoTcpPeering
 					return v;
 				}
 	
-				var txs = IncomingTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
+				var txs = CandidateTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
 	
 				var must = r.Voters.Any(i => i.Address == g) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
 	
@@ -640,7 +640,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 						if(r.Id > t.Expiration)
 						{
-							IncomingTransactions.Remove(t);
+							CandidateTransactions.Remove(t);
 							return true;
 						}
 	
@@ -649,7 +649,7 @@ public abstract class McvPeering : HomoTcpPeering
 						if(nearest != g)
 						{
 							if(!Mcv.Settings.Generators.Any(i => i.Signer == nearest))
-								IncomingTransactions.Remove(t);
+								CandidateTransactions.Remove(t);
 	
 							return true;
 						}
@@ -727,7 +727,7 @@ public abstract class McvPeering : HomoTcpPeering
 	 				votes.Add(v);
 	 			}
 	
-				if(IncomingTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+				if(CandidateTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					MainWakeup.Set();
 			}
 		}
@@ -784,7 +784,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public bool ValidateIncoming(Transaction transaction, bool preserve, out Round round)
 	{
-		if( IncomingTransactions.Any(j => j.Signer == transaction.Signer && j.Nonce == transaction.Nonce) ||
+		if( CandidateTransactions.Any(j => j.Signer == transaction.Signer && j.Nonce == transaction.Nonce) ||
 			transaction.Operations.Any(o => !ValidateIncoming(o)))
 		{
 			round = null;
@@ -799,11 +799,20 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 	{
-		foreach(var t in txs.Where(i => ValidateIncoming(i, true, out _)).OrderByDescending(i => i.Nonce))
+		foreach(var t in txs.Where(i => ValidateIncoming(i, true, out var r)).OrderBy(i => i.Nonce))
 		{
-			t.Status = TransactionStatus.Accepted;
-			IncomingTransactions.Add(t);
+			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
+			{
+				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.BandwidthTodayBalance); /// find the one with the lowest bandwidth balance
 
+				if(t.Operations.First().User.BandwidthTodayBalance > min.Operations.First().User.BandwidthTodayBalance) /// if the new one is better, replace with the old one
+					CandidateTransactions.Remove(min);
+				else
+					continue;
+			}
+
+			CandidateTransactions.Add(t);
+			t.Status = TransactionStatus.Accepted;
 			yield return t;
 		}
 

@@ -144,15 +144,15 @@ public class Execution : ITableExecution
 			spender.BandwidthTodayBalance	= spender.Bandwidth;
 		}
 
-		var d = spender.BandwidthTodayBalance - EnergyCost;
-
-		if(d < 0)
-		{
-			d = -d;
-			spender.Energy -= Math.Min(d, EnergyCost);
-			EnergySpenders.Add(spender);
-		}
-		
+		/// var d = spender.BandwidthTodayBalance - EnergyCost;
+		/// 
+		/// if(d < 0)
+		/// {
+		/// 	d = -d;
+		/// 	spender.Energy -= Math.Min(d, EnergyCost);
+		/// 	EnergySpenders.Add(spender);
+		/// }
+		/// 
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
