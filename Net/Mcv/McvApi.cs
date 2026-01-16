@@ -292,9 +292,8 @@ public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public string					User { get; set; }
-	//public AccountAddress			Signer { get; set; }
+	public string					Application { get; set; }
 	public byte[]					Tag { get; set; } /// optional
-	//public string					UserCreationRequest { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -302,7 +301,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, User, Tag, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, Application, User, Tag, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -342,16 +341,17 @@ public class EstimateOperationApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public string					User  { get; set; }
+	public string					Application  { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var t = new Transaction {Net = node.Mcv.Net, Operations = Operations.ToArray()};
+		var t = new Transaction {Net = node.Mcv.Net, Applicaiton = Application, User = User, Operations = Operations.ToArray()};
 
 		//t.Signer = By;
 		t.Signature	= node.VaultApi.Call<byte[]>(new AuthorizeApc
 												 {
 												 	Cryptography = node.Mcv.Net.Cryptography.Type,
-												 	Application = GetType().Name,
+												 	Application = Application,
 												 	Net			= node.Mcv.Net.Name,
 												 	User		= User.ToString(),
 												 	Session		= node.Settings.Sessions.First(i => i.User == User).Session,
@@ -465,6 +465,7 @@ public class PpcApc : McvApc
 public class EnforceSessionsApc : McvApc
 {
 	public string	 User {get; set;}
+	public string	 Application {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -472,7 +473,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.GetSession(User);
+			node.Peering.GetSession(Application, User);
 
 		return null;
 	}

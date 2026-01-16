@@ -31,33 +31,32 @@ public class Transaction : IBinarySerializable
 										}
 									 }
 	public Operation[]				Operations = {};
-	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
-
-#if IMMISSION
-	public bool						EmissionOnly => Operations.All(i => i is Immission);
-#endif
-
 	public string					User { get; set; }
 	public int						Nonce { get; set; }
-	//public bool						UserCreationRequest => User != Mcv.GodName && User[0] == '?';
+	public int						Expiration { get; set; }
+	public byte[]					Signature { get; set; }
+
+	public string					Applicaiton { get; set; } /// for API
+
+
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
 	public AutoId					Member;
-	public int						Expiration { get; set; }
 	public byte[]					Tag;
 	
 	public long						EnergyConsumed;
-	public byte[]					Signature { get; set; }
 
 	AccountAddress					_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); protected set => _Signer = value; }
+	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
 	public TransactionStatus		Status;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
 	public string					Error;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
+
 
 	public bool Valid(Mcv mcv)
 	{

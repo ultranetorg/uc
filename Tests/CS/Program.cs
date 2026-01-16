@@ -5,9 +5,10 @@ class Program
 {
 	public static void Main(string[] args)
 	{
+		Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
-		AccountKeyTests.Main();
+		//AccountKeyTests.Main();
 		//XonTest.Custom();
 		//ECTests.Move();
 

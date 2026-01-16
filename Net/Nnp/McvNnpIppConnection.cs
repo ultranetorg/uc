@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection;
 
 namespace Uccs.Net;
 
@@ -178,6 +179,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		
 				var t = new TransactApc
 						{
+							Application = Assembly.GetEntryAssembly().Location,
 							User = fu.Name,
 							Tag = Guid.CreateVersion7().ToByteArray(),
 							Operations = [new UtilityTransfer

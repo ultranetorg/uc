@@ -69,7 +69,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public bool Equals(AccountAddress a)
 	{
-		return a is not null && a.Bytes.SequenceEqual(Bytes);
+		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes);
 	}
 
 	public override int GetHashCode()
@@ -82,23 +82,9 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		return CompareTo(obj as AccountAddress);
 	}
 
-	public int CompareTo(AccountAddress obj)
+	public int CompareTo(AccountAddress address)
 	{
-		var x = Bytes;
-		var y = obj.Bytes;
-
-		var len = Math.Min(x.Length, y.Length);
-
-		for (var i = 0; i < len; i++)
-		{
-		    var c = x[i].CompareTo(y[i]);
-		    if (c != 0)
-		    {
-		        return c;
-		    }
-		}
-
-		return x.Length.CompareTo(y.Length);
+		return Uccs.Bytes.Comparer.Compare(Bytes, address.Bytes);
 	}
 }
 
