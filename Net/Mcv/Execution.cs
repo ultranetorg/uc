@@ -144,6 +144,8 @@ public class Execution : ITableExecution
 			spender.BandwidthTodayBalance	= spender.Bandwidth;
 		}
 
+		spender.BandwidthTodayBalance -= EnergyCost;
+
 		/// var d = spender.BandwidthTodayBalance - EnergyCost;
 		/// 
 		/// if(d < 0)
